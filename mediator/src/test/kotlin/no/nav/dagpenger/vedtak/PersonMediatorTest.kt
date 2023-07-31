@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.dagpenger.vedtak.iverksetting.mediator.IverksettingMediator
 import no.nav.dagpenger.vedtak.mediator.HendelseMediator
+import no.nav.dagpenger.vedtak.mediator.Meldingsfabrikk
 import no.nav.dagpenger.vedtak.mediator.Meldingsfabrikk.dagpengerAvslåttJson
 import no.nav.dagpenger.vedtak.mediator.Meldingsfabrikk.dagpengerInnvilgetJson
 import no.nav.dagpenger.vedtak.mediator.Meldingsfabrikk.rapporteringInnsendtHendelse
@@ -100,6 +101,19 @@ internal class PersonMediatorTest {
         løpendeVedtakJson["utbetalingsdager"].map { utbetalingsdagJson ->
             utbetalingsdagJson["beløp"].asDouble() shouldBe 1000.0
         }
+    }
+
+    @Test
+    @Disabled
+    fun `person finnes i PDL med annen ident`() {
+        val endretFnr = "12345678912"
+        testRapid.sendTestMessage(
+            dagpengerInnvilgetJson(ident = ident),
+        )
+
+        testRapid.sendTestMessage(
+            Meldingsfabrikk.rapporteringInnsendtJson(endretFnr),
+        )
     }
 
     @Test
