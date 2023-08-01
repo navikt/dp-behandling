@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.modell.rapportering
 
+import de.fxlae.typeid.TypeId
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.vedtak.hjelpere.februar
 import no.nav.dagpenger.vedtak.hjelpere.mai
@@ -106,7 +107,7 @@ internal class RapporteringsperioderTest {
             rapporteringsperioder.accept(this)
         }
 
-        override fun preVisitRapporteringsperiode(rapporteringsperiode: UUID, periode: Rapporteringsperiode) {
+        override fun preVisitRapporteringsperiode(rapporteringsperiodeId: TypeId, periode: Rapporteringsperiode) {
             antallRapporteringsperioder++
         }
 

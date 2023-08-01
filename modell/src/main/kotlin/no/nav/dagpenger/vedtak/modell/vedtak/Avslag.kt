@@ -1,14 +1,14 @@
 package no.nav.dagpenger.vedtak.modell.vedtak
 
+import de.fxlae.typeid.TypeId
 import no.nav.dagpenger.vedtak.modell.visitor.VedtakVisitor
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.UUID
 
 class Avslag private constructor(
-    vedtakId: UUID,
-    behandlingId: UUID,
+    vedtakId: TypeId,
+    behandlingId: TypeId,
     vedtakstidspunkt: LocalDateTime,
     virkningsdato: LocalDate,
     private val utfall: Boolean = false,
@@ -21,11 +21,11 @@ class Avslag private constructor(
 ) {
 
     companion object {
-        fun avslag(behandlingId: UUID, virkningsdato: LocalDate) =
+        fun avslag(behandlingId: TypeId, virkningsdato: LocalDate) =
             Avslag(behandlingId = behandlingId, virkningsdato = virkningsdato)
     }
-    constructor(behandlingId: UUID, virkningsdato: LocalDate) : this(
-        vedtakId = UUID.randomUUID(),
+    constructor(behandlingId: TypeId, virkningsdato: LocalDate) : this(
+        vedtakId = TypeId.generate(idPrefix),
         behandlingId = behandlingId,
         vedtakstidspunkt = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
         virkningsdato = virkningsdato,

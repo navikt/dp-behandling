@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.modell.vedtak
 
+import de.fxlae.typeid.TypeId
 import no.nav.dagpenger.vedtak.modell.entitet.Beløp
 import no.nav.dagpenger.vedtak.modell.entitet.Stønadsdager
 import no.nav.dagpenger.vedtak.modell.utbetaling.Utbetalingsdag
@@ -9,11 +10,10 @@ import no.nav.dagpenger.vedtak.modell.visitor.VedtakVisitor
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.UUID
 
 class Utbetalingsvedtak(
-    vedtakId: UUID = UUID.randomUUID(),
-    behandlingId: UUID,
+    vedtakId: TypeId = TypeId.generate(idPrefix),
+    behandlingId: TypeId,
     vedtakstidspunkt: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
     virkningsdato: LocalDate,
     private val utfall: Boolean,
@@ -30,7 +30,7 @@ class Utbetalingsvedtak(
 
     companion object {
         fun utbetalingsvedtak(
-            behandlingId: UUID,
+            behandlingId: TypeId,
             utfall: Boolean,
             virkningsdato: LocalDate,
             forbruk: Stønadsdager,

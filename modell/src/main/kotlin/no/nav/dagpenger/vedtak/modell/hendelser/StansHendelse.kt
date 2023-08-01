@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.modell.hendelser
 
+import de.fxlae.typeid.TypeId
 import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.vedtak.modell.vedtak.Stansvedtak
 import no.nav.dagpenger.vedtak.modell.vedtak.Vedtak
@@ -12,9 +13,11 @@ class StansHendelse(
     private val virkningsdato: LocalDate,
     aktivitetslogg: Aktivitetslogg = Aktivitetslogg(),
 ) : Hendelse(ident, aktivitetslogg) {
+
+    fun behandlingTypeId(): TypeId = TypeId.of("behandling", behandlingId)
     fun tilVedtak(): Vedtak {
         return Stansvedtak(
-            behandlingId = behandlingId,
+            behandlingId = behandlingTypeId(),
             virkningsdato = virkningsdato,
         )
     }

@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(path = ":aktivitetslogg"))
+    api(libs.type.id)
     testImplementation("io.cucumber:cucumber-java8:${libs.versions.cucumber.get()}")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:${libs.versions.cucumber.get()}")
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")

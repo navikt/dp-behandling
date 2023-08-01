@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.mediator.persistens
 
+import de.fxlae.typeid.TypeId
 import kotliquery.Query
 import kotliquery.Session
 import kotliquery.TransactionalSession
@@ -90,7 +91,7 @@ private class PopulerQueries(
 ) : PersonVisitor {
 
     val queries = mutableListOf<Query>()
-    private var vedtakId: UUID? = null
+    private var vedtakId: TypeId? = null
     private var rapporteringDbId: Long? = null
 
     init {
@@ -117,7 +118,7 @@ private class PopulerQueries(
             ),
         )
     }
-    override fun preVisitRapporteringsperiode(rapporteringsperiodeId: UUID, periode: Rapporteringsperiode) {
+    override fun preVisitRapporteringsperiode(rapporteringsperiodeId: TypeId, periode: Rapporteringsperiode) {
         this.rapporteringDbId = session.hentRapportering(rapporteringsperiodeId)
             ?: session.opprettRapportering(dbPersonId, rapporteringsperiodeId, periode)
             ?: throw RuntimeException("Kunne ikke lagre rapporteringsperiode med uuid $rapporteringsperiodeId. Noe er veldig galt!")
@@ -146,13 +147,13 @@ private class PopulerQueries(
         )
     }
 
-    override fun postVisitRapporteringsperiode(rapporteringsperiodeId: UUID, periode: Rapporteringsperiode) {
+    override fun postVisitRapporteringsperiode(rapporteringsperiodeId: TypeId, periode: Rapporteringsperiode) {
         this.rapporteringDbId = null
     }
 
     override fun preVisitVedtak(
-        vedtakId: UUID,
-        behandlingId: UUID,
+        vedtakId: TypeId,
+        behandlingId: TypeId,
         virkningsdato: LocalDate,
         vedtakstidspunkt: LocalDateTime,
         type: Vedtak.VedtakType,
@@ -169,9 +170,9 @@ private class PopulerQueries(
                     ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 paramMap = mapOf(
-                    "id" to vedtakId,
+                    "id" to vedtakId.uuid(),
                     "person_id" to dbPersonId,
-                    "behandling_id" to behandlingId,
+                    "behandling_id" to behandlingId.uuid(),
                     "virkningsdato" to virkningsdato,
                     "vedtakstidspunkt" to vedtakstidspunkt,
                     "type" to type.name,
@@ -198,7 +199,7 @@ private class PopulerQueries(
                 ON CONFLICT DO NOTHING 
                 """.trimIndent(),
                 paramMap = mapOf(
-                    "vedtak_id" to vedtakId,
+                    "vedtak_id" to vedtakId?.uuid(),
                     "utfall" to utfall,
                     "forbruk" to forbruk.stønadsdager(),
                     "trukket_egenandel" to trukketEgenandel.reflection { it },
@@ -217,7 +218,7 @@ private class PopulerQueries(
                         ON CONFLICT DO NOTHING 
                     """.trimIndent(),
                     paramMap = mapOf(
-                        "vedtak_id" to vedtakId,
+                        "vedtak_id" to vedtakId?.uuid(),
                         "dato" to dag.dato,
                         "belop" to dag.beløp.reflection { it },
                     ),
@@ -238,7 +239,7 @@ private class PopulerQueries(
                     ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 paramMap = mapOf(
-                    "vedtak_id" to vedtakId,
+                    "vedtak_id" to vedtakId?.uuid(),
                     "belop" to beløp.reflection { it },
                 ),
             ),
@@ -257,7 +258,7 @@ private class PopulerQueries(
                     ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 paramMap = mapOf(
-                    "vedtak_id" to vedtakId,
+                    "vedtak_id" to vedtakId?.uuid(),
                     "timer" to timer.reflection { it },
                 ),
             ),
@@ -275,7 +276,7 @@ private class PopulerQueries(
                     ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 paramMap = mapOf(
-                    "vedtak_id" to vedtakId,
+                    "vedtak_id" to vedtakId?.uuid(),
                     "antall_dager" to dager.stønadsdager(),
                 ),
             ),
@@ -293,7 +294,7 @@ private class PopulerQueries(
                     ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 paramMap = mapOf(
-                    "vedtak_id" to vedtakId,
+                    "vedtak_id" to vedtakId?.uuid(),
                     "belop" to beløp.reflection { it },
                 ),
             ),
@@ -311,7 +312,7 @@ private class PopulerQueries(
                     ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 paramMap = mapOf(
-                    "vedtak_id" to vedtakId,
+                    "vedtak_id" to vedtakId?.uuid(),
                     "rettighetstype" to ordinær.type.name,
                     "utfall" to ordinær.utfall,
                 ),
@@ -320,8 +321,8 @@ private class PopulerQueries(
     }
 
     override fun postVisitVedtak(
-        vedtakId: UUID,
-        behandlingId: UUID,
+        vedtakId: TypeId,
+        behandlingId: TypeId,
         virkningsdato: LocalDate,
         vedtakstidspunkt: LocalDateTime,
         type: Vedtak.VedtakType,
@@ -356,8 +357,8 @@ private fun Session.hentVedtak(personId: Long) = this.run(
         when (VedtakTypeDTO.valueOf(rad.string("type"))) {
             VedtakTypeDTO.Ramme -> {
                 Rammevedtak(
-                    vedtakId = vedtakId,
-                    behandlingId = rad.uuid("behandling_id"),
+                    vedtakId = TypeId.of(Vedtak.idPrefix, vedtakId),
+                    behandlingId = TypeId.of("behandling", rad.uuid("behandling_id")),
                     vedtakstidspunkt = rad.localDateTime("vedtakstidspunkt"),
                     virkningsdato = rad.localDate("virkningsdato"),
                     fakta = this.hentFakta(vedtakId = vedtakId)?.fakta ?: emptyList(),
@@ -375,8 +376,8 @@ private fun Session.hentVedtak(personId: Long) = this.run(
                 val utbetaling =
                     this.hentUtbetaling(vedtakId) ?: throw RuntimeException("Utbetalingsvedtak med manglende felter")
                 Utbetalingsvedtak(
-                    vedtakId = vedtakId,
-                    behandlingId = rad.uuid("behandling_id"),
+                    vedtakId = TypeId.of(Vedtak.idPrefix, vedtakId),
+                    behandlingId = TypeId.of("behandling", rad.uuid("behandling_id")),
                     vedtakstidspunkt = rad.localDateTime("vedtakstidspunkt"),
                     virkningsdato = rad.localDate("virkningsdato"),
                     forbruk = Stønadsdager(utbetaling.forbruk),
@@ -476,7 +477,7 @@ private fun Session.opprettPerson(ident: String) = this.run(
     ).map { rad -> rad.long("id") }.asSingle,
 )
 
-private fun Session.hentRapportering(rapporteringsperiodeId: UUID) = this.run(
+private fun Session.hentRapportering(rapporteringsperiodeId: TypeId) = this.run(
 
     queryOf(
         //language=PostgreSQL
@@ -485,7 +486,7 @@ private fun Session.hentRapportering(rapporteringsperiodeId: UUID) = this.run(
             FROM    rapporteringsperiode 
             WHERE   uuid = :uuid
         """.trimIndent(),
-        paramMap = mapOf("uuid" to rapporteringsperiodeId),
+        paramMap = mapOf("uuid" to rapporteringsperiodeId.uuid()),
     ).map { rad ->
         rad.long("id")
     }.asSingle,
@@ -493,7 +494,7 @@ private fun Session.hentRapportering(rapporteringsperiodeId: UUID) = this.run(
 
 private fun Session.opprettRapportering(
     dbPersonId: Long,
-    rapporteringsperiodeId: UUID,
+    rapporteringsperiodeId: TypeId,
     periode: Rapporteringsperiode,
 ) = this.run(
 
@@ -507,7 +508,7 @@ private fun Session.opprettRapportering(
             RETURNING id;
         """.trimIndent(),
         paramMap = mapOf(
-            "uuid" to rapporteringsperiodeId,
+            "uuid" to rapporteringsperiodeId.uuid(),
             "person_id" to dbPersonId,
             "fom" to periode.start,
             "tom" to periode.endInclusive,
@@ -528,7 +529,7 @@ private fun Session.hentRapporteringsperioder(personId: Long) = this.run(
     ).map { rad ->
         val rapporteringsId = rad.uuid("uuid")
         Rapporteringsperiode(
-            rapporteringsId = rapporteringsId,
+            rapporteringsId = TypeId.of(Rapporteringsperiode.idPrefix, rapporteringsId),
             periode = Periode(rad.localDate("fom"), rad.localDate("tom")),
             dager = this.hentDager(rad.long("id")),
         )

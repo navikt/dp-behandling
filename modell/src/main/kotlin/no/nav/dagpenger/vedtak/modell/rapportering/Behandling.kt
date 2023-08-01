@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.modell.rapportering
 
+import de.fxlae.typeid.TypeId
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.vedtak.modell.Dagpengerettighet
@@ -17,15 +18,14 @@ import no.nav.dagpenger.vedtak.modell.utbetaling.Utbetalingsdag
 import no.nav.dagpenger.vedtak.modell.utbetaling.Utbetalingsdag.Companion.summer
 import no.nav.dagpenger.vedtak.modell.vedtak.Utbetalingsvedtak
 import no.nav.dagpenger.vedtak.modell.visitor.PersonVisitor
-import java.util.UUID
 
 class Behandling(
-    private val behandlingId: UUID,
+    private val behandlingId: TypeId,
     private val person: Person,
     private var behandlingssteg: Behandlingssteg,
 ) : Aktivitetskontekst {
 
-    constructor(person: Person) : this(UUID.randomUUID(), person, FinnBeregningsgrunnlag)
+    constructor(person: Person) : this(TypeId.generate("behandling"), person, FinnBeregningsgrunnlag)
 
     private val rapporteringsdager = mutableListOf<Dag>()
     private val rettighetsdagerUtenFravær

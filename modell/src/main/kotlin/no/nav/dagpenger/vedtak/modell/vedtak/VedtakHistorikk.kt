@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.modell.vedtak
 
+import de.fxlae.typeid.TypeId
 import no.nav.dagpenger.vedtak.modell.Dagpengerettighet
 import no.nav.dagpenger.vedtak.modell.TemporalCollection
 import no.nav.dagpenger.vedtak.modell.entitet.Beløp
@@ -14,7 +15,6 @@ import no.nav.dagpenger.vedtak.modell.visitor.VedtakHistorikkVisitor
 import no.nav.dagpenger.vedtak.modell.visitor.VedtakVisitor
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
 
 class VedtakHistorikk internal constructor(private val vedtak: MutableList<Vedtak>) {
 
@@ -71,7 +71,7 @@ class VedtakHistorikk internal constructor(private val vedtak: MutableList<Vedta
         }
     }
 
-    internal fun harBehandlet(behandlingId: UUID) = this.vedtak.harBehandlet(behandlingId)
+    internal fun harBehandlet(behandlingId: TypeId) = this.vedtak.harBehandlet(behandlingId)
 
     private class HistorikkOppdaterer(private val vedtakHistorikk: VedtakHistorikk) : VedtakVisitor {
 
@@ -79,8 +79,8 @@ class VedtakHistorikk internal constructor(private val vedtak: MutableList<Vedta
 
         private fun virkningsdato() = requireNotNull(virkningsdato) { " Forventet at virkninsdato er satt. Har du husket preVisitVedtak?" }
         override fun preVisitVedtak(
-            vedtakId: UUID,
-            behandlingId: UUID,
+            vedtakId: TypeId,
+            behandlingId: TypeId,
             virkningsdato: LocalDate,
             vedtakstidspunkt: LocalDateTime,
             type: Vedtak.VedtakType,
@@ -117,8 +117,8 @@ class VedtakHistorikk internal constructor(private val vedtak: MutableList<Vedta
         }
 
         override fun postVisitVedtak(
-            vedtakId: UUID,
-            behandlingId: UUID,
+            vedtakId: TypeId,
+            behandlingId: TypeId,
             virkningsdato: LocalDate,
             vedtakstidspunkt: LocalDateTime,
             type: Vedtak.VedtakType,
@@ -139,8 +139,8 @@ class VedtakHistorikk internal constructor(private val vedtak: MutableList<Vedta
         }
 
         override fun visitAvslag(
-            vedtakId: UUID,
-            behandlingId: UUID,
+            vedtakId: TypeId,
+            behandlingId: TypeId,
             vedtakstidspunkt: LocalDateTime,
             utfall: Boolean,
             virkningsdato: LocalDate,
@@ -148,8 +148,8 @@ class VedtakHistorikk internal constructor(private val vedtak: MutableList<Vedta
         }
 
         override fun visitStans(
-            vedtakId: UUID,
-            behandlingId: UUID,
+            vedtakId: TypeId,
+            behandlingId: TypeId,
             virkningsdato: LocalDate,
             vedtakstidspunkt: LocalDateTime,
             utfall: Boolean?,

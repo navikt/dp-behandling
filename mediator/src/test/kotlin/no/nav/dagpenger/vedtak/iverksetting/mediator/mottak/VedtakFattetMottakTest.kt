@@ -1,6 +1,8 @@
 package no.nav.dagpenger.vedtak.iverksetting.mediator.mottak
 
+import de.fxlae.typeid.TypeId
 import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.every
@@ -58,6 +60,10 @@ internal class VedtakFattetMottakTest {
 
     @Test
     fun `Skal lese løpendeVedtakFattet hendelser`() {
+        val typeId = TypeId.generate("vedtak")
+        typeId shouldBeEqual TypeId.of("vedtak", typeId.uuid)
+        typeId.hashCode() shouldBeEqual TypeId.of("vedtak", typeId.uuid).hashCode()
+
         val løpendeVedtakFattetSlot = slot<VedtakFattetHendelse>()
         every { iHendelseMediator.behandle(capture(løpendeVedtakFattetSlot), any(), any()) } just Runs
         val løpendeVedtakJson = løpendeVedtakFattet(ident = ident, vedtakId = vedtakId, behandlingId = behandlingId)

@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.modell.vedtak
 
+import de.fxlae.typeid.TypeId
 import no.nav.dagpenger.vedtak.modell.entitet.Beløp
 import no.nav.dagpenger.vedtak.modell.entitet.Stønadsdager
 import no.nav.dagpenger.vedtak.modell.utbetaling.Utbetalingsdag
@@ -14,16 +15,15 @@ import no.nav.dagpenger.vedtak.modell.vedtak.rettighet.PermitteringFraFiskeindus
 import no.nav.dagpenger.vedtak.modell.visitor.VedtakVisitor
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
 
 internal class VedtakFattetVisitor : VedtakVisitor {
 
     lateinit var vedtakFattet: VedtakFattet
     lateinit var utbetalingsvedtakFattet: UtbetalingsvedtakFattet
-    private var vedtakId: UUID? = null
+    private var vedtakId: TypeId? = null
     private var utfall: Boolean? = null
 
-    private var behandlingId: UUID? = null
+    private var behandlingId: TypeId? = null
     private var virkningsdato: LocalDate? = null
     private var vedtakstidspunkt: LocalDateTime? = null
 
@@ -31,8 +31,8 @@ internal class VedtakFattetVisitor : VedtakVisitor {
     private fun utfall() = requireNotNull(utfall) { " Forventet at utfall er satt. Har du husket preVisitVedtak?" }
 
     override fun preVisitVedtak(
-        vedtakId: UUID,
-        behandlingId: UUID,
+        vedtakId: TypeId,
+        behandlingId: TypeId,
         virkningsdato: LocalDate,
         vedtakstidspunkt: LocalDateTime,
         type: Vedtak.VedtakType,
@@ -56,17 +56,17 @@ internal class VedtakFattetVisitor : VedtakVisitor {
     }
 
     override fun postVisitVedtak(
-        vedtakId: UUID,
-        behandlingId: UUID,
+        vedtakId: TypeId,
+        behandlingId: TypeId,
         virkningsdato: LocalDate,
         vedtakstidspunkt: LocalDateTime,
         type: Vedtak.VedtakType,
     ) {
         if (!this::utbetalingsvedtakFattet.isInitialized) {
             vedtakFattet = VedtakFattet(
-                vedtakId = vedtakId(),
+                vedtakId = vedtakId().uuid(),
                 vedtakstidspunkt = vedtakstidspunkt,
-                behandlingId = behandlingId,
+                behandlingId = behandlingId.uuid,
                 virkningsdato = virkningsdato,
                 utfall = when (utfall()) {
                     true -> Innvilget
@@ -89,9 +89,9 @@ internal class VedtakFattetVisitor : VedtakVisitor {
         utbetalingsdager: List<Utbetalingsdag>,
     ) {
         utbetalingsvedtakFattet = UtbetalingsvedtakFattet(
-            vedtakId = this.vedtakId(),
+            vedtakId = this.vedtakId().uuid(),
             vedtakstidspunkt = this.vedtakstidspunkt!!,
-            behandlingId = this.behandlingId!!,
+            behandlingId = this.behandlingId!!.uuid,
             virkningsdato = this.virkningsdato!!,
             utbetalingsdager = utbetalingsdager.map { løpendeRettighetDag ->
                 UtbetalingsdagDto(
@@ -107,16 +107,16 @@ internal class VedtakFattetVisitor : VedtakVisitor {
     }
 
     override fun visitAvslag(
-        vedtakId: UUID,
-        behandlingId: UUID,
+        vedtakId: TypeId,
+        behandlingId: TypeId,
         vedtakstidspunkt: LocalDateTime,
         utfall: Boolean,
         virkningsdato: LocalDate,
     ) {
         vedtakFattet = VedtakFattet(
-            vedtakId = vedtakId,
+            vedtakId = vedtakId.uuid(),
             vedtakstidspunkt = vedtakstidspunkt,
-            behandlingId = behandlingId,
+            behandlingId = behandlingId.uuid,
             virkningsdato = virkningsdato,
             utfall = when (utfall == true) {
                 true -> Innvilget
@@ -126,16 +126,16 @@ internal class VedtakFattetVisitor : VedtakVisitor {
     }
 
     override fun visitStans(
-        vedtakId: UUID,
-        behandlingId: UUID,
+        vedtakId: TypeId,
+        behandlingId: TypeId,
         virkningsdato: LocalDate,
         vedtakstidspunkt: LocalDateTime,
         utfall: Boolean?,
     ) {
         vedtakFattet = VedtakFattet(
-            vedtakId = vedtakId,
+            vedtakId = vedtakId.uuid(),
             vedtakstidspunkt = vedtakstidspunkt,
-            behandlingId = behandlingId,
+            behandlingId = behandlingId.uuid,
             virkningsdato = virkningsdato,
             utfall = when (utfall == true) {
                 true -> Innvilget

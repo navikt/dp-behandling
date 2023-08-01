@@ -1,6 +1,7 @@
 package no.nav.dagpenger.vedtak.cucumber
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import de.fxlae.typeid.TypeId
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
 import no.nav.dagpenger.vedtak.modell.Dagpengerettighet
@@ -123,7 +124,7 @@ class RettighetStegTest : No {
         }
 
         Så("vedtaket har behandlingId lik {string}") { behandlingId: String ->
-            assertEquals(UUID.fromString(behandlingId), inspektør.behandlingId)
+            assertEquals(TypeId.of("behandling", UUID.fromString(behandlingId)), inspektør.behandlingId)
         }
 
         Så("skal forbruket være {int} dager") { forbruk: Int ->
@@ -215,9 +216,9 @@ class RettighetStegTest : No {
             person.accept(this)
         }
 
-        private var vedtakId: UUID? = null
+        private var vedtakId: TypeId? = null
         lateinit var dagpengerettighet: Dagpengerettighet
-        lateinit var behandlingId: UUID
+        lateinit var behandlingId: TypeId
         lateinit var vanligArbeidstidPerDag: Timer
         lateinit var stønadsdager: Stønadsdager
         lateinit var dagsats: Beløp
@@ -228,8 +229,8 @@ class RettighetStegTest : No {
         var antallVedtak = 0
 
         override fun preVisitVedtak(
-            vedtakId: UUID,
-            behandlingId: UUID,
+            vedtakId: TypeId,
+            behandlingId: TypeId,
             virkningsdato: LocalDate,
             vedtakstidspunkt: LocalDateTime,
             type: Vedtak.VedtakType,
@@ -269,8 +270,8 @@ class RettighetStegTest : No {
         }
 
         override fun postVisitVedtak(
-            vedtakId: UUID,
-            behandlingId: UUID,
+            vedtakId: TypeId,
+            behandlingId: TypeId,
             virkningsdato: LocalDate,
             vedtakstidspunkt: LocalDateTime,
             type: Vedtak.VedtakType,
@@ -293,8 +294,8 @@ class RettighetStegTest : No {
         }
 
         override fun visitStans(
-            vedtakId: UUID,
-            behandlingId: UUID,
+            vedtakId: TypeId,
+            behandlingId: TypeId,
             virkningsdato: LocalDate,
             vedtakstidspunkt: LocalDateTime,
             utfall: Boolean?,
@@ -305,8 +306,8 @@ class RettighetStegTest : No {
         }
 
         override fun visitAvslag(
-            vedtakId: UUID,
-            behandlingId: UUID,
+            vedtakId: TypeId,
+            behandlingId: TypeId,
             vedtakstidspunkt: LocalDateTime,
             utfall: Boolean,
             virkningsdato: LocalDate,

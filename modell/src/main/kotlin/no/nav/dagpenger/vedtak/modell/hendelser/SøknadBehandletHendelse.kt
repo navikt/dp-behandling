@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.modell.hendelser
 
+import de.fxlae.typeid.TypeId
 import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.vedtak.modell.Dagpengerettighet
 import no.nav.dagpenger.vedtak.modell.entitet.Beløp
@@ -13,11 +14,13 @@ import java.util.UUID
 
 sealed class SøknadBehandletHendelse(
     protected val ident: String,
-    internal val behandlingId: UUID,
+    protected val behandlingId: UUID,
     protected val virkningsdato: LocalDate,
     aktivitetslogg: Aktivitetslogg = Aktivitetslogg(),
 ) : Hendelse(ident, aktivitetslogg) {
     abstract fun tilVedtak(): Vedtak
+
+    fun behandlingTypeId(): TypeId = TypeId.of("behandling", behandlingId)
 }
 
 class DagpengerInnvilgetHendelse(
@@ -35,7 +38,7 @@ class DagpengerInnvilgetHendelse(
     virkningsdato,
 ) {
     override fun tilVedtak(): Vedtak = innvilgelse(
-        behandlingId = behandlingId,
+        behandlingId = behandlingTypeId(),
         virkningsdato = virkningsdato,
         dagsats = dagsats,
         stønadsdager = stønadsdager,
@@ -53,6 +56,6 @@ class DagpengerAvslåttHendelse(ident: String, behandlingId: UUID, virkningsdato
         behandlingId,
         virkningsdato,
     ) {
-    override fun tilVedtak(): Vedtak = avslag(behandlingId, virkningsdato)
+    override fun tilVedtak(): Vedtak = avslag(behandlingTypeId(), virkningsdato)
     override fun kontekstMap(): Map<String, String> = emptyMap()
 }

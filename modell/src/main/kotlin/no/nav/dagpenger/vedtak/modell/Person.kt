@@ -64,7 +64,7 @@ class Person internal constructor(
 
     fun håndter(søknadBehandletHendelse: SøknadBehandletHendelse) {
         kontekst(søknadBehandletHendelse)
-        if (vedtakHistorikk.harBehandlet(søknadBehandletHendelse.behandlingId)) {
+        if (vedtakHistorikk.harBehandlet(søknadBehandletHendelse.behandlingTypeId())) {
             søknadBehandletHendelse.info("Har allerede behandlet SøknadBehandletHendelse")
             return
         }
@@ -85,7 +85,7 @@ class Person internal constructor(
 
     fun håndter(stansHendelse: StansHendelse) {
         kontekst(stansHendelse)
-        if (vedtakHistorikk.harBehandlet(stansHendelse.behandlingId)) {
+        if (vedtakHistorikk.harBehandlet(stansHendelse.behandlingTypeId())) {
             stansHendelse.info("Har allerede behandlet SøknadBehandletHendelse")
             return
         }

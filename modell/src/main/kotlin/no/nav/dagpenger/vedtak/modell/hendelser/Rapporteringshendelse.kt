@@ -1,5 +1,6 @@
 package no.nav.dagpenger.vedtak.modell.hendelser
 
+import de.fxlae.typeid.TypeId
 import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.vedtak.modell.entitet.Periode
 import no.nav.dagpenger.vedtak.modell.entitet.Timer.Companion.timer
@@ -25,7 +26,7 @@ class Rapporteringshendelse(
     override val endInclusive: LocalDate = tom
     override val start: LocalDate = fom
     internal fun populerRapporteringsperiode(): Rapporteringsperiode {
-        return Rapporteringsperiode(rapporteringsId, Periode(fom, tom)).also { periode ->
+        return Rapporteringsperiode(TypeId.of(Rapporteringsperiode.idPrefix, rapporteringsId), Periode(fom, tom)).also { periode ->
             rapporteringsdager.forEach { rapporteringdag ->
                 val aktiviteter = rapporteringdag.aktiviteter.map {
                     when (it.type) {
