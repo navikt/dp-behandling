@@ -39,7 +39,7 @@ class Hypotese<T : Comparable<T>>(
 ) : Opplysning<T>(opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde) {
     override fun bekreft() = Faktum(super.opplysningstype, verdi, gyldighetsperiode, utledetAv)
 
-    override fun erstatt(nyGyldighetsperiode: Gyldighetsperiode) = Faktum(super.opplysningstype, verdi, nyGyldighetsperiode, utledetAv)
+    override fun erstatt(nyGyldighetsperiode: Gyldighetsperiode) = Hypotese(super.opplysningstype, verdi, nyGyldighetsperiode, utledetAv)
 }
 
 class Faktum<T : Comparable<T>>(
