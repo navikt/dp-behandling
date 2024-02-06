@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import kotlin.test.assertEquals
 
 class OpplysningerTest {
@@ -40,5 +41,38 @@ class OpplysningerTest {
         assertEquals(0.5, opplysninger.finnOpplysning(opplysningstype).verdi)
         Regelkjøring(15.mai, opplysninger) // Bytt til 15. mai for regelkjøringen
         assertEquals(1.5, opplysninger.finnOpplysning(opplysningstype).verdi)
+    }
+
+    @Test
+    fun `erstatte opplysning som overlapper helt`() {
+        val virkningsdato = Opplysningstype<LocalDate>("Virkningsdato")
+        val opplysninger =
+            Opplysninger(
+                listOf(
+                    // Setter opp opplysninger med ting som er kjent fra før
+                    // Har er ikke lengre gyldig og må hentes på nytt
+                    Faktum(virkningsdato, 1.februar),
+                ),
+            )
+
+        with(Regelkjøring(1.februar, opplysninger)) {
+            assertEquals(1.februar, opplysninger.finnOpplysning(virkningsdato).verdi)
+        }
+
+        opplysninger.erstatt(Faktum(virkningsdato, 10.februar, Gyldighetsperiode(10.februar, 28.februar)))
+        assertEquals(3, opplysninger.finnAlle().size)
+
+        with(Regelkjøring(15.februar, opplysninger)) {
+            assertEquals(10.februar, opplysninger.finnOpplysning(virkningsdato).verdi)
+        }
+        with(Regelkjøring(28.februar, opplysninger)) {
+            assertEquals(10.februar, opplysninger.finnOpplysning(virkningsdato).verdi)
+        }
+        with(Regelkjøring(1.mars, opplysninger)) {
+            assertEquals(1.februar, opplysninger.finnOpplysning(virkningsdato).verdi)
+        }
+        with(Regelkjøring(1.mars, opplysninger)) {
+            assertEquals(1.februar, opplysninger.finnOpplysning(virkningsdato).verdi)
+        }
     }
 }

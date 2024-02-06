@@ -26,6 +26,8 @@ sealed class Opplysning<T : Comparable<T>>(
     fun sammeSom(opplysning: Opplysning<*>): Boolean {
         return opplysningstype == opplysning.opplysningstype && gyldighetsperiode.overlapp(opplysning.gyldighetsperiode)
     }
+
+    abstract fun erstatt(nyGyldighetsperiode: Gyldighetsperiode): Opplysning<T>
 }
 
 class Hypotese<T : Comparable<T>>(
@@ -36,6 +38,8 @@ class Hypotese<T : Comparable<T>>(
     kilde: Kilde? = null,
 ) : Opplysning<T>(opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde) {
     override fun bekreft() = Faktum(super.opplysningstype, verdi, gyldighetsperiode, utledetAv)
+
+    override fun erstatt(nyGyldighetsperiode: Gyldighetsperiode) = Faktum(super.opplysningstype, verdi, nyGyldighetsperiode, utledetAv)
 }
 
 class Faktum<T : Comparable<T>>(
@@ -46,4 +50,6 @@ class Faktum<T : Comparable<T>>(
     kilde: Kilde? = null,
 ) : Opplysning<T>(opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde) {
     override fun bekreft() = this
+
+    override fun erstatt(nyGyldighetsperiode: Gyldighetsperiode) = Faktum(opplysningstype, verdi, nyGyldighetsperiode, utledetAv)
 }
