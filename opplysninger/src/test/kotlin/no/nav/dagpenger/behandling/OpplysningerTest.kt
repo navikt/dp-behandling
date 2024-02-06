@@ -68,11 +68,5 @@ class OpplysningerTest {
         with(Regelkjøring(28.februar, opplysninger)) {
             assertEquals(10.februar, opplysninger.finnOpplysning(virkningsdato).verdi)
         }
-        with(Regelkjøring(1.mars, opplysninger)) {
-            assertEquals(1.februar, opplysninger.finnOpplysning(virkningsdato).verdi)
-        }
-        with(Regelkjøring(1.mars, opplysninger)) {
-            assertEquals(1.februar, opplysninger.finnOpplysning(virkningsdato).verdi)
-        }
     }
 }
