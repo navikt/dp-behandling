@@ -11,6 +11,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
+import java.time.LocalDate
 
 internal class SøknadInnsendtMottak(
     rapidsConnection: RapidsConnection,
@@ -51,14 +52,16 @@ internal class SøknadInnsendtMottak(
 }
 
 internal class SøknadInnsendtMessage(private val packet: JsonMessage) : HendelseMessage(packet) {
-    private val hendelse
-        get() =
-            SøknadInnsendtHendelse(
-                id,
-                ident,
-                gjelderDato = java.time.LocalDate.now(),
-                søknadId = packet["søknadsData"]["søknad_uuid"].asUUID(),
+    private val søknadId = packet["søknadsData"]["søknad_uuid"].asUUID()
+    private val hendelse: SøknadInnsendtHendelse
+        get() {
+            return SøknadInnsendtHendelse(
+                meldingsreferanseId = id,
+                ident = ident,
+                gjelderDato = LocalDate.now(),
+                søknadId = søknadId,
             )
+        }
     override val ident get() = packet["fødselsnummer"].asText()
 
     override fun behandle(

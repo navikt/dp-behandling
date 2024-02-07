@@ -11,5 +11,5 @@ class SøknadInnsendtHendelse(
     private val søknadId: UUID,
     aktivitetslogg: Aktivitetslogg = Aktivitetslogg(),
 ) : Hendelse(meldingsreferanseId, ident, aktivitetslogg) {
-    override fun kontekstMap() = mapOf("søknadId" to søknadId.toString())
+    override fun kontekst() = mapOf("søknadId" to søknadId.toString())
 }

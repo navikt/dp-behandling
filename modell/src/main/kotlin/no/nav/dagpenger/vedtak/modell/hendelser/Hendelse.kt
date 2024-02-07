@@ -1,28 +1,36 @@
 package no.nav.dagpenger.vedtak.modell.hendelser
 
-import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse
 import no.nav.dagpenger.aktivitetslogg.IAktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import java.time.LocalDate
 import java.util.UUID
 
-abstract class Hendelse(
+abstract class Hendelse protected constructor(
     private val meldingsreferanseId: UUID,
     private val ident: String,
-    internal val aktivitetslogg: Aktivitetslogg,
+    private val aktivitetslogg: IAktivitetslogg,
 ) : AktivitetsloggHendelse, IAktivitetslogg by aktivitetslogg {
     abstract val gjelderDato: LocalDate
 
-    override fun ident() = ident
-
-    override fun toSpesifikkKontekst(): SpesifikkKontekst {
-        return SpesifikkKontekst(this.javaClass.simpleName, mapOf("ident" to ident) + kontekstMap())
+    init {
+        aktivitetslogg.kontekst(this)
     }
+
+    final override fun ident() = ident
+
+    final override fun toSpesifikkKontekst() =
+        SpesifikkKontekst(
+            this.javaClass.simpleName,
+            mapOf(
+                "meldingsreferanseId" to meldingsreferanseId.toString(),
+                "ident" to ident,
+            ) + kontekst(),
+        )
 
     fun toLogString(): String = aktivitetslogg.toString()
 
-    override fun meldingsreferanseId() = meldingsreferanseId
+    final override fun meldingsreferanseId() = meldingsreferanseId
 
-    abstract fun kontekstMap(): Map<String, String>
+    protected open fun kontekst(): Map<String, String> = emptyMap()
 }
