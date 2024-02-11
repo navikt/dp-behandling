@@ -19,5 +19,5 @@ class StørreEnnEllerLik internal constructor(
 
 fun Opplysningstype<Boolean>.størreEnnEllerLik(
     er: Opplysningstype<Double>,
-    størreEnn: Opplysningstype<Double>,
-) = StørreEnnEllerLik(this, er, størreEnn)
+    størreEnnEllerLik: Opplysningstype<Double>,
+) = StørreEnnEllerLik(this, er, størreEnnEllerLik)

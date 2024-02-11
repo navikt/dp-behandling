@@ -20,6 +20,6 @@ class FørEllerLik internal constructor(
 }
 
 fun Opplysningstype<Boolean>.førEllerLik(
-    dato: Opplysningstype<LocalDate>,
-    tom: Opplysningstype<LocalDate>,
-) = FørEllerLik(this, dato, tom)
+    er: Opplysningstype<LocalDate>,
+    førEllerLik: Opplysningstype<LocalDate>,
+) = FørEllerLik(this, er, førEllerLik)

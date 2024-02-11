@@ -22,6 +22,6 @@ class Oppslag<T : Comparable<T>> internal constructor(
 }
 
 fun <T : Comparable<T>> Opplysningstype<T>.oppslag(
-    dato: Opplysningstype<LocalDate>,
+    gyldigForDato: Opplysningstype<LocalDate>,
     block: (LocalDate) -> T,
-) = Oppslag(this, dato, block)
+) = Oppslag(this, gyldigForDato, block)
