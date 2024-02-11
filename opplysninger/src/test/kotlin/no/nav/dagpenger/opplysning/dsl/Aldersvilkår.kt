@@ -7,8 +7,7 @@ import no.nav.dagpenger.opplysning.regel.dato.sisteDagIMåned
 import no.nav.dagpenger.opplysning.regel.oppslag
 import java.time.LocalDate
 
-class Aldersvilkår : Vilkår<Boolean>("Aldersvilkår") {
-
+object Aldersvilkår : Vilkår<Boolean>("Aldersvilkår") {
     val virkningsdato = opplysning<LocalDate>("Virkningsdato")
     val fødselsdato = opplysning<LocalDate>("Fødselsdato")
     val aldersgrense =
@@ -19,20 +18,19 @@ class Aldersvilkår : Vilkår<Boolean>("Aldersvilkår") {
     val datoSøkerNårMaksAlder =
         opplysning<LocalDate>("Dato søker når maks alder")
             .regel {
-                leggTilÅr(fødselsdato, aldersgrense)
+                leggTilÅr(
+                    fødselsdato,
+                    aldersgrense,
+                )
             }
     val sisteMuligeDagBrukerOppfyllerAlderskrav =
         opplysning<LocalDate>("Siste mulige dag bruker kan oppfylle alderskrav")
             .regel {
                 sisteDagIMåned(datoSøkerNårMaksAlder)
             }
-
-    init {
-
+    val vilkår =
         vilkår()
             .regel {
                 førEllerLik(virkningsdato, sisteMuligeDagBrukerOppfyllerAlderskrav)
             }
-    }
-
 }
