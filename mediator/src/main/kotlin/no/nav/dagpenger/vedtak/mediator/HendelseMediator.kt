@@ -3,8 +3,10 @@ package no.nav.dagpenger.vedtak.mediator
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.dagpenger.vedtak.mediator.melding.HendelseMessage
 import no.nav.dagpenger.vedtak.mediator.melding.HendelseRepository
+import no.nav.dagpenger.vedtak.mediator.mottak.OpplysningSvarMessage
 import no.nav.dagpenger.vedtak.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.vedtak.mediator.mottak.SøknadInnsendtMottak
+import no.nav.dagpenger.vedtak.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.vedtak.modell.hendelser.PersonHendelse
 import no.nav.dagpenger.vedtak.modell.hendelser.SøknadInnsendtHendelse
 import no.nav.helse.rapids_rivers.MessageContext
@@ -30,6 +32,16 @@ internal class HendelseMediator(
         }
     }
 
+    override fun behandle(
+        hendelse: OpplysningSvarHendelse,
+        message: OpplysningSvarMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            personMediator.håndter(it)
+        }
+    }
+
     private fun <HENDELSE : PersonHendelse> behandle(
         hendelse: HENDELSE,
         message: HendelseMessage,
@@ -45,6 +57,12 @@ internal interface IHendelseMediator {
     fun behandle(
         hendelse: SøknadInnsendtHendelse,
         message: SøknadInnsendtMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: OpplysningSvarHendelse,
+        message: OpplysningSvarMessage,
         context: MessageContext,
     )
 }

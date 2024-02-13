@@ -10,13 +10,14 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.RettTilDagpenger
 import no.nav.dagpenger.regel.Virkningsdato.søknadsdato
+import no.nav.dagpenger.vedtak.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.vedtak.modell.hendelser.SøkerHendelse
 import no.nav.dagpenger.vedtak.modell.hendelser.SøknadInnsendtHendelse
 import java.time.LocalDate
 import java.util.UUID
 
 class Behandling private constructor(
-    private val behandlingId: UUID,
+    internal val behandlingId: UUID,
     private val behandler: SøkerHendelse,
     private val opplysninger: Opplysninger,
     private vararg val regelsett: Regelsett,
@@ -44,6 +45,13 @@ class Behandling private constructor(
                 "Trenger en opplysning",
                 avhengigheter.associate { av -> av.opplysningstype.id to av.verdi },
             )
+        }
+    }
+
+    fun håndter(hendelse: OpplysningSvarHendelse) {
+        hendelse.kontekst(this)
+        hendelse.opplysninger.forEach { opplysning ->
+            opplysninger.leggTil(opplysning.opplysning())
         }
     }
 

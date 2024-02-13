@@ -5,6 +5,7 @@ import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.vedtak.modell.Person
 import no.nav.dagpenger.vedtak.modell.PersonIdentifikator
 import no.nav.dagpenger.vedtak.modell.PersonIdentifikator.Companion.tilPersonIdentfikator
+import no.nav.dagpenger.vedtak.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.vedtak.modell.hendelser.PersonHendelse
 import no.nav.dagpenger.vedtak.modell.hendelser.SøknadInnsendtHendelse
 import no.nav.helse.rapids_rivers.withMDC
@@ -22,6 +23,12 @@ internal class PersonMediator(
     fun håndter(søknadInnsendtHendelse: SøknadInnsendtHendelse) {
         behandle(søknadInnsendtHendelse) { person ->
             person.håndter(søknadInnsendtHendelse)
+        }
+    }
+
+    fun håndter(hendelse: OpplysningSvarHendelse) {
+        behandle(hendelse) { person ->
+            person.håndter(hendelse)
         }
     }
 

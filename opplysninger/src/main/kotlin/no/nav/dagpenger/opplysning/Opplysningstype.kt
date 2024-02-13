@@ -15,6 +15,14 @@ class Opplysningstype<T : Comparable<T>>(
 ) : Klassifiserbart {
     constructor(navn: String, parent: Opplysningstype<T>? = null) : this(OpplysningId(navn, navn), parent)
 
+    companion object {
+        val typer = mutableSetOf<Opplysningstype<*>>()
+    }
+
+    init {
+        typer.add(this)
+    }
+
     val id = opplysningId.id
     val navn = opplysningId.beskrivelse
 
