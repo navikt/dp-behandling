@@ -15,7 +15,7 @@ import no.nav.helse.rapids_rivers.River
 
 internal class SøknadInnsendtMottak(
     rapidsConnection: RapidsConnection,
-    private val hendelsemediator: HendelseMediator,
+    private val hendelseMediator: HendelseMediator,
 ) : River.PacketListener {
     init {
         River(rapidsConnection).apply {
@@ -37,7 +37,7 @@ internal class SøknadInnsendtMottak(
     ) {
         logger.info { "Mottok søknad innsendt hendelse" }
         val message = SøknadInnsendtMessage(packet)
-        message.behandle(hendelsemediator, context)
+        message.behandle(hendelseMediator, context)
     }
 
     override fun onError(

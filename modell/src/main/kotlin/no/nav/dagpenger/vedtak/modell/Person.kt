@@ -33,7 +33,7 @@ class Person(
 
     fun håndter(hendelse: OpplysningSvarHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.first { it.behandlingId == hendelse.behandlingId }
+        val behandling = behandlinger.first() // .first { it.behandlingId == hendelse.behandlingId }
         behandling.håndter(hendelse)
     }
 

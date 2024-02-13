@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.id
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilÅr
 import no.nav.dagpenger.opplysning.regel.dato.sisteDagIMåned
@@ -9,7 +10,7 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import java.time.LocalDate
 
 object Alderskrav {
-    val fødselsdato = Opplysningstype<LocalDate>("Fødselsdato")
+    val fødselsdato = Opplysningstype<LocalDate>("Fødselsdato".id("Fødselsdato"))
 
     private val aldersgrense = Opplysningstype<Int>("Aldersgrense")
     private val virkningsdato = Virkningsdato.virkningsdato

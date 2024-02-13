@@ -16,7 +16,7 @@ class Opplysningstype<T : Comparable<T>>(
     constructor(navn: String, parent: Opplysningstype<T>? = null) : this(OpplysningId(navn, navn), parent)
 
     companion object {
-        val typer = mutableSetOf<Opplysningstype<*>>()
+        val typer = mutableListOf<Opplysningstype<*>>()
     }
 
     init {

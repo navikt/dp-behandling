@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import no.nav.dagpenger.vedtak.mediator.melding.HendelseMessage
 import no.nav.dagpenger.vedtak.mediator.melding.HendelseRepository
 import no.nav.dagpenger.vedtak.mediator.mottak.OpplysningSvarMessage
+import no.nav.dagpenger.vedtak.mediator.mottak.OpplysningSvarMottak
 import no.nav.dagpenger.vedtak.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.vedtak.mediator.mottak.SøknadInnsendtMottak
 import no.nav.dagpenger.vedtak.modell.hendelser.OpplysningSvarHendelse
@@ -20,6 +21,7 @@ internal class HendelseMediator(
 ) : IHendelseMediator {
     init {
         SøknadInnsendtMottak(rapidsConnection, this)
+        OpplysningSvarMottak(rapidsConnection, this)
     }
 
     override fun behandle(
