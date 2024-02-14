@@ -10,7 +10,7 @@ class OpplysningSvarHendelse(meldingsreferanseId: UUID, ident: String, val behan
     PersonHendelse(meldingsreferanseId, ident)
 
 data class OpplysningSvar<T : Comparable<T>>(
-    val opplysningstype: String,
+    val opplysningstype: Opplysningstype<T>,
     val verdi: T,
     val tilstand: Tilstand,
 ) {
@@ -20,7 +20,6 @@ data class OpplysningSvar<T : Comparable<T>>(
     }
 
     fun opplysning(): Opplysning<T> {
-        val opplysningstype = Opplysningstype.typer.single { it.id == this.opplysningstype } as Opplysningstype<T>
         return when (tilstand) {
             Tilstand.Hypotese -> Hypotese(opplysningstype, verdi)
             Tilstand.Faktum -> Faktum(opplysningstype, verdi)

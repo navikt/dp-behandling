@@ -2,6 +2,10 @@ package no.nav.dagpenger.vedtak.mediator.mottak
 
 import mu.KotlinLogging
 import mu.withLoggingContext
+import no.nav.dagpenger.opplysning.Boolsk
+import no.nav.dagpenger.opplysning.Dato
+import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.vedtak.mediator.HendelseMediator
 import no.nav.dagpenger.vedtak.mediator.IHendelseMediator
@@ -15,6 +19,7 @@ import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDate
+import java.time.LocalDate
 
 internal class OpplysningSvarMottak(
     rapidsConnection: RapidsConnection,
@@ -69,21 +74,25 @@ internal class OpplysningSvarMessage(private val packet: JsonMessage) : Hendelse
             packet["@løsning"].fields().forEach { (typeNavn, verdi) ->
                 val type = Opplysningstype.typer.single { sadf -> sadf.id == typeNavn }
                 val opplysning =
-                    // TODO: Hvor skal vi få type fra?
-                    when (typeNavn) {
-                        "Fødselsdato", "Søknadstidspunkt" -> {
-                            OpplysningSvar(opplysningstype = type.id, verdi = verdi.asLocalDate(), tilstand = Tilstand.Hypotese)
-                        }
-
-                        "InntektSiste12Mnd", "InntektSiste3År" -> {
-                            OpplysningSvar(opplysningstype = type.id, verdi = verdi.asDouble(), tilstand = Tilstand.Hypotese)
-                        }
-
-                        else -> throw IllegalArgumentException("Ukjent opplysningstype")
+                    @Suppress("UNCHECKED_CAST")
+                    when (type.datatype) {
+                        Dato -> opplysningSvar(type as Opplysningstype<LocalDate>, verdi.asLocalDate())
+                        Heltall -> opplysningSvar(type as Opplysningstype<Int>, verdi.asInt())
+                        Desimaltall -> opplysningSvar(type as Opplysningstype<Double>, verdi.asDouble())
+                        Boolsk -> opplysningSvar(type as Opplysningstype<Boolean>, verdi.asBoolean())
                     }
                 add(opplysning)
             }
         }
+
+    private fun <T : Comparable<T>> opplysningSvar(
+        type: Opplysningstype<T>,
+        verdi: T,
+    ) = OpplysningSvar(
+        opplysningstype = type,
+        verdi = verdi,
+        tilstand = Tilstand.Hypotese,
+    )
 
     override fun behandle(
         mediator: IHendelseMediator,

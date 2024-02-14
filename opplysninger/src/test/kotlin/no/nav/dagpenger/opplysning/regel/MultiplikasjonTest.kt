@@ -11,11 +11,11 @@ import org.junit.jupiter.api.Test
 
 class MultiplikasjonTest {
     private val sum =
-        Opplysningstype<Double>("SUM")
+        Opplysningstype.somDesimaltall("SUM")
     private val a =
-        Opplysningstype<Double>("A")
+        Opplysningstype.somDesimaltall("A")
     private val b =
-        Opplysningstype<Double>("B")
+        Opplysningstype.somDesimaltall("B")
 
     private val opplysninger = Opplysninger()
     private val regelkjøring =

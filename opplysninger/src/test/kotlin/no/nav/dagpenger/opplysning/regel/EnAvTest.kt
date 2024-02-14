@@ -10,9 +10,9 @@ import no.nav.dagpenger.opplysning.mai
 import org.junit.jupiter.api.Test
 
 internal class EnAvTest {
-    private val opplysningB = Opplysningstype<Boolean>("B")
-    private val opplysningC = Opplysningstype<Boolean>("C")
-    private val produserer = Opplysningstype<Boolean>("A")
+    private val opplysningB = Opplysningstype.somBoolsk("B")
+    private val opplysningC = Opplysningstype.somBoolsk("C")
+    private val produserer = Opplysningstype.somBoolsk("A")
     private val opplysninger = Opplysninger()
     private val regelkjøring =
         Regelkjøring(

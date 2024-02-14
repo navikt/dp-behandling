@@ -7,7 +7,7 @@ import java.time.LocalDate
 class OpplysningTest {
     @Test
     fun `Har opplysningstype`() {
-        val opplysning = Faktum(Opplysningstype<LocalDate>("Fødselsdato"), LocalDate.now())
-        assertTrue(opplysning.er(Opplysningstype<LocalDate>("Fødselsdato")))
+        val opplysning = Faktum(Opplysningstype.somDato("Fødselsdato"), LocalDate.now())
+        assertTrue(opplysning.er(Opplysningstype.somDato("Fødselsdato")))
     }
 }

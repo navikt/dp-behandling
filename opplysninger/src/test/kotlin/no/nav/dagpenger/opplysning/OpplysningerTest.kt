@@ -8,9 +8,9 @@ import kotlin.test.assertEquals
 class OpplysningerTest {
     @Test
     fun `vilkår er avhengig av andre vilkår`() {
-        val vilkår = Opplysningstype<Boolean>("Vilkår")
-        val minsteinntekt = Opplysningstype("Minsteinntekt", vilkår)
-        val alder = Opplysningstype("Alder", vilkår)
+        val vilkår = Opplysningstype.somBoolsk("Vilkår")
+        val minsteinntekt = Opplysningstype.somBoolsk("Minsteinntekt", vilkår)
+        val alder = Opplysningstype.somBoolsk("Alder", vilkår)
 
         val opplysninger = Opplysninger()
         val regelkjøring = Regelkjøring(1.mai, opplysninger)
@@ -26,7 +26,7 @@ class OpplysningerTest {
 
     @Test
     fun `tillater ikke overlappende opplysninger av samme type`() {
-        val opplysningstype = Opplysningstype<Double>("Type")
+        val opplysningstype = Opplysningstype.somDesimaltall("Type")
         val opplysninger = Opplysninger()
         val regelkjøring = Regelkjøring(1.mai, opplysninger)
 

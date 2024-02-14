@@ -42,6 +42,7 @@ internal class PersonMediatorTest {
     @Test
     fun `e2e av søknad innsendt`() {
         testRapid.sendTestMessage(søknadInnsendtMessage(ident))
+
         with(testRapid.inspektør) {
             size shouldBe 1
             field(0, "@event_name").asText() shouldBe "behov"
@@ -50,8 +51,8 @@ internal class PersonMediatorTest {
                 "Søknadstidspunkt",
             )
         }
-
         testRapid.sendTestMessage(opplysningSvar1Message(ident))
+
         with(testRapid.inspektør) {
             size shouldBe 2
             field(1, "@behov").map { it.asText() }.shouldContainOnly(

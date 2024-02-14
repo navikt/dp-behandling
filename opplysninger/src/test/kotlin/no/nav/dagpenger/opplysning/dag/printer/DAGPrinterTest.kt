@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class DAGPrinterTest {
-    private val a = Opplysningstype<Double>("A")
-    private val b = Opplysningstype<Double>("B")
-    private val c = Opplysningstype<Double>("A * B")
+    private val a = Opplysningstype.somDesimaltall("A")
+    private val b = Opplysningstype.somDesimaltall("B")
+    private val c = Opplysningstype.somDesimaltall("A * B")
     private val regelsett = Regelsett("regelsett") { regel(c) { multiplikasjon(a, b) } }
 
     private val regeltre = RegeltreBygger(regelsett.regler()).dag()

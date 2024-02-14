@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class RegelsettTest {
-    private val grunntall = Opplysningstype<Double>("A")
-    private val faktorA = Opplysningstype<Double>("FaktorA")
-    private val faktorB = Opplysningstype<Double>("FaktorB")
-    private val produserer = Opplysningstype<Double>("Output")
+    private val grunntall = Opplysningstype.somDesimaltall("A")
+    private val faktorA = Opplysningstype.somDesimaltall("FaktorA")
+    private val faktorB = Opplysningstype.somDesimaltall("FaktorB")
+    private val produserer = Opplysningstype.somDesimaltall("Output")
     private val regelsett
         get() =
             Regelsett("regelsett") {

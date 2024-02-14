@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class SisteDagIMånedEllerLikTest {
-    private val vilkår = Opplysningstype<Boolean>("Vilkår")
-    private val a = Opplysningstype<Double>("A")
-    private val b = Opplysningstype<Double>("B")
+    private val vilkår = Opplysningstype.somBoolsk("Vilkår")
+    private val a = Opplysningstype.somDesimaltall("A")
+    private val b = Opplysningstype.somDesimaltall("B")
 
     private val opplysninger = Opplysninger()
     private val regelkjøring =

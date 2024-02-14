@@ -10,9 +10,9 @@ import kotlin.test.assertContains
 class RegeltreByggerTest {
     @Test
     fun `bygg regeltre`() {
-        val a = Opplysningstype<Double>("A")
-        val b = Opplysningstype<Double>("B")
-        val c = Opplysningstype<Double>("A * B")
+        val a = Opplysningstype.somDesimaltall("A")
+        val b = Opplysningstype.somDesimaltall("B")
+        val c = Opplysningstype.somDesimaltall("A * B")
         val regelsett = Regelsett("regelsett") { regel(c) { multiplikasjon(a, b) } }
 
         val regeltre = RegeltreBygger(regelsett.regler()).dag()

@@ -28,7 +28,7 @@ class RegelmotorIntegrasjonsTest {
                     Faktum(Minsteinntekt.inntekt12, 221221.0, Gyldighetsperiode(1.januar, 1.mai)),
                 ),
             )
-        val alleVilkår = Opplysningstype<Boolean>("Vilkår")
+        val alleVilkår = Opplysningstype.somBoolsk("Vilkår")
         val regelsett =
             Regelsett("Krav til Dagpenger").apply {
                 regel(alleVilkår) { alle(Minsteinntekt.minsteinntekt, Alderskrav.vilkår) }
