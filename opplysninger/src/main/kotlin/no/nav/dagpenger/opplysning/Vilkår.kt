@@ -30,7 +30,7 @@ open class Vilkår<T : Comparable<T>>(private val navn: String, block: Vilkår<T
         return opplysningstype
     }
 
-    fun <O : Comparable<O>> Opplysningstype<O>.regel(block: Opplysningstype<O>.() -> Regel<*>): Opplysningstype<O> {
+    fun <O : Comparable<O>> Opplysningstype<O>.av(block: Opplysningstype<O>.() -> Regel<*>): Opplysningstype<O> {
         regelsett.regel(produserer = this, block = block)
 
         return this

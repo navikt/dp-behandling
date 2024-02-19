@@ -12,12 +12,12 @@ object Aldersvilkår : Vilkår<Boolean>("Aldersvilkår") {
     val fødselsdato = opplysning<LocalDate>("Fødselsdato")
     val aldersgrense =
         opplysning<Int>("Aldersgrense")
-            .regel {
+            .av {
                 oppslag(gyldigForDato = virkningsdato) { 67 }
             }
     val datoSøkerNårMaksAlder =
         opplysning<LocalDate>("Dato søker når maks alder")
-            .regel {
+            .av {
                 leggTilÅr(
                     dato = fødselsdato,
                     antallÅr = aldersgrense,
@@ -25,12 +25,12 @@ object Aldersvilkår : Vilkår<Boolean>("Aldersvilkår") {
             }
     val sisteMuligeDagBrukerOppfyllerAlderskrav =
         opplysning<LocalDate>("Siste mulige dag bruker kan oppfylle alderskrav")
-            .regel {
+            .av {
                 sisteDagIMåned(dato = datoSøkerNårMaksAlder)
             }
     val vilkår =
         vilkår()
-            .regel {
+            .av {
                 førEllerLik(
                     er = virkningsdato,
                     førEllerLik = sisteMuligeDagBrukerOppfyllerAlderskrav
