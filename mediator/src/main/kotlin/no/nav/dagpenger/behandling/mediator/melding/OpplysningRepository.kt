@@ -27,6 +27,8 @@ interface OpplysningRepository {
     fun lagreOpplysning(opplysning: Opplysning<*>): Int
 
     fun hentOpplysning(opplysningId: UUID): Opplysning<*>?
+
+    fun lagreOpplysninger(opplysninger: List<Opplysning<*>>)
 }
 
 class OpplysningRepositoryPostgres : OpplysningRepository {
@@ -77,63 +79,113 @@ class OpplysningRepositoryPostgres : OpplysningRepository {
             ULID -> Ulid(row.string("verdi_string"))
         } as T
 
-    override fun lagreOpplysning(opplysning: Opplysning<*>) =
+    override fun lagreOpplysning(opplysning: Opplysning<*>) = 1.also { batchOpplysninger(listOf(opplysning)) }
+    /*using(sessionOf(dataSource)) { session ->
+        session.transaction { tx ->
+            val opplysningId = tx.lagreOpplysningstype(opplysning.opplysningstype)
+            tx.lagreOpplysning(opplysning.id, opplysning.javaClass.simpleName, opplysningId, opplysning.gyldighetsperiode)
+            // TODO: tx.lagreKilde(opplysning.id, opplysning.kilde)
+            // TODO: tx.lagreUtledetAv()
+            tx.lagreVerdi(opplysning.id, opplysning.opplysningstype.datatype, opplysning.verdi)
+        }
+    }
+     */
+
+    override fun lagreOpplysninger(opplysninger: List<Opplysning<*>>) {
         using(sessionOf(dataSource)) { session ->
             session.transaction { tx ->
-                val opplysningId = tx.lagreOpplysningstype(opplysning.opplysningstype)
-                tx.lagreOpplysning(opplysning.id, opplysning.javaClass.simpleName, opplysningId, opplysning.gyldighetsperiode)
-                // TODO: tx.lagreKilde(opplysning.id, opplysning.kilde)
-                // TODO: tx.lagreUtledetAv()
-                tx.lagreVerdi(opplysning.id, opplysning.opplysningstype.datatype, opplysning.verdi)
+                batchOpplysningstyper(opplysninger.map { it.opplysningstype }).run(tx)
+                batchOpplysninger(opplysninger).run(tx)
+                batchVerdi(opplysninger).run(tx)
             }
         }
+    }
 
-    // TODO: Lage støtte for parent?
-    private fun TransactionalSession.lagreOpplysningstype(opplysningstype: Opplysningstype<*>): Long =
-        run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                WITH ins AS (
-                    INSERT INTO opplysningstype (id, navn, datatype)
-                    VALUES (:id, :navn, :datatype)
-                    ON CONFLICT DO NOTHING 
-                    RETURNING opplysningstype_id
-                )
-                SELECT opplysningstype_id FROM ins
-                UNION ALL
-                SELECT opplysningstype_id FROM opplysningstype WHERE id = :id AND navn = :navn AND datatype = :datatype
-                """.trimIndent(),
-                mapOf(
-                    "id" to opplysningstype.id,
-                    "navn" to opplysningstype.navn,
-                    "datatype" to opplysningstype.datatype.javaClass.simpleName,
-                ),
-            ).map { it.long("opplysningstype_id") }.asSingle,
-        ) ?: throw IllegalStateException("Kunne ikke lagre eller finne opplysningstype")
+    private data class BatchStatement(private val query: String, private val params: List<Map<String, Any?>>) {
+        fun run(tx: TransactionalSession) = tx.batchPreparedNamedStatement(query, params)
+    }
 
-    private fun TransactionalSession.lagreOpplysning(
-        id: UUID,
-        status: String,
-        opplysningstype: Long,
-        gyldighetsperiode: Gyldighetsperiode,
-    ) = run(
-        queryOf(
+    private fun batchOpplysningstyper(opplysningstyper: List<Opplysningstype<*>>) =
+        BatchStatement(
             //language=PostgreSQL
             """
+            INSERT INTO opplysningstype (id, navn, datatype)
+            VALUES (:id, :navn, :datatype)
+            ON CONFLICT DO NOTHING 
+            """.trimIndent(),
+            opplysningstyper.map {
+                mapOf(
+                    "id" to it.id,
+                    "navn" to it.navn,
+                    "datatype" to it.datatype.javaClass.simpleName,
+                )
+            },
+        )
+
+    private fun batchOpplysninger(opplysninger: List<Opplysning<*>>) =
+        BatchStatement(
+            //language=PostgreSQL
+            """
+            WITH ins AS (
+                SELECT opplysningstype_id FROM opplysningstype WHERE id = :typeId AND navn = :typeNavn AND  datatype = :datatype
+            )
             INSERT INTO opplysning (id, status, opplysningstype_id, fom, tom)
-            VALUES (:id, :status, :opplysningstype, :fom::timestamp, :tom::timestamp)
+            VALUES (:id, :status, (SELECT opplysningstype_id FROM ins), :fom::timestamp, :tom::timestamp)
             ON CONFLICT DO NOTHING
             """.trimIndent(),
+            opplysninger.map { opplysning ->
+                val gyldighetsperiode: Gyldighetsperiode = opplysning.gyldighetsperiode
+                mapOf(
+                    "id" to opplysning.id,
+                    "status" to opplysning.javaClass.simpleName,
+                    "typeId" to opplysning.opplysningstype.id,
+                    "typeNavn" to opplysning.opplysningstype.navn,
+                    "datatype" to opplysning.opplysningstype.datatype.javaClass.simpleName,
+                    "fom" to gyldighetsperiode.fom.let { if (it == LocalDateTime.MIN) null else it },
+                    "tom" to gyldighetsperiode.tom.let { if (it == LocalDateTime.MAX) null else it },
+                )
+            },
+        )
+
+    private fun batchVerdi(opplysninger: List<Opplysning<*>>): BatchStatement {
+        val defaultVerdi =
             mapOf(
-                "id" to id,
-                "status" to status,
-                "opplysningstype" to opplysningstype,
-                "fom" to gyldighetsperiode.fom.let { if (it == LocalDateTime.MIN) null else it },
-                "tom" to gyldighetsperiode.tom.let { if (it == LocalDateTime.MAX) null else it },
-            ),
-        ).asUpdate,
-    )
+                "verdi_heltall" to null,
+                "verdi_desimaltall" to null,
+                "verdi_dato" to null,
+                "verdi_boolsk" to null,
+                "verdi_string" to null,
+            )
+        return BatchStatement(
+            //language=PostgreSQL
+            """
+            INSERT INTO opplysning_verdi (opplysning_id, datatype, verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string) 
+            VALUES (:opplysning_id, :datatype, :verdi_heltall, :verdi_desimaltall, :verdi_dato, :verdi_boolsk, :verdi_string)
+            ON CONFLICT DO NOTHING
+            """.trimIndent(),
+            opplysninger.map {
+                val datatype = it.opplysningstype.datatype
+                val (kolonne, data) = verdiKolonne(datatype, it.verdi)
+                val verdi = defaultVerdi + mapOf(kolonne to data)
+                mapOf(
+                    "kolonne" to kolonne,
+                    "opplysning_id" to it.id,
+                    "datatype" to datatype.javaClass.simpleName,
+                ) + verdi
+            },
+        )
+    }
+
+    private fun verdiKolonne(
+        datatype: Datatype<*>,
+        verdi: Any,
+    ) = when (datatype) {
+        Boolsk -> Pair("verdi_boolsk", verdi)
+        Dato -> Pair("verdi_dato", verdi)
+        Desimaltall -> Pair("verdi_desimaltall", verdi)
+        Heltall -> Pair("verdi_heltall", verdi)
+        ULID -> Pair("verdi_string", (verdi as Ulid).verdi)
+    }
 
     private fun TransactionalSession.lagreKilde(
         opplysningId: UUID,
@@ -148,38 +200,4 @@ class OpplysningRepositoryPostgres : OpplysningRepository {
             ),
         ).asUpdate,
     )
-
-    private fun TransactionalSession.lagreVerdi(
-        opplysningId: UUID,
-        datatype: Datatype<*>,
-        verdi: Any,
-    ): Int {
-        val (kolonne, data) = verdiKolonne(datatype, verdi)
-        return run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                INSERT INTO opplysning_verdi (opplysning_id, datatype, $kolonne) 
-                VALUES (:opplysning_id, :datatype, :verdi)
-                ON CONFLICT DO NOTHING
-                """.trimIndent(),
-                mapOf(
-                    "opplysning_id" to opplysningId,
-                    "datatype" to datatype.javaClass.simpleName,
-                    "verdi" to data,
-                ),
-            ).asUpdate,
-        )
-    }
-
-    private fun verdiKolonne(
-        datatype: Datatype<*>,
-        verdi: Any,
-    ) = when (datatype) {
-        Boolsk -> Pair("verdi_boolsk", verdi)
-        Dato -> Pair("verdi_dato", verdi)
-        Desimaltall -> Pair("verdi_desimaltall", verdi)
-        Heltall -> Pair("verdi_heltall", verdi)
-        ULID -> Pair("verdi_string", (verdi as Ulid).verdi)
-    }
 }

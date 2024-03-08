@@ -4,6 +4,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.id
 import no.nav.dagpenger.opplysning.verdier.Ulid
@@ -37,14 +38,22 @@ class OpplysningRepositoryPostgresTest {
                     // Ulike typer kan bruke samme navn
                     Faktum(Opplysningstype.somBoolsk("Ulid"), false),
                 )
-            val ints =
-                opplysninger.map { opplysning ->
-                    repo.lagreOpplysning(opplysning).also {
-                        // Duplikat skriving skal ikke lage duplikate rader
-                        repo.lagreOpplysning(opplysning)
-                    }
-                }
-            ints.sum() shouldBe opplysninger.size
+            repo.lagreOpplysninger(opplysninger).also {
+                // Duplikat skriving skal ikke lage duplikate rader
+                repo.lagreOpplysninger(opplysninger)
+            }
+
+            val insert = mutableListOf<Opplysning<*>>()
+            (1..50000).forEach {
+                insert.add(
+                    Faktum(
+                        Opplysningstype.somHeltall("Desimal".id("desitall")),
+                        it,
+                    ),
+                )
+            }
+            repo.lagreOpplysninger(insert)
+            Faktum(Opplysningstype.somBoolsk("Ulid"), false)
 
             with(repo.hentOpplysning(heltallFaktum.id)!!) {
                 id shouldBe heltallFaktum.id

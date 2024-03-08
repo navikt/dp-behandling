@@ -7,6 +7,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 internal object Postgres {
     val instance by lazy {
         PostgreSQLContainer<Nothing>("postgres:15.2").apply {
+            withReuse(true)
             start()
         }
     }
