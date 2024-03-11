@@ -14,6 +14,8 @@ class Person(
 
     fun håndter(hendelse: SøknadInnsendtHendelse) {
         hendelse.leggTilKontekst(this)
+        hendelse.info("Mottatt søknad og startet behandling")
+        hendelse.varsel(Behandlingsvarsler.SØKNAD_MOTTATT)
         val behandling =
             Behandling(
                 hendelse,
@@ -21,7 +23,7 @@ class Person(
             ).also { behandling ->
                 behandlinger.add(behandling)
             }
-        behandling.håndter(hendelse)
+        behandling.behandle(hendelse)
     }
 
     fun håndter(hendelse: OpplysningSvarHendelse) {

@@ -10,15 +10,12 @@ abstract class SøkerHendelse(
     meldingsreferanseId: UUID,
     val ident: String,
     internal val søknadId: UUID,
-    internal val gjelderDato: LocalDate,
-) : PersonHendelse(meldingsreferanseId, ident) {
+    override val gjelderDato: LocalDate,
+) : PersonHendelse(meldingsreferanseId, ident), BehandlingHendelse {
     override fun kontekstMap() =
         mapOf(
             "søknadId" to søknadId.toString(),
             "gjelderDato" to gjelderDato.toString(),
         )
 
-    abstract fun regelsett(): List<Regelsett>
-
-    abstract fun avklarer(): Opplysningstype<*>
 }
