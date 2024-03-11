@@ -1,16 +1,18 @@
 package no.nav.dagpenger.behandling.mediator.melding
 
+import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.mediator.repository.OpplysningRepositoryPostgres
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.id
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.system.measureTimeMillis
 
 class OpplysningRepositoryPostgresTest {
     @Test
@@ -43,17 +45,9 @@ class OpplysningRepositoryPostgresTest {
                 repo.lagreOpplysninger(opplysninger)
             }
 
-            val insert = mutableListOf<Opplysning<*>>()
-            (1..50000).forEach {
-                insert.add(
-                    Faktum(
-                        Opplysningstype.somHeltall("Desimal".id("desitall")),
-                        it,
-                    ),
-                )
-            }
-            repo.lagreOpplysninger(insert)
-            Faktum(Opplysningstype.somBoolsk("Ulid"), false)
+            val inserts = (1..50000).map { Faktum(Opplysningstype.somHeltall("Desimal".id("desitall")), it) }
+            val tidBrukt = measureTimeMillis { repo.lagreOpplysninger(inserts) }
+            tidBrukt shouldBeLessThan 5000
 
             with(repo.hentOpplysning(heltallFaktum.id)!!) {
                 id shouldBe heltallFaktum.id

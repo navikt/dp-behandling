@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.mediator.melding
+package no.nav.dagpenger.behandling.mediator.repository
 
 import kotliquery.Row
 import kotliquery.TransactionalSession
@@ -22,14 +22,6 @@ import no.nav.dagpenger.opplysning.id
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import java.time.LocalDateTime
 import java.util.UUID
-
-interface OpplysningRepository {
-    fun lagreOpplysning(opplysning: Opplysning<*>): Int
-
-    fun hentOpplysning(opplysningId: UUID): Opplysning<*>?
-
-    fun lagreOpplysninger(opplysninger: List<Opplysning<*>>)
-}
 
 class OpplysningRepositoryPostgres : OpplysningRepository {
     override fun hentOpplysning(opplysningId: UUID): Opplysning<*>? {
@@ -79,17 +71,7 @@ class OpplysningRepositoryPostgres : OpplysningRepository {
             ULID -> Ulid(row.string("verdi_string"))
         } as T
 
-    override fun lagreOpplysning(opplysning: Opplysning<*>) = 1.also { batchOpplysninger(listOf(opplysning)) }
-    /*using(sessionOf(dataSource)) { session ->
-        session.transaction { tx ->
-            val opplysningId = tx.lagreOpplysningstype(opplysning.opplysningstype)
-            tx.lagreOpplysning(opplysning.id, opplysning.javaClass.simpleName, opplysningId, opplysning.gyldighetsperiode)
-            // TODO: tx.lagreKilde(opplysning.id, opplysning.kilde)
-            // TODO: tx.lagreUtledetAv()
-            tx.lagreVerdi(opplysning.id, opplysning.opplysningstype.datatype, opplysning.verdi)
-        }
-    }
-     */
+    override fun lagreOpplysning(opplysning: Opplysning<*>) = lagreOpplysninger(listOf(opplysning))
 
     override fun lagreOpplysninger(opplysninger: List<Opplysning<*>>) {
         using(sessionOf(dataSource)) { session ->
@@ -97,12 +79,10 @@ class OpplysningRepositoryPostgres : OpplysningRepository {
                 batchOpplysningstyper(opplysninger.map { it.opplysningstype }).run(tx)
                 batchOpplysninger(opplysninger).run(tx)
                 batchVerdi(opplysninger).run(tx)
+                // TODO: tx.lagreKilde(opplysning.id, opplysning.kilde)
+                // TODO: tx.lagreUtledetAv()
             }
         }
-    }
-
-    private data class BatchStatement(private val query: String, private val params: List<Map<String, Any?>>) {
-        fun run(tx: TransactionalSession) = tx.batchPreparedNamedStatement(query, params)
     }
 
     private fun batchOpplysningstyper(opplysningstyper: List<Opplysningstype<*>>) =
