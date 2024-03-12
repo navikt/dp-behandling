@@ -63,7 +63,7 @@ internal class BehandlingTest {
                 opplysninger = emptyList(),
             )
 
-        behandling.håndter(søknadInnsendtHendelse)
+        behandling.behandle(søknadInnsendtHendelse)
         søknadInnsendtHendelse.hendelse() shouldHaveSize 1
         val hendelse = søknadInnsendtHendelse.hendelse().first()
         hendelse.type.name shouldBe "behandling_opprettet"

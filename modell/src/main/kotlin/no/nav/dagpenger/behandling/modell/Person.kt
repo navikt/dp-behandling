@@ -29,7 +29,7 @@ class Person(
     fun håndter(hendelse: OpplysningSvarHendelse) {
         hendelse.leggTilKontekst(this)
         val behandling = behandlinger.first() // .first { it.behandlingId == hendelse.behandlingId }
-        behandling.håndter(hendelse)
+        behandling.behandle(hendelse)
     }
 
     private fun PersonHendelse.leggTilKontekst(kontekst: Aktivitetskontekst) {

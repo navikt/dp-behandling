@@ -4,7 +4,6 @@ import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse
 import no.nav.dagpenger.aktivitetslogg.IAktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
-import no.nav.dagpenger.behandling.modell.BehandlingObservatør
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import java.time.LocalDate
@@ -32,9 +31,10 @@ abstract class PersonHendelse(
 
     open fun kontekstMap(): Map<String, String> = emptyMap()
 }
-interface BehandlingHendelse  {
 
+interface BehandlingHendelse {
     val gjelderDato: LocalDate
+
     fun regelsett(): List<Regelsett>
 
     fun avklarer(): Opplysningstype<*>

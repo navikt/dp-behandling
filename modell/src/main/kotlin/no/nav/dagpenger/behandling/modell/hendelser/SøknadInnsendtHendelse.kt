@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.modell.hendelser
 
-import no.nav.dagpenger.behandling.modell.BehandlingObservatør
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opptjeningstid
