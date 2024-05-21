@@ -139,6 +139,7 @@ private fun Behandling.tilBehandlingDTO(): BehandlingDTO {
 }
 
 private fun Opplysning<*>.tilOpplysningDTO(): OpplysningDTO {
+    @Suppress("ktlint:standard:comment-wrapping")
     return OpplysningDTO(
         id = this.id,
         navn = this.opplysningstype.navn,

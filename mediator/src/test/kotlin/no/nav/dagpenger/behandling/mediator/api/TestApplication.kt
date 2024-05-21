@@ -15,10 +15,10 @@ import no.nav.dagpenger.behandling.mediator.Configuration
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 object TestApplication {
-    private const val AZUREAD_ISSUER_ID = "azureAd"
-    private const val CLIENT_ID = "dp-soknad"
+    internal const val AZUREAD_ISSUER_ID = "azureAd"
+    internal const val CLIENT_ID = "dp-soknad"
 
-    private val mockOAuth2Server: MockOAuth2Server by lazy {
+    internal val mockOAuth2Server: MockOAuth2Server by lazy {
         MockOAuth2Server().also { server ->
             server.start()
         }

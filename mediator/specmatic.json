@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "provider": "filesystem",
+      "test": [
+        "../openapi/src/main/resources/behandling-api.yaml"
+      ]
+    }
+  ]
+}
