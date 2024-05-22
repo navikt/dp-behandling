@@ -19,7 +19,7 @@ interface LesbarOpplysninger {
 class Opplysninger private constructor(
     override val id: UUID,
     opplysninger: List<Opplysning<*>> = emptyList(),
-    basertPå: List<Opplysninger> = emptyList(),
+    val basertPå: List<Opplysninger> = emptyList(),
 ) : LesbarOpplysninger {
     private lateinit var regelkjøring: Regelkjøring
     private val opplysninger: MutableList<Opplysning<*>> = opplysninger.toMutableList()

@@ -77,11 +77,13 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     )
                 }
 
-            val avhengigheter =
-                rader.flatMap { it.erstattetAv } + rader.mapNotNull { it.utledetAv?.opplysninger?.map { uuid -> uuid } }.flatten()
-            val raderMedErstatninger = rader + avhengigheter.map { hentOpplysning(it) }
-
-            val kilder = hentKilder(raderMedErstatninger.mapNotNull { it.kildeId })
+            val kilder = hentKilder(rader.mapNotNull { it.kildeId })
+            val erstattetAv =
+                rader.map {
+                    it.erstattetAv.filterNot { id ->
+                        rader.any { eksisterende -> eksisterende.id == id }
+                    }.mapNotNull { uuid -> hentOpplysning(uuid) }
+                }.flatten()
             val raderMedKilde =
                 rader.map {
                     if (it.kildeId == null) return@map it
@@ -89,14 +91,30 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
                     it.copy(kilde = kilde)
                 }
-            return raderMedKilde.somOpplysninger().filterNot { it.id in rader.map { it.id } }
+
+            val raderFraAnnenOpplysninger = rader.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
+            return (raderMedKilde + erstattetAv).somOpplysninger().filterNot { it.id in raderFraAnnenOpplysninger }
         }
 
-        private fun hentOpplysning(id: UUID): OpplysningRad<*> {
-            TODO("Not yet implemented")
+        private fun hentOpplysning(id: UUID): OpplysningRad<*>? {
+            val rader: OpplysningRad<*>? =
+                sessionOf(dataSource).use { session ->
+                    session.run(
+                        queryOf(
+                            //language=PostgreSQL
+                            "SELECT * FROM opplysningstabell WHERE id = :id",
+                            mapOf("id" to id),
+                        ).map { row ->
+                            val datatype = Datatype.fromString(row.string("datatype"))
+                            row.somOpplysningRad(datatype)
+                        }.asSingle,
+                    )
+                }
+            return rader
         }
 
         private fun <T : Comparable<T>> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
+            val opplysingerId = uuid("opplysninger_id")
             val id = uuid("id")
             val opplysningstype = Opplysningstype(string("type_navn").id(string("type_id")), datatype)
             val gyldighetsperiode =
@@ -114,7 +132,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             val kildeId = this.uuidOrNull("kilde_id")
 
             return OpplysningRad(
-                id,
+                opplysingerId = opplysingerId,
+                id = id,
                 opplysningstype = opplysningstype,
                 verdi = verdi,
                 status = status,
@@ -473,7 +492,6 @@ private fun List<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
                         utledetAv,
                         kilde,
                         opprettet,
-                        erstatter = erstattetAv.singleOrNull { it.id == id },
                     )
 
                 "Faktum" ->
@@ -485,7 +503,6 @@ private fun List<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
                         utledetAv,
                         kilde,
                         opprettet,
-                        erstatter = erstattetAv.singleOrNull { it.id == id },
                     )
 
                 else -> throw IllegalStateException("Ukjent opplysningstype")
@@ -508,6 +525,7 @@ private data class UtledningRad(
 )
 
 private data class OpplysningRad<T : Comparable<T>>(
+    val opplysingerId: UUID,
     val id: UUID,
     val opplysningstype: Opplysningstype<T>,
     val verdi: T,
