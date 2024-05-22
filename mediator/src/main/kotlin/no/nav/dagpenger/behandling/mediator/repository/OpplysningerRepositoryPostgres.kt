@@ -80,21 +80,23 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             val kilder = hentKilder(rader.mapNotNull { it.kildeId })
             val erstattetAv =
                 rader.map {
-                    it.erstattetAv.filterNot { id ->
-                        rader.any { eksisterende -> eksisterende.id == id }
-                    }.mapNotNull { uuid -> hentOpplysning(uuid) }
+                    it.erstattetAv.filterNot(eksisterer(rader)).mapNotNull { uuid -> hentOpplysning(uuid) }
                 }.flatten()
             val raderMedKilde =
                 rader.map {
                     if (it.kildeId == null) return@map it
                     val kilde = kilder[it.kildeId] ?: throw IllegalStateException("Mangler kilde")
-
                     it.copy(kilde = kilde)
                 }
 
-            val raderFraAnnenOpplysninger = rader.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
-            return (raderMedKilde + erstattetAv).somOpplysninger().filterNot { it.id in raderFraAnnenOpplysninger }
+            val raderFraTidligereOpplysninger = rader.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
+            return (raderMedKilde + erstattetAv).somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
         }
+
+        private fun eksisterer(rader: List<OpplysningRad<*>>) =
+            { opplysningId: UUID ->
+                rader.any { annen -> annen.id == opplysningId }
+            }
 
         private fun hentOpplysning(id: UUID): OpplysningRad<*>? {
             val rader: OpplysningRad<*>? =
