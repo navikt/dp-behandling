@@ -25,11 +25,12 @@ class BehandlingRepositoryPostgresTest {
             gjelderDato = LocalDate.now(),
             fagsakId = 1,
         )
+    private val tidligereOpplysning = Faktum(Opplysningstype.somDesimaltall("tidligere-opplysning"), 1.0)
     private val basertPåBehandling =
         Behandling.rehydrer(
             behandlingId = UUIDv7.ny(),
             behandler = søknadInnsendtHendelse,
-            aktiveOpplysninger = Opplysninger(listOf(Faktum(Opplysningstype.somDesimaltall("tidligere-opplysning"), 1.0))),
+            gjeldendeOpplysninger = Opplysninger(listOf(tidligereOpplysning)),
             tilstand = Behandling.TilstandType.Ferdig,
             sistEndretTilstand = LocalDateTime.now(),
         )

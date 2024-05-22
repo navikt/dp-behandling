@@ -77,7 +77,11 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     )
                 }
 
-            val kilder = hentKilder(rader.mapNotNull { it.kildeId })
+            val avhengigheter =
+                rader.flatMap { it.erstattetAv } + rader.mapNotNull { it.utledetAv?.opplysninger?.map { uuid -> uuid } }.flatten()
+            val raderMedErstatninger = rader + avhengigheter.map { hentOpplysning(it) }
+
+            val kilder = hentKilder(raderMedErstatninger.mapNotNull { it.kildeId })
             val raderMedKilde =
                 rader.map {
                     if (it.kildeId == null) return@map it
@@ -85,7 +89,11 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
                     it.copy(kilde = kilde)
                 }
-            return raderMedKilde.somOpplysninger()
+            return raderMedKilde.somOpplysninger().filterNot { it.id in rader.map { it.id } }
+        }
+
+        private fun hentOpplysning(id: UUID): OpplysningRad<*> {
+            TODO("Not yet implemented")
         }
 
         private fun <T : Comparable<T>> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
@@ -357,13 +365,12 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 VALUES (:opplysning_id, :erstattet_av)
                 ON CONFLICT DO NOTHING
                 """.trimIndent(),
-                opplysninger.flatMap { opplysning ->
-                    opplysning.erstattetAv.map { erstattetAv ->
-                        mapOf(
-                            "opplysning_id" to opplysning.id,
-                            "erstattet_av" to erstattetAv.id,
-                        )
-                    }
+                opplysninger.mapNotNull { opplysning ->
+                    if (opplysning.erstatter == null) return@mapNotNull null
+                    mapOf(
+                        "opplysning_id" to opplysning.erstatter!!.id,
+                        "erstattet_av" to opplysning.id,
+                    )
                 },
             )
 
@@ -457,8 +464,30 @@ private fun List<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
         // Create the Opplysning instance
         val opplysning =
             when (status) {
-                "Hypotese" -> Hypotese(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet)
-                "Faktum" -> Faktum(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet)
+                "Hypotese" ->
+                    Hypotese(
+                        id,
+                        opplysningstype,
+                        verdi,
+                        gyldighetsperiode,
+                        utledetAv,
+                        kilde,
+                        opprettet,
+                        erstatter = erstattetAv.singleOrNull { it.id == id },
+                    )
+
+                "Faktum" ->
+                    Faktum(
+                        id,
+                        opplysningstype,
+                        verdi,
+                        gyldighetsperiode,
+                        utledetAv,
+                        kilde,
+                        opprettet,
+                        erstatter = erstattetAv.singleOrNull { it.id == id },
+                    )
+
                 else -> throw IllegalStateException("Ukjent opplysningstype")
             }.also {
                 it.erstattesAv(*erstattetAv.toTypedArray())

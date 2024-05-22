@@ -47,7 +47,7 @@ internal class BehandlingTest {
                 Behandling.rehydrer(
                     behandlingId = UUIDv7.ny(),
                     behandler = hendelse,
-                    aktiveOpplysninger =
+                    gjeldendeOpplysninger =
                         Opplysninger(
                             listOf(
                                 Faktum(

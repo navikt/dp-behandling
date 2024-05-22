@@ -27,7 +27,7 @@ import java.util.UUID
 class Behandling private constructor(
     val behandlingId: UUID,
     val behandler: StartHendelse,
-    aktiveOpplysninger: Opplysninger,
+    gjeldendeOpplysninger: Opplysninger,
     val basertPå: List<Behandling> = emptyList(),
     private var tilstand: BehandlingTilstand,
 ) : Aktivitetskontekst, BehandlingHåndter {
@@ -46,7 +46,7 @@ class Behandling private constructor(
     private val observatører = mutableListOf<BehandlingObservatør>()
 
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
-    private val opplysninger = aktiveOpplysninger + tidligereOpplysninger
+    private val opplysninger: Opplysninger = gjeldendeOpplysninger + tidligereOpplysninger
 
     private val regelkjøring = Regelkjøring(behandler.skjedde, opplysninger, *behandler.regelsett().toTypedArray())
 
@@ -54,11 +54,11 @@ class Behandling private constructor(
         fun rehydrer(
             behandlingId: UUID,
             behandler: StartHendelse,
-            aktiveOpplysninger: Opplysninger,
+            gjeldendeOpplysninger: Opplysninger,
             basertPå: List<Behandling> = emptyList(),
             tilstand: TilstandType,
             sistEndretTilstand: LocalDateTime,
-        ) = Behandling(behandlingId, behandler, aktiveOpplysninger, basertPå, fraType(tilstand, sistEndretTilstand))
+        ) = Behandling(behandlingId, behandler, gjeldendeOpplysninger, basertPå, fraType(tilstand, sistEndretTilstand))
 
         fun List<Behandling>.finn(behandlingId: UUID) =
             try {

@@ -46,18 +46,21 @@ class Opplysninger private constructor(
                 )
             ) {
                 // Overlapp på halen
-                val forkorttet = erstattes.lagErstatning(opplysning)
-                erstattes.erstattesAv(forkorttet)
-                opplysninger.add(forkorttet)
+                // val forkorttet = erstattes.lagErstatning(opplysning)
+                opplysninger.addAll(erstattes.erstattesAv(opplysning))
+                // opplysninger.add(opplysning)
             } else if (erstattes.gyldighetsperiode == opplysning.gyldighetsperiode) {
                 // Overlapp for samme periode
-                erstattes.erstattesAv(opplysning)
+                opplysninger.addAll(erstattes.erstattesAv(opplysning))
+
+                // opplysninger.add(opplysning)
             } else {
                 throw IllegalArgumentException("Kan ikke legge til opplysning som overlapper med eksisterende opplysning")
             }
+        } else {
+            opplysninger.add(opplysning)
         }
 
-        opplysninger.add(opplysning)
         regelkjøring.evaluer()
     }
 
@@ -90,4 +93,6 @@ class Opplysninger private constructor(
         alleOpplysninger.firstOrNull { it.er(opplysningstype) && it.gyldighetsperiode.inneholder(regelkjøring.forDato) } as Opplysning<T>?
 
     operator fun plus(tidligereOpplysninger: List<Opplysninger>) = Opplysninger(id, opplysninger, tidligereOpplysninger)
+
+    operator fun plus(tidligereOpplysninger: Opplysninger) = Opplysninger(id, opplysninger, listOf(tidligereOpplysninger))
 }

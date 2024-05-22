@@ -47,7 +47,7 @@ class BehandlingRepositoryPostgres(
 
                                 else -> throw IllegalArgumentException("Ukjent hendelse type")
                             },
-                        aktiveOpplysninger = opplysningRepository.hentOpplysninger(row.uuid("opplysninger_id"))!!,
+                        gjeldendeOpplysninger = opplysningRepository.hentOpplysninger(row.uuid("opplysninger_id"))!!,
                         basertPå = basertPåBehandling,
                         tilstand = Behandling.TilstandType.valueOf(row.string("tilstand")),
                         sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),

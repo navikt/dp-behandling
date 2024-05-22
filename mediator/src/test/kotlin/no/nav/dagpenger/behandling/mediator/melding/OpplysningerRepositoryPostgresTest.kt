@@ -157,7 +157,7 @@ class OpplysningerRepositoryPostgresTest {
     }
 
     @Test
-    fun `lagre erstattet opplysning`() {
+    fun `lagre erstattet opplysning i samme Opplysninger`() {
         withMigratedDb {
             val repo = OpplysningerRepositoryPostgres()
             val opplysningstype = Opplysningstype.somHeltall("Heltall")
@@ -176,6 +176,38 @@ class OpplysningerRepositoryPostgresTest {
                 }
             fraDb.aktiveOpplysninger() shouldContainExactly opplysninger.aktiveOpplysninger()
             fraDb.finnOpplysning(opplysningstype).verdi shouldBe opplysningErstattet.verdi
+        }
+    }
+
+    @Test
+    fun `kan erstatte opplysning i tidligere Opplysninger`() {
+        withMigratedDb {
+            val repo = OpplysningerRepositoryPostgres()
+
+            // Lag opplysninger med opprinnelig opplysning
+            val opplysningstype = Opplysningstype.somHeltall("Heltall")
+            val opplysning = Faktum(opplysningstype, 10)
+            val opprinneligOpplysninger =
+                Opplysninger(listOf(opplysning)).also {
+                    Regelkjøring(LocalDate.now(), it)
+                }
+            repo.lagreOpplysninger(opprinneligOpplysninger)
+
+            // Lag ny opplysninger med erstattet opplysning
+            val opplysningErstattet = Faktum(opplysningstype, 20)
+            val erstattetOpplysninger = Opplysninger(opprinneligOpplysninger).also { Regelkjøring(LocalDate.now(), it) }
+            erstattetOpplysninger.leggTil(opplysningErstattet)
+            repo.lagreOpplysninger(erstattetOpplysninger)
+
+            // Verifiser
+            val fraDb: Opplysninger =
+                // Simulerer hvordan Behandling setter opp Opplysninger
+                repo.hentOpplysninger(erstattetOpplysninger.id) + repo.hentOpplysninger(opprinneligOpplysninger.id)
+            Regelkjøring(LocalDate.now(), fraDb)
+            fraDb.aktiveOpplysninger() shouldContainExactly erstattetOpplysninger.aktiveOpplysninger()
+            fraDb.finnOpplysning(opplysningstype).verdi shouldBe opplysningErstattet.verdi
+
+            fraDb.finnOpplysning(opplysningstype).erstatter shouldBe opplysning
         }
     }
 }
