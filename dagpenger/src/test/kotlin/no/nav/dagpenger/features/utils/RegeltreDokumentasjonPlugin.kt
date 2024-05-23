@@ -18,6 +18,7 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.Utdanning
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
 import org.approvaltests.namer.NamerWrapper
@@ -36,8 +37,8 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-meldeplikt" to Meldeplikt.regelsett,
             "@regel-opphold" to Opphold.regelsett,
             "@regel-tap-arbeidsinntekt-og-arbeidstid" to TapAvArbeidsinntektOgArbeidstid.regelsett,
+            "@regel-utdanning" to Utdanning.regelsett,
         )
-    println("Lager dokumentasjon for $test")
     val regelsett = regler[test]
     requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }
     val regeltre = RegeltreBygger(regelsett)
