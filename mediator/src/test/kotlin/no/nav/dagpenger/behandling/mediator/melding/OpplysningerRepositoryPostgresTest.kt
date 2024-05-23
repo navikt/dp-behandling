@@ -210,4 +210,46 @@ class OpplysningerRepositoryPostgresTest {
             fraDb.finnOpplysning(opplysningstype).erstatter shouldBe opplysning
         }
     }
+
+    @Test
+    fun `lagrer opplysninger med utledning fra tidligere opplysninger`() {
+        withMigratedDb {
+            val repo = OpplysningerRepositoryPostgres()
+            val baseOpplysningstype = Opplysningstype.somDato("Dato")
+            val utledetOpplysningstype = Opplysningstype.somHeltall("Utledet")
+
+            val baseOpplysning = Faktum(baseOpplysningstype, LocalDate.now())
+
+            val regelsett = Regelsett("Regelsett") { regel(utledetOpplysningstype) { oppslag(baseOpplysningstype) { 5 } } }
+            val tidligereOpplysninger = Opplysninger().also { Regelkjøring(LocalDate.now(), it, regelsett) }
+            tidligereOpplysninger.leggTil(baseOpplysning)
+
+            repo.lagreOpplysninger(tidligereOpplysninger)
+
+            val nyeOpplysninger =
+                Opplysninger(opplysninger = emptyList(), basertPå = listOf(tidligereOpplysninger)).also {
+                    Regelkjøring(LocalDate.now(), it, regelsett)
+                }
+            val endretBaseOpplysningstype = Faktum(baseOpplysningstype, LocalDate.now().plusDays(1))
+            nyeOpplysninger.leggTil(endretBaseOpplysningstype)
+            repo.lagreOpplysninger(nyeOpplysninger)
+
+            val fraDb = repo.hentOpplysninger(nyeOpplysninger.id).also { Regelkjøring(LocalDate.now(), it) }
+            fraDb.finnAlle().size shouldBe nyeOpplysninger.finnAlle().size
+
+            with(fraDb.finnOpplysning(utledetOpplysningstype)) {
+                verdi shouldBe 5
+                utledetAv.shouldNotBeNull()
+                utledetAv!!.regel shouldBe "Oppslag"
+                utledetAv!!.opplysninger shouldContainExactly listOf(baseOpplysning)
+            }
+            with(fraDb.finnOpplysning(baseOpplysning.id)) {
+                id shouldBe baseOpplysning.id
+                verdi shouldBe baseOpplysning.verdi
+                gyldighetsperiode shouldBe baseOpplysning.gyldighetsperiode
+                opplysningstype shouldBe baseOpplysning.opplysningstype
+                utledetAv.shouldBeNull()
+            }
+        }
+    }
 }
