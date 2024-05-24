@@ -13,3 +13,12 @@ internal fun String.somLocalDate(): LocalDate {
 fun dato(dato: String): LocalDate {
     return dato.somLocalDate()
 }
+
+@ParameterType(".*")
+fun boolsk(verdi: String): Boolean =
+    when {
+        verdi.contains("Ja", true) -> true
+        verdi.contains("Nei", true) -> false
+        else ->
+            throw IllegalArgumentException("Ukjent svar på boolsk: $verdi")
+    }
