@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.oppslag
 
 object Utdanning {
+    // § 4-6 første og andre avsnitt, Utdanning
     internal val tarUtdanning = Opplysningstype.somBoolsk("Tar utdanning eller opplæring?")
     internal val godkjentUnntakForUtdanning = Opplysningstype.somBoolsk("Godkjent unntak for utdanning eller opplæring?")
     private val svartJaPåUtdanning = Opplysningstype.somBoolsk("Har svart ja på spørsmål om utdanning eller opplæring")
@@ -17,7 +18,8 @@ object Utdanning {
     private val oppfyllerKravetPåUnntak = Opplysningstype.somBoolsk("Oppfyller kravet på unntak for utdanning eller opplæring")
     private val søknadstidspunkt = Søknadstidspunkt.søknadstidspunkt
 
-    // § 4-3.(deltakelse i arbeidsmarkedstiltak)
+    // Dagpengeforskriften § 4-3. Utdanning og opplæring
+    //  § 4-3.(deltakelse i arbeidsmarkedstiltak)
     internal val deltakelseIArbeidsmarkedstiltak = Opplysningstype.somBoolsk("Deltar i arbeidsmarkedstiltak")
 
     // § 4-3a.(opplæring for innvandrere)
