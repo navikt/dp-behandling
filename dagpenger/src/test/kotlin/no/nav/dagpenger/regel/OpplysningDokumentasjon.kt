@@ -23,6 +23,7 @@ class OpplysningDokumentasjon {
                 Rettighetstype.regelsett,
                 Søknadstidspunkt.regelsett,
                 Verneplikt.regelsett,
+                Utdanning.regelsett,
             )
 
         val dag = RegeltreBygger(*regler.toTypedArray()).dag()

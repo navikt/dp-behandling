@@ -2,16 +2,18 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.id
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erIkkeSann
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.regel.Behov.TarUtdanningEllerOpplæring
 
 object Utdanning {
     // § 4-6 første og andre avsnitt, Utdanning
-    internal val tarUtdanning = Opplysningstype.somBoolsk("Tar utdanning eller opplæring?")
+    internal val tarUtdanning = Opplysningstype.somBoolsk("Tar utdanning eller opplæring?".id(TarUtdanningEllerOpplæring))
     internal val godkjentUnntakForUtdanning = Opplysningstype.somBoolsk("Godkjent unntak for utdanning eller opplæring?")
     private val svartJaPåUtdanning = Opplysningstype.somBoolsk("Har svart ja på spørsmål om utdanning eller opplæring")
     private val svartNeiPåUtdanning = Opplysningstype.somBoolsk("Har svart nei på spørsmål om utdanning eller opplæring")

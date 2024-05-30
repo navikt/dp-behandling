@@ -18,6 +18,7 @@ object Behov {
     val Permittert by StringConstant()
     val Lønnsgaranti by StringConstant()
     val PermittertFiskeforedling by StringConstant()
+    val TarUtdanningEllerOpplæring by StringConstant()
 
     val Verneplikt by StringConstant()
 
