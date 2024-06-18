@@ -31,6 +31,7 @@ import no.nav.dagpenger.regel.Behov.Permittert
 import no.nav.dagpenger.regel.Behov.PermittertFiskeforedling
 import no.nav.dagpenger.regel.Behov.RegistrertSomArbeidssøker
 import no.nav.dagpenger.regel.Behov.SisteAvsluttendeKalenderMåned
+import no.nav.dagpenger.regel.Behov.TarUtdanningEllerOpplæring
 import no.nav.dagpenger.regel.Behov.Verneplikt
 import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.SøknadInnsendtRegelsett
@@ -94,7 +95,7 @@ internal class PersonMediatorTest {
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
                 it.behandlinger().size shouldBe 1
-                it.behandlinger().flatMap { behandling -> behandling.opplysninger().finnAlle() }.size shouldBe 46
+                it.behandlinger().flatMap { behandling -> behandling.opplysninger().finnAlle() }.size shouldBe 58
             }
             rapid.harHendelse("vedtak_fattet") {
                 medBoolsk("utfall") shouldBe false
@@ -105,7 +106,7 @@ internal class PersonMediatorTest {
                 medOpplysning<Boolean>("Ordinær") shouldBe false
             }
 
-            rapid.inspektør.size shouldBe 10
+            rapid.inspektør.size shouldBe 11
         }
 
     @Test
@@ -141,7 +142,7 @@ internal class PersonMediatorTest {
                 }
             }
 
-            rapid.inspektør.size shouldBe 10
+            rapid.inspektør.size shouldBe 11
         }
 
     @Test
@@ -267,6 +268,12 @@ internal class PersonMediatorTest {
          */
         rapid.harBehov(Ordinær, Permittert, Lønnsgaranti, PermittertFiskeforedling)
         testPerson.løsBehov(Ordinær, Permittert, Lønnsgaranti, PermittertFiskeforedling)
+
+        /**
+         * Innhenter tar utdanning eller opplæring
+         */
+        rapid.harBehov(TarUtdanningEllerOpplæring)
+        testPerson.løsBehov(TarUtdanningEllerOpplæring)
     }
 
     private fun Meldingsinnhold.opptjeningsperiodeEr(måneder: Int) {
