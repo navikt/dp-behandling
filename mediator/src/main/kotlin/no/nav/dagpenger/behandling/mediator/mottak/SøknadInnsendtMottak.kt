@@ -19,19 +19,21 @@ internal class SøknadInnsendtMottak(
     private val messageMediator: MessageMediator,
 ) : River.PacketListener {
     init {
-        River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "innsending_ferdigstilt") }
-            validate { it.demandAny("type", listOf("NySøknad")) }
-            validate { it.requireKey("fødselsnummer") }
-            validate { it.requireKey("fagsakId") }
-            validate { it.requireValue("bruk-dp-behandling", true) }
-            validate {
-                it.require("søknadsData") { data ->
-                    data["søknad_uuid"].asUUID()
+        River(rapidsConnection)
+            .apply {
+                // TODO: Her bør vi lytte å hendelsen fra dp-soknad-orkestrator. Nå kan vi lage behov før dp-soknad-orkestrator har mottatt søknaden.
+                validate { it.demandValue("@event_name", "innsending_ferdigstilt") }
+                validate { it.demandAny("type", listOf("NySøknad")) }
+                validate { it.requireKey("fødselsnummer") }
+                validate { it.requireKey("fagsakId") }
+                validate { it.requireValue("bruk-dp-behandling", true) }
+                validate {
+                    it.require("søknadsData") { data ->
+                        data["søknad_uuid"].asUUID()
+                    }
                 }
-            }
-            validate { it.interestedIn("@id", "@opprettet") }
-        }.register(this)
+                validate { it.interestedIn("@id", "@opprettet") }
+            }.register(this)
     }
 
     @WithSpan
@@ -58,7 +60,9 @@ internal class SøknadInnsendtMottak(
     }
 }
 
-internal class SøknadInnsendtMessage(private val packet: JsonMessage) : HendelseMessage(packet) {
+internal class SøknadInnsendtMessage(
+    private val packet: JsonMessage,
+) : HendelseMessage(packet) {
     override val ident get() = packet["fødselsnummer"].asText()
     private val hendelse
         get() =
