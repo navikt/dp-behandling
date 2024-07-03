@@ -38,7 +38,7 @@ class OpplysningDokumentasjon {
             >
             >|Behov|Beskrivelse|Logisk datatype|Datatype|
             >|---|---|---|---|
-            ${behov.joinToString("\n") {
+            ${behov.sortedBy { it.data.id }.joinToString("\n") {
                 ">|${it.data.id} | ${it.data.navn} | ${it.data.datatype}|${it.data.datatype.klasse.simpleName}|"
             }}
             """.trimMargin(">")

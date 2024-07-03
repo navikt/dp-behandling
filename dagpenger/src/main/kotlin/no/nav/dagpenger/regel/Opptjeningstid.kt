@@ -16,7 +16,7 @@ import java.time.LocalDate
  */
 
 object Opptjeningstid {
-    val søknadstidspunkt = Søknadstidspunkt.søknadstidspunkt
+    private val søknadstidspunkt = Søknadstidspunkt.søknadstidspunkt
 
     // https://lovdata.no/dokument/NL/lov/2012-06-22-43/%C2%A74#%C2%A74
     private val pliktigRapporteringsfrist = Opplysningstype.somDato("Lovpålagt rapporteringsfrist for A-ordningen")

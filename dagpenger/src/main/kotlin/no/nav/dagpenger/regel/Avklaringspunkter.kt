@@ -8,6 +8,7 @@ object Avklaringspunkter {
             kode = "Verneplikt",
             tittel = "Verneplikt",
             beskrivelse = "Krever avklaring om verneplikt",
+            kanKvitteres = true,
         )
 
     val EØSArbeid =

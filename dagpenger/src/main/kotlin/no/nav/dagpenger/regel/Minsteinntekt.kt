@@ -42,7 +42,7 @@ object Minsteinntekt {
     private val over12mndTerskel = Opplysningstype.somBoolsk("Arbeidsinntekt er over kravet for siste 12 mnd")
     private val over36mndTerskel = Opplysningstype.somBoolsk("Arbeidsinntekt er over kravet for siste 36 mnd")
 
-    private val verneplikt = Verneplikt.avtjentVerneplikt
+    private val verneplikt = Verneplikt.vurderingAvVerneplikt
     val minsteinntekt = Opplysningstype.somBoolsk("Krav til minsteinntekt")
 
     val regelsett =

@@ -82,6 +82,8 @@ internal class PersonMediatorTest {
         )
     }
 
+    private val forventetAntallOpplysninger = 47
+
     @BeforeEach
     fun setUp() {
         rapid.reset()
@@ -101,7 +103,7 @@ internal class PersonMediatorTest {
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
                 it.behandlinger().size shouldBe 1
-                it.behandlinger().flatMap { behandling -> behandling.opplysninger().finnAlle() }.size shouldBe 46
+                it.behandlinger().flatMap { behandling -> behandling.opplysninger().finnAlle() }.size shouldBe forventetAntallOpplysninger
 
                 it
                     .behandlinger()
@@ -145,6 +147,7 @@ internal class PersonMediatorTest {
             rapid.inspektør.size shouldBe 19
 
             testObservatør.tilstandsendringer.size shouldBe 6
+            testObservatør.tilstandsendringer.size shouldBe 6
         }
 
     @Test
@@ -163,7 +166,7 @@ internal class PersonMediatorTest {
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
                 it.behandlinger().size shouldBe 1
-                it.behandlinger().flatMap { behandling -> behandling.opplysninger().finnAlle() }.size shouldBe 46
+                it.behandlinger().flatMap { behandling -> behandling.opplysninger().finnAlle() }.size shouldBe forventetAntallOpplysninger
             }
 
             rapid.harHendelse("behandling_avbrutt") {
