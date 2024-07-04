@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel
 
-import no.nav.dagpenger.avklaring.Kontroll
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.behandling.konklusjon.KonklusjonsSjekk.Resultat.IkkeKonkludert
 import no.nav.dagpenger.behandling.konklusjon.KonklusjonsSjekk.Resultat.Konkludert
@@ -8,7 +7,6 @@ import no.nav.dagpenger.behandling.konklusjon.KonklusjonsStrategi
 import no.nav.dagpenger.grunnbelop.Regel
 import no.nav.dagpenger.grunnbelop.forDato
 import no.nav.dagpenger.grunnbelop.getGrunnbeløpForRegel
-import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.id
@@ -74,27 +72,16 @@ object Minsteinntekt {
             .toDouble()
 
     val SvangerskapsrelaterteSykepengerKontroll =
-        Kontrollpunkt(sjekker = Avklaringspunkter.SvangerskapsrelaterteSykepenger, kontroll = avslagMinsteinntekt())
+        Kontrollpunkt(Avklaringspunkter.SvangerskapsrelaterteSykepenger) { it.har(inntektId) }
 
     val EØSArbeidKontroll =
-        Kontrollpunkt(sjekker = Avklaringspunkter.EØSArbeid, kontroll = avslagMinsteinntekt())
+        Kontrollpunkt(Avklaringspunkter.EØSArbeid) { it.har(inntektId) }
 
     val JobbetUtenforNorgeKontroll =
-        Kontrollpunkt(sjekker = Avklaringspunkter.JobbetUtenforNorge, kontroll = avslagMinsteinntekt())
+        Kontrollpunkt(Avklaringspunkter.JobbetUtenforNorge) { it.har(inntektId) }
 
     val InntektNesteKalendermånedKontroll =
-        Kontrollpunkt(sjekker = Avklaringspunkter.InntektNesteKalendermåned, kontroll = avslagMinsteinntekt())
-
-    val HattLukkedeSakerSiste8UkerKontroll =
-        Kontrollpunkt(sjekker = Avklaringspunkter.HattLukkedeSakerSiste8Uker, kontroll = avslagMinsteinntekt())
-
-    val MuligGjenopptakKontroll =
-        Kontrollpunkt(sjekker = Avklaringspunkter.MuligGjenopptak, kontroll = avslagMinsteinntekt())
-
-    private fun avslagMinsteinntekt() =
-        Kontroll { opplysninger: LesbarOpplysninger ->
-            opplysninger.har(minsteinntekt) && !opplysninger.finnOpplysning(minsteinntekt).verdi
-        }
+        Kontrollpunkt(Avklaringspunkter.InntektNesteKalendermåned) { it.har(inntektId) }
 
     val AvslagInntekt =
         KonklusjonsStrategi(DagpengerKonklusjoner.AvslagMinsteinntekt) { opplysninger ->

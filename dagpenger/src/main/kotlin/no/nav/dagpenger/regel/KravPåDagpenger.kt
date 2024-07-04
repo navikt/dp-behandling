@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.behandling.konklusjon.KonklusjonsSjekk.Resultat.IkkeKonkludert
 import no.nav.dagpenger.behandling.konklusjon.KonklusjonsSjekk.Resultat.Konkludert
 import no.nav.dagpenger.behandling.konklusjon.KonklusjonsStrategi
@@ -31,4 +32,7 @@ object KravPåDagpenger {
                 IkkeKonkludert
             }
         }
+
+    val HattLukkedeSakerSiste8UkerKontroll =
+        Kontrollpunkt(Avklaringspunkter.HattLukkedeSakerSiste8Uker) { it.har(kravPåDagpenger) }
 }

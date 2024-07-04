@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.id
@@ -18,5 +19,10 @@ object Søknadstidspunkt {
             regel(søknadsdato) { innhentes }
             regel(ønsketdato) { innhentes }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
+        }
+
+    val MuligGjenopptakKontroll =
+        Kontrollpunkt(Avklaringspunkter.MuligGjenopptak) { opplysninger ->
+            opplysninger.har(søknadsdato)
         }
 }

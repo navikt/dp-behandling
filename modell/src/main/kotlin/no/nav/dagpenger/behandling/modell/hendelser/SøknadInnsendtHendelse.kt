@@ -5,15 +5,15 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.Alderskrav.AvslagAlder
 import no.nav.dagpenger.regel.KravPåDagpenger
+import no.nav.dagpenger.regel.KravPåDagpenger.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.KravPåDagpenger.Innvilgelse
 import no.nav.dagpenger.regel.Minsteinntekt.AvslagInntekt
 import no.nav.dagpenger.regel.Minsteinntekt.EØSArbeidKontroll
-import no.nav.dagpenger.regel.Minsteinntekt.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
-import no.nav.dagpenger.regel.Minsteinntekt.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.SvangerskapsrelaterteSykepengerKontroll
 import no.nav.dagpenger.regel.SøknadInnsendtRegelsett
+import no.nav.dagpenger.regel.Søknadstidspunkt.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
 import java.time.LocalDate
 import java.util.UUID
