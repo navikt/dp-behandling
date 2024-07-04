@@ -13,6 +13,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendels
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadInnsendtHendelse
 import no.nav.dagpenger.opplysning.Hypotese
@@ -115,6 +116,11 @@ class Behandling private constructor(
     }
 
     override fun håndter(hendelse: ForslagGodkjentHendelse) {
+        hendelse.kontekst(this)
+        tilstand.håndter(this, hendelse)
+    }
+
+    override fun håndter(hendelse: PåminnelseHendelse) {
         hendelse.kontekst(this)
         tilstand.håndter(this, hendelse)
     }
@@ -233,6 +239,19 @@ class Behandling private constructor(
                 "Kan ikke håndtere hendelse ${hendelse.javaClass.simpleName} i tilstand ${this.javaClass.simpleName}",
             )
 
+        fun håndter(
+            behandling: Behandling,
+            hendelse: PåminnelseHendelse,
+        ) {
+            hendelse.info("Behandlingen mottok påminnelse, men tilstanden støtter ikke dette")
+        }
+
+        fun leaving(
+            behandling: Behandling,
+            hendelse: PersonHendelse,
+        ) {
+        }
+
         override fun toSpesifikkKontekst() =
             SpesifikkKontekst(
                 type.name,
@@ -240,12 +259,6 @@ class Behandling private constructor(
                     "opprettet" to opprettet.toString(),
                 ),
             )
-
-        fun leaving(
-            behandling: Behandling,
-            hendelse: PersonHendelse,
-        ) {
-        }
     }
 
     private data class UnderOpprettelse(
@@ -269,7 +282,7 @@ class Behandling private constructor(
         override val opprettet: LocalDateTime = LocalDateTime.now(),
     ) : BehandlingTilstand {
         override val type = TilstandType.UnderBehandling
-        override val forventetFerdig: LocalDateTime get() = opprettet.plusHours(1)
+        override val forventetFerdig: LocalDateTime get() = opprettet.plusMinutes(1)
 
         override fun entering(
             behandling: Behandling,
@@ -281,6 +294,14 @@ class Behandling private constructor(
             if (trenger.isEmpty()) {
                 behandling.tilstand(ForslagTilVedtak(), hendelse)
             }
+        }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: PåminnelseHendelse,
+        ) {
+            hendelse.kontekst(this)
+            behandling.hvaTrengerViNå(hendelse)
         }
 
         override fun håndter(

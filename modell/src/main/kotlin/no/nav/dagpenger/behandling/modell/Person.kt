@@ -9,6 +9,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendels
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadInnsendtHendelse
 
 class Person(
@@ -54,6 +55,12 @@ class Person(
     }
 
     override fun håndter(hendelse: ForslagGodkjentHendelse) {
+        hendelse.leggTilKontekst(this)
+        val behandling = behandlinger.finn(hendelse.behandlingId)
+        behandling.håndter(hendelse)
+    }
+
+    override fun håndter(hendelse: PåminnelseHendelse) {
         hendelse.leggTilKontekst(this)
         val behandling = behandlinger.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)

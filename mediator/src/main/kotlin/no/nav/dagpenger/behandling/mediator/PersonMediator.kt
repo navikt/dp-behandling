@@ -14,6 +14,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendels
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadInnsendtHendelse
 import no.nav.helse.rapids_rivers.withMDC
 
@@ -54,6 +55,12 @@ internal class PersonMediator(
     }
 
     override fun håndter(hendelse: ForslagGodkjentHendelse) {
+        behandle(hendelse) { person ->
+            person.håndter(hendelse)
+        }
+    }
+
+    override fun håndter(hendelse: PåminnelseHendelse) {
         behandle(hendelse) { person ->
             person.håndter(hendelse)
         }
