@@ -8,7 +8,6 @@ object Avklaringspunkter {
             kode = "Verneplikt",
             tittel = "Verneplikt",
             beskrivelse = "Krever avklaring om verneplikt",
-            kanKvitteres = true,
         )
 
     val EØSArbeid =
@@ -43,7 +42,7 @@ object Avklaringspunkter {
         Avklaringkode(
             kode = "MuligGjenopptak",
             tittel = "Mulig gjenopptak",
-            beskrivelse = " Personen har åpne saker i Arena som kan være gjenopptak ",
+            beskrivelse = "Personen har åpne saker i Arena som kan være gjenopptak",
         )
 
     val SvangerskapsrelaterteSykepenger =

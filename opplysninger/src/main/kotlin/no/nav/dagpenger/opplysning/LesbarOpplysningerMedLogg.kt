@@ -11,7 +11,10 @@ class LesbarOpplysningerMedLogg(
 
     private val oppslag = mutableListOf<Opplysning<*>>()
 
-    val sistBrukteOpplysning: LocalDateTime get() = oppslag.maxOfOrNull { it.opprettet } ?: LocalDateTime.now()
+    val sistBrukteOpplysning: LocalDateTime
+        get() =
+            oppslag.maxOfOrNull { it.opprettet }
+                ?: throw IllegalStateException("Ingen opplysninger har blitt brukt")
 
     override fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>) =
         opplysninger.finnOpplysning(opplysningstype).apply {
@@ -23,7 +26,12 @@ class LesbarOpplysningerMedLogg(
             oppslag.add(this)
         }
 
-    override fun har(opplysningstype: Opplysningstype<*>) = opplysninger.har(opplysningstype)
+    override fun har(opplysningstype: Opplysningstype<*>) =
+        opplysninger.har(opplysningstype).also { harOpplysning ->
+            if (harOpplysning) {
+                oppslag.add(opplysninger.finnOpplysning(opplysningstype))
+            }
+        }
 
     override fun finnAlle(opplysningstyper: List<Opplysningstype<*>>) = TODO()
 

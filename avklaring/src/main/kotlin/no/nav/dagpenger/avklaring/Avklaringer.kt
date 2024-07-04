@@ -29,8 +29,8 @@ class Avklaringer(
             .mapNotNull { aktiv ->
                 avklaringer.find { eksisterendeAvklaring ->
                     eksisterendeAvklaring.kode == aktiv.avklaringkode &&
-                        eksisterendeAvklaring.sistEndret.isBefore(aktiv.sisteOpplysning) &&
-                        eksisterendeAvklaring.erAvbrutt()
+                        eksisterendeAvklaring.erAvbrutt() &&
+                        eksisterendeAvklaring.sistEndret.isBefore(aktiv.sisteOpplysning)
                 }
             }.forEach { it.gjenåpne() }
 

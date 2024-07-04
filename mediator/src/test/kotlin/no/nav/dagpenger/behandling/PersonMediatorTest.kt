@@ -2,7 +2,9 @@ package no.nav.dagpenger.behandling
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -22,10 +24,12 @@ import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgr
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
+import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderOpprettelse
 import no.nav.dagpenger.behandling.modell.BehandlingBehov.AvklaringManuellBehandling
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
+import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Behov.HelseTilAlleTyperJobb
@@ -105,11 +109,7 @@ internal class PersonMediatorTest {
                 it.behandlinger().size shouldBe 1
                 it.behandlinger().flatMap { behandling -> behandling.opplysninger().finnAlle() }.size shouldBe forventetAntallOpplysninger
 
-                it
-                    .behandlinger()
-                    .first()
-                    .aktiveAvklaringer()
-                    .sumOf { avklaring -> avklaring.endringer.size } shouldBe 6
+                it.aktivBehandling.aktivAvklaringer.shouldHaveSize(6)
             }
 
             listOf(
@@ -128,11 +128,7 @@ internal class PersonMediatorTest {
 
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
-                it
-                    .behandlinger()
-                    .first()
-                    .aktiveAvklaringer()
-                    .sumOf { avklaring -> avklaring.endringer.size } shouldBe 0
+                it.aktivBehandling.aktivAvklaringer.shouldBeEmpty()
             }
 
             rapid.harHendelse("vedtak_fattet") {
@@ -147,8 +143,11 @@ internal class PersonMediatorTest {
             rapid.inspektør.size shouldBe 19
 
             testObservatør.tilstandsendringer.size shouldBe 6
-            testObservatør.tilstandsendringer.size shouldBe 6
         }
+
+    private val Person.aktivBehandling get() = this.behandlinger().first()
+
+    private val Behandling.aktivAvklaringer get() = this.aktiveAvklaringer()
 
     @Test
     fun `Søknad med nok inntekt skal ikke avslås - men avbrytes`() =
@@ -193,8 +192,8 @@ internal class PersonMediatorTest {
                 with(medNode("avklaringer")) {
                     this.size() shouldBe 6
                     val avklaring = this.first()
-                    avklaring["type"].asText() shouldBe "SvangerskapsrelaterteSykepenger"
-                    avklaring["begrunnelse"].asText() shouldBe "Personen har sykepenger som kan være svangerskapsrelaterte"
+                    avklaring["type"].asText() shouldBe "MuligGjenopptak"
+                    avklaring["begrunnelse"].asText() shouldBe "Personen har åpne saker i Arena som kan være gjenopptak"
                     avklaring["utfall"].asText() shouldBe "Manuell"
                 }
             }
