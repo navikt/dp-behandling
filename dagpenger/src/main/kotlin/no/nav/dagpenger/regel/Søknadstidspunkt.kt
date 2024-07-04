@@ -21,8 +21,8 @@ object Søknadstidspunkt {
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
         }
 
-    val MuligGjenopptakKontroll =
-        Kontrollpunkt(Avklaringspunkter.MuligGjenopptak) { opplysninger ->
-            opplysninger.har(søknadsdato)
-        }
+    val MuligGjenopptakKontroll = Kontrollpunkt(Avklaringspunkter.MuligGjenopptak) { it.har(søknadsdato) }
+
+    val HattLukkedeSakerSiste8UkerKontroll =
+        Kontrollpunkt(Avklaringspunkter.HattLukkedeSakerSiste8Uker) { it.har(søknadsdato) }
 }
