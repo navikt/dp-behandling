@@ -9,12 +9,14 @@ import java.time.LocalDate
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class KonklusjonsStrategiTest {
+class KonklusjonsresultatStrategiTest {
     companion object {
         val opplysningstype = Opplysningstype.somBoolsk("KonklusjonsStrategiTest")
     }
 
-    private enum class TestKonklusjon(override val årsak: String) : Konklusjon {
+    private enum class TestKonklusjon(
+        override val årsak: String,
+    ) : Konklusjon {
         KonklusjonsStrategiTest("KonklusjonsStrategiTest"),
     }
 
