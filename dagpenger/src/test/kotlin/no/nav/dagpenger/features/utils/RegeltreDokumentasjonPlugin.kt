@@ -60,7 +60,10 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-verneplikt-fastsetting" to VernepliktFastsetting.regelsett,
         )
     val regelsett = regler[test]
-    requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }
+    if (regelsett == null) {
+        println("Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin")
+        return
+    }
     val regeltre = RegeltreBygger(regelsett)
     val tre = MermaidPrinter(regeltre.dag()).toPrint()
     scenario.attach(tre, "text/markdown", "regeltre.md")

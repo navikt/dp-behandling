@@ -1,13 +1,11 @@
-package no.nav.dagpenger.behandling.modell
+package no.nav.dagpenger.regel
 
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.behandling.modell.Beregningsperiode.Terskelstrategi
-import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.beregning.Arbeidsdag
+import no.nav.dagpenger.regel.beregning.Beregningsperiode
+import no.nav.dagpenger.regel.beregning.Fraværsdag
+import no.nav.dagpenger.regel.beregning.Helgedag
 import org.junit.jupiter.api.Test
-import java.math.BigDecimal
 import java.time.LocalDate
 
 class BeregningTest {
@@ -101,29 +99,29 @@ class BeregningTest {
                 Helgedag(fraOgMed.plusDays(12), 2),
                 Helgedag(fraOgMed.plusDays(13), 2),
             )
+        /*
+                val forbrukt = Opplysningstype.somBoolsk("Forbrukt dag")
+                val opplysninger = Opplysninger()
 
-        val forbrukt = Opplysningstype.somBoolsk("Forbrukt dag")
-        val opplysninger = Opplysninger()
+                val periode = opplysninger.finnOpplysning("Periode")
+                val forbruktedager = opplysninger.finnAlle().filter { it.type == forbrukt }
+                val gjenstående = periode - forbruktedager.size
 
-        val periode = opplysninger.finnOpplysning("Periode")
-        val forbruktedager = opplysninger.finnAlle().filter { it.type == forbrukt }
-        val gjenstående = periode - forbruktedager.size
+                val periode = fraOgMed.datesUntil(fraOgMed.plusDays(14)).toList()
+                for (dato in periode) {
+                    opplysninger.forDato = dato
+                    val sats = opplysninger.finnOpplysning("Sats")
+                    val fva = opplysninger.finnOpplysning("fva")
+                    val terskel = opplysninger.finnOpplysning("terskel")
 
-        val periode = fraOgMed.datesUntil(fraOgMed.plusDays(14)).toList()
-        for (dato in periode) {
-            opplysninger.forDato = dato
-            val sats = opplysninger.finnOpplysning("Sats")
-            val fva = opplysninger.finnOpplysning("fva")
-            val terskel = opplysninger.finnOpplysning("terskel")
+                    Arbeidsdag(dato, sats, fva, 0, terskel)
+                }
 
-            Arbeidsdag(dato, sats, fva, 0, terskel)
-        }
-
-        beregningsperiode.dagerMedForbruk.forEach { dag ->
-            opplysninger.leggTil(Faktum(forbrukt, true, Gyldighetsperiode(fom = dag.dato, tom = dag.dato)))
-            opplysninger.leggTil(Faktum(utbetaling, utbetalt, Gyldighetsperiode(fom = dag.dato, tom = dag.dato)))
-        }
-        opplysninger.leggTil(Faktum(utbetalt, beregningsperiode.utbetaling, Gyldighetsperiode(fom = fraOgMed, tom = tilOgMed)))
+                beregningsperiode.dagerMedForbruk.forEach { dag ->
+                    opplysninger.leggTil(Faktum(forbrukt, true, Gyldighetsperiode(fom = dag.dato, tom = dag.dato)))
+                    opplysninger.leggTil(Faktum(utbetaling, utbetalt, Gyldighetsperiode(fom = dag.dato, tom = dag.dato)))
+                }
+                opplysninger.leggTil(Faktum(utbetalt, beregningsperiode.utbetaling, Gyldighetsperiode(fom = fraOgMed, tom = tilOgMed)))*/
 
         beregningsperiode.sumFva shouldBe (37.5 * 2) - 7.5 // 67,5 med trekk fra fraværsdag
         beregningsperiode.timerArbeidet shouldBe 19
@@ -170,81 +168,4 @@ class BeregningTest {
         // Sjekke terskel for periode
         beregningsperiode.oppfyllerKravTilTaptArbeidstid shouldBe true
     }
-}
-
-class Beregningsperiode private constructor(
-    private val dager: List<Dag>,
-    private val terskelstrategi: Terskelstrategi = snitterskel,
-) {
-    constructor(vararg dag: Dag) : this(dag.toList())
-
-    init {
-        require(dager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
-    }
-
-    val dagerMedForbruk: List<Dag>
-    val sumFva: Double get() = dager.mapNotNull { it.fva }.sum()
-    val timerArbeidet get() = dager.mapNotNull { it.timerArbeidet }.sum()
-
-    val taptArbeidstid get() = sumFva - timerArbeidet
-    val prosentfaktor get() = taptArbeidstid / sumFva
-    private val rettighetsdager get() = dager.filterIsInstance<Arbeidsdag>()
-    val terskel get() = terskelstrategi.beregnTerskel(rettighetsdager)
-    val oppfyllerKravTilTaptArbeidstid get() = (timerArbeidet / sumFva) <= terskel
-
-    private val arbeidsdager get() = dager.filterIsInstance<Arbeidsdag>()
-    val utbetaling
-        get() =
-            arbeidsdager
-                .groupBy { it.sats }
-                .map { (sats, dagerMedDenneSatsen) ->
-                    val sumSats = (sats * dagerMedDenneSatsen.size)
-                    sumSats * dagerMedDenneSatsen.size * prosentfaktor
-                }.sum()
-    val sumPerDag get() = utbetaling / arbeidsdager.size
-
-    private fun interface Terskelstrategi {
-        fun beregnTerskel(dager: List<Arbeidsdag>): Double
-    }
-
-    private companion object {
-        private val snitterskel: Terskelstrategi =
-            Terskelstrategi {
-                it.sumOf { arbeidsdag -> arbeidsdag.terskel }.toDouble() / it.size
-            }
-    }
-}
-
-interface Dag {
-    val dato: LocalDate
-    val sats: Int?
-    val fva: Double?
-    val timerArbeidet: Int?
-}
-
-class Arbeidsdag(
-    override val dato: LocalDate,
-    override val sats: Int,
-    override val fva: Double,
-    override val timerArbeidet: Int,
-    val terskel: BigDecimal,
-) : Dag {
-    constructor(dato: LocalDate, sats: Int, fva: Double, timerArbeidet: Int, terskel: Double) :
-        this(dato, sats, fva, timerArbeidet, BigDecimal.valueOf(terskel))
-}
-
-class Fraværsdag(
-    override val dato: LocalDate,
-) : Dag {
-    override val sats = null
-    override val fva = null
-    override val timerArbeidet = null
-}
-
-class Helgedag(
-    override val dato: LocalDate,
-    override val timerArbeidet: Int?,
-) : Dag {
-    override val sats = null
-    override val fva = null
 }
