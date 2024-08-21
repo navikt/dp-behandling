@@ -2,6 +2,10 @@ package no.nav.dagpenger.behandling.modell
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.modell.Beregningsperiode.Terskelstrategi
+import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysningstype
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -98,6 +102,29 @@ class BeregningTest {
                 Helgedag(fraOgMed.plusDays(13), 2),
             )
 
+        val forbrukt = Opplysningstype.somBoolsk("Forbrukt dag")
+        val opplysninger = Opplysninger()
+
+        val periode = opplysninger.finnOpplysning("Periode")
+        val forbruktedager = opplysninger.finnAlle().filter { it.type == forbrukt }
+        val gjenstående = periode - forbruktedager.size
+
+        val periode = fraOgMed.datesUntil(fraOgMed.plusDays(14)).toList()
+        for (dato in periode) {
+            opplysninger.forDato = dato
+            val sats = opplysninger.finnOpplysning("Sats")
+            val fva = opplysninger.finnOpplysning("fva")
+            val terskel = opplysninger.finnOpplysning("terskel")
+
+            Arbeidsdag(dato, sats, fva, 0, terskel)
+        }
+
+        beregningsperiode.dagerMedForbruk.forEach { dag ->
+            opplysninger.leggTil(Faktum(forbrukt, true, Gyldighetsperiode(fom = dag.dato, tom = dag.dato)))
+            opplysninger.leggTil(Faktum(utbetaling, utbetalt, Gyldighetsperiode(fom = dag.dato, tom = dag.dato)))
+        }
+        opplysninger.leggTil(Faktum(utbetalt, beregningsperiode.utbetaling, Gyldighetsperiode(fom = fraOgMed, tom = tilOgMed)))
+
         beregningsperiode.sumFva shouldBe (37.5 * 2) - 7.5 // 67,5 med trekk fra fraværsdag
         beregningsperiode.timerArbeidet shouldBe 19
         beregningsperiode.taptArbeidstid shouldBe 48.5
@@ -155,6 +182,7 @@ class Beregningsperiode private constructor(
         require(dager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
     }
 
+    val dagerMedForbruk: List<Dag>
     val sumFva: Double get() = dager.mapNotNull { it.fva }.sum()
     val timerArbeidet get() = dager.mapNotNull { it.timerArbeidet }.sum()
 
