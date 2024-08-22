@@ -41,6 +41,13 @@ internal class Beregningsperiode private constructor(
                     sumForPeriode
                 }.sum()
 
+    val forbruksdager
+        get() =
+            when (oppfyllerKravTilTaptArbeidstid) {
+                true -> arbeidsdager
+                false -> emptyList()
+            }
+
     private fun interface Terskelstrategi {
         fun beregnTerskel(dager: List<Arbeidsdag>): Double
     }

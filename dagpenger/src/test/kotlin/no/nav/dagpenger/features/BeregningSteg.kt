@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidsdag
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidstimer
+import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.Beregningsperiode
 import no.nav.dagpenger.regel.fastsetting.DagpengensStørrelse.sats
@@ -45,6 +46,19 @@ class BeregningSteg : No {
         Så("utbetales {double} kroner") { utbetaling: Double ->
             beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
             beregning.utbetaling shouldBe utbetaling
+        }
+        Så("det forbrukes {int} dager") { dager: Int ->
+            beregning.forbruksdager.size shouldBe dager
+
+            beregning.forbruksdager.forEach {
+                opplysninger.add(Faktum(forbruk, true, Gyldighetsperiode(it.dato, it.dato)))
+            }
+        }
+        Så("det gjenstår {int} dager") { dager: Int ->
+            val utgangspunkt = opplysninger.find { it.opplysningstype == antallStønadsuker }!!.verdi as Int * 5
+            val forbrukteDager = opplysninger.filter { it.opplysningstype == forbruk }.size
+            val gjenståendeDager = utgangspunkt - forbrukteDager
+            gjenståendeDager shouldBe dager
         }
     }
 
@@ -91,9 +105,9 @@ class BeregningSteg : No {
                 .mapIndexed { i, dag ->
                     val dato = fraOgMed.plusDays(i.toLong())
                     val timer = dag["verdi"]?.toInt() ?: 0
-                    val type = dag["type"] ?: "Arbeid"
+                    val type = dag["type"] ?: "Arbeidstimer"
                     when (type) {
-                        "Arbeid" ->
+                        "Arbeidstimer" ->
                             listOf(
                                 Faktum(arbeidstimer, timer, Gyldighetsperiode(dato, dato)),
                                 Faktum(arbeidsdag, true, Gyldighetsperiode(dato, dato)),
@@ -119,6 +133,9 @@ class BeregningSteg : No {
             },
             "FVA" to { args, gyldighetsperiode ->
                 Faktum(fastsattVanligArbeidstid, args["verdi"]!!.toDouble(), gyldighetsperiode)
+            },
+            "Terskel" to { args, gyldighetsperiode ->
+                Faktum(terskel, args["verdi"]!!.toDouble(), gyldighetsperiode)
             },
         )
 

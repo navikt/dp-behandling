@@ -2,107 +2,109 @@
 @dokumentasjon @regel-beregning
 Egenskap: BEREGNING
 
-  Bakgrunn:
-    Gitt at terskel er satt til 0,5
-
   Scenario: Jobbet over terskel og får ingen utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 0.5   |            |          |
       | Periode    | 52    | 01.01.2019 |          |
       | Sats       | 550   | 01.01.2020 |          |
       | FVA        | 37.5  | 01.01.2020 |          |
       | Sats       | 5555  | 13.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
-      | Dag     | type   | verdi |
-      | Mandag  | Arbeid | 5     |
-      | Tirsdag | Arbeid | 5     |
-      | Onsdag  | Arbeid | 5     |
-      | Torsdag | Arbeid | 5     |
-      | Fredag  | Arbeid | 5     |
-      | Lørdag  |        |       |
-      | Søndag  | Arbeid | 2     |
-      | Mandag  | Arbeid | 4     |
-      | Tirsdag | Arbeid | 4     |
-      | Onsdag  | Arbeid | 4     |
-      | Torsdag | Arbeid | 4     |
-      | Fredag  | Arbeid | 4     |
-      | Lørdag  |        | 0     |
-      | Søndag  |        | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 5     |
+      | Lørdag  |              |       |
+      | Søndag  | Arbeidstimer | 2     |
+      | Mandag  | Arbeidstimer | 4     |
+      | Tirsdag | Arbeidstimer | 4     |
+      | Onsdag  | Arbeidstimer | 4     |
+      | Torsdag | Arbeidstimer | 4     |
+      | Fredag  | Arbeidstimer | 4     |
+      | Lørdag  |              | 0     |
+      | Søndag  |              | 0     |
     Så skal kravet til tapt arbeidstid ikke være oppfylt
 
   Scenario: Jobbet nøyaktig på terskel og får 50% gradert utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 0.5   |            |          |
       | Periode    | 52    | 01.01.2019 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
-      | Dag     | type   | verdi |
-      | Mandag  | Arbeid | 5     |
-      | Tirsdag | Arbeid | 5     |
-      | Onsdag  | Arbeid | 5     |
-      | Torsdag | Arbeid | 5     |
-      | Fredag  | Arbeid | 0     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
-      | Mandag  | Arbeid | 0     |
-      | Tirsdag | Arbeid | 5     |
-      | Onsdag  | Arbeid | 5     |
-      | Torsdag | Arbeid | 5     |
-      | Fredag  | Arbeid | 5     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 5     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 500,0 kroner
 
   Scenario: Jobbet under terskel og får 25% gradert utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 0.5   |            |          |
       | Periode    | 52    | 01.01.2019 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
-      | Dag     | type   | verdi |
-      | Mandag  | Arbeid | 5     |
-      | Tirsdag | Arbeid | 5     |
-      | Onsdag  | Arbeid | 5     |
-      | Torsdag | Arbeid | 5     |
-      | Fredag  | Arbeid | 0     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
-      | Mandag  | Arbeid | 0     |
-      | Tirsdag | Arbeid | 0     |
-      | Onsdag  | Arbeid | 0     |
-      | Torsdag | Arbeid | 0     |
-      | Fredag  | Arbeid | 0     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 750,0 kroner
+    Og det forbrukes 10 dager
 
   Scenario: Jobbet under terskel og får 50% gradert utbetaling med endring av sats midt i perioden
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
+      | Terskel    | 0.5   |            |          |
       | Periode    | 52    | 01.01.2019 |            |
       | Sats       | 100   | 01.01.2020 | 12.01.2020 |
       | FVA        | 40    | 01.01.2020 |            |
       | Sats       | 200   | 13.01.2020 |            |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
-      | Dag     | type   | verdi |
-      | Mandag  | Arbeid | 5     |
-      | Tirsdag | Arbeid | 5     |
-      | Onsdag  | Arbeid | 5     |
-      | Torsdag | Arbeid | 5     |
-      | Fredag  | Arbeid | 0     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
-      | Mandag  | Arbeid | 5     |
-      | Tirsdag | Arbeid | 5     |
-      | Onsdag  | Arbeid | 5     |
-      | Torsdag | Arbeid | 5     |
-      | Fredag  | Arbeid | 0     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 750,0 kroner
     # 250 kroner for første uke
@@ -111,74 +113,107 @@ Egenskap: BEREGNING
   Scenario: Jobbet under terskel med sykdom og fravær og får 100% utbetaling for arbeidsdagene
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 0.5   |            |          |
       | Periode    | 52    | 01.01.2019 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
-      | Dag     | type   | verdi |
-      | Mandag  | Arbeid | 0     |
-      | Tirsdag | Arbeid | 0     |
-      | Onsdag  | Arbeid | 0     |
-      | Torsdag | Arbeid | 0     |
-      | Fredag  | Arbeid | 0     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
-      | Mandag  | Fravær |       |
-      | Tirsdag | Fravær |       |
-      | Onsdag  | Fravær |       |
-      | Torsdag | Fravær |       |
-      | Fredag  | Sykdom |       |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Fravær       |       |
+      | Tirsdag | Fravær       |       |
+      | Onsdag  | Fravær       |       |
+      | Torsdag | Fravær       |       |
+      | Fredag  | Sykdom       |       |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 500,0 kroner
+    Og det forbrukes 5 dager
+    Og det gjenstår 255 dager
 
   Scenario: Jobbet over terskel med sykdom og fravær og får ikke utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 0.5   |            |          |
       | Periode    | 52    | 01.01.2019 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
-      | Dag     | type   | verdi |
-      | Mandag  | Arbeid | 5     |
-      | Tirsdag | Arbeid | 5     |
-      | Onsdag  | Arbeid | 5     |
-      | Torsdag | Arbeid | 6     |
-      | Fredag  | Arbeid | 0     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
-      | Mandag  | Fravær |       |
-      | Tirsdag | Fravær |       |
-      | Onsdag  | Fravær |       |
-      | Torsdag | Fravær |       |
-      | Fredag  | Sykdom |       |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 6     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Fravær       |       |
+      | Tirsdag | Fravær       |       |
+      | Onsdag  | Fravær       |       |
+      | Torsdag | Fravær       |       |
+      | Fredag  | Sykdom       |       |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid ikke være oppfylt
+    Og det forbrukes 0 dager
 
   Scenario: Endring av FVA midt i perioden
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
+      | Terskel    | 0.5   |            |          |
       | Periode    | 52    | 01.01.2019 |            |
       | Sats       | 100   | 01.01.2020 |            |
       | FVA        | 20    | 01.01.2020 | 12.01.2020 |
       | FVA        | 40    | 13.01.2020 |            |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
-      | Dag     | type   | verdi |
-      | Mandag  | Arbeid | 5     |
-      | Tirsdag | Arbeid | 5     |
-      | Onsdag  | Arbeid | 5     |
-      | Torsdag | Arbeid | 5     |
-      | Fredag  | Arbeid | 5     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
-      | Mandag  | Arbeid | 5     |
-      | Tirsdag | Arbeid | 0     |
-      | Onsdag  | Arbeid | 0     |
-      | Torsdag | Arbeid | 0     |
-      | Fredag  | Arbeid | 0     |
-      | Lørdag  | Arbeid | 0     |
-      | Søndag  | Arbeid | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 5     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 500,0 kroner
+
+  Scenario: Endring av terskel midt i perioden, overgang fra permittering til ordinær
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed   |
+      | Terskel    | 0.6   |            | 12.01.2020 |
+      | Terskel    | 0.5   | 13.01.2020 |            |
+      | Periode    | 52    | 01.01.2019 |            |
+      | Sats       | 100   | 01.01.2020 |            |
+      | FVA        | 40    | 01.01.2020 |            |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 2     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 475,0 kroner
