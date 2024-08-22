@@ -57,11 +57,16 @@ internal class Beregningsperiode private constructor(
         ): Beregningsperiode {
             // TODO: Finn en ekte virkningsdato
             val virkningsdato = opplysninger.finnOpplysning(antallStønadsuker).gyldighetsperiode.fom
-            val fraOgMed = listOf(meldeperiodeFraOgMed, virkningsdato).max()
+            val fraOgMed = maxOf(meldeperiodeFraOgMed, virkningsdato)
             val dager = meldeperiodeFraOgMed.until(fraOgMed).days
+            // TODO: Lag en robust logikk for å finne den lengste perioden som kan beregnes
+            // val sisteStart = maxOf(virkningsdato, meldeperiodeFraOgMed)
+            // val førsteSlutt = minOf(stansdato, meldeperiodeTilOgMed)
+            // val periode = sisteStart..førsteSlutt
+            val periode = dager..13
 
             return Beregningsperiode(
-                (dager..13)
+                periode
                     .map { meldeperiodeFraOgMed.plusDays(it.toLong()) }
                     .map { dato ->
                         opplysninger.forDato = dato
