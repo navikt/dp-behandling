@@ -9,7 +9,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengensStørrelse.sats
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class Beregningsperiode private constructor(
+internal class Beregningsperiode private constructor(
     private val dager: List<Dag>,
     private val terskelstrategi: Terskelstrategi = snitterskel,
 ) {
@@ -85,14 +85,14 @@ class Beregningsperiode private constructor(
     }
 }
 
-interface Dag {
+internal interface Dag {
     val dato: LocalDate
     val sats: Int?
     val fva: Double?
     val timerArbeidet: Int?
 }
 
-class Arbeidsdag(
+internal class Arbeidsdag(
     override val dato: LocalDate,
     override val sats: Int,
     override val fva: Double,
@@ -103,7 +103,7 @@ class Arbeidsdag(
         this(dato, sats, fva, timerArbeidet, BigDecimal.valueOf(terskel))
 }
 
-class Fraværsdag(
+internal class Fraværsdag(
     override val dato: LocalDate,
 ) : Dag {
     override val sats = null
@@ -111,7 +111,7 @@ class Fraværsdag(
     override val timerArbeidet = null
 }
 
-class Helgedag(
+internal class Helgedag(
     override val dato: LocalDate,
     override val timerArbeidet: Int?,
 ) : Dag {
