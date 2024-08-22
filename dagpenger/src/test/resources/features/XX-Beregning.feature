@@ -156,3 +156,29 @@ Egenskap: BEREGNING
       | Lørdag  | Arbeid | 0     |
       | Søndag  | Arbeid | 0     |
     Så skal kravet til tapt arbeidstid ikke være oppfylt
+
+  Scenario: Endring av FVA midt i perioden
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed   |
+      | Periode    | 52    | 01.01.2019 |            |
+      | Sats       | 100   | 01.01.2020 |            |
+      | FVA        | 20    | 01.01.2020 | 12.01.2020 |
+      | FVA        | 40    | 13.01.2020 |            |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type   | verdi |
+      | Mandag  | Arbeid | 5     |
+      | Tirsdag | Arbeid | 5     |
+      | Onsdag  | Arbeid | 5     |
+      | Torsdag | Arbeid | 5     |
+      | Fredag  | Arbeid | 5     |
+      | Lørdag  | Arbeid | 0     |
+      | Søndag  | Arbeid | 0     |
+      | Mandag  | Arbeid | 5     |
+      | Tirsdag | Arbeid | 0     |
+      | Onsdag  | Arbeid | 0     |
+      | Torsdag | Arbeid | 0     |
+      | Fredag  | Arbeid | 0     |
+      | Lørdag  | Arbeid | 0     |
+      | Søndag  | Arbeid | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 500,0 kroner
