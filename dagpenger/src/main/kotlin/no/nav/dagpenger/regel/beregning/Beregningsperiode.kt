@@ -7,12 +7,13 @@ import no.nav.dagpenger.regel.beregning.Beregning.arbeidstimer
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.Beregningsperiode.Terskelstrategi
 import no.nav.dagpenger.regel.fastsetting.DagpengensStørrelse.sats
+import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsuker
 import java.math.BigDecimal
 import java.time.LocalDate
 
 internal class Beregningsperiode private constructor(
-    private val dager: List<Dag>,
-    private val terskelstrategi: Terskelstrategi = snitterskel,
+    dager: List<Dag>,
+    terskelstrategi: Terskelstrategi = snitterskel,
 ) {
     constructor(vararg dag: Dag) : this(dag.toList())
 
@@ -20,33 +21,30 @@ internal class Beregningsperiode private constructor(
         require(dager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
     }
 
-    val sumFva: Double get() = dager.mapNotNull { it.fva }.sum()
-    val timerArbeidet get() = dager.mapNotNull { it.timerArbeidet }.sum()
+    val sumFva = dager.mapNotNull { it.fva }.sum()
+    val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.sum()
+    val taptArbeidstid = sumFva - timerArbeidet
+    val prosentfaktor = taptArbeidstid / sumFva
 
-    val taptArbeidstid get() = sumFva - timerArbeidet
-    val prosentfaktor get() = taptArbeidstid / sumFva
-    private val rettighetsdager get() = dager.filterIsInstance<Arbeidsdag>()
-    val terskel get() = terskelstrategi.beregnTerskel(rettighetsdager)
-    val oppfyllerKravTilTaptArbeidstid get() = (timerArbeidet / sumFva) <= terskel
+    private val arbeidsdager = dager.filterIsInstance<Arbeidsdag>()
+    val terskel = terskelstrategi.beregnTerskel(arbeidsdager)
 
-    private val arbeidsdager get() = dager.filterIsInstance<Arbeidsdag>()
-    val utbetaling
-        get() =
-            arbeidsdager
-                .groupBy { it.sats }
-                .map { (sats, dagerMedDenneSatsen) ->
-                    val sumForPeriode = (sats * dagerMedDenneSatsen.size) * prosentfaktor
-                    val sumForDag = sumForPeriode / dagerMedDenneSatsen.size
-                    dagerMedDenneSatsen.forEach { it.sumTilUtbetaling = sumForDag }
-                    sumForPeriode
-                }.sum()
+    val oppfyllerKravTilTaptArbeidstid = (timerArbeidet / sumFva) <= terskel
+    val utbetaling =
+        arbeidsdager
+            .groupBy { it.sats }
+            .map { (sats, dagerMedDenneSatsen) ->
+                val sumForPeriode = (sats * dagerMedDenneSatsen.size) * prosentfaktor
+                val sumForDag = sumForPeriode / dagerMedDenneSatsen.size
+                dagerMedDenneSatsen.forEach { it.sumTilUtbetaling = sumForDag }
+                sumForPeriode
+            }.sum()
 
-    val forbruksdager
-        get() =
-            when (oppfyllerKravTilTaptArbeidstid) {
-                true -> arbeidsdager
-                false -> emptyList()
-            }
+    val forbruksdager =
+        when (oppfyllerKravTilTaptArbeidstid) {
+            true -> arbeidsdager
+            false -> emptyList()
+        }
 
     private fun interface Terskelstrategi {
         fun beregnTerskel(dager: List<Arbeidsdag>): Double
@@ -56,9 +54,14 @@ internal class Beregningsperiode private constructor(
         fun fraOpplysninger(
             meldeperiodeFraOgMed: LocalDate,
             opplysninger: Opplysninger,
-        ): Beregningsperiode =
-            Beregningsperiode(
-                (0..13)
+        ): Beregningsperiode {
+            // TODO: Finn en ekte virkningsdato
+            val virkningsdato = opplysninger.finnOpplysning(antallStønadsuker).gyldighetsperiode.fom
+            val fraOgMed = listOf(meldeperiodeFraOgMed, virkningsdato).max()
+            val dager = meldeperiodeFraOgMed.until(fraOgMed).days
+
+            return Beregningsperiode(
+                (dager..13)
                     .map { meldeperiodeFraOgMed.plusDays(it.toLong()) }
                     .map { dato ->
                         opplysninger.forDato = dato
@@ -92,6 +95,7 @@ internal class Beregningsperiode private constructor(
                         }
                     },
             )
+        }
 
         private val snitterskel: Terskelstrategi =
             Terskelstrategi {

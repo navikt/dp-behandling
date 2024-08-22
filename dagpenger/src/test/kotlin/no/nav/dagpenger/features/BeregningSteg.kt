@@ -55,6 +55,7 @@ class BeregningSteg : No {
             }
         }
         Så("det gjenstår {int} dager") { dager: Int ->
+            // TODO: Dette må bo et sted
             val utgangspunkt = opplysninger.find { it.opplysningstype == antallStønadsuker }!!.verdi as Int * 5
             val forbrukteDager = opplysninger.filter { it.opplysningstype == forbruk }.size
             val gjenståendeDager = utgangspunkt - forbrukteDager
