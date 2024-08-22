@@ -10,11 +10,14 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidsdag
+import no.nav.dagpenger.regel.beregning.Beregning.arbeidstimer
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.Beregningsperiode
 import no.nav.dagpenger.regel.fastsetting.DagpengensStørrelse.sats
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsuker
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class BeregningSteg : No {
     private val opplysninger = mutableListOf<Opplysning<*>>()
@@ -33,17 +36,48 @@ class BeregningSteg : No {
             meldeperiodeFraOgMed = fraOgMed
             opplysninger.addAll(lagMeldekort(fraOgMed, dager))
         }
-        Så("skal det utbetales {double} kroner") { utbetaling: Double ->
-            val opplysninger = Opplysninger(opplysninger)
-            val beregning = Beregningsperiode.fraOpplysninger(meldeperiodeFraOgMed, opplysninger)
+        Så("skal kravet til tapt arbeidstid ikke være oppfylt") {
+            beregning.oppfyllerKravTilTaptArbeidstid shouldBe false
+        }
+        Så("skal kravet til tapt arbeidstid være oppfylt") {
+            beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
+        }
+        Så("utbetales {double} kroner") { utbetaling: Double ->
+            beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
             beregning.utbetaling shouldBe utbetaling
         }
+    }
+
+    private val beregning by lazy {
+        val opplysninger = Opplysninger(opplysninger)
+        Beregningsperiode.fraOpplysninger(meldeperiodeFraOgMed, opplysninger)
     }
 
     private fun lagVedtak(vedtakstabell: List<MutableMap<String, String>>): List<Opplysning<*>> =
         vedtakstabell.map {
             val factory = opplysningFactory(it)
-            factory(it)
+            factory(it, gyldighetsperiode(it["fraOgMed"].toLocalDate(), it["tilOgMed"].toLocalDate()))
+        }
+
+    private companion object {
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.getDefault())
+    }
+
+    private fun String?.toLocalDate() = this?.let { LocalDate.parse(it, formatter) }
+
+    private fun gyldighetsperiode(
+        gyldigFraOgMed: LocalDate? = null,
+        gyldigTilOgMed: LocalDate? = null,
+    ): Gyldighetsperiode =
+
+        if (gyldigFraOgMed != null && gyldigTilOgMed != null) {
+            Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed)
+        } else if (gyldigFraOgMed != null && gyldigTilOgMed == null) {
+            Gyldighetsperiode(gyldigFraOgMed)
+        } else if (gyldigTilOgMed != null) {
+            Gyldighetsperiode(tom = gyldigTilOgMed)
+        } else {
+            Gyldighetsperiode()
         }
 
     private fun lagMeldekort(
@@ -51,29 +85,44 @@ class BeregningSteg : No {
         dager: MutableList<MutableMap<String, String>>,
     ): List<Opplysning<*>> {
         require(dager.size == 14) { "Må ha nøyaktig 14 dager" }
+        require(fraOgMed.dayOfWeek.value == 1) { "Må starte på en mandag" }
         val opplysninger =
-            dager.mapIndexed { i, dag ->
-                val dato = fraOgMed.plusDays(i.toLong())
-                val timer = dag["verdi"]?.toInt() ?: 0
-                Faktum(arbeidsdag, timer, Gyldighetsperiode(dato, dato))
-            }
+            dager
+                .mapIndexed { i, dag ->
+                    val dato = fraOgMed.plusDays(i.toLong())
+                    val timer = dag["verdi"]?.toInt() ?: 0
+                    val type = dag["type"] ?: "Arbeid"
+                    when (type) {
+                        "Arbeid" ->
+                            listOf(
+                                Faktum(arbeidstimer, timer, Gyldighetsperiode(dato, dato)),
+                                Faktum(arbeidsdag, true, Gyldighetsperiode(dato, dato)),
+                            )
+
+                        "Fravær",
+                        "Sykdom",
+                        -> listOf(Faktum(arbeidsdag, false, Gyldighetsperiode(dato, dato)))
+
+                        else -> throw IllegalArgumentException("Ukjent dagtype: $type")
+                    }
+                }.flatten()
         return opplysninger
     }
 
-    private val opplysningFactories: Map<String, (Map<String, String>) -> Opplysning<*>> =
+    private val opplysningFactories: Map<String, (Map<String, String>, Gyldighetsperiode) -> Opplysning<*>> =
         mapOf(
-            "Periode" to { args ->
-                Faktum(antallStønadsuker, args["verdi"]!!.toInt())
+            "Periode" to { args, gyldighetsperiode ->
+                Faktum(antallStønadsuker, args["verdi"]!!.toInt(), gyldighetsperiode)
             },
-            "Sats" to { args ->
-                Faktum(sats, Beløp(args["verdi"]!!.toInt()))
+            "Sats" to { args, gyldighetsperiode ->
+                Faktum(sats, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode)
             },
-            "FVA" to { args ->
-                Faktum(fastsattVanligArbeidstid, args["verdi"]!!.toDouble())
+            "FVA" to { args, gyldighetsperiode ->
+                Faktum(fastsattVanligArbeidstid, args["verdi"]!!.toDouble(), gyldighetsperiode)
             },
         )
 
-    private fun opplysningFactory(it: Map<String, String>): (Map<String, String>) -> Opplysning<*> {
+    private fun opplysningFactory(it: Map<String, String>): (Map<String, String>, Gyldighetsperiode) -> Opplysning<*> {
         val opplysningstype = it["Opplysning"]!!
         return opplysningFactories[opplysningstype]
             ?: throw IllegalArgumentException("Ukjent opplysningstype: $opplysningstype")

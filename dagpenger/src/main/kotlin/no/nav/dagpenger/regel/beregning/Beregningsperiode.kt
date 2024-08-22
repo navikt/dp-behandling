@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.beregning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidsdag
+import no.nav.dagpenger.regel.beregning.Beregning.arbeidstimer
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.Beregningsperiode.Terskelstrategi
 import no.nav.dagpenger.regel.fastsetting.DagpengensStørrelse.sats
@@ -34,10 +35,11 @@ internal class Beregningsperiode private constructor(
             arbeidsdager
                 .groupBy { it.sats }
                 .map { (sats, dagerMedDenneSatsen) ->
-                    val sumSats = (sats * dagerMedDenneSatsen.size)
-                    sumSats * dagerMedDenneSatsen.size * prosentfaktor
+                    val sumForPeriode = (sats * dagerMedDenneSatsen.size) * prosentfaktor
+                    val sumForDag = sumForPeriode / dagerMedDenneSatsen.size
+                    dagerMedDenneSatsen.forEach { it.sumTilUtbetaling = sumForDag }
+                    sumForPeriode
                 }.sum()
-    val sumPerDag get() = utbetaling / arbeidsdager.size
 
     private fun interface Terskelstrategi {
         fun beregnTerskel(dager: List<Arbeidsdag>): Double
@@ -55,22 +57,28 @@ internal class Beregningsperiode private constructor(
                         opplysninger.forDato = dato
                         when (dato.dayOfWeek.value) {
                             in 1..5 -> {
-                                Arbeidsdag(
-                                    dato,
-                                    opplysninger
-                                        .finnOpplysning(sats)
-                                        .verdi.verdien
-                                        .toInt(),
-                                    opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi,
-                                    opplysninger.finnOpplysning(arbeidsdag).verdi,
-                                    opplysninger.finnOpplysning(terskel).verdi.toBigDecimal(),
-                                )
+                                val erArbeidsdag = opplysninger.har(arbeidsdag) && opplysninger.finnOpplysning(arbeidsdag).verdi
+                                when (erArbeidsdag) {
+                                    true ->
+                                        Arbeidsdag(
+                                            dato,
+                                            opplysninger
+                                                .finnOpplysning(sats)
+                                                .verdi.verdien
+                                                .toInt(),
+                                            opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi / 5,
+                                            opplysninger.finnOpplysning(arbeidstimer).verdi,
+                                            opplysninger.finnOpplysning(terskel).verdi.toBigDecimal(),
+                                        )
+
+                                    false -> Fraværsdag(dato)
+                                }
                             }
 
                             in 6..7 ->
                                 Helgedag(
                                     dato,
-                                    opplysninger.finnOpplysning(arbeidsdag).verdi,
+                                    opplysninger.finnOpplysning(arbeidstimer).verdi,
                                 )
 
                             else -> Fraværsdag(dato)
@@ -99,6 +107,8 @@ internal class Arbeidsdag(
     override val timerArbeidet: Int,
     val terskel: BigDecimal,
 ) : Dag {
+    var sumTilUtbetaling: Double = 0.0
+
     constructor(dato: LocalDate, sats: Int, fva: Double, timerArbeidet: Int, terskel: Double) :
         this(dato, sats, fva, timerArbeidet, BigDecimal.valueOf(terskel))
 }

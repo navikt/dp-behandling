@@ -133,7 +133,6 @@ class BeregningTest {
         beregningsperiode.oppfyllerKravTilTaptArbeidstid shouldBe true
 
         beregningsperiode.utbetaling shouldBe 11280.74074074074
-        beregningsperiode.sumPerDag shouldBe 1253.4156378600824
     }
 
     @Test
