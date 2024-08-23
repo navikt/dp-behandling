@@ -18,6 +18,7 @@ class BeregningTest {
         val terskel = 0.5
         val beregningsperiode =
             Beregningsperiode(
+                300.0,
                 // Arbeidsdag(fraOgMed, 100, 7.5, 7, terskel),
                 // Arbeidsdag(fraOgMed.plusDays(1), 100, 7.5, 7, terskel),
                 // Arbeidsdag(fraOgMed.plusDays(2), 100, 7.5, 7, terskel),
@@ -51,6 +52,7 @@ class BeregningTest {
         val terskel = 0.5
         val beregningsperiode =
             Beregningsperiode(
+                300.0,
                 Arbeidsdag(fraOgMed, 100, 7.5, 3, terskel),
                 Arbeidsdag(fraOgMed.plusDays(1), 100, 7.5, 3, terskel),
                 Arbeidsdag(fraOgMed.plusDays(2), 100, 7.5, 3, terskel),
@@ -84,6 +86,7 @@ class BeregningTest {
         val terskel = 0.5
         val beregningsperiode =
             Beregningsperiode(
+                300.0,
                 Arbeidsdag(fraOgMed, 500, 7.5, 3, terskel),
                 Arbeidsdag(fraOgMed.plusDays(1), 500, 7.5, 3, terskel),
                 Arbeidsdag(fraOgMed.plusDays(2), 500, 7.5, 3, terskel),
@@ -144,6 +147,7 @@ class BeregningTest {
         val fva = 8.0
         val beregningsperiode =
             Beregningsperiode(
+                300.0,
                 Arbeidsdag(fraOgMed, 100, fva, 7, terskel),
                 Arbeidsdag(fraOgMed.plusDays(1), 100, fva, 7, terskel),
                 Arbeidsdag(fraOgMed.plusDays(2), 100, fva, 7, terskel),

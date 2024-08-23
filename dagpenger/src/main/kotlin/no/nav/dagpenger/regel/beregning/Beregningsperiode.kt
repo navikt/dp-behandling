@@ -8,14 +8,16 @@ import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.Beregningsperiode.Terskelstrategi
 import no.nav.dagpenger.regel.fastsetting.DagpengensStørrelse.sats
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsuker
+import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
 import java.math.BigDecimal
 import java.time.LocalDate
 
 internal class Beregningsperiode private constructor(
+    val gjenståendeEgenandel: Double,
     dager: List<Dag>,
     terskelstrategi: Terskelstrategi = snitterskel,
 ) {
-    constructor(vararg dag: Dag) : this(dag.toList())
+    constructor(gjenståendeEgenandel: Double, vararg dag: Dag) : this(gjenståendeEgenandel, dag.toList())
 
     init {
         require(dager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
@@ -30,15 +32,17 @@ internal class Beregningsperiode private constructor(
     val terskel = terskelstrategi.beregnTerskel(arbeidsdager)
 
     val oppfyllerKravTilTaptArbeidstid = (timerArbeidet / sumFva) <= terskel
-    val utbetaling =
+    private val fordeling =
         arbeidsdager
             .groupBy { it.sats }
             .map { (sats, dagerMedDenneSatsen) ->
                 val sumForPeriode = (sats * dagerMedDenneSatsen.size) * prosentfaktor
                 val sumForDag = sumForPeriode / dagerMedDenneSatsen.size
-                dagerMedDenneSatsen.forEach { it.sumTilUtbetaling = sumForDag }
-                sumForPeriode
-            }.sum()
+                dagerMedDenneSatsen.onEach { it.dagsbeløp = sumForDag }
+            }.flatten()
+
+    private val trekkEgenandel = fordeling.onEach { it.forbrukEgenandel((gjenståendeEgenandel / fordeling.size)) }
+    val utbetaling = trekkEgenandel.sumOf(Arbeidsdag::tilUtbetaling)
 
     val forbruksdager =
         when (oppfyllerKravTilTaptArbeidstid) {
@@ -55,6 +59,11 @@ internal class Beregningsperiode private constructor(
             meldeperiodeFraOgMed: LocalDate,
             opplysninger: Opplysninger,
         ): Beregningsperiode {
+            val gjenståendeEgenandel =
+                opplysninger
+                    .finnOpplysning(egenandel)
+                    .verdi.verdien
+                    .toDouble()
             // TODO: Finn en ekte virkningsdato
             val virkningsdato = opplysninger.finnOpplysning(antallStønadsuker).gyldighetsperiode.fom
             val fraOgMed = maxOf(meldeperiodeFraOgMed, virkningsdato)
@@ -66,6 +75,7 @@ internal class Beregningsperiode private constructor(
             val periode = dager..13
 
             return Beregningsperiode(
+                gjenståendeEgenandel,
                 periode
                     .map { meldeperiodeFraOgMed.plusDays(it.toLong()) }
                     .map { dato ->
@@ -123,7 +133,15 @@ internal class Arbeidsdag(
     override val timerArbeidet: Int,
     val terskel: BigDecimal,
 ) : Dag {
-    var sumTilUtbetaling: Double = 0.0
+    var forbruktEgenandel: Double = 0.0
+        private set
+    var dagsbeløp: Double = 0.0
+        internal set
+    val tilUtbetaling get() = dagsbeløp - forbruktEgenandel
+
+    fun forbrukEgenandel(egeandel: Double) {
+        forbruktEgenandel = minOf(egeandel, dagsbeløp)
+    }
 
     constructor(dato: LocalDate, sats: Int, fva: Double, timerArbeidet: Int, terskel: Double) :
         this(dato, sats, fva, timerArbeidet, BigDecimal.valueOf(terskel))

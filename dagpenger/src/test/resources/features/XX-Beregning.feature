@@ -1,6 +1,5 @@
 #language: no
-@dokumentasjon @regel-beregning
-Egenskap: BEREGNING
+Egenskap: Beregning av meldekort
 
   Scenario: Jobbet over terskel og får ingen utbetaling
     Gitt at mottaker har vedtak med
@@ -10,6 +9,7 @@ Egenskap: BEREGNING
       | Sats       | 550   | 01.01.2020 |          |
       | FVA        | 37.5  | 01.01.2020 |          |
       | Sats       | 5555  | 13.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 5     |
@@ -35,6 +35,7 @@ Egenskap: BEREGNING
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 5     |
@@ -61,6 +62,7 @@ Egenskap: BEREGNING
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 5     |
@@ -89,6 +91,7 @@ Egenskap: BEREGNING
       | Sats       | 100   | 01.01.2020 | 12.01.2020 |
       | FVA        | 40    | 01.01.2020 |            |
       | Sats       | 200   | 13.01.2020 |            |
+      | Egenandel  | 0     | 01.01.2020 |            |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 5     |
@@ -117,6 +120,7 @@ Egenskap: BEREGNING
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 0     |
@@ -145,6 +149,7 @@ Egenskap: BEREGNING
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 5     |
@@ -172,6 +177,7 @@ Egenskap: BEREGNING
       | Sats       | 100   | 01.01.2020 |            |
       | FVA        | 20    | 01.01.2020 | 12.01.2020 |
       | FVA        | 40    | 13.01.2020 |            |
+      | Egenandel  | 0     | 01.01.2020 |            |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 5     |
@@ -199,6 +205,7 @@ Egenskap: BEREGNING
       | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 100   | 01.01.2020 |            |
       | FVA        | 40    | 01.01.2020 |            |
+      | Egenandel  | 0     | 01.01.2020 |            |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 5     |
@@ -225,6 +232,7 @@ Egenskap: BEREGNING
       | Periode    | 52    | 10.01.2020 |          |
       | Sats       | 100   | 10.01.2020 |          |
       | FVA        | 20    | 10.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 10    |
@@ -272,3 +280,93 @@ Egenskap: BEREGNING
 #    Og det forbrukes 5 dager
 #    Og det gjenstår 0 dager
 
+  Scenario: Skal få 50% gradert utbetaling, men trekkes for egenandel
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 0.5   |            |          |
+      | Periode    | 52    | 01.01.2020 |          |
+      | Sats       | 100   | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 300   | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og det forbrukes 10 dager
+    Og det forbrukes 300 i egenandel
+    Og gjenstår 0 i egenandel
+    Og utbetales 700,0 kroner
+
+  Scenario: Oppstart midt i perioden, med 25% gradert utbetaling, men trekkes for egenandel
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 0.5   |            |          |
+      | Periode    | 52    | 16.01.2020 |          |
+      | Sats       | 100   | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 300   | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 4     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og det forbrukes 2 dager
+    Og det forbrukes 150 i egenandel
+    Og gjenstår 150 i egenandel
+    Og utbetales 0,0 kroner
+
+  Scenario:
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed   |
+      | Terskel    | 0.5   |            |            |
+      | Periode    | 52    | 01.01.2020 |            |
+      | Sats       | 1000  | 01.01.2020 | 12.01.2020 |
+      | Sats       | 100   | 13.01.2020 |            |
+      | FVA        | 40    | 01.01.2020 |            |
+      | Egenandel  | 3000  | 01.01.2020 |            |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og det forbrukes 10 dager
+    Og det forbrukes 3000 i egenandel
+    Og gjenstår 0 i egenandel
+    Og utbetales 4500,0 kroner

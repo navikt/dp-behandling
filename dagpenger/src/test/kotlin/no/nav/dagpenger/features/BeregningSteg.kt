@@ -16,6 +16,7 @@ import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.Beregningsperiode
 import no.nav.dagpenger.regel.fastsetting.DagpengensStørrelse.sats
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsuker
+import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -60,6 +61,15 @@ class BeregningSteg : No {
             val forbrukteDager = opplysninger.filter { it.opplysningstype == forbruk }.size
             val gjenståendeDager = utgangspunkt - forbrukteDager
             gjenståendeDager shouldBe dager
+        }
+        Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
+            beregning.forbruksdager.sumOf { it.forbruktEgenandel } shouldBe forbruktEgenandel.toDouble()
+        }
+        Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
+            val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
+            val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel }
+
+            egenandel.verdien.toInt() - forbrukt shouldBe gjenståendeEgenandel
         }
     }
 
@@ -137,6 +147,9 @@ class BeregningSteg : No {
             },
             "Terskel" to { args, gyldighetsperiode ->
                 Faktum(terskel, args["verdi"]!!.toDouble(), gyldighetsperiode)
+            },
+            "Egenandel" to { args, gyldighetsperiode ->
+                Faktum(egenandel, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode)
             },
         )
 
