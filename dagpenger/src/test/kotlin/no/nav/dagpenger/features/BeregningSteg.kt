@@ -13,7 +13,7 @@ import no.nav.dagpenger.regel.beregning.Beregning.arbeidsdag
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidstimer
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
-import no.nav.dagpenger.regel.beregning.Beregningsperiode
+import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.DagpengensStørrelse.sats
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsuker
 import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
@@ -75,7 +75,7 @@ class BeregningSteg : No {
 
     private val beregning by lazy {
         val opplysninger = Opplysninger(opplysninger)
-        Beregningsperiode.fraOpplysninger(meldeperiodeFraOgMed, opplysninger)
+        BeregningsperiodeFabrikk(meldeperiodeFraOgMed, meldeperiodeFraOgMed.plusDays(13), opplysninger).lagBeregningsperiode()
     }
 
     private fun lagVedtak(vedtakstabell: List<MutableMap<String, String>>): List<Opplysning<*>> =
