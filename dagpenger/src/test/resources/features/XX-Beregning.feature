@@ -6,7 +6,7 @@ Egenskap: BEREGNING
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
       | Terskel    | 0.5   |            |          |
-      | Periode    | 52    | 01.01.2019 |          |
+      | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 550   | 01.01.2020 |          |
       | FVA        | 37.5  | 01.01.2020 |          |
       | Sats       | 5555  | 13.01.2020 |          |
@@ -32,7 +32,7 @@ Egenskap: BEREGNING
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
       | Terskel    | 0.5   |            |          |
-      | Periode    | 52    | 01.01.2019 |          |
+      | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
@@ -58,7 +58,7 @@ Egenskap: BEREGNING
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
       | Terskel    | 0.5   |            |          |
-      | Periode    | 52    | 01.01.2019 |          |
+      | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
@@ -85,7 +85,7 @@ Egenskap: BEREGNING
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
       | Terskel    | 0.5   |            |            |
-      | Periode    | 52    | 01.01.2019 |            |
+      | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 100   | 01.01.2020 | 12.01.2020 |
       | FVA        | 40    | 01.01.2020 |            |
       | Sats       | 200   | 13.01.2020 |            |
@@ -114,7 +114,7 @@ Egenskap: BEREGNING
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
       | Terskel    | 0.5   |            |          |
-      | Periode    | 52    | 01.01.2019 |          |
+      | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
@@ -142,7 +142,7 @@ Egenskap: BEREGNING
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
       | Terskel    | 0.5   |            |          |
-      | Periode    | 52    | 01.01.2019 |          |
+      | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
@@ -168,7 +168,7 @@ Egenskap: BEREGNING
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
       | Terskel    | 0.5   |            |            |
-      | Periode    | 52    | 01.01.2019 |            |
+      | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 100   | 01.01.2020 |            |
       | FVA        | 20    | 01.01.2020 | 12.01.2020 |
       | FVA        | 40    | 13.01.2020 |            |
@@ -196,7 +196,7 @@ Egenskap: BEREGNING
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
       | Terskel    | 0.6   |            | 12.01.2020 |
       | Terskel    | 0.5   | 13.01.2020 |            |
-      | Periode    | 52    | 01.01.2019 |            |
+      | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 100   | 01.01.2020 |            |
       | FVA        | 40    | 01.01.2020 |            |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
@@ -271,3 +271,4 @@ Egenskap: BEREGNING
 #    Og utbetales 500,0 kroner
 #    Og det forbrukes 5 dager
 #    Og det gjenstår 0 dager
+
