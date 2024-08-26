@@ -73,6 +73,11 @@ internal class OpplysningSvarMottak(
         val behandlingId = packet["behandlingId"].asUUID()
         addOtelAttributes(behovId, behandlingId)
 
+        if (behandlingId.toString() == "01918e6d-cc33-7f69-bb4f-20dbfc0763d9") {
+            logger.warn { "Hopper over behandlingId som feiler" }
+            return
+        }
+
         withLoggingContext(
             "behovId" to behovId.toString(),
             "behandlingId" to behandlingId.toString(),
