@@ -48,7 +48,7 @@ internal class ApplicationBuilder(
             personRepository = personRepository,
             aktivitetsloggMediator = aktivitetsloggMediator,
             behovMediator = BehovMediator(rapidsConnection),
-            hendelseMediator = HendelseMediator(rapidsConnection),
+            hendelseMediator = HendelseMediator(Outbox()),
             observatører = setOf(KafkaBehandlingObservatør(rapidsConnection)),
             rapidsConnection = rapidsConnection,
         )

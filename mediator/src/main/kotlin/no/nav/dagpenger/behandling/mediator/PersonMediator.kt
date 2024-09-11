@@ -4,6 +4,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import mu.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
+import no.nav.dagpenger.behandling.mediator.repository.PostgresUnitOfWork
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
@@ -78,8 +79,10 @@ internal class PersonMediator(
         val person = hentEllerOpprettPerson(hendelse)
         observatører.forEach { person.registrer(it) }
         håndter(person)
-        lagre(person)
-        ferdigstill(hendelse)
+        val unitOfWork = PostgresUnitOfWork.transaction()
+        lagre(person, unitOfWork)
+        ferdigstill(hendelse, unitOfWork)
+        unitOfWork.commit()
     } catch (err: Aktivitetslogg.AktivitetException) {
         logger.error("alvorlig feil i aktivitetslogg (se sikkerlogg for detaljer)")
 
@@ -92,8 +95,11 @@ internal class PersonMediator(
         throw e
     }
 
-    private fun lagre(person: Person) {
-        personRepository.lagre(person)
+    private fun lagre(
+        person: Person,
+        unitOfWork: PostgresUnitOfWork,
+    ) {
+        personRepository.lagre(person, unitOfWork)
     }
 
     private fun hentEllerOpprettPerson(hendelse: PersonHendelse): Person {
@@ -102,7 +108,10 @@ internal class PersonMediator(
     }
 
     @WithSpan
-    private fun ferdigstill(hendelse: PersonHendelse) {
+    private fun ferdigstill(
+        hendelse: PersonHendelse,
+        unitOfWork: PostgresUnitOfWork,
+    ) {
         if (!hendelse.harAktiviteter()) return
         if (hendelse.harFunksjonelleFeilEllerVerre()) {
             logger.info("aktivitetslogg inneholder feil (se sikkerlogg)")
@@ -112,7 +121,7 @@ internal class PersonMediator(
         }
         sikkerLogger.info("aktivitetslogg inneholder meldinger: ${hendelse.toLogString()}")
         // TODO: Lag en outbox-løsning hvor vi skriver utgående meldinger til database sammen med data
-        hendelseMediator.håndter(hendelse)
+        hendelseMediator.håndter(hendelse, unitOfWork)
         behovMediator.håndter(hendelse)
         aktivitetsloggMediator.håndter(hendelse)
     }

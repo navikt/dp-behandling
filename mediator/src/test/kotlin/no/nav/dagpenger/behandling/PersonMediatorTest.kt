@@ -17,6 +17,7 @@ import no.nav.dagpenger.behandling.konfigurasjon.skruPåFeature
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
+import no.nav.dagpenger.behandling.mediator.Outbox
 import no.nav.dagpenger.behandling.mediator.PersonMediator
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.observatør.KafkaBehandlingObservatør
@@ -75,7 +76,7 @@ internal class PersonMediatorTest {
             personRepository = personRepository,
             aktivitetsloggMediator = mockk(relaxed = true),
             behovMediator = BehovMediator(rapid),
-            hendelseMediator = HendelseMediator(rapid),
+            hendelseMediator = HendelseMediator(Outbox()),
             observatører = setOf(testObservatør, kafkaObservatør),
             rapidsConnection = rapid,
         )

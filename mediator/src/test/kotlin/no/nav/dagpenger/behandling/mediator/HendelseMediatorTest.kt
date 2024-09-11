@@ -6,6 +6,7 @@ import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggObserver
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
+import no.nav.dagpenger.behandling.mediator.repository.PostgresUnitOfWork
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadInnsendtHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import no.nav.helse.rapids_rivers.asLocalDate
@@ -20,7 +21,7 @@ class HendelseMediatorTest {
 
     @Test
     fun foobar() {
-        val mediator = HendelseMediator(rapid)
+        val mediator = HendelseMediator(Outbox())
         val søknadId = UUIDv7.ny()
         val gjelderDato = LocalDate.now()
         val hendelse = SøknadInnsendtHendelse(UUIDv7.ny(), "ident", søknadId, gjelderDato, 1, LocalDateTime.now())
@@ -32,7 +33,7 @@ class HendelseMediatorTest {
         hendelse.hendelse(FooBar.FOO, "foo")
         hendelse.hendelse(FooBar.BAR, "bar", mapOf("detaljA" to "verdiA", "detaljB" to "verdiB", "kontekstA" to "bar"))
 
-        mediator.håndter(hendelse)
+        mediator.håndter(hendelse, PostgresUnitOfWork.transaction())
         rapid.inspektør.size shouldBe 2
 
         with(rapid.inspektør.message(0)) {
