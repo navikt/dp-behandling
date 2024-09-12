@@ -122,7 +122,7 @@ internal class PersonMediator(
         sikkerLogger.info("aktivitetslogg inneholder meldinger: ${hendelse.toLogString()}")
         // TODO: Lag en outbox-løsning hvor vi skriver utgående meldinger til database sammen med data
         hendelseMediator.håndter(hendelse, unitOfWork)
-        behovMediator.håndter(hendelse)
+        behovMediator.håndter(hendelse, unitOfWork)
         aktivitetsloggMediator.håndter(hendelse)
     }
 

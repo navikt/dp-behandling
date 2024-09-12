@@ -1,12 +1,12 @@
 package no.nav.dagpenger.behandling.mediator.observatør
 
+import no.nav.dagpenger.behandling.mediator.Outbox
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.RapidsConnection
 
 class KafkaBehandlingObservatør(
-    private val rapid: RapidsConnection,
+    private val rapid: Outbox,
 ) : PersonObservatør {
     override fun endretTilstand(event: PersonObservatør.PersonEvent<BehandlingEndretTilstand>) {
         rapid.publish(event.ident, event.toJson())

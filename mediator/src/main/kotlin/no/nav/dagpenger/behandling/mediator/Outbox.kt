@@ -3,14 +3,117 @@ package no.nav.dagpenger.behandling.mediator
 import com.natpryce.konfig.Key
 import com.natpryce.konfig.stringType
 import kotliquery.queryOf
+import kotliquery.sessionOf
+import mu.KotlinLogging
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.repository.PostgresUnitOfWork
 import no.nav.dagpenger.behandling.mediator.repository.UnitOfWork
 import no.nav.dagpenger.uuid.UUIDv7
 import no.nav.helse.rapids_rivers.MessageContext
+import no.nav.helse.rapids_rivers.RapidsConnection
 import org.postgresql.util.PGobject
+import java.time.LocalDateTime
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
-class Outbox : MessageContext {
+class Outbox(
+    private val rapidsConnection: RapidsConnection,
+) : MessageContext {
+    private enum class Status {
+        Opprettet,
+        Sendt,
+    }
+
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
+
+    val scheduler = Executors.newScheduledThreadPool(1)
+
+    val task =
+        Runnable {
+            publiser()
+        }
+
+    fun start() {
+        scheduler.scheduleAtFixedRate(task, 2, 5, TimeUnit.MILLISECONDS)
+    }
+
+    fun stop() {
+        if (!scheduler.awaitTermination(1, TimeUnit.SECONDS)) {
+            scheduler.shutdownNow()
+        }
+    }
+
+    init {
+        Runtime.getRuntime().addShutdownHook(
+            Thread {
+                scheduler.shutdown()
+                try {
+                    stop()
+                } catch (e: InterruptedException) {
+                    scheduler.shutdownNow()
+                }
+            },
+        )
+    }
+
+    private data class OutboxMessage(
+        val id: Long,
+        val key: String,
+        val message: String,
+        val opprettet: LocalDateTime,
+    )
+
+    private fun publiser() {
+        try {
+            val meldinger =
+                sessionOf(dataSource).use { session ->
+                    // language=PostgreSQL
+                    session.run(
+                        queryOf(
+                            """
+                            SELECT * FROM outbox WHERE status = :status ORDER BY opprettet
+                            """.trimIndent(),
+                            mapOf(
+                                "status" to Status.Opprettet.name,
+                            ),
+                        ).map { rad ->
+                            OutboxMessage(
+                                id = rad.long("id"),
+                                key = rad.string("key"),
+                                message = rad.string("message"),
+                                opprettet = rad.localDateTime("opprettet"),
+                            )
+                        }.asList,
+                    )
+                }
+
+            meldinger.onEach { message ->
+                logger.info { "Publiserer ${message.message}" }
+                rapidsConnection.publish(message.key, message.message)
+
+                sessionOf(dataSource).use { session ->
+                    session.run(
+                        queryOf(
+                            """
+                            UPDATE outbox SET status = :status WHERE id = :id
+                            """.trimIndent(),
+                            mapOf(
+                                "id" to message.id,
+                                "status" to Status.Sendt.name,
+                            ),
+                        ).asUpdate,
+                    )
+                }
+            }
+            logger.info { "Publiserer ${meldinger.size} meldinger" }
+        } catch (e: Exception) {
+            logger.info(e) { "Feil ved publisering av meldinger" }
+        }
+    }
+
     fun publish(
         key: String,
         message: String,
@@ -21,7 +124,7 @@ class Outbox : MessageContext {
             tx.run(
                 // language=PostgreSQL
                 queryOf(
-                    "INSERT INTO outbox (key, message) VALUES (:key, :message)",
+                    "INSERT INTO outbox (key, message, status) VALUES (:key, :message, :status)",
                     paramMap =
                         mapOf(
                             "message" to
@@ -30,6 +133,7 @@ class Outbox : MessageContext {
                                     value = message
                                 },
                             "key" to key,
+                            "status" to Status.Opprettet.name,
                         ),
                 ).asUpdate,
             )
@@ -44,7 +148,9 @@ class Outbox : MessageContext {
         key: String,
         message: String,
     ) {
-        publish(key, message, PostgresUnitOfWork.transaction())
+        val unitOfWork = PostgresUnitOfWork.transaction()
+        publish(key, message, unitOfWork)
+        unitOfWork.commit()
     }
 
     override fun rapidName(): String = Configuration.properties.getOrNull(Key("KAFKA_RAPID_TOPIC", stringType)) ?: "teamdagpenger.rapid.v1"

@@ -7,12 +7,12 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Behov
+import no.nav.dagpenger.behandling.mediator.repository.UnitOfWork
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
 import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.RapidsConnection
 
 class BehovMediator(
-    private val rapidsConnection: RapidsConnection,
+    private val outbox: Outbox,
 ) {
     private companion object {
         val logger = KotlinLogging.logger { }
@@ -20,13 +20,17 @@ class BehovMediator(
     }
 
     @WithSpan
-    internal fun håndter(hendelse: PersonHendelse) {
-        hendelse.kontekster().forEach { if (!it.harFunksjonelleFeilEllerVerre()) håndter(hendelse, it.behov()) }
+    internal fun håndter(
+        hendelse: PersonHendelse,
+        unitOfWork: UnitOfWork<*>,
+    ) {
+        hendelse.kontekster().forEach { if (!it.harFunksjonelleFeilEllerVerre()) håndter(hendelse, it.behov(), unitOfWork) }
     }
 
     private fun håndter(
         hendelse: PersonHendelse,
         behov: List<Behov>,
+        unitOfWork: UnitOfWork<*>,
     ) {
         behov
             .groupBy { it.kontekst() }
@@ -52,7 +56,7 @@ class BehovMediator(
 
                             leggPåOtelTracing(behovId, behovMap)
 
-                            rapidsConnection.publish(hendelse.ident(), it.toJson())
+                            outbox.publish(hendelse.ident(), it.toJson(), unitOfWork)
                         }
                     }
             }

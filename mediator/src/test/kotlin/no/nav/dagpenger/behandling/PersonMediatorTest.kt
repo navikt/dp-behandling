@@ -70,13 +70,14 @@ internal class PersonMediatorTest {
         )
 
     private val testObservatør = TestObservatør()
-    private val kafkaObservatør = KafkaBehandlingObservatør(rapid)
+    private val outbox = Outbox(rapid)
+    private val kafkaObservatør = KafkaBehandlingObservatør(outbox)
     private val personMediator =
         PersonMediator(
             personRepository = personRepository,
             aktivitetsloggMediator = mockk(relaxed = true),
-            behovMediator = BehovMediator(rapid),
-            hendelseMediator = HendelseMediator(Outbox()),
+            behovMediator = BehovMediator(outbox),
+            hendelseMediator = HendelseMediator(outbox),
             observatører = setOf(testObservatør, kafkaObservatør),
             rapidsConnection = rapid,
         )
@@ -102,6 +103,7 @@ internal class PersonMediatorTest {
     @Test
     fun `kan bare lage en behandling for samme søknad`() {
         withMigratedDb {
+            outbox.start()
             val testPerson =
                 TestPerson(
                     ident,

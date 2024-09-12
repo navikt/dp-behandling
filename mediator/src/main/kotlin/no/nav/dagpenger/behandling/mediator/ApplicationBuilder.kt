@@ -43,13 +43,14 @@ internal class ApplicationBuilder(
     private val personRepository = PersonRepositoryPostgres(behandlingRepository)
 
     private val aktivitetsloggMediator = AktivitetsloggMediator(rapidsConnection)
+    private val outbox = Outbox(rapidsConnection)
     private val personMediator: PersonMediator =
         PersonMediator(
             personRepository = personRepository,
             aktivitetsloggMediator = aktivitetsloggMediator,
-            behovMediator = BehovMediator(rapidsConnection),
-            hendelseMediator = HendelseMediator(Outbox()),
-            observatører = setOf(KafkaBehandlingObservatør(rapidsConnection)),
+            behovMediator = BehovMediator(outbox),
+            hendelseMediator = HendelseMediator(outbox),
+            observatører = setOf(KafkaBehandlingObservatør(outbox)),
             rapidsConnection = rapidsConnection,
         )
 
@@ -74,6 +75,7 @@ internal class ApplicationBuilder(
     override fun onStartup(rapidsConnection: RapidsConnection) {
         if (config["CLEAN_ON_STARTUP"] == "true") clean()
         runMigration()
+        outbox.start()
         logger.info { "Starter opp dp-behandling" }
     }
 }

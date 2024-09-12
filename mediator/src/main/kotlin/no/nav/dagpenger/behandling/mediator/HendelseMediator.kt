@@ -11,7 +11,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
 import no.nav.helse.rapids_rivers.JsonMessage
 
 class HendelseMediator(
-    private val rapidsConnection: Outbox,
+    private val outbox: Outbox,
 ) {
     private companion object {
         val logger = KotlinLogging.logger { }
@@ -42,7 +42,7 @@ class HendelseMediator(
             sikkerlogg.info { "sender hendelse ${type.name}:\n${melding.toJson()}}" }
             logger.info { "sender hendelse for ${type.name}" }
             Span.current().addEvent("Publiserer hendelse", Attributes.of(AttributeKey.stringKey("hendelse"), type.name))
-            rapidsConnection.publish(personhendelse.ident(), melding.toJson(), unitOfWork)
+            outbox.publish(personhendelse.ident(), melding.toJson(), unitOfWork)
         }
     }
 }

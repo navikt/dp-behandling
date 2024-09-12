@@ -21,7 +21,7 @@ class HendelseMediatorTest {
 
     @Test
     fun foobar() {
-        val mediator = HendelseMediator(Outbox())
+        val mediator = HendelseMediator(Outbox(rapid))
         val søknadId = UUIDv7.ny()
         val gjelderDato = LocalDate.now()
         val hendelse = SøknadInnsendtHendelse(UUIDv7.ny(), "ident", søknadId, gjelderDato, 1, LocalDateTime.now())
