@@ -1,12 +1,9 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.natpryce.konfig.Key
-import com.natpryce.konfig.stringType
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.repository.PostgresUnitOfWork
 import no.nav.dagpenger.behandling.mediator.repository.UnitOfWork
 import no.nav.dagpenger.uuid.UUIDv7
@@ -29,15 +26,15 @@ class Outbox(
         val logger = KotlinLogging.logger {}
     }
 
-    val scheduler = Executors.newScheduledThreadPool(1)
+    private val scheduler = Executors.newScheduledThreadPool(1)
 
-    val task =
+    private val task =
         Runnable {
             publiser()
         }
 
     fun start() {
-        scheduler.scheduleAtFixedRate(task, 2, 5, TimeUnit.MILLISECONDS)
+        scheduler.scheduleAtFixedRate(task, 0, 5, TimeUnit.MILLISECONDS)
     }
 
     fun stop() {
@@ -108,7 +105,9 @@ class Outbox(
                     )
                 }
             }
-            logger.info { "Publiserer ${meldinger.size} meldinger" }
+            if (meldinger.isNotEmpty()) {
+                logger.info { "Publiserte ${meldinger.size} meldinger" }
+            }
         } catch (e: Exception) {
             logger.info(e) { "Feil ved publisering av meldinger" }
         }
@@ -120,23 +119,27 @@ class Outbox(
         unitOfWork: UnitOfWork<*>,
     ) {
         require(unitOfWork is PostgresUnitOfWork) { "Outbox only supports PostgresUnitOfWork" }
-        unitOfWork.inTransaction { tx ->
-            tx.run(
-                // language=PostgreSQL
-                queryOf(
-                    "INSERT INTO outbox (key, message, status) VALUES (:key, :message, :status)",
-                    paramMap =
-                        mapOf(
-                            "message" to
-                                PGobject().apply {
-                                    type = "json"
-                                    value = message
-                                },
-                            "key" to key,
-                            "status" to Status.Opprettet.name,
-                        ),
-                ).asUpdate,
-            )
+        try {
+            unitOfWork.inTransaction { tx ->
+                tx.run(
+                    // language=PostgreSQL
+                    queryOf(
+                        "INSERT INTO outbox (key, message, status) VALUES (:key, :message, :status)",
+                        paramMap =
+                            mapOf(
+                                "message" to
+                                    PGobject().apply {
+                                        type = "json"
+                                        value = message
+                                    },
+                                "key" to key,
+                                "status" to Status.Opprettet.name,
+                            ),
+                    ).asUpdate,
+                )
+            }
+        } catch (e: Exception) {
+            TODO("Not yet implemented")
         }
     }
 
@@ -153,5 +156,5 @@ class Outbox(
         unitOfWork.commit()
     }
 
-    override fun rapidName(): String = Configuration.properties.getOrNull(Key("KAFKA_RAPID_TOPIC", stringType)) ?: "teamdagpenger.rapid.v1"
+    override fun rapidName(): String = throw IllegalStateException("Outbox does not have a rapid name")
 }

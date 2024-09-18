@@ -98,12 +98,12 @@ internal class PersonMediatorTest {
     fun setUp() {
         rapid.reset()
         skruAvFeatures()
+        outbox.start()
     }
 
     @Test
     fun `kan bare lage en behandling for samme søknad`() {
         withMigratedDb {
-            outbox.start()
             val testPerson =
                 TestPerson(
                     ident,
@@ -557,7 +557,9 @@ private fun TestRapid.harBehov(
     melding: Int = 1,
 ) {
     withClue("Siste melding på rapiden skal inneholde behov: ${behov.toList()}") {
-        inspektør.message(inspektør.size - melding)["@behov"].map { it.asText() } shouldContainAll behov.toList()
+        val melding = inspektør.message(inspektør.size - melding)
+        withClue("Skal være en @behov") { melding.has("@behov") shouldBe true }
+        melding["@behov"].map { it.asText() } shouldContainAll behov.toList()
     }
 }
 
