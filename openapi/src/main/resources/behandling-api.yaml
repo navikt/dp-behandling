@@ -295,6 +295,8 @@ components:
           nullable: true
         verdi:
           type: string
+        ekteVerdi:
+          $ref: '#/components/schemas/OpplysningVerdi'
         status:
           type: string
           enum: [ "Hypotese", "Faktum" ]
@@ -318,6 +320,55 @@ components:
         utledetAv:
           $ref: '#/components/schemas/Utledning'
 
+
+    OpplysningVerdi:
+      description: |
+        Verdi av opplysningen
+      required:
+        - datatype
+      discriminator:
+        propertyName: datatype
+        mapping:
+          'dato': '#/components/schemas/Dato'
+          'desimaltall': '#/components/schemas/Dato'
+          'heltall': '#/components/schemas/Heltall'
+          'boolsk': '#/components/schemas/Boolsk'
+      properties:
+        datatype:
+          $ref: '#/components/schemas/DataType'
+
+#  [ "dato", "desimaltall", "heltall", "boolsk", "ulid", "penger", "inntekt", "tekst" ]
+
+    Dato:
+      allOf:
+        - $ref: "#/components/schemas/OpplysningVerdi"
+      properties:
+        verdi:
+          type: string
+          format: date
+
+    Desimaltall:
+      allOf:
+        - $ref: "#/components/schemas/OpplysningVerdi"
+      properties:
+        verdi:
+          type: number
+          format: double
+
+    Heltall:
+      allOf:
+        - $ref: "#/components/schemas/OpplysningVerdi"
+      properties:
+        verdi:
+          type: number
+          format: int
+
+    Boolsk:
+        allOf:
+            - $ref: "#/components/schemas/OpplysningVerdi"
+        properties:
+            verdi:
+              type: boolean
     Opplysningskilde:
       description: |
         Kilde for opplysningen
