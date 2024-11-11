@@ -4,10 +4,11 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.tekstId
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object Egenandel {
-    val egenandel = Opplysningstype.somBeløp("Egenandel")
+    val egenandel = Opplysningstype.somBeløp("Egenandel".tekstId("opplysning.egenandel"))
     private val sats = DagpengenesStørrelse.avrundetDagsMedBarnetillegg
     private val faktor = Opplysningstype.somDesimaltall("Antall dagsats for egenandel")
 

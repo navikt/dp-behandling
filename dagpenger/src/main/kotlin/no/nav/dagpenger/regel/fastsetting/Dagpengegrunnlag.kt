@@ -21,6 +21,7 @@ import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnn
+import no.nav.dagpenger.opplysning.tekstId
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Behov.Inntekt
 import no.nav.dagpenger.regel.Minsteinntekt
@@ -45,10 +46,13 @@ object Dagpengegrunnlag {
     private val maksgrenseForGrunnlag = Opplysningstype.somBeløp("6 ganger grunnbeløp")
     private val antallÅrI36Måneder = Opplysningstype.somDesimaltall("Antall år i 36 måneder")
 
-    private val grunnlag12mnd = Opplysningstype.somBeløp("Grunnlag siste 12 mnd.")
+    private val grunnlag12mnd = Opplysningstype.somBeløp("Grunnlag siste 12 mnd.".tekstId("opplysning.grunnlag-siste-12-mnd."))
 
     private val beløpSiste36 = Opplysningstype.somBeløp("Inntekt siste 36 måneder")
-    private val grunnlag36mnd = Opplysningstype.somBeløp("Gjennomsnittlig arbeidsinntekt siste 36 måneder")
+    private val grunnlag36mnd =
+        Opplysningstype.somBeløp(
+            "Gjennomsnittlig arbeidsinntekt siste 36 måneder".tekstId("opplysning.gjennomsnittlig-arbeidsinntekt-siste-36-maaneder"),
+        )
     private val inntektperiode1 = Opplysningstype.somBeløp("Inntektperiode 1")
     private val inntektperiode2 = Opplysningstype.somBeløp("Inntektperiode 2")
     private val inntektperiode3 = Opplysningstype.somBeløp("Inntektperiode 3")
@@ -56,7 +60,7 @@ object Dagpengegrunnlag {
     private val avkortetperiode2 = Opplysningstype.somBeløp("Avkortet inntektperiode 2")
     private val avkortetperiode3 = Opplysningstype.somBeløp("Avkortet inntektperiode 3")
 
-    internal val bruktBeregningsregel = Opplysningstype.somTekst("Brukt beregningsregel")
+    internal val bruktBeregningsregel = Opplysningstype.somTekst("Brukt beregningsregel".tekstId("opplysning.brukt-beregningsregel"))
 
     val regelsett =
         Regelsett("Dagpengegrunnlag") {

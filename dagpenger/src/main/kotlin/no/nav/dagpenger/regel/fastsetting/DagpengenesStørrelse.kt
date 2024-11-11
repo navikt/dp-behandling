@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.regel.divisjon
 import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.tekstId
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import java.math.BigDecimal
@@ -29,10 +30,13 @@ object DagpengenesStørrelse {
     private val dekningsgrad = Opplysningstype.somDesimaltall("Dekningsgrad")
     val dagsatsUtenBarnetillegg = Opplysningstype.somBeløp("Dagsats uten barnetillegg")
     val avrundetDagsUtenBarnetillegg = Opplysningstype.somBeløp("Avrundet dagsats uten barnetillegg")
-    val avrundetDagsMedBarnetillegg = Opplysningstype.somBeløp("Avrundet dagsats med barnetillegg")
+    val avrundetDagsMedBarnetillegg =
+        Opplysningstype.somBeløp(
+            "Avrundet dagsats med barnetillegg".tekstId("opplysning.avrundet-dagsats-med-barnetillegg"),
+        )
     val barnetillegg = Opplysningstype.somBeløp("Barnetillegg")
     val dagsatsMedBarn = Opplysningstype.somBeløp("Dagsats med barn")
-    val ukessats = Opplysningstype.somBeløp("Ukessats")
+    val ukessats = Opplysningstype.somBeløp("Ukessats".tekstId("opplysning.ukessats"))
     private val maksGrunnlag = Opplysningstype.somBeløp("Maks grunnlag for dagpenger")
     private val antallArbeidsdagerPerÅr = Opplysningstype.somHeltall("Antall arbeidsdager per år")
     private val arbeidsdagerPerUke = Opplysningstype.somHeltall("Antall arbeidsdager per uke")

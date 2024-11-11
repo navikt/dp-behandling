@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.prosentTerskel
+import no.nav.dagpenger.opplysning.tekstId
 import no.nav.dagpenger.regel.Behov.HarTaptArbeid
 import no.nav.dagpenger.regel.Behov.KravPåLønn
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -27,7 +28,10 @@ object TapAvArbeidsinntektOgArbeidstid {
     private val beregningsregel36mnd = Opplysningstype.somBoolsk("Beregeningsregel: Arbeidstid siste 36 måneder")
     val beregnetArbeidstid = Opplysningstype.somDesimaltall("Beregnet vanlig arbeidstid per uke før tap")
     private val maksimalVanligArbeidstid = Opplysningstype.somDesimaltall("Maksimal vanlig arbeidstid")
-    val fastsattVanligArbeidstid = Opplysningstype.somDesimaltall("Fastsatt arbeidstid per uke før tap")
+    val fastsattVanligArbeidstid =
+        Opplysningstype.somDesimaltall(
+            "Fastsatt arbeidstid per uke før tap".tekstId("opplysning.fastsatt-arbeidstid-per-uke-for-tap"),
+        )
     val nyArbeidstid = Opplysningstype.somDesimaltall("Ny arbeidstid per uke")
     internal val kravTilTaptArbeidstid: Opplysningstype<Boolean> = Opplysningstype.somBoolsk("Tap av arbeidstid er minst terskel")
 

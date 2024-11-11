@@ -20,7 +20,13 @@ object Opptjeningstid {
     // https://lovdata.no/dokument/NL/lov/2012-06-22-43/%C2%A74#%C2%A74
     private val pliktigRapporteringsfrist = Opplysningstype.somDato("Lovpålagt rapporteringsfrist for A-ordningen")
     val justertRapporteringsfrist = Opplysningstype.somDato("Arbeidsgivers rapporteringsfrist")
-    val sisteAvsluttendendeKalenderMåned = Opplysningstype.somDato("Siste avsluttende kalendermåned".id(SisteAvsluttendeKalenderMåned))
+    val sisteAvsluttendendeKalenderMåned =
+        Opplysningstype.somDato(
+            "Siste avsluttende kalendermåned".id(
+                id = SisteAvsluttendeKalenderMåned,
+                tekstId = "opplysning.siste-avsluttende-kalendermaaned",
+            ),
+        )
 
     val regelsett =
         Regelsett("Opptjeningsperiode") {

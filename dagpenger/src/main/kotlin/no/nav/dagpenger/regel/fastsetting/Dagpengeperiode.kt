@@ -8,11 +8,12 @@ import no.nav.dagpenger.opplysning.regel.høyesteAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
+import no.nav.dagpenger.opplysning.tekstId
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object Dagpengeperiode {
-    val antallStønadsuker = Opplysningstype.somHeltall("Antall stønadsuker")
+    val antallStønadsuker = Opplysningstype.somHeltall("Antall stønadsuker".tekstId("opplysning.antall-stonadsuker"))
     val gjenståendeStønadsdager = Opplysningstype.somHeltall("Antall gjenstående stønadsdager")
     private val dagerIUka = Opplysningstype.somHeltall("Antall dager som skal regnes med i hver uke")
     private val terskelFaktor12 = Opplysningstype.somDesimaltall("Terskelfaktor for 12 måneder")

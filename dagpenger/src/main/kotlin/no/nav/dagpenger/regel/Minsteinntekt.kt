@@ -25,8 +25,14 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.søknadstidspunkt
 import java.time.LocalDate
 
 object Minsteinntekt {
-    private val `12mndTerskelFaktor` = Opplysningstype.somDesimaltall("Antall G for krav til 12 mnd arbeidsinntekt")
-    private val `36mndTerskelFaktor` = Opplysningstype.somDesimaltall("Antall G for krav til 36 mnd arbeidsinntekt")
+    private val `12mndTerskelFaktor` =
+        Opplysningstype.somDesimaltall(
+            "Antall G for krav til 12 mnd arbeidsinntekt".tekstId("opplysning.antall-g-for-krav-til-12-mnd-arbeidsinntekt"),
+        )
+    private val `36mndTerskelFaktor` =
+        Opplysningstype.somDesimaltall(
+            "Antall G for krav til 36 mnd arbeidsinntekt".tekstId("opplysning.antall-g-for-krav-til-36-mnd-arbeidsinntekt"),
+        )
     val inntekt12 =
         Opplysningstype.somBeløp(
             "Arbeidsinntekt siste 12 mnd".id(
@@ -51,11 +57,11 @@ object Minsteinntekt {
 
     private val `12mndTerskel` =
         Opplysningstype.somBeløp(
-            "Inntektskrav for siste 12 mnd".tekstId("opplysning.arbeidsinntekt-er-over-kravet-for-siste-12-mnd"),
+            "Inntektskrav for siste 12 mnd".tekstId("opplysning.inntektskrav-for-siste-12-mnd"),
         )
     private val `36mndTerskel` =
         Opplysningstype.somBeløp(
-            "Inntektskrav for siste 36 mnd".tekstId("opplysning.arbeidsinntekt-er-over-kravet-for-siste-36-mnd"),
+            "Inntektskrav for siste 36 mnd".tekstId("opplysning.inntektskrav-for-siste-36-mnd"),
         )
     private val over12mndTerskel = Opplysningstype.somBoolsk("Arbeidsinntekt er over kravet for siste 12 mnd")
     private val over36mndTerskel = Opplysningstype.somBoolsk("Arbeidsinntekt er over kravet for siste 36 mnd")
