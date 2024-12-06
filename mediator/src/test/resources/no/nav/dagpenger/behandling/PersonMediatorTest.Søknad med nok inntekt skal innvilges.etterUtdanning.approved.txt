@@ -29,18 +29,14 @@ Arbeidsinntekt siste 36 mnd
 Arbeidsinntekt er over kravet for siste 12 mnd
 Arbeidsinntekt er over kravet for siste 36 mnd
 Krav til minsteinntekt
+Mottar ikke andre fulle ytelser
+Er personen medlem av folketrygden
+Opphold i Norge
+Oppfyller unntak for opphold i Norge
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søk arbeid lokalt
-Deltar i arbeidsmarkedstiltak
-Deltar i opplæring for innvandrere
-Deltar i grunnskoleopplæring, videregående opplæring og opplæring i grunnleggende ferdigheter
-Deltar i høyere yrkesfaglig utdanning
-Deltar i høyere utdanning
-Deltar på kurs mv
-Utestengt
 Deltar medlemmet i streik eller er omfattet av lock-out?
 Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?
-Er personen medlem av folketrygden?
 Har tapt arbeid
 Krav på lønn fra tidligere arbeidsgiver
 Ny arbeidstid per uke
@@ -50,7 +46,13 @@ Krav til prosentvis tap av arbeidstid
 Beregningsregel: Arbeidstid siste 6 måneder
 Beregningsregel: Arbeidstid siste 12 måneder
 Beregeningsregel: Arbeidstid siste 36 måneder
-Mottar ikke andre fulle ytelser
+Deltar i arbeidsmarkedstiltak
+Deltar i opplæring for innvandrere
+Deltar i grunnskoleopplæring, videregående opplæring og opplæring i grunnleggende ferdigheter
+Deltar i høyere yrkesfaglig utdanning
+Deltar i høyere utdanning
+Deltar på kurs mv
+Utestengt
 Grunnbeløp for grunnlag
 Tellende inntekt
 Faktor for maksimalt mulig grunnlag
@@ -66,13 +68,14 @@ Opplæringspenger dagsats
 Uføre dagsats
 Foreldrepenger dagsats
 Svangerskapspenger dagsats
-Godkjent unntak for utdanning eller opplæring?
-Oppfyller krav til ikke utestengt
+Oppfyller kravet til medlemskap
+Oppfyller kravet til opphold i Norge
 Er medlemmet ikke påvirket av streik eller lock-out?
-Oppfyller personen vilkåret om medlemskap?
 Ikke krav på lønn fra tidligere arbeidsgiver
 Fastsatt arbeidstid per uke før tap
 Beregningsregel: Tapt arbeidstid
+Godkjent unntak for utdanning eller opplæring?
+Oppfyller krav til ikke utestengt
 Oppjustert inntekt
 6 ganger grunnbeløp
 Sum andre ytelser
@@ -99,8 +102,10 @@ Kan jobbe heltid og deltid
 Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
-Bruker oppfyller kravet til å være arbeidssøker
-Bruker oppfyller kravet til mobilitet
+Oppfyller kravet til heltid- og deltidsarbeid
+Oppfyller kravet til mobilitet
+Oppfyller kravet til å være arbeidsfør
+Oppfyller kravet til å ta ethvert arbeid
 Krav til arbeidssøker
 Registrert som arbeidssøker
 Registrert som arbeidssøker på søknadstidspunktet

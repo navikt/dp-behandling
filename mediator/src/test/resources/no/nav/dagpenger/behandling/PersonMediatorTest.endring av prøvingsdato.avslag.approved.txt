@@ -11,6 +11,8 @@ Kan jobbe heltid og deltid
 Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
+Oppfyller kravet til å være arbeidsfør
+Oppfyller kravet til å ta ethvert arbeid
 Har rett til ordinære dagpenger gjennom arbeidsforhold
 Har rett til dagpenger under permittering
 Har rett til dagpenger etter konkurs
@@ -31,8 +33,8 @@ Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 mnd
 Inntektskrav for siste 36 mnd
-Bruker oppfyller kravet til å være arbeidssøker
-Bruker oppfyller kravet til mobilitet
+Oppfyller kravet til heltid- og deltidsarbeid
+Oppfyller kravet til mobilitet
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Krav til arbeidssøker
