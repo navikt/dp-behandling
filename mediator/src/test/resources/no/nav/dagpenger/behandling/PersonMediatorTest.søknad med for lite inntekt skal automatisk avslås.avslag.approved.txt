@@ -35,8 +35,10 @@ Kan jobbe heltid og deltid
 Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
-Bruker oppfyller kravet til å være arbeidssøker
-Bruker oppfyller kravet til mobilitet
+Oppfyller kravet til heltid- og deltidsarbeid
+Oppfyller kravet til mobilitet
+Oppfyller kravet til å være arbeidsfør
+Oppfyller kravet til å ta ethvert arbeid
 Krav til arbeidssøker
 Registrert som arbeidssøker
 Registrert som arbeidssøker på søknadstidspunktet

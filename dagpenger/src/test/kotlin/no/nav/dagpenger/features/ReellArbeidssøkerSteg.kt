@@ -57,13 +57,13 @@ class ReellArbeidssøkerSteg : No {
         Gitt("kan ta alle typer arbeid") {
             opplysninger
                 .leggTil(
-                    Faktum<Boolean>(ReellArbeidssøker.helseTilAlleTyperArbeid, true) as Opplysning<*>,
+                    Faktum<Boolean>(ReellArbeidssøker.erArbeidsfør, true) as Opplysning<*>,
                 ).also { regelkjøring.evaluer() }
         }
         Gitt("kan ikke ta alle typer arbeid") {
             opplysninger
                 .leggTil(
-                    Faktum<Boolean>(ReellArbeidssøker.helseTilAlleTyperArbeid, false) as Opplysning<*>,
+                    Faktum<Boolean>(ReellArbeidssøker.erArbeidsfør, false) as Opplysning<*>,
                 ).also { regelkjøring.evaluer() }
         }
         Men("oppfyller kravet å kun søke lokalt arbeid") {

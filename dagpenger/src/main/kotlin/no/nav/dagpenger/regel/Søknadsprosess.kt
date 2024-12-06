@@ -53,16 +53,17 @@ class Søknadsprosess : Forretningsprosess {
         val vilkår =
             listOf(
                 Alderskrav.kravTilAlder,
-                Minsteinntekt.minsteinntekt,
-                ReellArbeidssøker.kravTilArbeidssøker,
+                FulleYtelser.ikkeFulleYtelser,
+                Medlemskap.oppfyllerMedlemskap,
                 Meldeplikt.registrertPåSøknadstidspunktet,
+                Minsteinntekt.minsteinntekt,
+                Opphold.oppfyllerKravet,
+                ReellArbeidssøker.kravTilArbeidssøker,
                 Rettighetstype.rettighetstype,
+                StreikOgLockout.ikkeStreikEllerLockout,
+                TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid,
                 Utdanning.kravTilUtdanning,
                 Utestengning.ikkeUtestengt,
-                StreikOgLockout.ikkeStreikEllerLockout,
-                Medlemskap.oppfyllerMedlemskap,
-                TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid,
-                FulleYtelser.ikkeFulleYtelser,
             )
         ønsketResultat.addAll(
             vilkår,

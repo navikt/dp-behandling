@@ -44,18 +44,22 @@ import no.nav.dagpenger.regel.fastsetting.Egenandel
 import java.time.LocalDateTime
 import java.util.UUID
 
-private val autorativKildeForDetViPåEkteMenerErVilkår: List<Opplysningstype<Boolean>> =
-    listOf(
-        Alderskrav.kravTilAlder,
-        Minsteinntekt.minsteinntekt,
-        ReellArbeidssøker.kravTilArbeidssøker,
-        Meldeplikt.registrertPåSøknadstidspunktet,
-        Rettighetstype.rettighetstype,
-        Utdanning.kravTilUtdanning,
-        Utestengning.ikkeUtestengt,
-        StreikOgLockout.ikkeStreikEllerLockout,
-        Medlemskap.oppfyllerMedlemskap,
-        TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid,
+private fun folketrygdloven(paragraf: String) = "folketrygdloven § $paragraf"
+
+private fun kapittel4(paragraf: Int) = folketrygdloven("4-$paragraf")
+
+private val autorativKildeForDetViPåEkteMenerErVilkår: Map<Opplysningstype<Boolean>, String> =
+    mapOf(
+        Alderskrav.kravTilAlder to kapittel4(23),
+        Minsteinntekt.minsteinntekt to kapittel4(4),
+        ReellArbeidssøker.kravTilArbeidssøker to kapittel4(5),
+        Meldeplikt.registrertPåSøknadstidspunktet to kapittel4(8),
+        Rettighetstype.rettighetstype to "folketrygdloven kapittel 4",
+        Utdanning.kravTilUtdanning to kapittel4(6),
+        Utestengning.ikkeUtestengt to kapittel4(28),
+        StreikOgLockout.ikkeStreikEllerLockout to kapittel4(22),
+        Medlemskap.oppfyllerMedlemskap to kapittel4(2),
+        TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid to kapittel4(3),
     )
 
 private fun LesbarOpplysninger.samordninger(): List<SamordningDTO> {
@@ -105,8 +109,8 @@ fun lagVedtak(
         opplysninger
             .finnAlle()
             .filterIsInstance<Opplysning<Boolean>>()
-            .filter { it.opplysningstype in autorativKildeForDetViPåEkteMenerErVilkår }
-            .map { it.tilVilkårDTO() }
+            .filter { it.opplysningstype in autorativKildeForDetViPåEkteMenerErVilkår.keys }
+            .map { it.tilVilkårDTO(autorativKildeForDetViPåEkteMenerErVilkår[it.opplysningstype]) }
 
     val utfall = vilkår.all { it.status == VilkaarDTO.Status.Oppfylt }
     val fastsatt = vedtakFastsattDTO(utfall, opplysninger)
@@ -194,10 +198,10 @@ private fun vedtakFastsattDTO(
     false -> VedtakFastsattDTO(utfall = false, samordning = emptyList())
 }
 
-private fun Opplysning<Boolean>.tilVilkårDTO(): VilkaarDTO =
+private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
     VilkaarDTO(
         navn = this.opplysningstype.toString(),
-        hjemmel = "Lover og sånt",
+        hjemmel = hjemmel ?: "Mangler mapping til hjemmel",
         status =
             when (this.verdi) {
                 true -> VilkaarDTO.Status.Oppfylt

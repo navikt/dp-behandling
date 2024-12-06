@@ -16,6 +16,7 @@ object KravPåDagpenger {
                     Medlemskap.oppfyllerMedlemskap,
                     Meldeplikt.registrertPåSøknadstidspunktet,
                     Minsteinntekt.minsteinntekt,
+                    Opphold.oppfyllerKravet,
                     ReellArbeidssøker.kravTilArbeidssøker,
                     Rettighetstype.rettighetstype,
                     Samordning.utfallEtterSamordning,

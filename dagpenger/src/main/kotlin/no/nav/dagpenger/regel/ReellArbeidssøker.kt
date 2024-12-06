@@ -16,16 +16,23 @@ import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object ReellArbeidssøker {
+    // c.	å ta arbeid uavhengig av om det er på heltid eller deltid,
     internal val kanJobbeDeltid = Opplysningstype.somBoolsk("Kan jobbe heltid og deltid".id(KanJobbeDeltid))
-    internal val kanJobbeHvorSomHelst = Opplysningstype.somBoolsk("Kan jobbe i hele Norge".id(KanJobbeHvorSomHelst))
-    internal val helseTilAlleTyperArbeid = Opplysningstype.somBoolsk("Kan ta alle typer arbeid".id(HelseTilAlleTyperJobb))
-    internal val villigTilEthvertArbeid = Opplysningstype.somBoolsk("Villig til å bytte yrke".id(VilligTilÅBytteYrke))
-
-    private val oppfyllerKravTilMobilitet = Opplysningstype.somBoolsk("Bruker oppfyller kravet til mobilitet")
-    private val oppfyllerKravTilArbeidssøker = Opplysningstype.somBoolsk("Bruker oppfyller kravet til å være arbeidssøker")
-
-    val godkjentLokalArbeidssøker = Opplysningstype.somBoolsk("Det er godkjent at bruker kun søk arbeid lokalt")
     val godkjentDeltidssøker = Opplysningstype.somBoolsk("Det er godkjent at bruker kun søker deltidsarbeid")
+    private val oppfyllerKravTilArbeidssøker = Opplysningstype.somBoolsk("Oppfyller kravet til heltid- og deltidsarbeid")
+
+    // b.	å ta arbeid hvor som helst i Norge,
+    internal val kanJobbeHvorSomHelst = Opplysningstype.somBoolsk("Kan jobbe i hele Norge".id(KanJobbeHvorSomHelst))
+    val godkjentLokalArbeidssøker = Opplysningstype.somBoolsk("Det er godkjent at bruker kun søk arbeid lokalt")
+    private val oppfyllerKravTilMobilitet = Opplysningstype.somBoolsk("Oppfyller kravet til mobilitet")
+
+    //  Som reell arbeidssøker regnes den som er arbeidsfør,
+    internal val erArbeidsfør = Opplysningstype.somBoolsk("Kan ta alle typer arbeid".id(HelseTilAlleTyperJobb))
+    private val oppfyllerKravTilArbeidsfør = Opplysningstype.somBoolsk("Oppfyller kravet til å være arbeidsfør")
+
+    // a.	å ta ethvert arbeid som er lønnet etter tariff eller sedvane,
+    internal val villigTilEthvertArbeid = Opplysningstype.somBoolsk("Villig til å bytte yrke".id(VilligTilÅBytteYrke))
+    private val oppfyllerKravetTilEthvertArbeid = Opplysningstype.somBoolsk("Oppfyller kravet til å ta ethvert arbeid")
 
     val kravTilArbeidssøker = Opplysningstype.somBoolsk("Krav til arbeidssøker")
 
@@ -33,21 +40,23 @@ object ReellArbeidssøker {
         Regelsett("Reell arbeidssøker") {
             regel(kanJobbeDeltid) { innhentes }
             regel(kanJobbeHvorSomHelst) { innhentes }
-            regel(helseTilAlleTyperArbeid) { innhentes }
+            regel(erArbeidsfør) { innhentes }
             regel(villigTilEthvertArbeid) { innhentes }
 
-            regel(godkjentLokalArbeidssøker) { oppslag(prøvingsdato) { false } }
             regel(godkjentDeltidssøker) { oppslag(prøvingsdato) { false } }
+            regel(godkjentLokalArbeidssøker) { oppslag(prøvingsdato) { false } }
 
-            regel(oppfyllerKravTilMobilitet) { enAv(kanJobbeHvorSomHelst, godkjentLokalArbeidssøker) }
             regel(oppfyllerKravTilArbeidssøker) { enAv(kanJobbeDeltid, godkjentDeltidssøker) }
+            regel(oppfyllerKravTilMobilitet) { enAv(kanJobbeHvorSomHelst, godkjentLokalArbeidssøker) }
+            regel(oppfyllerKravTilArbeidsfør) { enAv(erArbeidsfør) }
+            regel(oppfyllerKravetTilEthvertArbeid) { enAv(villigTilEthvertArbeid) }
 
             regel(kravTilArbeidssøker) {
                 alle(
                     oppfyllerKravTilArbeidssøker,
                     oppfyllerKravTilMobilitet,
-                    helseTilAlleTyperArbeid,
-                    villigTilEthvertArbeid,
+                    oppfyllerKravTilArbeidsfør,
+                    oppfyllerKravetTilEthvertArbeid,
                 )
             }
         }

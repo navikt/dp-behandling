@@ -10,7 +10,7 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 object Opphold {
     var oppholdINorge = Opplysningstype.somBoolsk("Opphold i Norge".id("OppholdINorge"))
     var unntakForOpphold = Opplysningstype.somBoolsk("Oppfyller unntak for opphold i Norge")
-    val oppfyllerKravet = Opplysningstype.somBoolsk("Oppfyller kravet til Opphold i Norge")
+    val oppfyllerKravet = Opplysningstype.somBoolsk("Oppfyller kravet til opphold i Norge")
 
     val regelsett =
         Regelsett("Opphold i Norge") {

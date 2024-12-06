@@ -110,10 +110,10 @@ class TestPerson(
         data: Map<String, Any> = emptyMap(),
     ): String =
         rapid.inspektør.message(rapid.inspektør.size - 1).run {
-            val lol = this as ObjectNode
-            lol.put("@final", true)
-            lol.putPOJO("@løsning", løsninger)
-            objectMapper.writeValueAsString(lol)
+            val løsningsobjekt = this as ObjectNode
+            løsningsobjekt.put("@final", true)
+            løsningsobjekt.putPOJO("@løsning", løsninger)
+            objectMapper.writeValueAsString(løsningsobjekt)
         }
 
     private val objectMapper =

@@ -7,8 +7,8 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object Medlemskap {
-    val medlemFolketrygden = Opplysningstype.somBoolsk("Er personen medlem av folketrygden?")
-    val oppfyllerMedlemskap = Opplysningstype.somBoolsk("Oppfyller personen vilkåret om medlemskap?")
+    val medlemFolketrygden = Opplysningstype.somBoolsk("Er personen medlem av folketrygden")
+    val oppfyllerMedlemskap = Opplysningstype.somBoolsk("Oppfyller kravet til medlemskap")
 
     val regelsett =
         Regelsett(
