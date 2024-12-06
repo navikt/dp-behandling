@@ -23,7 +23,7 @@ object KravPåDagpenger {
                     StreikOgLockout.ikkeStreikEllerLockout,
                     TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid,
                     Utdanning.kravTilUtdanning,
-                    Utestengning.ikkeUtestengt,
+                    Utestengning.oppfyllerKravetTilIkkeUtestengt,
                 )
             }
         }

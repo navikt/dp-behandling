@@ -7,12 +7,12 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object Utestengning {
-    val utestengt = Opplysningstype.somBoolsk("Utestengt")
-    val ikkeUtestengt = Opplysningstype.somBoolsk("Oppfyller krav til ikke utestengt")
+    val utestengt = Opplysningstype.somBoolsk("Bruker er utestengt fra dagpenger")
+    val oppfyllerKravetTilIkkeUtestengt = Opplysningstype.somBoolsk("Oppfyller krav til ikke utestengt")
 
     val regelsett =
         Regelsett("Utestengning") {
             regel(utestengt) { oppslag(prøvingsdato) { false } }
-            regel(ikkeUtestengt) { ikke(utestengt) }
+            regel(oppfyllerKravetTilIkkeUtestengt) { ikke(utestengt) }
         }
 }

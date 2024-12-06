@@ -13,11 +13,11 @@ import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntekt
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.tapAvArbeid
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.tapAvArbeidsinntekt
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.LocalDate
@@ -68,8 +68,8 @@ class TapAvArbeidSteg : No {
         }
         Når("personen søker om dagpenger") { }
         Så("skal personen oppfylle kravet til tap av arbeidsinntekt") {
-            assertTrue(opplysninger.har(tapAvArbeidsinntekt))
-            assertTrue(opplysninger.finnOpplysning(tapAvArbeidsinntekt).verdi)
+            assertTrue(opplysninger.har(kravTilTapAvArbeidsinntekt))
+            assertTrue(opplysninger.finnOpplysning(kravTilTapAvArbeidsinntekt).verdi)
         }
         Og("personen skal {string} kravet til tap av arbeidstid") { utfall: String ->
             val verdi = utfall(utfall)

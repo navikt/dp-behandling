@@ -2,11 +2,9 @@ package no.nav.dagpenger.behandling.mediator
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
-import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.behandling.modell.Ident
@@ -60,6 +58,4 @@ internal class PersonMediator(
         val vedtak = lagVedtak(behandlingId, ident, søknadId, opplysninger, automatiskBehandlet, godkjent, besluttet)
         return JsonMessage.newMessage("vedtak_fattet", vedtak.toMap())
     }
-
-    private fun VedtakDTO.toMap() = objectMapper.convertValue<Map<String, Any>>(this)
 }

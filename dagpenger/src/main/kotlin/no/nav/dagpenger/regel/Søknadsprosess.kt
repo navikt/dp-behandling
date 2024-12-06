@@ -63,7 +63,7 @@ class Søknadsprosess : Forretningsprosess {
                 StreikOgLockout.ikkeStreikEllerLockout,
                 TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid,
                 Utdanning.kravTilUtdanning,
-                Utestengning.ikkeUtestengt,
+                Utestengning.oppfyllerKravetTilIkkeUtestengt,
             )
         ønsketResultat.addAll(
             vilkår,

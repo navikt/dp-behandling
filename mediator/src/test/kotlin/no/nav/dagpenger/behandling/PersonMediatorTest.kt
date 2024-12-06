@@ -24,6 +24,7 @@ import no.nav.dagpenger.behandling.konfigurasjon.skruPåFeature
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
+import no.nav.dagpenger.behandling.mediator.lagVedtak
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
@@ -31,6 +32,7 @@ import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostg
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.toMap
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderOpprettelse
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
@@ -307,6 +309,25 @@ internal class PersonMediatorTest {
 
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
+
+            val behandling =
+                personRepository.hent(ident.tilPersonIdentfikator()).run {
+                    shouldNotBeNull()
+                    behandlinger().first()
+                }
+            Approvals.verify(
+                objectMapper.writeValueAsString(
+                    lagVedtak(
+                        behandlingId = behandling.behandlingId,
+                        ident = behandling.behandler.ident.tilPersonIdentfikator(),
+                        søknadId = behandling.behandler.eksternId,
+                        opplysninger = behandling.opplysninger(),
+                        automatisk = behandling.erAutomatiskBehandlet(),
+                        godkjentAv = behandling.godkjent,
+                        besluttetAv = behandling.besluttet,
+                    ).toMap(),
+                ),
+            )
 
             rapid.harHendelse("vedtak_fattet") {
                 medFastsattelser {

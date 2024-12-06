@@ -18,7 +18,7 @@ object TapAvArbeidsinntektOgArbeidstid {
     internal val tapAvArbeid = Opplysningstype.somBoolsk("Har tapt arbeid".id(HarTaptArbeid))
     internal val kravPåLønn = Opplysningstype.somBoolsk("Krav på lønn fra tidligere arbeidsgiver".id(KravPåLønn))
     private val ikkeKravPåLønn = Opplysningstype.somBoolsk("Ikke krav på lønn fra tidligere arbeidsgiver")
-    internal val tapAvArbeidsinntekt = Opplysningstype.somBoolsk("Krav til tap av arbeidsinntekt")
+    val kravTilTapAvArbeidsinntekt = Opplysningstype.somBoolsk("Krav til tap av arbeidsinntekt")
 
     private val kravTilArbeidstidsreduksjon = Opplysningstype.somDesimaltall("Krav til prosentvis tap av arbeidstid")
     private val beregningsregel = Opplysningstype.somBoolsk("Beregningsregel: Tapt arbeidstid")
@@ -29,7 +29,7 @@ object TapAvArbeidsinntektOgArbeidstid {
     private val maksimalVanligArbeidstid = Opplysningstype.somDesimaltall("Maksimal vanlig arbeidstid")
     val fastsattVanligArbeidstid = Opplysningstype.somDesimaltall("Fastsatt arbeidstid per uke før tap")
     val nyArbeidstid = Opplysningstype.somDesimaltall("Ny arbeidstid per uke")
-    internal val kravTilTaptArbeidstid: Opplysningstype<Boolean> = Opplysningstype.somBoolsk("Tap av arbeidstid er minst terskel")
+    val kravTilTaptArbeidstid: Opplysningstype<Boolean> = Opplysningstype.somBoolsk("Tap av arbeidstid er minst terskel")
 
     val kravTilTapAvArbeidsinntektOgArbeidstid = Opplysningstype.somBoolsk("Krav til tap av arbeidsinntekt og arbeidstid")
 
@@ -38,7 +38,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(tapAvArbeid) { oppslag(prøvingsdato) { true } } // TODO: Satt til true for testing av innvilgelse
             regel(kravPåLønn) { oppslag(prøvingsdato) { false } }
             regel(ikkeKravPåLønn) { ikke(kravPåLønn) }
-            regel(tapAvArbeidsinntekt) { alle(tapAvArbeid, ikkeKravPåLønn) }
+            regel(kravTilTapAvArbeidsinntekt) { alle(tapAvArbeid, ikkeKravPåLønn) }
 
             regel(kravTilArbeidstidsreduksjon) { oppslag(prøvingsdato) { 50.0 } } // Perm og sånt har andre terskelverdier
 
@@ -59,7 +59,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(beregningsregel) { enAv(beregningsregel6mnd, beregningsregel12mnd, beregningsregel36mnd) }
 
             regel(kravTilTapAvArbeidsinntektOgArbeidstid) {
-                alle(tapAvArbeidsinntekt, kravTilTaptArbeidstid, beregningsregel)
+                alle(kravTilTapAvArbeidsinntekt, kravTilTaptArbeidstid, beregningsregel)
             }
         }
 

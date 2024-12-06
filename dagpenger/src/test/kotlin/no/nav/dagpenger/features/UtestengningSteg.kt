@@ -31,7 +31,7 @@ class UtestengningSteg : No {
             opplysninger.leggTil(Faktum<Boolean>(Utestengning.utestengt, utestengt) as Opplysning<*>).also { regelkjøring.evaluer() }
         }
         Så("skal kravet om utestengning være {boolsk}") { oppfylt: Boolean ->
-            val faktum = opplysninger.finnOpplysning(Utestengning.ikkeUtestengt)
+            val faktum = opplysninger.finnOpplysning(Utestengning.oppfyllerKravetTilIkkeUtestengt)
             faktum.verdi shouldBe oppfylt
         }
     }
