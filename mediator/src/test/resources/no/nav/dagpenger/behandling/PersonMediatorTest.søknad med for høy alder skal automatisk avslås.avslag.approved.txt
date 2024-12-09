@@ -1,0 +1,12 @@
+fagsakId
+søknadId
+støtterInnvilgelse
+Fødselsdato
+Søknadsdato
+Ønsker dagpenger fra dato
+Søknadstidspunkt
+Prøvingsdato
+Aldersgrense
+Dato søker når maks alder
+Siste mulige dag bruker kan oppfylle alderskrav
+Oppfyller kravet til alder

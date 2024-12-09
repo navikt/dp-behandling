@@ -161,6 +161,8 @@ internal class PersonMediatorTest {
                 }
                 medNode("vilkår").size() shouldBe 1
             }
+
+            godkjennOpplysninger("avslag")
         }
 
     @Test
