@@ -25,6 +25,7 @@ Har svart ja på spørsmål om utdanning eller opplæring
 Har svart nei på spørsmål om utdanning eller opplæring
 Barn
 Antall barn som gir rett til barnetillegg
+Sykepenger dagsats
 Prøvingsdato
 Aldersgrense
 Lovpålagt rapporteringsfrist for A-ordningen
@@ -63,7 +64,6 @@ Faktor for utregning av dagsats etter dagpengegrunnlaget
 Barnetilleggets størrelse i kroner per dag for hvert barn
 90% av grunnlag for dagpenger
 Antall arbeidsdager per år
-Sykepenger dagsats
 Pleiepenger dagsats
 Omsorgspenger dagsats
 Opplæringspenger dagsats

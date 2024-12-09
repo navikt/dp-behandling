@@ -47,7 +47,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Saksbehandler
-import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.Barnetillegg
@@ -74,11 +73,9 @@ import no.nav.dagpenger.regel.Behov.Verneplikt
 import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
@@ -151,7 +148,6 @@ internal class PersonMediatorTest {
                     søknadsdato = 6.mai(2021),
                     alder = 76,
                 )
-            // val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
             løsbehandlingFramTilAlder(testPerson)
 
             personRepository.hent(ident.tilPersonIdentfikator()).also {
@@ -159,9 +155,12 @@ internal class PersonMediatorTest {
                 it.behandlinger().size shouldBe 1
             }
 
-            // godkjennOpplysninger("avslag")
-
-            rapid.harHendelse("vedtak_fattet") {}
+            rapid.harHendelse("vedtak_fattet") {
+                medMeldingsInnhold("fastsatt") {
+                    medBoolsk("utfall") shouldBe false
+                }
+                medNode("vilkår").size() shouldBe 1
+            }
         }
 
     @Test
@@ -174,7 +173,7 @@ internal class PersonMediatorTest {
                     rapid,
                     søknadsdato = 6.mai(2021),
                 )
-            løsBehandlingFramTilFerdig(testPerson)
+            løsBehandlingFramTilMinsteinntekt(testPerson)
 
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
@@ -244,7 +243,7 @@ internal class PersonMediatorTest {
                     søknadsdato = 6.mai(2021),
                     InntektSiste12Mnd = 500000,
                 )
-            løsBehandlingFramTilMinsteinntekt(testPerson)
+            løsBehandlingFramTilAvbruddInntekt(testPerson)
 
             godkjennOpplysninger("knokcout")
 
@@ -267,50 +266,7 @@ internal class PersonMediatorTest {
                 )
             val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
             skruPåFeature(Feature.INNVILGELSE)
-            løsBehandlingFramTilFerdig(testPerson)
-
-            antallOpplysninger() shouldBe 118
-            godkjennOpplysninger("tilKravPåDagpenger")
-
-            /**
-             * Innhenter tar utdanning eller opplæring
-             */
-            rapid.harBehov(TarUtdanningEllerOpplæring)
-            testPerson.løsBehov(TarUtdanningEllerOpplæring)
-
-            /**
-             * Henter inn barn som kan gi barnetillegg
-             */
-            rapid.harBehov(Barnetillegg)
-            testPerson.løsBehov(Barnetillegg)
-
-            godkjennOpplysninger("etterUtdanning")
-
-            /**
-             * Innhente informasjon om andre ytelser
-             */
-            rapid.harBehov(
-                Sykepenger,
-                Omsorgspenger,
-                Svangerskapspenger,
-                Foreldrepenger,
-                Opplæringspenger,
-                Pleiepenger,
-                OppgittAndreYtelserUtenforNav,
-                AndreØkonomiskeYtelser,
-            )
-            testPerson.løsBehov(Sykepenger, true)
-            testPerson.løsBehov("Sykepenger dagsats", 200.0)
-            testPerson.løsBehov(
-                Sykepenger,
-                Omsorgspenger,
-                Svangerskapspenger,
-                Foreldrepenger,
-                Opplæringspenger,
-                Pleiepenger,
-                OppgittAndreYtelserUtenforNav,
-                AndreØkonomiskeYtelser,
-            )
+            løsBehandlingFramTilInnvilgelse(testPerson)
 
             godkjennOpplysninger("etterInntekt")
 
@@ -372,20 +328,7 @@ internal class PersonMediatorTest {
                     rapid,
                 )
             skruPåFeature(Feature.INNVILGELSE)
-            løsBehandlingFramTilFerdig(testPerson)
-            testPerson.løsBehov(TarUtdanningEllerOpplæring)
-            testPerson.løsBehov(Inntekt)
-            testPerson.løsBehov(Barnetillegg)
-            testPerson.løsBehov(
-                Sykepenger,
-                Omsorgspenger,
-                Svangerskapspenger,
-                Foreldrepenger,
-                Opplæringspenger,
-                Pleiepenger,
-                OppgittAndreYtelserUtenforNav,
-                AndreØkonomiskeYtelser,
-            )
+            løsBehandlingFramTilInnvilgelse(testPerson)
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medBoolsk("utfall") shouldBe true
@@ -419,7 +362,7 @@ internal class PersonMediatorTest {
                     søknadsdato = 6.mai(2021),
                 )
 
-            løsBehandlingFramTilFerdig(testPerson)
+            løsBehandlingFramTilMinsteinntekt(testPerson)
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medTekst("søknadId") shouldBe testPerson.søknadId
@@ -476,7 +419,7 @@ internal class PersonMediatorTest {
                     innsendt = 5.juni(2024).atTime(12, 0),
                     ønskerFraDato = 10.juni(2024),
                 )
-            løsBehandlingFramTilFerdig(testPerson)
+            løsBehandlingFramTilMinsteinntekt(testPerson)
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medAvklaringer(
@@ -502,7 +445,7 @@ internal class PersonMediatorTest {
                     innsendt = 7.juni(2024).atTime(12, 0),
                     ønskerFraDato = 10.juni(2024),
                 )
-            løsBehandlingFramTilFerdig(testPerson)
+            løsBehandlingFramTilMinsteinntekt(testPerson)
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medAvklaringer(
@@ -527,7 +470,7 @@ internal class PersonMediatorTest {
                     innsendt = 1.juni(2024).atTime(12, 0),
                     ønskerFraDato = 30.juni(2024),
                 )
-            løsBehandlingFramTilFerdig(testPerson)
+            løsBehandlingFramTilMinsteinntekt(testPerson)
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medAvklaringer(
@@ -544,59 +487,6 @@ internal class PersonMediatorTest {
         }
 
     @Test
-    @Disabled("Denne må bruke en opplysning som treffer mindre bredt. Er uansett også testet i prøvingsdatotesten")
-    fun `redigering av opplysning i forslag til vedtak`() {
-        withMigratedDb {
-            val testPerson =
-                TestPerson(
-                    ident,
-                    rapid,
-                    søknadsdato = 18.oktober(2024),
-                    innsendt = 18.oktober(2024).atTime(12, 0),
-                    ønskerFraDato = 30.desember(2024),
-                )
-            løsBehandlingFramTilFerdig(testPerson)
-
-            rapid.harHendelse("forslag_til_vedtak") {
-                medDato("prøvingsdato") shouldBe 30.desember(2024)
-                with(medNode("avklaringer")) {
-                    this.size() shouldBe 8
-                }
-            }
-
-            testPerson.ønskerFraDato = 1.juli(2024)
-            testPerson.løsBehov("ØnskerDagpengerFraDato")
-
-            rapid.harHendelse("forslag_til_vedtak") {
-                with(medNode("avklaringer")) {
-                    this.size() shouldBe 6
-                }
-            }
-            testPerson.løsBehov(
-                "Beregnet vanlig arbeidstid per uke før tap",
-                mapOf(
-                    "verdi" to 40.0,
-                    "@kilde" to mapOf("saksbehandler" to "123"),
-                ),
-            )
-            personRepository.hent(ident.tilPersonIdentfikator()).also { person ->
-                person.shouldNotBeNull()
-                person
-                    .behandlinger()
-                    .first()
-                    .opplysninger()
-                    .finnOpplysning(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid)
-                    .let {
-                        it.verdi shouldBe 40.0
-                        it.kilde.shouldNotBeNull()
-                        it.kilde!!::class shouldBe Saksbehandlerkilde::class
-                        (it.kilde!! as Saksbehandlerkilde).saksbehandler shouldBe "123"
-                    }
-            }
-        }
-    }
-
-    @Test
     fun `endring av prøvingsdato`() {
         withMigratedDb {
             skruPåFeature(Feature.INNVILGELSE)
@@ -609,20 +499,7 @@ internal class PersonMediatorTest {
                     ønskerFraDato = 1.juni(2024),
                     InntektSiste12Mnd = 500000,
                 )
-            løsBehandlingFramTilFerdig(testPerson)
-
-            testPerson.løsBehov(TarUtdanningEllerOpplæring)
-            testPerson.løsBehov(Barnetillegg)
-            testPerson.løsBehov(
-                Sykepenger,
-                Omsorgspenger,
-                Svangerskapspenger,
-                Foreldrepenger,
-                Opplæringspenger,
-                Pleiepenger,
-                OppgittAndreYtelserUtenforNav,
-                AndreØkonomiskeYtelser,
-            )
+            løsBehandlingFramTilInnvilgelse(testPerson)
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medDato("prøvingsdato") shouldBe 1.juni(2024)
@@ -741,6 +618,7 @@ internal class PersonMediatorTest {
 
     enum class Behandlingslengde {
         Alder,
+        AvbruddInntekt,
         Minsteinntekt,
         KravPåDagpenger,
     }
@@ -753,7 +631,11 @@ internal class PersonMediatorTest {
         løsBehandlingFramTil(testPerson, Behandlingslengde.Minsteinntekt)
     }
 
-    private fun løsBehandlingFramTilFerdig(testPerson: TestPerson) {
+    private fun løsBehandlingFramTilAvbruddInntekt(testPerson: TestPerson) {
+        løsBehandlingFramTil(testPerson, Behandlingslengde.AvbruddInntekt)
+    }
+
+    private fun løsBehandlingFramTilInnvilgelse(testPerson: TestPerson) {
         løsBehandlingFramTil(testPerson, Behandlingslengde.KravPåDagpenger)
     }
 
@@ -802,7 +684,7 @@ internal class PersonMediatorTest {
         }
         testPerson.løsBehov(Inntekt)
 
-        if (behandlingslengde == Behandlingslengde.Minsteinntekt) {
+        if (behandlingslengde == Behandlingslengde.AvbruddInntekt) {
             return
         }
 
@@ -823,6 +705,48 @@ internal class PersonMediatorTest {
          */
         rapid.harBehov(Ordinær, Permittert, Lønnsgaranti, PermittertFiskeforedling)
         testPerson.løsBehov(Ordinær, Permittert, Lønnsgaranti, PermittertFiskeforedling)
+
+        if (behandlingslengde == Behandlingslengde.Minsteinntekt) {
+            return
+        }
+
+        /**
+         * Innhenter tar utdanning eller opplæring
+         */
+        rapid.harBehov(TarUtdanningEllerOpplæring)
+        testPerson.løsBehov(TarUtdanningEllerOpplæring)
+
+        /**
+         * Henter inn barn som kan gi barnetillegg
+         */
+        rapid.harBehov(Barnetillegg)
+        testPerson.løsBehov(Barnetillegg)
+
+        /**
+         * Innhente informasjon om andre ytelser
+         */
+        rapid.harBehov(
+            Sykepenger,
+            Omsorgspenger,
+            Svangerskapspenger,
+            Foreldrepenger,
+            Opplæringspenger,
+            Pleiepenger,
+            OppgittAndreYtelserUtenforNav,
+            AndreØkonomiskeYtelser,
+        )
+        testPerson.løsBehov(Sykepenger, true)
+        testPerson.løsBehov("Sykepenger dagsats", 200.0)
+        testPerson.løsBehov(
+            Sykepenger,
+            Omsorgspenger,
+            Svangerskapspenger,
+            Foreldrepenger,
+            Opplæringspenger,
+            Pleiepenger,
+            OppgittAndreYtelserUtenforNav,
+            AndreØkonomiskeYtelser,
+        )
     }
 
     private fun antallOpplysninger() =

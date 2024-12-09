@@ -61,7 +61,6 @@ Faktor for utregning av dagsats etter dagpengegrunnlaget
 Barnetilleggets størrelse i kroner per dag for hvert barn
 90% av grunnlag for dagpenger
 Antall arbeidsdager per år
-Sykepenger dagsats
 Pleiepenger dagsats
 Omsorgspenger dagsats
 Opplæringspenger dagsats
@@ -78,7 +77,6 @@ Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
 Oppjustert inntekt
 6 ganger grunnbeløp
-Sum andre ytelser
 Krav til tap av arbeidsinntekt
 Tap av arbeidstid er minst terskel
 Inntektperiode 1
@@ -170,6 +168,8 @@ Har barnetillegg
 Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
 Avrundet ukessats med barnetillegg før samordning
 Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
+Sykepenger dagsats
+Sum andre ytelser
 Samordnet dagsats uten barnetillegg
 Samordnet dagsats er negativ eller 0
 Samordnet ukessats uten barnetillegg
