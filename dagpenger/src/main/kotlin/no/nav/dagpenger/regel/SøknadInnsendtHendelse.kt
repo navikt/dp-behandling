@@ -47,14 +47,18 @@ class SøknadInnsendtHendelse(
     override fun avklarer(opplysninger: LesbarOpplysninger): Opplysningstype<Boolean> {
         // Sjekk krav til alder
         if (!opplysninger.har(Alderskrav.kravTilAlder)) return Alderskrav.kravTilAlder
+        val alderskravOppfylt = opplysninger.finnOpplysning(Alderskrav.kravTilAlder).verdi
+
+        if (!alderskravOppfylt) {
+            return Alderskrav.kravTilAlder
+        }
+
         // Sjekk krav til minste arbeidsinntekt
         if (!opplysninger.har(Minsteinntekt.minsteinntekt)) return Minsteinntekt.minsteinntekt
-
-        val alderskravOppfylt = opplysninger.finnOpplysning(Alderskrav.kravTilAlder).verdi
         val minsteinntektOppfylt = opplysninger.finnOpplysning(Minsteinntekt.minsteinntekt).verdi
 
         // Om krav til alder eller arbeidsinntekt ikke er oppfylt er det ingen grunn til å fortsette, men vi må fastsette hvilke tillegskrav Arena trenger.
-        if (!alderskravOppfylt || !minsteinntektOppfylt) {
+        if (!minsteinntektOppfylt) {
             return when {
                 opplysninger.mangler(ReellArbeidssøker.kravTilArbeidssøker) -> ReellArbeidssøker.kravTilArbeidssøker
                 opplysninger.mangler(Meldeplikt.registrertPåSøknadstidspunktet) -> Meldeplikt.registrertPåSøknadstidspunktet

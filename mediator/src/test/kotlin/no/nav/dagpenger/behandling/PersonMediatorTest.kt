@@ -18,6 +18,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaringkode
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
@@ -41,6 +42,7 @@ import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndret
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.PersonObservatør
+import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
@@ -139,6 +141,30 @@ internal class PersonMediatorTest {
     }
 
     @Test
+    fun `søknad med for høy alder skal automatisk avslås`() =
+        withMigratedDb {
+            skruPåFeature(Feature.INNVILGELSE)
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = 6.mai(2021),
+                    alder = 76,
+                )
+            // val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
+            løsbehandlingFramTilAlder(testPerson)
+
+            personRepository.hent(ident.tilPersonIdentfikator()).also {
+                it.shouldNotBeNull()
+                it.behandlinger().size shouldBe 1
+            }
+
+            // godkjennOpplysninger("avslag")
+
+            rapid.harHendelse("vedtak_fattet") {}
+        }
+
+    @Test
     fun `søknad med for lite inntekt skal automatisk avslås`() =
         withMigratedDb {
             skruPåFeature(Feature.INNVILGELSE)
@@ -148,7 +174,6 @@ internal class PersonMediatorTest {
                     rapid,
                     søknadsdato = 6.mai(2021),
                 )
-            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
             løsBehandlingFramTilFerdig(testPerson)
 
             personRepository.hent(ident.tilPersonIdentfikator()).also {
@@ -158,8 +183,7 @@ internal class PersonMediatorTest {
             }
 
             godkjennOpplysninger("avslag")
-
-            saksbehandler.lukkAlleAvklaringer()
+            testPerson.markerAvklaringerIkkeRelevant(åpneAvklaringer())
 
             val person =
                 personRepository.hent(ident.tilPersonIdentfikator()).also {
@@ -167,9 +191,7 @@ internal class PersonMediatorTest {
                     it.aktivBehandling.aktivAvklaringer.shouldBeEmpty()
                 }
 
-            saksbehandler.godkjenn()
-
-            rapid.harHendelse("vedtak_fattet") {
+            rapid.harHendelse("vedtak_fattet", 2) {
                 medMeldingsInnhold("fastsatt") {
                     medBoolsk("utfall") shouldBe false
                 }
@@ -201,9 +223,9 @@ internal class PersonMediatorTest {
                 }
             }
 
-            rapid.inspektør.size shouldBe 25
+            rapid.inspektør.size shouldBe 24
 
-            testObservatør.tilstandsendringer.size shouldBe 4
+            testObservatør.tilstandsendringer.size shouldBe 3
 
             repeat(rapid.inspektør.size) {
                 withClue("Melding nr $it skal ha nøkkel. Meldingsinnhold: ${rapid.inspektør.message(it)}") {
@@ -306,22 +328,6 @@ internal class PersonMediatorTest {
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
                 it.behandlinger().first().kreverTotrinnskontroll() shouldBe true
-
-                it.behandlinger().first().run {
-                    val vedtak =
-                        lagVedtak(
-                            behandlingId,
-                            ident = behandler.ident.tilPersonIdentfikator(),
-                            søknadId = behandler.eksternId,
-                            opplysninger = opplysninger(),
-                            automatisk = erAutomatiskBehandlet(),
-                            godkjentAv = godkjent,
-                            besluttetAv = besluttet,
-                        )
-
-                    // Dette er vedtaket som brukes i dp-arena-sink: vedtak_fattet_innvilgelse.json
-                    val json = JsonMessage.newMessage("vedtak_fattet", vedtak.toMap())
-                }
             }
 
             // Saksbehandler lukker alle avklaringer
@@ -344,6 +350,8 @@ internal class PersonMediatorTest {
                         it["behandler"]["ident"].asText()
                     }.shouldContainExactlyInAnyOrder("NAV987987", "NAV123123")
             }
+
+            vedtakJson()
         }
 
     @Test
@@ -710,18 +718,43 @@ internal class PersonMediatorTest {
             }
         }
 
+    private fun vedtakJson() =
+        personRepository.hent(ident.tilPersonIdentfikator()).run {
+            shouldNotBeNull()
+
+            behandlinger().first().run {
+                val vedtak =
+                    lagVedtak(
+                        behandlingId,
+                        ident = behandler.ident.tilPersonIdentfikator(),
+                        søknadId = behandler.eksternId,
+                        opplysninger = opplysninger(),
+                        automatisk = erAutomatiskBehandlet(),
+                        godkjentAv = godkjent,
+                        besluttetAv = besluttet,
+                    )
+
+                // Dette er vedtaket som brukes i dp-arena-sink: vedtak_fattet_innvilgelse.json
+                JsonMessage.newMessage("vedtak_fattet", vedtak.toMap()).toJson()
+            }
+        }
+
     enum class Behandlingslengde {
         Alder,
         Minsteinntekt,
         KravPåDagpenger,
     }
 
-    private fun løsBehandlingFramTilFerdig(testPerson: TestPerson) {
-        løsBehandlingFramTil(testPerson, Behandlingslengde.KravPåDagpenger)
+    private fun løsbehandlingFramTilAlder(testPerson: TestPerson) {
+        løsBehandlingFramTil(testPerson, Behandlingslengde.Alder)
     }
 
     private fun løsBehandlingFramTilMinsteinntekt(testPerson: TestPerson) {
         løsBehandlingFramTil(testPerson, Behandlingslengde.Minsteinntekt)
+    }
+
+    private fun løsBehandlingFramTilFerdig(testPerson: TestPerson) {
+        løsBehandlingFramTil(testPerson, Behandlingslengde.KravPåDagpenger)
     }
 
     private fun løsBehandlingFramTil(
@@ -744,6 +777,10 @@ internal class PersonMediatorTest {
 
         rapid.harBehov("Fødselsdato", "Søknadsdato", ØnskerDagpengerFraDato)
         testPerson.løsBehov("Fødselsdato", "Søknadsdato", ØnskerDagpengerFraDato)
+
+        if (behandlingslengde == Behandlingslengde.Alder) {
+            return
+        }
 
         /**
          * Sjekker om mulig verneplikt
@@ -862,17 +899,23 @@ internal class PersonMediatorTest {
         }
 
         fun lukkAlleAvklaringer() {
-            val avklaringer: List<Avklaringkode> =
-                personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.first().let { behandling ->
-                    behandling.shouldNotBeNull()
-                    behandling.aktiveAvklaringer().map { it.kode }
-                }
+            val behandling = personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.first()
+            behandling.shouldNotBeNull()
+            val avklaringer: List<Avklaring> = behandling.aktiveAvklaringer()
 
-            avklaringer.forEach { avklaringkode: Avklaringkode ->
-                rapid.harAvklaring(avklaringkode) {
-                    val avklaringId = medTekst("avklaringId")!!
-                    testPerson.markerAvklaringIkkeRelevant(avklaringId, avklaringkode.kode)
-                }
+            avklaringer.forEach { avklaring ->
+                hendelseMediator.behandle(
+                    AvklaringKvittertHendelse(
+                        meldingsreferanseId = UUIDv7.ny(),
+                        ident = testPerson.ident,
+                        avklaringId = avklaring.id,
+                        behandlingId = behandling.behandlingId,
+                        saksbehandler = "NAV123123",
+                        begrunnelse = "",
+                        opprettet = LocalDateTime.now(),
+                    ),
+                    rapid,
+                )
             }
         }
     }
@@ -884,147 +927,153 @@ internal class PersonMediatorTest {
             tilstandsendringer.add(event)
         }
     }
-}
 
-private fun TestRapid.harAvklaring(
-    avklaringkode: Avklaringkode,
-    block: Meldingsinnhold.() -> Unit,
-) {
-    val melding = finnAvklaringMelding(avklaringkode)
-    block(melding)
-}
+    private fun åpneAvklaringer(): Map<String, String> {
+        val behandling = personRepository.hent(ident.tilPersonIdentfikator())?.behandlinger()?.first()
+        behandling.shouldNotBeNull()
+        return behandling.aktiveAvklaringer().associate { it.id.toString() to it.kode.toString() }
+    }
 
-private fun TestRapid.finnAvklaringMelding(avklaringkode: Avklaringkode): Meldingsinnhold {
-    for (i in inspektør.size - 1 downTo 0 step 1) {
-        val message = inspektør.message(i)
-        if (message["@event_name"].asText() == "NyAvklaring") {
-            if (message["kode"].asText() == avklaringkode.kode) {
-                return Meldingsinnhold(message)
+    private fun TestRapid.harAvklaring(
+        avklaringkode: Avklaringkode,
+        block: Meldingsinnhold.() -> Unit,
+    ) {
+        val melding = finnAvklaringMelding(avklaringkode)
+        block(melding)
+    }
+
+    private fun TestRapid.finnAvklaringMelding(avklaringkode: Avklaringkode): Meldingsinnhold {
+        for (i in inspektør.size - 1 downTo 0 step 1) {
+            val message = inspektør.message(i)
+            if (message["@event_name"].asText() == "NyAvklaring") {
+                if (message["kode"].asText() == avklaringkode.kode) {
+                    return Meldingsinnhold(message)
+                }
             }
         }
+
+        throw IllegalStateException("Fant ikke avklaring med kode $avklaringkode")
     }
 
-    throw IllegalStateException("Fant ikke avklaring med kode $avklaringkode")
-}
-
-private fun TestRapid.harHendelse(
-    navn: String,
-    offset: Int = 1,
-    block: Meldingsinnhold.() -> Unit = {},
-) {
-    val message = inspektør.message(inspektør.size - offset)
-    withClue("Siste melding på rapiden skal inneholde hendelse: $navn") {
-        message["@event_name"].asText() shouldBe navn
-    }
-    Meldingsinnhold(message).apply { block() }
-}
-
-private fun TestRapid.harBehov(
-    vararg behov: String,
-    melding: Int = 1,
-) {
-    withClue("Siste melding på rapiden skal inneholde behov: ${behov.toList()}") {
-        val sisteMelding = inspektør.message(inspektør.size - melding)
-        assert(
-            sisteMelding["@event_name"].asText() == "behov",
-        ) {
-            "Forventet behov '${
-                behov.joinToString {
-                    it
-                }
-            }' men siste melding er ikke et behov. Siste melding er ${sisteMelding["@event_name"].asText()}."
-        }
-        sisteMelding["@behov"].map { it.asText() } shouldContainAll behov.toList()
-    }
-}
-
-private fun TestRapid.harBehov(
-    behov: String,
-    block: Meldingsinnhold.() -> Unit,
-) {
-    harBehov(behov)
-    Meldingsinnhold(inspektør.message(inspektør.size - 1)[behov]).apply { block() }
-}
-
-private fun TestRapid.harFelt(block: Meldingsinnhold.() -> Unit) {
-    Meldingsinnhold(inspektør.message(inspektør.size - 1)).apply { block() }
-}
-
-private class Meldingsinnhold(
-    private val message: JsonNode,
-) {
-    fun medNode(navn: String) = message.get(navn)
-
-    fun medFastsattelser(block: Fastsettelser.() -> Unit) {
-        Fastsettelser(medNode("fastsatt")).apply { block() }
-    }
-
-    fun medMeldingsInnhold(
+    private fun TestRapid.harHendelse(
         navn: String,
+        offset: Int = 1,
+        block: Meldingsinnhold.() -> Unit = {},
+    ) {
+        val message = inspektør.message(inspektør.size - offset)
+        withClue("Siste melding på rapiden skal inneholde hendelse: $navn") {
+            message["@event_name"].asText() shouldBe navn
+        }
+        Meldingsinnhold(message).apply { block() }
+    }
+
+    private fun TestRapid.harBehov(
+        vararg behov: String,
+        melding: Int = 1,
+    ) {
+        withClue("Siste melding på rapiden skal inneholde behov: ${behov.toList()}") {
+            val sisteMelding = inspektør.message(inspektør.size - melding)
+            assert(
+                sisteMelding["@event_name"].asText() == "behov",
+            ) {
+                "Forventet behov '${
+                    behov.joinToString {
+                        it
+                    }
+                }' men siste melding er ikke et behov. Siste melding er ${sisteMelding["@event_name"].asText()}."
+            }
+            sisteMelding["@behov"].map { it.asText() } shouldContainAll behov.toList()
+        }
+    }
+
+    private fun TestRapid.harBehov(
+        behov: String,
         block: Meldingsinnhold.() -> Unit,
-    ) = Meldingsinnhold(message.get(navn)).apply { block() }
-
-    fun medTekst(navn: String) = message.get(navn)?.asText()
-
-    fun medDato(navn: String) = message.get(navn)?.asLocalDate()
-
-    fun medTimestamp(navn: String) = message.get(navn)?.asLocalDateTime()
-
-    fun medBoolsk(navn: String) = message.get(navn)?.asBoolean()
-
-    fun medOpplysning(navn: String) = message.get("opplysninger").single { it["opplysningstype"]["id"].asText() == navn }
-
-    fun medAvklaringer(vararg avklaring: String) =
-        message.get("avklaringer").apply {
-            map { it["type"].asText() } shouldContainExactlyInAnyOrder avklaring.toList()
-        }
-
-    fun medVilkår(
-        navn: String,
-        block: Vilkår.() -> Unit,
-    ) = Vilkår(
-        message.get("vilkår").single {
-            it["navn"].asText() == navn
-        },
-    ).apply { block() }
-
-    inline fun <reified T> medOpplysning(navn: String): T =
-        when (T::class) {
-            Boolean::class -> medOpplysning(navn)["verdi"].asBoolean() as T
-            String::class -> medOpplysning(navn)["verdi"].asText() as T
-            LocalDate::class -> medOpplysning(navn)["verdi"].asLocalDate() as T
-            Int::class -> medOpplysning(navn)["verdi"].asInt() as T
-            else -> throw IllegalArgumentException("Ukjent type")
-        }
-
-    inner class Vilkår(
-        private val jsonNode: JsonNode,
     ) {
-        private val status = jsonNode["status"].asText()
-        private val navn = jsonNode["navn"].asText()
-
-        fun erOppfylt() = withClue("$navn skal være oppfylt") { status shouldBe "Oppfylt" }
-
-        fun erIkkeOppfylt() = withClue("$navn skal være ikke oppfylt") { status shouldBe "IkkeOppfylt" }
-
-        fun hjemmel() = jsonNode["hjemmel"].asText()
+        harBehov(behov)
+        Meldingsinnhold(inspektør.message(inspektør.size - 1)[behov]).apply { block() }
     }
 
-    inner class Fastsettelser(
-        private val jsonNode: JsonNode,
+    private fun TestRapid.harFelt(block: Meldingsinnhold.() -> Unit) {
+        Meldingsinnhold(inspektør.message(inspektør.size - 1)).apply { block() }
+    }
+
+    private class Meldingsinnhold(
+        private val message: JsonNode,
     ) {
-        private val utfall = jsonNode["utfall"].asBoolean()
+        fun medNode(navn: String) = message.get(navn)
 
-        val status get() = jsonNode["status"].asText()
+        fun medFastsattelser(block: Fastsettelser.() -> Unit) {
+            Fastsettelser(medNode("fastsatt")).apply { block() }
+        }
 
-        val grunnlag get() = jsonNode["grunnlag"]["grunnlag"].asInt()
-        val vanligArbeidstidPerUke get() = jsonNode["fastsattVanligArbeidstid"]["vanligArbeidstidPerUke"].asDouble()
-        val sats get() = jsonNode["sats"]["dagsatsMedBarnetillegg"].asInt()
+        fun medMeldingsInnhold(
+            navn: String,
+            block: Meldingsinnhold.() -> Unit,
+        ) = Meldingsinnhold(message.get(navn)).apply { block() }
 
-        val samordning get() = jsonNode["samordning"]
+        fun medTekst(navn: String) = message.get(navn)?.asText()
 
-        val oppfylt get() = withClue("Utfall skal være true") { utfall shouldBe true }
+        fun medDato(navn: String) = message.get(navn)?.asLocalDate()
 
-        val `ikke oppfylt` get() = withClue("Utfall skal være false") { utfall shouldBe false }
+        fun medTimestamp(navn: String) = message.get(navn)?.asLocalDateTime()
+
+        fun medBoolsk(navn: String) = message.get(navn)?.asBoolean()
+
+        fun medOpplysning(navn: String) = message.get("opplysninger").single { it["opplysningstype"]["id"].asText() == navn }
+
+        fun medAvklaringer(vararg avklaring: String) =
+            message.get("avklaringer").apply {
+                map { it["type"].asText() } shouldContainExactlyInAnyOrder avklaring.toList()
+            }
+
+        fun medVilkår(
+            navn: String,
+            block: Vilkår.() -> Unit,
+        ) = Vilkår(
+            message.get("vilkår").single {
+                it["navn"].asText() == navn
+            },
+        ).apply { block() }
+
+        inline fun <reified T> medOpplysning(navn: String): T =
+            when (T::class) {
+                Boolean::class -> medOpplysning(navn)["verdi"].asBoolean() as T
+                String::class -> medOpplysning(navn)["verdi"].asText() as T
+                LocalDate::class -> medOpplysning(navn)["verdi"].asLocalDate() as T
+                Int::class -> medOpplysning(navn)["verdi"].asInt() as T
+                else -> throw IllegalArgumentException("Ukjent type")
+            }
+
+        inner class Vilkår(
+            private val jsonNode: JsonNode,
+        ) {
+            private val status = jsonNode["status"].asText()
+            private val navn = jsonNode["navn"].asText()
+
+            fun erOppfylt() = withClue("$navn skal være oppfylt") { status shouldBe "Oppfylt" }
+
+            fun erIkkeOppfylt() = withClue("$navn skal være ikke oppfylt") { status shouldBe "IkkeOppfylt" }
+
+            fun hjemmel() = jsonNode["hjemmel"].asText()
+        }
+
+        inner class Fastsettelser(
+            private val jsonNode: JsonNode,
+        ) {
+            private val utfall = jsonNode["utfall"].asBoolean()
+
+            val status get() = jsonNode["status"].asText()
+
+            val grunnlag get() = jsonNode["grunnlag"]["grunnlag"].asInt()
+            val vanligArbeidstidPerUke get() = jsonNode["fastsattVanligArbeidstid"]["vanligArbeidstidPerUke"].asDouble()
+            val sats get() = jsonNode["sats"]["dagsatsMedBarnetillegg"].asInt()
+
+            val samordning get() = jsonNode["samordning"]
+
+            val oppfylt get() = withClue("Utfall skal være true") { utfall shouldBe true }
+
+            val `ikke oppfylt` get() = withClue("Utfall skal være false") { utfall shouldBe false }
+        }
     }
 }

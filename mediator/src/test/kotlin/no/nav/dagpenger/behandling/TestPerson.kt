@@ -121,6 +121,12 @@ class TestPerson(
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 
+    fun markerAvklaringerIkkeRelevant(avklaringer: Map<String, String>) {
+        avklaringer.forEach { (id, kode) ->
+            markerAvklaringIkkeRelevant(id, kode)
+        }
+    }
+
     fun markerAvklaringIkkeRelevant(
         avklaringId: String,
         kode: String,

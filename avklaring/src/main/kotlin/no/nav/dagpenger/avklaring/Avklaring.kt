@@ -62,6 +62,8 @@ data class Avklaring internal constructor(
         require(kanKvitteres) { "Avklaring $kode kan ikke kvitteres ut, krever endring i behandlingen" }
     }
 
+    fun løstAvSaksbehandler() = tilstand is Avklart && (tilstand as Avklart).avklartAv is Saksbehandlerkilde
+
     sealed class Endring(
         val id: UUID,
         open val endret: LocalDateTime,

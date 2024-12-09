@@ -23,10 +23,14 @@ class Søknadsprosess : Forretningsprosess {
         // Sjekk krav til alder
         ønsketResultat.add(Alderskrav.kravTilAlder)
 
+        if (opplysninger.mangler(Alderskrav.kravTilAlder) || !opplysninger.oppfyller(Alderskrav.kravTilAlder)) {
+            return ønsketResultat
+        }
+
         // Sjekk krav til minste arbeidsinntekt
         ønsketResultat.add(Minsteinntekt.minsteinntekt)
 
-        if (opplysninger.mangler(Alderskrav.kravTilAlder) || opplysninger.mangler(Minsteinntekt.minsteinntekt)) {
+        if (opplysninger.mangler(Minsteinntekt.minsteinntekt)) {
             return ønsketResultat
         }
 
