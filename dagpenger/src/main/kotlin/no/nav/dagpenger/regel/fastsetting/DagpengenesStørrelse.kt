@@ -122,6 +122,7 @@ private object BarnetilleggSats {
             put(LocalDate.MIN, BigDecimal(17))
             put(LocalDate.of(2023, 2, 1), BigDecimal(35))
             put(LocalDate.of(2024, 1, 1), BigDecimal(36))
+            put(LocalDate.of(2025, 1, 1), BigDecimal(37))
         }
 
     fun forDato(regelverksdato: LocalDate) = Beløp(satser.get(regelverksdato))
