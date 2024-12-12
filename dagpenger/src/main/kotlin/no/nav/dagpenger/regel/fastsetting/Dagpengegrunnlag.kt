@@ -22,10 +22,12 @@ import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov
 import java.time.LocalDate
 
 object Dagpengegrunnlag {
     val uavrundetGrunnlag = Opplysningstype.somBeløp("Uavrundet grunnlag")
+    val dagpengegrunnlag = Opplysningstype.somBeløp("Grunnlag ved ordinære dagpenger")
     val grunnlag = Opplysningstype.somBeløp("Grunnlag")
     val harAvkortet = Opplysningstype.somBoolsk("Har avkortet grunnlag")
     val uavkortet12mnd = Opplysningstype.somBeløp("Uavkortet grunnlag siste 12 mnd")
@@ -115,11 +117,15 @@ object Dagpengegrunnlag {
             regel(bruktBeregningsregel) { brukt(uavrundetGrunnlag) }
 
             // Fastsett avrundet grunnlag
-            regel(grunnlag) { avrund(uavrundetGrunnlag) }
+            regel(dagpengegrunnlag) { avrund(uavrundetGrunnlag) }
+
+            // Velg høyeste grunnlag av ordinært grunnlag og verneplikt
+            regel(grunnlag) { høyesteAv(grunnlag, fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov) }
 
             val harAvkortetPeriode1 = Opplysningstype.somBoolsk("Har avkortet grunnlaget i periode 1")
             val harAvkortetPeriode2 = Opplysningstype.somBoolsk("Har avkortet grunnlaget i periode 2")
             val harAvkortetPeriode3 = Opplysningstype.somBoolsk("Har avkortet grunnlaget i periode 3")
+
             // Fastsett om grunnlaget er avkortet
             regel(harAvkortetPeriode1) { størreEnn(inntektperiode1, maksgrenseForGrunnlag) }
             regel(harAvkortetPeriode2) { størreEnn(inntektperiode2, maksgrenseForGrunnlag) }

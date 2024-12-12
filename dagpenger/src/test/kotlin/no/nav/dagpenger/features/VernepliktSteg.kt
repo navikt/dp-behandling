@@ -30,12 +30,12 @@ class VernepliktSteg : No {
         Gitt("saksbehandler vurderer at søker har {boolsk} kravet til verneplikt") { oppfyller: Boolean ->
             opplysninger
                 .leggTil(
-                    Faktum<Boolean>(Verneplikt.vurderingAvVerneplikt, oppfyller) as Opplysning<*>,
+                    Faktum<Boolean>(Verneplikt.oppfyllerKravetTilVerneplikt, oppfyller) as Opplysning<*>,
                 ).also { regelkjøring.evaluer() }
         }
 
         Så("skal søker få {boolsk} av verneplikt") { utfall: Boolean ->
-            val faktum = opplysninger.finnOpplysning(Verneplikt.vurderingAvVerneplikt)
+            val faktum = opplysninger.finnOpplysning(Verneplikt.oppfyllerKravetTilVerneplikt)
             faktum.verdi shouldBe utfall
         }
     }

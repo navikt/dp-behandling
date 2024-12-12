@@ -22,12 +22,11 @@ import no.nav.dagpenger.regel.Behov.Barnetillegg
 import no.nav.dagpenger.regel.SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import java.math.BigDecimal
 import java.time.LocalDate
 
 object DagpengenesStørrelse {
-    private val grunnlag = Dagpengegrunnlag.grunnlag
-
     val barn = Opplysningstype.somBarn("Barn".id(Barnetillegg))
     internal val antallBarn = Opplysningstype.somHeltall("Antall barn som gir rett til barnetillegg")
     internal val barnetilleggetsStørrelse = Opplysningstype.somBeløp("Barnetilleggets størrelse i kroner per dag for hvert barn")
@@ -64,7 +63,7 @@ object DagpengenesStørrelse {
     val harSamordnet = Opplysningstype.somBoolsk("Har samordnet")
 
     val regelsett =
-        Regelsett("§ 4-12. Dagpengenes størrelse\n (Sats)") {
+        Regelsett("§ 4-12. Dagpengenes størrelse (Sats)") {
             regel(barn) { innhentMed(søknadIdOpplysningstype) }
             regel(antallBarn) { antallAv(barn) { kvalifiserer } }
 
