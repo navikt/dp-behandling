@@ -66,11 +66,10 @@ object Minsteinntekt {
     private val over12mndTerskel = Opplysningstype.somBoolsk("Arbeidsinntekt er over kravet for siste 12 mnd")
     private val over36mndTerskel = Opplysningstype.somBoolsk("Arbeidsinntekt er over kravet for siste 36 mnd")
 
-    private val verneplikt = Verneplikt.vurderingAvVerneplikt
     val minsteinntekt = Opplysningstype.somBoolsk("Krav til minsteinntekt".tekstId("opplysning.krav-til-minsteinntekt"))
 
     val regelsett =
-        Regelsett("Minsteinntekt") {
+        Regelsett("§ 4-4 Minsteinntekt") {
             regel(maksPeriodeLengde) { oppslag(prøvingsdato) { 36 } }
             regel(førsteMånedAvOpptjeningsperiode) { trekkFraMånedTilFørste(sisteAvsluttendendeKalenderMåned, maksPeriodeLengde) }
 
@@ -102,7 +101,7 @@ object Minsteinntekt {
             regel(`36mndTerskel`) { multiplikasjon(grunnbeløp, `36mndTerskelFaktor`) }
             regel(over36mndTerskel) { størreEnnEllerLik(inntekt36, `36mndTerskel`) }
 
-            regel(minsteinntekt) { enAv(over12mndTerskel, over36mndTerskel, verneplikt) }
+            regel(minsteinntekt) { enAv(over12mndTerskel, over36mndTerskel, Verneplikt.oppfyllerKravetTilVerneplikt) }
         }
 
     private fun grunnbeløpFor(it: LocalDate) =

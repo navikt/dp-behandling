@@ -982,8 +982,6 @@ interface BehandlingObservatør {
     fun endretTilstand(event: BehandlingEndretTilstand) {}
 }
 
-// TODO: Vi bør ha bedre kontroll på navnene og kanskje henge sammen med behov?
-@Suppress("ktlint:standard:enum-entry-name-case")
 sealed class BehandlingHendelser(
     override val name: String,
 ) : Hendelse.Hendelsetype {

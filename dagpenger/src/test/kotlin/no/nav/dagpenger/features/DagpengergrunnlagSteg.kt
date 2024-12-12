@@ -18,7 +18,7 @@ import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.Verneplikt.vurderingAvVerneplikt
+import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.uavrundetGrunnlag
 import java.math.BigDecimal
@@ -43,7 +43,7 @@ class DagpengergrunnlagSteg : No {
             opplysninger.leggTil(Faktum(prøvingsdato, søknadsdato)).also { regelkjøring.evaluer() }
         }
         Gitt("at verneplikt for grunnlag er satt {boolsk}") { verneplikt: Boolean ->
-            opplysninger.leggTil(Faktum(vurderingAvVerneplikt, verneplikt)).also { regelkjøring.evaluer() }
+            opplysninger.leggTil(Faktum(oppfyllerKravetTilVerneplikt, verneplikt)).also { regelkjøring.evaluer() }
         }
 
         Gitt("at inntekt for grunnlag er") { dataTable: DataTable? ->

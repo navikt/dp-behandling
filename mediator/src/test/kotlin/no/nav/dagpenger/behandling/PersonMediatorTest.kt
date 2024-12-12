@@ -316,6 +316,55 @@ internal class PersonMediatorTest {
         }
 
     @Test
+    fun `Søknad med som oppfyller kravet til verneplikt skal innvilges`() =
+        withMigratedDb {
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = 6.mai(2021),
+                    InntektSiste12Mnd = 50000,
+                    søkerVerneplikt = true,
+                )
+            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
+            skruPåFeature(Feature.INNVILGELSE)
+            løsBehandlingFramTilInnvilgelse(testPerson)
+
+            rapid.harHendelse("forslag_til_vedtak") {
+                medBoolsk("utfall") shouldBe true
+            }
+
+            personRepository.hent(ident.tilPersonIdentfikator()).also {
+                it.shouldNotBeNull()
+                it.behandlinger().first().kreverTotrinnskontroll() shouldBe true
+            }
+
+            // Saksbehandler lukker alle avklaringer
+            saksbehandler.lukkAlleAvklaringer()
+
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            rapid.harHendelse("vedtak_fattet") {
+                medBoolsk("automatisk") shouldBe false
+                medFastsattelser {
+                    oppfylt shouldBe true
+                    vanligArbeidstidPerUke shouldBe 37.5
+                    grunnlag shouldBe 319197
+                    periode("Dagpengeperiode").shouldBeNull()
+                    periode("Verneplikt") shouldBe 26
+                    sats shouldBeGreaterThan 0
+                }
+                medNode("behandletAv")
+                    .map {
+                        it["behandler"]["ident"].asText()
+                    }.shouldContainExactlyInAnyOrder("NAV987987", "NAV123123")
+            }
+
+            vedtakJson()
+        }
+
+    @Test
     fun `Behandling sendt til kontroll`() =
         withMigratedDb {
             val testPerson =
@@ -499,10 +548,10 @@ internal class PersonMediatorTest {
                 TestPerson(
                     ident,
                     rapid,
-                    innsendt = 1.juni(2024).atTime(12, 0),
                     søknadsdato = 1.juni(2024),
-                    ønskerFraDato = 1.juni(2024),
+                    innsendt = 1.juni(2024).atTime(12, 0),
                     InntektSiste12Mnd = 500000,
+                    ønskerFraDato = 1.juni(2024),
                 )
             løsBehandlingFramTilInnvilgelse(testPerson)
 
@@ -1004,6 +1053,8 @@ internal class PersonMediatorTest {
             val grunnlag get() = jsonNode["grunnlag"]["grunnlag"].asInt()
             val vanligArbeidstidPerUke get() = jsonNode["fastsattVanligArbeidstid"]["vanligArbeidstidPerUke"].asDouble()
             val sats get() = jsonNode["sats"]["dagsatsMedBarnetillegg"].asInt()
+
+            fun periode(type: String) = jsonNode["kvoter"].find { it["type"].asText() == type }?.get("verdi")?.asInt()
 
             val samordning get() = jsonNode["samordning"]
 

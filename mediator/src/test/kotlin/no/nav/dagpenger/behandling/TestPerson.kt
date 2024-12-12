@@ -44,6 +44,7 @@ class TestPerson(
     val InntektSiste36Mnd: Int = 1234,
     internal var ønskerFraDato: LocalDate = søknadsdato,
     var prøvingsdato: LocalDate = søknadsdato,
+    var søkerVerneplikt: Boolean = false,
 ) {
     val inntektId = "01HQTE3GBWCSVYH6S436DYFREN"
     internal val søknadId = "4afce924-6cb4-4ab4-a92b-fe91e24f31bf"
@@ -237,7 +238,7 @@ class TestPerson(
                 Lønnsgaranti to false,
                 PermittertFiskeforedling to false,
                 // Verneplikt
-                Verneplikt to false,
+                Verneplikt to søkerVerneplikt,
                 TarUtdanningEllerOpplæring to false,
                 Barnetillegg to
                     mapOf(

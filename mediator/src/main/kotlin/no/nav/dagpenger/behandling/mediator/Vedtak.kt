@@ -193,15 +193,15 @@ private fun vedtakFastsattDTO(
                 ),
             samordning = opplysninger.samordninger(),
             kvoter =
-                listOf(
+                listOfNotNull(
                     KvoteDTO(
                         "Dagpengeperiode",
-                        type = KvoteDTO.Type.uker,
+                        KvoteDTO.Type.uker,
                         opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsuker).verdi.toBigDecimal(),
                     ),
                     KvoteDTO(
                         "Egenandel",
-                        type = KvoteDTO.Type.beløp,
+                        KvoteDTO.Type.beløp,
                         opplysninger.finnOpplysning(Egenandel.egenandel).verdi.verdien,
                     ),
                 ),
