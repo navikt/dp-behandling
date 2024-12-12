@@ -378,7 +378,7 @@ components:
           format: uuid
         tilstand:
           type: string
-          enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "Godkjenning", "Kontroll" ]
+          enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
         opplysning:
           type: array
           items:
