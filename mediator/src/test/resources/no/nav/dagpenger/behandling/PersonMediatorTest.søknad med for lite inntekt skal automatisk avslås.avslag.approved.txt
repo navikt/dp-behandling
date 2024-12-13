@@ -38,6 +38,9 @@ Arbeidsinntekt siste 36 mnd
 Arbeidsinntekt er over kravet for siste 12 mnd
 Arbeidsinntekt er over kravet for siste 36 mnd
 Krav til minsteinntekt
+Avtjent verneplikt
+Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste
+Oppfyller kravet til minsteinntekt eller verneplikt
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søk arbeid lokalt
 Kan jobbe heltid og deltid

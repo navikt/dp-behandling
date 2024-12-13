@@ -101,7 +101,7 @@ object Minsteinntekt {
             regel(`36mndTerskel`) { multiplikasjon(grunnbeløp, `36mndTerskelFaktor`) }
             regel(over36mndTerskel) { størreEnnEllerLik(inntekt36, `36mndTerskel`) }
 
-            regel(minsteinntekt) { enAv(over12mndTerskel, over36mndTerskel, Verneplikt.oppfyllerKravetTilVerneplikt) }
+            regel(minsteinntekt) { enAv(over12mndTerskel, over36mndTerskel) }
         }
 
     private fun grunnbeløpFor(it: LocalDate) =

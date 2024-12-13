@@ -38,6 +38,9 @@ Arbeidsinntekt siste 36 mnd
 Arbeidsinntekt er over kravet for siste 12 mnd
 Arbeidsinntekt er over kravet for siste 36 mnd
 Krav til minsteinntekt
+Avtjent verneplikt
+Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste
+Oppfyller kravet til minsteinntekt eller verneplikt
 Mottar ikke andre fulle ytelser
 Er personen medlem av folketrygden
 Opphold i Norge

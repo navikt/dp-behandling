@@ -27,10 +27,6 @@ Inntektskrav for siste 12 mnd
 Inntektskrav for siste 36 mnd
 Siste avsluttende kalendermåned
 Første måned av opptjeningsperiode
-Registrert som arbeidssøker
-Registrert som arbeidssøker på søknadstidspunktet
-Avtjent verneplikt
-Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste
 Inntektsopplysninger
 Brutto arbeidsinntekt
 Arbeidsinntekt siste 12 mnd
@@ -38,6 +34,9 @@ Arbeidsinntekt siste 36 mnd
 Arbeidsinntekt er over kravet for siste 12 mnd
 Arbeidsinntekt er over kravet for siste 36 mnd
 Krav til minsteinntekt
+Avtjent verneplikt
+Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste
+Oppfyller kravet til minsteinntekt eller verneplikt
 Mottar ikke andre fulle ytelser
 Er personen medlem av folketrygden
 Opphold i Norge
@@ -121,6 +120,8 @@ Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
 Oppfyller kravet til å ta ethvert arbeid
 Krav til arbeidssøker
+Registrert som arbeidssøker
+Registrert som arbeidssøker på søknadstidspunktet
 Tar utdanning eller opplæring?
 Har svart ja på spørsmål om utdanning eller opplæring
 Har svart nei på spørsmål om utdanning eller opplæring

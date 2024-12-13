@@ -13,6 +13,7 @@ import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
+import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.Meldeplikt.IkkeRegistrertSomArbeidsøkerKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.EØSArbeidKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
@@ -55,8 +56,8 @@ class SøknadInnsendtHendelse(
         }
 
         // Sjekk krav til minste arbeidsinntekt
-        if (!opplysninger.har(Minsteinntekt.minsteinntekt)) return Minsteinntekt.minsteinntekt
-        val minsteinntektOppfylt = opplysninger.finnOpplysning(Minsteinntekt.minsteinntekt).verdi
+        if (!opplysninger.har(minsteinntektEllerVerneplikt)) return minsteinntektEllerVerneplikt
+        val minsteinntektOppfylt = opplysninger.finnOpplysning(minsteinntektEllerVerneplikt).verdi
 
         // Om krav til alder eller arbeidsinntekt ikke er oppfylt er det ingen grunn til å fortsette, men vi må fastsette hvilke tillegskrav Arena trenger.
         if (!minsteinntektOppfylt) {
@@ -64,7 +65,7 @@ class SøknadInnsendtHendelse(
                 opplysninger.mangler(ReellArbeidssøker.kravTilArbeidssøker) -> ReellArbeidssøker.kravTilArbeidssøker
                 opplysninger.mangler(Meldeplikt.registrertPåSøknadstidspunktet) -> Meldeplikt.registrertPåSøknadstidspunktet
                 opplysninger.mangler(Rettighetstype.rettighetstype) -> Rettighetstype.rettighetstype
-                else -> Minsteinntekt.minsteinntekt
+                else -> minsteinntektEllerVerneplikt
             }
         }
 
