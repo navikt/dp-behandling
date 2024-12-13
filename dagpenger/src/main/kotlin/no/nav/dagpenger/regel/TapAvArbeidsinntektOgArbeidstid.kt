@@ -6,7 +6,7 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.id
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
-import no.nav.dagpenger.opplysning.regel.hvis
+import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.opplysning.regel.oppslag
@@ -54,7 +54,9 @@ object TapAvArbeidsinntektOgArbeidstid {
             // TODO: Bør hentes fra noe
             regel(beregnetArbeidstid) { oppslag(prøvingsdato) { 37.5 } } // TODO: Satt til 37.5 for testing av innvilgelse
 
-            regel(faktiskArbeidstid) { hvis(vernepliktGrunnlagErKulest, vernepliktFastsattVanligArbeidstid, beregnetArbeidstid) }
+            regel(
+                faktiskArbeidstid,
+            ) { hvisSannMedResultat(vernepliktGrunnlagErKulest, vernepliktFastsattVanligArbeidstid, beregnetArbeidstid) }
 
             regel(nyArbeidstid) { oppslag(prøvingsdato) { 0.0 } }
             regel(maksimalVanligArbeidstid) { oppslag(prøvingsdato) { 40.0 } }

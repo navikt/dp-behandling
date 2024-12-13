@@ -3,13 +3,13 @@ package no.nav.dagpenger.opplysning.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 
-class HvisSannMedResultat(
-    produserer: Opplysningstype<Int>,
+class HvisSannMedResultat<T : Comparable<T>>(
+    produserer: Opplysningstype<T>,
     private val sjekk: Opplysningstype<Boolean>,
-    private val hvisSann: Opplysningstype<Int>,
-    private val hvisUsann: Opplysningstype<Int>,
-) : Regel<Int>(produserer, listOf(sjekk, hvisSann, hvisUsann)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Int {
+    private val hvisSann: Opplysningstype<T>,
+    private val hvisUsann: Opplysningstype<T>,
+) : Regel<T>(produserer, listOf(sjekk, hvisSann, hvisUsann)) {
+    override fun kjør(opplysninger: LesbarOpplysninger): T {
         val sjekk = opplysninger.finnOpplysning(sjekk).verdi
         val hvisSann = opplysninger.finnOpplysning(hvisSann).verdi
         val hvisUsann = opplysninger.finnOpplysning(hvisUsann).verdi
@@ -20,8 +20,8 @@ class HvisSannMedResultat(
     override fun toString() = "Hvis $sjekk er sann, returner $hvisSann, ellers returner $hvisUsann"
 }
 
-fun Opplysningstype<Int>.hvisSannMedResultat(
+fun <T : Comparable<T>> Opplysningstype<T>.hvisSannMedResultat(
     sjekk: Opplysningstype<Boolean>,
-    hvisSann: Opplysningstype<Int>,
-    hvisUsann: Opplysningstype<Int>,
+    hvisSann: Opplysningstype<T>,
+    hvisUsann: Opplysningstype<T>,
 ) = HvisSannMedResultat(this, sjekk, hvisSann, hvisUsann)

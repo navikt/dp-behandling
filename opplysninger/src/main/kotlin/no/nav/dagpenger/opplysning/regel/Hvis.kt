@@ -2,13 +2,12 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.regel.Regel
 
 class HvisRegel<T : Comparable<T>>(
-    private val produkt: Opplysningstype<T>,
+    produkt: Opplysningstype<T>,
     private val boolsk: Opplysningstype<Boolean>,
     private val verdi: Opplysningstype<T>,
-    private val fjasbhengel: T,
+    private val default: T,
 ) : Regel<T>(produkt, listOf(boolsk, verdi)) {
     override fun kjør(opplysninger: LesbarOpplysninger): T {
         val boolskVerdi = opplysninger.finnOpplysning(boolsk).verdi
@@ -17,13 +16,11 @@ class HvisRegel<T : Comparable<T>>(
         return if (boolskVerdi) {
             verdi
         } else {
-            fjasbhengel
+            default
         }
     }
 
-    override fun toString(): String {
-        TODO("Not yet implemented")
-    }
+    override fun toString() = "Hvis $boolsk er sann, returner $verdi, ellers returner $default"
 }
 
 fun <T : Comparable<T>> Opplysningstype<T>.hvis(
