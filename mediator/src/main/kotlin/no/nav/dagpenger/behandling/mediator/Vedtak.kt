@@ -46,6 +46,8 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.Egenandel
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -199,6 +201,13 @@ private fun vedtakFastsattDTO(
                         KvoteDTO.Type.uker,
                         opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsuker).verdi.toBigDecimal(),
                     ),
+                    opplysninger.har(grunnlagForVernepliktErGunstigst).takeIf { it }?.let {
+                        KvoteDTO(
+                            "Verneplikt",
+                            KvoteDTO.Type.uker,
+                            opplysninger.finnOpplysning(vernepliktPeriode).verdi.toBigDecimal(),
+                        )
+                    },
                     KvoteDTO(
                         "Egenandel",
                         KvoteDTO.Type.beløp,

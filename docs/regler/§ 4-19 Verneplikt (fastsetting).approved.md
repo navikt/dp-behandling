@@ -4,10 +4,15 @@
 
 ```mermaid
 graph RL
-  A["Faktor"] -->|"Oppslag"| B["Prøvingsdato"]
-  C["Grunnlag for verneplikt"] -->|"Multiplikasjon"| D["Grunnbeløp for grunnlag"]
-  C["Grunnlag for verneplikt"] -->|"Multiplikasjon"| A["Faktor"]
-  E["Vernepliktperiode"] -->|"Oppslag"| B["Prøvingsdato"]
+  A["Antall G som gis som grunnlag ved verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
+  C["Grunnlag for gis ved verneplikt"] -->|"Multiplikasjon"| D["Grunnbeløp for grunnlag"]
+  C["Grunnlag for gis ved verneplikt"] -->|"Multiplikasjon"| A["Antall G som gis som grunnlag ved verneplikt"]
+  E["Periode som gis ved verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
+  F["Fastsatt vanlig arbeidstid for verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
+  G["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisRegel"| H["Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste"]
+  G["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisRegel"| C["Grunnlag for gis ved verneplikt"]
+  I["Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget"] -->|"StørreEnn"| C["Grunnlag for gis ved verneplikt"]
+  I["Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget"] -->|"StørreEnn"| J["Grunnlag ved ordinære dagpenger"]
 ```
 
 ## Akseptansetester

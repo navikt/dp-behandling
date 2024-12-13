@@ -22,7 +22,7 @@ import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagHvisVerneplikt
 import java.time.LocalDate
 
 object Dagpengegrunnlag {
@@ -120,7 +120,7 @@ object Dagpengegrunnlag {
             regel(dagpengegrunnlag) { avrund(uavrundetGrunnlag) }
 
             // Velg høyeste grunnlag av ordinært grunnlag og verneplikt
-            regel(grunnlag) { høyesteAv(grunnlag, fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov) }
+            regel(grunnlag) { høyesteAv(dagpengegrunnlag, grunnlagHvisVerneplikt) }
 
             val harAvkortetPeriode1 = Opplysningstype.somBoolsk("Har avkortet grunnlaget i periode 1")
             val harAvkortetPeriode2 = Opplysningstype.somBoolsk("Har avkortet grunnlaget i periode 2")

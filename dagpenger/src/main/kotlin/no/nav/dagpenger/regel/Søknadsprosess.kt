@@ -84,7 +84,7 @@ class Søknadsprosess : Forretningsprosess {
             ønsketResultat.addAll(Samordning.ønsketResultat)
             ønsketResultat.addAll(SamordingUtenforFolketrygden.ønsketResultat)
 
-            if (opplysninger.oppfyller(Verneplikt.avtjentVerneplikt)) {
+            if (opplysninger.oppfyller(Verneplikt.oppfyllerKravetTilVerneplikt)) {
                 ønsketResultat.addAll(VernepliktFastsetting.ønsketResultat)
             }
         }

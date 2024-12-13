@@ -13,7 +13,7 @@ import java.time.YearMonth
 
 class FiltrerRelevanteInntekterTest {
     private val inntektA = Opplysningstype.somInntekt("inntektA")
-    private val inntektB = Opplysningstype.somInntekt("inntektA")
+    private val inntektB = Opplysningstype.somInntekt("inntektB")
 
     @Test
     fun `skal filtrere ut innteksklasser`() {
