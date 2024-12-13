@@ -12,6 +12,12 @@ abstract class Regel<T : Comparable<T>> internal constructor(
     internal val produserer: Opplysningstype<T>,
     internal val avhengerAv: List<Opplysningstype<*>> = emptyList(),
 ) {
+    init {
+        require(avhengerAv.none { it == produserer }) {
+            "Regel ${this::class.java.simpleName} kan ikke produsere samme opplysning ${produserer.navn} den er avhengig av"
+        }
+    }
+
     internal open fun lagPlan(
         opplysninger: LesbarOpplysninger,
         plan: MutableSet<Regel<*>>,

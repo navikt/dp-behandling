@@ -11,16 +11,14 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktGrunnlag
 
 object VernepliktFastsetting {
     private val antallG = Opplysningstype.somDesimaltall("Antall G som gis som grunnlag ved verneplikt")
     internal val vernepliktGrunnlag = Opplysningstype.somBeløp("Grunnlag for gis ved verneplikt")
-    internal val vernepliktPeriode = Opplysningstype.somHeltall("Periode som gis ved verneplikt")
+    val vernepliktPeriode = Opplysningstype.somHeltall("Periode som gis ved verneplikt")
     internal val vernepliktFastsattVanligArbeidstid = Opplysningstype.somDesimaltall("Fastsatt vanlig arbeidstid for verneplikt")
-    internal val faktiskArbeidstid = Opplysningstype.somDesimaltall("Fastsatt vanlig arbeidstid for verneplikt")
-    internal val fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov = Opplysningstype.somBeløp("Fastsatt vanlig arbeidstid for verneplikt")
-    internal val vernepliktGrunnlagErKulest = Opplysningstype.somBoolsk("Fastsatt vanlig arbeidstid for verneplikt")
+    internal val grunnlagHvisVerneplikt = Opplysningstype.somBeløp("Grunnlag for verneplikt hvis kravet er oppfylt")
+    val grunnlagForVernepliktErGunstigst = Opplysningstype.somBoolsk("Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget")
 
     val regelsett =
         Regelsett("VernepliktFastsetting") {
@@ -29,17 +27,11 @@ object VernepliktFastsetting {
             regel(vernepliktPeriode) { oppslag(prøvingsdato) { 26 } }
             regel(vernepliktFastsattVanligArbeidstid) { oppslag(prøvingsdato) { 37.5 } }
 
-            regel(fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov) {
-                hvis(
-                    boolsk = oppfyllerKravetTilVerneplikt,
-                    verdi = vernepliktGrunnlag,
-                    default = Beløp(0),
-                )
-            }
-            regel(vernepliktGrunnlagErKulest) { størreEnn(er = vernepliktGrunnlag, størreEnn = dagpengegrunnlag) }
-            regel(fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov) { hvis(oppfyllerKravetTilVerneplikt, vernepliktGrunnlag, Beløp(0)) }
+            // Setter grunnlag avhengig av om bruker oppfyller kravet til verneplikt (0G eller 3G)
+            regel(grunnlagHvisVerneplikt) { hvis(oppfyllerKravetTilVerneplikt, vernepliktGrunnlag, Beløp(0)) }
 
-            regel(faktiskArbeidstid) { hvis(vernepliktGrunnlagErKulest, vernepliktFastsattVanligArbeidstid, 0.0) }
+            // Kriteriet om vi skal bruke grunnlag og FVA fra verneplikt eller dagpengegrunnlag
+            regel(grunnlagForVernepliktErGunstigst) { størreEnn(vernepliktGrunnlag, dagpengegrunnlag) }
         }
 
     val ønsketResultat = listOf(vernepliktGrunnlag, vernepliktPeriode, vernepliktFastsattVanligArbeidstid)

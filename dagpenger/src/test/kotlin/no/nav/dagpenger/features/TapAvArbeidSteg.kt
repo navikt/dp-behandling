@@ -5,11 +5,10 @@ import io.cucumber.java8.No
 import no.nav.dagpenger.dato.mai
 import no.nav.dagpenger.features.utils.somLocalDate
 import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
@@ -18,13 +17,22 @@ import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.tapAvArbeid
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktFastsattVanligArbeidstid
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import java.time.LocalDate
 
 class TapAvArbeidSteg : No {
     private val fraDato = 10.mai(2022)
-    private val regelsett = listOf(TapAvArbeidsinntektOgArbeidstid.regelsett, Søknadstidspunkt.regelsett)
+    private val regelsett = RegelverkDagpenger.regelsettFor(kravTilTaptArbeidstid)
+        /*listOf(
+            TapAvArbeidsinntektOgArbeidstid.regelsett,
+            Søknadstidspunkt.regelsett,
+            VernepliktFastsetting.regelsett,
+            Dagpengegrunnlag.regelsett,
+            Minsteinntekt.regelsett,
+        )*/
+
     private val opplysninger = Opplysninger()
 
     private lateinit var regelkjøring: Regelkjøring
@@ -37,20 +45,11 @@ class TapAvArbeidSteg : No {
     init {
 
         Gitt("at søknadsdatossssss er {string}") { søknadsdato: String ->
-            opplysninger
-                .leggTil(
-                    Faktum<LocalDate>(
-                        Søknadstidspunkt.søknadsdato,
-                        søknadsdato.somLocalDate(),
-                    ) as Opplysning<*>,
-                ).also { regelkjøring.evaluer() }
-            opplysninger
-                .leggTil(
-                    Faktum<LocalDate>(
-                        Søknadstidspunkt.ønsketdato,
-                        søknadsdato.somLocalDate(),
-                    ) as Opplysning<*>,
-                ).also { regelkjøring.evaluer() }
+            opplysninger.leggTil(Faktum(Søknadstidspunkt.søknadsdato, søknadsdato.somLocalDate()))
+            opplysninger.leggTil(Faktum(Søknadstidspunkt.ønsketdato, søknadsdato.somLocalDate()))
+
+            opplysninger.leggTil(Faktum(grunnlagForVernepliktErGunstigst, false))
+            opplysninger.leggTil(Faktum(vernepliktFastsattVanligArbeidstid, 0.0))
         }
 
         Gitt("at personen har tapt arbeid") {

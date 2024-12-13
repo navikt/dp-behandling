@@ -44,6 +44,11 @@ Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?
 Har tapt arbeid
 Krav på lønn fra tidligere arbeidsgiver
 Ny arbeidstid per uke
+Grunnbeløp for grunnlag
+Antall G som gis som grunnlag ved verneplikt
+Faktor for maksimalt mulig grunnlag
+Antall år i 36 måneder
+Fastsatt vanlig arbeidstid for verneplikt
 Beregnet vanlig arbeidstid per uke før tap
 Maksimal vanlig arbeidstid
 Krav til prosentvis tap av arbeidstid
@@ -57,9 +62,6 @@ Deltar i høyere yrkesfaglig utdanning
 Deltar i høyere utdanning
 Deltar på kurs mv
 Bruker er utestengt fra dagpenger
-Grunnbeløp for grunnlag
-Faktor for maksimalt mulig grunnlag
-Antall år i 36 måneder
 Faktor for utregning av dagsats etter dagpengegrunnlaget
 Barnetilleggets størrelse i kroner per dag for hvert barn
 90% av grunnlag for dagpenger
@@ -103,12 +105,11 @@ Oppfyller kravet til mobilitet
 Er medlemmet ikke påvirket av streik eller lock-out?
 Ikke krav på lønn fra tidligere arbeidsgiver
 Krav til tap av arbeidsinntekt
-Fastsatt arbeidstid per uke før tap
-Tap av arbeidstid er minst terskel
+Grunnlag for gis ved verneplikt
+6 ganger grunnbeløp
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
-6 ganger grunnbeløp
 Sum av barnetillegg
 Sum andre ytelser
 Beløp tilsvarende nedre terskel av G
@@ -119,8 +120,8 @@ Har barnetillegg
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Krav til arbeidssøker
-Krav til tap av arbeidsinntekt og arbeidstid
 Oppfyller kravet på unntak for utdanning eller opplæring
+Grunnlag for verneplikt hvis kravet er oppfylt
 Oppfyller kravet til alder
 Første måned av opptjeningsperiode
 Krav til utdanning eller opplæring
@@ -153,40 +154,46 @@ Inntektperiode 3
 Over terskel for 12 måneder
 Snittinntekt siste 36 måneder
 Krav til minsteinntekt
-Har avkortet grunnlaget i periode 1
-Har avkortet grunnlaget i periode 2
-Har avkortet grunnlaget i periode 3
 Grunnlag siste 12 mnd.
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
 Avkortet inntektperiode 3
+Har avkortet grunnlaget i periode 1
+Har avkortet grunnlaget i periode 2
+Har avkortet grunnlaget i periode 3
 Stønadsuker ved siste 12 måneder
 Over terskel for 36 måneder
-Har avkortet grunnlag
 Inntekt siste 36 måneder
+Har avkortet grunnlag
 Stønadsuker ved siste 36 måneder
 Antall stønadsuker
 Gjennomsnittlig arbeidsinntekt siste 36 måneder
 Antall gjenstående stønadsdager
 Uavrundet grunnlag
+Grunnlag ved ordinære dagpenger
 Brukt beregningsregel
+Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget
 Grunnlag
+Fastsatt vanlig arbeidstid etter ordinær eller verneplikt
 Dagsats uten barnetillegg før samordning
 Maksimalt mulig grunnlag avgrenset til 90% av dagpengegrunnlaget
+Fastsatt arbeidstid per uke før tap
 Avrundet dagsats uten barnetillegg før samordning
 Dagsats med barnetillegg før samordning
 Maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
+Tap av arbeidstid er minst terskel
 Avrundet maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
 Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
 Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
 Avrundet ukessats med barnetillegg før samordning
+Krav til tap av arbeidsinntekt og arbeidstid
 Samordnet dagsats uten barnetillegg
 Samordnet dagsats er negativ eller 0
 Samordnet ukessats uten barnetillegg
 Utfall etter samordning
+Krav på dagpenger
 Minste mulige ukessats som som kan brukes
 Ukessats trukket ned for ytelser utenfor folketrygden
-Krav på dagpenger
 Samordnet ukessats med ytelser utenfor folketrygden
 Dagsats uten barnetillegg samordnet
 Samordnet dagsats med barnetillegg

@@ -51,8 +51,8 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                     Behandling.TilstandType.Avbrutt -> BehandlingDTO.Tilstand.Avbrutt
                     Behandling.TilstandType.Ferdig -> BehandlingDTO.Tilstand.Ferdig
                     Behandling.TilstandType.Redigert -> BehandlingDTO.Tilstand.Redigert
-                    Behandling.TilstandType.TilGodkjenning -> BehandlingDTO.Tilstand.Godkjenning
-                    Behandling.TilstandType.TilBeslutning -> BehandlingDTO.Tilstand.Kontroll
+                    Behandling.TilstandType.TilGodkjenning -> BehandlingDTO.Tilstand.TilGodkjenning
+                    Behandling.TilstandType.TilBeslutning -> BehandlingDTO.Tilstand.TilBeslutning
                 },
             opplysning =
                 this.opplysninger().finnAlle().map { opplysning ->
