@@ -29,7 +29,13 @@ object VernepliktFastsetting {
             regel(vernepliktPeriode) { oppslag(prøvingsdato) { 26 } }
             regel(vernepliktFastsattVanligArbeidstid) { oppslag(prøvingsdato) { 37.5 } }
 
-            regel(fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov) { hvis(oppfyllerKravetTilVerneplikt, vernepliktGrunnlag, Beløp(0)) }
+            regel(fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov) {
+                hvis(
+                    boolsk = oppfyllerKravetTilVerneplikt,
+                    verdi = vernepliktGrunnlag,
+                    default = Beløp(0),
+                )
+            }
             regel(vernepliktGrunnlagErKulest) { størreEnn(er = vernepliktGrunnlag, størreEnn = dagpengegrunnlag) }
             regel(fajlskdjfgrunnlagsomfaktisksalbrukesomduharlov) { hvis(oppfyllerKravetTilVerneplikt, vernepliktGrunnlag, Beløp(0)) }
 
