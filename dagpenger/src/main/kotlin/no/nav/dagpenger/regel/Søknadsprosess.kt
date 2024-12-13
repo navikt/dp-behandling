@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
@@ -30,15 +31,15 @@ class Søknadsprosess : Forretningsprosess {
             return ønsketResultat
         }
 
-        // Sjekk krav til minste arbeidsinntekt
-        ønsketResultat.add(Minsteinntekt.minsteinntekt)
+        // Sjekk krav til minste arbeidsinntekt eller verneplikt
+        ønsketResultat.add(minsteinntektEllerVerneplikt)
 
-        if (opplysninger.mangler(Minsteinntekt.minsteinntekt)) {
+        if (opplysninger.mangler(minsteinntektEllerVerneplikt)) {
             return ønsketResultat
         }
 
         val alderskravOppfylt = opplysninger.oppfyller(Alderskrav.kravTilAlder)
-        val minsteinntektOppfylt = opplysninger.oppfyller(Minsteinntekt.minsteinntekt)
+        val minsteinntektOppfylt = opplysninger.oppfyller(minsteinntektEllerVerneplikt)
 
         val støtterInnvilgelse = opplysninger.oppfyller(støtterInnvilgelseOpplysningstype)
 
@@ -62,7 +63,7 @@ class Søknadsprosess : Forretningsprosess {
                 FulleYtelser.ikkeFulleYtelser,
                 Medlemskap.oppfyllerMedlemskap,
                 Meldeplikt.registrertPåSøknadstidspunktet,
-                Minsteinntekt.minsteinntekt,
+                minsteinntektEllerVerneplikt,
                 Opphold.oppfyllerKravet,
                 ReellArbeidssøker.kravTilArbeidssøker,
                 StreikOgLockout.ikkeStreikEllerLockout,
