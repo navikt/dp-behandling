@@ -70,7 +70,7 @@ class DagpengeperiodeSteg : No {
         }
 
         Så("skal søker ha {int} uker med dagpenger") { uker: Int ->
-            val faktum = opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsuker)
+            val faktum = opplysninger.finnOpplysning(Dagpengeperiode.ordinærPeriode)
             faktum.verdi shouldBe uker
         }
     }

@@ -1,6 +1,7 @@
 package no.nav.dagpenger.features.utils
 
 import io.cucumber.java.ParameterType
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -10,9 +11,7 @@ internal fun String.somLocalDate(): LocalDate {
 }
 
 @ParameterType(".*")
-fun dato(dato: String): LocalDate {
-    return dato.somLocalDate()
-}
+fun dato(dato: String): LocalDate = dato.somLocalDate()
 
 @ParameterType(".*")
 fun boolsk(verdi: String): Boolean =
@@ -22,3 +21,5 @@ fun boolsk(verdi: String): Boolean =
         else ->
             throw IllegalArgumentException("Ukjent svar på boolsk: $verdi")
     }
+
+fun String.tilBeløp(): Beløp = Beløp(this.toBigDecimal())

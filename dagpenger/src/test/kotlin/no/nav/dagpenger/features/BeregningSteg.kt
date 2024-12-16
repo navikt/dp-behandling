@@ -15,8 +15,7 @@ import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsuker
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.gjenståendeStønadsdager
+import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -67,13 +66,13 @@ class BeregningSteg : No {
         }
         Så("det gjenstår {int} dager") { dager: Int ->
             // TODO: Dette må bo et sted
-            val utgangspunkt = opplysninger.find { it.opplysningstype == antallStønadsuker }!!.verdi as Int * 5
+            val utgangspunkt = opplysninger.find { it.opplysningstype == ordinærPeriode }!!.verdi as Int * 5
             val forbrukteDager = opplysninger.filter { it.opplysningstype == forbruk }.size
             val gjenståendeDager = utgangspunkt - forbrukteDager
             gjenståendeDager shouldBe dager
 
             // Lagre gjenstående stønadsdager tilbake i opplysninger
-            opplysninger.add(Faktum(gjenståendeStønadsdager, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
+            opplysninger.add(Faktum(ordinærPeriode, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
         }
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
             beregning.forbruksdager.sumOf { it.forbruktEgenandel } shouldBe forbruktEgenandel.toDouble()
@@ -145,7 +144,7 @@ class BeregningSteg : No {
     private val opplysningFactories: Map<String, (Map<String, String>, Gyldighetsperiode) -> Opplysning<*>> =
         mapOf(
             "Periode" to { args, gyldighetsperiode ->
-                Faktum(antallStønadsuker, args["verdi"]!!.toInt(), gyldighetsperiode)
+                Faktum(ordinærPeriode, args["verdi"]!!.toInt(), gyldighetsperiode)
             },
             "Sats" to { args, gyldighetsperiode ->
                 Faktum(dagsatsEtterSamordningMedBarnetillegg, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode)

@@ -204,7 +204,7 @@ private fun vedtakFastsattDTO(
                         KvoteDTO(
                             "Dagpengeperiode",
                             KvoteDTO.Type.uker,
-                            opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsuker).verdi.toBigDecimal(),
+                            opplysninger.finnOpplysning(Dagpengeperiode.ordinærPeriode).verdi.toBigDecimal(),
                         )
                     },
                     opplysninger.finnOpplysning(grunnlagForVernepliktErGunstigst).takeIf { it.verdi }?.let {

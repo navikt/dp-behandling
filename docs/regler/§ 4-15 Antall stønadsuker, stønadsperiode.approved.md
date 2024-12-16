@@ -27,9 +27,11 @@ graph RL
   P["Stønadsuker ved siste 36 måneder"] -->|"HvisSannMedResultat"| A["Kort dagpengeperiode"]
   Q["Antall stønadsuker"] -->|"HøyesteAv"| O["Stønadsuker ved siste 12 måneder"]
   Q["Antall stønadsuker"] -->|"HøyesteAv"| P["Stønadsuker ved siste 36 måneder"]
-  R["Antall dager som skal regnes med i hver uke"] -->|"Oppslag"| B["Prøvingsdato"]
-  S["Antall gjenstående stønadsdager"] -->|"Multiplikasjon"| Q["Antall stønadsuker"]
-  S["Antall gjenstående stønadsdager"] -->|"Multiplikasjon"| R["Antall dager som skal regnes med i hver uke"]
+  R["Antall stønadsuker som gis ved ordinære dagpenger"] -->|"HvisRegel"| S["Krav til minsteinntekt"]
+  R["Antall stønadsuker som gis ved ordinære dagpenger"] -->|"HvisRegel"| Q["Antall stønadsuker"]
+  T["Antall dager som skal regnes med i hver uke"] -->|"Oppslag"| B["Prøvingsdato"]
+  U["Antall gjenstående stønadsdager"] -->|"Multiplikasjon"| Q["Antall stønadsuker"]
+  U["Antall gjenstående stønadsdager"] -->|"Multiplikasjon"| T["Antall dager som skal regnes med i hver uke"]
 ```
 
 ## Akseptansetester
@@ -45,15 +47,15 @@ Egenskap: § 4-15 Antall stønadsuker, stønadsperiode
     Og at søker har "<inntekt siste 36>" siste 36 måneder
     Så skal søker ha <antall uker> uker med dagpenger
     Eksempler:
-      | virkningstidspunkt | inntekt siste 12 | inntekt siste 36 |  antall uker |
-      | 01.08.2024         | 300000           | 0                |  104         |
-      | 01.08.2024         | 200000           | 0                |  52          |
-      | 01.08.2024         | 0                | 300000           |  52          |
-      | 01.08.2024         | 0                | 200000           |  52          |
-      | 01.08.2024         | 0                | 748000           |  104         |
-      | 01.08.2024         | 300000           | 200000           |  104         |
-      | 01.08.2024         | 248056           | 0                |  104         |
-      | 01.08.2024         | 248055           | 0                |  52          |
-      | 01.08.2024         | 248055           | 0                |  52          |
-      | 01.08.2024         | 248056           | 0                |  104         |
+      | virkningstidspunkt | inntekt siste 12 | inntekt siste 36 | antall uker |
+      | 01.08.2024         | 300000           | 0                | 104         |
+      | 01.08.2024         | 200000           | 0                | 52          |
+      | 01.08.2024         | 0                | 300000           | 0           |
+      | 01.08.2024         | 0                | 200000           | 0           |
+      | 01.08.2024         | 0                | 748000           | 104         |
+      | 01.08.2024         | 300000           | 200000           | 104         |
+      | 01.08.2024         | 248056           | 0                | 104         |
+      | 01.08.2024         | 248055           | 0                | 52          |
+      | 01.08.2024         | 248055           | 0                | 52          |
+      | 01.08.2024         | 248056           | 0                | 104         |
 ``` 

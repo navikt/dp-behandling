@@ -31,7 +31,7 @@ object VernepliktFastsetting {
             regel(grunnlagHvisVerneplikt) { hvis(oppfyllerKravetTilVerneplikt, vernepliktGrunnlag, Beløp(0)) }
 
             // Kriteriet om vi skal bruke grunnlag og FVA fra verneplikt eller dagpengegrunnlag
-            regel(grunnlagForVernepliktErGunstigst) { størreEnn(vernepliktGrunnlag, dagpengegrunnlag) }
+            regel(grunnlagForVernepliktErGunstigst) { størreEnn(grunnlagHvisVerneplikt, dagpengegrunnlag) }
         }
 
     val ønsketResultat = listOf(vernepliktGrunnlag, vernepliktPeriode, vernepliktFastsattVanligArbeidstid)

@@ -41,10 +41,10 @@ object Dagpengegrunnlag {
     private val maksgrenseForGrunnlag = Opplysningstype.somBeløp("6 ganger grunnbeløp")
     private val antallÅrI36Måneder = Opplysningstype.somDesimaltall("Antall år i 36 måneder")
 
-    private val grunnlag12mnd = Opplysningstype.somBeløp("Grunnlag siste 12 mnd.")
+    internal val grunnlag12mnd = Opplysningstype.somBeløp("Grunnlag siste 12 mnd.")
 
     private val beløpSiste36 = Opplysningstype.somBeløp("Inntekt siste 36 måneder")
-    private val grunnlag36mnd = Opplysningstype.somBeløp("Gjennomsnittlig arbeidsinntekt siste 36 måneder")
+    internal val grunnlag36mnd = Opplysningstype.somBeløp("Gjennomsnittlig arbeidsinntekt siste 36 måneder")
 
     private val utbetaltArbeidsinntektPeriode1 = Opplysningstype.somBeløp("Utbetalt arbeidsinntekt periode 1")
     private val utbetaltArbeidsinntektPeriode2 = Opplysningstype.somBeløp("Utbetalt arbeidsinntekt periode 2")
