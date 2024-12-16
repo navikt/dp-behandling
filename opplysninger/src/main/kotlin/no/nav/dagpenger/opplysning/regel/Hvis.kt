@@ -25,6 +25,6 @@ class HvisRegel<T : Comparable<T>>(
 
 fun <T : Comparable<T>> Opplysningstype<T>.hvis(
     boolsk: Opplysningstype<Boolean>,
-    verdi: Opplysningstype<T>,
-    default: T,
-): HvisRegel<T> = HvisRegel(this, boolsk, verdi, default)
+    hvisSann: Opplysningstype<T>,
+    hvisUsann: T,
+): HvisRegel<T> = HvisRegel(this, boolsk, hvisSann, hvisUsann)

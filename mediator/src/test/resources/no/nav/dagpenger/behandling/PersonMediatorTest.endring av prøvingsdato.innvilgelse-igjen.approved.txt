@@ -120,8 +120,8 @@ Har barnetillegg
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Krav til arbeidssøker
-Oppfyller kravet på unntak for utdanning eller opplæring
 Grunnlag for verneplikt hvis kravet er oppfylt
+Oppfyller kravet på unntak for utdanning eller opplæring
 Oppfyller kravet til alder
 Første måned av opptjeningsperiode
 Krav til utdanning eller opplæring
@@ -168,6 +168,7 @@ Inntekt siste 36 måneder
 Har avkortet grunnlag
 Stønadsuker ved siste 36 måneder
 Antall stønadsuker
+Antall stønadsuker som gis ved ordinære dagpenger
 Gjennomsnittlig arbeidsinntekt siste 36 måneder
 Antall gjenstående stønadsdager
 Uavrundet grunnlag

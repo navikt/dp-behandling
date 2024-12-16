@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.fastsetting
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.regel.divisjon
+import no.nav.dagpenger.opplysning.regel.hvis
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.høyesteAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
@@ -12,8 +13,9 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object Dagpengeperiode {
-    val antallStønadsuker = Opplysningstype.somHeltall("Antall stønadsuker")
-    val gjenståendeStønadsdager = Opplysningstype.somHeltall("Antall gjenstående stønadsdager")
+    private val antallStønadsuker = Opplysningstype.somHeltall("Antall stønadsuker")
+    private val gjenståendeStønadsdager = Opplysningstype.somHeltall("Antall gjenstående stønadsdager")
+    val ordinærPeriode = Opplysningstype.somHeltall("Antall stønadsuker som gis ved ordinære dagpenger")
     private val dagerIUka = Opplysningstype.somHeltall("Antall dager som skal regnes med i hver uke")
     private val terskelFaktor12 = Opplysningstype.somDesimaltall("Terskelfaktor for 12 måneder")
     private val terskelFaktor36 = Opplysningstype.somDesimaltall("Terskelfaktor for 36 måneder")
@@ -50,13 +52,13 @@ object Dagpengeperiode {
             regel(stønadsuker12) { hvisSannMedResultat(overterskel12, langPeriode, kortPeriode) }
             regel(stønadsuker36) { hvisSannMedResultat(overterskel36, langPeriode, kortPeriode) }
 
-            regel(antallStønadsuker) {
-                høyesteAv(stønadsuker12, stønadsuker36)
-            }
+            regel(antallStønadsuker) { høyesteAv(stønadsuker12, stønadsuker36) }
+
+            regel(ordinærPeriode) { hvis(Minsteinntekt.minsteinntekt, antallStønadsuker, 0) }
 
             regel(dagerIUka) { oppslag(prøvingsdato) { 5 } }
             regel(gjenståendeStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
         }
 
-    val ønsketResultat = listOf(gjenståendeStønadsdager)
+    val ønsketResultat = listOf(ordinærPeriode, gjenståendeStønadsdager)
 }

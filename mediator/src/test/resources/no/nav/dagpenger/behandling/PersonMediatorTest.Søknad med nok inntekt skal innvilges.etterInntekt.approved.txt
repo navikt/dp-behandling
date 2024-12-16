@@ -88,10 +88,10 @@ Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
 Krav til tap av arbeidsinntekt
+Grunnlag for verneplikt hvis kravet er oppfylt
 Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
-Grunnlag for verneplikt hvis kravet er oppfylt
 Grunnlag siste 12 mnd.
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
@@ -167,6 +167,7 @@ Over terskel for 36 måneder
 Stønadsuker ved siste 12 måneder
 Stønadsuker ved siste 36 måneder
 Antall stønadsuker
+Antall stønadsuker som gis ved ordinære dagpenger
 Antall gjenstående stønadsdager
 Barn
 Antall barn som gir rett til barnetillegg

@@ -33,7 +33,7 @@ internal class BeregningsperiodeFabrikk(
             .toDouble()
 
     // TODO: Finn en ekte virkningsdato
-    private fun hentVedtaksperiode() = opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsuker).gyldighetsperiode
+    private fun hentVedtaksperiode() = opplysninger.finnOpplysning(Dagpengeperiode.ordinærPeriode).gyldighetsperiode
 
     private fun beregnDager(
         meldeperiodeFraOgMed: LocalDate,
