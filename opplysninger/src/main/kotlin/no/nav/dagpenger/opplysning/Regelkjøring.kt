@@ -123,10 +123,14 @@ class Regelkjøring(
 
         val muligeRegler = alleRegler.filterNot { opplysningerUtenRegel.contains(it.produserer) }
         ønsketResultat.forEach { opplysningstype ->
-            val regel = muligeRegler.single { it.produserer(opplysningstype) }
+            val regel =
+                muligeRegler.singleOrNull { it.produserer(opplysningstype) }
+                    ?: throw IllegalArgumentException("Mangler regel for opplysningstype=${opplysningstype.navn}")
             brukteOpplysninger.add(regel.produserer)
             regel.avhengerAv.forEach { avhengighet ->
-                val avhengigRegel = muligeRegler.single { it.produserer(avhengighet) }
+                val avhengigRegel =
+                    muligeRegler.singleOrNull { it.produserer(avhengighet) }
+                        ?: throw IllegalArgumentException("Mangler regel for opplysningstype=${avhengighet.navn}")
                 brukteOpplysninger.add(avhengigRegel.produserer)
                 leggTilAvhengigRegel(avhengigRegel, brukteOpplysninger, muligeRegler)
             }
@@ -166,10 +170,25 @@ class Regelkjøring(
     }
 
     private fun kjør(regel: Regel<*>) {
-        val opplysning = regel.lagProdukt(opplysningerPåPrøvingsdato)
-        kjørteRegler.add(regel)
-        plan.remove(regel)
-        opplysninger.leggTilUtledet(opplysning)
+        try {
+            val opplysning = regel.lagProdukt(opplysningerPåPrøvingsdato)
+            kjørteRegler.add(regel)
+            plan.remove(regel)
+            opplysninger.leggTilUtledet(opplysning)
+        } catch (e: IllegalArgumentException) {
+            if (e.message?.startsWith("Prøver å kjøre") == true) {
+                throw IllegalArgumentException(
+                    """Lager produkt, men mangler avhengigheter. 
+                    |KjørteRegler:
+                    |${kjørteRegler.joinToString("\n")}
+                    |Plan:
+                    |${plan.joinToString("\n")}
+                    """.trimMargin(),
+                    e,
+                )
+            }
+            throw e
+        }
     }
 
     private fun trenger(): Set<Opplysningstype<*>> {
