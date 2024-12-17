@@ -30,6 +30,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 return
             }
 
+            // Underliggende opplysninger må vurdere seg selv
             produkt.utledetAv.opplysninger.forEach { avhengighet ->
                 val produsent = gjeldendeRegler.singleOrNull { it.produserer(avhengighet.opplysningstype) }
                 produsent?.lagPlan(opplysninger, plan, gjeldendeRegler)
@@ -42,12 +43,12 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                     val produsent = gjeldendeRegler.singleOrNull { it.produserer(avhengighet) }
                     produsent?.lagPlan(opplysninger, plan, gjeldendeRegler)
                 }
+                plan.add(this)
                 return
             }
 
-            val avhengighetErErstattet = produkt.utledetAv.opplysninger.any { it.erErstattet || it.erFjernet }
-
-            if (avhengighetErErstattet) {
+            // Om en avhengighet er erstattet, må denne regelen kjøres på nytt
+            if (produkt.utledetAv.opplysninger.any { it.erErstattet || it.erFjernet }) {
                 plan.add(this)
                 return
             }

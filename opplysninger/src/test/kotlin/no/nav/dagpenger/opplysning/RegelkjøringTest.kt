@@ -1,11 +1,13 @@
 package no.nav.dagpenger.opplysning
 
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.a
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.b
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.c
+import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.minstAv
@@ -42,7 +44,7 @@ class RegelkjøringTest {
             Regelsett("regelsett") {
                 regel(opplysningB) { innhentes }
                 regel(opplysningC) { innhentes }
-                regel(opplysningA) { minstAv(opplysningB) }
+                regel(opplysningA) { minstAv(opplysningC, opplysningB) }
             }
         opplysninger.leggTil(Faktum(opplysningB, 1.5))
         opplysninger.leggTil(Faktum(opplysningC, 0.5))
@@ -55,39 +57,29 @@ class RegelkjøringTest {
             rapport.kjørteRegler.shouldNotBeEmpty()
 
             opplysninger.finnOpplysning(opplysningB).verdi shouldBe 1.5
-            opplysninger.finnOpplysning(opplysningA).verdi shouldBe 1.5
+            opplysninger.finnOpplysning(opplysningA).verdi shouldBe 0.5
         }
 
         // Endring i reglene
+        var regelA: Regel<*>? = null
         val regelsett2 =
             Regelsett("regelsett") {
                 regel(opplysningB) { innhentes }
                 regel(opplysningC) { innhentes }
-                regel(opplysningD) { minstAv(opplysningC) }
-                regel(opplysningA) { minstAv(opplysningB, opplysningD) }
+                regel(opplysningD) { innhentes }
+                regel(opplysningA) { minstAv(opplysningD, opplysningB).also { regelA = it } }
             }
+        opplysninger.leggTil(Faktum(opplysningD, 0.1))
 
-        // Kjør nye regler med nye opplysninger
+        // Kjør på nytt med endringer i regler
         Regelkjøring(LocalDate.now(), opplysninger, regelsett2).apply {
             val rapport = evaluer()
 
-            // rapport.mangler.shouldContain(opplysningD)
+            rapport.kjørteRegler.shouldContainExactly(regelA)
 
             opplysninger.finnOpplysning(opplysningB).verdi shouldBe 1.5
-            opplysninger.finnOpplysning(opplysningA).verdi shouldBe 1.5
-            opplysninger.finnOpplysning(opplysningD).verdi shouldBe 0.5
+            opplysninger.finnOpplysning(opplysningA).verdi shouldBe 0.1
+            opplysninger.finnOpplysning(opplysningD).verdi shouldBe 0.1
         }
-
-        /*
-        // Ikke det vi vil teste nå, men burde også fungere
-        opplysninger.leggTil(Faktum(opplysningD, 0.5))
-        Regelkjøring(LocalDate.now(), opplysninger, regelsett2).apply {
-            val rapport = evaluer()
-
-            rapport.mangler.shouldBeEmpty()
-            rapport.kjørteRegler.shouldContain(listOf(regelC, regelA))
-
-            opplysninger.finnOpplysning(opplysningC).verdi shouldBe 0.5
-        }*/
     }
 }
