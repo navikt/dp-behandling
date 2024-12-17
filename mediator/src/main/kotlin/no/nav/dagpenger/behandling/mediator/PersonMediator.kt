@@ -1,12 +1,10 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
+import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingForslagTilVedtak
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
@@ -18,11 +16,9 @@ internal class PersonMediator(
 ) : PersonObservatør {
     private val meldinger = mutableListOf<Hendelse>()
 
-    private companion object {
-        private val objectMapper =
-            jacksonObjectMapper()
-                .registerModule(JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    override fun forslagTilVedtak(event: BehandlingForslagTilVedtak) {
+        val ident = requireNotNull(event.ident) { "Mangler ident i ForslagTilVedtak" }
+        meldinger.add(ident to event.toJsonMessage())
     }
 
     override fun endretTilstand(event: BehandlingEndretTilstand) {
@@ -52,6 +48,12 @@ internal class PersonMediator(
                     "tidBrukt" to tidBrukt.toString(),
                 ),
             )
+
+    private fun BehandlingForslagTilVedtak.toJsonMessage(): JsonMessage {
+        val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
+        val vedtak = lagVedtak(behandlingId, ident, søknadId, opplysninger, automatiskBehandlet, godkjent, besluttet)
+        return JsonMessage.newMessage("forslag_til_vedtak", vedtak.toMap())
+    }
 
     private fun BehandlingFerdig.toJsonMessage(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingEndretTilstand" })
