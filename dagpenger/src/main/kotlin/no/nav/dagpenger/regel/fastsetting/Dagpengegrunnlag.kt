@@ -134,6 +134,7 @@ object Dagpengegrunnlag {
         }
     val ønsketResultat =
         listOf(
+            grunnlag,
             grunnbeløpForDagpengeGrunnlag,
             harAvkortet,
             bruktBeregningsregel,
