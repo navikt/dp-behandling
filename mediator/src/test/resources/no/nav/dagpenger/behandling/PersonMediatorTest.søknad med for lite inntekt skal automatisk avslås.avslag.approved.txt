@@ -29,8 +29,6 @@ Siste avsluttende kalendermåned
 Første måned av opptjeningsperiode
 Registrert som arbeidssøker
 Registrert som arbeidssøker på søknadstidspunktet
-Avtjent verneplikt
-Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste
 Inntektsopplysninger
 Brutto arbeidsinntekt
 Arbeidsinntekt siste 12 mnd

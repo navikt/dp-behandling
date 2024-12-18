@@ -751,15 +751,15 @@ internal class PersonMediatorTest {
         }
         testPerson.løsBehov(Inntekt)
 
-        if (behandlingslengde == Behandlingslengde.AvbruddInntekt) {
-            return
-        }
-
         /**
          * Sjekker om mulig verneplikt
          */
         rapid.harBehov(Verneplikt)
         testPerson.løsBehov(Verneplikt)
+
+        if (behandlingslengde == Behandlingslengde.AvbruddInntekt) {
+            return
+        }
 
         /**
          * Sjekker kravene til reell arbeidssøker

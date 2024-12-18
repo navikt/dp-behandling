@@ -24,8 +24,8 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.FulleYtelser
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.KravPåDagpenger.kravPåDagpenger
+import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.Medlemskap
 import no.nav.dagpenger.regel.Meldeplikt
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt

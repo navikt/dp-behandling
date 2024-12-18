@@ -84,8 +84,8 @@ class SøknadInnsendtHendelse(
             opplysninger.finnOpplysning(KravPåDagpenger.kravPåDagpenger).verdi
 
     override fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean =
-        opplysninger.har(Minsteinntekt.minsteinntekt) &&
-            opplysninger.finnOpplysning(Minsteinntekt.minsteinntekt).verdi
+        opplysninger.har(minsteinntektEllerVerneplikt) &&
+            opplysninger.finnOpplysning(minsteinntektEllerVerneplikt).verdi
 
     fun alder(opplysninger: LesbarOpplysninger): Boolean =
         opplysninger.har(Alderskrav.kravTilAlder) &&

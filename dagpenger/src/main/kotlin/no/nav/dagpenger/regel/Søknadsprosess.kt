@@ -64,7 +64,6 @@ class Søknadsprosess : Forretningsprosess {
                 Medlemskap.oppfyllerMedlemskap,
                 Meldeplikt.registrertPåSøknadstidspunktet,
                 minsteinntektEllerVerneplikt,
-                Minsteinntekt.minsteinntekt,
                 Opphold.oppfyllerKravet,
                 ReellArbeidssøker.kravTilArbeidssøker,
                 StreikOgLockout.ikkeStreikEllerLockout,

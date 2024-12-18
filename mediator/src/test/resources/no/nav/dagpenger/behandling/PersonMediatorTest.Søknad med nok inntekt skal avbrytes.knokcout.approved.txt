@@ -27,6 +27,8 @@ Inntektskrav for siste 12 mnd
 Inntektskrav for siste 36 mnd
 Siste avsluttende kalendermåned
 Første måned av opptjeningsperiode
+Registrert som arbeidssøker
+Registrert som arbeidssøker på søknadstidspunktet
 Inntektsopplysninger
 Brutto arbeidsinntekt
 Arbeidsinntekt siste 12 mnd
@@ -34,3 +36,6 @@ Arbeidsinntekt siste 36 mnd
 Arbeidsinntekt er over kravet for siste 12 mnd
 Arbeidsinntekt er over kravet for siste 36 mnd
 Krav til minsteinntekt
+Avtjent verneplikt
+Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste
+Oppfyller kravet til minsteinntekt eller verneplikt
