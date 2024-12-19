@@ -52,6 +52,7 @@ Krav på lønn fra tidligere arbeidsgiver
 Ny arbeidstid per uke
 Grunnbeløp for grunnlag
 Antall G som gis som grunnlag ved verneplikt
+Grunnlag for verneplikt hvis kravet ikke er oppfylt
 Tellende inntekt
 Faktor for maksimalt mulig grunnlag
 Antall år i 36 måneder
@@ -148,6 +149,7 @@ Lang dagpengeperiode
 Kort dagpengeperiode
 Divisior
 Terskelfaktor for 36 måneder
+Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
 Antall dager som skal regnes med i hver uke
 Uføretrygd etter lovens kapittel 12
 Mottar pensjon fra en offentlig tjenestepensjonsordning

@@ -3,7 +3,6 @@ package no.nav.dagpenger.regel.fastsetting
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.regel.divisjon
-import no.nav.dagpenger.opplysning.regel.hvis
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.høyesteAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
@@ -35,6 +34,8 @@ object Dagpengeperiode {
     private val stønadsuker12 = Opplysningstype.somHeltall("Stønadsuker ved siste 12 måneder")
     private val stønadsuker36 = Opplysningstype.somHeltall("Stønadsuker ved siste 36 måneder")
 
+    private val ingenOrdinærPeriode = Opplysningstype.somHeltall("Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt")
+
     val regelsett =
         Regelsett("Dagpengeperiode") {
             regel(kortPeriode) { oppslag(prøvingsdato) { 52 } }
@@ -54,7 +55,9 @@ object Dagpengeperiode {
 
             regel(antallStønadsuker) { høyesteAv(stønadsuker12, stønadsuker36) }
 
-            regel(ordinærPeriode) { hvis(Minsteinntekt.minsteinntekt, antallStønadsuker, 0) }
+            regel(ingenOrdinærPeriode) { oppslag(prøvingsdato) { 0 } }
+
+            regel(ordinærPeriode) { hvisSannMedResultat(Minsteinntekt.minsteinntekt, antallStønadsuker, ingenOrdinærPeriode) }
 
             regel(dagerIUka) { oppslag(prøvingsdato) { 5 } }
             regel(gjenståendeStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
