@@ -590,10 +590,6 @@ class Behandling private constructor(
                 hendelse.info(regel.toString())
             }
 
-            hendelse.info(
-                "Fant ${rapport.foreldreløse.size} foreldreløse regler=${rapport.foreldreløse.joinToString("\n") { it.toString() }}",
-            )
-
             hendelse.lagBehov(rapport.informasjonsbehov)
 
             if (rapport.erFerdig()) {
