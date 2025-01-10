@@ -43,7 +43,7 @@ dependencies {
     testImplementation(libs.mock.oauth2.server)
     testImplementation(libs.bundles.postgres.test)
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
-    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:2024.12.18-11.39-73f8eecb")
+    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:2025.01.10-08.49-9e6f64ad")
     testImplementation("com.approvaltests:approvaltests:22.3.3")
 }
 
