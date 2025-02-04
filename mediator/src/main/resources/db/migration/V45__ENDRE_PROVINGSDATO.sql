@@ -17,10 +17,6 @@ UPDATE opplysning SET opplysningstype_id = 39494007 WHERE opplysningstype_id = 1
         WHERE oo2.opplysning_id = opplysning.id AND o2.opplysningstype_id = 39494007
     ));
 
-SELECT * FROM opplysningstype WHERE navn = 'Prøvingsdato';
-
-
-
 --dev
 UPDATE opplysning SET opplysningstype_id = 6886412 WHERE opplysningstype_id = 636731 AND id IN (
     SELECT id FROM opplysning
