@@ -41,6 +41,9 @@ import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
+import no.nav.dagpenger.regel.Permittering.erPermitteringenMidlertidig
+import no.nav.dagpenger.regel.Permittering.erPermittert
+import no.nav.dagpenger.regel.Permittering.godkjentPermitteringsårsak
 import no.nav.dagpenger.regel.ReellArbeidssøker.erArbeidsfør
 import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentArbeidsufør
 import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentDeltidssøker
@@ -375,6 +378,10 @@ private val redigerbareOpplysninger =
                 høyereYrkesfagligUtdanning,
                 høyereUtdanning,
                 deltakelsePåKurs,
+                // 4-7 Permittering
+                erPermittert,
+                godkjentPermitteringsårsak,
+                erPermitteringenMidlertidig,
                 // 4-19 Verneplikt
                 oppfyllerKravetTilVerneplikt,
                 // 4-22 Streik og lockøout

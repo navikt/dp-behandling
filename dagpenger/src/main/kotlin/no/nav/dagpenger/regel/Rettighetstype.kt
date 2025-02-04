@@ -8,19 +8,17 @@ import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.regel.Behov.Lønnsgaranti
 import no.nav.dagpenger.regel.Behov.Ordinær
-import no.nav.dagpenger.regel.Behov.Permittert
 import no.nav.dagpenger.regel.Behov.PermittertFiskeforedling
 import no.nav.dagpenger.regel.OpplysningsTyper.HarRettTilOrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.LønnsgarantiId
 import no.nav.dagpenger.regel.OpplysningsTyper.OrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
-import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
+import no.nav.dagpenger.regel.Permittering.erPermittert
 
 object Rettighetstype {
     private val ordinærArbeid = boolsk(OrdinærId, beskrivelse = "Har rett til ordinære dagpenger gjennom arbeidsforhold", behovId = Ordinær)
-    private val permittering = boolsk(PermittertId, beskrivelse = "Har rett til dagpenger under permittering", behovId = Permittert)
     private val lønnsgaranti = boolsk(LønnsgarantiId, beskrivelse = "Har rett til dagpenger etter konkurs", behovId = Lønnsgaranti)
     private val permitteringFiskeforedling =
         boolsk(
@@ -40,13 +38,12 @@ object Rettighetstype {
             RegelsettType.Fastsettelse,
         ) {
             regel(ordinærArbeid) { innhentes }
-            regel(permittering) { innhentes }
             regel(lønnsgaranti) { innhentes }
             regel(permitteringFiskeforedling) { innhentes }
 
-            regel(ingenArbeid) { ingenAv(ordinærArbeid, permittering, lønnsgaranti, permitteringFiskeforedling) }
+            regel(ingenArbeid) { ingenAv(ordinærArbeid, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
             regel(ordinær) { enAv(ordinærArbeid, ingenArbeid) }
 
-            regel(rettighetstype) { enAv(ordinær, permittering, lønnsgaranti, permitteringFiskeforedling) }
+            regel(rettighetstype) { enAv(ordinær, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
         }
 }

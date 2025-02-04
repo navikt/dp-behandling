@@ -235,8 +235,8 @@ class TestPerson(
                         // "gyldigTilOgMed" to prøvingsdato,
                     ),
                 // Rettighetsype
-                Ordinær to false,
-                Permittert to true,
+                Ordinær to true,
+                Permittert to false,
                 Lønnsgaranti to false,
                 PermittertFiskeforedling to false,
                 // Verneplikt

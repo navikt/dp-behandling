@@ -17,7 +17,7 @@ Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De 
 |OppgittAndreYtelserUtenforNav | Oppgitt andre ytelser utenfor NAV i søknaden | Boolsk|boolean|
 |Opplæringspenger | Opplæringspenger etter lovens kapittel 9 | Boolsk|boolean|
 |Ordinær | Har rett til ordinære dagpenger gjennom arbeidsforhold | Boolsk|boolean|
-|Permittert | Har rett til dagpenger under permittering | Boolsk|boolean|
+|Permittert | Bruker er permittert | Boolsk|boolean|
 |PermittertFiskeforedling | Har rett til dagpenger under permittering i fiskeforedlingsindustri | Boolsk|boolean|
 |Pleiepenger | Pleiepenger etter lovens kapittel 9 | Boolsk|boolean|
 |RegistrertSomArbeidssøker | Registrert som arbeidssøker | Boolsk|boolean|
