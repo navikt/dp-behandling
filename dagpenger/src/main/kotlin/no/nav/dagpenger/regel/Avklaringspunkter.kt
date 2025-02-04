@@ -152,4 +152,11 @@ object Avklaringspunkter {
             tittel = "Søker er ikke registrert som arbeidssøker",
             beskrivelse = "Søker er ikke registrert som arbeidssøker.",
         )
+
+    val HarOppgittPermittering =
+        Avklaringkode(
+            kode = "HarOppgittPermittering",
+            tittel = "Sjekk om bruker skal ha dagpenger som permittert",
+            beskrivelse = "Du må vurdere om bruker er permittert og oppfyller kravene til permittering",
+        )
 }

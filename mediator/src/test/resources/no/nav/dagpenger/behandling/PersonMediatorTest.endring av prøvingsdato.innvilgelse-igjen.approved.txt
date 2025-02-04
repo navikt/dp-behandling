@@ -4,7 +4,7 @@ Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
 Har rett til ordinære dagpenger gjennom arbeidsforhold
-Har rett til dagpenger under permittering
+Bruker er permittert
 Har rett til dagpenger etter konkurs
 Har rett til dagpenger under permittering i fiskeforedlingsindustri
 Har rett til ordinære dagpenger uten arbeidsforhold
@@ -65,6 +65,8 @@ Deltar i høyere yrkesfaglig utdanning
 Deltar i høyere utdanning
 Deltar på kurs mv
 Bruker er utestengt fra dagpenger
+Årsaken til permitteringen er godkjent
+Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Faktor for utregning av dagsats etter dagpengegrunnlaget
 Barnetilleggets størrelse i kroner per dag for hvert barn
 90% av grunnlag for dagpenger
@@ -119,6 +121,7 @@ Samordnet fastsatt arbeidstid
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
+Oppfyller kravet til permittering
 Sum av barnetillegg
 Sum andre ytelser
 Beløp tilsvarende nedre terskel av G

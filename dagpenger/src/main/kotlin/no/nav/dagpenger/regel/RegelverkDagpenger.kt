@@ -36,6 +36,7 @@ val RegelverkDagpenger =
         Utestengning.regelsett,
         Verneplikt.regelsett,
         VernepliktFastsetting.regelsett,
+        Permittering.regelsett,
     )
 
 fun kravetTilAlderOgMinsteinntektErOppfylt(opplysninger: LesbarOpplysninger): Boolean = opplysninger.erSann(minsteinntektEllerVerneplikt)
