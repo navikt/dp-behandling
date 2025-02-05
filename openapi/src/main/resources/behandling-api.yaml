@@ -149,11 +149,9 @@ paths:
             schema:
               $ref: '#/components/schemas/Saksbehandlerbegrunnelse'
       responses:
-        201:
-          description: Accepted
-          content:
-            schema: { }
-        default:
+        204:
+          description: Endringen ble lagret
+        400:
           description: Feil ved lagring av begrunnelse
           content:
             application/problem+json:

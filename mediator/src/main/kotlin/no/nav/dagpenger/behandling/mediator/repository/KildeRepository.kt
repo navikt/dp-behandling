@@ -135,7 +135,7 @@ internal class KildeRepository {
                     "kildeId" to kilde.id,
                     "ident" to kilde.saksbehandler.ident,
                     "meldingId" to kilde.meldingsreferanseId,
-                    "begrunnelse" to kilde.begrunnelse,
+                    "begrunnelse" to kilde.begrunnelse?.verdi,
                 )
             },
         )
