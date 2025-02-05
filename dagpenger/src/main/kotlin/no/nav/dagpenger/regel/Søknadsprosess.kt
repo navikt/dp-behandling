@@ -63,7 +63,7 @@ class Søknadsprosess : Forretningsprosess {
                 TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid,
                 Utdanning.kravTilUtdanning,
                 Utestengning.oppfyllerKravetTilIkkeUtestengt,
-                oppfyllerKravetTilPermittering,
+//                oppfyllerKravetTilPermittering,
             )
         ønsketResultat.addAll(
             vilkår,
@@ -81,6 +81,7 @@ class Søknadsprosess : Forretningsprosess {
             ønsketResultat.addAll(Samordning.ønsketResultat)
             ønsketResultat.addAll(SamordingUtenforFolketrygden.ønsketResultat)
             ønsketResultat.addAll(VernepliktFastsetting.ønsketResultat)
+            ønsketResultat.add(oppfyllerKravetTilPermittering)
         }
 
         ønsketResultat.add(KravPåDagpenger.kravPåDagpenger)

@@ -9,14 +9,14 @@ import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.Avklaringspunkter.HarOppgittPermittering
 import no.nav.dagpenger.regel.Behov.Permittert
+import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.erPermitteringenMidlertidigId
-import no.nav.dagpenger.regel.OpplysningsTyper.erPermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.godkjentPermitteringsårsakId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringId
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object Permittering {
-    val erPermittert = boolsk(erPermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
+    val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
     val godkjentPermitteringsårsak =
         boolsk(godkjentPermitteringsårsakId, "Årsaken til permitteringen er godkjent", synlig = {
             it.erSann(

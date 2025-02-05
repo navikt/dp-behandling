@@ -72,8 +72,6 @@ Deltar i høyere yrkesfaglig utdanning
 Deltar i høyere utdanning
 Deltar på kurs mv
 Bruker er utestengt fra dagpenger
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Faktor for utregning av dagsats etter dagpengegrunnlaget
 Barnetilleggets størrelse i kroner per dag for hvert barn
 90% av grunnlag for dagpenger
@@ -95,7 +93,6 @@ Samordnet fastsatt arbeidstid
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
-Oppfyller kravet til permittering
 Oppfyller kravet til opphold i Norge
 Krav til tap av arbeidsinntekt
 Grunnlag for verneplikt hvis kravet er oppfylt
@@ -168,12 +165,15 @@ Mottar ventelønn
 Mottar etterlønn
 Mottar garantilott fra Garantikassen for fiskere.
 Periode som gis ved verneplikt
+Årsaken til permitteringen er godkjent
+Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Har avkortet grunnlag
 Beløp tilsvarende nedre terskel av G
 Sum av ytelser utenfor folketrygden
 Terskel for 12 måneder
 Snittinntekt siste 36 måneder
 Terskel for 36 måneder
+Oppfyller kravet til permittering
 Over terskel for 12 måneder
 Over terskel for 36 måneder
 Stønadsuker ved siste 12 måneder
