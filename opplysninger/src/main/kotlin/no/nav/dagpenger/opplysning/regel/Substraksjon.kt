@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
 
+@Suppress("UNCHECKED_CAST")
 class Substraksjon<T : Comparable<T>> internal constructor(
     produserer: Opplysningstype<T>,
     private vararg val opplysningstyper: Opplysningstype<T>,
@@ -30,6 +31,12 @@ operator fun Opplysningstype<Double>.minus(opplysningstype: Opplysningstype<Doub
 fun Opplysningstype<Beløp>.substraksjon(vararg opplysningstype: Opplysningstype<Beløp>) =
     Substraksjon(this, *opplysningstype) {
         it.reduce { acc, t -> acc - t }
+    }
+
+@JvmName("substraksjonDoubleTilNull")
+fun Opplysningstype<Double>.substraksjonTilNull(vararg opplysningstype: Opplysningstype<Double>) =
+    Substraksjon(this, *opplysningstype) {
+        it.reduce { acc, t -> maxOf(0.0, acc - t) }
     }
 
 @JvmName("substraksjonBeløpTilNull")
