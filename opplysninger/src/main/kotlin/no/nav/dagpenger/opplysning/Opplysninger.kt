@@ -132,7 +132,7 @@ class Opplysninger private constructor(
 
     operator fun plus(tidligereOpplysninger: List<Opplysninger>) = Opplysninger(id, opplysninger, tidligereOpplysninger)
 
-    fun fjernUbrukteOpplysniunger(beholdDisse: Set<Opplysningstype<*>>) {
+    fun fjernUbrukteOpplysninger(beholdDisse: Set<Opplysningstype<*>>) {
         opplysninger
             .filterNot { beholdDisse.contains(it.opplysningstype) }
             .forEach { it.fjern() }

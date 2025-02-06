@@ -23,8 +23,9 @@ abstract class Regel<T : Comparable<T>> internal constructor(
         opplysninger: LesbarOpplysninger,
         plan: MutableSet<Regel<*>>,
         produsenter: Map<Opplysningstype<*>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
     ) {
-        if (plan.contains(this)) return
+        if (besøkt.contains(this)) return else besøkt.add(this)
 
         if (opplysninger.har(produserer)) {
             val produkt = opplysninger.finnOpplysning(produserer)
@@ -35,7 +36,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
             // Underliggende opplysninger må vurdere seg selv
             produkt.utledetAv.opplysninger.forEach { avhengighet ->
                 val produsent = produsenter[avhengighet.opplysningstype]
-                produsent?.lagPlan(opplysninger, plan, produsenter)
+                produsent?.lagPlan(opplysninger, plan, produsenter, besøkt)
             }
 
             // Sjekk om regelen har fått nye avhengigheter
@@ -49,7 +50,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 if (regelForProdukt?.avhengerAv?.any { opplysninger.mangler(it) } == true) {
                     regelForProdukt.avhengerAv.map { avhengighet ->
                         val avhengigRegel = produsenter[avhengighet]
-                        avhengigRegel?.lagPlan(opplysninger, plan, produsenter)
+                        avhengigRegel?.lagPlan(opplysninger, plan, produsenter, besøkt)
                     }
                 } else {
                     // Om alle avhengigheter er tilstade, må denne regelen kjøres på nytt
@@ -72,7 +73,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
             } else {
                 avhengerAv.forEach { avhengighet ->
                     val produsent = produsenter[avhengighet] ?: throw IllegalStateException("Fant ikke produsent for $avhengighet")
-                    produsent.lagPlan(opplysninger, plan, produsenter)
+                    produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
                 }
             }
         }

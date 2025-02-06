@@ -12,6 +12,7 @@ class DagensDato internal constructor(
         opplysninger: LesbarOpplysninger,
         plan: MutableSet<Regel<*>>,
         produsenter: Map<Opplysningstype<out Comparable<*>>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
     ) {
         val dagensDato = LocalDate.now()
         if (opplysninger.mangler(produserer)) {

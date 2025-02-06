@@ -104,7 +104,7 @@ class Regelkjøring(
 
         // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
         val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
-        opplysninger.fjernUbrukteOpplysniunger(brukteOpplysninger)
+        opplysninger.fjernUbrukteOpplysninger(brukteOpplysninger)
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
@@ -117,12 +117,15 @@ class Regelkjøring(
     private fun aktiverRegler() {
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = gjeldendeRegler.associateBy { it.produserer }
+        val besøkt = mutableSetOf<Regel<*>>()
+
         ønsketResultat.forEach { opplysningstype ->
             val produsent =
                 produsenter[opplysningstype]
                     ?: throw IllegalArgumentException("Fant ikke regel som produserer $opplysningstype")
-            produsent.lagPlan(opplysningerPåPrøvingsdato, produksjonsplan, produsenter)
+            produsent.lagPlan(opplysningerPåPrøvingsdato, produksjonsplan, produsenter, besøkt)
         }
+
         val (ekstern, intern) = produksjonsplan.partition { it is Ekstern<*> }
         plan = intern.toMutableSet()
         trenger = ekstern.toSet()
