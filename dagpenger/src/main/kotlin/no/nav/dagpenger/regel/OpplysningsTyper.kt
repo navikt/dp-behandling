@@ -279,7 +279,6 @@ object OpplysningsTyper {
     val oppfyllerKravetTilVernepliktId = Opplysningstype.Id(UUID.fromString("01948d43-e218-76f1-b29b-7e604241d98a"), Boolsk)
 
     // permittering
-//    val erPermittertId = Opplysningstype.Id(UUID.fromString("0194d0fa-06b5-7c45-bd95-de11bfdedd9c"), Boolsk)
     val godkjentPermitteringsårsakId = Opplysningstype.Id(UUID.fromString("0194d105-bd54-7b2b-9dc6-6e6664951894"), Boolsk)
     val oppfyllerKravetTilPermitteringId = Opplysningstype.Id(UUID.fromString("0194d111-db2f-7395-bcfb-959f245fd2a6"), Boolsk)
     val erPermitteringenMidlertidigId = Opplysningstype.Id(UUID.fromString("0194d119-90b7-7416-a8b0-9e9cf3587d48"), Boolsk)
