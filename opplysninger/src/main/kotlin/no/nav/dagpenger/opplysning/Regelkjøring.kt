@@ -70,7 +70,8 @@ class Regelkjøring(
     )
 
     private val regelsett get() = forretningsprosess.regelsett()
-    private val alleRegler: List<Regel<*>> get() = regelsett.flatMap { it.regler(regelverksdato) }
+    private val alleRegler get() = regelsett.flatMap { it.regler(regelverksdato) }
+    private val avhengighetsgraf = Avhengighetsgraf(alleRegler)
 
     private val opplysningerPåPrøvingsdato get() = opplysninger.forDato(prøvingsdato)
 
@@ -80,6 +81,7 @@ class Regelkjøring(
     // Kjører regler i topologisk rekkefølge
     private val gjeldendeRegler: List<Regel<*>> get() = alleRegler
     private var plan: MutableSet<Regel<*>> = mutableSetOf()
+
     private val kjørteRegler: MutableList<Regel<*>> = mutableListOf()
 
     private var trenger = setOf<Regel<*>>()
@@ -100,8 +102,9 @@ class Regelkjøring(
             aktiverRegler()
         }
 
-        val brukteOpplysninger = muligeOpplysninger()
-        opplysninger.fjern(brukteOpplysninger)
+        // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
+        val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
+        opplysninger.fjernUbrukteOpplysniunger(brukteOpplysninger)
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
@@ -109,47 +112,6 @@ class Regelkjøring(
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
         )
-    }
-
-    private fun muligeOpplysninger(): Set<Opplysningstype<*>> {
-        val brukteOpplysninger = mutableSetOf<Opplysningstype<*>>()
-        brukteOpplysninger.addAll(ønsketResultat)
-
-        val regelMap = alleRegler.associateBy { it.produserer }
-
-        val opplysningerUtenRegel =
-            opplysningerPåPrøvingsdato
-                .finnAlle()
-                .filter { opplysning -> opplysning.opplysningstype !in regelMap }
-                .map { it.opplysningstype }
-
-        brukteOpplysninger.addAll(opplysningerUtenRegel)
-
-        val muligeRegler = alleRegler.filterNot { opplysningerUtenRegel.contains(it.produserer) }
-
-        ønsketResultat.forEach { opplysningstype ->
-            val regel = regelMap[opplysningstype] ?: throw IllegalStateException("Fant ikke regel for $opplysningstype")
-            brukteOpplysninger.add(regel.produserer)
-            regel.avhengerAv.forEach { avhengighet ->
-                val avhengigRegel = regelMap[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
-                brukteOpplysninger.add(avhengigRegel.produserer)
-                leggTilAvhengigRegel(avhengigRegel, brukteOpplysninger, muligeRegler, regelMap)
-            }
-        }
-        return brukteOpplysninger.toSet()
-    }
-
-    private fun leggTilAvhengigRegel(
-        avhengigRegel: Regel<*>,
-        brukteOpplysninger: MutableSet<Opplysningstype<*>>,
-        muligeRegler: List<Regel<*>>,
-        regelMap: Map<Opplysningstype<out Comparable<*>>, Regel<*>>,
-    ) {
-        avhengigRegel.avhengerAv.forEach { avhengighet ->
-            val regel = regelMap[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
-            brukteOpplysninger.add(regel.produserer)
-            leggTilAvhengigRegel(regel, brukteOpplysninger, muligeRegler, regelMap)
-        }
     }
 
     private fun aktiverRegler() {
