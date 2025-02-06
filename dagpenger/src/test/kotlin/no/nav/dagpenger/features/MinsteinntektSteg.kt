@@ -13,7 +13,6 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.Minsteinntekt
-import no.nav.dagpenger.regel.Permittering.erPermittert
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
@@ -21,7 +20,7 @@ import java.time.LocalDate
 
 class MinsteinntektSteg : No {
     private val fraDato = 10.mai(2022)
-    private val regelsett = RegelverkDagpenger.regelsettFor(minsteinntektEllerVerneplikt) + RegelverkDagpenger.regelsettFor(erPermittert)
+    private val regelsett = RegelverkDagpenger.regelsettFor(minsteinntektEllerVerneplikt)
     private val opplysninger: Opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 

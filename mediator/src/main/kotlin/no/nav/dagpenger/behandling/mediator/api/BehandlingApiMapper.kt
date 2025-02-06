@@ -42,7 +42,6 @@ import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
 import no.nav.dagpenger.regel.Permittering.erPermitteringenMidlertidig
-import no.nav.dagpenger.regel.Permittering.erPermittert
 import no.nav.dagpenger.regel.Permittering.godkjentPermitteringsårsak
 import no.nav.dagpenger.regel.ReellArbeidssøker.erArbeidsfør
 import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentArbeidsufør
@@ -53,6 +52,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
+import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
 import no.nav.dagpenger.regel.Samordning.omsorgspenger

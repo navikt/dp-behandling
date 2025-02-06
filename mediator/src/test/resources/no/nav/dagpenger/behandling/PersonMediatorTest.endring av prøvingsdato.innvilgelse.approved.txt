@@ -165,15 +165,12 @@ Mottar ventelønn
 Mottar etterlønn
 Mottar garantilott fra Garantikassen for fiskere.
 Periode som gis ved verneplikt
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Har avkortet grunnlag
 Beløp tilsvarende nedre terskel av G
 Sum av ytelser utenfor folketrygden
 Terskel for 12 måneder
 Snittinntekt siste 36 måneder
 Terskel for 36 måneder
-Oppfyller kravet til permittering
 Over terskel for 12 måneder
 Over terskel for 36 måneder
 Stønadsuker ved siste 12 måneder

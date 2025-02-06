@@ -4,7 +4,6 @@ import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
-import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
 import no.nav.dagpenger.regel.ReellArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -63,7 +62,6 @@ class Søknadsprosess : Forretningsprosess {
                 TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid,
                 Utdanning.kravTilUtdanning,
                 Utestengning.oppfyllerKravetTilIkkeUtestengt,
-//                oppfyllerKravetTilPermittering,
             )
         ønsketResultat.addAll(
             vilkår,
@@ -81,7 +79,7 @@ class Søknadsprosess : Forretningsprosess {
             ønsketResultat.addAll(Samordning.ønsketResultat)
             ønsketResultat.addAll(SamordingUtenforFolketrygden.ønsketResultat)
             ønsketResultat.addAll(VernepliktFastsetting.ønsketResultat)
-            ønsketResultat.add(oppfyllerKravetTilPermittering)
+            // ønsketResultat.add(oppfyllerKravetTilPermittering)
         }
 
         ønsketResultat.add(KravPåDagpenger.kravPåDagpenger)

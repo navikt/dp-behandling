@@ -1,22 +1,19 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
-import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.Avklaringspunkter.HarOppgittPermittering
-import no.nav.dagpenger.regel.Behov.Permittert
-import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.erPermitteringenMidlertidigId
 import no.nav.dagpenger.regel.OpplysningsTyper.godkjentPermitteringsårsakId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringId
+import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object Permittering {
-    val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
     val godkjentPermitteringsårsak =
         boolsk(godkjentPermitteringsårsakId, "Årsaken til permitteringen er godkjent", synlig = {
             it.erSann(

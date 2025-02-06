@@ -99,8 +99,6 @@ Mottar ventelønn
 Mottar etterlønn
 Mottar garantilott fra Garantikassen for fiskere.
 Periode som gis ved verneplikt
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 mnd
@@ -128,7 +126,6 @@ Sum av ytelser utenfor folketrygden
 Terskel for 12 måneder
 Terskel for 36 måneder
 Har barnetillegg
-Oppfyller kravet til permittering
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Oppfyller kravet til opphold i Norge

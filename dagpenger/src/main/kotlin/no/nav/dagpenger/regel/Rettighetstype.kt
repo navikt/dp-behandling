@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
@@ -8,16 +9,18 @@ import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.regel.Behov.Lønnsgaranti
 import no.nav.dagpenger.regel.Behov.Ordinær
+import no.nav.dagpenger.regel.Behov.Permittert
 import no.nav.dagpenger.regel.Behov.PermittertFiskeforedling
 import no.nav.dagpenger.regel.OpplysningsTyper.HarRettTilOrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.LønnsgarantiId
 import no.nav.dagpenger.regel.OpplysningsTyper.OrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
+import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
-import no.nav.dagpenger.regel.Permittering.erPermittert
 
 object Rettighetstype {
+    val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
     private val ordinærArbeid = boolsk(OrdinærId, beskrivelse = "Har rett til ordinære dagpenger gjennom arbeidsforhold", behovId = Ordinær)
     private val lønnsgaranti = boolsk(LønnsgarantiId, beskrivelse = "Har rett til dagpenger etter konkurs", behovId = Lønnsgaranti)
     private val permitteringFiskeforedling =
@@ -37,6 +40,7 @@ object Rettighetstype {
             folketrygden.hjemmel(0, 0, "Rettighetstype", "Rettighetstype"),
             RegelsettType.Fastsettelse,
         ) {
+            regel(erPermittert) { innhentes }
             regel(ordinærArbeid) { innhentes }
             regel(lønnsgaranti) { innhentes }
             regel(permitteringFiskeforedling) { innhentes }
