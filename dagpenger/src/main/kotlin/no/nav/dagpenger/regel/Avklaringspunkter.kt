@@ -159,4 +159,11 @@ object Avklaringspunkter {
             tittel = "Sjekk om bruker skal ha dagpenger som permittert",
             beskrivelse = "Du må vurdere om bruker er permittert og oppfyller kravene til permittering",
         )
+
+    val HarTilleggsopplysninger =
+        Avklaringkode(
+            kode = "HarTilleggsopplysninger",
+            tittel = "Sjekk hva bruker har oppgitt som tilleggsopplysninger i søknaden",
+            beskrivelse = "Du må vurdere om tilleggsopplysninger har betydning for saken",
+        )
 }

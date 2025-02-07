@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
+import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
 import no.nav.dagpenger.regel.KravPåDagpenger.VirkningstidspunktForLangtFramITid
@@ -101,6 +102,7 @@ class SøknadInnsendtHendelse(
             YtelserUtenforFolketrygdenKontroll,
             ØnskerEtterRapporteringsfristKontroll,
             PermitteringKontroll,
+            TilleggsopplysningsKontroll,
         )
 
     companion object {
