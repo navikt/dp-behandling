@@ -51,7 +51,7 @@ class ApiRepositoryPostgresTest {
                         """
                         INSERT INTO behandling(behandling_id, tilstand)
                         VALUES (:id, :tilstand)
-                        ON CONFLICT (behandling_id) DO UPDATE SET tilstand = :tilstand
+                        ON CONFLICT (behandling_id) DO UPDATE SET tilstand = :tilstand, sist_endret_tilstand = NOW()
                         """.trimIndent(),
                         mapOf(
                             "id" to id,

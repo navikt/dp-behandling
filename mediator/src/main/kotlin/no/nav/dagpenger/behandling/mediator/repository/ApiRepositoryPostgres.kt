@@ -64,6 +64,7 @@ class ApiRepositoryPostgres(
 
         // Hent ut når tilstanden var endret før, så vi ikke henter samme tilstand igjen
         val sistEndret = hentBehandlingSistEndret(behandlingId)
+        println("Sist endret: $sistEndret")
 
         // 2. Execute the block that publishes to Kafka.
         try {
@@ -174,15 +175,13 @@ class ApiRepositoryPostgres(
                 queryOf(
                     // language=PostgreSQL
                     """
-                    SELECT tilstand
+                    SELECT tilstand, sist_endret_tilstand
                     FROM behandling
                     WHERE behandling_id = :behandlingId AND sist_endret_tilstand > :sistEndret
                     """.trimIndent(),
                     mapOf("behandlingId" to behandlingId, "sistEndret" to sistEndret),
                 ).map { TilstandType.valueOf(it.string("tilstand")) }.asSingle,
-            ).also {
-                logger.info { "Hentet ut tilstand=${it?.name} for behandlingId=$behandlingId" }
-            }
+            )
     }
 
     private fun TilstandType.erFerdig(): Boolean = this == ForslagTilVedtak || this == TilGodkjenning
