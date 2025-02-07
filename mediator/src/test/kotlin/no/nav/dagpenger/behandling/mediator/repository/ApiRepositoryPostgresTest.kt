@@ -32,7 +32,7 @@ class ApiRepositoryPostgresTest {
 
                     // Simulerer en asynkron prosess som tar litt tid.
                     CoroutineScope(IO).launch {
-                        delay(50)
+                        delay(200)
                         behandling.endreTilstand(TilstandType.ForslagTilVedtak)
                     }
                 }

@@ -305,7 +305,7 @@ internal fun Application.behandlingApi(
                                     call.saksbehandlerId(),
                                 )
 
-                            apiRepositoryPostgres.endreOpplysning(opplysningId, opplysning.opplysningstype.behovId) {
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
                                 logger.info { "Starter en endring i behandling" }
                                 messageContext(behandling.behandler.ident).publish(svar.toJson())
                                 auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
