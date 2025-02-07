@@ -145,17 +145,20 @@ class ApiRepositoryPostgres(
 
     private fun hentBehandlingTilstand(behandlingId: UUID) =
         sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    SELECT tilstand
-                    FROM behandling
-                    WHERE behandling_id = :behandlingId
-                    """.trimIndent(),
-                    mapOf("behandlingId" to behandlingId),
-                ).map { TilstandType.valueOf(it.string("tilstand")) }.asSingle,
-            )
+            session
+                .run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        SELECT tilstand
+                        FROM behandling
+                        WHERE behandling_id = :behandlingId
+                        """.trimIndent(),
+                        mapOf("behandlingId" to behandlingId),
+                    ).map { TilstandType.valueOf(it.string("tilstand")) }.asSingle,
+                ).also {
+                    logger.info { "Hentet ut tilstand=${it?.name} for behandlingId=$behandlingId" }
+                }
         }
 
     private fun TilstandType.erFerdig(): Boolean = this == ForslagTilVedtak || this == TilGodkjenning

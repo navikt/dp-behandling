@@ -292,6 +292,8 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
                             }
 
+                            logger.info { "Mottok en endring i behandling" }
+
                             val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
                             val svar =
                                 OpplysningsSvar(
@@ -304,6 +306,7 @@ internal fun Application.behandlingApi(
                                 )
 
                             apiRepositoryPostgres.endreOpplysning(opplysningId, opplysning.opplysningstype.behovId) {
+                                logger.info { "Starter en endring i behandling" }
                                 messageContext(behandling.behandler.ident).publish(svar.toJson())
                                 auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
                                 logger.info { "Venter på endring i behandling" }
