@@ -92,7 +92,7 @@ internal class HendelseMediator(
             ferdigstill(context, personMediator, hendelse)
         } catch (e: Exception) {
             logger.error(e) { "Feil ved håndtering av ${hendelse.javaClass.simpleName}." }
-            sikkerlogg.error(e) { "aktivitetslogg inneholder feil:\n${hendelse.toLogString()}" }
+            sikkerlogg.error(e) { "aktivitetslogg inneholder feil: ${e.message} \n${hendelse.toLogString()}" }
             throw e
         }
     }

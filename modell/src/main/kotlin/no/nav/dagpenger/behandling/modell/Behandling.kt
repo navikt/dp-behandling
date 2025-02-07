@@ -631,12 +631,19 @@ class Behandling private constructor(
 
         override fun håndter(
             behandling: Behandling,
-            hendelse: AvklaringKvittertHendelse,
+            hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
-
-            behandling.avklaringer.kvitter(hendelse.avklaringId, hendelse.kilde, hendelse.begrunnelse)
-            hendelse.info("Avklaring er kvittert")
+            if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
+                hendelse.info("Avklaring er ikke lenger relevant")
+                hendelse.hendelse(
+                    AvklaringLukketHendelse,
+                    "Avklaring ikke lenger relevant",
+                    mapOf(
+                        "avklaringId" to hendelse.avklaringId,
+                    ),
+                )
+            }
         }
     }
 
