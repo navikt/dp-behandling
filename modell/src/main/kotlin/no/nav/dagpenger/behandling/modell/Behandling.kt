@@ -628,6 +628,16 @@ class Behandling private constructor(
             }
             hendelse.lagBehov(rapport.informasjonsbehov)
         }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: AvklaringKvittertHendelse,
+        ) {
+            hendelse.kontekst(this)
+
+            behandling.avklaringer.kvitter(hendelse.avklaringId, hendelse.kilde, hendelse.begrunnelse)
+            hendelse.info("Avklaring er kvittert")
+        }
     }
 
     private data class Avbrutt(
