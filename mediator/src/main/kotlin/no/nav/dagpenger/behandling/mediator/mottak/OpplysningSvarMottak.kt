@@ -19,6 +19,7 @@ import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SvarStrategi.Svar
+import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar.Tilstand
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
@@ -115,6 +116,8 @@ internal class OpplysningSvarMottak(
     }
 }
 
+private val apiRepositoryPostgres = ApiRepositoryPostgres()
+
 internal class OpplysningSvarMessage(
     private val packet: JsonMessage,
     private val opplysningstyper: Set<Opplysningstype<*>>,
@@ -188,6 +191,10 @@ internal class OpplysningSvarMessage(
             logger.info { "Behandler svar på opplysninger: ${hendelse.opplysninger.map { it.opplysningstype.behovId }}" }
             try {
                 mediator.behandle(hendelse, this, context)
+                apiRepositoryPostgres.behovLøst(
+                    hendelse.behandlingId,
+                    *hendelse.opplysninger.map { it.opplysningstype.behovId }.toTypedArray(),
+                )
             } catch (e: OpplysningIkkeFunnetException) {
                 logger.error(e) {
                     "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi en opplysning ikke ble funnet"
