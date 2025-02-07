@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotliquery.queryOf
 import kotliquery.sessionOf
+import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.ForslagTilVedtak
@@ -14,6 +15,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+private val logger = KotlinLogging.logger {}
+
 class ApiRepositoryPostgres(
     private val timout: Duration = 15.seconds,
     private val pollIntervalMs: Duration = 50.milliseconds,
@@ -22,6 +25,7 @@ class ApiRepositoryPostgres(
         behandlingId: UUID,
         vararg behov: String,
     ) {
+        logger.info { "Markerer behov som løst for behandlingId=$behandlingId, behov=${behov.joinToString()}" }
         sessionOf(dataSource).use { session ->
             session.transaction {
                 queryOf(
@@ -43,6 +47,7 @@ class ApiRepositoryPostgres(
         block: () -> Unit,
     ) {
         // 1. Insert an "active change" row in a separate transaction.
+        logger.info { "Oppretter behov som uløst for behandlingId=$behandlingId, behov=$behov" }
         sessionOf(dataSource).use { session ->
             session.transaction {
                 queryOf(
@@ -58,8 +63,10 @@ class ApiRepositoryPostgres(
 
         // 2. Execute the block that publishes to Kafka.
         try {
+            logger.info { "Utfører endring for behandlingId=$behandlingId, behov=$behov" }
             block()
         } catch (e: Exception) {
+            logger.info { "Fikk feil under endring for behandlingId=$behandlingId, behov=$behov" }
             // If Kafka fails to produce, update the active change row to mark as failed.
             sessionOf(dataSource).use { session ->
                 session.transaction {
@@ -77,13 +84,17 @@ class ApiRepositoryPostgres(
             throw e
         }
 
+        logger.info { "Venter på ferdig endring for behandlingId=$behandlingId, behov=$behov" }
         // 3. Poll until the active change row is removed or marked as 'completed'.
         if (!ventEndringFerdig(behandlingId, behov)) {
+            logger.info { "Endring timeout for behandlingId=$behandlingId, behov=$behov" }
             throw TimeoutException("Active change not completed in time for behandlingId: $behandlingId")
         }
 
+        logger.info { "Venter på riktig tilstand for behandlingId=$behandlingId, behov=$behov" }
         // 4. Poll until the aggregate reaches the desired state.
         if (!ventBehandlingTilstand(behandlingId)) {
+            logger.info { "Tilstand timeout for behandlingId=$behandlingId, behov=$behov" }
             throw TimeoutException("Aggregate did not reach desired state for behandlingId: $behandlingId")
         }
     }
