@@ -9,6 +9,7 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.ForslagTilVedtak
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
+import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeoutException
 import kotlin.time.Duration
@@ -49,7 +50,7 @@ class ApiRepositoryPostgres(
         // 1. Insert an "active change" row in a separate transaction.
         logger.info { "Oppretter behov som uløst for behandlingId=$behandlingId, behov=$behov" }
         sessionOf(dataSource).use { session ->
-            session.transaction {
+            session.run {
                 queryOf(
                     // language=PostgreSQL
                     """
@@ -61,6 +62,9 @@ class ApiRepositoryPostgres(
             }
         }
 
+        // Hent ut når tilstanden var endret før, så vi ikke henter samme tilstand igjen
+        val sistEndret = hentBehandlingSistEndret(behandlingId)
+
         // 2. Execute the block that publishes to Kafka.
         try {
             logger.info { "Utfører endring for behandlingId=$behandlingId, behov=$behov" }
@@ -69,7 +73,7 @@ class ApiRepositoryPostgres(
             logger.info { "Fikk feil under endring for behandlingId=$behandlingId, behov=$behov" }
             // If Kafka fails to produce, update the active change row to mark as failed.
             sessionOf(dataSource).use { session ->
-                session.transaction {
+                session.run {
                     queryOf(
                         // language=PostgreSQL
                         """
@@ -93,7 +97,7 @@ class ApiRepositoryPostgres(
 
         logger.info { "Venter på riktig tilstand for behandlingId=$behandlingId, behov=$behov" }
         // 4. Poll until the aggregate reaches the desired state.
-        if (!ventBehandlingTilstand(behandlingId)) {
+        if (!ventBehandlingTilstand(behandlingId, sistEndret)) {
             logger.info { "Tilstand timeout for behandlingId=$behandlingId, behov=$behov" }
             throw TimeoutException("Aggregate did not reach desired state for behandlingId: $behandlingId")
         }
@@ -114,17 +118,19 @@ class ApiRepositoryPostgres(
         false
     }
 
-    private suspend fun ventBehandlingTilstand(behandlingId: UUID) =
-        try {
-            withTimeout(timout) {
-                while (hentBehandlingTilstand(behandlingId)?.erFerdig() != true) {
-                    delay(pollIntervalMs)
-                }
-                return@withTimeout true
+    private suspend fun ventBehandlingTilstand(
+        behandlingId: UUID,
+        sistEndret: LocalDateTime,
+    ) = try {
+        withTimeout(timout) {
+            while (hentBehandlingTilstand(behandlingId, sistEndret)?.erFerdig() != true) {
+                delay(pollIntervalMs)
             }
-        } catch (e: TimeoutException) {
-            false
+            return@withTimeout true
         }
+    } catch (e: TimeoutException) {
+        false
+    }
 
     private fun getStatus(
         behandlingId: UUID,
@@ -143,23 +149,41 @@ class ApiRepositoryPostgres(
         )
     }
 
-    private fun hentBehandlingTilstand(behandlingId: UUID) =
+    private fun hentBehandlingSistEndret(behandlingId: UUID) =
         sessionOf(dataSource).use { session ->
             session
                 .run(
                     queryOf(
                         // language=PostgreSQL
                         """
-                        SELECT tilstand
+                        SELECT sist_endret_tilstand 
                         FROM behandling
                         WHERE behandling_id = :behandlingId
                         """.trimIndent(),
                         mapOf("behandlingId" to behandlingId),
-                    ).map { TilstandType.valueOf(it.string("tilstand")) }.asSingle,
-                ).also {
-                    logger.info { "Hentet ut tilstand=${it?.name} for behandlingId=$behandlingId" }
-                }
+                    ).map { it.localDateTime("sist_endret_tilstand") }.asSingle,
+                ) ?: throw IllegalArgumentException("BehandlingId=$behandlingId not found")
         }
+
+    private fun hentBehandlingTilstand(
+        behandlingId: UUID,
+        sistEndret: LocalDateTime,
+    ) = sessionOf(dataSource).use { session ->
+        session
+            .run(
+                queryOf(
+                    // language=PostgreSQL
+                    """
+                    SELECT tilstand
+                    FROM behandling
+                    WHERE behandling_id = :behandlingId AND sist_endret_tilstand > :sistEndret
+                    """.trimIndent(),
+                    mapOf("behandlingId" to behandlingId, "sistEndret" to sistEndret),
+                ).map { TilstandType.valueOf(it.string("tilstand")) }.asSingle,
+            ).also {
+                logger.info { "Hentet ut tilstand=${it?.name} for behandlingId=$behandlingId" }
+            }
+    }
 
     private fun TilstandType.erFerdig(): Boolean = this == ForslagTilVedtak || this == TilGodkjenning
 }
