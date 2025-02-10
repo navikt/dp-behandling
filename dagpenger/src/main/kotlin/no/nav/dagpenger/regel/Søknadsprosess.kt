@@ -12,7 +12,6 @@ class Søknadsprosess : Forretningsprosess {
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
         regelverk.regelsett.filter { it.skal(opplysninger) }.flatMap {
-            println("Vil kjøre regelsett: ${it.navn}")
             listOfNotNull(it.utfall) + it.ønsketResultat
         } + registrertArbeidssøker
 }
