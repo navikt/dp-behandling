@@ -333,6 +333,8 @@ internal fun Application.behandlingApi(
                             val kvitteringDTO = call.receive<KvitterAvklaringRequestDTO>()
                             val behandling = hentBehandling(personRepository, behandlingId)
 
+                            require(!behandling.harTilstand(Redigert)) { "Kan ikke avklare om behandling står i tilstanden Redigert" }
+
                             val avklaring =
                                 behandling.avklaringer().singleOrNull { it.id == avklaringId }
                                     ?: throw NotFoundException("Avklaring ikke funnet")

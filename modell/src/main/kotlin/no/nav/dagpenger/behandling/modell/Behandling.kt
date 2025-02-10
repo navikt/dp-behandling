@@ -623,10 +623,12 @@ class Behandling private constructor(
             hendelse.info("Mottak påminnelse")
 
             val rapport = behandling.regelkjøring.evaluer()
+
             if (rapport.erFerdig()) {
-                hendelse.logiskFeil("Behandlingen er ferdig men vi er fortsatt i ${this.type.name}")
+                behandling.avgjørNesteTilstand(hendelse)
+            } else {
+                hendelse.lagBehov(rapport.informasjonsbehov)
             }
-            hendelse.lagBehov(rapport.informasjonsbehov)
         }
 
         override fun håndter(
