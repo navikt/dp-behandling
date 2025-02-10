@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.mediator
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import mu.KotlinLogging
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingForslagTilVedtak
@@ -32,7 +33,10 @@ internal class PersonMediator(
     }
 
     internal fun ferdigstill(context: MessageContext) {
-        meldinger.forEach { context.publish(it.first, it.second.toJson()) }
+        meldinger.forEach {
+            context.publish(it.first, it.second.toJson())
+            sikkerlogg.info { "Publisert melding ${it.second["@event_name"]}. Innhold: ${it.second.toJson()}" }
+        }
     }
 
     private fun BehandlingEndretTilstand.toJsonMessage() =
@@ -59,5 +63,9 @@ internal class PersonMediator(
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingEndretTilstand" })
         val vedtak = lagVedtak(behandlingId, ident, søknadId, opplysninger, automatiskBehandlet, godkjent, besluttet)
         return JsonMessage.newMessage("vedtak_fattet", vedtak.toMap())
+    }
+
+    private companion object {
+        private val sikkerlogg = KotlinLogging.logger("tjenestekall.PersonMediator")
     }
 }
