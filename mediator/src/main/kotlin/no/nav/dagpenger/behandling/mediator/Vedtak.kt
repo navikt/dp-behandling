@@ -97,12 +97,8 @@ fun lagVedtak(
     val relevanteVilkår: List<Regelsett> = getRelevanteVilkår(opplysninger)
     val vilkår =
         relevanteVilkår
-            .associateWith {
-                println("finner utfall for ${it.navn}")
-                opplysninger.finnOpplysning(it.utfall!!)
-            }.map {
-                it.value.tilVilkårDTO(it.key.hjemmel.toString())
-            }
+            .associateWith { opplysninger.finnOpplysning(it.utfall!!) }
+            .map { it.value.tilVilkårDTO(it.key.hjemmel.toString()) }
 
     val utfall = vilkår.all { it.status == VilkaarDTO.Status.Oppfylt }
     logger.info {
