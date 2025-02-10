@@ -93,6 +93,8 @@ object Minsteinntekt {
 
     val regelsett =
         Regelsett(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
+            skalKjøres { it.oppfyller(kravTilAlder) }
+
             regel(maksPeriodeLengde) { oppslag(prøvingsdato) { 36 } }
             regel(førsteMånedAvOpptjeningsperiode) { trekkFraMånedTilFørste(sisteAvsluttendendeKalenderMåned, maksPeriodeLengde) }
 

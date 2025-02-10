@@ -28,6 +28,8 @@ object Verneplikt {
         Regelsett(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Verneplikt"),
         ) {
+            skalKjøres { it.oppfyller(Alderskrav.kravTilAlder) }
+
             regel(avtjentVerneplikt) { innhentMed(søknadIdOpplysningstype) }
             utfall(oppfyllerKravetTilVerneplikt) { erSann(avtjentVerneplikt) }
 

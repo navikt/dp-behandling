@@ -26,6 +26,7 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.folketrygden
+import no.nav.dagpenger.regel.kravPåDagpenger
 
 private val synligOmVerneplikt: Opplysningssjekk = {
     it.erSann(oppfyllerKravetTilVerneplikt) && it.erSann(grunnlagForVernepliktErGunstigst)
@@ -54,6 +55,8 @@ object VernepliktFastsetting {
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Dagpenger ved verneplikt"),
             RegelsettType.Fastsettelse,
         ) {
+            skalKjøres { kravPåDagpenger(it) }
+
             regel(antallG) { oppslag(prøvingsdato) { 3.0 } }
             regel(vernepliktGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, antallG) }
             regel(vernepliktPeriode) { oppslag(prøvingsdato) { 26 } }
@@ -70,12 +73,13 @@ object VernepliktFastsetting {
             relevantHvis {
                 it.erSann(oppfyllerKravetTilVerneplikt) && it.erSann(grunnlagForVernepliktErGunstigst)
             }
+
+            ønsketResultat =
+                listOf(
+                    vernepliktGrunnlag,
+                    vernepliktPeriode,
+                    vernepliktFastsattVanligArbeidstid,
+                    grunnlagForVernepliktErGunstigst,
+                )
         }
-    val ønsketResultat =
-        listOf(
-            vernepliktGrunnlag,
-            vernepliktPeriode,
-            vernepliktFastsattVanligArbeidstid,
-            grunnlagForVernepliktErGunstigst,
-        )
 }

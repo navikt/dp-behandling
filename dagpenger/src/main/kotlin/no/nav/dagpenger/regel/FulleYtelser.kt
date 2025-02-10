@@ -4,10 +4,11 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.OpplysningsTyper.IkkeFulleYtelserId
-import no.nav.dagpenger.regel.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
 import no.nav.dagpenger.regel.Samordning.skalSamordnes
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
 
 object FulleYtelser {
     val ikkeFulleYtelser = boolsk(IkkeFulleYtelserId, "Mottar ikke andre fulle ytelser")
@@ -21,12 +22,13 @@ object FulleYtelser {
                 "Fulle ytelser",
             ),
         ) {
+            skalKjøres { it.oppfyller(minsteinntektEllerVerneplikt) }
             utfall(ikkeFulleYtelser) { oppslag(prøvingsdato) { true } }
 
             relevantHvis { kravetTilAlderOgMinsteinntektErOppfylt(it) }
-        }
 
-    val ønsketResultat = listOf(ikkeFulleYtelser)
+            ønsketResultat = listOf(ikkeFulleYtelser)
+        }
 
     val FulleYtelserKontrollpunkt =
         Kontrollpunkt(sjekker = Avklaringspunkter.FulleYtelser) { opplysninger ->

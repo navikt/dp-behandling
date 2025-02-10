@@ -48,10 +48,10 @@ import no.nav.dagpenger.regel.OpplysningsTyper.NittiProsentId
 import no.nav.dagpenger.regel.OpplysningsTyper.SamordnetDagsatsMedBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.UkessatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpOverMaksId
-import no.nav.dagpenger.regel.SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
+import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
 import java.math.BigDecimal
@@ -112,6 +112,8 @@ object DagpengenesStørrelse {
             folketrygden.hjemmel(4, 12, "Dagpengenes størrelse", "Sats og barnetillegg"),
             Fastsettelse,
         ) {
+            skalKjøres { kravPåDagpenger(it) }
+
             regel(barn) { innhentMed(søknadIdOpplysningstype) }
             regel(antallBarn) { antallAv(barn) { kvalifiserer } }
 
@@ -157,9 +159,9 @@ object DagpengenesStørrelse {
             avklaring(BarnMåGodkjennes)
 
             relevantHvis { kravPåDagpenger(it) }
-        }
 
-    val ønsketResultat = listOf(ukessats, dagsatsSamordnetUtenforFolketrygden, ukesatsMedBarnetillegg, harSamordnet)
+            ønsketResultat = listOf(ukessats, dagsatsSamordnetUtenforFolketrygden, ukesatsMedBarnetillegg, harSamordnet)
+        }
 
     val BarnetilleggKontroll =
         Kontrollpunkt(BarnMåGodkjennes) {

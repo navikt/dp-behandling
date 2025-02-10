@@ -4,6 +4,7 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -29,6 +30,7 @@ object Søknadstidspunkt {
     val regelsett =
         Regelsett(
             forskriftTilFolketrygden.hjemmel(3, 1, "Søknadstidspunkt", "Søknadstidspunkt"),
+            RegelsettType.Fastsettelse,
         ).apply {
             regel(søknadIdOpplysningstype) { innhentes }
             regel(søknadsdato) { innhentMed(søknadIdOpplysningstype) }

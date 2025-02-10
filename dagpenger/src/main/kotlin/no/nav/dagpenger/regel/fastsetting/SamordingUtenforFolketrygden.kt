@@ -1,4 +1,4 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.regel.fastsetting
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.OppgittAndreYtelserUtenforNav
 import no.nav.dagpenger.regel.OpplysningsTyper.andreØkonomiskeYtelserId
@@ -44,6 +45,9 @@ import no.nav.dagpenger.regel.Samordning.samordnetDagsats
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
+import no.nav.dagpenger.regel.folketrygden
+import no.nav.dagpenger.regel.kravPåDagpenger
+import no.nav.dagpenger.regel.kravetTilAlderOgMinsteinntektErOppfylt
 
 object SamordingUtenforFolketrygden {
     val andreYtelser =
@@ -85,7 +89,11 @@ object SamordingUtenforFolketrygden {
     val etterlønnBeløp =
         Opplysningstype.beløp(beløpEtterlønnId, "Etterlønn beløp", synlig = { it.erSann(etterlønn) })
     val garantilottGFFBeløp =
-        Opplysningstype.beløp(beløpGarantilottId, "Garantilott fra Garantikassen for fiskere beløp", synlig = { it.erSann(garantilottGFF) })
+        Opplysningstype.beløp(beløpGarantilottId, "Garantilott fra Garantikassen for fiskere beløp", synlig = {
+            it.erSann(
+                garantilottGFF,
+            )
+        })
 
     val andreØkonomiskeYtelser =
         Opplysningstype.boolsk(
@@ -148,6 +156,8 @@ object SamordingUtenforFolketrygden {
             folketrygden.hjemmel(4, 26, "Samordning med ytelser utenfor folketrygden", "Samordning utenfor folketrygden"),
             RegelsettType.Fastsettelse,
         ) {
+            skalKjøres { kravPåDagpenger(it) }
+
             regel(andreYtelser) { innhentes }
 
             regel(pensjonFraOffentligTjenestepensjonsordning) { oppslag(prøvingsdato) { false } }
@@ -204,12 +214,16 @@ object SamordingUtenforFolketrygden {
             }
 
             relevantHvis { kravetTilAlderOgMinsteinntektErOppfylt(it) }
-        }
 
-    val ønsketResultat = listOf(skalSamordnesUtenforFolketrygden, dagsatsSamordnetUtenforFolketrygden)
+            ønsketResultat = listOf(skalSamordnesUtenforFolketrygden, dagsatsSamordnetUtenforFolketrygden)
+        }
 
     val YtelserUtenforFolketrygdenKontroll =
         Kontrollpunkt(sjekker = Avklaringspunkter.YtelserUtenforFolketrygden) { opplysninger ->
-            opplysninger.har(skalSamordnesUtenforFolketrygden) && opplysninger.finnOpplysning(skalSamordnesUtenforFolketrygden).verdi
+            opplysninger.har(skalSamordnesUtenforFolketrygden) &&
+                opplysninger
+                    .finnOpplysning(
+                        skalSamordnesUtenforFolketrygden,
+                    ).verdi
         }
 }

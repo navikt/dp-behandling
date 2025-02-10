@@ -49,5 +49,7 @@ object Rettighetstype {
             regel(ordinær) { enAv(ordinærArbeid, ingenArbeid) }
 
             regel(rettighetstype) { enAv(ordinær, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
+
+            ønsketResultat = listOf(rettighetstype)
         }
 }

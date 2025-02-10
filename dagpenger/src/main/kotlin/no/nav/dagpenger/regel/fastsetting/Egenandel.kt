@@ -23,11 +23,13 @@ object Egenandel {
             folketrygden.hjemmel(4, 9, "Egenandel", "Egenandel"),
             RegelsettType.Fastsettelse,
         ) {
+            skalKjøres { kravPåDagpenger(it) }
+
             regel(faktor) { oppslag(prøvingsdato) { 3.0 } }
             regel(egenandel) { multiplikasjon(sats, faktor) }
 
             relevantHvis { kravPåDagpenger(it) }
-        }
 
-    val ønsketResultat = listOf(egenandel)
+            ønsketResultat = listOf(egenandel)
+        }
 }

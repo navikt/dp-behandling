@@ -3,13 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
-import no.nav.dagpenger.regel.ReellArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
-import no.nav.dagpenger.regel.fastsetting.Egenandel
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
+import no.nav.dagpenger.regel.ReellArbeidssøker.registrertArbeidssøker
 
 class Søknadsprosess : Forretningsprosess {
     override val regelverk = RegelverkDagpenger
@@ -17,12 +11,13 @@ class Søknadsprosess : Forretningsprosess {
     override fun regelsett() = regelverk.regelsett
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
-        val ønsketResultat =
-            mutableListOf<Opplysningstype<*>>(
-                Rettighetstype.rettighetstype,
-                oppyllerKravTilRegistrertArbeidssøker,
-            )
-
+        return regelverk.regelsett.filter { it.skal(opplysninger) }.flatMap {
+            println("Vil kjøre regelsett: ${it.navn}")
+            listOfNotNull(it.utfall) + it.ønsketResultat
+        } +
+            // minsteinntektEllerVerneplikt +
+            registrertArbeidssøker
+        /*
         // Sjekk krav til alder
         ønsketResultat.add(Alderskrav.kravTilAlder)
 
@@ -84,6 +79,8 @@ class Søknadsprosess : Forretningsprosess {
 
         ønsketResultat.add(KravPåDagpenger.kravPåDagpenger)
         return ønsketResultat
+
+         */
     }
 
     private fun LesbarOpplysninger.mangler(opplysningstype: List<Opplysningstype<Boolean>>): Boolean =
