@@ -335,6 +335,7 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: PåminnelseHendelse,
         ) {
+            hendelse.kontekst(this)
             hendelse.info("Behandlingen mottok påminnelse, men tilstanden støtter ikke dette")
         }
 
@@ -342,6 +343,7 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: RekjørBehandlingHendelse,
         ) {
+            hendelse.kontekst(this)
             hendelse.info("Behandlingen mottok beskjed om rekjøring, men tilstanden støtter ikke dette")
         }
 
