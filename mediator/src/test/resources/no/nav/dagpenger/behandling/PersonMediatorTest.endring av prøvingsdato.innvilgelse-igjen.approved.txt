@@ -169,7 +169,7 @@ Avkortet inntektperiode 3
 Har avkortet grunnlaget i periode 1
 Har avkortet grunnlaget i periode 2
 Har avkortet grunnlaget i periode 3
-Krav til minsteinntekt
+Oppfyller kravet til minsteinntekt
 Stønadsuker ved siste 12 måneder
 Over terskel for 36 måneder
 Inntekt siste 36 måneder

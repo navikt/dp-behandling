@@ -89,7 +89,7 @@ object Minsteinntekt {
     private val over12mndTerskel = boolsk(Over12mndTerskelId, "Arbeidsinntekt er over kravet for siste 12 mnd")
     private val over36mndTerskel = boolsk(Over36mndTerskelId, "Arbeidsinntekt er over kravet for siste 36 mnd")
 
-    val minsteinntekt = boolsk(KravTilMinsteinntektId, "Krav til minsteinntekt")
+    val minsteinntekt = boolsk(KravTilMinsteinntektId, "Oppfyller kravet til minsteinntekt")
 
     val regelsett =
         Regelsett(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {

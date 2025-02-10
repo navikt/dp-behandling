@@ -64,7 +64,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9413-77ce-92ec-d29700f04249|Inntektskrav for siste 36 mnd|Inntektskrav for siste 36 mnd|Penger|Beløp|
 |0194881f-9413-77ce-92ec-d29700f0424a|Arbeidsinntekt er over kravet for siste 12 mnd|Arbeidsinntekt er over kravet for siste 12 mnd|Boolsk|boolean|
 |0194881f-9413-77ce-92ec-d29700f0424b|Arbeidsinntekt er over kravet for siste 36 mnd|Arbeidsinntekt er over kravet for siste 36 mnd|Boolsk|boolean|
-|0194881f-9413-77ce-92ec-d29700f0424c|Krav til minsteinntekt|Krav til minsteinntekt|Boolsk|boolean|
+|0194881f-9413-77ce-92ec-d29700f0424c|Oppfyller kravet til minsteinntekt|Oppfyller kravet til minsteinntekt|Boolsk|boolean|
 |0194881f-9414-7823-8d29-0e25b7feb7ce|Lovpålagt rapporteringsfrist for A-ordningen|Lovpålagt rapporteringsfrist for A-ordningen|Dato|LocalDate|
 |0194881f-9414-7823-8d29-0e25b7feb7cf|Arbeidsgivers rapporteringsfrist|Arbeidsgivers rapporteringsfrist|Dato|LocalDate|
 |0194881f-9414-7823-8d29-0e25b7feb7d0|Siste avsluttende kalendermåned|SisteAvsluttendeKalenderMåned|Dato|LocalDate|
