@@ -7,6 +7,7 @@ object Meldeplikt {
         Regelsett(
             folketrygden.hjemmel(4, 8, "Meldeplikt og møteplikt", "Meldeplikt"),
         ) {
+            skalKjøres { false }
             relevantHvis { false }
         }
 }

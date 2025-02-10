@@ -56,6 +56,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode3Id
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagHvisVerneplikt
 import no.nav.dagpenger.regel.folketrygden
+import no.nav.dagpenger.regel.kravPåDagpenger
 import java.time.LocalDate
 
 object Dagpengegrunnlag {
@@ -122,6 +123,8 @@ object Dagpengegrunnlag {
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
             Fastsettelse,
         ) {
+            skalKjøres { kravPåDagpenger(it) }
+
             regel(antallÅrI36Måneder) { oppslag(prøvingsdato) { 3.0 } } // Teknisk - skal ikke vises
             regel(faktorForMaksgrense) { oppslag(prøvingsdato) { 6.0 } } // Konstant i regelverket - skal ikke vises
             regel(maksgrenseForGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, faktorForMaksgrense) } // Teknisk - skal ikke vises
@@ -190,17 +193,18 @@ object Dagpengegrunnlag {
             regel(harAvkortet) { enAv(harAvkortetPeriode1, harAvkortetPeriode2, harAvkortetPeriode3) }
 
             relevantHvis { it.erSann(kravTilAlder) }
+
+            this.ønsketResultat =
+                listOf(
+                    grunnlag,
+                    grunnbeløpForDagpengeGrunnlag,
+                    harAvkortet,
+                    bruktBeregningsregel,
+                    utbetaltArbeidsinntektPeriode1,
+                    utbetaltArbeidsinntektPeriode2,
+                    utbetaltArbeidsinntektPeriode3,
+                )
         }
-    val ønsketResultat =
-        listOf(
-            grunnlag,
-            grunnbeløpForDagpengeGrunnlag,
-            harAvkortet,
-            bruktBeregningsregel,
-            utbetaltArbeidsinntektPeriode1,
-            utbetaltArbeidsinntektPeriode2,
-            utbetaltArbeidsinntektPeriode3,
-        )
 }
 
 private fun grunnbeløpFor(it: LocalDate) =

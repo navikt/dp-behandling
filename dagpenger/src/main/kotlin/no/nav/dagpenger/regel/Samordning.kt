@@ -19,6 +19,7 @@ import no.nav.dagpenger.regel.Behov.Pleiepenger
 import no.nav.dagpenger.regel.Behov.Svangerskapspenger
 import no.nav.dagpenger.regel.Behov.Sykepenger
 import no.nav.dagpenger.regel.Behov.Uføre
+import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.OpplysningsTyper.antallTimerArbeidstidenSkalSamordnesMotId
 import no.nav.dagpenger.regel.OpplysningsTyper.foreldrepengerDagsatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.foreldrepengerId
@@ -132,6 +133,8 @@ object Samordning {
                 kortnavn = "Samordning reduserte ytelser",
             ),
         ) {
+            skalKjøres { it.oppfyller(minsteinntektEllerVerneplikt) }
+
             regel(sykepenger) { innhentMed(prøvingsdato) }
             regel(pleiepenger) { innhentMed(prøvingsdato) }
             regel(omsorgspenger) { innhentMed(prøvingsdato) }
@@ -184,6 +187,8 @@ object Samordning {
             relevantHvis {
                 it.har(skalSamordnes) && it.finnOpplysning(skalSamordnes).verdi
             }
+
+            ønsketResultat = listOf(samordnetDagsats, skalSamordnes, utfallEtterSamordning)
         }
 
     val ønsketResultat = listOf(samordnetDagsats, skalSamordnes, utfallEtterSamordning)

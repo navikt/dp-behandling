@@ -10,6 +10,7 @@ import no.nav.dagpenger.regel.Samordning.samordnetBeregnetArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.maksimalVanligArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.ordinærEllerVernepliktArbeidstid
 import no.nav.dagpenger.regel.folketrygden
+import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.kravetTilAlderOgMinsteinntektErOppfylt
 
 object Vanligarbeidstid {
@@ -19,6 +20,8 @@ object Vanligarbeidstid {
             folketrygden.hjemmel(4, 3, "Fastsettelse av arbeidstid", "Fastsettelse av arbeidstid"),
             RegelsettType.Fastsettelse,
         ) {
+            skalKjøres { kravPåDagpenger(it) }
+
             regel(fastsattVanligArbeidstid) {
                 minstAv(
                     maksimalVanligArbeidstid,

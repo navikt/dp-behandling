@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.regel.dato.førsteArbeidsdag
 import no.nav.dagpenger.opplysning.regel.dato.sisteAvsluttendeKalenderMåned
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Behov.SisteAvsluttendeKalenderMåned
 import no.nav.dagpenger.regel.OpplysningsTyper.ArbeidsgiversRapporteringsfristId
 import no.nav.dagpenger.regel.OpplysningsTyper.PliktigRapporteringsfristId
@@ -31,6 +32,8 @@ object Opptjeningstid {
             aOpplynsingsLoven.hjemmel(1, 2, "Frist for levering av opplysninger", "Opptjeningsperiode"),
             RegelsettType.Fastsettelse,
         ) {
+            skalKjøres { it.oppfyller(kravTilAlder) }
+
             regel(pliktigRapporteringsfrist) { oppslag(prøvingsdato) { Aordningen.rapporteringsfrist(it) } }
             regel(justertRapporteringsfrist) { førsteArbeidsdag(pliktigRapporteringsfrist) }
             regel(sisteAvsluttendendeKalenderMåned) { sisteAvsluttendeKalenderMåned(prøvingsdato, justertRapporteringsfrist) }

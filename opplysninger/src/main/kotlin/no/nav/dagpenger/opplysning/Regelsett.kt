@@ -21,9 +21,11 @@ class Regelsett(
 
     constructor(hjemmel: Hjemmel, block: Regelsett.() -> Unit = {}) : this(hjemmel, RegelsettType.Vilkår, block)
 
+    var ønsketResultat: List<Opplysningstype<*>> = emptyList()
     private val regler: MutableMap<Opplysningstype<*>, TemporalCollection<Regel<*>>> = mutableMapOf()
     private val avklaringer: MutableSet<Avklaringkode> = mutableSetOf()
     private var _utfall: Opplysningstype<Boolean>? = null
+    private var skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
     private var relevant: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
     val utfall get() = _utfall
     val navn = hjemmel.kortnavn
@@ -38,9 +40,15 @@ class Regelsett(
 
     fun avklaringer() = avklaringer.toSet()
 
+    fun skalKjøres(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
+        skalKjøres = block
+    }
+
     fun relevantHvis(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
         relevant = block
     }
+
+    fun skal(opplysninger: LesbarOpplysninger) = skalKjøres(opplysninger)
 
     fun erRelevant(opplysninger: LesbarOpplysninger) = relevant(opplysninger)
 

@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.regel.erUsann
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.Behov.TarUtdanningEllerOpplæring
+import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarIArbeidsmarkedstiltakId
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarIHøyereUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarIHøyereYrkesfagligUtdanningId
@@ -112,6 +113,8 @@ object Utdanning {
                 kortnavn = "Utdanning",
             ),
         ) {
+            skalKjøres { it.oppfyller(minsteinntektEllerVerneplikt) }
+
             regel(tarUtdanning) { innhentMed() }
 
             // TODO: Legg til regler for å om kravet til utdanning skal vurderes

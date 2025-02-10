@@ -13,6 +13,7 @@ import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
+import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Avklaringspunkter.IkkeRegistrertSomArbeidsøker
 import no.nav.dagpenger.regel.Avklaringspunkter.ReellArbeidssøkerUnntak
 import no.nav.dagpenger.regel.Behov.HelseTilAlleTyperJobb
@@ -102,6 +103,8 @@ object ReellArbeidssøker {
 
     val regelsett =
         Regelsett(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
+            skalKjøres { it.oppfyller(kravTilAlder) }
+
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
             regel(minimumVanligArbeidstid) { oppslag(prøvingsdato) { 18.75 } }
             regel(villigTilMinimumArbeidstid) { størreEnnEllerLik(ønsketArbeidstid, minimumVanligArbeidstid) }
@@ -138,6 +141,8 @@ object ReellArbeidssøker {
 
             avklaring(ReellArbeidssøkerUnntak)
             avklaring(IkkeRegistrertSomArbeidsøker)
+
+            relevantHvis { it.oppfyller(kravTilAlder) }
         }
 
     val ReellArbeidssøkerKontroll =

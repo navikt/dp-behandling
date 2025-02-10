@@ -33,6 +33,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor36Id
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
+import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.kravetTilAlderOgMinsteinntektErOppfylt
 
 object Dagpengeperiode {
@@ -71,6 +72,8 @@ object Dagpengeperiode {
             folketrygden.hjemmel(4, 15, "Antall stønadsuker (stønadsperiode)", "Periode"),
             RegelsettType.Fastsettelse,
         ) {
+            skalKjøres { kravPåDagpenger(it) }
+
             regel(kortPeriode) { oppslag(prøvingsdato) { 52 } }
             regel(langPeriode) { oppslag(prøvingsdato) { 104 } }
             regel(terskelFaktor12) { oppslag(prøvingsdato) { 2.0 } }
@@ -96,7 +99,7 @@ object Dagpengeperiode {
             regel(gjenståendeStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
 
             relevantHvis { kravetTilAlderOgMinsteinntektErOppfylt(it) }
-        }
 
-    val ønsketResultat = listOf(ordinærPeriode, gjenståendeStønadsdager)
+            ønsketResultat = listOf(ordinærPeriode, gjenståendeStønadsdager)
+        }
 }
