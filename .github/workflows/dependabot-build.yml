@@ -20,5 +20,4 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_githubUser: x-access-token
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          arguments: --configuration-cache test
+        run: ./gradlew --configuration-cache test
