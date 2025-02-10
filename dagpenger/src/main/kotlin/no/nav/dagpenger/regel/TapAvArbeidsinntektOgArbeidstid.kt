@@ -3,7 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
@@ -100,7 +100,7 @@ object TapAvArbeidsinntektOgArbeidstid {
         )
 
     val regelsett =
-        Regelsett(
+        vilkår(
             folketrygden.hjemmel(4, 3, "Krav til tap av arbeidsinntekt og arbeidstid", "Tap av arbeidsinntekt og arbeidstid"),
         ) {
             skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }

@@ -6,8 +6,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
@@ -51,9 +50,8 @@ object VernepliktFastsetting {
         )
 
     val regelsett =
-        Regelsett(
+        fastsettelse(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Dagpenger ved verneplikt"),
-            RegelsettType.Fastsettelse,
         ) {
             skalKjøres { kravPåDagpenger(it) }
 
@@ -74,12 +72,11 @@ object VernepliktFastsetting {
                 it.erSann(oppfyllerKravetTilVerneplikt) && it.erSann(grunnlagForVernepliktErGunstigst)
             }
 
-            ønsketResultat =
-                listOf(
-                    vernepliktGrunnlag,
-                    vernepliktPeriode,
-                    vernepliktFastsattVanligArbeidstid,
-                    grunnlagForVernepliktErGunstigst,
-                )
+            ønsketResultat(
+                vernepliktGrunnlag,
+                vernepliktPeriode,
+                vernepliktFastsattVanligArbeidstid,
+                grunnlagForVernepliktErGunstigst,
+            )
         }
 }

@@ -2,7 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.OpplysningsTyper.brukerErUtestengtFraDagpengerId
@@ -19,7 +19,7 @@ object Utestengning {
         )
 
     val regelsett =
-        Regelsett(
+        vilkår(
             folketrygden.hjemmel(4, 28, "Utestengning", "Utestengning"),
         ) {
             skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }

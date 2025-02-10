@@ -28,3 +28,5 @@ data class Lovkilde(
 
     override fun toString() = kortnavn
 }
+
+fun tomHjemmel(navn: String) = Hjemmel(Lovkilde(navn, navn), 0, 0, navn, navn)

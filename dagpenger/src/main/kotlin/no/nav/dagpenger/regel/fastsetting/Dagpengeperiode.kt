@@ -5,8 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.divisjon
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.høyesteAv
@@ -68,9 +67,8 @@ object Dagpengeperiode {
     val ordinærPeriode = heltall(OrdinærPeriodeId, "Antall stønadsuker som gis ved ordinære dagpenger")
 
     val regelsett =
-        Regelsett(
+        fastsettelse(
             folketrygden.hjemmel(4, 15, "Antall stønadsuker (stønadsperiode)", "Periode"),
-            RegelsettType.Fastsettelse,
         ) {
             skalKjøres { kravPåDagpenger(it) }
 
@@ -100,6 +98,6 @@ object Dagpengeperiode {
 
             relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
 
-            ønsketResultat = listOf(ordinærPeriode, gjenståendeStønadsdager)
+            ønsketResultat(ordinærPeriode, gjenståendeStønadsdager)
         }
 }

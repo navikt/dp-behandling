@@ -1051,18 +1051,15 @@ internal class PersonMediatorTest {
         vararg behov: String,
         melding: Int = 1,
     ) {
-        withClue("Siste melding på rapiden skal inneholde behov: ${behov.toList()}") {
-            val sisteMelding = inspektør.message(inspektør.size - melding)
-            assert(
-                sisteMelding["@event_name"].asText() == "behov",
-            ) {
-                "Forventet behov '${
-                    behov.joinToString {
-                        it
-                    }
-                }' men siste melding er ikke et behov. Siste melding er ${sisteMelding["@event_name"].asText()}."
-            }
-            sisteMelding["@behov"].map { it.asText() } shouldContainAll behov.toList()
+        val sisteMelding = inspektør.message(inspektør.size - melding)
+        val behovIMelding = sisteMelding["@behov"].map { it.asText() }
+        assert(sisteMelding["@event_name"].asText() == "behov") {
+            "Forventet behov '${behov.joinToString {
+                it
+            } }' men siste melding er ikke et behov. Siste melding er ${sisteMelding["@event_name"].asText()}."
+        }
+        withClue("Siste melding på rapiden skal inneholde behov: ${behov.toList()}. Inneholdt: $behovIMelding ") {
+            behovIMelding shouldContainAll behov.toList()
         }
     }
 

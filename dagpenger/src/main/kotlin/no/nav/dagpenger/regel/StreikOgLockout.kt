@@ -2,7 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarStreikEllerLockoutId
@@ -30,9 +30,9 @@ object StreikOgLockout {
         )
 
     val regelsett =
-        Regelsett(
+        vilkår(
             folketrygden.hjemmel(4, 22, "Bortfall ved streik og lock-out", "Streik og lock-out"),
-        ).apply {
+        ) {
             skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(deltarIStreikOgLockout) { oppslag(prøvingsdato) { false } }

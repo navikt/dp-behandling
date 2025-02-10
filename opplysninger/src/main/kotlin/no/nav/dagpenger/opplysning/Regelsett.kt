@@ -9,87 +9,37 @@ enum class RegelsettType {
     Fastsettelse,
 }
 
-class Regelsett(
+class Regelsett internal constructor(
     val hjemmel: Hjemmel,
     val type: RegelsettType,
-    block: Regelsett.() -> Unit = {},
+    private val ønsketResultat: List<Opplysningstype<*>>,
+    private val regler: Map<Opplysningstype<*>, TemporalCollection<Regel<*>>>,
+    val avklaringer: Set<Avklaringkode>,
+    val utfall: Opplysningstype<Boolean>?,
+    val skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean,
+    val erRelevant: (opplysninger: LesbarOpplysninger) -> Boolean,
 ) {
-    constructor(
-        navn: String,
-        block: Regelsett.() -> Unit = {},
-    ) : this(Hjemmel(Lovkilde(navn, navn), 0, 0, navn, navn), RegelsettType.Vilkår, block)
+    val navn: String = hjemmel.kortnavn
 
-    constructor(hjemmel: Hjemmel, block: Regelsett.() -> Unit = {}) : this(hjemmel, RegelsettType.Vilkår, block)
+    // Hvilke opplysninger dette regelsettet definerer til vedtak
+    val ønsketInformasjon: List<Opplysningstype<*>>
+        get() = listOfNotNull(utfall) + ønsketResultat
 
-    var ønsketResultat: List<Opplysningstype<*>> = emptyList()
-    private val regler: MutableMap<Opplysningstype<*>, TemporalCollection<Regel<*>>> = mutableMapOf()
-    private val avklaringer: MutableSet<Avklaringkode> = mutableSetOf()
-    private var _utfall: Opplysningstype<Boolean>? = null
-    private var skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
-    private var relevant: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
-    val utfall get() = _utfall
-    val navn = hjemmel.kortnavn
+    // Hvilke opplysninger dette regelsettet produserer
+    val produserer: Set<Opplysningstype<*>> by lazy { regler.map { it.key }.toSet() }
 
-    init {
-        block()
+    // Hvilke opplysninger dette regelsettet er avhengig av
+    val avhengerAv: Set<Opplysningstype<*>> by lazy {
+        regler.flatMap { it.value.getAll().flatMap { regel -> regel.avhengerAv } }.toSet().minus(produserer)
     }
 
+    // Hvilke opplysninger dette regelsettet innhenter via behov
+    val behov: List<Opplysningstype<*>> by lazy {
+        regler.flatMap { it.value.getAll() }.filterIsInstance<Ekstern<*>>().map { it.produserer }
+    }
+
+    // Returnerer regler som er gyldige for en gitt dato
     fun regler(forDato: LocalDate = LocalDate.MIN) = regler.map { it.value.get(forDato) }.toList()
 
-    fun avklaring(avklaringkode: Avklaringkode) = avklaringer.add(avklaringkode)
-
-    fun avklaringer() = avklaringer.toSet()
-
-    fun skalKjøres(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
-        skalKjøres = block
-    }
-
-    fun relevantHvis(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
-        relevant = block
-    }
-
-    fun skal(opplysninger: LesbarOpplysninger) = skalKjøres(opplysninger)
-
-    fun erRelevant(opplysninger: LesbarOpplysninger) = relevant(opplysninger)
-
-    fun utfall(
-        produserer: Opplysningstype<Boolean>,
-        gjelderFraOgMed: LocalDate = LocalDate.MIN,
-        block: Opplysningstype<Boolean>.() -> Regel<*>,
-    ) = regel(produserer, gjelderFraOgMed, block).also {
-        _utfall = produserer
-    }
-
-    fun <T : Comparable<T>> regel(
-        produserer: Opplysningstype<T>,
-        gjelderFraOgMed: LocalDate = LocalDate.MIN,
-        block: Opplysningstype<T>.() -> Regel<*>,
-    ) = leggTil(gjelderFraOgMed, produserer.block())
-
-    private fun leggTil(
-        gjelderFra: LocalDate,
-        regel: Regel<*>,
-    ) = regler.computeIfAbsent(regel.produserer) { TemporalCollection() }.put(gjelderFra, regel)
-
-    val produserer: Set<Opplysningstype<*>>
-        by lazy { regler.map { it.key }.toSet() }
-
-    fun produserer(opplysningstype: Opplysningstype<*>) = produserer.contains(opplysningstype)
-
-    val avhengerAv: Set<Opplysningstype<*>>
-        by lazy {
-            regler.flatMap { it.value.getAll().flatMap { regel -> regel.avhengerAv } }.toSet().minus(produserer)
-        }
-
-    fun avhengerAv(opplysningstype: Opplysningstype<*>) = avhengerAv.contains(opplysningstype)
-
-    val behov by lazy {
-        regler
-            .flatMap { it.value.getAll() }
-            .toSet()
-            .filterIsInstance<Ekstern<*>>()
-            .map { it.produserer }
-    }
-
-    override fun toString() = "Regelsett(navn=${hjemmel.kortnavn})"
+    override fun toString() = "Regelsett(navn=$navn, type=$type)"
 }

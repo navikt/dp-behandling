@@ -2,8 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -36,9 +35,8 @@ object Rettighetstype {
     val rettighetstype = boolsk(RettighetstypeId, beskrivelse = "Rettighetstype", behovId = "Rettighetstype")
 
     val regelsett =
-        Regelsett(
+        fastsettelse(
             folketrygden.hjemmel(0, 0, "Rettighetstype", "Rettighetstype"),
-            RegelsettType.Fastsettelse,
         ) {
             regel(erPermittert) { innhentes }
             regel(ordinærArbeid) { innhentes }
@@ -50,6 +48,6 @@ object Rettighetstype {
 
             regel(rettighetstype) { enAv(ordinær, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
 
-            ønsketResultat = listOf(rettighetstype)
+            ønsketResultat(rettighetstype)
         }
 }

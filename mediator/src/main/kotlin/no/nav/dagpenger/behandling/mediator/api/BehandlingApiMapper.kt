@@ -100,7 +100,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
         val spesifikkeAvklaringskoder =
             behandler.regelverk.regelsett
                 .asSequence()
-                .flatMap { it.avklaringer() }
+                .flatMap { it.avklaringer }
                 .toSet()
         val generelleAvklaringer = avklaringer.filterNot { it.kode in spesifikkeAvklaringskoder }
 
@@ -170,8 +170,8 @@ private fun Regelsett.tilRegelsettDTO(
         opplysninger
             .filter { opplysning -> opplysning.opplysningstype in produserer }
             .sortedBy { produserer.indexOf(it.opplysningstype) }
-    val avklaringskoder = avklaringer()
-    val egneAvklaringer = avklaringer.filter { it.kode in avklaringskoder }
+
+    val egneAvklaringer = avklaringer.filter { it.kode in this.avklaringer }
 
     val opplysningMedUtfall = opplysninger.singleOrNull { it.opplysningstype == utfall }
     var status = tilStatus(opplysningMedUtfall?.verdi as Boolean?)

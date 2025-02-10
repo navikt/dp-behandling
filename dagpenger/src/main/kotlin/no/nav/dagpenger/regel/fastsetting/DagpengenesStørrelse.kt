@@ -9,9 +9,8 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType.Fastsettelse
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.addisjon
 import no.nav.dagpenger.opplysning.regel.antallAv
 import no.nav.dagpenger.opplysning.regel.avrund
@@ -108,9 +107,8 @@ object DagpengenesStørrelse {
     val harSamordnet = boolsk(HarSamordnetId, "Har samordnet")
 
     val regelsett =
-        Regelsett(
+        fastsettelse(
             folketrygden.hjemmel(4, 12, "Dagpengenes størrelse", "Sats og barnetillegg"),
-            Fastsettelse,
         ) {
             skalKjøres { kravPåDagpenger(it) }
 
@@ -160,7 +158,7 @@ object DagpengenesStørrelse {
 
             relevantHvis { kravPåDagpenger(it) }
 
-            ønsketResultat = listOf(ukessats, dagsatsSamordnetUtenforFolketrygden, ukesatsMedBarnetillegg, harSamordnet)
+            ønsketResultat(ukessats, dagsatsSamordnetUtenforFolketrygden, ukesatsMedBarnetillegg, harSamordnet)
         }
 
     val BarnetilleggKontroll =
