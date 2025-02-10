@@ -253,7 +253,7 @@ internal class PersonMediatorTest {
                 medVilkår("Oppfyller kravet til alder") {
                     erOppfylt()
                 }
-                medVilkår("Krav til minsteinntekt") {
+                medVilkår("Oppfyller kravet til minsteinntekt") {
                     erIkkeOppfylt()
                 }
                 medVilkår("Krav til arbeidssøker") {

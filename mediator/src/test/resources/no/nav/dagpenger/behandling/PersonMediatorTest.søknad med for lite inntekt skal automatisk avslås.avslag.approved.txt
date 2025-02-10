@@ -38,7 +38,7 @@ Arbeidsinntekt siste 12 mnd
 Arbeidsinntekt siste 36 mnd
 Arbeidsinntekt er over kravet for siste 12 mnd
 Arbeidsinntekt er over kravet for siste 36 mnd
-Krav til minsteinntekt
+Oppfyller kravet til minsteinntekt
 Avtjent verneplikt
 Oppfyller kravet til verneplikt
 Ønsket arbeidstid

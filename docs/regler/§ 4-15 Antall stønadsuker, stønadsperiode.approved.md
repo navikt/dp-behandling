@@ -28,7 +28,7 @@ graph RL
   Q["Antall stønadsuker"] -->|"HøyesteAv"| O["Stønadsuker ved siste 12 måneder"]
   Q["Antall stønadsuker"] -->|"HøyesteAv"| P["Stønadsuker ved siste 36 måneder"]
   R["Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt"] -->|"Oppslag"| B["Prøvingsdato"]
-  S["Antall stønadsuker som gis ved ordinære dagpenger"] -->|"HvisSannMedResultat"| T["Krav til minsteinntekt"]
+  S["Antall stønadsuker som gis ved ordinære dagpenger"] -->|"HvisSannMedResultat"| T["Oppfyller kravet til minsteinntekt"]
   S["Antall stønadsuker som gis ved ordinære dagpenger"] -->|"HvisSannMedResultat"| Q["Antall stønadsuker"]
   S["Antall stønadsuker som gis ved ordinære dagpenger"] -->|"HvisSannMedResultat"| R["Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt"]
   U["Antall dager som skal regnes med i hver uke"] -->|"Oppslag"| B["Prøvingsdato"]
