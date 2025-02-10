@@ -3,7 +3,8 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
+import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
@@ -39,7 +40,8 @@ val RegelverkDagpenger =
         VernepliktFastsetting.regelsett,
     )
 
-fun kravetTilAlderOgMinsteinntektErOppfylt(opplysninger: LesbarOpplysninger): Boolean = opplysninger.erSann(minsteinntektEllerVerneplikt)
+fun kravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
+    opplysninger.erSann(minsteinntekt) || opplysninger.erSann(oppfyllerKravetTilVerneplikt)
 
 fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
     RegelverkDagpenger.regelsett

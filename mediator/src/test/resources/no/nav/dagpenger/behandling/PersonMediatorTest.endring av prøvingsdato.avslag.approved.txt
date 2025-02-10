@@ -52,4 +52,3 @@ Krav til arbeidssøker
 Arbeidsinntekt er over kravet for siste 12 mnd
 Arbeidsinntekt er over kravet for siste 36 mnd
 Krav til minsteinntekt
-Oppfyller kravet til minsteinntekt eller verneplikt

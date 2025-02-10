@@ -177,7 +177,6 @@ Har avkortet grunnlag
 Stønadsuker ved siste 36 måneder
 Antall stønadsuker
 Antall stønadsuker som gis ved ordinære dagpenger
-Oppfyller kravet til minsteinntekt eller verneplikt
 Gjennomsnittlig arbeidsinntekt siste 36 måneder
 Antall gjenstående stønadsdager
 Uavrundet grunnlag

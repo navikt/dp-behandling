@@ -12,23 +12,23 @@ Har rett til ordinære dagpenger uten arbeidsforhold
 Prøvingsdato
 Har rett til ordinære dagpenger
 Aldersgrense
-Minimum vanlig arbeidstid
-Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søk arbeid lokalt
-Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Rettighetstype
+Dato søker når maks alder
+Siste mulige dag bruker kan oppfylle alderskrav
+Oppfyller kravet til alder
 Lovpålagt rapporteringsfrist for A-ordningen
 Maks lengde på opptjeningsperiode
 Grunnbeløp
 Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
-Dato søker når maks alder
+Minimum vanlig arbeidstid
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søk arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 mnd
 Inntektskrav for siste 36 mnd
-Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
-Oppfyller kravet til alder
 Første måned av opptjeningsperiode
 Registrert som arbeidssøker
 Registrert som arbeidssøker på søknadstidspunktet
@@ -41,7 +41,6 @@ Arbeidsinntekt er over kravet for siste 36 mnd
 Krav til minsteinntekt
 Avtjent verneplikt
 Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste
-Oppfyller kravet til minsteinntekt eller verneplikt
 Ønsket arbeidstid
 Kan jobbe heltid og deltid
 Kan jobbe i hele Norge

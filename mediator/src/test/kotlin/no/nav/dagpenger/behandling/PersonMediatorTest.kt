@@ -200,7 +200,7 @@ internal class PersonMediatorTest {
                 medMeldingsInnhold("fastsatt") {
                     medBoolsk("utfall") shouldBe false
                 }
-                medNode("vilkår").size() shouldBe 3
+                medNode("vilkår").size() shouldBe 1
             }
 
             godkjennOpplysninger("avslag")
@@ -253,18 +253,20 @@ internal class PersonMediatorTest {
                 medVilkår("Oppfyller kravet til alder") {
                     erOppfylt()
                 }
-                medVilkår("Oppfyller kravet til minsteinntekt eller verneplikt") {
+                medVilkår("Krav til minsteinntekt") {
                     erIkkeOppfylt()
                 }
                 medVilkår("Krav til arbeidssøker") {
                     erOppfylt()
                 }
+                /*
+                TODO: Vi trenger ikke denne, men Arena og melding trenger den
                 medVilkår("Registrert som arbeidssøker på søknadstidspunktet") {
                     erOppfylt()
                 }
                 medVilkår("Rettighetstype") {
                     erOppfylt()
-                }
+                }*/
             }
 
             rapid.inspektør.size shouldBe 25

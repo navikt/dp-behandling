@@ -15,7 +15,6 @@ import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
 import no.nav.dagpenger.regel.KravPåDagpenger.VirkningstidspunktForLangtFramITid
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.Minsteinntekt.EØSArbeidKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
@@ -56,9 +55,7 @@ class SøknadInnsendtHendelse(
         opplysninger.har(KravPåDagpenger.kravPåDagpenger) &&
             opplysninger.finnOpplysning(KravPåDagpenger.kravPåDagpenger).verdi
 
-    private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean =
-        opplysninger.har(minsteinntektEllerVerneplikt) &&
-            opplysninger.finnOpplysning(minsteinntektEllerVerneplikt).verdi
+    private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = kravetTilMinsteinntektEllerVerneplikt(opplysninger)
 
     private fun alder(opplysninger: LesbarOpplysninger): Boolean =
         opplysninger.har(Alderskrav.kravTilAlder) &&

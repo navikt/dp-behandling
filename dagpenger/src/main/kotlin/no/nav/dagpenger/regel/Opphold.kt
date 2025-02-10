@@ -7,7 +7,6 @@ import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.oppslag
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.OpplysningsTyper.MedlemFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetOppholdId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetTilOppholdId
@@ -32,7 +31,7 @@ object Opphold {
         Regelsett(
             folketrygden.hjemmel(4, 2, "Opphold i Norge", "Opphold"),
         ) {
-            skalKjøres { it.oppfyller(minsteinntektEllerVerneplikt) }
+            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(oppholdINorge) { oppslag(prøvingsdato) { true } }
             regel(unntakForOpphold) { oppslag(prøvingsdato) { false } }
@@ -43,6 +42,6 @@ object Opphold {
 
             utfall(oppfyllerKravet) { alle(oppfyllerKravetTilOpphold, oppfyllerMedlemskap) }
 
-            relevantHvis { kravetTilAlderOgMinsteinntektErOppfylt(it) }
+            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
         }
 }
