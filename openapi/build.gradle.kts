@@ -35,7 +35,7 @@ dependencies {
 }
 
 openApiGenerate {
-    generatorName.set("kotlin-server")
+    generatorName.set("kotlin")
     inputSpec.set("$projectDir/src/main/resources/behandling-api.yaml")
     outputDir.set("${layout.buildDirectory.get()}/generated/")
     packageName.set("no.nav.dagpenger.behandling.api")
