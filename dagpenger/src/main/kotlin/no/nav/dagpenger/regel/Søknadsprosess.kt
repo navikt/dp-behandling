@@ -10,85 +10,9 @@ class Søknadsprosess : Forretningsprosess {
 
     override fun regelsett() = regelverk.regelsett
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
-        return regelverk.regelsett.filter { it.skal(opplysninger) }.flatMap {
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
+        regelverk.regelsett.filter { it.skal(opplysninger) }.flatMap {
             println("Vil kjøre regelsett: ${it.navn}")
             listOfNotNull(it.utfall) + it.ønsketResultat
-        } +
-            // minsteinntektEllerVerneplikt +
-            registrertArbeidssøker
-        /*
-        // Sjekk krav til alder
-        ønsketResultat.add(Alderskrav.kravTilAlder)
-
-        if (opplysninger.mangler(Alderskrav.kravTilAlder) || !opplysninger.oppfyller(Alderskrav.kravTilAlder)) {
-            return ønsketResultat
-        }
-
-        // Sjekk krav til minste arbeidsinntekt eller verneplikt
-        ønsketResultat.add(minsteinntektEllerVerneplikt)
-
-        if (opplysninger.mangler(minsteinntektEllerVerneplikt)) {
-            return ønsketResultat
-        }
-
-        val alderskravOppfylt = opplysninger.oppfyller(Alderskrav.kravTilAlder)
-        val minsteinntektOppfylt = opplysninger.oppfyller(minsteinntektEllerVerneplikt)
-
-        // Om krav til alder eller arbeidsinntekt ikke er oppfylt er det ingen grunn til å fortsette, men vi må fastsette hvilke tillegskrav Arena trenger.
-        if (!alderskravOppfylt || !minsteinntektOppfylt) {
-            ønsketResultat.addAll(
-                listOf(
-                    ReellArbeidssøker.kravTilArbeidssøker,
-                ),
-            )
-            return ønsketResultat
-        }
-
-        val vilkår =
-            listOf(
-                Alderskrav.kravTilAlder,
-                FulleYtelser.ikkeFulleYtelser,
-                oppyllerKravTilRegistrertArbeidssøker,
-                minsteinntektEllerVerneplikt,
-                Opphold.oppfyllerKravet,
-                ReellArbeidssøker.kravTilArbeidssøker,
-                StreikOgLockout.ikkeStreikEllerLockout,
-                TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid,
-                Utdanning.kravTilUtdanning,
-                Utestengning.oppfyllerKravetTilIkkeUtestengt,
-            )
-        ønsketResultat.addAll(
-            vilkår,
-        )
-
-        if (opplysninger.mangler(vilkår)) {
-            return ønsketResultat
-        }
-
-        if (opplysninger.oppfyller(vilkår)) {
-            ønsketResultat.addAll(Dagpengegrunnlag.ønsketResultat)
-            ønsketResultat.addAll(Egenandel.ønsketResultat)
-            ønsketResultat.addAll(DagpengenesStørrelse.ønsketResultat)
-            ønsketResultat.addAll(Dagpengeperiode.ønsketResultat)
-            ønsketResultat.addAll(Samordning.ønsketResultat)
-            ønsketResultat.addAll(SamordingUtenforFolketrygden.ønsketResultat)
-            ønsketResultat.addAll(VernepliktFastsetting.ønsketResultat)
-            // ønsketResultat.add(oppfyllerKravetTilPermittering)
-        }
-
-        ønsketResultat.add(KravPåDagpenger.kravPåDagpenger)
-        return ønsketResultat
-
-         */
-    }
-
-    private fun LesbarOpplysninger.mangler(opplysningstype: List<Opplysningstype<Boolean>>): Boolean =
-        opplysningstype.all { this.mangler(it) }
-
-    private fun LesbarOpplysninger.oppfyller(opplysningstype: List<Opplysningstype<Boolean>>): Boolean =
-        opplysningstype.all { oppfyller(it) }
-
-    private fun LesbarOpplysninger.oppfyller(opplysningstype: Opplysningstype<Boolean>) =
-        har(opplysningstype) && finnOpplysning(opplysningstype).verdi
+        } + registrertArbeidssøker
 }

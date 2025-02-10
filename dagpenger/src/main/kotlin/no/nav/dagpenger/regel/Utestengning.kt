@@ -5,7 +5,6 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.oppslag
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.OpplysningsTyper.brukerErUtestengtFraDagpengerId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravTilIkkeUtestengtId
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -23,11 +22,11 @@ object Utestengning {
         Regelsett(
             folketrygden.hjemmel(4, 28, "Utestengning", "Utestengning"),
         ) {
-            skalKjøres { it.oppfyller(minsteinntektEllerVerneplikt) }
+            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(utestengt) { oppslag(prøvingsdato) { false } }
             utfall(oppfyllerKravetTilIkkeUtestengt) { ikke(utestengt) }
 
-            relevantHvis { kravetTilAlderOgMinsteinntektErOppfylt(it) }
+            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
         }
 }

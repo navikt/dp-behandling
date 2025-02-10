@@ -4,7 +4,6 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.regel.oppslag
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.OpplysningsTyper.IkkeFulleYtelserId
 import no.nav.dagpenger.regel.Samordning.skalSamordnes
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -22,10 +21,11 @@ object FulleYtelser {
                 "Fulle ytelser",
             ),
         ) {
-            skalKjøres { it.oppfyller(minsteinntektEllerVerneplikt) }
+            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
+
             utfall(ikkeFulleYtelser) { oppslag(prøvingsdato) { true } }
 
-            relevantHvis { kravetTilAlderOgMinsteinntektErOppfylt(it) }
+            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             ønsketResultat = listOf(ikkeFulleYtelser)
         }

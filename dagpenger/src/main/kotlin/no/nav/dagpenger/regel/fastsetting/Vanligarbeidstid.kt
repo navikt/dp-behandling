@@ -11,7 +11,7 @@ import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.maksimalVanligArbe
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.ordinærEllerVernepliktArbeidstid
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
-import no.nav.dagpenger.regel.kravetTilAlderOgMinsteinntektErOppfylt
+import no.nav.dagpenger.regel.kravetTilMinsteinntektEllerVerneplikt
 
 object Vanligarbeidstid {
     val fastsattVanligArbeidstid = Opplysningstype.desimaltall(fastsattArbeidstidPerUkeFørTapId, "Fastsatt arbeidstid per uke før tap")
@@ -31,7 +31,7 @@ object Vanligarbeidstid {
                 )
             }
             relevantHvis {
-                kravetTilAlderOgMinsteinntektErOppfylt(it)
+                kravetTilMinsteinntektEllerVerneplikt(it)
             }
         }
 }

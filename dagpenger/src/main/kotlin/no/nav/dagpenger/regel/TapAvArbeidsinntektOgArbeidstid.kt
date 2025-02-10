@@ -13,7 +13,6 @@ import no.nav.dagpenger.opplysning.regel.prosentTerskel
 import no.nav.dagpenger.regel.Avklaringspunkter.TapAvArbeidstidBeregningsregel
 import no.nav.dagpenger.regel.Behov.HarTaptArbeid
 import no.nav.dagpenger.regel.Behov.KravPåLønn
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.OpplysningsTyper.beregeningsregelArbeidstidSiste36MånederId
 import no.nav.dagpenger.regel.OpplysningsTyper.beregnetVanligArbeidstidPerUkeFørTapId
 import no.nav.dagpenger.regel.OpplysningsTyper.beregningsregelArbeidstidSiste12MånederId
@@ -104,7 +103,7 @@ object TapAvArbeidsinntektOgArbeidstid {
         Regelsett(
             folketrygden.hjemmel(4, 3, "Krav til tap av arbeidsinntekt og arbeidstid", "Tap av arbeidsinntekt og arbeidstid"),
         ) {
-            skalKjøres { it.oppfyller(minsteinntektEllerVerneplikt) }
+            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(tapAvArbeid) { oppslag(prøvingsdato) { true } } // TODO: Satt til true for testing av innvilgelse
             regel(kravPåLønn) { oppslag(prøvingsdato) { false } }
@@ -139,7 +138,7 @@ object TapAvArbeidsinntektOgArbeidstid {
 
             avklaring(TapAvArbeidstidBeregningsregel)
 
-            relevantHvis { kravetTilAlderOgMinsteinntektErOppfylt(it) }
+            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
         }
 
     val TapArbeidstidBeregningsregelKontroll =

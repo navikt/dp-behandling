@@ -2,7 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål
-import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -12,14 +12,14 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Verneplikt {
     val avtjentVerneplikt =
-        Opplysningstype.boolsk(
+        boolsk(
             avtjentVernepliktId,
             "Avtjent verneplikt",
             formål = Opplysningsformål.Bruker,
             behovId = Behov.Verneplikt,
         )
     val oppfyllerKravetTilVerneplikt =
-        Opplysningstype.boolsk(
+        boolsk(
             oppfyllerKravetTilVernepliktId,
             "Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste",
         )
