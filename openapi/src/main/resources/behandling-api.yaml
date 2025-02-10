@@ -508,6 +508,8 @@ components:
           enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
         kreverTotrinnskontroll:
           type: boolean
+        utfall:
+          type: boolean
         vilkår:
           type: array
           items:
