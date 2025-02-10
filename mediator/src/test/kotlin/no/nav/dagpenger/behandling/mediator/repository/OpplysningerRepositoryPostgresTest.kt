@@ -31,10 +31,10 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
@@ -163,7 +163,7 @@ class OpplysningerRepositoryPostgresTest {
             val baseOpplysning = Faktum(baseOpplysningstype, LocalDate.now())
 
             val regelsett =
-                Regelsett("Regelsett") {
+                vilkår("vilkår") {
                     regel(baseOpplysningstype) {
                         innhentes
                     }
@@ -273,7 +273,7 @@ class OpplysningerRepositoryPostgresTest {
             val baseOpplysning = Faktum(baseOpplysningstype, LocalDate.now())
 
             val regelsett =
-                Regelsett("Regelsett") {
+                vilkår("vilkår") {
                     regel(baseOpplysningstype) { innhentes }
                     regel(utledetOpplysningstype) { oppslag(baseOpplysningstype) { 5 } }
                 }
@@ -407,7 +407,7 @@ class OpplysningerRepositoryPostgresTest {
             val baseOpplysning = Faktum(baseOpplysningstype, opprinneligDato)
 
             val regelsett =
-                Regelsett("Regelsett") {
+                vilkår("vilkår") {
                     regel(baseOpplysningstype) { innhentes }
                     regel(utledetOpplysningstype) { oppslag(baseOpplysningstype) { 5 } }
                 }
@@ -465,7 +465,7 @@ class OpplysningerRepositoryPostgresTest {
             val vaktmesterRepo = VaktmesterPostgresRepo()
 
             val regelsett =
-                Regelsett("Regelsett") {
+                vilkår("vilkår") {
                     regel(a) { innhentes }
                     regel(d) { innhentes }
                     regel(b) { enAv(a) }
@@ -510,7 +510,7 @@ class OpplysningerRepositoryPostgresTest {
             val repo = opplysningerRepository()
 
             val regelsett =
-                Regelsett("Regelsett") {
+                vilkår("vilkår") {
                     regel(a) { innhentes }
                     regel(d) { innhentes }
                     regel(b) { enAv(a) }

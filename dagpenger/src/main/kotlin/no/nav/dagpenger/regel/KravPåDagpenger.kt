@@ -3,7 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.dato.finnDagensDato
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -24,7 +24,7 @@ object KravPåDagpenger {
     val dagensDato = dato(DagensDatoId, "Dagens dato")
 
     val regelsett =
-        Regelsett("Krav på dagpenger") {
+        vilkår("Krav på dagpenger") {
             skalKjøres { false }
 
             regel(minsteinntektEllerVerneplikt) { enAv(minsteinntekt, oppfyllerKravetTilVerneplikt) }

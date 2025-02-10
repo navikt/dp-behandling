@@ -7,12 +7,13 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilÅr
 import no.nav.dagpenger.opplysning.regel.dato.sisteDagIMåned
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.regel.Alderskrav.sisteDagIMåned
 import no.nav.dagpenger.regel.OpplysningsTyper.AldersgrenseId
 import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
@@ -33,7 +34,7 @@ object Alderskrav {
     val kravTilAlder = boolsk(KravTilAlderId, "Oppfyller kravet til alder")
 
     val regelsett =
-        Regelsett(
+        vilkår(
             folketrygden.hjemmel(4, 23, "Bortfall på grunn av alder", "Alder"),
         ) {
             regel(fødselsdato) { innhentes }

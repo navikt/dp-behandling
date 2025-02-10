@@ -2,7 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
@@ -34,7 +34,7 @@ object Permittering {
         })
 
     val regelsett =
-        Regelsett(folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering")) {
+        vilkår(folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering")) {
             regel(erPermittert) { innhentes }
             regel(godkjentPermitteringsårsak) { oppslag(prøvingsdato) { true } }
             regel(erPermitteringenMidlertidig) { oppslag(prøvingsdato) { true } }

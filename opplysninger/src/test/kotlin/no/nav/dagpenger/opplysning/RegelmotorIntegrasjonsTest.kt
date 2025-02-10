@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dag.printer.MermaidPrinter
 import no.nav.dagpenger.opplysning.dag.DatatreBygger
 import no.nav.dagpenger.opplysning.dag.RegeltreBygger
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -41,7 +42,7 @@ class RegelmotorIntegrasjonsTest {
         val opplysninger = Opplysninger(tidligereBehandling)
         val alleVilkår = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Vilkår")
         val regelsett =
-            Regelsett("Krav til Dagpenger").apply {
+            vilkår("Krav til Dagpenger") {
                 regel(alleVilkår) { alle(ReglerForInntektTest.minsteinntekt, Alderskrav.vilkår) }
             }
         val regelkjøring =
@@ -148,7 +149,7 @@ class RegelmotorIntegrasjonsTest {
         val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
         val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
         val regelsett =
-            Regelsett("test") {
+            vilkår("test") {
                 regel(a0) { innhentes }
                 regel(a) { alle(a0) }
                 regel(d) { innhentes }
@@ -190,7 +191,7 @@ class RegelmotorIntegrasjonsTest {
         val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
         val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
         val regelsett =
-            Regelsett("test") {
+            vilkår("test") {
                 regel(a0) { innhentes }
                 regel(a) { alle(a0) }
                 regel(d) { alle(a0) }
@@ -238,7 +239,7 @@ class RegelmotorIntegrasjonsTest {
         val i = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "i")
 
         val regelsett =
-            Regelsett("test av regelsett") {
+            vilkår("test av regelsett") {
                 regel(e) { innhentes }
                 regel(f) { innhentes }
                 regel(g) { innhentes }

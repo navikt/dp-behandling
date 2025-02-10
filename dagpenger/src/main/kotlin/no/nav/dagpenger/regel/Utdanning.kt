@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erSann
@@ -104,7 +104,7 @@ object Utdanning {
     val kravTilUtdanning = Opplysningstype.boolsk(kravTilUtdanningEllerOpplæringId, "Krav til utdanning eller opplæring")
 
     val regelsett =
-        Regelsett(
+        vilkår(
             folketrygden.hjemmel(
                 kapittel = 4,
                 paragraf = 6,

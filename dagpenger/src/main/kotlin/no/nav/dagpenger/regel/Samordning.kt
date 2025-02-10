@@ -4,7 +4,7 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningssjekk
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.addisjon
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -124,7 +124,7 @@ object Samordning {
     // avrundetDagsUtenBarnetillegg - sykepenger - pleiepenger - omsorgspenger - opplæringspenger - uføre - foreldrepenger - svangerskapspenger
 
     val regelsett =
-        Regelsett(
+        vilkår(
             folketrygden.hjemmel(
                 kapittel = 4,
                 paragraf = 25,
@@ -187,10 +187,9 @@ object Samordning {
                 it.har(skalSamordnes) && it.finnOpplysning(skalSamordnes).verdi
             }
 
-            ønsketResultat = listOf(samordnetDagsats, skalSamordnes, utfallEtterSamordning)
+            // TODO: Big badda boom. Dette er både fastsettelse og vilkår
+            ønsketResultat(samordnetDagsats, skalSamordnes, utfallEtterSamordning)
         }
-
-    val ønsketResultat = listOf(samordnetDagsats, skalSamordnes, utfallEtterSamordning)
 
     val SkalSamordnes =
         Kontrollpunkt(Avklaringspunkter.Samordning) {

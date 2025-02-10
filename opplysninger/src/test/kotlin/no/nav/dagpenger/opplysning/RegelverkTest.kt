@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dag.printer.MermaidPrinter
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -18,15 +19,15 @@ class RegelverkTest {
     private val typeF = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "F")
 
     private val r1 =
-        Regelsett("Søknadstidspunkt") {
+        vilkår("Søknadstidspunkt") {
             regel(typeA) { innhentes }
             regel(typeA, 1.juli) { innhentes }
             regel(typeA, 1.mai) { innhentes }
             regel(typeE) { erSann(typeF) }
             regel(typeE, 1.juni) { erSann(typeF) }
         }
-    private val r2 = Regelsett("Inntekt") { regel(typeB) { innhentMed(typeA) } }
-    private val r3 = Regelsett("Dagpenger") { regel(typeC) { innhentMed(typeA, typeB) } }
+    private val r2 = vilkår("Inntekt") { regel(typeB) { innhentMed(typeA) } }
+    private val r3 = vilkår("Dagpenger") { regel(typeC) { innhentMed(typeA, typeB) } }
 
     private val regelverk = Regelverk(r1, r2, r3)
 

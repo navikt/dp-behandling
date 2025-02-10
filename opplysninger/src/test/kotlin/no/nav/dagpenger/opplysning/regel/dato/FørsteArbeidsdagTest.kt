@@ -3,9 +3,9 @@ package no.nav.dagpenger.opplysning.regel.dato
 import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.dato1
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.dato2
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import no.nav.dagpenger.opplysning.regel.innhentes
 import java.time.LocalDate
@@ -18,7 +18,7 @@ class FørsteArbeidsdagTest {
         Regelkjøring(
             1.mai,
             opplysninger,
-            Regelsett("finn første arbeidsdag for en dato") {
+            vilkår("finn første arbeidsdag for en dato") {
                 regel(dato1) { innhentes }
                 regel(dato2) { førsteArbeidsdag(dato1) }
             },

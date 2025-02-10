@@ -1,8 +1,7 @@
 package no.nav.dagpenger.regel.fastsetting
 
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.regel.OpplysningsTyper.fastsattArbeidstidPerUkeFørTapId
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
@@ -16,9 +15,8 @@ import no.nav.dagpenger.regel.kravetTilMinsteinntektEllerVerneplikt
 object Vanligarbeidstid {
     val fastsattVanligArbeidstid = Opplysningstype.desimaltall(fastsattArbeidstidPerUkeFørTapId, "Fastsatt arbeidstid per uke før tap")
     val regelsett =
-        Regelsett(
+        fastsettelse(
             folketrygden.hjemmel(4, 3, "Fastsettelse av arbeidstid", "Fastsettelse av arbeidstid"),
-            RegelsettType.Fastsettelse,
         ) {
             skalKjøres { kravPåDagpenger(it) }
 

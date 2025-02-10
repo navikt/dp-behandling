@@ -3,7 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.regel.OpplysningsTyper.avtjentVernepliktId
@@ -25,7 +25,7 @@ object Verneplikt {
         )
 
     val regelsett =
-        Regelsett(
+        vilkår(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Verneplikt"),
         ) {
             skalKjøres { it.oppfyller(Alderskrav.kravTilAlder) }

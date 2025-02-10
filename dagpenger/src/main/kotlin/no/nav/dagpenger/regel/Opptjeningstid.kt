@@ -1,8 +1,7 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.dato.førsteArbeidsdag
 import no.nav.dagpenger.opplysning.regel.dato.sisteAvsluttendeKalenderMåned
 import no.nav.dagpenger.opplysning.regel.oppslag
@@ -28,9 +27,8 @@ object Opptjeningstid {
         dato(SisteAvsluttendeKalenderMånedId, beskrivelse = "Siste avsluttende kalendermåned", behovId = SisteAvsluttendeKalenderMåned)
 
     val regelsett =
-        Regelsett(
+        fastsettelse(
             aOpplynsingsLoven.hjemmel(1, 2, "Frist for levering av opplysninger", "Opptjeningsperiode"),
-            RegelsettType.Fastsettelse,
         ) {
             skalKjøres { it.oppfyller(kravTilAlder) }
 

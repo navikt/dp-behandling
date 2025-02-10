@@ -13,7 +13,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.inntekt
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.dato.trekkFraMånedTilFørste
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -92,7 +92,7 @@ object Minsteinntekt {
     val minsteinntekt = boolsk(KravTilMinsteinntektId, "Oppfyller kravet til minsteinntekt")
 
     val regelsett =
-        Regelsett(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
+        vilkår(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
             skalKjøres { it.oppfyller(kravTilAlder) }
 
             regel(maksPeriodeLengde) { oppslag(prøvingsdato) { 36 } }

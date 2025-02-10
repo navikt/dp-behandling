@@ -3,8 +3,7 @@ package no.nav.dagpenger.regel.fastsetting
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.divisjon
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.høyesteAv
@@ -70,7 +69,8 @@ object SamordingUtenforFolketrygden {
     private val vartpenger = Opplysningstype.boolsk(mottarVartpengerId, "Mottar vartpenger")
     private val ventelønn = Opplysningstype.boolsk(mottarVentelønnId, "Mottar ventelønn")
     private val etterlønn = Opplysningstype.boolsk(mottarEtterlønnId, "Mottar etterlønn")
-    private val garantilottGFF = Opplysningstype.boolsk(mottarGarantilottId, "Mottar garantilott fra Garantikassen for fiskere.")
+    private val garantilottGFF =
+        Opplysningstype.boolsk(mottarGarantilottId, "Mottar garantilott fra Garantikassen for fiskere.")
 
     val pensjonFraOffentligTjenestepensjonsordningBeløp =
         Opplysningstype.beløp(
@@ -79,9 +79,13 @@ object SamordingUtenforFolketrygden {
             synlig = { it.erSann(pensjonFraOffentligTjenestepensjonsordning) },
         )
     val redusertUførepensjonBeløp =
-        Opplysningstype.beløp(beløpOffentligPensjonsordningId, "Uførepensjon fra offentlig pensjonsordning beløp", synlig = {
-            it.erSann(mottarRedusertUførepensjon)
-        })
+        Opplysningstype.beløp(
+            beløpOffentligPensjonsordningId,
+            "Uførepensjon fra offentlig pensjonsordning beløp",
+            synlig = {
+                it.erSann(mottarRedusertUførepensjon)
+            },
+        )
     val vartpengerBeløp =
         Opplysningstype.beløp(beløpVartpengerId, "Vartpenger beløp", synlig = { it.erSann(vartpenger) })
     val ventelønnBeløp =
@@ -144,7 +148,8 @@ object SamordingUtenforFolketrygden {
             beskrivelse = "Ukessats trukket ned for ytelser utenfor folketrygden",
             synlig = aldriSynlig,
         )
-    val samordnetUkessats = Opplysningstype.beløp(samordnetUkessatsMedFolketrygdenId, "Samordnet ukessats med ytelser utenfor folketrygden")
+    val samordnetUkessats =
+        Opplysningstype.beløp(samordnetUkessatsMedFolketrygdenId, "Samordnet ukessats med ytelser utenfor folketrygden")
     val dagsatsSamordnetUtenforFolketrygden =
         Opplysningstype.beløp(
             dagsatsSamordnetUtenforFolketrygdenId,
@@ -152,9 +157,13 @@ object SamordingUtenforFolketrygden {
         )
 
     val regelsett =
-        Regelsett(
-            folketrygden.hjemmel(4, 26, "Samordning med ytelser utenfor folketrygden", "Samordning utenfor folketrygden"),
-            RegelsettType.Fastsettelse,
+        fastsettelse(
+            folketrygden.hjemmel(
+                4,
+                26,
+                "Samordning med ytelser utenfor folketrygden",
+                "Samordning utenfor folketrygden",
+            ),
         ) {
             skalKjøres { kravPåDagpenger(it) }
 
@@ -215,7 +224,7 @@ object SamordingUtenforFolketrygden {
 
             relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
 
-            ønsketResultat = listOf(skalSamordnesUtenforFolketrygden, dagsatsSamordnetUtenforFolketrygden)
+            ønsketResultat(skalSamordnesUtenforFolketrygden, dagsatsSamordnetUtenforFolketrygden)
         }
 
     val YtelserUtenforFolketrygdenKontroll =

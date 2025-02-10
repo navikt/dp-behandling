@@ -1,12 +1,10 @@
 package no.nav.dagpenger.regel
 
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 
 object Meldeplikt {
     val regelsett =
-        Regelsett(
-            folketrygden.hjemmel(4, 8, "Meldeplikt og møteplikt", "Meldeplikt"),
-        ) {
+        vilkår(folketrygden.hjemmel(4, 8, "Meldeplikt og møteplikt", "Meldeplikt")) {
             skalKjøres { false }
             relevantHvis { false }
         }

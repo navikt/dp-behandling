@@ -3,8 +3,7 @@ package no.nav.dagpenger.regel.fastsetting
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallDagsatsForEgenandelId
@@ -19,9 +18,8 @@ object Egenandel {
     private val faktor = desimaltall(AntallDagsatsForEgenandelId, "Antall dagsats for egenandel", synlig = aldriSynlig)
 
     val regelsett =
-        Regelsett(
+        fastsettelse(
             folketrygden.hjemmel(4, 9, "Egenandel", "Egenandel"),
-            RegelsettType.Fastsettelse,
         ) {
             skalKjøres { kravPåDagpenger(it) }
 
@@ -30,6 +28,6 @@ object Egenandel {
 
             relevantHvis { kravPåDagpenger(it) }
 
-            ønsketResultat = listOf(egenandel)
+            ønsketResultat(egenandel)
         }
 }

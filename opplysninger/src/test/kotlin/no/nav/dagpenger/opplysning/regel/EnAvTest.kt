@@ -4,10 +4,10 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskA
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskB
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskC
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import org.junit.jupiter.api.Test
 
@@ -17,7 +17,7 @@ internal class EnAvTest {
         Regelkjøring(
             1.mai,
             opplysninger,
-            Regelsett("regelsett") {
+            vilkår("regelsett") {
                 regel(boolskB) { innhentes }
                 regel(boolskC) { innhentes }
                 regel(boolskA) { enAv(boolskB, boolskC) }

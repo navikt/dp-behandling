@@ -2,7 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
-import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erSann
@@ -28,7 +28,7 @@ object Opphold {
     val oppfyllerKravet = boolsk(OppfyllerKravetOppholdId, "Oppfyller kravet til opphold i Norge")
 
     val regelsett =
-        Regelsett(
+        vilkår(
             folketrygden.hjemmel(4, 2, "Opphold i Norge", "Opphold"),
         ) {
             skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }

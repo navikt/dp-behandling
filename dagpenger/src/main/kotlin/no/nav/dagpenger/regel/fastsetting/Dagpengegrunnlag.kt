@@ -6,8 +6,7 @@ import no.nav.dagpenger.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.opplysning.Opplysningsformål.Legacy
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType.Fastsettelse
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.avrund
 import no.nav.dagpenger.opplysning.regel.brukt
 import no.nav.dagpenger.opplysning.regel.divisjon
@@ -119,9 +118,8 @@ object Dagpengegrunnlag {
     val uavkortet36mnd = Opplysningstype.beløp(UavkortetGrunnlagSiste36MndId, "Uavkortet grunnlag siste 36 mnd", Legacy, aldriSynlig)
 
     val regelsett =
-        Regelsett(
+        fastsettelse(
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
-            Fastsettelse,
         ) {
             skalKjøres { kravPåDagpenger(it) }
 
@@ -194,16 +192,15 @@ object Dagpengegrunnlag {
 
             relevantHvis { it.erSann(kravTilAlder) }
 
-            this.ønsketResultat =
-                listOf(
-                    grunnlag,
-                    grunnbeløpForDagpengeGrunnlag,
-                    harAvkortet,
-                    bruktBeregningsregel,
-                    utbetaltArbeidsinntektPeriode1,
-                    utbetaltArbeidsinntektPeriode2,
-                    utbetaltArbeidsinntektPeriode3,
-                )
+            ønsketResultat(
+                grunnlag,
+                grunnbeløpForDagpengeGrunnlag,
+                harAvkortet,
+                bruktBeregningsregel,
+                utbetaltArbeidsinntektPeriode1,
+                utbetaltArbeidsinntektPeriode2,
+                utbetaltArbeidsinntektPeriode3,
+            )
         }
 }
 

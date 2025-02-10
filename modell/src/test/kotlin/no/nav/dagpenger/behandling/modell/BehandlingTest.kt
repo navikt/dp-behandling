@@ -20,8 +20,8 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.uuid.UUIDv7
@@ -201,7 +201,7 @@ private class SøknadInnsendtHendelse(
             }
 
     private val regelsett =
-        Regelsett("test") {
+        vilkår("test") {
             regel(opplysningstypeBehov) { innhentes }
             regel(opplysningstype) { enAv(opplysningstypeBehov) }
         }
