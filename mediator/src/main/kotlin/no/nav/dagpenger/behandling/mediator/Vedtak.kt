@@ -22,7 +22,6 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.KravPåDagpenger.kravPåDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
@@ -42,11 +41,6 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVerne
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import java.time.LocalDateTime
 import java.util.UUID
-
-private fun getRelevanteVilkår(opplysninger: LesbarOpplysninger): List<Regelsett> =
-    RegelverkDagpenger.regelsett
-        .filter { it.type == RegelsettType.Vilkår }
-        .filter { it.erRelevant(opplysninger) }
 
 private fun LesbarOpplysninger.samordninger(): List<SamordningDTO> {
     @Suppress("UNCHECKED_CAST")
@@ -94,7 +88,7 @@ fun lagVedtak(
     godkjentAv: Arbeidssteg,
     besluttetAv: Arbeidssteg,
 ): VedtakDTO {
-    val relevanteVilkår: List<Regelsett> = getRelevanteVilkår(opplysninger)
+    val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysninger)
     val vilkår =
         relevanteVilkår
             .associateWith { opplysninger.finnOpplysning(it.utfall!!) }

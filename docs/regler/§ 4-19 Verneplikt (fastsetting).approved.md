@@ -10,7 +10,7 @@ graph RL
   E["Periode som gis ved verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
   F["Fastsatt vanlig arbeidstid for verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
   G["Grunnlag for verneplikt hvis kravet ikke er oppfylt"] -->|"Oppslag"| B["Prøvingsdato"]
-  H["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| I["Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste"]
+  H["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| I["Oppfyller kravet til verneplikt"]
   H["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| C["Grunnlag for gis ved verneplikt"]
   H["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| G["Grunnlag for verneplikt hvis kravet ikke er oppfylt"]
   J["Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget"] -->|"StørreEnn"| H["Grunnlag for verneplikt hvis kravet er oppfylt"]

@@ -52,6 +52,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
@@ -103,8 +104,12 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 .toSet()
         val generelleAvklaringer = avklaringer.filterNot { it.kode in spesifikkeAvklaringskoder }
 
+        val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(lesbareOpplysninger)
+        val utfall = relevanteVilkår.mapNotNull { it.utfall }.all { lesbareOpplysninger.oppfyller(it) }
+
         BehandlingDTO(
             behandlingId = this.behandlingId,
+            utfall = utfall,
             tilstand =
                 when (this.tilstand().first) {
                     Behandling.TilstandType.UnderOpprettelse -> BehandlingDTO.Tilstand.UnderOpprettelse

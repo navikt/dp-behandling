@@ -226,5 +226,5 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9447-7e36-a569-3e9f42bff9f7|Oppfyller krav til ikke utestengt|Oppfyller krav til ikke utestengt|Boolsk|boolean|
 |0194881f-9462-78af-8977-46092bb030eb|fagsakId|fagsakId|Heltall|int|
 |01948d3c-4bea-7802-9d18-5342a5e2be99|Avtjent verneplikt|Verneplikt|Boolsk|boolean|
-|01948d43-e218-76f1-b29b-7e604241d98a|Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste|Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste|Boolsk|boolean|
+|01948d43-e218-76f1-b29b-7e604241d98a|Oppfyller kravet til verneplikt|Oppfyller kravet til verneplikt|Boolsk|boolean|
 |0194929e-2036-7ac1-ada3-5cbe05a83f08|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Boolsk|boolean|
