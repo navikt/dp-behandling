@@ -204,7 +204,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9443-72b4-8b30-5f6cdb24d54d|Oppfyller kravet til medlemskap|Oppfyller kravet til medlemskap|Boolsk|boolean|
 |0194881f-9443-72b4-8b30-5f6cdb24d54e|Oppfyller kravet til opphold i Norge|Oppfyller kravet til opphold i Norge|Boolsk|boolean|
 |0194881f-9444-7a73-a458-0af81c034d85|Har rett til ordinære dagpenger gjennom arbeidsforhold|Ordinær|Boolsk|boolean|
-|0194881f-9444-7a73-a458-0af81c034d86|Har rett til dagpenger under permittering|Permittert|Boolsk|boolean|
+|0194881f-9444-7a73-a458-0af81c034d86|Bruker er permittert|Permittert|Boolsk|boolean|
 |0194881f-9444-7a73-a458-0af81c034d87|Har rett til dagpenger etter konkurs|Lønnsgaranti|Boolsk|boolean|
 |0194881f-9444-7a73-a458-0af81c034d88|Har rett til dagpenger under permittering i fiskeforedlingsindustri|PermittertFiskeforedling|Boolsk|boolean|
 |0194881f-9444-7a73-a458-0af81c034d89|Har rett til ordinære dagpenger uten arbeidsforhold|Har rett til ordinære dagpenger uten arbeidsforhold|Boolsk|boolean|

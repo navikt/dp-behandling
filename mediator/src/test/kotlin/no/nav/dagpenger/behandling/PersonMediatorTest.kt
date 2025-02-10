@@ -178,10 +178,25 @@ internal class PersonMediatorTest {
 
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
-                it.behandlinger().size shouldBe 1
+                it
+                    .behandlinger()
+                    .first()
+                    .aktivAvklaringer.size shouldBe 1
             }
 
-            rapid.harHendelse("vedtak_fattet") {
+            testPerson.markerAvklaringerIkkeRelevant(åpneAvklaringer())
+
+            personRepository.hent(ident.tilPersonIdentfikator()).also {
+                it.shouldNotBeNull()
+                it.behandlinger().size shouldBe 1
+
+                it
+                    .behandlinger()
+                    .first()
+                    .aktivAvklaringer.size shouldBe 0
+            }
+
+            rapid.harHendelse("vedtak_fattet", offset = 2) {
                 medMeldingsInnhold("fastsatt") {
                     medBoolsk("utfall") shouldBe false
                 }
@@ -208,7 +223,7 @@ internal class PersonMediatorTest {
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
                 it.behandlinger().size shouldBe 1
-                it.aktivBehandling.aktivAvklaringer.shouldHaveSize(6)
+                it.aktivBehandling.aktivAvklaringer.shouldHaveSize(7)
             }
 
             godkjennOpplysninger("avslag")
@@ -252,7 +267,7 @@ internal class PersonMediatorTest {
                 }
             }
 
-            rapid.inspektør.size shouldBe 23
+            rapid.inspektør.size shouldBe 25
 
             testObservatør.tilstandsendringer.size shouldBe 3
 
@@ -287,7 +302,7 @@ internal class PersonMediatorTest {
             }
 
             // TODO: Beregningsmetode for tapt arbeidstid har defaultverdi for testing av innvilgelse og derfor mangler avklaringen
-            rapid.inspektør.size shouldBe 20
+            rapid.inspektør.size shouldBe 21
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
@@ -433,13 +448,13 @@ internal class PersonMediatorTest {
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
             rapid.harHendelse("forslag_til_vedtak") {
-                åpneAvklaringer().values shouldHaveSize 6
+                åpneAvklaringer().values shouldHaveSize 7
             }
             rapid.inspektør.size shouldBe
                 listOf(
                     "opprettet" to 1,
                     "behov" to 5,
-                    "avklaring" to 6,
+                    "avklaring" to 7,
                     "forslag" to 1,
                     "event" to 2,
                 ).sumOf { it.second }
@@ -467,7 +482,7 @@ internal class PersonMediatorTest {
                 medTekst("søknadId") shouldBe testPerson.søknadId
             }
 
-            rapid.inspektør.size shouldBe 5
+            rapid.inspektør.size shouldBe 6
         }
 
     @Test
@@ -495,6 +510,7 @@ internal class PersonMediatorTest {
                     "MuligGjenopptak",
                     "SvangerskapsrelaterteSykepenger",
                     "ØnskerEtterRapporteringsfrist",
+                    "HarTilleggsopplysninger",
                 ),
             )
         }
@@ -523,6 +539,7 @@ internal class PersonMediatorTest {
                     "JobbetUtenforNorge",
                     "MuligGjenopptak",
                     "SvangerskapsrelaterteSykepenger",
+                    "HarTilleggsopplysninger",
                 ),
             )
         }
@@ -552,6 +569,7 @@ internal class PersonMediatorTest {
                     "SvangerskapsrelaterteSykepenger",
                     "SøknadstidspunktForLangtFramITid",
                     "ØnskerEtterRapporteringsfrist",
+                    "HarTilleggsopplysninger",
                 ),
             )
         }
@@ -666,8 +684,9 @@ internal class PersonMediatorTest {
             val person = TestPerson(ident, rapid)
 
             person.sendSøknad()
+            person.markerAvklaringerIkkeRelevant(åpneAvklaringer())
 
-            rapid.inspektør.message(0).run {
+            rapid.inspektør.message(1).run {
                 this["@event_name"].asText() shouldBe "behandling_endret_tilstand"
                 this["ident"].asText() shouldBe ident
                 this["forrigeTilstand"].asText() shouldBe UnderOpprettelse.name

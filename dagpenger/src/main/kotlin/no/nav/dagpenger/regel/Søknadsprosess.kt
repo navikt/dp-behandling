@@ -79,6 +79,7 @@ class Søknadsprosess : Forretningsprosess {
             ønsketResultat.addAll(Samordning.ønsketResultat)
             ønsketResultat.addAll(SamordingUtenforFolketrygden.ønsketResultat)
             ønsketResultat.addAll(VernepliktFastsetting.ønsketResultat)
+            // ønsketResultat.add(oppfyllerKravetTilPermittering)
         }
 
         ønsketResultat.add(KravPåDagpenger.kravPåDagpenger)

@@ -190,8 +190,7 @@ internal class BehandlingApiTest {
             avklaringer = avklaringer,
         )
 
-    private val person =
-        Person(ident.tilPersonIdentfikator(), listOf(behandling))
+    private val person = Person(ident.tilPersonIdentfikator(), listOf(behandling))
 
     private val personRepository =
         InMemoryPersonRepository().also {
@@ -333,11 +332,7 @@ internal class BehandlingApiTest {
             val behandling = person.behandlinger().first()
             val behandlingId = behandling.behandlingId
 
-            val opplysning =
-                behandling
-                    .opplysninger()
-                    .finnAlle()
-                    .single { it.opplysningstype.navn == "Søknadsdato" }
+            val opplysning = behandling.opplysninger().finnAlle().single { it.opplysningstype.navn == "Søknadsdato" }
             autentisert(
                 httpMethod = HttpMethod.Put,
                 endepunkt = "/behandling/$behandlingId/vurderinger/${opplysning.kilde?.id}",

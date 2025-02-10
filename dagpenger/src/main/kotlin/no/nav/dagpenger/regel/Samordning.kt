@@ -10,7 +10,6 @@ import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
-import no.nav.dagpenger.opplysning.regel.substraksjon
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Behov.Foreldrepenger
@@ -144,7 +143,7 @@ object Samordning {
             regel(uføre) { oppslag(prøvingsdato) { false } }
 
             regel(samordnetArbeidstid) { oppslag(prøvingsdato) { 0.0 } }
-            regel(samordnetBeregnetArbeidstid) { substraksjon(beregnetArbeidstid, samordnetArbeidstid) }
+            regel(samordnetBeregnetArbeidstid) { substraksjonTilNull(beregnetArbeidstid, samordnetArbeidstid) }
 
             regel(sykepengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
             regel(pleiepengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }

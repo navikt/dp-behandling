@@ -35,6 +35,7 @@ internal class VaktmesterPostgresRepo {
                 "0193ca27-38f1-7887-a8f1-7e767d652cb4",
                 "019368a2-a33b-7c91-8579-4334ca134884",
                 "01934fc6-09c4-711c-8da1-21e331aeec54",
+                "01944fe4-e98b-7d9a-8933-6fbeda345708",
             )
     }
 

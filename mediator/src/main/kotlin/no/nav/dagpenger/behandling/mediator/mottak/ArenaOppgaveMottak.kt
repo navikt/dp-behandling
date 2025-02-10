@@ -88,6 +88,15 @@ internal class ArenaOppgaveMottak(
                 return
             }
 
+            if (packet["after.USERNAME"].asText().length != 4) {
+                logger.info { "Oppgaven er ikke tildelt en benk. Nå burde den blitt avbrutt." }
+            } else {
+                if (packet["before.USERNAME"].asText() != packet["after.USERNAME"].asText()) {
+                    logger.info { "Oppgaven har endret benk. Dette burde vært fanget opp og avbrutt" }
+                    return
+                }
+            }
+
             if (packet["before.USERNAME"].asText() == packet["after.USERNAME"].asText()) {
                 logger.info { "Oppgaven må endre benk før vi avbryter" }
                 return

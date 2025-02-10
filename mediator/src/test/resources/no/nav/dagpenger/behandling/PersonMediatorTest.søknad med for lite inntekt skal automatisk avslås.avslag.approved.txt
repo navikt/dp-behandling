@@ -4,7 +4,7 @@ Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
 Har rett til ordinære dagpenger gjennom arbeidsforhold
-Har rett til dagpenger under permittering
+Bruker er permittert
 Har rett til dagpenger etter konkurs
 Har rett til dagpenger under permittering i fiskeforedlingsindustri
 Har rett til ordinære dagpenger uten arbeidsforhold

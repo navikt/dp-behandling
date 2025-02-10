@@ -18,6 +18,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteDagIMånedId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteMånedId
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 
 object Alderskrav {
@@ -59,4 +60,6 @@ object Alderskrav {
 
             søknadsdato.minusYears(18).isBefore(fødselsdato)
         }
+
+    val TilleggsopplysningsKontroll = Kontrollpunkt(Avklaringspunkter.HarTilleggsopplysninger) { it.har(søknadIdOpplysningstype) }
 }

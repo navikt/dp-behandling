@@ -33,9 +33,8 @@ import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.lagVedtak
-import no.nav.dagpenger.behandling.mediator.repository.KildeRepository
+import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
-import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.ForslagTilVedtak
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Redigert
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
@@ -66,7 +65,7 @@ import java.util.UUID
 
 private val logger = KotlinLogging.logger { }
 
-private val kildeRepository = KildeRepository()
+private val apiRepositoryPostgres = ApiRepositoryPostgres()
 
 internal fun Application.behandlingApi(
     personRepository: PersonRepository,
@@ -293,6 +292,8 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
                             }
 
+                            logger.info { "Mottok en endring i behandling" }
+
                             val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
                             val svar =
                                 OpplysningsSvar(
@@ -304,29 +305,16 @@ internal fun Application.behandlingApi(
                                     call.saksbehandlerId(),
                                 )
 
-                            messageContext(behandling.behandler.ident).publish(svar.toJson())
-                            auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
-
-                            logger.info { "Venter på endring i behandling" }
-                            ventPåBehandling(personRepository, behandlingId) {
-                                sjekkAt("opplysningen fjernes") {
-                                    runCatching { opplysninger().finnOpplysning(opplysningId) }.isFailure
-                                }
-                                sjekkAt("opplysningen er lagt til") {
-                                    runCatching { opplysninger().finnOpplysning(opplysning.opplysningstype) }.isSuccess
-                                }
-                                sjekkAt("behandlingen er i riktig tilstand") {
-                                    harTilstand(ForslagTilVedtak) || harTilstand(TilGodkjenning)
-                                }
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
+                                logger.info { "Starter en endring i behandling" }
+                                messageContext(behandling.behandler.ident).publish(svar.toJson())
+                                auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
+                                logger.info { "Venter på endring i behandling" }
                             }
+
                             logger.info { "Svarer med at opplysning er oppdatert" }
 
-                            call.respond(
-                                HttpStatusCode.OK,
-                                KvitteringDTO(
-                                    behandlingId = behandlingId,
-                                ),
-                            )
+                            call.respond(HttpStatusCode.OK, KvitteringDTO(behandlingId))
                         }
                     }
 

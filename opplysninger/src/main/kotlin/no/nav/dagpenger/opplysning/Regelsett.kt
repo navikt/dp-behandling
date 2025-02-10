@@ -2,39 +2,11 @@ package no.nav.dagpenger.opplysning
 
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
-import java.net.URI
 import java.time.LocalDate
 
 enum class RegelsettType {
     Vilkår,
     Fastsettelse,
-}
-
-data class Lovkilde(
-    val navn: String,
-    val kortnavn: String,
-    val url: URI? = null,
-) {
-    fun hjemmel(
-        kapittel: Int,
-        paragraf: Int,
-        tittel: String,
-        kortnavn: String,
-    ) = Hjemmel(this, kapittel, paragraf, tittel, kortnavn)
-
-    override fun toString() = kortnavn
-}
-
-data class Hjemmel(
-    val kilde: Lovkilde,
-    val kapittel: Int,
-    val paragraf: Int,
-    val tittel: String,
-    val kortnavn: String,
-) {
-    val url = kilde.url?.resolve("§$kapittel-$paragraf")
-
-    override fun toString() = "§ $kapittel-$paragraf. $tittel"
 }
 
 class Regelsett(

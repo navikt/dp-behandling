@@ -628,6 +628,23 @@ class Behandling private constructor(
             }
             hendelse.lagBehov(rapport.informasjonsbehov)
         }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: AvklaringIkkeRelevantHendelse,
+        ) {
+            hendelse.kontekst(this)
+            if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
+                hendelse.info("Avklaring er ikke lenger relevant")
+                hendelse.hendelse(
+                    AvklaringLukketHendelse,
+                    "Avklaring ikke lenger relevant",
+                    mapOf(
+                        "avklaringId" to hendelse.avklaringId,
+                    ),
+                )
+            }
+        }
     }
 
     private data class Avbrutt(

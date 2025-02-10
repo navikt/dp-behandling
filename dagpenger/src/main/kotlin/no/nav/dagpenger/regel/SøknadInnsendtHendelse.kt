@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
+import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
 import no.nav.dagpenger.regel.KravPåDagpenger.VirkningstidspunktForLangtFramITid
@@ -21,6 +22,7 @@ import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.SvangerskapsrelaterteSykepengerKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.ØnskerEtterRapporteringsfristKontroll
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
+import no.nav.dagpenger.regel.Permittering.PermitteringKontroll
 import no.nav.dagpenger.regel.ReellArbeidssøker.IkkeRegistrertSomArbeidsøkerKontroll
 import no.nav.dagpenger.regel.ReellArbeidssøker.ReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
@@ -99,6 +101,8 @@ class SøknadInnsendtHendelse(
             VirkningstidspunktForLangtFramITid,
             YtelserUtenforFolketrygdenKontroll,
             ØnskerEtterRapporteringsfristKontroll,
+            PermitteringKontroll,
+            TilleggsopplysningsKontroll,
         )
 
     companion object {
