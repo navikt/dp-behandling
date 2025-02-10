@@ -21,7 +21,7 @@ object Verneplikt {
     val oppfyllerKravetTilVerneplikt =
         boolsk(
             oppfyllerKravetTilVernepliktId,
-            "Har utført minst tre måneders militærtjeneste eller obligatorisk sivilforsvarstjeneste",
+            "Oppfyller kravet til verneplikt",
         )
 
     val regelsett =
