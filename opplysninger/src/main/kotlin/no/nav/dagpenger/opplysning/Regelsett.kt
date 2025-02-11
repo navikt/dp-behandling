@@ -15,7 +15,7 @@ class Regelsett internal constructor(
     private val ønsketResultat: List<Opplysningstype<*>>,
     private val regler: Map<Opplysningstype<*>, TemporalCollection<Regel<*>>>,
     val avklaringer: Set<Avklaringkode>,
-    val utfall: Opplysningstype<Boolean>?,
+    val utfall: List<Opplysningstype<Boolean>>,
     val skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean,
     val erRelevant: (opplysninger: LesbarOpplysninger) -> Boolean,
 ) {
@@ -23,7 +23,7 @@ class Regelsett internal constructor(
 
     // Hvilke opplysninger dette regelsettet definerer til vedtak
     val ønsketInformasjon: List<Opplysningstype<*>>
-        get() = listOfNotNull(utfall) + ønsketResultat
+        get() = utfall + ønsketResultat
 
     // Hvilke opplysninger dette regelsettet produserer
     val produserer: Set<Opplysningstype<*>> by lazy { regler.map { it.key }.toSet() }

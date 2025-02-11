@@ -35,10 +35,10 @@ object Opphold {
 
             regel(oppholdINorge) { oppslag(prøvingsdato) { true } }
             regel(unntakForOpphold) { oppslag(prøvingsdato) { false } }
-            regel(oppfyllerKravetTilOpphold) { enAv(oppholdINorge, unntakForOpphold) }
+            utfall(oppfyllerKravetTilOpphold) { enAv(oppholdINorge, unntakForOpphold) }
 
             regel(medlemFolketrygden) { oppslag(prøvingsdato) { true } }
-            regel(oppfyllerMedlemskap) { erSann(medlemFolketrygden) }
+            utfall(oppfyllerMedlemskap) { erSann(medlemFolketrygden) }
 
             utfall(oppfyllerKravet) { alle(oppfyllerKravetTilOpphold, oppfyllerMedlemskap) }
 

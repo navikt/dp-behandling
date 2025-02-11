@@ -67,10 +67,10 @@ Mottar ikke andre fulle ytelser
 Opphold i Norge
 Oppfyller unntak for opphold i Norge
 Er personen medlem av folketrygden
-Minimum vanlig arbeidstid
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søk arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
+Minimum vanlig arbeidstid
 Mottar pensjon fra en offentlig tjenestepensjonsordning
 Mottar redusert uførepensjon fra offentlig pensjonsordning
 Mottar vartpenger
@@ -114,10 +114,10 @@ Terskel for 12 måneder
 Terskel for 36 måneder
 Oppfyller kravet til opphold i Norge eller unntak
 Oppfyller kravet til medlemskap
-Villig til å jobbe minimum arbeidstid
 Oppfyller kravet til heltid- og deltidsarbeid
 Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
+Villig til å jobbe minimum arbeidstid
 Har barnetillegg
 Er medlemmet ikke påvirket av streik eller lock-out?
 Ikke krav på lønn fra tidligere arbeidsgiver

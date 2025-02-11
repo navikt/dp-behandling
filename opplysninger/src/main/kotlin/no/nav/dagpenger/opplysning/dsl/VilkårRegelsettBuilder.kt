@@ -10,7 +10,7 @@ import java.time.LocalDate
 class VilkårRegelsettBuilder internal constructor(
     hjemmel: Hjemmel,
 ) : RegelsettBuilderBase(hjemmel, RegelsettType.Vilkår) {
-    private var utfall: Opplysningstype<Boolean>? = null
+    private var utfall: MutableList<Opplysningstype<Boolean>> = mutableListOf()
     private val ønsketResultat: MutableList<Opplysningstype<*>> = mutableListOf()
 
     // TODO: Dette trengs kun av samordning. Kan vi endre noe her?
@@ -24,7 +24,7 @@ class VilkårRegelsettBuilder internal constructor(
         block: Opplysningstype<Boolean>.() -> Regel<*>,
     ) {
         regel(produserer, gjelderFraOgMed, block)
-        utfall = produserer
+        utfall.add(produserer)
     }
 
     override fun build() =

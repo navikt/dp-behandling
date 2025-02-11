@@ -105,7 +105,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
         val generelleAvklaringer = avklaringer.filterNot { it.kode in spesifikkeAvklaringskoder }
 
         val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(lesbareOpplysninger)
-        val utfall = relevanteVilkår.mapNotNull { it.utfall }.all { lesbareOpplysninger.oppfyller(it) }
+        val utfall = relevanteVilkår.flatMap { it.utfall }.all { lesbareOpplysninger.oppfyller(it) }
 
         BehandlingDTO(
             behandlingId = this.behandlingId,
@@ -173,8 +173,8 @@ private fun Regelsett.tilRegelsettDTO(
 
     val egneAvklaringer = avklaringer.filter { it.kode in this.avklaringer }
 
-    val opplysningMedUtfall = opplysninger.singleOrNull { it.opplysningstype == utfall }
-    var status = tilStatus(opplysningMedUtfall?.verdi as Boolean?)
+    val opplysningMedUtfall = opplysninger.filterIsInstance<Opplysning<Boolean>>().filter { utfall.contains(it.opplysningstype) }
+    var status = tilStatus(opplysningMedUtfall)
 
     if (egneAvklaringer.any { it.måAvklares() }) {
         status = RegelsettDTO.Status.HarAvklaring
@@ -199,10 +199,10 @@ private fun Regelsett.tilRegelsettDTO(
     )
 }
 
-private fun tilStatus(utfall: Boolean?): RegelsettDTO.Status {
-    if (utfall == null) return RegelsettDTO.Status.Info
+private fun tilStatus(utfall: List<Opplysning<Boolean>>): RegelsettDTO.Status {
+    if (utfall.isEmpty()) return RegelsettDTO.Status.Info
 
-    return if (utfall) {
+    return if (utfall.all { it.verdi }) {
         RegelsettDTO.Status.Oppfylt
     } else {
         RegelsettDTO.Status.IkkeOppfylt

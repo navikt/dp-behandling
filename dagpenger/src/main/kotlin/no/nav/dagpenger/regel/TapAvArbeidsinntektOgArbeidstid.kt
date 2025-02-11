@@ -108,7 +108,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(tapAvArbeid) { oppslag(prøvingsdato) { true } } // TODO: Satt til true for testing av innvilgelse
             regel(kravPåLønn) { oppslag(prøvingsdato) { false } }
             regel(ikkeKravPåLønn) { ikke(kravPåLønn) }
-            regel(kravTilTapAvArbeidsinntekt) { alle(tapAvArbeid, ikkeKravPåLønn) }
+            utfall(kravTilTapAvArbeidsinntekt) { alle(tapAvArbeid, ikkeKravPåLønn) }
 
             regel(kravTilArbeidstidsreduksjon) { oppslag(prøvingsdato) { 50.0 } } // Perm og sånt har andre terskelverdier
 
@@ -128,7 +128,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(nyArbeidstid) { oppslag(prøvingsdato) { 0.0 } }
             regel(maksimalVanligArbeidstid) { oppslag(prøvingsdato) { 40.0 } }
 
-            regel(kravTilTaptArbeidstid) { prosentTerskel(nyArbeidstid, fastsattVanligArbeidstid, kravTilArbeidstidsreduksjon) }
+            utfall(kravTilTaptArbeidstid) { prosentTerskel(nyArbeidstid, fastsattVanligArbeidstid, kravTilArbeidstidsreduksjon) }
 
             regel(beregningsregel) { enAv(beregningsregel6mnd, beregningsregel12mnd, beregningsregel36mnd) }
 

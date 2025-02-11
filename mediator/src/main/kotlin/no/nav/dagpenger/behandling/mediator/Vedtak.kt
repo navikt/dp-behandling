@@ -89,10 +89,18 @@ fun lagVedtak(
     besluttetAv: Arbeidssteg,
 ): VedtakDTO {
     val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysninger)
-    val vilkår =
+    val vilkår: List<VilkaarDTO> =
         relevanteVilkår
-            .associateWith { opplysninger.finnOpplysning(it.utfall!!) }
-            .map { it.value.tilVilkårDTO(it.key.hjemmel.toString()) }
+            .flatMap { regelsett ->
+                regelsett.utfall
+                    .map {
+                        it to regelsett.hjemmel
+                    }
+            }.toMap()
+            .map {
+                val opplysning = opplysninger.finnOpplysning(it.key)
+                opplysning.tilVilkårDTO(it.value.toString())
+            }
 
     val utfall = vilkår.all { it.status == VilkaarDTO.Status.Oppfylt }
     logger.info {
