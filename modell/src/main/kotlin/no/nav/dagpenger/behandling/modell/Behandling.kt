@@ -802,15 +802,13 @@ class Behandling private constructor(
             hendelse: GodkjennBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
+            behandling.godkjent.utførtAv(hendelse.godkjentAv)
             if (!behandling.behandler.kreverTotrinnskontroll(behandling.opplysninger)) {
                 hendelse.info("Ble godkjent, men krever ikke totrinnskontroll")
                 behandling.tilstand(Ferdig(), hendelse)
             }
 
             hendelse.info("Ble godkjent og krever totrinnskontroll")
-
-            behandling.godkjent.utførtAv(hendelse.godkjentAv)
-
             // Om behandlingen ikke krever totrinnskontroller vi ferdige
             if (!behandling.behandler.kreverTotrinnskontroll(behandling.opplysninger)) {
                 return behandling.tilstand(Ferdig(), hendelse)

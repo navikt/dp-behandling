@@ -461,6 +461,54 @@ internal class PersonMediatorTest {
         }
 
     @Test
+    fun `Avslag som godkjennes bør ha saksbehandler`() {
+        withMigratedDb {
+            registrerOpplysningstyper()
+            registrerOpplysningstyper()
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = 6.mai(2021),
+                )
+
+            løsBehandlingFramTilMinsteinntekt(testPerson)
+
+            rapid.harHendelse("forslag_til_vedtak") {
+                åpneAvklaringer().values shouldHaveSize 7
+            }
+
+            val saksbehandler =
+                TestSaksbehandler(
+                    testPerson,
+                    hendelseMediator,
+                    personRepository,
+                    rapid,
+                )
+            saksbehandler.lukkAlleAvklaringer()
+
+            personRepository.hent(ident.tilPersonIdentfikator()).also {
+                it.shouldNotBeNull()
+                it
+                    .behandlinger()
+                    .first()
+                    .tilstand()
+                    .first shouldBe Behandling.TilstandType.TilGodkjenning
+            }
+
+            saksbehandler.godkjenn()
+
+            rapid.harHendelse("vedtak_fattet") {
+                medBoolsk("automatisk") shouldBe false
+                medNode("behandletAv")
+                    .map {
+                        it["behandler"]["ident"].asText()
+                    }.shouldContainExactlyInAnyOrder("NAV123123")
+            }
+        }
+    }
+
+    @Test
     fun `e2e av søknad som blir avbrutt `() =
         withMigratedDb {
             registrerOpplysningstyper()
