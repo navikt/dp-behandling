@@ -4,7 +4,7 @@ kafka:
 
 gcp:
   sql:
-    tier: db-custom-1-3840
+    tier: db-custom-2-7680
 
 azure:
   tenant: nav.no
