@@ -75,7 +75,11 @@ class Behandling private constructor(
     private val opplysninger: Opplysninger =
         (gjeldendeOpplysninger + tidligereOpplysninger)
 
-    private val regelkjøring: Regelkjøring get() = behandler.regelkjøring(opplysninger)
+    private val regelkjøring: Regelkjøring
+        get() =
+            behandler.regelkjøring(opplysninger).apply {
+                registrer(avklaringer)
+            }
 
     private val kontrollpunkter =
         when (tilstand) {
@@ -83,16 +87,17 @@ class Behandling private constructor(
             is Ferdig -> emptyList()
             else -> behandler.kontrollpunkter()
         }
+
     private val avklaringer = Avklaringer(kontrollpunkter, avklaringer)
 
-    fun avklaringer() = avklaringer.avklaringer(opplysninger.forDato(behandler.prøvingsdato(opplysninger)))
+    fun avklaringer() = avklaringer.avklaringer()
+
+    fun aktiveAvklaringer() = avklaringer.måAvklares()
 
     fun erAutomatiskBehandlet() =
         avklaringer().none { it.løstAvSaksbehandler() } &&
             opplysninger().finnAlle().none { it.kilde is Saksbehandlerkilde } &&
             !godkjent.erUtført
-
-    fun aktiveAvklaringer() = avklaringer.måAvklares(opplysninger.forDato(behandler.prøvingsdato(opplysninger)))
 
     fun kreverTotrinnskontroll() = behandler.kreverTotrinnskontroll(opplysninger)
 

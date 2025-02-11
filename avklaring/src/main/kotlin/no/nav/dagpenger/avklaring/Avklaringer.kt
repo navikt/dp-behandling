@@ -3,18 +3,41 @@ package no.nav.dagpenger.avklaring
 import no.nav.dagpenger.avklaring.Kontrollpunkt.Kontrollresultat.KreverAvklaring
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.RegelkjøringObserver
+import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import java.util.UUID
 
 class Avklaringer(
     private val kontrollpunkter: List<Kontrollpunkt>,
     avklaringer: List<Avklaring> = emptyList(),
-) {
+) : RegelkjøringObserver {
     internal val avklaringer = avklaringer.toMutableSet()
 
-    fun avklaringer(opplysninger: LesbarOpplysninger) = vurderAvklaringer(opplysninger)
+    fun avklaringer() = avklaringer
 
-    fun måAvklares(opplysninger: LesbarOpplysninger) = vurderAvklaringer(opplysninger).filter { it.måAvklares() }
+    fun måAvklares() = avklaringer.filter { it.måAvklares() }
+
+    override fun evaluert(
+        rapport: Regelkjøringsrapport,
+        opplysninger: Opplysninger,
+    ) {
+        vurderAvklaringer(opplysninger)
+    }
+
+    fun gjenåpne(avklaringId: UUID): Boolean = avklaringer.find { it.id == avklaringId }?.gjenåpne() ?: false
+
+    fun avklar(
+        avklaringId: UUID,
+        kilde: Kilde,
+    ): Boolean = avklaringer.find { it.id == avklaringId }?.avklar(kilde) ?: false
+
+    fun kvitter(
+        avklaringId: UUID,
+        kilde: Saksbehandlerkilde,
+        begrunnelse: String,
+    ): Boolean = avklaringer.find { it.id == avklaringId }?.kvitter(kilde, begrunnelse) ?: false
 
     private fun vurderAvklaringer(opplysninger: LesbarOpplysninger): List<Avklaring> {
         val aktiveAvklaringer: List<KreverAvklaring> =
@@ -42,17 +65,4 @@ class Avklaringer(
 
         return avklaringer.toList()
     }
-
-    fun gjenåpne(avklaringId: UUID): Boolean = avklaringer.find { it.id == avklaringId }?.gjenåpne() ?: false
-
-    fun avklar(
-        avklaringId: UUID,
-        kilde: Kilde,
-    ): Boolean = avklaringer.find { it.id == avklaringId }?.avklar(kilde) ?: false
-
-    fun kvitter(
-        avklaringId: UUID,
-        kilde: Saksbehandlerkilde,
-        begrunnelse: String,
-    ): Boolean = avklaringer.find { it.id == avklaringId }?.kvitter(kilde, begrunnelse) ?: false
 }

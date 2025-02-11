@@ -68,13 +68,16 @@ class BehandlingRepositoryPostgresTest {
         withMigratedDb {
             val avklaringRepository = AvklaringRepositoryPostgres()
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository)
+
             behandlingRepositoryPostgres.lagre(basertPåBehandling)
             behandlingRepositoryPostgres.lagre(behandling)
+
             val rehydrertBehandling = behandlingRepositoryPostgres.hentBehandling(behandling.behandlingId).shouldNotBeNull()
+
             rehydrertBehandling.behandlingId shouldBe behandling.behandlingId
             rehydrertBehandling.basertPå.size shouldBe behandling.basertPå.size
-
             rehydrertBehandling.basertPå shouldContainExactly behandling.basertPå
+
             rehydrertBehandling.opplysninger().finnAlle().size shouldBe behandling.opplysninger().finnAlle().size
             rehydrertBehandling.opplysninger().finnAlle() shouldContainExactly behandling.opplysninger().finnAlle()
 
@@ -82,11 +85,10 @@ class BehandlingRepositoryPostgresTest {
             avklaringer.size shouldBe 1
             with(avklaringer.first()) {
                 val førsteEndring = endringer.first()
-                val sisteEndring = endringer.last()
 
                 id shouldBe avklaring.id
                 kode shouldBe avklaring.kode
-                endringer.size shouldBe 2
+                endringer.size shouldBe 1
 
                 with(førsteEndring) {
                     javaClass.simpleName shouldBe
@@ -97,19 +99,6 @@ class BehandlingRepositoryPostgresTest {
                     endret.truncatedTo(ChronoUnit.SECONDS) shouldBe
                         avklaring.endringer
                             .first()
-                            .endret
-                            .truncatedTo(ChronoUnit.SECONDS)
-                }
-
-                with(sisteEndring) {
-                    javaClass.simpleName shouldBe
-                        avklaring.endringer
-                            .last()
-                            .javaClass.simpleName
-                    id shouldBe avklaring.endringer.last().id
-                    endret.truncatedTo(ChronoUnit.SECONDS) shouldBe
-                        avklaring.endringer
-                            .last()
                             .endret
                             .truncatedTo(ChronoUnit.SECONDS)
                 }

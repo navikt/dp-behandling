@@ -39,10 +39,6 @@ class Regelkjøring(
     private val opplysninger: Opplysninger,
     private val forretningsprosess: Forretningsprosess,
 ) {
-    companion object {
-        private val logger = KotlinLogging.logger { }
-    }
-
     constructor(regelverksdato: LocalDate, opplysninger: Opplysninger, vararg regelsett: Regelsett) : this(
         regelverksdato,
         regelverksdato,
@@ -68,6 +64,12 @@ class Regelkjøring(
         opplysninger,
         Regelsettprosess(regelsett.toList(), ønskerResultat),
     )
+
+    companion object {
+        private val logger = KotlinLogging.logger { }
+    }
+
+    private val observers: MutableSet<RegelkjøringObserver> = mutableSetOf()
 
     private val regelsett get() = forretningsprosess.regelsett()
     private val alleRegler get() = regelsett.flatMap { it.regler(regelverksdato) }
@@ -95,6 +97,10 @@ class Regelkjøring(
         }
     }
 
+    fun registrer(observer: RegelkjøringObserver) {
+        observers.add(observer)
+    }
+
     fun evaluer(): Regelkjøringsrapport {
         aktiverRegler()
         while (plan.isNotEmpty()) {
@@ -111,7 +117,9 @@ class Regelkjøring(
             mangler = trenger(),
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
-        )
+        ).also { rapport ->
+            observers.forEach { observer -> observer.evaluert(rapport, opplysninger) }
+        }
     }
 
     private fun aktiverRegler() {
@@ -184,4 +192,11 @@ data class Regelkjøringsrapport(
     fun manglerOpplysninger(): Boolean = mangler.isNotEmpty()
 
     fun erFerdig(): Boolean = !manglerOpplysninger()
+}
+
+interface RegelkjøringObserver {
+    fun evaluert(
+        rapport: Regelkjøringsrapport,
+        opplysninger: Opplysninger,
+    )
 }

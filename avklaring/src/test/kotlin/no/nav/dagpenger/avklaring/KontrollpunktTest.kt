@@ -65,13 +65,13 @@ class KontrollpunktTest {
                 },
             )
 
+        val ding = Avklaringer(kontrollpunkter)
         val opplysninger = Opplysninger()
-        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger)
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.registrer(ding) }
         opplysninger.leggTil(getOpplysning(321))
         regelkjøring.evaluer()
 
-        val ding = Avklaringer(kontrollpunkter)
-        ding.måAvklares(opplysninger).also { avklaringer ->
+        ding.måAvklares().also { avklaringer ->
             avklaringer.size shouldBe 1
             avklaringer.all { it.måAvklares() } shouldBe true
             avklaringer.all { it.kode == TestIkke123 } shouldBe true
@@ -80,7 +80,7 @@ class KontrollpunktTest {
         // Saksbehandler endrer opplysningen
         opplysninger.leggTil(getOpplysning(123) as Opplysning<*>).also { regelkjøring.evaluer() }
 
-        ding.måAvklares(opplysninger).also { avklaringer ->
+        ding.måAvklares().also { avklaringer ->
             avklaringer.size shouldBe 0
         }
 
@@ -88,7 +88,7 @@ class KontrollpunktTest {
         val endretOpplysning = getOpplysning(321)
         opplysninger.leggTil(endretOpplysning as Opplysning<*>).also { regelkjøring.evaluer() }
 
-        ding.måAvklares(opplysninger).also { avklaringer ->
+        ding.måAvklares().also { avklaringer ->
             avklaringer.size shouldBe 1
             avklaringer.all { it.måAvklares() } shouldBe true
             avklaringer.all { it.kode == TestIkke123 } shouldBe true
@@ -106,12 +106,12 @@ class KontrollpunktTest {
                 },
             )
 
+        val ding = Avklaringer(kontrollpunkter)
         val opplysninger = Opplysninger()
-        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger)
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.registrer(ding) }
         opplysninger.leggTil(Faktum(inntekterInneholderSykepenger, true)).also { regelkjøring.evaluer() }
 
-        val ding = Avklaringer(kontrollpunkter)
-        ding.måAvklares(opplysninger).also { avklaringer ->
+        ding.måAvklares().also { avklaringer ->
             avklaringer.size shouldBe 1
             avklaringer.all { it.måAvklares() } shouldBe true
             avklaringer.all { it.kode == SvangerskapsrelaterteSykepenger } shouldBe true
@@ -131,7 +131,7 @@ class KontrollpunktTest {
             }
 
         // Nå skal det ikke være avklaringer som må avklares
-        ding.måAvklares(opplysninger).also { avklaringer ->
+        ding.måAvklares().also { avklaringer ->
             avklaringer.size shouldBe 0
         }
     }
@@ -146,6 +146,9 @@ class KontrollpunktTest {
             listOf(
                 // Minst en beregningsregel må settes for fastsatt vanlig arbeidstid
                 Kontrollpunkt(BeregningsregelForFVA) { opplysninger ->
+                    if (opplysninger.mangler(regel1) || opplysninger.mangler(regel2) || opplysninger.mangler(regel3)) {
+                        return@Kontrollpunkt false
+                    }
                     listOf(
                         opplysninger.finnOpplysning(regel1),
                         opplysninger.finnOpplysning(regel2),
@@ -154,14 +157,15 @@ class KontrollpunktTest {
                 },
             )
 
-        val opplysninger = Opplysninger()
-        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger)
-        opplysninger.leggTil(Faktum<Boolean>(regel1, false) as Opplysning<*>).also { regelkjøring.evaluer() }
-        opplysninger.leggTil(Faktum<Boolean>(regel2, false) as Opplysning<*>).also { regelkjøring.evaluer() }
-        opplysninger.leggTil(Faktum<Boolean>(regel3, false) as Opplysning<*>).also { regelkjøring.evaluer() }
-
         val ding = Avklaringer(kontrollpunkter)
-        ding.måAvklares(opplysninger).also { avklaringer ->
+        val opplysninger = Opplysninger()
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.registrer(ding) }
+
+        opplysninger.leggTil(Faktum(regel1, false) as Opplysning<*>).also { regelkjøring.evaluer() }
+        opplysninger.leggTil(Faktum(regel2, false) as Opplysning<*>).also { regelkjøring.evaluer() }
+        opplysninger.leggTil(Faktum(regel3, false) as Opplysning<*>).also { regelkjøring.evaluer() }
+
+        ding.måAvklares().also { avklaringer ->
             avklaringer.size shouldBe 1
             avklaringer.all { it.måAvklares() } shouldBe true
             avklaringer.all { it.kode == BeregningsregelForFVA } shouldBe true
@@ -175,7 +179,7 @@ class KontrollpunktTest {
         }
 
         // Nå skal det ikke være avklaringer som må avklares
-        ding.måAvklares(opplysninger).also { avklaringer ->
+        ding.måAvklares().also { avklaringer ->
             avklaringer.size shouldBe 0
         }
     }
