@@ -118,7 +118,6 @@ internal class HendelseMediator(
         } else {
             sikkerlogg.info("aktivitetslogg inneholder meldinger:\n${hendelse.toLogString()}")
         }
-        sikkerlogg.info("aktivitetslogg inneholder meldinger: ${hendelse.toLogString()}")
 
         // TODO: Fjern denne når vi fjerner Behandlingshendelser
         håndter(hendelse, context)
