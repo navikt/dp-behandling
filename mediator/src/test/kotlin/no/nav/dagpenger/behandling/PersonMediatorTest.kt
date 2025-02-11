@@ -333,6 +333,7 @@ internal class PersonMediatorTest {
                     samordning.shouldNotBeEmpty()
                     samordning.first()["type"].asText() shouldBe "Sykepenger dagsats"
                 }
+                medNode("vilkår").shouldHaveSize(18)
                 medNode("behandletAv")
                     .map {
                         it["behandler"]["ident"].asText()
