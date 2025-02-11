@@ -47,6 +47,5 @@ fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
     RegelverkDagpenger.regelsett
         .filter { it.type == RegelsettType.Vilkår }
         .filter { it.erRelevant(opplysninger) }
-        .mapNotNull { it.utfall }
+        .flatMap { it.utfall }
         .all { opplysninger.erSann(it) }
-// opplysninger.erSann(kravPåDagpenger)

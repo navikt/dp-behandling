@@ -120,10 +120,10 @@ object ReellArbeidssøker {
 
             regel(villigTilEthvertArbeid) { innhentes }
 
-            regel(oppfyllerKravTilArbeidssøker) { enAv(kanJobbeDeltid, godkjentDeltidssøker) }
-            regel(oppfyllerKravTilMobilitet) { enAv(kanJobbeHvorSomHelst, godkjentLokalArbeidssøker) }
-            regel(oppfyllerKravTilArbeidsfør) { enAv(erArbeidsfør, godkjentArbeidsufør) }
-            regel(oppfyllerKravetTilEthvertArbeid) { enAv(villigTilEthvertArbeid) }
+            utfall(oppfyllerKravTilArbeidssøker) { enAv(kanJobbeDeltid, godkjentDeltidssøker) }
+            utfall(oppfyllerKravTilMobilitet) { enAv(kanJobbeHvorSomHelst, godkjentLokalArbeidssøker) }
+            utfall(oppfyllerKravTilArbeidsfør) { enAv(erArbeidsfør, godkjentArbeidsufør) }
+            utfall(oppfyllerKravetTilEthvertArbeid) { enAv(villigTilEthvertArbeid) }
 
             regel(registrertArbeidssøker) { innhentMed(prøvingsdato) }
             regel(oppyllerKravTilRegistrertArbeidssøker) { erSann(registrertArbeidssøker) }
