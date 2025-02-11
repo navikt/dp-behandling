@@ -126,7 +126,7 @@ object ReellArbeidssøker {
             utfall(oppfyllerKravetTilEthvertArbeid) { enAv(villigTilEthvertArbeid) }
 
             regel(registrertArbeidssøker) { innhentMed(prøvingsdato) }
-            regel(oppyllerKravTilRegistrertArbeidssøker) { erSann(registrertArbeidssøker) }
+            utfall(oppyllerKravTilRegistrertArbeidssøker) { erSann(registrertArbeidssøker) }
 
             utfall(kravTilArbeidssøker) {
                 alle(
