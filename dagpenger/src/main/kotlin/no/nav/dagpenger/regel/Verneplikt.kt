@@ -19,10 +19,7 @@ object Verneplikt {
             behovId = Behov.Verneplikt,
         )
     val oppfyllerKravetTilVerneplikt =
-        boolsk(
-            oppfyllerKravetTilVernepliktId,
-            "Oppfyller kravet til verneplikt",
-        )
+        boolsk(oppfyllerKravetTilVernepliktId, "Oppfyller kravet til verneplikt")
 
     val regelsett =
         vilkår(
