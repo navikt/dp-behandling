@@ -47,7 +47,7 @@ import no.nav.dagpenger.regel.Opptjeningstid.sisteAvsluttendendeKalenderMåned
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadstidspunkt
-import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import java.time.LocalDate
 
 object Minsteinntekt {
@@ -93,7 +93,7 @@ object Minsteinntekt {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
-            skalKjøres { it.oppfyller(kravTilAlder) }
+            skalVurderes { it.oppfyller(kravTilAlder) }
 
             regel(maksPeriodeLengde) { oppslag(prøvingsdato) { 36 } }
             regel(førsteMånedAvOpptjeningsperiode) { trekkFraMånedTilFørste(sisteAvsluttendendeKalenderMåned, maksPeriodeLengde) }
@@ -127,15 +127,15 @@ object Minsteinntekt {
             avklaring(Avklaringspunkter.InntektNesteKalendermåned)
             avklaring(Avklaringspunkter.ØnskerEtterRapporteringsfrist)
 
-            relevantHvis {
+            påvirkerResultat {
                 // Hvis alder ikke er oppfylt, er minsteinntekt ikke relevant
-                if (!it.erSann(kravTilAlder)) return@relevantHvis false
+                if (!it.erSann(kravTilAlder)) return@påvirkerResultat false
 
                 // Hvis alder er oppfylt, er minsteinntekt relevant hvis:
                 // - Inntekt er oppfylt, eller
                 // - Verneplikt er oppfylt samtidig som inntekt ikke er nødvendig
-                if (it.erSann(minsteinntekt)) return@relevantHvis true
-                if (it.erSann(oppfyllerKravetTilVerneplikt)) return@relevantHvis false
+                if (it.erSann(minsteinntekt)) return@påvirkerResultat true
+                if (it.erSann(grunnlagForVernepliktErGunstigst)) return@påvirkerResultat false
 
                 true
             }

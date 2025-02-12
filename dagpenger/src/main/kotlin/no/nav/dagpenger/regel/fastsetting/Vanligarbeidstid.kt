@@ -18,7 +18,7 @@ object Vanligarbeidstid {
         fastsettelse(
             folketrygden.hjemmel(4, 3, "Fastsettelse av arbeidstid", "Fastsettelse av arbeidstid"),
         ) {
-            skalKjøres { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) }
 
             regel(fastsattVanligArbeidstid) {
                 minstAv(
@@ -28,7 +28,7 @@ object Vanligarbeidstid {
                     ønsketArbeidstid,
                 )
             }
-            relevantHvis {
+            påvirkerResultat {
                 kravetTilMinsteinntektEllerVerneplikt(it)
             }
         }

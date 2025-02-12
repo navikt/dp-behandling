@@ -53,7 +53,7 @@ object VernepliktFastsetting {
         fastsettelse(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Dagpenger ved verneplikt"),
         ) {
-            skalKjøres { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) }
 
             regel(antallG) { oppslag(prøvingsdato) { 3.0 } }
             regel(vernepliktGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, antallG) }
@@ -68,7 +68,7 @@ object VernepliktFastsetting {
             // Kriteriet om vi skal bruke grunnlag og FVA fra verneplikt eller dagpengegrunnlag
             regel(grunnlagForVernepliktErGunstigst) { størreEnn(grunnlagHvisVerneplikt, dagpengegrunnlag) }
 
-            relevantHvis {
+            påvirkerResultat {
                 it.erSann(oppfyllerKravetTilVerneplikt) && it.erSann(grunnlagForVernepliktErGunstigst)
             }
 

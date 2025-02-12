@@ -132,7 +132,7 @@ object Samordning {
                 kortnavn = "Samordning reduserte ytelser",
             ),
         ) {
-            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
+            skalVurderes { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(sykepenger) { innhentMed(prøvingsdato) }
             regel(pleiepenger) { innhentMed(prøvingsdato) }
@@ -183,7 +183,7 @@ object Samordning {
                 )
             }
 
-            relevantHvis {
+            påvirkerResultat {
                 it.har(skalSamordnes) && it.finnOpplysning(skalSamordnes).verdi
             }
 

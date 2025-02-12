@@ -21,12 +21,12 @@ object Egenandel {
         fastsettelse(
             folketrygden.hjemmel(4, 9, "Egenandel", "Egenandel"),
         ) {
-            skalKjøres { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) }
 
             regel(faktor) { oppslag(prøvingsdato) { 3.0 } }
             regel(egenandel) { multiplikasjon(sats, faktor) }
 
-            relevantHvis { kravPåDagpenger(it) }
+            påvirkerResultat { kravPåDagpenger(it) }
 
             ønsketResultat(egenandel)
         }

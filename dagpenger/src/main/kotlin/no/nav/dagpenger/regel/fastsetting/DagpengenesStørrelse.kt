@@ -110,7 +110,7 @@ object DagpengenesStørrelse {
         fastsettelse(
             folketrygden.hjemmel(4, 12, "Dagpengenes størrelse", "Sats og barnetillegg"),
         ) {
-            skalKjøres { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) }
 
             regel(barn) { innhentMed(søknadIdOpplysningstype) }
             regel(antallBarn) { antallAv(barn) { kvalifiserer } }
@@ -156,7 +156,7 @@ object DagpengenesStørrelse {
 
             avklaring(BarnMåGodkjennes)
 
-            relevantHvis { kravPåDagpenger(it) }
+            påvirkerResultat { kravPåDagpenger(it) }
 
             ønsketResultat(ukessats, dagsatsSamordnetUtenforFolketrygden, ukesatsMedBarnetillegg, harSamordnet)
         }

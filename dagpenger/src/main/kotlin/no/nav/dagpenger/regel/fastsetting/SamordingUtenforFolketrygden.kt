@@ -165,7 +165,7 @@ object SamordingUtenforFolketrygden {
                 "Samordning utenfor folketrygden",
             ),
         ) {
-            skalKjøres { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) }
 
             regel(andreYtelser) { innhentes }
 
@@ -222,7 +222,7 @@ object SamordingUtenforFolketrygden {
                 )
             }
 
-            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             ønsketResultat(skalSamordnesUtenforFolketrygden, dagsatsSamordnetUtenforFolketrygden)
         }

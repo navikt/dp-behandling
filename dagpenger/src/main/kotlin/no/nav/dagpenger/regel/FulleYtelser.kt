@@ -21,11 +21,11 @@ object FulleYtelser {
                 "Fulle ytelser",
             ),
         ) {
-            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
+            skalVurderes { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             utfall(ikkeFulleYtelser) { oppslag(prøvingsdato) { true } }
 
-            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
         }
 
     val FulleYtelserKontrollpunkt =

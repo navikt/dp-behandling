@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.regel.OpplysningsTyper.avtjentVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilVernepliktId
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 
 object Verneplikt {
     val avtjentVerneplikt =
@@ -25,18 +26,15 @@ object Verneplikt {
         vilkår(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Verneplikt"),
         ) {
-            skalKjøres { it.oppfyller(Alderskrav.kravTilAlder) }
+            skalVurderes { it.oppfyller(Alderskrav.kravTilAlder) }
 
             regel(avtjentVerneplikt) { innhentMed(søknadIdOpplysningstype) }
             utfall(oppfyllerKravetTilVerneplikt) { erSann(avtjentVerneplikt) }
 
             avklaring(Avklaringspunkter.Verneplikt)
 
-            relevantHvis {
-                val a = it.har(avtjentVerneplikt) && it.finnOpplysning(avtjentVerneplikt).verdi
-                val b = it.har(oppfyllerKravetTilVerneplikt) && it.finnOpplysning(oppfyllerKravetTilVerneplikt).verdi
-
-                a || b
+            påvirkerResultat {
+                it.har(grunnlagForVernepliktErGunstigst) && it.finnOpplysning(grunnlagForVernepliktErGunstigst).verdi
             }
         }
 

@@ -103,7 +103,7 @@ object TapAvArbeidsinntektOgArbeidstid {
         vilkår(
             folketrygden.hjemmel(4, 3, "Krav til tap av arbeidsinntekt og arbeidstid", "Tap av arbeidsinntekt og arbeidstid"),
         ) {
-            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
+            skalVurderes { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(tapAvArbeid) { oppslag(prøvingsdato) { true } } // TODO: Satt til true for testing av innvilgelse
             regel(kravPåLønn) { oppslag(prøvingsdato) { false } }
@@ -138,7 +138,7 @@ object TapAvArbeidsinntektOgArbeidstid {
 
             avklaring(TapAvArbeidstidBeregningsregel)
 
-            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
         }
 
     val TapArbeidstidBeregningsregelKontroll =

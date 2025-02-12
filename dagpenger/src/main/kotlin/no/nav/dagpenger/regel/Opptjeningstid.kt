@@ -30,7 +30,7 @@ object Opptjeningstid {
         fastsettelse(
             aOpplynsingsLoven.hjemmel(1, 2, "Frist for levering av opplysninger", "Opptjeningsperiode"),
         ) {
-            skalKjøres { it.oppfyller(kravTilAlder) }
+            skalVurderes { it.oppfyller(kravTilAlder) }
 
             regel(pliktigRapporteringsfrist) { oppslag(prøvingsdato) { Aordningen.rapporteringsfrist(it) } }
             regel(justertRapporteringsfrist) { førsteArbeidsdag(pliktigRapporteringsfrist) }

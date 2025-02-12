@@ -5,7 +5,7 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 object Meldeplikt {
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 8, "Meldeplikt og møteplikt", "Meldeplikt")) {
-            skalKjøres { false }
-            relevantHvis { false }
+            skalVurderes { false }
+            påvirkerResultat { false }
         }
 }

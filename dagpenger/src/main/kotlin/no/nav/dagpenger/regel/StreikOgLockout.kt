@@ -33,12 +33,12 @@ object StreikOgLockout {
         vilkår(
             folketrygden.hjemmel(4, 22, "Bortfall ved streik og lock-out", "Streik og lock-out"),
         ) {
-            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
+            skalVurderes { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(deltarIStreikOgLockout) { oppslag(prøvingsdato) { false } }
             regel(sammeBedriftOgPåvirket) { oppslag(prøvingsdato) { false } }
             utfall(ikkeStreikEllerLockout) { ingenAv(deltarIStreikOgLockout, sammeBedriftOgPåvirket) }
 
-            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
         }
 }
