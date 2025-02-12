@@ -23,11 +23,11 @@ abstract class RegelsettBuilderBase(
         avklaringer.add(avklaringkode)
     }
 
-    fun skalKjøres(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
+    fun skalVurderes(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
         skalKjøres = block
     }
 
-    fun relevantHvis(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
+    fun påvirkerResultat(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
         relevant = block
     }
 

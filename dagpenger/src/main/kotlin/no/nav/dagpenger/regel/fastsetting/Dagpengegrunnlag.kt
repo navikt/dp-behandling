@@ -121,7 +121,7 @@ object Dagpengegrunnlag {
         fastsettelse(
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
         ) {
-            skalKjøres { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) }
 
             regel(antallÅrI36Måneder) { oppslag(prøvingsdato) { 3.0 } } // Teknisk - skal ikke vises
             regel(faktorForMaksgrense) { oppslag(prøvingsdato) { 6.0 } } // Konstant i regelverket - skal ikke vises
@@ -190,7 +190,7 @@ object Dagpengegrunnlag {
             regel(harAvkortetPeriode3) { størreEnn(inntektperiode3, maksgrenseForGrunnlag) }
             regel(harAvkortet) { enAv(harAvkortetPeriode1, harAvkortetPeriode2, harAvkortetPeriode3) }
 
-            relevantHvis { it.erSann(kravTilAlder) }
+            påvirkerResultat { it.erSann(kravTilAlder) }
 
             ønsketResultat(
                 grunnlag,

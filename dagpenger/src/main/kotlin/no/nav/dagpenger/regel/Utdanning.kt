@@ -112,7 +112,7 @@ object Utdanning {
                 kortnavn = "Utdanning",
             ),
         ) {
-            skalKjøres { kravetTilMinsteinntektEllerVerneplikt(it) }
+            skalVurderes { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(tarUtdanning) { innhentMed() }
 
@@ -140,6 +140,6 @@ object Utdanning {
 
             utfall(kravTilUtdanning) { enAv(oppfyllerKravetPåUnntak, svartNeiPåUtdanning) }
 
-            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
         }
 }

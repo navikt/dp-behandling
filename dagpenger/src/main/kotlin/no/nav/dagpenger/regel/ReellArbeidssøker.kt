@@ -39,11 +39,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.VilligTilEthvertArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.minimumVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.villigTilMinimumArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønsketArbeidstidId
-import no.nav.dagpenger.regel.ReellArbeidssøker.erArbeidsfør
-import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeDeltid
-import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
-import no.nav.dagpenger.regel.ReellArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
-import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.Samordning.uføre
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
@@ -103,7 +98,7 @@ object ReellArbeidssøker {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
-            skalKjøres { it.oppfyller(kravTilAlder) }
+            skalVurderes { it.oppfyller(kravTilAlder) }
 
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
             regel(minimumVanligArbeidstid) { oppslag(prøvingsdato) { 18.75 } }
@@ -142,7 +137,7 @@ object ReellArbeidssøker {
             avklaring(ReellArbeidssøkerUnntak)
             avklaring(IkkeRegistrertSomArbeidsøker)
 
-            relevantHvis { it.oppfyller(kravTilAlder) }
+            påvirkerResultat { it.oppfyller(kravTilAlder) }
         }
 
     val ReellArbeidssøkerKontroll =

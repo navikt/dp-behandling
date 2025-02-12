@@ -70,7 +70,7 @@ object Dagpengeperiode {
         fastsettelse(
             folketrygden.hjemmel(4, 15, "Antall stønadsuker (stønadsperiode)", "Periode"),
         ) {
-            skalKjøres { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) }
 
             regel(kortPeriode) { oppslag(prøvingsdato) { 52 } }
             regel(langPeriode) { oppslag(prøvingsdato) { 104 } }
@@ -96,7 +96,7 @@ object Dagpengeperiode {
             regel(dagerIUka) { oppslag(prøvingsdato) { 5 } }
             regel(gjenståendeStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
 
-            relevantHvis { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
 
             ønsketResultat(ordinærPeriode, gjenståendeStønadsdager)
         }

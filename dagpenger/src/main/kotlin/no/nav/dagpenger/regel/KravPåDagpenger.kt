@@ -25,7 +25,7 @@ object KravPåDagpenger {
 
     val regelsett =
         vilkår("Krav på dagpenger") {
-            skalKjøres { false }
+            skalVurderes { false }
 
             regel(minsteinntektEllerVerneplikt) { enAv(minsteinntekt, oppfyllerKravetTilVerneplikt) }
 
@@ -48,7 +48,7 @@ object KravPåDagpenger {
                     Utestengning.oppfyllerKravetTilIkkeUtestengt,
                 )
             }
-            relevantHvis { false }
+            påvirkerResultat { false }
         }
 
     val VirkningstidspunktForLangtFramITid =

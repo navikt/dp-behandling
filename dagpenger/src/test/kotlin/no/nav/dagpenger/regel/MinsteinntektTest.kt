@@ -6,7 +6,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.regelsett
-import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import org.junit.jupiter.api.Test
 
 class MinsteinntektTest {
@@ -37,7 +37,7 @@ class MinsteinntektTest {
             listOf(
                 Faktum(kravTilAlder, alder),
                 Faktum(minsteinntekt, inntekt),
-                Faktum(oppfyllerKravetTilVerneplikt, verneplikt),
+                Faktum(grunnlagForVernepliktErGunstigst, verneplikt),
             ),
         )
 }
