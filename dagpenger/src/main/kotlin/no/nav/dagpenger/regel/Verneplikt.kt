@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentMed
+import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.OpplysningsTyper.avtjentVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilVernepliktId
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
@@ -36,8 +37,9 @@ object Verneplikt {
             påvirkerResultat {
                 val a = it.har(oppfyllerKravetTilVerneplikt) && it.finnOpplysning(oppfyllerKravetTilVerneplikt).verdi
                 val b = it.har(grunnlagForVernepliktErGunstigst) && it.finnOpplysning(grunnlagForVernepliktErGunstigst).verdi
+                val c = it.har(minsteinntekt) && it.finnOpplysning(minsteinntekt).verdi
 
-                a && b
+                (a && b) || (a && !c)
             }
         }
 
