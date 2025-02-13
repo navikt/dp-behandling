@@ -23,6 +23,6 @@ class FastsettelseRegelsettBuilder internal constructor(
             avklaringer = avklaringer,
             utfall = emptyList(),
             skalKjøres = skalKjøres,
-            erRelevant = relevant,
+            påvirkerResultat = relevant,
         )
 }

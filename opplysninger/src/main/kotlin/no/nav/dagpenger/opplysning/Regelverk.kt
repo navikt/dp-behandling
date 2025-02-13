@@ -45,7 +45,7 @@ class Regelverk(
     fun relevanteVilkår(opplysninger: LesbarOpplysninger): List<Regelsett> =
         regelsett
             .filter { it.type == RegelsettType.Vilkår }
-            .filter { it.erRelevant(opplysninger) }
+            .filter { it.påvirkerResultat(opplysninger) }
 
     // Bruker Breadth-First Search (BFS) til å traversere regelsettene
     private fun traverseOpplysningstyper(
