@@ -13,19 +13,19 @@ class MinsteinntektTest {
     @Test
     fun `valider oppførsel til hvisRelevant`() {
         // Avslag på alder skal ikke prøve inntekt
-        regelsett.erRelevant(opplysninger(alder = false, inntekt = false, verneplikt = false)) shouldBe false
+        regelsett.påvirkerResultat(opplysninger(alder = false, inntekt = false, verneplikt = false)) shouldBe false
 
         // Oppfylt alder skal prøve inntekt
-        regelsett.erRelevant(opplysninger(alder = true, inntekt = false, verneplikt = false)) shouldBe true
+        regelsett.påvirkerResultat(opplysninger(alder = true, inntekt = false, verneplikt = false)) shouldBe true
 
         // Fortsatt med med inntekt
-        regelsett.erRelevant(opplysninger(alder = true, inntekt = true, verneplikt = false)) shouldBe true
+        regelsett.påvirkerResultat(opplysninger(alder = true, inntekt = true, verneplikt = false)) shouldBe true
 
         // Fortsatt med med verneplikt
-        regelsett.erRelevant(opplysninger(alder = true, inntekt = true, verneplikt = true)) shouldBe true
+        regelsett.påvirkerResultat(opplysninger(alder = true, inntekt = true, verneplikt = true)) shouldBe true
 
         // Bare verneplikt skal minsteinntekt ikke med
-        regelsett.erRelevant(opplysninger(alder = true, inntekt = false, verneplikt = true)) shouldBe false
+        regelsett.påvirkerResultat(opplysninger(alder = true, inntekt = false, verneplikt = true)) shouldBe false
     }
 
     private fun opplysninger(

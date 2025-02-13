@@ -180,7 +180,7 @@ private fun Regelsett.tilRegelsettDTO(
         status = RegelsettDTO.Status.HarAvklaring
     }
 
-    val erRelevant = erRelevant(lesbarOpplysninger)
+    val erRelevant = påvirkerResultat(lesbarOpplysninger)
 
     return RegelsettDTO(
         navn = hjemmel.kortnavn,

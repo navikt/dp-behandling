@@ -46,6 +46,6 @@ fun kravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boo
 fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
     RegelverkDagpenger.regelsett
         .filter { it.type == RegelsettType.Vilkår }
-        .filter { it.erRelevant(opplysninger) }
+        .filter { it.påvirkerResultat(opplysninger) }
         .flatMap { it.utfall }
         .all { opplysninger.erSann(it) }

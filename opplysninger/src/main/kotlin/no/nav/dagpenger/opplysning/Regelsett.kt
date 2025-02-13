@@ -17,7 +17,7 @@ class Regelsett internal constructor(
     val avklaringer: Set<Avklaringkode>,
     val utfall: List<Opplysningstype<Boolean>>,
     val skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean,
-    val erRelevant: (opplysninger: LesbarOpplysninger) -> Boolean,
+    val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
 ) {
     val navn: String = hjemmel.kortnavn
 
