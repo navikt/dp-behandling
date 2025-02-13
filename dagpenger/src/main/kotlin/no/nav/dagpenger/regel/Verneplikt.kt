@@ -20,8 +20,7 @@ object Verneplikt {
             formål = Opplysningsformål.Bruker,
             behovId = Behov.Verneplikt,
         )
-    val oppfyllerKravetTilVerneplikt =
-        boolsk(oppfyllerKravetTilVernepliktId, "Oppfyller kravet til verneplikt")
+    val oppfyllerKravetTilVerneplikt = boolsk(oppfyllerKravetTilVernepliktId, "Oppfyller kravet til verneplikt")
 
     val regelsett =
         vilkår(
@@ -35,12 +34,20 @@ object Verneplikt {
             avklaring(Avklaringspunkter.Verneplikt)
 
             påvirkerResultat {
-                val a = it.har(oppfyllerKravetTilVerneplikt) && it.finnOpplysning(oppfyllerKravetTilVerneplikt).verdi
-                val b = it.har(grunnlagForVernepliktErGunstigst) && it.finnOpplysning(grunnlagForVernepliktErGunstigst).verdi
-                val c = it.har(minsteinntekt) && it.finnOpplysning(minsteinntekt).verdi
-                val d = it.har(avtjentVerneplikt) && it.finnOpplysning(avtjentVerneplikt).verdi
+                val oppfyllerVerneplikt = it.erSann(oppfyllerKravetTilVerneplikt)
+                val vernepliktErGunstigst = it.erSann(grunnlagForVernepliktErGunstigst)
+                val oppfyllerMinsteinntekt = it.erSann(minsteinntekt)
+                val søktOmVerneplikt = it.erSann(avtjentVerneplikt)
 
-                (a && b) || (a && !c) || (d && !a && !b && !c)
+                if (oppfyllerVerneplikt && (vernepliktErGunstigst || !oppfyllerMinsteinntekt)) {
+                    return@påvirkerResultat true
+                }
+
+                if (søktOmVerneplikt && !oppfyllerVerneplikt && !vernepliktErGunstigst && !oppfyllerMinsteinntekt) {
+                    return@påvirkerResultat true
+                }
+
+                return@påvirkerResultat false
             }
         }
 
