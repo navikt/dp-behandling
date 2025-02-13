@@ -34,7 +34,12 @@ object Verneplikt {
             avklaring(Avklaringspunkter.Verneplikt)
 
             påvirkerResultat {
-                it.har(grunnlagForVernepliktErGunstigst) && it.finnOpplysning(grunnlagForVernepliktErGunstigst).verdi
+                val a = it.har(avtjentVerneplikt) && it.finnOpplysning(avtjentVerneplikt).verdi
+                val b = it.har(oppfyllerKravetTilVerneplikt) && it.finnOpplysning(oppfyllerKravetTilVerneplikt).verdi
+                val c = it.har(grunnlagForVernepliktErGunstigst) && it.finnOpplysning(grunnlagForVernepliktErGunstigst).verdi
+
+                // Må ha enten søkt, eller fått oppfylt verneplikt OG grunnlaget for verneplikt må være gunstigst
+                (a || b) && c
             }
         }
 
