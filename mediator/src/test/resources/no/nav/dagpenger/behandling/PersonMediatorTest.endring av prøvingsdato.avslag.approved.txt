@@ -30,6 +30,7 @@ Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søk arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
+Kan kravet til reell arbeidssøker vurderes
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 mnd

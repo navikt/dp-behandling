@@ -71,6 +71,7 @@ Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søk arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
+Kan kravet til reell arbeidssøker vurderes
 Mottar pensjon fra en offentlig tjenestepensjonsordning
 Mottar redusert uførepensjon fra offentlig pensjonsordning
 Mottar vartpenger
