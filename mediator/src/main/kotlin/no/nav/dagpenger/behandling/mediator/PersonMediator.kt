@@ -35,7 +35,7 @@ internal class PersonMediator(
     internal fun ferdigstill(context: MessageContext) {
         meldinger.forEach {
             context.publish(it.first, it.second.toJson())
-            sikkerlogg.info { "Publisert melding ${it.second["@event_name"]}. Innhold: ${it.second.toJson()}" }
+            sikkerlogg.info { "Publisert melding. Innhold: ${it.second.toJson()}" }
         }
     }
 
