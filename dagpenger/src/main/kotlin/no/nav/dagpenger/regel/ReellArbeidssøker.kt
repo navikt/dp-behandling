@@ -136,8 +136,8 @@ object ReellArbeidssøker {
                 )
             }
 
-            ønsketResultat(kanReellArbeidssøkerVurderes)
             regel(kanReellArbeidssøkerVurderes) { oppslag(prøvingsdato) { true } }
+            ønsketResultat(kanReellArbeidssøkerVurderes)
 
             avklaring(ReellArbeidssøkerUnntak)
             avklaring(IkkeRegistrertSomArbeidsøker)
