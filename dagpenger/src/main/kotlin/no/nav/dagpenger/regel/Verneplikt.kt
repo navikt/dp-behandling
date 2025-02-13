@@ -38,8 +38,9 @@ object Verneplikt {
                 val a = it.har(oppfyllerKravetTilVerneplikt) && it.finnOpplysning(oppfyllerKravetTilVerneplikt).verdi
                 val b = it.har(grunnlagForVernepliktErGunstigst) && it.finnOpplysning(grunnlagForVernepliktErGunstigst).verdi
                 val c = it.har(minsteinntekt) && it.finnOpplysning(minsteinntekt).verdi
+                val d = it.har(avtjentVerneplikt) && it.finnOpplysning(avtjentVerneplikt).verdi
 
-                (a && b) || (a && !c)
+                (a && b) || (a && !c) || (d && !a && !b && !c)
             }
         }
 
