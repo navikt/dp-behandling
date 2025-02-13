@@ -200,7 +200,7 @@ graph RL
   CR["Krav til arbeidssøker"] -->|"Alle"| DY["Oppfyller kravet til å være arbeidsfør"]
   CR["Krav til arbeidssøker"] -->|"Alle"| EA["Oppfyller kravet til å ta ethvert arbeid"]
   CR["Krav til arbeidssøker"] -->|"Alle"| CP["Registrert som arbeidssøker på søknadstidspunktet"]
-  ED["Kan kravet til reell arbeidssøker vurderes"] -->|"ErSann"| F["Oppfyller kravet til alder"]
+  ED["Kan kravet til reell arbeidssøker vurderes"] -->|"Oppslag"| B["Prøvingsdato"]
   EE["Har rett til ordinære dagpenger uten arbeidsforhold"] -->|"IngenAv"| EF["Har rett til ordinære dagpenger gjennom arbeidsforhold"]
   EE["Har rett til ordinære dagpenger uten arbeidsforhold"] -->|"IngenAv"| EG["Bruker er permittert"]
   EE["Har rett til ordinære dagpenger uten arbeidsforhold"] -->|"IngenAv"| EH["Har rett til dagpenger etter konkurs"]
