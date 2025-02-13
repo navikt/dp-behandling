@@ -49,6 +49,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentDeltidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentLokalArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeDeltid
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
+import no.nav.dagpenger.regel.ReellArbeidssøker.kanReellArbeidssøkerVurderes
 import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
@@ -375,6 +376,7 @@ private val redigerbareOpplysninger =
                 godkjentDeltidssøker,
                 godkjentLokalArbeidssøker,
                 godkjentArbeidsufør,
+                kanReellArbeidssøkerVurderes,
                 // 4-6 Utdanning
                 tarUtdanning,
                 deltakelseIArbeidsmarkedstiltak,

@@ -84,6 +84,8 @@ object ReellArbeidssøker {
 
     val kravTilArbeidssøker = boolsk(KravTilArbeidssøkerId, "Krav til arbeidssøker")
 
+    val kanReellArbeidssøkerVurderes = boolsk(KravTilArbeidssøkerId, "Kan kravet til reell arbeidssøker vurderes")
+
     val ønsketArbeidstid =
         desimaltall(
             ønsketArbeidstidId,
@@ -134,10 +136,14 @@ object ReellArbeidssøker {
                 )
             }
 
+            regel(kanReellArbeidssøkerVurderes) { erSann(kravTilAlder) }
+
             avklaring(ReellArbeidssøkerUnntak)
             avklaring(IkkeRegistrertSomArbeidsøker)
 
-            påvirkerResultat { it.oppfyller(kravTilAlder) }
+            påvirkerResultat {
+                it.oppfyller(kanReellArbeidssøkerVurderes)
+            }
         }
 
     val ReellArbeidssøkerKontroll =
