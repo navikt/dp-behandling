@@ -228,3 +228,4 @@ Dette er opplysninger som blir brukt av regelverket.
 |01948d3c-4bea-7802-9d18-5342a5e2be99|Avtjent verneplikt|Verneplikt|Boolsk|boolean|
 |01948d43-e218-76f1-b29b-7e604241d98a|Oppfyller kravet til verneplikt|Oppfyller kravet til verneplikt|Boolsk|boolean|
 |0194929e-2036-7ac1-ada3-5cbe05a83f08|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Boolsk|boolean|
+|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kan kravet til reell arbeidssøker vurderes|Kan kravet til reell arbeidssøker vurderes|Boolsk|boolean|

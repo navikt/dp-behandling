@@ -28,6 +28,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.GodkjentDeltidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.GodkjentLokalArbeidssøker
 import no.nav.dagpenger.regel.OpplysningsTyper.KanJobbeDeltidId
 import no.nav.dagpenger.regel.OpplysningsTyper.KanJobbeHvorSomHelstId
+import no.nav.dagpenger.regel.OpplysningsTyper.KanReellArbeidssøkerVurderesId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravTilArbeidsførId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravTilArbeidssøkerId
@@ -83,8 +84,7 @@ object ReellArbeidssøker {
         boolsk(OppyllerKravTilRegistrertArbeidssøkerId, "Registrert som arbeidssøker på søknadstidspunktet", synlig = aldriSynlig)
 
     val kravTilArbeidssøker = boolsk(KravTilArbeidssøkerId, "Krav til arbeidssøker")
-
-    val kanReellArbeidssøkerVurderes = boolsk(KravTilArbeidssøkerId, "Kan kravet til reell arbeidssøker vurderes")
+    val kanReellArbeidssøkerVurderes = boolsk(KanReellArbeidssøkerVurderesId, "Kan kravet til reell arbeidssøker vurderes")
 
     val ønsketArbeidstid =
         desimaltall(
@@ -136,13 +136,14 @@ object ReellArbeidssøker {
                 )
             }
 
-            regel(kanReellArbeidssøkerVurderes) { erSann(kravTilAlder) }
+            ønsketResultat(kanReellArbeidssøkerVurderes)
+            regel(kanReellArbeidssøkerVurderes) { oppslag(prøvingsdato) { true } }
 
             avklaring(ReellArbeidssøkerUnntak)
             avklaring(IkkeRegistrertSomArbeidsøker)
 
             påvirkerResultat {
-                it.oppfyller(kanReellArbeidssøkerVurderes)
+                it.erSann(kravTilAlder) && it.oppfyller(kanReellArbeidssøkerVurderes)
             }
         }
 
