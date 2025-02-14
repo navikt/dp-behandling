@@ -31,6 +31,8 @@ Det er godkjent at bruker kun søk arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
 Kan kravet til reell arbeidssøker vurderes
+Årsaken til permitteringen er godkjent
+Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 mnd
@@ -39,6 +41,7 @@ Oppfyller kravet til heltid- og deltidsarbeid
 Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
 Villig til å jobbe minimum arbeidstid
+Oppfyller kravet til permittering
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Oppfyller kravet til alder

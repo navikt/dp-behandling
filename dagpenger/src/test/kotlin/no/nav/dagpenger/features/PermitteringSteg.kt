@@ -46,11 +46,8 @@ class PermitteringSteg : No {
                 .also { regelkjøring.evaluer() }
         }
 
-        Så("skal søker få {boolsk} av permittering og {int} uker med permittering") { utfall: Boolean, uker: Int ->
+        Så("skal søker få {boolsk} av permittering") { utfall: Boolean ->
             opplysninger.finnOpplysning(Permittering.oppfyllerKravetTilPermittering).verdi shouldBe utfall
-            if (utfall) {
-                opplysninger.finnOpplysning(PermitteringFastsetting.permitteringsperiode).verdi shouldBe uker
-            }
         }
     }
 }

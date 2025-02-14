@@ -100,6 +100,8 @@ Deltar i høyere utdanning
 Deltar på kurs mv
 Bruker er utestengt fra dagpenger
 Periode som gis ved verneplikt
+Årsaken til permitteringen er godkjent
+Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 6 ganger grunnbeløp
@@ -127,6 +129,7 @@ Samordnet fastsatt arbeidstid
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
+Oppfyller kravet til permittering
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Oppfyller kravet til opphold i Norge

@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.Permittering
 import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 
 class PermitteringFastsettingSteg : No {
@@ -27,14 +28,9 @@ class PermitteringFastsettingSteg : No {
     }
 
     init {
-        Gitt("at sddøker {boolsk}") { søkt: Boolean ->
-            opplysninger.leggTil(Faktum(Rettighetstype.erPermittert, søkt) as Opplysning<*>).also { regelkjøring.evaluer() }
-        }
-
-        Og("{boolsk} av permittering") { utfall: Boolean ->
-            opplysninger.leggTil(Faktum(Permittering.godkjentPermitteringsårsak, utfall) as Opplysning<*>)
-            opplysninger.leggTil(Faktum(Permittering.erPermitteringenMidlertidig, utfall) as Opplysning<*>)
-            regelkjøring.evaluer()
+        Gitt("at søker skal innvilges {boolsk} med permittering") { søkt: Boolean ->
+            opplysninger.leggTil(Faktum(prøvingsdato, fraDato))
+            opplysninger.leggTil(Faktum(Permittering.oppfyllerKravetTilPermittering, søkt) as Opplysning<*>).also { regelkjøring.evaluer() }
         }
 
         Så("skal søker få {int} uker med permittering") { uker: Int ->

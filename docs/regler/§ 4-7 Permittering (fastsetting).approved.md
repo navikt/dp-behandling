@@ -1,3 +1,15 @@
+# § 4-7 Permittering (fastsetting)
+
+## Regeltre
+
+```mermaid
+graph RL
+  A["Periode som gis ved permittering"] -->|"Oppslag"| B["Prøvingsdato"]
+```
+
+## Akseptansetester
+
+```gherkin
 #language: no
 @dokumentasjon @regel-permittering-fastsetting
 Egenskap: § 4-7 Permittering (fastsetting)
@@ -10,3 +22,4 @@ Egenskap: § 4-7 Permittering (fastsetting)
    | utfall | periode |
    | Nei    | 0       |
    | Ja     | 26      |
+``` 

@@ -26,9 +26,12 @@ Det er godkjent at bruker kun søk arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
 Kan kravet til reell arbeidssøker vurderes
+Årsaken til permitteringen er godkjent
+Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 mnd
 Inntektskrav for siste 36 mnd
+Oppfyller kravet til permittering
 Siste avsluttende kalendermåned
 Første måned av opptjeningsperiode
 Registrert som arbeidssøker

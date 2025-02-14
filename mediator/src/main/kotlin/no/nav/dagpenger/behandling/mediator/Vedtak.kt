@@ -25,6 +25,7 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.KravPåDagpenger.kravPåDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
+import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
@@ -35,6 +36,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.Egenandel
+import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting.permitteringsperiode
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
@@ -196,6 +198,16 @@ private fun vedtakFastsattDTO(
                         KvoteDTO.Type.beløp,
                         opplysninger.finnOpplysning(Egenandel.egenandel).verdi.verdien,
                     ),
+                    runCatching { opplysninger.finnOpplysning(oppfyllerKravetTilPermittering) }
+                        .getOrNull()
+                        .takeIf { it?.verdi == true }
+                        ?.let {
+                            KvoteDTO(
+                                "Permittering",
+                                KvoteDTO.Type.uker,
+                                opplysninger.finnOpplysning(permitteringsperiode).verdi.toBigDecimal(),
+                            )
+                        },
                 ),
         )
 

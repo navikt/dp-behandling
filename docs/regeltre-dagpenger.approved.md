@@ -358,4 +358,5 @@ graph RL
   HL["Oppfyller kravet til permittering"] -->|"Alle"| EG["Bruker er permittert"]
   HL["Oppfyller kravet til permittering"] -->|"Alle"| HJ["Årsaken til permitteringen er godkjent"]
   HL["Oppfyller kravet til permittering"] -->|"Alle"| HK["Permitteringen er midlertidig driftsinnskrenkning eller driftsstans"]
+  HM["Periode som gis ved permittering"] -->|"Oppslag"| B["Prøvingsdato"]
 ```
