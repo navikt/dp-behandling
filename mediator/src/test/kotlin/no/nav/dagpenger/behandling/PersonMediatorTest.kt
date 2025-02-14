@@ -282,6 +282,29 @@ internal class PersonMediatorTest {
         }
 
     @Test
+    fun `Innvilgelse ved permittering`() {
+        withMigratedDb {
+            registrerOpplysningstyper()
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = 6.mai(2021),
+                    InntektSiste12Mnd = 500000,
+                    permittering = true,
+                    ordinær = false,
+                )
+            løsBehandlingFramTilInnvilgelse(testPerson)
+            rapid.harHendelse("forslag_til_vedtak") {
+                medFastsettelser {
+                    oppfylt
+                    periode("Permittering") shouldBe 26
+                }
+            }
+        }
+    }
+
+    @Test
     fun `Søknad med nok inntekt skal innvilges`() =
         withMigratedDb {
             registrerOpplysningstyper()

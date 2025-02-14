@@ -20,6 +20,7 @@ object PermitteringFastsetting {
 
             regel(permitteringsperiode) { oppslag(prøvingsdato) { 26 } }
 
+            ønsketResultat(permitteringsperiode)
             påvirkerResultat { it.erSann(oppfyllerKravetTilPermittering) }
         }
 }
