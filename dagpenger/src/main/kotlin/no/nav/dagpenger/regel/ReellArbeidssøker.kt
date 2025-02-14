@@ -88,7 +88,7 @@ object ReellArbeidssøker {
         boolsk(
             KanReellArbeidssøkerVurderesId,
             "Kan kravet til reell arbeidssøker vurderes",
-            synlig = { !kravetTilMinsteinntektEllerVerneplikt(it) },
+            synlig = { false && !kravetTilMinsteinntektEllerVerneplikt(it) },
         )
 
     val ønsketArbeidstid =
@@ -148,7 +148,7 @@ object ReellArbeidssøker {
             avklaring(IkkeRegistrertSomArbeidsøker)
 
             påvirkerResultat {
-                it.erSann(kravTilAlder) && it.oppfyller(kanReellArbeidssøkerVurderes)
+                it.erSann(kravTilAlder)
             }
         }
 
