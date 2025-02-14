@@ -228,4 +228,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01948d3c-4bea-7802-9d18-5342a5e2be99|Avtjent verneplikt|Verneplikt|Boolsk|boolean|
 |01948d43-e218-76f1-b29b-7e604241d98a|Oppfyller kravet til verneplikt|Oppfyller kravet til verneplikt|Boolsk|boolean|
 |0194929e-2036-7ac1-ada3-5cbe05a83f08|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Boolsk|boolean|
+|0194d105-bd54-7b2b-9dc6-6e6664951894|Årsaken til permitteringen er godkjent|Årsaken til permitteringen er godkjent|Boolsk|boolean|
+|0194d111-db2f-7395-bcfb-959f245fd2a6|Oppfyller kravet til permittering|Oppfyller kravet til permittering|Boolsk|boolean|
+|0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|
 |0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kan kravet til reell arbeidssøker vurderes|Kan kravet til reell arbeidssøker vurderes|Boolsk|boolean|

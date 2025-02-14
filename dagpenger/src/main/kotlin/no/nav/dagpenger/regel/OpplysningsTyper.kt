@@ -283,6 +283,7 @@ object OpplysningsTyper {
     val godkjentPermitteringsårsakId = Opplysningstype.Id(UUID.fromString("0194d105-bd54-7b2b-9dc6-6e6664951894"), Boolsk)
     val oppfyllerKravetTilPermitteringId = Opplysningstype.Id(UUID.fromString("0194d111-db2f-7395-bcfb-959f245fd2a6"), Boolsk)
     val erPermitteringenMidlertidigId = Opplysningstype.Id(UUID.fromString("0194d119-90b7-7416-a8b0-9e9cf3587d48"), Boolsk)
+    val permitteringsperiodeId = Opplysningstype.Id(UUID.fromString("0195042d-918e-7fae-8fb7-7f38eed42710"), Heltall)
 
     // beregning/meldekort
     val arbeidsdagId = Opplysningstype.Id(UUID.fromString("01948ea0-36e8-72cc-aa4f-16bc446ed3bd"), Boolsk)

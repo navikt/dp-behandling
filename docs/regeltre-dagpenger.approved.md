@@ -353,4 +353,9 @@ graph RL
   AK["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| HI["Grunnlag for verneplikt hvis kravet ikke er oppfylt"]
   GN["Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget"] -->|"StørreEnn"| AK["Grunnlag for verneplikt hvis kravet er oppfylt"]
   GN["Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget"] -->|"StørreEnn"| AI["Grunnlag ved ordinære dagpenger"]
+  HJ["Årsaken til permitteringen er godkjent"] -->|"Oppslag"| B["Prøvingsdato"]
+  HK["Permitteringen er midlertidig driftsinnskrenkning eller driftsstans"] -->|"Oppslag"| B["Prøvingsdato"]
+  HL["Oppfyller kravet til permittering"] -->|"Alle"| EG["Bruker er permittert"]
+  HL["Oppfyller kravet til permittering"] -->|"Alle"| HJ["Årsaken til permitteringen er godkjent"]
+  HL["Oppfyller kravet til permittering"] -->|"Alle"| HK["Permitteringen er midlertidig driftsinnskrenkning eller driftsstans"]
 ```

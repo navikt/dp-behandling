@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.Meldeplikt
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opptjeningstid
+import no.nav.dagpenger.regel.Permittering
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.StreikOgLockout
@@ -28,6 +29,7 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.Egenandel
+import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 import org.approvaltests.Approvals
@@ -60,6 +62,8 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-verneplikt-fastsetting" to VernepliktFastsetting.regelsett,
             "@regel-samordning" to Samordning.regelsett,
             "@regel-samordning-utenfor-folketrygden" to SamordingUtenforFolketrygden.regelsett,
+            "@regel-permittering" to Permittering.regelsett,
+            "@regel-permittering-fastsetting" to PermitteringFastsetting.regelsett,
         )
     val regelsett = regler[test]
     requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }

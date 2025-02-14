@@ -9,6 +9,7 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.Egenandel
+import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
@@ -38,6 +39,8 @@ val RegelverkDagpenger =
         Utestengning.regelsett,
         Verneplikt.regelsett,
         VernepliktFastsetting.regelsett,
+        Permittering.regelsett,
+        PermitteringFastsetting.regelsett,
     )
 
 fun kravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
