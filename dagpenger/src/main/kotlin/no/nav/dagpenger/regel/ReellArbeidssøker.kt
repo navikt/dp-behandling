@@ -84,7 +84,12 @@ object ReellArbeidssøker {
         boolsk(OppyllerKravTilRegistrertArbeidssøkerId, "Registrert som arbeidssøker på søknadstidspunktet", synlig = aldriSynlig)
 
     val kravTilArbeidssøker = boolsk(KravTilArbeidssøkerId, "Krav til arbeidssøker")
-    val kanReellArbeidssøkerVurderes = boolsk(KanReellArbeidssøkerVurderesId, "Kan kravet til reell arbeidssøker vurderes")
+    val kanReellArbeidssøkerVurderes =
+        boolsk(
+            KanReellArbeidssøkerVurderesId,
+            "Kan kravet til reell arbeidssøker vurderes",
+            synlig = { !kravetTilMinsteinntektEllerVerneplikt(it) },
+        )
 
     val ønsketArbeidstid =
         desimaltall(
