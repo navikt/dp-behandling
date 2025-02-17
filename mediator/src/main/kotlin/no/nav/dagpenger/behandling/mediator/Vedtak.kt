@@ -106,7 +106,7 @@ fun lagVedtak(
 
     val utfall = vilkår.all { it.status == VilkaarDTO.Status.Oppfylt }
     logger.info {
-        "VedtakDTO med utfall $utfall, dette var alle vilkårene ${vilkår.joinToString("\n") { it.navn + " -> " + it.status.name }}"
+        "VedtakDTO med utfall $utfall, dette var alle vilkårene:\n${vilkår.joinToString("\n") { it.navn + " -> " + it.status.name }}"
     }
     val fastsatt = vedtakFastsattDTO(utfall, opplysninger)
 
