@@ -133,6 +133,7 @@ Oppfyller kravet til permittering
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Oppfyller kravet til opphold i Norge
+Krav til arbeidssøker
 Oppfyller kravet på unntak for utdanning eller opplæring
 Oppfyller kravet til alder
 Første måned av opptjeningsperiode
@@ -158,7 +159,6 @@ Utbetalt arbeidsinntekt periode 2
 Utbetalt arbeidsinntekt periode 3
 Arbeidsinntekt siste 12 mnd
 Arbeidsinntekt siste 36 mnd
-Krav til arbeidssøker
 Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3

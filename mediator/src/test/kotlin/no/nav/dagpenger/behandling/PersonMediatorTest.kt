@@ -200,7 +200,7 @@ internal class PersonMediatorTest {
                 medMeldingsInnhold("fastsatt") {
                     medBoolsk("utfall") shouldBe false
                 }
-                medNode("vilkår").size() shouldBe 1
+                medNode("vilkår").size() shouldBe 2
             }
 
             godkjennOpplysninger("avslag")

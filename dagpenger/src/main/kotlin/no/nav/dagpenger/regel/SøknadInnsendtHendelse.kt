@@ -22,8 +22,8 @@ import no.nav.dagpenger.regel.Minsteinntekt.SvangerskapsrelaterteSykepengerKontr
 import no.nav.dagpenger.regel.Minsteinntekt.ØnskerEtterRapporteringsfristKontroll
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.Permittering.PermitteringKontroll
-import no.nav.dagpenger.regel.ReellArbeidssøker.IkkeRegistrertSomArbeidsøkerKontroll
 import no.nav.dagpenger.regel.ReellArbeidssøker.ReellArbeidssøkerKontroll
+import no.nav.dagpenger.regel.RegistrertArbeidssøker.IkkeRegistrertSomArbeidsøkerKontroll
 import no.nav.dagpenger.regel.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.Søknadstidspunkt.SøknadstidspunktForLangtFramITid
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype

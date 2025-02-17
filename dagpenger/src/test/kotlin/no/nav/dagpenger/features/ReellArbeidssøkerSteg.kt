@@ -1,16 +1,11 @@
 package no.nav.dagpenger.features
 
 import io.cucumber.java8.No
-import io.kotest.assertions.withClue
-import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.features.utils.somLocalDate
 import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.ReellArbeidssøker
-import no.nav.dagpenger.regel.ReellArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
-import no.nav.dagpenger.regel.ReellArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -70,27 +65,6 @@ class ReellArbeidssøkerSteg : No {
                 .leggTil(
                     Faktum<Boolean>(ReellArbeidssøker.villigTilEthvertArbeid, false),
                 ).also { regelkjøring.evaluer() }
-        }
-
-        Gitt("personen var registrert {boolsk} på {string}") { svar: Boolean, registrert: String ->
-            opplysninger
-                .leggTil(Faktum(registrertArbeidssøker, svar, Gyldighetsperiode(fom = registrert.somLocalDate())))
-                .also { regelkjøring.evaluer() }
-        }
-
-        Så("er kravet til meldeplikt {string}") { utfall: String ->
-            withClue("Forventer at vi har '${oppyllerKravTilRegistrertArbeidssøker.navn}'") {
-                opplysninger.har(oppyllerKravTilRegistrertArbeidssøker) shouldBe true
-            }
-
-            val verdi = opplysninger.finnOpplysning(oppyllerKravTilRegistrertArbeidssøker).verdi
-
-            withClue("Forventet at kravet til meldeplikt skulle være $utfall") {
-                when (Utfall.valueOf(utfall)) {
-                    Utfall.Oppfylt -> verdi shouldBe true
-                    Utfall.`Ikke oppfylt` -> verdi shouldBe false
-                }
-            }
         }
 
         Så("skal kravet til reell arbeidssøker være oppfylt") {

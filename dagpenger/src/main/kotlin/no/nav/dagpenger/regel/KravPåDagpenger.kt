@@ -36,7 +36,7 @@ object KravPåDagpenger {
                 alle(
                     Alderskrav.kravTilAlder,
                     FulleYtelser.ikkeFulleYtelser,
-                    ReellArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
+                    RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
                     minsteinntektEllerVerneplikt,
                     Opphold.oppfyllerKravet,
                     ReellArbeidssøker.kravTilArbeidssøker,

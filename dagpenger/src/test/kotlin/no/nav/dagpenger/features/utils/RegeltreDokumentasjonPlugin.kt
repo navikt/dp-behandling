@@ -19,6 +19,7 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Permittering
 import no.nav.dagpenger.regel.ReellArbeidssøker
+import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.StreikOgLockout
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
@@ -64,6 +65,7 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-samordning-utenfor-folketrygden" to SamordingUtenforFolketrygden.regelsett,
             "@regel-permittering" to Permittering.regelsett,
             "@regel-permittering-fastsetting" to PermitteringFastsetting.regelsett,
+            "@regel-registrert-arbeidssøker" to RegistrertArbeidssøker.regelsett,
         )
     val regelsett = regler[test]
     requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }

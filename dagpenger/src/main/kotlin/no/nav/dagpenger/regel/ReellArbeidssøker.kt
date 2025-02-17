@@ -19,7 +19,6 @@ import no.nav.dagpenger.regel.Avklaringspunkter.ReellArbeidssøkerUnntak
 import no.nav.dagpenger.regel.Behov.HelseTilAlleTyperJobb
 import no.nav.dagpenger.regel.Behov.KanJobbeDeltid
 import no.nav.dagpenger.regel.Behov.KanJobbeHvorSomHelst
-import no.nav.dagpenger.regel.Behov.RegistrertSomArbeidssøker
 import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
 import no.nav.dagpenger.regel.OpplysningsTyper.ErArbeidsførId
@@ -34,8 +33,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravTilArbeidsførId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravTilArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravTilMobilitetId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetTilEthvertArbeidId
-import no.nav.dagpenger.regel.OpplysningsTyper.OppyllerKravTilRegistrertArbeidssøkerId
-import no.nav.dagpenger.regel.OpplysningsTyper.RegistrertSomArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.VilligTilEthvertArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.minimumVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.villigTilMinimumArbeidstidId
@@ -76,12 +73,6 @@ object ReellArbeidssøker {
         boolsk(VilligTilEthvertArbeidId, beskrivelse = "Villig til å bytte yrke", Bruker, behovId = VilligTilÅBytteYrke)
     val oppfyllerKravetTilEthvertArbeid =
         boolsk(OppfyllerKravetTilEthvertArbeidId, "Oppfyller kravet til å ta ethvert arbeid", synlig = aldriSynlig)
-
-    // Registrert som arbeidssøker
-    internal val registrertArbeidssøker =
-        boolsk(RegistrertSomArbeidssøkerId, beskrivelse = "Registrert som arbeidssøker", behovId = RegistrertSomArbeidssøker)
-    val oppyllerKravTilRegistrertArbeidssøker =
-        boolsk(OppyllerKravTilRegistrertArbeidssøkerId, "Registrert som arbeidssøker på søknadstidspunktet", synlig = aldriSynlig)
 
     val kravTilArbeidssøker = boolsk(KravTilArbeidssøkerId, "Krav til arbeidssøker")
     val kanReellArbeidssøkerVurderes =
@@ -127,9 +118,6 @@ object ReellArbeidssøker {
             utfall(oppfyllerKravTilArbeidsfør) { enAv(erArbeidsfør, godkjentArbeidsufør) }
             utfall(oppfyllerKravetTilEthvertArbeid) { enAv(villigTilEthvertArbeid) }
 
-            regel(registrertArbeidssøker) { innhentMed(prøvingsdato) }
-            utfall(oppyllerKravTilRegistrertArbeidssøker) { erSann(registrertArbeidssøker) }
-
             utfall(kravTilArbeidssøker) {
                 alle(
                     villigTilMinimumArbeidstid,
@@ -137,7 +125,6 @@ object ReellArbeidssøker {
                     oppfyllerKravTilMobilitet,
                     oppfyllerKravTilArbeidsfør,
                     oppfyllerKravetTilEthvertArbeid,
-                    oppyllerKravTilRegistrertArbeidssøker,
                 )
             }
 
@@ -158,10 +145,5 @@ object ReellArbeidssøker {
                 (it.har(kanJobbeHvorSomHelst) && it.finnOpplysning(kanJobbeHvorSomHelst).verdi == false) ||
                 (it.har(erArbeidsfør) && it.finnOpplysning(erArbeidsfør).verdi == false) ||
                 (it.har(villigTilEthvertArbeid) && it.finnOpplysning(villigTilEthvertArbeid).verdi == false)
-        }
-
-    val IkkeRegistrertSomArbeidsøkerKontroll =
-        Kontrollpunkt(IkkeRegistrertSomArbeidsøker) {
-            it.har(oppyllerKravTilRegistrertArbeidssøker) && it.finnOpplysning(oppyllerKravTilRegistrertArbeidssøker).verdi == false
         }
 }

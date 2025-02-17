@@ -29,6 +29,7 @@ val RegelverkDagpenger =
         Opphold.regelsett,
         Opptjeningstid.regelsett,
         ReellArbeidssøker.regelsett,
+        RegistrertArbeidssøker.regelsett,
         Rettighetstype.regelsett,
         SamordingUtenforFolketrygden.regelsett,
         Samordning.regelsett,
