@@ -298,9 +298,24 @@ internal class PersonMediatorTest {
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
                     oppfylt
-                    periode("Permittering") shouldBe 26
+                    periode("Permitteringsperiode") shouldBe 26
                 }
             }
+
+            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            rapid.harHendelse("vedtak_fattet") {
+                medBoolsk("automatisk") shouldBe false
+                medFastsettelser {
+                    oppfylt
+                    periode("Permitteringsperiode") shouldBe 26
+                }
+            }
+            godkjennOpplysninger("permittering")
+            vedtakJson()
         }
     }
 
@@ -785,7 +800,9 @@ internal class PersonMediatorTest {
                     )
 
                 // Dette er vedtaket som brukes i dp-arena-sink: vedtak_fattet_innvilgelse.json
-                JsonMessage.newMessage("vedtak_fattet", vedtak.toMap()).toJson()
+                JsonMessage.newMessage("vedtak_fattet", vedtak.toMap()).toJson().also {
+                    println(it)
+                }
             }
         }
 

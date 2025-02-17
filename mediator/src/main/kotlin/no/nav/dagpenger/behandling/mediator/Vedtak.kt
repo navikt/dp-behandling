@@ -203,7 +203,7 @@ private fun vedtakFastsattDTO(
                         .takeIf { it?.verdi == true }
                         ?.let {
                             KvoteDTO(
-                                "Permittering",
+                                "Permitteringsperiode",
                                 KvoteDTO.Type.uker,
                                 opplysninger.finnOpplysning(permitteringsperiode).verdi.toBigDecimal(),
                             )
