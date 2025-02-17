@@ -22,11 +22,11 @@ object Utestengning {
         vilkår(
             folketrygden.hjemmel(4, 28, "Utestengning", "Utestengning"),
         ) {
-            skalVurderes { kravetTilMinsteinntektEllerVerneplikt(it) }
+            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(utestengt) { oppslag(prøvingsdato) { false } }
             utfall(oppfyllerKravetTilIkkeUtestengt) { ikke(utestengt) }
 
-            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
         }
 }

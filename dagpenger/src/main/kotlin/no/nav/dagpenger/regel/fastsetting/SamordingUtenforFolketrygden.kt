@@ -46,7 +46,7 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpeng
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
-import no.nav.dagpenger.regel.kravetTilMinsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 
 object SamordingUtenforFolketrygden {
     val andreYtelser =
@@ -222,7 +222,7 @@ object SamordingUtenforFolketrygden {
                 )
             }
 
-            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
             ønsketResultat(skalSamordnesUtenforFolketrygden, dagsatsSamordnetUtenforFolketrygden)
         }

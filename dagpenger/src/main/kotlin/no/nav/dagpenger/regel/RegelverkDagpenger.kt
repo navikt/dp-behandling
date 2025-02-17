@@ -44,7 +44,7 @@ val RegelverkDagpenger =
         PermitteringFastsetting.regelsett,
     )
 
-fun kravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
+fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
     opplysninger.erSann(minsteinntekt) || opplysninger.erSann(oppfyllerKravetTilVerneplikt)
 
 fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =

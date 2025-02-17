@@ -55,7 +55,7 @@ class SøknadInnsendtHendelse(
         opplysninger.har(KravPåDagpenger.kravPåDagpenger) &&
             opplysninger.finnOpplysning(KravPåDagpenger.kravPåDagpenger).verdi
 
-    private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = kravetTilMinsteinntektEllerVerneplikt(opplysninger)
+    private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
 
     private fun alder(opplysninger: LesbarOpplysninger): Boolean =
         opplysninger.har(Alderskrav.kravTilAlder) &&

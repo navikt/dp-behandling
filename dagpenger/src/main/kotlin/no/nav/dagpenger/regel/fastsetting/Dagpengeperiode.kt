@@ -33,7 +33,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor36Id
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
-import no.nav.dagpenger.regel.kravetTilMinsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 
 object Dagpengeperiode {
     private val dagerIUka = heltall(DagerIUkaId, "Antall dager som skal regnes med i hver uke", synlig = aldriSynlig)
@@ -96,7 +96,7 @@ object Dagpengeperiode {
             regel(dagerIUka) { oppslag(prøvingsdato) { 5 } }
             regel(gjenståendeStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
 
-            påvirkerResultat { kravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
             ønsketResultat(ordinærPeriode, gjenståendeStønadsdager)
         }

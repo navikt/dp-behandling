@@ -8,7 +8,6 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
-import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
@@ -79,7 +78,7 @@ object ReellArbeidssøker {
         boolsk(
             KanReellArbeidssøkerVurderesId,
             "Kan kravet til reell arbeidssøker vurderes",
-            synlig = { false && !kravetTilMinsteinntektEllerVerneplikt(it) },
+            synlig = { !oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) },
         )
 
     val ønsketArbeidstid =
@@ -135,7 +134,7 @@ object ReellArbeidssøker {
             avklaring(IkkeRegistrertSomArbeidsøker)
 
             påvirkerResultat {
-                it.erSann(kravTilAlder)
+                it.erSann(kravTilAlder) && it.oppfyller(kanReellArbeidssøkerVurderes)
             }
         }
 
