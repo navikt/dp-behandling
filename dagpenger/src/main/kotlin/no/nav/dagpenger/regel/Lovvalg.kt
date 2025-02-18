@@ -27,6 +27,7 @@ object Lovvalg {
             utfall(erLovvalgNorge) { oppslag(prøvingsdato) { true } }
             regel(hvisIkkeNorge) { oppslag(prøvingsdato) { "<annet land>" } }
 
+            ønsketResultat(hvisIkkeNorge)
             påvirkerResultat {
                 it.har(erLovvalgNorge)
             }

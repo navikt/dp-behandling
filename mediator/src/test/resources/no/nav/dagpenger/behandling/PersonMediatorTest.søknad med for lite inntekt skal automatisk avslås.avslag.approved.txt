@@ -13,6 +13,7 @@ Prøvingsdato
 Har rett til ordinære dagpenger
 Aldersgrense
 Er omfattet av trygdelovgivningen i Norge
+Annet lovvalgsland
 Rettighetstype
 Dato søker når maks alder
 Siste mulige dag bruker kan oppfylle alderskrav
