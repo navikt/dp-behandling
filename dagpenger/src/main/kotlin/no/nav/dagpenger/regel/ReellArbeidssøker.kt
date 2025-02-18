@@ -134,7 +134,8 @@ object ReellArbeidssøker {
             avklaring(IkkeRegistrertSomArbeidsøker)
 
             påvirkerResultat {
-                it.erSann(kravTilAlder) && it.oppfyller(kanReellArbeidssøkerVurderes)
+                it.erSann(kravTilAlder) &&
+                    (it.oppfyller(kanReellArbeidssøkerVurderes) || oppfyllerKravetTilMinsteinntektEllerVerneplikt(it))
             }
         }
 
