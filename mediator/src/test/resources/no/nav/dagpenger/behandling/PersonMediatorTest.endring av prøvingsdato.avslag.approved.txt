@@ -26,6 +26,7 @@ Maks lengde på opptjeningsperiode
 Grunnbeløp
 Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
+Er omfattet av trygdelovgivningen i Norge
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søk arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid

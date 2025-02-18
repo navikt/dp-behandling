@@ -64,6 +64,7 @@ Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
 Antall dager som skal regnes med i hver uke
 Antall dagsats for egenandel
 Mottar ikke andre fulle ytelser
+Er omfattet av trygdelovgivningen i Norge
 Opphold i Norge
 Oppfyller unntak for opphold i Norge
 Er personen medlem av folketrygden

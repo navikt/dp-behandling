@@ -200,7 +200,16 @@ internal class PersonMediatorTest {
                 medMeldingsInnhold("fastsatt") {
                     medBoolsk("utfall") shouldBe false
                 }
-                medNode("vilkår").size() shouldBe 2
+                medNode("vilkår").size() shouldBe 3
+                medVilkår("Oppfyller kravet til alder") {
+                    erIkkeOppfylt()
+                }
+                medVilkår("Registrert som arbeidssøker på søknadstidspunktet") {
+                    erOppfylt()
+                }
+                medVilkår("Er omfattet av trygdelovgivningen i Norge") {
+                    erOppfylt()
+                }
             }
 
             godkjennOpplysninger("avslag")
@@ -371,7 +380,7 @@ internal class PersonMediatorTest {
                     samordning.shouldNotBeEmpty()
                     samordning.first()["type"].asText() shouldBe "Sykepenger dagsats"
                 }
-                medNode("vilkår").shouldHaveSize(18)
+                medNode("vilkår").shouldHaveSize(19)
                 medNode("behandletAv")
                     .map {
                         it["behandler"]["ident"].asText()

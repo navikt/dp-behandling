@@ -13,6 +13,7 @@ import no.nav.dagpenger.dag.printer.MermaidPrinter
 import no.nav.dagpenger.opplysning.dag.RegeltreBygger
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.FulleYtelser
+import no.nav.dagpenger.regel.Lovvalg
 import no.nav.dagpenger.regel.Meldeplikt
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold
@@ -66,6 +67,7 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-permittering" to Permittering.regelsett,
             "@regel-permittering-fastsetting" to PermitteringFastsetting.regelsett,
             "@regel-registrert-arbeidssøker" to RegistrertArbeidssøker.regelsett,
+            "@regel-lovvalg" to Lovvalg.regelsett,
         )
     val regelsett = regler[test]
     requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }

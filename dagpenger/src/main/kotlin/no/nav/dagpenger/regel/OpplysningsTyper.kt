@@ -290,6 +290,10 @@ object OpplysningsTyper {
     val arbeidstimerId = Opplysningstype.Id(UUID.fromString("01948ea0-e25c-7c47-8429-a05045d80eca"), Heltall)
     val forbrukId = Opplysningstype.Id(UUID.fromString("01948ea0-ffdc-7964-ab55-52a7e35e1020"), Boolsk)
     val terskelId = Opplysningstype.Id(UUID.fromString("01948ea2-22f3-7da8-9547-90d0c64e74e0"), Desimaltall)
+
+    // Lovvalg
+    val erLovvalgNorgeId = Opplysningstype.Id(UUID.fromString("01951916-8dc7-72af-b917-8ff958a10ec5"), Boolsk)
+    val hvisIkkeNorgeId = Opplysningstype.Id(UUID.fromString("01951916-e189-70f5-9908-5bc9b9d58a37"), Tekst)
 }
 
 /**

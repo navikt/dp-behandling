@@ -233,3 +233,5 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|
 |0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kan kravet til reell arbeidssøker vurderes|Kan kravet til reell arbeidssøker vurderes|Boolsk|boolean|
 |0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Periode som gis ved permittering|Heltall|int|
+|01951916-8dc7-72af-b917-8ff958a10ec5|Er omfattet av trygdelovgivningen i Norge|Er omfattet av trygdelovgivningen i Norge|Boolsk|boolean|
+|01951916-e189-70f5-9908-5bc9b9d58a37|Annet lovvalgsland|Annet lovvalgsland|Tekst|String|

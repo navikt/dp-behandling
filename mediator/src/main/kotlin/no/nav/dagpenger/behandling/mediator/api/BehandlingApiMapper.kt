@@ -38,6 +38,8 @@ import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
+import no.nav.dagpenger.regel.Lovvalg.erLovvalgNorge
+import no.nav.dagpenger.regel.Lovvalg.hvisIkkeNorge
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
@@ -355,6 +357,9 @@ private val redigerbareOpplysninger =
         private val redigerbare =
             setOf(
                 prøvingsdato,
+                // 4-1 Lovvalg
+                erLovvalgNorge,
+                hvisIkkeNorge,
                 // 4-2 Opphold
                 oppholdINorge,
                 unntakForOpphold,
