@@ -228,6 +228,8 @@ object OpplysningsTyper {
     val maksimalVanligArbeidstidId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a768"), Desimaltall)
     val minimumVanligArbeidstidId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a769"), Desimaltall)
     val fastsattArbeidstidPerUkeFørTapId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a76a"), Desimaltall)
+    val minstØnsketArbeidstidId = Opplysningstype.Id(UUID.fromString("01951888-6a29-71be-87b0-c31a8c630f5f"), Desimaltall)
+    val minsteTillatteArbeidstidId = Opplysningstype.Id(UUID.fromString("01951888-cb38-72b1-88a6-4401e413d6d8"), Desimaltall)
     val villigTilMinimumArbeidstidId =
         Opplysningstype.Id(
             UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a76d"),

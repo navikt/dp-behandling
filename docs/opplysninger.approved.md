@@ -233,3 +233,5 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|
 |0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kan kravet til reell arbeidssøker vurderes|Kan kravet til reell arbeidssøker vurderes|Boolsk|boolean|
 |0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Periode som gis ved permittering|Heltall|int|
+|01951888-6a29-71be-87b0-c31a8c630f5f|Minste ønsket arbeidstid som kan inngå fastsettelsen av arbeidstid|Minste ønsket arbeidstid som kan inngå fastsettelsen av arbeidstid|Desimaltall|double|
+|01951888-cb38-72b1-88a6-4401e413d6d8|Minimum fastsatt arbeidstid per uke|Minimum fastsatt arbeidstid per uke|Desimaltall|double|

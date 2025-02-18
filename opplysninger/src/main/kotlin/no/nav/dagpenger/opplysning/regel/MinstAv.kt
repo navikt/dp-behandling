@@ -18,5 +18,5 @@ class MinstAv<T : Comparable<T>> internal constructor(
 @JvmName("minstAvDouble")
 fun Opplysningstype<Double>.minstAv(vararg verdi: Opplysningstype<Double>) = MinstAv(this, *verdi)
 
-@JvmName("minstAvAvBeløp")
+@JvmName("minstAvBeløp")
 fun Opplysningstype<Beløp>.minstAv(vararg opplysningstype: Opplysningstype<Beløp>) = MinstAv(this, *opplysningstype)

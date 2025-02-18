@@ -73,6 +73,7 @@ Maksimal vanlig arbeidstid
 Fastsatt vanlig arbeidstid for verneplikt
 Beregnet vanlig arbeidstid per uke før tap
 Antall timer arbeidstiden skal samordnes mot
+Minimum fastsatt arbeidstid per uke
 Krav til prosentvis tap av arbeidstid
 Beregningsregel: Arbeidstid siste 6 måneder
 Beregningsregel: Arbeidstid siste 12 måneder
@@ -129,8 +130,9 @@ Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
 Oppfyller kravet til å ta ethvert arbeid
 Villig til å jobbe minimum arbeidstid
-Fastsatt arbeidstid per uke før tap
+Minste ønsket arbeidstid som kan inngå fastsettelsen av arbeidstid
 Krav til arbeidssøker
+Fastsatt arbeidstid per uke før tap
 Tap av arbeidstid er minst terskel
 Krav til tap av arbeidsinntekt og arbeidstid
 Tar utdanning eller opplæring?

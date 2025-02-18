@@ -18,5 +18,8 @@ class HøyesteAv<T : Comparable<T>>(
 @JvmName("høyesteAvInt")
 fun Opplysningstype<Int>.høyesteAv(vararg opplysningstype: Opplysningstype<Int>) = HøyesteAv(this, *opplysningstype)
 
+@JvmName("høyesteAvDesimaltall")
+fun Opplysningstype<Double>.høyesteAv(vararg opplysningstype: Opplysningstype<Double>) = HøyesteAv(this, *opplysningstype)
+
 @JvmName("høyesteAvBeløp")
 fun Opplysningstype<Beløp>.høyesteAv(vararg opplysningstype: Opplysningstype<Beløp>) = HøyesteAv(this, *opplysningstype)
