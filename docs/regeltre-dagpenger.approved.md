@@ -367,4 +367,5 @@ graph RL
   HR["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| EI["Har rett til dagpenger under permittering i fiskeforedlingsindustri"]
   HR["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| HP["Årsaken til permitteringen fra fiskeindustrien er godkjent"]
   HR["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| HQ["Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans"]
+  HS["Periode som gis ved permittering fra fiskeindustrien"] -->|"Oppslag"| B["Prøvingsdato"]
 ```

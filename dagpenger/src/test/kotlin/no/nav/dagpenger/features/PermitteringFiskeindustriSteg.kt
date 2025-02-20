@@ -1,7 +1,6 @@
 package no.nav.dagpenger.features
 
 import io.cucumber.java.BeforeStep
-import io.cucumber.java.no.Gitt
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.mai
@@ -9,7 +8,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.regel.PermittertFraFiskeindustrien
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Søknadstidspunkt
 
@@ -18,7 +17,7 @@ class PermitteringFiskeindustriSteg : No {
     private val regelsett =
         listOf(
             Rettighetstype.regelsett,
-            PermittertFraFiskeindustrien.regelsett,
+            PermitteringFraFiskeindustrien.regelsett,
             Søknadstidspunkt.regelsett,
         )
     private val opplysninger = Opplysninger()
@@ -36,18 +35,18 @@ class PermitteringFiskeindustriSteg : No {
 
         Og("saksbehandler vurderer at søker har {boolsk} til permittering fra fiskeindustrien") { årsak: Boolean ->
             opplysninger
-                .leggTil(Faktum(PermittertFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri, årsak) as Opplysning<*>)
+                .leggTil(Faktum(PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri, årsak) as Opplysning<*>)
                 .also { regelkjøring.evaluer() }
         }
 
         Og("vurderer at søker har {boolsk} permittering fra fiskeindustrien") { midlertidig: Boolean ->
             opplysninger
-                .leggTil(Faktum(PermittertFraFiskeindustrien.erPermitteringenFraFiskeindustriMidlertidig, midlertidig) as Opplysning<*>)
+                .leggTil(Faktum(PermitteringFraFiskeindustrien.erPermitteringenFraFiskeindustriMidlertidig, midlertidig) as Opplysning<*>)
                 .also { regelkjøring.evaluer() }
         }
 
         Så("skal søker få {boolsk} av permittering fra fiskeindustrien") { utfall: Boolean ->
-            opplysninger.finnOpplysning(PermittertFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri).verdi shouldBe utfall
+            opplysninger.finnOpplysning(PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri).verdi shouldBe utfall
         }
     }
 }

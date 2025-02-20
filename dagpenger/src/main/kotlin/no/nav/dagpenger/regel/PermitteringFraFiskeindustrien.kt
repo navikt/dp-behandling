@@ -16,7 +16,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFis
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
-object PermittertFraFiskeindustrien {
+object PermitteringFraFiskeindustrien {
     val godkjentÅrsakPermitteringFraFiskindustri =
         boolsk(
             godkjentÅrsakPermitteringFraFiskindustriId,

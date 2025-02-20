@@ -295,6 +295,7 @@ object OpplysningsTyper {
             UUID.fromString("019522d2-9bb1-7960-b1e2-a959566e2428"),
             Desimaltall,
         )
+    val permitteringFraFiskeindustriPeriodeId = Opplysningstype.Id(UUID.fromString("0195235a-599b-7b27-97a8-bc6142066a87"), Heltall)
 
     // beregning/meldekort
     val arbeidsdagId = Opplysningstype.Id(UUID.fromString("01948ea0-36e8-72cc-aa4f-16bc446ed3bd"), Boolsk)

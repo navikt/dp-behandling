@@ -18,7 +18,7 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Permittering
-import no.nav.dagpenger.regel.PermittertFraFiskeindustrien
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Samordning
@@ -32,6 +32,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.Egenandel
 import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
+import no.nav.dagpenger.regel.fastsetting.PermitteringFraFiskeindustrienFastsetting
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 import org.approvaltests.Approvals
@@ -67,7 +68,8 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-permittering" to Permittering.regelsett,
             "@regel-permittering-fastsetting" to PermitteringFastsetting.regelsett,
             "@regel-registrert-arbeidssøker" to RegistrertArbeidssøker.regelsett,
-            "@regel-permittering-fiskeindustrien" to PermittertFraFiskeindustrien.regelsett,
+            "@regel-permittering-fiskeindustrien" to PermitteringFraFiskeindustrien.regelsett,
+            "@regel-permitteringFiskeindustrien-fastsetting" to PermitteringFraFiskeindustrienFastsetting.regelsett,
         )
     val regelsett = regler[test]
     requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }
