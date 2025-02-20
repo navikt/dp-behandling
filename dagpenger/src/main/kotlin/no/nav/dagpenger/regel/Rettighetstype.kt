@@ -22,7 +22,7 @@ object Rettighetstype {
     val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
     private val ordinærArbeid = boolsk(OrdinærId, beskrivelse = "Har rett til ordinære dagpenger gjennom arbeidsforhold", behovId = Ordinær)
     private val lønnsgaranti = boolsk(LønnsgarantiId, beskrivelse = "Har rett til dagpenger etter konkurs", behovId = Lønnsgaranti)
-    private val permitteringFiskeforedling =
+    val permitteringFiskeforedling =
         boolsk(
             PermittertFiskeforedlingId,
             beskrivelse = "Har rett til dagpenger under permittering i fiskeforedlingsindustri",

@@ -88,7 +88,8 @@ Maksimal vanlig arbeidstid
 Fastsatt vanlig arbeidstid for verneplikt
 Beregnet vanlig arbeidstid per uke før tap
 Antall timer arbeidstiden skal samordnes mot
-Krav til prosentvis tap av arbeidstid
+Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien
+Ordinært krav til prosentvis tap av arbeidstid
 Beregningsregel: Arbeidstid siste 6 måneder
 Beregningsregel: Arbeidstid siste 12 måneder
 Beregningsregel: Arbeidstid siste 36 måneder
@@ -102,6 +103,8 @@ Bruker er utestengt fra dagpenger
 Periode som gis ved verneplikt
 Årsaken til permitteringen er godkjent
 Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
+Årsaken til permitteringen fra fiskeindustrien er godkjent
+Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 6 ganger grunnbeløp
@@ -126,10 +129,12 @@ Er medlemmet ikke påvirket av streik eller lock-out?
 Ikke krav på lønn fra tidligere arbeidsgiver
 Krav til tap av arbeidsinntekt
 Samordnet fastsatt arbeidstid
+Krav til prosentvis tap av arbeidstid
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
 Oppfyller kravet til permittering
+Oppfyller kravet til permittering i fiskeindustrien
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Oppfyller kravet til opphold i Norge

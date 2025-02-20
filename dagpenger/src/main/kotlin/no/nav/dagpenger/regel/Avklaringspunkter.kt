@@ -166,4 +166,11 @@ object Avklaringspunkter {
             tittel = "Sjekk hva bruker har oppgitt som tilleggsopplysninger i søknaden",
             beskrivelse = "Du må vurdere om tilleggsopplysninger har betydning for saken",
         )
+
+    val HarOppgittPermitteringFiskeindustri =
+        Avklaringkode(
+            kode = "HarOppgittPermitteringFiskeindustri",
+            tittel = "Sjekk om bruker skal ha dagpenger som permittert fra fiskeindustrien",
+            beskrivelse = "Du må vurdere om bruker er permittert og oppfyller kravene til permittering fra fiskeindustrien",
+        )
 }

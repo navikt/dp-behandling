@@ -215,6 +215,7 @@ object OpplysningsTyper {
     val ikkeKravPåLønnFraTidligereArbeidsgiverId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a760"), Boolsk)
     val kravTilTapAvArbeidsinntektId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a761"), Boolsk)
     val kravTilProsentvisTapAvArbeidstidId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a762"), Desimaltall)
+    val ordinærtKravTilTaptArbeidstidId = Opplysningstype.Id(UUID.fromString("019522d6-846d-7173-a892-67f10016d8d2"), Desimaltall)
     val beregningsregelArbeidstidSiste6MånederId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a764"), Boolsk)
     val beregningsregelArbeidstidSiste12MånederId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a765"), Boolsk)
     val beregeningsregelArbeidstidSiste36MånederId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a766"), Boolsk)
@@ -284,6 +285,16 @@ object OpplysningsTyper {
     val oppfyllerKravetTilPermitteringId = Opplysningstype.Id(UUID.fromString("0194d111-db2f-7395-bcfb-959f245fd2a6"), Boolsk)
     val erPermitteringenMidlertidigId = Opplysningstype.Id(UUID.fromString("0194d119-90b7-7416-a8b0-9e9cf3587d48"), Boolsk)
     val permitteringsperiodeId = Opplysningstype.Id(UUID.fromString("0195042d-918e-7fae-8fb7-7f38eed42710"), Heltall)
+
+    // permittering fiskeindustri
+    val oppfyllerKravetTilPermitteringFiskeindustriId = Opplysningstype.Id(UUID.fromString("019522b0-c722-76d4-8d7f-78f556c51f72"), Boolsk)
+    val godkjentÅrsakPermitteringFraFiskindustriId = Opplysningstype.Id(UUID.fromString("019522b8-0f1b-7536-8691-fd824bca86de"), Boolsk)
+    val erPermitteringenFraFiskeindustriMidlertidigId = Opplysningstype.Id(UUID.fromString("019522b8-494f-7012-898c-d202e3b90061"), Boolsk)
+    val kravTilProsentvisTapAvArbeidstidFiskepermitteringId =
+        Opplysningstype.Id(
+            UUID.fromString("019522d2-9bb1-7960-b1e2-a959566e2428"),
+            Desimaltall,
+        )
 
     // beregning/meldekort
     val arbeidsdagId = Opplysningstype.Id(UUID.fromString("01948ea0-36e8-72cc-aa4f-16bc446ed3bd"), Boolsk)

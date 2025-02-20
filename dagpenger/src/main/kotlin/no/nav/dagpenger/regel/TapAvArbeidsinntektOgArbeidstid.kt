@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -27,7 +28,10 @@ import no.nav.dagpenger.regel.OpplysningsTyper.kravTilTapAvArbeidsinntektId
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilTapAvArbeidsinntektOgArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.maksimalVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.nyArbeidstidPerUkeId
+import no.nav.dagpenger.regel.OpplysningsTyper.ordinærtKravTilTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.tapAvArbeidstidErMinstTerskelId
+import no.nav.dagpenger.regel.PermittertFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
+import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
@@ -45,10 +49,17 @@ object TapAvArbeidsinntektOgArbeidstid {
     val kravTilTapAvArbeidsinntekt = Opplysningstype.boolsk(kravTilTapAvArbeidsinntektId, "Krav til tap av arbeidsinntekt")
 
     private val kravTilArbeidstidsreduksjon =
-        Opplysningstype.desimaltall(
+        desimaltall(
             kravTilProsentvisTapAvArbeidstidId,
             "Krav til prosentvis tap av arbeidstid",
         )
+
+    private val ordinærtKravTilTaptArbeidstid =
+        desimaltall(
+            ordinærtKravTilTaptArbeidstidId,
+            "Ordinært krav til prosentvis tap av arbeidstid",
+        )
+
     private val beregningsregel =
         Opplysningstype.boolsk(
             beregningsregelTaptArbeidstidId,
@@ -73,21 +84,21 @@ object TapAvArbeidsinntektOgArbeidstid {
         )
 
     val beregnetArbeidstid =
-        Opplysningstype.desimaltall(
+        desimaltall(
             beregnetVanligArbeidstidPerUkeFørTapId,
             "Beregnet vanlig arbeidstid per uke før tap",
         )
     val maksimalVanligArbeidstid =
-        Opplysningstype.desimaltall(
+        desimaltall(
             maksimalVanligArbeidstidId,
             "Maksimal vanlig arbeidstid",
             synlig = aldriSynlig,
         )
 
-    val nyArbeidstid = Opplysningstype.desimaltall(nyArbeidstidPerUkeId, "Ny arbeidstid per uke")
+    val nyArbeidstid = desimaltall(nyArbeidstidPerUkeId, "Ny arbeidstid per uke")
 
     internal val ordinærEllerVernepliktArbeidstid =
-        Opplysningstype.desimaltall(
+        desimaltall(
             fastsattVanligArbeidstidEtterOrdinærEllerVernepliktId,
             "Fastsatt vanlig arbeidstid etter ordinær eller verneplikt",
             synlig = aldriSynlig,
@@ -110,7 +121,15 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(ikkeKravPåLønn) { ikke(kravPåLønn) }
             utfall(kravTilTapAvArbeidsinntekt) { alle(tapAvArbeid, ikkeKravPåLønn) }
 
-            regel(kravTilArbeidstidsreduksjon) { oppslag(prøvingsdato) { 50.0 } } // Perm og sånt har andre terskelverdier
+            regel(ordinærtKravTilTaptArbeidstid) { oppslag(prøvingsdato) { 50.0 } }
+
+            regel(kravTilArbeidstidsreduksjon) {
+                hvisSannMedResultat(
+                    permitteringFiskeforedling,
+                    kravTilArbeidstidsreduksjonVedFiskepermittering,
+                    ordinærtKravTilTaptArbeidstid,
+                )
+            }
 
             // TODO: Kun en av disse må være sann. Enforces med Avklaring (i framtiden)
             regel(beregningsregel6mnd) { oppslag(prøvingsdato) { true } } // TODO: Satt til true for testing av innvilgelse

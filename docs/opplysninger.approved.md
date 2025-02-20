@@ -233,3 +233,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|
 |0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kan kravet til reell arbeidssøker vurderes|Kan kravet til reell arbeidssøker vurderes|Boolsk|boolean|
 |0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Periode som gis ved permittering|Heltall|int|
+|019522b0-c722-76d4-8d7f-78f556c51f72|Oppfyller kravet til permittering i fiskeindustrien|Oppfyller kravet til permittering i fiskeindustrien|Boolsk|boolean|
+|019522b8-0f1b-7536-8691-fd824bca86de|Årsaken til permitteringen fra fiskeindustrien er godkjent|Årsaken til permitteringen fra fiskeindustrien er godkjent|Boolsk|boolean|
+|019522b8-494f-7012-898c-d202e3b90061|Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans|Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|
+|019522d2-9bb1-7960-b1e2-a959566e2428|Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien|Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien|Desimaltall|double|
+|019522d6-846d-7173-a892-67f10016d8d2|Ordinært krav til prosentvis tap av arbeidstid|Ordinært krav til prosentvis tap av arbeidstid|Desimaltall|double|

@@ -18,6 +18,7 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Permittering
+import no.nav.dagpenger.regel.PermittertFraFiskeindustrien
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Samordning
@@ -66,6 +67,7 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-permittering" to Permittering.regelsett,
             "@regel-permittering-fastsetting" to PermitteringFastsetting.regelsett,
             "@regel-registrert-arbeidssøker" to RegistrertArbeidssøker.regelsett,
+            "@regel-permittering-fiskeindustrien" to PermittertFraFiskeindustrien.regelsett,
         )
     val regelsett = regler[test]
     requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }

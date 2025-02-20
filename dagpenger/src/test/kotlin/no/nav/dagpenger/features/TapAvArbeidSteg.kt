@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
@@ -44,6 +45,7 @@ class TapAvArbeidSteg : No {
             opplysninger.leggTil(Faktum(ReellArbeidssøker.ønsketArbeidstid, 40.0))
 
             opplysninger.leggTil(Faktum(grunnlagForVernepliktErGunstigst, false))
+            opplysninger.leggTil(Faktum(permitteringFiskeforedling, false))
             opplysninger.leggTil(Faktum(vernepliktFastsattVanligArbeidstid, 0.0))
         }
 

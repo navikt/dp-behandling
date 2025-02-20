@@ -42,6 +42,7 @@ val RegelverkDagpenger =
         VernepliktFastsetting.regelsett,
         Permittering.regelsett,
         PermitteringFastsetting.regelsett,
+        PermittertFraFiskeindustrien.regelsett,
     )
 
 fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
