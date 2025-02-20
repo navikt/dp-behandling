@@ -5,10 +5,13 @@ import io.cucumber.java8.No
 import no.nav.dagpenger.dato.mai
 import no.nav.dagpenger.features.utils.somLocalDate
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.regel.PermittertFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
@@ -26,7 +29,15 @@ import org.junit.jupiter.api.Assertions.assertTrue
 
 class TapAvArbeidSteg : No {
     private val fraDato = 10.mai(2022)
-    private val regelsett = RegelverkDagpenger.regelsettFor(kravTilTaptArbeidstid)
+    private val regelsett = RegelverkDagpenger.regelsettFor(kravTilTaptArbeidstid) + Rettighetstype.regelsett
+//        listOf(
+//            Rettighetstype.regelsett,
+//            TapAvArbeidsinntektOgArbeidstid.regelsett,
+//            Søknadstidspunkt.regelsett,
+//            PermittertFraFiskeindustrien.regelsett,
+//            VernepliktFastsetting.regelsett,
+//            Verneplikt.regelsett,
+//        ) // + RegelverkDagpenger.regelsettFor(kravTilTaptArbeidstid)
 
     private val opplysninger = Opplysninger()
 
@@ -47,6 +58,7 @@ class TapAvArbeidSteg : No {
             opplysninger.leggTil(Faktum(grunnlagForVernepliktErGunstigst, false))
             opplysninger.leggTil(Faktum(permitteringFiskeforedling, false))
             opplysninger.leggTil(Faktum(vernepliktFastsattVanligArbeidstid, 0.0))
+            opplysninger.leggTil(Faktum(kravTilArbeidstidsreduksjonVedFiskepermittering, 40.0))
         }
 
         Gitt("at personen har tapt arbeid") {
@@ -61,6 +73,12 @@ class TapAvArbeidSteg : No {
         }
         Og("har ny arbeidstid {double}") { timer: Double ->
             opplysninger.leggTil(Faktum(nyArbeidstid, timer)).also { regelkjøring.evaluer() }
+        }
+        Og("personen er permittert fra fiskeindustrien {boolsk}") { permittert: Boolean ->
+            opplysninger
+                .leggTil(
+                    Faktum(Rettighetstype.permitteringFiskeforedling, permittert) as Opplysning<*>,
+                ).also { regelkjøring.evaluer() }
         }
         Når("personen søker om dagpenger") { }
         Så("skal personen oppfylle kravet til tap av arbeidsinntekt") {

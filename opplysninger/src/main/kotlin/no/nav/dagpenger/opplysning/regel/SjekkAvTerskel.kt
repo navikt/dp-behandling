@@ -14,7 +14,7 @@ class SjekkAvTerskel internal constructor(
         val total = opplysninger.finnOpplysning(total).verdi
         val terskel = opplysninger.finnOpplysning(terskel).verdi
 
-        return (andel / total) * 100 <= terskel
+        return (1 - (andel / total)) * 100 >= terskel
     }
 
     override fun toString() = "$andel av $total er minst $terskel prosent"

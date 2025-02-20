@@ -29,6 +29,10 @@ internal object TestOpplysningstyper {
             "Resultat",
         )
     }
+    val andel by lazy { Opplysningstype.desimaltall(Id(UUIDv7.ny(), Desimaltall), "Andel") }
+    val total by lazy { Opplysningstype.desimaltall(Id(UUIDv7.ny(), Desimaltall), "Total") }
+    val terskel by lazy { Opplysningstype.desimaltall(Id(UUIDv7.ny(), Desimaltall), "Terskel") }
+
     val boolskB by lazy { Opplysningstype.boolsk(Id(UUIDv7.ny(), Boolsk), "boolsk B") }
     val boolskC by lazy { Opplysningstype.boolsk(Id(UUIDv7.ny(), Boolsk), "boolsk C") }
     val boolskA by lazy { Opplysningstype.boolsk(Id(UUIDv7.ny(), Boolsk), "boolsk A") }

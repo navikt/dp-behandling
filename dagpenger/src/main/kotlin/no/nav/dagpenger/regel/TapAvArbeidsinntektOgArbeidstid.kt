@@ -48,7 +48,7 @@ object TapAvArbeidsinntektOgArbeidstid {
         )
     val kravTilTapAvArbeidsinntekt = Opplysningstype.boolsk(kravTilTapAvArbeidsinntektId, "Krav til tap av arbeidsinntekt")
 
-    private val kravTilArbeidstidsreduksjon =
+    val kravTilArbeidstidsreduksjon =
         desimaltall(
             kravTilProsentvisTapAvArbeidstidId,
             "Krav til prosentvis tap av arbeidstid",
