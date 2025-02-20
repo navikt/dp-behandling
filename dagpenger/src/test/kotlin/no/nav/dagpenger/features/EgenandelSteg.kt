@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -16,7 +17,7 @@ import no.nav.dagpenger.regel.fastsetting.Egenandel
 class EgenandelSteg : No {
     private val fraDato = 10.mai(2024)
     private val regelsett =
-        RegelverkDagpenger.regelsettFor(Egenandel.egenandel)
+        RegelverkDagpenger.regelsettFor(Egenandel.egenandel) + PermitteringFraFiskeindustrien.regelsett
     private val opplysninger: Opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 
@@ -33,6 +34,17 @@ class EgenandelSteg : No {
                 .leggTil(
                     Faktum(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg, Beløp(sats.toBigDecimal())),
                 ).also { regelkjøring.evaluer() }
+        }
+        Og("søker har ikke permittering fra fiskeindustrien") {
+            opplysninger
+                .leggTil(Faktum(PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri, false))
+                .also { regelkjøring.evaluer() }
+        }
+
+        Og("søker har permittering fra fiskeindustrien") {
+            opplysninger
+                .leggTil(Faktum(PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri, true))
+                .also { regelkjøring.evaluer() }
         }
 
         Så("skal egenandel være {string}") { string: String ->

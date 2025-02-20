@@ -166,6 +166,7 @@ Divisior
 Terskelfaktor for 36 måneder
 Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
 Antall dager som skal regnes med i hver uke
+Ingen egenandel
 Antall dagsats for egenandel
 Mottar pensjon fra en offentlig tjenestepensjonsordning
 Mottar redusert uførepensjon fra offentlig pensjonsordning
@@ -209,6 +210,7 @@ Samordnet dagsats med barnetillegg
 Har samordnet
 Dagsats med barnetillegg etter samordning og 90% regel
 Ukessats med barnetillegg etter samordning
+Tre ganger dagsats
 Egenandel
 Sykepenger etter lovens kapittel 8
 Omsorgspenger etter lovens kapittel 9

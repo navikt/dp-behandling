@@ -103,6 +103,8 @@ object OpplysningsTyper {
     val GjenståendeStønadsdagerId = Opplysningstype.Id(UUID.fromString("0194881f-943d-77a7-969c-147999f15457"), Heltall)
     val AntallDagsatsForEgenandelId = Opplysningstype.Id(UUID.fromString("0194881f-943f-78d9-b874-00a4944c54f0"), Desimaltall)
     val EgenandelId = Opplysningstype.Id(UUID.fromString("0194881f-943f-78d9-b874-00a4944c54ef"), Penger)
+    val TreGangerDagsatsId = Opplysningstype.Id(UUID.fromString("019523aa-7941-7dd2-8c43-0644d7b43f57"), Penger)
+    val IngenEgenandelId = Opplysningstype.Id(UUID.fromString("019523aa-980d-7805-b6ed-d701e7827998"), Penger)
     val IkkeFulleYtelserId = Opplysningstype.Id(UUID.fromString("0194881f-943f-78d9-b874-00a4944c54f1"), Boolsk)
     val MinsteinntektEllerVernepliktId = Opplysningstype.Id(UUID.fromString("0194881f-9440-7e1c-9ec4-0f20650bc0cd"), Boolsk)
     val DagensDatoId = Opplysningstype.Id(UUID.fromString("0194881f-9440-7e1c-9ec4-0f20650bc0cf"), Dato)

@@ -62,6 +62,9 @@ Divisior
 Terskelfaktor for 36 måneder
 Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
 Antall dager som skal regnes med i hver uke
+Årsaken til permitteringen fra fiskeindustrien er godkjent
+Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
+Ingen egenandel
 Antall dagsats for egenandel
 Mottar ikke andre fulle ytelser
 Opphold i Norge
@@ -103,8 +106,6 @@ Bruker er utestengt fra dagpenger
 Periode som gis ved verneplikt
 Årsaken til permitteringen er godkjent
 Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
-Årsaken til permitteringen fra fiskeindustrien er godkjent
-Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 6 ganger grunnbeløp
@@ -118,6 +119,7 @@ Inntektskrav for siste 12 mnd
 Inntektskrav for siste 36 mnd
 Terskel for 12 måneder
 Terskel for 36 måneder
+Oppfyller kravet til permittering i fiskeindustrien
 Oppfyller kravet til opphold i Norge eller unntak
 Oppfyller kravet til medlemskap
 Oppfyller kravet til heltid- og deltidsarbeid
@@ -134,7 +136,6 @@ Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
 Oppfyller kravet til permittering
-Oppfyller kravet til permittering i fiskeindustrien
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Oppfyller kravet til opphold i Norge
@@ -218,4 +219,5 @@ Samordnet dagsats med barnetillegg
 Har samordnet
 Dagsats med barnetillegg etter samordning og 90% regel
 Ukessats med barnetillegg etter samordning
+Tre ganger dagsats
 Egenandel
