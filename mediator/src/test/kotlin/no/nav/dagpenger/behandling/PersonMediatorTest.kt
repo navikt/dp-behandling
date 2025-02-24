@@ -320,6 +320,38 @@ internal class PersonMediatorTest {
     }
 
     @Test
+    fun `Innvilgelse ved fiskepermittering`() {
+        withMigratedDb {
+            registrerOpplysningstyper()
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = 6.mai(2021),
+                    InntektSiste12Mnd = 500000,
+                    fiskepermittering = true,
+                    ordinær = false,
+                )
+            løsBehandlingFramTilInnvilgelse(testPerson)
+
+            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            rapid.harHendelse("vedtak_fattet") {
+                medBoolsk("automatisk") shouldBe false
+                medFastsettelser {
+                    oppfylt
+                    periode("FiskePermitteringsperiode") shouldBe 52
+                }
+            }
+            godkjennOpplysninger("fiskepermittering")
+            vedtakJson()
+        }
+    }
+
+    @Test
     fun `Søknad med nok inntekt skal innvilges`() =
         withMigratedDb {
             registrerOpplysningstyper()

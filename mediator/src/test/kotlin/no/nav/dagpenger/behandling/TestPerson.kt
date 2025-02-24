@@ -48,6 +48,7 @@ class TestPerson(
     var søkerVerneplikt: Boolean = false,
     val ordinær: Boolean = true,
     val permittering: Boolean = false,
+    val fiskepermittering: Boolean = false,
 ) {
     val inntektId = "01HQTE3GBWCSVYH6S436DYFREN"
     internal val søknadId = "4afce924-6cb4-4ab4-a92b-fe91e24f31bf"
@@ -240,7 +241,7 @@ class TestPerson(
                 Ordinær to ordinær,
                 Permittert to permittering,
                 Lønnsgaranti to false,
-                PermittertFiskeforedling to false,
+                PermittertFiskeforedling to fiskepermittering,
                 // Verneplikt
                 Verneplikt to søkerVerneplikt,
                 TarUtdanningEllerOpplæring to false,

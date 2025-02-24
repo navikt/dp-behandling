@@ -1,0 +1,224 @@
+fagsakId
+søknadId
+Fødselsdato
+Søknadsdato
+Ønsker dagpenger fra dato
+Har rett til ordinære dagpenger gjennom arbeidsforhold
+Bruker er permittert
+Har rett til dagpenger etter konkurs
+Har rett til dagpenger under permittering i fiskeforedlingsindustri
+Søknadstidspunkt
+Har rett til ordinære dagpenger uten arbeidsforhold
+Prøvingsdato
+Har rett til ordinære dagpenger
+Aldersgrense
+Rettighetstype
+Dato søker når maks alder
+Siste mulige dag bruker kan oppfylle alderskrav
+Oppfyller kravet til alder
+Lovpålagt rapporteringsfrist for A-ordningen
+Maks lengde på opptjeningsperiode
+Grunnbeløp
+Antall G for krav til 12 mnd arbeidsinntekt
+Antall G for krav til 36 mnd arbeidsinntekt
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søk arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
+Minimum vanlig arbeidstid
+Kan kravet til reell arbeidssøker vurderes
+Årsaken til permitteringen er godkjent
+Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
+Årsaken til permitteringen fra fiskeindustrien er godkjent
+Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
+Arbeidsgivers rapporteringsfrist
+Inntektskrav for siste 12 mnd
+Inntektskrav for siste 36 mnd
+Oppfyller kravet til permittering
+Oppfyller kravet til permittering i fiskeindustrien
+Siste avsluttende kalendermåned
+Periode som gis ved permittering fra fiskeindustrien
+Første måned av opptjeningsperiode
+Registrert som arbeidssøker
+Registrert som arbeidssøker på søknadstidspunktet
+Inntektsopplysninger
+Brutto arbeidsinntekt
+Arbeidsinntekt siste 12 mnd
+Arbeidsinntekt siste 36 mnd
+Arbeidsinntekt er over kravet for siste 12 mnd
+Arbeidsinntekt er over kravet for siste 36 mnd
+Oppfyller kravet til minsteinntekt
+Mottar ikke andre fulle ytelser
+Opphold i Norge
+Oppfyller unntak for opphold i Norge
+Er personen medlem av folketrygden
+Grunnbeløp for grunnlag
+Tellende inntekt
+Faktor for maksimalt mulig grunnlag
+Antall år i 36 måneder
+Antall G som gis som grunnlag ved verneplikt
+Grunnlag for verneplikt hvis kravet ikke er oppfylt
+Faktor for utregning av dagsats etter dagpengegrunnlaget
+Barnetilleggets størrelse i kroner per dag for hvert barn
+90% av grunnlag for dagpenger
+Antall arbeidsdager per år
+Pleiepenger dagsats
+Omsorgspenger dagsats
+Opplæringspenger dagsats
+Uføre dagsats
+Foreldrepenger dagsats
+Svangerskapspenger dagsats
+Uføretrygd etter lovens kapittel 12
+Deltar medlemmet i streik eller er omfattet av lock-out?
+Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?
+Har tapt arbeid
+Krav på lønn fra tidligere arbeidsgiver
+Ny arbeidstid per uke
+Maksimal vanlig arbeidstid
+Fastsatt vanlig arbeidstid for verneplikt
+Beregnet vanlig arbeidstid per uke før tap
+Antall timer arbeidstiden skal samordnes mot
+Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien
+Ordinært krav til prosentvis tap av arbeidstid
+Beregningsregel: Arbeidstid siste 6 måneder
+Beregningsregel: Arbeidstid siste 12 måneder
+Beregningsregel: Arbeidstid siste 36 måneder
+Deltar i arbeidsmarkedstiltak
+Deltar i opplæring for innvandrere
+Deltar i grunnskoleopplæring, videregående opplæring og opplæring i grunnleggende ferdigheter
+Deltar i høyere yrkesfaglig utdanning
+Deltar i høyere utdanning
+Deltar på kurs mv
+Bruker er utestengt fra dagpenger
+Oppfyller kravet til opphold i Norge eller unntak
+Oppfyller kravet til medlemskap
+Oppjustert inntekt
+6 ganger grunnbeløp
+Grunnlag for gis ved verneplikt
+Er medlemmet ikke påvirket av streik eller lock-out?
+Ikke krav på lønn fra tidligere arbeidsgiver
+Samordnet fastsatt arbeidstid
+Krav til prosentvis tap av arbeidstid
+Beregningsregel: Tapt arbeidstid
+Godkjent unntak for utdanning eller opplæring?
+Oppfyller krav til ikke utestengt
+Oppfyller kravet til opphold i Norge
+Inntektperiode 1
+Inntektperiode 2
+Inntektperiode 3
+Krav til tap av arbeidsinntekt
+Grunnlag siste 12 mnd.
+Avkortet inntektperiode 1
+Avkortet inntektperiode 2
+Avkortet inntektperiode 3
+Inntekt siste 36 måneder
+Gjennomsnittlig arbeidsinntekt siste 36 måneder
+Uavrundet grunnlag
+Grunnlag ved ordinære dagpenger
+Avtjent verneplikt
+Oppfyller kravet til verneplikt
+Grunnlag for verneplikt hvis kravet er oppfylt
+Grunnlag
+Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget
+Dagsats uten barnetillegg før samordning
+Maksimalt mulig grunnlag avgrenset til 90% av dagpengegrunnlaget
+Fastsatt vanlig arbeidstid etter ordinær eller verneplikt
+Avrundet dagsats uten barnetillegg før samordning
+Maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
+Avrundet maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
+Ønsket arbeidstid
+Kan jobbe heltid og deltid
+Kan jobbe i hele Norge
+Kan ta alle typer arbeid
+Villig til å bytte yrke
+Oppfyller kravet til heltid- og deltidsarbeid
+Oppfyller kravet til mobilitet
+Oppfyller kravet til å være arbeidsfør
+Oppfyller kravet til å ta ethvert arbeid
+Villig til å jobbe minimum arbeidstid
+Fastsatt arbeidstid per uke før tap
+Krav til arbeidssøker
+Tap av arbeidstid er minst terskel
+Krav til tap av arbeidsinntekt og arbeidstid
+Tar utdanning eller opplæring?
+Har svart ja på spørsmål om utdanning eller opplæring
+Har svart nei på spørsmål om utdanning eller opplæring
+Oppfyller kravet på unntak for utdanning eller opplæring
+Krav til utdanning eller opplæring
+Har avkortet grunnlaget i periode 1
+Har avkortet grunnlaget i periode 2
+Har avkortet grunnlaget i periode 3
+Brukt beregningsregel
+Utbetalt arbeidsinntekt periode 1
+Utbetalt arbeidsinntekt periode 2
+Utbetalt arbeidsinntekt periode 3
+Antall arbeidsdager per uke
+Hvor mange prosent av G skal brukes som terskel ved samordning
+Pensjon fra en offentlig tjenestepensjonsordning beløp
+Uførepensjon fra offentlig pensjonsordning beløp
+Vartpenger beløp
+Ventelønn beløp
+Etterlønn beløp
+Garantilott fra Garantikassen for fiskere beløp
+Terskelfaktor for 12 måneder
+Lang dagpengeperiode
+Kort dagpengeperiode
+Divisior
+Terskelfaktor for 36 måneder
+Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
+Antall dager som skal regnes med i hver uke
+Ingen egenandel
+Antall dagsats for egenandel
+Mottar pensjon fra en offentlig tjenestepensjonsordning
+Mottar redusert uførepensjon fra offentlig pensjonsordning
+Mottar vartpenger
+Mottar ventelønn
+Mottar etterlønn
+Mottar garantilott fra Garantikassen for fiskere.
+Periode som gis ved verneplikt
+Har avkortet grunnlag
+Beløp tilsvarende nedre terskel av G
+Sum av ytelser utenfor folketrygden
+Terskel for 12 måneder
+Snittinntekt siste 36 måneder
+Terskel for 36 måneder
+Over terskel for 12 måneder
+Over terskel for 36 måneder
+Stønadsuker ved siste 12 måneder
+Stønadsuker ved siste 36 måneder
+Antall stønadsuker
+Antall stønadsuker som gis ved ordinære dagpenger
+Antall gjenstående stønadsdager
+Barn
+Antall barn som gir rett til barnetillegg
+Sum av barnetillegg
+Dagsats med barnetillegg før samordning
+Har barnetillegg
+Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
+Avrundet ukessats med barnetillegg før samordning
+Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
+Sykepenger dagsats
+Sum andre ytelser
+Samordnet dagsats uten barnetillegg
+Samordnet dagsats er større enn 0
+Samordnet ukessats uten barnetillegg
+Utfall etter samordning
+Minste mulige ukessats som som kan brukes
+Ukessats trukket ned for ytelser utenfor folketrygden
+Samordnet ukessats med ytelser utenfor folketrygden
+Dagsats uten barnetillegg samordnet
+Samordnet dagsats med barnetillegg
+Har samordnet
+Dagsats med barnetillegg etter samordning og 90% regel
+Ukessats med barnetillegg etter samordning
+Tre ganger dagsats
+Egenandel
+Sykepenger etter lovens kapittel 8
+Omsorgspenger etter lovens kapittel 9
+Svangerskapspenger etter lovens kapittel 14
+Foreldrepenger etter lovens kapittel 14
+Opplæringspenger etter lovens kapittel 9
+Pleiepenger etter lovens kapittel 9
+Oppgitt andre ytelser utenfor NAV i søknaden
+Mottar andre økonomiske ytelser fra arbeidsgiver eller tidligere arbeidsgiver enn lønn
+Skal samordnes med ytelser utenfor folketrygden
+Medlem har reduserte ytelser fra folketrygden (Samordning)
