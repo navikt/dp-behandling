@@ -58,6 +58,7 @@ object TapAvArbeidsinntektOgArbeidstid {
         desimaltall(
             ordinærtKravTilTaptArbeidstidId,
             "Ordinært krav til prosentvis tap av arbeidstid",
+            synlig = aldriSynlig,
         )
 
     private val beregningsregel =

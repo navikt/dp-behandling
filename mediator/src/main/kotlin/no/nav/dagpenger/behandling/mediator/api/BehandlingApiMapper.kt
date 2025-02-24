@@ -43,6 +43,8 @@ import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
 import no.nav.dagpenger.regel.Permittering.erPermitteringenMidlertidig
 import no.nav.dagpenger.regel.Permittering.godkjentPermitteringsårsak
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.erPermitteringenFraFiskeindustriMidlertidig
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri
 import no.nav.dagpenger.regel.ReellArbeidssøker.erArbeidsfør
 import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentArbeidsufør
 import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentDeltidssøker
@@ -55,6 +57,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
+import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
 import no.nav.dagpenger.regel.Samordning.omsorgspenger
@@ -389,6 +392,9 @@ private val redigerbareOpplysninger =
                 erPermittert,
                 godkjentPermitteringsårsak,
                 erPermitteringenMidlertidig,
+                permitteringFiskeforedling,
+                erPermitteringenFraFiskeindustriMidlertidig,
+                godkjentÅrsakPermitteringFraFiskindustri,
                 // 4-19 Verneplikt
                 oppfyllerKravetTilVerneplikt,
                 // 4-22 Streik og lockøout
