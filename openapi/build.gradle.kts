@@ -35,7 +35,7 @@ dependencies {
 }
 
 openApiGenerate {
-    generatorName.set("kotlin")
+    generatorName.set("kotlin-server")
     inputSpec.set("$projectDir/src/main/resources/behandling-api.yaml")
     outputDir.set("${layout.buildDirectory.get()}/generated/")
     packageName.set("no.nav.dagpenger.behandling.api")
@@ -57,7 +57,7 @@ openApiGenerate {
     configOptions.set(
         mapOf(
             "dateLibrary" to "custom",
-            "serializationLibrary" to "jackson",
+            "library" to "ktor2",
             "enumPropertyNaming" to "original",
         ),
     )
