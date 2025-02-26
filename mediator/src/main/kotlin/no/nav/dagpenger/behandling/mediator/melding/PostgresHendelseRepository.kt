@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.melding
 
-import io.ktor.utils.io.core.use
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf

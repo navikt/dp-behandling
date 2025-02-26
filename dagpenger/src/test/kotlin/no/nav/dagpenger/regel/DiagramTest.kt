@@ -57,7 +57,7 @@ class DiagramTest {
                 *RegelverkDagpenger.regelsett.toTypedArray(),
             )
 
-        regelverk.regeltreFor(KravPåDagpenger.kravPåDagpenger).also {
+        regelverk.regeltreFor(Minsteinntekt.minsteinntekt).also {
             val b = MermaidPrinter(it)
             println(b.toPrint())
         }

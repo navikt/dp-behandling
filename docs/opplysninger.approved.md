@@ -180,10 +180,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943f-78d9-b874-00a4944c54ef|Egenandel|Egenandel|Penger|Beløp|
 |0194881f-943f-78d9-b874-00a4944c54f0|Antall dagsats for egenandel|Antall dagsats for egenandel|Desimaltall|double|
 |0194881f-943f-78d9-b874-00a4944c54f1|Mottar ikke andre fulle ytelser|Mottar ikke andre fulle ytelser|Boolsk|boolean|
-|0194881f-9440-7e1c-9ec4-0f20650bc0cc|Krav på dagpenger|Krav på dagpenger|Boolsk|boolean|
-|0194881f-9440-7e1c-9ec4-0f20650bc0cd|Oppfyller kravet til minsteinntekt eller verneplikt|Oppfyller kravet til minsteinntekt eller verneplikt|Boolsk|boolean|
-|0194881f-9440-7e1c-9ec4-0f20650bc0ce|EttBeregnetVirkningstidspunkt|EttBeregnetVirkningstidspunkt|Dato|LocalDate|
-|0194881f-9440-7e1c-9ec4-0f20650bc0cf|Dagens dato|Dagens dato|Dato|LocalDate|
 |0194881f-9441-7d1b-a06a-6727543a141e|Kan jobbe heltid og deltid|KanJobbeDeltid|Boolsk|boolean|
 |0194881f-9441-7d1b-a06a-6727543a141f|Det er godkjent at bruker kun søker deltidsarbeid|Det er godkjent at bruker kun søker deltidsarbeid|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877bd8|Oppfyller kravet til heltid- og deltidsarbeid|Oppfyller kravet til heltid- og deltidsarbeid|Boolsk|boolean|

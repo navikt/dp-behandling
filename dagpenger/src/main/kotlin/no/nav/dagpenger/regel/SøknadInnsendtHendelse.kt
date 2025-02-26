@@ -14,7 +14,6 @@ import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
-import no.nav.dagpenger.regel.KravPåDagpenger.VirkningstidspunktForLangtFramITid
 import no.nav.dagpenger.regel.Minsteinntekt.EØSArbeidKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
@@ -52,18 +51,13 @@ class SøknadInnsendtHendelse(
     override fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
         if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi else skjedde
 
-    private fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
-        opplysninger.har(KravPåDagpenger.kravPåDagpenger) &&
-            opplysninger.finnOpplysning(KravPåDagpenger.kravPåDagpenger).verdi
-
     private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
 
     private fun alder(opplysninger: LesbarOpplysninger): Boolean =
         opplysninger.har(Alderskrav.kravTilAlder) &&
             opplysninger.finnOpplysning(Alderskrav.kravTilAlder).verdi
 
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
-        kravPåDagpenger(opplysninger) || (minsteinntekt(opplysninger) && alder(opplysninger))
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = minsteinntekt(opplysninger) && alder(opplysninger)
 
     override fun behandling() =
         Behandling(
@@ -96,7 +90,6 @@ class SøknadInnsendtHendelse(
             TapArbeidstidBeregningsregelKontroll,
             Under18Kontroll,
             VernepliktKontroll,
-            VirkningstidspunktForLangtFramITid,
             YtelserUtenforFolketrygdenKontroll,
             ØnskerEtterRapporteringsfristKontroll,
             PermitteringKontroll,

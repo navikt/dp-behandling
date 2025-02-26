@@ -55,18 +55,8 @@ object Minsteinntekt {
         desimaltall(TerskelFaktor12MndId, "Antall G for krav til 12 mnd arbeidsinntekt", synlig = aldriSynlig)
     private val `36mndTerskelFaktor` =
         desimaltall(TerskelFaktor36MndId, "Antall G for krav til 36 mnd arbeidsinntekt", synlig = aldriSynlig)
-    val inntekt12 =
-        beløp(
-            InntektSiste12MndId,
-            beskrivelse = "Arbeidsinntekt siste 12 mnd",
-            behovId = "InntektSiste12Mnd",
-        )
-    val inntekt36 =
-        beløp(
-            InntektSiste36MndId,
-            beskrivelse = "Arbeidsinntekt siste 36 mnd",
-            behovId = "InntektSiste36Mnd",
-        )
+    val inntekt12 = beløp(InntektSiste12MndId, "Arbeidsinntekt siste 12 mnd", behovId = "InntektSiste12Mnd")
+    val inntekt36 = beløp(InntektSiste36MndId, "Arbeidsinntekt siste 36 mnd", behovId = "InntektSiste36Mnd")
     val grunnbeløp = beløp(GrunnbeløpId, "Grunnbeløp", synlig = aldriSynlig)
 
     internal val inntektFraSkatt = inntekt(InntektsopplysningerId, beskrivelse = "Inntektsopplysninger", Register, behovId = Inntekt)
@@ -76,16 +66,8 @@ object Minsteinntekt {
     private val førsteMånedAvOpptjeningsperiode =
         dato(FørsteMånedAvOpptjeningsperiodeId, beskrivelse = "Første måned av opptjeningsperiode", behovId = OpptjeningsperiodeFraOgMed)
 
-    private val `12mndTerskel` =
-        beløp(
-            Inntektskrav12mndId,
-            "Inntektskrav for siste 12 mnd",
-        )
-    private val `36mndTerskel` =
-        beløp(
-            Inntektskrav36MndId,
-            "Inntektskrav for siste 36 mnd",
-        )
+    private val `12mndTerskel` = beløp(Inntektskrav12mndId, "Inntektskrav for siste 12 mnd")
+    private val `36mndTerskel` = beløp(Inntektskrav36MndId, "Inntektskrav for siste 36 mnd")
     private val over12mndTerskel = boolsk(Over12mndTerskelId, "Arbeidsinntekt er over kravet for siste 12 mnd")
     private val over36mndTerskel = boolsk(Over36mndTerskelId, "Arbeidsinntekt er over kravet for siste 36 mnd")
 

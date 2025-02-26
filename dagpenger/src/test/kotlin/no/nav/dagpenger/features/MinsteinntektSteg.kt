@@ -9,18 +9,28 @@ import no.nav.dagpenger.features.utils.somLocalDate
 import no.nav.dagpenger.features.utils.tilBeløp
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.verdier.Beløp
-import no.nav.dagpenger.regel.KravPåDagpenger.minsteinntektEllerVerneplikt
+import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.regel.enAv
+import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.regel.Minsteinntekt
+import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
+import no.nav.dagpenger.regel.OpplysningsTyper.MinsteinntektEllerVernepliktId
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
-import java.time.LocalDate
+import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+
+private val minsteinntektEllerVerneplikt = boolsk(MinsteinntektEllerVernepliktId, "Oppfyller kravet til minsteinntekt eller verneplikt")
 
 class MinsteinntektSteg : No {
     private val fraDato = 10.mai(2022)
-    private val regelsett = RegelverkDagpenger.regelsettFor(minsteinntektEllerVerneplikt)
+    private val regelsett =
+        RegelverkDagpenger.regelsettFor(minsteinntekt) + RegelverkDagpenger.regelsettFor(oppfyllerKravetTilVerneplikt) +
+            vilkår(tomHjemmel("foo")) {
+                regel(minsteinntektEllerVerneplikt) { enAv(minsteinntekt, oppfyllerKravetTilVerneplikt) }
+            }
     private val opplysninger: Opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 
@@ -32,16 +42,16 @@ class MinsteinntektSteg : No {
     init {
 
         Gitt("at søknadsdato er {string}") { søknadsdato: String ->
-            opplysninger.leggTil(Faktum<LocalDate>(Søknadstidspunkt.søknadsdato, søknadsdato.somLocalDate()))
-            opplysninger.leggTil(Faktum<LocalDate>(Søknadstidspunkt.ønsketdato, søknadsdato.somLocalDate()))
+            opplysninger.leggTil(Faktum(Søknadstidspunkt.søknadsdato, søknadsdato.somLocalDate()))
+            opplysninger.leggTil(Faktum(Søknadstidspunkt.ønsketdato, søknadsdato.somLocalDate()))
             regelkjøring.evaluer()
         }
         Gitt("at verneplikt er {boolsk}") { verneplikt: Boolean ->
-            opplysninger.leggTil(Faktum<Boolean>(Verneplikt.avtjentVerneplikt, verneplikt)).also { regelkjøring.evaluer() }
+            opplysninger.leggTil(Faktum(Verneplikt.avtjentVerneplikt, verneplikt)).also { regelkjøring.evaluer() }
         }
         Gitt("at inntekt er") { data: DataTable ->
-            opplysninger.leggTil(Faktum<Beløp>(Minsteinntekt.inntekt12, data.cell(0, 1).tilBeløp()))
-            opplysninger.leggTil(Faktum<Beløp>(opplysningstype = Minsteinntekt.inntekt36, verdi = data.cell(1, 1).tilBeløp()))
+            opplysninger.leggTil(Faktum(Minsteinntekt.inntekt12, data.cell(0, 1).tilBeløp()))
+            opplysninger.leggTil(Faktum(opplysningstype = Minsteinntekt.inntekt36, verdi = data.cell(1, 1).tilBeløp()))
             regelkjøring.evaluer()
         }
 

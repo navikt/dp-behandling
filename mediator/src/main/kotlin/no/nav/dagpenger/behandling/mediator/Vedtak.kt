@@ -23,7 +23,6 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
-import no.nav.dagpenger.regel.KravPåDagpenger.kravPåDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
@@ -227,7 +226,7 @@ private fun vedtakFastsattDTO(
         VedtakFastsattDTO(
             utfall = false,
             fastsattVanligArbeidstid =
-                opplysninger.har(kravPåDagpenger).takeIf { it }?.let {
+                opplysninger.har(fastsattVanligArbeidstid).takeIf { it }?.let {
                     VedtakFastsattFastsattVanligArbeidstidDTO(
                         vanligArbeidstidPerUke = opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi.toBigDecimal(),
                         nyArbeidstidPerUke = opplysninger.finnOpplysning(nyArbeidstid).verdi.toBigDecimal(),
