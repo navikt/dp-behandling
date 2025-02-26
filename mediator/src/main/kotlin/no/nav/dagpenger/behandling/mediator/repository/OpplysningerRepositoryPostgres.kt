@@ -79,7 +79,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             ).asUpdate,
         )
 
-        OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(opplysninger.aktiveOpplysninger, opplysninger.fjernet())
+        OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(
+            opplysninger.aktiveOpplysninger.filter { it.skalLagres },
+            opplysninger.fjernet(),
+        )
     }
 
     override fun lagreOpplysningstyper(opplysningstyper: Collection<Opplysningstype<*>>) =
@@ -511,6 +514,7 @@ private fun List<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
                         utledetAv = utledetAv,
                         kilde = kilde,
                         opprettet = opprettet,
+                        skalLagres = false,
                     )
 
                 "Faktum" ->
@@ -522,6 +526,7 @@ private fun List<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
                         utledetAv = utledetAv,
                         kilde = kilde,
                         opprettet = opprettet,
+                        skalLagres = false,
                     )
 
                 else -> throw IllegalStateException("Ukjent opplysningstype")

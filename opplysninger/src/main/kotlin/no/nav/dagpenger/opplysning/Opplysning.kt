@@ -26,10 +26,13 @@ sealed class Opplysning<T : Comparable<T>>(
     private var _erstatter: Opplysning<T>? = null,
     private val _erstattetAv: MutableSet<Opplysning<T>> = mutableSetOf(),
     private var fjernet: Boolean = false,
+    private var _skalLagres: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
     private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID && !erErstattet }
 
     abstract fun bekreft(): Faktum<T>
+
+    val skalLagres get() = _skalLagres
 
     val erstatter get() = _erstatter
 
@@ -58,6 +61,7 @@ sealed class Opplysning<T : Comparable<T>>(
     fun erstattesAv(vararg erstatning: Opplysning<T>): List<Opplysning<T>> {
         val erstatninger = erstatning.toList().onEach { it._erstatter = this }
         _erstattetAv.addAll(erstatninger)
+        _skalLagres = true
         return erstatninger
     }
 
@@ -84,7 +88,8 @@ class Hypotese<T : Comparable<T>>(
     kilde: Kilde? = null,
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
-) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter) {
+    skalLagres: Boolean = true,
+) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter, _skalLagres = skalLagres) {
     constructor(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
@@ -118,7 +123,8 @@ class Faktum<T : Comparable<T>>(
     kilde: Kilde? = null,
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
-) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter) {
+    skalLagres: Boolean = true,
+) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter, _skalLagres = skalLagres) {
     constructor(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
