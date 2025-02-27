@@ -848,6 +848,16 @@ class Behandling private constructor(
 
         override fun håndter(
             behandling: Behandling,
+            hendelse: AvklaringKvittertHendelse,
+        ) {
+            hendelse.kontekst(this)
+
+            behandling.avklaringer.kvitter(hendelse.avklaringId, hendelse.kilde, hendelse.begrunnelse)
+            hendelse.info("Avklaring er kvittert")
+        }
+
+        override fun håndter(
+            behandling: Behandling,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
