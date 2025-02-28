@@ -20,6 +20,7 @@ import no.nav.dagpenger.regel.Behov.KanJobbeDeltid
 import no.nav.dagpenger.regel.Behov.KanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
+import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.OpplysningsTyper.ErArbeidsførId
 import no.nav.dagpenger.regel.OpplysningsTyper.GodkjentArbeidsuførId
 import no.nav.dagpenger.regel.OpplysningsTyper.GodkjentDeltidssøkerId
@@ -78,7 +79,7 @@ object ReellArbeidssøker {
         boolsk(
             KanReellArbeidssøkerVurderesId,
             "Kan kravet til reell arbeidssøker vurderes",
-            synlig = { !oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) },
+            synlig = { !oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) || !it.oppfyller(ikkeFulleYtelser) },
         )
 
     val ønsketArbeidstid =
