@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.time.Duration
 
-class MeldekortHendelse(
+open class MeldekortHendelse(
     meldingsreferanseId: UUID,
     ident: String,
     val meldekortId: Long,

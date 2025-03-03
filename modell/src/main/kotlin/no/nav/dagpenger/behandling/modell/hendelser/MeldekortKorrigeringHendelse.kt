@@ -8,11 +8,11 @@ import java.util.UUID
 class MeldekortKorrigeringHendelse(
     meldingsreferanseId: UUID,
     ident: String,
-    val meldekortId: Long,
-    val fom: LocalDate,
-    val tom: LocalDate,
-    val kilde: MeldekortKilde,
-    val dager: List<Dag>,
+    meldekortId: Long,
+    fom: LocalDate,
+    tom: LocalDate,
+    kilde: MeldekortKilde,
+    dager: List<Dag>,
     val orginalMeldekortId: Long,
     opprettet: LocalDateTime,
-) : PersonHendelse(meldingsreferanseId, ident, opprettet)
+) : MeldekortHendelse(meldingsreferanseId, ident, meldekortId, fom, tom, kilde, dager, opprettet)

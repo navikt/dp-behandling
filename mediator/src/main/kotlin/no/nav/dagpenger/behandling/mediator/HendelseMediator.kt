@@ -7,6 +7,7 @@ import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import mu.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
@@ -30,6 +31,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 
 internal class HendelseMediator(
     private val personRepository: PersonRepository,
+    private val meldekortRepository: MeldekortRepository,
     private val behovMediator: BehovMediator = BehovMediator(),
     private val aktivitetsloggMediator: AktivitetsloggMediator = AktivitetsloggMediator(),
     observatører: Collection<PersonObservatør> = emptySet(),
@@ -74,6 +76,19 @@ internal class HendelseMediator(
     ) {
         val personidentifikator = Ident(hendelse.ident())
         hentPersonOgHåndter(personidentifikator, hendelse, context, handler)
+    }
+
+    private fun lagreMeldekort(
+        hendelse: MeldekortHendelse,
+        context: MessageContext,
+    ) {
+        val personidentifikator = Ident(hendelse.ident())
+        val person = personRepository.hent(personidentifikator)
+        if (person != null) {
+            meldekortRepository.lagre(hendelse)
+        } else {
+            logger.warn { "Vi kjenner ikke personen" }
+        }
     }
 
     private fun <Hendelse : PersonHendelse> hentPersonOgHåndter(
@@ -183,18 +198,14 @@ internal class HendelseMediator(
         hendelse: MeldekortHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
-        }
+        lagreMeldekort(hendelse, context)
     }
 
     override fun behandle(
         hendelse: MeldekortKorrigeringHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
-        }
+        lagreMeldekort(hendelse, context)
     }
 
     override fun behandle(

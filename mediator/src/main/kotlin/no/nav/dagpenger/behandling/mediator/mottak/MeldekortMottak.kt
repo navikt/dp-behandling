@@ -55,6 +55,9 @@ internal class MeldekortMottak(
             "meldekortId" to meldekortId.toString(),
         ) {
             val message = MeldekortMessage(packet)
+            // lagre?
+            // 1. Vi kjenner personen fra før
+            // 2. Vi kjenner ikke personen? Hva gjør vi da?
             message.behandle(messageMediator, context)
         }
     }
