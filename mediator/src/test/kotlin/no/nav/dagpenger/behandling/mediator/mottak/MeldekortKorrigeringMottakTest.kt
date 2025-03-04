@@ -34,7 +34,7 @@ class MeldekortKorrigeringMottakTest {
         val hendelse = slot<MeldekortKorrigeringHendelse>()
 
         verify {
-            messageMediator.behandle(capture(hendelse), any(), any())
+            messageMediator.behandle(capture(hendelse), any<MeldekortKorrigeringMessage>(), any())
         }
 
         hendelse.isCaptured shouldBe true

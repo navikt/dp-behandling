@@ -1,28 +1,38 @@
 CREATE TABLE meldekort_hendelse
 (
-    meldekort_id         BIGINT PRIMARY KEY NOT NULL,
-    orginal_meldekort_id TEXT REFERENCES meldekort_hendelse (meldekort_id),
-    meldingsreferanse_id UUID               NOT NULL REFERENCES melding (id),
-    ident                TEXT               NOT NULL REFERENCES person (ident),
-    fom                  DATE               NOT NULL,
-    tom                  DATE               NOT NULL,
-    kilde_rolle          TEXT               NOT NULL,
-    kilde_ident          TEXT               NOT NULL,
-    opprettet            TIMESTAMP          NOT NULL
+    id                     UUID PRIMARY KEY NOT NULL,
+    løpenummer             BIGSERIAL        NOT NULL,
+    meldekort_id           BIGINT           NOT NULL,
+    korrigert_meldekort_id BIGINT REFERENCES meldekort_hendelse (meldekort_id),
+    meldingsreferanse_id   UUID             NOT NULL REFERENCES melding (melding_id),
+    ident                  TEXT             NOT NULL REFERENCES person (ident),
+    innsendt_tidspunkt     TIMESTAMP        NOT NULL,
+    fom                    DATE             NOT NULL,
+    tom                    DATE             NOT NULL,
+    kilde_rolle            TEXT             NOT NULL,
+    kilde_ident            TEXT             NOT NULL,
+    opprettet              TIMESTAMP        NOT NULL,
+    UNIQUE (meldekort_id)
 
 );
 
+CREATE INDEX meldekort_hendelse_ident_idx ON meldekort_hendelse (ident);
+
 CREATE TABLE meldekort_dag
 (
-    id           BIGINT PRIMARY KEY NOT NULL,
+
     meldekort_id BIGINT REFERENCES meldekort_hendelse (meldekort_id),
-    dato         DATE               NOT NULL,
-    UNIQUE (meldekort_id, dato)
+    meldt        BOOLEAN NOT NULL,
+    dato         DATE    NOT NULL,
+    PRIMARY KEY (meldekort_id, dato)
 );
 
 CREATE TABLE meldekort_aktivitet
 (
-    dag_id BIGINT REFERENCES meldekort_dag (id),
-    type   TEXT NOT NULL,
-    timer  INTERVAL
+    meldekort_id BIGINT NOT NULL,
+    dato         DATE   NOT NULL,
+    type         TEXT   NOT NULL, -- Arbeid, Fravaer, Syk, Utdanning
+    timer        INTERVAL,
+    FOREIGN KEY (meldekort_id, dato) REFERENCES meldekort_dag (meldekort_id, dato)
+
 );

@@ -6,6 +6,7 @@ import java.util.UUID
 
 // Skulle vi ha arvet fra MeldekortHendelse her?
 class MeldekortKorrigeringHendelse(
+    id: UUID,
     meldingsreferanseId: UUID,
     ident: String,
     meldekortId: Long,
@@ -15,4 +16,15 @@ class MeldekortKorrigeringHendelse(
     dager: List<Dag>,
     val orginalMeldekortId: Long,
     opprettet: LocalDateTime,
-) : MeldekortHendelse(meldingsreferanseId, ident, meldekortId, fom, tom, kilde, dager, opprettet)
+) : MeldekortHendelse(
+        id = id,
+        meldingsreferanseId = meldingsreferanseId,
+        ident = ident,
+        meldekortId = meldekortId,
+        fom = fom,
+        tom = tom,
+        kilde = kilde,
+        dager = dager,
+        innsendtTidspunkt = opprettet,
+        opprettet = opprettet,
+    )

@@ -20,6 +20,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKorrigeringHendelse
+import no.nav.dagpenger.uuid.UUIDv7
 import kotlin.time.Duration
 
 internal class MeldekortKorrigeringMottak(
@@ -83,6 +84,7 @@ internal class MeldekortKorrigeringMessage(
     private val hendelse
         get() =
             MeldekortKorrigeringHendelse(
+                id = UUIDv7.ny(),
                 meldingsreferanseId = packet["@id"].asUUID(),
                 ident = packet["ident"].asText(),
                 meldekortId = packet["id"].asLong(),
@@ -99,6 +101,7 @@ internal class MeldekortKorrigeringMessage(
                     packet["dager"].map { dag ->
                         Dag(
                             dato = dag["dato"].asLocalDate(),
+                            meldt = dag["meldt"].asBoolean(),
                             aktiviteter =
                                 dag["aktiviteter"].map {
                                     MeldekortAktivitet(

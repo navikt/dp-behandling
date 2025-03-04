@@ -20,6 +20,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
+import no.nav.dagpenger.uuid.UUIDv7
 import kotlin.time.Duration
 
 internal class MeldekortMottak(
@@ -85,9 +86,11 @@ internal class MeldekortMessage(
     private val hendelse
         get() =
             MeldekortHendelse(
+                id = UUIDv7.ny(),
                 meldingsreferanseId = packet["@id"].asUUID(),
                 ident = packet["ident"].asText(),
                 meldekortId = packet["id"].asLong(),
+                innsendtTidspunkt = packet["innsendtTidspunkt"].asLocalDateTime(),
                 fom = packet["periode"]["fraOgMed"].asLocalDate(),
                 tom = packet["periode"]["tilOgMed"].asLocalDate(),
                 kilde =
@@ -100,6 +103,7 @@ internal class MeldekortMessage(
                     packet["dager"].map { dag ->
                         Dag(
                             dato = dag["dato"].asLocalDate(),
+                            meldt = dag["meldt"].asBoolean(),
                             aktiviteter =
                                 dag["aktiviteter"].map {
                                     MeldekortAktivitet(

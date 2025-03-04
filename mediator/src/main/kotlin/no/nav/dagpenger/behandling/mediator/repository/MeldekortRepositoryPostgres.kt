@@ -13,16 +13,17 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 queryOf(
                     //language=PostgreSQL
                     """
-                    INSERT INTO meldekort_hendelse (ident, meldekort_id, meldingsreferanse_id, orginal_meldekort_id, fom, tom, kilde_ident, kilde_rolle, opprettet)
-                    VALUES (:ident, :meldekortId, :meldingReferanseId, :orginalMeldekortId, :fom, :tom, :kildeIdent, :kildeRolle, :opprettet)
+                    INSERT INTO meldekort_hendelse (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, opprettet)
+                    VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle, :opprettet)
                     """.trimIndent(),
                     mapOf(
+                        "id" to meldekortHendelse.id,
                         "meldingReferanseId" to meldekortHendelse.meldingsreferanseId(),
                         "meldekortId" to meldekortHendelse.meldekortId,
                         "ident" to meldekortHendelse.ident(),
                         "fom" to meldekortHendelse.fom,
                         "tom" to meldekortHendelse.tom,
-                        "orginalMeldekortId" to
+                        "korrigertMeldekortId" to
                             when (meldekortHendelse) {
                                 is MeldekortKorrigeringHendelse -> meldekortHendelse.orginalMeldekortId
                                 else -> null
@@ -30,6 +31,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         "kildeIdent" to meldekortHendelse.kilde.ident,
                         "kildeRolle" to meldekortHendelse.kilde.rolle,
                         "opprettet" to meldekortHendelse.opprettet,
+                        "innsendtTidspunkt" to meldekortHendelse.innsendtTidspunkt,
                     ),
                 ).asUpdate,
             )
@@ -41,28 +43,28 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         queryOf(
                             //language=PostgreSQL
                             """
-                            INSERT INTO meldekort_dag (id, meldekort_id, dato) 
-                            VALUES (:meldekortId, :dato)
-                            RETURNING id
+                            INSERT INTO meldekort_dag (meldekort_id, meldt, dato) 
+                            VALUES (:meldekortId, :meldt, :dato)
                             """.trimIndent(),
                             mapOf(
                                 "meldekortId" to meldekortHendelse.meldekortId,
+                                "meldt" to dag.meldt,
                                 "dato" to dag.dato,
                             ),
-                        ).asUpdateAndReturnGeneratedKey,
-                    ).also { id ->
-                        require(id != null) { "Kunne ikke lagre meldekort dag" }
+                        ).asUpdate,
+                    ).also {
                         dag.aktiviteter.forEach { aktivitet ->
                             session.run(
                                 queryOf(
                                     //language=PostgreSQL
                                     """
-                                    INSERT INTO meldekort_dag_aktivitet (dag_id, type, timer) 
-                                    VALUES (:dagId, :type, :timer)
+                                    INSERT INTO meldekort_aktivitet (meldekort_id, dato, type, timer) 
+                                    VALUES (:meldekortId, :dato, :type, :timer)
                                     """.trimIndent(),
                                     mapOf(
-                                        "dagId" to id,
-                                        "type" to aktivitet.type,
+                                        "meldekortId" to meldekortHendelse.meldekortId,
+                                        "dato" to dag.dato,
+                                        "type" to aktivitet.type.name,
                                         "timer" to aktivitet.timer,
                                     ),
                                 ).asUpdate,

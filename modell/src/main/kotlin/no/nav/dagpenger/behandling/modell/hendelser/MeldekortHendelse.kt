@@ -6,6 +6,7 @@ import java.util.UUID
 import kotlin.time.Duration
 
 open class MeldekortHendelse(
+    val id: UUID,
     meldingsreferanseId: UUID,
     ident: String,
     val meldekortId: Long,
@@ -13,6 +14,7 @@ open class MeldekortHendelse(
     val tom: LocalDate,
     val kilde: MeldekortKilde,
     val dager: List<Dag>,
+    val innsendtTidspunkt: LocalDateTime,
     opprettet: LocalDateTime,
 ) : PersonHendelse(meldingsreferanseId, ident, opprettet)
 
@@ -23,6 +25,7 @@ data class MeldekortKilde(
 
 data class Dag(
     val dato: LocalDate,
+    val meldt: Boolean,
     val aktiviteter: List<MeldekortAktivitet>,
 )
 
@@ -35,5 +38,5 @@ enum class AktivitetType {
     Arbeid,
     Syk,
     Utdanning,
-    Fravaer,
+    Fravær,
 }
