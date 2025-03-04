@@ -101,7 +101,7 @@ internal class MeldekortInnsendtMessage(
                     packet["dager"].map { dag ->
                         Dag(
                             dato = dag["dato"].asLocalDate(),
-                            meldt = dag["meldt"].asBoolean(),
+                            meldt = dag["meldt"].asBoolean(true), // todo: Vi må få dette feltet fra team ramp.
                             aktiviteter =
                                 dag["aktiviteter"].map {
                                     MeldekortAktivitet(
