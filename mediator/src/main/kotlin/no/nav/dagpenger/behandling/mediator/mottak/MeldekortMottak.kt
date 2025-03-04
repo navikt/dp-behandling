@@ -105,7 +105,14 @@ internal class MeldekortMessage(
                             aktiviteter =
                                 dag["aktiviteter"].map {
                                     MeldekortAktivitet(
-                                        type = AktivitetType.valueOf(it["type"].asText()),
+                                        type =
+                                            when (it["type"].asText()) {
+                                                "Arbeid" -> AktivitetType.Arbeid
+                                                "Syk" -> AktivitetType.Syk
+                                                "Utdanning" -> AktivitetType.Utdanning
+                                                "Fravaer" -> AktivitetType.Fravær
+                                                else -> throw IllegalArgumentException("Ukjent aktivitetstype '${it["type"].asText()}'")
+                                            },
                                         timer =
                                             if (it.has("timer")) {
                                                 Duration.parseIsoString(it["timer"].asText())
