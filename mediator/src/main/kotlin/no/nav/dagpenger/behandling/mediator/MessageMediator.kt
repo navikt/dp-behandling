@@ -16,6 +16,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.InnsendingFerdigstiltMottak
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortMessage
+import no.nav.dagpenger.behandling.mediator.mottak.MeldekortMottak
 import no.nav.dagpenger.behandling.mediator.mottak.OppgaveReturnertTilSaksbehandler
 import no.nav.dagpenger.behandling.mediator.mottak.OppgaveSendtTilKontroll
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
@@ -58,7 +59,7 @@ internal class MessageMediator(
         SøknadInnsendtMottak(rapidsConnection, this)
         OppgaveSendtTilKontroll(rapidsConnection, this)
         OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
-        // MeldekortMottak(rapidsConnection, this)
+        MeldekortMottak(rapidsConnection, this)
     }
 
     private companion object {
