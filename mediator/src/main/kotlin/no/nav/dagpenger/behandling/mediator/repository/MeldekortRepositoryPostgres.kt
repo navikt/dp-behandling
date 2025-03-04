@@ -34,22 +34,41 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 ).asUpdate,
             )
         }
-        meldekortHendelse.dager.forEach {
+        meldekortHendelse.dager.forEach { dag ->
             sessionOf(dataSource).use { session ->
-                session.run(
-                    queryOf(
-                        //language=PostgreSQL
-                        """
-                        INSERT INTO meldekort_dag (id, meldekort_id, dato) 
-                        VALUES (:meldekortId, :dato)
-                        RETURNING id
-                        """.trimIndent(),
-                        mapOf(
-                            "meldekortId" to meldekortHendelse.meldekortId,
-                            "dato" to it.dato,
-                        ),
-                    ).asUpdate,
-                )
+                session
+                    .run(
+                        queryOf(
+                            //language=PostgreSQL
+                            """
+                            INSERT INTO meldekort_dag (id, meldekort_id, dato) 
+                            VALUES (:meldekortId, :dato)
+                            RETURNING id
+                            """.trimIndent(),
+                            mapOf(
+                                "meldekortId" to meldekortHendelse.meldekortId,
+                                "dato" to dag.dato,
+                            ),
+                        ).asUpdateAndReturnGeneratedKey,
+                    ).also { id ->
+                        require(id != null) { "Kunne ikke lagre meldekort dag" }
+                        dag.aktiviteter.forEach { aktivitet ->
+                            session.run(
+                                queryOf(
+                                    //language=PostgreSQL
+                                    """
+                                    INSERT INTO meldekort_dag_aktivitet (dag_id, type, timer) 
+                                    VALUES (:dagId, :type, :timer)
+                                    """.trimIndent(),
+                                    mapOf(
+                                        "dagId" to id,
+                                        "type" to aktivitet.type,
+                                        "timer" to aktivitet.timer,
+                                    ),
+                                ).asUpdate,
+                            )
+                        }
+                    }
             }
         }
     }
