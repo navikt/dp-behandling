@@ -64,9 +64,8 @@ internal class MeldekortInnsendtMottak(
 
     private companion object {
         private val logger = KotlinLogging.logger {}
+        private val sikkerlogg = KotlinLogging.logger("tjenestekall.MeldekortInnsendtMottak")
     }
-
-    private val sikkerlogg = KotlinLogging.logger("tjenestekall.MeldekortInnsendtMottak")
 }
 
 internal class MeldekortInnsendtMessage(
