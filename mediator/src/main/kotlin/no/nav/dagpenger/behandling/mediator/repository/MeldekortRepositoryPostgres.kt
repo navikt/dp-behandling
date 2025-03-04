@@ -5,6 +5,8 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKorrigeringHendelse
+import org.postgresql.util.PGobject
+import kotlin.time.toJavaDuration
 
 class MeldekortRepositoryPostgres : MeldekortRepository {
     override fun lagre(meldekortHendelse: MeldekortHendelse) {
@@ -65,7 +67,13 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                                         "meldekortId" to meldekortHendelse.meldekortId,
                                         "dato" to dag.dato,
                                         "type" to aktivitet.type.name,
-                                        "timer" to aktivitet.timer,
+                                        "timer" to
+                                            aktivitet.timer?.toJavaDuration()?.let { timer ->
+                                                PGobject().apply {
+                                                    type = "interval"
+                                                    value = timer.toString()
+                                                }
+                                            },
                                     ),
                                 ).asUpdate,
                             )

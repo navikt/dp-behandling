@@ -67,6 +67,7 @@ private val meldekortJson =
     {
       "@event_name": "meldekort_innsendt",
       "ident": "12345123451",
+      "innsendtTidspunkt": "2025-02-02T00:00:00",
       "id": 1000,
         "periode": { 
             "fraOgMed": "2025-01-20",
@@ -81,6 +82,7 @@ private val meldekortJson =
         {
           "dato": "2025-01-20",
           "dagIndex": 1,
+          "meldt" : true, 
           "aktiviteter": [
             {
               "type": "Arbeid",
@@ -90,11 +92,13 @@ private val meldekortJson =
         },
         {
           "dato": "2025-01-21",
+          "meldt" : true, 
           "dagIndex": 2,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-22",
+          "meldt" : true, 
           "dagIndex": 3,
           "aktiviteter": [
             {
@@ -104,6 +108,7 @@ private val meldekortJson =
         },
         {
           "dato": "2025-01-23",
+          "meldt" : true, 
           "dagIndex": 4,
           "aktiviteter": [
             {
@@ -113,6 +118,7 @@ private val meldekortJson =
         },
         {
           "dato": "2025-01-24",
+          "meldt" : true, 
           "dagIndex": 5,
           "aktiviteter": [
             {
@@ -123,46 +129,55 @@ private val meldekortJson =
         },
         {
           "dato": "2025-01-25",
+          "meldt" : true, 
           "dagIndex": 6,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-26",
+          "meldt" : true, 
           "dagIndex": 7,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-27",
+          "meldt" : true, 
           "dagIndex": 8,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-28",
+          "meldt" : true, 
           "dagIndex": 9,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-29",
+          "meldt" : true, 
           "dagIndex": 10,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-30",
+          "meldt" : true, 
           "dagIndex": 11,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-31",
+          "meldt" : true, 
           "dagIndex": 12,
           "aktiviteter": []
         },
         {
           "dato": "2025-02-01",
+          "meldt" : true, 
           "dagIndex": 13,
           "aktiviteter": []
         },
         {
           "dato": "2025-02-02",
+          "meldt" : true, 
           "dagIndex": 14,
           "aktiviteter": []
         }

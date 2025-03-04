@@ -33,9 +33,7 @@ internal class MeldekortMottak(
                 precondition { it.requireValue("@event_name", "meldekort_innsendt") }
                 validate { it.requireKey("ident") }
                 validate { it.requireKey("id") }
-                validate { it.requireKey("periode") }
-                validate { it.requireKey("kilde") }
-                validate { it.requireKey("dager") }
+                validate { it.requireKey("periode", "kilde", "dager", "innsendtTidspunkt") }
             }.register(this)
     }
 

@@ -31,12 +31,21 @@ class MeldekortRepositoryPostgresTest {
                         dato = start.plusDays(it.toLong()),
                         meldt = true,
                         aktiviteter =
-                            listOf(
-                                MeldekortAktivitet(
-                                    type = AktivitetType.Arbeid,
-                                    timer = 2.hours,
-                                ),
-                            ),
+                            if (it % 2 == 0) {
+                                listOf(
+                                    MeldekortAktivitet(
+                                        type = AktivitetType.Arbeid,
+                                        timer = 2.hours,
+                                    ),
+                                )
+                            } else {
+                                listOf(
+                                    MeldekortAktivitet(
+                                        type = AktivitetType.Fravær,
+                                        timer = null,
+                                    ),
+                                )
+                            },
                     )
                 }
 
