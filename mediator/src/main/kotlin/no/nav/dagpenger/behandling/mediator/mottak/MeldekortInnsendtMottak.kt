@@ -96,7 +96,7 @@ internal class MeldekortInnsendtMessage(
                         ident = packet["kilde"]["ident"].asText(),
                     ),
                 opprettet = packet["@opprettet"].asLocalDateTime(),
-                korrigeringAv = packet["korrigeringAv"].asLong(),
+                korrigeringAv = packet["korrigeringAv"].takeIf { it.isLong }?.asLong(),
                 dager =
                     packet["dager"].map { dag ->
                         Dag(

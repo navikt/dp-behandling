@@ -39,6 +39,7 @@ class MeldekortInnsendtMottakTest {
 
         hendelse.isCaptured shouldBe true
         hendelse.captured.ident() shouldBe "12345123451"
+        hendelse.captured.korrigeringAv shouldBe null
         hendelse.captured.fom shouldBe LocalDate.of(2025, 1, 20)
         hendelse.captured.tom shouldBe LocalDate.of(2025, 2, 2)
         hendelse.captured.dager.size shouldBe 14
