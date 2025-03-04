@@ -11,7 +11,7 @@ CREATE TABLE meldekort_hendelse
     tom                    DATE             NOT NULL,
     kilde_rolle            TEXT             NOT NULL,
     kilde_ident            TEXT             NOT NULL,
-    opprettet              TIMESTAMP        NOT NULL,
+    opprettet              TIMESTAMP        NOT NULL
 );
 
 CREATE INDEX meldekort_hendelse_ident_idx ON meldekort_hendelse (ident);
