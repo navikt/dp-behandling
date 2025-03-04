@@ -4,6 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
+import com.github.navikt.tbd_libs.rapids_and_rivers.isMissingOrNull
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
@@ -96,13 +97,13 @@ internal class MeldekortInnsendtMessage(
                         ident = packet["kilde"]["ident"].asText(),
                     ),
                 opprettet = packet["@opprettet"].asLocalDateTime(),
-                korrigeringAv = packet["korrigeringAv"].takeIf { it.isLong }?.asLong(),
+                korrigeringAv = packet["korrigeringAv"].takeIf { !it.isMissingOrNull() }?.asLong(),
                 dager =
                     packet["dager"].map { dag ->
                         Dag(
                             dato = dag["dato"].asLocalDate(),
                             // todo: Vi må få dette feltet fra team ramp.
-                            meldt = dag["meldt"]?.asBoolean() ?: true,
+                            meldt = dag["meldt"]?.takeIf { !it.isMissingOrNull() }?.asBoolean() ?: true,
                             aktiviteter =
                                 dag["aktiviteter"].map {
                                     MeldekortAktivitet(
