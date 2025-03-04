@@ -136,7 +136,8 @@ private fun meldekortJson(korrigeringAv: Long? = null) =
           "dagIndex": 3,
           "aktiviteter": [
             {
-              "type": "Fravaer"
+              "type": "Fravaer",
+              "timer": null
             }
           ]
         },

@@ -118,7 +118,7 @@ internal class MeldekortInnsendtMessage(
                                                 else -> throw IllegalArgumentException("Ukjent aktivitetstype '${it["type"].asText()}'")
                                             },
                                         timer =
-                                            if (it.has("timer")) {
+                                            if (it.hasNonNull("timer")) {
                                                 Duration.parseIsoString(it["timer"].asText())
                                             } else {
                                                 null
