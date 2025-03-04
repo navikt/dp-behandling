@@ -6,6 +6,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
@@ -34,6 +35,7 @@ internal class MeldekortMottak(
                 validate { it.requireKey("ident") }
                 validate { it.requireKey("id") }
                 validate { it.requireKey("periode", "kilde", "dager", "innsendtTidspunkt") }
+                validate { it.interestedIn("korrigeringAv") }
             }.register(this)
     }
 
@@ -59,6 +61,32 @@ internal class MeldekortMottak(
             // 2. Vi kjenner ikke personen? Hva gjør vi da?
             message.behandle(messageMediator, context)
         }
+    }
+
+    @WithSpan
+    override fun onSevere(
+        error: MessageProblems.MessageException,
+        context: MessageContext,
+    ) {
+        super.onSevere(error, context)
+    }
+
+    @WithSpan
+    override fun onPreconditionError(
+        error: MessageProblems,
+        context: MessageContext,
+        metadata: MessageMetadata,
+    ) {
+        super.onPreconditionError(error, context, metadata)
+    }
+
+    @WithSpan
+    override fun onError(
+        problems: MessageProblems,
+        context: MessageContext,
+        metadata: MessageMetadata,
+    ) {
+        super.onError(problems, context, metadata)
     }
 
     private companion object {
@@ -97,6 +125,7 @@ internal class MeldekortMessage(
                         ident = packet["kilde"]["ident"].asText(),
                     ),
                 opprettet = packet["@opprettet"].asLocalDateTime(),
+                korrigeringAv = packet["korrigeringAv"].asLong(),
                 dager =
                     packet["dager"].map { dag ->
                         Dag(

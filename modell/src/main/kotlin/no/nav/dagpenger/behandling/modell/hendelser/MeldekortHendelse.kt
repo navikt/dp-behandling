@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.time.Duration
 
-open class MeldekortHendelse(
+class MeldekortHendelse(
     val id: UUID,
     meldingsreferanseId: UUID,
     ident: String,
@@ -15,6 +15,7 @@ open class MeldekortHendelse(
     val kilde: MeldekortKilde,
     val dager: List<Dag>,
     val innsendtTidspunkt: LocalDateTime,
+    val korrigeringAv: Long?,
     opprettet: LocalDateTime,
 ) : PersonHendelse(meldingsreferanseId, ident, opprettet)
 

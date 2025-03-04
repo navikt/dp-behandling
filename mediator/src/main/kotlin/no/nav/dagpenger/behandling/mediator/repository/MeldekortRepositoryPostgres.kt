@@ -4,7 +4,6 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKorrigeringHendelse
 import org.postgresql.util.PGobject
 
 class MeldekortRepositoryPostgres : MeldekortRepository {
@@ -24,11 +23,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         "ident" to meldekortHendelse.ident(),
                         "fom" to meldekortHendelse.fom,
                         "tom" to meldekortHendelse.tom,
-                        "korrigertMeldekortId" to
-                            when (meldekortHendelse) {
-                                is MeldekortKorrigeringHendelse -> meldekortHendelse.orginalMeldekortId
-                                else -> null
-                            },
+                        "korrigertMeldekortId" to meldekortHendelse.korrigeringAv,
                         "kildeIdent" to meldekortHendelse.kilde.ident,
                         "kildeRolle" to meldekortHendelse.kilde.rolle,
                         "opprettet" to meldekortHendelse.opprettet,

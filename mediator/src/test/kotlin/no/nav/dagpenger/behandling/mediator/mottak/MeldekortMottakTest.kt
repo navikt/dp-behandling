@@ -30,7 +30,7 @@ class MeldekortMottakTest {
 
     @Test
     fun `vi kan ta i mot et meldekort`() {
-        rapid.sendTestMessage(meldekortJson)
+        rapid.sendTestMessage(meldekortJson())
         val hendelse = slot<MeldekortHendelse>()
 
         verify {
@@ -59,15 +59,49 @@ class MeldekortMottakTest {
             .first()
             .timer shouldBe 5.hours
     }
+
+    @Test
+    fun `vi kan ta i mot et korrigert meldekort`() {
+        rapid.sendTestMessage(meldekortJson(1000))
+        val hendelse = slot<MeldekortHendelse>()
+
+        verify {
+            messageMediator.behandle(capture(hendelse), any(), any())
+        }
+
+        hendelse.isCaptured shouldBe true
+        hendelse.captured.ident() shouldBe "12345123451"
+        hendelse.captured.fom shouldBe LocalDate.of(2025, 1, 20)
+        hendelse.captured.tom shouldBe LocalDate.of(2025, 2, 2)
+        hendelse.captured.korrigeringAv shouldBe 1000
+        hendelse.captured.dager.size shouldBe 14
+        hendelse.captured.dager
+            .first()
+            .dato shouldBe LocalDate.of(2025, 1, 20)
+        hendelse.captured.dager
+            .first()
+            .aktiviteter.size shouldBe 1
+        hendelse.captured.dager
+            .first()
+            .aktiviteter
+            .first()
+            .type shouldBe AktivitetType.Arbeid
+        hendelse.captured.dager
+            .first()
+            .aktiviteter
+            .first()
+            .timer shouldBe 5.hours
+    }
 }
 
 // language=json
-private val meldekortJson =
+private fun meldekortJson(korrigeringAv: Long? = null) =
     """
     {
       "@event_name": "meldekort_innsendt",
       "ident": "12345123451",
       "innsendtTidspunkt": "2025-02-02T00:00:00",
+      "korrigeringAv": $korrigeringAv,
       "id": 1000,
         "periode": { 
             "fraOgMed": "2025-01-20",

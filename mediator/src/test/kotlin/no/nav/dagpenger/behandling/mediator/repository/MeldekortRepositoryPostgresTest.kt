@@ -61,6 +61,7 @@ class MeldekortRepositoryPostgresTest {
                     dager = dager,
                     innsendtTidspunkt = LocalDateTime.now(),
                     opprettet = LocalDateTime.now(),
+                    korrigeringAv = null,
                 )
 
             lagreHendelseOmMeldekort(ident, meldekortHendelse)

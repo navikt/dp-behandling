@@ -9,7 +9,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKorrigeringHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
@@ -46,6 +45,4 @@ interface BehandlingHåndter {
     fun håndter(hendelse: SendTilbakeHendelse)
 
     fun håndter(hendelse: MeldekortHendelse)
-
-    fun håndter(hendelse: MeldekortKorrigeringHendelse)
 }
