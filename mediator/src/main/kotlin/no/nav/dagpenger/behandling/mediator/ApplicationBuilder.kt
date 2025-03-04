@@ -24,7 +24,7 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
@@ -55,7 +55,7 @@ internal class ApplicationBuilder(
 
     private val meldekortRepository =
         object : MeldekortRepository {
-            override fun lagre(meldekortHendelse: MeldekortHendelse) {
+            override fun lagre(meldekortInnsendtHendelse: MeldekortInnsendtHendelse) {
                 TODO("Not yet implemented")
             }
         }

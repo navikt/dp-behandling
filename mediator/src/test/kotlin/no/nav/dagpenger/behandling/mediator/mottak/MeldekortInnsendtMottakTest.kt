@@ -8,18 +8,18 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.time.Duration.Companion.hours
 
-class MeldekortMottakTest {
+class MeldekortInnsendtMottakTest {
     private val rapid = TestRapid()
     private val messageMediator = mockk<MessageMediator>(relaxed = true)
 
     init {
-        MeldekortMottak(rapid, messageMediator)
+        MeldekortInnsendtMottak(rapid, messageMediator)
     }
 
     @BeforeEach
@@ -31,7 +31,7 @@ class MeldekortMottakTest {
     @Test
     fun `vi kan ta i mot et meldekort`() {
         rapid.sendTestMessage(meldekortJson())
-        val hendelse = slot<MeldekortHendelse>()
+        val hendelse = slot<MeldekortInnsendtHendelse>()
 
         verify {
             messageMediator.behandle(capture(hendelse), any(), any())
@@ -63,7 +63,7 @@ class MeldekortMottakTest {
     @Test
     fun `vi kan ta i mot et korrigert meldekort`() {
         rapid.sendTestMessage(meldekortJson(1000))
-        val hendelse = slot<MeldekortHendelse>()
+        val hendelse = slot<MeldekortInnsendtHendelse>()
 
         verify {
             messageMediator.behandle(capture(hendelse), any(), any())

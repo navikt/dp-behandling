@@ -6,24 +6,24 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import org.postgresql.util.PGobject
 
 class MeldekortRepositoryPostgres : MeldekortRepository {
-    override fun lagre(meldekortHendelse: MeldekortHendelse) {
+    override fun lagre(meldekortInnsendtHendelse: MeldekortInnsendtHendelse) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
-                tx.lagreMeldekort(meldekortHendelse)
+                tx.lagreMeldekort(meldekortInnsendtHendelse)
 
-                meldekortHendelse.dager.forEach { dag ->
-                    tx.lagreMeldekortDager(meldekortHendelse, dag)
+                meldekortInnsendtHendelse.dager.forEach { dag ->
+                    tx.lagreMeldekortDager(meldekortInnsendtHendelse, dag)
                 }
             }
         }
     }
 
     private fun TransactionalSession.lagreMeldekortDager(
-        meldekortHendelse: MeldekortHendelse,
+        meldekortInnsendtHendelse: MeldekortInnsendtHendelse,
         dag: Dag,
     ) {
         run(
@@ -34,20 +34,20 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 VALUES (:meldekortId, :meldt, :dato)
                 """.trimIndent(),
                 mapOf(
-                    "meldekortId" to meldekortHendelse.meldekortId,
+                    "meldekortId" to meldekortInnsendtHendelse.meldekortId,
                     "meldt" to dag.meldt,
                     "dato" to dag.dato,
                 ),
             ).asUpdate,
         ).also {
             dag.aktiviteter.forEach { aktivitet ->
-                this.lagreAktiviteter(meldekortHendelse, dag, aktivitet)
+                this.lagreAktiviteter(meldekortInnsendtHendelse, dag, aktivitet)
             }
         }
     }
 
     private fun TransactionalSession.lagreAktiviteter(
-        meldekortHendelse: MeldekortHendelse,
+        meldekortInnsendtHendelse: MeldekortInnsendtHendelse,
         dag: Dag,
         aktivitet: MeldekortAktivitet,
     ) {
@@ -59,7 +59,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 VALUES (:meldekortId, :dato, :type, :timer)
                 """.trimIndent(),
                 mapOf(
-                    "meldekortId" to meldekortHendelse.meldekortId,
+                    "meldekortId" to meldekortInnsendtHendelse.meldekortId,
                     "dato" to dag.dato,
                     "type" to aktivitet.type.name,
                     "timer" to
@@ -75,7 +75,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
     }
 }
 
-private fun TransactionalSession.lagreMeldekort(meldekortHendelse: MeldekortHendelse) {
+private fun TransactionalSession.lagreMeldekort(meldekortInnsendtHendelse: MeldekortInnsendtHendelse) {
     run(
         queryOf(
             //language=PostgreSQL
@@ -84,17 +84,17 @@ private fun TransactionalSession.lagreMeldekort(meldekortHendelse: MeldekortHend
             VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle, :opprettet)
             """.trimIndent(),
             mapOf(
-                "id" to meldekortHendelse.id,
-                "meldingReferanseId" to meldekortHendelse.meldingsreferanseId(),
-                "meldekortId" to meldekortHendelse.meldekortId,
-                "ident" to meldekortHendelse.ident(),
-                "fom" to meldekortHendelse.fom,
-                "tom" to meldekortHendelse.tom,
-                "korrigertMeldekortId" to meldekortHendelse.korrigeringAv,
-                "kildeIdent" to meldekortHendelse.kilde.ident,
-                "kildeRolle" to meldekortHendelse.kilde.rolle,
-                "opprettet" to meldekortHendelse.opprettet,
-                "innsendtTidspunkt" to meldekortHendelse.innsendtTidspunkt,
+                "id" to meldekortInnsendtHendelse.id,
+                "meldingReferanseId" to meldekortInnsendtHendelse.meldingsreferanseId(),
+                "meldekortId" to meldekortInnsendtHendelse.meldekortId,
+                "ident" to meldekortInnsendtHendelse.ident(),
+                "fom" to meldekortInnsendtHendelse.fom,
+                "tom" to meldekortInnsendtHendelse.tom,
+                "korrigertMeldekortId" to meldekortInnsendtHendelse.korrigeringAv,
+                "kildeIdent" to meldekortInnsendtHendelse.kilde.ident,
+                "kildeRolle" to meldekortInnsendtHendelse.kilde.rolle,
+                "opprettet" to meldekortInnsendtHendelse.opprettet,
+                "innsendtTidspunkt" to meldekortInnsendtHendelse.innsendtTidspunkt,
             ),
         ).asUpdate,
     )

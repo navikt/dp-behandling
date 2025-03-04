@@ -6,7 +6,6 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
@@ -19,12 +18,12 @@ import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.uuid.UUIDv7
 import kotlin.time.Duration
 
-internal class MeldekortMottak(
+internal class MeldekortInnsendtMottak(
     rapidsConnection: RapidsConnection,
     private val messageMediator: MessageMediator,
 ) : River.PacketListener {
@@ -55,38 +54,10 @@ internal class MeldekortMottak(
         withLoggingContext(
             "meldekortId" to meldekortId.toString(),
         ) {
-            val message = MeldekortMessage(packet)
-            // lagre?
-            // 1. Vi kjenner personen fra før
-            // 2. Vi kjenner ikke personen? Hva gjør vi da?
+            val message = MeldekortInnsendtMessage(packet)
+            logger.info("Vi har mottatt et meldekort")
             message.behandle(messageMediator, context)
         }
-    }
-
-    @WithSpan
-    override fun onSevere(
-        error: MessageProblems.MessageException,
-        context: MessageContext,
-    ) {
-        super.onSevere(error, context)
-    }
-
-    @WithSpan
-    override fun onPreconditionError(
-        error: MessageProblems,
-        context: MessageContext,
-        metadata: MessageMetadata,
-    ) {
-        super.onPreconditionError(error, context, metadata)
-    }
-
-    @WithSpan
-    override fun onError(
-        problems: MessageProblems,
-        context: MessageContext,
-        metadata: MessageMetadata,
-    ) {
-        super.onError(problems, context, metadata)
     }
 
     private companion object {
@@ -94,7 +65,7 @@ internal class MeldekortMottak(
     }
 }
 
-internal class MeldekortMessage(
+internal class MeldekortInnsendtMessage(
     private val packet: JsonMessage,
 ) : HendelseMessage(packet) {
     override val ident get() = packet["ident"].asText()
@@ -111,7 +82,7 @@ internal class MeldekortMessage(
 
     private val hendelse
         get() =
-            MeldekortHendelse(
+            MeldekortInnsendtHendelse(
                 id = UUIDv7.ny(),
                 meldingsreferanseId = packet["@id"].asUUID(),
                 ident = packet["ident"].asText(),

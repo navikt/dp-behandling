@@ -8,7 +8,7 @@ import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
@@ -49,8 +49,8 @@ class MeldekortRepositoryPostgresTest {
                     )
                 }
 
-            val meldekortHendelse =
-                MeldekortHendelse(
+            val meldekortInnsendtHendelse =
+                MeldekortInnsendtHendelse(
                     id = UUIDv7.ny(),
                     meldingsreferanseId = UUIDv7.ny(),
                     ident = ident,
@@ -64,15 +64,15 @@ class MeldekortRepositoryPostgresTest {
                     korrigeringAv = null,
                 )
 
-            lagreHendelseOmMeldekort(ident, meldekortHendelse)
+            lagreHendelseOmMeldekort(ident, meldekortInnsendtHendelse)
 
-            meldekortRepository.lagre(meldekortHendelse)
+            meldekortRepository.lagre(meldekortInnsendtHendelse)
         }
     }
 
     private fun lagreHendelseOmMeldekort(
         ident: String,
-        meldekortHendelse: MeldekortHendelse,
+        meldekortInnsendtHendelse: MeldekortInnsendtHendelse,
     ) {
         sessionOf(dataSource).use { session ->
             session.run(
@@ -100,7 +100,7 @@ class MeldekortRepositoryPostgresTest {
                     """.trimIndent(),
                     mapOf(
                         "ident" to ident,
-                        "melding_id" to meldekortHendelse.meldingsreferanseId(),
+                        "melding_id" to meldekortInnsendtHendelse.meldingsreferanseId(),
                         "melding_type" to "Meldekort",
                         "data" to
                             PGobject().apply {

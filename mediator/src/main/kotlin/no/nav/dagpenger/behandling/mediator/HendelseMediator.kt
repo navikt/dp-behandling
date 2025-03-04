@@ -20,7 +20,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
@@ -78,7 +78,7 @@ internal class HendelseMediator(
     }
 
     private fun lagreMeldekort(
-        hendelse: MeldekortHendelse,
+        hendelse: MeldekortInnsendtHendelse,
         context: MessageContext,
     ) {
         val personidentifikator = Ident(hendelse.ident())
@@ -194,7 +194,7 @@ internal class HendelseMediator(
     }
 
     override fun behandle(
-        hendelse: MeldekortHendelse,
+        hendelse: MeldekortInnsendtHendelse,
         context: MessageContext,
     ) {
         lagreMeldekort(hendelse, context)
@@ -301,7 +301,7 @@ internal interface IHendelseMediator {
     )
 
     fun behandle(
-        hendelse: MeldekortHendelse,
+        hendelse: MeldekortInnsendtHendelse,
         context: MessageContext,
     )
 
