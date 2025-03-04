@@ -116,7 +116,6 @@ private fun meldekortJson(korrigeringAv: Long? = null) =
         {
           "dato": "2025-01-20",
           "dagIndex": 1,
-          "meldt" : true, 
           "aktiviteter": [
             {
               "type": "Arbeid",

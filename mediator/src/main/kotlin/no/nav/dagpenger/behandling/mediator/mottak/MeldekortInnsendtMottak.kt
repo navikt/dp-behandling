@@ -102,7 +102,7 @@ internal class MeldekortInnsendtMessage(
                         Dag(
                             dato = dag["dato"].asLocalDate(),
                             // todo: Vi må få dette feltet fra team ramp.
-                            meldt = dag["meldt"].asBoolean(true),
+                            meldt = dag["meldt"]?.asBoolean() ?: true,
                             aktiviteter =
                                 dag["aktiviteter"].map {
                                     MeldekortAktivitet(
