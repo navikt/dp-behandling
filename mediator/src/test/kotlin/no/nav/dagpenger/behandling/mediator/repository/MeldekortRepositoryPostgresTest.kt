@@ -1,10 +1,10 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
@@ -22,7 +22,6 @@ class MeldekortRepositoryPostgresTest {
     fun `lagre meldekort`() {
         withMigratedDb {
             val meldekortRepository = MeldekortRepositoryPostgres()
-            val hendelseRepository = PostgresHendelseRepository()
             val ident = "12345678910"
             val start = LocalDate.now()
             val dager =
@@ -67,6 +66,21 @@ class MeldekortRepositoryPostgresTest {
             lagreHendelseOmMeldekort(ident, meldekortInnsendtHendelse)
 
             meldekortRepository.lagre(meldekortInnsendtHendelse)
+
+            val aktiviteter =
+                sessionOf(dataSource).use {
+                    it.run(
+                        queryOf(
+                            //language=PostgreSQL
+                            """
+                            SELECT COUNT(*) FROM meldekort_aktivitet
+                            """.trimIndent(),
+                        ).map {
+                            it.int("count")
+                        }.asSingle,
+                    )
+                }
+            aktiviteter.shouldBe(14)
         }
     }
 

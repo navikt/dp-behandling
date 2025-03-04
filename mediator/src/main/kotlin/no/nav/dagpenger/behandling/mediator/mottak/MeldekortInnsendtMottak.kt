@@ -57,6 +57,7 @@ internal class MeldekortInnsendtMottak(
         ) {
             val message = MeldekortInnsendtMessage(packet)
             logger.info("Vi har mottatt et meldekort")
+            sikkerlogg.info { "Mottatt meldekort: ${packet.toJson()}" }
             message.behandle(messageMediator, context)
         }
     }
@@ -64,6 +65,8 @@ internal class MeldekortInnsendtMottak(
     private companion object {
         private val logger = KotlinLogging.logger {}
     }
+
+    private val sikkerlogg = KotlinLogging.logger("tjenestekall.MeldekortInnsendtMottak")
 }
 
 internal class MeldekortInnsendtMessage(
