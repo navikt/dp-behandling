@@ -6,7 +6,6 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKorrigeringHendelse
 import org.postgresql.util.PGobject
-import kotlin.time.toJavaDuration
 
 class MeldekortRepositoryPostgres : MeldekortRepository {
     override fun lagre(meldekortHendelse: MeldekortHendelse) {
@@ -68,7 +67,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                                         "dato" to dag.dato,
                                         "type" to aktivitet.type.name,
                                         "timer" to
-                                            aktivitet.timer?.toJavaDuration()?.let { timer ->
+                                            aktivitet.timer?.let { timer ->
                                                 PGobject().apply {
                                                     type = "interval"
                                                     value = timer.toString()
