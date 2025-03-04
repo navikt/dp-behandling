@@ -29,6 +29,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
@@ -97,11 +98,15 @@ internal class PersonMediatorTest {
             ),
         )
 
+    private val meldekortRepository =
+        MeldekortRepositoryPostgres()
+
     private val testObservatør = TestObservatør()
 
     private val hendelseMediator =
         HendelseMediator(
             personRepository = personRepository,
+            meldekortRepository = meldekortRepository,
             behovMediator = BehovMediator(),
             aktivitetsloggMediator = mockk(relaxed = true),
             observatører = listOf(testObservatør),
