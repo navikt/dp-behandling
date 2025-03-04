@@ -80,7 +80,7 @@ private fun TransactionalSession.lagreMeldekort(meldekortInnsendtHendelse: Melde
         queryOf(
             //language=PostgreSQL
             """
-            INSERT INTO meldekort_hendelse (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, opprettet)
+            INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, opprettet)
             VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle, :opprettet)
             """.trimIndent(),
             mapOf(
