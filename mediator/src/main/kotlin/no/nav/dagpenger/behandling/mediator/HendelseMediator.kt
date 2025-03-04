@@ -7,6 +7,7 @@ import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import mu.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
@@ -19,8 +20,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKorrigeringHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
@@ -30,6 +30,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 
 internal class HendelseMediator(
     private val personRepository: PersonRepository,
+    private val meldekortRepository: MeldekortRepository,
     private val behovMediator: BehovMediator = BehovMediator(),
     private val aktivitetsloggMediator: AktivitetsloggMediator = AktivitetsloggMediator(),
     observatører: Collection<PersonObservatør> = emptySet(),
@@ -74,6 +75,19 @@ internal class HendelseMediator(
     ) {
         val personidentifikator = Ident(hendelse.ident())
         hentPersonOgHåndter(personidentifikator, hendelse, context, handler)
+    }
+
+    private fun lagreMeldekort(
+        hendelse: MeldekortInnsendtHendelse,
+        context: MessageContext,
+    ) {
+        val personidentifikator = Ident(hendelse.ident())
+        val person = personRepository.hent(personidentifikator)
+        if (person != null) {
+            meldekortRepository.lagre(hendelse)
+        } else {
+            logger.warn { "Vi kjenner ikke personen" }
+        }
     }
 
     private fun <Hendelse : PersonHendelse> hentPersonOgHåndter(
@@ -180,21 +194,10 @@ internal class HendelseMediator(
     }
 
     override fun behandle(
-        hendelse: MeldekortHendelse,
+        hendelse: MeldekortInnsendtHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
-        }
-    }
-
-    override fun behandle(
-        hendelse: MeldekortKorrigeringHendelse,
-        context: MessageContext,
-    ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
-        }
+        lagreMeldekort(hendelse, context)
     }
 
     override fun behandle(
@@ -298,12 +301,7 @@ internal interface IHendelseMediator {
     )
 
     fun behandle(
-        hendelse: MeldekortHendelse,
-        context: MessageContext,
-    )
-
-    fun behandle(
-        hendelse: MeldekortKorrigeringHendelse,
+        hendelse: MeldekortInnsendtHendelse,
         context: MessageContext,
     )
 

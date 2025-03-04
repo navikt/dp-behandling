@@ -18,11 +18,12 @@ import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
+import no.nav.dagpenger.uuid.UUIDv7
 import kotlin.time.Duration
 
-internal class MeldekortMottak(
+internal class MeldekortInnsendtMottak(
     rapidsConnection: RapidsConnection,
     private val messageMediator: MessageMediator,
 ) : River.PacketListener {
@@ -32,9 +33,8 @@ internal class MeldekortMottak(
                 precondition { it.requireValue("@event_name", "meldekort_innsendt") }
                 validate { it.requireKey("ident") }
                 validate { it.requireKey("id") }
-                validate { it.requireKey("periode") }
-                validate { it.requireKey("kilde") }
-                validate { it.requireKey("dager") }
+                validate { it.requireKey("periode", "kilde", "dager", "innsendtTidspunkt") }
+                validate { it.interestedIn("korrigeringAv") }
             }.register(this)
     }
 
@@ -54,7 +54,8 @@ internal class MeldekortMottak(
         withLoggingContext(
             "meldekortId" to meldekortId.toString(),
         ) {
-            val message = MeldekortMessage(packet)
+            val message = MeldekortInnsendtMessage(packet)
+            logger.info("Vi har mottatt et meldekort")
             message.behandle(messageMediator, context)
         }
     }
@@ -64,7 +65,7 @@ internal class MeldekortMottak(
     }
 }
 
-internal class MeldekortMessage(
+internal class MeldekortInnsendtMessage(
     private val packet: JsonMessage,
 ) : HendelseMessage(packet) {
     override val ident get() = packet["ident"].asText()
@@ -81,10 +82,12 @@ internal class MeldekortMessage(
 
     private val hendelse
         get() =
-            MeldekortHendelse(
+            MeldekortInnsendtHendelse(
+                id = UUIDv7.ny(),
                 meldingsreferanseId = packet["@id"].asUUID(),
                 ident = packet["ident"].asText(),
                 meldekortId = packet["id"].asLong(),
+                innsendtTidspunkt = packet["innsendtTidspunkt"].asLocalDateTime(),
                 fom = packet["periode"]["fraOgMed"].asLocalDate(),
                 tom = packet["periode"]["tilOgMed"].asLocalDate(),
                 kilde =
@@ -93,14 +96,23 @@ internal class MeldekortMessage(
                         ident = packet["kilde"]["ident"].asText(),
                     ),
                 opprettet = packet["@opprettet"].asLocalDateTime(),
+                korrigeringAv = packet["korrigeringAv"].asLong(),
                 dager =
                     packet["dager"].map { dag ->
                         Dag(
                             dato = dag["dato"].asLocalDate(),
+                            meldt = dag["meldt"].asBoolean(),
                             aktiviteter =
                                 dag["aktiviteter"].map {
                                     MeldekortAktivitet(
-                                        type = AktivitetType.valueOf(it["type"].asText()),
+                                        type =
+                                            when (it["type"].asText()) {
+                                                "Arbeid" -> AktivitetType.Arbeid
+                                                "Syk" -> AktivitetType.Syk
+                                                "Utdanning" -> AktivitetType.Utdanning
+                                                "Fravaer" -> AktivitetType.Fravær
+                                                else -> throw IllegalArgumentException("Ukjent aktivitetstype '${it["type"].asText()}'")
+                                            },
                                         timer =
                                             if (it.has("timer")) {
                                                 Duration.parseIsoString(it["timer"].asText())

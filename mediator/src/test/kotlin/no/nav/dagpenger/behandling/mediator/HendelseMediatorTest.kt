@@ -25,6 +25,7 @@ class HendelseMediatorTest {
         val mediator =
             HendelseMediator(
                 personRepository = mockk(),
+                meldekortRepository = mockk(),
                 behovMediator = mockk(),
                 aktivitetsloggMediator = mockk(),
             )

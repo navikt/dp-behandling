@@ -15,8 +15,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKorrigeringHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
@@ -116,14 +115,9 @@ class Person(
         behandling.håndter(hendelse)
     }
 
-    override fun håndter(hendelse: MeldekortHendelse) {
+    override fun håndter(hendelse: MeldekortInnsendtHendelse) {
         hendelse.leggTilKontekst(this)
         logger.info { "Vet ikke hvordan vi skal behandle meldekort ${hendelse.meldekortId}" }
-    }
-
-    override fun håndter(hendelse: MeldekortKorrigeringHendelse) {
-        hendelse.leggTilKontekst(this)
-        logger.info { "Vet ikke hvordan vi skal behandle korrigering av meldekort ${hendelse.meldekortId}" }
     }
 
     override fun håndter(hendelse: GodkjennBehandlingHendelse) {

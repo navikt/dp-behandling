@@ -8,18 +8,18 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.time.Duration.Companion.hours
 
-class MeldekortMottakTest {
+class MeldekortInnsendtMottakTest {
     private val rapid = TestRapid()
     private val messageMediator = mockk<MessageMediator>(relaxed = true)
 
     init {
-        MeldekortMottak(rapid, messageMediator)
+        MeldekortInnsendtMottak(rapid, messageMediator)
     }
 
     @BeforeEach
@@ -30,8 +30,8 @@ class MeldekortMottakTest {
 
     @Test
     fun `vi kan ta i mot et meldekort`() {
-        rapid.sendTestMessage(meldekortJson)
-        val hendelse = slot<MeldekortHendelse>()
+        rapid.sendTestMessage(meldekortJson())
+        val hendelse = slot<MeldekortInnsendtHendelse>()
 
         verify {
             messageMediator.behandle(capture(hendelse), any(), any())
@@ -59,14 +59,49 @@ class MeldekortMottakTest {
             .first()
             .timer shouldBe 5.hours
     }
+
+    @Test
+    fun `vi kan ta i mot et korrigert meldekort`() {
+        rapid.sendTestMessage(meldekortJson(1000))
+        val hendelse = slot<MeldekortInnsendtHendelse>()
+
+        verify {
+            messageMediator.behandle(capture(hendelse), any(), any())
+        }
+
+        hendelse.isCaptured shouldBe true
+        hendelse.captured.ident() shouldBe "12345123451"
+        hendelse.captured.fom shouldBe LocalDate.of(2025, 1, 20)
+        hendelse.captured.tom shouldBe LocalDate.of(2025, 2, 2)
+        hendelse.captured.korrigeringAv shouldBe 1000
+        hendelse.captured.dager.size shouldBe 14
+        hendelse.captured.dager
+            .first()
+            .dato shouldBe LocalDate.of(2025, 1, 20)
+        hendelse.captured.dager
+            .first()
+            .aktiviteter.size shouldBe 1
+        hendelse.captured.dager
+            .first()
+            .aktiviteter
+            .first()
+            .type shouldBe AktivitetType.Arbeid
+        hendelse.captured.dager
+            .first()
+            .aktiviteter
+            .first()
+            .timer shouldBe 5.hours
+    }
 }
 
 // language=json
-private val meldekortJson =
+private fun meldekortJson(korrigeringAv: Long? = null) =
     """
     {
       "@event_name": "meldekort_innsendt",
       "ident": "12345123451",
+      "innsendtTidspunkt": "2025-02-02T00:00:00",
+      "korrigeringAv": $korrigeringAv,
       "id": 1000,
         "periode": { 
             "fraOgMed": "2025-01-20",
@@ -81,6 +116,7 @@ private val meldekortJson =
         {
           "dato": "2025-01-20",
           "dagIndex": 1,
+          "meldt" : true, 
           "aktiviteter": [
             {
               "type": "Arbeid",
@@ -90,11 +126,13 @@ private val meldekortJson =
         },
         {
           "dato": "2025-01-21",
+          "meldt" : true, 
           "dagIndex": 2,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-22",
+          "meldt" : true, 
           "dagIndex": 3,
           "aktiviteter": [
             {
@@ -104,6 +142,7 @@ private val meldekortJson =
         },
         {
           "dato": "2025-01-23",
+          "meldt" : true, 
           "dagIndex": 4,
           "aktiviteter": [
             {
@@ -113,6 +152,7 @@ private val meldekortJson =
         },
         {
           "dato": "2025-01-24",
+          "meldt" : true, 
           "dagIndex": 5,
           "aktiviteter": [
             {
@@ -123,46 +163,55 @@ private val meldekortJson =
         },
         {
           "dato": "2025-01-25",
+          "meldt" : true, 
           "dagIndex": 6,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-26",
+          "meldt" : true, 
           "dagIndex": 7,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-27",
+          "meldt" : true, 
           "dagIndex": 8,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-28",
+          "meldt" : true, 
           "dagIndex": 9,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-29",
+          "meldt" : true, 
           "dagIndex": 10,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-30",
+          "meldt" : true, 
           "dagIndex": 11,
           "aktiviteter": []
         },
         {
           "dato": "2025-01-31",
+          "meldt" : true, 
           "dagIndex": 12,
           "aktiviteter": []
         },
         {
           "dato": "2025-02-01",
+          "meldt" : true, 
           "dagIndex": 13,
           "aktiviteter": []
         },
         {
           "dato": "2025-02-02",
+          "meldt" : true, 
           "dagIndex": 14,
           "aktiviteter": []
         }

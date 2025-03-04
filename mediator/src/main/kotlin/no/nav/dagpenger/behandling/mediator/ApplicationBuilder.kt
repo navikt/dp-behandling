@@ -20,9 +20,11 @@ import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
@@ -51,7 +53,13 @@ internal class ApplicationBuilder(
             ),
         )
 
-    private val hendelseMediator = HendelseMediator(personRepository)
+    private val meldekortRepository =
+        object : MeldekortRepository {
+            override fun lagre(meldekortInnsendtHendelse: MeldekortInnsendtHendelse) {
+                TODO("Not yet implemented")
+            }
+        }
+    private val hendelseMediator = HendelseMediator(personRepository, meldekortRepository)
 
     private val rapidsConnection: RapidsConnection =
         RapidApplication.create(
