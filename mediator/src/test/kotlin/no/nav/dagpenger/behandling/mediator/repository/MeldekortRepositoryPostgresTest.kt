@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.nulls.shouldNotBeNull
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
@@ -20,7 +21,7 @@ import kotlin.time.Duration.Companion.hours
 
 class MeldekortRepositoryPostgresTest {
     @Test
-    fun `lagre meldekort`() {
+    fun `lagre og hente meldekort`() {
         withMigratedDb {
             val meldekortRepository = MeldekortRepositoryPostgres()
             val ident = "12345678910"
@@ -73,20 +74,9 @@ class MeldekortRepositoryPostgresTest {
 
             meldekortRepository.lagre(meldekortInnsendtHendelse.meldekort)
 
-            val aktiviteter =
-                sessionOf(dataSource).use {
-                    it.run(
-                        queryOf(
-                            //language=PostgreSQL
-                            """
-                            SELECT COUNT(*) FROM meldekort_aktivitet
-                            """.trimIndent(),
-                        ).map {
-                            it.int("count")
-                        }.asSingle,
-                    )
-                }
-            aktiviteter.shouldBe(14)
+            val rehydrertMeldekort = meldekortRepository.hent(meldekortInnsendtHendelse.meldekort.id)
+            rehydrertMeldekort.shouldNotBeNull()
+            rehydrertMeldekort shouldBeEqual meldekortInnsendtHendelse.meldekort
         }
     }
 

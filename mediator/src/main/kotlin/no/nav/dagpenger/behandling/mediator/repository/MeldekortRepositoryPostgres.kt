@@ -1,14 +1,19 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import org.postgresql.util.PGobject
+import java.time.LocalDate
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 
 class MeldekortRepositoryPostgres : MeldekortRepository {
     override fun lagre(meldekort: Meldekort) {
@@ -23,8 +28,60 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun hent(meldekortId: UUID): Meldekort? {
-        TODO("Not yet implemented")
+    override fun hent(meldekortId: UUID) =
+        sessionOf(dataSource).use { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT * FROM meldekort WHERE id = :meldekortId
+                    """.trimIndent(),
+                    mapOf(
+                        "meldekortId" to meldekortId,
+                    ),
+                ).map {
+                    Meldekort(
+                        id = it.uuid("id"),
+                        meldingsreferanseId = it.uuid("meldingsreferanse_id"),
+                        ident = it.string("ident"),
+                        eksternMeldekortId = it.long("meldekort_id"),
+                        fom = it.localDate("fom"),
+                        tom = it.localDate("tom"),
+                        kilde =
+                            MeldekortKilde(
+                                rolle = it.string("kilde_rolle"),
+                                ident = it.string("kilde_ident"),
+                            ),
+                        dager = session.hentDager(it.long("meldekort_id")),
+                        innsendtTidspunkt = it.localDateTime("innsendt_tidspunkt"),
+                        korrigeringAv = it.longOrNull("korrigert_meldekort_id"),
+                    )
+                }.asSingle,
+            )
+        }
+
+    private fun TransactionalSession.lagreMeldekort(meldekort: Meldekort) {
+        run(
+            queryOf(
+                //language=PostgreSQL
+                """
+                INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle)
+                VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle)
+                """.trimIndent(),
+                mapOf(
+                    "id" to meldekort.id,
+                    "meldingReferanseId" to meldekort.meldingsreferanseId,
+                    "meldekortId" to meldekort.eksternMeldekortId,
+                    "ident" to meldekort.ident,
+                    "fom" to meldekort.fom,
+                    "tom" to meldekort.tom,
+                    "korrigertMeldekortId" to meldekort.korrigeringAv,
+                    "kildeIdent" to meldekort.kilde.ident,
+                    "kildeRolle" to meldekort.kilde.rolle,
+                    "innsendtTidspunkt" to meldekort.innsendtTidspunkt,
+                ),
+            ).asUpdate,
+        )
     }
 
     private fun TransactionalSession.lagreMeldekortDager(
@@ -78,28 +135,45 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             ).asUpdate,
         )
     }
-}
 
-private fun TransactionalSession.lagreMeldekort(meldekort: Meldekort) {
-    run(
-        queryOf(
-            //language=PostgreSQL
-            """
-            INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle)
-            VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle)
-            """.trimIndent(),
-            mapOf(
-                "id" to meldekort.id,
-                "meldingReferanseId" to meldekort.meldingsreferanseId,
-                "meldekortId" to meldekort.eksternMeldekortId,
-                "ident" to meldekort.ident,
-                "fom" to meldekort.fom,
-                "tom" to meldekort.tom,
-                "korrigertMeldekortId" to meldekort.korrigeringAv,
-                "kildeIdent" to meldekort.kilde.ident,
-                "kildeRolle" to meldekort.kilde.rolle,
-                "innsendtTidspunkt" to meldekort.innsendtTidspunkt,
-            ),
-        ).asUpdate,
-    )
+    private fun Session.hentDager(meldkortId: Long): List<Dag> =
+        run(
+            queryOf(
+                //language=PostgreSQL
+                """
+                SELECT * FROM meldekort_dag WHERE meldekort_id = :meldekortId
+                """.trimIndent(),
+                mapOf(
+                    "meldekortId" to meldkortId,
+                ),
+            ).map {
+                Dag(
+                    dato = it.localDate("dato"),
+                    meldt = it.boolean("meldt"),
+                    aktiviteter = this.hentAktiviteter(meldkortId, it.localDate("dato")),
+                )
+            }.asList,
+        )
+
+    private fun Session.hentAktiviteter(
+        meldkortId: Long,
+        localDate: LocalDate,
+    ): List<MeldekortAktivitet> =
+        run(
+            queryOf(
+                //language=PostgreSQL
+                """
+                SELECT dato, type, EXTRACT(epoch FROM timer) AS timer FROM meldekort_aktivitet WHERE meldekort_id = :meldekortId AND dato = :dato
+                """.trimIndent(),
+                mapOf(
+                    "meldekortId" to meldkortId,
+                    "dato" to localDate,
+                ),
+            ).map {
+                MeldekortAktivitet(
+                    type = AktivitetType.valueOf(it.string("type")),
+                    timer = it.intOrNull("timer")?.seconds,
+                )
+            }.asList,
+        )
 }
