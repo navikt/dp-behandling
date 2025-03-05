@@ -50,33 +50,55 @@ class MeldekortRepositoryPostgresTest {
                     )
                 }
 
-            val meldingsreferanseId = UUIDv7.ny()
+            val meldingsreferanseId1 = UUIDv7.ny()
+            val meldekort =
+                Meldekort(
+                    id = UUIDv7.ny(),
+                    meldingsreferanseId = meldingsreferanseId1,
+                    ident = ident,
+                    eksternMeldekortId = 1,
+                    fom = start,
+                    tom = start.plusDays(14),
+                    kilde = MeldekortKilde("Bruker", ident),
+                    dager = dager,
+                    innsendtTidspunkt = LocalDateTime.now(),
+                    korrigeringAv = null,
+                )
             val meldekortInnsendtHendelse =
                 MeldekortInnsendtHendelse(
                     opprettet = LocalDateTime.now(),
-                    meldingsreferanseId = meldingsreferanseId,
+                    meldingsreferanseId = meldingsreferanseId1,
                     meldekort =
-                        Meldekort(
+                    meldekort,
+                )
+
+            val meldingsreferanseId2 = UUIDv7.ny()
+            val meldekortKorrigertInnsendtHendelse =
+                MeldekortInnsendtHendelse(
+                    opprettet = LocalDateTime.now(),
+                    meldingsreferanseId = meldingsreferanseId2,
+                    meldekort =
+                        meldekort.copy(
                             id = UUIDv7.ny(),
-                            meldingsreferanseId = meldingsreferanseId,
-                            ident = ident,
-                            eksternMeldekortId = 1,
-                            fom = start,
-                            tom = start.plusDays(14),
-                            kilde = MeldekortKilde("Bruker", ident),
-                            dager = dager,
-                            innsendtTidspunkt = LocalDateTime.now(),
-                            korrigeringAv = null,
+                            meldingsreferanseId = meldingsreferanseId2,
+                            eksternMeldekortId = 2,
+                            korrigeringAv = meldekort.eksternMeldekortId,
                         ),
                 )
 
             lagreHendelseOmMeldekort(ident, meldekortInnsendtHendelse)
+            lagreHendelseOmMeldekort(ident, meldekortKorrigertInnsendtHendelse)
 
             meldekortRepository.lagre(meldekortInnsendtHendelse.meldekort)
+            meldekortRepository.lagre(meldekortKorrigertInnsendtHendelse.meldekort)
 
             val rehydrertMeldekort = meldekortRepository.hent(meldekortInnsendtHendelse.meldekort.id)
             rehydrertMeldekort.shouldNotBeNull()
             rehydrertMeldekort shouldBeEqual meldekortInnsendtHendelse.meldekort
+
+            val rehydrertKorrigertMeldekort = meldekortRepository.hent(meldekortKorrigertInnsendtHendelse.meldekort.id)
+            rehydrertKorrigertMeldekort.shouldNotBeNull()
+            rehydrertKorrigertMeldekort shouldBeEqual meldekortKorrigertInnsendtHendelse.meldekort
         }
     }
 
@@ -89,7 +111,7 @@ class MeldekortRepositoryPostgresTest {
                 queryOf(
                     //language=PostgreSQL
                     """
-                    INSERT INTO person (ident) VALUES (:ident)                       
+                    INSERT INTO person (ident) VALUES (:ident) ON CONFLICT DO NOTHING                    
                     """.trimIndent(),
                     mapOf(
                         "ident" to ident,
