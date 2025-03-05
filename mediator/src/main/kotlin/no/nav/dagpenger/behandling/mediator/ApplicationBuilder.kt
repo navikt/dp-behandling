@@ -28,6 +28,7 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
+import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.uuid.UUIDv7
 import no.nav.helse.rapids_rivers.RapidApplication
 
@@ -74,7 +75,6 @@ internal class ApplicationBuilder(
                         preStopHook = preStopHook::handlePreStopRequest,
                         statusPagesConfig = { statusPagesConfig() },
                     ) {
-
                         behandlingApi(
                             personRepository = personRepository,
                             hendelseMediator = hendelseMediator,
@@ -104,6 +104,14 @@ internal class ApplicationBuilder(
                 opplysningstyper = opplysningstyper,
                 meldekortRepository = MeldekortRepositoryPostgres(),
             )
+
+            rapidsConnection.register(
+                object : RapidsConnection.StatusListener {
+                    override fun onShutdown(rapidsConnection: RapidsConnection) {
+                        engine.stop()
+                    }
+                },
+            )
         }
 
     init {
@@ -116,9 +124,16 @@ internal class ApplicationBuilder(
 
     override fun onStartup(rapidsConnection: RapidsConnection) {
         runMigration()
-        opplysningRepository.lagreOpplysningstyper(opplysningstyper + fagsakIdOpplysningstype).also {
-            logger.info { "Opprettet $it opplysningstyper" }
-        }
+        opplysningRepository
+            .lagreOpplysningstyper(
+                opplysningstyper + fagsakIdOpplysningstype +
+                    Beregning.arbeidsdag +
+                    Beregning.arbeidstimer +
+                    Beregning.forbruk +
+                    Beregning.terskel,
+            ).also {
+                logger.info { "Opprettet $it opplysningstyper" }
+            }
         logger.info { "Starter opp dp-behandling" }
     }
 }

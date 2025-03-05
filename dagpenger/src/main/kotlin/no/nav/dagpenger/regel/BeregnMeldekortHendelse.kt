@@ -13,7 +13,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.regel.beregning.Beregning
-import java.time.LocalDate
+import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -33,9 +33,7 @@ class BeregnMeldekortHendelse(
     ) {
     override val forretningsprosess = Søknadsprosess()
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        TODO("Not yet implemented")
-    }
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = Regelkjøring(skjedde, opplysninger, forretningsprosess)
 
     override fun behandling(forrigeBehandling: Behandling?): Behandling {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
@@ -44,40 +42,37 @@ class BeregnMeldekortHendelse(
             behandler = this,
             basertPå = listOf(forrigeBehandling),
             opplysninger =
-                meldekort.dager.flatMap { dag ->
-                    val kilde = Systemkilde(meldingsreferanseId, opprettet)
-                    val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
-                    // TODO: Dette bør være en double
-                    val timer = dag.aktiviteter.sumOf { it.timer?.inWholeHours ?: 0 }.toInt()
-                    // TODO: Hva om det er flere aktiviteter?
-                    val type = dag.aktiviteter.first().type
-                    // TODO: Det finnes også tomme dager, bør defaulte til arbeidsdag med 0 arbeidstimer
-                    when (type) {
-                        AktivitetType.Arbeid -> {
-                            listOf(
-                                Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
-                                Faktum(Beregning.arbeidstimer, timer, gyldighetsperiode, kilde = kilde),
-                            )
+                listOf(Faktum(Beregning.terskel, 0.5)) +
+                    meldekort.dager.flatMap { dag ->
+                        val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
+                        val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
+                        // TODO: Dette bør være en double
+                        val timer = dag.aktiviteter.sumOf { it.timer?.inWholeHours ?: 0 }.toInt()
+                        // TODO: Hva om det er flere aktiviteter?
+                        val type = dag.aktiviteter.first().type
+                        // TODO: Det finnes også tomme dager, bør defaulte til arbeidsdag med 0 arbeidstimer
+                        when (type) {
+                            AktivitetType.Arbeid -> {
+                                listOf(
+                                    Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
+                                    Faktum(Beregning.arbeidstimer, timer, gyldighetsperiode, kilde = kilde),
+                                )
+                            }
+
+                            AktivitetType.Syk,
+                            AktivitetType.Utdanning,
+                            AktivitetType.Fravær,
+                            -> listOf(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
                         }
-
-                        AktivitetType.Syk,
-                        AktivitetType.Utdanning,
-                        AktivitetType.Fravær,
-                        -> listOf(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
-                    }
-                },
-        )
+                    },
+        ).apply {
+            val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger())
+            val periode = fabrikk.lagBeregningsperiode()
+            println(periode.forbruksdager)
+        }
     }
 
-    override fun kontrollpunkter(): List<Kontrollpunkt> {
-        TODO("Not yet implemented")
-    }
+    override fun kontrollpunkter(): List<Kontrollpunkt> = emptyList()
 
-    override fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate {
-        TODO("Not yet implemented")
-    }
-
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean = false
 }

@@ -37,7 +37,5 @@ abstract class StartHendelse(
 
     abstract fun kontrollpunkter(): List<Kontrollpunkt>
 
-    abstract fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate
-
     abstract fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean
 }
