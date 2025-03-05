@@ -128,6 +128,7 @@ internal class PersonMediatorTest {
             hendelseMediator = hendelseMediator,
             hendelseRepository = PostgresHendelseRepository(),
             opplysningstyper = RegelverkDagpenger.produserer,
+            meldekortRepository = meldekortRepository,
         )
     }
 

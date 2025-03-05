@@ -7,7 +7,6 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import org.postgresql.util.PGobject
 import java.util.UUID
 
@@ -24,7 +23,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun hent(meldekortId: UUID): MeldekortInnsendtHendelse? {
+    override fun hent(meldekortId: UUID): Meldekort? {
         TODO("Not yet implemented")
     }
 

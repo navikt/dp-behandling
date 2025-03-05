@@ -33,7 +33,7 @@ abstract class StartHendelse(
 
     abstract fun regelkjøring(opplysninger: Opplysninger): Regelkjøring
 
-    abstract fun behandling(): Behandling
+    abstract fun behandling(forrigeBehandling: Behandling?): Behandling
 
     abstract fun kontrollpunkter(): List<Kontrollpunkt>
 

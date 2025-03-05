@@ -213,7 +213,7 @@ private class SøknadInnsendtHendelse(
             regelsett,
         )
 
-    override fun behandling(): Behandling {
+    override fun behandling(forrigeBehandling: Behandling?): Behandling {
         TODO("Not yet implemented")
     }
 

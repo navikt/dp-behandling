@@ -13,8 +13,8 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
-import no.nav.dagpenger.behandling.modell.hendelser.BeregnMeldekortHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
+import no.nav.dagpenger.regel.BeregnMeldekortHendelse
 
 internal class BeregnMeldekortMottak(
     rapidsConnection: RapidsConnection,
@@ -51,7 +51,7 @@ internal class BeregnMeldekortMottak(
 
     class BeregnMeldekortMessage(
         packet: JsonMessage,
-        private val meldekort: MeldekortInnsendtHendelse,
+        private val meldekort: Meldekort,
     ) : HendelseMessage(packet) {
         val meldekortId = packet["meldekortId"].asUUID()
         override val ident = packet["ident"].asText()
