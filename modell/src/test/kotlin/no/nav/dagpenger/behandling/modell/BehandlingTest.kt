@@ -219,8 +219,6 @@ private class SøknadInnsendtHendelse(
 
     override fun kontrollpunkter(): List<Kontrollpunkt> = emptyList()
 
-    override fun prøvingsdato(opplysninger: LesbarOpplysninger) = skjedde
-
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
         TODO("Not yet implemented")
     }

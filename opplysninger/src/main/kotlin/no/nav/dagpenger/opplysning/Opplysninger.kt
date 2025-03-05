@@ -30,7 +30,7 @@ class Opplysninger private constructor(
     val aktiveOpplysninger get() = opplysninger.toList()
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
-        val opplysningerForDato = opplysninger.bareAktive().gyldigeFor(gjelderFor)
+        val opplysningerForDato = alleOpplysninger.bareAktive().gyldigeFor(gjelderFor)
         return Opplysninger(UUIDv7.ny(), opplysningerForDato)
     }
 

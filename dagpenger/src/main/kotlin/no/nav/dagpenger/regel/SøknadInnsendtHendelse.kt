@@ -48,7 +48,7 @@ class SøknadInnsendtHendelse(
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(prøvingsdato(opplysninger), opplysninger, forretningsprosess)
 
-    override fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
+    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
         if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi else skjedde
 
     private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
