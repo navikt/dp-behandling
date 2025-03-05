@@ -33,7 +33,6 @@ import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMottak
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.BeregnMeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
@@ -173,7 +172,7 @@ internal class MessageMediator(
     }
 
     override fun behandle(
-        hendelse: BeregnMeldekortHendelse,
+        hendelse: StartHendelse,
         beregnMeldekortMessage: BeregnMeldekortMessage,
         context: MessageContext,
     ) {
@@ -259,7 +258,7 @@ internal interface IMessageMediator {
     )
 
     fun behandle(
-        hendelse: BeregnMeldekortHendelse,
+        hendelse: StartHendelse,
         beregnMeldekortMessage: BeregnMeldekortMessage,
         context: MessageContext,
     )

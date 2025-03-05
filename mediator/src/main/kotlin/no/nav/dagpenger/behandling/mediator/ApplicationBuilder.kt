@@ -102,6 +102,7 @@ internal class ApplicationBuilder(
                 hendelseMediator = hendelseMediator,
                 hendelseRepository = PostgresHendelseRepository(),
                 opplysningstyper = opplysningstyper,
+                meldekortRepository = MeldekortRepositoryPostgres(),
             )
         }
 

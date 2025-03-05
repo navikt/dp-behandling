@@ -59,7 +59,7 @@ class SøknadInnsendtHendelse(
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = minsteinntekt(opplysninger) && alder(opplysninger)
 
-    override fun behandling() =
+    override fun behandling(forrigeBehandling: Behandling?) =
         Behandling(
             behandler = this,
             opplysninger =

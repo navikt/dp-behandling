@@ -15,7 +15,6 @@ import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.BeregnMeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
@@ -28,6 +27,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.regel.BeregnMeldekortHendelse
 
 internal class HendelseMediator(
     private val personRepository: PersonRepository,
