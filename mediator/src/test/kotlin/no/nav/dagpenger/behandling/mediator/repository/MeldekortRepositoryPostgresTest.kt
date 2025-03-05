@@ -49,14 +49,15 @@ class MeldekortRepositoryPostgresTest {
                     )
                 }
 
+            val meldingsreferanseId = UUIDv7.ny()
             val meldekortInnsendtHendelse =
                 MeldekortInnsendtHendelse(
                     opprettet = LocalDateTime.now(),
-                    meldingsreferanseId = UUIDv7.ny(),
+                    meldingsreferanseId = meldingsreferanseId,
                     meldekort =
                         Meldekort(
                             id = UUIDv7.ny(),
-                            meldingsreferanseId = UUIDv7.ny(),
+                            meldingsreferanseId = meldingsreferanseId,
                             ident = ident,
                             eksternMeldekortId = 1,
                             fom = start,
