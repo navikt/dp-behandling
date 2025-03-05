@@ -34,7 +34,12 @@ class LesbarOpplysningerMedLogg(
             }
         }
 
-    override fun erSann(opplysningstype: Opplysningstype<Boolean>) = throw TODO("Not yet implemented")
+    override fun erSann(opplysningstype: Opplysningstype<Boolean>) =
+        opplysninger.erSann(opplysningstype).also {
+            if (opplysninger.har(opplysningstype)) {
+                oppslag.add(opplysninger.finnOpplysning(opplysningstype))
+            }
+        }
 
     override fun finnAlle(opplysningstyper: List<Opplysningstype<*>>) = TODO()
 

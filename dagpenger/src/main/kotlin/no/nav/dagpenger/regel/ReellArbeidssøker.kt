@@ -141,6 +141,14 @@ object ReellArbeidssøker {
 
     val ReellArbeidssøkerKontroll =
         Kontrollpunkt(ReellArbeidssøkerUnntak) {
+            if (it.erSann(godkjentDeltidssøker) ||
+                it.erSann(godkjentLokalArbeidssøker) ||
+                it.erSann(godkjentArbeidsufør)
+            ) {
+                // Om det er gitt unntak så trengs ikke avklaringen
+                return@Kontrollpunkt false
+            }
+
             (it.har(kanJobbeDeltid) && it.finnOpplysning(kanJobbeDeltid).verdi == false) ||
                 (it.har(kanJobbeHvorSomHelst) && it.finnOpplysning(kanJobbeHvorSomHelst).verdi == false) ||
                 (it.har(erArbeidsfør) && it.finnOpplysning(erArbeidsfør).verdi == false) ||
