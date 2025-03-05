@@ -662,9 +662,10 @@ components:
           $ref: '#/components/schemas/Hjemmel'
         relevantForVedtak:
           type: boolean
+          deprecated: true
         status:
           type: string
-          enum: [ "Oppfylt", "HarAvklaring", "IkkeOppfylt", "Info" ]
+          enum: [ "Oppfylt", "HarAvklaring", "IkkeOppfylt", "Info", "IkkeRelevant" ]
         avklaringer:
           type: array
           description: Hvilke avklaringer som skal vises i dette regelsettet
