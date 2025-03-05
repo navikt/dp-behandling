@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling.modell
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.BeregnMeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
@@ -21,6 +22,8 @@ interface BehandlingHåndter {
     fun håndter(hendelse: StartHendelse)
 
     fun håndter(hendelse: OpplysningSvarHendelse)
+
+    fun håndter(hendelse: BeregnMeldekortHendelse)
 
     fun håndter(hendelse: AvbrytBehandlingHendelse)
 

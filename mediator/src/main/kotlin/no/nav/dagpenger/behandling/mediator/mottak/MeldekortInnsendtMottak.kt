@@ -18,6 +18,7 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
@@ -78,56 +79,64 @@ internal class MeldekortInnsendtMessage(
         context: MessageContext,
     ) {
         withLoggingContext(hendelse.kontekstMap()) {
-            logger.info { "Behandler meldekort: ${hendelse.meldekortId}" }
+            logger.info { "Behandler meldekort: ${hendelse.meldekort.eksternMeldekortId}" }
             mediator.behandle(hendelse, this, context)
         }
     }
 
-    private val hendelse
-        get() =
-            MeldekortInnsendtHendelse(
-                id = UUIDv7.ny(),
-                meldingsreferanseId = packet["@id"].asUUID(),
-                ident = packet["ident"].asText(),
-                meldekortId = packet["id"].asLong(),
-                innsendtTidspunkt = packet["innsendtTidspunkt"].asLocalDateTime(),
-                fom = packet["periode"]["fraOgMed"].asLocalDate(),
-                tom = packet["periode"]["tilOgMed"].asLocalDate(),
-                kilde =
-                    MeldekortKilde(
-                        rolle = packet["kilde"]["rolle"].asText(),
-                        ident = packet["kilde"]["ident"].asText(),
-                    ),
+    private val hendelse: MeldekortInnsendtHendelse
+        get() {
+            val meldingsreferanseId = packet["@id"].asUUID()
+            return MeldekortInnsendtHendelse(
                 opprettet = packet["@opprettet"].asLocalDateTime(),
-                korrigeringAv = packet["korrigeringAv"].takeIf { !it.isMissingOrNull() }?.asLong(),
-                dager =
-                    packet["dager"].map { dag ->
-                        Dag(
-                            dato = dag["dato"].asLocalDate(),
-                            // todo: Vi må få dette feltet fra team ramp.
-                            meldt = dag["meldt"]?.takeIf { !it.isMissingOrNull() }?.asBoolean() ?: true,
-                            aktiviteter =
-                                dag["aktiviteter"].map {
-                                    MeldekortAktivitet(
-                                        type =
-                                            when (it["type"].asText()) {
-                                                "Arbeid" -> AktivitetType.Arbeid
-                                                "Syk" -> AktivitetType.Syk
-                                                "Utdanning" -> AktivitetType.Utdanning
-                                                "Fravaer" -> AktivitetType.Fravær
-                                                else -> throw IllegalArgumentException("Ukjent aktivitetstype '${it["type"].asText()}'")
-                                            },
-                                        timer =
-                                            if (it.hasNonNull("timer")) {
-                                                Duration.parseIsoString(it["timer"].asText())
-                                            } else {
-                                                null
-                                            },
-                                    )
-                                },
-                        )
-                    },
+                meldingsreferanseId = meldingsreferanseId,
+                meldekort =
+                    Meldekort(
+                        id = UUIDv7.ny(),
+                        ident = packet["ident"].asText(),
+                        eksternMeldekortId = packet["id"].asLong(),
+                        innsendtTidspunkt = packet["innsendtTidspunkt"].asLocalDateTime(),
+                        fom = packet["periode"]["fraOgMed"].asLocalDate(),
+                        tom = packet["periode"]["tilOgMed"].asLocalDate(),
+                        kilde =
+                            MeldekortKilde(
+                                rolle = packet["kilde"]["rolle"].asText(),
+                                ident = packet["kilde"]["ident"].asText(),
+                            ),
+                        korrigeringAv = packet["korrigeringAv"].takeIf { !it.isMissingOrNull() }?.asLong(),
+                        meldingsreferanseId = meldingsreferanseId,
+                        dager =
+                            packet["dager"].map { dag ->
+                                Dag(
+                                    dato = dag["dato"].asLocalDate(),
+                                    // todo: Vi må få dette feltet fra team ramp.
+                                    meldt = dag["meldt"]?.takeIf { !it.isMissingOrNull() }?.asBoolean() ?: true,
+                                    aktiviteter =
+                                        dag["aktiviteter"].map {
+                                            MeldekortAktivitet(
+                                                type =
+                                                    when (it["type"].asText()) {
+                                                        "Arbeid" -> AktivitetType.Arbeid
+                                                        "Syk" -> AktivitetType.Syk
+                                                        "Utdanning" -> AktivitetType.Utdanning
+                                                        "Fravaer" -> AktivitetType.Fravær
+                                                        else -> throw IllegalArgumentException(
+                                                            "Ukjent aktivitetstype '${it["type"].asText()}'",
+                                                        )
+                                                    },
+                                                timer =
+                                                    if (it.hasNonNull("timer")) {
+                                                        Duration.parseIsoString(it["timer"].asText())
+                                                    } else {
+                                                        null
+                                                    },
+                                            )
+                                        },
+                                )
+                            },
+                    ),
             )
+        }
 
     companion object {
         private val logger = KotlinLogging.logger {}

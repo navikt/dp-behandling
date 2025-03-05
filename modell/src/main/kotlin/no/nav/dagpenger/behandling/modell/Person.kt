@@ -10,6 +10,7 @@ import no.nav.dagpenger.behandling.modell.PersonObservatør.PersonEvent
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.BeregnMeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
@@ -79,6 +80,18 @@ class Person(
         behandling.håndter(hendelse)
     }
 
+    override fun håndter(hendelse: BeregnMeldekortHendelse) {
+        hendelse.leggTilKontekst(this)
+
+        // TODO: Finne "riktig" behandling
+        // Har personen rettighet til dagpenger i meldeperioden?
+        // Hvis ja, opprett behandling
+        // Hvis nei, avslutt behandling?
+        val behandling = behandlinger.last()
+        val meldekortBehandling =
+            Behandling()
+    }
+
     override fun håndter(hendelse: AvbrytBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
         val behandling = behandlinger.finn(hendelse.behandlingId)
@@ -117,7 +130,7 @@ class Person(
 
     override fun håndter(hendelse: MeldekortInnsendtHendelse) {
         hendelse.leggTilKontekst(this)
-        logger.info { "Vet ikke hvordan vi skal behandle meldekort ${hendelse.meldekortId}" }
+        logger.info { "Vet ikke hvordan vi skal behandle meldekort ${hendelse.meldekort.eksternMeldekortId}" }
     }
 
     override fun håndter(hendelse: GodkjennBehandlingHendelse) {

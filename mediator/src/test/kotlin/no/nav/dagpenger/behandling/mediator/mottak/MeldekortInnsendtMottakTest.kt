@@ -38,23 +38,24 @@ class MeldekortInnsendtMottakTest {
         }
 
         hendelse.isCaptured shouldBe true
-        hendelse.captured.ident() shouldBe "12345123451"
-        hendelse.captured.korrigeringAv shouldBe null
-        hendelse.captured.fom shouldBe LocalDate.of(2025, 1, 20)
-        hendelse.captured.tom shouldBe LocalDate.of(2025, 2, 2)
-        hendelse.captured.dager.size shouldBe 14
-        hendelse.captured.dager
+        val meldekort = hendelse.captured.meldekort
+        meldekort.ident shouldBe "12345123451"
+        meldekort.korrigeringAv shouldBe null
+        meldekort.fom shouldBe LocalDate.of(2025, 1, 20)
+        meldekort.tom shouldBe LocalDate.of(2025, 2, 2)
+        meldekort.dager.size shouldBe 14
+        meldekort.dager
             .first()
             .dato shouldBe LocalDate.of(2025, 1, 20)
-        hendelse.captured.dager
+        meldekort.dager
             .first()
             .aktiviteter.size shouldBe 1
-        hendelse.captured.dager
+        meldekort.dager
             .first()
             .aktiviteter
             .first()
             .type shouldBe AktivitetType.Arbeid
-        hendelse.captured.dager
+        meldekort.dager
             .first()
             .aktiviteter
             .first()
@@ -71,23 +72,24 @@ class MeldekortInnsendtMottakTest {
         }
 
         hendelse.isCaptured shouldBe true
-        hendelse.captured.ident() shouldBe "12345123451"
-        hendelse.captured.fom shouldBe LocalDate.of(2025, 1, 20)
-        hendelse.captured.tom shouldBe LocalDate.of(2025, 2, 2)
-        hendelse.captured.korrigeringAv shouldBe 1000
-        hendelse.captured.dager.size shouldBe 14
-        hendelse.captured.dager
+        val meldekort = hendelse.captured.meldekort
+        meldekort.ident shouldBe "12345123451"
+        meldekort.fom shouldBe LocalDate.of(2025, 1, 20)
+        meldekort.tom shouldBe LocalDate.of(2025, 2, 2)
+        meldekort.korrigeringAv shouldBe 1000
+        meldekort.dager.size shouldBe 14
+        meldekort.dager
             .first()
             .dato shouldBe LocalDate.of(2025, 1, 20)
-        hendelse.captured.dager
+        meldekort.dager
             .first()
             .aktiviteter.size shouldBe 1
-        hendelse.captured.dager
+        meldekort.dager
             .first()
             .aktiviteter
             .first()
             .type shouldBe AktivitetType.Arbeid
-        hendelse.captured.dager
+        meldekort.dager
             .first()
             .aktiviteter
             .first()
