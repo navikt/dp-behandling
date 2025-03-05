@@ -179,12 +179,15 @@ private fun Regelsett.tilRegelsettDTO(
 
     val opplysningMedUtfall = opplysninger.filterIsInstance<Opplysning<Boolean>>().filter { utfall.contains(it.opplysningstype) }
     var status = tilStatus(opplysningMedUtfall)
+    val erRelevant = påvirkerResultat(lesbarOpplysninger)
+
+    if (!erRelevant) {
+        status = RegelsettDTO.Status.IkkeRelevant
+    }
 
     if (egneAvklaringer.any { it.måAvklares() }) {
         status = RegelsettDTO.Status.HarAvklaring
     }
-
-    val erRelevant = påvirkerResultat(lesbarOpplysninger)
 
     return RegelsettDTO(
         navn = hjemmel.kortnavn,
