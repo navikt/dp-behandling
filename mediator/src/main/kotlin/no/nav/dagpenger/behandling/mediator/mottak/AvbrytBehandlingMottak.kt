@@ -48,10 +48,6 @@ internal class AvbrytBehandlingMottak(
         ) {
             logger.info { "Avbryter behandlingen" }
             val message = AvbrytBehandlingMessage(packet)
-            if (behandlingId.toString() == "0193bf03-f5fd-7068-b907-0eecc544c122" && System.getenv("NAIS_CLUSTER_NAME") == "prod-gcp") {
-                logger.info { "Behandling finnes ikke i prod, skipper avbryt melding." }
-                return
-            }
             message.behandle(messageMediator, context)
         }
     }
