@@ -4,6 +4,7 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import java.util.UUID
 
@@ -58,7 +59,9 @@ interface PersonRepository : BehandlingRepository {
 }
 
 interface MeldekortRepository {
-    fun lagre(meldekortInnsendtHendelse: MeldekortInnsendtHendelse)
+    fun lagre(meldekort: Meldekort)
+
+    fun hent(meldekortId: UUID): MeldekortInnsendtHendelse?
 }
 
 interface UnitOfWork<S> {

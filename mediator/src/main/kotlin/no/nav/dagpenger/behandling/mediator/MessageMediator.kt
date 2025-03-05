@@ -12,6 +12,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
+import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak
+import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.InnsendingFerdigstiltMottak
@@ -28,8 +30,10 @@ import no.nav.dagpenger.behandling.mediator.mottak.ReturnerTilSaksbehandlerMessa
 import no.nav.dagpenger.behandling.mediator.mottak.SendtTilKontrollMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMottak
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.BeregnMeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
@@ -46,6 +50,7 @@ internal class MessageMediator(
     rapidsConnection: RapidsConnection,
     private val hendelseMediator: HendelseMediator,
     private val hendelseRepository: HendelseRepository,
+    private val meldekortRepository: MeldekortRepository,
     opplysningstyper: Set<Opplysningstype<*>>,
 ) : IMessageMediator {
     init {
@@ -60,6 +65,7 @@ internal class MessageMediator(
         OppgaveSendtTilKontroll(rapidsConnection, this)
         OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
         MeldekortInnsendtMottak(rapidsConnection, this)
+        BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
     }
 
     private companion object {
@@ -166,6 +172,16 @@ internal class MessageMediator(
         }
     }
 
+    override fun behandle(
+        hendelse: BeregnMeldekortHendelse,
+        beregnMeldekortMessage: BeregnMeldekortMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, beregnMeldekortMessage) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
     private fun <HENDELSE : PersonHendelse> behandle(
         hendelse: HENDELSE,
         message: HendelseMessage,
@@ -239,6 +255,12 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: LåsOppHendelse,
         message: ReturnerTilSaksbehandlerMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: BeregnMeldekortHendelse,
+        beregnMeldekortMessage: BeregnMeldekortMessage,
         context: MessageContext,
     )
 }

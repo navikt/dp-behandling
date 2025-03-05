@@ -25,3 +25,12 @@ class SøknadId(
             "søknad_uuid" to id.toString(),
         )
 }
+
+class MeldekortId(
+    id: Long,
+) : EksternId<Long>(id) {
+    override fun kontekstMap() =
+        mapOf(
+            "meldekortId" to id.toString(),
+        )
+}

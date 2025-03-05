@@ -34,6 +34,7 @@ import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.util.UUID
 
 class TestPerson(
     internal val ident: String,
@@ -188,6 +189,20 @@ class TestPerson(
                     "oppgave_returnert_til_saksbehandling",
                     mapOf(
                         "behandlingId" to behandlingId,
+                        "ident" to ident,
+                    ),
+                ).toJson(),
+            ident,
+        )
+    }
+
+    fun beregnMeldekort(meldekortId: UUID) {
+        rapid.sendTestMessage(
+            JsonMessage
+                .newMessage(
+                    "beregn_meldekort",
+                    mapOf(
+                        "meldekortId" to meldekortId,
                         "ident" to ident,
                     ),
                 ).toJson(),

@@ -6,18 +6,23 @@ import java.util.UUID
 import kotlin.time.Duration
 
 class MeldekortInnsendtHendelse(
-    val id: UUID,
     meldingsreferanseId: UUID,
-    ident: String,
-    val meldekortId: Long,
+    val meldekort: Meldekort,
+    opprettet: LocalDateTime,
+) : PersonHendelse(meldingsreferanseId, meldekort.ident, opprettet)
+
+data class Meldekort(
+    val id: UUID,
+    val meldingsreferanseId: UUID,
+    val ident: String,
+    val eksternMeldekortId: Long,
     val fom: LocalDate,
     val tom: LocalDate,
     val kilde: MeldekortKilde,
     val dager: List<Dag>,
     val innsendtTidspunkt: LocalDateTime,
     val korrigeringAv: Long?,
-    opprettet: LocalDateTime,
-) : PersonHendelse(meldingsreferanseId, ident, opprettet)
+)
 
 data class MeldekortKilde(
     val rolle: String,

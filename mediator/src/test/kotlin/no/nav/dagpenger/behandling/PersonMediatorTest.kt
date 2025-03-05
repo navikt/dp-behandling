@@ -17,8 +17,11 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import kotliquery.queryOf
+import kotliquery.sessionOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.konfigurasjon.skruAvFeatures
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
@@ -41,9 +44,14 @@ import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndret
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.PersonObservatør
+import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
@@ -79,10 +87,12 @@ import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.postgresql.util.PGobject
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
+import kotlin.time.Duration.Companion.hours
 
 internal class PersonMediatorTest {
     private val rapid = TestRapid()
@@ -820,6 +830,87 @@ internal class PersonMediatorTest {
             }
         }
 
+    @Test
+    fun `Innvilgelse og beregning av meldekort`() {
+        withMigratedDb {
+            registrerOpplysningstyper()
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = 6.mai(2021),
+                    InntektSiste12Mnd = 500000,
+                )
+            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
+            løsBehandlingFramTilInnvilgelse(testPerson)
+            // Saksbehandler lukker alle avklaringer
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Meldekort leses inn
+            val meldekortRepository = MeldekortRepositoryPostgres()
+            val start = 1.juni(2021)
+            val meldekortId = UUIDv7.ny()
+            val meldekort =
+                Meldekort(
+                    id = meldekortId,
+                    eksternMeldekortId = 1,
+                    meldingsreferanseId = UUIDv7.ny(),
+                    ident = testPerson.ident,
+                    fom = start,
+                    tom = 14.juni(2021),
+                    kilde = MeldekortKilde("Bruker", testPerson.ident),
+                    dager =
+                        (0..<14).map {
+                            Dag(
+                                dato = start.plusDays(it.toLong()),
+                                meldt = true,
+                                aktiviteter =
+                                    listOf(
+                                        MeldekortAktivitet(
+                                            type = AktivitetType.Arbeid,
+                                            timer = 1.hours,
+                                        ),
+                                    ),
+                            )
+                        },
+                    innsendtTidspunkt = LocalDateTime.now(),
+                    korrigeringAv = null,
+                )
+            sessionOf(dataSource).use { session ->
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        INSERT INTO melding
+                             (ident, melding_id, melding_type, data, lest_dato)
+                         VALUES
+                             (:ident, :melding_id, :melding_type, :data, NOW())
+                         ON CONFLICT DO NOTHING
+                        """.trimIndent(),
+                        mapOf(
+                            "ident" to ident,
+                            "melding_id" to meldekort.meldingsreferanseId,
+                            "melding_type" to "Meldekort",
+                            "data" to
+                                PGobject().apply {
+                                    type = "json"
+                                    value = "{}"
+                                },
+                            "opprettet" to LocalDateTime.now(),
+                        ),
+                    ).asUpdate,
+                )
+            }
+
+            meldekortRepository.lagre(
+                meldekort,
+            )
+            testPerson.beregnMeldekort(meldekortId)
+        }
+    }
+
     private fun vedtakJson() =
         personRepository.hent(ident.tilPersonIdentfikator()).run {
             shouldNotBeNull()
@@ -1132,9 +1223,11 @@ internal class PersonMediatorTest {
         val sisteMelding = inspektør.message(inspektør.size - melding)
         val behovIMelding = sisteMelding["@behov"].map { it.asText() }
         assert(sisteMelding["@event_name"].asText() == "behov") {
-            "Forventet behov '${behov.joinToString {
-                it
-            } }' men siste melding er ikke et behov. Siste melding er ${sisteMelding["@event_name"].asText()}."
+            "Forventet behov '${
+                behov.joinToString {
+                    it
+                }
+            }' men siste melding er ikke et behov. Siste melding er ${sisteMelding["@event_name"].asText()}."
         }
         withClue("Siste melding på rapiden skal inneholde behov: ${behov.toList()}. Inneholdt: $behovIMelding ") {
             behovIMelding shouldContainAll behov.toList()

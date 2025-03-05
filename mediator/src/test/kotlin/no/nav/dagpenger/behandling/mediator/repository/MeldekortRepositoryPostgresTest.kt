@@ -7,6 +7,7 @@ import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
@@ -50,22 +51,26 @@ class MeldekortRepositoryPostgresTest {
 
             val meldekortInnsendtHendelse =
                 MeldekortInnsendtHendelse(
-                    id = UUIDv7.ny(),
-                    meldingsreferanseId = UUIDv7.ny(),
-                    ident = ident,
-                    meldekortId = 1,
-                    fom = start,
-                    tom = start.plusDays(14),
-                    kilde = MeldekortKilde("Bruker", ident),
-                    dager = dager,
-                    innsendtTidspunkt = LocalDateTime.now(),
                     opprettet = LocalDateTime.now(),
-                    korrigeringAv = null,
+                    meldingsreferanseId = UUIDv7.ny(),
+                    meldekort =
+                        Meldekort(
+                            id = UUIDv7.ny(),
+                            meldingsreferanseId = UUIDv7.ny(),
+                            ident = ident,
+                            eksternMeldekortId = 1,
+                            fom = start,
+                            tom = start.plusDays(14),
+                            kilde = MeldekortKilde("Bruker", ident),
+                            dager = dager,
+                            innsendtTidspunkt = LocalDateTime.now(),
+                            korrigeringAv = null,
+                        ),
                 )
 
             lagreHendelseOmMeldekort(ident, meldekortInnsendtHendelse)
 
-            meldekortRepository.lagre(meldekortInnsendtHendelse)
+            meldekortRepository.lagre(meldekortInnsendtHendelse.meldekort)
 
             val aktiviteter =
                 sessionOf(dataSource).use {

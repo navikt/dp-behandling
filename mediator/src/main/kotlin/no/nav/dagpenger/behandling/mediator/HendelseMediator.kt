@@ -15,6 +15,7 @@ import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.BeregnMeldekortHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
@@ -84,7 +85,7 @@ internal class HendelseMediator(
         val personidentifikator = Ident(hendelse.ident())
         val person = personRepository.hent(personidentifikator)
         if (person != null) {
-            meldekortRepository.lagre(hendelse)
+            meldekortRepository.lagre(hendelse.meldekort)
         } else {
             logger.warn { "Vi kjenner ikke personen" }
         }
@@ -262,6 +263,15 @@ internal class HendelseMediator(
             person.håndter(hendelse)
         }
     }
+
+    override fun behandle(
+        hendelse: BeregnMeldekortHendelse,
+        context: MessageContext,
+    ) {
+        hentPersonOgHåndter(hendelse, context) { person ->
+            person.håndter(hendelse)
+        }
+    }
 }
 
 internal interface IHendelseMediator {
@@ -332,6 +342,11 @@ internal interface IHendelseMediator {
 
     fun behandle(
         hendelse: SendTilbakeHendelse,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: BeregnMeldekortHendelse,
         context: MessageContext,
     )
 }
