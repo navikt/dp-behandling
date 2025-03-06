@@ -43,7 +43,8 @@ internal class BeregnMeldekortMottak(
             "meldekortId" to meldekortId.toString(),
         ) {
             val meldekort =
-                meldekortRepository.hent(meldekortId) ?: throw IllegalStateException("Meldekort med id $meldekortId finnes ikke")
+                meldekortRepository.hent(meldekortId)
+                    ?: throw IllegalStateException("Meldekort med id $meldekortId finnes ikke")
             val message = BeregnMeldekortMessage(packet, meldekort)
             message.behandle(messageMediator, context)
         }

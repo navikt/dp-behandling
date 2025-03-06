@@ -6,6 +6,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Datoperiode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
@@ -37,15 +38,25 @@ class BeregnMeldekortHendelse(
 
     override fun behandling(forrigeBehandling: Behandling?): Behandling {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
+        val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
 
         return Behandling(
             behandler = this,
             basertPå = listOf(forrigeBehandling),
             opplysninger =
-                listOf(Faktum(Beregning.terskel, 0.5)) +
+                listOf(
+                    // TODO: Fastsett terskel ved innvilgelse
+                    Faktum(Beregning.terskel, 0.5),
+                    Faktum(
+                        Beregning.meldeperiode,
+                        Datoperiode(meldekort.fom, meldekort.tom),
+                        Gyldighetsperiode(meldekort.fom, meldekort.tom),
+                        kilde = kilde,
+                    ),
+                ) +
                     meldekort.dager.flatMap { dag ->
-                        val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
                         val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
+
                         // TODO: Dette bør være en double
                         val timer = dag.aktiviteter.sumOf { it.timer?.inWholeHours ?: 0 }.toInt()
                         // TODO: Hva om det er flere aktiviteter?
@@ -63,11 +74,12 @@ class BeregnMeldekortHendelse(
                             AktivitetType.Utdanning,
                             AktivitetType.Fravær,
                             -> listOf(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
-                        }
+                        } + Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde)
                     },
         ).apply {
             val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger())
             val periode = fabrikk.lagBeregningsperiode()
+
             println(periode.forbruksdager)
         }
     }

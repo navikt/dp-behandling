@@ -44,7 +44,7 @@ class Person(
         }
         hendelse.leggTilKontekst(this)
         val behandling =
-            hendelse.behandling(behandlinger.lastOrNull()).also { behandling ->
+            hendelse.behandling(enVeldigSmartMåteÅfinneRiktigForrigeBehandling()).also { behandling ->
                 logger.info {
                     """
                     Oppretter behandling med behandlingId=${behandling.behandlingId} for 
@@ -60,6 +60,9 @@ class Person(
             }
         behandling.håndter(hendelse)
     }
+
+    // TODO
+    private fun enVeldigSmartMåteÅfinneRiktigForrigeBehandling() = behandlinger.lastOrNull()
 
     override fun håndter(hendelse: AvklaringIkkeRelevantHendelse) {
         hendelse.leggTilKontekst(this)
