@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.Periode
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.uuid.UUIDv7
 import java.util.UUID
@@ -300,10 +301,12 @@ object OpplysningsTyper {
     val permitteringFraFiskeindustriPeriodeId = Opplysningstype.Id(UUID.fromString("0195235a-599b-7b27-97a8-bc6142066a87"), Heltall)
 
     // beregning/meldekort
+    val meldeperiodeId = Opplysningstype.Id(UUID.fromString("01956abd-2871-7517-a332-b462c0c31292"), Periode)
     val arbeidsdagId = Opplysningstype.Id(UUID.fromString("01948ea0-36e8-72cc-aa4f-16bc446ed3bd"), Boolsk)
     val arbeidstimerId = Opplysningstype.Id(UUID.fromString("01948ea0-e25c-7c47-8429-a05045d80eca"), Heltall)
     val forbrukId = Opplysningstype.Id(UUID.fromString("01948ea0-ffdc-7964-ab55-52a7e35e1020"), Boolsk)
     val terskelId = Opplysningstype.Id(UUID.fromString("01948ea2-22f3-7da8-9547-90d0c64e74e0"), Desimaltall)
+    val meldtId = Opplysningstype.Id(UUID.fromString("01956ab8-126c-7636-803e-a5d87eda2015"), Boolsk)
 }
 
 /**

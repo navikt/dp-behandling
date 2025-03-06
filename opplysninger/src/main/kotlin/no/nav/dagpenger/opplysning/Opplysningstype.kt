@@ -42,6 +42,14 @@ class Opplysningstype<T : Comparable<T>>(
         val alltidSynlig: Opplysningssjekk = { true }
         val aldriSynlig: Opplysningssjekk = { false }
 
+        fun periode(
+            id: Id<Datoperiode>,
+            beskrivelse: String,
+            formål: Opplysningsformål = Opplysningsformål.Regel,
+            synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
+            behovId: String = beskrivelse,
+        ): Opplysningstype<Datoperiode> = som(id, beskrivelse, formål, synlig, behovId)
+
         fun heltall(
             id: Id<Int>,
             beskrivelse: String,

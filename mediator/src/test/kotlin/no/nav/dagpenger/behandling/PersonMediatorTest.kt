@@ -883,7 +883,7 @@ internal class PersonMediatorTest {
                                     ),
                             )
                         },
-                    innsendtTidspunkt = LocalDateTime.now(),
+                    innsendtTidspunkt = 14.juni(2021).atStartOfDay(),
                     korrigeringAv = null,
                 )
             sessionOf(dataSource).use { session ->
@@ -914,6 +914,7 @@ internal class PersonMediatorTest {
 
             meldekortRepository.lagre(meldekort)
             testPerson.beregnMeldekort(meldekortId)
+            println("yeu")
         }
     }
 
