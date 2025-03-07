@@ -1117,18 +1117,18 @@ components:
 
     Utbetaling:
       type: object
+      required:
+        - dato
+        - sats
+        - utbetaling
       properties:
         dato:
           type: string
           format: date
         sats:
-          type: number
-        gradertSats:
-          type: number
-        egenandel:
-          type: number
+          type: integer
         utbetaling:
-          type: number
+          type: integer
 
     BehandletAv:
       type: object

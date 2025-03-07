@@ -25,6 +25,7 @@ import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.alltidSynlig
 import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.Periode
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.Utledning
@@ -258,6 +259,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     )
 
                 Tekst -> row.string("verdi_string")
+                Periode -> TODO()
             } as T
 
         fun lagreOpplysninger(
@@ -447,6 +449,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 )
 
             Tekst -> Pair("verdi_string", verdi)
+            Periode -> TODO()
         }
 
         private fun tilPostgresqlTimestamp(verdi: Any) =

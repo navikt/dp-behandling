@@ -28,6 +28,7 @@ class Opplysningstype<T : Comparable<T>>(
     val datatype = id.datatype
 
     init {
+        require(definerteTyper.none { it.id == this.id }) { "Opplysningstype $this har duplikat id=${id.uuid} og type=${id.datatype}" }
         definerteTyper.add(this)
     }
 

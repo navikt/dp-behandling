@@ -36,7 +36,7 @@ class Opplysninger private constructor(
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
-        val eksisterende = finnNullableOpplysning(opplysning.opplysningstype)
+        val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende == null) {
             opplysninger.add(opplysning)
@@ -107,8 +107,11 @@ class Opplysninger private constructor(
     fun fjernet(): List<Opplysning<*>> = opplysninger.filter { it.erFjernet }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T : Comparable<T>> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>? {
-        if (alleOpplysninger.count { it.er(opplysningstype) } > 1) {
+    private fun <T : Comparable<T>> finnNullableOpplysning(
+        opplysningstype: Opplysningstype<T>,
+        gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
+    ): Opplysning<T>? {
+        if (alleOpplysninger.count { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) } > 1) {
             throw IllegalStateException(
                 """Har mer enn 1 opplysning av type $opplysningstype i opplysningerId=$id.
                 |Fant ${alleOpplysninger.count { it.er(opplysningstype) }} duplikater blant ${alleOpplysninger.size} opplysninger.
@@ -116,7 +119,9 @@ class Opplysninger private constructor(
                 """.trimMargin(),
             )
         }
-        return alleOpplysninger.singleOrNull { it.er(opplysningstype) } as Opplysning<T>?
+        return alleOpplysninger.singleOrNull {
+            it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode)
+        } as Opplysning<T>?
     }
 
     private fun <T : Comparable<T>> Opplysning<T>.overlapperHalenAv(opplysning: Opplysning<T>) =

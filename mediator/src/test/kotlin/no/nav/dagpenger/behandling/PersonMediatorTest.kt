@@ -858,7 +858,7 @@ internal class PersonMediatorTest {
 
             // Meldekort leses inn
             val meldekortRepository = MeldekortRepositoryPostgres()
-            val start = 1.juni(2021)
+            val start = 7.juni(2021)
             val meldekortId = UUIDv7.ny()
             val meldekort =
                 Meldekort(
@@ -867,7 +867,7 @@ internal class PersonMediatorTest {
                     meldingsreferanseId = UUIDv7.ny(),
                     ident = testPerson.ident,
                     fom = start,
-                    tom = 14.juni(2021),
+                    tom = start.plusDays(14),
                     kilde = MeldekortKilde("Bruker", testPerson.ident),
                     dager =
                         (0..<14).map {

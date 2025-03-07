@@ -71,7 +71,7 @@ class Behandling private constructor(
 
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
 
-    private val opplysninger: Opplysninger =
+    val opplysninger: Opplysninger =
         (gjeldendeOpplysninger + tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
