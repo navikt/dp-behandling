@@ -7,6 +7,7 @@ import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
 import no.nav.dagpenger.behandling.api.models.KvoteDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SamordningDTO
+import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.api.models.VedtakFastsattDTO
 import no.nav.dagpenger.behandling.api.models.VedtakFastsattFastsattVanligArbeidstidDTO
@@ -31,6 +32,7 @@ import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
+import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -138,10 +140,20 @@ fun lagVedtak(
         vilkår = vilkår,
         fastsatt = fastsatt,
         gjenstående = VedtakGjenstEndeDTO(),
-        utbetalinger = emptyList(),
+        utbetalinger = opplysninger.utbetalinger(),
         opplysninger = opplysninger.finnAlle().map { it.tilOpplysningDTO(opplysninger) },
     )
 }
+
+private fun LesbarOpplysninger.utbetalinger() =
+    finnAlle().filter { it.er(Beregning.utbetaling) }.filterIsInstance<Opplysning<Int>>().map {
+        val sats = finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi
+        UtbetalingDTO(
+            dato = it.gyldighetsperiode.fom,
+            sats = sats.verdien.toInt(),
+            utbetaling = it.verdi,
+        )
+    }
 
 private fun vedtakFastsattDTO(
     utfall: Boolean,

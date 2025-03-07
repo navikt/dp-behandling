@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import no.nav.dagpenger.inntekt.v1.Periode
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt

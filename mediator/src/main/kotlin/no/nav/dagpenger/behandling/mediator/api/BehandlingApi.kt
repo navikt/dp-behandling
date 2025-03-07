@@ -55,6 +55,7 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.Periode
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
@@ -105,6 +106,7 @@ internal fun Application.behandlingApi(
                                 InntektDataType -> DataTypeDTO.inntekt
                                 BarnDatatype -> DataTypeDTO.barn
                                 Tekst -> DataTypeDTO.tekst
+                                Periode -> TODO()
                             },
                     )
                 }

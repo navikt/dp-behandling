@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.math.roundToInt
 
 class BeregnMeldekortHendelse(
     meldingsreferanseId: UUID,
@@ -79,6 +80,11 @@ class BeregnMeldekortHendelse(
         ).apply {
             val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger())
             val periode = fabrikk.lagBeregningsperiode()
+
+            periode.forbruksdager.forEach {
+                val gyldighetsperiode = Gyldighetsperiode(it.dato, it.dato)
+                opplysninger.leggTil(Faktum(Beregning.utbetaling, it.tilUtbetaling.roundToInt(), gyldighetsperiode))
+            }
 
             println(periode.forbruksdager)
         }
