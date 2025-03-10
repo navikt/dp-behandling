@@ -38,7 +38,14 @@ class BeregnMeldekortHendelse(
 
     // TODO: DETTE ER HELT FEIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi else skjedde
+        if (opplysninger.har(
+                Søknadstidspunkt.prøvingsdato,
+            )
+        ) {
+            opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
+        } else {
+            throw IllegalStateException("Fant ikke prøvingsdato")
+        }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(prøvingsdato(opplysninger), opplysninger, forretningsprosess)
