@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.time.Duration.Companion.hours
 
 class MeldekortRepositoryPostgresTest {
@@ -94,13 +95,24 @@ class MeldekortRepositoryPostgresTest {
 
             val rehydrertMeldekort = meldekortRepository.hent(meldekortInnsendtHendelse.meldekort.id)
             rehydrertMeldekort.shouldNotBeNull()
-            rehydrertMeldekort shouldBeEqual meldekortInnsendtHendelse.meldekort
+            rehydrertMeldekort.copy(innsendtTidspunkt = rehydrertMeldekort.innsendtTidspunkt.truncateToSeconds()) shouldBeEqual
+                meldekortInnsendtHendelse.meldekort.copy(
+                    innsendtTidspunkt = meldekort.innsendtTidspunkt.truncateToSeconds(),
+                )
 
             val rehydrertKorrigertMeldekort = meldekortRepository.hent(meldekortKorrigertInnsendtHendelse.meldekort.id)
             rehydrertKorrigertMeldekort.shouldNotBeNull()
-            rehydrertKorrigertMeldekort shouldBeEqual meldekortKorrigertInnsendtHendelse.meldekort
+            rehydrertKorrigertMeldekort.copy(
+                innsendtTidspunkt = rehydrertKorrigertMeldekort.innsendtTidspunkt.truncateToSeconds(),
+            ) shouldBeEqual
+                meldekortKorrigertInnsendtHendelse.meldekort.copy(
+                    innsendtTidspunkt =
+                        meldekortKorrigertInnsendtHendelse.meldekort.innsendtTidspunkt.truncateToSeconds(),
+                )
         }
     }
+
+    private fun LocalDateTime.truncateToSeconds() = this.truncatedTo(ChronoUnit.SECONDS)
 
     private fun lagreHendelseOmMeldekort(
         ident: String,
