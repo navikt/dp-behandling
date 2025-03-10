@@ -7,6 +7,7 @@ import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
+import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
@@ -92,6 +93,7 @@ internal class PostgresHendelseRepository : HendelseRepository {
             is OpplysningSvarMessage -> MeldingTypeDTO.OPPLYSNING_SVAR
             is SøknadInnsendtMessage -> MeldingTypeDTO.SØKNAD_INNSENDT
             is MeldekortInnsendtMessage -> MeldingTypeDTO.MELDEKORT_INNSENDT
+            is BeregnMeldekortMessage -> MeldingTypeDTO.BEREGN_MELDEKORT
             else ->
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
@@ -106,6 +108,7 @@ internal class PostgresHendelseRepository : HendelseRepository {
 private enum class MeldingTypeDTO {
     AVBRYT_BEHANDLING,
     AVKLARING_IKKE_RELEVANT,
+    BEREGN_MELDEKORT,
     MANUELL_BEHANDLING_AVKLART,
     OPPLYSNING_SVAR,
     SØKNAD_INNSENDT,
