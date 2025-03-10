@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.math.roundToInt
@@ -35,7 +36,12 @@ class BeregnMeldekortHendelse(
     ) {
     override val forretningsprosess = Søknadsprosess()
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = Regelkjøring(skjedde, opplysninger, forretningsprosess)
+    // TODO: DETTE ER HELT FEIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
+        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi else skjedde
+
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
+        Regelkjøring(prøvingsdato(opplysninger), opplysninger, forretningsprosess)
 
     override fun behandling(forrigeBehandling: Behandling?): Behandling {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
