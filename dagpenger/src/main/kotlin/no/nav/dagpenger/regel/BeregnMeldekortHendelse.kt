@@ -61,8 +61,7 @@ class BeregnMeldekortHendelse(
                         // TODO: Dette bør være en double
                         val timer = dag.aktiviteter.sumOf { it.timer?.inWholeHours ?: 0 }.toInt()
                         // TODO: Hva om det er flere aktiviteter?
-                        val type = dag.aktiviteter.first().type
-                        // TODO: Det finnes også tomme dager, bør defaulte til arbeidsdag med 0 arbeidstimer
+                        val type = dag.aktiviteter.firstOrNull()?.type
                         when (type) {
                             AktivitetType.Arbeid -> {
                                 listOf(
@@ -75,6 +74,13 @@ class BeregnMeldekortHendelse(
                             AktivitetType.Utdanning,
                             AktivitetType.Fravær,
                             -> listOf(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
+
+                            null -> {
+                                listOf(
+                                    Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
+                                    Faktum(Beregning.arbeidstimer, 0, gyldighetsperiode, kilde = kilde),
+                                )
+                            }
                         } + Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde)
                     },
         ).apply {

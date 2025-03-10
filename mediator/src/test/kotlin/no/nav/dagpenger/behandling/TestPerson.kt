@@ -197,17 +197,22 @@ class TestPerson(
     }
 
     fun beregnMeldekort(meldekortId: UUID) {
-        rapid.sendTestMessage(
-            JsonMessage
-                .newMessage(
-                    "beregn_meldekort",
-                    mapOf(
-                        "meldekortId" to meldekortId,
-                        "ident" to ident,
-                    ),
-                ).toJson(),
-            ident,
-        )
+        rapid
+            .sendTestMessage(
+                JsonMessage
+                    .newMessage(
+                        "beregn_meldekort",
+                        mapOf(
+                            "meldekortId" to meldekortId,
+                            "ident" to ident,
+                        ),
+                    ).toJson()
+                    .also {
+                        println(it)
+                    },
+                ident,
+            ).also {
+            }
     }
 
     private val inntektV1
