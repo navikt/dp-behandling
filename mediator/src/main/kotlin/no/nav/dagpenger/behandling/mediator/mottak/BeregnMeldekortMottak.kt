@@ -7,6 +7,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
@@ -15,6 +16,7 @@ import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.regel.BeregnMeldekortHendelse
+import java.util.UUID
 
 internal class BeregnMeldekortMottak(
     rapidsConnection: RapidsConnection,
@@ -37,7 +39,10 @@ internal class BeregnMeldekortMottak(
         meterRegistry: MeterRegistry,
     ) {
         val meldekortId = packet["meldekortId"].asUUID()
-        val ident = packet["ident"].asText()
+        if (meldekortId == UUID.fromString("01956173-ec14-75ec-b7a4-10ea17c11607")) {
+            log.info { "Skipper $meldekortId" }
+            return
+        }
 
         withLoggingContext(
             "meldekortId" to meldekortId.toString(),
@@ -48,6 +53,10 @@ internal class BeregnMeldekortMottak(
             val message = BeregnMeldekortMessage(packet, meldekort)
             message.behandle(messageMediator, context)
         }
+    }
+
+    private companion object {
+        private val log = KotlinLogging.logger {}
     }
 
     class BeregnMeldekortMessage(

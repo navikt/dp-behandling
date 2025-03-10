@@ -48,7 +48,11 @@ class BeregnMeldekortHendelse(
         }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
-        Regelkjøring(prøvingsdato(opplysninger), opplysninger, forretningsprosess)
+        Regelkjøring(
+            regelverksdato = prøvingsdato(opplysninger = opplysninger),
+            opplysninger = opplysninger,
+            forretningsprosess = forretningsprosess,
+        )
 
     override fun behandling(forrigeBehandling: Behandling?): Behandling {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
