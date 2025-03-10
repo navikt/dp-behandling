@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
@@ -39,6 +40,7 @@ internal class VaktmesterPostgresRepo {
             )
     }
 
+    @WithSpan
     fun slettOpplysninger(antall: Int = 1): List<UUID> {
         val slettet = mutableListOf<UUID>()
         try {
@@ -123,9 +125,11 @@ internal class VaktmesterPostgresRepo {
                     it.opplysninger().size
                 }?.reduce { acc, i -> acc + i } ?: 0
         logger.info {
-            "Fant ${kandidater.size} opplysningsett for behandlinger ${kandidater.map {
-                it.behandlingId
-            }} som inneholder $antallOpplysinger opplysninger som er fjernet og som skal slettes"
+            "Fant ${kandidater.size} opplysningsett for behandlinger ${
+                kandidater.map {
+                    it.behandlingId
+                }
+            } som inneholder $antallOpplysinger opplysninger som er fjernet og som skal slettes"
         }
         return opplysninger
     }
@@ -138,7 +142,7 @@ internal class VaktmesterPostgresRepo {
             FROM opplysning
                 INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
                 LEFT OUTER JOIN behandling_opplysninger b ON b.opplysninger_id = op.opplysninger_id
-            WHERE fjernet = TRUE AND op.opplysninger_id NOT IN (SELECT unnest(:skip_opplysninger::uuid[]))
+            WHERE fjernet = TRUE AND op.opplysninger_id NOT IN (SELECT UNNEST(:skip_opplysninger::uuid[]))
             LIMIT :antall;
             """.trimIndent()
 
