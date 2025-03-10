@@ -61,8 +61,11 @@ class Person(
         behandling.håndter(hendelse)
     }
 
-    // TODO
-    private fun enVeldigSmartMåteÅfinneRiktigForrigeBehandling() = behandlinger.lastOrNull()
+    // TODO: Dette er en veldig dum måte å finne forrige behandling på
+    private fun enVeldigSmartMåteÅfinneRiktigForrigeBehandling() =
+        behandlinger.lastOrNull {
+            it.harTilstand(Behandling.TilstandType.Ferdig)
+        }
 
     override fun håndter(hendelse: AvklaringIkkeRelevantHendelse) {
         hendelse.leggTilKontekst(this)
