@@ -130,7 +130,9 @@ internal class ApplicationBuilder(
                     Beregning.arbeidsdag +
                     Beregning.arbeidstimer +
                     Beregning.forbruk +
+                    Beregning.meldt +
                     Beregning.meldeperiode +
+                    Beregning.utbetaling +
                     Beregning.terskel,
             ).also {
                 logger.info { "Opprettet $it opplysningstyper" }

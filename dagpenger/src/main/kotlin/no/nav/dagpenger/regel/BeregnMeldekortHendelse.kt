@@ -108,8 +108,6 @@ class BeregnMeldekortHendelse(
                 val gyldighetsperiode = Gyldighetsperiode(it.dato, it.dato)
                 opplysninger.leggTil(Faktum(Beregning.utbetaling, it.tilUtbetaling.roundToInt(), gyldighetsperiode))
             }
-
-            println(periode.forbruksdager)
         }
     }
 
