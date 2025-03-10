@@ -25,7 +25,7 @@ import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.alltidSynlig
 import no.nav.dagpenger.opplysning.Penger
-import no.nav.dagpenger.opplysning.Periode
+import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.Utledning
@@ -33,6 +33,7 @@ import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import org.postgresql.util.PGobject
 import java.time.LocalDate
@@ -259,7 +260,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     )
 
                 Tekst -> row.string("verdi_string")
-                Periode -> TODO()
+                PeriodeDataType -> objectMapper.readValue(row.string("verdi_jsonb"), Periode::class.java) as T
             } as T
 
         fun lagreOpplysninger(
@@ -449,7 +450,16 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 )
 
             Tekst -> Pair("verdi_string", verdi)
-            Periode -> TODO()
+            PeriodeDataType ->
+                Pair(
+                    "verdi_jsonb",
+                    (verdi as Periode).let {
+                        PGobject().apply {
+                            type = "jsonb"
+                            value = objectMapper.writeValueAsString(it)
+                        }
+                    },
+                )
         }
 
         private fun tilPostgresqlTimestamp(verdi: Any) =

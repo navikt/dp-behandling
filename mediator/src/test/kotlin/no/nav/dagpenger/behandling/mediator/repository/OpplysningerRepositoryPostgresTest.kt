@@ -18,6 +18,7 @@ import no.nav.dagpenger.behandling.TestOpplysningstyper.inntektA
 import no.nav.dagpenger.behandling.TestOpplysningstyper.maksdato
 import no.nav.dagpenger.behandling.TestOpplysningstyper.mindato
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
+import no.nav.dagpenger.behandling.TestOpplysningstyper.periode
 import no.nav.dagpenger.behandling.TestOpplysningstyper.tekst
 import no.nav.dagpenger.behandling.TestOpplysningstyper.utledetOpplysningstype
 import no.nav.dagpenger.behandling.april
@@ -42,6 +43,7 @@ import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Disabled
@@ -62,6 +64,7 @@ class OpplysningerRepositoryPostgresTest {
             val datoFaktum = Faktum(dato, LocalDate.now(), kilde = kildeB)
             val desimalltallFaktum = Faktum(desimal, 5.5, kilde = kildeB)
             val tekstFaktum = Faktum(tekst, "Dette er en tekst")
+            val periode = Faktum(periode, Periode(LocalDate.now(), LocalDate.now().plusDays(1)))
             val barn =
                 Faktum(
                     barn,
@@ -77,7 +80,7 @@ class OpplysningerRepositoryPostgresTest {
                         ),
                     ),
                 )
-            val opplysninger = Opplysninger(listOf(heltallFaktum, boolskFaktum, datoFaktum, desimalltallFaktum, tekstFaktum, barn))
+            val opplysninger = Opplysninger(listOf(heltallFaktum, boolskFaktum, datoFaktum, desimalltallFaktum, tekstFaktum, barn, periode))
             repo.lagreOpplysninger(opplysninger)
 
             val fraDb =
@@ -92,6 +95,7 @@ class OpplysningerRepositoryPostgresTest {
             fraDb.finnOpplysning(datoFaktum.opplysningstype).kilde?.id shouldBe kildeB.id
             fraDb.finnOpplysning(tekstFaktum.opplysningstype).verdi shouldBe tekstFaktum.verdi
             fraDb.finnOpplysning(barn.opplysningstype).verdi shouldBe barn.verdi
+            fraDb.finnOpplysning(periode.opplysningstype).verdi shouldBe periode.verdi
 
             fraDb.finnOpplysning(desimalltallFaktum.opplysningstype).verdi shouldBe desimalltallFaktum.verdi
         }

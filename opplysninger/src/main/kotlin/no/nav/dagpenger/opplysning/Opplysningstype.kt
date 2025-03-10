@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import java.time.LocalDate
 import java.util.UUID
@@ -28,7 +29,6 @@ class Opplysningstype<T : Comparable<T>>(
     val datatype = id.datatype
 
     init {
-        require(definerteTyper.none { it.id == this.id }) { "Opplysningstype $this har duplikat id=${id.uuid} og type=${id.datatype}" }
         definerteTyper.add(this)
     }
 
@@ -44,12 +44,12 @@ class Opplysningstype<T : Comparable<T>>(
         val aldriSynlig: Opplysningssjekk = { false }
 
         fun periode(
-            id: Id<Datoperiode>,
+            id: Id<Periode>,
             beskrivelse: String,
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<Datoperiode> = som(id, beskrivelse, formål, synlig, behovId)
+        ): Opplysningstype<Periode> = som(id, beskrivelse, formål, synlig, behovId)
 
         fun heltall(
             id: Id<Int>,

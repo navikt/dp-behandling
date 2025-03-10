@@ -29,7 +29,7 @@ import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Penger
-import no.nav.dagpenger.opplysning.Periode
+import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Redigerbar
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
@@ -316,7 +316,7 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                 InntektDataType -> DataTypeDTO.inntekt
                 BarnDatatype -> DataTypeDTO.barn
                 Tekst -> DataTypeDTO.tekst
-                Periode -> DataTypeDTO.dato // TODO
+                PeriodeDataType -> DataTypeDTO.dato // TODO
             },
         kilde =
             this.kilde?.let {

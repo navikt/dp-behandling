@@ -1,9 +1,9 @@
 package no.nav.dagpenger.opplysning
 
-import no.nav.dagpenger.inntekt.v1.Periode
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import java.time.LocalDate
 
@@ -22,7 +22,7 @@ sealed class Datatype<T : Comparable<T>>(
                 "Inntekt" -> InntektDataType
                 "Barn" -> BarnDatatype
                 "Tekst" -> Tekst
-                "Periode" -> Periode
+                "Periode" -> PeriodeDataType
                 else -> throw IllegalArgumentException("Unknown datatype: $datatype")
             }
     }
@@ -44,7 +44,9 @@ data object ULID : Datatype<Ulid>(Ulid::class.java)
 
 data object Penger : Datatype<Beløp>(Beløp::class.java)
 
-data object Periode : Datatype<Datoperiode>(Datoperiode::class.java)
+data object PeriodeDataType : Datatype<Periode>(Periode::class.java) {
+    override fun navn(): String = "Periode"
+}
 
 data object BarnDatatype : Datatype<BarnListe>(BarnListe::class.java) {
     override fun navn(): String = "Barn"
@@ -52,15 +54,4 @@ data object BarnDatatype : Datatype<BarnListe>(BarnListe::class.java) {
 
 data object InntektDataType : Datatype<Inntekt>(Inntekt::class.java) {
     override fun navn(): String = "Inntekt"
-}
-
-data class Datoperiode(
-    override val start: LocalDate,
-    override val endInclusive: LocalDate,
-) : ClosedRange<LocalDate>,
-    Comparable<Datoperiode> {
-    val fraOgMed = start
-    val tilOgMed = endInclusive
-
-    override fun compareTo(other: Datoperiode): Int = start.compareTo(other.start) + endInclusive.compareTo(other.endInclusive)
 }

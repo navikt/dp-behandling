@@ -6,13 +6,13 @@ import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
-import no.nav.dagpenger.opplysning.Datoperiode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Systemkilde
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import java.time.LocalDateTime
@@ -50,7 +50,7 @@ class BeregnMeldekortHendelse(
                     Faktum(Beregning.terskel, 0.5),
                     Faktum(
                         Beregning.meldeperiode,
-                        Datoperiode(meldekort.fom, meldekort.tom),
+                        Periode(meldekort.fom, meldekort.tom),
                         Gyldighetsperiode(meldekort.fom, meldekort.tom),
                         kilde = kilde,
                     ),
