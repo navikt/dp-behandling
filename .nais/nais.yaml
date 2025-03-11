@@ -36,9 +36,6 @@ spec:
       value: {{azure.grupper.saksbehandler}}
     - name: KAFKA_EXTRA_TOPIC
       value: {{kafka.extra_topic}}
-    # Avbryt innvilgelse etter x dager. Dette trenger vi en overgangsperiode med Arena
-    - name: AVBRYT_INNVILGELSE_ETTER_DAGER
-      value: "{{avbryt_innvilgelse_etter_dager}}"
   envFrom:
     - secret: dp-behandling-unleash-api-token
   {{#if ingresses}}
