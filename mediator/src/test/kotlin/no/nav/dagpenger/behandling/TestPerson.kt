@@ -206,13 +206,9 @@ class TestPerson(
                             "meldekortId" to meldekortId,
                             "ident" to ident,
                         ),
-                    ).toJson()
-                    .also {
-                        println(it)
-                    },
+                    ).toJson(),
                 ident,
-            ).also {
-            }
+            )
     }
 
     private val inntektV1
