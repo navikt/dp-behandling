@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.api.models.BarnDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.KvoteDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SamordningDTO
@@ -19,6 +20,8 @@ import no.nav.dagpenger.behandling.mediator.api.tilOpplysningDTO
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
@@ -86,8 +89,9 @@ private val logger = KotlinLogging.logger { }
 
 fun lagVedtak(
     behandlingId: UUID,
+    forrigeBehandlingId: UUID?,
     ident: Ident,
-    søknadId: EksternId<*>,
+    hendelse: EksternId<*>,
     opplysninger: LesbarOpplysninger,
     automatisk: Boolean,
     godkjentAv: Arbeidssteg,
@@ -115,7 +119,17 @@ fun lagVedtak(
 
     return VedtakDTO(
         behandlingId = behandlingId,
-        søknadId = søknadId.id.toString(),
+        forrigeBehandlingId = forrigeBehandlingId,
+        behandletHendelse =
+            HendelseDTO(
+                hendelseId = hendelse.id.toString(),
+                hendelseType =
+                    when (hendelse) {
+                        is MeldekortId -> HendelseDTO.HendelseType.Meldekort
+                        is SøknadId -> HendelseDTO.HendelseType.Søknad
+                    },
+            ),
+        søknadId = hendelse.id.toString(),
         fagsakId = opplysninger.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),
         automatisk = automatisk,
         ident = ident.identifikator(),

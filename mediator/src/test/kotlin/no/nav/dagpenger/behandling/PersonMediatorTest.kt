@@ -926,8 +926,9 @@ internal class PersonMediatorTest {
                 val vedtak =
                     lagVedtak(
                         behandlingId,
+                        forrigeBehandlingId = null,
                         ident = behandler.ident.tilPersonIdentfikator(),
-                        søknadId = behandler.eksternId,
+                        hendelse = behandler.eksternId,
                         opplysninger = opplysninger(),
                         automatisk = erAutomatiskBehandlet(),
                         godkjentAv = godkjent,
