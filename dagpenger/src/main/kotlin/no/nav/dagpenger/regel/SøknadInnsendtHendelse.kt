@@ -1,7 +1,7 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.hendelser.EnHvilkenSomHelstHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Faktum
@@ -31,11 +31,7 @@ class SøknadInnsendtHendelse(
     override val regelverk: Regelverk
         get() = forretningsprosess.regelverk
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
-        Regelkjøring(prøvingsdato(opplysninger), opplysninger, forretningsprosess)
-
-    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi else skjedde
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = forretningsprosess.regelkjøring(opplysninger)
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
         forretningsprosess.ønsketResultat(opplysninger)
@@ -43,9 +39,9 @@ class SøknadInnsendtHendelse(
     override fun behandling(forrigeBehandling: Behandling?) =
         Behandling(
             behandler =
-                EnHvilkenSomHelstHendelse(
+                Hendelse(
                     meldingsreferanseId = meldingsreferanseId,
-                    hendelseType = type,
+                    type = type,
                     ident = ident,
                     eksternId = eksternId,
                     skjedde = skjedde,

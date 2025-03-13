@@ -35,8 +35,8 @@ import java.util.UUID
 internal class BehandlingTest {
     private val ident = "123456789011"
     private val søknadId = UUIDv7.ny()
-    private val søknadInnsendtHendelse =
-        SøknadInnsendtHendelse(
+    private val testHendelse =
+        TestHendelse(
             meldingsreferanseId = søknadId,
             ident = ident,
             søknadId = søknadId,
@@ -79,7 +79,7 @@ internal class BehandlingTest {
 
     @Test
     fun `Behandling basert på tidligere behandlinger`() {
-        val behandlingskjede = behandlingskjede(5, søknadInnsendtHendelse)
+        val behandlingskjede = behandlingskjede(5, testHendelse)
         behandlingskjede.opplysninger().finnAlle() shouldHaveSize 5
         behandlingskjede.opplysninger().finnAlle().map {
             it.verdi
@@ -88,7 +88,7 @@ internal class BehandlingTest {
 
     private fun behandlingskjede(
         antall: Int,
-        hendelse: SøknadInnsendtHendelse,
+        hendelse: TestHendelse,
     ): Behandling {
         var fomTom = LocalDate.now()
         var forrigeBehandling: Behandling? = null
@@ -124,15 +124,15 @@ internal class BehandlingTest {
         val behandling =
             Behandling(
                 behandler =
-                    søknadInnsendtHendelse.also {
-                        søknadInnsendtHendelse.kontekst(it)
+                    testHendelse.also {
+                        testHendelse.kontekst(it)
                     },
                 opplysninger = emptyList(),
             )
 
-        behandling.håndter(søknadInnsendtHendelse)
-        søknadInnsendtHendelse.hendelse() shouldHaveSize 1
-        val hendelse = søknadInnsendtHendelse.hendelse().first()
+        behandling.håndter(testHendelse)
+        testHendelse.hendelse() shouldHaveSize 1
+        val hendelse = testHendelse.hendelse().first()
         hendelse.type.name shouldBe "behandling_opprettet"
         val kontekst = hendelse.kontekst()
         kontekst.shouldContain("behandlingId", behandling.behandlingId.toString())
@@ -145,14 +145,14 @@ internal class BehandlingTest {
         val behandling =
             Behandling(
                 behandler =
-                    søknadInnsendtHendelse.also {
-                        søknadInnsendtHendelse.kontekst(it)
+                    testHendelse.also {
+                        testHendelse.kontekst(it)
                     },
                 opplysninger = emptyList(),
             )
 
         val observatør = TestObservatør().also { behandling.registrer(it) }
-        behandling.håndter(søknadInnsendtHendelse)
+        behandling.håndter(testHendelse)
 
         observatør.endretTilstandEventer shouldHaveSize 1
         observatør.endretTilstandEventer.first().run {
@@ -171,7 +171,7 @@ internal class BehandlingTest {
     }
 }
 
-private class SøknadInnsendtHendelse(
+private class TestHendelse(
     meldingsreferanseId: UUID,
     ident: String,
     søknadId: UUID,

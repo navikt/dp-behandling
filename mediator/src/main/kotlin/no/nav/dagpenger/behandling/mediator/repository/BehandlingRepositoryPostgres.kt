@@ -6,11 +6,11 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.hendelser.EnHvilkenSomHelstHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.RegistrertForretningsprosess
 import no.nav.dagpenger.opplysning.Saksbehandler
-import no.nav.dagpenger.regel.Søknadsprosess
 import java.util.UUID
 
 internal class BehandlingRepositoryPostgres(
@@ -42,14 +42,13 @@ internal class BehandlingRepositoryPostgres(
                     Behandling.rehydrer(
                         behandlingId = row.uuid("behandling_id"),
                         behandler =
-                            EnHvilkenSomHelstHendelse(
+                            Hendelse(
                                 meldingsreferanseId = row.uuid("melding_id"),
-                                hendelseType = row.string("hendelse_type"),
+                                type = row.string("hendelse_type"),
                                 ident = row.string("ident"),
                                 eksternId = SøknadId(UUID.fromString(row.string("ekstern_id"))),
                                 skjedde = row.localDate("skjedde"),
-                                // TODO: Hent forretningsprosess fra noe factory greier?
-                                forretningsprosess = Søknadsprosess(),
+                                forretningsprosess = RegistrertForretningsprosess.opprett(row.string("forretningsprosess")),
                                 opprettet = row.localDateTime("opprettet"),
                             ),
                         gjeldendeOpplysninger = opplysningRepository.hentOpplysninger(row.uuid("opplysninger_id"))!!,
@@ -128,8 +127,8 @@ internal class BehandlingRepositoryPostgres(
                 queryOf(
                     // language=PostgreSQL
                     """
-                        INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id, hendelse_type, skjedde) 
-                        VALUES (:ident, :melding_id, :ekstern_id, :hendelse_type, :skjedde) ON CONFLICT DO NOTHING 
+                        INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
+                        VALUES (:ident, :melding_id, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) ON CONFLICT DO NOTHING 
                     """.trimMargin(),
                     mapOf(
                         "ident" to behandling.behandler.ident,
@@ -137,6 +136,7 @@ internal class BehandlingRepositoryPostgres(
                         "ekstern_id" to behandling.behandler.eksternId.id,
                         "hendelse_type" to behandling.behandler.type,
                         "skjedde" to behandling.behandler.skjedde,
+                        "forretningsprosess" to behandling.behandler.forretningsprosess.navn,
                     ),
                 ).asUpdate,
             )

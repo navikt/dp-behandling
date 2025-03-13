@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseType
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import java.time.LocalDate
@@ -69,6 +70,12 @@ class BeregnMeldekortHendelse(
                 listOf(
                     // TODO: Fastsett terskel ved innvilgelse
                     Faktum(Beregning.terskel, 0.5),
+                    Faktum(
+                        hendelseType,
+                        type,
+                        gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                        kilde = Systemkilde(meldingsreferanseId, opprettet),
+                    ),
                     Faktum(
                         Beregning.meldeperiode,
                         Periode(meldekort.fom, meldekort.tom),

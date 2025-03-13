@@ -1,10 +1,10 @@
 package no.nav.dagpenger.regel
 
-import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.RegistrertForretningsprosess
 import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
@@ -28,7 +28,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKont
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
 import java.time.LocalDate
 
-class Søknadsprosess : Forretningsprosess {
+class Søknadsprosess : RegistrertForretningsprosess() {
     override val regelverk = RegelverkDagpenger
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = Regelkjøring(prøvingsdato(opplysninger), opplysninger, this)
