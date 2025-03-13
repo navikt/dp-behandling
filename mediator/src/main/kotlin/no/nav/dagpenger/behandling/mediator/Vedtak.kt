@@ -97,7 +97,9 @@ fun lagVedtak(
     godkjentAv: Arbeidssteg,
     besluttetAv: Arbeidssteg,
 ): VedtakDTO {
-    val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysninger)
+    // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
+    val opplysningerSomGjelderPåPrøvingsdato = opplysninger.forDato(opplysninger.finnOpplysning(prøvingsdato).verdi)
+    val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysningerSomGjelderPåPrøvingsdato)
     val vilkår: List<VilkaarDTO> =
         relevanteVilkår
             .flatMap { regelsett ->
@@ -107,7 +109,7 @@ fun lagVedtak(
                     }
             }.toMap()
             .map {
-                val opplysning = opplysninger.finnOpplysning(it.key)
+                val opplysning = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(it.key)
                 opplysning.tilVilkårDTO(it.value.toString())
             }
 
@@ -115,7 +117,7 @@ fun lagVedtak(
     logger.info {
         "VedtakDTO med utfall $utfall, dette var alle vilkårene:\n${vilkår.joinToString("\n") { it.navn + " -> " + it.status.name }}"
     }
-    val fastsatt = vedtakFastsattDTO(utfall, opplysninger)
+    val fastsatt = vedtakFastsattDTO(utfall, opplysningerSomGjelderPåPrøvingsdato)
 
     return VedtakDTO(
         behandlingId = behandlingId,
@@ -130,12 +132,12 @@ fun lagVedtak(
                     },
             ),
         søknadId = hendelse.id.toString(),
-        fagsakId = opplysninger.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),
+        fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),
         automatisk = automatisk,
         ident = ident.identifikator(),
         vedtakstidspunkt = LocalDateTime.now(),
         // TODO: Denne må utledes igjen - virkningstidspunkt = opplysninger.finnOpplysning(virkningstidspunkt).verdi,
-        virkningsdato = opplysninger.finnOpplysning(prøvingsdato).verdi,
+        virkningsdato = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(prøvingsdato).verdi,
         behandletAv =
             listOfNotNull(
                 godkjentAv.takeIf { it.erUtført }?.let {
@@ -154,8 +156,8 @@ fun lagVedtak(
         vilkår = vilkår,
         fastsatt = fastsatt,
         gjenstående = VedtakGjenstEndeDTO(),
-        utbetalinger = opplysninger.utbetalinger(),
-        opplysninger = opplysninger.finnAlle().map { it.tilOpplysningDTO(opplysninger) },
+        utbetalinger = opplysningerSomGjelderPåPrøvingsdato.utbetalinger(),
+        opplysninger = opplysningerSomGjelderPåPrøvingsdato.finnAlle().map { it.tilOpplysningDTO(opplysningerSomGjelderPåPrøvingsdato) },
     )
 }
 

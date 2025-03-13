@@ -633,6 +633,7 @@ internal class PersonMediatorTest {
                     søknadsdato = 5.juni(2024),
                     innsendt = 5.juni(2024).atTime(12, 0),
                     ønskerFraDato = 10.juni(2024),
+                    arbeidssøkerregistreringsdato = 10.juni(2024),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
@@ -663,6 +664,7 @@ internal class PersonMediatorTest {
                     søknadsdato = 7.juni(2024),
                     innsendt = 7.juni(2024).atTime(12, 0),
                     ønskerFraDato = 10.juni(2024),
+                    arbeidssøkerregistreringsdato = 10.juni(2024),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
@@ -692,6 +694,8 @@ internal class PersonMediatorTest {
                     søknadsdato = 1.juni(2024),
                     innsendt = 1.juni(2024).atTime(12, 0),
                     ønskerFraDato = 30.juni(2024),
+                    // Denne må stemme med prøvingsdato som blir siste av søknadsdato og ønsket fra dato
+                    arbeidssøkerregistreringsdato = 30.juni(2024),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
@@ -737,7 +741,7 @@ internal class PersonMediatorTest {
             godkjennOpplysninger("innvilgelse")
 
             val nyPrøvingsdato = 22.juli(2024)
-            testPerson.prøvingsdato = nyPrøvingsdato
+            testPerson.arbeidssøkerregistreringsdato = nyPrøvingsdato
             testPerson.endreOpplysning("Prøvingsdato", nyPrøvingsdato)
 
             rapid.harBehov("RegistrertSomArbeidssøker") {
@@ -772,7 +776,7 @@ internal class PersonMediatorTest {
             }
 
             val endaNyerePrøvingsdato = 22.august(2024)
-            testPerson.prøvingsdato = endaNyerePrøvingsdato
+            testPerson.arbeidssøkerregistreringsdato = endaNyerePrøvingsdato
             testPerson.InntektSiste12Mnd = 0
             testPerson.endreOpplysning("Prøvingsdato", endaNyerePrøvingsdato)
 
