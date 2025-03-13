@@ -16,7 +16,7 @@ interface Forretningsprosess {
 }
 
 abstract class RegistrertForretningsprosess : Forretningsprosess {
-    init {
+    fun registrer() {
         registrer(navn, this)
     }
 

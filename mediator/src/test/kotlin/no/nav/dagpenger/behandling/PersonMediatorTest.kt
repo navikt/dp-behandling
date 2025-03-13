@@ -29,6 +29,7 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.lagVedtak
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
@@ -82,8 +83,6 @@ import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
 import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
-import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
@@ -134,13 +133,7 @@ internal class PersonMediatorTest {
     }
 
     private fun registrerOpplysningstyper() {
-        opplysningerRepository.lagreOpplysningstyper(
-            definerteTyper + fagsakIdOpplysningstype +
-                Beregning.arbeidsdag +
-                Beregning.arbeidstimer +
-                Beregning.forbruk +
-                Beregning.terskel,
-        )
+        registrerRegelverk(opplysningerRepository, definerteTyper)
     }
 
     @BeforeEach

@@ -28,8 +28,8 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.uuid.UUIDv7
 import no.nav.helse.rapids_rivers.RapidApplication
 
 internal class ApplicationBuilder(
@@ -124,23 +124,25 @@ internal class ApplicationBuilder(
 
     override fun onStartup(rapidsConnection: RapidsConnection) {
         runMigration()
-        opplysningRepository
-            .lagreOpplysningstyper(
-                opplysningstyper + fagsakIdOpplysningstype +
-                    Beregning.arbeidsdag +
-                    Beregning.arbeidstimer +
-                    Beregning.forbruk +
-                    Beregning.meldt +
-                    Beregning.meldeperiode +
-                    Beregning.utbetaling +
-                    Beregning.terskel,
-            ).also {
-                logger.info { "Opprettet $it opplysningstyper" }
-            }
+        registrerRegelverk(opplysningRepository, opplysningstyper)
         logger.info { "Starter opp dp-behandling" }
     }
 }
 
-fun main() {
-    println(UUIDv7.ny())
+fun registrerRegelverk(
+    opplysningRepository: OpplysningerRepositoryPostgres,
+    opplysningstyper: Set<Opplysningstype<*>>,
+) {
+    Søknadsprosess().registrer()
+    opplysningRepository
+        .lagreOpplysningstyper(
+            opplysningstyper + fagsakIdOpplysningstype +
+                Beregning.arbeidsdag +
+                Beregning.arbeidstimer +
+                Beregning.forbruk +
+                Beregning.meldt +
+                Beregning.meldeperiode +
+                Beregning.utbetaling +
+                Beregning.terskel,
+        )
 }
