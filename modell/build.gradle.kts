@@ -6,8 +6,6 @@ plugins {
 val cucumberVersion = "7.15.0"
 dependencies {
     implementation(project(":opplysninger"))
-    implementation(project(":forretningsprosess"))
-    // implementation(project(":dagpenger"))
     implementation(project(":avklaring"))
     implementation(project(":uuid-v7"))
 

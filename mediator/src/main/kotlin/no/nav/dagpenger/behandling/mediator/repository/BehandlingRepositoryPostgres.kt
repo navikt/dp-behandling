@@ -48,7 +48,8 @@ internal class BehandlingRepositoryPostgres(
                                 ident = row.string("ident"),
                                 eksternId = SøknadId(UUID.fromString(row.string("ekstern_id"))),
                                 skjedde = row.localDate("skjedde"),
-                                forretningsprosess = Søknadsprosess(), // TODO: Hent forretningsprosess fra noe factory greier?
+                                // TODO: Hent forretningsprosess fra noe factory greier?
+                                forretningsprosess = Søknadsprosess(),
                                 opprettet = row.localDateTime("opprettet"),
                             ),
                         gjeldendeOpplysninger = opplysningRepository.hentOpplysninger(row.uuid("opplysninger_id"))!!,
