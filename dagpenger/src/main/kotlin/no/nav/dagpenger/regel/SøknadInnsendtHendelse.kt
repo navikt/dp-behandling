@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
@@ -31,10 +30,13 @@ class SøknadInnsendtHendelse(
     override val regelverk: Regelverk
         get() = forretningsprosess.regelverk
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = forretningsprosess.regelkjøring(opplysninger)
+    override fun regelkjøring(opplysninger: Opplysninger) = forretningsprosess.regelkjøring(opplysninger)
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
-        forretningsprosess.ønsketResultat(opplysninger)
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger) = forretningsprosess.ønsketResultat(opplysninger)
+
+    override fun kontrollpunkter() = forretningsprosess.kontrollpunkter()
+
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
     override fun behandling(forrigeBehandling: Behandling?) =
         Behandling(
@@ -57,7 +59,7 @@ class SøknadInnsendtHendelse(
                         kilde = Systemkilde(meldingsreferanseId, opprettet),
                     ),
                     Faktum(
-                        hendelseType,
+                        hendelseTypeOpplysningstype,
                         type,
                         gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
                         kilde = Systemkilde(meldingsreferanseId, opprettet),
@@ -65,12 +67,8 @@ class SøknadInnsendtHendelse(
                 ),
         )
 
-    override fun kontrollpunkter() = forretningsprosess.kontrollpunkter()
-
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
-
     companion object {
         val fagsakIdOpplysningstype = Opplysningstype.heltall(FagsakIdId, "fagsakId")
-        val hendelseType = Opplysningstype.tekst(OpplysningsTyper.HendelseTypeId, "hendelseType")
+        val hendelseTypeOpplysningstype = Opplysningstype.tekst(OpplysningsTyper.HendelseTypeId, "hendelseType")
     }
 }

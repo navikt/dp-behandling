@@ -910,9 +910,11 @@ components:
         behandlingId:
           type: string
           format: uuid
-        forrigeBehandlingId:
-          type: string
-          format: uuid
+        basertPåBehandlinger:
+          type: array
+          items:
+            type: string
+            format: uuid
         fagsakId:
           type: string
         søknadId:

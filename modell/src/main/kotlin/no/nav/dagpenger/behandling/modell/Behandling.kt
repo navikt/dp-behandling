@@ -945,13 +945,13 @@ class Behandling private constructor(
         tilstand.entering(this, hendelse)
     }
 
-    fun forrigeBehandlingId() = basertPå.firstOrNull()?.behandlingId
+    fun basertPåBehandlinger() = basertPå.map { it.behandlingId }
 
     private fun emitForslagTilVedtak() {
         val event =
             BehandlingObservatør.BehandlingForslagTilVedtak(
                 behandlingId = behandlingId,
-                forrigeBehandlingId = forrigeBehandlingId(),
+                forrigeBehandlingId = basertPåBehandlinger(),
                 hendelse = behandler.eksternId,
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
@@ -967,7 +967,7 @@ class Behandling private constructor(
         val event =
             BehandlingObservatør.BehandlingFerdig(
                 behandlingId = behandlingId,
-                forrigeBehandlingId = forrigeBehandlingId(),
+                basertPåBehandlinger = basertPåBehandlinger(),
                 hendelse = behandler.eksternId,
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
@@ -996,7 +996,7 @@ class Behandling private constructor(
 interface BehandlingObservatør {
     data class BehandlingForslagTilVedtak(
         val behandlingId: UUID,
-        val forrigeBehandlingId: UUID?,
+        val forrigeBehandlingId: List<UUID>,
         val hendelse: EksternId<*>,
         val behandlingAv: StartHendelse,
         val opplysninger: LesbarOpplysninger,
@@ -1007,7 +1007,7 @@ interface BehandlingObservatør {
 
     data class BehandlingFerdig(
         val behandlingId: UUID,
-        val forrigeBehandlingId: UUID?,
+        val basertPåBehandlinger: List<UUID>,
         val hendelse: EksternId<*>,
         val behandlingAv: StartHendelse,
         val opplysninger: LesbarOpplysninger,

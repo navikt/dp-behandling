@@ -89,7 +89,7 @@ private val logger = KotlinLogging.logger { }
 
 fun lagVedtak(
     behandlingId: UUID,
-    forrigeBehandlingId: UUID?,
+    basertPåBehandlinger: List<UUID>,
     ident: Ident,
     hendelse: EksternId<*>,
     opplysninger: LesbarOpplysninger,
@@ -119,7 +119,7 @@ fun lagVedtak(
 
     return VedtakDTO(
         behandlingId = behandlingId,
-        forrigeBehandlingId = forrigeBehandlingId,
+        basertPåBehandlinger = basertPåBehandlinger,
         behandletHendelse =
             HendelseDTO(
                 hendelseId = hendelse.id.toString(),

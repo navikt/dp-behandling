@@ -926,7 +926,7 @@ internal class PersonMediatorTest {
                 val vedtak =
                     lagVedtak(
                         behandlingId,
-                        forrigeBehandlingId = null,
+                        basertPåBehandlinger = emptyList(),
                         ident = behandler.ident.tilPersonIdentfikator(),
                         hendelse = behandler.eksternId,
                         opplysninger = opplysninger(),
