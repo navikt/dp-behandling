@@ -28,6 +28,7 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
+import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.helse.rapids_rivers.RapidApplication
@@ -143,6 +144,7 @@ fun registrerRegelverk(
                 Beregning.meldt +
                 Beregning.meldeperiode +
                 Beregning.utbetaling +
-                Beregning.terskel,
+                Beregning.terskel +
+                hendelseTypeOpplysningstype,
         )
 }
