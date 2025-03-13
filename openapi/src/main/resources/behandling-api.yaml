@@ -447,8 +447,16 @@ paths:
           description: No Content
         400:
           description: Avklaringen kan ikke kvitteres ut
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
         403:
           description: Du har ikke tilgang til å kvittere ut denne avklaringen
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
   /behandling/{behandlingId}/vedtak:
     parameters:
       - name: behandlingId
