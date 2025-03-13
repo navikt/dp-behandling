@@ -6,9 +6,11 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.hendelser.EnHvilkenSomHelstHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Saksbehandler
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.Søknadsprosess
 import java.util.UUID
 
 internal class BehandlingRepositoryPostgres(
@@ -40,20 +42,15 @@ internal class BehandlingRepositoryPostgres(
                     Behandling.rehydrer(
                         behandlingId = row.uuid("behandling_id"),
                         behandler =
-                            when (row.string("hendelse_type")) {
-                                // TODO: Dette er ganske gnøkka. Modellen definerer bare StartHendelse, men vi må lage den konkrete fra Dagpenger
-                                SøknadInnsendtHendelse::class.simpleName ->
-                                    SøknadInnsendtHendelse(
-                                        meldingsreferanseId = row.uuid("melding_id"),
-                                        ident = row.string("ident"),
-                                        søknadId = UUID.fromString(row.string("ekstern_id")),
-                                        gjelderDato = row.localDate("skjedde"),
-                                        fagsakId = row.int("fagsak_id"),
-                                        opprettet = row.localDateTime("opprettet"),
-                                    )
-
-                                else -> throw IllegalArgumentException("Ukjent hendelse type ${row.string("hendelse_type")}")
-                            },
+                            EnHvilkenSomHelstHendelse(
+                                meldingsreferanseId = row.uuid("melding_id"),
+                                hendelseType = row.string("hendelse_type"),
+                                ident = row.string("ident"),
+                                eksternId = SøknadId(UUID.fromString(row.string("ekstern_id"))),
+                                skjedde = row.localDate("skjedde"),
+                                forretningsprosess = Søknadsprosess(), // TODO: Hent forretningsprosess fra noe factory greier?
+                                opprettet = row.localDateTime("opprettet"),
+                            ),
                         gjeldendeOpplysninger = opplysningRepository.hentOpplysninger(row.uuid("opplysninger_id"))!!,
                         basertPå = basertPåBehandling,
                         tilstand = Behandling.TilstandType.valueOf(row.string("tilstand")),
@@ -130,8 +127,8 @@ internal class BehandlingRepositoryPostgres(
                 queryOf(
                     // language=PostgreSQL
                     """
-                        INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id, hendelse_type, skjedde, fagsak_id) 
-                        VALUES (:ident, :melding_id, :ekstern_id, :hendelse_type, :skjedde, :fagsak_id) ON CONFLICT DO NOTHING 
+                        INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id, hendelse_type, skjedde) 
+                        VALUES (:ident, :melding_id, :ekstern_id, :hendelse_type, :skjedde) ON CONFLICT DO NOTHING 
                     """.trimMargin(),
                     mapOf(
                         "ident" to behandling.behandler.ident,
@@ -139,7 +136,6 @@ internal class BehandlingRepositoryPostgres(
                         "ekstern_id" to behandling.behandler.eksternId.id,
                         "hendelse_type" to behandling.behandler.type,
                         "skjedde" to behandling.behandler.skjedde,
-                        "fagsak_id" to behandling.behandler.fagsakId,
                     ),
                 ).asUpdate,
             )

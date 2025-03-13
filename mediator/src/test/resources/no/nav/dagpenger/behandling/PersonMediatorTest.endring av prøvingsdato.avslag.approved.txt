@@ -1,5 +1,6 @@
 fagsakId
 søknadId
+hendelseType
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato

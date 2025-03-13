@@ -2,9 +2,9 @@ package no.nav.dagpenger.regel
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import no.nav.dagpenger.avklaring.Kontrollpunkt.Kontrollresultat.KreverAvklaring
-import no.nav.dagpenger.avklaring.Kontrollpunkt.Kontrollresultat.OK
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.KreverAvklaring
+import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.OK
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll

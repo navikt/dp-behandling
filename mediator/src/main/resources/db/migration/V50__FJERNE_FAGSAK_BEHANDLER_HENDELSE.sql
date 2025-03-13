@@ -1,0 +1,1 @@
+ALTER TABLE behandler_hendelse DROP COLUMN fagsak_id;

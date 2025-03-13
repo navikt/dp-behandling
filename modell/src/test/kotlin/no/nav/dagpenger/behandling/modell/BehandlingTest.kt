@@ -16,6 +16,7 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.IKontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -182,9 +183,10 @@ private class SøknadInnsendtHendelse(
         ident,
         SøknadId(søknadId),
         gjelderDato,
-        fagsakId,
         opprettet,
     ) {
+    override val regelverk: Regelverk
+        get() = forretningsprosess.regelverk
     private val opplysningstypeBehov = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "trengerDenne")
     private val opplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "opplysning")
     override val forretningsprosess: Forretningsprosess
@@ -192,6 +194,18 @@ private class SøknadInnsendtHendelse(
             object : Forretningsprosess {
                 override val regelverk: Regelverk
                     get() = TODO("Not yet implemented")
+
+                override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+                    TODO("Not yet implemented")
+                }
+
+                override fun kontrollpunkter(): List<IKontrollpunkt> {
+                    TODO("Not yet implemented")
+                }
+
+                override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+                    TODO("Not yet implemented")
+                }
 
                 override fun regelsett() = listOf(regelsett)
 
@@ -220,6 +234,10 @@ private class SøknadInnsendtHendelse(
     override fun kontrollpunkter(): List<Kontrollpunkt> = emptyList()
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
         TODO("Not yet implemented")
     }
 }

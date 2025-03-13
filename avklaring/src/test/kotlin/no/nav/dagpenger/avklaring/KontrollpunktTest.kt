@@ -4,7 +4,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import no.nav.dagpenger.avklaring.Kontrollpunkt.Kontrollresultat
 import no.nav.dagpenger.avklaring.TestAvklaringer.ArbeidIEØS
 import no.nav.dagpenger.avklaring.TestAvklaringer.BeregningsregelForFVA
 import no.nav.dagpenger.avklaring.TestAvklaringer.SvangerskapsrelaterteSykepenger
@@ -13,6 +12,7 @@ import no.nav.dagpenger.dato.mai
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Heltall
+import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype

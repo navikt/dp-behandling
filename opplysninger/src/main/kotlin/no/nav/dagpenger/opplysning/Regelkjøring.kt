@@ -13,20 +13,24 @@ import java.time.LocalDate
 
 typealias Informasjonsbehov = Map<Opplysningstype<*>, List<Opplysning<*>>>
 
-interface Forretningsprosess {
-    val regelverk: Regelverk
-
-    fun regelsett() = regelverk.regelsett
-
-    fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>>
-}
-
 private class Regelsettprosess(
     val regelsett: List<Regelsett>,
     val opplysningstypes: List<Opplysningstype<*>> = regelsett.flatMap { it.produserer },
 ) : Forretningsprosess {
     override val regelverk: Regelverk
         get() = TODO("Not yet implemented")
+
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+        TODO("Not yet implemented")
+    }
+
+    override fun kontrollpunkter(): List<IKontrollpunkt> {
+        TODO("Not yet implemented")
+    }
+
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+        TODO("Not yet implemented")
+    }
 
     override fun regelsett() = regelsett
 
@@ -40,17 +44,17 @@ class Regelkjøring(
     private val forretningsprosess: Forretningsprosess,
 ) {
     constructor(regelverksdato: LocalDate, opplysninger: Opplysninger, vararg regelsett: Regelsett) : this(
-        regelverksdato,
-        regelverksdato,
-        opplysninger,
-        Regelsettprosess(regelsett.toList(), regelsett.toList().flatMap { it.produserer }),
+        regelverksdato = regelverksdato,
+        prøvingsdato = regelverksdato,
+        opplysninger = opplysninger,
+        forretningsprosess = Regelsettprosess(regelsett.toList(), regelsett.toList().flatMap { it.produserer }),
     )
 
     constructor(regelverksdato: LocalDate, opplysninger: Opplysninger, forretningsprosess: Forretningsprosess) : this(
-        regelverksdato,
-        regelverksdato,
-        opplysninger,
-        forretningsprosess,
+        regelverksdato = regelverksdato,
+        prøvingsdato = regelverksdato,
+        opplysninger = opplysninger,
+        forretningsprosess = forretningsprosess,
     )
 
     constructor(
@@ -59,10 +63,10 @@ class Regelkjøring(
         ønskerResultat: List<Opplysningstype<*>>,
         vararg regelsett: Regelsett,
     ) : this(
-        regelverksdato,
-        regelverksdato,
-        opplysninger,
-        Regelsettprosess(regelsett.toList(), ønskerResultat),
+        regelverksdato = regelverksdato,
+        prøvingsdato = regelverksdato,
+        opplysninger = opplysninger,
+        forretningsprosess = Regelsettprosess(regelsett.toList(), ønskerResultat),
     )
 
     companion object {
