@@ -592,6 +592,7 @@ components:
         - kanKvitteres
         - status
         - maskinelt
+        - begrunnelse
         - sistEndret
       properties:
         id:
@@ -612,6 +613,7 @@ components:
           type: boolean
         begrunnelse:
           type: string
+          nullable: true
         sistEndret:
           type: string
           format: date-time
@@ -651,8 +653,9 @@ components:
       required:
         - navn
         - hjemmel
+        - status
         - avklaringer
-        - opplysninger
+        - opplysningIder
       properties:
         navn:
           description: Kort navn som beskriver regelsettet
