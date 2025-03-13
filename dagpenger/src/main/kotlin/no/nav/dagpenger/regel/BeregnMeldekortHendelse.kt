@@ -43,10 +43,7 @@ class BeregnMeldekortHendelse(
 
     // TODO: DETTE ER HELT FEIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.har(
-                Søknadstidspunkt.prøvingsdato,
-            )
-        ) {
+        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
             opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
         } else {
             throw IllegalStateException("Fant ikke prøvingsdato")

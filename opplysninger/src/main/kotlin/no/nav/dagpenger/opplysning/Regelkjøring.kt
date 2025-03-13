@@ -122,7 +122,7 @@ class Regelkjøring(
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
-            observers.forEach { observer -> observer.evaluert(rapport, opplysninger) }
+            observers.forEach { observer -> observer.evaluert(rapport, opplysninger.forDato(prøvingsdato)) }
         }
     }
 
@@ -201,6 +201,6 @@ data class Regelkjøringsrapport(
 interface RegelkjøringObserver {
     fun evaluert(
         rapport: Regelkjøringsrapport,
-        opplysninger: Opplysninger,
+        opplysninger: LesbarOpplysninger,
     )
 }

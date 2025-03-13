@@ -4,7 +4,6 @@ import no.nav.dagpenger.opplysning.IKontrollpunkt
 import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.KreverAvklaring
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.RegelkjøringObserver
 import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -22,7 +21,7 @@ class Avklaringer(
 
     override fun evaluert(
         rapport: Regelkjøringsrapport,
-        opplysninger: Opplysninger,
+        opplysninger: LesbarOpplysninger,
     ) {
         vurderAvklaringer(opplysninger)
     }
