@@ -29,6 +29,7 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.lagVedtak
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
@@ -82,8 +83,6 @@ import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
 import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
-import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
@@ -134,13 +133,7 @@ internal class PersonMediatorTest {
     }
 
     private fun registrerOpplysningstyper() {
-        opplysningerRepository.lagreOpplysningstyper(
-            definerteTyper + fagsakIdOpplysningstype +
-                Beregning.arbeidsdag +
-                Beregning.arbeidstimer +
-                Beregning.forbruk +
-                Beregning.terskel,
-        )
+        registrerRegelverk(opplysningerRepository, definerteTyper)
     }
 
     @BeforeEach
@@ -640,6 +633,7 @@ internal class PersonMediatorTest {
                     søknadsdato = 5.juni(2024),
                     innsendt = 5.juni(2024).atTime(12, 0),
                     ønskerFraDato = 10.juni(2024),
+                    arbeidssøkerregistreringsdato = 10.juni(2024),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
@@ -670,6 +664,7 @@ internal class PersonMediatorTest {
                     søknadsdato = 7.juni(2024),
                     innsendt = 7.juni(2024).atTime(12, 0),
                     ønskerFraDato = 10.juni(2024),
+                    arbeidssøkerregistreringsdato = 10.juni(2024),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
@@ -699,6 +694,8 @@ internal class PersonMediatorTest {
                     søknadsdato = 1.juni(2024),
                     innsendt = 1.juni(2024).atTime(12, 0),
                     ønskerFraDato = 30.juni(2024),
+                    // Denne må stemme med prøvingsdato som blir siste av søknadsdato og ønsket fra dato
+                    arbeidssøkerregistreringsdato = 30.juni(2024),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
@@ -744,7 +741,7 @@ internal class PersonMediatorTest {
             godkjennOpplysninger("innvilgelse")
 
             val nyPrøvingsdato = 22.juli(2024)
-            testPerson.prøvingsdato = nyPrøvingsdato
+            testPerson.arbeidssøkerregistreringsdato = nyPrøvingsdato
             testPerson.endreOpplysning("Prøvingsdato", nyPrøvingsdato)
 
             rapid.harBehov("RegistrertSomArbeidssøker") {
@@ -779,7 +776,7 @@ internal class PersonMediatorTest {
             }
 
             val endaNyerePrøvingsdato = 22.august(2024)
-            testPerson.prøvingsdato = endaNyerePrøvingsdato
+            testPerson.arbeidssøkerregistreringsdato = endaNyerePrøvingsdato
             testPerson.InntektSiste12Mnd = 0
             testPerson.endreOpplysning("Prøvingsdato", endaNyerePrøvingsdato)
 
@@ -926,8 +923,9 @@ internal class PersonMediatorTest {
                 val vedtak =
                     lagVedtak(
                         behandlingId,
+                        basertPåBehandlinger = emptyList(),
                         ident = behandler.ident.tilPersonIdentfikator(),
-                        søknadId = behandler.eksternId,
+                        hendelse = behandler.eksternId,
                         opplysninger = opplysninger(),
                         automatisk = erAutomatiskBehandlet(),
                         godkjentAv = godkjent,

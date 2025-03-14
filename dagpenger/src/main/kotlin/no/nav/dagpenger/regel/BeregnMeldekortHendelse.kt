@@ -10,9 +10,12 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import java.time.LocalDate
@@ -31,17 +34,16 @@ class BeregnMeldekortHendelse(
         ident = ident,
         eksternId = MeldekortId(meldekort.eksternMeldekortId),
         skjedde = meldekort.innsendtTidspunkt.toLocalDate(),
-        fagsakId = 0,
         opprettet = opprettet,
     ) {
     override val forretningsprosess = Søknadsprosess()
 
+    override val regelverk: Regelverk
+        get() = forretningsprosess.regelverk
+
     // TODO: DETTE ER HELT FEIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.har(
-                Søknadstidspunkt.prøvingsdato,
-            )
-        ) {
+        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
             opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
         } else {
             throw IllegalStateException("Fant ikke prøvingsdato")
@@ -65,6 +67,12 @@ class BeregnMeldekortHendelse(
                 listOf(
                     // TODO: Fastsett terskel ved innvilgelse
                     Faktum(Beregning.terskel, 0.5),
+                    Faktum(
+                        hendelseTypeOpplysningstype,
+                        type,
+                        gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                        kilde = Systemkilde(meldingsreferanseId, opprettet),
+                    ),
                     Faktum(
                         Beregning.meldeperiode,
                         Periode(meldekort.fom, meldekort.tom),
@@ -114,4 +122,6 @@ class BeregnMeldekortHendelse(
     override fun kontrollpunkter(): List<Kontrollpunkt> = emptyList()
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean = false
+
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = emptyList()
 }

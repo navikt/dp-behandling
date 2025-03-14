@@ -164,6 +164,18 @@ class RegelmotorIntegrasjonsTest {
                     override val regelverk: Regelverk
                         get() = TODO("Not yet implemented")
 
+                    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun kontrollpunkter(): List<IKontrollpunkt> {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+                        TODO("Not yet implemented")
+                    }
+
                     override fun regelsett(): List<Regelsett> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
@@ -205,6 +217,18 @@ class RegelmotorIntegrasjonsTest {
                 object : Forretningsprosess {
                     override val regelverk: Regelverk
                         get() = TODO("Not yet implemented")
+
+                    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun kontrollpunkter(): List<IKontrollpunkt> {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+                        TODO("Not yet implemented")
+                    }
 
                     override fun regelsett(): List<Regelsett> = listOf(regelsett)
 
@@ -262,6 +286,18 @@ class RegelmotorIntegrasjonsTest {
                     override val regelverk: Regelverk
                         get() = TODO("Not yet implemented")
 
+                    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun kontrollpunkter(): List<IKontrollpunkt> {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+                        TODO("Not yet implemented")
+                    }
+
                     override fun regelsett(): List<Regelsett> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
@@ -307,6 +343,18 @@ class RegelmotorIntegrasjonsTest {
 private class TestProsess : Forretningsprosess {
     override val regelverk: Regelverk
         get() = TODO("Not yet implemented")
+
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+        TODO("Not yet implemented")
+    }
+
+    override fun kontrollpunkter(): List<IKontrollpunkt> {
+        TODO("Not yet implemented")
+    }
+
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+        TODO("Not yet implemented")
+    }
 
     override fun regelsett(): List<Regelsett> = listOf(Alderskrav.regelsett, Prøvingsdato.regelsett)
 

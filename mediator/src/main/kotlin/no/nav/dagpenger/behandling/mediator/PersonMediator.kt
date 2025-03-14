@@ -55,13 +55,13 @@ internal class PersonMediator(
 
     private fun BehandlingForslagTilVedtak.toJsonMessage(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
-        val vedtak = lagVedtak(behandlingId, ident, søknadId, opplysninger, automatiskBehandlet, godkjent, besluttet)
+        val vedtak = lagVedtak(behandlingId, forrigeBehandlingId, ident, hendelse, opplysninger, automatiskBehandlet, godkjent, besluttet)
         return JsonMessage.newMessage("forslag_til_vedtak", vedtak.toMap())
     }
 
     private fun BehandlingFerdig.toJsonMessage(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingEndretTilstand" })
-        val vedtak = lagVedtak(behandlingId, ident, søknadId, opplysninger, automatiskBehandlet, godkjent, besluttet)
+        val vedtak = lagVedtak(behandlingId, basertPåBehandlinger, ident, hendelse, opplysninger, automatiskBehandlet, godkjent, besluttet)
         return JsonMessage.newMessage("vedtak_fattet", vedtak.toMap())
     }
 

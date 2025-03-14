@@ -1,5 +1,6 @@
 fagsakId
 søknadId
+hendelseType
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
@@ -11,6 +12,8 @@ Søknadstidspunkt
 Har rett til ordinære dagpenger uten arbeidsforhold
 Har rett til ordinære dagpenger
 Rettighetstype
+Registrert som arbeidssøker
+Registrert som arbeidssøker på søknadstidspunktet
 Avtjent verneplikt
 Oppfyller kravet til verneplikt
 Ønsket arbeidstid
@@ -19,6 +22,8 @@ Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
 Oppfyller kravet til å ta ethvert arbeid
+Registrert som arbeidssøker
+Registrert som arbeidssøker på søknadstidspunktet
 Prøvingsdato
 Aldersgrense
 Lovpålagt rapporteringsfrist for A-ordningen
@@ -26,8 +31,6 @@ Maks lengde på opptjeningsperiode
 Grunnbeløp
 Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
-Årsaken til permitteringen fra fiskeindustrien er godkjent
-Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søk arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
@@ -35,16 +38,18 @@ Minimum vanlig arbeidstid
 Kan kravet til reell arbeidssøker vurderes
 Årsaken til permitteringen er godkjent
 Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
+Årsaken til permitteringen fra fiskeindustrien er godkjent
+Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 mnd
 Inntektskrav for siste 36 mnd
-Oppfyller kravet til permittering i fiskeindustrien
 Oppfyller kravet til heltid- og deltidsarbeid
 Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
 Villig til å jobbe minimum arbeidstid
 Oppfyller kravet til permittering
+Oppfyller kravet til permittering i fiskeindustrien
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Krav til arbeidssøker

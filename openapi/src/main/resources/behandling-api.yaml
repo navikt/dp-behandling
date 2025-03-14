@@ -913,6 +913,11 @@ components:
         behandlingId:
           type: string
           format: uuid
+        basertPåBehandlinger:
+          type: array
+          items:
+            type: string
+            format: uuid
         fagsakId:
           type: string
         søknadId:
@@ -936,6 +941,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BehandletAv'
+        behandletHendelse:
+          description: Hvilken hendelse som utløste behandlingen
+          $ref: '#/components/schemas/Hendelse'
         vilkår:
           description: En liste over vilkår som er vurdert i behandlingen
           type: array
@@ -1143,7 +1151,17 @@ components:
           enum: [ "saksbehandler", "beslutter" ]
         behandler:
           $ref: '#/components/schemas/Saksbehandler'
-
+    Hendelse:
+        type: object
+        required:
+            - hendelseId
+            - hendelseType
+        properties:
+          hendelseId:
+            type: string
+          hendelseType:
+            type: string
+            enum: ["Søknad", "Meldekort"]
 
   securitySchemes:
     azureAd:

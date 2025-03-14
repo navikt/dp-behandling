@@ -16,6 +16,7 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.IKontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -34,8 +35,8 @@ import java.util.UUID
 internal class BehandlingTest {
     private val ident = "123456789011"
     private val søknadId = UUIDv7.ny()
-    private val søknadInnsendtHendelse =
-        SøknadInnsendtHendelse(
+    private val testHendelse =
+        TestHendelse(
             meldingsreferanseId = søknadId,
             ident = ident,
             søknadId = søknadId,
@@ -78,7 +79,7 @@ internal class BehandlingTest {
 
     @Test
     fun `Behandling basert på tidligere behandlinger`() {
-        val behandlingskjede = behandlingskjede(5, søknadInnsendtHendelse)
+        val behandlingskjede = behandlingskjede(5, testHendelse)
         behandlingskjede.opplysninger().finnAlle() shouldHaveSize 5
         behandlingskjede.opplysninger().finnAlle().map {
             it.verdi
@@ -87,7 +88,7 @@ internal class BehandlingTest {
 
     private fun behandlingskjede(
         antall: Int,
-        hendelse: SøknadInnsendtHendelse,
+        hendelse: TestHendelse,
     ): Behandling {
         var fomTom = LocalDate.now()
         var forrigeBehandling: Behandling? = null
@@ -123,15 +124,15 @@ internal class BehandlingTest {
         val behandling =
             Behandling(
                 behandler =
-                    søknadInnsendtHendelse.also {
-                        søknadInnsendtHendelse.kontekst(it)
+                    testHendelse.also {
+                        testHendelse.kontekst(it)
                     },
                 opplysninger = emptyList(),
             )
 
-        behandling.håndter(søknadInnsendtHendelse)
-        søknadInnsendtHendelse.hendelse() shouldHaveSize 1
-        val hendelse = søknadInnsendtHendelse.hendelse().first()
+        behandling.håndter(testHendelse)
+        testHendelse.hendelse() shouldHaveSize 1
+        val hendelse = testHendelse.hendelse().first()
         hendelse.type.name shouldBe "behandling_opprettet"
         val kontekst = hendelse.kontekst()
         kontekst.shouldContain("behandlingId", behandling.behandlingId.toString())
@@ -144,14 +145,14 @@ internal class BehandlingTest {
         val behandling =
             Behandling(
                 behandler =
-                    søknadInnsendtHendelse.also {
-                        søknadInnsendtHendelse.kontekst(it)
+                    testHendelse.also {
+                        testHendelse.kontekst(it)
                     },
                 opplysninger = emptyList(),
             )
 
         val observatør = TestObservatør().also { behandling.registrer(it) }
-        behandling.håndter(søknadInnsendtHendelse)
+        behandling.håndter(testHendelse)
 
         observatør.endretTilstandEventer shouldHaveSize 1
         observatør.endretTilstandEventer.first().run {
@@ -170,7 +171,7 @@ internal class BehandlingTest {
     }
 }
 
-private class SøknadInnsendtHendelse(
+private class TestHendelse(
     meldingsreferanseId: UUID,
     ident: String,
     søknadId: UUID,
@@ -182,9 +183,10 @@ private class SøknadInnsendtHendelse(
         ident,
         SøknadId(søknadId),
         gjelderDato,
-        fagsakId,
         opprettet,
     ) {
+    override val regelverk: Regelverk
+        get() = forretningsprosess.regelverk
     private val opplysningstypeBehov = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "trengerDenne")
     private val opplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "opplysning")
     override val forretningsprosess: Forretningsprosess
@@ -192,6 +194,18 @@ private class SøknadInnsendtHendelse(
             object : Forretningsprosess {
                 override val regelverk: Regelverk
                     get() = TODO("Not yet implemented")
+
+                override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+                    TODO("Not yet implemented")
+                }
+
+                override fun kontrollpunkter(): List<IKontrollpunkt> {
+                    TODO("Not yet implemented")
+                }
+
+                override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+                    TODO("Not yet implemented")
+                }
 
                 override fun regelsett() = listOf(regelsett)
 
@@ -220,6 +234,10 @@ private class SøknadInnsendtHendelse(
     override fun kontrollpunkter(): List<Kontrollpunkt> = emptyList()
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
         TODO("Not yet implemented")
     }
 }

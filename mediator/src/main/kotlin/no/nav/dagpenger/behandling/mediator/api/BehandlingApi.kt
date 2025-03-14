@@ -146,6 +146,7 @@ internal fun Application.behandlingApi(
                             HttpStatusCode.OK,
                             lagVedtak(
                                 behandling.behandlingId,
+                                behandling.basertPåBehandlinger(),
                                 Ident(behandling.behandler.ident),
                                 behandling.behandler.eksternId,
                                 behandling.opplysninger(),

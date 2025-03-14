@@ -1,36 +1,18 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
-import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
-import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
-import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
-import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
-import no.nav.dagpenger.regel.Minsteinntekt.EØSArbeidKontroll
-import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
-import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
-import no.nav.dagpenger.regel.Minsteinntekt.SvangerskapsrelaterteSykepengerKontroll
-import no.nav.dagpenger.regel.Minsteinntekt.ØnskerEtterRapporteringsfristKontroll
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
-import no.nav.dagpenger.regel.Permittering.PermitteringKontroll
-import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.PermitteringFiskKontroll
-import no.nav.dagpenger.regel.ReellArbeidssøker.ReellArbeidssøkerKontroll
-import no.nav.dagpenger.regel.RegistrertArbeidssøker.IkkeRegistrertSomArbeidsøkerKontroll
-import no.nav.dagpenger.regel.Samordning.SkalSamordnes
-import no.nav.dagpenger.regel.Søknadstidspunkt.SøknadstidspunktForLangtFramITid
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
-import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKontroll
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -40,28 +22,34 @@ class SøknadInnsendtHendelse(
     ident: String,
     søknadId: UUID,
     gjelderDato: LocalDate,
-    fagsakId: Int,
+    val fagsakId: Int,
     opprettet: LocalDateTime,
-) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, fagsakId, opprettet) {
+) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
     override val forretningsprosess = Søknadsprosess()
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
-        Regelkjøring(prøvingsdato(opplysninger), opplysninger, forretningsprosess)
+    override val regelverk: Regelverk
+        get() = forretningsprosess.regelverk
 
-    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi else skjedde
+    override fun regelkjøring(opplysninger: Opplysninger) = forretningsprosess.regelkjøring(opplysninger)
 
-    private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger) = forretningsprosess.ønsketResultat(opplysninger)
 
-    private fun alder(opplysninger: LesbarOpplysninger): Boolean =
-        opplysninger.har(Alderskrav.kravTilAlder) &&
-            opplysninger.finnOpplysning(Alderskrav.kravTilAlder).verdi
+    override fun kontrollpunkter() = forretningsprosess.kontrollpunkter()
 
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = minsteinntekt(opplysninger) && alder(opplysninger)
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
     override fun behandling(forrigeBehandling: Behandling?) =
         Behandling(
-            behandler = this,
+            behandler =
+                Hendelse(
+                    meldingsreferanseId = meldingsreferanseId,
+                    type = type,
+                    ident = ident,
+                    eksternId = eksternId,
+                    skjedde = skjedde,
+                    opprettet = opprettet,
+                    forretningsprosess = forretningsprosess,
+                ),
             opplysninger =
                 listOf(
                     Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)),
@@ -70,34 +58,17 @@ class SøknadInnsendtHendelse(
                         this.eksternId.id.toString(),
                         kilde = Systemkilde(meldingsreferanseId, opprettet),
                     ),
+                    Faktum(
+                        hendelseTypeOpplysningstype,
+                        type,
+                        gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                        kilde = Systemkilde(meldingsreferanseId, opprettet),
+                    ),
                 ),
-        )
-
-    override fun kontrollpunkter() =
-        listOf(
-            BarnetilleggKontroll,
-            EØSArbeidKontroll,
-            FulleYtelserKontrollpunkt,
-            HattLukkedeSakerSiste8UkerKontroll,
-            IkkeRegistrertSomArbeidsøkerKontroll,
-            InntektNesteKalendermånedKontroll,
-            JobbetUtenforNorgeKontroll,
-            MuligGjenopptakKontroll,
-            ReellArbeidssøkerKontroll,
-            SkalSamordnes,
-            SvangerskapsrelaterteSykepengerKontroll,
-            SøknadstidspunktForLangtFramITid,
-            TapArbeidstidBeregningsregelKontroll,
-            Under18Kontroll,
-            VernepliktKontroll,
-            YtelserUtenforFolketrygdenKontroll,
-            ØnskerEtterRapporteringsfristKontroll,
-            PermitteringKontroll,
-            TilleggsopplysningsKontroll,
-            PermitteringFiskKontroll,
         )
 
     companion object {
         val fagsakIdOpplysningstype = Opplysningstype.heltall(FagsakIdId, "fagsakId")
+        val hendelseTypeOpplysningstype = Opplysningstype.tekst(OpplysningsTyper.HendelseTypeId, "hendelseType")
     }
 }

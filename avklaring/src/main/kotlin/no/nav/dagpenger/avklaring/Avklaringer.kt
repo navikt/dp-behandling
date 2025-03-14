@@ -1,16 +1,16 @@
 package no.nav.dagpenger.avklaring
 
-import no.nav.dagpenger.avklaring.Kontrollpunkt.Kontrollresultat.KreverAvklaring
+import no.nav.dagpenger.opplysning.IKontrollpunkt
+import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.KreverAvklaring
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.RegelkjøringObserver
 import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import java.util.UUID
 
 class Avklaringer(
-    private val kontrollpunkter: List<Kontrollpunkt>,
+    private val kontrollpunkter: List<IKontrollpunkt>,
     avklaringer: List<Avklaring> = emptyList(),
 ) : RegelkjøringObserver {
     internal val avklaringer = avklaringer.toMutableSet()
@@ -21,7 +21,7 @@ class Avklaringer(
 
     override fun evaluert(
         rapport: Regelkjøringsrapport,
-        opplysninger: Opplysninger,
+        opplysninger: LesbarOpplysninger,
     ) {
         vurderAvklaringer(opplysninger)
     }

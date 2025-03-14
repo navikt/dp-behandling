@@ -42,6 +42,8 @@ class Person(
             hendelse.varsel("Søknad med eksternId ${hendelse.eksternId} er allerede mottatt")
             return
         }
+
+        // Oppskrift for å opprette en behandling
         hendelse.leggTilKontekst(this)
         val behandling =
             hendelse.behandling(enVeldigSmartMåteÅfinneRiktigForrigeBehandling()).also { behandling ->
