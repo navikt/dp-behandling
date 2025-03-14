@@ -4,7 +4,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import kotliquery.using
 import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
@@ -44,7 +43,7 @@ internal class VaktmesterPostgresRepo {
     fun slettOpplysninger(antall: Int = 1): List<UUID> {
         val slettet = mutableListOf<UUID>()
         try {
-            using(sessionOf(dataSource)) { session ->
+            sessionOf(dataSource).use { session ->
                 session.transaction { tx ->
                     tx.medLås(låsenøkkel) {
                         val kandidater = tx.hentOpplysningerSomErFjernet(antall)
