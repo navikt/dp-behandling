@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import mu.KotlinLogging
@@ -55,12 +56,25 @@ internal class VaktmesterPostgresRepo {
                                 logger.info { "Skal slette ${kandidat.opplysninger().size} opplysninger " }
                                 kandidat.opplysninger().forEach { opplysningId ->
                                     val statements = mutableListOf<BatchStatement>()
-                                    statements.add(slettOpplysningVerdi(opplysningId))
+
+                                    // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
                                     statements.add(slettOpplysningUtledet(opplysningId))
-                                    statements.add(slettOpplysningLink(opplysningId))
+
+                                    // Slett hvilken regel som har vært brukt for å utlede opplysningen
                                     statements.add(slettOpplysningUtledning(opplysningId))
+
+                                    // Slett verdien av opplysningen
+                                    statements.add(slettOpplysningVerdi(opplysningId))
+
+                                    // Slett erstatninger
                                     statements.add(slettErstatteAv(opplysningId))
+
+                                    // Fjern opplysningen fra opplysninger-settet
+                                    statements.add(slettOpplysningLink(opplysningId))
+
+                                    // Slett opplysningen
                                     statements.add(slettOpplysning(opplysningId))
+
                                     statements.forEach { batch ->
                                         batch.run(tx)
                                     }
@@ -218,7 +232,7 @@ internal class VaktmesterPostgresRepo {
         )
 }
 
-fun Session.lås(nøkkel: Int) =
+fun TransactionalSession.lås(nøkkel: Int) =
     run(
         queryOf(
             //language=PostgreSQL
@@ -231,7 +245,7 @@ fun Session.lås(nøkkel: Int) =
         }.asSingle,
     ) ?: false
 
-fun Session.låsOpp(nøkkel: Int) =
+fun TransactionalSession.låsOpp(nøkkel: Int) =
     run(
         queryOf(
             //language=PostgreSQL
@@ -244,7 +258,7 @@ fun Session.låsOpp(nøkkel: Int) =
         }.asSingle,
     ) ?: false
 
-fun <T> Session.medLås(
+fun <T> TransactionalSession.medLås(
     nøkkel: Int,
     block: () -> T,
 ): T? {
