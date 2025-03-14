@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
@@ -68,7 +69,11 @@ internal class ApplicationBuilder(
                                 PrometheusRegistry.defaultRegistry,
                                 Clock.SYSTEM,
                             ),
-                        objectMapper = objectMapper,
+                        objectMapper =
+                            objectMapper.apply {
+                                // OpenAPI-generator klarer ikke optional-felter. Derfor må vi eksplisitt fjerne null-verdier
+                                setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                            },
                         applicationLogger = KotlinLogging.logger("ApplicationLogger"),
                         callLogger = KotlinLogging.logger("CallLogger"),
                         aliveCheck = rapid::isReady,

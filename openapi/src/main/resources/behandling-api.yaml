@@ -1159,17 +1159,18 @@ components:
           enum: [ "saksbehandler", "beslutter" ]
         behandler:
           $ref: '#/components/schemas/Saksbehandler'
+
     Hendelse:
-        type: object
-        required:
-            - hendelseId
-            - hendelseType
-        properties:
-          hendelseId:
-            type: string
-          hendelseType:
-            type: string
-            enum: ["Søknad", "Meldekort"]
+      type: object
+      required:
+        - hendelseId
+        - hendelseType
+      properties:
+        hendelseId:
+          type: string
+        hendelseType:
+          type: string
+          enum: [ "Søknad", "Meldekort" ]
 
   securitySchemes:
     azureAd:

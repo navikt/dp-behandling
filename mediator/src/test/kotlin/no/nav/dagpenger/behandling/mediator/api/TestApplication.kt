@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.api
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.navikt.tbd_libs.naisful.test.TestContext
 import com.github.navikt.tbd_libs.naisful.test.naisfulTestApp
 import io.ktor.client.request.header
@@ -50,7 +51,10 @@ object TestApplication {
             {
                 apply { moduleFunction() }
             },
-            objectMapper,
+            objectMapper.apply {
+                // OpenAPI-generator klarer ikke optional-felter. Derfor må vi eksplisitt fjerne null-verdier
+                setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            },
             PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
         ) {
             test()
