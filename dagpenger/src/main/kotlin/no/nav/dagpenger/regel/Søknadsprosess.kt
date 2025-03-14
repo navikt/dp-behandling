@@ -39,8 +39,7 @@ class Søknadsprosess : RegistrertForretningsprosess() {
         } else if (opplysninger.har(hendelseTypeOpplysningstype)) {
             opplysninger.finnOpplysning(hendelseTypeOpplysningstype).gyldighetsperiode.fom
         } else {
-            // TODO: Forbigående fiks for å fikse brukken deployment
-            LocalDate.now()
+            throw IllegalStateException("Mangler både prøvingsdato og hendelsedato. Må ha en dato å ta utgangspunkt i for behandlingen.")
         }
 
     override fun kontrollpunkter() =
