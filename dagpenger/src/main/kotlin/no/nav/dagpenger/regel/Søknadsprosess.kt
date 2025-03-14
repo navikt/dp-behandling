@@ -26,9 +26,7 @@ import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBereg
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKontroll
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 class Søknadsprosess : RegistrertForretningsprosess() {
     override val regelverk = RegelverkDagpenger
@@ -42,7 +40,7 @@ class Søknadsprosess : RegistrertForretningsprosess() {
             opplysninger.finnOpplysning(hendelseTypeOpplysningstype).gyldighetsperiode.fom
         } else {
             // TODO: Forbigående fiks for å fikse brukken deployment
-            LocalDate.ofInstant(Instant.ofEpochSecond(opplysninger.id.timestamp()), ZoneId.systemDefault())
+            LocalDate.now()
         }
 
     override fun kontrollpunkter() =
