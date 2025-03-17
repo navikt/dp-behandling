@@ -6,8 +6,8 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
-import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.RegistrertForretningsprosess
 import no.nav.dagpenger.opplysning.Saksbehandler
@@ -46,7 +46,11 @@ internal class BehandlingRepositoryPostgres(
                                 meldingsreferanseId = row.uuid("melding_id"),
                                 type = row.string("hendelse_type"),
                                 ident = row.string("ident"),
-                                eksternId = SøknadId(UUID.fromString(row.string("ekstern_id"))),
+                                eksternId =
+                                    EksternId.fromString(
+                                        row.string("ekstern_id_type"),
+                                        row.string("ekstern_id"),
+                                    ),
                                 skjedde = row.localDate("skjedde"),
                                 forretningsprosess = RegistrertForretningsprosess.opprett(row.string("forretningsprosess")),
                                 opprettet = row.localDateTime("opprettet"),
@@ -127,12 +131,13 @@ internal class BehandlingRepositoryPostgres(
                 queryOf(
                     // language=PostgreSQL
                     """
-                        INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
-                        VALUES (:ident, :melding_id, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) ON CONFLICT DO NOTHING 
+                        INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
+                        VALUES (:ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) ON CONFLICT DO NOTHING 
                     """.trimMargin(),
                     mapOf(
                         "ident" to behandling.behandler.ident,
                         "melding_id" to behandling.behandler.meldingsreferanseId,
+                        "ekstern_id_type" to behandling.behandler.eksternId.type,
                         "ekstern_id" to behandling.behandler.eksternId.id,
                         "hendelse_type" to behandling.behandler.type,
                         "skjedde" to behandling.behandler.skjedde,

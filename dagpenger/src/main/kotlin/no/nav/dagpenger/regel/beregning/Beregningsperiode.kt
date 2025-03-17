@@ -16,8 +16,8 @@ internal class Beregningsperiode private constructor(
     private val sumFva = dager.mapNotNull { it.fva }.sum()
     private val arbeidsdager = dager.filterIsInstance<Arbeidsdag>()
     private val prosentfaktor = beregnProsentfaktor(dager)
-    val terskel = terskelstrategi.beregnTerskel(arbeidsdager)
-    val oppfyllerKravTilTaptArbeidstid = (arbeidsdager.sumOf { it.timerArbeidet ?: 0 } / sumFva) <= terskel
+    val terskel = terskelstrategi.beregnTerskel(arbeidsdager) / 100
+    val oppfyllerKravTilTaptArbeidstid = (arbeidsdager.sumOf { it.timerArbeidet } / sumFva) <= terskel
 
     val utbetaling = beregnUtbetaling(arbeidsdager)
 
@@ -57,8 +57,6 @@ internal class Beregningsperiode private constructor(
 
     companion object {
         private val snitterskel: Terskelstrategi =
-            Terskelstrategi {
-                it.sumOf { arbeidsdag -> arbeidsdag.terskel }.toDouble() / it.size
-            }
+            Terskelstrategi { it.sumOf { arbeidsdag -> arbeidsdag.terskel }.toDouble() / it.size }
     }
 }

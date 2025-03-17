@@ -156,7 +156,7 @@ fun lagVedtak(
         vilkår = vilkår,
         fastsatt = fastsatt,
         gjenstående = VedtakGjenstEndeDTO(),
-        utbetalinger = opplysningerSomGjelderPåPrøvingsdato.utbetalinger(),
+        utbetalinger = opplysninger.utbetalinger(),
         opplysninger = opplysningerSomGjelderPåPrøvingsdato.finnAlle().map { it.tilOpplysningDTO(opplysningerSomGjelderPåPrøvingsdato) },
     )
 }

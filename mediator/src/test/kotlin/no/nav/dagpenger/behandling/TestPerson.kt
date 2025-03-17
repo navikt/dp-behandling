@@ -6,6 +6,15 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import kotliquery.queryOf
+import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
+import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
+import no.nav.dagpenger.behandling.modell.hendelser.Dag
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.Barnetillegg
@@ -31,10 +40,13 @@ import no.nav.dagpenger.regel.Behov.Verneplikt
 import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
 import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
+import no.nav.dagpenger.uuid.UUIDv7
+import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.UUID
+import kotlin.time.Duration.Companion.hours
 
 class TestPerson(
     internal val ident: String,
@@ -54,6 +66,7 @@ class TestPerson(
     val inntektId = "01HQTE3GBWCSVYH6S436DYFREN"
     internal val søknadId = "4afce924-6cb4-4ab4-a92b-fe91e24f31bf"
     internal val behandlingId by lazy { rapid.inspektør.field(1, "behandlingId").asText() }
+    private val meldekortRepository = MeldekortRepositoryPostgres()
 
     fun sendSøknad() = rapid.sendTestMessage(søknadInnsendt(), ident)
 
@@ -194,6 +207,60 @@ class TestPerson(
                 ).toJson(),
             ident,
         )
+    }
+
+    fun sendMeldekort(
+        start: LocalDate,
+        løpenummer: Long,
+        arbeidstimerPerDag: Int = 1,
+    ): UUID {
+        val meldekortId = UUIDv7.ny()
+        val meldekort =
+            Meldekort(
+                id = meldekortId,
+                eksternMeldekortId = løpenummer,
+                meldingsreferanseId = UUIDv7.ny(),
+                ident = ident,
+                fom = start,
+                tom = start.plusDays(14),
+                kilde = MeldekortKilde("Bruker", ident),
+                dager =
+                    (0..<14).map {
+                        Dag(
+                            dato = start.plusDays(it.toLong()),
+                            meldt = true,
+                            aktiviteter = listOf(MeldekortAktivitet(type = AktivitetType.Arbeid, timer = arbeidstimerPerDag.hours)),
+                        )
+                    },
+                innsendtTidspunkt = 14.juni(2021).atStartOfDay(),
+                korrigeringAv = null,
+            )
+        sessionOf(dataSource).use { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    INSERT INTO melding (ident, melding_id, melding_type, data, lest_dato)
+                    VALUES (:ident, :melding_id, :melding_type, :data, NOW())
+                    ON CONFLICT DO NOTHING
+                    """.trimIndent(),
+                    mapOf(
+                        "ident" to ident,
+                        "melding_id" to meldekort.meldingsreferanseId,
+                        "melding_type" to "Meldekort",
+                        "data" to
+                            PGobject().apply {
+                                type = "json"
+                                value = "{}"
+                            },
+                        "opprettet" to LocalDateTime.now(),
+                    ),
+                ).asUpdate,
+            )
+        }
+
+        meldekortRepository.lagre(meldekort)
+        return meldekortId
     }
 
     fun beregnMeldekort(meldekortId: UUID) {

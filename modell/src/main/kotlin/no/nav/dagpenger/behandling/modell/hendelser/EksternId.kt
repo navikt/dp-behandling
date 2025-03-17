@@ -5,7 +5,7 @@ import java.util.UUID
 sealed class EksternId<T>(
     val id: T,
 ) {
-    val type: T = id
+    val type: String = this::class.simpleName!!
 
     abstract fun kontekstMap(): Map<String, String>
 
@@ -14,6 +14,17 @@ sealed class EksternId<T>(
     override fun hashCode(): Int = id.hashCode()
 
     override fun toString() = "${this.javaClass.simpleName}($id)"
+
+    companion object {
+        fun fromString(
+            eksternIdType: String,
+            id: String,
+        ) = when (eksternIdType) {
+            "SøknadId" -> SøknadId(UUID.fromString(id))
+            "MeldekortId" -> MeldekortId(id.toLong())
+            else -> throw IllegalArgumentException("Ukjent idType: $eksternIdType")
+        }
+    }
 }
 
 class SøknadId(

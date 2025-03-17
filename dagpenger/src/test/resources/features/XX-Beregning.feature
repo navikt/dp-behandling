@@ -4,7 +4,7 @@ Egenskap: Beregning av meldekort
   Scenario: Jobbet over terskel og får ingen utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
-      | Terskel    | 0.5   |            |            |
+      | Terskel    | 50.0  |            |            |
       | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 550   | 01.01.2020 | 12.01.2020 |
       | FVA        | 37.5  | 01.01.2020 |            |
@@ -31,7 +31,7 @@ Egenskap: Beregning av meldekort
   Scenario: Jobbet nøyaktig på terskel og får 50% gradert utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
@@ -58,7 +58,7 @@ Egenskap: Beregning av meldekort
   Scenario: Jobbet under terskel og får 25% gradert utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 101   | 01.01.2020 |          |
       | FVA        | 37.5  | 01.01.2020 |          |
@@ -86,7 +86,7 @@ Egenskap: Beregning av meldekort
   Scenario: Jobbet under terskel og får 50% gradert utbetaling med endring av sats midt i perioden
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
-      | Terskel    | 0.5   |            |            |
+      | Terskel    | 50.0  |            |            |
       | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 100   | 01.01.2020 | 12.01.2020 |
       | FVA        | 40    | 01.01.2020 |            |
@@ -116,7 +116,7 @@ Egenskap: Beregning av meldekort
   Scenario: Jobbet under terskel med sykdom og fravær og får 100% utbetaling for arbeidsdagene
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
@@ -145,7 +145,7 @@ Egenskap: Beregning av meldekort
   Scenario: Jobbet over terskel med sykdom og fravær og får ikke utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
@@ -172,7 +172,7 @@ Egenskap: Beregning av meldekort
   Scenario: Endring av FVA midt i perioden
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
-      | Terskel    | 0.5   |            |            |
+      | Terskel    | 50.0  |            |            |
       | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 100   | 01.01.2020 |            |
       | FVA        | 20    | 01.01.2020 | 12.01.2020 |
@@ -200,8 +200,8 @@ Egenskap: Beregning av meldekort
   Scenario: Endring av terskel midt i perioden, overgang fra permittering til ordinær
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
-      | Terskel    | 0.6   |            | 12.01.2020 |
-      | Terskel    | 0.5   | 13.01.2020 |            |
+      | Terskel    | 60.0  |            | 12.01.2020 |
+      | Terskel    | 50.0  | 13.01.2020 |            |
       | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 100   | 01.01.2020 |            |
       | FVA        | 40    | 01.01.2020 |            |
@@ -228,7 +228,7 @@ Egenskap: Beregning av meldekort
   Scenario: Oppstart av vedtak midt i perioden
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   | 10.01.2020 |          |
+      | Terskel    | 50.0  | 10.01.2020 |          |
       | Periode    | 52    | 10.01.2020 |          |
       | Sats       | 100   | 10.01.2020 |          |
       | FVA        | 20    | 10.01.2020 |          |
@@ -255,7 +255,7 @@ Egenskap: Beregning av meldekort
 #  Scenario: Jobbet under terskel og skal forbruke siste rest av perioden
 #    Gitt at mottaker har vedtak med
 #      | Opplysning | verdi | fraOgMed   | tilOgMed |
-#      | Terskel    | 0.5   |            |          |
+#      | Terskel    | 50.0   |            |          |
 #      | Periode    | 1     | 01.01.2019 |          |
 #      | Sats       | 100   | 01.01.2020 |          |
 #      | FVA        | 40    | 01.01.2020 |          |
@@ -283,7 +283,7 @@ Egenskap: Beregning av meldekort
   Scenario: Skal få 50% gradert utbetaling, men trekkes for egenandel
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
@@ -313,7 +313,7 @@ Egenskap: Beregning av meldekort
   Scenario: Oppstart midt i perioden, med 25% gradert utbetaling, men trekkes for egenandel
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 52    | 16.01.2020 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
@@ -343,7 +343,7 @@ Egenskap: Beregning av meldekort
   Scenario: Går fra høy til lav sats og forbruker all egenandel
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
-      | Terskel    | 0.5   |            |            |
+      | Terskel    | 50.0  |            |            |
       | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 1000  | 01.01.2020 | 12.01.2020 |
       | Sats       | 100   | 13.01.2020 |            |
@@ -376,7 +376,7 @@ Egenskap: Beregning av meldekort
   Scenario: Har for lav sats til å få utbetaling og bruker ikke opp all egenandel
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 52    | 16.01.2020 |          |
       | Sats       | 1000  | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
@@ -406,7 +406,7 @@ Egenskap: Beregning av meldekort
   Scenario: Kan ikke bruke mer av egenandel enn gradert utbetaling
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 0.5   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 52    | 01.01.2020 |          |
       | Sats       | 500   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
@@ -436,7 +436,7 @@ Egenskap: Beregning av meldekort
   Scenario: Eksempel 3 - Eksempel med satsendring, endringsvedtak.
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
-      | Terskel    | 0.5   |            |            |
+      | Terskel    | 50.0  |            |            |
       | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 800   | 01.01.2020 | 07.01.2020 |
       | Sats       | 1200  | 08.01.2020 |            |

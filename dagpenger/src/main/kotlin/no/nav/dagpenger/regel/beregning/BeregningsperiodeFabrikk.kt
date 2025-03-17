@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.beregning
 
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -60,14 +61,15 @@ internal class BeregningsperiodeFabrikk(
         val erArbeidsdag = opplysninger.har(Beregning.arbeidsdag) && opplysninger.finnOpplysning(Beregning.arbeidsdag).verdi
         return if (erArbeidsdag) {
             Arbeidsdag(
-                dato,
-                opplysninger
-                    .finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
-                    .verdi.verdien
-                    .toInt(),
-                opplysninger.finnOpplysning(Vanligarbeidstid.fastsattVanligArbeidstid).verdi / 5,
-                opplysninger.finnOpplysning(Beregning.arbeidstimer).verdi,
-                opplysninger.finnOpplysning(Beregning.terskel).verdi.toBigDecimal(),
+                dato = dato,
+                sats =
+                    opplysninger
+                        .finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
+                        .verdi.verdien
+                        .toInt(),
+                fva = opplysninger.finnOpplysning(Vanligarbeidstid.fastsattVanligArbeidstid).verdi / 5,
+                timerArbeidet = opplysninger.finnOpplysning(Beregning.arbeidstimer).verdi,
+                terskel = opplysninger.finnOpplysning(TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon).verdi,
             )
         } else {
             Fraværsdag(dato)

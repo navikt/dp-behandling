@@ -65,8 +65,6 @@ class BeregnMeldekortHendelse(
             basertPå = listOf(forrigeBehandling),
             opplysninger =
                 listOf(
-                    // TODO: Fastsett terskel ved innvilgelse
-                    Faktum(Beregning.terskel, 0.5),
                     Faktum(
                         hendelseTypeOpplysningstype,
                         type,

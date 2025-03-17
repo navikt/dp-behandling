@@ -17,11 +17,8 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import kotliquery.queryOf
-import kotliquery.sessionOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.konfigurasjon.skruAvFeatures
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
@@ -45,14 +42,9 @@ import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndret
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.PersonObservatør
-import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
@@ -83,16 +75,15 @@ import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
 import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.postgresql.util.PGobject
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
-import kotlin.time.Duration.Companion.hours
 
 internal class PersonMediatorTest {
     private val rapid = TestRapid()
@@ -853,65 +844,30 @@ internal class PersonMediatorTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            // Meldekort leses inn
-            val meldekortRepository = MeldekortRepositoryPostgres()
-            val start = 7.juni(2021)
-            val meldekortId = UUIDv7.ny()
-            val meldekort =
-                Meldekort(
-                    id = meldekortId,
-                    eksternMeldekortId = 1,
-                    meldingsreferanseId = UUIDv7.ny(),
-                    ident = testPerson.ident,
-                    fom = start,
-                    tom = start.plusDays(14),
-                    kilde = MeldekortKilde("Bruker", testPerson.ident),
-                    dager =
-                        (0..<14).map {
-                            Dag(
-                                dato = start.plusDays(it.toLong()),
-                                meldt = true,
-                                aktiviteter =
-                                    listOf(
-                                        MeldekortAktivitet(
-                                            type = AktivitetType.Arbeid,
-                                            timer = 1.hours,
-                                        ),
-                                    ),
-                            )
-                        },
-                    innsendtTidspunkt = 14.juni(2021).atStartOfDay(),
-                    korrigeringAv = null,
-                )
-            sessionOf(dataSource).use { session ->
-                session.run(
-                    queryOf(
-                        //language=PostgreSQL
-                        """
-                        INSERT INTO melding
-                             (ident, melding_id, melding_type, data, lest_dato)
-                         VALUES
-                             (:ident, :melding_id, :melding_type, :data, NOW())
-                         ON CONFLICT DO NOTHING
-                        """.trimIndent(),
-                        mapOf(
-                            "ident" to ident,
-                            "melding_id" to meldekort.meldingsreferanseId,
-                            "melding_type" to "Meldekort",
-                            "data" to
-                                PGobject().apply {
-                                    type = "json"
-                                    value = "{}"
-                                },
-                            "opprettet" to LocalDateTime.now(),
-                        ),
-                    ).asUpdate,
-                )
+            // Meldekort 1 leses inn
+            testPerson.sendMeldekort(7.juni(2021), 1).also {
+                testPerson.beregnMeldekort(it)
             }
 
-            meldekortRepository.lagre(meldekort)
-            testPerson.beregnMeldekort(meldekortId)
-            println("yeu")
+            // Meldekort 2 leses inn
+            testPerson.sendMeldekort(21.juni(2021), 2).also {
+                testPerson.beregnMeldekort(it)
+            }
+
+            // Meldekort 3 leses inn, over terskel og får ingen utbetaling
+            testPerson.sendMeldekort(5.juli(2021), 3, 6).also {
+                testPerson.beregnMeldekort(it)
+            }
+
+            // Meldekort 4 leses inn
+            testPerson.sendMeldekort(19.juli(2021), 4).also {
+                testPerson.beregnMeldekort(it)
+            }
+
+            with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
+                val antallDagerMedUtbetaling = 30
+                this.opplysninger().finnAlle().filter { it.er(Beregning.utbetaling) } shouldHaveSize antallDagerMedUtbetaling
+            }
         }
     }
 
@@ -1098,7 +1054,7 @@ internal class PersonMediatorTest {
         Approvals.verify(aktiveOpplysninger(), Approvals.NAMES.withParameters(fase))
     }
 
-    private val Person.aktivBehandling get() = this.behandlinger().first()
+    private val Person.aktivBehandling get() = this.behandlinger().last()
 
     private val Behandling.aktivAvklaringer get() = this.aktiveAvklaringer()
 

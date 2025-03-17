@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidsdag
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidstimer
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
@@ -153,7 +154,7 @@ class BeregningSteg : No {
                 Faktum(fastsattVanligArbeidstid, args["verdi"]!!.toDouble(), gyldighetsperiode)
             },
             "Terskel" to { args, gyldighetsperiode ->
-                Faktum(terskel, args["verdi"]!!.toDouble(), gyldighetsperiode)
+                Faktum(kravTilArbeidstidsreduksjon, args["verdi"]!!.toDouble(), gyldighetsperiode)
             },
             "Egenandel" to { args, gyldighetsperiode ->
                 Faktum(egenandel, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode)
