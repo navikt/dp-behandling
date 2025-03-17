@@ -200,7 +200,7 @@ Egenskap: Beregning av meldekort
   Scenario: Endring av terskel midt i perioden, overgang fra permittering til ordinær
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
-      | Terskel    | 60.0  |            | 12.01.2020 |
+      | Terskel    | 40.0  |            | 12.01.2020 |
       | Terskel    | 50.0  | 13.01.2020 |            |
       | Periode    | 52    | 01.01.2020 |            |
       | Sats       | 100   | 01.01.2020 |            |
