@@ -1169,7 +1169,7 @@ components:
         - type
       properties:
         datatype:
-            type: string
+          type: string
         id:
           type: string
         type:
