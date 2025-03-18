@@ -124,11 +124,12 @@ fun lagVedtak(
         basertPåBehandlinger = basertPåBehandlinger,
         behandletHendelse =
             HendelseDTO(
-                hendelseId = hendelse.id.toString(),
-                hendelseType =
+                id = hendelse.id.toString(),
+                datatype = hendelse.datatype,
+                type =
                     when (hendelse) {
-                        is MeldekortId -> HendelseDTO.HendelseType.Meldekort
-                        is SøknadId -> HendelseDTO.HendelseType.Søknad
+                        is MeldekortId -> HendelseDTO.Type.Meldekort
+                        is SøknadId -> HendelseDTO.Type.Søknad
                     },
             ),
         søknadId = hendelse.id.toString(),

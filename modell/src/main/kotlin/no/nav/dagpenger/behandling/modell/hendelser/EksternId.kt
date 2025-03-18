@@ -7,6 +7,13 @@ sealed class EksternId<T>(
 ) {
     val type: String = this::class.simpleName!!
 
+    val datatype =
+        when (id) {
+            is UUID -> "UUID"
+            is Long -> "Long"
+            else -> throw IllegalArgumentException("Ukjent idType: $id")
+        }
+
     abstract fun kontekstMap(): Map<String, String>
 
     override fun equals(other: Any?): Boolean = other is EksternId<*> && id == other.id
