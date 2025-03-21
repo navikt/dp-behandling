@@ -282,6 +282,11 @@ fun <T> TransactionalSession.medLås(
 ): T? {
     if (!lås(nøkkel)) {
         logger.warn { "Fikk ikke lås for $nøkkel" }
+        hentLås()?.let {
+            logger.warn {
+                "Er allerede låst med $it"
+            }
+        } ?: logger.warn { "Fant ikke lås" }
         return null
     }
     return try {
@@ -292,3 +297,15 @@ fun <T> TransactionalSession.medLås(
         låsOpp(nøkkel)
     }
 }
+
+fun TransactionalSession.hentLås(): Pair<String, Int>? =
+    run(
+        queryOf(
+            //language=PostgreSQL
+            """
+            SELECT mode,  objid FROM pg_locks WHERE locktype = 'advisory';
+            """.trimIndent(),
+        ).map { res ->
+            Pair(res.string("mode"), res.int("objid"))
+        }.asSingle,
+    )
