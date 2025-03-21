@@ -53,34 +53,42 @@ internal class VaktmesterPostgresRepo {
                                 "behandlingId" to kandidat.behandlingId.toString(),
                                 "opplysningerId" to kandidat.opplysningerId.toString(),
                             ) {
-                                logger.info { "Skal slette ${kandidat.opplysninger().size} opplysninger " }
-                                kandidat.opplysninger().forEach { opplysningId ->
-                                    val statements = mutableListOf<BatchStatement>()
+                                try {
+                                    logger.info { "Skal slette ${kandidat.opplysninger().size} opplysninger " }
+                                    kandidat.opplysninger().forEach { fjernetOpplysing ->
+                                        val statements = mutableListOf<BatchStatement>()
 
-                                    // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                    statements.add(slettOpplysningUtledet(opplysningId))
+                                        // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
+                                        statements.add(slettOpplysningUtledet(fjernetOpplysing.id))
 
-                                    // Slett hvilken regel som har vært brukt for å utlede opplysningen
-                                    statements.add(slettOpplysningUtledning(opplysningId))
+                                        // Slett hvilken regel som har vært brukt for å utlede opplysningen
+                                        statements.add(slettOpplysningUtledning(fjernetOpplysing.id))
 
-                                    // Slett verdien av opplysningen
-                                    statements.add(slettOpplysningVerdi(opplysningId))
+                                        // Slett verdien av opplysningen
+                                        statements.add(slettOpplysningVerdi(fjernetOpplysing.id))
 
-                                    // Slett erstatninger
-                                    statements.add(slettErstatteAv(opplysningId))
+                                        // Slett erstatninger
+                                        statements.add(slettErstatteAv(fjernetOpplysing.id))
 
-                                    // Fjern opplysningen fra opplysninger-settet
-                                    statements.add(slettOpplysningLink(opplysningId))
+                                        // Fjern opplysningen fra opplysninger-settet
+                                        statements.add(slettOpplysningLink(fjernetOpplysing.id))
 
-                                    // Slett opplysningen
-                                    statements.add(slettOpplysning(opplysningId))
+                                        // Slett opplysningen
+                                        statements.add(slettOpplysning(fjernetOpplysing.id))
 
-                                    statements.forEach { batch ->
-                                        batch.run(tx)
+                                        try {
+                                            statements.forEach { batch ->
+                                                batch.run(tx)
+                                            }
+                                        } catch (e: Exception) {
+                                            throw IllegalStateException("Kunne ikke slette $fjernetOpplysing", e)
+                                        }
+                                        slettet.add(fjernetOpplysing.id)
                                     }
-                                    slettet.add(opplysningId)
+                                    logger.info { "Slettet ${kandidat.opplysninger().size} opplysninger" }
+                                } catch (e: Exception) {
+                                    logger.error(e) { "Feil ved sletting av opplysninger" }
                                 }
-                                logger.info { "Slettet ${kandidat.opplysninger().size} opplysninger" }
                             }
                         }
                     }
@@ -95,14 +103,19 @@ internal class VaktmesterPostgresRepo {
     internal data class Kandidat(
         val behandlingId: UUID?,
         val opplysningerId: UUID,
-        private val opplysninger: MutableList<UUID> = mutableListOf(),
+        private val opplysninger: MutableList<FjernetOpplysing> = mutableListOf(),
     ) {
-        fun leggTil(uuid: UUID) {
-            opplysninger.add(uuid)
+        fun leggTil(fjernet: FjernetOpplysing) {
+            opplysninger.add(fjernet)
         }
 
         fun opplysninger() = opplysninger.toList()
     }
+
+    internal data class FjernetOpplysing(
+        val id: UUID,
+        val navn: String,
+    )
 
     private fun Session.hentOpplysningerSomErFjernet(antall: Int): List<Kandidat> {
         val kandidater = this.hentOpplysningerIder(antall)
@@ -110,11 +123,12 @@ internal class VaktmesterPostgresRepo {
         //language=PostgreSQL
         val query =
             """
-            SELECT id
+            SELECT id, navn
             FROM opplysning
+            INNER JOIN opplysningstype ON opplysning.opplysningstype_id = opplysningstype.opplysningstype_id
             INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
             WHERE fjernet = TRUE AND op.opplysninger_id = :opplysninger_id
-            ORDER BY op.opplysninger_id, opprettet DESC;
+            ORDER BY op.opplysninger_id, opplysning.opprettet DESC;
             """.trimIndent()
 
         val opplysninger =
@@ -126,7 +140,10 @@ internal class VaktmesterPostgresRepo {
                             mapOf("opplysninger_id" to kandidat.opplysningerId),
                         ).map { row ->
                             kandidat.leggTil(
-                                row.uuid("id"),
+                                FjernetOpplysing(
+                                    row.uuid("id"),
+                                    row.string("navn"),
+                                ),
                             )
                         }.asList,
                     )
