@@ -116,6 +116,7 @@ internal class VaktmesterPostgresRepo {
     internal data class FjernetOpplysing(
         val id: UUID,
         val navn: String,
+        val opplysningstypeId: UUID,
     )
 
     private fun Session.hentOpplysningerSomErFjernet(antall: Int): List<Kandidat> {
@@ -124,7 +125,7 @@ internal class VaktmesterPostgresRepo {
         //language=PostgreSQL
         val query =
             """
-            SELECT id, navn
+            SELECT id, navn, uuid
             FROM opplysning
             INNER JOIN opplysningstype ON opplysning.opplysningstype_id = opplysningstype.opplysningstype_id
             INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
@@ -144,6 +145,7 @@ internal class VaktmesterPostgresRepo {
                                 FjernetOpplysing(
                                     row.uuid("id"),
                                     row.string("navn"),
+                                    row.uuid("uuid"),
                                 ),
                             )
                         }.asList,
