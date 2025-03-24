@@ -46,30 +46,33 @@ internal class VaktmesterPostgresRepo {
         val slettet = mutableListOf<UUID>()
         try {
             sessionOf(dataSource).use { session ->
+
+                val kandidater = session.hentOpplysningerSomErFjernet(antall)
                 session.transaction { tx ->
-                    tx.medLås(låsenøkkel) {
-                        val kandidater = tx.hentOpplysningerSomErFjernet(antall)
-                        kandidater.forEach { kandidat ->
+
+                    kandidater.forEach { kandidat ->
+                        tx.medLås(låsenøkkel) {
                             withLoggingContext(
                                 "behandlingId" to kandidat.behandlingId.toString(),
                                 "opplysningerId" to kandidat.opplysningerId.toString(),
                             ) {
                                 try {
                                     logger.info { "Skal slette ${kandidat.opplysninger().size} opplysninger " }
+
                                     kandidat.opplysninger().forEach { fjernetOpplysing ->
                                         val statements = mutableListOf<BatchStatement>()
 
+                                        // Slett erstatninger
+                                        statements.add(slettErstatteAv(fjernetOpplysing.id))
+
                                         // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledet(fjernetOpplysing.id))
+                                        statements.add(slettOpplysningUtledetAv(fjernetOpplysing.id))
 
                                         // Slett hvilken regel som har vært brukt for å utlede opplysningen
                                         statements.add(slettOpplysningUtledning(fjernetOpplysing.id))
 
                                         // Slett verdien av opplysningen
                                         statements.add(slettOpplysningVerdi(fjernetOpplysing.id))
-
-                                        // Slett erstatninger
-                                        statements.add(slettErstatteAv(fjernetOpplysing.id))
 
                                         // Fjern opplysningen fra opplysninger-settet
                                         statements.add(slettOpplysningLink(fjernetOpplysing.id))
@@ -224,7 +227,7 @@ internal class VaktmesterPostgresRepo {
             listOf(mapOf("id" to id)),
         )
 
-    private fun slettOpplysningUtledet(id: UUID) =
+    private fun slettOpplysningUtledetAv(id: UUID) =
         BatchStatement(
             //language=PostgreSQL
             """
