@@ -29,7 +29,10 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.Vedtak
+import no.nav.dagpenger.opplysning.Vilkår
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import no.nav.dagpenger.uuid.UUIDv7
@@ -947,6 +950,20 @@ class Behandling private constructor(
 
     fun basertPåBehandlinger() = basertPå.map { it.behandlingId }
 
+    fun somVedtak(): Vedtak {
+        val vilkår =
+            behandler.regelverk.relevanteVilkår(opplysninger).map {
+                Vilkår(
+                    navn = it.navn,
+                    hjemmel = "",
+                    vurderingstidspunkt = LocalDateTime.now(),
+                    status = it.utfall.all { true },
+                )
+            }
+
+        TODO()
+    }
+
     private fun emitForslagTilVedtak() {
         val event =
             BehandlingObservatør.BehandlingForslagTilVedtak(
@@ -974,6 +991,8 @@ class Behandling private constructor(
                 automatiskBehandlet = erAutomatiskBehandlet(),
                 godkjent = godkjent,
                 besluttet = besluttet,
+                regelverk = behandler.forretningsprosess.regelverk,
+                behandling = this,
             )
 
         observatører.forEach { it.ferdig(event) }
@@ -1014,6 +1033,8 @@ interface BehandlingObservatør {
         val automatiskBehandlet: Boolean,
         val godkjent: Arbeidssteg,
         val besluttet: Arbeidssteg,
+        val regelverk: Regelverk,
+        val behandling: Behandling,
     ) : PersonEvent()
 
     data class BehandlingEndretTilstand(

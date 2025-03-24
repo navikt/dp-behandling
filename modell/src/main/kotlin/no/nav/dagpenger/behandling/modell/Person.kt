@@ -26,8 +26,10 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 class Person(
     val ident: Ident,
     behandlinger: List<Behandling>,
+    var harDagpenger: Boolean = false,
 ) : Aktivitetskontekst,
-    PersonHåndter {
+    PersonHåndter,
+    BehandlingObservatør {
     private val observatører = mutableSetOf<PersonObservatør>()
     private val behandlinger = behandlinger.toMutableList()
 
@@ -35,6 +37,10 @@ class Person(
 
     private companion object {
         val logger = KotlinLogging.logger { }
+    }
+
+    override fun ferdig(event: BehandlingFerdig) {
+        harDagpenger = true
     }
 
     override fun håndter(hendelse: StartHendelse) {
