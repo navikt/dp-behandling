@@ -231,7 +231,7 @@ internal class VaktmesterPostgresRepo {
         BatchStatement(
             //language=PostgreSQL
             """
-            DELETE FROM opplysning_utledet_av WHERE opplysning_id = :id
+            DELETE FROM opplysning_utledet_av WHERE opplysning_id = :id OR utledet_av = :id;
             """.trimIndent(),
             listOf(mapOf("id" to id)),
         )
