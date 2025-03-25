@@ -42,6 +42,24 @@ class Regelverk(
         return DAG(edges.toList())
     }
 
+    fun vilkår(opplysninger: LesbarOpplysninger): List<Vilkår> =
+        relevanteVilkår(opplysninger)
+            .flatMap { regelsett ->
+                regelsett.utfall
+                    .map {
+                        it to regelsett.hjemmel
+                    }
+            }.toMap()
+            .map {
+                val opplysning = opplysninger.finnOpplysning(it.key)
+                Vilkår(
+                    navn = opplysning.opplysningstype.toString(),
+                    hjemmel = it.value,
+                    status = opplysning.verdi,
+                    vurderingstidspunkt = opplysning.opprettet,
+                )
+            }
+
     fun relevanteVilkår(opplysninger: LesbarOpplysninger): List<Regelsett> =
         regelsett
             .filter { it.type == RegelsettType.Vilkår }
@@ -67,4 +85,9 @@ class Regelverk(
             }
         }
     }
+
+    fun giMegFastsettelser(fastsattBuilder: Fastsatt.FastsattBuilder): List<Fastsatt.FastsattBuilder> =
+        regelsett.mapNotNull {
+            it.giMegFastsettelser(fastsattBuilder)
+        }
 }

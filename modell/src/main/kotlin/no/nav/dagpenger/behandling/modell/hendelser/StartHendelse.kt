@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.modell.hendelser
 
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.Forretningsprosess
+import no.nav.dagpenger.opplysning.VedtakOpplysninger
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -23,6 +24,8 @@ abstract class StartHendelse(
         ) + eksternId.kontekstMap()
 
     abstract val forretningsprosess: Forretningsprosess
+
+    abstract fun lagVedtak(behandling: Behandling): VedtakOpplysninger
 
     abstract fun behandling(forrigeBehandling: Behandling?): Behandling
 }

@@ -18,6 +18,7 @@ class Regelsett internal constructor(
     val utfall: List<Opplysningstype<Boolean>>,
     val skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean,
     val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
+    val fastsattBuilder: Fastsatt.FastsattBuilder? = null,
 ) {
     val navn: String = hjemmel.kortnavn
 
@@ -42,4 +43,6 @@ class Regelsett internal constructor(
     fun regler(forDato: LocalDate = LocalDate.MIN) = regler.map { it.value.get(forDato) }.toList()
 
     override fun toString() = "Regelsett(navn=$navn, type=$type)"
+
+    fun giMegFastsettelser(fastsattBuilder: Fastsatt.FastsattBuilder): Fastsatt.FastsattBuilder? = this.fastsattBuilder
 }

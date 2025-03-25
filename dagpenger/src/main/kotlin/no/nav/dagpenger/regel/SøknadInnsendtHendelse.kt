@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
+import no.nav.dagpenger.opplysning.VedtakOpplysninger
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import java.time.LocalDate
@@ -26,6 +27,10 @@ class SøknadInnsendtHendelse(
     opprettet: LocalDateTime,
 ) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
     override val forretningsprosess = Søknadsprosess()
+
+    override fun lagVedtak(behandling: Behandling): VedtakOpplysninger {
+        TODO("Not yet implemented")
+    }
 
     override val regelverk: Regelverk
         get() = forretningsprosess.regelverk

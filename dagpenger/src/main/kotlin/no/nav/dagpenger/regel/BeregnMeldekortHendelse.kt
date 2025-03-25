@@ -14,6 +14,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
+import no.nav.dagpenger.opplysning.VedtakOpplysninger
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.beregning.Beregning
@@ -37,6 +38,10 @@ class BeregnMeldekortHendelse(
         opprettet = opprettet,
     ) {
     override val forretningsprosess = Søknadsprosess()
+
+    override fun lagVedtak(behandling: Behandling): VedtakOpplysninger {
+        TODO("Not yet implemented")
+    }
 
     override val regelverk: Regelverk
         get() = forretningsprosess.regelverk

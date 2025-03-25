@@ -286,6 +286,9 @@ internal class PersonMediatorTest {
                 }
             }
             vedtakJson()
+            val behandling: Behandling = personRepository.hent(ident.tilPersonIdentfikator())?.aktivBehandling!!
+            val somVedtak = behandling.somVedtak()
+            println(somVedtak)
         }
 
     @Test
@@ -418,6 +421,9 @@ internal class PersonMediatorTest {
             }
 
             vedtakJson()
+            val behandling: Behandling = personRepository.hent(ident.tilPersonIdentfikator())?.aktivBehandling!!
+            val somVedtak = behandling.somVedtak()
+            println(somVedtak)
         }
 
     @Test

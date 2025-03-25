@@ -192,6 +192,10 @@ object Dagpengegrunnlag {
 
             påvirkerResultat { it.erSann(kravTilAlder) }
 
+            fastsattBuilder {
+                this.grunnlag(grunnlag)
+            }
+
             ønsketResultat(
                 grunnlag,
                 grunnbeløpForDagpengeGrunnlag,
