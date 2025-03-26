@@ -98,7 +98,7 @@ internal class HendelseMediator(
         handler: (Person) -> Unit,
     ) {
         try {
-            val personMediator = PersonMediator(hendelse)
+            val personMediator = PersonMediator()
             person(ident) { person ->
                 person.registrer(personMediator)
                 observatører.forEach { observatør -> person.registrer(observatør) }
@@ -125,7 +125,6 @@ internal class HendelseMediator(
         hendelse: PersonHendelse,
     ) {
         personMediator.ferdigstill(context)
-
         if (!hendelse.harAktiviteter()) return
         if (hendelse.harFunksjonelleFeilEllerVerre()) {
             logger.info("aktivitetslogg inneholder feil (se sikkerlogg)")

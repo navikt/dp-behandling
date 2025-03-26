@@ -3,7 +3,6 @@ package no.nav.dagpenger.behandling.modell
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldBeWithin
-import io.kotest.matchers.maps.shouldContain
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
@@ -117,27 +116,6 @@ internal class BehandlingTest {
             //  fomTom = fomTom.plusDays(1)
         }
         return forrigeBehandling!!
-    }
-
-    @Test
-    fun `behandling sender ut behandling opprettet eventer `() {
-        val behandling =
-            Behandling(
-                behandler =
-                    testHendelse.also {
-                        testHendelse.kontekst(it)
-                    },
-                opplysninger = emptyList(),
-            )
-
-        behandling.håndter(testHendelse)
-        testHendelse.hendelse() shouldHaveSize 1
-        val hendelse = testHendelse.hendelse().first()
-        hendelse.type.name shouldBe "behandling_opprettet"
-        val kontekst = hendelse.kontekst()
-        kontekst.shouldContain("behandlingId", behandling.behandlingId.toString())
-        kontekst.shouldContain("søknadId", søknadId.toString())
-        kontekst.shouldContain("ident", ident)
     }
 
     @Test

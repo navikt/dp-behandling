@@ -170,6 +170,10 @@ class Person(
         private val ident: String,
         private val delegate: PersonObservatør,
     ) : PersonObservatør {
+        override fun opprettet(event: BehandlingObservatør.BehandlingOpprettet) {
+            event.medIdent { delegate.opprettet(it) }
+        }
+
         override fun forslagTilVedtak(event: BehandlingObservatør.BehandlingForslagTilVedtak) {
             event.medIdent { delegate.forslagTilVedtak(it) }
         }
@@ -180,6 +184,14 @@ class Person(
 
         override fun endretTilstand(event: BehandlingEndretTilstand) {
             event.medIdent { delegate.endretTilstand(it) }
+        }
+
+        override fun avbrutt(event: BehandlingObservatør.BehandlingAvbrutt) {
+            event.medIdent { delegate.avbrutt(it) }
+        }
+
+        override fun avklaringLukket(event: BehandlingObservatør.AvklaringLukket) {
+            event.medIdent { delegate.avklaringLukket(it) }
         }
 
         private fun <T : PersonEvent> T.medIdent(block: (T) -> Unit) = block(this.also { it.ident = this@PersonObservatørAdapter.ident })

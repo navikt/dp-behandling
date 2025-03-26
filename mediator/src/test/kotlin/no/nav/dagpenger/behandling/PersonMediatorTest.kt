@@ -144,7 +144,7 @@ internal class PersonMediatorTest {
                     søknadsdato = 6.mai(2021),
                 )
             testPerson.sendSøknad()
-            rapid.harHendelse("behandling_opprettet", offset = 2)
+            rapid.harHendelse("behandling_opprettet", offset = 3)
             testPerson.sendSøknad()
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
@@ -203,7 +203,7 @@ internal class PersonMediatorTest {
                     .aktivAvklaringer.size shouldBe 0
             }
 
-            rapid.harHendelse("vedtak_fattet", offset = 2) {
+            rapid.harHendelse("vedtak_fattet") {
                 medMeldingsInnhold("fastsatt") {
                     medBoolsk("utfall") shouldBe false
                 }
@@ -242,7 +242,7 @@ internal class PersonMediatorTest {
                     it.aktivBehandling.aktivAvklaringer.shouldBeEmpty()
                 }
 
-            rapid.harHendelse("vedtak_fattet", 2) {
+            rapid.harHendelse("vedtak_fattet") {
                 medMeldingsInnhold("fastsatt") {
                     medBoolsk("utfall") shouldBe false
                 }
@@ -599,10 +599,10 @@ internal class PersonMediatorTest {
                     søknadsdato = 6.mai(2021),
                 )
             testPerson.sendSøknad()
-            rapid.harHendelse("behandling_opprettet", offset = 2)
+            rapid.harHendelse("behandling_opprettet", offset = 3)
 
             /**
-             * Avbryter behandlingen før svar på manuell behandling (feks skjerming av person)
+             * Avbryter beha
              */
             testPerson.avbrytBehandling()
 
@@ -818,7 +818,7 @@ internal class PersonMediatorTest {
             person.sendSøknad()
             person.markerAvklaringerIkkeRelevant(åpneAvklaringer())
 
-            rapid.inspektør.message(1).run {
+            rapid.inspektør.message(2).run {
                 this["@event_name"].asText() shouldBe "behandling_endret_tilstand"
                 this["ident"].asText() shouldBe ident
                 this["forrigeTilstand"].asText() shouldBe UnderOpprettelse.name
@@ -923,7 +923,7 @@ internal class PersonMediatorTest {
         behandlingslengde: Behandlingslengde,
     ) {
         testPerson.sendSøknad()
-        rapid.harHendelse("behandling_opprettet", offset = 2)
+        rapid.harHendelse("behandling_opprettet", offset = 3)
 
         /**
          * Innhenter rettighetstype

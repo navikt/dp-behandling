@@ -2,11 +2,13 @@ package no.nav.dagpenger.behandling.modell
 
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
-import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaringer
 import no.nav.dagpenger.behandling.modell.Behandling.BehandlingTilstand.Companion.fraType
-import no.nav.dagpenger.behandling.modell.BehandlingHendelser.AvklaringLukketHendelse
+import no.nav.dagpenger.behandling.modell.BehandlingObservatør.AvklaringLukket
+import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingAvbrutt
+import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
+import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingOpprettet
 import no.nav.dagpenger.behandling.modell.PersonObservatør.PersonEvent
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
@@ -387,8 +389,9 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             hendelse.info("Mottatt søknad og startet behandling")
-            behandling.observatører.forEach { it.behandlingStartet() }
-            hendelse.hendelse(BehandlingHendelser.BehandlingOpprettetHendelse, "Behandling opprettet")
+            behandling.observatører.forEach {
+                it.opprettet(BehandlingOpprettet(behandling.behandlingId, behandling.behandler.eksternId))
+            }
 
             behandling.tilstand(UnderBehandling(), hendelse)
         }
@@ -404,7 +407,6 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: PersonHendelse,
         ) {
-            behandling.observatører.forEach { it.behandlingStartet() }
             val rapport = behandling.regelkjøring.evaluer()
 
             rapport.kjørteRegler.forEach { regel: Regel<*> ->
@@ -516,13 +518,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
                 hendelse.info("Avklaring er ikke lenger relevant")
-                hendelse.hendelse(
-                    AvklaringLukketHendelse,
-                    "Avklaring ikke lenger relevant",
-                    mapOf(
-                        "avklaringId" to hendelse.avklaringId,
-                    ),
-                )
+                behandling.emitAvklaringLukket(hendelse.avklaringId, hendelse.kode)
             }
 
             behandling.avgjørNesteTilstand(hendelse)
@@ -639,13 +635,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
                 hendelse.info("Avklaring er ikke lenger relevant")
-                hendelse.hendelse(
-                    AvklaringLukketHendelse,
-                    "Avklaring ikke lenger relevant",
-                    mapOf(
-                        "avklaringId" to hendelse.avklaringId,
-                    ),
-                )
+                behandling.emitAvklaringLukket(hendelse.avklaringId, hendelse.kode)
             }
         }
     }
@@ -661,12 +651,7 @@ class Behandling private constructor(
             hendelse: PersonHendelse,
         ) {
             hendelse.info("Behandling avbrutt")
-            hendelse.hendelse(
-                BehandlingHendelser.AvbrytBehandlingHendelse,
-                "Behandling avbrutt",
-                årsak?.let { mapOf("årsak" to it) } ?: emptyMap(),
-            )
-            behandling.observatører.forEach { it.avbrutt() }
+            behandling.emitAvbrutt(årsak)
         }
 
         override fun håndter(
@@ -965,7 +950,7 @@ class Behandling private constructor(
 
     private fun emitFerdig() {
         val event =
-            BehandlingObservatør.BehandlingFerdig(
+            BehandlingFerdig(
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
                 hendelse = behandler.eksternId,
@@ -977,6 +962,31 @@ class Behandling private constructor(
             )
 
         observatører.forEach { it.ferdig(event) }
+    }
+
+    private fun emitAvbrutt(årsak: String?) {
+        val event =
+            BehandlingAvbrutt(
+                behandlingId = behandlingId,
+                hendelse = behandler.eksternId,
+                årsak = årsak,
+            )
+
+        observatører.forEach { it.avbrutt(event) }
+    }
+
+    private fun emitAvklaringLukket(
+        avklaringId: UUID,
+        kode: String,
+    ) {
+        val event =
+            AvklaringLukket(
+                behandlingId = behandlingId,
+                hendelse = behandler.eksternId,
+                avklaringId = avklaringId,
+                kode = kode,
+            )
+        observatører.forEach { it.avklaringLukket(event) }
     }
 
     private fun emitVedtaksperiodeEndret(forrigeTilstand: BehandlingTilstand) {
@@ -994,6 +1004,11 @@ class Behandling private constructor(
 }
 
 interface BehandlingObservatør {
+    data class BehandlingOpprettet(
+        val behandlingId: UUID,
+        val hendelse: EksternId<*>,
+    ) : PersonEvent()
+
     data class BehandlingForslagTilVedtak(
         val behandlingId: UUID,
         val forrigeBehandlingId: List<UUID>,
@@ -1024,27 +1039,31 @@ interface BehandlingObservatør {
         val tidBrukt: Duration,
     ) : PersonEvent()
 
-    fun behandlingStartet() {}
+    data class BehandlingAvbrutt(
+        val behandlingId: UUID,
+        val hendelse: EksternId<*>,
+        val årsak: String? = null,
+    ) : PersonEvent()
+
+    data class AvklaringLukket(
+        val behandlingId: UUID,
+        val hendelse: EksternId<*>,
+        val avklaringId: UUID,
+        val kode: String,
+    ) : PersonEvent()
+
+    fun opprettet(event: BehandlingOpprettet) {}
 
     fun forslagTilVedtak(event: BehandlingForslagTilVedtak) {}
 
-    fun avbrutt() {}
+    fun avbrutt(event: BehandlingAvbrutt) {}
 
     fun ferdig(event: BehandlingFerdig) {}
 
     fun endretTilstand(event: BehandlingEndretTilstand) {}
-}
 
-sealed class BehandlingHendelser(
-    override val name: String,
-) : Hendelse.Hendelsetype {
-    data object BehandlingOpprettetHendelse : BehandlingHendelser("behandling_opprettet")
-
-    data object ForslagTilVedtakHendelse : BehandlingHendelser("forslag_til_vedtak")
-
-    data object AvklaringLukketHendelse : BehandlingHendelser("avklaring_lukket")
-
-    data object AvbrytBehandlingHendelse : BehandlingHendelser("behandling_avbrutt")
+    // TODO: Burde flyttes til en egen observer
+    fun avklaringLukket(event: AvklaringLukket) {}
 }
 
 private fun PersonHendelse.lagBehov(informasjonsbehov: Informasjonsbehov) =
