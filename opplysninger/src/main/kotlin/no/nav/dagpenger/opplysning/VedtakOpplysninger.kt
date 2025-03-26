@@ -79,15 +79,15 @@ sealed class Fastsatt(
         )
     }
 
-    class FastsattBuilder {
+    class Builder {
         private var utfall: Boolean = false
         private var grunnlag: Opplysningstype<Beløp>? = null
-        private var fastsattVanligArbeidstid: Fastsatt.FastsattVanligArbeidstid? = null
+        private var fastsattVanligArbeidstid: Opplysningstype<Double>? = null
         private var samordning: List<Samordning> = emptyList()
 
         fun utfall(utfall: Boolean) = apply { this.utfall = utfall }
 
-        fun fastsattVanligArbeidstid(fastsattVanligArbeidstid: Fastsatt.FastsattVanligArbeidstid?) =
+        fun fastsattVanligArbeidstid(fastsattVanligArbeidstid: Opplysningstype<Double>) =
             apply { this.fastsattVanligArbeidstid = fastsattVanligArbeidstid }
 
         fun grunnlag(grunnlag: Opplysningstype<Beløp>) = apply { this.grunnlag = grunnlag }
@@ -105,17 +105,30 @@ sealed class Fastsatt(
                                 .toInt()
                         }
                             ?: throw IllegalArgumentException("Forventet grunnlag"),
-                    fastsattVanligArbeidstid = fastsattVanligArbeidstid ?: Fastsatt.FastsattVanligArbeidstid(0.0, 0.0),
+                    fastsattVanligArbeidstid = Fastsatt.FastsattVanligArbeidstid(0.0, 0.0),
                     sats = Fastsatt.Sats(0, emptyList()),
                     samordning = samordning,
                     kvoter = emptyList(),
                 )
             } else {
                 Avslag(
-                    fastsattVanligArbeidstid = fastsattVanligArbeidstid ?: Fastsatt.FastsattVanligArbeidstid(0.0, 0.0),
+                    fastsattVanligArbeidstid = Fastsatt.FastsattVanligArbeidstid(0.0, 0.0),
                     samordning = samordning,
                 )
             }
+
+        companion object {
+            fun merge(vararg builders: Builder): Builder {
+                val mergedBuilder = Builder()
+                builders.forEach { builder ->
+                    mergedBuilder.utfall(builder.utfall)
+                    builder.grunnlag?.let { mergedBuilder.grunnlag(it) }
+                    builder.fastsattVanligArbeidstid?.let { mergedBuilder.fastsattVanligArbeidstid(it) }
+                    if (builder.samordning.isNotEmpty()) mergedBuilder.samordning(builder.samordning)
+                }
+                return mergedBuilder
+            }
+        }
     }
 }
 

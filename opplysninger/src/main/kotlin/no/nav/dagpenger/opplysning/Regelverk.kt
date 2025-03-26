@@ -86,8 +86,11 @@ class Regelverk(
         }
     }
 
-    fun giMegFastsettelser(fastsattBuilder: Fastsatt.FastsattBuilder): List<Fastsatt.FastsattBuilder> =
-        regelsett.mapNotNull {
-            it.giMegFastsettelser(fastsattBuilder)
-        }
+    fun giMegFastsettelser(builder: Fastsatt.Builder): Fastsatt.Builder =
+        Fastsatt.Builder.merge(
+            *regelsett
+                .mapNotNull {
+                    it.giMegFastsettelser()
+                }.toTypedArray(),
+        )
 }

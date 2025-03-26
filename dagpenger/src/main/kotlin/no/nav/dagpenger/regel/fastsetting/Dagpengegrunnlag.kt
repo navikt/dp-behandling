@@ -192,7 +192,7 @@ object Dagpengegrunnlag {
 
             påvirkerResultat { it.erSann(kravTilAlder) }
 
-            fastsattBuilder {
+            fastsetter {
                 this.grunnlag(grunnlag)
             }
 

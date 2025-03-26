@@ -22,6 +22,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.VedtakOpplysninger
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -213,6 +214,10 @@ private class TestHendelse(
                     TODO("Not yet implemented")
                 }
             }
+
+    override fun lagVedtak(behandling: Behandling): VedtakOpplysninger {
+        TODO("Not yet implemented")
+    }
 
     private val regelsett =
         vilkår("test") {

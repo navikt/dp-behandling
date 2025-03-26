@@ -25,16 +25,18 @@ class Hendelse(
         val vilkår = forretningsprosess.regelverk.vilkår(behandling.opplysninger)
         val utfall = vilkår.all { it.status }
         val fastsatt =
-            Fastsatt
-                .FastsattBuilder()
-                .utfall(utfall)
-                .also {
-                    forretningsprosess.regelverk.giMegFastsettelser(it)
-                }.build(behandling.opplysninger)
+            forretningsprosess.regelverk
+                .giMegFastsettelser(
+                    Fastsatt
+                        .Builder()
+                        .utfall(utfall),
+                ).build(behandling.opplysninger)
 
         return VedtakOpplysninger(
             vedtakId = behandling.behandlingId,
+            // TODO: Hva skal denne være?
             vedtaksdato = LocalDateTime.now().toLocalDate(),
+            // TODO: Prøvingsdato?
             virkningsdato = skjedde,
             vilkår = vilkår,
             fastsatt = fastsatt,

@@ -38,6 +38,6 @@ class VilkårRegelsettBuilder internal constructor(
             utfall = utfall,
             skalKjøres = skalKjøres,
             påvirkerResultat = relevant,
-            fastsattBuilder = null,
+            builder = null,
         )
 }

@@ -28,6 +28,10 @@ object Vanligarbeidstid {
                     ønsketArbeidstid,
                 )
             }
+
+            fastsetter {
+                fastsattVanligArbeidstid(fastsattVanligArbeidstid)
+            }
             påvirkerResultat {
                 oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)
             }

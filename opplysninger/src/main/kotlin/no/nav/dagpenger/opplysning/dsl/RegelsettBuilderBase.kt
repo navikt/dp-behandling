@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning.dsl
 
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.opplysning.Fastsatt
 import no.nav.dagpenger.opplysning.Hjemmel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -14,6 +15,7 @@ abstract class RegelsettBuilderBase(
     protected val hjemmel: Hjemmel,
     protected val type: RegelsettType,
 ) {
+    protected var builder: Fastsatt.Builder = Fastsatt.Builder()
     protected val regler: MutableMap<Opplysningstype<*>, TemporalCollection<Regel<*>>> = mutableMapOf()
     protected val avklaringer: MutableSet<Avklaringkode> = mutableSetOf()
     protected var skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
@@ -21,6 +23,10 @@ abstract class RegelsettBuilderBase(
 
     fun avklaring(avklaringkode: Avklaringkode) {
         avklaringer.add(avklaringkode)
+    }
+
+    fun fastsetter(block: Fastsatt.Builder.() -> Unit) {
+        builder.apply(block)
     }
 
     fun skalVurderes(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
