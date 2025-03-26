@@ -37,6 +37,7 @@ internal class VaktmesterPostgresRepo {
                 "019368a2-a33b-7c91-8579-4334ca134884",
                 "01934fc6-09c4-711c-8da1-21e331aeec54",
                 "01944fe4-e98b-7d9a-8933-6fbeda345708",
+                "01945074-7724-72c7-a17d-444946c74ae7",
             )
     }
 
@@ -45,42 +46,53 @@ internal class VaktmesterPostgresRepo {
         val slettet = mutableListOf<UUID>()
         try {
             sessionOf(dataSource).use { session ->
+
+                val kandidater = session.hentOpplysningerSomErFjernet(antall)
                 session.transaction { tx ->
-                    tx.medLås(låsenøkkel) {
-                        val kandidater = tx.hentOpplysningerSomErFjernet(antall)
-                        kandidater.forEach { kandidat ->
+
+                    kandidater.forEach { kandidat ->
+                        tx.medLås(låsenøkkel) {
                             withLoggingContext(
                                 "behandlingId" to kandidat.behandlingId.toString(),
                                 "opplysningerId" to kandidat.opplysningerId.toString(),
                             ) {
-                                logger.info { "Skal slette ${kandidat.opplysninger().size} opplysninger " }
-                                kandidat.opplysninger().forEach { opplysningId ->
-                                    val statements = mutableListOf<BatchStatement>()
+                                try {
+                                    logger.info { "Skal slette ${kandidat.opplysninger().size} opplysninger " }
 
-                                    // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                    statements.add(slettOpplysningUtledet(opplysningId))
+                                    kandidat.opplysninger().forEach { fjernetOpplysing ->
+                                        val statements = mutableListOf<BatchStatement>()
 
-                                    // Slett hvilken regel som har vært brukt for å utlede opplysningen
-                                    statements.add(slettOpplysningUtledning(opplysningId))
+                                        // Slett erstatninger
+                                        statements.add(slettErstatteAv(fjernetOpplysing.id))
 
-                                    // Slett verdien av opplysningen
-                                    statements.add(slettOpplysningVerdi(opplysningId))
+                                        // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
+                                        statements.add(slettOpplysningUtledetAv(fjernetOpplysing.id))
 
-                                    // Slett erstatninger
-                                    statements.add(slettErstatteAv(opplysningId))
+                                        // Slett hvilken regel som har vært brukt for å utlede opplysningen
+                                        statements.add(slettOpplysningUtledning(fjernetOpplysing.id))
 
-                                    // Fjern opplysningen fra opplysninger-settet
-                                    statements.add(slettOpplysningLink(opplysningId))
+                                        // Slett verdien av opplysningen
+                                        statements.add(slettOpplysningVerdi(fjernetOpplysing.id))
 
-                                    // Slett opplysningen
-                                    statements.add(slettOpplysning(opplysningId))
+                                        // Fjern opplysningen fra opplysninger-settet
+                                        statements.add(slettOpplysningLink(fjernetOpplysing.id))
 
-                                    statements.forEach { batch ->
-                                        batch.run(tx)
+                                        // Slett opplysningen
+                                        statements.add(slettOpplysning(fjernetOpplysing.id))
+
+                                        try {
+                                            statements.forEach { batch ->
+                                                batch.run(tx)
+                                            }
+                                        } catch (e: Exception) {
+                                            throw IllegalStateException("Kunne ikke slette $fjernetOpplysing", e)
+                                        }
+                                        slettet.add(fjernetOpplysing.id)
                                     }
-                                    slettet.add(opplysningId)
+                                    logger.info { "Slettet ${kandidat.opplysninger().size} opplysninger" }
+                                } catch (e: Exception) {
+                                    logger.error(e) { "Feil ved sletting av opplysninger" }
                                 }
-                                logger.info { "Slettet ${kandidat.opplysninger().size} opplysninger" }
                             }
                         }
                     }
@@ -95,14 +107,20 @@ internal class VaktmesterPostgresRepo {
     internal data class Kandidat(
         val behandlingId: UUID?,
         val opplysningerId: UUID,
-        private val opplysninger: MutableList<UUID> = mutableListOf(),
+        private val opplysninger: MutableList<FjernetOpplysing> = mutableListOf(),
     ) {
-        fun leggTil(uuid: UUID) {
-            opplysninger.add(uuid)
+        fun leggTil(fjernet: FjernetOpplysing) {
+            opplysninger.add(fjernet)
         }
 
         fun opplysninger() = opplysninger.toList()
     }
+
+    internal data class FjernetOpplysing(
+        val id: UUID,
+        val navn: String,
+        val opplysningstypeId: UUID,
+    )
 
     private fun Session.hentOpplysningerSomErFjernet(antall: Int): List<Kandidat> {
         val kandidater = this.hentOpplysningerIder(antall)
@@ -110,11 +128,12 @@ internal class VaktmesterPostgresRepo {
         //language=PostgreSQL
         val query =
             """
-            SELECT id
+            SELECT id, navn, uuid
             FROM opplysning
+            INNER JOIN opplysningstype ON opplysning.opplysningstype_id = opplysningstype.opplysningstype_id
             INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
             WHERE fjernet = TRUE AND op.opplysninger_id = :opplysninger_id
-            ORDER BY op.opplysninger_id, opprettet DESC;
+            ORDER BY op.opplysninger_id, opplysning.opprettet DESC;
             """.trimIndent()
 
         val opplysninger =
@@ -126,7 +145,11 @@ internal class VaktmesterPostgresRepo {
                             mapOf("opplysninger_id" to kandidat.opplysningerId),
                         ).map { row ->
                             kandidat.leggTil(
-                                row.uuid("id"),
+                                FjernetOpplysing(
+                                    row.uuid("id"),
+                                    row.string("navn"),
+                                    row.uuid("uuid"),
+                                ),
                             )
                         }.asList,
                     )
@@ -204,11 +227,11 @@ internal class VaktmesterPostgresRepo {
             listOf(mapOf("id" to id)),
         )
 
-    private fun slettOpplysningUtledet(id: UUID) =
+    private fun slettOpplysningUtledetAv(id: UUID) =
         BatchStatement(
             //language=PostgreSQL
             """
-            DELETE FROM opplysning_utledet_av WHERE opplysning_id = :id
+            DELETE FROM opplysning_utledet_av WHERE opplysning_id = :id OR utledet_av = :id
             """.trimIndent(),
             listOf(mapOf("id" to id)),
         )
@@ -264,6 +287,11 @@ fun <T> TransactionalSession.medLås(
 ): T? {
     if (!lås(nøkkel)) {
         logger.warn { "Fikk ikke lås for $nøkkel" }
+        hentLås()?.let {
+            logger.warn {
+                "Er allerede låst med $it"
+            }
+        } ?: logger.warn { "Fant ikke lås" }
         return null
     }
     return try {
@@ -274,3 +302,15 @@ fun <T> TransactionalSession.medLås(
         låsOpp(nøkkel)
     }
 }
+
+fun TransactionalSession.hentLås(): Pair<String, Int>? =
+    run(
+        queryOf(
+            //language=PostgreSQL
+            """
+            SELECT mode,  objid FROM pg_locks WHERE locktype = 'advisory';
+            """.trimIndent(),
+        ).map { res ->
+            Pair(res.string("mode"), res.int("objid"))
+        }.asSingle,
+    )

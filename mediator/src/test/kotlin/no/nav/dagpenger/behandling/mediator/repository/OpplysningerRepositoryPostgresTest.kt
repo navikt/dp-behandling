@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldBeNull
@@ -36,6 +37,7 @@ import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
@@ -50,6 +52,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.UUID
 import kotlin.system.measureTimeMillis
 
 class OpplysningerRepositoryPostgresTest {
@@ -465,39 +468,48 @@ class OpplysningerRepositoryPostgresTest {
             val b = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "B")
             val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
             val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
+            val e = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "E")
+            val f = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "F")
             val repo = opplysningerRepository()
             val vaktmesterRepo = VaktmesterPostgresRepo()
 
-            val regelsett =
-                vilkår("vilkår") {
+            val regelsett1 =
+                vilkår("vilkår en") {
                     regel(a) { innhentes }
                     regel(d) { innhentes }
                     regel(b) { enAv(a) }
                     regel(c) { enAv(b, d) }
                 }
+            val regelsett2 =
+                vilkår("vilkår to") {
+                    regel(e) { enAv(c) }
+                    regel(f) { alle(e, b, a) }
+                }
             val opplysninger = Opplysninger()
-            val regelkjøring = Regelkjøring(LocalDate.now(), opplysninger, regelsett)
+            val regelkjøring = Regelkjøring(LocalDate.now(), opplysninger, regelsett1, regelsett2)
 
             val aFaktum = Faktum(a, true)
             val dFaktum = Faktum(d, false)
             opplysninger.leggTil(aFaktum)
             opplysninger.leggTil(dFaktum)
             regelkjøring.evaluer()
-            val bFaktum = opplysninger.finnOpplysning(b)
-            val cFaktum = opplysninger.finnOpplysning(c)
 
             repo.lagreOpplysninger(opplysninger)
 
-            vaktmesterRepo.slettOpplysninger().size shouldBe 0
+            vaktmesterRepo.slettOpplysninger().shouldBeEmpty()
 
+            val rehydrerteOpplysninger = repo.hentOpplysninger(opplysninger.id)
             // Endre opplysning a slik at b og c blir endret (og det originale blir fjernet)
             val endretAFaktum = Faktum(a, false)
-            opplysninger.leggTil(endretAFaktum).also { regelkjøring.evaluer() }
-            repo.lagreOpplysninger(opplysninger)
+            val regelkjøring2 = Regelkjøring(LocalDate.now(), rehydrerteOpplysninger, regelsett1, regelsett2)
+            rehydrerteOpplysninger.leggTil(endretAFaktum).also { regelkjøring2.evaluer() }
+            val forventetfjernet: Set<UUID> = rehydrerteOpplysninger.fjernet().map { it.id }.toSet()
+            repo.lagreOpplysninger(rehydrerteOpplysninger)
 
-            val slettOpplysninger = vaktmesterRepo.slettOpplysninger()
-            slettOpplysninger.size shouldBe 3
-            slettOpplysninger shouldContainExactly listOf(cFaktum.id, bFaktum.id, aFaktum.id)
+            val slettedeOpplysninger: Set<UUID> = vaktmesterRepo.slettOpplysninger().toSet()
+            slettedeOpplysninger.size shouldBe forventetfjernet.size
+
+            slettedeOpplysninger shouldContainAll forventetfjernet
         }
     }
 

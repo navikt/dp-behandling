@@ -805,7 +805,7 @@ internal class PersonMediatorTest {
 
             // Sletter opplysninger som ikke lenger er relevante
             val slettedeOpplysninger = vaktmester.slettOpplysninger()
-            slettedeOpplysninger.shouldNotBeEmpty()
+            slettedeOpplysninger.size shouldBeGreaterThan 1
         }
     }
 
