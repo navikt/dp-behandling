@@ -10,8 +10,8 @@ import no.nav.dagpenger.opplysning.regel.Regel
 class RegeltreBygger(
     private val regler: List<Regel<*>>,
 ) {
-    constructor(regelsett: Regelsett) : this(regelsett.regler())
-    constructor(vararg regelsett: Regelsett) : this(regelsett.flatMap { it.regler() })
+    constructor(regelsett: Regelsett<*>) : this(regelsett.regler())
+    constructor(vararg regelsett: Regelsett<*>) : this(regelsett.flatMap { it.regler() })
 
     fun dag(): DAG<Opplysningstype<*>, Regel<*>> {
         val edges = regler.flatMap { edge(it) }

@@ -6,12 +6,13 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
 
-abstract class RegelsettBuilderBase(
-    protected val hjemmel: Hjemmel,
+abstract class RegelsettBuilderBase<T : Regelverkstype>(
+    val hjemmel: Hjemmel,
     protected val type: RegelsettType,
 ) {
     protected val regler: MutableMap<Opplysningstype<*>, TemporalCollection<Regel<*>>> = mutableMapOf()
@@ -42,5 +43,5 @@ abstract class RegelsettBuilderBase(
         regel: Regel<*>,
     ) = regler.computeIfAbsent(regel.produserer) { TemporalCollection() }.put(gjelderFra, regel)
 
-    abstract fun build(): Regelsett
+    abstract fun build(): Regelsett<T>
 }

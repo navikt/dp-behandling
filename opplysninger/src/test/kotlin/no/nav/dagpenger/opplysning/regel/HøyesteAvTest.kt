@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import no.nav.dagpenger.uuid.UUIDv7
@@ -21,7 +22,7 @@ class HøyesteAvTest {
     @Test
     fun `høyeste av`() {
         val regelsett =
-            vilkår("Test") {
+            vilkår<TøyseteRegelsett>("Test") {
                 regel(opplysning1) { innhentes }
                 regel(opplysning2) { innhentes }
                 regel(høyeste) { høyeste.høyesteAv(opplysning1, opplysning2) }

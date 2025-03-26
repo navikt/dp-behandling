@@ -25,6 +25,7 @@ import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Avklaringspunkter.BarnMåGodkjennes
 import no.nav.dagpenger.regel.Behov.Barnetillegg
+import no.nav.dagpenger.regel.FastsettelserForDagpenger
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallArbeidsdagerPerÅrId
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallBarnSomGirRettTilBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.ArbeidsdagerPerUkeId
@@ -107,7 +108,7 @@ object DagpengenesStørrelse {
     val harSamordnet = boolsk(HarSamordnetId, "Har samordnet")
 
     val regelsett =
-        fastsettelse(
+        fastsettelse<FastsettelserForDagpenger>(
             folketrygden.hjemmel(4, 12, "Dagpengenes størrelse", "Sats og barnetillegg"),
         ) {
             skalVurderes { kravPåDagpenger(it) }

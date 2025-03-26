@@ -27,7 +27,7 @@ object Opptjeningstid {
         dato(SisteAvsluttendeKalenderMånedId, beskrivelse = "Siste avsluttende kalendermåned", behovId = SisteAvsluttendeKalenderMåned)
 
     val regelsett =
-        fastsettelse(
+        fastsettelse<FastsettelserForDagpenger>(
             aOpplynsingsLoven.hjemmel(1, 2, "Frist for levering av opplysninger", "Opptjeningsperiode"),
         ) {
             skalVurderes { it.oppfyller(kravTilAlder) }

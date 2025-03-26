@@ -9,6 +9,8 @@ import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingForsla
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
+import no.nav.dagpenger.opplysning.Regelverkstype
+import no.nav.dagpenger.regel.DagpengeVedtak
 
 typealias Hendelse = Pair<String, JsonMessage>
 
@@ -27,7 +29,7 @@ internal class PersonMediator(
         meldinger.add(ident to event.toJsonMessage())
     }
 
-    override fun ferdig(event: BehandlingFerdig) {
+    override fun <T : Regelverkstype> ferdig(event: BehandlingFerdig<T>) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
         meldinger.add(ident to event.toJsonMessage())
     }
@@ -59,8 +61,19 @@ internal class PersonMediator(
         return JsonMessage.newMessage("forslag_til_vedtak", vedtak.toMap())
     }
 
-    private fun BehandlingFerdig.toJsonMessage(): JsonMessage {
+    private fun <T : Regelverkstype> BehandlingFerdig<T>.toJsonMessage(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingEndretTilstand" })
+
+        val c =
+            when (vedtak) {
+                is DagpengeVedtak -> {}
+                else -> {}
+            }
+        val b: DagpengeVedtak = vedtak as DagpengeVedtak
+        b.fastsatt.sats
+
+        vedtak.blurp(mutableMapOf())
+
         val vedtak = lagVedtak(behandlingId, basertPåBehandlinger, ident, hendelse, opplysninger, automatiskBehandlet, godkjent, besluttet)
         return JsonMessage.newMessage("vedtak_fattet", vedtak.toMap())
     }

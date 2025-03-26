@@ -23,7 +23,7 @@ object Verneplikt {
     val oppfyllerKravetTilVerneplikt = boolsk(oppfyllerKravetTilVernepliktId, "Oppfyller kravet til verneplikt")
 
     val regelsett =
-        vilkår(
+        vilkår<FastsettelserForDagpenger>(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Verneplikt"),
         ) {
             skalVurderes { it.oppfyller(Alderskrav.kravTilAlder) }

@@ -28,7 +28,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKont
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
 import java.time.LocalDate
 
-class Søknadsprosess : RegistrertForretningsprosess() {
+class Søknadsprosess : RegistrertForretningsprosess<FastsettelserForDagpenger>() {
     override val regelverk = RegelverkDagpenger
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = Regelkjøring(prøvingsdato(opplysninger), opplysninger, this)

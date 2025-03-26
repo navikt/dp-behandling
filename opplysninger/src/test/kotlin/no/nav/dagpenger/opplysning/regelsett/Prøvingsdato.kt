@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning.regelsett
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Id
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -15,7 +16,7 @@ internal object Prøvingsdato {
 
     val prøvingsdato = Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "Prøvingsdato")
     val regelsett =
-        vilkår("alder") {
+        vilkår<TøyseteRegelsett>("alder") {
             regel(søknadsdato) { innhentes }
             regel(sisteDagMedArbeidsplikt) { innhentes }
             regel(sisteDagMedLønn) { innhentes }

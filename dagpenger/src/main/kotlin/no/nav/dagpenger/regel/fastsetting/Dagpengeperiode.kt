@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.regel.høyesteAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
+import no.nav.dagpenger.regel.FastsettelserForDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallStønadsukerId
 import no.nav.dagpenger.regel.OpplysningsTyper.DagerIUkaId
@@ -67,7 +68,7 @@ object Dagpengeperiode {
     val ordinærPeriode = heltall(OrdinærPeriodeId, "Antall stønadsuker som gis ved ordinære dagpenger")
 
     val regelsett =
-        fastsettelse(
+        fastsettelse<FastsettelserForDagpenger>(
             folketrygden.hjemmel(4, 15, "Antall stønadsuker (stønadsperiode)", "Periode"),
         ) {
             skalVurderes { kravPåDagpenger(it) }

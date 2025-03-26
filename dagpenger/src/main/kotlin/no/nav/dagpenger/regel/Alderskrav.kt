@@ -34,7 +34,7 @@ object Alderskrav {
     val kravTilAlder = boolsk(KravTilAlderId, "Oppfyller kravet til alder")
 
     val regelsett =
-        vilkår(
+        vilkår<FastsettelserForDagpenger>(
             folketrygden.hjemmel(4, 23, "Bortfall på grunn av alder", "Alder"),
         ) {
             regel(fødselsdato) { innhentes }

@@ -48,6 +48,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.Barnetillegg
@@ -391,6 +392,7 @@ internal class PersonMediatorTest {
 
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
+                it.rettighet shouldBe false
                 it.behandlinger().first().kreverTotrinnskontroll() shouldBe true
             }
 
@@ -399,6 +401,11 @@ internal class PersonMediatorTest {
 
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
+
+            personRepository.hent(ident.tilPersonIdentfikator()).also {
+                it.shouldNotBeNull()
+                it.rettighet shouldBe true
+            }
 
             rapid.harHendelse("vedtak_fattet") {
                 medBoolsk("automatisk") shouldBe false
@@ -1056,7 +1063,7 @@ internal class PersonMediatorTest {
 
     private val Person.aktivBehandling get() = this.behandlinger().last()
 
-    private val Behandling.aktivAvklaringer get() = this.aktiveAvklaringer()
+    private val Behandling<Regelverkstype>.aktivAvklaringer get() = this.aktiveAvklaringer()
 
     private fun Meldingsinnhold.opptjeningsperiodeEr(måneder: Int) {
         val periode =
@@ -1131,9 +1138,9 @@ internal class PersonMediatorTest {
     }
 
     private class TestObservatør : PersonObservatør {
-        val tilstandsendringer = mutableListOf<BehandlingEndretTilstand>()
+        val tilstandsendringer = mutableListOf<BehandlingEndretTilstand<Any?>>()
 
-        override fun endretTilstand(event: BehandlingEndretTilstand) {
+        override fun endretTilstand(event: BehandlingEndretTilstand<Any?>) {
             tilstandsendringer.add(event)
         }
     }

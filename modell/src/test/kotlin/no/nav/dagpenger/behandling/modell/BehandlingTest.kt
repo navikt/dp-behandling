@@ -22,6 +22,8 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.Regelverkstype
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -89,9 +91,9 @@ internal class BehandlingTest {
     private fun behandlingskjede(
         antall: Int,
         hendelse: TestHendelse,
-    ): Behandling {
+    ): Behandling<Regelverkstype> {
         var fomTom = LocalDate.now()
-        var forrigeBehandling: Behandling? = null
+        var forrigeBehandling: Behandling<Regelverkstype>? = null
         for (nummer in 1..antall) {
             val behandling =
                 Behandling.rehydrer(
@@ -122,7 +124,7 @@ internal class BehandlingTest {
     @Test
     fun `behandling sender ut behandling opprettet eventer `() {
         val behandling =
-            Behandling(
+            Behandling<Regelverkstype>(
                 behandler =
                     testHendelse.also {
                         testHendelse.kontekst(it)
@@ -143,7 +145,7 @@ internal class BehandlingTest {
     @Test
     fun `behandling varsler om endret tilstand`() {
         val behandling =
-            Behandling(
+            Behandling<Regelverkstype>(
                 behandler =
                     testHendelse.also {
                         testHendelse.kontekst(it)
@@ -163,9 +165,9 @@ internal class BehandlingTest {
     }
 
     private class TestObservatør : BehandlingObservatør {
-        val endretTilstandEventer = mutableListOf<BehandlingObservatør.BehandlingEndretTilstand>()
+        val endretTilstandEventer = mutableListOf<BehandlingObservatør.BehandlingEndretTilstand<Any?>>()
 
-        override fun endretTilstand(event: BehandlingObservatør.BehandlingEndretTilstand) {
+        override fun endretTilstand(event: BehandlingObservatør.BehandlingEndretTilstand<Any?>) {
             endretTilstandEventer.add(event)
         }
     }
@@ -178,21 +180,21 @@ private class TestHendelse(
     gjelderDato: LocalDate,
     fagsakId: Int,
     opprettet: LocalDateTime,
-) : StartHendelse(
+) : StartHendelse<TøyseteRegelsett>(
         meldingsreferanseId,
         ident,
         SøknadId(søknadId),
         gjelderDato,
         opprettet,
     ) {
-    override val regelverk: Regelverk
+    override val regelverk: Regelverk<TøyseteRegelsett>
         get() = forretningsprosess.regelverk
     private val opplysningstypeBehov = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "trengerDenne")
     private val opplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "opplysning")
-    override val forretningsprosess: Forretningsprosess
+    override val forretningsprosess: Forretningsprosess<TøyseteRegelsett>
         get() =
-            object : Forretningsprosess {
-                override val regelverk: Regelverk
+            object : Forretningsprosess<TøyseteRegelsett> {
+                override val regelverk: Regelverk<TøyseteRegelsett>
                     get() = TODO("Not yet implemented")
 
                 override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -215,7 +217,7 @@ private class TestHendelse(
             }
 
     private val regelsett =
-        vilkår("test") {
+        vilkår<TøyseteRegelsett>("test") {
             regel(opplysningstypeBehov) { innhentes }
             regel(opplysningstype) { enAv(opplysningstypeBehov) }
         }
@@ -227,7 +229,7 @@ private class TestHendelse(
             regelsett,
         )
 
-    override fun behandling(forrigeBehandling: Behandling?): Behandling {
+    override fun behandling(forrigeBehandling: Behandling<Regelverkstype>?): Behandling<Regelverkstype> {
         TODO("Not yet implemented")
     }
 

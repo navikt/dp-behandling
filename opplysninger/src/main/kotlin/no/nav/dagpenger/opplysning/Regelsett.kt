@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import no.nav.dagpenger.opplysning.dsl.VedtakBygger
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
@@ -9,7 +10,7 @@ enum class RegelsettType {
     Fastsettelse,
 }
 
-class Regelsett internal constructor(
+class Regelsett<T : Regelverkstype> internal constructor(
     val hjemmel: Hjemmel,
     val type: RegelsettType,
     private val ønsketResultat: List<Opplysningstype<*>>,
@@ -18,6 +19,7 @@ class Regelsett internal constructor(
     val utfall: List<Opplysningstype<Boolean>>,
     val skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean,
     val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
+    val resultatbygger: VedtakBygger<T>.(Opplysninger) -> Unit = {},
 ) {
     val navn: String = hjemmel.kortnavn
 

@@ -21,11 +21,11 @@ class RegelkjøringTest {
     @Test
     fun `Regelsett kan ikke inneholder flere regler som produserer samme opplysningstype`() {
         val regelsett1 =
-            vilkår("regelsett") {
+            vilkår<TøyseteRegelsett>("regelsett") {
                 regel(a) { enAv(b) }
             }
         val regelsett2 =
-            vilkår("regelsett") {
+            vilkår<TøyseteRegelsett>("regelsett") {
                 regel(a) { enAv(c) }
             }
 
@@ -43,7 +43,7 @@ class RegelkjøringTest {
 
         val opplysninger = Opplysninger()
         val regelsett1 =
-            vilkår("regelsett") {
+            vilkår<TøyseteRegelsett>("regelsett") {
                 regel(opplysningB) { innhentes }
                 regel(opplysningC) { innhentes }
                 regel(opplysningA) { minstAv(opplysningC, opplysningB) }
@@ -65,7 +65,7 @@ class RegelkjøringTest {
         // Endring i reglene
         var regelA: Regel<*>? = null
         val regelsett2 =
-            vilkår("regelsett") {
+            vilkår<TøyseteRegelsett>("regelsett") {
                 regel(opplysningB) { innhentes }
                 regel(opplysningC) { innhentes }
                 regel(opplysningD) { innhentes }

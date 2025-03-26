@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Id
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilÅr
@@ -24,7 +25,7 @@ internal object Alderskrav {
     val vilkår = Opplysningstype.boolsk(Id(UUIDv7.ny(), Boolsk), "Oppfyller kravet til alder")
 
     val regelsett =
-        vilkår("alder") {
+        vilkår<TøyseteRegelsett>("alder") {
             regel(fødselsdato) { innhentes }
             regel(aldersgrense) { oppslag(virkningsdato) { 67 } }
             regel(sisteMåned) { leggTilÅr(fødselsdato, aldersgrense) }

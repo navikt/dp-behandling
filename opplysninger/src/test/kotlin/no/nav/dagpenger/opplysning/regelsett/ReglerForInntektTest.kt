@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.dato.førsteArbeidsdag
@@ -65,7 +66,7 @@ internal object ReglerForInntektTest {
     val minsteinntekt = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Minsteinntekt")
 
     val regelsett =
-        vilkår("Minsteinntekt") {
+        vilkår<TøyseteRegelsett>("Minsteinntekt") {
             regel(antattRapporteringsFrist) { oppslag(prøvingsdato) { LocalDate.of(it.year, it.month, 5) } }
             regel(reellRapporteringsFrist) { førsteArbeidsdag(antattRapporteringsFrist) }
             regel(antallG12mndInntekt) { oppslag(prøvingsdato) { 1.5 } }

@@ -27,7 +27,7 @@ object Permittering {
         boolsk(oppfyllerKravetTilPermitteringId, "Oppfyller kravet til permittering", synlig = erPermittert())
 
     val regelsett =
-        vilkår(folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering")) {
+        vilkår<FastsettelserForDagpenger>(folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering")) {
 
             skalVurderes { it.erSann(kravTilAlder) }
 

@@ -15,6 +15,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
@@ -108,7 +109,7 @@ class AvklaringRepositoryPostgresTest {
         }
 
         private fun behandling(vararg avklaring: Avklaring) =
-            Behandling.rehydrer(
+            Behandling.rehydrer<Regelverkstype>(
                 behandlingId = UUIDv7.ny(),
                 behandler = SøknadInnsendtHendelse(UUIDv7.ny(), "123", UUIDv7.ny(), LocalDate.now(), 1, LocalDateTime.now()),
                 gjeldendeOpplysninger =

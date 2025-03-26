@@ -19,7 +19,7 @@ object Utestengning {
         )
 
     val regelsett =
-        vilkår(
+        vilkår<FastsettelserForDagpenger>(
             folketrygden.hjemmel(4, 28, "Utestengning", "Utestengning"),
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }

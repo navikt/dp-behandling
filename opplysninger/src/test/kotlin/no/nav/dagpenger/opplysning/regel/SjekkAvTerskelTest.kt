@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.TestOpplysningstyper.andel
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskA
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.terskel
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.total
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -19,7 +20,7 @@ class SjekkAvTerskelTest {
         Regelkjøring(
             1.mai,
             opplysninger,
-            vilkår("regelsett") {
+            vilkår<TøyseteRegelsett>("regelsett") {
                 regel(andel) { innhentes }
                 regel(total) { innhentes }
                 regel(terskel) { innhentes }

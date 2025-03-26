@@ -21,7 +21,9 @@ object RegistrertArbeidssøker {
         boolsk(OppyllerKravTilRegistrertArbeidssøkerId, "Registrert som arbeidssøker på søknadstidspunktet", synlig = aldriSynlig)
 
     val regelsett =
-        vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere - registrert som arbeidssøker", "Registrert som arbeidssøker")) {
+        vilkår<FastsettelserForDagpenger>(
+            folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere - registrert som arbeidssøker", "Registrert som arbeidssøker"),
+        ) {
             skalVurderes { it.har(kravTilAlder) }
 
             regel(registrertArbeidssøker) { innhentMed(prøvingsdato) }

@@ -141,7 +141,7 @@ internal class HendelseMediator(
     }
 
     override fun behandle(
-        hendelse: StartHendelse,
+        hendelse: StartHendelse<*>,
         context: MessageContext,
     ) {
         hentPersonOgHåndter(hendelse, context) { person ->
@@ -276,7 +276,7 @@ internal class HendelseMediator(
 
 internal interface IHendelseMediator {
     fun behandle(
-        hendelse: StartHendelse,
+        hendelse: StartHendelse<*>,
         context: MessageContext,
     )
 

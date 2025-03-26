@@ -9,6 +9,7 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.RegistrertForretningsprosess
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.util.UUID
@@ -19,7 +20,7 @@ internal class BehandlingRepositoryPostgres(
     private val kildeRepository: KildeRepository = KildeRepository(),
 ) : BehandlingRepository,
     AvklaringRepository by avklaringRepository {
-    override fun hentBehandling(behandlingId: UUID): Behandling? =
+    override fun hentBehandling(behandlingId: UUID): Behandling<Regelverkstype>? =
         sessionOf(dataSource).use { session ->
             session.run(
                 queryOf(
@@ -111,19 +112,19 @@ internal class BehandlingRepositoryPostgres(
             }.asList,
         )
 
-    override fun lagre(behandling: Behandling) {
+    override fun lagre(behandling: Behandling<Regelverkstype>) {
         val unitOfWork = PostgresUnitOfWork.transaction()
         lagre(behandling, unitOfWork)
         unitOfWork.commit()
     }
 
     override fun lagre(
-        behandling: Behandling,
+        behandling: Behandling<Regelverkstype>,
         unitOfWork: UnitOfWork<*>,
     ) = lagre(behandling, unitOfWork as PostgresUnitOfWork)
 
     private fun lagre(
-        behandling: Behandling,
+        behandling: Behandling<Regelverkstype>,
         unitOfWork: PostgresUnitOfWork,
     ) {
         unitOfWork.inTransaction { tx ->

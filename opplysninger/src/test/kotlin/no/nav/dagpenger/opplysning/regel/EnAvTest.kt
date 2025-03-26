@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskA
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskB
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskC
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ internal class EnAvTest {
         Regelkjøring(
             1.mai,
             opplysninger,
-            vilkår("regelsett") {
+            vilkår<TøyseteRegelsett>("regelsett") {
                 regel(boolskB) { innhentes }
                 regel(boolskC) { innhentes }
                 regel(boolskA) { enAv(boolskB, boolskC) }

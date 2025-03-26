@@ -12,7 +12,6 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
@@ -29,7 +28,7 @@ class BeregnMeldekortHendelse(
     meldekortId: UUID,
     opprettet: LocalDateTime,
     private val meldekort: Meldekort,
-) : StartHendelse(
+) : StartHendelse<FastsettelserForDagpenger>(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
         eksternId = MeldekortId(meldekort.eksternMeldekortId),
@@ -38,7 +37,7 @@ class BeregnMeldekortHendelse(
     ) {
     override val forretningsprosess = Søknadsprosess()
 
-    override val regelverk: Regelverk
+    override val regelverk
         get() = forretningsprosess.regelverk
 
     // TODO: DETTE ER HELT FEIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -56,7 +55,7 @@ class BeregnMeldekortHendelse(
             forretningsprosess = forretningsprosess,
         )
 
-    override fun behandling(forrigeBehandling: Behandling?): Behandling {
+    override fun behandling(forrigeBehandling: Behandling<FastsettelserForDagpenger>?): Behandling<FastsettelserForDagpenger> {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
         val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
 

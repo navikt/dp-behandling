@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.fastsetting
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.regel.FastsettelserForDagpenger
 import no.nav.dagpenger.regel.OpplysningsTyper.permitteringFraFiskeindustriPeriodeId
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -21,7 +22,7 @@ object PermitteringFraFiskeindustrienFastsetting {
         )
 
     val regelsett =
-        fastsettelse(
+        fastsettelse<FastsettelserForDagpenger>(
             folketrygden.hjemmel(
                 kapittel = 6,
                 paragraf = 7,

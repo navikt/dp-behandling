@@ -18,7 +18,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 interface PersonHåndter : BehandlingHåndter
 
 interface BehandlingHåndter {
-    fun håndter(hendelse: StartHendelse)
+    fun håndter(hendelse: StartHendelse<*>)
 
     fun håndter(hendelse: OpplysningSvarHendelse)
 

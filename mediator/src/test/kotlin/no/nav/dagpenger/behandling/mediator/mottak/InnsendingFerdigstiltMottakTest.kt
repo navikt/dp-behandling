@@ -8,6 +8,7 @@ import io.mockk.mockk
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Regelverkstype
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -37,7 +38,7 @@ class InnsendingFerdigstiltMottakTest {
 
         every {
             messageMediator.behandle(
-                any<StartHendelse>(),
+                any<StartHendelse<Regelverkstype>>(),
                 any<SøknadInnsendtMessage>(),
                 any<MessageContext>(),
             )

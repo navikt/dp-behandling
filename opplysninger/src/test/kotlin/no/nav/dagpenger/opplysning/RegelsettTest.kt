@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 class RegelsettTest {
     private val regelsett
         get() =
-            vilkår(tomHjemmel("regelsett")) {
+            vilkår<Regelverkstype>(tomHjemmel("regelsett")) {
                 regel(grunntall) { innhentes }
                 regel(faktorA) { innhentes }
                 regel(faktorB) { innhentes }
@@ -28,7 +28,7 @@ class RegelsettTest {
     @Test
     fun `skal si avhengigheter og produserer`() {
         val regelsett =
-            vilkår(tomHjemmel("regelsett")) {
+            vilkår<Regelverkstype>(tomHjemmel("regelsett")) {
                 regel(faktorA) { innhentes }
                 regel(faktorB) { innhentes }
                 regel(beløpA, 1.januar) { multiplikasjon(grunntall, faktorA) }

@@ -13,7 +13,7 @@ object FulleYtelser {
     val ikkeFulleYtelser = boolsk(IkkeFulleYtelserId, "Mottar ikke andre fulle ytelser")
 
     val regelsett =
-        vilkår(
+        vilkår<FastsettelserForDagpenger>(
             folketrygden.hjemmel(
                 4,
                 24,

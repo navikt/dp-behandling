@@ -104,7 +104,7 @@ object Utdanning {
     val kravTilUtdanning = Opplysningstype.boolsk(kravTilUtdanningEllerOpplæringId, "Krav til utdanning eller opplæring")
 
     val regelsett =
-        vilkår(
+        vilkår<FastsettelserForDagpenger>(
             folketrygden.hjemmel(
                 kapittel = 4,
                 paragraf = 6,

@@ -23,6 +23,7 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
+import no.nav.dagpenger.regel.FastsettelserForDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallÅrI36MånederId
 import no.nav.dagpenger.regel.OpplysningsTyper.AvkortetInntektperiode1Id
@@ -118,7 +119,7 @@ object Dagpengegrunnlag {
     val uavkortet36mnd = Opplysningstype.beløp(UavkortetGrunnlagSiste36MndId, "Uavkortet grunnlag siste 36 mnd", Legacy, aldriSynlig)
 
     val regelsett =
-        fastsettelse(
+        fastsettelse<FastsettelserForDagpenger>(
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
         ) {
             skalVurderes { kravPåDagpenger(it) }

@@ -22,11 +22,17 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Regelverkstype
+import no.nav.dagpenger.opplysning.Rettighet
+
+object IngenRettighet : Rettighet {
+    override val løpende = false
+}
 
 class Person(
     val ident: Ident,
-    behandlinger: List<Behandling>,
-    var harDagpenger: Boolean = false,
+    behandlinger: List<Behandling<Regelverkstype>>,
+    var rettighet: Rettighet = IngenRettighet,
 ) : Aktivitetskontekst,
     PersonHåndter,
     BehandlingObservatør {
@@ -39,11 +45,13 @@ class Person(
         val logger = KotlinLogging.logger { }
     }
 
-    override fun ferdig(event: BehandlingFerdig) {
-        harDagpenger = true
+    override fun <T : Regelverkstype> ferdig(event: BehandlingFerdig<T>) {
+        event.vedtak.blurp { rettighet = it }
+
+        if (rettighet.løpende) println("Yey")
     }
 
-    override fun håndter(hendelse: StartHendelse) {
+    override fun håndter(hendelse: StartHendelse<*>) {
         if (behandlinger.any { it.behandler.eksternId == hendelse.eksternId }) {
             hendelse.varsel("Søknad med eksternId ${hendelse.eksternId} er allerede mottatt")
             return
@@ -52,7 +60,7 @@ class Person(
         // Oppskrift for å opprette en behandling
         hendelse.leggTilKontekst(this)
         val behandling =
-            hendelse.behandling(enVeldigSmartMåteÅfinneRiktigForrigeBehandling()).also { behandling ->
+            hendelse.behandling(enVeldigSmartMåteÅfinneRiktigForrigeBehandling(hendelse)).also { behandling ->
                 logger.info {
                     """
                     Oppretter behandling med behandlingId=${behandling.behandlingId} for 
@@ -70,8 +78,8 @@ class Person(
     }
 
     // TODO: Dette er en veldig dum måte å finne forrige behandling på
-    private fun enVeldigSmartMåteÅfinneRiktigForrigeBehandling() =
-        behandlinger.lastOrNull {
+    private fun <T : Regelverkstype> enVeldigSmartMåteÅfinneRiktigForrigeBehandling(hendelse: StartHendelse<T>): Behandling<T>? =
+        behandlinger.filterIsInstance<Behandling<T>>().lastOrNull {
             it.harTilstand(Behandling.TilstandType.Ferdig)
         }
 
@@ -180,7 +188,7 @@ class Person(
             event.medIdent { delegate.forslagTilVedtak(it) }
         }
 
-        override fun ferdig(event: BehandlingFerdig) {
+        override fun <T : Regelverkstype> ferdig(event: BehandlingFerdig<T>) {
             event.medIdent { delegate.ferdig(it) }
         }
 

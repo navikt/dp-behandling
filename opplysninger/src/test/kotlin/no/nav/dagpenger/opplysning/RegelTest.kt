@@ -14,7 +14,7 @@ class RegelTest {
     @Test
     fun `Regel produserer bare nye opplysningen hvis det den avhenger av er nyere enn det den har produsert`() {
         val regelsett =
-            vilkår("regelsett") {
+            vilkår<TøyseteRegelsett>("regelsett") {
                 regel(boolskA) { innhentes }
                 regel(boolskB) { innhentes }
                 regel(boolskC) {

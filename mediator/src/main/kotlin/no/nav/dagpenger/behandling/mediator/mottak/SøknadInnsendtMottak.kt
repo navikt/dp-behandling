@@ -69,7 +69,7 @@ internal class SøknadInnsendtMessage(
 ) : HendelseMessage(packet) {
     override val ident get() = packet["ident"].asText()
     private val søknadId = packet["søknadId"].asUUID()
-    private val hendelse: SøknadInnsendtHendelse
+    private val hendelse: SøknadInnsendtHendelse<Any?>
         get() {
             return SøknadInnsendtHendelse(
                 id,

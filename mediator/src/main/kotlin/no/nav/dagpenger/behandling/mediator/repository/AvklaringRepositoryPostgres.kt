@@ -11,6 +11,7 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryObserver.NyAvklaringHendelse
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
@@ -27,7 +28,7 @@ internal class AvklaringRepositoryPostgres private constructor(
     }
 
     override fun lagreAvklaringer(
-        behandling: Behandling,
+        behandling: Behandling<Regelverkstype>,
         unitOfWork: UnitOfWork<*>,
     ) {
         lagre(behandling, unitOfWork as PostgresUnitOfWork)
@@ -99,7 +100,7 @@ internal class AvklaringRepositoryPostgres private constructor(
         )
 
     private fun lagre(
-        behandling: Behandling,
+        behandling: Behandling<Regelverkstype>,
         unitOfWork: PostgresUnitOfWork,
     ) {
         val avklaringer = behandling.avklaringer()
@@ -182,7 +183,7 @@ internal class AvklaringRepositoryPostgres private constructor(
 
     private fun emitNyAvklaring(
         ident: String,
-        toSpesifikkKontekst: Behandling.BehandlingKontekst,
+        toSpesifikkKontekst: Behandling<Regelverkstype>.BehandlingKontekst,
         avklaring: Avklaring,
     ) {
         observatører.forEach {
@@ -202,7 +203,7 @@ interface AvklaringRepositoryObserver {
 
     data class NyAvklaringHendelse(
         val ident: String,
-        val kontekst: Behandling.BehandlingKontekst,
+        val kontekst: Behandling<Regelverkstype>.BehandlingKontekst,
         val avklaring: Avklaring,
     )
 
@@ -210,7 +211,7 @@ interface AvklaringRepositoryObserver {
 
     data class EndretAvklaringHendelse(
         val ident: String,
-        val kontekst: Behandling.BehandlingKontekst,
+        val kontekst: Behandling<Regelverkstype>.BehandlingKontekst,
         val avklaring: Avklaring,
     )
 }

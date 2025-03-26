@@ -26,13 +26,14 @@ import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Informasjonsbehov
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.NoeGøyFraBehandlingen
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Vedtak
-import no.nav.dagpenger.opplysning.Vilkår
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import no.nav.dagpenger.uuid.UUIDv7
@@ -40,11 +41,11 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.UUID
 
-class Behandling private constructor(
+class Behandling<T : Regelverkstype> private constructor(
     val behandlingId: UUID,
-    val behandler: StartHendelse,
+    val behandler: StartHendelse<T>,
     gjeldendeOpplysninger: Opplysninger,
-    val basertPå: List<Behandling> = emptyList(),
+    val basertPå: List<Behandling<T>> = emptyList(),
     val godkjent: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Godkjent),
     val besluttet: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
     private var tilstand: BehandlingTilstand,
@@ -52,9 +53,9 @@ class Behandling private constructor(
 ) : Aktivitetskontekst,
     BehandlingHåndter {
     constructor(
-        behandler: StartHendelse,
+        behandler: StartHendelse<T>,
         opplysninger: List<Opplysning<*>>,
-        basertPå: List<Behandling> = emptyList(),
+        basertPå: List<Behandling<T>> = emptyList(),
     ) : this(
         behandlingId = UUIDv7.ny(),
         behandler = behandler,
@@ -104,11 +105,11 @@ class Behandling private constructor(
     fun kreverTotrinnskontroll() = behandler.kreverTotrinnskontroll(opplysninger)
 
     companion object {
-        fun rehydrer(
+        fun <T : Regelverkstype> rehydrer(
             behandlingId: UUID,
-            behandler: StartHendelse,
+            behandler: StartHendelse<T>,
             gjeldendeOpplysninger: Opplysninger,
-            basertPå: List<Behandling> = emptyList(),
+            basertPå: List<Behandling<T>> = emptyList(),
             tilstand: TilstandType,
             sistEndretTilstand: LocalDateTime,
             avklaringer: List<Avklaring>,
@@ -125,7 +126,7 @@ class Behandling private constructor(
             besluttet = besluttet,
         )
 
-        fun List<Behandling>.finn(behandlingId: UUID) =
+        fun List<Behandling<*>>.finn(behandlingId: UUID) =
             try {
                 single { it.behandlingId == behandlingId }
             } catch (e: IllegalArgumentException) {
@@ -141,7 +142,7 @@ class Behandling private constructor(
 
     fun opplysninger(): LesbarOpplysninger = opplysninger
 
-    override fun håndter(hendelse: StartHendelse) {
+    override fun håndter(hendelse: StartHendelse<*>) {
         hendelse.kontekst(this)
         tilstand.håndter(this, hendelse)
     }
@@ -217,7 +218,7 @@ class Behandling private constructor(
 
     override fun toSpesifikkKontekst() = BehandlingKontekst(behandlingId, behandler.kontekstMap())
 
-    override fun equals(other: Any?) = other is Behandling && behandlingId == other.behandlingId
+    override fun equals(other: Any?) = other is Behandling<*> && behandlingId == other.behandlingId
 
     override fun hashCode() = behandlingId.hashCode()
 
@@ -264,21 +265,21 @@ class Behandling private constructor(
         }
 
         fun entering(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PersonHendelse,
         ) {
         }
 
         fun håndter(
-            behandling: Behandling,
-            hendelse: StartHendelse,
+            behandling: Behandling<*>,
+            hendelse: StartHendelse<*>,
         ): Unit =
             throw IllegalStateException(
                 "Kan ikke håndtere hendelse ${hendelse.javaClass.simpleName} i tilstand ${this.javaClass.simpleName}",
             )
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ): Unit =
             throw IllegalStateException(
@@ -286,7 +287,7 @@ class Behandling private constructor(
             )
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvbrytBehandlingHendelse,
         ) {
             hendelse.info("Avbryter behandlingen")
@@ -294,7 +295,7 @@ class Behandling private constructor(
         }
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: ForslagGodkjentHendelse,
         ): Unit =
             throw IllegalStateException(
@@ -302,7 +303,7 @@ class Behandling private constructor(
             )
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: LåsHendelse,
         ): Unit =
             throw IllegalStateException(
@@ -310,7 +311,7 @@ class Behandling private constructor(
             )
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: LåsOppHendelse,
         ): Unit =
             throw IllegalStateException(
@@ -318,7 +319,7 @@ class Behandling private constructor(
             )
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ): Unit =
             throw IllegalStateException(
@@ -326,7 +327,7 @@ class Behandling private constructor(
             )
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringKvittertHendelse,
         ): Unit =
             throw IllegalStateException(
@@ -334,7 +335,7 @@ class Behandling private constructor(
             )
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PåminnelseHendelse,
         ) {
             hendelse.kontekst(this)
@@ -342,7 +343,7 @@ class Behandling private constructor(
         }
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: RekjørBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
@@ -350,22 +351,22 @@ class Behandling private constructor(
         }
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: GodkjennBehandlingHendelse,
         ): Unit = throw IllegalStateException("Behandlingen skal godkjennes, men tilstanden støtter ikke dette")
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: BesluttBehandlingHendelse,
         ): Unit = throw IllegalStateException("Behandlingen skal besluttes, men tilstanden støtter ikke dette")
 
         fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: SendTilbakeHendelse,
         ): Unit = throw IllegalStateException("Behandlingen skal sendest tilbake fra totrinnskontroll, men tilstanden støtter ikke dette")
 
         fun leaving(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PersonHendelse,
         ) {
         }
@@ -385,8 +386,8 @@ class Behandling private constructor(
         override val type = TilstandType.UnderOpprettelse
 
         override fun håndter(
-            behandling: Behandling,
-            hendelse: StartHendelse,
+            behandling: Behandling<*>,
+            hendelse: StartHendelse<*>,
         ) {
             hendelse.kontekst(this)
             hendelse.info("Mottatt søknad og startet behandling")
@@ -404,7 +405,7 @@ class Behandling private constructor(
         override val forventetFerdig: LocalDateTime get() = opprettet.plusHours(1)
 
         override fun entering(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PersonHendelse,
         ) {
             behandling.observatører.forEach { it.behandlingStartet() }
@@ -422,7 +423,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PåminnelseHendelse,
         ) {
             hendelse.kontekst(this)
@@ -435,7 +436,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: RekjørBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
@@ -444,7 +445,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
@@ -467,7 +468,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
@@ -483,7 +484,7 @@ class Behandling private constructor(
         override val type = TilstandType.ForslagTilVedtak
 
         override fun entering(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PersonHendelse,
         ) {
             hendelse.kontekst(this)
@@ -493,7 +494,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: LåsHendelse,
         ) {
             hendelse.kontekst(this)
@@ -503,7 +504,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: ForslagGodkjentHendelse,
         ) {
             hendelse.kontekst(this)
@@ -513,7 +514,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
@@ -532,7 +533,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringKvittertHendelse,
         ) {
             hendelse.kontekst(this)
@@ -544,7 +545,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
@@ -559,7 +560,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: RekjørBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
@@ -577,7 +578,7 @@ class Behandling private constructor(
         override val forventetFerdig: LocalDateTime get() = opprettet.plusHours(1)
 
         override fun entering(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PersonHendelse,
         ) {
             hendelse.kontekst(this)
@@ -598,7 +599,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.opplysninger.forEach { opplysning ->
@@ -620,7 +621,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PåminnelseHendelse,
         ) {
             hendelse.kontekst(this)
@@ -636,7 +637,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
@@ -660,7 +661,7 @@ class Behandling private constructor(
         override val type = TilstandType.Avbrutt
 
         override fun entering(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PersonHendelse,
         ) {
             hendelse.info("Behandling avbrutt")
@@ -673,13 +674,13 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvbrytBehandlingHendelse,
         ) { // No-op
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
@@ -687,7 +688,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
@@ -701,7 +702,7 @@ class Behandling private constructor(
         override val type = TilstandType.Låst
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: LåsOppHendelse,
         ) {
             hendelse.kontekst(this)
@@ -711,7 +712,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: ForslagGodkjentHendelse,
         ) {
             hendelse.kontekst(this)
@@ -721,12 +722,12 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvbrytBehandlingHendelse,
         ): Unit = throw IllegalStateException("Kan ikke avbryte en låst behandling")
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
@@ -734,7 +735,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
@@ -742,7 +743,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: LåsHendelse,
         ) {
             hendelse.kontekst(this)
@@ -756,19 +757,19 @@ class Behandling private constructor(
         override val type = TilstandType.Ferdig
 
         override fun entering(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PersonHendelse,
         ) {
             behandling.emitFerdig()
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvbrytBehandlingHendelse,
         ): Unit = throw IllegalStateException("Kan ikke avbryte en ferdig behandling")
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
@@ -776,7 +777,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
@@ -790,7 +791,7 @@ class Behandling private constructor(
         override val type = TilstandType.TilGodkjenning
 
         override fun entering(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: PersonHendelse,
         ) {
             hendelse.kontekst(this)
@@ -800,7 +801,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: GodkjennBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
@@ -821,7 +822,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
@@ -836,7 +837,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvbrytBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
@@ -844,7 +845,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringKvittertHendelse,
         ) {
             hendelse.kontekst(this)
@@ -854,7 +855,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
@@ -862,7 +863,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: RekjørBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
@@ -877,7 +878,7 @@ class Behandling private constructor(
         override val type = TilstandType.TilBeslutning
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: BesluttBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
@@ -890,7 +891,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: SendTilbakeHendelse,
         ) {
             hendelse.kontekst(this)
@@ -899,7 +900,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: AvklaringIkkeRelevantHendelse,
         ) {
             hendelse.kontekst(this)
@@ -907,7 +908,7 @@ class Behandling private constructor(
         }
 
         override fun håndter(
-            behandling: Behandling,
+            behandling: Behandling<*>,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
@@ -950,20 +951,6 @@ class Behandling private constructor(
 
     fun basertPåBehandlinger() = basertPå.map { it.behandlingId }
 
-    fun somVedtak(): Vedtak {
-        val vilkår =
-            behandler.regelverk.relevanteVilkår(opplysninger).map {
-                Vilkår(
-                    navn = it.navn,
-                    hjemmel = "",
-                    vurderingstidspunkt = LocalDateTime.now(),
-                    status = it.utfall.all { true },
-                )
-            }
-
-        TODO()
-    }
-
     private fun emitForslagTilVedtak() {
         val event =
             BehandlingObservatør.BehandlingForslagTilVedtak(
@@ -993,10 +980,16 @@ class Behandling private constructor(
                 besluttet = besluttet,
                 regelverk = behandler.forretningsprosess.regelverk,
                 behandling = this,
+                vedtak = somVedtak(),
             )
 
         observatører.forEach { it.ferdig(event) }
     }
+
+    private fun somVedtak(): Vedtak<T> =
+        behandler.forretningsprosess.regelverk.somVedtak(
+            NoeGøyFraBehandlingen(behandlingId),
+        )
 
     private fun emitVedtaksperiodeEndret(forrigeTilstand: BehandlingTilstand) {
         val event =
@@ -1017,24 +1010,25 @@ interface BehandlingObservatør {
         val behandlingId: UUID,
         val forrigeBehandlingId: List<UUID>,
         val hendelse: EksternId<*>,
-        val behandlingAv: StartHendelse,
+        val behandlingAv: StartHendelse<*>,
         val opplysninger: LesbarOpplysninger,
         val automatiskBehandlet: Boolean,
         val godkjent: Arbeidssteg,
         val besluttet: Arbeidssteg,
     ) : PersonEvent()
 
-    data class BehandlingFerdig(
+    data class BehandlingFerdig<T : Regelverkstype>(
         val behandlingId: UUID,
         val basertPåBehandlinger: List<UUID>,
         val hendelse: EksternId<*>,
-        val behandlingAv: StartHendelse,
+        val behandlingAv: StartHendelse<T>,
         val opplysninger: LesbarOpplysninger,
         val automatiskBehandlet: Boolean,
         val godkjent: Arbeidssteg,
         val besluttet: Arbeidssteg,
-        val regelverk: Regelverk,
-        val behandling: Behandling,
+        val regelverk: Regelverk<T>,
+        val behandling: Behandling<T>,
+        val vedtak: Vedtak<T>,
     ) : PersonEvent()
 
     data class BehandlingEndretTilstand(
@@ -1051,7 +1045,7 @@ interface BehandlingObservatør {
 
     fun avbrutt() {}
 
-    fun ferdig(event: BehandlingFerdig) {}
+    fun <T : Regelverkstype> ferdig(event: BehandlingFerdig<T>) {}
 
     fun endretTilstand(event: BehandlingEndretTilstand) {}
 }

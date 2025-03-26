@@ -33,6 +33,7 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Redigerbar
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
@@ -97,7 +98,7 @@ import kotlin.collections.map
 
 private val logger = KotlinLogging.logger { }
 
-internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
+internal fun Behandling<Regelverkstype>.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
         val lesbareOpplysninger = opplysninger().forDato(opplysninger.finnOpplysning(prøvingsdato).verdi)
@@ -110,7 +111,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 .toSet()
         val generelleAvklaringer = avklaringer.filterNot { it.kode in spesifikkeAvklaringskoder }
 
-        val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(lesbareOpplysninger)
+        val relevanteVilkår: List<Regelsett<*>> = RegelverkDagpenger.relevanteVilkår(lesbareOpplysninger)
         val utfall = relevanteVilkår.flatMap { it.utfall }.all { lesbareOpplysninger.oppfyller(it) }
 
         BehandlingDTO(
@@ -144,7 +145,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
         )
     }
 
-internal fun Behandling.tilSaksbehandlersVurderinger() =
+internal fun Behandling<Regelverkstype>.tilSaksbehandlersVurderinger() =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val avklaringer = avklaringer().filter { it.løstAvSaksbehandler() }.toSet()
         val endredeOpplysninger = opplysninger().finnAlle().filter { it.kilde is Saksbehandlerkilde }.toSet()
@@ -167,7 +168,7 @@ internal fun Behandling.tilSaksbehandlersVurderinger() =
         )
     }
 
-private fun Regelsett.tilRegelsettDTO(
+private fun Regelsett<*>.tilRegelsettDTO(
     opplysninger: Set<Opplysning<*>>,
     avklaringer: Set<Avklaring>,
     lesbarOpplysninger: LesbarOpplysninger,
@@ -218,7 +219,7 @@ private fun tilStatus(utfall: List<Opplysning<Boolean>>): RegelsettDTO.Status {
     }
 }
 
-internal fun Behandling.tilBehandlingOpplysningerDTO(): BehandlingOpplysningerDTO =
+internal fun Behandling<Regelverkstype>.tilBehandlingOpplysningerDTO(): BehandlingOpplysningerDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val lesbareOpplysninger = this.opplysninger()
         BehandlingOpplysningerDTO(

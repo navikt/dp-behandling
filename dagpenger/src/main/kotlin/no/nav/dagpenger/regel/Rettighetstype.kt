@@ -35,7 +35,7 @@ object Rettighetstype {
     val rettighetstype = boolsk(RettighetstypeId, beskrivelse = "Rettighetstype", behovId = "Rettighetstype")
 
     val regelsett =
-        fastsettelse(
+        fastsettelse<FastsettelserForDagpenger>(
             folketrygden.hjemmel(0, 0, "Rettighetstype", "Rettighetstype"),
         ) {
             regel(erPermittert) { innhentes }

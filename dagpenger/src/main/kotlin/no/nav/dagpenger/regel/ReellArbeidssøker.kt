@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
+import no.nav.dagpenger.opplysning.Vilkår
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -94,7 +95,7 @@ object ReellArbeidssøker {
         boolsk(villigTilMinimumArbeidstidId, "Villig til å jobbe minimum arbeidstid", synlig = { it.erSann(kanJobbeDeltid) == false })
 
     val regelsett =
-        vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
+        vilkår<FastsettelserForDagpenger>(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
             skalVurderes { it.oppfyller(kravTilAlder) }
 
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
@@ -136,6 +137,22 @@ object ReellArbeidssøker {
             påvirkerResultat {
                 it.erSann(kravTilAlder) &&
                     (it.oppfyller(kanReellArbeidssøkerVurderes) || oppfyllerKravetTilMinsteinntektEllerVerneplikt(it))
+            }
+
+            resultat {
+                val b = it.finnOpplysning(kravTilArbeidssøker)
+                vilkårsvurdering {
+                    Vilkår(
+                        navn = b.opplysningstype.navn,
+                        hjemmel = hjemmel.toString(),
+                        vurderingstidspunkt = b.opprettet,
+                        status = b.verdi,
+                    )
+                }
+
+                fastsettelse {
+                    copy(sats = Fastsatt.Sats(123, emptyList()))
+                }
             }
         }
 

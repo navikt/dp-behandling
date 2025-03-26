@@ -24,10 +24,10 @@ class SøknadInnsendtHendelse(
     gjelderDato: LocalDate,
     val fagsakId: Int,
     opprettet: LocalDateTime,
-) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
+) : StartHendelse<FastsettelserForDagpenger>(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
     override val forretningsprosess = Søknadsprosess()
 
-    override val regelverk: Regelverk
+    override val regelverk: Regelverk<FastsettelserForDagpenger>
         get() = forretningsprosess.regelverk
 
     override fun regelkjøring(opplysninger: Opplysninger) = forretningsprosess.regelkjøring(opplysninger)
@@ -38,7 +38,7 @@ class SøknadInnsendtHendelse(
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
-    override fun behandling(forrigeBehandling: Behandling?) =
+    override fun behandling(forrigeBehandling: Behandling<FastsettelserForDagpenger>?) =
         Behandling(
             behandler =
                 Hendelse(

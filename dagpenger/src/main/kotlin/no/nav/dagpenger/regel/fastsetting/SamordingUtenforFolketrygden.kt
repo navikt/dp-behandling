@@ -17,6 +17,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.OppgittAndreYtelserUtenforNav
+import no.nav.dagpenger.regel.FastsettelserForDagpenger
 import no.nav.dagpenger.regel.OpplysningsTyper.andreØkonomiskeYtelserId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpEtterlønnId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpFraOffentligTjenestepensjonsordningId
@@ -157,7 +158,7 @@ object SamordingUtenforFolketrygden {
         )
 
     val regelsett =
-        fastsettelse(
+        fastsettelse<FastsettelserForDagpenger>(
             folketrygden.hjemmel(
                 4,
                 26,

@@ -72,7 +72,7 @@ internal class MessageMediator(
     }
 
     override fun behandle(
-        hendelse: StartHendelse,
+        hendelse: StartHendelse<*>,
         message: SøknadInnsendtMessage,
         context: MessageContext,
     ) {
@@ -172,7 +172,7 @@ internal class MessageMediator(
     }
 
     override fun behandle(
-        hendelse: StartHendelse,
+        hendelse: StartHendelse<*>,
         beregnMeldekortMessage: BeregnMeldekortMessage,
         context: MessageContext,
     ) {
@@ -198,7 +198,7 @@ internal class MessageMediator(
 
 internal interface IMessageMediator {
     fun behandle(
-        hendelse: StartHendelse,
+        hendelse: StartHendelse<*>,
         message: SøknadInnsendtMessage,
         context: MessageContext,
     )
@@ -258,7 +258,7 @@ internal interface IMessageMediator {
     )
 
     fun behandle(
-        hendelse: StartHendelse,
+        hendelse: StartHendelse<*>,
         beregnMeldekortMessage: BeregnMeldekortMessage,
         context: MessageContext,
     )

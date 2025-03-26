@@ -7,6 +7,7 @@ import no.nav.dagpenger.behandling.mediator.repository.UnitOfWork
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
+import no.nav.dagpenger.opplysning.Regelverkstype
 import java.util.UUID
 
 class InMemoryPersonRepository :
@@ -16,25 +17,25 @@ class InMemoryPersonRepository :
 
     override fun hent(ident: Ident): Person? = persondb[ident]
 
-    override fun hentBehandling(behandlingId: UUID): Behandling? =
+    override fun hentBehandling(behandlingId: UUID): Behandling<Regelverkstype>? =
         persondb.values
             .flatMap {
                 it.behandlinger()
             }.find { it.behandlingId == behandlingId }
 
-    override fun lagre(behandling: Behandling) {
+    override fun lagre(behandling: Behandling<Regelverkstype>) {
         // no-op
     }
 
     override fun lagre(
-        behandling: Behandling,
+        behandling: Behandling<Regelverkstype>,
         unitOfWork: UnitOfWork<*>,
     ) {
         TODO("Not yet implemented")
     }
 
     override fun lagreAvklaringer(
-        behandling: Behandling,
+        behandling: Behandling<Regelverkstype>,
         unitOfWork: UnitOfWork<*>,
     ) {
         TODO("Not yet implemented")

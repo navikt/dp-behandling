@@ -53,6 +53,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
@@ -77,7 +78,7 @@ internal class BehandlingApiTest {
     private val ident = "12345123451"
     private val rapid = spyk(TestRapid())
     private val hendelse =
-        SøknadInnsendtHendelse(
+        SøknadInnsendtHendelse<Any>(
             meldingsreferanseId = UUIDv7.ny(),
             ident = ident,
             søknadId = UUIDv7.ny(),
@@ -127,7 +128,7 @@ internal class BehandlingApiTest {
             ),
         )
     private val behandling =
-        Behandling.rehydrer(
+        Behandling.rehydrer<Regelverkstype>(
             behandlingId = UUIDv7.ny(),
             behandler = hendelse,
             gjeldendeOpplysninger =

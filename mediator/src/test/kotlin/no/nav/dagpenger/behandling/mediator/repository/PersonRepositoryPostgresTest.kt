@@ -11,6 +11,7 @@ import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -31,7 +32,7 @@ class PersonRepositoryPostgresTest {
                 ),
             )
     private val søknadInnsendtHendelse =
-        SøknadInnsendtHendelse(
+        SøknadInnsendtHendelse<Any>(
             meldingsreferanseId = søknadId,
             ident = fnr,
             søknadId = søknadId,
@@ -69,7 +70,7 @@ class PersonRepositoryPostgresTest {
         withMigratedDb {
             val ident = Ident(fnr)
             val opplysning = Faktum(Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Heltall"), 5)
-            val behandling = Behandling(søknadInnsendtHendelse, listOf(opplysning))
+            val behandling = Behandling<Regelverkstype>(søknadInnsendtHendelse, listOf(opplysning))
             val person = Person(ident, listOf(behandling))
 
             personRepositoryPostgres.lagre(person)
@@ -94,7 +95,7 @@ class PersonRepositoryPostgresTest {
     fun `lagre setter ikke inn person i databasen når personen allerede finnes`() =
         withMigratedDb {
             val ident = Ident(fnr)
-            val behandling = Behandling(søknadInnsendtHendelse, emptyList())
+            val behandling = Behandling<Regelverkstype>(søknadInnsendtHendelse, emptyList())
             val person = Person(ident, listOf(behandling))
 
             personRepositoryPostgres.lagre(person)

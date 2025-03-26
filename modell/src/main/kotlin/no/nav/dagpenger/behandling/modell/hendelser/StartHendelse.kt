@@ -2,19 +2,20 @@ package no.nav.dagpenger.behandling.modell.hendelser
 
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.Forretningsprosess
+import no.nav.dagpenger.opplysning.Regelverkstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
 // Baseklasse for alle hendelser som kan påvirke dagpengene til en person og må behandles
-abstract class StartHendelse(
+abstract class StartHendelse<T : Regelverkstype>(
     val meldingsreferanseId: UUID,
     val ident: String,
     val eksternId: EksternId<*>,
     val skjedde: LocalDate,
     opprettet: LocalDateTime,
 ) : PersonHendelse(meldingsreferanseId, ident, opprettet),
-    Forretningsprosess {
+    Forretningsprosess<T> {
     open val type: String = this.javaClass.simpleName
 
     override fun kontekstMap() =
@@ -22,7 +23,7 @@ abstract class StartHendelse(
             "gjelderDato" to skjedde.toString(),
         ) + eksternId.kontekstMap()
 
-    abstract val forretningsprosess: Forretningsprosess
+    abstract val forretningsprosess: Forretningsprosess<T>
 
-    abstract fun behandling(forrigeBehandling: Behandling?): Behandling
+    abstract fun behandling(forrigeBehandling: Behandling<T>?): Behandling<T>
 }

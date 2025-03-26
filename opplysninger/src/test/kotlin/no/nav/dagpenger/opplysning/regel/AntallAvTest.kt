@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.februar
 import no.nav.dagpenger.opplysning.januar
@@ -19,8 +20,8 @@ import org.junit.jupiter.api.Test
 class AntallAvTest {
     private val barnetype = Opplysningstype.barn(Opplysningstype.Id(UUIDv7.ny(), BarnDatatype), "Barn")
     private val antallBarn = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Antall barn")
-    val regelsett =
-        vilkår("Antall barn som kvalifiserer") {
+    private val regelsett =
+        vilkår<TøyseteRegelsett>("Antall barn som kvalifiserer") {
             regel(barnetype) { innhentes }
             regel(antallBarn) { antallAv(barnetype) { kvalifiserer } }
         }

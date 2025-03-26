@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling.mediator.api
 import kotlinx.coroutines.delay
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.opplysning.Regelverkstype
 import java.lang.System.currentTimeMillis
 import java.util.UUID
 import kotlin.time.Duration
@@ -43,7 +44,7 @@ class SjekkerBuilder {
 
     fun sjekkAt(
         beskrivelse: String,
-        sjekk: Behandling.() -> Boolean,
+        sjekk: Behandling<Regelverkstype>.() -> Boolean,
     ) {
         sjekker.add(Sjekk(beskrivelse, sjekk))
     }
@@ -53,5 +54,5 @@ class SjekkerBuilder {
 
 internal data class Sjekk(
     val beskrivelse: String,
-    val sjekk: Behandling.() -> Boolean,
+    val sjekk: Behandling<Regelverkstype>.() -> Boolean,
 )

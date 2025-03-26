@@ -99,7 +99,7 @@ fun lagVedtak(
 ): VedtakDTO {
     // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
     val opplysningerSomGjelderPåPrøvingsdato = opplysninger.forDato(opplysninger.finnOpplysning(prøvingsdato).verdi)
-    val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysningerSomGjelderPåPrøvingsdato)
+    val relevanteVilkår: List<Regelsett<*>> = RegelverkDagpenger.relevanteVilkår(opplysningerSomGjelderPåPrøvingsdato)
     val vilkår: List<VilkaarDTO> =
         relevanteVilkår
             .flatMap { regelsett ->

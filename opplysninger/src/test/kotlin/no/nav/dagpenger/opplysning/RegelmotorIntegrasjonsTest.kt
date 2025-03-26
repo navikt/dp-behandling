@@ -42,7 +42,7 @@ class RegelmotorIntegrasjonsTest {
         val opplysninger = Opplysninger(tidligereBehandling)
         val alleVilkår = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Vilkår")
         val regelsett =
-            vilkår("Krav til Dagpenger") {
+            vilkår<TøyseteRegelsett>("Krav til Dagpenger") {
                 regel(alleVilkår) { alle(ReglerForInntektTest.minsteinntekt, Alderskrav.vilkår) }
             }
         val regelkjøring =
@@ -149,7 +149,7 @@ class RegelmotorIntegrasjonsTest {
         val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
         val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
         val regelsett =
-            vilkår("test") {
+            vilkår<TøyseteRegelsett>("test") {
                 regel(a0) { innhentes }
                 regel(a) { alle(a0) }
                 regel(d) { innhentes }
@@ -160,8 +160,8 @@ class RegelmotorIntegrasjonsTest {
             Regelkjøring(
                 fraDato,
                 opplysninger,
-                object : Forretningsprosess {
-                    override val regelverk: Regelverk
+                object : Forretningsprosess<TøyseteRegelsett> {
+                    override val regelverk: Regelverk<TøyseteRegelsett>
                         get() = TODO("Not yet implemented")
 
                     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -176,7 +176,7 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
-                    override fun regelsett(): List<Regelsett> = listOf(regelsett)
+                    override fun regelsett(): List<Regelsett<TøyseteRegelsett>> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
                 },
@@ -203,7 +203,7 @@ class RegelmotorIntegrasjonsTest {
         val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
         val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
         val regelsett =
-            vilkår("test") {
+            vilkår<TøyseteRegelsett>("test") {
                 regel(a0) { innhentes }
                 regel(a) { alle(a0) }
                 regel(d) { alle(a0) }
@@ -214,8 +214,8 @@ class RegelmotorIntegrasjonsTest {
             Regelkjøring(
                 fraDato,
                 opplysninger,
-                object : Forretningsprosess {
-                    override val regelverk: Regelverk
+                object : Forretningsprosess<TøyseteRegelsett> {
+                    override val regelverk: Regelverk<TøyseteRegelsett>
                         get() = TODO("Not yet implemented")
 
                     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -230,7 +230,7 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
-                    override fun regelsett(): List<Regelsett> = listOf(regelsett)
+                    override fun regelsett(): List<Regelsett<TøyseteRegelsett>> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
                 },
@@ -263,7 +263,7 @@ class RegelmotorIntegrasjonsTest {
         val i = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "i")
 
         val regelsett =
-            vilkår("test av regelsett") {
+            vilkår<TøyseteRegelsett>("test av regelsett") {
                 regel(e) { innhentes }
                 regel(f) { innhentes }
                 regel(g) { innhentes }
@@ -282,8 +282,8 @@ class RegelmotorIntegrasjonsTest {
             Regelkjøring(
                 fraDato,
                 opplysninger,
-                object : Forretningsprosess {
-                    override val regelverk: Regelverk
+                object : Forretningsprosess<TøyseteRegelsett> {
+                    override val regelverk: Regelverk<TøyseteRegelsett>
                         get() = TODO("Not yet implemented")
 
                     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -298,7 +298,7 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
-                    override fun regelsett(): List<Regelsett> = listOf(regelsett)
+                    override fun regelsett(): List<Regelsett<TøyseteRegelsett>> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
                         val ønsker = mutableListOf<Opplysningstype<*>>()
@@ -340,8 +340,8 @@ class RegelmotorIntegrasjonsTest {
     }
 }
 
-private class TestProsess : Forretningsprosess {
-    override val regelverk: Regelverk
+private class TestProsess : Forretningsprosess<TøyseteRegelsett> {
+    override val regelverk: Regelverk<TøyseteRegelsett>
         get() = TODO("Not yet implemented")
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -356,7 +356,7 @@ private class TestProsess : Forretningsprosess {
         TODO("Not yet implemented")
     }
 
-    override fun regelsett(): List<Regelsett> = listOf(Alderskrav.regelsett, Prøvingsdato.regelsett)
+    override fun regelsett(): List<Regelsett<TøyseteRegelsett>> = listOf(Alderskrav.regelsett, Prøvingsdato.regelsett)
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = listOf(Alderskrav.vilkår, prøvingsdato)
 }

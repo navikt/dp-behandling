@@ -5,11 +5,12 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
+import no.nav.dagpenger.opplysning.Regelverkstype
 import java.util.UUID
 
 interface AvklaringRepository {
     fun lagreAvklaringer(
-        behandling: Behandling,
+        behandling: Behandling<Regelverkstype>,
         unitOfWork: UnitOfWork<*>,
     )
 
@@ -26,12 +27,12 @@ interface BegrunnelseRepository {
 interface BehandlingRepository :
     AvklaringRepository,
     BegrunnelseRepository {
-    fun hentBehandling(behandlingId: UUID): Behandling?
+    fun hentBehandling(behandlingId: UUID): Behandling<Regelverkstype>?
 
-    fun lagre(behandling: Behandling)
+    fun lagre(behandling: Behandling<Regelverkstype>)
 
     fun lagre(
-        behandling: Behandling,
+        behandling: Behandling<Regelverkstype>,
         unitOfWork: UnitOfWork<*>,
     )
 }

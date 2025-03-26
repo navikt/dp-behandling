@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.tomHjemmel
@@ -28,7 +29,7 @@ class MinsteinntektSteg : No {
     private val fraDato = 10.mai(2022)
     private val regelsett =
         RegelverkDagpenger.regelsettFor(minsteinntekt) + RegelverkDagpenger.regelsettFor(oppfyllerKravetTilVerneplikt) +
-            vilkår(tomHjemmel("foo")) {
+            vilkår<Regelverkstype>(tomHjemmel("foo")) {
                 regel(minsteinntektEllerVerneplikt) { enAv(minsteinntekt, oppfyllerKravetTilVerneplikt) }
             }
     private val opplysninger: Opplysninger = Opplysninger()

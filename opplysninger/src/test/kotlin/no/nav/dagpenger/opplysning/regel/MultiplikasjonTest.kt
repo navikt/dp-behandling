@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.TestOpplysningstyper.beløpA
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.beløpB
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.faktorB
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.heltallA
+import no.nav.dagpenger.opplysning.TøyseteRegelsett
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -22,7 +23,7 @@ class MultiplikasjonTest {
             Regelkjøring(
                 1.mai,
                 opplysninger,
-                vilkår("regelsett") {
+                vilkår<TøyseteRegelsett>("regelsett") {
                     regel(beløpB) { innhentes }
                     regel(faktorB) { innhentes }
                     regel(beløpA) { multiplikasjon(beløpB, faktorB) }
@@ -40,7 +41,7 @@ class MultiplikasjonTest {
             Regelkjøring(
                 1.mai,
                 opplysninger,
-                vilkår("regelsett") {
+                vilkår<TøyseteRegelsett>("regelsett") {
                     regel(beløpB) { innhentes }
                     regel(heltallA) { innhentes }
                     regel(beløpA) { multiplikasjon(beløpB, heltallA) }

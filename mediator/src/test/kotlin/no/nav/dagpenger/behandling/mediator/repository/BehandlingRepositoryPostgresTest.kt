@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Regelverkstype
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -25,7 +26,7 @@ class BehandlingRepositoryPostgresTest {
     private val ident = "123456789011"
     private val søknadId = UUIDv7.ny()
     private val søknadInnsendtHendelse =
-        SøknadInnsendtHendelse(
+        SøknadInnsendtHendelse<Any>(
             meldingsreferanseId = søknadId,
             ident = ident,
             søknadId = søknadId,
@@ -37,7 +38,7 @@ class BehandlingRepositoryPostgresTest {
     private val tidligereOpplysning =
         Faktum(Opplysningstype.desimaltall(Opplysningstype.Id(UUIDv7.ny(), Desimaltall), "tidligere-opplysning"), 1.0)
     private val basertPåBehandling =
-        Behandling.rehydrer(
+        Behandling.rehydrer<Regelverkstype>(
             behandlingId = UUIDv7.ny(),
             behandler = søknadInnsendtHendelse,
             gjeldendeOpplysninger = Opplysninger(listOf(prøvingsdatoOpplysning, tidligereOpplysning)),

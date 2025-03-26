@@ -3,10 +3,11 @@ package no.nav.dagpenger.opplysning
 import no.nav.dagpenger.dag.DAG
 import no.nav.dagpenger.dag.Edge
 import no.nav.dagpenger.dag.Node
+import no.nav.dagpenger.opplysning.dsl.VedtakBygger
 import java.time.LocalDate
 
-class Regelverk(
-    vararg regelsett: Regelsett,
+class Regelverk<T : Regelverkstype>(
+    vararg regelsett: Regelsett<T>,
 ) {
     private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
     val produserer = regelsett.flatMap { it.produserer }.toSet()
@@ -19,8 +20,8 @@ class Regelverk(
 
     fun regelsettAvType(type: RegelsettType) = regelsett.filter { it.type == type }
 
-    fun regelsettFor(opplysningstype: Opplysningstype<*>): Set<Regelsett> {
-        val nødvendigeRegelsett = mutableSetOf<Regelsett>()
+    fun regelsettFor(opplysningstype: Opplysningstype<*>): Set<Regelsett<T>> {
+        val nødvendigeRegelsett = mutableSetOf<Regelsett<T>>()
 
         traverseOpplysningstyper(opplysningstype) { regelsett ->
             nødvendigeRegelsett.add(regelsett)
@@ -29,8 +30,8 @@ class Regelverk(
         return nødvendigeRegelsett.toSet()
     }
 
-    fun regeltreFor(opplysningstype: Opplysningstype<*>): DAG<Regelsett, String> {
-        val edges = mutableSetOf<Edge<Regelsett, String>>()
+    fun regeltreFor(opplysningstype: Opplysningstype<*>): DAG<Regelsett<T>, String> {
+        val edges = mutableSetOf<Edge<Regelsett<T>, String>>()
 
         traverseOpplysningstyper(opplysningstype) { currentRegelsett ->
             for (avhengighet in currentRegelsett.avhengerAv) {
@@ -42,7 +43,7 @@ class Regelverk(
         return DAG(edges.toList())
     }
 
-    fun relevanteVilkår(opplysninger: LesbarOpplysninger): List<Regelsett> =
+    fun relevanteVilkår(opplysninger: LesbarOpplysninger): List<Regelsett<T>> =
         regelsett
             .filter { it.type == RegelsettType.Vilkår }
             .filter { it.skalKjøres(opplysninger) }
@@ -51,7 +52,7 @@ class Regelverk(
     // Bruker Breadth-First Search (BFS) til å traversere regelsettene
     private fun traverseOpplysningstyper(
         start: Opplysningstype<*>,
-        block: (Regelsett) -> Unit,
+        block: (Regelsett<T>) -> Unit,
     ) {
         val visited = mutableSetOf<Opplysningstype<*>>()
         val queue = ArrayDeque<Opplysningstype<*>>()
@@ -67,4 +68,6 @@ class Regelverk(
             }
         }
     }
+
+    fun somVedtak(metadata: NoeGøyFraBehandlingen): Vedtak<T> = VedtakBygger<T>(metadata).bygg(this)
 }
