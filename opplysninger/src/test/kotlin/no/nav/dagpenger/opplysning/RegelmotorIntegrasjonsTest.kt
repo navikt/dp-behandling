@@ -176,6 +176,10 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
+                    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
+                        TODO("Not yet implemented")
+                    }
+
                     override fun regelsett(): List<Regelsett> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
@@ -227,6 +231,10 @@ class RegelmotorIntegrasjonsTest {
                     }
 
                     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
                         TODO("Not yet implemented")
                     }
 
@@ -298,6 +306,10 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
+                    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
+                        TODO("Not yet implemented")
+                    }
+
                     override fun regelsett(): List<Regelsett> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
@@ -353,6 +365,10 @@ private class TestProsess : Forretningsprosess {
     }
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
         TODO("Not yet implemented")
     }
 

@@ -32,6 +32,10 @@ private class Regelsettprosess(
         TODO("Not yet implemented")
     }
 
+    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
+        TODO("Not yet implemented")
+    }
+
     override fun regelsett() = regelsett
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = opplysningstypes

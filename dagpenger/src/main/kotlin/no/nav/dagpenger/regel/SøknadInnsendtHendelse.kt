@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -37,6 +38,8 @@ class SøknadInnsendtHendelse(
     override fun kontrollpunkter() = forretningsprosess.kontrollpunkter()
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
+
+    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = opplysninger.finnOpplysning(prøvingsdato).verdi
 
     override fun behandling(forrigeBehandling: Behandling?) =
         Behandling(

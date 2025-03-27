@@ -1,5 +1,7 @@
 package no.nav.dagpenger.opplysning
 
+import java.time.LocalDate
+
 interface Forretningsprosess {
     val regelverk: Regelverk
     val navn: String get() = this.javaClass.simpleName
@@ -9,6 +11,8 @@ interface Forretningsprosess {
     fun kontrollpunkter(): List<IKontrollpunkt>
 
     fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean
+
+    fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate
 
     fun regelsett() = regelverk.regelsett
 

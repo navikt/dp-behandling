@@ -22,19 +22,40 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.TemporalCollection
+import java.time.LocalDate
+import java.util.UUID
+
+data class Rettighetstatus(
+    val virkningsdato: LocalDate,
+    val utfall: Boolean,
+    val behandlingId: UUID,
+)
 
 class Person(
     val ident: Ident,
     behandlinger: List<Behandling>,
+    private val rettighetstatus: TemporalCollection<Rettighetstatus> = TemporalCollection<Rettighetstatus>(),
 ) : Aktivitetskontekst,
-    PersonHåndter {
-    private val observatører = mutableSetOf<PersonObservatør>()
+    PersonHåndter,
+    PersonObservatør {
+    private val observatører =
+        mutableSetOf<PersonObservatør>()
+
+    fun rettighethistorikk() = rettighetstatus.contents()
+
+    fun harRettighet(dato: LocalDate) = runCatching { rettighetstatus.get(dato).utfall }.getOrElse { false }
+
     private val behandlinger = behandlinger.toMutableList()
 
     constructor(ident: Ident) : this(ident, mutableListOf())
 
     private companion object {
         val logger = KotlinLogging.logger { }
+    }
+
+    override fun ferdig(event: BehandlingFerdig) {
+        rettighetstatus.put(event.virkningsdato, Rettighetstatus(event.virkningsdato, event.utfall, event.behandlingId))
     }
 
     override fun håndter(hendelse: StartHendelse) {
@@ -150,7 +171,10 @@ class Person(
 
     fun registrer(observatør: PersonObservatør) {
         observatører.add(observatør)
-        behandlinger.forEach { it.registrer(PersonObservatørAdapter(ident.identifikator(), observatør)) }
+        behandlinger.forEach {
+            it.registrer(PersonObservatørAdapter(ident.identifikator(), observatør))
+            it.registrer(this)
+        }
     }
 
     private fun PersonHendelse.leggTilKontekst(kontekst: Aktivitetskontekst) {

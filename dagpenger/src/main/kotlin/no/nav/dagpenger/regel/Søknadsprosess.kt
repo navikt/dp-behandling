@@ -74,6 +74,8 @@ class Søknadsprosess : RegistrertForretningsprosess() {
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = minsteinntekt(opplysninger) && alder(opplysninger)
 
+    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = prøvingsdato(opplysninger)
+
     override fun regelsett() = regelverk.regelsett
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =

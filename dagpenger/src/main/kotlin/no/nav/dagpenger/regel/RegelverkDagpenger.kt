@@ -1,7 +1,6 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
@@ -49,9 +48,4 @@ val RegelverkDagpenger =
 fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
     opplysninger.erSann(minsteinntekt) || opplysninger.erSann(oppfyllerKravetTilVerneplikt)
 
-fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
-    RegelverkDagpenger.regelsett
-        .filter { it.type == RegelsettType.Vilkår }
-        .filter { it.påvirkerResultat(opplysninger) }
-        .flatMap { it.utfall }
-        .all { opplysninger.erSann(it) }
+fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean = RegelverkDagpenger.utfall(opplysninger)

@@ -13,6 +13,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.maps.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -174,11 +175,12 @@ internal class PersonMediatorTest {
     fun `søknad med for høy alder skal automatisk avslås`() =
         withMigratedDb {
             registrerOpplysningstyper()
+            val søknadsdato = 6.mai(2021)
             val testPerson =
                 TestPerson(
                     ident,
                     rapid,
-                    søknadsdato = 6.mai(2021),
+                    søknadsdato = søknadsdato,
                     alder = 76,
                 )
             løsbehandlingFramTilAlder(testPerson)
@@ -193,16 +195,6 @@ internal class PersonMediatorTest {
 
             testPerson.markerAvklaringerIkkeRelevant(åpneAvklaringer())
 
-            personRepository.hent(ident.tilPersonIdentfikator()).also {
-                it.shouldNotBeNull()
-                it.behandlinger().size shouldBe 1
-
-                it
-                    .behandlinger()
-                    .first()
-                    .aktivAvklaringer.size shouldBe 0
-            }
-
             rapid.harHendelse("vedtak_fattet") {
                 medMeldingsInnhold("fastsatt") {
                     medBoolsk("utfall") shouldBe false
@@ -213,6 +205,19 @@ internal class PersonMediatorTest {
             godkjennOpplysninger("avslag")
 
             vedtakJson()
+
+            personRepository.hent(ident.tilPersonIdentfikator()).also {
+                it.shouldNotBeNull()
+                it.behandlinger().size shouldBe 1
+
+                it
+                    .behandlinger()
+                    .first()
+                    .aktivAvklaringer.size shouldBe 0
+
+                it.rettighethistorikk().shouldNotBeEmpty()
+                it.harRettighet(søknadsdato) shouldBe false
+            }
         }
 
     @Test
@@ -362,11 +367,12 @@ internal class PersonMediatorTest {
     fun `Søknad med nok inntekt skal innvilges`() =
         withMigratedDb {
             registrerOpplysningstyper()
+            val søknadsdato = 6.mai(2021)
             val testPerson =
                 TestPerson(
                     ident,
                     rapid,
-                    søknadsdato = 6.mai(2021),
+                    søknadsdato = søknadsdato,
                     InntektSiste12Mnd = 500000,
                 )
             val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
@@ -418,6 +424,13 @@ internal class PersonMediatorTest {
             }
 
             vedtakJson()
+
+            personRepository.hent(ident.tilPersonIdentfikator()).also {
+                it.shouldNotBeNull()
+                it.harRettighet(søknadsdato.minusDays(1)) shouldBe false
+                it.harRettighet(søknadsdato) shouldBe true
+                it.harRettighet(søknadsdato.plusDays(1)) shouldBe true
+            }
         }
 
     @Test

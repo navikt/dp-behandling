@@ -36,6 +36,7 @@ import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -958,6 +959,8 @@ class Behandling private constructor(
     private fun emitFerdig() {
         val event =
             BehandlingFerdig(
+                utfall = behandler.regelverk.utfall(opplysninger()),
+                virkningsdato = behandler.virkningsdato(opplysninger()),
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
                 hendelse = behandler.eksternId,
@@ -1036,6 +1039,8 @@ interface BehandlingObservatør {
         val automatiskBehandlet: Boolean,
         val godkjent: Arbeidssteg,
         val besluttet: Arbeidssteg,
+        val utfall: Boolean,
+        val virkningsdato: LocalDate,
     ) : PersonEvent()
 
     data class BehandlingEndretTilstand(

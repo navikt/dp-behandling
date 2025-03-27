@@ -7,6 +7,8 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
+import no.nav.dagpenger.behandling.modell.Rettighetstatus
+import no.nav.dagpenger.opplysning.TemporalCollection
 
 class PersonRepositoryPostgres(
     private val behandlingRepository: BehandlingRepository,
@@ -27,10 +29,14 @@ class PersonRepositoryPostgres(
                     mapOf("ident" to ident.identifikator()),
                 ).map { row ->
                     val dbIdent = Ident(row.string("ident"))
+                    val rettighetstatuser = TemporalCollection<Rettighetstatus>()
+                    rettighetstatusFor(dbIdent).forEach {
+                        rettighetstatuser.put(it.first, it.second)
+                    }
                     val behandlinger = behandlingerFor(dbIdent)
                     logger.info { "Hentet person med ${behandlinger.size} behandlinger" }
                     Metrikk.registrerAntallBehandlinger(behandlinger.size)
-                    Person(dbIdent, behandlinger)
+                    Person(dbIdent, behandlinger, rettighetstatuser)
                 }.asSingle,
             )
         }
@@ -46,6 +52,25 @@ class PersonRepositoryPostgres(
                     mapOf("ident" to ident.alleIdentifikatorer().first()),
                 ).map { row ->
                     behandlingRepository.hentBehandling(row.uuid("behandling_id"))
+                }.asList,
+            )
+        }
+
+    private fun PersonRepositoryPostgres.rettighetstatusFor(ident: Ident) =
+        sessionOf(dataSource).use { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT * FROM rettighetstatus WHERE ident = :ident
+                    """.trimIndent(),
+                    mapOf("ident" to ident.identifikator()),
+                ).map { row ->
+                    val gjelderFra = row.localDateTime("gjelder_fra")
+                    val virkningsdato = row.localDate("virkningsdato")
+                    val utfall = row.boolean("har_rettighet")
+                    val behandlingId = row.uuid("behandling_id")
+                    Pair(gjelderFra, Rettighetstatus(virkningsdato, utfall, behandlingId))
                 }.asList,
             )
         }
@@ -74,6 +99,25 @@ class PersonRepositoryPostgres(
                 mapOf("ident" to person.ident.identifikator()),
             ).asUpdate,
         )
+        person.rettighethistorikk().forEach { gjelderFra, rettighetstatus ->
+            tx.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    INSERT INTO rettighetstatus (ident, gjelder_fra, virkningsdato, har_rettighet, behandling_id)
+                    VALUES (:ident, :gjelderFra, :virkningsdato, :harRettighet, :behandlingId)
+                    ON CONFLICT (behandling_id) DO NOTHING 
+                    """.trimIndent(),
+                    mapOf(
+                        "ident" to person.ident.identifikator(),
+                        "gjelderFra" to gjelderFra,
+                        "virkningsdato" to rettighetstatus.virkningsdato,
+                        "behandlingId" to rettighetstatus.behandlingId,
+                        "harRettighet" to rettighetstatus.utfall,
+                    ),
+                ).asUpdate,
+            )
+        }
         person.behandlinger().forEach { behandling ->
             behandlingRepository.lagre(behandling, unitOfWork)
 

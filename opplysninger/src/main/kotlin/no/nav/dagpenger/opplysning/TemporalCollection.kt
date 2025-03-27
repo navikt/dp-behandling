@@ -7,6 +7,8 @@ import java.time.LocalDateTime
 class TemporalCollection<R> {
     private val contents = mutableMapOf<LocalDateTime, R>()
 
+    fun contents() = contents.toMap()
+
     private val milestones get() = contents.keys.toList().reversed()
 
     fun get(date: LocalDateTime): R =
@@ -18,7 +20,7 @@ class TemporalCollection<R> {
 
     fun get(date: LocalDate): R = get(date.atStartOfDay())
 
-    private fun put(
+    fun put(
         at: LocalDateTime,
         item: R,
     ) {

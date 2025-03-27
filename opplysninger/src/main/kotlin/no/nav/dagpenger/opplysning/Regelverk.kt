@@ -5,6 +5,11 @@ import no.nav.dagpenger.dag.Edge
 import no.nav.dagpenger.dag.Node
 import java.time.LocalDate
 
+data class Utfall(
+    val virkningsdato: LocalDate,
+    val utfall: Boolean,
+)
+
 class Regelverk(
     vararg regelsett: Regelsett,
 ) {
@@ -47,6 +52,11 @@ class Regelverk(
             .filter { it.type == RegelsettType.Vilkår }
             .filter { it.skalKjøres(opplysninger) }
             .filter { it.påvirkerResultat(opplysninger) }
+
+    fun utfall(opplysninger: LesbarOpplysninger): Boolean =
+        relevanteVilkår(opplysninger)
+            .flatMap { it.utfall }
+            .all { opplysninger.erSann(it) }
 
     // Bruker Breadth-First Search (BFS) til å traversere regelsettene
     private fun traverseOpplysningstyper(

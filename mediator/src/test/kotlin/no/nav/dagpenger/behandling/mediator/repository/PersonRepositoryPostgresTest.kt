@@ -50,6 +50,7 @@ class PersonRepositoryPostgresTest {
                 }
 
             val actualPerson = personRepositoryPostgres.hent(ident)
+            actualPerson?.harRettighet(LocalDate.now()) shouldBe false
 
             assertEquals(expectedPerson.ident, actualPerson?.ident)
         }

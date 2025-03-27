@@ -121,5 +121,8 @@ class BeregnMeldekortHendelse(
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean = false
 
+    // TODO: Finne riktig dato i en meldekort behandling
+    override fun virkningsdato(opplysninger: LesbarOpplysninger) = prøvingsdato(opplysninger)
+
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = emptyList()
 }
