@@ -24,6 +24,7 @@ object Verneplikt {
 
     val regelsett =
         vilkår(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Verneplikt"),
         ) {
             skalVurderes { it.oppfyller(Alderskrav.kravTilAlder) }

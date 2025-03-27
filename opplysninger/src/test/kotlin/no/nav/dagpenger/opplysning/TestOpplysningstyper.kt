@@ -5,6 +5,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.util.UUID
 
 internal object TestOpplysningstyper {
+    val testRegelverk = Regelverk()
     val dato1 by lazy { Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "dato1") }
     val dato2 by lazy { Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "dato2") }
     val desimaltall by lazy {

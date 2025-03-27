@@ -15,7 +15,7 @@ internal object Prøvingsdato {
 
     val prøvingsdato = Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "Prøvingsdato")
     val regelsett =
-        vilkår("alder") {
+        vilkår(testRegelverk, "alder") {
             regel(søknadsdato) { innhentes }
             regel(sisteDagMedArbeidsplikt) { innhentes }
             regel(sisteDagMedLønn) { innhentes }

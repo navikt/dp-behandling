@@ -94,7 +94,7 @@ object ReellArbeidssøker {
         boolsk(villigTilMinimumArbeidstidId, "Villig til å jobbe minimum arbeidstid", synlig = { it.erSann(kanJobbeDeltid) == false })
 
     val regelsett =
-        vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
+        vilkår(RegelverkDagpenger, folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
             skalVurderes { it.oppfyller(kravTilAlder) }
 
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }

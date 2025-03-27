@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.beløpA
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.beløpB
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskA
+import no.nav.dagpenger.opplysning.TestOpplysningstyper.testRegelverk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -19,7 +20,7 @@ class StørreEnnEllerLikTest {
         Regelkjøring(
             1.mai,
             opplysninger,
-            vilkår("regelsett") {
+            vilkår(testRegelverk, "regelsett") {
                 regel(beløpA) { innhentes }
                 regel(beløpB) { innhentes }
                 regel(boolskA) { størreEnnEllerLik(beløpA, beløpB) }

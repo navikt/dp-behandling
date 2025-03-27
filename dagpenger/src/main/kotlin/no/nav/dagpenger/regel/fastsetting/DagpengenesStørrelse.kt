@@ -47,6 +47,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.NittiProsentId
 import no.nav.dagpenger.regel.OpplysningsTyper.SamordnetDagsatsMedBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.UkessatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpOverMaksId
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
@@ -108,6 +109,7 @@ object DagpengenesStørrelse {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 12, "Dagpengenes størrelse", "Sats og barnetillegg"),
         ) {
             skalVurderes { kravPåDagpenger(it) }

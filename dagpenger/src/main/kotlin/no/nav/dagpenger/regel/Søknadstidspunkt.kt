@@ -28,6 +28,7 @@ object Søknadstidspunkt {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             forskriftTilFolketrygden.hjemmel(3, 1, "Søknadstidspunkt", "Søknadstidspunkt"),
         ) {
             regel(søknadIdOpplysningstype) { innhentes }

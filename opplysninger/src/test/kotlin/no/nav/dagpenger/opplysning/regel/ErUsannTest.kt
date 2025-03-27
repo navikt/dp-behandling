@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.a
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.b
+import no.nav.dagpenger.opplysning.TestOpplysningstyper.testRegelverk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import org.junit.jupiter.api.BeforeEach
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 
 class ErUsannTest {
     private val regelsett =
-        vilkår("Test") {
+        vilkår(testRegelverk, "Test") {
             regel(a) { innhentes }
             regel(b) { erUsann(a) }
         }

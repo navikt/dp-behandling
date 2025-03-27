@@ -19,6 +19,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagUtenVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktFastsattVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktPeriodeId
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -51,6 +52,7 @@ object VernepliktFastsetting {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Dagpenger ved verneplikt"),
         ) {
             skalVurderes { kravPåDagpenger(it) }
@@ -63,7 +65,13 @@ object VernepliktFastsetting {
             regel(grunnlagUtenVerneplikt) { oppslag(prøvingsdato) { Beløp(0) } }
 
             // Setter grunnlag avhengig av om bruker oppfyller kravet til verneplikt (0G eller 3G)
-            regel(grunnlagHvisVerneplikt) { hvisSannMedResultat(oppfyllerKravetTilVerneplikt, vernepliktGrunnlag, grunnlagUtenVerneplikt) }
+            regel(grunnlagHvisVerneplikt) {
+                hvisSannMedResultat(
+                    oppfyllerKravetTilVerneplikt,
+                    vernepliktGrunnlag,
+                    grunnlagUtenVerneplikt,
+                )
+            }
 
             // Kriteriet om vi skal bruke grunnlag og FVA fra verneplikt eller dagpengegrunnlag
             regel(grunnlagForVernepliktErGunstigst) { størreEnn(grunnlagHvisVerneplikt, dagpengegrunnlag) }

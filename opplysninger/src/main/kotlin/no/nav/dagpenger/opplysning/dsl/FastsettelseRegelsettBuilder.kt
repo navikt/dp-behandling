@@ -1,18 +1,23 @@
 package no.nav.dagpenger.opplysning.dsl
 
 import no.nav.dagpenger.opplysning.Hjemmel
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.Regelverk
 
 class FastsettelseRegelsettBuilder internal constructor(
     hjemmel: Hjemmel,
+    private val regelverk: Regelverk,
 ) : RegelsettBuilderBase(hjemmel, RegelsettType.Fastsettelse) {
     private var ønsketResultat: List<Opplysningstype<*>> = emptyList()
 
     fun ønsketResultat(vararg opplysningstype: Opplysningstype<*>) {
         ønsketResultat = opplysningstype.toList()
     }
+
+    fun kravet(opplysninger: LesbarOpplysninger) = regelverk.utfall(opplysninger)
 
     override fun build() =
         Regelsett(

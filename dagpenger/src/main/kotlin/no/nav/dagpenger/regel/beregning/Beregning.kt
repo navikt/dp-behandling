@@ -10,6 +10,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
+import no.nav.dagpenger.regel.RegelverkDagpenger
 
 object Beregning {
     val meldeperiode = Opplysningstype.periode(meldeperiodeId, "Meldeperiode")
@@ -25,7 +26,7 @@ object Beregning {
     val terskel = Opplysningstype.desimaltall(terskelId, "Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger")
 
     val regelsett =
-        fastsettelse(tomHjemmel("regelsett")) {
+        fastsettelse(RegelverkDagpenger, tomHjemmel("regelsett")) {
             // Finn alle meldeperioder som ikke er beregnet
             // Er det noe å beregne?
             // 1. Har dagpenger i perioden?

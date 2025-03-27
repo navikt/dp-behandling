@@ -40,6 +40,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.samordnetUkessatsUtenforFolketryg
 import no.nav.dagpenger.regel.OpplysningsTyper.skalSamordnesMedYtelserUtenforFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumYtelserUtenforFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelVedSamordningId
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Samordning.samordnetDagsats
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
@@ -158,6 +159,7 @@ object SamordingUtenforFolketrygden {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             folketrygden.hjemmel(
                 4,
                 26,

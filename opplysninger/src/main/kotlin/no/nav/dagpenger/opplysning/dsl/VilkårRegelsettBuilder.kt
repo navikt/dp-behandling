@@ -1,14 +1,17 @@
 package no.nav.dagpenger.opplysning.dsl
 
 import no.nav.dagpenger.opplysning.Hjemmel
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
 
 class VilkårRegelsettBuilder internal constructor(
     hjemmel: Hjemmel,
+    private val regelverk: Regelverk,
 ) : RegelsettBuilderBase(hjemmel, RegelsettType.Vilkår) {
     private var utfall: MutableList<Opplysningstype<Boolean>> = mutableListOf()
     private val ønsketResultat: MutableList<Opplysningstype<*>> = mutableListOf()
@@ -17,6 +20,8 @@ class VilkårRegelsettBuilder internal constructor(
     fun ønsketResultat(vararg opplysningstype: Opplysningstype<*>) {
         ønsketResultat += opplysningstype.toList()
     }
+
+    fun kravet(opplysninger: LesbarOpplysninger) = regelverk.utfall(opplysninger)
 
     fun utfall(
         produserer: Opplysningstype<Boolean>,

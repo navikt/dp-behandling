@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ class RegelTest {
         val b = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "b")
         val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "c")
         val regelsett =
-            vilkår("test") {
+            vilkår(Regelverk(), "test") {
                 regel(a) { innhentMed(b, c) }
             }
 

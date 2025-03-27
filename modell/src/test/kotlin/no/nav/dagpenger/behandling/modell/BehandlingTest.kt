@@ -163,15 +163,14 @@ private class TestHendelse(
         gjelderDato,
         opprettet,
     ) {
-    override val regelverk: Regelverk
-        get() = forretningsprosess.regelverk
+    override val regelverk: Regelverk = Regelverk()
     private val opplysningstypeBehov = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "trengerDenne")
     private val opplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "opplysning")
     override val forretningsprosess: Forretningsprosess
         get() =
             object : Forretningsprosess {
                 override val regelverk: Regelverk
-                    get() = TODO("Not yet implemented")
+                    get() = regelverk
 
                 override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
                     TODO("Not yet implemented")
@@ -193,7 +192,7 @@ private class TestHendelse(
             }
 
     private val regelsett =
-        vilkår("test") {
+        vilkår(regelverk, "test") {
             regel(opplysningstypeBehov) { innhentes }
             regel(opplysningstype) { enAv(opplysningstypeBehov) }
         }

@@ -45,6 +45,7 @@ object PermitteringFraFiskeindustrien {
 
     val regelsett =
         vilkår(
+            RegelverkDagpenger,
             forskriftTilFolketrygden.hjemmel(
                 kapittel = 6,
                 paragraf = 7,

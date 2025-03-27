@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.a
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.b
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.c
+import no.nav.dagpenger.opplysning.TestOpplysningstyper.testRegelverk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -21,11 +22,11 @@ class RegelkjøringTest {
     @Test
     fun `Regelsett kan ikke inneholder flere regler som produserer samme opplysningstype`() {
         val regelsett1 =
-            vilkår("regelsett") {
+            vilkår(testRegelverk, "regelsett") {
                 regel(a) { enAv(b) }
             }
         val regelsett2 =
-            vilkår("regelsett") {
+            vilkår(testRegelverk, "regelsett") {
                 regel(a) { enAv(c) }
             }
 
@@ -43,7 +44,7 @@ class RegelkjøringTest {
 
         val opplysninger = Opplysninger()
         val regelsett1 =
-            vilkår("regelsett") {
+            vilkår(testRegelverk, "regelsett") {
                 regel(opplysningB) { innhentes }
                 regel(opplysningC) { innhentes }
                 regel(opplysningA) { minstAv(opplysningC, opplysningB) }
@@ -65,7 +66,7 @@ class RegelkjøringTest {
         // Endring i reglene
         var regelA: Regel<*>? = null
         val regelsett2 =
-            vilkår("regelsett") {
+            vilkår(testRegelverk, "regelsett") {
                 regel(opplysningB) { innhentes }
                 regel(opplysningC) { innhentes }
                 regel(opplysningD) { innhentes }

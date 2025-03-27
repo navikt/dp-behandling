@@ -65,7 +65,7 @@ internal object ReglerForInntektTest {
     val minsteinntekt = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Minsteinntekt")
 
     val regelsett =
-        vilkår("Minsteinntekt") {
+        vilkår(testRegelverk, "Minsteinntekt") {
             regel(antattRapporteringsFrist) { oppslag(prøvingsdato) { LocalDate.of(it.year, it.month, 5) } }
             regel(reellRapporteringsFrist) { førsteArbeidsdag(antattRapporteringsFrist) }
             regel(antallG12mndInntekt) { oppslag(prøvingsdato) { 1.5 } }

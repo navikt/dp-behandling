@@ -30,6 +30,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.Terskel12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.Terskel36Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor36Id
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
@@ -68,6 +69,7 @@ object Dagpengeperiode {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 15, "Antall stønadsuker (stønadsperiode)", "Periode"),
         ) {
             skalVurderes { kravPåDagpenger(it) }

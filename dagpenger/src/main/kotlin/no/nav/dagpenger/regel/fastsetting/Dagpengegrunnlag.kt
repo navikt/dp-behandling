@@ -52,10 +52,10 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UavrundetGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode1Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode2Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode3Id
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagHvisVerneplikt
 import no.nav.dagpenger.regel.folketrygden
-import no.nav.dagpenger.regel.kravPåDagpenger
 import java.time.LocalDate
 
 object Dagpengegrunnlag {
@@ -119,9 +119,10 @@ object Dagpengegrunnlag {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            skalVurderes { kravet(it) }
 
             regel(antallÅrI36Måneder) { oppslag(prøvingsdato) { 3.0 } } // Teknisk - skal ikke vises
             regel(faktorForMaksgrense) { oppslag(prøvingsdato) { 6.0 } } // Konstant i regelverket - skal ikke vises

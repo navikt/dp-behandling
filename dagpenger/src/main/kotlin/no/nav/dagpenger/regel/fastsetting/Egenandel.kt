@@ -13,6 +13,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.EgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.TreGangerDagsatsId
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
@@ -26,6 +27,7 @@ object Egenandel {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 9, "Egenandel", "Egenandel"),
         ) {
             skalVurderes { kravPåDagpenger(it) }
@@ -34,7 +36,13 @@ object Egenandel {
             regel(treGangerDagsats) { multiplikasjon(sats, faktor) }
             regel(ingenEgenandel) { oppslag(prøvingsdato) { Beløp(0.0) } }
 
-            regel(egenandel) { hvisSannMedResultat(oppfyllerKravetTilPermitteringFiskeindustri, ingenEgenandel, treGangerDagsats) }
+            regel(egenandel) {
+                hvisSannMedResultat(
+                    oppfyllerKravetTilPermitteringFiskeindustri,
+                    ingenEgenandel,
+                    treGangerDagsats,
+                )
+            }
 
             påvirkerResultat { kravPåDagpenger(it) }
 

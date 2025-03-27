@@ -105,6 +105,7 @@ object Utdanning {
 
     val regelsett =
         vilkår(
+            RegelverkDagpenger,
             folketrygden.hjemmel(
                 kapittel = 4,
                 paragraf = 6,

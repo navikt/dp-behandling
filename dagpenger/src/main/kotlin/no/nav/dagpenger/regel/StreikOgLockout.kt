@@ -31,6 +31,7 @@ object StreikOgLockout {
 
     val regelsett =
         vilkår(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 22, "Bortfall ved streik og lock-out", "Streik og lock-out"),
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }

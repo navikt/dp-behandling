@@ -29,6 +29,7 @@ object Opphold {
 
     val regelsett =
         vilkår(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 2, "Opphold i Norge", "Opphold"),
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }

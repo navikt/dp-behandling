@@ -42,7 +42,7 @@ class RegelmotorIntegrasjonsTest {
         val opplysninger = Opplysninger(tidligereBehandling)
         val alleVilkår = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Vilkår")
         val regelsett =
-            vilkår("Krav til Dagpenger") {
+            vilkår(Regelverk(), "Krav til Dagpenger") {
                 regel(alleVilkår) { alle(ReglerForInntektTest.minsteinntekt, Alderskrav.vilkår) }
             }
         val regelkjøring =
@@ -149,7 +149,7 @@ class RegelmotorIntegrasjonsTest {
         val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
         val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
         val regelsett =
-            vilkår("test") {
+            vilkår(Regelverk(), "test") {
                 regel(a0) { innhentes }
                 regel(a) { alle(a0) }
                 regel(d) { innhentes }
@@ -203,7 +203,7 @@ class RegelmotorIntegrasjonsTest {
         val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
         val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
         val regelsett =
-            vilkår("test") {
+            vilkår(Regelverk(), "test") {
                 regel(a0) { innhentes }
                 regel(a) { alle(a0) }
                 regel(d) { alle(a0) }
@@ -263,7 +263,7 @@ class RegelmotorIntegrasjonsTest {
         val i = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "i")
 
         val regelsett =
-            vilkår("test av regelsett") {
+            vilkår(Regelverk(), "test av regelsett") {
                 regel(e) { innhentes }
                 regel(f) { innhentes }
                 regel(g) { innhentes }

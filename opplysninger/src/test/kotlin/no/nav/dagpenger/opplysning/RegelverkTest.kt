@@ -18,18 +18,19 @@ class RegelverkTest {
     private val typeE = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "E")
     private val typeF = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "F")
 
+    private val regelverk =
+        Regelverk()
+
     private val r1 =
-        vilkår("Søknadstidspunkt") {
+        vilkår(regelverk, "Søknadstidspunkt") {
             regel(typeA) { innhentes }
             regel(typeA, 1.juli) { innhentes }
             regel(typeA, 1.mai) { innhentes }
             regel(typeE) { erSann(typeF) }
             regel(typeE, 1.juni) { erSann(typeF) }
         }
-    private val r2 = vilkår("Inntekt") { regel(typeB) { innhentMed(typeA) } }
-    private val r3 = vilkår("Dagpenger") { regel(typeC) { innhentMed(typeA, typeB) } }
-
-    private val regelverk = Regelverk(r1, r2, r3)
+    private val r2 = vilkår(regelverk, "Inntekt") { regel(typeB) { innhentMed(typeA) } }
+    private val r3 = vilkår(regelverk, "Dagpenger") { regel(typeC) { innhentMed(typeA, typeB) } }
 
     @Test
     fun `finner alle nødvendige regler for en opplysning helt til venstre`() {

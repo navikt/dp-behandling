@@ -53,9 +53,9 @@ class DiagramTest {
     @Test
     fun `lager tre av regelsettene`() {
         val regelverk =
-            Regelverk(
-                *RegelverkDagpenger.regelsett.toTypedArray(),
-            )
+            Regelverk().apply {
+                registrer(*RegelverkDagpenger.regelsett.toTypedArray())
+            }
 
         regelverk.regeltreFor(Minsteinntekt.minsteinntekt).also {
             val b = MermaidPrinter(it)

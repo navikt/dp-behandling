@@ -24,7 +24,7 @@ internal object Alderskrav {
     val vilkår = Opplysningstype.boolsk(Id(UUIDv7.ny(), Boolsk), "Oppfyller kravet til alder")
 
     val regelsett =
-        vilkår("alder") {
+        vilkår(testRegelverk, "alder") {
             regel(fødselsdato) { innhentes }
             regel(aldersgrense) { oppslag(virkningsdato) { 67 } }
             regel(sisteMåned) { leggTilÅr(fødselsdato, aldersgrense) }

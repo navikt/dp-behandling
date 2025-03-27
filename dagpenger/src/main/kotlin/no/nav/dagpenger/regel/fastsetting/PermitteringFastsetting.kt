@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.OpplysningsTyper.permitteringsperiodeId
 import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
 
@@ -14,6 +15,7 @@ object PermitteringFastsetting {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering"),
         ) {
             skalVurderes { it.erSann(oppfyllerKravetTilPermittering) }

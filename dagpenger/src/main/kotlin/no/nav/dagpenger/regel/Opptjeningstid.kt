@@ -28,13 +28,19 @@ object Opptjeningstid {
 
     val regelsett =
         fastsettelse(
+            RegelverkDagpenger,
             aOpplynsingsLoven.hjemmel(1, 2, "Frist for levering av opplysninger", "Opptjeningsperiode"),
         ) {
             skalVurderes { it.oppfyller(kravTilAlder) }
 
             regel(pliktigRapporteringsfrist) { oppslag(prøvingsdato) { Aordningen.rapporteringsfrist(it) } }
             regel(justertRapporteringsfrist) { førsteArbeidsdag(pliktigRapporteringsfrist) }
-            regel(sisteAvsluttendendeKalenderMåned) { sisteAvsluttendeKalenderMåned(prøvingsdato, justertRapporteringsfrist) }
+            regel(sisteAvsluttendendeKalenderMåned) {
+                sisteAvsluttendeKalenderMåned(
+                    prøvingsdato,
+                    justertRapporteringsfrist,
+                )
+            }
         }
 }
 

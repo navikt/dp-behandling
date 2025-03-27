@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
+import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.uuid.UUIDv7
@@ -21,6 +22,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 internal object TestOpplysningstyper {
+    val testRegelverk = Regelverk()
     val baseOpplysningstype = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "Base")
     val utledetOpplysningstype = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Utledet")
     val maksdato = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "MaksDato")

@@ -14,6 +14,7 @@ object FulleYtelser {
 
     val regelsett =
         vilkår(
+            RegelverkDagpenger,
             folketrygden.hjemmel(
                 4,
                 24,

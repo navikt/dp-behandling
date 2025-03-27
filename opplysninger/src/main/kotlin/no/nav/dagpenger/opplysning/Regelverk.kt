@@ -6,18 +6,18 @@ import no.nav.dagpenger.dag.Node
 import java.time.LocalDate
 
 class Regelverk(
-    vararg regelsett: Regelsett,
+    private val _regelsett: MutableList<Regelsett> = mutableListOf(),
 ) {
-    private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
-    val produserer = regelsett.flatMap { it.produserer }.toSet()
-    val regelsett = regelsett.toList()
+    private val produsent get() = _regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
+    val produserer get() = _regelsett.flatMap { it.produserer }.toSet()
+    val regelsett get() = _regelsett.toList()
 
     internal fun reglerFor(
         opplysningstype: Opplysningstype<*>,
         forDato: LocalDate = LocalDate.MIN,
     ): List<Any> = regelsettFor(opplysningstype).flatMap { it.regler(forDato) }
 
-    fun regelsettAvType(type: RegelsettType) = regelsett.filter { it.type == type }
+    fun regelsettAvType(type: RegelsettType) = _regelsett.filter { it.type == type }
 
     fun regelsettFor(opplysningstype: Opplysningstype<*>): Set<Regelsett> {
         val nødvendigeRegelsett = mutableSetOf<Regelsett>()
@@ -42,11 +42,24 @@ class Regelverk(
         return DAG(edges.toList())
     }
 
+    fun registrer(regelsett: Regelsett) {
+        this._regelsett.add(regelsett)
+    }
+
+    fun registrer(vararg regelsett: Regelsett) {
+        this._regelsett.addAll(regelsett)
+    }
+
     fun relevanteVilkår(opplysninger: LesbarOpplysninger): List<Regelsett> =
-        regelsett
+        _regelsett
             .filter { it.type == RegelsettType.Vilkår }
             .filter { it.skalKjøres(opplysninger) }
             .filter { it.påvirkerResultat(opplysninger) }
+
+    fun utfall(opplysninger: LesbarOpplysninger): Boolean =
+        relevanteVilkår(opplysninger)
+            .flatMap { it.utfall }
+            .all { opplysninger.erSann(it) }
 
     // Bruker Breadth-First Search (BFS) til å traversere regelsettene
     private fun traverseOpplysningstyper(

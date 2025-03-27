@@ -113,6 +113,7 @@ object TapAvArbeidsinntektOgArbeidstid {
 
     val regelsett =
         vilkår(
+            RegelverkDagpenger,
             folketrygden.hjemmel(4, 3, "Krav til tap av arbeidsinntekt og arbeidstid", "Tap av arbeidsinntekt og arbeidstid"),
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }

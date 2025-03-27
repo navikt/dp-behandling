@@ -74,13 +74,24 @@ object Minsteinntekt {
     val minsteinntekt = boolsk(KravTilMinsteinntektId, "Oppfyller kravet til minsteinntekt")
 
     val regelsett =
-        vilkår(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
+        vilkår(RegelverkDagpenger, folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
             skalVurderes { it.oppfyller(kravTilAlder) }
 
             regel(maksPeriodeLengde) { oppslag(prøvingsdato) { 36 } }
-            regel(førsteMånedAvOpptjeningsperiode) { trekkFraMånedTilFørste(sisteAvsluttendendeKalenderMåned, maksPeriodeLengde) }
+            regel(førsteMånedAvOpptjeningsperiode) {
+                trekkFraMånedTilFørste(
+                    sisteAvsluttendendeKalenderMåned,
+                    maksPeriodeLengde,
+                )
+            }
 
-            regel(inntektFraSkatt) { innhentMed(prøvingsdato, sisteAvsluttendendeKalenderMåned, førsteMånedAvOpptjeningsperiode) }
+            regel(inntektFraSkatt) {
+                innhentMed(
+                    prøvingsdato,
+                    sisteAvsluttendendeKalenderMåned,
+                    førsteMånedAvOpptjeningsperiode,
+                )
+            }
 
             regel(tellendeInntekt) { filtrerRelevanteInntekter(inntektFraSkatt, listOf(InntektKlasse.ARBEIDSINNTEKT)) }
 
