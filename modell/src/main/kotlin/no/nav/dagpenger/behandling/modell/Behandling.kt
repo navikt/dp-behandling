@@ -389,10 +389,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             hendelse.info("Mottatt søknad og startet behandling")
-            behandling.observatører.forEach {
-                it.opprettet(BehandlingOpprettet(behandling.behandlingId, behandling.behandler.eksternId))
-            }
-
+            behandling.emitOpprettet()
             behandling.tilstand(UnderBehandling(), hendelse)
         }
     }
@@ -931,6 +928,16 @@ class Behandling private constructor(
     }
 
     fun basertPåBehandlinger() = basertPå.map { it.behandlingId }
+
+    private fun emitOpprettet() {
+        val event =
+            BehandlingOpprettet(
+                behandlingId = behandlingId,
+                hendelse = behandler.eksternId,
+            )
+
+        observatører.forEach { it.opprettet(event) }
+    }
 
     private fun emitForslagTilVedtak() {
         val event =
