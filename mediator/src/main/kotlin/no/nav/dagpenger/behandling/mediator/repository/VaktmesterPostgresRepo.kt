@@ -14,26 +14,8 @@ private val logger = KotlinLogging.logger {}
 
 internal class VaktmesterPostgresRepo {
     companion object {
-        val låsenøkkel = 121212
+        private val låsenøkkel = 121212
         private val logger = KotlinLogging.logger {}
-        private val skipOpplysninger =
-            setOf(
-                "01932f46-c4d3-755e-a4da-c572945a93b5",
-                "0193d9ac-aaec-7fd1-8ca1-f19576afb041",
-                "0193d9ab-e8d4-77cc-a475-c3765a6d14d0",
-                "0193d9d1-347d-7e44-8690-27a44726ca53",
-                "0193d9d1-1c89-70e4-80a0-b2f2ec36e036",
-                "0193d9ab-e8d4-77cc-a475-c3765a6d14d0",
-                "0193aa6d-feaf-7851-aa1d-9df48cf9682a",
-                "0193aa6b-693a-7344-8f40-5bef03b3a2d1",
-                "0193aa68-d992-70f2-ab7a-eeba72abb20e",
-                "0193aa64-a5a0-7d46-a775-996dbc67b8f5",
-                "0193aa61-1a3c-76df-b543-fc8e134f4299",
-                "0193aa5f-2d49-7be4-b42d-afc875df1458",
-                "0193aa5c-314b-7b70-bd00-766b012d252f",
-                "019391b4-73e7-7512-847f-73a1f805ab80",
-                "019391c0-d9f5-78d9-8704-02f749bfb17c",
-            )
     }
 
     @WithSpan
@@ -180,7 +162,7 @@ internal class VaktmesterPostgresRepo {
             FROM opplysning
                 INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
                 LEFT OUTER JOIN behandling_opplysninger b ON b.opplysninger_id = op.opplysninger_id
-            WHERE fjernet = TRUE AND op.opplysninger_id NOT IN (SELECT UNNEST(:skip_opplysninger::uuid[]))
+            WHERE fjernet = TRUE
             LIMIT :antall;
             """.trimIndent()
 
@@ -190,7 +172,6 @@ internal class VaktmesterPostgresRepo {
                     test,
                     mapOf(
                         "antall" to antall,
-                        "skip_opplysninger" to skipOpplysninger.toTypedArray(),
                     ),
                 ).map { row ->
                     Kandidat(
