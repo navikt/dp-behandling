@@ -163,7 +163,7 @@ internal class VaktmesterPostgresRepo {
 
         val melding =
             if (kandidater.isEmpty()) {
-                logger.info { "Fant ingen opplysninger å slette" }
+                "Fant ingen opplysninger å slette"
             } else {
                 "Fant ${kandidater.size} opplysningsett for behandlinger ${
                     kandidater.map {
