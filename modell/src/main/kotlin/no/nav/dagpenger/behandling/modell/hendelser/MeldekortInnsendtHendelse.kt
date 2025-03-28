@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.modell.hendelser
 
+import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -22,7 +23,9 @@ data class Meldekort(
     val dager: List<Dag>,
     val innsendtTidspunkt: LocalDateTime,
     val korrigeringAv: Long?,
-)
+) {
+    fun periode() = Periode(fom, tom)
+}
 
 data class MeldekortKilde(
     val rolle: String,

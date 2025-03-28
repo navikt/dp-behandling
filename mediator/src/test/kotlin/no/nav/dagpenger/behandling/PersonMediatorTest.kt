@@ -25,6 +25,7 @@ import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.lagVedtak
+import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
@@ -842,6 +843,11 @@ internal class PersonMediatorTest {
     @Test
     fun `Innvilgelse og beregning av meldekort`() {
         withMigratedDb {
+            val meldekortBehandlingskø =
+                MeldekortBehandlingskø(
+                    meldekortRepository = MeldekortRepositoryPostgres(),
+                    rapidsConnection = rapid,
+                )
             registrerOpplysningstyper()
             val testPerson =
                 TestPerson(
@@ -859,22 +865,36 @@ internal class PersonMediatorTest {
 
             // Meldekort 1 leses inn
             testPerson.sendMeldekort(7.juni(2021), 1).also {
-                testPerson.beregnMeldekort(it)
+                // testPerson.beregnMeldekort(it)
+                meldekortBehandlingskø.sendMeldekortTilBehandling()
+                rapid.harHendelse("beregn_meldekort") {
+                    rapid.sendTestMessage(medRåData().toPrettyString())
+                }
             }
 
             // Meldekort 2 leses inn
             testPerson.sendMeldekort(21.juni(2021), 2).also {
-                testPerson.beregnMeldekort(it)
+                meldekortBehandlingskø.sendMeldekortTilBehandling()
+                rapid.harHendelse("beregn_meldekort") {
+                    rapid.sendTestMessage(medRåData().toPrettyString())
+                }
             }
 
             // Meldekort 3 leses inn, over terskel og får ingen utbetaling
             testPerson.sendMeldekort(5.juli(2021), 3, 6).also {
-                testPerson.beregnMeldekort(it)
+                meldekortBehandlingskø.sendMeldekortTilBehandling()
+                rapid.harHendelse("beregn_meldekort") {
+                    rapid.sendTestMessage(medRåData().toPrettyString())
+                }
             }
 
             // Meldekort 4 leses inn
             testPerson.sendMeldekort(19.juli(2021), 4).also {
-                testPerson.beregnMeldekort(it)
+                //     testPerson.beregnMeldekort(it)
+                meldekortBehandlingskø.sendMeldekortTilBehandling()
+                rapid.harHendelse("beregn_meldekort") {
+                    rapid.sendTestMessage(medRåData().toPrettyString())
+                }
             }
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
@@ -1224,6 +1244,8 @@ internal class PersonMediatorTest {
         private val message: JsonNode,
     ) {
         fun medNode(navn: String) = message.get(navn)
+
+        fun medRåData() = message
 
         fun medFastsettelser(block: Fastsettelser.() -> Unit) {
             Fastsettelser(medNode("fastsatt")).apply { block() }

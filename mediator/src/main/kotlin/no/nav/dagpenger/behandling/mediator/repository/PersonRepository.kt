@@ -60,6 +60,8 @@ interface PersonRepository : BehandlingRepository {
 interface MeldekortRepository {
     fun lagre(meldekort: Meldekort)
 
+    fun hentUbehandledeMeldekort(ident: Ident): List<Meldekort>
+
     fun hent(meldekortId: UUID): Meldekort?
 }
 

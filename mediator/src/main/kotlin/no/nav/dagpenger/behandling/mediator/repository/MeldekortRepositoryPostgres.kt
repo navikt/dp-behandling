@@ -1,10 +1,12 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
@@ -28,6 +30,23 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
+    override fun hentUbehandledeMeldekort(ident: Ident): List<Meldekort> =
+        sessionOf(dataSource).use { session ->
+            session.run(
+                //language=PostgreSQL
+                queryOf(
+                    """
+                    SELECT *
+                    FROM meldekort
+                             INNER JOIN melding m ON m.melding_id = meldekort.meldingsreferanse_id
+                    WHERE m.behandlet_tidspunkt IS NULL ORDER BY fom;
+                    """.trimIndent(),
+                ).map { row ->
+                    row.meldekort(session)
+                }.asList,
+            )
+        }
+
     override fun hent(meldekortId: UUID) =
         sessionOf(dataSource).use { session ->
             session.run(
@@ -39,26 +58,29 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     mapOf(
                         "meldekortId" to meldekortId,
                     ),
-                ).map {
-                    Meldekort(
-                        id = it.uuid("id"),
-                        meldingsreferanseId = it.uuid("meldingsreferanse_id"),
-                        ident = it.string("ident"),
-                        eksternMeldekortId = it.long("meldekort_id"),
-                        fom = it.localDate("fom"),
-                        tom = it.localDate("tom"),
-                        kilde =
-                            MeldekortKilde(
-                                rolle = it.string("kilde_rolle"),
-                                ident = it.string("kilde_ident"),
-                            ),
-                        dager = session.hentDager(it.long("meldekort_id")),
-                        innsendtTidspunkt = it.localDateTime("innsendt_tidspunkt"),
-                        korrigeringAv = it.longOrNull("korrigert_meldekort_id"),
-                    )
+                ).map { row ->
+                    row.meldekort(session)
                 }.asSingle,
             )
         }
+
+    private fun Row.meldekort(session: Session): Meldekort =
+        Meldekort(
+            id = uuid("id"),
+            meldingsreferanseId = uuid("meldingsreferanse_id"),
+            ident = string("ident"),
+            eksternMeldekortId = long("meldekort_id"),
+            fom = localDate("fom"),
+            tom = localDate("tom"),
+            kilde =
+                MeldekortKilde(
+                    rolle = string("kilde_rolle"),
+                    ident = string("kilde_ident"),
+                ),
+            dager = session.hentDager(long("meldekort_id")),
+            innsendtTidspunkt = localDateTime("innsendt_tidspunkt"),
+            korrigeringAv = longOrNull("korrigert_meldekort_id"),
+        )
 
     private fun TransactionalSession.lagreMeldekort(meldekort: Meldekort) {
         run(
