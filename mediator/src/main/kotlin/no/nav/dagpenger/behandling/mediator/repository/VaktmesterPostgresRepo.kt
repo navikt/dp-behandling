@@ -131,25 +131,15 @@ internal class VaktmesterPostgresRepo {
                         }.asList,
                     )
                 }
-        val antallOpplysinger: Int =
-            kandidater
-                .takeIf { it.isNotEmpty() }
-                ?.map {
-                    it.opplysninger().size
-                }?.reduce { acc, i -> acc + i } ?: 0
 
-        val melding =
-            if (kandidater.isEmpty()) {
-                "Fant ingen opplysninger å slette"
-            } else {
+        if (kandidater.isNotEmpty()) {
+            logger.info {
                 "Fant ${kandidater.size} opplysningsett for behandlinger ${
                     kandidater.map {
                         it.behandlingId
                     }
-                } som inneholder $antallOpplysinger opplysninger som er fjernet og som skal slettes"
+                } som inneholder $${kandidater.sumOf { it.opplysninger().size }} opplysninger som er fjernet og som skal slettes"
             }
-        logger.info {
-            melding
         }
         return opplysninger
     }
