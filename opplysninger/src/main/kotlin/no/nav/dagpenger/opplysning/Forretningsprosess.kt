@@ -14,6 +14,8 @@ interface Forretningsprosess {
 
     fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate
 
+    fun utfall(opplysninger: LesbarOpplysninger) = regelverk.utfall(opplysninger.forDato(virkningsdato(opplysninger)))
+
     fun regelsett() = regelverk.regelsett
 
     fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>>

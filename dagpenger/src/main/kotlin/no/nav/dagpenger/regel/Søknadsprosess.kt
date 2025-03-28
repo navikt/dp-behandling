@@ -31,16 +31,7 @@ import java.time.LocalDate
 class Søknadsprosess : RegistrertForretningsprosess() {
     override val regelverk = RegelverkDagpenger
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = Regelkjøring(prøvingsdato(opplysninger), opplysninger, this)
-
-    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
-            opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
-        } else if (opplysninger.har(hendelseTypeOpplysningstype)) {
-            opplysninger.finnOpplysning(hendelseTypeOpplysningstype).gyldighetsperiode.fom
-        } else {
-            throw IllegalStateException("Mangler både prøvingsdato og hendelsedato. Må ha en dato å ta utgangspunkt i for behandlingen.")
-        }
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = Regelkjøring(virkningsdato(opplysninger), opplysninger, this)
 
     override fun kontrollpunkter() =
         listOf(
@@ -81,5 +72,14 @@ class Søknadsprosess : RegistrertForretningsprosess() {
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
         regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMap {
             it.ønsketInformasjon
+        }
+
+    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
+        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
+            opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
+        } else if (opplysninger.har(hendelseTypeOpplysningstype)) {
+            opplysninger.finnOpplysning(hendelseTypeOpplysningstype).gyldighetsperiode.fom
+        } else {
+            throw IllegalStateException("Mangler både prøvingsdato og hendelsedato. Må ha en dato å ta utgangspunkt i for behandlingen.")
         }
 }
