@@ -14,7 +14,9 @@ import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
 import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
+import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
 import no.nav.dagpenger.behandling.mediator.jobber.SlettFjernetOpplysninger
+import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
@@ -96,6 +98,13 @@ internal class ApplicationBuilder(
 
             // Start jobb som sletter fjernet opplysninger
             SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
+
+            BehandleMeldekort(
+                MeldekortBehandlingskø(
+                    MeldekortRepositoryPostgres(),
+                    rapidsConnection,
+                ),
+            ).start()
 
             avklaringRepository.registerObserver(
                 AvklaringKafkaObservatør(

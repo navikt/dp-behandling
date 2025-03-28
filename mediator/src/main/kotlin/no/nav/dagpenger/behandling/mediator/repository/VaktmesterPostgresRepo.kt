@@ -2,15 +2,13 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.db.medLås
 import java.util.UUID
-
-private val logger = KotlinLogging.logger {}
 
 internal class VaktmesterPostgresRepo {
     companion object {
@@ -227,63 +225,3 @@ internal class VaktmesterPostgresRepo {
             listOf(mapOf("id" to id)),
         )
 }
-
-fun TransactionalSession.lås(nøkkel: Int) =
-    run(
-        queryOf(
-            //language=PostgreSQL
-            """
-            SELECT PG_TRY_ADVISORY_LOCK(:key)
-            """.trimIndent(),
-            mapOf("key" to nøkkel),
-        ).map { res ->
-            res.boolean("pg_try_advisory_lock")
-        }.asSingle,
-    ) ?: false
-
-fun TransactionalSession.låsOpp(nøkkel: Int) =
-    run(
-        queryOf(
-            //language=PostgreSQL
-            """
-            SELECT PG_ADVISORY_UNLOCK(:key)
-            """.trimIndent(),
-            mapOf("key" to nøkkel),
-        ).map { res ->
-            res.boolean("pg_advisory_unlock")
-        }.asSingle,
-    ) ?: false
-
-fun <T> TransactionalSession.medLås(
-    nøkkel: Int,
-    block: () -> T,
-): T? {
-    if (!lås(nøkkel)) {
-        logger.warn { "Fikk ikke lås for $nøkkel" }
-        hentLås()?.let {
-            logger.warn {
-                "Er allerede låst med $it"
-            }
-        } ?: logger.warn { "Fant ikke lås" }
-        return null
-    }
-    return try {
-        logger.info { "Fikk lås for $nøkkel" }
-        block()
-    } finally {
-        logger.info { "Låser opp $nøkkel" }
-        låsOpp(nøkkel)
-    }
-}
-
-fun TransactionalSession.hentLås(): Pair<String, Int>? =
-    run(
-        queryOf(
-            //language=PostgreSQL
-            """
-            SELECT mode,  objid FROM pg_locks WHERE locktype = 'advisory';
-            """.trimIndent(),
-        ).map { res ->
-            Pair(res.string("mode"), res.int("objid"))
-        }.asSingle,
-    )
