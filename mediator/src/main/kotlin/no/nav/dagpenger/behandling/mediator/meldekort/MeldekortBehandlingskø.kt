@@ -15,7 +15,7 @@ class MeldekortBehandlingskø(
     private val rapidsConnection: RapidsConnection,
 ) {
     fun sendMeldekortTilBehandling() {
-        // TODO: Veldig naiv førsteutgave av meldekort beregningskø.
+        // TODO: Ganske naiv førsteutgave av meldekort beregningskø.
         // Hente personer som har rettighet og har meldekort som ikke er behandlet
         // For hver meldekort, send meldekort til behandling
 
@@ -50,22 +50,13 @@ class MeldekortBehandlingskø(
             val melderkort = meldekortRepository.hentUbehandledeMeldekort(person.ident.tilPersonIdentfikator())
             melderkort.forEach { meldekort ->
                 val meldekortPeriode = meldekort.periode()
-                val historikk: List<Rettighetstatus> =
-                    person.rettighetstatuser
-                        .contents()
-                        .values
-                        .toList()
-                        .filter { rettighetstatus -> rettighetstatus.utfall }
-                val meldkortSkalBeregnes =
-                    // TODO: Hva med avslag?
-                    historikk.filter { it.utfall }.any { rettighetstatus ->
-                        rettighetstatus.virkningsdato in meldekortPeriode ||
-                            rettighetstatus.virkningsdato.isBefore(
-                                meldekort.fom,
-                            )
+
+                val skalBehandles =
+                    meldekortPeriode.any { dag ->
+                        person.rettighetstatuser.get(dag).utfall
                     }
 
-                if (meldkortSkalBeregnes) {
+                if (skalBehandles) {
                     rapidsConnection.publish(
                         meldekort.ident,
                         JsonMessage
