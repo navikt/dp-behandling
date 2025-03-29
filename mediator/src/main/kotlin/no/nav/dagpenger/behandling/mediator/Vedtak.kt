@@ -31,7 +31,6 @@ import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
 import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
-import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
@@ -123,8 +122,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
         automatisk = automatiskBehandlet,
         ident = ident.identifikator(),
         vedtakstidspunkt = LocalDateTime.now(),
-        // TODO: Denne må utledes igjen - virkningstidspunkt = opplysninger.finnOpplysning(virkningstidspunkt).verdi,
-        virkningsdato = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi,
+        virkningsdato = virkningsdato,
         behandletAv =
             listOfNotNull(
                 godkjentAv.takeIf { it.erUtført }?.let {
