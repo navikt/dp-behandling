@@ -908,7 +908,6 @@ components:
         - behandlingId
         - fagsakId
         - ident
-        - søknadId
         - behandletHendelse
         - vedtakstidspunkt
         - virkningsdato
@@ -931,6 +930,7 @@ components:
           type: string
         søknadId:
           type: string
+          deprecated: true
         automatisk:
           type: boolean
         ident:

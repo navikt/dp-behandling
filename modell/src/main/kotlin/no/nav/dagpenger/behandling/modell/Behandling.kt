@@ -5,6 +5,7 @@ import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaringer
 import no.nav.dagpenger.behandling.modell.Behandling.BehandlingTilstand.Companion.fraType
+import no.nav.dagpenger.behandling.modell.Behandling.VedtakOpplysninger
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.AvklaringLukket
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingAvbrutt
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
@@ -73,6 +74,33 @@ class Behandling private constructor(
     private val observatører = mutableListOf<BehandlingObservatør>()
 
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
+
+    val vedtakopplysninger get() =
+        Resultat(
+            behandlingId = behandlingId,
+            basertPåBehandlinger = basertPåBehandlinger(),
+            utfall = behandler.utfall(opplysninger()),
+            virkningsdato = behandler.virkningsdato(opplysninger()),
+            hendelse = behandler.eksternId,
+            behandlingAv = behandler,
+            opplysninger = opplysninger,
+            automatiskBehandlet = erAutomatiskBehandlet(),
+            godkjentAv = godkjent,
+            besluttetAv = besluttet,
+        )
+
+    data class Resultat(
+        override val behandlingId: UUID,
+        override val basertPåBehandlinger: List<UUID>,
+        override val utfall: Boolean,
+        override val virkningsdato: LocalDate,
+        override val hendelse: EksternId<*>,
+        override val behandlingAv: StartHendelse,
+        override val opplysninger: LesbarOpplysninger,
+        override val automatiskBehandlet: Boolean,
+        override val godkjentAv: Arbeidssteg,
+        override val besluttetAv: Arbeidssteg,
+    ) : VedtakOpplysninger
 
     val opplysninger: Opplysninger =
         (gjeldendeOpplysninger + tidligereOpplysninger)
@@ -943,16 +971,7 @@ class Behandling private constructor(
     private fun emitForslagTilVedtak() {
         val event =
             BehandlingObservatør.BehandlingForslagTilVedtak(
-                behandlingId = behandlingId,
-                basertPåBehandlinger = basertPåBehandlinger(),
-                hendelse = behandler.eksternId,
-                behandlingAv = behandler,
-                opplysninger = opplysninger,
-                automatiskBehandlet = erAutomatiskBehandlet(),
-                godkjent = godkjent,
-                besluttet = besluttet,
-                utfall = behandler.utfall(opplysninger()),
-                virkningsdato = behandler.virkningsdato(opplysninger()),
+                this.vedtakopplysninger,
             )
 
         observatører.forEach { it.forslagTilVedtak(event) }
@@ -961,16 +980,7 @@ class Behandling private constructor(
     private fun emitFerdig() {
         val event =
             BehandlingFerdig(
-                behandlingId = behandlingId,
-                basertPåBehandlinger = basertPåBehandlinger(),
-                utfall = behandler.regelverk.utfall(opplysninger()),
-                virkningsdato = behandler.virkningsdato(opplysninger()),
-                hendelse = behandler.eksternId,
-                behandlingAv = behandler,
-                opplysninger = opplysninger,
-                automatiskBehandlet = erAutomatiskBehandlet(),
-                godkjent = godkjent,
-                besluttet = besluttet,
+                this.vedtakopplysninger,
             )
 
         observatører.forEach { it.ferdig(event) }
@@ -1013,6 +1023,23 @@ class Behandling private constructor(
 
         observatører.forEach { it.endretTilstand(event) }
     }
+
+    interface VedtakOpplysninger {
+        val behandlingId: UUID
+        val basertPåBehandlinger: List<UUID>
+        val utfall: Boolean
+        val virkningsdato: LocalDate
+        val hendelse: EksternId<*>
+        val behandlingAv: StartHendelse
+        val opplysninger: LesbarOpplysninger
+        val automatiskBehandlet: Boolean
+        val godkjentAv: Arbeidssteg
+        val besluttetAv: Arbeidssteg
+
+        fun relevanteVilkår() = behandlingAv.regelverk.relevanteVilkår(opplysningerPåVirkningsdato())
+
+        fun opplysningerPåVirkningsdato() = opplysninger.forDato(virkningsdato)
+    }
 }
 
 interface BehandlingObservatør {
@@ -1021,44 +1048,18 @@ interface BehandlingObservatør {
         val hendelse: EksternId<*>,
     ) : PersonEvent()
 
-    sealed class VedtakOpplysninger : PersonEvent() {
-        abstract val behandlingId: UUID
-        abstract val basertPåBehandlinger: List<UUID>
-        abstract val utfall: Boolean
-        abstract val virkningsdato: LocalDate
-        abstract val hendelse: EksternId<*>
-        abstract val behandlingAv: StartHendelse
-        abstract val opplysninger: LesbarOpplysninger
-        abstract val automatiskBehandlet: Boolean
-        abstract val godkjent: Arbeidssteg
-        abstract val besluttet: Arbeidssteg
-    }
+    sealed class VedtakEvent(
+        vedtakOpplysninger: VedtakOpplysninger,
+    ) : PersonEvent(),
+        VedtakOpplysninger by vedtakOpplysninger
 
     data class BehandlingForslagTilVedtak(
-        override val behandlingId: UUID,
-        override val basertPåBehandlinger: List<UUID>,
-        override val utfall: Boolean,
-        override val hendelse: EksternId<*>,
-        override val behandlingAv: StartHendelse,
-        override val opplysninger: LesbarOpplysninger,
-        override val automatiskBehandlet: Boolean,
-        override val godkjent: Arbeidssteg,
-        override val besluttet: Arbeidssteg,
-        override val virkningsdato: LocalDate,
-    ) : VedtakOpplysninger()
+        private val vedtakOpplysninger: VedtakOpplysninger,
+    ) : VedtakEvent(vedtakOpplysninger)
 
     data class BehandlingFerdig(
-        override val behandlingId: UUID,
-        override val basertPåBehandlinger: List<UUID>,
-        override val utfall: Boolean,
-        override val hendelse: EksternId<*>,
-        override val behandlingAv: StartHendelse,
-        override val opplysninger: LesbarOpplysninger,
-        override val automatiskBehandlet: Boolean,
-        override val godkjent: Arbeidssteg,
-        override val besluttet: Arbeidssteg,
-        override val virkningsdato: LocalDate,
-    ) : VedtakOpplysninger()
+        private val vedtakOpplysninger: VedtakOpplysninger,
+    ) : VedtakEvent(vedtakOpplysninger)
 
     data class BehandlingEndretTilstand(
         val behandlingId: UUID,

@@ -3,7 +3,6 @@ package no.nav.dagpenger.behandling.mediator
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import mu.KotlinLogging
-import no.nav.dagpenger.behandling.modell.BehandlingObservatør
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.AvklaringLukket
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingAvbrutt
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
@@ -94,15 +93,16 @@ internal class PersonMediator : PersonObservatør {
                 ),
             )
 
-    private fun BehandlingObservatør.VedtakOpplysninger.toJsonMessage(): JsonMessage {
+    private fun BehandlingForslagTilVedtak.toJsonMessage(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
-        val vedtak = lagVedtak(behandlingId, basertPåBehandlinger, ident, hendelse, opplysninger, automatiskBehandlet, godkjent, besluttet)
-        val eventNavn =
-            when (this) {
-                is BehandlingForslagTilVedtak -> "forslag_til_vedtak"
-                is BehandlingFerdig -> "vedtak_fattet"
-            }
-        return JsonMessage.newMessage(eventNavn, vedtak.toMap())
+        val vedtak = this.lagVedtakDTO(ident)
+        return JsonMessage.newMessage("forslag_til_vedtak", vedtak.toMap())
+    }
+
+    private fun BehandlingFerdig.toJsonMessage(): JsonMessage {
+        val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
+        val vedtak = this.lagVedtakDTO(ident)
+        return JsonMessage.newMessage("vedtak_fattet", vedtak.toMap())
     }
 
     private fun BehandlingAvbrutt.toJsonMessage() =
