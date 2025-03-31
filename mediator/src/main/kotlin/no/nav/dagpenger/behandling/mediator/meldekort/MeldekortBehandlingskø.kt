@@ -64,7 +64,7 @@ class MeldekortBehandlingskø(
                                     logger.info { "Sjekker om meldekort skal beregnes" }
                                     val skalBehandles =
                                         meldekortPeriode.any { dag ->
-                                            person.rettighetstatuser.get(dag).utfall
+                                            runCatching { person.rettighetstatuser.get(dag).utfall }.getOrElse { false }
                                         }
 
                                     if (skalBehandles) {
