@@ -83,14 +83,14 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun behandlet(meldekortId: UUID) {
+    override fun behandlet(meldekortId: Long) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
                     queryOf(
                         // language=PostgreSQL
                         """
-                        UPDATE meldekort SET behandling_ferdig = :startet WHERE id = :meldekortId
+                        UPDATE meldekort SET behandling_ferdig = :startet WHERE meldekort_id = :meldekortId
                         """.trimIndent(),
                         mapOf(
                             "meldekortId" to meldekortId,
