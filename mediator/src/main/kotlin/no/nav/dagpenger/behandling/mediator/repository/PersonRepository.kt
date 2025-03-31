@@ -63,6 +63,10 @@ interface MeldekortRepository {
     fun hentUbehandledeMeldekort(ident: Ident): List<Meldekort>
 
     fun hent(meldekortId: UUID): Meldekort?
+
+    fun behandlingStartet(meldekortId: UUID)
+
+    fun behandlet(meldekortId: UUID)
 }
 
 interface UnitOfWork<S> {
