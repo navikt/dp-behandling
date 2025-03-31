@@ -62,12 +62,14 @@ class MeldekortBehandlingskø(
                                     "meldekortId" to meldekort.id.toString(),
                                 ) {
                                     logger.info { "Sjekker om meldekort skal beregnes" }
-                                    val skalBehandles =
-                                        meldekortPeriode.any { dag ->
+                                    val potensielleDager =
+                                        meldekortPeriode.associateWith { dag ->
                                             runCatching { person.rettighetstatuser.get(dag).utfall }.getOrElse { false }
                                         }
 
-                                    if (skalBehandles) {
+                                    logger.info { "Meldekort dager: $potensielleDager" }
+                                    val harRettighet = potensielleDager.any { it.value }
+                                    if (harRettighet) {
                                         logger.info { "Publiserer beregn meldekort" }
                                         rapidsConnection.publish(
                                             meldekort.ident,
