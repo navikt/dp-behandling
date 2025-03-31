@@ -16,7 +16,6 @@ import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.regel.BeregnMeldekortHendelse
-import java.util.UUID
 
 internal class BeregnMeldekortMottak(
     rapidsConnection: RapidsConnection,
@@ -31,6 +30,8 @@ internal class BeregnMeldekortMottak(
             }.register(this)
     }
 
+    private val skipMeldekort = setOf<String>("01957044-adad-7e3a-9ad2-41cc0b0b6266")
+
     @WithSpan
     override fun onPacket(
         packet: JsonMessage,
@@ -39,7 +40,7 @@ internal class BeregnMeldekortMottak(
         meterRegistry: MeterRegistry,
     ) {
         val meldekortId = packet["meldekortId"].asUUID()
-        if (meldekortId == UUID.fromString("01956173-ec14-75ec-b7a4-10ea17c11607")) {
+        if (meldekortId.toString() in skipMeldekort) {
             log.info { "Skipper $meldekortId" }
             return
         }
