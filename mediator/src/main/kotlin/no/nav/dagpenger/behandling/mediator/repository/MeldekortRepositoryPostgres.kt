@@ -34,13 +34,16 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
     override fun hentUbehandledeMeldekort(ident: Ident): List<Meldekort> =
         sessionOf(dataSource).use { session ->
             session.run(
-                //language=PostgreSQL
                 queryOf(
+                    //language=PostgreSQL
                     """
                     SELECT *
                     FROM meldekort
-                    WHERE behandling_startet IS NULL
+                    WHERE ident = :ident AND behandling_startet IS NULL 
                     """.trimIndent(),
+                    mapOf(
+                        "ident" to ident.identifikator(),
+                    ),
                 ).map { row ->
                     row.meldekort(session)
                 }.asList,
