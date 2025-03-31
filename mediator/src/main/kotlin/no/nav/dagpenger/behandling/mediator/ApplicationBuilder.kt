@@ -20,6 +20,7 @@ import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
@@ -98,6 +99,9 @@ internal class ApplicationBuilder(
 
             // Start jobb som sletter fjernet opplysninger
             SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
+
+            // Vedtak mottak
+            VedtakFattetMottak(rapidsConnection, MeldekortRepositoryPostgres())
 
             BehandleMeldekort(
                 MeldekortBehandlingskø(

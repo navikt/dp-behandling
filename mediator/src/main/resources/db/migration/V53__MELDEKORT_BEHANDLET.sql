@@ -1,0 +1,3 @@
+ALTER TABLE meldekort
+    ADD COLUMN behandling_startet TIMESTAMP NULL DEFAULT NULL,
+    ADD COLUMN behandling_ferdig TIMESTAMP NULL DEFAULT NULL;

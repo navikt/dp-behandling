@@ -28,6 +28,7 @@ import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
@@ -103,6 +104,8 @@ internal class PersonMediatorTest {
 
     private val meldekortRepository =
         MeldekortRepositoryPostgres()
+
+    private val vedtakFattetMottak = VedtakFattetMottak(rapid, meldekortRepository)
 
     private val testObservatør = TestObservatør()
 
@@ -845,7 +848,7 @@ internal class PersonMediatorTest {
         withMigratedDb {
             val meldekortBehandlingskø =
                 MeldekortBehandlingskø(
-                    meldekortRepository = MeldekortRepositoryPostgres(),
+                    meldekortRepository = meldekortRepository,
                     rapidsConnection = rapid,
                 )
             registrerOpplysningstyper()
@@ -865,7 +868,6 @@ internal class PersonMediatorTest {
 
             // Meldekort 1 leses inn
             testPerson.sendMeldekort(7.juni(2021), 1).also {
-                // testPerson.beregnMeldekort(it)
                 meldekortBehandlingskø.sendMeldekortTilBehandling()
                 rapid.harHendelse("beregn_meldekort") {
                     rapid.sendTestMessage(medRåData().toPrettyString())

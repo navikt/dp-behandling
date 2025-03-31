@@ -58,16 +58,18 @@ class MeldekortBehandlingskø(
                             val melderkort = meldekortRepository.hentUbehandledeMeldekort(person.ident.tilPersonIdentfikator())
                             melderkort.forEach { meldekort ->
                                 val meldekortPeriode = meldekort.periode()
+                                withLoggingContext(
+                                    "meldekortId" to meldekort.id.toString(),
+                                ) {
+                                    logger.info { "Sjekker om meldekort skal beregnes" }
+                                    val potensielleDager =
+                                        meldekortPeriode.associateWith { dag ->
+                                            runCatching { person.rettighetstatuser.get(dag).utfall }.getOrElse { false }
+                                        }
 
-                                val skalBehandles =
-                                    meldekortPeriode.any { dag ->
-                                        person.rettighetstatuser.get(dag).utfall
-                                    }
-
-                                if (skalBehandles) {
-                                    withLoggingContext(
-                                        "meldekortId" to meldekort.id.toString(),
-                                    ) {
+                                    logger.info { "Meldekort dager: $potensielleDager" }
+                                    val harRettighet = potensielleDager.any { it.value }
+                                    if (harRettighet) {
                                         logger.info { "Publiserer beregn meldekort" }
                                         rapidsConnection.publish(
                                             meldekort.ident,
@@ -80,6 +82,12 @@ class MeldekortBehandlingskø(
                                                     ),
                                                 ).toJson(),
                                         )
+
+                                        meldekortRepository.behandlingStartet(
+                                            meldekort.id,
+                                        )
+                                    } else {
+                                        logger.info { "Meldekort skal ikke behandles" }
                                     }
                                 }
                             }

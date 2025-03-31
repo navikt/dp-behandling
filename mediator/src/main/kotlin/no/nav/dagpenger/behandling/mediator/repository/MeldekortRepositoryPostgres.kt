@@ -14,6 +14,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import org.postgresql.util.PGobject
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -38,8 +39,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     """
                     SELECT *
                     FROM meldekort
-                             INNER JOIN melding m ON m.melding_id = meldekort.meldingsreferanse_id
-                    WHERE m.behandlet_tidspunkt IS NULL ORDER BY fom;
+                    WHERE behandling_startet IS NULL
                     """.trimIndent(),
                 ).map { row ->
                     row.meldekort(session)
@@ -63,6 +63,44 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 }.asSingle,
             )
         }
+
+    override fun behandlingStartet(meldekortId: UUID) {
+        sessionOf(dataSource).use { session ->
+            session.transaction { tx ->
+                tx.run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        UPDATE meldekort SET behandling_startet = :startet WHERE id = :meldekortId
+                        """.trimIndent(),
+                        mapOf(
+                            "meldekortId" to meldekortId,
+                            "startet" to LocalDateTime.now(),
+                        ),
+                    ).asUpdate,
+                )
+            }
+        }
+    }
+
+    override fun behandlet(meldekortId: UUID) {
+        sessionOf(dataSource).use { session ->
+            session.transaction { tx ->
+                tx.run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        UPDATE meldekort SET behandling_ferdig = :startet WHERE id = :meldekortId
+                        """.trimIndent(),
+                        mapOf(
+                            "meldekortId" to meldekortId,
+                            "startet" to LocalDateTime.now(),
+                        ),
+                    ).asUpdate,
+                )
+            }
+        }
+    }
 
     private fun Row.meldekort(session: Session): Meldekort =
         Meldekort(
@@ -185,7 +223,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             queryOf(
                 //language=PostgreSQL
                 """
-                SELECT dato, type, EXTRACT(epoch FROM timer) AS timer FROM meldekort_aktivitet WHERE meldekort_id = :meldekortId AND dato = :dato
+                SELECT dato, type, EXTRACT(EPOCH FROM timer) AS timer FROM meldekort_aktivitet WHERE meldekort_id = :meldekortId AND dato = :dato
                 """.trimIndent(),
                 mapOf(
                     "meldekortId" to meldkortId,
