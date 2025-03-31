@@ -19,6 +19,7 @@ class MeldekortBehandlingskø(
     companion object {
         private val låseNøkkel = 98769876
         private val logger = mu.KotlinLogging.logger {}
+        private val sikkerLogg = mu.KotlinLogging.logger("tjenestekall.MeldekortBehandlingskø")
     }
 
     fun sendMeldekortTilBehandling() {
@@ -54,7 +55,9 @@ class MeldekortBehandlingskø(
                                     }
                                 Person(ident, tempRettighetstatuser)
                             }
+                        sikkerLogg.info { "Antall personer med rettighet: ${personer.size}" }
                         personer.forEach { person ->
+                            sikkerLogg.info { "Person: $person" }
                             val melderkort = meldekortRepository.hentUbehandledeMeldekort(person.ident.tilPersonIdentfikator())
                             melderkort.forEach { meldekort ->
                                 val meldekortPeriode = meldekort.periode()

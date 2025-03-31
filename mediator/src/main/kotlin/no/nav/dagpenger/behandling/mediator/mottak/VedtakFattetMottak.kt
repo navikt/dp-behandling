@@ -6,13 +6,17 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.dagpenger.behandling.mediator.asUUID
+import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 
 class VedtakFattetMottak(
     rapidsConnection: RapidsConnection,
     private val meldekortRepository: MeldekortRepository,
 ) : River.PacketListener {
+    companion object {
+        private val logger = mu.KotlinLogging.logger {}
+    }
+
     init {
         River(rapidsConnection).apply {
             precondition { it.requireValue("@event_name", "vedtak_fattet") }
@@ -21,6 +25,7 @@ class VedtakFattetMottak(
                     it["type"].asText() == "Meldekort"
                 }
             }
+            validate { it.requireKey("behandlingId") }
         }
     }
 
@@ -30,7 +35,13 @@ class VedtakFattetMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val meldekortId = packet["behandletHendelse"]["id"].asUUID()
-        meldekortRepository.behandlet(meldekortId)
+        withLoggingContext(
+            "behandlingId" to packet["behandlingId"].asText(),
+            "event_name" to "vedtak_fattet",
+        ) {
+            logger.info { "Mottok vedtak_fattet melding" }
+            val meldekortId = packet["behandletHendelse"]["id"].asLong()
+            meldekortRepository.behandlet(meldekortId)
+        }
     }
 }

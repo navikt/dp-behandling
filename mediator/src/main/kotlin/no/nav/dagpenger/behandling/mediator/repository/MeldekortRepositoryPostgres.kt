@@ -34,13 +34,16 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
     override fun hentUbehandledeMeldekort(ident: Ident): List<Meldekort> =
         sessionOf(dataSource).use { session ->
             session.run(
-                //language=PostgreSQL
                 queryOf(
+                    //language=PostgreSQL
                     """
                     SELECT *
                     FROM meldekort
-                    WHERE behandling_startet IS NULL
+                    WHERE ident = :ident AND behandling_startet IS NULL 
                     """.trimIndent(),
+                    mapOf(
+                        "ident" to ident.identifikator(),
+                    ),
                 ).map { row ->
                     row.meldekort(session)
                 }.asList,
@@ -83,14 +86,14 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun behandlet(meldekortId: UUID) {
+    override fun behandlet(meldekortId: Long) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
                     queryOf(
                         // language=PostgreSQL
                         """
-                        UPDATE meldekort SET behandling_ferdig = :startet WHERE id = :meldekortId
+                        UPDATE meldekort SET behandling_ferdig = :startet WHERE meldekort_id = :meldekortId
                         """.trimIndent(),
                         mapOf(
                             "meldekortId" to meldekortId,

@@ -66,7 +66,7 @@ interface MeldekortRepository {
 
     fun behandlingStartet(meldekortId: UUID)
 
-    fun behandlet(meldekortId: UUID)
+    fun behandlet(meldekortId: Long)
 }
 
 interface UnitOfWork<S> {
