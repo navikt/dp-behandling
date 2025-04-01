@@ -24,7 +24,7 @@ import no.nav.dagpenger.behandling.konfigurasjon.skruAvFeatures
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
-import no.nav.dagpenger.behandling.mediator.lagVedtak
+import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
@@ -912,15 +912,8 @@ internal class PersonMediatorTest {
 
             behandlinger().first().run {
                 val vedtak =
-                    lagVedtak(
-                        behandlingId,
-                        basertPåBehandlinger = emptyList(),
-                        ident = behandler.ident.tilPersonIdentfikator(),
-                        hendelse = behandler.eksternId,
-                        opplysninger = opplysninger(),
-                        automatisk = erAutomatiskBehandlet(),
-                        godkjentAv = godkjent,
-                        besluttetAv = besluttet,
+                    vedtakopplysninger.lagVedtakDTO(
+                        behandler.ident.tilPersonIdentfikator(),
                     )
 
                 // Dette er vedtaket som brukes i dp-arena-sink: vedtak_fattet_innvilgelse.json

@@ -17,9 +17,8 @@ import no.nav.dagpenger.behandling.api.models.VedtakFastsattSatsDTO
 import no.nav.dagpenger.behandling.api.models.VedtakGjenstEndeDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningDTO
-import no.nav.dagpenger.behandling.modell.Arbeidssteg
+import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
-import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
@@ -30,10 +29,8 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
-import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
@@ -48,7 +45,6 @@ import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeids
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import java.time.LocalDateTime
-import java.util.UUID
 
 private fun LesbarOpplysninger.samordninger(): List<SamordningDTO> {
     @Suppress("UNCHECKED_CAST")
@@ -87,19 +83,10 @@ private fun LesbarOpplysninger.samordninger(): List<SamordningDTO> {
 
 private val logger = KotlinLogging.logger { }
 
-fun lagVedtak(
-    behandlingId: UUID,
-    basertPåBehandlinger: List<UUID>,
-    ident: Ident,
-    hendelse: EksternId<*>,
-    opplysninger: LesbarOpplysninger,
-    automatisk: Boolean,
-    godkjentAv: Arbeidssteg,
-    besluttetAv: Arbeidssteg,
-): VedtakDTO {
+fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
     // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
-    val opplysningerSomGjelderPåPrøvingsdato = opplysninger.forDato(opplysninger.finnOpplysning(prøvingsdato).verdi)
-    val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysningerSomGjelderPåPrøvingsdato)
+    val opplysningerSomGjelderPåPrøvingsdato = opplysningerPåVirkningsdato()
+    val relevanteVilkår: List<Regelsett> = relevanteVilkår()
     val vilkår: List<VilkaarDTO> =
         relevanteVilkår
             .flatMap { regelsett ->
@@ -113,12 +100,10 @@ fun lagVedtak(
                 opplysning.tilVilkårDTO(it.value.toString())
             }
 
-    val utfall = vilkår.all { it.status == VilkaarDTO.Status.Oppfylt }
     logger.info {
         "VedtakDTO med utfall $utfall, dette var alle vilkårene:\n${vilkår.joinToString("\n") { it.navn + " -> " + it.status.name }}"
     }
     val fastsatt = vedtakFastsattDTO(utfall, opplysningerSomGjelderPåPrøvingsdato)
-
     return VedtakDTO(
         behandlingId = behandlingId,
         basertPåBehandlinger = basertPåBehandlinger,
@@ -134,11 +119,10 @@ fun lagVedtak(
             ),
         søknadId = hendelse.id.toString(),
         fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),
-        automatisk = automatisk,
+        automatisk = automatiskBehandlet,
         ident = ident.identifikator(),
         vedtakstidspunkt = LocalDateTime.now(),
-        // TODO: Denne må utledes igjen - virkningstidspunkt = opplysninger.finnOpplysning(virkningstidspunkt).verdi,
-        virkningsdato = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(prøvingsdato).verdi,
+        virkningsdato = virkningsdato,
         behandletAv =
             listOfNotNull(
                 godkjentAv.takeIf { it.erUtført }?.let {

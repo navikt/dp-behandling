@@ -32,13 +32,12 @@ import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
-import no.nav.dagpenger.behandling.mediator.lagVedtak
+import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Redigert
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
-import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
@@ -141,18 +140,12 @@ internal fun Application.behandlingApi(
                         val behandling = hentBehandling(personRepository, call.behandlingId)
 
                         auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
+                        val vedtakOpplysninger = behandling.vedtakopplysninger
 
                         call.respond(
                             HttpStatusCode.OK,
-                            lagVedtak(
-                                behandling.behandlingId,
-                                behandling.basertPåBehandlinger(),
-                                Ident(behandling.behandler.ident),
-                                behandling.behandler.eksternId,
-                                behandling.opplysninger(),
-                                behandling.erAutomatiskBehandlet(),
-                                behandling.godkjent,
-                                behandling.besluttet,
+                            vedtakOpplysninger.lagVedtakDTO(
+                                behandling.behandler.ident.tilPersonIdentfikator(),
                             ),
                         )
                     }
