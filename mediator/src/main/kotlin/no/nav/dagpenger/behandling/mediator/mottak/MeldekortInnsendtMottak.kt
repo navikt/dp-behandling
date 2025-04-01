@@ -40,6 +40,8 @@ internal class MeldekortInnsendtMottak(
             }.register(this)
     }
 
+    private val skipMeldekort = setOf<Long>(1878620318)
+
     @WithSpan
     override fun onPacket(
         packet: JsonMessage,
@@ -48,6 +50,10 @@ internal class MeldekortInnsendtMottak(
         meterRegistry: MeterRegistry,
     ) {
         val meldekortId = packet["id"].asLong()
+        if (meldekortId in skipMeldekort) {
+            logger.info { "Skipper $meldekortId" }
+            return
+        }
         Span.current().apply {
             setAttribute("app.river", name())
             setAttribute("app.meldekortId", meldekortId.toString())
