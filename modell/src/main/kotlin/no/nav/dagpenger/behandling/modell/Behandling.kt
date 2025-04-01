@@ -81,7 +81,6 @@ class Behandling private constructor(
             basertPåBehandlinger = basertPåBehandlinger(),
             utfall = behandler.utfall(opplysninger()),
             virkningsdato = behandler.virkningsdato(opplysninger()),
-            hendelse = behandler.eksternId,
             behandlingAv = behandler,
             opplysninger = opplysninger,
             automatiskBehandlet = erAutomatiskBehandlet(),
@@ -94,7 +93,6 @@ class Behandling private constructor(
         override val basertPåBehandlinger: List<UUID>,
         override val utfall: Boolean,
         override val virkningsdato: LocalDate,
-        override val hendelse: EksternId<*>,
         override val behandlingAv: StartHendelse,
         override val opplysninger: LesbarOpplysninger,
         override val automatiskBehandlet: Boolean,
@@ -1029,7 +1027,6 @@ class Behandling private constructor(
         val basertPåBehandlinger: List<UUID>
         val utfall: Boolean
         val virkningsdato: LocalDate
-        val hendelse: EksternId<*>
         val behandlingAv: StartHendelse
         val opplysninger: LesbarOpplysninger
         val automatiskBehandlet: Boolean

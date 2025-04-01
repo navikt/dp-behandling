@@ -109,15 +109,15 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
         basertPåBehandlinger = basertPåBehandlinger,
         behandletHendelse =
             HendelseDTO(
-                id = hendelse.id.toString(),
-                datatype = hendelse.datatype,
+                id = behandlingAv.eksternId.id.toString(),
+                datatype = behandlingAv.eksternId.datatype,
                 type =
-                    when (hendelse) {
+                    when (behandlingAv.eksternId) {
                         is MeldekortId -> HendelseDTO.Type.Meldekort
                         is SøknadId -> HendelseDTO.Type.Søknad
                     },
             ),
-        søknadId = hendelse.id.toString(),
+        søknadId = behandlingAv.eksternId.id.toString(),
         fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),
         automatisk = automatiskBehandlet,
         ident = ident.identifikator(),
