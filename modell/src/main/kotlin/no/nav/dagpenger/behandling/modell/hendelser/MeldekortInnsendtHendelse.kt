@@ -23,8 +23,10 @@ data class Meldekort(
     val dager: List<Dag>,
     val innsendtTidspunkt: LocalDateTime,
     val korrigeringAv: Long?,
-) {
+) : Comparable<Meldekort> {
     fun periode() = Periode(fom, tom)
+
+    override fun compareTo(other: Meldekort) = fom.compareTo(other.fom)
 }
 
 data class MeldekortKilde(

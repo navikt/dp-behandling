@@ -58,7 +58,7 @@ class MeldekortBehandlingskø(
                         sikkerLogg.info { "Antall personer med rettighet: ${personer.size}" }
                         personer.forEach { person ->
                             sikkerLogg.info { "Person: $person" }
-                            val melderkort = meldekortRepository.hentUbehandledeMeldekort(person.ident.tilPersonIdentfikator())
+                            val melderkort = meldekortRepository.hentUbehandledeMeldekort(person.ident.tilPersonIdentfikator()).sorted()
                             melderkort.forEach { meldekort ->
                                 val meldekortPeriode = meldekort.periode()
                                 withLoggingContext(
