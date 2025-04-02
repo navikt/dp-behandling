@@ -11,6 +11,15 @@ internal class Beregningsperiode private constructor(
         require(dager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
     }
 
+    /***
+     * Beregning av ett MK, Udos naive forbruksteller:
+     * ·       Vi har funnet at det er «rettighetsdager (dager fom. Virkningstidspunkt) i meldeperioden, og hvilke dager dette er.
+     * ·       Begynnende med tidligste dag spør vi : er den dagen vurdert tidligere med utfall ja?
+     * ·       Dersom «ja»: vurderes ikke dagen, med mindre det skal kjøres  en revurdering
+     * ·       Dersom  «nei»: spør vi: er det tidligere dager i rettighetsperioden som er vurdert med utfall ja?
+     * ·       Dersom «ja» finner vi den dagen og denne har opplysning om hvor mange dager med rettighet som gjenstår etter.
+     */
+
     private val sumFva = dager.mapNotNull { it.fva }.sum()
     private val arbeidsdager = dager.filterIsInstance<Arbeidsdag>()
     private val prosentfaktor = beregnProsentfaktor(dager)

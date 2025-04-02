@@ -19,7 +19,10 @@ import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.beregning.Beregning.gjenståendeForbruksdagKontigent
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
+import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.gjenståendeStønadsdager
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -115,9 +118,16 @@ class BeregnMeldekortHendelse(
             val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger(), rettighetstatus)
             val periode = fabrikk.lagBeregningsperiode()
 
-            periode.forbruksdager.forEach {
-                val gyldighetsperiode = Gyldighetsperiode(it.dato, it.dato)
-                opplysninger.leggTil(Faktum(Beregning.utbetaling, it.tilUtbetaling.roundToInt(), gyldighetsperiode))
+            val gjenstående =
+                // TODO: Vi må finne siste forbruksdato siden dette meldekort
+                opplysninger.finnAlle().filter { it.er(gjenståendeForbruksdagKontigent) }.minOfOrNull { it.verdi as Int }
+                    ?: opplysninger.finnOpplysning(gjenståendeStønadsdager).verdi
+
+            periode.forbruksdager.forEachIndexed { index, dag ->
+                val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
+                opplysninger.leggTil(Faktum(forbruk, true, gyldighetsperiode))
+                opplysninger.leggTil(Faktum(gjenståendeForbruksdagKontigent, gjenstående - index, gyldighetsperiode))
+                opplysninger.leggTil(Faktum(Beregning.utbetaling, dag.tilUtbetaling.roundToInt(), gyldighetsperiode))
             }
         }
     }

@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbrukId
+import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendePerDagId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelId
@@ -17,6 +18,7 @@ object Beregning {
     val arbeidstimer = Opplysningstype.heltall(arbeidstimerId, "Arbeidstimer på en arbeidsdag")
 
     val forbruk = Opplysningstype.boolsk(forbrukId, "Dag som fører til forbruk av dagpengeperiode")
+    val gjenståendeForbruksdagKontigent = Opplysningstype.heltall(gjenståendePerDagId, "Gjenstående før stønadsdagkontigent")
     val meldt = Opplysningstype.boolsk(meldtId, "Har meldt seg via meldekort")
 
     val utbetaling = Opplysningstype.heltall(utbetalingId, "Penger som skal utbetales")

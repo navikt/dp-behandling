@@ -59,7 +59,7 @@ object Dagpengeperiode {
     private val overterskel36 = boolsk(Overterskel36Id, "Over terskel for 36 måneder", synlig = aldriSynlig)
 
     private val antallStønadsuker = heltall(AntallStønadsukerId, "Antall stønadsuker", synlig = aldriSynlig)
-    private val gjenståendeStønadsdager = heltall(GjenståendeStønadsdagerId, "Antall gjenstående stønadsdager", synlig = aldriSynlig)
+    val gjenståendeStønadsdager = heltall(GjenståendeStønadsdagerId, "Antall gjenstående stønadsdager", synlig = aldriSynlig)
 
     private val ingenOrdinærPeriode =
         heltall(IngenOrdinærPeriodeId, "Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt", synlig = aldriSynlig)
