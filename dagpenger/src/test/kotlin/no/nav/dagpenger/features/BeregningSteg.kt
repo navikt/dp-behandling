@@ -3,10 +3,12 @@ package no.nav.dagpenger.features
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidsdag
@@ -18,12 +20,14 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamo
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
+import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class BeregningSteg : No {
     private val opplysninger = mutableListOf<Opplysning<*>>()
+    private val rettighetstatus = TemporalCollection<Rettighetstatus>()
     private lateinit var meldeperiodeFraOgMed: LocalDate
     private lateinit var meldeperiodeTilOgMed: LocalDate
 
@@ -88,7 +92,7 @@ class BeregningSteg : No {
 
     private val beregning by lazy {
         val opplysninger = Opplysninger(opplysninger)
-        BeregningsperiodeFabrikk(meldeperiodeFraOgMed, meldeperiodeTilOgMed, opplysninger).lagBeregningsperiode()
+        BeregningsperiodeFabrikk(meldeperiodeFraOgMed, meldeperiodeTilOgMed, opplysninger, rettighetstatus).lagBeregningsperiode()
     }
 
     private fun lagVedtak(vedtakstabell: List<MutableMap<String, String>>): List<Opplysning<*>> =
@@ -145,6 +149,14 @@ class BeregningSteg : No {
     private val opplysningFactories: Map<String, (Map<String, String>, Gyldighetsperiode) -> Opplysning<*>> =
         mapOf(
             "Periode" to { args, gyldighetsperiode ->
+                rettighetstatus.put(
+                    gyldighetsperiode.fom,
+                    Rettighetstatus(
+                        virkningsdato = gyldighetsperiode.fom,
+                        utfall = true,
+                        behandlingId = UUIDv7.ny(),
+                    ),
+                )
                 Faktum(ordinærPeriode, args["verdi"]!!.toInt(), gyldighetsperiode)
             },
             "Sats" to { args, gyldighetsperiode ->

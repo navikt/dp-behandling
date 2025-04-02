@@ -1,7 +1,5 @@
 package no.nav.dagpenger.regel.beregning
 
-import no.nav.dagpenger.regel.beregning.Beregningsperiode.Terskelstrategi
-
 internal class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Double,
     dager: List<Dag>,

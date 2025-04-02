@@ -222,7 +222,7 @@ class TestPerson(
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = ident,
                 fom = start,
-                tom = start.plusDays(14),
+                tom = start.plusDays(13),
                 kilde = MeldekortKilde("Bruker", ident),
                 dager =
                     (0..<14).map {

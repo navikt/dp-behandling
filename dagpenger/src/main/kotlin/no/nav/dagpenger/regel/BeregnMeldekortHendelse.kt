@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -14,6 +15,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
+import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.beregning.Beregning
@@ -56,7 +58,10 @@ class BeregnMeldekortHendelse(
             forretningsprosess = forretningsprosess,
         )
 
-    override fun behandling(forrigeBehandling: Behandling?): Behandling {
+    override fun behandling(
+        forrigeBehandling: Behandling?,
+        rettighetstatus: TemporalCollection<Rettighetstatus>,
+    ): Behandling {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
         val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
 
@@ -107,7 +112,7 @@ class BeregnMeldekortHendelse(
                         } + Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde)
                     },
         ).apply {
-            val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger())
+            val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger(), rettighetstatus)
             val periode = fabrikk.lagBeregningsperiode()
 
             periode.forbruksdager.forEach {

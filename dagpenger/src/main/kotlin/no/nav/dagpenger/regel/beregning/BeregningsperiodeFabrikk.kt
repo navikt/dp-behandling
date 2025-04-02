@@ -1,12 +1,13 @@
 package no.nav.dagpenger.regel.beregning
 
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.Egenandel
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid
 import java.time.DayOfWeek
@@ -17,11 +18,13 @@ internal class BeregningsperiodeFabrikk(
     private val meldeperiodeFraOgMed: LocalDate,
     private val meldeperiodeTilOgMed: LocalDate,
     private val opplysninger: LesbarOpplysninger,
+    private val rettighetstatuser: TemporalCollection<Rettighetstatus>,
 ) {
+    private val meldeperiode = Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed)
+
     fun lagBeregningsperiode(): Beregningsperiode {
         val gjenståendeEgenandel = hentGjenståendeEgenandel()
-        val virkningsdato = hentVedtaksperiode()
-        val dager = beregnDager(meldeperiodeFraOgMed, virkningsdato)
+        val dager = hentMeldekortDagerMedRett()
         val periode = opprettPeriode(dager)
 
         return Beregningsperiode(gjenståendeEgenandel, periode)
@@ -33,17 +36,8 @@ internal class BeregningsperiodeFabrikk(
             .verdi.verdien
             .toDouble()
 
-    // TODO: Finn en ekte virkningsdato
-    private fun hentVedtaksperiode() = opplysninger.finnOpplysning(Dagpengeperiode.ordinærPeriode).gyldighetsperiode
-
-    private fun beregnDager(
-        meldeperiodeFraOgMed: LocalDate,
-        vedtaksperiode: Gyldighetsperiode,
-    ): List<LocalDate> {
-        val sisteStart = maxOf(vedtaksperiode.fom, meldeperiodeFraOgMed)
-        val førsteSlutt = minOf(vedtaksperiode.tom, meldeperiodeTilOgMed)
-        return sisteStart.datesUntil(førsteSlutt).toList()
-    }
+    private fun hentMeldekortDagerMedRett(): List<LocalDate> =
+        meldeperiode.filter { meldekortDag -> runCatching { rettighetstatuser.get(meldekortDag).utfall }.getOrElse { false } }
 
     private fun opprettPeriode(dager: List<LocalDate>): List<Dag> =
         dager.map { dato ->

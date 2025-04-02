@@ -892,7 +892,6 @@ internal class PersonMediatorTest {
 
             // Meldekort 4 leses inn
             testPerson.sendMeldekort(19.juli(2021), 4).also {
-                //     testPerson.beregnMeldekort(it)
                 meldekortBehandlingskø.sendMeldekortTilBehandling()
                 rapid.harHendelse("beregn_meldekort") {
                     rapid.sendTestMessage(medRåData().toPrettyString())
