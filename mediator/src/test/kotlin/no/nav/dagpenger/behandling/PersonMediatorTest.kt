@@ -83,6 +83,7 @@ import no.nav.dagpenger.regel.beregning.Beregning.gjenståendeForbruksdagKontige
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
@@ -903,6 +904,50 @@ internal class PersonMediatorTest {
                 val antallDagerMedUtbetaling = 30
                 this.opplysninger().finnAlle().filter { it.er(Beregning.utbetaling) } shouldHaveSize antallDagerMedUtbetaling
                 opplysninger.finnAlle().filter { it.er(gjenståendeForbruksdagKontigent) }.minOfOrNull { it.verdi as Int } shouldBe 493
+            }
+        }
+    }
+
+    @Test
+    @Disabled("Test der en tømmer stønadsperioden og vi mangler funksjonalitet.")
+    fun `Innvilgelse og tømme stønadsperioden i meldekort`() {
+        withMigratedDb {
+            val meldekortBehandlingskø =
+                MeldekortBehandlingskø(
+                    meldekortRepository = meldekortRepository,
+                    rapidsConnection = rapid,
+                )
+            registrerOpplysningstyper()
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = 6.mai(2021),
+                    InntektSiste12Mnd = 500000,
+                )
+            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
+            løsBehandlingFramTilInnvilgelse(testPerson)
+            testPerson.endreOpplysning(
+                "Antall stønadsuker",
+                1,
+            )
+            // Saksbehandler lukker alle avklaringer
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Meldekort 1 leses inn
+            testPerson.sendMeldekort(7.juni(2021), 1).also {
+                meldekortBehandlingskø.sendMeldekortTilBehandling()
+                rapid.harHendelse("beregn_meldekort") {
+                    rapid.sendTestMessage(medRåData().toPrettyString())
+                }
+            }
+
+            with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
+                val antallDagerMedUtbetaling = 5
+                this.opplysninger().finnAlle().filter { it.er(Beregning.utbetaling) } shouldHaveSize antallDagerMedUtbetaling
+                opplysninger.finnAlle().filter { it.er(gjenståendeForbruksdagKontigent) }.minOfOrNull { it.verdi as Int } shouldBe 0
             }
         }
     }
