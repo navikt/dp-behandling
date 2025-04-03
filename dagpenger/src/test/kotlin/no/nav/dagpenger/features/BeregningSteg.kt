@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
@@ -71,8 +72,8 @@ class BeregningSteg : No {
         }
         Så("det gjenstår {int} dager") { dager: Int ->
             // TODO: Dette må bo et sted
-            val utgangspunkt = opplysninger.find { it.opplysningstype == ordinærPeriode }!!.verdi as Int * 5
-            val forbrukteDager = opplysninger.filter { it.opplysningstype == forbruk }.size
+            val utgangspunkt: Int = opplysninger.find { it.er(antallStønadsdager) }!!.verdi as Int
+            val forbrukteDager = opplysninger.filter { it.opplysningstype == forbruk && it.verdi as Boolean }.size
             val gjenståendeDager = utgangspunkt - forbrukteDager
             gjenståendeDager shouldBe dager
 
@@ -158,6 +159,7 @@ class BeregningSteg : No {
                     ),
                 )
                 Faktum(ordinærPeriode, args["verdi"]!!.toInt(), gyldighetsperiode)
+                Faktum(antallStønadsdager, args["verdi"]!!.toInt() * 5, gyldighetsperiode)
             },
             "Sats" to { args, gyldighetsperiode ->
                 Faktum(dagsatsEtterSamordningMedBarnetillegg, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode)

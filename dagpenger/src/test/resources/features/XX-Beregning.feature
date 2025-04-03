@@ -252,19 +252,50 @@ Egenskap: Beregning av meldekort
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 600,0 kroner
 
-#  Scenario: Jobbet under terskel og skal forbruke siste rest av perioden
+  Scenario: Jobbet under terskel og skal forbruke siste rest av perioden
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0   |            |          |
+      | Periode    | 1     | 01.01.2019 |          |
+      | Sats       | 100   | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 5     |
+      | Torsdag | Arbeidstimer | 5     |
+      | Fredag  | Arbeidstimer | 5     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 250,0 kroner
+    Og det forbrukes 5 dager
+    Og det gjenstår 0 dager
+
+
+#  Scenario: Jobbet under terskel og skal forbruke siste rest av perioden men har vært syk
 #    Gitt at mottaker har vedtak med
 #      | Opplysning | verdi | fraOgMed   | tilOgMed |
 #      | Terskel    | 50.0   |            |          |
 #      | Periode    | 1     | 01.01.2019 |          |
 #      | Sats       | 100   | 01.01.2020 |          |
 #      | FVA        | 40    | 01.01.2020 |          |
+#      | Egenandel  | 0     | 01.01.2020 |          |
 #    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
 #      | Dag     | type         | verdi |
-#      | Mandag  | Arbeidstimer | 5     |
-#      | Tirsdag | Arbeidstimer | 5     |
-#      | Onsdag  | Arbeidstimer | 5     |
-#      | Torsdag | Arbeidstimer | 5     |
+#      | Mandag  | Fravær       |       |
+#      | Tirsdag | Arbeidstimer | 0     |
+#      | Onsdag  | Arbeidstimer | 0     |
+#      | Torsdag | Arbeidstimer | 0     |
 #      | Fredag  | Arbeidstimer | 0     |
 #      | Lørdag  | Arbeidstimer | 0     |
 #      | Søndag  | Arbeidstimer | 0     |

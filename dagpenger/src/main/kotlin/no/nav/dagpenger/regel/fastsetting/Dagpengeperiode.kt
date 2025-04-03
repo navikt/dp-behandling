@@ -59,7 +59,7 @@ object Dagpengeperiode {
     private val overterskel36 = boolsk(Overterskel36Id, "Over terskel for 36 måneder", synlig = aldriSynlig)
 
     private val antallStønadsuker = heltall(AntallStønadsukerId, "Antall stønadsuker", synlig = aldriSynlig)
-    val gjenståendeStønadsdager = heltall(GjenståendeStønadsdagerId, "Antall gjenstående stønadsdager", synlig = aldriSynlig)
+    val antallStønadsdager = heltall(GjenståendeStønadsdagerId, "Antall gjenstående stønadsdager", synlig = aldriSynlig)
 
     private val ingenOrdinærPeriode =
         heltall(IngenOrdinærPeriodeId, "Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt", synlig = aldriSynlig)
@@ -94,10 +94,10 @@ object Dagpengeperiode {
             regel(ordinærPeriode) { hvisSannMedResultat(Minsteinntekt.minsteinntekt, antallStønadsuker, ingenOrdinærPeriode) }
 
             regel(dagerIUka) { oppslag(prøvingsdato) { 5 } }
-            regel(gjenståendeStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
+            regel(antallStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
-            ønsketResultat(ordinærPeriode, gjenståendeStønadsdager)
+            ønsketResultat(ordinærPeriode, antallStønadsdager)
         }
 }

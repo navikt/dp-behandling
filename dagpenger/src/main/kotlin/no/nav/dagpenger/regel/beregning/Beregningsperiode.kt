@@ -4,8 +4,14 @@ internal class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Double,
     dager: List<Dag>,
     terskelstrategi: Terskelstrategi,
+    private val stønadsdagerIgjen: Int,
 ) {
-    constructor(gjenståendeEgenandel: Double, dag: List<Dag>) : this(gjenståendeEgenandel, dag, snitterskel)
+    constructor(gjenståendeEgenandel: Double, dag: List<Dag>, stønadsdagerIgjen: Int) : this(
+        gjenståendeEgenandel,
+        dag,
+        snitterskel,
+        stønadsdagerIgjen,
+    )
 
     init {
         require(dager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
@@ -21,7 +27,7 @@ internal class Beregningsperiode private constructor(
      */
 
     private val sumFva = dager.mapNotNull { it.fva }.sum()
-    private val arbeidsdager = dager.filterIsInstance<Arbeidsdag>()
+    private val arbeidsdager = arbeidsdager(dager)
     private val prosentfaktor = beregnProsentfaktor(dager)
     val terskel = (100 - terskelstrategi.beregnTerskel(arbeidsdager)) / 100
     val oppfyllerKravTilTaptArbeidstid = (arbeidsdager.sumOf { it.timerArbeidet } / sumFva) <= terskel
@@ -29,6 +35,11 @@ internal class Beregningsperiode private constructor(
     val utbetaling = beregnUtbetaling(arbeidsdager)
 
     val forbruksdager = if (oppfyllerKravTilTaptArbeidstid) arbeidsdager else emptyList()
+
+    private fun arbeidsdager(dager: List<Dag>): List<Arbeidsdag> {
+        val arbeidsdager = dager.filterIsInstance<Arbeidsdag>()
+        return arbeidsdager.subList(0, minOf(arbeidsdager.size, stønadsdagerIgjen))
+    }
 
     private fun beregnProsentfaktor(dager: List<Dag>): Double {
         val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.sum()

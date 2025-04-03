@@ -213,6 +213,7 @@ class TestPerson(
         start: LocalDate,
         løpenummer: Long,
         arbeidstimerPerDag: Int = 1,
+        korrigeringAv: Long? = null,
     ): UUID {
         val meldekortId = UUIDv7.ny()
         val meldekort =
@@ -233,7 +234,7 @@ class TestPerson(
                         )
                     },
                 innsendtTidspunkt = 14.juni(2021).atStartOfDay(),
-                korrigeringAv = null,
+                korrigeringAv = korrigeringAv,
             )
         sessionOf(dataSource).use { session ->
             session.run(

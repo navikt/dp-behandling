@@ -5,9 +5,11 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.fastsetting.Egenandel
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid
 import java.time.DayOfWeek
@@ -26,8 +28,14 @@ internal class BeregningsperiodeFabrikk(
         val gjenståendeEgenandel = hentGjenståendeEgenandel()
         val dager = hentMeldekortDagerMedRett()
         val periode = opprettPeriode(dager)
+        val stønadsdagerIgjen =
+            opplysninger.finnOpplysning(antallStønadsdager).verdi -
+                opplysninger
+                    .finnAlle()
+                    .filter { it.er(forbruk) && it.verdi as Boolean }
+                    .size
 
-        return Beregningsperiode(gjenståendeEgenandel, periode)
+        return Beregningsperiode(gjenståendeEgenandel, periode, stønadsdagerIgjen)
     }
 
     private fun hentGjenståendeEgenandel() =

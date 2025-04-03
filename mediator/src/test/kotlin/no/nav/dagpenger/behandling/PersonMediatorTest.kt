@@ -83,7 +83,6 @@ import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
@@ -901,18 +900,34 @@ internal class PersonMediatorTest {
             }
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
-                val antallDagerMedUtbetaling = 30
+                val forbrukt = 30
                 this
                     .opplysninger()
                     .finnAlle()
-                    .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize antallDagerMedUtbetaling
-                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe 30
+                    .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
+                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe forbrukt
+            }
+
+            // Meldekort 5 leses inn som en korrigering til meldekort 4
+            testPerson.sendMeldekort(19.juli(2021), 5, arbeidstimerPerDag = 8, korrigeringAv = 4).also {
+                meldekortBehandlingskø.sendMeldekortTilBehandling()
+                rapid.harHendelse("beregn_meldekort") {
+                    rapid.sendTestMessage(medRåData().toPrettyString())
+                }
+            }
+
+            with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
+                val forbrukt = 20
+                this
+                    .opplysninger()
+                    .finnAlle()
+                    .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
+                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe forbrukt
             }
         }
     }
 
     @Test
-    @Disabled("Test der en tømmer stønadsperioden og vi mangler funksjonalitet.")
     fun `Innvilgelse og tømme stønadsperioden i meldekort`() {
         withMigratedDb {
             val meldekortBehandlingskø =
@@ -949,8 +964,11 @@ internal class PersonMediatorTest {
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 val antallDagerMedUtbetaling = 5
-                this.opplysninger().finnAlle().filter { it.er(Beregning.utbetaling) } shouldHaveSize antallDagerMedUtbetaling
-                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe 5
+                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe antallDagerMedUtbetaling
+                this
+                    .opplysninger()
+                    .finnAlle()
+                    .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize antallDagerMedUtbetaling
             }
         }
     }

@@ -83,36 +83,39 @@ class BeregnMeldekortHendelse(
                         Gyldighetsperiode(meldekort.fom, meldekort.tom),
                         kilde = kilde,
                     ),
-                ) +
-                    meldekort.dager.flatMap { dag ->
-                        val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
-
-                        // TODO: Dette bør være en double
-                        val timer = dag.aktiviteter.sumOf { it.timer?.inWholeHours ?: 0 }.toInt()
-                        // TODO: Hva om det er flere aktiviteter?
-                        val type = dag.aktiviteter.firstOrNull()?.type
-                        when (type) {
-                            AktivitetType.Arbeid -> {
-                                listOf(
-                                    Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
-                                    Faktum(Beregning.arbeidstimer, timer, gyldighetsperiode, kilde = kilde),
-                                )
-                            }
-
-                            AktivitetType.Syk,
-                            AktivitetType.Utdanning,
-                            AktivitetType.Fravær,
-                            -> listOf(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
-
-                            null -> {
-                                listOf(
-                                    Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
-                                    Faktum(Beregning.arbeidstimer, 0, gyldighetsperiode, kilde = kilde),
-                                )
-                            }
-                        } + Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde)
-                    },
+                ),
         ).apply {
+            meldekort.dager.forEach { dag ->
+                val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
+
+                // TODO: Dette bør være en double
+                val timer = dag.aktiviteter.sumOf { it.timer?.inWholeHours ?: 0 }.toInt()
+                // TODO: Hva om det er flere aktiviteter?
+                val type = dag.aktiviteter.firstOrNull()?.type
+                when (type) {
+                    AktivitetType.Arbeid -> {
+                        listOf(
+                            opplysninger.leggTil(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde)),
+                            opplysninger.leggTil(Faktum(Beregning.arbeidstimer, timer, gyldighetsperiode, kilde = kilde)),
+                        )
+                    }
+
+                    AktivitetType.Syk,
+                    AktivitetType.Utdanning,
+                    AktivitetType.Fravær,
+                    -> opplysninger.leggTil(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
+
+                    null -> {
+                        opplysninger.leggTil(
+                            Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
+                        )
+                        opplysninger.leggTil(
+                            Faktum(Beregning.arbeidstimer, 0, gyldighetsperiode, kilde = kilde),
+                        )
+                    }
+                }
+                opplysninger.leggTil(Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde))
+            }
             val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger(), rettighetstatus)
             val periode = fabrikk.lagBeregningsperiode()
             val forbruksdager = periode.forbruksdager
