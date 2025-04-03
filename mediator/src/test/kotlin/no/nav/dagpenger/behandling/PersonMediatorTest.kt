@@ -903,7 +903,7 @@ internal class PersonMediatorTest {
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 val antallDagerMedUtbetaling = 30
                 this.opplysninger().finnAlle().filter { it.er(Beregning.utbetaling) } shouldHaveSize antallDagerMedUtbetaling
-                opplysninger.finnAlle().filter { it.er(gjenståendeForbruksdagKontigent) }.minOfOrNull { it.verdi as Int } shouldBe 493
+                opplysninger.finnAlle().filter { it.er(gjenståendeForbruksdagKontigent) }.minOfOrNull { it.verdi as Int } shouldBe 490
             }
         }
     }

@@ -124,9 +124,17 @@ class BeregnMeldekortHendelse(
                     ?: opplysninger.finnOpplysning(gjenståendeStønadsdager).verdi
 
             periode.forbruksdager.forEachIndexed { index, dag ->
+                val teller =
+                    if (index == 0 && !opplysninger.har(gjenståendeForbruksdagKontigent)) {
+                        // Første meldekort der det ikke finnes noen forbruk, der vi bruker gjenstående (fastsatt i vedtak)
+                        gjenstående
+                    } else {
+                        // Gjenværende meldekort, der vi legger på hver dag. Siden indekser starter på 0 legger vi på 1 for å telle riktig.
+                        gjenstående - (index + 1)
+                    }
                 val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
                 opplysninger.leggTil(Faktum(forbruk, true, gyldighetsperiode))
-                opplysninger.leggTil(Faktum(gjenståendeForbruksdagKontigent, gjenstående - index, gyldighetsperiode))
+                opplysninger.leggTil(Faktum(gjenståendeForbruksdagKontigent, teller, gyldighetsperiode))
                 opplysninger.leggTil(Faktum(Beregning.utbetaling, dag.tilUtbetaling.roundToInt(), gyldighetsperiode))
             }
         }
