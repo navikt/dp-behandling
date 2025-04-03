@@ -163,7 +163,6 @@ fun registrerRegelverk(
                 Beregning.meldeperiode +
                 Beregning.utbetaling +
                 Beregning.terskel +
-                Beregning.gjenståendeForbruksdagKontigent +
                 hendelseTypeOpplysningstype,
         )
 }

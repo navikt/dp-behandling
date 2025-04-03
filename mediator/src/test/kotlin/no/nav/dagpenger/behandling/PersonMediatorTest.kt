@@ -79,7 +79,7 @@ import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
 import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.beregning.Beregning.gjenståendeForbruksdagKontigent
+import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
@@ -902,8 +902,11 @@ internal class PersonMediatorTest {
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 val antallDagerMedUtbetaling = 30
-                this.opplysninger().finnAlle().filter { it.er(Beregning.utbetaling) } shouldHaveSize antallDagerMedUtbetaling
-                opplysninger.finnAlle().filter { it.er(gjenståendeForbruksdagKontigent) }.minOfOrNull { it.verdi as Int } shouldBe 490
+                this
+                    .opplysninger()
+                    .finnAlle()
+                    .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize antallDagerMedUtbetaling
+                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe 30
             }
         }
     }
@@ -947,7 +950,7 @@ internal class PersonMediatorTest {
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 val antallDagerMedUtbetaling = 5
                 this.opplysninger().finnAlle().filter { it.er(Beregning.utbetaling) } shouldHaveSize antallDagerMedUtbetaling
-                opplysninger.finnAlle().filter { it.er(gjenståendeForbruksdagKontigent) }.minOfOrNull { it.verdi as Int } shouldBe 0
+                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe 5
             }
         }
     }

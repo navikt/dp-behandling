@@ -20,9 +20,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
-import no.nav.dagpenger.regel.beregning.Beregning.gjenståendeForbruksdagKontigent
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.gjenståendeStønadsdager
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -117,26 +115,22 @@ class BeregnMeldekortHendelse(
         ).apply {
             val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger(), rettighetstatus)
             val periode = fabrikk.lagBeregningsperiode()
-
-            val gjenstående =
-                // TODO: Vi må finne siste forbruksdato siden dette meldekort
-                opplysninger.finnAlle().filter { it.er(gjenståendeForbruksdagKontigent) }.minOfOrNull { it.verdi as Int }
-                    ?: opplysninger.finnOpplysning(gjenståendeStønadsdager).verdi
-
-            periode.forbruksdager.forEachIndexed { index, dag ->
-                val teller =
-                    if (index == 0 && !opplysninger.har(gjenståendeForbruksdagKontigent)) {
-                        // Første meldekort der det ikke finnes noen forbruk, der vi bruker gjenstående (fastsatt i vedtak)
-                        gjenstående
-                    } else {
-                        // Gjenværende meldekort, der vi legger på hver dag. Siden indekser starter på 0 legger vi på 1 for å telle riktig.
-                        gjenstående - (index + 1)
-                    }
+            val forbruksdager = periode.forbruksdager
+            forbruksdager.forEachIndexed { index, dag ->
                 val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
                 opplysninger.leggTil(Faktum(forbruk, true, gyldighetsperiode))
-                opplysninger.leggTil(Faktum(gjenståendeForbruksdagKontigent, teller, gyldighetsperiode))
                 opplysninger.leggTil(Faktum(Beregning.utbetaling, dag.tilUtbetaling.roundToInt(), gyldighetsperiode))
             }
+
+            meldekort
+                .periode()
+                .filter { dato ->
+                    forbruksdager.none { forbruksdag -> dato == forbruksdag.dato }
+                }.forEach { dato ->
+                    val gyldighetsperiode = Gyldighetsperiode(dato, dato)
+                    opplysninger.leggTil(Faktum(forbruk, false, gyldighetsperiode))
+                    opplysninger.leggTil(Faktum(Beregning.utbetaling, 0, gyldighetsperiode))
+                }
         }
     }
 
