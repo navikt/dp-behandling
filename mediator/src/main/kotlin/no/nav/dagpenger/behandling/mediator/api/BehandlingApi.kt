@@ -32,6 +32,7 @@ import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
+import no.nav.dagpenger.behandling.mediator.barnMapper
 import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
@@ -65,13 +66,12 @@ import java.util.UUID
 
 private val logger = KotlinLogging.logger { }
 
-private val apiRepositoryPostgres = ApiRepositoryPostgres()
-
 internal fun Application.behandlingApi(
     personRepository: PersonRepository,
     hendelseMediator: IHendelseMediator,
     auditlogg: Auditlogg,
     opplysningstyper: Set<Opplysningstype<*>>,
+    apiRepositoryPostgres: ApiRepositoryPostgres = ApiRepositoryPostgres(),
     messageContext: (ident: String) -> MessageContext,
 ) {
     authenticationConfig()
@@ -421,6 +421,7 @@ private class HttpVerdiMapper(
             Desimaltall -> oppdaterOpplysningRequestDTO.verdi.toDouble() as T
             Penger -> oppdaterOpplysningRequestDTO.verdi.toDouble() as T
             Dato -> oppdaterOpplysningRequestDTO.verdi.let { LocalDate.parse(it) } as T
+            BarnDatatype -> barnMapper(oppdaterOpplysningRequestDTO.verdi) as T
             else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
         }
 }

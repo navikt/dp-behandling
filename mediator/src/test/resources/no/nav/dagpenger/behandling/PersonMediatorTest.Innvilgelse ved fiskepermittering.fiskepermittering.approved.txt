@@ -188,7 +188,7 @@ Stønadsuker ved siste 12 måneder
 Stønadsuker ved siste 36 måneder
 Antall stønadsuker
 Antall stønadsuker som gis ved ordinære dagpenger
-Antall gjenstående stønadsdager
+Antall stønadsdager
 Barn
 Antall barn som gir rett til barnetillegg
 Sum av barnetillegg
