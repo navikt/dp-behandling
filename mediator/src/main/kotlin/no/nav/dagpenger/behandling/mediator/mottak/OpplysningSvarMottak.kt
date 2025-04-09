@@ -17,6 +17,7 @@ import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger
 import no.nav.dagpenger.behandling.mediator.asUUID
+import no.nav.dagpenger.behandling.mediator.barnMapper
 import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SvarStrategi.Svar
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
@@ -41,8 +42,6 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
-import no.nav.dagpenger.opplysning.verdier.Barn
-import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Ulid
@@ -275,17 +274,3 @@ private class JsonMapper(
             PeriodeDataType -> TODO()
         }
 }
-
-private fun barnMapper(verdi: JsonNode): BarnListe =
-    BarnListe(
-        barn =
-            verdi.map {
-                Barn(
-                    fødselsdato = it["fødselsdato"].asLocalDate(),
-                    fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asText(),
-                    etternavn = it["etternavn"]?.asText(),
-                    statsborgerskap = it["statsborgerskap"]?.asText(),
-                    kvalifiserer = it["kvalifiserer"].asBoolean(),
-                )
-            },
-    )

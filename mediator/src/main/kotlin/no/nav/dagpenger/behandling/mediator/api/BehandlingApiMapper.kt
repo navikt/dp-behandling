@@ -92,6 +92,7 @@ import no.nav.dagpenger.regel.Utdanning.opplæringForInnvandrere
 import no.nav.dagpenger.regel.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import java.time.LocalDate
 import kotlin.collections.map
 
@@ -426,6 +427,8 @@ private val redigerbareOpplysninger =
                 svangerskapspengerDagsats,
                 // 4-28 Utestenging
                 utestengt,
+                // 4-12 Redigering av barne opplysninger
+                barn,
             )
 
         override fun kanRedigere(opplysning: Opplysning<*>): Boolean = redigerbare.contains(opplysning.opplysningstype)

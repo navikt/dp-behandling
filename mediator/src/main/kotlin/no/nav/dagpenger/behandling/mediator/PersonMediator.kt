@@ -73,9 +73,6 @@ internal class PersonMediator : PersonObservatør {
                                     is SøknadId -> "Søknad"
                                 },
                         ),
-                    // TODO: Skal fjernes når STSB er over
-                    "søknadId" to hendelse.id.toString(),
-                    "søknad_uuid" to hendelse.id.toString(),
                 ),
             )
 
@@ -122,9 +119,6 @@ internal class PersonMediator : PersonObservatør {
                                     is SøknadId -> "Søknad"
                                 },
                         ),
-                    // TODO: Skal fjernes når STSB er over
-                    "søknadId" to hendelse.id.toString(),
-                    "søknad_uuid" to hendelse.id.toString(),
                 ) + (årsak?.let { mapOf("årsak" to it) } ?: emptyMap()),
             )
 

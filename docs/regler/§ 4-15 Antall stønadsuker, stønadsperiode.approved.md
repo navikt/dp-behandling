@@ -32,8 +32,8 @@ graph RL
   S["Antall stønadsuker som gis ved ordinære dagpenger"] -->|"HvisSannMedResultat"| Q["Antall stønadsuker"]
   S["Antall stønadsuker som gis ved ordinære dagpenger"] -->|"HvisSannMedResultat"| R["Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt"]
   U["Antall dager som skal regnes med i hver uke"] -->|"Oppslag"| B["Prøvingsdato"]
-  V["Antall gjenstående stønadsdager"] -->|"Multiplikasjon"| Q["Antall stønadsuker"]
-  V["Antall gjenstående stønadsdager"] -->|"Multiplikasjon"| U["Antall dager som skal regnes med i hver uke"]
+  V["Antall stønadsdager"] -->|"Multiplikasjon"| Q["Antall stønadsuker"]
+  V["Antall stønadsdager"] -->|"Multiplikasjon"| U["Antall dager som skal regnes med i hver uke"]
 ```
 
 ## Akseptansetester

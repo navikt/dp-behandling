@@ -454,6 +454,11 @@ internal class PersonMediatorTest {
             løsBehandlingFramTilInnvilgelse(testPerson)
 
             rapid.harHendelse("forslag_til_vedtak") {
+                medMeldingsInnhold("behandletHendelse") {
+                    medTekst("id") shouldBe testPerson.søknadId.toString()
+                    medTekst("type") shouldBe "Søknad"
+                    medTekst("datatype") shouldBe "UUID"
+                }
                 medFastsettelser {
                     oppfylt
                 }
@@ -625,7 +630,11 @@ internal class PersonMediatorTest {
             testPerson.avbrytBehandling()
 
             rapid.harHendelse("behandling_avbrutt") {
-                medTekst("søknadId") shouldBe testPerson.søknadId
+                medMeldingsInnhold("behandletHendelse") {
+                    medTekst("id") shouldBe testPerson.søknadId.toString()
+                    medTekst("type") shouldBe "Søknad"
+                    medTekst("datatype") shouldBe "UUID"
+                }
             }
 
             rapid.inspektør.size shouldBe 6
