@@ -544,7 +544,6 @@ internal class PersonMediatorTest {
     fun `søknad som slår ut på manuelle behandling må føre til forslag til vedtak`() =
         withMigratedDb {
             registrerOpplysningstyper()
-            registrerOpplysningstyper()
             val testPerson =
                 TestPerson(
                     ident,
