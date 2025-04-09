@@ -117,7 +117,6 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is SøknadId -> HendelseDTO.Type.Søknad
                     },
             ),
-        søknadId = behandlingAv.eksternId.id.toString(),
         fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),
         automatisk = automatiskBehandlet,
         ident = ident.identifikator(),

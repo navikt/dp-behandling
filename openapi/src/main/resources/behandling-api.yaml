@@ -928,9 +928,6 @@ components:
             format: uuid
         fagsakId:
           type: string
-        søknadId:
-          type: string
-          deprecated: true # Feltet er deprecated og vil bli fjernet i fremtidige versjoner
         automatisk:
           type: boolean
         ident:

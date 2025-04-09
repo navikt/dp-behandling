@@ -257,7 +257,11 @@ internal class PersonMediatorTest {
                     medBoolsk("utfall") shouldBe false
                 }
                 medNode("fagsakId").asInt() shouldBe 123
-                medTekst("søknadId") shouldBe testPerson.søknadId
+                medMeldingsInnhold("behandletHendelse") {
+                    medTekst("id") shouldBe testPerson.søknadId.toString()
+                    medTekst("type") shouldBe "Søknad"
+                    medTekst("datatype") shouldBe "UUID"
+                }
                 medTekst("ident") shouldBe ident
                 medBoolsk("automatisk") shouldBe true
                 shouldNotBeNull {
