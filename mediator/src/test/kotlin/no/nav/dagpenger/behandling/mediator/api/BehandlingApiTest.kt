@@ -64,7 +64,6 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt.avtjentVerneplikt
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -106,10 +105,7 @@ internal class BehandlingApiTest {
                 UUIDv7.ny(),
                 Avklaringkode("tittel 3", "beskrivelse ", "kanKvitteres"),
                 mutableListOf(
-                    Avklaring.Endring.Avklart(
-                        avklartAv = Systemkilde(UUIDv7.ny(), LocalDateTime.now()),
-                        begrunnelse = "heia",
-                    ),
+                    Avklaring.Endring.UnderBehandling(),
                 ),
             ),
             Avklaring.rehydrer(
@@ -328,7 +324,6 @@ internal class BehandlingApiTest {
     }
 
     @Test
-    @Disabled("Må bruke postgres-repository for at dette skal fungere")
     fun `lagrer saksbehandlers begrunnelse for en gitt kildeId`() {
         medSikretBehandlingApi {
             val behandling = person.behandlinger().first()
@@ -499,7 +494,6 @@ internal class BehandlingApiTest {
     }
 
     @Test
-    @Disabled("Vi må erstatte ekte instans av mediator med en mock")
     fun `saksbehandler kan kvittere ut avklaring`() {
         medSikretBehandlingApi {
             val kvitteringHendelse = slot<AvklaringKvittertHendelse>()
