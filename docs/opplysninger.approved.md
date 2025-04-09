@@ -174,7 +174,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943d-77a7-969c-147999f15454|Over terskel for 12 måneder|Over terskel for 12 måneder|Boolsk|boolean|
 |0194881f-943d-77a7-969c-147999f15455|Over terskel for 36 måneder|Over terskel for 36 måneder|Boolsk|boolean|
 |0194881f-943d-77a7-969c-147999f15456|Antall stønadsuker|Antall stønadsuker|Heltall|int|
-|0194881f-943d-77a7-969c-147999f15457|Antall gjenstående stønadsdager|Antall gjenstående stønadsdager|Heltall|int|
+|0194881f-943d-77a7-969c-147999f15457|Antall stønadsdager|Antall stønadsdager|Heltall|int|
 |0194881f-943d-77a7-969c-147999f15458|Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt|Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt|Heltall|int|
 |0194881f-943d-77a7-969c-147999f15459|Antall stønadsuker som gis ved ordinære dagpenger|Antall stønadsuker som gis ved ordinære dagpenger|Heltall|int|
 |0194881f-943f-78d9-b874-00a4944c54ef|Egenandel|Egenandel|Penger|Beløp|

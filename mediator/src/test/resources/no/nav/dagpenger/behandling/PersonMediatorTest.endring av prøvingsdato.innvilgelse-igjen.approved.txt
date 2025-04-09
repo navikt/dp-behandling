@@ -192,7 +192,7 @@ Gjennomsnittlig arbeidsinntekt siste 36 måneder
 Antall stønadsuker
 Uavrundet grunnlag
 Antall stønadsuker som gis ved ordinære dagpenger
-Antall gjenstående stønadsdager
+Antall stønadsdager
 Grunnlag ved ordinære dagpenger
 Brukt beregningsregel
 Grunnlag

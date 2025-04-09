@@ -6,9 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.navikt.tbd_libs.naisful.test.TestContext
-import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -22,6 +20,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.escapeIfNeeded
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.spyk
@@ -29,16 +28,14 @@ import io.mockk.verify
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
-import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.db.InMemoryPersonRepository
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
-import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
-import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
+import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
@@ -47,11 +44,11 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -200,6 +197,7 @@ internal class BehandlingApiTest {
         }
     private val hendelseMediator = mockk<HendelseMediator>(relaxed = true)
     private val auditlogg = mockk<Auditlogg>(relaxed = true)
+    private val apiRepositoryPostgres = mockk<ApiRepositoryPostgres>(relaxed = true)
 
     @AfterEach
     fun tearDown() {
@@ -453,17 +451,32 @@ internal class BehandlingApiTest {
     }
 
     @Test
-    @Disabled("Må finne ut av hvordan vente på rapid")
     fun `kan endre alle typer opplysninger som er redigerbare`() {
         medSikretBehandlingApi {
             val behandlingId = person.behandlinger().first().behandlingId
             val opplysninger =
                 listOf(
-                    Pair(TestOpplysningstyper.beløpA, 100),
-                    Pair(TestOpplysningstyper.dato, LocalDate.of(2020, 1, 1)),
-                    Pair(TestOpplysningstyper.heltall, 100),
-                    Pair(TestOpplysningstyper.desimal, 100.12),
-                    Pair(TestOpplysningstyper.boolsk, false),
+                    Pair(TestOpplysningstyper.beløpA, "100"),
+                    Pair(TestOpplysningstyper.dato, """"${LocalDate.of(2020, 1, 1)}""""),
+                    Pair(TestOpplysningstyper.heltall, "100"),
+                    Pair(TestOpplysningstyper.desimal, "100.12"),
+                    Pair(TestOpplysningstyper.boolsk, "false"),
+                    Pair(
+                        TestOpplysningstyper.barn,
+                        """
+
+                        [
+                            {
+                                "fødselsdato": "${LocalDate.now().minusYears(2)}",
+                                "fornavnOgMellomnavn": "Navnesen",
+                                "etternavn": "Navnsen",
+                                "statsborgerskap": "NOR",
+                                "kvalifiserer": true
+                            }
+                        ]
+
+                        """.replace("\n", "").trimIndent().escapeIfNeeded(),
+                    ),
                 ).map { (opplysning, verdi) ->
                     Pair(
                         verdi,
@@ -474,107 +487,14 @@ internal class BehandlingApiTest {
                             .finnOpplysning(opplysning),
                     )
                 }
-            opplysninger.forEach { opplysning ->
+            opplysninger.forEach { opplysning: Pair<Any, Opplysning<*>> ->
                 autentisert(
                     httpMethod = HttpMethod.Put,
                     endepunkt = "/behandling/$behandlingId/opplysning/${opplysning.second.id}",
                     // language=JSON
-                    body = """{"begrunnelse":"tekst", "verdi": "${opplysning.first}" }""",
+                    body = """{"begrunnelse":"tekst", "verdi": ${opplysning.first} }""",
                 ).status shouldBe HttpStatusCode.OK
             }
-        }
-    }
-
-    @Test
-    fun `kan ikke endre opplysninger som ikke er redigerbare`() {
-        medSikretBehandlingApi {
-            val behandlingId = person.behandlinger().first().behandlingId
-            val opplysninger =
-                listOf(
-                    Pair(TestOpplysningstyper.barn, 100),
-                ).map { (opplysning, verdi) ->
-                    Pair(
-                        verdi,
-                        person
-                            .behandlinger()
-                            .first()
-                            .opplysninger()
-                            .finnOpplysning(opplysning),
-                    )
-                }
-            opplysninger.forEach { opplysning ->
-                autentisert(
-                    httpMethod = HttpMethod.Put,
-                    endepunkt = "/behandling/$behandlingId/opplysning/${opplysning.second.id}",
-                    // language=JSON
-                    body = """{"begrunnelse":"tekst", "verdi": "${opplysning.first}" }""",
-                ).status shouldBe HttpStatusCode.BadRequest
-            }
-        }
-    }
-
-    // TODO: Legg til paramerisert test for alle opplysningstyper
-    @Test
-    @Disabled("Må finne ut av hvordan vente på rapid")
-    fun `endre opplysningsverdi`() {
-        medSikretBehandlingApi {
-            val messageMediator = mockk<IMessageMediator>(relaxed = true)
-            val opplysningSvar = slot<String>()
-            val opplysningSvarHendelse = slot<OpplysningSvarHendelse>()
-
-            val behandlingId = person.behandlinger().first().behandlingId
-            val opplysning =
-                person
-                    .behandlinger()
-                    .first()
-                    .opplysninger()
-                    .finnOpplysning(TestOpplysningstyper.dato)
-            val response =
-                autentisert(
-                    httpMethod = HttpMethod.Put,
-                    endepunkt = "/behandling/$behandlingId/opplysning/${opplysning.id}",
-                    // language=JSON
-                    body = """{"begrunnelse":"tekst", "verdi": "2020-01-01" }""",
-                )
-            response.status shouldBe HttpStatusCode.OK
-            with(response.bodyAsText()) {
-                shouldNotBeEmpty()
-                shouldNotThrowAny {
-                    val kvitteringDTO = objectMapper.readValue<KvitteringDTO>(this)
-                    kvitteringDTO.behandlingId shouldBe behandlingId
-                }
-            }
-
-            verify {
-                rapid.publish(capture(opplysningSvar))
-                auditlogg.oppdater(any(), any(), any())
-            }
-            opplysningSvar.isCaptured shouldBe true
-            val melding =
-                opplysningSvar.captured.let { json ->
-                    OpplysningSvarMessage(
-                        JsonMessage(json, MessageProblems(json), mockk(relaxed = true)).also {
-                            it.requireKey("ident", "behandlingId", "@løsning")
-                            it.interestedIn("@utledetAv")
-                        },
-                        setOf(TestOpplysningstyper.dato),
-                    )
-                }
-
-            melding.behandle(
-                messageMediator,
-                mockk(),
-            )
-
-            verify {
-                messageMediator.behandle(capture(opplysningSvarHendelse), any(), any())
-            }
-
-            opplysningSvarHendelse.isCaptured shouldBe true
-            val redigertOpplysning = opplysningSvarHendelse.captured.opplysninger.first()
-            redigertOpplysning.verdi shouldBe LocalDate.parse("2020-01-01")
-            // TODO: Legge til kilde  (redigertOpplysning.kilde as Saksbehandlerkilde).ident shouldBe "Z123456"
-            redigertOpplysning.opplysningstype shouldBe TestOpplysningstyper.dato
         }
     }
 
@@ -612,12 +532,13 @@ internal class BehandlingApiTest {
     private fun medSikretBehandlingApi(
         personRepository: PersonRepository = this.personRepository,
         hendelseMediator: HendelseMediator = this.hendelseMediator,
+        apiRepositoryPostgres: ApiRepositoryPostgres = this.apiRepositoryPostgres,
         test: suspend TestContext.() -> Unit,
     ) {
         System.setProperty("Grupper.saksbehandler", "dagpenger-saksbehandler")
         TestApplication.withMockAuthServerAndTestApplication(
             moduleFunction = {
-                behandlingApi(personRepository, hendelseMediator, auditlogg, emptySet()) { rapid }
+                behandlingApi(personRepository, hendelseMediator, auditlogg, emptySet(), apiRepositoryPostgres) { rapid }
             },
             test,
         )
