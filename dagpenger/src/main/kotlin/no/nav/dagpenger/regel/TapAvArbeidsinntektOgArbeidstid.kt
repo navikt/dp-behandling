@@ -132,7 +132,7 @@ object TapAvArbeidsinntektOgArbeidstid {
                 )
             }
 
-            // TODO: Kun en av disse må være sann. Enforces med Avklaring (i framtiden)
+            // TODO: Kun en av disse må være sann. Enforces med Avklaring (i gang framtiden)
             regel(beregningsregel6mnd) { oppslag(prøvingsdato) { true } } // TODO: Satt til true for testing av innvilgelse
             regel(beregningsregel12mnd) { oppslag(prøvingsdato) { false } }
             regel(beregningsregel36mnd) { oppslag(prøvingsdato) { false } }
