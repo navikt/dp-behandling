@@ -5,6 +5,7 @@ kafka:
 gcp:
   sql:
     tier: db-custom-2-7680
+    retainedBackups: 21
 
 azure:
   tenant: nav.no

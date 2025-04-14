@@ -8,6 +8,7 @@ ingresses:
 gcp:
   sql:
     tier: db-custom-1-3840
+    retainedBackups: 7
 
 azure:
   tenant: trygdeetaten.no
