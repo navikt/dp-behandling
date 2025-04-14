@@ -6,7 +6,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 
 internal object Postgres {
     val instance by lazy {
-        PostgreSQLContainer<Nothing>("postgres:15.2").apply {
+        PostgreSQLContainer<Nothing>("postgres:17.4").apply {
             withReuse(true)
             start()
         }
@@ -41,11 +41,13 @@ internal object Postgres {
 
     fun withCleanDb(block: () -> Unit) {
         setup()
-        PostgresDataSourceBuilder.clean().run {
-            block()
-        }.also {
-            tearDown()
-        }
+        PostgresDataSourceBuilder
+            .clean()
+            .run {
+                block()
+            }.also {
+                tearDown()
+            }
     }
 
     fun withCleanDb(
@@ -54,13 +56,15 @@ internal object Postgres {
         test: () -> Unit,
     ) {
         this.setup()
-        PostgresDataSourceBuilder.clean().run {
-            PostgresDataSourceBuilder.runMigrationTo(target)
-            setup()
-            PostgresDataSourceBuilder.runMigration()
-            test()
-        }.also {
-            tearDown()
-        }
+        PostgresDataSourceBuilder
+            .clean()
+            .run {
+                PostgresDataSourceBuilder.runMigrationTo(target)
+                setup()
+                PostgresDataSourceBuilder.runMigration()
+                test()
+            }.also {
+                tearDown()
+            }
     }
 }
