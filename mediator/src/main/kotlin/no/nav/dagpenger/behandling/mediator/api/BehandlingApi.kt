@@ -21,11 +21,11 @@ import io.opentelemetry.api.trace.Span
 import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
+import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
-import no.nav.dagpenger.behandling.api.models.KvitterAvklaringRequestDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
-import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningRequestDTO
+import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
@@ -97,15 +97,15 @@ internal fun Application.behandlingApi(
                         navn = it.navn,
                         datatype =
                             when (it.datatype) {
-                                Boolsk -> DataTypeDTO.boolsk
-                                Dato -> DataTypeDTO.dato
-                                Desimaltall -> DataTypeDTO.desimaltall
-                                Heltall -> DataTypeDTO.heltall
-                                ULID -> DataTypeDTO.ulid
-                                Penger -> DataTypeDTO.penger
-                                InntektDataType -> DataTypeDTO.inntekt
-                                BarnDatatype -> DataTypeDTO.barn
-                                Tekst -> DataTypeDTO.tekst
+                                Boolsk -> DataTypeDTO.BOOLSK
+                                Dato -> DataTypeDTO.DATO
+                                Desimaltall -> DataTypeDTO.DESIMALTALL
+                                Heltall -> DataTypeDTO.HELTALL
+                                ULID -> DataTypeDTO.ULID
+                                Penger -> DataTypeDTO.PENGER
+                                InntektDataType -> DataTypeDTO.INNTEKT
+                                BarnDatatype -> DataTypeDTO.BARN
+                                Tekst -> DataTypeDTO.TEKST
                                 PeriodeDataType -> TODO()
                             },
                     )
@@ -285,7 +285,7 @@ internal fun Application.behandlingApi(
                         withLoggingContext(
                             "behandlingId" to behandlingId.toString(),
                         ) {
-                            val oppdaterOpplysningRequestDTO = call.receive<OppdaterOpplysningRequestDTO>()
+                            val oppdaterOpplysningRequestDTO = call.receive<OppdaterOpplysningDTO>()
                             val behandling = hentBehandling(personRepository, behandlingId)
 
                             if (behandling.harTilstand(Redigert)) {
@@ -330,7 +330,7 @@ internal fun Application.behandlingApi(
                             "behandlingId" to behandlingId.toString(),
                         ) {
                             val avklaringId = call.avklaringId
-                            val kvitteringDTO = call.receive<KvitterAvklaringRequestDTO>()
+                            val kvitteringDTO = call.receive<AvklaringKvitteringDTO>()
                             val behandling = hentBehandling(personRepository, behandlingId)
 
                             require(!behandling.harTilstand(Redigert)) { "Kan ikke avklare om behandling står i tilstanden Redigert" }
@@ -416,7 +416,7 @@ private val OtelTraceIdPlugin =
 
 @Suppress("UNCHECKED_CAST")
 private class HttpVerdiMapper(
-    private val oppdaterOpplysningRequestDTO: OppdaterOpplysningRequestDTO,
+    private val oppdaterOpplysningRequestDTO: OppdaterOpplysningDTO,
 ) : VerdiMapper {
     override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
         when (datatype) {

@@ -4,18 +4,22 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.api.models.BarnDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
+import no.nav.dagpenger.behandling.api.models.BehandletAvDTORolleDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.KvoteDTO
+import no.nav.dagpenger.behandling.api.models.KvoteDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SamordningDTO
 import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
-import no.nav.dagpenger.behandling.api.models.VedtakFastsattDTO
-import no.nav.dagpenger.behandling.api.models.VedtakFastsattFastsattVanligArbeidstidDTO
-import no.nav.dagpenger.behandling.api.models.VedtakFastsattGrunnlagDTO
-import no.nav.dagpenger.behandling.api.models.VedtakFastsattSatsDTO
-import no.nav.dagpenger.behandling.api.models.VedtakGjenstEndeDTO
+import no.nav.dagpenger.behandling.api.models.VedtakDTOFastsattDTO
+import no.nav.dagpenger.behandling.api.models.VedtakDTOFastsattVanligArbeidstidDTO
+import no.nav.dagpenger.behandling.api.models.VedtakDTOGjenståendeDTO
+import no.nav.dagpenger.behandling.api.models.VedtakDTOGrunnlagDTO
+import no.nav.dagpenger.behandling.api.models.VedtakDTOSatsDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarDTO
+import no.nav.dagpenger.behandling.api.models.VilkaarDTOStatusDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
@@ -113,8 +117,8 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                 datatype = behandlingAv.eksternId.datatype,
                 type =
                     when (behandlingAv.eksternId) {
-                        is MeldekortId -> HendelseDTO.Type.Meldekort
-                        is SøknadId -> HendelseDTO.Type.Søknad
+                        is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
+                        is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                     },
             ),
         fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),
@@ -126,20 +130,20 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
             listOfNotNull(
                 godkjentAv.takeIf { it.erUtført }?.let {
                     BehandletAvDTO(
-                        BehandletAvDTO.Rolle.saksbehandler,
+                        BehandletAvDTORolleDTO.SAKSBEHANDLER,
                         SaksbehandlerDTO(it.utførtAv.ident),
                     )
                 },
                 besluttetAv.takeIf { it.erUtført }?.let {
                     BehandletAvDTO(
-                        BehandletAvDTO.Rolle.beslutter,
+                        BehandletAvDTORolleDTO.BESLUTTER,
                         SaksbehandlerDTO(it.utførtAv.ident),
                     )
                 },
             ),
         vilkår = vilkår,
         fastsatt = fastsatt,
-        gjenstående = VedtakGjenstEndeDTO(),
+        gjenstående = VedtakDTOGjenståendeDTO(),
         utbetalinger = opplysninger.utbetalinger(),
         opplysninger = opplysningerSomGjelderPåPrøvingsdato.finnAlle().map { it.tilOpplysningDTO(opplysningerSomGjelderPåPrøvingsdato) },
     )
@@ -160,22 +164,22 @@ private fun vedtakFastsattDTO(
     opplysninger: LesbarOpplysninger,
 ) = when (utfall) {
     true ->
-        VedtakFastsattDTO(
+        VedtakDTOFastsattDTO(
             utfall = true,
             grunnlag =
-                VedtakFastsattGrunnlagDTO(
+                VedtakDTOGrunnlagDTO(
                     opplysninger
                         .finnOpplysning(Dagpengegrunnlag.grunnlag)
                         .verdi.verdien
                         .toInt(),
                 ),
             fastsattVanligArbeidstid =
-                VedtakFastsattFastsattVanligArbeidstidDTO(
+                VedtakDTOFastsattVanligArbeidstidDTO(
                     vanligArbeidstidPerUke = opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi.toBigDecimal(),
                     nyArbeidstidPerUke = opplysninger.finnOpplysning(nyArbeidstid).verdi.toBigDecimal(),
                 ),
             sats =
-                VedtakFastsattSatsDTO(
+                VedtakDTOSatsDTO(
                     dagsatsMedBarnetillegg =
                         opplysninger
                             .finnOpplysning(dagsatsEtterSamordningMedBarnetillegg)
@@ -192,7 +196,7 @@ private fun vedtakFastsattDTO(
                     opplysninger.finnOpplysning(minsteinntekt).takeIf { it.verdi }?.let {
                         KvoteDTO(
                             "Dagpengeperiode",
-                            KvoteDTO.Type.uker,
+                            KvoteDTOTypeDTO.UKER,
                             opplysninger.finnOpplysning(Dagpengeperiode.ordinærPeriode).verdi.toBigDecimal(),
                         )
                     },
@@ -202,13 +206,13 @@ private fun vedtakFastsattDTO(
                         ?.let {
                             KvoteDTO(
                                 "Verneplikt",
-                                KvoteDTO.Type.uker,
+                                KvoteDTOTypeDTO.UKER,
                                 opplysninger.finnOpplysning(vernepliktPeriode).verdi.toBigDecimal(),
                             )
                         },
                     KvoteDTO(
                         "Egenandel",
-                        KvoteDTO.Type.beløp,
+                        KvoteDTOTypeDTO.BELØP,
                         opplysninger.finnOpplysning(Egenandel.egenandel).verdi.verdien,
                     ),
                     runCatching { opplysninger.finnOpplysning(oppfyllerKravetTilPermittering) }
@@ -217,7 +221,7 @@ private fun vedtakFastsattDTO(
                         ?.let {
                             KvoteDTO(
                                 "Permitteringsperiode",
-                                KvoteDTO.Type.uker,
+                                KvoteDTOTypeDTO.UKER,
                                 opplysninger.finnOpplysning(permitteringsperiode).verdi.toBigDecimal(),
                             )
                         },
@@ -227,7 +231,7 @@ private fun vedtakFastsattDTO(
                         ?.let {
                             KvoteDTO(
                                 "FiskePermitteringsperiode",
-                                KvoteDTO.Type.uker,
+                                KvoteDTOTypeDTO.UKER,
                                 opplysninger.finnOpplysning(permitteringFraFiskeindustriPeriode).verdi.toBigDecimal(),
                             )
                         },
@@ -235,11 +239,11 @@ private fun vedtakFastsattDTO(
         )
 
     false ->
-        VedtakFastsattDTO(
+        VedtakDTOFastsattDTO(
             utfall = false,
             fastsattVanligArbeidstid =
                 opplysninger.har(fastsattVanligArbeidstid).takeIf { it }?.let {
-                    VedtakFastsattFastsattVanligArbeidstidDTO(
+                    VedtakDTOFastsattVanligArbeidstidDTO(
                         vanligArbeidstidPerUke = opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi.toBigDecimal(),
                         nyArbeidstidPerUke = opplysninger.finnOpplysning(nyArbeidstid).verdi.toBigDecimal(),
                     )
@@ -254,8 +258,8 @@ private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
         hjemmel = hjemmel ?: "Mangler mapping til hjemmel",
         status =
             when (this.verdi) {
-                true -> VilkaarDTO.Status.Oppfylt
-                else -> VilkaarDTO.Status.IkkeOppfylt
+                true -> VilkaarDTOStatusDTO.OPPFYLT
+                else -> VilkaarDTOStatusDTO.IKKE_OPPFYLT
             },
         vurderingstidspunkt = this.opprettet,
     )

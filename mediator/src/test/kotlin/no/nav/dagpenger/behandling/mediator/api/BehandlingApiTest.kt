@@ -59,6 +59,7 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse
@@ -166,6 +167,10 @@ internal class BehandlingApiTest {
                         Faktum(
                             opplysningstype = TestOpplysningstyper.beløpA,
                             verdi = Beløp(1000.toBigDecimal()),
+                        ),
+                        Faktum(
+                            opplysningstype = TestOpplysningstyper.periode,
+                            verdi = Periode(LocalDate.now(), LocalDate.now().plusDays(10)),
                         ),
                         Faktum(
                             opplysningstype = TestOpplysningstyper.barn,

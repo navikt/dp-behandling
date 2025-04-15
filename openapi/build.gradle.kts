@@ -1,19 +1,21 @@
 plugins {
+    id("ch.acanda.gradle.fabrikt") version "1.14.0"
     id("common")
-    id("org.openapi.generator") version "7.13.0"
     `java-library`
 }
 
-tasks.named("compileKotlin").configure {
-    dependsOn("openApiGenerate")
+tasks {
+    compileKotlin {
+        dependsOn("fabriktGenerate")
+    }
 }
 
 tasks.named("runKtlintCheckOverMainSourceSet").configure {
-    dependsOn("openApiGenerate")
+    dependsOn("fabriktGenerate")
 }
 
 tasks.named("runKtlintFormatOverMainSourceSet").configure {
-    dependsOn("openApiGenerate")
+    dependsOn("fabriktGenerate")
 }
 
 sourceSets {
@@ -26,7 +28,7 @@ sourceSets {
 
 ktlint {
     filter {
-        exclude { element -> element.file.path.contains("generated/") }
+        exclude { element -> element.file.path.contains("generated") }
     }
 }
 
@@ -34,31 +36,24 @@ dependencies {
     implementation(libs.jackson.annotation)
 }
 
-openApiGenerate {
-    generatorName.set("kotlin-server")
-    inputSpec.set("$projectDir/src/main/resources/behandling-api.yaml")
-    outputDir.set("${layout.buildDirectory.get()}/generated/")
-    packageName.set("no.nav.dagpenger.behandling.api")
-    globalProperties.set(
-        mapOf(
-            "apis" to "none",
-            "models" to "",
-        ),
-    )
-    typeMappings =
-        mapOf(
-            "DateTime" to "LocalDateTime",
-        )
-    importMappings =
-        mapOf(
-            "LocalDateTime" to "java.time.LocalDateTime",
-        )
-    modelNameSuffix.set("DTO")
-    configOptions.set(
-        mapOf(
-            "dateLibrary" to "custom",
-            "library" to "ktor2",
-            "enumPropertyNaming" to "original",
-        ),
-    )
+fabrikt {
+    generate("behandling") {
+        apiFile = file("$projectDir/src/main/resources/behandling-api.yaml")
+        basePackage = "no.nav.dagpenger.behandling.api"
+        skip = false
+        quarkusReflectionConfig = disabled
+        typeOverrides {
+            datetime = LocalDateTime
+        }
+        model {
+            generate = enabled
+            validationLibrary = NoValidation
+            extensibleEnums = disabled
+            sealedInterfacesForOneOf = enabled
+            ignoreUnknownProperties = disabled
+            nonNullMapValues = enabled
+            serializationLibrary = Jackson
+            suffix = "DTO"
+        }
+    }
 }

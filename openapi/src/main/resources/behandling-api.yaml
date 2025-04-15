@@ -363,15 +363,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - verdi
-                - begrunnelse
-              properties:
-                verdi:
-                  type: string
-                begrunnelse:
-                  type: string
+                $ref: '#/components/schemas/OppdaterOpplysning'
       responses:
         200:
           content:
@@ -436,12 +428,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - begrunnelse
-              properties:
-                begrunnelse:
-                  type: string
+              $ref: '#/components/schemas/AvklaringKvittering'
       responses:
         204:
           description: No Content
@@ -509,11 +496,28 @@ components:
           type: string
           pattern: '^\d{11}$'
 
+    OppdaterOpplysning:
+      type: object
+      required:
+        - verdi
+        - begrunnelse
+      properties:
+        verdi:
+          type: string
+        begrunnelse:
+          type: string
+
+    AvklaringKvittering:
+      type: object
+      required:
+        - begrunnelse
+      properties:
+        begrunnelse:
+          type: string
     Behandling:
       type: object
       required:
         - behandlingId
-        - opplysning
         - tilstand
         - kreverTotrinnskontroll
         - vilkår
@@ -754,6 +758,8 @@ components:
           $ref: '#/components/schemas/opplysningTypeId'
         navn:
           type: string
+        verdien:
+          $ref: '#/components/schemas/Opplysningsverdi'
         verdi:
           type: string
         status:
@@ -788,7 +794,28 @@ components:
           type: string
           enum: [ "Legacy", "Bruker", "Register", "Regel" ]
 
+    Opplysningsverdi:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/TekstVerdi'
+      discriminator:
+        propertyName: datatype
+        mapping:
+          tekst: '#/components/schemas/TekstVerdi'
+
+    TekstVerdi:
+      type: object
+      properties:
+        verdi:
+          type: string
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - verdi
+        - type
+
     Opplysningskilde:
+      type: object
       description: |
         Kilde for opplysningen
       required:
