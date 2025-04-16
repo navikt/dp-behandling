@@ -363,7 +363,7 @@ paths:
         content:
           application/json:
             schema:
-                $ref: '#/components/schemas/OppdaterOpplysning'
+              $ref: '#/components/schemas/OppdaterOpplysning'
       responses:
         200:
           content:
@@ -795,13 +795,31 @@ components:
           enum: [ "Legacy", "Bruker", "Register", "Regel" ]
 
     Opplysningsverdi:
+      description: |
+        Verdi for opplysningen. Kan være en av flere datatyper, se datatype for å se hvilken datatype opplysningen har
       type: object
       oneOf:
         - $ref: '#/components/schemas/TekstVerdi'
+        - $ref: '#/components/schemas/DatoVerdi'
+        - $ref: '#/components/schemas/HeltallVerdi'
+        - $ref: '#/components/schemas/DesimaltallVerdi'
+        - $ref: '#/components/schemas/UlidVerdi'
+        - $ref: '#/components/schemas/BoolskVerdi'
+        - $ref: '#/components/schemas/PeriodeVerdi'
+        - $ref: '#/components/schemas/Barneliste'
       discriminator:
         propertyName: datatype
         mapping:
           tekst: '#/components/schemas/TekstVerdi'
+          barn: '#/components/schemas/Barneliste'
+          inntekt: '#/components/schemas/TekstVerdi'
+          dato: '#/components/schemas/DatoVerdi'
+          heltall: '#/components/schemas/HeltallVerdi'
+          desimaltall: '#/components/schemas/DesimaltallVerdi'
+          penger: '#/components/schemas/DesimaltallVerdi'
+          ulid: '#/components/schemas/UlidVerdi'
+          boolsk: '#/components/schemas/BoolskVerdi'
+          periode: '#/components/schemas/PeriodeVerdi'
 
     TekstVerdi:
       type: object
@@ -812,7 +830,113 @@ components:
           $ref: '#/components/schemas/DataType'
       required:
         - verdi
-        - type
+        - datatype
+
+    DatoVerdi:
+      type: object
+      properties:
+        verdi:
+          type: string
+          format: date
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - verdi
+        - datatype
+
+    HeltallVerdi:
+      type: object
+      properties:
+        verdi:
+          type: integer
+          format: int32
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - verdi
+        - datatype
+
+    UlidVerdi:
+      type: object
+      properties:
+        verdi:
+          type: string
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - verdi
+        - datatype
+
+    DesimaltallVerdi:
+      type: object
+      properties:
+        verdi:
+          type: number
+          format: double
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - verdi
+        - datatype
+
+    BoolskVerdi:
+      type: object
+      properties:
+        verdi:
+          type: boolean
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - verdi
+        - datatype
+
+    PeriodeVerdi:
+      type: object
+      properties:
+        fom:
+          type: string
+          format: date
+        tom:
+          type: string
+          format: date
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - fom
+        - tom
+        - datatype
+
+
+    Barneliste:
+      type: object
+      properties:
+        verdi:
+          type: array
+          items:
+            $ref: '#/components/schemas/BarnVerdi'
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - verdi
+        - datatype
+
+    BarnVerdi:
+      type: object
+      properties:
+        fødselsdato:
+          type: string
+          format: date
+        fornavnOgMellomnavn:
+          type: string
+        etternavn:
+          type: string
+        statsborgerskap:
+          type: string
+        kvalifiserer:
+          type: boolean
+      required:
+        - fødselsdato
+        - kvalifiserer
 
     Opplysningskilde:
       type: object

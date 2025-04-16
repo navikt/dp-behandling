@@ -29,7 +29,7 @@ import io.mockk.verify
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.db.InMemoryPersonRepository
@@ -277,7 +277,7 @@ internal class BehandlingApiTest {
 
             with(behandlingDto.behandletHendelse) {
                 shouldNotBeNull()
-                type shouldBe HendelseDTO.Type.Søknad
+                type shouldBe HendelseDTOTypeDTO.SØKNAD
                 id shouldBe hendelse.eksternId.id.toString()
             }
             with(behandlingDto.vilkår.single { it.navn == "Minsteinntekt" }) {
@@ -362,7 +362,7 @@ internal class BehandlingApiTest {
 
             with(behandlingDto.regelsett.single { it.navn == "Søknadstidspunkt" }) {
                 avklaringer.shouldBeEmpty()
-                opplysningIder?.shouldHaveSize(1)
+                opplysningIder.shouldHaveSize(1)
             }
 
             with(behandlingDto.avklaringer.single { it.kode == "tittel 2" }) {

@@ -5,13 +5,20 @@ import mu.withLoggingContext
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.api.models.AvklaringDTO
 import no.nav.dagpenger.behandling.api.models.AvklaringDTOStatusDTO
+import no.nav.dagpenger.behandling.api.models.BarnVerdiDTO
+import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingDTOTilstandDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingOpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingOpplysningerDTOTilstandDTO
+import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
+import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
+import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.HjemmelDTO
 import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
@@ -19,6 +26,7 @@ import no.nav.dagpenger.behandling.api.models.OpplysningDTOFormålDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
+import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.RegelsettDTO
 import no.nav.dagpenger.behandling.api.models.RegelsettDTOStatusDTO
@@ -49,7 +57,9 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
@@ -160,8 +170,8 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                     datatype = this.behandler.eksternId.datatype,
                     type =
                         when (this.behandler.eksternId) {
-                            is MeldekortId -> HendelseDTO.Type.Meldekort
-                            is SøknadId -> HendelseDTO.Type.Søknad
+                            is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
+                            is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         },
                 ),
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
@@ -332,16 +342,35 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
             },
         verdien =
             when (this.opplysningstype.datatype) {
-                BarnDatatype -> TODO()
-                Boolsk -> TODO()
-                Dato -> TODO()
-                Desimaltall -> TODO()
-                Heltall -> TODO()
-                InntektDataType -> TODO()
-                Penger -> TODO()
-                PeriodeDataType -> TODO()
+                BarnDatatype ->
+                    BarnelisteDTO(
+                        (this.verdi as BarnListe).map {
+                            BarnVerdiDTO(
+                                fødselsdato = it.fødselsdato,
+                                fornavnOgMellomnavn = it.fornavnOgMellomnavn,
+                                etternavn = it.etternavn,
+                                statsborgerskap = it.etternavn,
+                                kvalifiserer = it.kvalifiserer,
+                            )
+                        },
+                    )
+
+                Boolsk -> BoolskVerdiDTO(this.verdi as Boolean)
+                Dato -> DatoVerdiDTO(this.verdi as LocalDate)
+                Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double)
+                Heltall -> HeltallVerdiDTO(this.verdi as Int)
+                InntektDataType -> TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId)
+                Penger -> DesimaltallVerdiDTO((this.verdi as Beløp).uavrundet.toDouble())
+                PeriodeDataType ->
+                    (this.verdi as no.nav.dagpenger.opplysning.verdier.Periode).let {
+                        PeriodeVerdiDTO(
+                            fom = it.fraOgMed,
+                            tom = it.tilOgMed,
+                        )
+                    }
+
                 Tekst -> TekstVerdiDTO(verdi = this.verdi.toString())
-                ULID -> TODO()
+                ULID -> TekstVerdiDTO(verdi = this.verdi.toString())
             },
         gyldigFraOgMed = this.gyldighetsperiode.fom.tilApiDato(),
         gyldigTilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
