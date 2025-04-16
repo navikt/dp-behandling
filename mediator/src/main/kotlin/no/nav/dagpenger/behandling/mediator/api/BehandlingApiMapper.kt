@@ -349,7 +349,7 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                                 fødselsdato = it.fødselsdato,
                                 fornavnOgMellomnavn = it.fornavnOgMellomnavn,
                                 etternavn = it.etternavn,
-                                statsborgerskap = it.etternavn,
+                                statsborgerskap = it.statsborgerskap,
                                 kvalifiserer = it.kvalifiserer,
                             )
                         },
