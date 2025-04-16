@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Behandling API
-  version: 1.0.2
+  version: 1.0.3
   description: API for å hente alle behandlinger.
   contact:
     name: '#team-dagpenger'
