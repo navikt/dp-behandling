@@ -855,7 +855,7 @@ components:
 
     DataType:
       type: string
-      enum: [ "dato", "desimaltall", "heltall", "boolsk", "ulid", "penger", "inntekt", "tekst", "barn" ]
+      enum: [ "dato", "desimaltall", "heltall", "boolsk", "ulid", "penger", "inntekt", "tekst", "barn", "periode" ]
       description: |
         Hvilken datatype opplysningen har, for å kunne validere at verdi er riktig format
     
