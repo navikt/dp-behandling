@@ -25,6 +25,7 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.SøknadstidspunktForLangtFramITi
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKontroll
+import no.nav.dagpenger.regel.fastsetting.NyttGrunnbeløpForGrunnlag
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
 import java.time.LocalDate
 
@@ -38,6 +39,7 @@ class Søknadsprosess : RegistrertForretningsprosess() {
             BarnetilleggKontroll,
             EØSArbeidKontroll,
             FulleYtelserKontrollpunkt,
+            NyttGrunnbeløpForGrunnlag,
             HattLukkedeSakerSiste8UkerKontroll,
             IkkeRegistrertSomArbeidsøkerKontroll,
             InntektNesteKalendermånedKontroll,

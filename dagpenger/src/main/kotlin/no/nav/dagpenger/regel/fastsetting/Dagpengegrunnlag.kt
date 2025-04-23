@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.fastsetting
 
+import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.grunnbelop.forDato
 import no.nav.dagpenger.grunnbelop.getGrunnbeløpForRegel
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
@@ -23,6 +24,7 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
+import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallÅrI36MånederId
 import no.nav.dagpenger.regel.OpplysningsTyper.AvkortetInntektperiode1Id
@@ -53,10 +55,12 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode1Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode2Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode3Id
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagHvisVerneplikt
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
 import java.time.LocalDate
+import java.time.Month
 
 object Dagpengegrunnlag {
     private val oppjustertinntekt = Opplysningstype.inntekt(OppjustertInntektId, "Oppjustert inntekt", synlig = aldriSynlig)
@@ -201,8 +205,21 @@ object Dagpengegrunnlag {
                 utbetaltArbeidsinntektPeriode2,
                 utbetaltArbeidsinntektPeriode3,
             )
+
+            avklaring(Avklaringspunkter.GrunnbeløpForGrunnlagEndret)
         }
 }
+
+val NyttGrunnbeløpForGrunnlag =
+    Kontrollpunkt(Avklaringspunkter.GrunnbeløpForGrunnlagEndret) {
+        if (it.har(grunnbeløpForDagpengeGrunnlag) && it.har(prøvingsdato)) {
+            val prøvingdato = it.finnOpplysning(prøvingsdato).verdi
+            val policy = getGrunnbeløpForRegel(no.nav.dagpenger.grunnbelop.Regel.Grunnlag).forDato(prøvingdato)
+            prøvingdato.isAfter(LocalDate.of(LocalDate.now().year, Month.MAY, 1)) && policy.iverksattFom.year != prøvingdato.year
+        } else {
+            false
+        }
+    }
 
 private fun grunnbeløpFor(it: LocalDate) =
     getGrunnbeløpForRegel(no.nav.dagpenger.grunnbelop.Regel.Grunnlag)

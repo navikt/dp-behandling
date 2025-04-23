@@ -173,4 +173,16 @@ object Avklaringspunkter {
             tittel = "Sjekk om bruker skal ha dagpenger som permittert fra fiskeindustrien",
             beskrivelse = "Du må vurdere om bruker er permittert og oppfyller kravene til permittering fra fiskeindustrien",
         )
+
+    val GrunnbeløpForGrunnlagEndret =
+        Avklaringkode(
+            kode = "NyttGrunnbeløpForGrunnlag",
+            tittel = "Grunnbeløpet for dagpengegrunnlag kan være utdatert",
+            beskrivelse =
+                """
+                Prøvingsdatoen er etter 1. mai. Grunnbeløpet for inneværende år var ikke iverksatt på behandlingstidspunktet.
+                Hvis grunnbeløpet ikke er vedtatt enda kan det behandlingen godkjennes med det gamle grunnbeløpet. Det blir G-justert i Arena.
+                Er grunnbeløpet for inneværende år vedtatt, kjør behandlingen på nytt og huk av 'Grunnbeløp for grunnlag' for å oppdatere grunnbeløpet.
+                """.trimIndent(),
+        )
 }
