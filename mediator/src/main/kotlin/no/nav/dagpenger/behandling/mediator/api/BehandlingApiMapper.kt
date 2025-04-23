@@ -346,15 +346,14 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                     BarnelisteDTO(
                         (this.verdi as BarnListe).map {
                             BarnVerdiDTO(
-                                fødselsdato = it.fødselsdato,
-                                fornavnOgMellomnavn = it.fornavnOgMellomnavn,
-                                etternavn = it.etternavn,
-                                statsborgerskap = it.statsborgerskap,
-                                kvalifiserer = it.kvalifiserer,
+                                it.fødselsdato,
+                                it.fornavnOgMellomnavn,
+                                it.etternavn,
+                                it.statsborgerskap,
+                                it.kvalifiserer,
                             )
                         },
                     )
-
                 Boolsk -> BoolskVerdiDTO(this.verdi as Boolean)
                 Dato -> DatoVerdiDTO(this.verdi as LocalDate)
                 Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double)
@@ -363,14 +362,9 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                 Penger -> DesimaltallVerdiDTO((this.verdi as Beløp).uavrundet.toDouble())
                 PeriodeDataType ->
                     (this.verdi as no.nav.dagpenger.opplysning.verdier.Periode).let {
-                        PeriodeVerdiDTO(
-                            fom = it.fraOgMed,
-                            tom = it.tilOgMed,
-                        )
+                        PeriodeVerdiDTO(it.fraOgMed, it.tilOgMed)
                     }
-
-                Tekst -> TekstVerdiDTO(verdi = this.verdi.toString())
-                ULID -> TekstVerdiDTO(verdi = this.verdi.toString())
+                Tekst, ULID -> TekstVerdiDTO(this.verdi.toString())
             },
         gyldigFraOgMed = this.gyldighetsperiode.fom.tilApiDato(),
         gyldigTilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
