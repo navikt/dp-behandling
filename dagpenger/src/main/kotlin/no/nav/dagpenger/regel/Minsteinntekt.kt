@@ -59,7 +59,7 @@ object Minsteinntekt {
     val inntekt36 = beløp(InntektSiste36MndId, "Arbeidsinntekt siste 36 mnd", behovId = "InntektSiste36Mnd")
     val grunnbeløp = beløp(GrunnbeløpId, "Grunnbeløp", synlig = aldriSynlig)
 
-    internal val inntektFraSkatt = inntekt(InntektsopplysningerId, beskrivelse = "Inntektsopplysninger", Register, behovId = Inntekt)
+    val inntektFraSkatt = inntekt(InntektsopplysningerId, beskrivelse = "Inntektsopplysninger", Register, behovId = Inntekt)
     private val tellendeInntekt = inntekt(BruttoArbeidsinntektId, "Brutto arbeidsinntekt", synlig = aldriSynlig)
 
     private val maksPeriodeLengde = heltall(MaksPeriodeLengdeId, "Maks lengde på opptjeningsperiode", synlig = aldriSynlig)

@@ -39,6 +39,7 @@ import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
+import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
@@ -362,7 +363,11 @@ private fun LocalDate.tilApiDato(): LocalDate? =
     }
 
 private fun Opplysning<*>.kanOppfriskes(): Boolean =
-    this.opplysningstype in setOf(grunnbeløpForDagpengeGrunnlag)
+    this.opplysningstype in setOf(
+        barn,
+        grunnbeløpForDagpengeGrunnlag,
+        inntektFraSkatt
+    )
 
 // TODO: Denne bor nok et annet sted - men bare for å vise at det er mulig å ha en slik funksjon
 private val redigerbareOpplysninger =
