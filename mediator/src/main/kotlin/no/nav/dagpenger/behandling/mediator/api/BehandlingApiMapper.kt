@@ -363,11 +363,12 @@ private fun LocalDate.tilApiDato(): LocalDate? =
     }
 
 private fun Opplysning<*>.kanOppfriskes(): Boolean =
-    this.opplysningstype in setOf(
-        barn,
-        grunnbeløpForDagpengeGrunnlag,
-        inntektFraSkatt
-    )
+    this.opplysningstype in
+        setOf(
+            barn,
+            grunnbeløpForDagpengeGrunnlag,
+            inntektFraSkatt,
+        )
 
 // TODO: Denne bor nok et annet sted - men bare for å vise at det er mulig å ha en slik funksjon
 private val redigerbareOpplysninger =

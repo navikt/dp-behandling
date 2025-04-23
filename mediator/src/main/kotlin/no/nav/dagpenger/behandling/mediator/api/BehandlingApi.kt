@@ -260,7 +260,7 @@ internal fun Application.behandlingApi(
                                 rekjøring.ident,
                                 call.behandlingId,
                                 LocalDateTime.now(),
-                                rekjøring.opplysninger ?: emptyList()
+                                rekjøring.opplysninger ?: emptyList(),
                             )
                         hendelse.info("Rekjør behandling", rekjøring.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
 
