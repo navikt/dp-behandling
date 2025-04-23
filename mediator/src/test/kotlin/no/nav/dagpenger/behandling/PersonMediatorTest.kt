@@ -80,6 +80,8 @@ import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
@@ -702,6 +704,44 @@ internal class PersonMediatorTest {
                     "HarTilleggsopplysninger",
                 ),
             )
+        }
+
+    @Test
+    fun `test rekjøring`() =
+        withMigratedDb {
+            registrerOpplysningstyper()
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = 7.juni(2024),
+                    InntektSiste12Mnd = 500000,
+                )
+            løsBehandlingFramTilInnvilgelse(testPerson)
+
+            rapid.harHendelse("forslag_til_vedtak")
+
+            val opplysningerSomSkalOppfriskes =
+                with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
+                    listOf(
+                        opplysninger.finnOpplysning(grunnbeløpForDagpengeGrunnlag),
+                        opplysninger.finnOpplysning(barn),
+                    )
+                }
+
+            rapid.sendTestMessage(
+                JsonMessage.newMessage(
+                    "rekjør_behandling",
+                    mapOf(
+                        "ident" to ident,
+                        "behandlingId" to testPerson.behandlingId.toString(),
+                        "oppfriskOpplysningIder" to opplysningerSomSkalOppfriskes.map { it.id.toString() },
+                    ),
+                ).toJson(),
+            )
+
+            // Innhenter barn på nytt
+            rapid.harBehov("Barnetillegg")
         }
 
     @Test

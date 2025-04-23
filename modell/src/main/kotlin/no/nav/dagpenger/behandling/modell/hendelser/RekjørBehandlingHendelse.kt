@@ -8,5 +8,6 @@ class RekjørBehandlingHendelse(
     ident: String,
     override val behandlingId: UUID,
     opprettet: LocalDateTime,
+    val oppfriskOpplysningIder: List<UUID> = emptyList(),
 ) : PersonHendelse(meldingsreferanseId, ident, opprettet),
     BehandlingHendelse

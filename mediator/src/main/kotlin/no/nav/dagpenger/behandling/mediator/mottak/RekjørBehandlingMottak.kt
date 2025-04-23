@@ -25,6 +25,7 @@ internal class RekjørBehandlingMottak(
             .apply {
                 precondition { it.requireValue("@event_name", "rekjør_behandling") }
                 validate { it.requireKey("ident", "behandlingId") }
+                validate { it.interestedIn("oppfriskOpplysningIder") }
             }.register(this)
     }
 
@@ -68,6 +69,7 @@ internal class RekjørBehandlingMessage(
                 ident,
                 packet["behandlingId"].asUUID(),
                 opprettet,
+                packet["oppfriskOpplysningIder"].map { it.asUUID() },
             )
 
     override fun behandle(

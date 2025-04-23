@@ -30,6 +30,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
         if (opplysninger.har(produserer)) {
             val produkt = opplysninger.finnOpplysning(produserer)
             if (produkt.utledetAv == null) {
+                // Opplysningen er ikke utledet av noe ELLER overstyrt av saksbehandler
                 return
             }
 
@@ -41,11 +42,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
 
             // Sjekk om regelen har fått nye avhengigheter
             val regelForProdukt = produsenter[produkt.opplysningstype]
-            if (regelForProdukt?.avhengerAv?.toSet() !=
-                produkt.utledetAv.opplysninger
-                    .map { it.opplysningstype }
-                    .toSet()
-            ) {
+            if (harRegelNyeAvhengigheter(regelForProdukt, produkt.utledetAv) || utledetAvErEndret(produkt.utledetAv)) {
                 // Om en avhengighet mangler, må denne regelen kjøres på nytt
                 if (regelForProdukt?.avhengerAv?.any { opplysninger.mangler(it) } == true) {
                     regelForProdukt.avhengerAv.map { avhengighet ->
@@ -56,12 +53,6 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                     // Om alle avhengigheter er tilstade, må denne regelen kjøres på nytt
                     plan.add(this)
                 }
-                return
-            }
-
-            // Om en avhengighet er erstattet, må denne regelen kjøres på nytt
-            if (produkt.utledetAv.opplysninger.any { it.erErstattet || it.erFjernet }) {
-                plan.add(this)
                 return
             }
         } else {
@@ -79,6 +70,16 @@ abstract class Regel<T : Comparable<T>> internal constructor(
         }
         return
     }
+
+    private fun utledetAvErEndret(utledetAv: Utledning) = utledetAv.opplysninger.any { it.erErstattet || it.erFjernet }
+
+    private fun harRegelNyeAvhengigheter(
+        regelForProdukt: Regel<*>?,
+        utledetAv: Utledning,
+    ) = regelForProdukt?.avhengerAv?.toSet() !=
+        utledetAv.opplysninger
+            .map { it.opplysningstype }
+            .toSet()
 
     abstract override fun toString(): String
 
