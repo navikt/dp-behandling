@@ -771,6 +771,9 @@ components:
         redigerbar:
           type: boolean
           description: Indikerer om opplysningen kan redigeres
+        kanOppfriskes:
+          type: boolean
+          description: Indikerer om opplysningen kan oppfriskes (enten hentes inn eller utledes på nytt)
         kilde:
           $ref: '#/components/schemas/Opplysningskilde'
         utledetAv:

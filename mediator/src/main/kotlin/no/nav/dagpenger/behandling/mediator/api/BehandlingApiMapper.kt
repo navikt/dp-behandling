@@ -92,6 +92,7 @@ import no.nav.dagpenger.regel.Utdanning.opplæringForInnvandrere
 import no.nav.dagpenger.regel.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import java.time.LocalDate
 import kotlin.collections.map
@@ -348,6 +349,7 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                 )
             },
         redigerbar = this.kanRedigeres(redigerbareOpplysninger),
+        kanOppfriskes = this.kanOppfriskes(),
         synlig = this.opplysningstype.synlig(opplysninger),
         formål = OpplysningDTO.Formål.valueOf(this.opplysningstype.formål.name),
     )
@@ -358,6 +360,9 @@ private fun LocalDate.tilApiDato(): LocalDate? =
         LocalDate.MAX -> null
         else -> this
     }
+
+private fun Opplysning<*>.kanOppfriskes(): Boolean =
+    this.opplysningstype in setOf(grunnbeløpForDagpengeGrunnlag)
 
 // TODO: Denne bor nok et annet sted - men bare for å vise at det er mulig å ha en slik funksjon
 private val redigerbareOpplysninger =

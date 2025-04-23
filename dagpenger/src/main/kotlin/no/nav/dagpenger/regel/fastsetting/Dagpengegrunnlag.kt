@@ -62,7 +62,7 @@ object Dagpengegrunnlag {
     private val oppjustertinntekt = Opplysningstype.inntekt(OppjustertInntektId, "Oppjustert inntekt", synlig = aldriSynlig)
     private val relevanteinntekter = Opplysningstype.inntekt(TellendeInntektId, "Tellende inntekt", synlig = aldriSynlig)
 
-    val grunnbeløpForDagpengeGrunnlag = Opplysningstype.beløp(GrunnbeløpForGrunnlagId, "Grunnbeløp for grunnlag", synlig = aldriSynlig)
+    val grunnbeløpForDagpengeGrunnlag = Opplysningstype.beløp(GrunnbeløpForGrunnlagId, "Grunnbeløp for grunnlag")
     private val faktorForMaksgrense =
         Opplysningstype.som(FaktorForMaksimaltMuligGrunnlagId, "Faktor for maksimalt mulig grunnlag", synlig = aldriSynlig)
     private val maksgrenseForGrunnlag = Opplysningstype.beløp(SeksGangerGrunnbeløpId, "6 ganger grunnbeløp", synlig = aldriSynlig)
