@@ -28,6 +28,7 @@ import io.mockk.verify
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
+import no.nav.dagpenger.behandling.api.models.RekjoringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.db.InMemoryPersonRepository
@@ -46,6 +47,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning

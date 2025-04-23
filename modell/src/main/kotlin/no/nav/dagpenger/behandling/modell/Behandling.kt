@@ -459,15 +459,6 @@ class Behandling private constructor(
 
         override fun håndter(
             behandling: Behandling,
-            hendelse: RekjørBehandlingHendelse,
-        ) {
-            hendelse.kontekst(this)
-            hendelse.info("Mottok beskjed om rekjøring av behandling")
-            behandling.tilstand(Redigert(), hendelse)
-        }
-
-        override fun håndter(
-            behandling: Behandling,
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
@@ -876,6 +867,9 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             hendelse.info("Mottok beskjed om rekjøring av behandling")
+            hendelse.oppfriskOpplysningIder.map {
+                behandling.opplysninger.finnOpplysning(it).fjern()
+            }
             behandling.tilstand(Redigert(), hendelse)
         }
     }
