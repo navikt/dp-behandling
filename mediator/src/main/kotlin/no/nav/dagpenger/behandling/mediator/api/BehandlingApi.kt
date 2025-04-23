@@ -254,6 +254,8 @@ internal fun Application.behandlingApi(
                     post("rekjor") {
                         val rekjøring = call.receive<RekjoringDTO>()
 
+                        logger.info { "Kjører behandling på nytt, oppfrisker=${rekjøring.opplysninger}" }
+
                         val hendelse =
                             RekjørBehandlingHendelse(
                                 UUIDv7.ny(),
