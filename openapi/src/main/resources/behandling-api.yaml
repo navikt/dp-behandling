@@ -487,6 +487,19 @@ paths:
 
 components:
   schemas:
+    Rekjoring:
+      type: object
+      required:
+        - ident
+      properties:
+        ident:
+          type: string
+          pattern: '^\d{11}$'
+        opplysninger:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningsId'
+
     IdentForesporsel:
       type: object
       required:

@@ -27,6 +27,7 @@ import no.nav.dagpenger.behandling.api.models.KvitterAvklaringRequestDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningRequestDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
+import no.nav.dagpenger.behandling.api.models.RekjoringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
 import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
@@ -251,18 +252,19 @@ internal fun Application.behandlingApi(
                     }
 
                     post("rekjor") {
-                        val identForespørsel = call.receive<IdentForesporselDTO>()
+                        val rekjøring = call.receive<RekjoringDTO>()
 
                         val hendelse =
                             RekjørBehandlingHendelse(
                                 UUIDv7.ny(),
-                                identForespørsel.ident,
+                                rekjøring.ident,
                                 call.behandlingId,
                                 LocalDateTime.now(),
+                                rekjøring.opplysninger ?: emptyList()
                             )
-                        hendelse.info("Rekjør behandling", identForespørsel.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+                        hendelse.info("Rekjør behandling", rekjøring.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
 
-                        hendelseMediator.behandle(hendelse, messageContext(identForespørsel.ident))
+                        hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
 
                         call.respond(HttpStatusCode.Created)
                     }
