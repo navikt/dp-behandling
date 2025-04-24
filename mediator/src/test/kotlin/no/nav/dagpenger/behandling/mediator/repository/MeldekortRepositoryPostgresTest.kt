@@ -166,8 +166,10 @@ class MeldekortRepositoryPostgresTest {
     fun hentUbehandledeMeldekort() {
         withMigratedDb {
             val repo = MeldekortRepositoryPostgres()
-            val person1 = repo.generatorFor("111111111", 1.januar(2024))
-            val person2 = repo.generatorFor("222222222", 1.januar(2024))
+            val meldingGenerator = Meldekortgenerator.meldingGenerator
+
+            val person1 = repo.generatorFor("111111111", 1.januar(2024), meldingGenerator)
+            val person2 = repo.generatorFor("222222222", 1.januar(2024), meldingGenerator)
 
             person1.lagMeldekort(10)
             person2.lagMeldekort(10)

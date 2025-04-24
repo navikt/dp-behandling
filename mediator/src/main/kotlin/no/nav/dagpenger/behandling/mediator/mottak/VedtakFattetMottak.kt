@@ -18,15 +18,14 @@ class VedtakFattetMottak(
     }
 
     init {
-        River(rapidsConnection).apply {
-            precondition { it.requireValue("@event_name", "vedtak_fattet") }
-            precondition {
-                it.require("behandletHendelse") {
-                    it["type"].asText() == "Meldekort"
+        River(rapidsConnection)
+            .apply {
+                precondition {
+                    it.requireValue("@event_name", "vedtak_fattet")
+                    it.requireValue("behandletHendelse.type", "Meldekort")
                 }
-            }
-            validate { it.requireKey("behandlingId") }
-        }
+                validate { it.requireKey("behandlingId", "behandletHendelse") }
+            }.register(this)
     }
 
     override fun onPacket(
@@ -41,7 +40,7 @@ class VedtakFattetMottak(
         ) {
             logger.info { "Mottok vedtak_fattet melding" }
             val meldekortId = packet["behandletHendelse"]["id"].asLong()
-            meldekortRepository.behandlet(meldekortId)
+            meldekortRepository.markerSomFerdig(meldekortId)
         }
     }
 }

@@ -71,7 +71,7 @@ interface MeldekortRepository {
 
     fun behandlingStartet(meldekortId: Long)
 
-    fun behandlet(meldekortId: Long)
+    fun markerSomFerdig(meldekortId: Long)
 
     data class Meldekortstatus(
         val meldekort: Meldekort,

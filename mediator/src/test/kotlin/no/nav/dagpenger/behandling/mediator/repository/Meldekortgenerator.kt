@@ -19,12 +19,13 @@ class Meldekortgenerator private constructor(
     startdato: LocalDate = LocalDate.now(),
 ) {
     companion object {
-        private val eksternMelding = iterator { yieldAll(1L..1000L) }
+        val meldingGenerator get() = iterator { yieldAll(1L..1000L) }
 
         fun MeldekortRepository.generatorFor(
             ident: String,
             startdato: LocalDate,
-        ) = Meldekortgenerator(this, ident, eksternMelding, startdato)
+            generator: Iterator<Long> = meldingGenerator,
+        ) = Meldekortgenerator(this, ident, generator, startdato)
     }
 
     private val meldeperiode = Meldeperiode(startdato)
@@ -60,7 +61,7 @@ class Meldekortgenerator private constructor(
     fun markerFerdig(i: Int) {
         val meldekort = innsendteMeldekort[i - 1]
         repository.behandlingStartet(meldekort.eksternMeldekortId)
-        repository.behandlet(meldekort.eksternMeldekortId)
+        repository.markerSomFerdig(meldekort.eksternMeldekortId)
     }
 
     fun markerStartet(i: Int) {

@@ -96,18 +96,18 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun behandlet(meldekortId: Long) {
+    override fun markerSomFerdig(meldekortId: Long) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
                     queryOf(
                         // language=PostgreSQL
                         """
-                        UPDATE meldekort SET behandling_ferdig = :startet WHERE meldekort_id = :meldekortId
+                        UPDATE meldekort SET behandling_ferdig = :ferdig WHERE meldekort_id = :meldekortId
                         """.trimIndent(),
                         mapOf(
                             "meldekortId" to meldekortId,
-                            "startet" to LocalDateTime.now(),
+                            "ferdig" to LocalDateTime.now(),
                         ),
                     ).asUpdate,
                 )

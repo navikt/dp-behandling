@@ -928,6 +928,9 @@ internal class PersonMediatorTest {
                     rapid.sendTestMessage(medRåData().toPrettyString())
                 }
             }
+            rapid.harHendelse("vedtak_fattet") {
+                rapid.sendTestMessage(medRåData().toPrettyString())
+            }
 
             // Meldekort 2 leses inn
             testPerson.sendMeldekort(21.juni(2021), 2).also {
@@ -936,6 +939,9 @@ internal class PersonMediatorTest {
                     rapid.sendTestMessage(medRåData().toPrettyString())
                 }
             }
+            rapid.harHendelse("vedtak_fattet") {
+                rapid.sendTestMessage(medRåData().toPrettyString())
+            }
 
             // Meldekort 3 leses inn, over terskel og får ingen utbetaling
             testPerson.sendMeldekort(5.juli(2021), 3, 6).also {
@@ -943,6 +949,9 @@ internal class PersonMediatorTest {
                 rapid.harHendelse("beregn_meldekort") {
                     rapid.sendTestMessage(medRåData().toPrettyString())
                 }
+            }
+            rapid.harHendelse("vedtak_fattet") {
+                rapid.sendTestMessage(medRåData().toPrettyString())
             }
 
             // Meldekort 4 leses inn
