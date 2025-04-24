@@ -7,6 +7,8 @@ import no.nav.dagpenger.behandling.mediator.repository.UnitOfWork
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
+import no.nav.dagpenger.behandling.modell.Rettighetstatus
+import no.nav.dagpenger.opplysning.TemporalCollection
 import java.util.UUID
 
 class InMemoryPersonRepository :
@@ -30,6 +32,10 @@ class InMemoryPersonRepository :
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
     ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> {
         TODO("Not yet implemented")
     }
 

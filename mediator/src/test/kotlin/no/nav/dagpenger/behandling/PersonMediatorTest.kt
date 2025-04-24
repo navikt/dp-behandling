@@ -730,14 +730,15 @@ internal class PersonMediatorTest {
                 }
 
             rapid.sendTestMessage(
-                JsonMessage.newMessage(
-                    "rekjør_behandling",
-                    mapOf(
-                        "ident" to ident,
-                        "behandlingId" to testPerson.behandlingId.toString(),
-                        "oppfriskOpplysningIder" to opplysningerSomSkalOppfriskes.map { it.id.toString() },
-                    ),
-                ).toJson(),
+                JsonMessage
+                    .newMessage(
+                        "rekjør_behandling",
+                        mapOf(
+                            "ident" to ident,
+                            "behandlingId" to testPerson.behandlingId.toString(),
+                            "oppfriskOpplysningIder" to opplysningerSomSkalOppfriskes.map { it.id.toString() },
+                        ),
+                    ).toJson(),
             )
 
             // Innhenter barn på nytt
@@ -901,6 +902,7 @@ internal class PersonMediatorTest {
         withMigratedDb {
             val meldekortBehandlingskø =
                 MeldekortBehandlingskø(
+                    personRepository,
                     meldekortRepository = meldekortRepository,
                     rapidsConnection = rapid,
                 )
@@ -984,6 +986,7 @@ internal class PersonMediatorTest {
         withMigratedDb {
             val meldekortBehandlingskø =
                 MeldekortBehandlingskø(
+                    personRepository,
                     meldekortRepository = meldekortRepository,
                     rapidsConnection = rapid,
                 )

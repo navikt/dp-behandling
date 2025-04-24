@@ -6,7 +6,7 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortstatus
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
@@ -24,6 +24,13 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             session.transaction { tx ->
                 tx.lagreMeldekort(meldekort)
 
+                meldekort.korrigeringAv?.let { korrigertMeldekortId ->
+                    tx.markerSomKorrigert(
+                        korrigertAvMeldekortId = meldekort.eksternMeldekortId,
+                        originaltMeldekortId = korrigertMeldekortId,
+                    )
+                }
+
                 meldekort.dager.forEach { dag ->
                     tx.lagreMeldekortDager(meldekort, dag)
                 }
@@ -31,21 +38,24 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun hentUbehandledeMeldekort(ident: Ident): List<Meldekort> =
+    override fun hentUbehandledeMeldekort(): List<Meldekortstatus> =
         sessionOf(dataSource).use { session ->
             session.run(
                 queryOf(
                     //language=PostgreSQL
                     """
-                    SELECT *
+                    SELECT DISTINCT ON (ident) *
                     FROM meldekort
-                    WHERE ident = :ident AND behandling_startet IS NULL 
+                    WHERE behandling_ferdig IS NULL
+                    AND korrigert_av_meldekort_id IS NULL
+                    ORDER BY ident, fom, løpenummer DESC;
                     """.trimIndent(),
-                    mapOf(
-                        "ident" to ident.identifikator(),
-                    ),
                 ).map { row ->
-                    row.meldekort(session)
+                    Meldekortstatus(
+                        row.meldekort(session),
+                        row.localDateTimeOrNull("behandling_startet"),
+                        row.localDateTimeOrNull("behandling_ferdig"),
+                    )
                 }.asList,
             )
         }
@@ -67,14 +77,14 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             )
         }
 
-    override fun behandlingStartet(meldekortId: UUID) {
+    override fun behandlingStartet(meldekortId: Long) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
                     queryOf(
                         // language=PostgreSQL
                         """
-                        UPDATE meldekort SET behandling_startet = :startet WHERE id = :meldekortId
+                        UPDATE meldekort SET behandling_startet = :startet WHERE meldekort_id= :meldekortId
                         """.trimIndent(),
                         mapOf(
                             "meldekortId" to meldekortId,
@@ -122,6 +132,24 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             innsendtTidspunkt = localDateTime("innsendt_tidspunkt"),
             korrigeringAv = longOrNull("korrigert_meldekort_id"),
         )
+
+    private fun TransactionalSession.markerSomKorrigert(
+        korrigertAvMeldekortId: Long,
+        originaltMeldekortId: Long,
+    ) {
+        run(
+            queryOf(
+                // language=PostgreSQL
+                """
+                UPDATE meldekort SET korrigert_av_meldekort_id = :korrigertAvMeldekortId WHERE meldekort_id = :originaltMeldekortId
+                """.trimIndent(),
+                mapOf(
+                    "originaltMeldekortId" to originaltMeldekortId,
+                    "korrigertAvMeldekortId" to korrigertAvMeldekortId,
+                ),
+            ).asUpdate,
+        )
+    }
 
     private fun TransactionalSession.lagreMeldekort(meldekort: Meldekort) {
         run(

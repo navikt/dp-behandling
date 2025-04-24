@@ -105,6 +105,7 @@ internal class ApplicationBuilder(
 
             BehandleMeldekort(
                 MeldekortBehandlingskø(
+                    personRepository,
                     MeldekortRepositoryPostgres(),
                     rapidsConnection,
                 ),

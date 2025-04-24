@@ -29,10 +29,7 @@ class PersonRepositoryPostgres(
                     mapOf("ident" to ident.identifikator()),
                 ).map { row ->
                     val dbIdent = Ident(row.string("ident"))
-                    val rettighetstatuser = TemporalCollection<Rettighetstatus>()
-                    rettighetstatusFor(dbIdent).forEach {
-                        rettighetstatuser.put(it.first, it.second)
-                    }
+                    val rettighetstatuser = rettighetstatusFor(dbIdent)
                     val behandlinger = behandlingerFor(dbIdent)
                     logger.info { "Hentet person med ${behandlinger.size} behandlinger" }
                     Metrikk.registrerAntallBehandlinger(behandlinger.size)
@@ -56,24 +53,29 @@ class PersonRepositoryPostgres(
             )
         }
 
-    private fun PersonRepositoryPostgres.rettighetstatusFor(ident: Ident) =
-        sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    SELECT * FROM rettighetstatus WHERE ident = :ident
-                    """.trimIndent(),
-                    mapOf("ident" to ident.identifikator()),
-                ).map { row ->
-                    val gjelderFra = row.localDateTime("gjelder_fra")
-                    val virkningsdato = row.localDate("virkningsdato")
-                    val utfall = row.boolean("har_rettighet")
-                    val behandlingId = row.uuid("behandling_id")
-                    Pair(gjelderFra, Rettighetstatus(virkningsdato, utfall, behandlingId))
-                }.asList,
-            )
-        }
+    override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
+        sessionOf(dataSource)
+            .use { session ->
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT * FROM rettighetstatus WHERE ident = :ident
+                        """.trimIndent(),
+                        mapOf("ident" to ident.identifikator()),
+                    ).map { row ->
+                        val gjelderFra = row.localDateTime("gjelder_fra")
+                        val virkningsdato = row.localDate("virkningsdato")
+                        val utfall = row.boolean("har_rettighet")
+                        val behandlingId = row.uuid("behandling_id")
+                        Pair(gjelderFra, Rettighetstatus(virkningsdato, utfall, behandlingId))
+                    }.asList,
+                )
+            }.let {
+                TemporalCollection<Rettighetstatus>().apply {
+                    it.forEach { pair -> put(pair.first, pair.second) }
+                }
+            }
 
     override fun lagre(person: Person) {
         val unitOfWork = PostgresUnitOfWork.transaction()

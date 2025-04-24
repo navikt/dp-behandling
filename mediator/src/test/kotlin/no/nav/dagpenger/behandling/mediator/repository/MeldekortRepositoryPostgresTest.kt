@@ -1,11 +1,15 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.kotest.matchers.collections.shouldContainInOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.januar
+import no.nav.dagpenger.behandling.mediator.repository.Meldekortgenerator.Companion.generatorFor
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
@@ -155,6 +159,42 @@ class MeldekortRepositoryPostgresTest {
                     ),
                 ).asUpdate,
             )
+        }
+    }
+
+    @Test
+    fun hentUbehandledeMeldekort() {
+        withMigratedDb {
+            val repo = MeldekortRepositoryPostgres()
+            val person1 = repo.generatorFor("111111111", 1.januar(2024))
+            val person2 = repo.generatorFor("222222222", 1.januar(2024))
+
+            person1.lagMeldekort(10)
+            person2.lagMeldekort(10)
+
+            person2.markerFerdig(1)
+            person2.markerFerdig(2)
+            person2.markerFerdig(3)
+            person2.lagKorrigering(4) {
+                listOf()
+            }
+
+            with(repo.hentUbehandledeMeldekort()) {
+                shouldHaveSize(2)
+                map { it.meldekort.eksternMeldekortId } shouldContainInOrder listOf(1L, 21L)
+            }
+
+            person2.markerFerdig(11)
+            with(repo.hentUbehandledeMeldekort()) {
+                shouldHaveSize(2)
+                map { it.meldekort.eksternMeldekortId } shouldContainInOrder listOf(1L, 15L)
+            }
+
+            person2.markerStartet(5)
+            with(repo.hentUbehandledeMeldekort()) {
+                shouldHaveSize(2)
+                map { it.meldekort.eksternMeldekortId } shouldContainInOrder listOf(1L, 15L)
+            }
         }
     }
 }
