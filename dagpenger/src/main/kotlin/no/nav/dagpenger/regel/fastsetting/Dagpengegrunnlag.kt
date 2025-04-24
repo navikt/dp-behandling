@@ -214,8 +214,10 @@ val NyttGrunnbeløpForGrunnlag =
     Kontrollpunkt(Avklaringspunkter.GrunnbeløpForGrunnlagEndret) {
         if (it.har(grunnbeløpForDagpengeGrunnlag) && it.har(prøvingsdato)) {
             val prøvingdato = it.finnOpplysning(prøvingsdato).verdi
+            val sisteDagMedGammelG = LocalDate.of(LocalDate.now().year, Month.MAY, 1).minusDays(1)
             val policy = getGrunnbeløpForRegel(no.nav.dagpenger.grunnbelop.Regel.Grunnlag).forDato(prøvingdato)
-            prøvingdato.isAfter(LocalDate.of(LocalDate.now().year, Month.MAY, 1)) && policy.iverksattFom.year != prøvingdato.year
+
+            prøvingdato.isAfter(sisteDagMedGammelG) && policy.iverksattFom.year != prøvingdato.year
         } else {
             false
         }
