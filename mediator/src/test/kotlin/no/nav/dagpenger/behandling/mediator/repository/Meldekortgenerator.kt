@@ -146,9 +146,6 @@ class Meldekortgenerator private constructor(
     ) {
         private var aktiv = start
 
-        fun periode(): ClosedRange<LocalDate> =
-            aktiv..aktiv.plusDays(13).also {
-                aktiv = it.plusDays(1)
-            }
+        fun periode(): ClosedRange<LocalDate> = aktiv..aktiv.plusDays(13).also { aktiv = it.plusDays(1) }
     }
 }

@@ -33,5 +33,5 @@ tasks.test {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    dependsOn("ktlintFormat")
+    dependsOn("ktlintFormat", "ktlintCheck")
 }
