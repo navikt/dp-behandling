@@ -181,7 +181,7 @@ object Avklaringspunkter {
             beskrivelse =
                 """
                 Prøvingsdatoen er 1. mai eller senere. Grunnbeløpet for inneværende år var ikke iverksatt på behandlingstidspunktet.
-                Hvis grunnbeløpet ikke er vedtatt enda kan det behandlingen godkjennes med det gamle grunnbeløpet. Det blir G-justert i Arena.
+                Hvis grunnbeløpet ikke er vedtatt enda kan behandlingen godkjennes med det gamle grunnbeløpet. Det blir G-justert i Arena.
                 Er grunnbeløpet for inneværende år vedtatt, kjør behandlingen på nytt og huk av 'Grunnbeløp for grunnlag' for å oppdatere grunnbeløpet.
                 """.trimIndent(),
         )
