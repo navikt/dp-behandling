@@ -1,9 +1,10 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
-import io.kotest.matchers.collections.shouldContainInOrder
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
@@ -166,7 +167,7 @@ class MeldekortRepositoryPostgresTest {
     fun hentUbehandledeMeldekort() {
         withMigratedDb {
             val repo = MeldekortRepositoryPostgres()
-            val meldingGenerator = Meldekortgenerator.meldingGenerator
+            val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
 
             val person1 = repo.generatorFor("111111111", 1.januar(2024), meldingGenerator)
             val person2 = repo.generatorFor("222222222", 1.januar(2024), meldingGenerator)
@@ -174,29 +175,53 @@ class MeldekortRepositoryPostgresTest {
             person1.lagMeldekort(10)
             person2.lagMeldekort(10)
 
+            // Behandler de 3 første meldekortene for person 2
             person2.markerFerdig(1)
             person2.markerFerdig(2)
             person2.markerFerdig(3)
+
+            // Person 2 korrigerer meldekort 4 før vi har behandlet det
             person2.lagKorrigering(4) {
                 listOf()
             }
 
-            with(repo.hentUbehandledeMeldekort()) {
+            // Korrigering av meldekort 4 er nå meldekort 11 i kjeden.
+            // Det skal behandles før meldekort 5.
+            // Meldekort 4 skal ikke behandles
+            with(repo.hentMeldekortkø().behandlingsklare) {
                 shouldHaveSize(2)
-                map { it.meldekort.eksternMeldekortId } shouldContainInOrder listOf(1L, 21L)
+                forPerson(person1) shouldBe person1.meldekort(1)
+                forPerson(person2) shouldBe person2.meldekort(11)
             }
 
+            // Marker korrigeringen (meldekort 11) av meldekort 4 som ferdig
             person2.markerFerdig(11)
-            with(repo.hentUbehandledeMeldekort()) {
+
+            // Meldekort 5 skal være behandlingsklart når korrigeringen av 4 er ferdig
+            with(repo.hentMeldekortkø().behandlingsklare) {
                 shouldHaveSize(2)
-                map { it.meldekort.eksternMeldekortId } shouldContainInOrder listOf(1L, 15L)
+                forPerson(person1) shouldBe person1.meldekort(1)
+                forPerson(person2) shouldBe person2.meldekort(5)
             }
 
+            // Marker meldekort 5 som påbegynt
             person2.markerStartet(5)
-            with(repo.hentUbehandledeMeldekort()) {
-                shouldHaveSize(2)
-                map { it.meldekort.eksternMeldekortId } shouldContainInOrder listOf(1L, 15L)
+
+            // Meldekort 5 skal være behandlingsklart selv om det er påbegynt
+            with(repo.hentMeldekortkø()) {
+                behandlingsklare.shouldHaveSize(1)
+                behandlingsklare.forPerson(person1) shouldBe person1.meldekort(1)
+
+                underBehandling.shouldHaveSize(1)
+                underBehandling.forPerson(person2) shouldBe person2.meldekort(5)
             }
         }
+    }
+
+    private fun List<MeldekortRepository.Meldekortstatus>.forPerson(person1: Meldekortgenerator): Meldekort {
+        withClue("Forventer at det bare er 1 behandlingsklart meldekort per person") {
+            filter { it.meldekort.ident == person1.ident } shouldHaveSize 1
+        }
+        return single { it.meldekort.ident == person1.ident }.meldekort
     }
 }

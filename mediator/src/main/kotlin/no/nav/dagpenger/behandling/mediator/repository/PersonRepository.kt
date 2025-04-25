@@ -65,13 +65,18 @@ interface PersonRepository : BehandlingRepository {
 interface MeldekortRepository {
     fun lagre(meldekort: Meldekort)
 
-    fun hentUbehandledeMeldekort(): List<Meldekortstatus>
+    fun hentMeldekortkø(): Meldekortkø
 
     fun hent(meldekortId: UUID): Meldekort?
 
     fun behandlingStartet(meldekortId: Long)
 
     fun markerSomFerdig(meldekortId: Long)
+
+    data class Meldekortkø(
+        val behandlingsklare: List<Meldekortstatus>,
+        val underBehandling: List<Meldekortstatus>,
+    )
 
     data class Meldekortstatus(
         val meldekort: Meldekort,

@@ -11,21 +11,16 @@ import no.nav.dagpenger.behandling.mediator.repository.Meldekortgenerator.Compan
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
-import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class MeldekortBehandlingskøTest {
     private val rapid = TestRapid()
     private val personRepository = mockk<PersonRepository>()
     private val meldekortRepository = MeldekortRepositoryPostgres()
-    private val meldeperiode = Meldeperiode(LocalDate.now())
 
-    private var eksternMeldekortId: Long = 1
     private val ident = "12345678901"
 
     @Test
@@ -64,33 +59,5 @@ class MeldekortBehandlingskøTest {
                     Rettighetstatus(virkningsdato = innvilget, utfall = true, behandlingId = UUID.randomUUID()),
                 )
             }
-    }
-
-    private fun nyttMeldekort(): Meldekort {
-        val meldingsreferanseId = UUID.randomUUID()
-        val periode = meldeperiode.neste()
-
-        val meldekort =
-            Meldekort(
-                id = UUID.randomUUID(),
-                meldingsreferanseId = meldingsreferanseId,
-                ident = ident,
-                eksternMeldekortId = eksternMeldekortId++,
-                fom = periode.start,
-                tom = periode.endInclusive,
-                kilde = MeldekortKilde("Bruker", ident),
-                dager = listOf(),
-                innsendtTidspunkt = LocalDateTime.now(),
-                korrigeringAv = null,
-            )
-        return meldekort
-    }
-
-    private class Meldeperiode(
-        start: LocalDate,
-    ) {
-        private val aktiv = start
-
-        fun neste(): ClosedRange<LocalDate> = aktiv..aktiv.plusDays(14)
     }
 }

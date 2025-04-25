@@ -6,6 +6,7 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortkø
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortstatus
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
@@ -38,27 +39,32 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun hentUbehandledeMeldekort(): List<Meldekortstatus> =
-        sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    SELECT DISTINCT ON (ident) *
-                    FROM meldekort
-                    WHERE behandling_ferdig IS NULL
-                    AND korrigert_av_meldekort_id IS NULL
-                    ORDER BY ident, fom, løpenummer DESC;
-                    """.trimIndent(),
-                ).map { row ->
-                    Meldekortstatus(
-                        row.meldekort(session),
-                        row.localDateTimeOrNull("behandling_startet"),
-                        row.localDateTimeOrNull("behandling_ferdig"),
-                    )
-                }.asList,
-            )
-        }
+    override fun hentMeldekortkø(): Meldekortkø {
+        val meldekort =
+            sessionOf(dataSource).use { session ->
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT DISTINCT ON (ident) *
+                        FROM meldekort
+                        WHERE behandling_ferdig IS NULL
+                        AND korrigert_av_meldekort_id IS NULL
+                        ORDER BY ident, fom, løpenummer DESC;
+                        """.trimIndent(),
+                    ).map { row ->
+                        Meldekortstatus(
+                            row.meldekort(session),
+                            row.localDateTimeOrNull("behandling_startet"),
+                            row.localDateTimeOrNull("behandling_ferdig"),
+                        )
+                    }.asList,
+                )
+            }
+
+        val (påbegynt, behandlingsklar) = meldekort.partition { it.erPåbegynt }
+        return Meldekortkø(behandlingsklar, påbegynt)
+    }
 
     override fun hent(meldekortId: UUID) =
         sessionOf(dataSource).use { session ->

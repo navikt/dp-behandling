@@ -25,14 +25,14 @@ class MeldekortBehandlingskø(
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.medLås(låseNøkkel) {
-                    val status = meldekortRepository.hentUbehandledeMeldekort()
-                    val (påbegynt, behandlingsklar) = status.partition { it.erPåbegynt }
+                    val kø = meldekortRepository.hentMeldekortkø()
 
                     logger.info {
-                        "Har funnet ${status.size} meldekort, ${påbegynt.size} påbegynt og ${behandlingsklar.size} behandlingsklare."
+                        val totalt = kø.behandlingsklare + kø.underBehandling
+                        "Har funnet $totalt meldekort, ${kø.underBehandling.size} påbegynt og ${kø.behandlingsklare.size} behandlingsklare."
                     }
 
-                    behandlingsklar.map { it.meldekort }.forEach { meldekort ->
+                    kø.behandlingsklare.map { it.meldekort }.forEach { meldekort ->
                         val meldekortPeriode = meldekort.periode()
                         val rettighetstatus = personRepositoryPostgres.rettighetstatusFor(meldekort.ident.tilPersonIdentfikator())
 

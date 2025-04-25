@@ -14,28 +14,18 @@ import java.time.LocalDateTime
 
 class Meldekortgenerator private constructor(
     private val repository: MeldekortRepository,
-    private val ident: String,
+    val ident: String,
     private val eksternMeldekortId: Iterator<Long>,
     startdato: LocalDate = LocalDate.now(),
 ) {
-    companion object {
-        val meldingGenerator get() = iterator { yieldAll(1L..1000L) }
-
-        fun MeldekortRepository.generatorFor(
-            ident: String,
-            startdato: LocalDate,
-            generator: Iterator<Long> = meldingGenerator,
-        ) = Meldekortgenerator(this, ident, generator, startdato)
-    }
-
-    private val meldeperiode = Meldeperiode(startdato)
+    private val meldeperiode = periodeGenerator(startdato)
     private val innsendteMeldekort = mutableListOf<Meldekort>()
 
     fun lagKorrigering(
-        index: Int,
+        i: Int,
         block: () -> List<Dag>,
-    ) {
-        innsendteMeldekort[index - 1]
+    ): Boolean =
+        innsendteMeldekort[i - 1]
             .let { meldekort ->
                 val korrigertMeldekort =
                     meldekort
@@ -45,17 +35,20 @@ class Meldekortgenerator private constructor(
                             eksternMeldekortId = eksternMeldekortId.next(),
                             korrigeringAv = meldekort.eksternMeldekortId,
                             dager = block(),
-                        ).also {
-                            innsendteMeldekort.add(it)
-                        }
+                        )
                 lagreHendelseOmMeldekort(korrigertMeldekort)
+                innsendteMeldekort.add(korrigertMeldekort)
             }
-    }
 
     fun lagMeldekort(antall: Int = 1) {
         repeat(antall) {
             lagreHendelseOmMeldekort(meldekort())
         }
+    }
+
+    fun markerStartet(i: Int) {
+        val meldekort = innsendteMeldekort[i - 1]
+        repository.behandlingStartet(meldekort.eksternMeldekortId)
     }
 
     fun markerFerdig(i: Int) {
@@ -64,14 +57,11 @@ class Meldekortgenerator private constructor(
         repository.markerSomFerdig(meldekort.eksternMeldekortId)
     }
 
-    fun markerStartet(i: Int) {
-        val meldekort = innsendteMeldekort[i - 1]
-        repository.behandlingStartet(meldekort.eksternMeldekortId)
-    }
+    fun meldekort(nummer: Int): Meldekort = innsendteMeldekort[nummer - 1]
 
     private fun meldekort(): Meldekort {
         val meldingsreferanseId = UUIDv7.ny()
-        val periode = meldeperiode.periode()
+        val periode = meldeperiode.next()
 
         val meldekort =
             Meldekort(
@@ -111,8 +101,6 @@ class Meldekortgenerator private constructor(
                     ),
                 ).asUpdate,
             )
-        }
-        sessionOf(PostgresDataSourceBuilder.dataSource).use { session ->
             session.run(
                 queryOf(
                     //language=PostgreSQL
@@ -141,11 +129,27 @@ class Meldekortgenerator private constructor(
         repository.lagre(meldekortInnsendtHendelse.meldekort)
     }
 
-    private class Meldeperiode(
-        start: LocalDate,
-    ) {
-        private var aktiv = start
+    private fun periodeGenerator(startdato: LocalDate) =
+        iterator {
+            var sisteDato = startdato
+            while (true) {
+                yield(sisteDato..(sisteDato.plusDays(13)))
+                sisteDato = sisteDato.plusDays(14)
+            }
+        }
 
-        fun periode(): ClosedRange<LocalDate> = aktiv..aktiv.plusDays(13).also { aktiv = it.plusDays(1) }
+    companion object {
+        fun MeldekortRepository.generatorFor(
+            ident: String,
+            startdato: LocalDate,
+            generator: Iterator<Long> = meldekortIdGenerator,
+        ) = Meldekortgenerator(this, ident, generator, startdato)
+
+        val meldekortIdGenerator
+            get() =
+                iterator {
+                    var meldekortId = 1L
+                    while (true) yield(meldekortId++)
+                }
     }
 }
