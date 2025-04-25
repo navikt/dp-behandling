@@ -8,6 +8,7 @@ import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingOpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.HjemmelDTO
 import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
@@ -18,6 +19,8 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
@@ -140,6 +143,18 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                     .regelsettAvType(RegelsettType.Fastsettelse)
                     .map { it.tilRegelsettDTO(opplysningSet, avklaringer, lesbareOpplysninger) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
+            behandletHendelse =
+                HendelseDTO(
+                    id =
+                        this.behandler.eksternId.id
+                            .toString(),
+                    datatype = this.behandler.eksternId.datatype,
+                    type =
+                        when (this.behandler.eksternId) {
+                            is MeldekortId -> HendelseDTO.Type.Meldekort
+                            is SøknadId -> HendelseDTO.Type.Søknad
+                        },
+                ),
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
             avklaringer = generelleAvklaringer.map { it.tilAvklaringDTO() },
             opplysninger = opplysningSet.map { it.tilOpplysningDTO(lesbareOpplysninger) },

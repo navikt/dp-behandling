@@ -11,6 +11,7 @@ import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldNotBeEmpty
@@ -28,6 +29,7 @@ import io.mockk.verify
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.db.InMemoryPersonRepository
@@ -268,6 +270,11 @@ internal class BehandlingApiTest {
             behandlingDto.opplysninger.all { it.redigerbar } shouldBe false
             behandlingDto.avklaringer.shouldNotBeEmpty()
 
+            with(behandlingDto.behandletHendelse) {
+                shouldNotBeNull()
+                type shouldBe HendelseDTO.Type.Søknad
+                id shouldBe hendelse.eksternId.id.toString()
+            }
             with(behandlingDto.vilkår.single { it.navn == "Minsteinntekt" }) {
                 avklaringer shouldHaveSize 1
                 avklaringer.single().kode shouldBe "InntektNesteKalendermåned"

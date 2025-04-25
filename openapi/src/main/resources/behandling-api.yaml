@@ -527,6 +527,9 @@ components:
         tilstand:
           type: string
           enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
+        behandletHendelse:
+          description: Hvilken hendelse som utløste behandlingen
+          $ref: '#/components/schemas/Hendelse'
         kreverTotrinnskontroll:
           type: boolean
         utfall:
