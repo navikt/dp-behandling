@@ -105,7 +105,11 @@ private val logger = KotlinLogging.logger { }
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
-        val lesbareOpplysninger = opplysninger().forDato(opplysninger.finnOpplysning(prøvingsdato).verdi)
+        val lesbareOpplysninger =
+            when (behandler.eksternId) {
+                is MeldekortId -> opplysninger()
+                is SøknadId -> opplysninger().forDato(opplysninger.finnOpplysning(prøvingsdato).verdi)
+            }
         val opplysningSet = lesbareOpplysninger.finnAlle().toSet()
         val avklaringer = avklaringer().toSet()
         val spesifikkeAvklaringskoder =
