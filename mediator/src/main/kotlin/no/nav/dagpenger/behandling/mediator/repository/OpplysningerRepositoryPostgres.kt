@@ -265,7 +265,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
         fun lagreOpplysninger(
             opplysninger: List<Opplysning<*>>,
-            fjernet: List<Opplysning<*>>,
+            fjernet: Set<Opplysning<*>>,
         ) {
             kildeRespository.lagreKilder(opplysninger.mapNotNull { it.kilde }, tx)
             batchOpplysninger(opplysninger).run(tx)
@@ -360,7 +360,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 },
             )
 
-        private fun batchFjernet(fjernet: List<Opplysning<*>>) =
+        private fun batchFjernet(fjernet: Set<Opplysning<*>>) =
             BatchStatement(
                 //language=PostgreSQL
                 """

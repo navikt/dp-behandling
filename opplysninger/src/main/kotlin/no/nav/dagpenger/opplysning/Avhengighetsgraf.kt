@@ -3,7 +3,7 @@ package no.nav.dagpenger.opplysning
 import no.nav.dagpenger.opplysning.regel.Regel
 
 internal class Avhengighetsgraf(
-    regler: List<Regel<*>>,
+    regler: Set<Regel<*>>,
 ) {
     // Mapper hver regel sin output-type til den tilhørende regelen for rask oppslag
     private val reglerEtterOutput = regler.associateBy { it.produserer }

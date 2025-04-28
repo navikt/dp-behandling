@@ -67,15 +67,15 @@ class RegelmotorIntegrasjonsTest {
         opplysninger.leggTil(Faktum(sisteDagMedArbeidsplikt, regelverksdato)).also { regelkjøring.evaluer() }
         opplysninger.leggTil(Faktum(sisteDagMedLønn, regelverksdato)).also { regelkjøring.evaluer() }
 
-        regelkjøring.evaluer().informasjonsbehov shouldContainAll mapOf(fødselsdato to listOf())
+        regelkjøring.evaluer().informasjonsbehov shouldContainAll mapOf(fødselsdato to setOf())
         opplysninger.leggTil(Faktum(fødselsdato, LocalDate.of(1953, 2, 10))).also { regelkjøring.evaluer() }
 
         val faktiskVirkningsdato = opplysninger.finnOpplysning(prøvingsdato)
         with(regelkjøring.evaluer().informasjonsbehov) {
             shouldContainAll(
                 mapOf(
-                    ReglerForInntektTest.inntekt12 to listOf(faktiskVirkningsdato),
-                    ReglerForInntektTest.inntekt36 to listOf(faktiskVirkningsdato),
+                    ReglerForInntektTest.inntekt12 to setOf(faktiskVirkningsdato),
+                    ReglerForInntektTest.inntekt36 to setOf(faktiskVirkningsdato),
                 ),
             )
         }

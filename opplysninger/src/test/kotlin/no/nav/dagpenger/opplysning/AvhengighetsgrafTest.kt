@@ -24,7 +24,7 @@ class AvhengighetsgrafTest {
         // Denne er ikke en del av treet for C -> B -> A
         val regelD = Ekstern(opplysningstypeD, emptyList())
 
-        val alleRegler = listOf(regelA, regelB, regelC, regelD)
+        val alleRegler = setOf(regelA, regelB, regelC, regelD)
         val opplysninger =
             Opplysninger(
                 listOf(

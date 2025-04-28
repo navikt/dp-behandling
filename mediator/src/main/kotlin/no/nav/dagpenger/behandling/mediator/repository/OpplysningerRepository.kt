@@ -14,5 +14,5 @@ interface OpplysningerRepository {
         unitOfWork: UnitOfWork<*>,
     )
 
-    fun lagreOpplysningstyper(opplysningstypes: Collection<Opplysningstype<*>>): List<Int>
+    fun lagreOpplysningstyper(opplysningstyper: Collection<Opplysningstype<*>>): List<Int>
 }

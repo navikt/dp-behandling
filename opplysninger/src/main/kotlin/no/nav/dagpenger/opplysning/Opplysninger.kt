@@ -104,7 +104,7 @@ class Opplysninger private constructor(
 
     override fun finnAlle() = alleOpplysninger.toList()
 
-    fun fjernet(): List<Opplysning<*>> = opplysninger.filter { it.erFjernet }
+    fun fjernet(): Set<Opplysning<*>> = opplysninger.filter { it.erFjernet }.toSet()
 
     @Suppress("UNCHECKED_CAST")
     private fun <T : Comparable<T>> finnNullableOpplysning(

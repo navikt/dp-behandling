@@ -11,7 +11,7 @@ import java.time.LocalDate
 
 // Virkningsdato: Dato som *behandlingen* finner til slutt
 
-typealias Informasjonsbehov = Map<Opplysningstype<*>, List<Opplysning<*>>>
+typealias Informasjonsbehov = Map<Opplysningstype<*>, Set<Opplysning<*>>>
 
 class Regelkjøring(
     private val regelverksdato: LocalDate,
@@ -41,22 +41,19 @@ class Regelkjøring(
 
     private val observers: MutableSet<RegelkjøringObserver> = mutableSetOf()
 
-    private val regelsett get() = forretningsprosess.regelsett()
+    // Setter opp hvilke regler som skal gjelde
+    private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
+    private val avhengighetsgraf = Avhengighetsgraf(gjeldendeRegler)
 
-    private val alleRegler get() = regelsett.flatMap { it.regler(regelverksdato) }
-    private val avhengighetsgraf = Avhengighetsgraf(alleRegler)
-
+    // Setter opp hvilke opplysninger som skal brukes når reglene evalurerer om de skal kjøre
     private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
 
+    // Hvilke opplysninger som skal produseres. Må hentes på nytt hver gang, siden det kan endres etterhvert som nye regler kommer til
     private val ønsketResultat get() = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
 
-    // Finn bare regler som kreves for ønsket resultat
-    // Kjører regler i topologisk rekkefølge
-    private val gjeldendeRegler: List<Regel<*>> get() = alleRegler
-
+    // Set som brukes til å lage planen, og spore hva som blir gjort
     private var plan: MutableSet<Regel<*>> = mutableSetOf()
-    private val kjørteRegler: MutableList<Regel<*>> = mutableListOf()
-
+    private val kjørteRegler: MutableSet<Regel<*>> = mutableSetOf()
     private var trenger = setOf<Regel<*>>()
 
     init {
@@ -72,21 +69,10 @@ class Regelkjøring(
         observers.add(observer)
     }
 
-    fun evaluer(): Regelkjøringsrapport {
-        val rapporter =
-            prøvingsperiode.map {
-                evaluerDag(it)
-            }
-
-        return rapporter.reduce { acc, regelkjøringsrapport ->
-            Regelkjøringsrapport(
-                kjørteRegler = acc.kjørteRegler + regelkjøringsrapport.kjørteRegler,
-                mangler = acc.mangler + regelkjøringsrapport.mangler,
-                informasjonsbehov = acc.informasjonsbehov + regelkjøringsrapport.informasjonsbehov,
-                foreldreløse = acc.foreldreløse + regelkjøringsrapport.foreldreløse,
-            )
-        }
-    }
+    fun evaluer(): Regelkjøringsrapport =
+        prøvingsperiode
+            .map { evaluerDag(it) }
+            .reduce { total, regelkjøringsrapport -> total + regelkjøringsrapport }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         aktiverRegler(prøvingsdato)
@@ -167,7 +153,7 @@ class Regelkjøring(
                 avhengigheter.all { opplysningerPåPrøvingsdato.har(it) }
             }.mapValues { (_, avhengigheter) ->
                 // Finn verdien av avhengighetene
-                avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }
+                avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }.toSet()
             }
 
     private class Regelsettprosess(
@@ -216,14 +202,22 @@ class Regelkjøring(
 }
 
 data class Regelkjøringsrapport(
-    val kjørteRegler: List<Regel<*>>,
+    val kjørteRegler: Set<Regel<*>>,
     val mangler: Set<Opplysningstype<*>>,
     val informasjonsbehov: Informasjonsbehov,
-    val foreldreløse: List<Opplysning<*>>,
+    val foreldreløse: Set<Opplysning<*>>,
 ) {
     fun manglerOpplysninger(): Boolean = mangler.isNotEmpty()
 
     fun erFerdig(): Boolean = !manglerOpplysninger()
+
+    operator fun plus(other: Regelkjøringsrapport): Regelkjøringsrapport =
+        Regelkjøringsrapport(
+            kjørteRegler = this.kjørteRegler + other.kjørteRegler,
+            mangler = this.mangler + other.mangler,
+            informasjonsbehov = this.informasjonsbehov + other.informasjonsbehov,
+            foreldreløse = this.foreldreløse + other.foreldreløse,
+        )
 }
 
 interface RegelkjøringObserver {
