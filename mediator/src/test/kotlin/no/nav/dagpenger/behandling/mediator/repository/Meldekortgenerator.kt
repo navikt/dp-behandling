@@ -11,6 +11,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class Meldekortgenerator private constructor(
     private val repository: MeldekortRepository,
@@ -73,7 +74,7 @@ class Meldekortgenerator private constructor(
                 tom = periode.endInclusive,
                 kilde = MeldekortKilde("Bruker", ident),
                 dager = listOf(),
-                innsendtTidspunkt = LocalDateTime.now(),
+                innsendtTidspunkt = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
                 korrigeringAv = null,
             ).also {
                 this.innsendteMeldekort.add(it)
