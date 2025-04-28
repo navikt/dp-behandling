@@ -43,7 +43,7 @@ class ArbeidssøkerstatusAvsluttet(
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(
             regelverksdato = skjedde,
-            prøvingsdato = periode.tilOgMed.plusDays(1),
+            prøvingsperiode = Regelkjøring.Periode(periode.tilOgMed.plusDays(1), periode.tilOgMed.plusDays(1)),
             opplysninger = opplysninger,
             forretningsprosess = forretningsprosess,
         )
