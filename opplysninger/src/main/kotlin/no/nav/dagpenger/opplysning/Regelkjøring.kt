@@ -13,64 +13,26 @@ import java.time.LocalDate
 
 typealias Informasjonsbehov = Map<Opplysningstype<*>, List<Opplysning<*>>>
 
-private class Regelsettprosess(
-    val regelsett: List<Regelsett>,
-    val opplysningstypes: List<Opplysningstype<*>> = regelsett.flatMap { it.produserer },
-) : Forretningsprosess {
-    override val regelverk: Regelverk
-        get() = TODO("Not yet implemented")
-
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        TODO("Not yet implemented")
-    }
-
-    override fun kontrollpunkter(): List<IKontrollpunkt> {
-        TODO("Not yet implemented")
-    }
-
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
-        TODO("Not yet implemented")
-    }
-
-    override fun regelsett() = regelsett
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = opplysningstypes
-}
-
 class Regelkjøring(
     private val regelverksdato: LocalDate,
-    private val prøvingsdato: LocalDate,
+    private val prøvingsperiode: Periode,
     private val opplysninger: Opplysninger,
     private val forretningsprosess: Forretningsprosess,
 ) {
+    // Brukes kun av tester
     constructor(regelverksdato: LocalDate, opplysninger: Opplysninger, vararg regelsett: Regelsett) : this(
         regelverksdato = regelverksdato,
-        prøvingsdato = regelverksdato,
+        prøvingsperiode = Periode(regelverksdato),
         opplysninger = opplysninger,
         forretningsprosess = Regelsettprosess(regelsett.toList(), regelsett.toList().flatMap { it.produserer }),
     )
 
+    // Brukes av hendelser (uten prøvingsdato/periode)
     constructor(regelverksdato: LocalDate, opplysninger: Opplysninger, forretningsprosess: Forretningsprosess) : this(
         regelverksdato = regelverksdato,
-        prøvingsdato = regelverksdato,
+        prøvingsperiode = Periode(regelverksdato),
         opplysninger = opplysninger,
         forretningsprosess = forretningsprosess,
-    )
-
-    constructor(
-        regelverksdato: LocalDate,
-        opplysninger: Opplysninger,
-        ønskerResultat: List<Opplysningstype<*>>,
-        vararg regelsett: Regelsett,
-    ) : this(
-        regelverksdato = regelverksdato,
-        prøvingsdato = regelverksdato,
-        opplysninger = opplysninger,
-        forretningsprosess = Regelsettprosess(regelsett.toList(), ønskerResultat),
     )
 
     companion object {
@@ -80,18 +42,19 @@ class Regelkjøring(
     private val observers: MutableSet<RegelkjøringObserver> = mutableSetOf()
 
     private val regelsett get() = forretningsprosess.regelsett()
+
     private val alleRegler get() = regelsett.flatMap { it.regler(regelverksdato) }
     private val avhengighetsgraf = Avhengighetsgraf(alleRegler)
 
-    private val opplysningerPåPrøvingsdato get() = opplysninger.forDato(prøvingsdato)
+    private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
 
     private val ønsketResultat get() = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
 
     // Finn bare regler som kreves for ønsket resultat
     // Kjører regler i topologisk rekkefølge
     private val gjeldendeRegler: List<Regel<*>> get() = alleRegler
-    private var plan: MutableSet<Regel<*>> = mutableSetOf()
 
+    private var plan: MutableSet<Regel<*>> = mutableSetOf()
     private val kjørteRegler: MutableList<Regel<*>> = mutableListOf()
 
     private var trenger = setOf<Regel<*>>()
@@ -110,10 +73,26 @@ class Regelkjøring(
     }
 
     fun evaluer(): Regelkjøringsrapport {
-        aktiverRegler()
+        val rapporter =
+            prøvingsperiode.map {
+                evaluerDag(it)
+            }
+
+        return rapporter.reduce { acc, regelkjøringsrapport ->
+            Regelkjøringsrapport(
+                kjørteRegler = acc.kjørteRegler + regelkjøringsrapport.kjørteRegler,
+                mangler = acc.mangler + regelkjøringsrapport.mangler,
+                informasjonsbehov = acc.informasjonsbehov + regelkjøringsrapport.informasjonsbehov,
+                foreldreløse = acc.foreldreløse + regelkjøringsrapport.foreldreløse,
+            )
+        }
+    }
+
+    private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
+        aktiverRegler(prøvingsdato)
         while (plan.isNotEmpty()) {
             kjørRegelPlan()
-            aktiverRegler()
+            aktiverRegler(prøvingsdato)
         }
 
         // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
@@ -126,11 +105,12 @@ class Regelkjøring(
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
-            observers.forEach { observer -> observer.evaluert(rapport, opplysninger.forDato(prøvingsdato)) }
+            observers.forEach { observer -> observer.evaluert(rapport, opplysningerPåPrøvingsdato) }
         }
     }
 
-    private fun aktiverRegler() {
+    private fun aktiverRegler(prøvingsdato: LocalDate) {
+        opplysningerPåPrøvingsdato = opplysninger.forDato(prøvingsdato)
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = gjeldendeRegler.associateBy { it.produserer }
         val besøkt = mutableSetOf<Regel<*>>()
@@ -189,6 +169,50 @@ class Regelkjøring(
                 // Finn verdien av avhengighetene
                 avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }
             }
+
+    private class Regelsettprosess(
+        val regelsett: List<Regelsett>,
+        val opplysningstypes: List<Opplysningstype<*>> = regelsett.flatMap { it.produserer },
+    ) : Forretningsprosess {
+        override val regelverk: Regelverk
+            get() = TODO("Not yet implemented")
+
+        override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+            TODO("Not yet implemented")
+        }
+
+        override fun kontrollpunkter(): List<IKontrollpunkt> {
+            TODO("Not yet implemented")
+        }
+
+        override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
+            TODO("Not yet implemented")
+        }
+
+        override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
+            TODO("Not yet implemented")
+        }
+
+        override fun regelsett() = regelsett
+
+        override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = opplysningstypes
+    }
+
+    data class Periode(
+        private val start: LocalDate,
+        private val endInclusive: LocalDate,
+    ) : Iterable<LocalDate> {
+        constructor(dag: LocalDate) : this(dag, dag)
+
+        override fun iterator() =
+            object : Iterator<LocalDate> {
+                private var current = start
+
+                override fun hasNext() = current <= endInclusive
+
+                override fun next(): LocalDate = current.apply { current = current.plusDays(1) }
+            }
+    }
 }
 
 data class Regelkjøringsrapport(

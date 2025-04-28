@@ -943,6 +943,10 @@ internal class PersonMediatorTest {
                 rapid.sendTestMessage(medRåData().toPrettyString())
             }
 
+            // TODO: Sjekk at det fungerer at personen ikke har krav på dagpenger midt i en meldeperiode
+            // testPerson.avregistrer(23.juni(2021))
+            // testPerson.registrer(25.juni(2021))
+
             // Meldekort 3 leses inn, over terskel og får ingen utbetaling
             testPerson.sendMeldekort(5.juli(2021), 3, 6).also {
                 meldekortBehandlingskø.sendMeldekortTilBehandling()

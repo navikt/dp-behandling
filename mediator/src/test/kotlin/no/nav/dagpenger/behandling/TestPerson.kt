@@ -319,7 +319,6 @@ class TestPerson(
                     mapOf(
                         "verdi" to true,
                         "gyldigFraOgMed" to arbeidssøkerregistreringsdato,
-                        "gyldigTilOgMed" to arbeidssøkerregistreringsdato,
                     ),
                 // Rettighetsype
                 Ordinær to ordinær,

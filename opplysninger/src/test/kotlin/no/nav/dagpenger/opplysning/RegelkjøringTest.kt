@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning
 
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.a
@@ -83,5 +84,23 @@ class RegelkjøringTest {
             opplysninger.finnOpplysning(opplysningA).verdi shouldBe 0.1
             opplysninger.finnOpplysning(opplysningD).verdi shouldBe 0.1
         }
+    }
+
+    @Test
+    fun `kan iterere over en periode`() {
+        val periode = Regelkjøring.Periode(1.januar, 3.januar)
+
+        periode shouldHaveSize 3
+
+        periode shouldContainExactly listOf(1.januar, 2.januar, 3.januar)
+    }
+
+    @Test
+    fun `en periode med samme fom og tom skal bare være en dag`() {
+        val periode = Regelkjøring.Periode(1.januar, 1.januar)
+
+        periode shouldHaveSize 1
+
+        periode shouldContainExactly listOf(1.januar)
     }
 }

@@ -8,6 +8,8 @@ data class Periode(
 ) : ClosedRange<LocalDate>,
     Comparable<Periode>,
     Iterable<LocalDate> {
+    constructor(dag: LocalDate) : this(dag, dag)
+
     val fraOgMed = start
     val tilOgMed = endInclusive
 

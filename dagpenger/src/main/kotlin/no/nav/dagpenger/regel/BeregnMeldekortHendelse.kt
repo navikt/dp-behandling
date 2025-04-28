@@ -55,6 +55,11 @@ class BeregnMeldekortHendelse(
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(
             regelverksdato = prøvingsdato(opplysninger = opplysninger),
+            prøvingsperiode =
+                Regelkjøring.Periode(
+                    start = meldekort.fom,
+                    endInclusive = meldekort.tom,
+                ),
             opplysninger = opplysninger,
             forretningsprosess = forretningsprosess,
         )
