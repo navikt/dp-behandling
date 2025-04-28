@@ -67,7 +67,7 @@ class BeregnMeldekortHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling {
+    ): Behandling? {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
         val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
 

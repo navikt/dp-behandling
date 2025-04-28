@@ -19,6 +19,7 @@ import no.nav.dagpenger.behandling.api.models.VilkaarDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerPeriodeId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
@@ -115,6 +116,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                     when (behandlingAv.eksternId) {
                         is MeldekortId -> HendelseDTO.Type.Meldekort
                         is SøknadId -> HendelseDTO.Type.Søknad
+                        is ArbeidssøkerPeriodeId -> TODO()
                     },
             ),
         fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),

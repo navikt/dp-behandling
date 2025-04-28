@@ -19,6 +19,7 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerPeriodeId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -153,6 +154,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         when (this.behandler.eksternId) {
                             is MeldekortId -> HendelseDTO.Type.Meldekort
                             is SøknadId -> HendelseDTO.Type.Søknad
+                            is ArbeidssøkerPeriodeId -> TODO()
                         },
                 ),
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),

@@ -52,8 +52,11 @@ interface PersonRepository : BehandlingRepository {
     fun håndter(
         ident: Ident,
         handler: (Person) -> Unit,
+        lagNyPerson: (Ident) -> Person? = { Person(it) },
     ): Person {
-        val person = hent(ident) ?: Person(ident)
+        val person =
+            hent(ident) ?: lagNyPerson(ident)
+                ?: throw IllegalStateException("Fant ikke person")
         handler(person)
         lagre(person)
         return person

@@ -67,7 +67,7 @@ class Person(
         // Oppskrift for å opprette en behandling
         hendelse.leggTilKontekst(this)
         val behandling =
-            hendelse.behandling(enVeldigSmartMåteÅfinneRiktigForrigeBehandling(), rettighetstatus).also { behandling ->
+            hendelse.behandling(enVeldigSmartMåteÅfinneRiktigForrigeBehandling(), rettighetstatus)?.also { behandling ->
                 logger.info {
                     """
                     Oppretter behandling med behandlingId=${behandling.behandlingId} for 
@@ -81,7 +81,7 @@ class Person(
                     )
                 }
             }
-        behandling.håndter(hendelse)
+        behandling?.håndter(hendelse)
     }
 
     // TODO: Dette er en veldig dum måte å finne forrige behandling på

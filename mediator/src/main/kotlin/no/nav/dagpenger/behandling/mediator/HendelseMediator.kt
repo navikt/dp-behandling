@@ -10,6 +10,7 @@ import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
@@ -27,7 +28,9 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.regel.ArbeidssøkerstatusAvsluttet
 import no.nav.dagpenger.regel.BeregnMeldekortHendelse
+import no.nav.dagpenger.regel.SøknadInnsendtHendelse
 
 internal class HendelseMediator(
     private val personRepository: PersonRepository,
@@ -99,7 +102,7 @@ internal class HendelseMediator(
     ) {
         try {
             val personMediator = PersonMediator()
-            person(ident) { person ->
+            person(ident, hendelse) { person ->
                 person.registrer(personMediator)
                 observatører.forEach { observatør -> person.registrer(observatør) }
                 handler(person)
@@ -114,9 +117,15 @@ internal class HendelseMediator(
 
     private fun person(
         ident: Ident,
+        hendelse: PersonHendelse,
         handler: (Person) -> Unit,
     ) {
-        personRepository.håndter(ident, handler)
+        val lagPerson =
+            when (hendelse) {
+                is SøknadInnsendtHendelse -> { ident: Ident -> Person(ident) }
+                else -> { ident: Ident -> null }
+            }
+        personRepository.håndter(ident, handler) { ident -> lagPerson.invoke(ident) }
     }
 
     private fun ferdigstill(
@@ -271,6 +280,18 @@ internal class HendelseMediator(
             person.håndter(hendelse)
         }
     }
+
+    override fun behandle(
+        hendelse: ArbeidssøkerstatusAvsluttet,
+        context: MessageContext,
+    ) {
+        val person = personRepository.hent(hendelse.ident.tilPersonIdentfikator())
+        if (person == null) {
+            logger.info { "Vi kjenner ikke personen" }
+            return
+        }
+        person.håndter(hendelse)
+    }
 }
 
 internal interface IHendelseMediator {
@@ -346,6 +367,11 @@ internal interface IHendelseMediator {
 
     fun behandle(
         hendelse: BeregnMeldekortHendelse,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: ArbeidssøkerstatusAvsluttet,
         context: MessageContext,
     )
 }

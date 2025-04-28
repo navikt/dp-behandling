@@ -213,7 +213,7 @@ private class TestHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling {
+    ): Behandling? {
         TODO("Not yet implemented")
     }
 

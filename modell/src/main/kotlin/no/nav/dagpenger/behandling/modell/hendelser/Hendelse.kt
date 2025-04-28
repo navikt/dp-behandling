@@ -21,5 +21,5 @@ class Hendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling = throw IllegalStateException("Skal ikke opprettet behandling her, skal allerede ha skjedd")
+    ): Behandling? = throw IllegalStateException("Skal ikke opprettet behandling her, skal allerede ha skjedd")
 }

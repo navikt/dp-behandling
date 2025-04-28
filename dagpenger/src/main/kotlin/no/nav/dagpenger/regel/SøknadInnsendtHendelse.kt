@@ -46,33 +46,34 @@ class SøknadInnsendtHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ) = Behandling(
-        behandler =
-            Hendelse(
-                meldingsreferanseId = meldingsreferanseId,
-                type = type,
-                ident = ident,
-                eksternId = eksternId,
-                skjedde = skjedde,
-                opprettet = opprettet,
-                forretningsprosess = forretningsprosess,
-            ),
-        opplysninger =
-            listOf(
-                Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)),
-                Faktum(
-                    søknadIdOpplysningstype,
-                    this.eksternId.id.toString(),
-                    kilde = Systemkilde(meldingsreferanseId, opprettet),
+    ): Behandling? =
+        Behandling(
+            behandler =
+                Hendelse(
+                    meldingsreferanseId = meldingsreferanseId,
+                    type = type,
+                    ident = ident,
+                    eksternId = eksternId,
+                    skjedde = skjedde,
+                    opprettet = opprettet,
+                    forretningsprosess = forretningsprosess,
                 ),
-                Faktum(
-                    hendelseTypeOpplysningstype,
-                    type,
-                    gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
-                    kilde = Systemkilde(meldingsreferanseId, opprettet),
+            opplysninger =
+                listOf(
+                    Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)),
+                    Faktum(
+                        søknadIdOpplysningstype,
+                        this.eksternId.id.toString(),
+                        kilde = Systemkilde(meldingsreferanseId, opprettet),
+                    ),
+                    Faktum(
+                        hendelseTypeOpplysningstype,
+                        type,
+                        gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                        kilde = Systemkilde(meldingsreferanseId, opprettet),
+                    ),
                 ),
-            ),
-    )
+        )
 
     companion object {
         val fagsakIdOpplysningstype = Opplysningstype.heltall(FagsakIdId, "fagsakId")

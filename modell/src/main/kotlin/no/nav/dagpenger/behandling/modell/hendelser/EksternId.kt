@@ -52,3 +52,12 @@ class MeldekortId(
             "meldekortId" to id.toString(),
         )
 }
+
+class ArbeidssøkerPeriodeId(
+    id: UUID,
+) : EksternId<UUID>(id) {
+    override fun kontekstMap() =
+        mapOf(
+            "arbeidssøkerPeriodeId" to id.toString(),
+        )
+}

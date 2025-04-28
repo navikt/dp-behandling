@@ -7,6 +7,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.mediator.melding.HendelseRepository
+import no.nav.dagpenger.behandling.mediator.mottak.ArbeidssøkerstatusAvsluttetMottak.ArbeidssøkerstatusAvsluttetMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
@@ -43,6 +44,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.ArbeidssøkerstatusAvsluttet
 import java.util.UUID
 
 internal class MessageMediator(
@@ -181,6 +183,16 @@ internal class MessageMediator(
         }
     }
 
+    override fun behandle(
+        hendelse: ArbeidssøkerstatusAvsluttet,
+        message: ArbeidssøkerstatusAvsluttetMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
     private fun <HENDELSE : PersonHendelse> behandle(
         hendelse: HENDELSE,
         message: HendelseMessage,
@@ -260,6 +272,12 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: StartHendelse,
         beregnMeldekortMessage: BeregnMeldekortMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: ArbeidssøkerstatusAvsluttet,
+        message: ArbeidssøkerstatusAvsluttetMessage,
         context: MessageContext,
     )
 }
