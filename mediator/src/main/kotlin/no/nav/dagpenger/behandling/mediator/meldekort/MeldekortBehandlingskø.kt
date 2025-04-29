@@ -16,20 +16,19 @@ class MeldekortBehandlingskø(
     private val rapidsConnection: RapidsConnection,
 ) {
     companion object {
-        private val låseNøkkel = 98769876
+        private const val LÅSE_NØKKEL = 98769876
         private val logger = mu.KotlinLogging.logger {}
-        private val sikkerLogg = mu.KotlinLogging.logger("tjenestekall.MeldekortBehandlingskø")
     }
 
     fun sendMeldekortTilBehandling() {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
-                tx.medLås(låseNøkkel) {
+                tx.medLås(LÅSE_NØKKEL) {
                     val kø = meldekortRepository.hentMeldekortkø()
-
+                    val totalt = kø.behandlingsklare + kø.underBehandling
                     logger.info {
-                        val totalt = kø.behandlingsklare + kø.underBehandling
-                        "Har funnet ${totalt.size} meldekort, ${kø.underBehandling.size} påbegynt og ${kø.behandlingsklare.size} behandlingsklare."
+                        "Har funnet ${totalt.size} meldekort," +
+                            " ${kø.underBehandling.size} påbegynt og ${kø.behandlingsklare.size} behandlingsklare."
                     }
 
                     kø.behandlingsklare.map { it.meldekort }.forEach { meldekort ->
