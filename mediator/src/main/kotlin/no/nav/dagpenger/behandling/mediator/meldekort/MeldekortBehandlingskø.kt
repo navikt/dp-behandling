@@ -39,13 +39,11 @@ class MeldekortBehandlingskø(
                         withLoggingContext(
                             "meldekortId" to meldekort.id.toString(),
                         ) {
-                            logger.info { "Sjekker om meldekort skal beregnes" }
                             val potensielleDager =
                                 meldekortPeriode.associateWith { dag ->
                                     runCatching { rettighetstatus.get(dag).utfall }.getOrElse { false }
                                 }
 
-                            logger.info { "Meldekort dager: $potensielleDager" }
                             val harRettighet = potensielleDager.any { it.value }
                             if (harRettighet) {
                                 logger.info { "Publiserer beregn meldekort" }

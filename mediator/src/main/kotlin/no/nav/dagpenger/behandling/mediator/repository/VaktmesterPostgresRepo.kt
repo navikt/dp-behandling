@@ -144,7 +144,7 @@ internal class VaktmesterPostgresRepo {
 
     private fun Session.hentOpplysningerIder(antall: Int): List<Kandidat> {
         //language=PostgreSQL
-        val test =
+        val query =
             """
             SELECT DISTINCT (op.opplysninger_id) AS opplysinger_id, b.behandling_id
             FROM opplysning
@@ -157,7 +157,7 @@ internal class VaktmesterPostgresRepo {
         val opplysningerIder =
             this.run(
                 queryOf(
-                    test,
+                    query,
                     mapOf(
                         "antall" to antall,
                     ),
