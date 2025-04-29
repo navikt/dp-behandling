@@ -5,6 +5,7 @@ import kotliquery.sessionOf
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk
+import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -20,22 +21,26 @@ class PersonRepositoryPostgres(
 
     override fun hent(ident: Ident) =
         sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    SELECT * FROM person WHERE ident = :ident FOR UPDATE
-                    """.trimIndent(),
-                    mapOf("ident" to ident.identifikator()),
-                ).map { row ->
-                    val dbIdent = Ident(row.string("ident"))
-                    val rettighetstatuser = rettighetstatusFor(dbIdent)
-                    val behandlinger = behandlingerFor(dbIdent)
-                    logger.info { "Hentet person med ${behandlinger.size} behandlinger" }
-                    Metrikk.registrerAntallBehandlinger(behandlinger.size)
-                    Person(dbIdent, behandlinger, rettighetstatuser)
-                }.asSingle,
-            )
+            val timer = hentPersonTimer.startTimer()
+            session
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT * FROM person WHERE ident = :ident FOR UPDATE
+                        """.trimIndent(),
+                        mapOf("ident" to ident.identifikator()),
+                    ).map { row ->
+                        val dbIdent = Ident(row.string("ident"))
+                        val rettighetstatuser = rettighetstatusFor(dbIdent)
+                        val behandlinger = behandlingerFor(dbIdent)
+                        logger.info { "Hentet person med ${behandlinger.size} behandlinger" }
+                        Metrikk.registrerAntallBehandlinger(behandlinger.size)
+                        Person(dbIdent, behandlinger, rettighetstatuser)
+                    }.asSingle,
+                ).also {
+                    timer.observeDuration()
+                }
         }
 
     private fun behandlingerFor(ident: Ident) =
