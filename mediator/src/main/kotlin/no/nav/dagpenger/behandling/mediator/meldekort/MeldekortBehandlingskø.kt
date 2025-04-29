@@ -29,7 +29,7 @@ class MeldekortBehandlingskø(
 
                     logger.info {
                         val totalt = kø.behandlingsklare + kø.underBehandling
-                        "Har funnet $totalt meldekort, ${kø.underBehandling.size} påbegynt og ${kø.behandlingsklare.size} behandlingsklare."
+                        "Har funnet ${totalt.size} meldekort, ${kø.underBehandling.size} påbegynt og ${kø.behandlingsklare.size} behandlingsklare."
                     }
 
                     kø.behandlingsklare.map { it.meldekort }.forEach { meldekort ->
