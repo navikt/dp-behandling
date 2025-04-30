@@ -11,7 +11,7 @@ servers:
   - url: https://dp-behandling.intern.nav.no
     description: prod
 tags:
-  - name: Opplysingstype
+  - name: Opplysningstype
     description: Operasjoner på opplysningstyper.
   - name: Behandling
     description: Operasjoner på behandlinger.
