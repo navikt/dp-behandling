@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.navikt.tbd_libs.naisful.test.TestContext
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.assertions.throwables.shouldNotThrowAny
@@ -28,10 +27,18 @@ import io.mockk.spyk
 import io.mockk.verify
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper
+import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTO
+import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
+import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
+import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningDTO
+import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
+import no.nav.dagpenger.behandling.april
 import no.nav.dagpenger.behandling.db.InMemoryPersonRepository
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
@@ -48,7 +55,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
-import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
@@ -59,6 +65,7 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse
@@ -70,7 +77,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.collections.first
 
 internal class BehandlingApiTest {
     private val ident = "12345123451"
@@ -168,12 +174,19 @@ internal class BehandlingApiTest {
                             verdi = Beløp(1000.toBigDecimal()),
                         ),
                         Faktum(
+                            opplysningstype = TestOpplysningstyper.periode,
+                            verdi = Periode(16.april(2025), 25.april(2025)),
+                        ),
+                        Faktum(
                             opplysningstype = TestOpplysningstyper.barn,
                             verdi =
                                 BarnListe(
                                     listOf(
                                         Barn(
-                                            LocalDate.now(),
+                                            fornavnOgMellomnavn = "Navn",
+                                            etternavn = "Navnesen",
+                                            statsborgerskap = "NOR",
+                                            fødselsdato = LocalDate.now(),
                                             kvalifiserer = true,
                                         ),
                                     ),
@@ -272,7 +285,7 @@ internal class BehandlingApiTest {
 
             with(behandlingDto.behandletHendelse) {
                 shouldNotBeNull()
-                type shouldBe HendelseDTO.Type.Søknad
+                type shouldBe HendelseDTOTypeDTO.SØKNAD
                 id shouldBe hendelse.eksternId.id.toString()
             }
             with(behandlingDto.vilkår.single { it.navn == "Minsteinntekt" }) {
@@ -280,19 +293,58 @@ internal class BehandlingApiTest {
                 avklaringer.single().kode shouldBe "InntektNesteKalendermåned"
             }
 
-            /*
-             * TODO: Testen bør bruke mer mocka data og ikke være så koblet til oppførsel i modellen
-            with(behandlingDto.vilkår.single { it.navn == "Verneplikt" }) {
-                avklaringer shouldHaveSize 1
-                val aktivAvklaring = behandling.aktiveAvklaringer().first()
-                with(avklaringer.single()) {
-                    kode shouldBe "Verneplikt"
-
-                    tittel shouldBe aktivAvklaring.kode.tittel
-                    beskrivelse shouldBe aktivAvklaring.kode.beskrivelse
-                    id shouldBe aktivAvklaring.id
+            // sanity check
+            with(behandlingDto.opplysninger) {
+                with(opplysning(TestOpplysningstyper.beløpA.navn)) {
+                    shouldNotBeNull()
+                    verdi shouldBe "1000"
+                    val desimaltallVerdiDTO: DesimaltallVerdiDTO = verdien.shouldBeInstanceOf()
+                    desimaltallVerdiDTO.verdi shouldBe 1000
+                    desimaltallVerdiDTO.datatype shouldBe DataTypeDTO.DESIMALTALL
                 }
-            }*/
+                with(opplysning(TestOpplysningstyper.boolsk.navn)) {
+                    shouldNotBeNull()
+                    verdi shouldBe "true"
+                    val boolsk: BoolskVerdiDTO = verdien.shouldBeInstanceOf()
+                    boolsk.verdi shouldBe true
+                    boolsk.datatype shouldBe DataTypeDTO.BOOLSK
+                }
+                with(opplysning(TestOpplysningstyper.periode.navn)) {
+                    shouldNotBeNull()
+                    verdi shouldBe "Periode(start=2025-04-16, endInclusive=2025-04-25)"
+                    val boolsk: PeriodeVerdiDTO = verdien.shouldBeInstanceOf()
+                    boolsk.fom shouldBe 16.april(2025)
+                    boolsk.tom shouldBe 25.april(2025)
+                    boolsk.datatype shouldBe DataTypeDTO.PERIODE
+                }
+                with(opplysning(TestOpplysningstyper.barn.navn)) {
+                    shouldNotBeNull()
+                    verdi.shouldNotBeEmpty()
+                    val barn: BarnelisteDTO = verdien.shouldBeInstanceOf()
+                    barn.verdi.shouldHaveSize(1)
+                    with(barn.verdi.first()) {
+                        fødselsdato shouldBe LocalDate.now()
+                        fornavnOgMellomnavn shouldBe "Navn"
+                        etternavn shouldBe "Navnesen"
+                        statsborgerskap shouldBe "NOR"
+                        kvalifiserer shouldBe true
+                    }
+                }
+                with(opplysning(TestOpplysningstyper.heltall.navn)) {
+                    shouldNotBeNull()
+                    verdi shouldBe "3"
+                    val boolsk: HeltallVerdiDTO = verdien.shouldBeInstanceOf()
+                    boolsk.verdi shouldBe 3
+                    boolsk.datatype shouldBe DataTypeDTO.HELTALL
+                }
+                with(opplysning(Minsteinntekt.inntekt12.navn)) {
+                    shouldNotBeNull()
+                    verdi shouldBe "3000.034"
+                    val desimaltallVerdiDTO: DesimaltallVerdiDTO = verdien.shouldBeInstanceOf()
+                    desimaltallVerdiDTO.verdi shouldBe 3000.034
+                    desimaltallVerdiDTO.datatype shouldBe DataTypeDTO.DESIMALTALL
+                }
+            }
 
             behandlingDto.avklaringer shouldHaveSize 3
 
@@ -357,7 +409,7 @@ internal class BehandlingApiTest {
 
             with(behandlingDto.regelsett.single { it.navn == "Søknadstidspunkt" }) {
                 avklaringer.shouldBeEmpty()
-                opplysningIder?.shouldHaveSize(1)
+                opplysningIder.shouldHaveSize(1)
             }
 
             with(behandlingDto.avklaringer.single { it.kode == "tittel 2" }) {
@@ -555,3 +607,5 @@ internal class BehandlingApiTest {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 }
+
+private fun List<OpplysningDTO>.opplysning(navn: String) = find { it.navn == navn }

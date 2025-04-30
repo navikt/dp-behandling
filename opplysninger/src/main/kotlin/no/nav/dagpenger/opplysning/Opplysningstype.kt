@@ -13,10 +13,10 @@ interface Klassifiserbart {
 }
 
 enum class Opplysningsformål {
-    Legacy(),
-    Bruker(),
-    Register(),
-    Regel(),
+    Legacy,
+    Bruker,
+    Register,
+    Regel,
 }
 
 class Opplysningstype<T : Comparable<T>>(
