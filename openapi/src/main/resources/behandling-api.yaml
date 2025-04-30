@@ -803,6 +803,7 @@ components:
         - $ref: '#/components/schemas/DatoVerdi'
         - $ref: '#/components/schemas/HeltallVerdi'
         - $ref: '#/components/schemas/DesimaltallVerdi'
+        - $ref: '#/components/schemas/PengeVerdi'
         - $ref: '#/components/schemas/UlidVerdi'
         - $ref: '#/components/schemas/BoolskVerdi'
         - $ref: '#/components/schemas/PeriodeVerdi'
@@ -816,10 +817,23 @@ components:
           dato: '#/components/schemas/DatoVerdi'
           heltall: '#/components/schemas/HeltallVerdi'
           desimaltall: '#/components/schemas/DesimaltallVerdi'
-          penger: '#/components/schemas/DesimaltallVerdi'
+          penger: '#/components/schemas/PengeVerdi'
           ulid: '#/components/schemas/UlidVerdi'
           boolsk: '#/components/schemas/BoolskVerdi'
           periode: '#/components/schemas/PeriodeVerdi'
+
+    PengeVerdi:
+      type: object
+      properties:
+        verdi:
+          type: number
+          format: bigdecimal
+        datatype:
+          $ref: '#/components/schemas/DataType'
+      required:
+        - verdi
+        - valuta
+        - datatype
 
     TekstVerdi:
       type: object

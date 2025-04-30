@@ -26,6 +26,7 @@ import no.nav.dagpenger.behandling.api.models.OpplysningDTOFormålDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
+import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.RegelsettDTO
@@ -60,6 +61,7 @@ import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
@@ -359,9 +361,12 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                 Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double)
                 Heltall -> HeltallVerdiDTO(this.verdi as Int)
                 InntektDataType -> TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId)
-                Penger -> DesimaltallVerdiDTO((this.verdi as Beløp).uavrundet.toDouble())
+                Penger ->
+                    PengeVerdiDTO(
+                        verdi = (this.verdi as Beløp).verdien,
+                    )
                 PeriodeDataType ->
-                    (this.verdi as no.nav.dagpenger.opplysning.verdier.Periode).let {
+                    (this.verdi as Periode).let {
                         PeriodeVerdiDTO(it.fraOgMed, it.tilOgMed)
                     }
                 Tekst, ULID -> TekstVerdiDTO(this.verdi.toString())

@@ -106,7 +106,7 @@ internal fun Application.behandlingApi(
                                 InntektDataType -> DataTypeDTO.INNTEKT
                                 BarnDatatype -> DataTypeDTO.BARN
                                 Tekst -> DataTypeDTO.TEKST
-                                PeriodeDataType -> TODO()
+                                PeriodeDataType -> DataTypeDTO.PERIODE
                             },
                     )
                 }

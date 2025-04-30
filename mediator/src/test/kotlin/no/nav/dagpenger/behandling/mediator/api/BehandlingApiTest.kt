@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.api
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -31,10 +32,11 @@ import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
-import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
+import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
@@ -68,6 +70,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Minsteinntekt
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -251,6 +254,17 @@ internal class BehandlingApiTest {
     }
 
     @Test
+    fun `hent opplysningstyper`() {
+        medSikretBehandlingApi {
+            val response = autentisert("/opplysningstyper", httpMethod = HttpMethod.Get)
+            response.status shouldBe HttpStatusCode.OK
+            val opplysningstyper =
+                shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), object : TypeReference<List<OpplysningstypeDTO>>() {}) }
+            opplysningstyper.shouldNotBeEmpty()
+        }
+    }
+
+    @Test
     fun `hent behandlinger gitt person`() {
         medSikretBehandlingApi {
             val response = autentisert("/behandling", body = """{"ident":"$ident"}""")
@@ -298,9 +312,9 @@ internal class BehandlingApiTest {
                 with(opplysning(TestOpplysningstyper.beløpA.navn)) {
                     shouldNotBeNull()
                     verdi shouldBe "1000"
-                    val desimaltallVerdiDTO: DesimaltallVerdiDTO = verdien.shouldBeInstanceOf()
-                    desimaltallVerdiDTO.verdi shouldBe 1000
-                    desimaltallVerdiDTO.datatype shouldBe DataTypeDTO.DESIMALTALL
+                    val pengeVerdi: PengeVerdiDTO = verdien.shouldBeInstanceOf()
+                    pengeVerdi.verdi shouldBe 1000.toBigDecimal()
+                    pengeVerdi.datatype shouldBe DataTypeDTO.PENGER
                 }
                 with(opplysning(TestOpplysningstyper.boolsk.navn)) {
                     shouldNotBeNull()
@@ -340,9 +354,9 @@ internal class BehandlingApiTest {
                 with(opplysning(Minsteinntekt.inntekt12.navn)) {
                     shouldNotBeNull()
                     verdi shouldBe "3000.034"
-                    val desimaltallVerdiDTO: DesimaltallVerdiDTO = verdien.shouldBeInstanceOf()
-                    desimaltallVerdiDTO.verdi shouldBe 3000.034
-                    desimaltallVerdiDTO.datatype shouldBe DataTypeDTO.DESIMALTALL
+                    val pengeVerdi: PengeVerdiDTO = verdien.shouldBeInstanceOf()
+                    pengeVerdi.verdi shouldBe 3000.034.toBigDecimal()
+                    pengeVerdi.datatype shouldBe DataTypeDTO.PENGER
                 }
             }
 
@@ -592,7 +606,7 @@ internal class BehandlingApiTest {
         System.setProperty("Grupper.saksbehandler", "dagpenger-saksbehandler")
         TestApplication.withMockAuthServerAndTestApplication(
             moduleFunction = {
-                behandlingApi(personRepository, hendelseMediator, auditlogg, emptySet(), apiRepositoryPostgres) { rapid }
+                behandlingApi(personRepository, hendelseMediator, auditlogg, RegelverkDagpenger.produserer, apiRepositoryPostgres) { rapid }
             },
             test,
         )
