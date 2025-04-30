@@ -1,30 +1,30 @@
 package no.nav.dagpenger.behandling.modell
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 internal class IdentTest {
     @Test
     fun `personidentifikator består av 11 siffer`() {
-        Assertions.assertDoesNotThrow { "12345678901".tilPersonIdentfikator() }
-        assertThrows<IllegalArgumentException> { "123".tilPersonIdentfikator() }
-        assertThrows<IllegalArgumentException> { "ident".tilPersonIdentfikator() }
+        shouldNotThrowAny { "12345678901".tilPersonIdentfikator() }
+        shouldThrow<IllegalArgumentException> { "123".tilPersonIdentfikator() }
+        shouldThrow<IllegalArgumentException> { "ident".tilPersonIdentfikator() }
     }
 
     @Test
     fun ` likhet `() {
         val personIdent = "12345678901".tilPersonIdentfikator()
-        assertEquals(personIdent, personIdent)
-        assertEquals(personIdent.hashCode(), personIdent.hashCode())
-        assertEquals(personIdent, "12345678901".tilPersonIdentfikator())
-        assertEquals(personIdent.hashCode(), "12345678901".tilPersonIdentfikator().hashCode())
-        assertNotEquals(personIdent, "22345678901".tilPersonIdentfikator())
-        assertNotEquals("22345678901".tilPersonIdentfikator(), personIdent)
-        assertNotEquals(personIdent, Any())
-        assertNotEquals(personIdent, null)
+        personIdent shouldBe personIdent
+        personIdent.hashCode() shouldBe personIdent.hashCode()
+        personIdent shouldBe "12345678901".tilPersonIdentfikator()
+        personIdent.hashCode() shouldBe "12345678901".tilPersonIdentfikator().hashCode()
+        personIdent shouldNotBe "22345678901".tilPersonIdentfikator()
+        "22345678901".tilPersonIdentfikator() shouldNotBe personIdent
+        personIdent shouldNotBe Any()
+        personIdent shouldNotBe null
     }
 }

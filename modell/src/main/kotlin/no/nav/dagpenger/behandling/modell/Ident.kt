@@ -4,7 +4,7 @@ data class Ident(
     private val ident: String,
 ) {
     init {
-        require(ident.matches(Regex("\\d{11}"))) { "personident må ha 11 siffer" }
+        require(ident.matches(Regex("[0-9]{11}"))) { "Personident må ha 11 siffer" }
     }
 
     companion object {

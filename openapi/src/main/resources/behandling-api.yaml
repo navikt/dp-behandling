@@ -481,7 +481,7 @@ components:
       properties:
         ident:
           type: string
-          pattern: '^\d{11}$'
+          pattern: '^[0-9]{11}$'
         opplysninger:
           type: array
           items:
@@ -494,7 +494,7 @@ components:
       properties:
         ident:
           type: string
-          pattern: '^\d{11}$'
+          pattern: '^[0-9]{11}$'
 
     OppdaterOpplysning:
       type: object
@@ -1103,7 +1103,7 @@ components:
         ident:
           description: Person vedtak gjelder for
           type: string
-          pattern: '^\d{11}$'
+          pattern: '^[0-9]{11}$'
         vedtakstidspunkt:
           description: Når vedtaket ble fattet
           type: string
