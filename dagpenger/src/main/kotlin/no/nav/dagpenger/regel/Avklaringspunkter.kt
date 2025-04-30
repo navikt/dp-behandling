@@ -10,6 +10,13 @@ object Avklaringspunkter {
             beskrivelse = "Sjekk hvilke ytelser som er oppgitt utenfor folketrygden og om de skal ha konsekvens for dagpengene",
         )
 
+    val Samordning =
+        Avklaringkode(
+            kode = "Samordning",
+            tittel = "Sjekk om det er andre ytelser fra folketrygden som skal samordnes",
+            beskrivelse = "Sjekk om det er andre ytelser fra folketrygden som skal samordnes.",
+        )
+
     val FulleYtelser: Avklaringkode =
         Avklaringkode(
             kode = "FulleYtelser",
@@ -87,13 +94,6 @@ object Avklaringspunkter {
             kode = "MuligGjenopptak",
             tittel = "Sjekk om det er sak som kan gjenopptas i Arena",
             beskrivelse = "Personen har åpne saker i Arena som kan være gjenopptak. Saker som skal gjenopptas må håndteres i Arena.",
-        )
-
-    val Samordning =
-        Avklaringkode(
-            kode = "Samordning",
-            tittel = "Sjekk om det er andre ytelser fra folketrygden som skal samordnes",
-            beskrivelse = "Sjekk om det er andre ytelser fra folketrygden som skal samordnes.",
         )
 
     val InntektNesteKalendermåned =

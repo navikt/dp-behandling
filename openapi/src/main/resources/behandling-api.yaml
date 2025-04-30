@@ -1305,10 +1305,13 @@ components:
     Utbetaling:
       type: object
       required:
+        - meldeperiode
         - dato
         - sats
         - utbetaling
       properties:
+        meldeperiode:
+          type: string
         dato:
           type: string
           format: date

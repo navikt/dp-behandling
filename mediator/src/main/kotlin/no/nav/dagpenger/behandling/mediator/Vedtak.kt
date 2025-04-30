@@ -37,6 +37,7 @@ import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -149,15 +150,21 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
     )
 }
 
-private fun LesbarOpplysninger.utbetalinger() =
-    finnAlle().filter { it.er(Beregning.utbetaling) }.filterIsInstance<Opplysning<Int>>().map {
+private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
+    val meldeperioder: List<Opplysning<*>> = finnAlle(listOf(Beregning.meldeperiode))
+
+    return finnAlle(listOf(Beregning.utbetaling)).filterIsInstance<Opplysning<Int>>().map { dag ->
         val sats = finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi
+        val periode: Opplysning<*> = meldeperioder.first { it.gyldighetsperiode.overlapp(dag.gyldighetsperiode) }
+
         UtbetalingDTO(
-            dato = it.gyldighetsperiode.fom,
+            meldeperiode = periode.verdi.hashCode().toString(),
+            dato = dag.gyldighetsperiode.fom,
             sats = sats.verdien.toInt(),
-            utbetaling = it.verdi,
+            utbetaling = dag.verdi,
         )
     }
+}
 
 private fun vedtakFastsattDTO(
     utfall: Boolean,

@@ -991,6 +991,8 @@ internal class PersonMediatorTest {
                     .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
                 opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe forbrukt
             }
+
+            vedtakJson()
         }
     }
 
@@ -1042,19 +1044,15 @@ internal class PersonMediatorTest {
     }
 
     private fun vedtakJson() =
-        personRepository.hent(ident.tilPersonIdentfikator()).run {
-            shouldNotBeNull()
+        with(personRepository.hent(ident.tilPersonIdentfikator())!!.aktivBehandling) {
+            val vedtak =
+                vedtakopplysninger.lagVedtakDTO(
+                    behandler.ident.tilPersonIdentfikator(),
+                )
 
-            behandlinger().first().run {
-                val vedtak =
-                    vedtakopplysninger.lagVedtakDTO(
-                        behandler.ident.tilPersonIdentfikator(),
-                    )
-
-                // Dette er vedtaket som brukes i dp-arena-sink: vedtak_fattet_innvilgelse.json
-                JsonMessage.newMessage("vedtak_fattet", vedtak.toMap()).toJson().also {
-                    println(it)
-                }
+            // Dette er vedtaket som brukes i dp-arena-sink: vedtak_fattet_innvilgelse.json
+            JsonMessage.newMessage("vedtak_fattet", vedtak.toMap()).toJson().also {
+                println(it)
             }
         }
 

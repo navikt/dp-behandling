@@ -18,6 +18,7 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
@@ -124,20 +125,16 @@ class BeregnMeldekortHendelse(
             val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger(), rettighetstatus)
             val periode = fabrikk.lagBeregningsperiode()
             val forbruksdager = periode.forbruksdager
-            forbruksdager.forEachIndexed { index, dag ->
-                val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
-                opplysninger.leggTil(Faktum(forbruk, true, gyldighetsperiode))
-                opplysninger.leggTil(Faktum(Beregning.utbetaling, dag.tilUtbetaling.roundToInt(), gyldighetsperiode))
-            }
 
             meldekort
                 .periode()
-                .filter { dato ->
-                    forbruksdager.none { forbruksdag -> dato == forbruksdag.dato }
-                }.forEach { dato ->
+                .forEach { dato ->
+                    val tilUtbetaling = forbruksdager.singleOrNull { it.dato == dato }?.tilUtbetaling?.roundToInt() ?: 0
                     val gyldighetsperiode = Gyldighetsperiode(dato, dato)
-                    opplysninger.leggTil(Faktum(forbruk, false, gyldighetsperiode))
-                    opplysninger.leggTil(Faktum(Beregning.utbetaling, 0, gyldighetsperiode))
+
+                    val erForbruk = tilUtbetaling > 0
+                    opplysninger.leggTil(Faktum(forbruk, erForbruk, gyldighetsperiode))
+                    opplysninger.leggTil(Faktum(Beregning.utbetaling, tilUtbetaling, gyldighetsperiode))
                 }
         }
     }
