@@ -1071,10 +1071,6 @@ internal class PersonMediatorTest {
         løsBehandlingFramTil(testPerson, Behandlingslengde.Minsteinntekt)
     }
 
-    private fun løsBehandlingFramTilAvbruddInntekt(testPerson: TestPerson) {
-        løsBehandlingFramTil(testPerson, Behandlingslengde.AvbruddInntekt)
-    }
-
     private fun løsBehandlingFramTilInnvilgelse(testPerson: TestPerson) {
         løsBehandlingFramTil(testPerson, Behandlingslengde.KravPåDagpenger)
     }

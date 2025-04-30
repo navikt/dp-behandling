@@ -47,19 +47,13 @@ internal class Beregningsperiode private constructor(
     }
 
     private fun beregnUtbetaling(arbeidsdager: List<Arbeidsdag>): Double {
-        val fordeling = fordelBeløpPåDager(arbeidsdager)
+        val fordeling = beregnDagsløp(arbeidsdager)
         val trekkEgenandel = fordelEgenandel(fordeling)
         return trekkEgenandel.sumOf(Arbeidsdag::tilUtbetaling)
     }
 
-    private fun fordelBeløpPåDager(arbeidsdager: List<Arbeidsdag>): List<Arbeidsdag> =
-        arbeidsdager
-            .groupBy { it.sats }
-            .flatMap { (sats, dagerMedDenneSatsen) ->
-                val sumForPeriode = (sats * dagerMedDenneSatsen.size) * prosentfaktor
-                val sumForDag = sumForPeriode / dagerMedDenneSatsen.size
-                dagerMedDenneSatsen.onEach { it.dagsbeløp = sumForDag }
-            }
+    private fun beregnDagsløp(arbeidsdager: List<Arbeidsdag>): List<Arbeidsdag> =
+        arbeidsdager.onEach { it.dagsbeløp = it.sats * prosentfaktor }
 
     private fun fordelEgenandel(fordeling: List<Arbeidsdag>): List<Arbeidsdag> {
         val totalTilUtbetaling = fordeling.sumOf { it.dagsbeløp }

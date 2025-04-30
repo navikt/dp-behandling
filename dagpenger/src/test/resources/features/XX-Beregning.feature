@@ -80,7 +80,7 @@ Egenskap: Beregning av meldekort
       | Lørdag  | Arbeidstimer | 0     |
       | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
-    Og utbetales 754,1333333333331 kroner
+    Og utbetales 754,1333333333333 kroner
     Og det forbrukes 10 dager
 
   Scenario: Jobbet under terskel og får 50% gradert utbetaling med endring av sats midt i perioden
@@ -399,6 +399,8 @@ Egenskap: Beregning av meldekort
     Så skal kravet til tapt arbeidstid være oppfylt
     Og det forbrukes 10 dager
     Og det forbrukes 3000 i egenandel
+    Og det trekkes 545,4545454545455 kroner i egenandel på dag 1
+    Og det trekkes 54,54545454545454 kroner i egenandel på dag 10
     Og gjenstår 0 i egenandel
     Og utbetales 2500,0 kroner
     Og utbetales 454,5454545454545 kroner på dag 1

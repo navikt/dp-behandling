@@ -83,6 +83,9 @@ class BeregningSteg : No {
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
             beregning.forbruksdager.sumOf { it.forbruktEgenandel } shouldBe forbruktEgenandel.toDouble()
         }
+        Så("det trekkes {double} kroner i egenandel på dag {int}") { egenandel: Double, dag: Int ->
+            beregning.forbruksdager[dag - 1].forbruktEgenandel shouldBe egenandel
+        }
         Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
             val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
             val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel }
