@@ -27,6 +27,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Behov.Inntekt
 import no.nav.dagpenger.regel.Behov.OpptjeningsperiodeFraOgMed
+import no.nav.dagpenger.regel.Gjenopptak.skalBehandlesSomGjenopptak
 import no.nav.dagpenger.regel.GrenseverdierForMinsteArbeidsinntekt.finnTerskel
 import no.nav.dagpenger.regel.OpplysningsTyper.BruttoArbeidsinntektId
 import no.nav.dagpenger.regel.OpplysningsTyper.FørsteMånedAvOpptjeningsperiodeId
@@ -75,7 +76,7 @@ object Minsteinntekt {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
-            skalVurderes { it.oppfyller(kravTilAlder) }
+            skalVurderes { it.oppfyller(kravTilAlder) && !it.oppfyller(skalBehandlesSomGjenopptak) }
 
             regel(maksPeriodeLengde) { oppslag(prøvingsdato) { 36 } }
             regel(førsteMånedAvOpptjeningsperiode) { trekkFraMånedTilFørste(sisteAvsluttendendeKalenderMåned, maksPeriodeLengde) }
@@ -123,25 +124,18 @@ object Minsteinntekt {
             }
         }
 
-    private fun grunnbeløpFor(it: LocalDate) =
-        getGrunnbeløpForRegel(Regel.Minsteinntekt)
-            .forDato(it)
-            .verdi
-            .let { Beløp(it) }
+    private fun grunnbeløpFor(it: LocalDate) = getGrunnbeløpForRegel(Regel.Minsteinntekt).forDato(it).verdi.let { Beløp(it) }
 
     val SvangerskapsrelaterteSykepengerKontroll =
         Kontrollpunkt(Avklaringspunkter.SvangerskapsrelaterteSykepenger) {
             it.har(inntektFraSkatt) && it.finnOpplysning(minsteinntekt).verdi == false
         }
 
-    val EØSArbeidKontroll =
-        Kontrollpunkt(Avklaringspunkter.EØSArbeid) { it.har(inntektFraSkatt) }
+    val EØSArbeidKontroll = Kontrollpunkt(Avklaringspunkter.EØSArbeid) { it.har(inntektFraSkatt) }
 
-    val JobbetUtenforNorgeKontroll =
-        Kontrollpunkt(Avklaringspunkter.JobbetUtenforNorge) { it.har(inntektFraSkatt) }
+    val JobbetUtenforNorgeKontroll = Kontrollpunkt(Avklaringspunkter.JobbetUtenforNorge) { it.har(inntektFraSkatt) }
 
-    val InntektNesteKalendermånedKontroll =
-        Kontrollpunkt(Avklaringspunkter.InntektNesteKalendermåned) { it.har(inntektFraSkatt) }
+    val InntektNesteKalendermånedKontroll = Kontrollpunkt(Avklaringspunkter.InntektNesteKalendermåned) { it.har(inntektFraSkatt) }
 
     val ØnskerEtterRapporteringsfristKontroll =
         Kontrollpunkt(Avklaringspunkter.ØnskerEtterRapporteringsfrist) {

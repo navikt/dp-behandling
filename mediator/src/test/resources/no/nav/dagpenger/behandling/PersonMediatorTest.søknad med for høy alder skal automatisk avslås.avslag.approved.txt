@@ -1,6 +1,7 @@
 fagsakId
 søknadId
 hendelseType
+Skal behandles som gjenopptak
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato

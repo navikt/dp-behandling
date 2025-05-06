@@ -312,6 +312,11 @@ object OpplysningsTyper {
 
     // Hendelser
     val HendelseTypeId = Opplysningstype.Id(UUID.fromString("01958ef2-e237-77c4-89e1-de91256e2e4a"), Tekst)
+
+    // Gjenopptak
+    val SøkerOmGjenopptakId = Opplysningstype.Id(UUID.fromString("0196a4c6-54ea-7b7a-8e2a-8259acad266d"), Boolsk)
+    val OppfyllerKravTilGjenopptakId = Opplysningstype.Id(UUID.fromString("0196a4c6-8534-7d83-a9a9-708ae213cbd1"), Boolsk)
+    val SkalBehandlesSomGjenopptakId = Opplysningstype.Id(UUID.fromString("0196a4c6-a99c-7d0a-98c8-3882f7d0f097"), Boolsk)
 }
 
 /**

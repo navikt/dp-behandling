@@ -66,27 +66,26 @@ class Behandling private constructor(
     )
 
     init {
-        require(basertPå.all { it.tilstand is Ferdig }) {
-            "Kan ikke basere en ny behandling på en som ikke er ferdig"
-        }
+        require(basertPå.all { it.tilstand is Ferdig }) { "Kan ikke basere en ny behandling på en som ikke er ferdig" }
     }
 
     private val observatører = mutableListOf<BehandlingObservatør>()
 
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
 
-    val vedtakopplysninger get() =
-        Resultat(
-            behandlingId = behandlingId,
-            basertPåBehandlinger = basertPåBehandlinger(),
-            utfall = behandler.utfall(opplysninger()),
-            virkningsdato = behandler.virkningsdato(opplysninger()),
-            behandlingAv = behandler,
-            opplysninger = opplysninger,
-            automatiskBehandlet = erAutomatiskBehandlet(),
-            godkjentAv = godkjent,
-            besluttetAv = besluttet,
-        )
+    val vedtakopplysninger
+        get() =
+            Resultat(
+                behandlingId = behandlingId,
+                basertPåBehandlinger = basertPåBehandlinger(),
+                utfall = behandler.utfall(opplysninger()),
+                virkningsdato = behandler.virkningsdato(opplysninger()),
+                behandlingAv = behandler,
+                opplysninger = opplysninger,
+                automatiskBehandlet = erAutomatiskBehandlet(),
+                godkjentAv = godkjent,
+                besluttetAv = besluttet,
+            )
 
     data class Resultat(
         override val behandlingId: UUID,
@@ -160,8 +159,6 @@ class Behandling private constructor(
     }
 
     fun tilstand() = Pair(tilstand.type, tilstand.opprettet)
-
-    val sistEndret get() = tilstand.opprettet
 
     fun harTilstand(tilstand: TilstandType) = this.tilstand.type == tilstand
 

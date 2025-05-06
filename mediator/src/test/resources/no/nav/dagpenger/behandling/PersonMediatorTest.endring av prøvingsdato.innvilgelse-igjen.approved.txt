@@ -1,6 +1,7 @@
 fagsakId
 søknadId
 hendelseType
+Skal behandles som gjenopptak
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
@@ -71,6 +72,8 @@ Mottar ikke andre fulle ytelser
 Opphold i Norge
 Oppfyller unntak for opphold i Norge
 Er personen medlem av folketrygden
+Årsaken til permitteringen er godkjent
+Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søk arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
@@ -105,8 +108,6 @@ Deltar i høyere utdanning
 Deltar på kurs mv
 Bruker er utestengt fra dagpenger
 Periode som gis ved verneplikt
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
 6 ganger grunnbeløp
@@ -122,6 +123,7 @@ Terskel for 36 måneder
 Oppfyller kravet til permittering i fiskeindustrien
 Oppfyller kravet til opphold i Norge eller unntak
 Oppfyller kravet til medlemskap
+Oppfyller kravet til permittering
 Oppfyller kravet til heltid- og deltidsarbeid
 Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
@@ -133,7 +135,6 @@ Krav til prosentvis tap av arbeidstid
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
-Oppfyller kravet til permittering
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Grunnlag for verneplikt hvis kravet er oppfylt

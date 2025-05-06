@@ -28,7 +28,6 @@ object Permittering {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering")) {
-
             skalVurderes { it.erSann(kravTilAlder) }
 
             regel(godkjentPermitteringsårsak) { oppslag(prøvingsdato) { true } }
