@@ -4,6 +4,7 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
+import no.nav.dagpenger.opplysning.regel.dato.prøvingsdato
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -34,7 +35,7 @@ object Søknadstidspunkt {
             regel(søknadsdato) { innhentMed(søknadIdOpplysningstype) }
             regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
-            regel(prøvingsdato) { sisteAv(søknadstidspunkt) }
+            regel(prøvingsdato) { prøvingsdato(søknadstidspunkt) }
         }
 
     val SøknadstidspunktForLangtFramITid =

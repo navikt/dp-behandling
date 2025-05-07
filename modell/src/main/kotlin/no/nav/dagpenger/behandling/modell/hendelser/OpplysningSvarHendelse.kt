@@ -44,13 +44,21 @@ data class OpplysningSvar<T : Comparable<T>>(
     }
 
     fun leggTil(opplysninger: Opplysninger): Opplysning<T> {
-        val gyldighetsperiode = gyldighetsperiode ?: Gyldighetsperiode()
-        // TODO: Denne må være smartere
+        val basertPå = utledetAv.map { opplysninger.finnOpplysning(it) }
         val utledning =
-            if (utledetAv.isEmpty()) {
+            if (basertPå.isEmpty()) {
                 null
             } else {
-                Utledning("innhentMed", utledetAv.map { opplysninger.finnOpplysning(it) })
+                Utledning("innhentMed", basertPå)
+            }
+        val gyldighetsperiode =
+            if (basertPå.isEmpty()) {
+                gyldighetsperiode ?: Gyldighetsperiode()
+            } else {
+                Gyldighetsperiode(
+                    fom = basertPå.maxOf { it.gyldighetsperiode.fom },
+                    tom = basertPå.minOf { it.gyldighetsperiode.tom },
+                )
             }
         val opplysning =
             when (tilstand) {

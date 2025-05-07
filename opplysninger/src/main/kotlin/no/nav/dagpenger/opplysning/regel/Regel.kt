@@ -96,10 +96,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
         val erAlleFaktum = basertPå.all { it is Faktum<*> }
         val utledetAv = Utledning(this, basertPå)
         val gyldig =
-            Gyldighetsperiode(
-                fom = basertPå.maxOf { it.gyldighetsperiode.fom },
-                tom = basertPå.minOf { it.gyldighetsperiode.tom },
-            )
+            gyldighetsperiode(basertPå)
         return when (erAlleFaktum) {
             true -> Faktum(opplysningstype = produserer, verdi = kjør(opplysninger), utledetAv = utledetAv, gyldighetsperiode = gyldig)
             false ->
@@ -111,6 +108,12 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 )
         }
     }
+
+    protected open fun gyldighetsperiode(basertPå: List<Opplysning<*>>) =
+        Gyldighetsperiode(
+            fom = basertPå.maxOf { it.gyldighetsperiode.fom },
+            tom = basertPå.minOf { it.gyldighetsperiode.tom },
+        )
 
     private fun requireAlleAvhengigheter(basertPå: List<Opplysning<*>>) =
         require(basertPå.size == avhengerAv.size) {

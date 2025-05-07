@@ -1084,12 +1084,6 @@ internal class PersonMediatorTest {
         rapid.harHendelse("behandling_opprettet", offset = 3)
 
         /**
-         * Innhenter rettighetstype
-         */
-        println("FU")
-        // rapid.harBehov(Ordinær, Permittert, Lønnsgaranti, PermittertFiskeforedling)
-
-        /**
          * Fastsetter søknadsdato
          */
         rapid.harBehov("Søknadsdato") {

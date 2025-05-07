@@ -17,7 +17,7 @@ class OpplysningSvarBygger<T : Comparable<T>>(
     private val verdi: VerdiMapper,
     private val kilde: Kilde,
     private val tilstand: OpplysningSvar.Tilstand,
-    private val gyldighetsperiode: Gyldighetsperiode,
+    private val gyldighetsperiode: Gyldighetsperiode?,
     private val utledetAv: List<UUID>,
 ) {
     fun opplysningSvar() =

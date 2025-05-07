@@ -96,7 +96,10 @@ class Regelkjøring(
     }
 
     private fun aktiverRegler(prøvingsdato: LocalDate) {
-        opplysningerPåPrøvingsdato = opplysninger.forDato(prøvingsdato)
+        opplysningerPåPrøvingsdato =
+            opplysninger.forDato(
+                opplysninger.finnAlle().singleOrNull { it.opplysningstype.navn == "Prøvingsdato" }?.verdi as? LocalDate ?: prøvingsdato,
+            )
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = gjeldendeRegler.associateBy { it.produserer }
         val besøkt = mutableSetOf<Regel<*>>()

@@ -228,7 +228,7 @@ private fun interface SvarStrategi {
                 } else if (gyldigTilOgMed != null) {
                     Gyldighetsperiode(tom = gyldigTilOgMed)
                 } else {
-                    Gyldighetsperiode()
+                    null
                 }
     }
 }
