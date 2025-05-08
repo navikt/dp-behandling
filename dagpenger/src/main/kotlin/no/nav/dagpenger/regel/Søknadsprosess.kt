@@ -23,6 +23,7 @@ import no.nav.dagpenger.regel.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.Søknadstidspunkt.SøknadstidspunktForLangtFramITid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstidKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKontroll
 import no.nav.dagpenger.regel.fastsetting.NyttGrunnbeløpForGrunnlag
@@ -50,6 +51,7 @@ class Søknadsprosess : RegistrertForretningsprosess() {
             SvangerskapsrelaterteSykepengerKontroll,
             SøknadstidspunktForLangtFramITid,
             TapArbeidstidBeregningsregelKontroll,
+            beregnetArbeidstidKontroll,
             Under18Kontroll,
             VernepliktKontroll,
             YtelserUtenforFolketrygdenKontroll,

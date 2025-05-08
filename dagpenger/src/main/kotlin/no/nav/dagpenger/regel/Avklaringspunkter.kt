@@ -60,6 +60,16 @@ object Avklaringspunkter {
                 """.trimIndent(),
         )
 
+    val BeregnetArbeidstid =
+        Avklaringkode(
+            kode = "BeregnetArbeidstid",
+            tittel = "Sjekk om beregnet arbeidstid er korrekt",
+            beskrivelse =
+                """
+                Sjekk at beregnet arbeidstid er korrekt
+                """.trimIndent(),
+        )
+
     val EØSArbeid =
         Avklaringkode(
             kode = "EØSArbeid",

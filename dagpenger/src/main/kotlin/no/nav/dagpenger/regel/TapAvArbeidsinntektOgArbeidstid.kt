@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.prosentTerskel
+import no.nav.dagpenger.regel.Avklaringspunkter.BeregnetArbeidstid
 import no.nav.dagpenger.regel.Avklaringspunkter.TapAvArbeidstidBeregningsregel
 import no.nav.dagpenger.regel.Behov.HarTaptArbeid
 import no.nav.dagpenger.regel.Behov.KravPåLønn
@@ -138,7 +139,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(beregningsregel36mnd) { oppslag(prøvingsdato) { false } }
 
             // TODO: Bør hentes fra noe
-            regel(beregnetArbeidstid) { oppslag(prøvingsdato) { 37.5 } } // TODO: Satt til 37.5 for testing av innvilgelse
+            regel(beregnetArbeidstid) { oppslag(prøvingsdato) { 37.5 } }
 
             // FVA fra verneplikt overstyrer ordinær FVA om verneplikt er gunstigst
             regel(ordinærEllerVernepliktArbeidstid) {
@@ -157,8 +158,14 @@ object TapAvArbeidsinntektOgArbeidstid {
             }
 
             avklaring(TapAvArbeidstidBeregningsregel)
+            avklaring(BeregnetArbeidstid)
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+        }
+
+    val beregnetArbeidstidKontroll =
+        Kontrollpunkt(sjekker = BeregnetArbeidstid) { opplysninger ->
+            opplysninger.har(beregnetArbeidstid)
         }
 
     val TapArbeidstidBeregningsregelKontroll =
