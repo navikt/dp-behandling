@@ -237,3 +237,4 @@ Dette er opplysninger som blir brukt av regelverket.
 |0195235a-599b-7b27-97a8-bc6142066a87|Periode som gis ved permittering fra fiskeindustrien|Periode som gis ved permittering fra fiskeindustrien|Heltall|int|
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Tre ganger dagsats|Penger|Beløp|
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Ingen egenandel|Penger|Beløp|
+|0196ab10-0cff-7301-99d6-65be50a50201|Bostedsland er Norge|BostedslandErNorge|Boolsk|boolean|

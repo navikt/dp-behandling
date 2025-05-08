@@ -54,6 +54,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.Barnetillegg
+import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.regel.Behov.Foreldrepenger
 import no.nav.dagpenger.regel.Behov.HelseTilAlleTyperJobb
 import no.nav.dagpenger.regel.Behov.Inntekt
@@ -398,7 +399,7 @@ internal class PersonMediatorTest {
             }
 
             // TODO: Beregningsmetode for tapt arbeidstid har defaultverdi for testing av innvilgelse og derfor mangler avklaringen
-            rapid.inspektør.size shouldBe 21
+            rapid.inspektør.size shouldBe 22
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
@@ -1152,6 +1153,12 @@ internal class PersonMediatorTest {
         if (behandlingslengde == Behandlingslengde.Minsteinntekt) {
             return
         }
+
+        /**
+         * Henter inn bostedland
+         */
+        rapid.harBehov(BostedslandErNorge)
+        testPerson.løsBehov(BostedslandErNorge)
 
         /**
          * Innhenter tar utdanning eller opplæring

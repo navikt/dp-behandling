@@ -42,6 +42,8 @@ object Behov {
 
     val OppgittAndreYtelserUtenforNav by StringConstant()
     val AndreØkonomiskeYtelser by StringConstant()
+
+    val BostedslandErNorge by StringConstant()
 }
 
 class StringConstant {

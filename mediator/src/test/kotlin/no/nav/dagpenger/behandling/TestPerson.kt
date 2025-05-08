@@ -18,6 +18,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.Barnetillegg
+import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.regel.Behov.Foreldrepenger
 import no.nav.dagpenger.regel.Behov.HelseTilAlleTyperJobb
 import no.nav.dagpenger.regel.Behov.Inntekt
@@ -328,6 +329,7 @@ class TestPerson(
                 // Verneplikt
                 Verneplikt to søkerVerneplikt,
                 TarUtdanningEllerOpplæring to false,
+                BostedslandErNorge to true,
                 Barnetillegg to
                     mapOf(
                         "verdi" to

@@ -48,7 +48,6 @@ Arbeidsinntekt er over kravet for siste 12 mnd
 Arbeidsinntekt er over kravet for siste 36 mnd
 Oppfyller kravet til minsteinntekt
 Mottar ikke andre fulle ytelser
-Opphold i Norge
 Oppfyller unntak for opphold i Norge
 Er personen medlem av folketrygden
 Grunnbeløp for grunnlag
@@ -89,7 +88,6 @@ Deltar i høyere yrkesfaglig utdanning
 Deltar i høyere utdanning
 Deltar på kurs mv
 Bruker er utestengt fra dagpenger
-Oppfyller kravet til opphold i Norge eller unntak
 Oppfyller kravet til medlemskap
 Oppjustert inntekt
 6 ganger grunnbeløp
@@ -101,7 +99,6 @@ Krav til prosentvis tap av arbeidstid
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
-Oppfyller kravet til opphold i Norge
 Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
@@ -139,6 +136,10 @@ Fastsatt arbeidstid per uke før tap
 Krav til arbeidssøker
 Tap av arbeidstid er minst terskel
 Krav til tap av arbeidsinntekt og arbeidstid
+Bostedsland er Norge
+Opphold i Norge
+Oppfyller kravet til opphold i Norge eller unntak
+Oppfyller kravet til opphold i Norge
 Tar utdanning eller opplæring?
 Har svart ja på spørsmål om utdanning eller opplæring
 Har svart nei på spørsmål om utdanning eller opplæring
