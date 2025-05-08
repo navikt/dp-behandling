@@ -51,6 +51,8 @@ object Opphold {
 
             utfall(oppfyllerKravet) { alle(oppfyllerKravetTilOpphold, oppfyllerMedlemskap) }
 
+            avklaring(Bostedsland)
+
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
         }
 
