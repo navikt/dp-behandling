@@ -23,7 +23,6 @@ import no.nav.dagpenger.regel.RegistrertArbeidssøker.IkkeRegistrertSomArbeidsø
 import no.nav.dagpenger.regel.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.Søknadstidspunkt.SøknadstidspunktForLangtFramITid
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstidKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
@@ -40,9 +39,8 @@ class Søknadsprosess : RegistrertForretningsprosess() {
             virkningsdato(opplysninger),
             opplysninger,
             this,
-        ) {
-            forDato(prøvingsdato(this))
-        }
+            opplysningerGyldigPåPrøvingsdato,
+        )
 
     override fun kontrollpunkter() =
         listOf(
@@ -87,6 +85,9 @@ class Søknadsprosess : RegistrertForretningsprosess() {
         regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMap {
             it.ønsketInformasjon
         }
+
+    private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
+        { forDato(prøvingsdato(this)) }
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
         if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
