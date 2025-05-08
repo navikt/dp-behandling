@@ -7,6 +7,8 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.addisjon
 import no.nav.dagpenger.opplysning.regel.enAv
+import no.nav.dagpenger.opplysning.regel.erSann
+import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
@@ -32,11 +34,14 @@ import no.nav.dagpenger.regel.OpplysningsTyper.samordnetDagsatsErNegativEller0Id
 import no.nav.dagpenger.regel.OpplysningsTyper.samordnetDagsatsUtenBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.samordnetFastsattArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalSamordnesId
+import no.nav.dagpenger.regel.OpplysningsTyper.skalUføreSamordnesId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumAndreYtelserId
+import no.nav.dagpenger.regel.OpplysningsTyper.sumHvisUføreIkkeSkalSamordnesId
 import no.nav.dagpenger.regel.OpplysningsTyper.svangerskapspengerDagsatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.svangerskapspengerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sykepengerDagsatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.sykepengerId
+import no.nav.dagpenger.regel.OpplysningsTyper.uføreBeløpSomSkalSamordnesId
 import no.nav.dagpenger.regel.OpplysningsTyper.uføreDagsatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.uføreId
 import no.nav.dagpenger.regel.OpplysningsTyper.utfallEtterSamordningId
@@ -62,6 +67,13 @@ object Samordning {
             behovId = Opplæringspenger,
         )
     val uføre = Opplysningstype.boolsk(uføreId, "Uføretrygd etter lovens kapittel 12", behovId = Uføre)
+    val skalUføreSamordnes =
+        Opplysningstype.boolsk(
+            skalUføreSamordnesId,
+            "Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår",
+        )
+    val uføreBeløpSomSkalSamordnes = Opplysningstype.beløp(uføreBeløpSomSkalSamordnesId, "Uførebeløp som skal samordnes")
+    val sumHvisUføreIkkeSkalSamordnes = Opplysningstype.beløp(sumHvisUføreIkkeSkalSamordnesId, "Sum hvis Uføre ikke skal samordnes")
     val foreldrepenger = Opplysningstype.boolsk(foreldrepengerId, "Foreldrepenger etter lovens kapittel 14", behovId = Foreldrepenger)
     val svangerskapspenger =
         Opplysningstype.boolsk(
@@ -143,6 +155,7 @@ object Samordning {
 
             // TODO: Hent uførestrygd og barnepenger fra pesys
             regel(uføre) { oppslag(prøvingsdato) { false } }
+            regel(skalUføreSamordnes) { erSann(uføre) }
 
             regel(samordnetArbeidstid) { oppslag(prøvingsdato) { 0.0 } }
             regel(samordnetBeregnetArbeidstid) { substraksjonTilNull(beregnetArbeidstid, samordnetArbeidstid) }
@@ -154,13 +167,22 @@ object Samordning {
             regel(uføreDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
             regel(svangerskapspengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
             regel(foreldrepengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
+
+            regel(sumHvisUføreIkkeSkalSamordnes) { oppslag(prøvingsdato) { Beløp(0.0) } }
+            regel(uføreBeløpSomSkalSamordnes) {
+                hvisSannMedResultat(
+                    skalUføreSamordnes,
+                    uføreDagsats,
+                    sumHvisUføreIkkeSkalSamordnes,
+                )
+            }
             regel(sumAndreYtelser) {
                 addisjon(
                     sykepengerDagsats,
                     pleiepengerDagsats,
                     omsorgspengerDagsats,
                     opplæringspengerDagsats,
-                    uføreDagsats,
+                    uføreBeløpSomSkalSamordnes,
                     foreldrepengerDagsats,
                     svangerskapspengerDagsats,
                 )
@@ -177,7 +199,7 @@ object Samordning {
                     pleiepenger,
                     omsorgspenger,
                     opplæringspenger,
-                    uføre,
+                    skalUføreSamordnes,
                     foreldrepenger,
                     svangerskapspenger,
                 )

@@ -42,7 +42,9 @@ Antall arbeidsdager per år
 Pleiepenger dagsats
 Omsorgspenger dagsats
 Opplæringspenger dagsats
+Uføretrygd etter lovens kapittel 12
 Uføre dagsats
+Sum hvis Uføre ikke skal samordnes
 Foreldrepenger dagsats
 Svangerskapspenger dagsats
 Antall arbeidsdager per uke
@@ -82,7 +84,6 @@ Mottar vartpenger
 Mottar ventelønn
 Mottar etterlønn
 Mottar garantilott fra Garantikassen for fiskere.
-Uføretrygd etter lovens kapittel 12
 Deltar medlemmet i streik eller er omfattet av lock-out?
 Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?
 Har tapt arbeid
@@ -112,7 +113,7 @@ Arbeidsgivers rapporteringsfrist
 6 ganger grunnbeløp
 Grunnlag for gis ved verneplikt
 Sum av barnetillegg
-Sum andre ytelser
+Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
 Beløp tilsvarende nedre terskel av G
 Sum av ytelser utenfor folketrygden
 Inntektskrav for siste 12 mnd
@@ -137,6 +138,7 @@ Oppfyller kravet til permittering
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
 Grunnlag for verneplikt hvis kravet er oppfylt
+Uførebeløp som skal samordnes
 Oppfyller kravet til opphold i Norge
 Krav til arbeidssøker
 Har barnetillegg
@@ -144,6 +146,7 @@ Krav til tap av arbeidsinntekt
 Oppfyller kravet på unntak for utdanning eller opplæring
 Oppfyller kravet til alder
 Første måned av opptjeningsperiode
+Sum andre ytelser
 Krav til utdanning eller opplæring
 Inntektsopplysninger
 Registrert som arbeidssøker

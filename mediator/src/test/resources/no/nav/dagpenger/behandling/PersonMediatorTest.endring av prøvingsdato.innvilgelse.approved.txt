@@ -64,10 +64,11 @@ Antall arbeidsdager per år
 Pleiepenger dagsats
 Omsorgspenger dagsats
 Opplæringspenger dagsats
+Uføretrygd etter lovens kapittel 12
 Uføre dagsats
+Sum hvis Uføre ikke skal samordnes
 Foreldrepenger dagsats
 Svangerskapspenger dagsats
-Uføretrygd etter lovens kapittel 12
 Deltar medlemmet i streik eller er omfattet av lock-out?
 Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?
 Har tapt arbeid
@@ -94,6 +95,7 @@ Oppfyller kravet til medlemskap
 Oppjustert inntekt
 6 ganger grunnbeløp
 Grunnlag for gis ved verneplikt
+Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
 Er medlemmet ikke påvirket av streik eller lock-out?
 Ikke krav på lønn fra tidligere arbeidsgiver
 Samordnet fastsatt arbeidstid
@@ -105,6 +107,7 @@ Oppfyller kravet til opphold i Norge
 Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
+Uførebeløp som skal samordnes
 Krav til tap av arbeidsinntekt
 Grunnlag siste 12 mnd.
 Avkortet inntektperiode 1
