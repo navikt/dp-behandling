@@ -5,6 +5,7 @@ import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.juni
 import no.nav.dagpenger.dato.mai
+import no.nav.dagpenger.features.utils.opplysningerTilRegelkjøring
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -33,13 +34,12 @@ class SamordningUtenforFolketrygdenSteg : No {
     @BeforeStep
     fun kjørRegler() {
         regelkjøring =
-            Regelkjøring(fraDato, opplysninger, {
-                if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
-                    forDato(finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi)
-                } else {
-                    forDato(it)
-                }
-            }, *regelsett.toTypedArray())
+            Regelkjøring(
+                fraDato,
+                opplysninger,
+                opplysningerTilRegelkjøring,
+                *regelsett.toTypedArray(),
+            )
     }
 
     init {
