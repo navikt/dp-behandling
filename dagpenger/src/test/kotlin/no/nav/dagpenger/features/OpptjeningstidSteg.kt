@@ -16,7 +16,19 @@ class OpptjeningstidSteg : No {
     private val opplysninger = Opplysninger()
 
     init {
-        val regelkjøring = Regelkjøring(forDato, opplysninger, *regelsett.toTypedArray())
+        val regelkjøring =
+            Regelkjøring(
+                forDato,
+                opplysninger,
+                {
+                    if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
+                        forDato(finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi)
+                    } else {
+                        forDato(it)
+                    }
+                },
+                *regelsett.toTypedArray(),
+            )
 
         Gitt(
             "at søknadstidspunktet er {dato}",

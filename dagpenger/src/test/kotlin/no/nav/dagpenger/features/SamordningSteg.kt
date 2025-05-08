@@ -30,7 +30,14 @@ class SamordningSteg : No {
 
     @BeforeStep
     fun kjørRegler() {
-        regelkjøring = Regelkjøring(fraDato, opplysninger, *regelsett.toTypedArray())
+        regelkjøring =
+            Regelkjøring(fraDato, opplysninger, {
+                if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
+                    forDato(finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi)
+                } else {
+                    forDato(it)
+                }
+            }, *regelsett.toTypedArray())
     }
 
     init {

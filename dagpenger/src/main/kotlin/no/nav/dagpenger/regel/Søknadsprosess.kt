@@ -23,6 +23,7 @@ import no.nav.dagpenger.regel.RegistrertArbeidssøker.IkkeRegistrertSomArbeidsø
 import no.nav.dagpenger.regel.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.Søknadstidspunkt.SøknadstidspunktForLangtFramITid
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstidKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
@@ -34,7 +35,14 @@ import java.time.LocalDate
 class Søknadsprosess : RegistrertForretningsprosess() {
     override val regelverk = RegelverkDagpenger
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring = Regelkjøring(virkningsdato(opplysninger), opplysninger, this)
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
+        Regelkjøring(
+            virkningsdato(opplysninger),
+            opplysninger,
+            this,
+        ) {
+            forDato(prøvingsdato(this))
+        }
 
     override fun kontrollpunkter() =
         listOf(
