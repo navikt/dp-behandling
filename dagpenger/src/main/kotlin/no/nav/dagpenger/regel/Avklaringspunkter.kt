@@ -66,7 +66,8 @@ object Avklaringspunkter {
             tittel = "Sjekk om beregnet arbeidstid er korrekt",
             beskrivelse =
                 """
-                Sjekk at beregnet arbeidstid er korrekt
+                Du må sjekke om beregnet vanlig arbeidstid er korrekt og at det er brukt riktig beregningsregel. 
+                Du må også sjekke om ny vanlig arbeidstid er korrekt
                 """.trimIndent(),
         )
 
