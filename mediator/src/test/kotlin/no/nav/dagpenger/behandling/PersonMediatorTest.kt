@@ -399,7 +399,7 @@ internal class PersonMediatorTest {
             }
 
             // TODO: Beregningsmetode for tapt arbeidstid har defaultverdi for testing av innvilgelse og derfor mangler avklaringen
-            rapid.inspektør.size shouldBe 22
+            rapid.inspektør.size shouldBe 23
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
