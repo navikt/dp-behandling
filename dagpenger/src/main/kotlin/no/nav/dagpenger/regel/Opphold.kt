@@ -1,12 +1,16 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erSann
+import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.regel.Avklaringspunkter.Bostedsland
+import no.nav.dagpenger.regel.OpplysningsTyper.BostedslandId
 import no.nav.dagpenger.regel.OpplysningsTyper.MedlemFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetOppholdId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetTilOppholdId
@@ -26,6 +30,7 @@ object Opphold {
     val oppfyllerMedlemskap = boolsk(OppfyllerMedlemskapId, "Oppfyller kravet til medlemskap", synlig = aldriSynlig)
 
     val oppfyllerKravet = boolsk(OppfyllerKravetOppholdId, "Oppfyller kravet til opphold i Norge")
+    val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge")
 
     val regelsett =
         vilkår(
@@ -35,6 +40,7 @@ object Opphold {
 
             regel(oppholdINorge) { oppslag(prøvingsdato) { true } }
             regel(unntakForOpphold) { oppslag(prøvingsdato) { false } }
+            regel(bostedsland) { innhentes }
             utfall(oppfyllerKravetTilOpphold) { enAv(oppholdINorge, unntakForOpphold) }
 
             regel(medlemFolketrygden) { oppslag(prøvingsdato) { true } }
@@ -43,5 +49,10 @@ object Opphold {
             utfall(oppfyllerKravet) { alle(oppfyllerKravetTilOpphold, oppfyllerMedlemskap) }
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+        }
+
+    val BostedslandKontroll =
+        Kontrollpunkt(Bostedsland) {
+            it.har(bostedsland) && !it.finnOpplysning(bostedsland).verdi
         }
 }

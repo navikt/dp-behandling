@@ -195,4 +195,14 @@ object Avklaringspunkter {
                 Er grunnbeløpet for inneværende år vedtatt, kjør behandlingen på nytt og huk av 'Grunnbeløp for grunnlag' for å oppdatere grunnbeløpet.
                 """.trimIndent(),
         )
+
+    val Bostedsland =
+        Avklaringkode(
+            kode = "Bostedsland",
+            tittel = "Bruker har oppgitt bostedsland som ikke er Norge",
+            beskrivelse =
+                """
+                Du må sjekke om bostedsland har betydning for saken
+                """.trimIndent(),
+        )
 }
