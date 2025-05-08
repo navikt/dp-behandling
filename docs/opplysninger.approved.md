@@ -238,3 +238,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Tre ganger dagsats|Penger|Beløp|
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Ingen egenandel|Penger|Beløp|
 |0196ab10-0cff-7301-99d6-65be50a50201|Bostedsland er Norge|BostedslandErNorge|Boolsk|boolean|
+|0196afaf-afbd-7079-b2cf-3669ad9d86aa|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Boolsk|boolean|
+|0196afbf-e32d-775a-ad10-f476e26dcb6f|Uførebeløp som skal samordnes|Uførebeløp som skal samordnes|Penger|Beløp|
+|0196afc0-6807-7fa3-83e4-cf7f621f3a7e|Sum hvis Uføre ikke skal samordnes|Sum hvis Uføre ikke skal samordnes|Penger|Beløp|
