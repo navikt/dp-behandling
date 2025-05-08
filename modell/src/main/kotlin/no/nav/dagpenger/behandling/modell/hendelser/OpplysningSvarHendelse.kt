@@ -52,13 +52,15 @@ data class OpplysningSvar<T : Comparable<T>>(
                 Utledning("innhentMed", basertPå)
             }
         val gyldighetsperiode =
-            if (basertPå.isEmpty()) {
-                gyldighetsperiode ?: Gyldighetsperiode()
-            } else {
-                Gyldighetsperiode(
-                    fom = basertPå.maxOf { it.gyldighetsperiode.fom },
-                    tom = basertPå.minOf { it.gyldighetsperiode.tom },
-                )
+            when {
+                gyldighetsperiode != null -> gyldighetsperiode
+                basertPå.isNotEmpty() ->
+                    Gyldighetsperiode(
+                        fom = basertPå.maxOf { it.gyldighetsperiode.fom },
+                        tom = basertPå.minOf { it.gyldighetsperiode.tom },
+                    )
+
+                else -> Gyldighetsperiode()
             }
         val opplysning =
             when (tilstand) {
