@@ -131,6 +131,7 @@ object OpplysningsTyper {
     val MedlemFolketrygdenId = Opplysningstype.Id(UUID.fromString("0194881f-9443-72b4-8b30-5f6cdb24d54c"), Boolsk)
     val OppfyllerMedlemskapId = Opplysningstype.Id(UUID.fromString("0194881f-9443-72b4-8b30-5f6cdb24d54d"), Boolsk)
     val OppfyllerKravetOppholdId = Opplysningstype.Id(UUID.fromString("0194881f-9443-72b4-8b30-5f6cdb24d54e"), Boolsk)
+    val BostedslandId = Opplysningstype.Id(UUID.fromString("0196ab10-0cff-7301-99d6-65be50a50201"), Boolsk)
     val PliktigRapporteringsfristId = Opplysningstype.Id(UUID.fromString("0194881f-9414-7823-8d29-0e25b7feb7ce"), Dato)
     val ArbeidsgiversRapporteringsfristId = Opplysningstype.Id(UUID.fromString("0194881f-9414-7823-8d29-0e25b7feb7cf"), Dato)
     val SisteAvsluttendeKalenderMånedId = Opplysningstype.Id(UUID.fromString("0194881f-9414-7823-8d29-0e25b7feb7d0"), Dato)

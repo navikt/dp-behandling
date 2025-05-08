@@ -15,6 +15,7 @@ import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.SvangerskapsrelaterteSykepengerKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.ØnskerEtterRapporteringsfristKontroll
+import no.nav.dagpenger.regel.Opphold.BostedslandKontroll
 import no.nav.dagpenger.regel.Permittering.PermitteringKontroll
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.PermitteringFiskKontroll
 import no.nav.dagpenger.regel.ReellArbeidssøker.ReellArbeidssøkerKontroll
@@ -57,6 +58,7 @@ class Søknadsprosess : RegistrertForretningsprosess() {
             PermitteringKontroll,
             TilleggsopplysningsKontroll,
             PermitteringFiskKontroll,
+            BostedslandKontroll,
         )
 
     private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
