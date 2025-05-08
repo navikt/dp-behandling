@@ -7,6 +7,7 @@ import no.nav.dagpenger.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.regel.Behov
+import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
@@ -88,6 +89,7 @@ internal class Mennesket(
                 Behov.PermittertFiskeforedling to false,
                 // Verneplikt
                 Behov.Verneplikt to false,
+                BostedslandErNorge to true,
                 Behov.TarUtdanningEllerOpplæring to false,
                 Behov.Barnetillegg to
                     mapOf(

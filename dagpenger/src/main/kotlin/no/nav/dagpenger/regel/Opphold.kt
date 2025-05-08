@@ -7,9 +7,10 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erSann
-import no.nav.dagpenger.opplysning.regel.innhentes
+import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.Avklaringspunkter.Bostedsland
+import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.regel.OpplysningsTyper.BostedslandId
 import no.nav.dagpenger.regel.OpplysningsTyper.MedlemFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetOppholdId
@@ -18,6 +19,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerMedlemskapId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppholdINorgeId
 import no.nav.dagpenger.regel.OpplysningsTyper.UnntakForOppholdId
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Opphold {
     var oppholdINorge = boolsk(OppholdINorgeId, beskrivelse = "Opphold i Norge", behovId = "OppholdINorge")
@@ -30,7 +32,7 @@ object Opphold {
     val oppfyllerMedlemskap = boolsk(OppfyllerMedlemskapId, "Oppfyller kravet til medlemskap", synlig = aldriSynlig)
 
     val oppfyllerKravet = boolsk(OppfyllerKravetOppholdId, "Oppfyller kravet til opphold i Norge")
-    val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge")
+    val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge", behovId = BostedslandErNorge)
 
     val regelsett =
         vilkår(
@@ -38,9 +40,10 @@ object Opphold {
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
-            regel(oppholdINorge) { oppslag(prøvingsdato) { true } }
+            regel(bostedsland) { innhentMed(søknadIdOpplysningstype) }
+            regel(oppholdINorge) { erSann(bostedsland) }
             regel(unntakForOpphold) { oppslag(prøvingsdato) { false } }
-            regel(bostedsland) { innhentes }
+
             utfall(oppfyllerKravetTilOpphold) { enAv(oppholdINorge, unntakForOpphold) }
 
             regel(medlemFolketrygden) { oppslag(prøvingsdato) { true } }

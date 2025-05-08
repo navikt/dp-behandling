@@ -20,6 +20,8 @@ Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
 Oppfyller kravet til å ta ethvert arbeid
+Bostedsland er Norge
+Opphold i Norge
 Tar utdanning eller opplæring?
 Har svart ja på spørsmål om utdanning eller opplæring
 Har svart nei på spørsmål om utdanning eller opplæring
@@ -70,7 +72,6 @@ Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller drif
 Ingen egenandel
 Antall dagsats for egenandel
 Mottar ikke andre fulle ytelser
-Opphold i Norge
 Oppfyller unntak for opphold i Norge
 Er personen medlem av folketrygden
 Det er godkjent at bruker kun søker deltidsarbeid

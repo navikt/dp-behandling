@@ -6,6 +6,7 @@ Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De 
 |---|---|---|---|
 |AndreØkonomiskeYtelser | Mottar andre økonomiske ytelser fra arbeidsgiver eller tidligere arbeidsgiver enn lønn | Boolsk|boolean|
 |Barnetillegg | Barn | BarnDatatype|BarnListe|
+|BostedslandErNorge | Bostedsland er Norge | Boolsk|boolean|
 |Foreldrepenger | Foreldrepenger etter lovens kapittel 14 | Boolsk|boolean|
 |Fødselsdato | Fødselsdato | Dato|LocalDate|
 |HelseTilAlleTyperJobb | Kan ta alle typer arbeid | Boolsk|boolean|

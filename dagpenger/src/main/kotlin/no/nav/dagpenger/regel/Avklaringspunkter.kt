@@ -202,7 +202,7 @@ object Avklaringspunkter {
             tittel = "Bruker har oppgitt bostedsland som ikke er Norge",
             beskrivelse =
                 """
-                Du må sjekke om bostedsland har betydning for saken
+                Du må sjekke om bruker oppfyller vilkåret om opphold i Norge eller er unntatt fra vilkåret om opphold
                 """.trimIndent(),
         )
 }
