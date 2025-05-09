@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
@@ -15,6 +16,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.BeregnetArbeidstid
 import no.nav.dagpenger.regel.Avklaringspunkter.TapAvArbeidstidBeregningsregel
 import no.nav.dagpenger.regel.Behov.HarTaptArbeid
 import no.nav.dagpenger.regel.Behov.KravPåLønn
+import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstidsreduksjonIkkeBruktTidligereId
 import no.nav.dagpenger.regel.OpplysningsTyper.beregeningsregelArbeidstidSiste36MånederId
 import no.nav.dagpenger.regel.OpplysningsTyper.beregnetVanligArbeidstidPerUkeFørTapId
 import no.nav.dagpenger.regel.OpplysningsTyper.beregningsregelArbeidstidSiste12MånederId
@@ -53,6 +55,12 @@ object TapAvArbeidsinntektOgArbeidstid {
         desimaltall(
             kravTilProsentvisTapAvArbeidstidId,
             "Krav til prosentvis tap av arbeidstid",
+        )
+
+    val arbeidstidsreduksjonIkkeBruktTidligere =
+        boolsk(
+            arbeidstidsreduksjonIkkeBruktTidligereId,
+            "Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode",
         )
 
     private val ordinærtKravTilTaptArbeidstid =
@@ -141,6 +149,8 @@ object TapAvArbeidsinntektOgArbeidstid {
             // TODO: Bør hentes fra noe
             regel(beregnetArbeidstid) { oppslag(prøvingsdato) { 37.5 } }
 
+            regel(arbeidstidsreduksjonIkkeBruktTidligere) { oppslag(prøvingsdato) { true } }
+
             // FVA fra verneplikt overstyrer ordinær FVA om verneplikt er gunstigst
             regel(ordinærEllerVernepliktArbeidstid) {
                 hvisSannMedResultat(grunnlagForVernepliktErGunstigst, vernepliktFastsattVanligArbeidstid, beregnetArbeidstid)
@@ -154,7 +164,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(beregningsregel) { enAv(beregningsregel6mnd, beregningsregel12mnd, beregningsregel36mnd) }
 
             utfall(kravTilTapAvArbeidsinntektOgArbeidstid) {
-                alle(kravTilTapAvArbeidsinntekt, kravTilTaptArbeidstid, beregningsregel)
+                alle(kravTilTapAvArbeidsinntekt, kravTilTaptArbeidstid, beregningsregel, arbeidstidsreduksjonIkkeBruktTidligere)
             }
 
             avklaring(TapAvArbeidstidBeregningsregel)

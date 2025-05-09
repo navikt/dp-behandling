@@ -99,6 +99,7 @@ Ordinært krav til prosentvis tap av arbeidstid
 Beregningsregel: Arbeidstid siste 6 måneder
 Beregningsregel: Arbeidstid siste 12 måneder
 Beregningsregel: Arbeidstid siste 36 måneder
+Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode
 Deltar i arbeidsmarkedstiltak
 Deltar i opplæring for innvandrere
 Deltar i grunnskoleopplæring, videregående opplæring og opplæring i grunnleggende ferdigheter

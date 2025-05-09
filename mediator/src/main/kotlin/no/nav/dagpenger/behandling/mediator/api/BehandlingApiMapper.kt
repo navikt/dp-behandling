@@ -102,6 +102,7 @@ import no.nav.dagpenger.regel.Samordning.uføreDagsats
 import no.nav.dagpenger.regel.StreikOgLockout.deltarIStreikOgLockout
 import no.nav.dagpenger.regel.StreikOgLockout.sammeBedriftOgPåvirket
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.arbeidstidsreduksjonIkkeBruktTidligere
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel36mnd
@@ -510,6 +511,7 @@ private val redigerbareOpplysninger =
                 utestengt,
                 // 4-12 Redigering av barne opplysninger
                 barn,
+                arbeidstidsreduksjonIkkeBruktTidligere,
             )
 
         override fun kanRedigere(opplysning: Opplysning<*>): Boolean = redigerbare.contains(opplysning.opplysningstype)

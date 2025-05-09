@@ -316,6 +316,7 @@ object OpplysningsTyper {
     val skalUføreSamordnesId = Opplysningstype.Id(UUID.fromString("0196afaf-afbd-7079-b2cf-3669ad9d86aa"), Boolsk)
     val uføreBeløpSomSkalSamordnesId = Opplysningstype.Id(UUID.fromString("0196afbf-e32d-775a-ad10-f476e26dcb6f"), Penger)
     val sumHvisUføreIkkeSkalSamordnesId = Opplysningstype.Id(UUID.fromString("0196afc0-6807-7fa3-83e4-cf7f621f3a7e"), Penger)
+    val arbeidstidsreduksjonIkkeBruktTidligereId = Opplysningstype.Id(UUID.fromString("0196b4a7-23b5-7b2c-aa95-e4167d900de8"), Boolsk)
 }
 
 /**

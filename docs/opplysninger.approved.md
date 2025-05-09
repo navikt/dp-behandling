@@ -241,3 +241,4 @@ Dette er opplysninger som blir brukt av regelverket.
 |0196afaf-afbd-7079-b2cf-3669ad9d86aa|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Boolsk|boolean|
 |0196afbf-e32d-775a-ad10-f476e26dcb6f|Uførebeløp som skal samordnes|Uførebeløp som skal samordnes|Penger|Beløp|
 |0196afc0-6807-7fa3-83e4-cf7f621f3a7e|Sum hvis Uføre ikke skal samordnes|Sum hvis Uføre ikke skal samordnes|Penger|Beløp|
+|0196b4a7-23b5-7b2c-aa95-e4167d900de8|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Boolsk|boolean|
