@@ -138,7 +138,7 @@ internal class OpplysningSvarMessage(
 
     private val opplysning =
         mutableListOf<OpplysningSvar<*>>().apply {
-            packet["@løsning"].fields().forEach { (typeNavn, løsning) ->
+            packet["@løsning"].properties().forEach { (typeNavn, løsning) ->
                 logger.info { "Tok i mot opplysning av $typeNavn" }
 
                 val opplysningstype =
