@@ -25,6 +25,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.svartJaPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.svartNeiPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.tarUtdanningEllerOpplæringId
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Utdanning {
     private val hvisTarUtdanning: (LesbarOpplysninger) -> Boolean = { it.erSann(tarUtdanning) }
@@ -114,7 +115,7 @@ object Utdanning {
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
-            regel(tarUtdanning) { innhentMed() }
+            regel(tarUtdanning) { innhentMed(søknadIdOpplysningstype) }
 
             // TODO: Legg til regler for å om kravet til utdanning skal vurderes
             regel(deltakelseIArbeidsmarkedstiltak) { oppslag(prøvingsdato) { false } }

@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
-import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
@@ -101,16 +100,16 @@ object ReellArbeidssøker {
             regel(minimumVanligArbeidstid) { oppslag(prøvingsdato) { 18.75 } }
             regel(villigTilMinimumArbeidstid) { størreEnnEllerLik(ønsketArbeidstid, minimumVanligArbeidstid) }
 
-            regel(kanJobbeDeltid) { innhentes }
+            regel(kanJobbeDeltid) { innhentMed(søknadIdOpplysningstype) }
             regel(godkjentDeltidssøker) { oppslag(prøvingsdato) { false } }
 
-            regel(kanJobbeHvorSomHelst) { innhentes }
+            regel(kanJobbeHvorSomHelst) { innhentMed(søknadIdOpplysningstype) }
             regel(godkjentLokalArbeidssøker) { oppslag(prøvingsdato) { false } }
 
-            regel(erArbeidsfør) { innhentes }
+            regel(erArbeidsfør) { innhentMed(søknadIdOpplysningstype) }
             regel(godkjentArbeidsufør) { oppslag(prøvingsdato) { false } }
 
-            regel(villigTilEthvertArbeid) { innhentes }
+            regel(villigTilEthvertArbeid) { innhentMed(søknadIdOpplysningstype) }
 
             utfall(oppfyllerKravTilArbeidssøker) { enAv(kanJobbeDeltid, godkjentDeltidssøker) }
             utfall(oppfyllerKravTilMobilitet) { enAv(kanJobbeHvorSomHelst, godkjentLokalArbeidssøker) }

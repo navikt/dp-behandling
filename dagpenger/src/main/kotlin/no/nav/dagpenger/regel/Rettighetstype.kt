@@ -5,7 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.ingenAv
-import no.nav.dagpenger.opplysning.regel.innhentes
+import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.regel.Behov.Lønnsgaranti
 import no.nav.dagpenger.regel.Behov.Ordinær
 import no.nav.dagpenger.regel.Behov.Permittert
@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Rettighetstype {
     val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
@@ -38,10 +39,10 @@ object Rettighetstype {
         fastsettelse(
             folketrygden.hjemmel(0, 0, "Rettighetstype", "Rettighetstype"),
         ) {
-            regel(erPermittert) { innhentes }
-            regel(ordinærArbeid) { innhentes }
-            regel(lønnsgaranti) { innhentes }
-            regel(permitteringFiskeforedling) { innhentes }
+            regel(erPermittert) { innhentMed(søknadIdOpplysningstype) }
+            regel(ordinærArbeid) { innhentMed(søknadIdOpplysningstype) }
+            regel(lønnsgaranti) { innhentMed(søknadIdOpplysningstype) }
+            regel(permitteringFiskeforedling) { innhentMed(søknadIdOpplysningstype) }
 
             regel(ingenArbeid) { ingenAv(ordinærArbeid, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
             regel(ordinær) { enAv(ordinærArbeid, ingenArbeid) }
