@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Utledning
+import java.time.LocalDate
 
 abstract class Regel<T : Comparable<T>> internal constructor(
     internal val produserer: Opplysningstype<T>,
@@ -88,32 +89,24 @@ abstract class Regel<T : Comparable<T>> internal constructor(
     fun produserer(opplysningstype: Opplysningstype<*>) = produserer.er(opplysningstype)
 
     internal fun lagProdukt(opplysninger: LesbarOpplysninger): Opplysning<T> {
-        if (avhengerAv.isEmpty()) return Faktum(produserer, kjør(opplysninger))
+        if (avhengerAv.isEmpty()) {
+            val produkt = kjør(opplysninger)
+            return Faktum(produserer, produkt)
+        }
 
         val basertPå = opplysninger.finnAlle(avhengerAv)
         requireAlleAvhengigheter(basertPå)
 
+        val produkt = kjør(opplysninger)
         val erAlleFaktum = basertPå.all { it is Faktum<*> }
         val utledetAv = Utledning(this, basertPå)
-        val gyldig =
-            gyldighetsperiode(basertPå)
+        val gyldighetsperiode = produserer.gyldighetsperiode(produkt, basertPå)
+
         return when (erAlleFaktum) {
-            true -> Faktum(opplysningstype = produserer, verdi = kjør(opplysninger), utledetAv = utledetAv, gyldighetsperiode = gyldig)
-            false ->
-                Hypotese(
-                    opplysningstype = produserer,
-                    verdi = kjør(opplysninger),
-                    utledetAv = utledetAv,
-                    gyldighetsperiode = gyldig,
-                )
+            true -> Faktum(opplysningstype = produserer, verdi = produkt, utledetAv = utledetAv, gyldighetsperiode = gyldighetsperiode)
+            false -> Hypotese(opplysningstype = produserer, verdi = produkt, utledetAv = utledetAv, gyldighetsperiode = gyldighetsperiode)
         }
     }
-
-    protected open fun gyldighetsperiode(basertPå: List<Opplysning<*>>) =
-        Gyldighetsperiode(
-            fom = basertPå.maxOf { it.gyldighetsperiode.fom },
-            tom = basertPå.minOf { it.gyldighetsperiode.tom },
-        )
 
     private fun requireAlleAvhengigheter(basertPå: List<Opplysning<*>>) =
         require(basertPå.size == avhengerAv.size) {
@@ -126,4 +119,26 @@ abstract class Regel<T : Comparable<T>> internal constructor(
             - Avhengigheter vi fant: ${basertPå.joinToString { it.opplysningstype.behovId }}
             """.trimIndent()
         }
+}
+
+fun interface GyldighetsperiodeStrategi<T> {
+    companion object {
+        private val minsteMulige =
+            GyldighetsperiodeStrategi<Any> { _, basertPå ->
+                if (basertPå.isEmpty()) return@GyldighetsperiodeStrategi Gyldighetsperiode()
+                Gyldighetsperiode(
+                    fom = basertPå.maxOf { it.gyldighetsperiode.fom },
+                    tom = basertPå.minOf { it.gyldighetsperiode.tom },
+                )
+            }
+        val egenVerdi = GyldighetsperiodeStrategi<LocalDate> { produkt, _ -> Gyldighetsperiode(fom = produkt) }
+
+        @Suppress("UNCHECKED_CAST")
+        fun <P> minsteMulige() = minsteMulige as GyldighetsperiodeStrategi<P>
+    }
+
+    fun gyldighetsperiode(
+        produkt: T,
+        basertPå: List<Opplysning<*>>,
+    ): Gyldighetsperiode
 }

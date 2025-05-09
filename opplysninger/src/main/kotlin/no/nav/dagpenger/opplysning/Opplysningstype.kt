@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
@@ -25,6 +26,7 @@ class Opplysningstype<T : Comparable<T>>(
     val behovId: String,
     val formål: Opplysningsformål,
     val synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
+    private val gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
 ) : Klassifiserbart {
     val datatype = id.datatype
 
@@ -36,6 +38,11 @@ class Opplysningstype<T : Comparable<T>>(
         val uuid: UUID,
         val datatype: Datatype<T>,
     )
+
+    fun gyldighetsperiode(
+        produkt: T,
+        basertPå: List<Opplysning<*>>,
+    ): Gyldighetsperiode = gyldighetsperiodeStrategi.gyldighetsperiode(produkt, basertPå)
 
     companion object {
         val definerteTyper = mutableSetOf<Opplysningstype<*>>()
@@ -65,7 +72,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<Boolean> = som(id, beskrivelse, formål, synlig, behovId)
+            gyldighetsperiode: GyldighetsperiodeStrategi<Boolean> = GyldighetsperiodeStrategi.minsteMulige(),
+        ): Opplysningstype<Boolean> = som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode)
 
         fun dato(
             id: Id<LocalDate>,
@@ -73,7 +81,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<LocalDate> = som(id, beskrivelse, formål, synlig, behovId)
+            gyldighetsperiode: GyldighetsperiodeStrategi<LocalDate> = GyldighetsperiodeStrategi.minsteMulige(),
+        ): Opplysningstype<LocalDate> = som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode)
 
         fun ulid(
             id: Id<Ulid>,
@@ -129,7 +138,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<T> = Opplysningstype(id, beskrivelse, behovId, formål, synlig)
+            gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
+        ): Opplysningstype<T> = Opplysningstype(id, beskrivelse, behovId, formål, synlig, gyldighetsperiodeStrategi)
     }
 
     override infix fun er(type: Opplysningstype<*>): Boolean = id == type.id

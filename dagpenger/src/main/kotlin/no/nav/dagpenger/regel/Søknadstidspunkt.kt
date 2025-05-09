@@ -4,6 +4,7 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.egenVerdi
 import no.nav.dagpenger.opplysning.regel.dato.prøvingsdato
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -24,7 +25,7 @@ object Søknadstidspunkt {
 
     val søknadstidspunkt = Opplysningstype.dato(søknadstidspunktId, "Søknadstidspunkt", synlig = aldriSynlig)
 
-    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato)
+    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato, gyldighetsperiode = egenVerdi)
     val søknadIdOpplysningstype = Opplysningstype.tekst(søknadId, "søknadId")
 
     val regelsett =
@@ -35,7 +36,7 @@ object Søknadstidspunkt {
             regel(søknadsdato) { innhentMed(søknadIdOpplysningstype) }
             regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
-            regel(prøvingsdato) { prøvingsdato(søknadstidspunkt) }
+            regel(prøvingsdato) { sisteAv(søknadstidspunkt) }
         }
 
     val SøknadstidspunktForLangtFramITid =
