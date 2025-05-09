@@ -4,6 +4,9 @@ import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse
 import no.nav.dagpenger.aktivitetslogg.IAktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
+import no.nav.dagpenger.behandling.modell.OpplysningBehov
+import no.nav.dagpenger.opplysning.Informasjonsbehov
+import no.nav.dagpenger.opplysning.verdier.Ulid
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -29,4 +32,21 @@ abstract class PersonHendelse(
     override fun meldingsreferanseId() = meldingsreferanseId
 
     open fun kontekstMap(): Map<String, String> = emptyMap()
+
+    fun lagBehov(informasjonsbehov: Informasjonsbehov) =
+        informasjonsbehov.onEach { (behov, avhengigheter) ->
+            behov(
+                type = OpplysningBehov(behov.behovId),
+                melding = "Trenger en opplysning (${behov.behovId})",
+                detaljer =
+                    avhengigheter.associate { avhengighet ->
+                        val verdi =
+                            when (avhengighet.verdi) {
+                                is Ulid -> (avhengighet.verdi as Ulid).verdi
+                                else -> avhengighet.verdi
+                            }
+                        avhengighet.opplysningstype.behovId to verdi
+                    } + this.kontekstMap() + mapOf("@utledetAv" to avhengigheter.map { it.id }),
+            )
+        }
 }

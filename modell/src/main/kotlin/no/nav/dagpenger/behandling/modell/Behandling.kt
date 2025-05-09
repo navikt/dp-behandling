@@ -27,14 +27,12 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
-import no.nav.dagpenger.opplysning.Informasjonsbehov
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.regel.Regel
-import no.nav.dagpenger.opplysning.verdier.Ulid
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.Duration
 import java.time.LocalDate
@@ -75,18 +73,19 @@ class Behandling private constructor(
 
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
 
-    val vedtakopplysninger get() =
-        Resultat(
-            behandlingId = behandlingId,
-            basertPåBehandlinger = basertPåBehandlinger(),
-            utfall = behandler.utfall(opplysninger()),
-            virkningsdato = behandler.virkningsdato(opplysninger()),
-            behandlingAv = behandler,
-            opplysninger = opplysninger,
-            automatiskBehandlet = erAutomatiskBehandlet(),
-            godkjentAv = godkjent,
-            besluttetAv = besluttet,
-        )
+    val vedtakopplysninger
+        get() =
+            Resultat(
+                behandlingId = behandlingId,
+                basertPåBehandlinger = basertPåBehandlinger(),
+                utfall = behandler.utfall(opplysninger()),
+                virkningsdato = behandler.virkningsdato(opplysninger()),
+                behandlingAv = behandler,
+                opplysninger = opplysninger,
+                automatiskBehandlet = erAutomatiskBehandlet(),
+                godkjentAv = godkjent,
+                besluttetAv = besluttet,
+            )
 
     data class Resultat(
         override val behandlingId: UUID,
@@ -122,7 +121,7 @@ class Behandling private constructor(
 
     fun aktiveAvklaringer() = avklaringer.måAvklares()
 
-    fun erAutomatiskBehandlet() =
+    private fun erAutomatiskBehandlet() =
         avklaringer().none { it.løstAvSaksbehandler() } &&
             opplysninger().finnAlle().none { it.kilde is Saksbehandlerkilde } &&
             !godkjent.erUtført
@@ -431,17 +430,7 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: PersonHendelse,
         ) {
-            val rapport = behandling.regelkjøring.evaluer()
-
-            rapport.kjørteRegler.forEach { regel: Regel<*> ->
-                hendelse.info(regel.toString())
-            }
-
-            hendelse.lagBehov(rapport.informasjonsbehov)
-
-            if (rapport.erFerdig()) {
-                behandling.avgjørNesteTilstand(hendelse)
-            }
+            behandling.kjørRegler(hendelse)
         }
 
         override fun håndter(
@@ -468,16 +457,7 @@ class Behandling private constructor(
             }
 
             // Kjør regelkjøring for alle opplysninger
-            val rapport = behandling.regelkjøring.evaluer()
-            rapport.kjørteRegler.forEach { regel: Regel<*> ->
-                hendelse.info(regel.toString())
-            }
-
-            hendelse.lagBehov(rapport.informasjonsbehov)
-
-            if (rapport.erFerdig()) {
-                behandling.avgjørNesteTilstand(hendelse)
-            }
+            behandling.kjørRegler(hendelse)
         }
 
         override fun håndter(
@@ -595,17 +575,7 @@ class Behandling private constructor(
             hendelse.info("Endret tilstand til redigert")
 
             // Kjør regelkjøring for alle opplysninger
-            val rapport = behandling.regelkjøring.evaluer()
-
-            rapport.kjørteRegler.forEach { regel: Regel<*> ->
-                hendelse.info(regel.toString())
-            }
-
-            hendelse.lagBehov(rapport.informasjonsbehov)
-
-            if (rapport.erFerdig()) {
-                behandling.avgjørNesteTilstand(hendelse)
-            }
+            behandling.kjørRegler(hendelse)
         }
 
         override fun håndter(
@@ -617,17 +587,7 @@ class Behandling private constructor(
                 opplysning.leggTil(behandling.opplysninger)
             }
 
-            val rapport = behandling.regelkjøring.evaluer()
-
-            rapport.kjørteRegler.forEach { regel: Regel<*> ->
-                hendelse.info(regel.toString())
-            }
-
-            hendelse.lagBehov(rapport.informasjonsbehov)
-
-            if (rapport.erFerdig()) {
-                behandling.avgjørNesteTilstand(hendelse)
-            }
+            behandling.kjørRegler(hendelse)
         }
 
         override fun håndter(
@@ -918,6 +878,21 @@ class Behandling private constructor(
         }
     }
 
+    // Kjører alle regler, logger hvilke regler som er kjørt , sender ut behov, og avgjør neste tilstand
+    private fun kjørRegler(hendelse: PersonHendelse) {
+        val rapport = regelkjøring.evaluer()
+
+        rapport.kjørteRegler.forEach { regel: Regel<*> ->
+            hendelse.info(regel.toString())
+        }
+
+        hendelse.lagBehov(rapport.informasjonsbehov)
+
+        if (rapport.erFerdig()) {
+            avgjørNesteTilstand(hendelse)
+        }
+    }
+
     // Behandlingen er ferdig og vi må rute til forslag eller godkjenning
     private fun avgjørNesteTilstand(hendelse: PersonHendelse) {
         if (aktiveAvklaringer().isNotEmpty()) {
@@ -1089,20 +1064,3 @@ interface BehandlingObservatør {
     // TODO: Burde flyttes til en egen observer
     fun avklaringLukket(event: AvklaringLukket) {}
 }
-
-private fun PersonHendelse.lagBehov(informasjonsbehov: Informasjonsbehov) =
-    informasjonsbehov.onEach { (behov, avhengigheter) ->
-        behov(
-            type = OpplysningBehov(behov.behovId),
-            melding = "Trenger en opplysning (${behov.behovId})",
-            detaljer =
-                avhengigheter.associate { avhengighet ->
-                    val verdi =
-                        when (avhengighet.verdi) {
-                            is Ulid -> (avhengighet.verdi as Ulid).verdi
-                            else -> avhengighet.verdi
-                        }
-                    avhengighet.opplysningstype.behovId to verdi
-                } + this.kontekstMap() + mapOf("@utledetAv" to avhengigheter.map { it.id }),
-        )
-    }
