@@ -92,6 +92,7 @@ import no.nav.dagpenger.regel.Samordning.opplæringspengerDagsats
 import no.nav.dagpenger.regel.Samordning.pleiepenger
 import no.nav.dagpenger.regel.Samordning.pleiepengerDagsats
 import no.nav.dagpenger.regel.Samordning.samordnetArbeidstid
+import no.nav.dagpenger.regel.Samordning.skalUføreSamordnes
 import no.nav.dagpenger.regel.Samordning.svangerskapspenger
 import no.nav.dagpenger.regel.Samordning.svangerskapspengerDagsats
 import no.nav.dagpenger.regel.Samordning.sykepenger
@@ -502,6 +503,7 @@ private val redigerbareOpplysninger =
                 omsorgspengerDagsats,
                 opplæringspengerDagsats,
                 uføreDagsats,
+                skalUføreSamordnes,
                 foreldrepengerDagsats,
                 svangerskapspengerDagsats,
                 // 4-28 Utestenging

@@ -71,9 +71,26 @@ object Samordning {
         Opplysningstype.boolsk(
             skalUføreSamordnesId,
             "Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår",
+            synlig = {
+                it.erSann(uføre)
+            },
         )
-    val uføreBeløpSomSkalSamordnes = Opplysningstype.beløp(uføreBeløpSomSkalSamordnesId, "Uførebeløp som skal samordnes")
-    val sumHvisUføreIkkeSkalSamordnes = Opplysningstype.beløp(sumHvisUføreIkkeSkalSamordnesId, "Sum hvis Uføre ikke skal samordnes")
+    val uføreBeløpSomSkalSamordnes =
+        Opplysningstype.beløp(
+            uføreBeløpSomSkalSamordnesId,
+            "Uførebeløp som skal samordnes",
+            synlig = {
+                it.erSann(skalUføreSamordnes)
+            },
+        )
+    val sumHvisUføreIkkeSkalSamordnes =
+        Opplysningstype.beløp(
+            sumHvisUføreIkkeSkalSamordnesId,
+            "Sum hvis Uføre ikke skal samordnes",
+            synlig = {
+                it.erSann(skalUføreSamordnes)
+            },
+        )
     val foreldrepenger = Opplysningstype.boolsk(foreldrepengerId, "Foreldrepenger etter lovens kapittel 14", behovId = Foreldrepenger)
     val svangerskapspenger =
         Opplysningstype.boolsk(
