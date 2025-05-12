@@ -140,21 +140,23 @@ internal fun Application.behandlingApi(
                         }
 
                     val melding = ApiMelding(nyBehandlingDto.ident)
+                    val hendelse =
+                        OpprettBehandlingHendelse(
+                            meldingsreferanseId = melding.id,
+                            ident = nyBehandlingDto.ident,
+                            eksternId = hendelseId,
+                            gjelderDato = nyBehandlingDto.prøvingsdato ?: LocalDate.now(),
+                            opprettet = LocalDateTime.now(),
+                        )
                     apiRepositoryPostgres.behandle(melding) {
-                        val hendelse =
-                            OpprettBehandlingHendelse(
-                                meldingsreferanseId = melding.id,
-                                ident = nyBehandlingDto.ident,
-                                eksternId = hendelseId,
-                                gjelderDato = nyBehandlingDto.prøvingsdato ?: LocalDate.now(),
-                                opprettet = LocalDateTime.now(),
-                            )
-
                         hendelse.info("Oppretter behandling manuelt", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
                         hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
                     }
 
-                    call.respond(HttpStatusCode.OK, person.behandlinger().last().tilBehandlingOpplysningerDTO())
+                    call.respond(
+                        HttpStatusCode.OK,
+                        person.behandlinger().single { it.behandler.eksternId == hendelse.eksternId }.tilBehandlingOpplysningerDTO(),
+                    )
                 }
             }
 
