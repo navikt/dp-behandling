@@ -52,3 +52,12 @@ class MeldekortId(
             "meldekortId" to id.toString(),
         )
 }
+
+class KnappenId(
+    id: UUID,
+) : EksternId<UUID>(id) {
+    override fun kontekstMap() =
+        mapOf(
+            "knappenId" to id.toString(),
+        )
+}

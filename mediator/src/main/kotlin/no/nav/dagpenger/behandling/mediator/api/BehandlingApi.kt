@@ -25,6 +25,7 @@ import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
+import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
@@ -60,6 +61,7 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.regel.hendelse.KnappenHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -114,6 +116,32 @@ internal fun Application.behandlingApi(
         }
 
         authenticate("azureAd") {
+            route("person/behandling") {
+                post {
+                    val nyBehandlingDto = call.receive<NyBehandlingDTO>()
+                    val ident = nyBehandlingDto.ident
+                    val person =
+                        personRepository.hent(
+                            ident.tilPersonIdentfikator(),
+                        ) ?: throw NotFoundException("Person ikke funnet")
+
+                    val hendelse =
+                        KnappenHendelse(
+                            meldingsreferanseId = UUIDv7.ny(),
+                            ident = nyBehandlingDto.ident,
+                            knappenId = UUIDv7.ny(),
+                            gjelderDato = LocalDate.now(),
+                            opprettet = LocalDateTime.now(),
+                        )
+
+                    hendelse.info("Oppretter behandling", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
+
+                    hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
+
+                    call.respond(HttpStatusCode.OK, person.behandlinger().last().tilBehandlingOpplysningerDTO())
+                }
+            }
+
             route("behandling") {
                 post {
                     val identForespørsel = call.receive<IdentForesporselDTO>()

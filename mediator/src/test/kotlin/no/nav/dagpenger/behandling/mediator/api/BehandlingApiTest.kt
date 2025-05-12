@@ -265,6 +265,15 @@ internal class BehandlingApiTest {
     }
 
     @Test
+    fun `opprett behandling på en gitt person`() {
+        medSikretBehandlingApi {
+            val response = autentisert("/person/behandling", body = """{"ident":"$ident"}""")
+            response.status shouldBe HttpStatusCode.OK
+            response.bodyAsText().shouldNotBeEmpty()
+        }
+    }
+
+    @Test
     fun `hent behandlinger gitt person`() {
         medSikretBehandlingApi {
             val response = autentisert("/behandling", body = """{"ident":"$ident"}""")

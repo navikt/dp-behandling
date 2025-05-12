@@ -11,6 +11,7 @@ import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingForsla
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingOpprettet
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.PersonObservatør
+import no.nav.dagpenger.behandling.modell.hendelser.KnappenId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 
@@ -71,6 +72,7 @@ internal class PersonMediator : PersonObservatør {
                                 when (hendelse) {
                                     is MeldekortId -> "Meldekort"
                                     is SøknadId -> "Søknad"
+                                    is KnappenId -> TODO()
                                 },
                         ),
                 ),
@@ -117,6 +119,7 @@ internal class PersonMediator : PersonObservatør {
                                 when (hendelse) {
                                     is MeldekortId -> "Meldekort"
                                     is SøknadId -> "Søknad"
+                                    is KnappenId -> TODO()
                                 },
                         ),
                 ) + (årsak?.let { mapOf("årsak" to it) } ?: emptyMap()),

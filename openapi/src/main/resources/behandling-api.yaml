@@ -13,6 +13,8 @@ servers:
 tags:
   - name: Opplysningstype
     description: Operasjoner på opplysningstyper.
+  - name: Person
+    description: Operasjoner på person.
   - name: Behandling
     description: Operasjoner på behandlinger.
   - name: Avklaring
@@ -35,6 +37,32 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Opplysningstype'
+  /person/behandling:
+    post:
+      description: Opprett ny behandling for en person
+      security:
+        - azureAd: [ ]
+      tags:
+        - Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NyBehandling'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Behandling'
+        default:
+          description: Feil ved oppretting av behandling
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
   /behandling:
     post:
       description: Hent alle behandlinger for en gitt person
@@ -488,6 +516,15 @@ components:
             $ref: '#/components/schemas/OpplysningsId'
 
     IdentForesporsel:
+      type: object
+      required:
+        - ident
+      properties:
+        ident:
+          type: string
+          pattern: '^[0-9]{11}$'
+
+    NyBehandling:
       type: object
       required:
         - ident
