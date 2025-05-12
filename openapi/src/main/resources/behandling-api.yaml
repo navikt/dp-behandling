@@ -532,6 +532,8 @@ components:
         ident:
           type: string
           pattern: '^[0-9]{11}$'
+        hendelse:
+          $ref: '#/components/schemas/Hendelse'
 
     OppdaterOpplysning:
       type: object
@@ -1395,7 +1397,7 @@ components:
           type: string
         type:
           type: string
-          enum: [ "Søknad", "Meldekort" ]
+          enum: [ "Søknad", "Meldekort" ,"Manuell" ]
 
   securitySchemes:
     azureAd:

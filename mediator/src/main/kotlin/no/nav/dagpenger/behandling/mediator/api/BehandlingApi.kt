@@ -23,6 +23,7 @@ import mu.withLoggingContext
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
 import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
@@ -46,6 +47,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -61,7 +63,7 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
-import no.nav.dagpenger.regel.hendelse.KnappenHendelse
+import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -125,11 +127,20 @@ internal fun Application.behandlingApi(
                             ident.tilPersonIdentfikator(),
                         ) ?: throw NotFoundException("Person ikke funnet")
 
+                    val hendelseId =
+                        when (nyBehandlingDto.hendelse?.type) {
+                            HendelseDTOTypeDTO.SØKNAD -> TODO()
+                            HendelseDTOTypeDTO.MELDEKORT -> TODO()
+                            HendelseDTOTypeDTO.MANUELL,
+                            null,
+                            -> ManuellId(UUIDv7.ny())
+                        }
+
                     val hendelse =
-                        KnappenHendelse(
+                        OpprettBehandlingHendelse(
                             meldingsreferanseId = UUIDv7.ny(),
                             ident = nyBehandlingDto.ident,
-                            knappenId = UUIDv7.ny(),
+                            eksternId = hendelseId,
                             gjelderDato = LocalDate.now(),
                             opprettet = LocalDateTime.now(),
                         )

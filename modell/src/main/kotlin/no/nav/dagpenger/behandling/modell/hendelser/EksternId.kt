@@ -29,6 +29,7 @@ sealed class EksternId<T>(
         ) = when (eksternIdType) {
             "SøknadId" -> SøknadId(UUID.fromString(id))
             "MeldekortId" -> MeldekortId(id.toLong())
+            "ManuellId" -> ManuellId(UUID.fromString(id))
             else -> throw IllegalArgumentException("Ukjent idType: $eksternIdType")
         }
     }
@@ -53,11 +54,11 @@ class MeldekortId(
         )
 }
 
-class KnappenId(
+class ManuellId(
     id: UUID,
 ) : EksternId<UUID>(id) {
     override fun kontekstMap() =
         mapOf(
-            "knappenId" to id.toString(),
+            "manuellId" to id.toString(),
         )
 }
