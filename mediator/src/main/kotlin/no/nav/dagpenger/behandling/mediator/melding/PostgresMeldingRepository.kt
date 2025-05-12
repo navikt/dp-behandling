@@ -12,6 +12,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
+import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import org.postgresql.util.PGobject
 import java.util.UUID
 
@@ -94,6 +95,7 @@ internal class PostgresMeldingRepository : MeldingRepository {
             is SøknadInnsendtMessage -> MeldingTypeDTO.SØKNAD_INNSENDT
             is MeldekortInnsendtMessage -> MeldingTypeDTO.MELDEKORT_INNSENDT
             is BeregnMeldekortMessage -> MeldingTypeDTO.BEREGN_MELDEKORT
+            is ApiMelding -> MeldingTypeDTO.API
             else ->
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
@@ -113,4 +115,5 @@ private enum class MeldingTypeDTO {
     OPPLYSNING_SVAR,
     SØKNAD_INNSENDT,
     MELDEKORT_INNSENDT,
+    API,
 }
