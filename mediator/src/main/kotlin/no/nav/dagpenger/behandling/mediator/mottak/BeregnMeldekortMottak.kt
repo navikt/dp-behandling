@@ -15,7 +15,7 @@ import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
-import no.nav.dagpenger.regel.BeregnMeldekortHendelse
+import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 
 internal class BeregnMeldekortMottak(
     rapidsConnection: RapidsConnection,
