@@ -534,6 +534,9 @@ components:
           pattern: '^[0-9]{11}$'
         hendelse:
           $ref: '#/components/schemas/Hendelse'
+        prøvingsdato:
+          type: string
+          format: date
 
     OppdaterOpplysning:
       type: object

@@ -141,11 +141,11 @@ internal fun Application.behandlingApi(
                             meldingsreferanseId = UUIDv7.ny(),
                             ident = nyBehandlingDto.ident,
                             eksternId = hendelseId,
-                            gjelderDato = LocalDate.now(),
+                            gjelderDato = nyBehandlingDto.prøvingsdato ?: LocalDate.now(),
                             opprettet = LocalDateTime.now(),
                         )
 
-                    hendelse.info("Oppretter behandling", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
+                    hendelse.info("Oppretter behandling manuelt", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
 
                     hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
 
