@@ -9,7 +9,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.uuid.UUIDv7
 import kotlin.test.Test
 
-internal class PostgresHendelseRepositoryTest {
+internal class PostgresMeldingRepositoryTest {
     @Test
     fun `lagre og hent hendelse`() {
         val hendelseId = UUIDv7.ny()
@@ -30,9 +30,9 @@ internal class PostgresHendelseRepositoryTest {
         val søknadInnsendtMessage = SøknadInnsendtMessage(jsonMessage)
 
         Postgres.withMigratedDb {
-            val postgresHendelseRepository = PostgresHendelseRepository()
+            val postgresHendelseRepository = PostgresMeldingRepository()
             postgresHendelseRepository.lagreMelding(
-                hendelseMessage = søknadInnsendtMessage,
+                melding = søknadInnsendtMessage,
                 ident = søknadInnsendtMessage.ident,
                 id = søknadInnsendtMessage.id,
                 toJson = originalMessage,

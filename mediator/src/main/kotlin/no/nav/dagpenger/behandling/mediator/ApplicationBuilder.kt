@@ -17,10 +17,11 @@ import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
 import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
 import no.nav.dagpenger.behandling.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
-import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
+import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
+import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
@@ -60,6 +61,10 @@ internal class ApplicationBuilder(
 
     private val hendelseMediator = HendelseMediator(personRepository, MeldekortRepositoryPostgres())
 
+    private val postgresMeldingRepository = PostgresMeldingRepository()
+
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository)
+
     private val rapidsConnection: RapidsConnection =
         RapidApplication.create(
             env = config,
@@ -89,6 +94,7 @@ internal class ApplicationBuilder(
                             hendelseMediator = hendelseMediator,
                             auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapid),
                             opplysningstyper = opplysningstyper,
+                            apiRepositoryPostgres = apiRepositoryPostgres,
                         ) { ident: String -> ApiMessageContext(rapid, ident) }
                     }
                 }
@@ -120,9 +126,10 @@ internal class ApplicationBuilder(
             MessageMediator(
                 rapidsConnection = rapidsConnection,
                 hendelseMediator = hendelseMediator,
-                hendelseRepository = PostgresHendelseRepository(),
+                meldingRepository = postgresMeldingRepository,
                 opplysningstyper = opplysningstyper,
                 meldekortRepository = MeldekortRepositoryPostgres(),
+                apiRepositoryPostgres = apiRepositoryPostgres,
             )
 
             rapidsConnection.register(

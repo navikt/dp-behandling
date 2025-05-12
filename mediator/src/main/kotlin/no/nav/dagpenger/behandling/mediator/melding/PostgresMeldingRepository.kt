@@ -15,14 +15,14 @@ import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import org.postgresql.util.PGobject
 import java.util.UUID
 
-internal class PostgresHendelseRepository : HendelseRepository {
+internal class PostgresMeldingRepository : MeldingRepository {
     override fun lagreMelding(
-        hendelseMessage: HendelseMessage,
+        melding: Melding,
         ident: String,
         id: UUID,
         toJson: String,
     ) {
-        val hendelseType = meldingType(hendelseMessage) ?: return
+        val hendelseType = meldingType(melding) ?: return
 
         sessionOf(dataSource).use { session ->
             session.transaction { transactionalSession: TransactionalSession ->
@@ -85,7 +85,7 @@ internal class PostgresHendelseRepository : HendelseRepository {
             ) != null
         }
 
-    private fun meldingType(hendelseMessage: HendelseMessage): MeldingTypeDTO? =
+    private fun meldingType(hendelseMessage: Melding): MeldingTypeDTO? =
         when (hendelseMessage) {
             is AvbrytBehandlingMessage -> MeldingTypeDTO.AVBRYT_BEHANDLING
             is AvklaringIkkeRelevantMessage -> MeldingTypeDTO.AVKLARING_IKKE_RELEVANT

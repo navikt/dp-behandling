@@ -26,7 +26,7 @@ import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
-import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
+import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
@@ -126,9 +126,10 @@ internal class PersonMediatorTest {
         MessageMediator(
             rapidsConnection = rapid,
             hendelseMediator = hendelseMediator,
-            hendelseRepository = PostgresHendelseRepository(),
+            meldingRepository = PostgresMeldingRepository(),
             opplysningstyper = RegelverkDagpenger.produserer,
             meldekortRepository = meldekortRepository,
+            apiRepositoryPostgres = mockk(relaxed = true),
         )
     }
 

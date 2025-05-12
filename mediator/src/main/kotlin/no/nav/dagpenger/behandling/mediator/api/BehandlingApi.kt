@@ -37,6 +37,7 @@ import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.barnMapper
 import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
+import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Redigert
@@ -78,7 +79,7 @@ internal fun Application.behandlingApi(
     hendelseMediator: IHendelseMediator,
     auditlogg: Auditlogg,
     opplysningstyper: Set<Opplysningstype<*>>,
-    apiRepositoryPostgres: ApiRepositoryPostgres = ApiRepositoryPostgres(),
+    apiRepositoryPostgres: ApiRepositoryPostgres,
     messageContext: (ident: String) -> MessageContext,
 ) {
     authenticationConfig()
@@ -138,18 +139,20 @@ internal fun Application.behandlingApi(
                             -> ManuellId(UUIDv7.ny())
                         }
 
-                    val hendelse =
-                        OpprettBehandlingHendelse(
-                            meldingsreferanseId = UUIDv7.ny(),
-                            ident = nyBehandlingDto.ident,
-                            eksternId = hendelseId,
-                            gjelderDato = nyBehandlingDto.prøvingsdato ?: LocalDate.now(),
-                            opprettet = LocalDateTime.now(),
-                        )
+                    val melding = ApiMelding(nyBehandlingDto.ident)
+                    apiRepositoryPostgres.behandle(melding) {
+                        val hendelse =
+                            OpprettBehandlingHendelse(
+                                meldingsreferanseId = melding.id,
+                                ident = nyBehandlingDto.ident,
+                                eksternId = hendelseId,
+                                gjelderDato = nyBehandlingDto.prøvingsdato ?: LocalDate.now(),
+                                opprettet = LocalDateTime.now(),
+                            )
 
-                    hendelse.info("Oppretter behandling manuelt", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
-
-                    hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
+                        hendelse.info("Oppretter behandling manuelt", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
+                        hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
+                    }
 
                     call.respond(HttpStatusCode.OK, person.behandlinger().last().tilBehandlingOpplysningerDTO())
                 }

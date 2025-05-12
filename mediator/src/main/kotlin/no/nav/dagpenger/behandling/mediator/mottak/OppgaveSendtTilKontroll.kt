@@ -12,7 +12,7 @@ import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 
 internal class OppgaveSendtTilKontroll(
@@ -52,7 +52,7 @@ internal class OppgaveSendtTilKontroll(
 
 internal class SendtTilKontrollMessage(
     packet: JsonMessage,
-) : HendelseMessage(packet) {
+) : KafkaMelding(packet) {
     private val hendelse
         get() = LåsHendelse(id, ident, behandlingId, opprettet)
     override val ident = packet["ident"].asText()

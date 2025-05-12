@@ -10,7 +10,7 @@ import mu.KotlinLogging
 import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 
 internal class AvklaringIkkeRelevantMottak(
@@ -52,7 +52,7 @@ internal class AvklaringIkkeRelevantMottak(
 
 internal class AvklaringIkkeRelevantMessage(
     packet: JsonMessage,
-) : HendelseMessage(packet) {
+) : KafkaMelding(packet) {
     override val ident = packet["ident"].asText()
 
     private val hendelse

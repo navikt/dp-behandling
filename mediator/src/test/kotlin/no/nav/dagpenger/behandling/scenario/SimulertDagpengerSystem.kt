@@ -6,8 +6,9 @@ import no.nav.dagpenger.behandling.db.Postgres
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
+import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
+import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
@@ -43,13 +44,16 @@ internal class SimulertDagpengerSystem(
             aktivitetsloggMediator = mockk(relaxed = true),
         )
 
+    private val postgresMeldingRepository = PostgresMeldingRepository()
+
     init {
         MessageMediator(
             rapidsConnection = rapid,
             hendelseMediator = hendelseMediator,
-            hendelseRepository = PostgresHendelseRepository(),
+            meldingRepository = postgresMeldingRepository,
             opplysningstyper = RegelverkDagpenger.produserer,
             meldekortRepository = meldekortRepository,
+            apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository),
         )
         registrerRegelverk(opplysningerRepository, Opplysningstype.definerteTyper)
     }

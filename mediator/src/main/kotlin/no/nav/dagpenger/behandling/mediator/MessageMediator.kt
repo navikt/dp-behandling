@@ -5,8 +5,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.withMDC
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import mu.KotlinLogging
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
-import no.nav.dagpenger.behandling.mediator.melding.HendelseRepository
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
@@ -30,6 +30,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.ReturnerTilSaksbehandlerMessa
 import no.nav.dagpenger.behandling.mediator.mottak.SendtTilKontrollMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMottak
+import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
@@ -48,8 +49,9 @@ import java.util.UUID
 internal class MessageMediator(
     rapidsConnection: RapidsConnection,
     private val hendelseMediator: HendelseMediator,
-    private val hendelseRepository: HendelseRepository,
-    private val meldekortRepository: MeldekortRepository,
+    private val meldingRepository: MeldingRepository,
+    meldekortRepository: MeldekortRepository,
+    private val apiRepositoryPostgres: ApiRepositoryPostgres,
     opplysningstyper: Set<Opplysningstype<*>>,
 ) : IMessageMediator {
     init {
@@ -108,6 +110,11 @@ internal class MessageMediator(
     ) {
         behandle(hendelse, message) {
             hendelseMediator.behandle(it, context)
+
+            apiRepositoryPostgres.behovLøst(
+                hendelse.behandlingId,
+                *hendelse.opplysninger.map { it.opplysningstype.behovId }.toTypedArray(),
+            )
         }
     }
 
@@ -183,14 +190,14 @@ internal class MessageMediator(
 
     private fun <HENDELSE : PersonHendelse> behandle(
         hendelse: HENDELSE,
-        message: HendelseMessage,
+        message: KafkaMelding,
         håndter: (HENDELSE) -> Unit,
     ) {
         withMDC(message.tracinginfo()) {
             logger.info { "Behandler hendelse: ${hendelse.javaClass.simpleName}" }
-            message.lagreMelding(hendelseRepository)
+            message.lagreMelding(meldingRepository)
             håndter(hendelse) // @todo: feilhåndtering
-            hendelseRepository.markerSomBehandlet(message.id)
+            meldingRepository.markerSomBehandlet(message.id)
             logger.info { "Behandlet hendelse: ${hendelse.javaClass.simpleName}" }
         }
     }

@@ -2,9 +2,9 @@ package no.nav.dagpenger.behandling.mediator.melding
 
 import java.util.UUID
 
-internal interface HendelseRepository {
+internal interface MeldingRepository {
     fun lagreMelding(
-        hendelseMessage: HendelseMessage,
+        melding: Melding,
         ident: String,
         id: UUID,
         toJson: String,
