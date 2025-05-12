@@ -48,8 +48,10 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
@@ -129,8 +131,8 @@ internal fun Application.behandlingApi(
 
                     val hendelseId =
                         when (nyBehandlingDto.hendelse?.type) {
-                            HendelseDTOTypeDTO.SØKNAD -> TODO()
-                            HendelseDTOTypeDTO.MELDEKORT -> TODO()
+                            HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
+                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id.toLong())
                             HendelseDTOTypeDTO.MANUELL,
                             null,
                             -> ManuellId(UUIDv7.ny())
