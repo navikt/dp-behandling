@@ -46,6 +46,7 @@ class OpprettBehandlingHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): Behandling =
         Behandling(
+            basertPå = listOfNotNull(forrigeBehandling),
             behandler =
                 Hendelse(
                     meldingsreferanseId = meldingsreferanseId,
