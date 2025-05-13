@@ -39,14 +39,12 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 internal class BehandlingApiTest {
-    private val testIdent = "12345123451"
-
     @Test
     fun `ikke autentiserte kall returnerer 401`() {
         medSikretBehandlingApi {
             val response =
                 it.client.post("/behandling") {
-                    setBody("""{"ident":"$testIdent"}""")
+                    setBody("""{"ident":"${person.ident}"}""")
                 }
             response.status shouldBe HttpStatusCode.Unauthorized
         }
@@ -58,21 +56,21 @@ internal class BehandlingApiTest {
             testContext
                 .autentisert(
                     endepunkt = "/behandling",
-                    body = """{"ident":"$testIdent"}""",
+                    body = """{"ident":"${person.ident}"}""",
                     token = testAzureAdToken(ADGrupper = emptyList(), navIdent = "123"),
                 ).status shouldBe HttpStatusCode.Unauthorized
 
             testContext
                 .autentisert(
                     endepunkt = "/behandling",
-                    body = """{"ident":"$testIdent"}""",
+                    body = """{"ident":"${person.ident}"}""",
                     token = testAzureAdToken(ADGrupper = listOf("ikke-saksbehandler"), navIdent = "123"),
                 ).status shouldBe HttpStatusCode.Unauthorized
 
             testContext
                 .autentisert(
                     endepunkt = "/behandling",
-                    body = """{"ident":"$testIdent"}""",
+                    body = """{"ident":"${person.ident}"}""",
                     token = testAzureAdToken(ADGrupper = listOf("dagpenger-saksbehandler"), navIdent = "123"),
                 ).status shouldBe HttpStatusCode.OK
         }
@@ -93,7 +91,7 @@ internal class BehandlingApiTest {
     @Disabled("testen er avhengig av at hendelsemediator ikke er mocket - er del jobb.")
     fun `opprett behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
-            val response = testContext.autentisert(endepunkt = "/person/behandling", body = """{"ident":"$testIdent"}""")
+            val response = testContext.autentisert(endepunkt = "/person/behandling", body = """{"ident":"${person.ident}"}""")
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
         }
@@ -102,7 +100,7 @@ internal class BehandlingApiTest {
     @Test
     fun `hent behandlinger gitt person`() {
         medSikretBehandlingApi { testContext ->
-            val response = testContext.autentisert(endepunkt = "/behandling", body = """{"ident":"$testIdent"}""")
+            val response = testContext.autentisert(endepunkt = "/behandling", body = """{"ident":"${person.ident}"}""")
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText() shouldBe "[]"
             auditlogg.aktivitet shouldContainExactly listOf("les")
@@ -228,7 +226,7 @@ internal class BehandlingApiTest {
                 testContext.autentisert(
                     httpMethod = HttpMethod.Post,
                     endepunkt = "/behandling/$behandlingId/avbryt",
-                    body = """{"ident":"$testIdent"}""",
+                    body = """{"ident":"${person.ident}"}""",
                 )
             response.status shouldBe HttpStatusCode.Created
             response.bodyAsText().shouldBeEmpty()
@@ -247,7 +245,7 @@ internal class BehandlingApiTest {
                 testContext.autentisert(
                     httpMethod = HttpMethod.Post,
                     endepunkt = "/behandling/${person.behandlingId}/rekjor",
-                    body = """{"ident":"$testIdent"}""",
+                    body = """{"ident":"${person.ident}"}""",
                 )
             response.status shouldBe HttpStatusCode.Created
             response.bodyAsText().shouldBeEmpty()
@@ -268,7 +266,7 @@ internal class BehandlingApiTest {
                 testContext.autentisert(
                     httpMethod = HttpMethod.Post,
                     endepunkt = "/behandling/$behandlingId/godkjenn",
-                    body = """{"ident":"$testIdent"}""",
+                    body = """{"ident":"${person.ident}"}""",
                 )
             response.status shouldBe HttpStatusCode.Created
             response.bodyAsText().shouldBeEmpty()
@@ -280,7 +278,7 @@ internal class BehandlingApiTest {
                 .autentisert(
                     httpMethod = HttpMethod.Post,
                     endepunkt = "/behandling/$behandlingId/send-tilbake",
-                    body = """{"ident":"$testIdent"}""",
+                    body = """{"ident":"${person.ident}"}""",
                 ).status shouldBe HttpStatusCode.Created
 
             // TODO: Assert at den er tilbake til godkjenning
@@ -290,7 +288,7 @@ internal class BehandlingApiTest {
                 .autentisert(
                     HttpMethod.Post,
                     "/behandling/$behandlingId/godkjenn",
-                    """{"ident":"$testIdent"}""",
+                    """{"ident":"${person.ident}"}""",
                 ).status shouldBe HttpStatusCode.Created
 
             // TODO: Assert at den er til beslutter igjen
@@ -300,7 +298,7 @@ internal class BehandlingApiTest {
                 .autentisert(
                     HttpMethod.Post,
                     "/behandling/$behandlingId/beslutt",
-                    """{"ident":"$testIdent"}""",
+                    """{"ident":"${person.ident}"}""",
                     token =
                         testAzureAdToken(
                             ADGrupper = listOf(Configuration.properties[Configuration.Grupper.saksbehandler]),
@@ -399,7 +397,6 @@ internal class BehandlingApiTest {
         System.setProperty("Grupper.saksbehandler", "dagpenger-saksbehandler")
         System.setProperty("Grupper.beslutter", "dagpenger-beslutter")
         nyttScenario {
-            ident = testIdent
             inntektSiste12Mnd = 350000
         }.test {
             withMockAuthServerAndTestApplication(this.api) { block(this) }
