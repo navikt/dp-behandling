@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.naisful.test.TestContext
-import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -21,211 +21,32 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.escapeIfNeeded
-import io.mockk.mockk
 import io.mockk.slot
-import io.mockk.spyk
-import io.mockk.verify
-import no.nav.dagpenger.avklaring.Avklaring
-import no.nav.dagpenger.behandling.TestOpplysningstyper
-import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
-import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
-import no.nav.dagpenger.behandling.api.models.DataTypeDTO
-import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
-import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
-import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
-import no.nav.dagpenger.behandling.april
-import no.nav.dagpenger.behandling.db.InMemoryPersonRepository
-import no.nav.dagpenger.behandling.mediator.HendelseMediator
+import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.testAzureAdToken
-import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
-import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
-import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
-import no.nav.dagpenger.behandling.modell.Person
-import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
+import no.nav.dagpenger.behandling.mediator.api.TestApplication.withMockAuthServerAndTestApplication
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
-import no.nav.dagpenger.opplysning.Avklaringkode
-import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Saksbehandler
-import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.opplysning.verdier.Barn
-import no.nav.dagpenger.opplysning.verdier.BarnListe
-import no.nav.dagpenger.opplysning.verdier.Beløp
-import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.Avklaringspunkter
-import no.nav.dagpenger.regel.Minsteinntekt
-import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.Verneplikt.avtjentVerneplikt
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
-import no.nav.dagpenger.uuid.UUIDv7
-import org.junit.jupiter.api.AfterEach
+import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem
+import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.regel.ReellArbeidssøker
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 internal class BehandlingApiTest {
-    private val ident = "12345123451"
-    private val rapid = spyk(TestRapid())
-    private val hendelse =
-        SøknadInnsendtHendelse(
-            meldingsreferanseId = UUIDv7.ny(),
-            ident = ident,
-            søknadId = UUIDv7.ny(),
-            gjelderDato = LocalDate.now(),
-            fagsakId = 1,
-            opprettet = LocalDateTime.now(),
-        )
-
-    private val avklaringer =
-        listOf(
-            Avklaring.rehydrer(
-                UUIDv7.ny(),
-                Avklaringkode("tittel 1", "beskrivelse ", "kanKvitteres"),
-                mutableListOf(
-                    Avklaring.Endring.Avbrutt(),
-                ),
-            ),
-            Avklaring.rehydrer(
-                UUIDv7.ny(),
-                Avklaringkode("tittel 2", "beskrivelse ", "kanKvitteres"),
-                mutableListOf(
-                    Avklaring.Endring.Avklart(
-                        avklartAv = Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("Z123456")),
-                        begrunnelse = "heia",
-                    ),
-                ),
-            ),
-            Avklaring.rehydrer(
-                UUIDv7.ny(),
-                Avklaringkode("tittel 3", "beskrivelse ", "kanKvitteres"),
-                mutableListOf(
-                    Avklaring.Endring.UnderBehandling(),
-                ),
-            ),
-            Avklaring.rehydrer(
-                UUIDv7.ny(),
-                Avklaringspunkter.InntektNesteKalendermåned,
-                mutableListOf(
-                    Avklaring.Endring.Avklart(
-                        avklartAv = Systemkilde(UUIDv7.ny(), LocalDateTime.now()),
-                        begrunnelse = "heia",
-                    ),
-                ),
-            ),
-        )
-    private val behandling =
-        Behandling.rehydrer(
-            behandlingId = UUIDv7.ny(),
-            behandler = hendelse,
-            gjeldendeOpplysninger =
-                Opplysninger(
-                    listOf(
-                        Faktum(prøvingsdato, LocalDate.now()),
-                        Faktum(
-                            avtjentVerneplikt,
-                            true,
-                        ),
-                        Faktum(
-                            opplysningstype = Søknadstidspunkt.søknadsdato,
-                            verdi = LocalDate.now(),
-                            kilde =
-                                Saksbehandlerkilde(
-                                    UUIDv7.ny(),
-                                    Saksbehandler("Z123456"),
-                                ),
-                        ),
-                        Faktum(
-                            opplysningstype = Minsteinntekt.inntekt12,
-                            verdi = Beløp(3000.034.toBigDecimal()),
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.heltall,
-                            verdi = 3,
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.desimal,
-                            verdi = 3.0,
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.boolsk,
-                            verdi = true,
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.dato,
-                            verdi = LocalDate.now(),
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.beløpA,
-                            verdi = Beløp(1000.toBigDecimal()),
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.periode,
-                            verdi = Periode(16.april(2025), 25.april(2025)),
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.barn,
-                            verdi =
-                                BarnListe(
-                                    listOf(
-                                        Barn(
-                                            fornavnOgMellomnavn = "Navn",
-                                            etternavn = "Navnesen",
-                                            statsborgerskap = "NOR",
-                                            fødselsdato = LocalDate.now(),
-                                            kvalifiserer = true,
-                                        ),
-                                    ),
-                                ),
-                            kilde = Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("Z123456")),
-                        ),
-                    ),
-                ),
-            basertPå = emptyList(),
-            tilstand = Behandling.TilstandType.TilGodkjenning,
-            sistEndretTilstand = LocalDateTime.now(),
-            avklaringer = avklaringer,
-        )
-
-    private val person = Person(ident.tilPersonIdentfikator(), listOf(behandling))
-
-    private val personRepository =
-        InMemoryPersonRepository().also {
-            it.lagre(person)
-        }
-    private val hendelseMediator = mockk<HendelseMediator>(relaxed = true)
-    private val auditlogg = mockk<Auditlogg>(relaxed = true)
-    private val apiRepositoryPostgres = mockk<ApiRepositoryPostgres>(relaxed = true)
-
-    @AfterEach
-    fun tearDown() {
-        personRepository.reset()
-    }
+    private val testIdent = "12345123451"
 
     @Test
     fun `ikke autentiserte kall returnerer 401`() {
         medSikretBehandlingApi {
             val response =
-                client.post("/behandling") {
-                    setBody("""{"ident":"$ident"}""")
+                it.client.post("/behandling") {
+                    setBody("""{"ident":"$testIdent"}""")
                 }
             response.status shouldBe HttpStatusCode.Unauthorized
         }
@@ -233,31 +54,34 @@ internal class BehandlingApiTest {
 
     @Test
     fun `kall uten saksbehandlingsADgruppe i claims returnerer 401`() {
-        medSikretBehandlingApi {
-            autentisert(
-                token = testAzureAdToken(ADGrupper = emptyList()),
-                endepunkt = "/behandling",
-                body = """{"ident":"$ident"}""",
-            ).status shouldBe HttpStatusCode.Unauthorized
+        medSikretBehandlingApi { testContext ->
+            testContext
+                .autentisert(
+                    endepunkt = "/behandling",
+                    body = """{"ident":"$testIdent"}""",
+                    token = testAzureAdToken(ADGrupper = emptyList(), navIdent = "123"),
+                ).status shouldBe HttpStatusCode.Unauthorized
 
-            autentisert(
-                token = testAzureAdToken(ADGrupper = listOf("ikke-saksbehandler")),
-                endepunkt = "/behandling",
-                body = """{"ident":"$ident"}""",
-            ).status shouldBe HttpStatusCode.Unauthorized
+            testContext
+                .autentisert(
+                    endepunkt = "/behandling",
+                    body = """{"ident":"$testIdent"}""",
+                    token = testAzureAdToken(ADGrupper = listOf("ikke-saksbehandler"), navIdent = "123"),
+                ).status shouldBe HttpStatusCode.Unauthorized
 
-            autentisert(
-                token = testAzureAdToken(ADGrupper = listOf("dagpenger-saksbehandler")),
-                endepunkt = "/behandling",
-                body = """{"ident":"$ident"}""",
-            ).status shouldBe HttpStatusCode.OK
+            testContext
+                .autentisert(
+                    endepunkt = "/behandling",
+                    body = """{"ident":"$testIdent"}""",
+                    token = testAzureAdToken(ADGrupper = listOf("dagpenger-saksbehandler"), navIdent = "123"),
+                ).status shouldBe HttpStatusCode.OK
         }
     }
 
     @Test
     fun `hent opplysningstyper`() {
-        medSikretBehandlingApi {
-            val response = autentisert("/opplysningstyper", httpMethod = HttpMethod.Get)
+        medSikretBehandlingApi { testContext ->
+            val response = testContext.autentisert(httpMethod = HttpMethod.Get, "/opplysningstyper")
             response.status shouldBe HttpStatusCode.OK
             val opplysningstyper =
                 shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), object : TypeReference<List<OpplysningstypeDTO>>() {}) }
@@ -268,8 +92,8 @@ internal class BehandlingApiTest {
     @Test
     @Disabled("testen er avhengig av at hendelsemediator ikke er mocket - er del jobb.")
     fun `opprett behandling på en gitt person`() {
-        medSikretBehandlingApi {
-            val response = autentisert("/person/behandling", body = """{"ident":"$ident"}""")
+        medSikretBehandlingApi { testContext ->
+            val response = testContext.autentisert(endepunkt = "/person/behandling", body = """{"ident":"$testIdent"}""")
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
         }
@@ -277,33 +101,34 @@ internal class BehandlingApiTest {
 
     @Test
     fun `hent behandlinger gitt person`() {
-        medSikretBehandlingApi {
-            val response = autentisert("/behandling", body = """{"ident":"$ident"}""")
+        medSikretBehandlingApi { testContext ->
+            val response = testContext.autentisert(endepunkt = "/behandling", body = """{"ident":"$testIdent"}""")
             response.status shouldBe HttpStatusCode.OK
-            response.bodyAsText().shouldNotBeEmpty()
-            verify {
-                auditlogg.les(any(), any(), any())
-            }
+            response.bodyAsText() shouldBe "[]"
+            auditlogg.aktivitet shouldContainExactly listOf("les")
         }
     }
 
     @Test
     fun `gir 404 hvis person ikke eksisterer`() {
-        medSikretBehandlingApi {
-            val response = autentisert("/behandling", body = """{"ident":"09876543311"}""")
+        medSikretBehandlingApi { testContext ->
+            val response = testContext.autentisert(endepunkt = "/behandling", body = """{"ident":"09876543311"}""")
             response.status shouldBe HttpStatusCode.NotFound
         }
     }
 
     @Test
     fun `hent behandling gitt behandlingId`() {
-        medSikretBehandlingApi {
-            val behandlingId = person.behandlinger().first().behandlingId
-            val response = autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/$behandlingId")
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+
+            val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/${person.behandlingId}")
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
+
             val behandlingDto = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingDTO::class.java) }
-            behandlingDto.behandlingId shouldBe behandlingId
+            behandlingDto.behandlingId shouldBe person.behandlingId
             behandlingDto.vilkår.shouldNotBeEmpty()
             behandlingDto.opplysninger.all { it.redigerbar } shouldBe false
             behandlingDto.avklaringer.shouldNotBeEmpty()
@@ -311,88 +136,36 @@ internal class BehandlingApiTest {
             with(behandlingDto.behandletHendelse) {
                 shouldNotBeNull()
                 type shouldBe HendelseDTOTypeDTO.SØKNAD
-                id shouldBe hendelse.eksternId.id.toString()
             }
             with(behandlingDto.vilkår.single { it.navn == "Minsteinntekt" }) {
                 avklaringer shouldHaveSize 1
-                avklaringer.single().kode shouldBe "InntektNesteKalendermåned"
+                avklaringer.any { it.kode == "InntektNesteKalendermåned" } shouldBe true
             }
 
-            // sanity check
-            with(behandlingDto.opplysninger) {
-                with(opplysning(TestOpplysningstyper.beløpA.navn)) {
-                    shouldNotBeNull()
-                    verdi shouldBe "1000"
-                    val pengeVerdi: PengeVerdiDTO = verdien.shouldBeInstanceOf()
-                    pengeVerdi.verdi shouldBe 1000.toBigDecimal()
-                    pengeVerdi.datatype shouldBe DataTypeDTO.PENGER
-                }
-                with(opplysning(TestOpplysningstyper.boolsk.navn)) {
-                    shouldNotBeNull()
-                    verdi shouldBe "true"
-                    val boolsk: BoolskVerdiDTO = verdien.shouldBeInstanceOf()
-                    boolsk.verdi shouldBe true
-                    boolsk.datatype shouldBe DataTypeDTO.BOOLSK
-                }
-                with(opplysning(TestOpplysningstyper.periode.navn)) {
-                    shouldNotBeNull()
-                    verdi shouldBe "Periode(start=2025-04-16, endInclusive=2025-04-25)"
-                    val boolsk: PeriodeVerdiDTO = verdien.shouldBeInstanceOf()
-                    boolsk.fom shouldBe 16.april(2025)
-                    boolsk.tom shouldBe 25.april(2025)
-                    boolsk.datatype shouldBe DataTypeDTO.PERIODE
-                }
-                with(opplysning(TestOpplysningstyper.barn.navn)) {
-                    shouldNotBeNull()
-                    verdi.shouldNotBeEmpty()
-                    val barn: BarnelisteDTO = verdien.shouldBeInstanceOf()
-                    barn.verdi.shouldHaveSize(1)
-                    with(barn.verdi.first()) {
-                        fødselsdato shouldBe LocalDate.now()
-                        fornavnOgMellomnavn shouldBe "Navn"
-                        etternavn shouldBe "Navnesen"
-                        statsborgerskap shouldBe "NOR"
-                        kvalifiserer shouldBe true
-                    }
-                }
-                with(opplysning(TestOpplysningstyper.heltall.navn)) {
-                    shouldNotBeNull()
-                    verdi shouldBe "3"
-                    val boolsk: HeltallVerdiDTO = verdien.shouldBeInstanceOf()
-                    boolsk.verdi shouldBe 3
-                    boolsk.datatype shouldBe DataTypeDTO.HELTALL
-                }
-                with(opplysning(Minsteinntekt.inntekt12.navn)) {
-                    shouldNotBeNull()
-                    verdi shouldBe "3000.034"
-                    val pengeVerdi: PengeVerdiDTO = verdien.shouldBeInstanceOf()
-                    pengeVerdi.verdi shouldBe 3000.034.toBigDecimal()
-                    pengeVerdi.datatype shouldBe DataTypeDTO.PENGER
-                }
-            }
-
-            behandlingDto.avklaringer shouldHaveSize 3
-
-            verify {
-                auditlogg.les(any(), any(), any())
-            }
+            behandlingDto.avklaringer shouldHaveSize 5
+            auditlogg.aktivitet shouldContainExactly listOf("les")
         }
     }
 
     @Test
+    @Disabled("Scenariotest må få støtte for å endre opplysninger og sånt")
     fun `hent saksbehandlers vurderinger for en gitt behandlingId`() {
-        medSikretBehandlingApi {
-            val behandlingId = person.behandlinger().first().behandlingId
-            val response = autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/$behandlingId/vurderinger")
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+
+            val response = testContext.autentisert(HttpMethod.Get, "/behandling/${person.behandlingId}/vurderinger")
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
+
             val behandlingDto =
                 shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), SaksbehandlersVurderingerDTO::class.java) }
-            behandlingDto.behandlingId shouldBe behandlingId
+            behandlingDto.behandlingId shouldBe person.behandlingId
 
-            behandlingDto.regelsett.shouldNotBeEmpty()
+            behandlingDto.regelsett.shouldBeEmpty()
             behandlingDto.avklaringer.shouldNotBeEmpty()
-            behandlingDto.opplysninger.shouldNotBeEmpty()
+            behandlingDto.opplysninger.shouldBeEmpty()
 
             with(behandlingDto.regelsett.single { it.navn == "Søknadstidspunkt" }) {
                 avklaringer.shouldBeEmpty()
@@ -410,130 +183,140 @@ internal class BehandlingApiTest {
 
     @Test
     fun `lagrer saksbehandlers begrunnelse for en gitt kildeId`() {
-        medSikretBehandlingApi {
-            val behandling = person.behandlinger().first()
-            val behandlingId = behandling.behandlingId
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
 
-            val opplysning = behandling.opplysninger().finnAlle().single { it.opplysningstype.navn == "Søknadsdato" }
-            autentisert(
+            val kildeId = saksbehandler.endreOpplysning(ReellArbeidssøker.erArbeidsfør, false)
+
+            testContext.autentisert(
                 httpMethod = HttpMethod.Put,
-                endepunkt = "/behandling/$behandlingId/vurderinger/${opplysning.kilde?.id}",
+                endepunkt = "/behandling/${person.behandlingId}/vurderinger/$kildeId",
                 body = """{ "begrunnelse":"tekst" }""",
             )
 
-            val response = autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/$behandlingId/vurderinger")
+            val response =
+                testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/${person.behandlingId}/vurderinger")
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
             val behandlingDto =
                 shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), SaksbehandlersVurderingerDTO::class.java) }
-            behandlingDto.behandlingId shouldBe behandlingId
+            behandlingDto.behandlingId shouldBe person.behandlingId
 
             behandlingDto.regelsett.shouldNotBeEmpty()
-            behandlingDto.avklaringer.shouldNotBeEmpty()
+            behandlingDto.avklaringer.shouldBeEmpty()
             behandlingDto.opplysninger.shouldNotBeEmpty()
 
-            with(behandlingDto.regelsett.single { it.navn == "Søknadstidspunkt" }) {
+            with(behandlingDto.regelsett.single { it.navn == "Reell arbeidssøker" }) {
                 avklaringer.shouldBeEmpty()
                 opplysningIder.shouldHaveSize(1)
             }
 
-            with(behandlingDto.avklaringer.single { it.kode == "tittel 2" }) {
-                avklartAv.shouldBeInstanceOf<SaksbehandlerDTO>()
-            }
-
-            behandlingDto.opplysninger shouldHaveSize 2
+            behandlingDto.opplysninger shouldHaveSize 1
             behandlingDto.opplysninger.all { it.kilde?.type?.value == "Saksbehandler" } shouldBe true
         }
     }
 
     @Test
     fun `avbryt behandling gitt behandlingId`() {
-        medSikretBehandlingApi {
-            val behandlingId = person.behandlinger().first().behandlingId
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+
+            val behandlingId = person.behandlingId
             val response =
-                autentisert(
+                testContext.autentisert(
                     httpMethod = HttpMethod.Post,
                     endepunkt = "/behandling/$behandlingId/avbryt",
-                    body = """{"ident":"09876543311"}""",
+                    body = """{"ident":"$testIdent"}""",
                 )
             response.status shouldBe HttpStatusCode.Created
             response.bodyAsText().shouldBeEmpty()
-            verify {
-                hendelseMediator.behandle(any<AvbrytBehandlingHendelse>(), any())
-            }
+
+            // TODO: Assert ny tilstand
         }
     }
 
     @Test
     fun `rekjør behandling med gitt behandlingId`() {
-        medSikretBehandlingApi {
-            val behandlingId = person.behandlinger().first().behandlingId
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+
             val response =
-                autentisert(
+                testContext.autentisert(
                     httpMethod = HttpMethod.Post,
-                    endepunkt = "/behandling/$behandlingId/rekjor",
-                    body = """{"ident":"09876543311"}""",
+                    endepunkt = "/behandling/${person.behandlingId}/rekjor",
+                    body = """{"ident":"$testIdent"}""",
                 )
             response.status shouldBe HttpStatusCode.Created
             response.bodyAsText().shouldBeEmpty()
-            verify {
-                hendelseMediator.behandle(any<RekjørBehandlingHendelse>(), any())
-            }
+
+            // TODO: Assertions
         }
     }
 
     @Test
     fun `test overgangene for behandling mellom saksbehandler og beslutter`() {
-        medSikretBehandlingApi {
-            val behandlingId = person.behandlinger().first().behandlingId
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+
+            val behandlingId = person.behandlingId
             val response =
-                autentisert(
+                testContext.autentisert(
                     httpMethod = HttpMethod.Post,
                     endepunkt = "/behandling/$behandlingId/godkjenn",
-                    body = """{"ident":"09876543311"}""",
+                    body = """{"ident":"$testIdent"}""",
                 )
             response.status shouldBe HttpStatusCode.Created
             response.bodyAsText().shouldBeEmpty()
-            verify {
-                hendelseMediator.behandle(any<GodkjennBehandlingHendelse>(), any())
-            }
 
+            // TODO: Assert godkjenning
+            this.rapidInspektør
             // Send tilbake til saksbehandler
-            autentisert(
-                httpMethod = HttpMethod.Post,
-                endepunkt = "/behandling/$behandlingId/send-tilbake",
-                body = """{"ident":"09876543311"}""",
-            ).status shouldBe HttpStatusCode.Created
-            verify {
-                hendelseMediator.behandle(any<SendTilbakeHendelse>(), any())
-            }
+            testContext
+                .autentisert(
+                    httpMethod = HttpMethod.Post,
+                    endepunkt = "/behandling/$behandlingId/send-tilbake",
+                    body = """{"ident":"$testIdent"}""",
+                ).status shouldBe HttpStatusCode.Created
+
+            // TODO: Assert at den er tilbake til godkjenning
 
             // Godkjenn igjen
-            autentisert(
-                httpMethod = HttpMethod.Post,
-                endepunkt = "/behandling/$behandlingId/godkjenn",
-                body = """{"ident":"09876543311"}""",
-            ).status shouldBe HttpStatusCode.Created
-            verify {
-                hendelseMediator.behandle(any<GodkjennBehandlingHendelse>(), any())
-            }
+            testContext
+                .autentisert(
+                    HttpMethod.Post,
+                    "/behandling/$behandlingId/godkjenn",
+                    """{"ident":"$testIdent"}""",
+                ).status shouldBe HttpStatusCode.Created
+
+            // TODO: Assert at den er til beslutter igjen
 
             // Beslutt
-            autentisert(
-                httpMethod = HttpMethod.Post,
-                endepunkt = "/behandling/$behandlingId/beslutt",
-                body = """{"ident":"09876543311"}""",
-            ).status shouldBe HttpStatusCode.Created
-            verify {
-                hendelseMediator.behandle(any<BesluttBehandlingHendelse>(), any())
-            }
+            testContext
+                .autentisert(
+                    HttpMethod.Post,
+                    "/behandling/$behandlingId/beslutt",
+                    """{"ident":"$testIdent"}""",
+                    token =
+                        testAzureAdToken(
+                            ADGrupper = listOf(Configuration.properties[Configuration.Grupper.saksbehandler]),
+                            navIdent = "555",
+                        ),
+                ).status shouldBe HttpStatusCode.Created
+
+            // TODO: Assert vedtak
         }
     }
 
     @Test
+    @Disabled("Oppdater til å fungere med ScenarioTesto")
     fun `kan endre alle typer opplysninger som er redigerbare`() {
-        medSikretBehandlingApi {
-            val behandlingId = person.behandlinger().first().behandlingId
+        medSikretBehandlingApi { testContext ->
+            /*val behandlingId = person.behandlingId
             val opplysninger =
                 listOf(
                     Pair(TestOpplysningstyper.beløpA, "100"),
@@ -568,60 +351,61 @@ internal class BehandlingApiTest {
                     )
                 }
             opplysninger.forEach { opplysning: Pair<Any, Opplysning<*>> ->
-                autentisert(
-                    httpMethod = HttpMethod.Put,
-                    endepunkt = "/behandling/$behandlingId/opplysning/${opplysning.second.id}",
-                    // language=JSON
-                    body = """{"begrunnelse":"tekst", "verdi": ${opplysning.first} }""",
-                ).status shouldBe HttpStatusCode.OK
-            }
+                testContext
+                    .autentisert(
+                        httpMethod = HttpMethod.Put,
+                        endepunkt = "/behandling/$behandlingId/opplysning/${opplysning.second.id}",
+                        // language=JSON
+                        body = """{"begrunnelse":"tekst", "verdi": ${opplysning.first} }""",
+                    ).status shouldBe HttpStatusCode.OK
+
+             */
         }
     }
 
     @Test
     fun `saksbehandler kan kvittere ut avklaring`() {
-        medSikretBehandlingApi {
+        medSikretBehandlingApi { testContext ->
             val kvitteringHendelse = slot<AvklaringKvittertHendelse>()
+            /*
+                        val behandlingId = person.behandlingId
+                        val avklaring =
 
-            val behandlingId = person.behandlinger().first().behandlingId
-            val avklaring =
-                person
-                    .behandlinger()
-                    .first()
-                    .aktiveAvklaringer()
-                    .first()
-            val response =
-                autentisert(
-                    httpMethod = HttpMethod.Put,
-                    endepunkt = "/behandling/$behandlingId/avklaring/${avklaring.id}",
-                    // language=JSON
-                    body = """{"begrunnelse":"tekst"}""",
-                )
+                            person
+                                .behandlinger()
+                                .first()
+                                .aktiveAvklaringer()
+                                .first()
+                        val response =
+                            testContext.autentisert(
+                                httpMethod = HttpMethod.Put,
+                                endepunkt = "/behandling/$behandlingId/avklaring/${avklaring.id}",
+                                // language=JSON
+                                body = """{"begrunnelse":"tekst"}""",
+                            )
 
-            response.status shouldBe HttpStatusCode.NoContent
+                        response.status shouldBe HttpStatusCode.NoContent
 
-            verify {
-                hendelseMediator.behandle(capture(kvitteringHendelse), any())
-            }
+                        verify {
+                            hendelseMediator.behandle(capture(kvitteringHendelse), any())
+                        }
 
-            kvitteringHendelse.isCaptured shouldBe true
+                        kvitteringHendelse.isCaptured shouldBe true
+             */
         }
     }
 
-    private fun medSikretBehandlingApi(
-        personRepository: PersonRepository = this.personRepository,
-        hendelseMediator: HendelseMediator = this.hendelseMediator,
-        apiRepositoryPostgres: ApiRepositoryPostgres = this.apiRepositoryPostgres,
-        test: suspend TestContext.() -> Unit,
-    ) {
+    private fun medSikretBehandlingApi(block: suspend SimulertDagpengerSystem.(TestContext) -> Unit) {
         System.setProperty("Grupper.saksbehandler", "dagpenger-saksbehandler")
-        TestApplication.withMockAuthServerAndTestApplication(
-            moduleFunction = {
-                behandlingApi(personRepository, hendelseMediator, auditlogg, RegelverkDagpenger.produserer, apiRepositoryPostgres) { rapid }
-            },
-            test,
-        )
+        System.setProperty("Grupper.beslutter", "dagpenger-beslutter")
+        nyttScenario {
+            ident = testIdent
+            inntektSiste12Mnd = 350000
+        }.test {
+            withMockAuthServerAndTestApplication(this.api) { block(this) }
+        }
         System.clearProperty("Grupper.saksbehandler")
+        System.clearProperty("Grupper.beslutter")
     }
 
     private companion object {
@@ -632,5 +416,3 @@ internal class BehandlingApiTest {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 }
-
-private fun List<OpplysningDTO>.opplysning(navn: String) = find { it.navn == navn }

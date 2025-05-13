@@ -32,7 +32,9 @@ class Saksbehandlerkilde(
 data class Saksbehandlerbegrunnelse(
     val verdi: String,
     val sistEndret: LocalDateTime,
-)
+) {
+    constructor(verdi: String) : this(verdi, LocalDateTime.now())
+}
 
 data class Saksbehandler(
     val ident: String,

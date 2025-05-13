@@ -27,7 +27,7 @@ internal class Mennesket(
     private lateinit var ønskerFraDato: LocalDate
 
     fun søkDagpenger(
-        dato: LocalDate,
+        dato: LocalDate = LocalDate.now(),
         ønskerFraDato: LocalDate = dato,
     ) {
         this.søknadsdato = dato

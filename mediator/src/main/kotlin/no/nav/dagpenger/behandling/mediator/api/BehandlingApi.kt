@@ -125,10 +125,7 @@ internal fun Application.behandlingApi(
                 post {
                     val nyBehandlingDto = call.receive<NyBehandlingDTO>()
                     val ident = nyBehandlingDto.ident
-                    val person =
-                        personRepository.hent(
-                            ident.tilPersonIdentfikator(),
-                        ) ?: throw NotFoundException("Person ikke funnet")
+                    val person = personRepository.hent(ident.tilPersonIdentfikator()) ?: throw NotFoundException("Person ikke funnet")
 
                     val hendelseId =
                         when (nyBehandlingDto.hendelse?.type) {
@@ -155,7 +152,11 @@ internal fun Application.behandlingApi(
 
                     call.respond(
                         HttpStatusCode.OK,
-                        person.behandlinger().single { it.behandler.eksternId == hendelse.eksternId }.tilBehandlingOpplysningerDTO(),
+                        personRepository
+                            .hent(ident.tilPersonIdentfikator())!!
+                            .behandlinger()
+                            .single { it.behandler.eksternId == hendelse.eksternId }
+                            .tilBehandlingOpplysningerDTO(),
                     )
                 }
             }
