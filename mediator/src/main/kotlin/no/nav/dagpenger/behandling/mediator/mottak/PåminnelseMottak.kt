@@ -46,7 +46,7 @@ internal class PåminnelseMottak(
             sikkerlogg.info { "Mottok hendelse om at behandlingen står fast: ${packet.toJson()}" }
 
             // Hopp over behandling vi aldri har hørt om før
-            if (behandlingId.toString() == "019126ab-a0ec-7a34-9e0b-5ec963185ee0") return
+            if (behandlingId.toString() == "0196c86b-598c-7d49-b491-105137a3067a") return
 
             val message = BehandlingStårFastMessage(packet)
             message.behandle(messageMediator, context)
