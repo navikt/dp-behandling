@@ -46,7 +46,6 @@ import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
-import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -211,14 +210,9 @@ internal class BehandlingApiTest {
         InMemoryPersonRepository().also {
             it.lagre(person)
         }
+    private val hendelseMediator = mockk<HendelseMediator>(relaxed = true)
     private val auditlogg = mockk<Auditlogg>(relaxed = true)
-    private val meldingRepository = mockk<MeldingRepository>(relaxed = true)
-    private val hendelseMediator =
-        HendelseMediator(
-            personRepository,
-            mockk(),
-        )
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(meldingRepository)
+    private val apiRepositoryPostgres = mockk<ApiRepositoryPostgres>(relaxed = true)
 
     @AfterEach
     fun tearDown() {
