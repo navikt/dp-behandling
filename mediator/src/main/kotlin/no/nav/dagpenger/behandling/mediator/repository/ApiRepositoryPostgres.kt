@@ -200,7 +200,7 @@ internal class ApiRepositoryPostgres(
                     """
                     SELECT tilstand, sist_endret_tilstand
                     FROM behandling
-                    WHERE behandling_id = :behandlingId AND sist_endret_tilstand > :sistEndret
+                    WHERE behandling_id = :behandlingId AND sist_endret_tilstand >= :sistEndret
                     """.trimIndent(),
                     mapOf("behandlingId" to behandlingId, "sistEndret" to sistEndret),
                 ).map { TilstandType.valueOf(it.string("tilstand")) }.asSingle,

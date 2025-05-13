@@ -1,8 +1,10 @@
 package no.nav.dagpenger.behandling.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.mediator.asUUID
+import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
@@ -60,6 +62,37 @@ internal class Mennesket(
             }
             throw NoSuchElementException("Fant ingen behandling_opprettet-melding")
         }
+
+    val behandling get() = behandling(behandlingId)
+
+    fun behandling(behandlingId: UUID): VedtakDTO {
+        for (offset in rapid.inspektør.size - 1 downTo 0) {
+            val message = rapid.inspektør.message(offset)
+            if (message["@event_name"].asText() == "forslag_til_vedtak" &&
+                message["behandlingId"].asUUID() == behandlingId
+            ) {
+                return objectMapper.convertValue(message, VedtakDTO::class.java)
+            }
+        }
+        throw NoSuchElementException("Fant ingen behandling med UUID=$behandlingId")
+    }
+
+    val avklaringer: List<Avklaring>
+        get() {
+            val liste = mutableListOf<Avklaring>()
+            for (offset in rapid.inspektør.size - 1 downTo 0) {
+                val message = rapid.inspektør.message(offset)
+                if (message["@event_name"].asText() == "NyAvklaring") {
+                    liste.add(Avklaring(message["avklaringId"].asUUID(), message["kode"].asText()))
+                }
+            }
+            return liste.toList()
+        }
+
+    internal data class Avklaring(
+        val id: UUID,
+        val kode: String,
+    )
 
     private val løsninger
         get() =
