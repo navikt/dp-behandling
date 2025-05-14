@@ -143,6 +143,7 @@ internal fun Application.behandlingApi(
                             ident = nyBehandlingDto.ident,
                             eksternId = hendelseId,
                             gjelderDato = nyBehandlingDto.prøvingsdato ?: LocalDate.now(),
+                            begrunnelse = nyBehandlingDto.begrunnelse,
                             opprettet = LocalDateTime.now(),
                         )
                     apiRepositoryPostgres.behandle(melding) {

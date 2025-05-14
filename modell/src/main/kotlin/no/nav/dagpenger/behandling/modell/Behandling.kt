@@ -54,13 +54,14 @@ class Behandling private constructor(
         behandler: StartHendelse,
         opplysninger: List<Opplysning<*>>,
         basertPå: List<Behandling> = emptyList(),
+        avklaringer: List<Avklaring> = emptyList(),
     ) : this(
         behandlingId = UUIDv7.ny(),
         behandler = behandler,
         gjeldendeOpplysninger = Opplysninger(opplysninger),
         basertPå = basertPå,
         tilstand = UnderOpprettelse(LocalDateTime.now()),
-        avklaringer = emptyList(),
+        avklaringer = avklaringer,
     )
 
     init {

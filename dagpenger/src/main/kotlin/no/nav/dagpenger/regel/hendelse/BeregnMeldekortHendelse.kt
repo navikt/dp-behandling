@@ -75,7 +75,6 @@ class BeregnMeldekortHendelse(
 
         return Behandling(
             behandler = this,
-            basertPå = listOf(forrigeBehandling),
             opplysninger =
                 listOf(
                     Faktum(
@@ -91,6 +90,7 @@ class BeregnMeldekortHendelse(
                         kilde = kilde,
                     ),
                 ),
+            basertPå = listOf(forrigeBehandling),
         ).apply {
             meldekort.dager.forEach { dag ->
                 val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)

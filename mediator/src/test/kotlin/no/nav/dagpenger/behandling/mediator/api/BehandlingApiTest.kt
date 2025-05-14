@@ -97,6 +97,9 @@ internal class BehandlingApiTest {
             response.bodyAsText().shouldNotBeEmpty()
 
             person.behandlingId.shouldNotBeNull()
+
+            person.avklaringer shouldHaveSize 1
+            person.avklaringer.single().kode shouldBe "ManuellBehandling"
         }
     }
 

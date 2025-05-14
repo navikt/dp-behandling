@@ -1,10 +1,12 @@
 package no.nav.dagpenger.regel.hendelse
 
+import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
@@ -24,6 +26,7 @@ class OpprettBehandlingHendelse(
     ident: String,
     eksternId: EksternId<*>,
     gjelderDato: LocalDate,
+    private val begrunnelse: String? = null,
     opprettet: LocalDateTime,
 ) : StartHendelse(meldingsreferanseId, ident, eksternId, gjelderDato, opprettet) {
     override val forretningsprosess = Søknadsprosess()
@@ -39,32 +42,35 @@ class OpprettBehandlingHendelse(
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
-    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = opplysninger.finnOpplysning(prøvingsdato).verdi
+    override fun virkningsdato(opplysninger: LesbarOpplysninger) = opplysninger.finnOpplysning(prøvingsdato).verdi
 
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling =
-        Behandling(
-            basertPå = listOfNotNull(forrigeBehandling),
-            behandler =
-                Hendelse(
-                    meldingsreferanseId = meldingsreferanseId,
-                    type = type,
-                    ident = ident,
-                    eksternId = eksternId,
-                    skjedde = skjedde,
-                    opprettet = opprettet,
-                    forretningsprosess = forretningsprosess,
+    ) = Behandling(
+        basertPå = listOfNotNull(forrigeBehandling),
+        behandler =
+            Hendelse(
+                meldingsreferanseId = meldingsreferanseId,
+                type = type,
+                ident = ident,
+                eksternId = eksternId,
+                skjedde = skjedde,
+                opprettet = opprettet,
+                forretningsprosess = forretningsprosess,
+            ),
+        opplysninger =
+            listOf(
+                Faktum(
+                    hendelseTypeOpplysningstype,
+                    type,
+                    gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                    kilde = Systemkilde(meldingsreferanseId, opprettet),
                 ),
-            opplysninger =
-                listOf(
-                    Faktum(
-                        hendelseTypeOpplysningstype,
-                        type,
-                        gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
-                        kilde = Systemkilde(meldingsreferanseId, opprettet),
-                    ),
-                ),
-        )
+            ),
+        avklaringer =
+            listOf(
+                Avklaring(Avklaringkode("ManuellBehandling", "Manuell behandling", begrunnelse ?: "")),
+            ),
+    )
 }

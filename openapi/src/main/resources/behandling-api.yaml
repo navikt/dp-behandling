@@ -537,6 +537,8 @@ components:
         prøvingsdato:
           type: string
           format: date
+        begrunnelse:
+          type: string
 
     OppdaterOpplysning:
       type: object

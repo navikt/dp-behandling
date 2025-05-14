@@ -21,9 +21,10 @@ class Avklaringer(
 
     override fun evaluert(
         rapport: Regelkjøringsrapport,
-        opplysninger: LesbarOpplysninger,
+        alleOpplysninger: LesbarOpplysninger,
+        aktiveOpplysninger: LesbarOpplysninger,
     ) {
-        vurderAvklaringer(opplysninger)
+        vurderAvklaringer(aktiveOpplysninger)
     }
 
     fun gjenåpne(avklaringId: UUID): Boolean = avklaringer.find { it.id == avklaringId }?.gjenåpne() ?: false
