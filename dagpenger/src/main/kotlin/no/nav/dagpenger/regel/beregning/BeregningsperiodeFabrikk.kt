@@ -2,12 +2,10 @@ package no.nav.dagpenger.regel.beregning
 
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstatninger
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
-import no.nav.dagpenger.regel.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -24,7 +22,7 @@ internal class BeregningsperiodeFabrikk(
     opplysninger: LesbarOpplysninger,
     private val rettighetstatuser: TemporalCollection<Rettighetstatus>,
 ) {
-    private val opplysninger: LesbarOpplysninger = opplysninger.utenErstatninger
+    private val opplysninger: LesbarOpplysninger = opplysninger.utenErstattet
     private val meldeperiode = Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed)
 
     fun lagBeregningsperiode(): Beregningsperiode {

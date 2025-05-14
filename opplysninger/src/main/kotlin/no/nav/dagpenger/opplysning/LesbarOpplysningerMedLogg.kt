@@ -41,7 +41,7 @@ class LesbarOpplysningerMedLogg(
             }
         }
 
-    override val utenErstatninger: Opplysninger get() = opplysninger.utenErstatninger
+    override val utenErstattet: Opplysninger get() = opplysninger.utenErstattet
 
     override fun finnAlle(opplysningstyper: List<Opplysningstype<*>>) = TODO()
 

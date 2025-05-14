@@ -140,6 +140,16 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         hentOpplysning(uuid)
                     }
                 }
+
+            // Hent utledetAv-opplysninger fra tidligere opplysninger
+            val utledetAv =
+                rader
+                    .mapNotNull {
+                        it.utledetAv?.opplysninger?.filterNot { uuid -> eksisterer(rader)(uuid) }?.mapNotNull { uuid ->
+                            hentOpplysning(uuid)
+                        }
+                    }.flatten()
+                    .toSet()
             val raderMedKilde =
                 rader.map {
                     if (it.kildeId == null) return@map it
@@ -147,7 +157,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     it.copy(kilde = kilde)
                 }
 
-            val merged = raderMedKilde + erstattetAv + erstatter
+            val merged = raderMedKilde + erstattetAv + erstatter + utledetAv
             val raderFraTidligereOpplysninger = merged.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
             return merged.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
         }
