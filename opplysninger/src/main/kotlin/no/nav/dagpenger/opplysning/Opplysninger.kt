@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import mu.KotlinLogging
 import no.nav.dagpenger.opplysning.Opplysning.Companion.bareAktive
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
 import no.nav.dagpenger.uuid.UUIDv7
@@ -140,10 +141,21 @@ class Opplysninger private constructor(
     fun fjernUbrukteOpplysninger(beholdDisse: Set<Opplysningstype<*>>) {
         opplysninger
             .filterNot { beholdDisse.contains(it.opplysningstype) }
-            .forEach { it.fjern() }
+            .filterNot {
+                (it.erstatter != null).also { erstatter ->
+                    if (!erstatter) return@also
+                    logger.warn {
+                        """Prøver å fjerne opplysning id=${it.id}, navn=${it.opplysningstype.navn}, 
+                        |som er en erstatning for id=${it.erstatter!!.id}
+                        """.trimMargin()
+                    }
+                }
+            }.forEach { it.fjern() }
         alleOpplysninger.refresh()
     }
 }
+
+private val logger = KotlinLogging.logger {}
 
 class OpplysningIkkeFunnetException(
     message: String,
