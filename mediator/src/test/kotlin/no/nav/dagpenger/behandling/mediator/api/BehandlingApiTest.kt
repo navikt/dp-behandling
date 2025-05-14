@@ -90,7 +90,7 @@ internal class BehandlingApiTest {
     }
 
     @Test
-    fun `opprett behandling på en gitt person`() {
+    fun `opprett ny behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
             val response = testContext.autentisert(endepunkt = "/person/behandling", body = """{"ident":"${person.ident}"}""")
             response.status shouldBe HttpStatusCode.OK
@@ -100,6 +100,29 @@ internal class BehandlingApiTest {
 
             person.avklaringer shouldHaveSize 1
             person.avklaringer.single().kode shouldBe "ManuellBehandling"
+        }
+    }
+
+    @Test
+    fun `opprett kjedet behandling på en gitt person`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.behandlingId.shouldNotBeNull()
+            person.avklaringer shouldHaveSize 9
+
+            val response = testContext.autentisert(endepunkt = "/person/behandling", body = """{"ident":"${person.ident}"}""")
+            response.status shouldBe HttpStatusCode.OK
+            response.bodyAsText().shouldNotBeEmpty()
+
+            person.behandlingId.shouldNotBeNull()
+
+            person.avklaringer shouldHaveSize 10
+            person.avklaringer.first().kode shouldBe "ManuellBehandling"
         }
     }
 
