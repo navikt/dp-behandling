@@ -30,6 +30,7 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstatninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -265,10 +266,18 @@ class OpplysningerRepositoryPostgresTest {
                 repo.hentOpplysninger(erstattetOpplysninger.id) + listOf(opprinneligFraDb)
 
             fraDb.aktiveOpplysninger shouldContainExactly erstattetOpplysninger.aktiveOpplysninger
-            fraDb.forDato(10.mai).finnOpplysning(heltall).verdi shouldBe opplysningErstattet.verdi
+            fraDb
+                .forDato(10.mai)
+                .utenErstatninger
+                .finnOpplysning(heltall)
+                .verdi shouldBe opplysningErstattet.verdi
 
             // TODO: Noe muffens oppstod i arbeidet rundt erstatning
-            fraDb.forDato(10.mai).finnOpplysning(heltall).erstatter shouldBe opplysning
+            fraDb
+                .forDato(10.mai)
+                .utenErstatninger
+                .finnOpplysning(heltall)
+                .erstatter shouldBe opplysning
         }
     }
 
@@ -315,7 +324,7 @@ class OpplysningerRepositoryPostgresTest {
             }
 
             val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id)
-            tidligereOpplysningerFraDb.finnAlle().size shouldBe 0
+            tidligereOpplysningerFraDb.finnAlle().utenErstatninger().size shouldBe 0
             tidligereOpplysningerFraDb.aktiveOpplysninger.size shouldBe 2
             with(tidligereOpplysninger.aktiveOpplysninger.find { it.id == baseOpplysning.id }) {
                 this.shouldNotBeNull()

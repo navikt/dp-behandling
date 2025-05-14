@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning
 import mu.KotlinLogging
 import no.nav.dagpenger.opplysning.Opplysning.Companion.bareAktive
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
+import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstatninger
 import no.nav.dagpenger.uuid.UUIDv7
 import java.lang.Exception
 import java.time.LocalDate
@@ -27,6 +28,8 @@ class Opplysninger private constructor(
 
     private val opplysninger: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
     private val alleOpplysninger = CachedList { basertPåOpplysninger + opplysninger.bareAktive() }
+
+    override val utenErstatninger get() = Opplysninger(id, alleOpplysninger.utenErstatninger())
 
     val aktiveOpplysninger get() = opplysninger.toList()
 

@@ -50,6 +50,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstatninger
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
@@ -990,8 +991,14 @@ internal class PersonMediatorTest {
                 this
                     .opplysninger()
                     .finnAlle()
+                    .utenErstatninger()
                     .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
-                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe forbrukt
+
+                opplysninger
+                    .finnAlle()
+                    .utenErstatninger()
+                    .filter { it.er(forbruk) && it.verdi as Boolean }
+                    .size shouldBe forbrukt
             }
 
             vedtakJson()
