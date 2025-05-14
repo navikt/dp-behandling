@@ -95,7 +95,7 @@ class Opplysninger private constructor(
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
 
     override fun finnOpplysning(opplysningId: UUID) =
-        opplysninger.singleOrNull { it.id == opplysningId }
+        alleOpplysninger.singleOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
     override fun har(opplysningstype: Opplysningstype<*>) = alleOpplysninger.any { it.er(opplysningstype) }

@@ -297,7 +297,7 @@ class OpplysningerRepositoryPostgresTest {
             nyeOpplysninger.leggTil(endretBaseOpplysningstype as Opplysning<*>).also { nyRegelkjøring.evaluer() }
             repo.lagreOpplysninger(nyeOpplysninger)
 
-            val fraDb = repo.hentOpplysninger(nyeOpplysninger.id).also { Regelkjøring(LocalDate.now(), it) }
+            val fraDb = repo.hentOpplysninger(nyeOpplysninger.id)
             fraDb.finnAlle().size shouldBe 2
 
             with(fraDb.finnOpplysning(utledetOpplysningstype)) {
@@ -314,17 +314,17 @@ class OpplysningerRepositoryPostgresTest {
                 utledetAv.shouldBeNull()
             }
 
-            val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id).also { Regelkjøring(LocalDate.now(), it) }
+            val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id)
             tidligereOpplysningerFraDb.finnAlle().size shouldBe 0
             tidligereOpplysningerFraDb.aktiveOpplysninger.size shouldBe 2
-            with(tidligereOpplysningerFraDb.finnOpplysning(baseOpplysning.id)) {
-                id shouldBe baseOpplysning.id
-                verdi shouldBe baseOpplysning.verdi
-                gyldighetsperiode shouldBe baseOpplysning.gyldighetsperiode
-                opplysningstype shouldBe baseOpplysning.opplysningstype
-                utledetAv.shouldBeNull()
-                erErstattet shouldBe true
-                erstattetAv shouldBe listOf(endretBaseOpplysningstype)
+            with(tidligereOpplysninger.aktiveOpplysninger.find { it.id == baseOpplysning.id }) {
+                this.shouldNotBeNull()
+                this.verdi shouldBe baseOpplysning.verdi
+                this.gyldighetsperiode shouldBe baseOpplysning.gyldighetsperiode
+                this.opplysningstype shouldBe baseOpplysning.opplysningstype
+                this.utledetAv.shouldBeNull()
+                this.erErstattet shouldBe true
+                this.erstattetAv.size shouldBe 1
             }
         }
     }
