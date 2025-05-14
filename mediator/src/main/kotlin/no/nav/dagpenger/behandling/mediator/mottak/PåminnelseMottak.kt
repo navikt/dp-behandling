@@ -28,6 +28,8 @@ internal class PåminnelseMottak(
             }.register(this)
     }
 
+    private val skipBehandlinger = setOf("0196cb38-bb3c-7c95-8772-f98637b645cc", "0196cb32-7a1d-71be-8e27-7ca790414c6c")
+
     @WithSpan
     override fun onPacket(
         packet: JsonMessage,
@@ -46,7 +48,10 @@ internal class PåminnelseMottak(
             sikkerlogg.info { "Mottok hendelse om at behandlingen står fast: ${packet.toJson()}" }
 
             // Hopp over behandling vi aldri har hørt om før
-            if (behandlingId.toString() == "0196cb32-7a1d-71be-8e27-7ca790414c6c") return
+            if (behandlingId.toString() in skipBehandlinger) {
+                logger.warn { "Skipper påminnelse av behandling." }
+                return
+            }
 
             val message = BehandlingStårFastMessage(packet)
             message.behandle(messageMediator, context)
