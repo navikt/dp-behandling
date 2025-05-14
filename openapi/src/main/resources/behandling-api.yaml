@@ -209,6 +209,7 @@ paths:
       responses:
         201:
           description: OK
+          content: { }
         default:
           description: Feil ved avbryt av behandling
           content:
@@ -239,6 +240,7 @@ paths:
       responses:
         201:
           description: OK
+          content: { }
         default:
           description: Feil ved godkjenn av behandling
           content:
@@ -269,6 +271,7 @@ paths:
       responses:
         201:
           description: OK
+          content: { }
         default:
           description: Feil ved beslutt av behandling
           content:
@@ -299,6 +302,7 @@ paths:
       responses:
         201:
           description: OK
+          content: { }
         default:
           description: Feil ved send tilbake behandling
           content:
@@ -329,6 +333,7 @@ paths:
       responses:
         201:
           description: OK
+          content: { }
         default:
           description: Feil ved rekjøring av behandlinger
           content:
