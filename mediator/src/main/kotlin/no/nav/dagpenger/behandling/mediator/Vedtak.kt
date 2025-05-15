@@ -90,7 +90,7 @@ private val logger = KotlinLogging.logger { }
 
 fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
     // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
-    val opplysningerSomGjelderPåPrøvingsdato = opplysningerPåVirkningsdato()
+    val opplysningerSomGjelderPåPrøvingsdato = opplysningerPåVirkningsdato().utenErstattet
     val relevanteVilkår: List<Regelsett> = relevanteVilkår()
     val vilkår: List<VilkaarDTO> =
         relevanteVilkår
