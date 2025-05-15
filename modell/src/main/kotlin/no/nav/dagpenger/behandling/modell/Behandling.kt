@@ -79,8 +79,8 @@ class Behandling private constructor(
             Resultat(
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
-                utfall = behandler.utfall(opplysninger()),
-                virkningsdato = behandler.virkningsdato(opplysninger()),
+                utfall = behandler.utfall(opplysninger().utenErstattet),
+                virkningsdato = behandler.virkningsdato(opplysninger().utenErstattet),
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
                 automatiskBehandlet = erAutomatiskBehandlet(),
