@@ -16,6 +16,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.søknadId
 import no.nav.dagpenger.regel.OpplysningsTyper.søknadsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.søknadstidspunktId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønskerDagpengerFraDatoId
+import java.time.LocalDate
 
 object Søknadstidspunkt {
     // § 3A-1.Søknadstidspunkt https://lovdata.no/forskrift/1998-09-16-890/§3a-1
@@ -36,13 +37,15 @@ object Søknadstidspunkt {
             regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
             regel(prøvingsdato) { sisteAv(søknadstidspunkt) }
+
+            avklaring(Avklaringspunkter.VirkningstidspunktForLangtFramITid)
         }
 
-    val SøknadstidspunktForLangtFramITid =
-        Kontrollpunkt(Avklaringspunkter.SøknadstidspunktForLangtFramITid) {
-            it.har(søknadstidspunkt) &&
-                it.finnOpplysning(søknadstidspunkt).verdi.isAfter(
-                    it.finnOpplysning(søknadsdato).verdi.plusDays(14),
+    val VirkningstidspunktForLangtFremITid =
+        Kontrollpunkt(Avklaringspunkter.VirkningstidspunktForLangtFramITid) {
+            it.har(prøvingsdato) &&
+                it.finnOpplysning(prøvingsdato).verdi.isAfter(
+                    LocalDate.now().plusDays(14),
                 )
         }
 }

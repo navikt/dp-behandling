@@ -754,9 +754,9 @@ internal class PersonMediatorTest {
                 TestPerson(
                     ident,
                     rapid,
-                    søknadsdato = 1.juni(2024),
-                    innsendt = 1.juni(2024).atTime(12, 0),
-                    ønskerFraDato = 30.juni(2024),
+                    søknadsdato = LocalDate.now(),
+                    innsendt = LocalDate.now().atTime(12, 0),
+                    ønskerFraDato = LocalDate.now().plusDays(31),
                     // Denne må stemme med prøvingsdato som blir siste av søknadsdato og ønsket fra dato
                     arbeidssøkerregistreringsdato = 30.juni(2024),
                 )
@@ -771,7 +771,7 @@ internal class PersonMediatorTest {
                     "JobbetUtenforNorge",
                     "MuligGjenopptak",
                     "SvangerskapsrelaterteSykepenger",
-                    "SøknadstidspunktForLangtFramITid",
+                    "VirkningstidspunktForLangtFramItid",
                     "ØnskerEtterRapporteringsfrist",
                     "HarTilleggsopplysninger",
                 ),

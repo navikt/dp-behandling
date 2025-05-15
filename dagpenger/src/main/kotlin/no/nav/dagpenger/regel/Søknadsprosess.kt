@@ -22,7 +22,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.ReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.IkkeRegistrertSomArbeidsøkerKontroll
 import no.nav.dagpenger.regel.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
-import no.nav.dagpenger.regel.Søknadstidspunkt.SøknadstidspunktForLangtFramITid
+import no.nav.dagpenger.regel.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstidKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
@@ -56,7 +56,7 @@ class Søknadsprosess : RegistrertForretningsprosess() {
             ReellArbeidssøkerKontroll,
             SkalSamordnes,
             SvangerskapsrelaterteSykepengerKontroll,
-            SøknadstidspunktForLangtFramITid,
+            VirkningstidspunktForLangtFremITid,
             TapArbeidstidBeregningsregelKontroll,
             beregnetArbeidstidKontroll,
             Under18Kontroll,
