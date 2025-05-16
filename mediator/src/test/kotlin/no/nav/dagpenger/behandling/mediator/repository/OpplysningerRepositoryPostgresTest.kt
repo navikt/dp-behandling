@@ -30,6 +30,7 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -265,10 +266,18 @@ class OpplysningerRepositoryPostgresTest {
                 repo.hentOpplysninger(erstattetOpplysninger.id) + listOf(opprinneligFraDb)
 
             fraDb.aktiveOpplysninger shouldContainExactly erstattetOpplysninger.aktiveOpplysninger
-            fraDb.forDato(10.mai).finnOpplysning(heltall).verdi shouldBe opplysningErstattet.verdi
+            fraDb
+                .forDato(10.mai)
+                .utenErstattet
+                .finnOpplysning(heltall)
+                .verdi shouldBe opplysningErstattet.verdi
 
             // TODO: Noe muffens oppstod i arbeidet rundt erstatning
-            fraDb.forDato(10.mai).finnOpplysning(heltall).erstatter shouldBe opplysning
+            fraDb
+                .forDato(10.mai)
+                .utenErstattet
+                .finnOpplysning(heltall)
+                .erstatter shouldBe opplysning
         }
     }
 
@@ -297,7 +306,7 @@ class OpplysningerRepositoryPostgresTest {
             nyeOpplysninger.leggTil(endretBaseOpplysningstype as Opplysning<*>).also { nyRegelkjøring.evaluer() }
             repo.lagreOpplysninger(nyeOpplysninger)
 
-            val fraDb = repo.hentOpplysninger(nyeOpplysninger.id).also { Regelkjøring(LocalDate.now(), it) }
+            val fraDb = repo.hentOpplysninger(nyeOpplysninger.id)
             fraDb.finnAlle().size shouldBe 2
 
             with(fraDb.finnOpplysning(utledetOpplysningstype)) {
@@ -314,17 +323,17 @@ class OpplysningerRepositoryPostgresTest {
                 utledetAv.shouldBeNull()
             }
 
-            val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id).also { Regelkjøring(LocalDate.now(), it) }
-            tidligereOpplysningerFraDb.finnAlle().size shouldBe 0
+            val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id)
+            tidligereOpplysningerFraDb.finnAlle().utenErstattet().size shouldBe 0
             tidligereOpplysningerFraDb.aktiveOpplysninger.size shouldBe 2
-            with(tidligereOpplysningerFraDb.finnOpplysning(baseOpplysning.id)) {
-                id shouldBe baseOpplysning.id
-                verdi shouldBe baseOpplysning.verdi
-                gyldighetsperiode shouldBe baseOpplysning.gyldighetsperiode
-                opplysningstype shouldBe baseOpplysning.opplysningstype
-                utledetAv.shouldBeNull()
-                erErstattet shouldBe true
-                erstattetAv shouldBe listOf(endretBaseOpplysningstype)
+            with(tidligereOpplysninger.aktiveOpplysninger.find { it.id == baseOpplysning.id }) {
+                this.shouldNotBeNull()
+                this.verdi shouldBe baseOpplysning.verdi
+                this.gyldighetsperiode shouldBe baseOpplysning.gyldighetsperiode
+                this.opplysningstype shouldBe baseOpplysning.opplysningstype
+                this.utledetAv.shouldBeNull()
+                this.erErstattet shouldBe true
+                this.erstattetAv.size shouldBe 1
             }
         }
     }

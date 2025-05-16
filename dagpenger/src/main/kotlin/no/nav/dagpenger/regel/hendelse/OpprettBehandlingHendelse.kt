@@ -1,33 +1,34 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.regel.hendelse
 
+import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
+import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
+import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
+import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class SøknadInnsendtHendelse(
+class OpprettBehandlingHendelse(
     meldingsreferanseId: UUID,
     ident: String,
-    søknadId: UUID,
+    eksternId: EksternId<*>,
     gjelderDato: LocalDate,
-    val fagsakId: Int,
+    private val begrunnelse: String? = null,
     opprettet: LocalDateTime,
-) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
+) : StartHendelse(meldingsreferanseId, ident, eksternId, gjelderDato, opprettet) {
     override val forretningsprosess = Søknadsprosess()
 
     override val regelverk: Regelverk
@@ -41,12 +42,13 @@ class SøknadInnsendtHendelse(
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
-    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = opplysninger.finnOpplysning(prøvingsdato).verdi
+    override fun virkningsdato(opplysninger: LesbarOpplysninger) = opplysninger.finnOpplysning(prøvingsdato).verdi
 
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ) = Behandling(
+        basertPå = listOfNotNull(forrigeBehandling),
         behandler =
             Hendelse(
                 meldingsreferanseId = meldingsreferanseId,
@@ -59,12 +61,6 @@ class SøknadInnsendtHendelse(
             ),
         opplysninger =
             listOf(
-                Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)),
-                Faktum(
-                    søknadIdOpplysningstype,
-                    this.eksternId.id.toString(),
-                    kilde = Systemkilde(meldingsreferanseId, opprettet),
-                ),
                 Faktum(
                     hendelseTypeOpplysningstype,
                     type,
@@ -72,10 +68,9 @@ class SøknadInnsendtHendelse(
                     kilde = Systemkilde(meldingsreferanseId, opprettet),
                 ),
             ),
+        avklaringer =
+            listOf(
+                Avklaring(Avklaringkode("ManuellBehandling", "Manuell behandling", begrunnelse ?: "")),
+            ),
     )
-
-    companion object {
-        val fagsakIdOpplysningstype = Opplysningstype.heltall(FagsakIdId, "fagsakId")
-        val hendelseTypeOpplysningstype = Opplysningstype.tekst(OpplysningsTyper.HendelseTypeId, "hendelseType")
-    }
 }

@@ -24,6 +24,7 @@ object Configuration {
 
     object Grupper : PropertyGroup() {
         val saksbehandler by stringType
+        val beslutter by stringType
     }
 
     val properties =

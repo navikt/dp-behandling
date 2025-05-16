@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
@@ -20,7 +21,7 @@ class ApiRepositoryPostgresTest {
             val behandling = Behandling(UUID.randomUUID())
             behandling.endreTilstand(TilstandType.ForslagTilVedtak)
 
-            val repo = ApiRepositoryPostgres()
+            val repo = ApiRepositoryPostgres(mockk())
 
             runBlocking {
                 repo.endreOpplysning(

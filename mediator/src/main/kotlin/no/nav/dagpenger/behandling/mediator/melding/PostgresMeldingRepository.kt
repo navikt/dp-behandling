@@ -12,17 +12,18 @@ import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
+import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import org.postgresql.util.PGobject
 import java.util.UUID
 
-internal class PostgresHendelseRepository : HendelseRepository {
+internal class PostgresMeldingRepository : MeldingRepository {
     override fun lagreMelding(
-        hendelseMessage: HendelseMessage,
+        melding: Melding,
         ident: String,
         id: UUID,
         toJson: String,
     ) {
-        val hendelseType = meldingType(hendelseMessage) ?: return
+        val hendelseType = meldingType(melding) ?: return
 
         sessionOf(dataSource).use { session ->
             session.transaction { transactionalSession: TransactionalSession ->
@@ -85,7 +86,7 @@ internal class PostgresHendelseRepository : HendelseRepository {
             ) != null
         }
 
-    private fun meldingType(hendelseMessage: HendelseMessage): MeldingTypeDTO? =
+    private fun meldingType(hendelseMessage: Melding): MeldingTypeDTO? =
         when (hendelseMessage) {
             is AvbrytBehandlingMessage -> MeldingTypeDTO.AVBRYT_BEHANDLING
             is AvklaringIkkeRelevantMessage -> MeldingTypeDTO.AVKLARING_IKKE_RELEVANT
@@ -94,6 +95,7 @@ internal class PostgresHendelseRepository : HendelseRepository {
             is SøknadInnsendtMessage -> MeldingTypeDTO.SØKNAD_INNSENDT
             is MeldekortInnsendtMessage -> MeldingTypeDTO.MELDEKORT_INNSENDT
             is BeregnMeldekortMessage -> MeldingTypeDTO.BEREGN_MELDEKORT
+            is ApiMelding -> MeldingTypeDTO.API
             else ->
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
@@ -113,4 +115,5 @@ private enum class MeldingTypeDTO {
     OPPLYSNING_SVAR,
     SØKNAD_INNSENDT,
     MELDEKORT_INNSENDT,
+    API,
 }

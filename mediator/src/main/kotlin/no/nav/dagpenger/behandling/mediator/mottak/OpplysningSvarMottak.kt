@@ -18,9 +18,8 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.barnMapper
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.mediator.mottak.SvarStrategi.Svar
-import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar.Tilstand
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
@@ -68,8 +67,8 @@ internal class OpplysningSvarMottak(
             }.register(this)
     }
 
-    private val skipBehovId = listOf("ingen-match")
-    private val skipBehandlingsId = listOf("01956585-072a-7f8f-a0bd-61b4b910c3eb")
+    private val skipBehovId = listOf("f034d0cc-729e-446f-9177-fc6566f8d20a")
+    private val skipBehandlingsId = listOf("0196cb39-3928-731a-b670-2ceefe03ac27", "0196cb32-7a1d-71be-8e27-7ca790414c6c")
 
     @WithSpan
     override fun onPacket(
@@ -116,12 +115,10 @@ internal class OpplysningSvarMottak(
     }
 }
 
-private val apiRepositoryPostgres = ApiRepositoryPostgres()
-
 internal class OpplysningSvarMessage(
     private val packet: JsonMessage,
     private val opplysningstyper: Set<Opplysningstype<*>>,
-) : HendelseMessage(packet) {
+) : KafkaMelding(packet) {
     private val hendelse
         get() =
             OpplysningSvarHendelse(
@@ -191,10 +188,6 @@ internal class OpplysningSvarMessage(
             logger.info { "Behandler svar på opplysninger: ${hendelse.opplysninger.map { it.opplysningstype.behovId }}" }
             try {
                 mediator.behandle(hendelse, this, context)
-                apiRepositoryPostgres.behovLøst(
-                    hendelse.behandlingId,
-                    *hendelse.opplysninger.map { it.opplysningstype.behovId }.toTypedArray(),
-                )
             } catch (e: OpplysningIkkeFunnetException) {
                 logger.error(e) {
                     "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi en opplysning ikke ble funnet"

@@ -23,6 +23,8 @@ interface LesbarOpplysninger {
     fun erSann(opplysningstype: Opplysningstype<Boolean>) = har(opplysningstype) && finnOpplysning(opplysningstype).verdi
 
     fun oppfyller(opplysningstype: Opplysningstype<Boolean>) = erSann(opplysningstype)
+
+    val utenErstattet: Opplysninger
 }
 
 typealias Opplysningssjekk = (LesbarOpplysninger) -> Boolean

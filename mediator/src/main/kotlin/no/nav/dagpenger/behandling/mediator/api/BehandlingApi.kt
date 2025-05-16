@@ -23,8 +23,10 @@ import mu.withLoggingContext
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
 import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
+import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
@@ -35,6 +37,7 @@ import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.barnMapper
 import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
+import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Redigert
@@ -45,8 +48,11 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
@@ -60,6 +66,7 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -72,7 +79,7 @@ internal fun Application.behandlingApi(
     hendelseMediator: IHendelseMediator,
     auditlogg: Auditlogg,
     opplysningstyper: Set<Opplysningstype<*>>,
-    apiRepositoryPostgres: ApiRepositoryPostgres = ApiRepositoryPostgres(),
+    apiRepositoryPostgres: ApiRepositoryPostgres,
     messageContext: (ident: String) -> MessageContext,
 ) {
     authenticationConfig()
@@ -114,6 +121,47 @@ internal fun Application.behandlingApi(
         }
 
         authenticate("azureAd") {
+            route("person/behandling") {
+                post {
+                    val nyBehandlingDto = call.receive<NyBehandlingDTO>()
+                    val ident = nyBehandlingDto.ident
+                    val person = personRepository.hent(ident.tilPersonIdentfikator()) ?: throw NotFoundException("Person ikke funnet")
+
+                    val hendelseId =
+                        when (nyBehandlingDto.hendelse?.type) {
+                            HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
+                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id.toLong())
+                            HendelseDTOTypeDTO.MANUELL,
+                            null,
+                            -> ManuellId(UUIDv7.ny())
+                        }
+
+                    val melding = ApiMelding(nyBehandlingDto.ident)
+                    val hendelse =
+                        OpprettBehandlingHendelse(
+                            meldingsreferanseId = melding.id,
+                            ident = nyBehandlingDto.ident,
+                            eksternId = hendelseId,
+                            gjelderDato = nyBehandlingDto.prøvingsdato ?: LocalDate.now(),
+                            begrunnelse = nyBehandlingDto.begrunnelse,
+                            opprettet = LocalDateTime.now(),
+                        )
+                    apiRepositoryPostgres.behandle(melding) {
+                        hendelse.info("Oppretter behandling manuelt", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
+                        hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
+                    }
+
+                    call.respond(
+                        HttpStatusCode.OK,
+                        personRepository
+                            .hent(ident.tilPersonIdentfikator())!!
+                            .behandlinger()
+                            .single { it.behandler.eksternId == hendelse.eksternId }
+                            .tilBehandlingOpplysningerDTO(),
+                    )
+                }
+            }
+
             route("behandling") {
                 post {
                     val identForespørsel = call.receive<IdentForesporselDTO>()

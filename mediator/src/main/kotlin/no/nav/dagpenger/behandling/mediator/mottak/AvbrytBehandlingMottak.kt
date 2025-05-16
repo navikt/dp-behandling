@@ -14,7 +14,7 @@ import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 
 internal class AvbrytBehandlingMottak(
@@ -67,7 +67,7 @@ internal class AvbrytBehandlingMottak(
 
 internal class AvbrytBehandlingMessage(
     packet: JsonMessage,
-) : HendelseMessage(packet) {
+) : KafkaMelding(packet) {
     private val årsak = packet["årsak"].asText("Avbrutt av datamaskinen")
 
     private val hendelse

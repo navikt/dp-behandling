@@ -7,14 +7,20 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import java.util.UUID
 
-internal abstract class HendelseMessage(
+internal interface Melding {
+    val id: UUID
+
+    fun lagreMelding(repository: MeldingRepository)
+}
+
+internal abstract class KafkaMelding(
     private val packet: JsonMessage,
-) {
+) : Melding {
     init {
         packet.interestedIn("@id", "@event_name", "@opprettet")
     }
 
-    internal val id: UUID = packet["@id"].asUUID()
+    override val id: UUID = packet["@id"].asUUID()
     private val navn = packet["@event_name"].asText()
     internal val opprettet = packet["@opprettet"].asLocalDateTime()
     internal abstract val ident: String
@@ -24,7 +30,7 @@ internal abstract class HendelseMessage(
         context: MessageContext,
     )
 
-    internal fun lagreMelding(repository: HendelseRepository) {
+    override fun lagreMelding(repository: MeldingRepository) {
         repository.lagreMelding(this, ident, id, toJson())
     }
 

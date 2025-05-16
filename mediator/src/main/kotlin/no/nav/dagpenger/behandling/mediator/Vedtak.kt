@@ -23,6 +23,7 @@ import no.nav.dagpenger.behandling.api.models.VilkaarDTOStatusDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
@@ -34,10 +35,8 @@ import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
 import no.nav.dagpenger.regel.Samordning
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -49,6 +48,7 @@ import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import java.time.LocalDateTime
 
 private fun LesbarOpplysninger.samordninger(): List<SamordningDTO> {
@@ -90,7 +90,7 @@ private val logger = KotlinLogging.logger { }
 
 fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
     // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
-    val opplysningerSomGjelderPåPrøvingsdato = opplysningerPåVirkningsdato()
+    val opplysningerSomGjelderPåPrøvingsdato = opplysningerPåVirkningsdato().utenErstattet
     val relevanteVilkår: List<Regelsett> = relevanteVilkår()
     val vilkår: List<VilkaarDTO> =
         relevanteVilkår
@@ -120,6 +120,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                     when (behandlingAv.eksternId) {
                         is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
+                        is ManuellId -> HendelseDTOTypeDTO.MANUELL
                     },
             ),
         fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),

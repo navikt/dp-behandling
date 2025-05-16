@@ -54,13 +54,14 @@ class Behandling private constructor(
         behandler: StartHendelse,
         opplysninger: List<Opplysning<*>>,
         basertPå: List<Behandling> = emptyList(),
+        avklaringer: List<Avklaring> = emptyList(),
     ) : this(
         behandlingId = UUIDv7.ny(),
         behandler = behandler,
         gjeldendeOpplysninger = Opplysninger(opplysninger),
         basertPå = basertPå,
         tilstand = UnderOpprettelse(LocalDateTime.now()),
-        avklaringer = emptyList(),
+        avklaringer = avklaringer,
     )
 
     init {
@@ -78,8 +79,8 @@ class Behandling private constructor(
             Resultat(
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
-                utfall = behandler.utfall(opplysninger()),
-                virkningsdato = behandler.virkningsdato(opplysninger()),
+                utfall = behandler.utfall(opplysninger().utenErstattet),
+                virkningsdato = behandler.virkningsdato(opplysninger().utenErstattet),
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
                 automatiskBehandlet = erAutomatiskBehandlet(),

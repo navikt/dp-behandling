@@ -6,9 +6,12 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.melding.Melding
+import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.ForslagTilVedtak
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
+import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeoutException
@@ -18,10 +21,30 @@ import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
-class ApiRepositoryPostgres(
+internal class ApiMelding(
+    val ident: String,
+) : Melding {
+    override val id = UUIDv7.ny()
+
+    override fun lagreMelding(repository: MeldingRepository) {
+        repository.lagreMelding(this, ident, id, "{}")
+    }
+}
+
+internal class ApiRepositoryPostgres(
+    private val meldingRepository: MeldingRepository,
     private val timout: Duration = 15.seconds,
     private val pollIntervalMs: Duration = 50.milliseconds,
 ) {
+    fun behandle(
+        melding: ApiMelding,
+        block: () -> Unit,
+    ) {
+        melding.lagreMelding(meldingRepository)
+        block()
+        meldingRepository.markerSomBehandlet(melding.id)
+    }
+
     fun behovLøst(
         behandlingId: UUID,
         vararg behov: String,
@@ -177,7 +200,7 @@ class ApiRepositoryPostgres(
                     """
                     SELECT tilstand, sist_endret_tilstand
                     FROM behandling
-                    WHERE behandling_id = :behandlingId AND sist_endret_tilstand > :sistEndret
+                    WHERE behandling_id = :behandlingId AND sist_endret_tilstand >= :sistEndret
                     """.trimIndent(),
                     mapOf("behandlingId" to behandlingId, "sistEndret" to sistEndret),
                 ).map { TilstandType.valueOf(it.string("tilstand")) }.asSingle,

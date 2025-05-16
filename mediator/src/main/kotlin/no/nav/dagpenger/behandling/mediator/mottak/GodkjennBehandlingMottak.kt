@@ -14,7 +14,7 @@ import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 
 internal class GodkjennBehandlingMottak(
@@ -67,7 +67,7 @@ internal class GodkjennBehandlingMottak(
 
 internal class GodkjennBehandlingMessage(
     packet: JsonMessage,
-) : HendelseMessage(packet) {
+) : KafkaMelding(packet) {
     private val hendelse
         get() = ForslagGodkjentHendelse(id, ident, behandlingId, opprettet)
     override val ident = packet["ident"].asText()

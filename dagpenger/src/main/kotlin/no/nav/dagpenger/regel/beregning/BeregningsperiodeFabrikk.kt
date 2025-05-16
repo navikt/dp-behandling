@@ -19,9 +19,10 @@ import java.time.LocalDate
 internal class BeregningsperiodeFabrikk(
     private val meldeperiodeFraOgMed: LocalDate,
     private val meldeperiodeTilOgMed: LocalDate,
-    private val opplysninger: LesbarOpplysninger,
+    opplysninger: LesbarOpplysninger,
     private val rettighetstatuser: TemporalCollection<Rettighetstatus>,
 ) {
+    private val opplysninger: LesbarOpplysninger = opplysninger.utenErstattet
     private val meldeperiode = Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed)
 
     fun lagBeregningsperiode(): Beregningsperiode {

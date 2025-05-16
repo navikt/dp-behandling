@@ -1,4 +1,4 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -17,10 +17,12 @@ import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
+import no.nav.dagpenger.regel.Søknadsprosess
+import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -73,7 +75,6 @@ class BeregnMeldekortHendelse(
 
         return Behandling(
             behandler = this,
-            basertPå = listOf(forrigeBehandling),
             opplysninger =
                 listOf(
                     Faktum(
@@ -89,6 +90,7 @@ class BeregnMeldekortHendelse(
                         kilde = kilde,
                     ),
                 ),
+            basertPå = listOf(forrigeBehandling),
         ).apply {
             meldekort.dager.forEach { dag ->
                 val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)

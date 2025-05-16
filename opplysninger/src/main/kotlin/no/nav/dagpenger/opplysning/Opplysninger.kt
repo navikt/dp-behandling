@@ -1,7 +1,9 @@
 package no.nav.dagpenger.opplysning
 
+import mu.KotlinLogging
 import no.nav.dagpenger.opplysning.Opplysning.Companion.bareAktive
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
+import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.uuid.UUIDv7
 import java.lang.Exception
 import java.time.LocalDate
@@ -26,6 +28,8 @@ class Opplysninger private constructor(
 
     private val opplysninger: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
     private val alleOpplysninger = CachedList { basertPåOpplysninger + opplysninger.bareAktive() }
+
+    override val utenErstattet get() = Opplysninger(id, alleOpplysninger.utenErstattet())
 
     val aktiveOpplysninger get() = opplysninger.toList()
 
@@ -94,7 +98,7 @@ class Opplysninger private constructor(
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
 
     override fun finnOpplysning(opplysningId: UUID) =
-        opplysninger.singleOrNull { it.id == opplysningId }
+        alleOpplysninger.singleOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
     override fun har(opplysningstype: Opplysningstype<*>) = alleOpplysninger.any { it.er(opplysningstype) }
@@ -140,10 +144,21 @@ class Opplysninger private constructor(
     fun fjernUbrukteOpplysninger(beholdDisse: Set<Opplysningstype<*>>) {
         opplysninger
             .filterNot { beholdDisse.contains(it.opplysningstype) }
-            .forEach { it.fjern() }
+            .filterNot {
+                (it.erstatter != null).also { erstatter ->
+                    if (!erstatter) return@also
+                    logger.warn {
+                        """Prøver å fjerne opplysning id=${it.id}, navn=${it.opplysningstype.navn}, 
+                        |som er en erstatning for id=${it.erstatter!!.id}
+                        """.trimMargin()
+                    }
+                }
+            }.forEach { it.fjern() }
         alleOpplysninger.refresh()
     }
 }
+
+private val logger = KotlinLogging.logger {}
 
 class OpplysningIkkeFunnetException(
     message: String,

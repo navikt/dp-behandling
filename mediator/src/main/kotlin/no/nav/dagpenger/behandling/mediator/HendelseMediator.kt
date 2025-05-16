@@ -27,7 +27,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
-import no.nav.dagpenger.regel.BeregnMeldekortHendelse
+import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 
 internal class HendelseMediator(
     private val personRepository: PersonRepository,

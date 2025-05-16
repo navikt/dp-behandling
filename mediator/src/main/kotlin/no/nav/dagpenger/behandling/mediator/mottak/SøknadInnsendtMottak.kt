@@ -14,8 +14,8 @@ import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 
 internal class SøknadInnsendtMottak(
     rapidsConnection: RapidsConnection,
@@ -66,7 +66,7 @@ internal class SøknadInnsendtMottak(
 
 internal class SøknadInnsendtMessage(
     private val packet: JsonMessage,
-) : HendelseMessage(packet) {
+) : KafkaMelding(packet) {
     override val ident get() = packet["ident"].asText()
     private val søknadId = packet["søknadId"].asUUID()
     private val hendelse: SøknadInnsendtHendelse

@@ -116,12 +116,12 @@ class Regelkjøring(
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
-            observers.forEach { observer -> observer.evaluert(rapport, opplysningerPåPrøvingsdato) }
+            observers.forEach { observer -> observer.evaluert(rapport, opplysninger, Opplysninger(opplysninger.aktiveOpplysninger)) }
         }
     }
 
     private fun aktiverRegler(prøvingsdato: LocalDate) {
-        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
+        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato).utenErstattet
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = gjeldendeRegler.associateBy { it.produserer }
         val besøkt = mutableSetOf<Regel<*>>()
@@ -248,6 +248,7 @@ data class Regelkjøringsrapport(
 interface RegelkjøringObserver {
     fun evaluert(
         rapport: Regelkjøringsrapport,
-        opplysninger: LesbarOpplysninger,
+        alleOpplysninger: LesbarOpplysninger,
+        aktiveOpplysninger: LesbarOpplysninger,
     )
 }

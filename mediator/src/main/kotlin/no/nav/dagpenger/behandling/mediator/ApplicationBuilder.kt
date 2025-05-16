@@ -17,10 +17,11 @@ import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
 import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
 import no.nav.dagpenger.behandling.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
-import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
+import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
+import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
@@ -31,10 +32,10 @@ import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.helse.rapids_rivers.RapidApplication
 
 internal class ApplicationBuilder(
@@ -59,6 +60,10 @@ internal class ApplicationBuilder(
         )
 
     private val hendelseMediator = HendelseMediator(personRepository, MeldekortRepositoryPostgres())
+
+    private val postgresMeldingRepository = PostgresMeldingRepository()
+
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository)
 
     private val rapidsConnection: RapidsConnection =
         RapidApplication.create(
@@ -89,6 +94,7 @@ internal class ApplicationBuilder(
                             hendelseMediator = hendelseMediator,
                             auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapid),
                             opplysningstyper = opplysningstyper,
+                            apiRepositoryPostgres = apiRepositoryPostgres,
                         ) { ident: String -> ApiMessageContext(rapid, ident) }
                     }
                 }
@@ -120,9 +126,10 @@ internal class ApplicationBuilder(
             MessageMediator(
                 rapidsConnection = rapidsConnection,
                 hendelseMediator = hendelseMediator,
-                hendelseRepository = PostgresHendelseRepository(),
+                meldingRepository = postgresMeldingRepository,
                 opplysningstyper = opplysningstyper,
                 meldekortRepository = MeldekortRepositoryPostgres(),
+                apiRepositoryPostgres = apiRepositoryPostgres,
             )
 
             rapidsConnection.register(

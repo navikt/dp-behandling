@@ -13,7 +13,7 @@ import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 
 internal class PåminnelseMottak(
@@ -27,6 +27,9 @@ internal class PåminnelseMottak(
                 validate { it.requireKey("ident", "behandlingId") }
             }.register(this)
     }
+
+    private val skipBehandlinger =
+        setOf("0196cb38-bb3c-7c95-8772-f98637b645cc", "0196cb32-7a1d-71be-8e27-7ca790414c6c", "0196cb39-3928-731a-b670-2ceefe03ac27")
 
     @WithSpan
     override fun onPacket(
@@ -46,7 +49,10 @@ internal class PåminnelseMottak(
             sikkerlogg.info { "Mottok hendelse om at behandlingen står fast: ${packet.toJson()}" }
 
             // Hopp over behandling vi aldri har hørt om før
-            if (behandlingId.toString() == "0196c86b-598c-7d49-b491-105137a3067a") return
+            if (behandlingId.toString() in skipBehandlinger) {
+                logger.warn { "Skipper påminnelse av behandling." }
+                return
+            }
 
             val message = BehandlingStårFastMessage(packet)
             message.behandle(messageMediator, context)
@@ -61,7 +67,7 @@ internal class PåminnelseMottak(
 
 internal class BehandlingStårFastMessage(
     private val packet: JsonMessage,
-) : HendelseMessage(packet) {
+) : KafkaMelding(packet) {
     override val ident get() = packet["ident"].asText()
 
     private val hendelse

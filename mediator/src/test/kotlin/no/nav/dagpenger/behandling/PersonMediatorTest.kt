@@ -26,7 +26,7 @@ import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
-import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
+import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
@@ -50,6 +50,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
@@ -126,9 +127,10 @@ internal class PersonMediatorTest {
         MessageMediator(
             rapidsConnection = rapid,
             hendelseMediator = hendelseMediator,
-            hendelseRepository = PostgresHendelseRepository(),
+            meldingRepository = PostgresMeldingRepository(),
             opplysningstyper = RegelverkDagpenger.produserer,
             meldekortRepository = meldekortRepository,
+            apiRepositoryPostgres = mockk(relaxed = true),
         )
     }
 
@@ -989,8 +991,14 @@ internal class PersonMediatorTest {
                 this
                     .opplysninger()
                     .finnAlle()
+                    .utenErstattet()
                     .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
-                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe forbrukt
+
+                opplysninger
+                    .finnAlle()
+                    .utenErstattet()
+                    .filter { it.er(forbruk) && it.verdi as Boolean }
+                    .size shouldBe forbrukt
             }
 
             vedtakJson()

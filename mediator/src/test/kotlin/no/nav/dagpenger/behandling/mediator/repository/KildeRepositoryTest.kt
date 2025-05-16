@@ -7,7 +7,7 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.mediator.melding.PostgresHendelseRepository
+import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import org.junit.jupiter.api.Test
@@ -18,7 +18,7 @@ class KildeRepositoryTest {
     private val kildeRepository = KildeRepository()
 
     init {
-        PostgresHendelseRepository().also {
+        PostgresMeldingRepository().also {
             it.lagreMelding(
                 mockk(),
                 "123456789",

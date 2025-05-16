@@ -1,19 +1,19 @@
 package no.nav.dagpenger.behandling.db
 
-import no.nav.dagpenger.behandling.mediator.melding.HendelseMessage
-import no.nav.dagpenger.behandling.mediator.melding.HendelseRepository
+import no.nav.dagpenger.behandling.mediator.melding.Melding
+import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
 import java.util.UUID
 
-internal class InMemoryMeldingRepository : HendelseRepository {
+internal class InMemoryMeldingRepository : MeldingRepository {
     private val meldingDb = mutableMapOf<UUID, MeldingDto>()
 
     override fun lagreMelding(
-        hendelseMessage: HendelseMessage,
+        melding: Melding,
         ident: String,
         id: UUID,
         toJson: String,
     ) {
-        meldingDb[id] = MeldingDto(hendelseMessage, MeldingStatus.MOTTATT)
+        meldingDb[id] = MeldingDto(melding, MeldingStatus.MOTTATT)
     }
 
     override fun markerSomBehandlet(meldingId: UUID): Int {
@@ -23,9 +23,7 @@ internal class InMemoryMeldingRepository : HendelseRepository {
         return 1
     }
 
-    override fun erBehandlet(meldingId: UUID): Boolean {
-        return meldingDb[meldingId]?.status == MeldingStatus.BEHANDLET
-    }
+    override fun erBehandlet(meldingId: UUID): Boolean = meldingDb[meldingId]?.status == MeldingStatus.BEHANDLET
 
     private fun hentMelding(id: UUID) =
         (
@@ -33,7 +31,10 @@ internal class InMemoryMeldingRepository : HendelseRepository {
                 ?: throw IllegalArgumentException("Melding med id $id finnes ikke")
         )
 
-    private data class MeldingDto(val hendelseMessage: HendelseMessage, var status: MeldingStatus)
+    private data class MeldingDto(
+        val kafkaMelding: Melding,
+        var status: MeldingStatus,
+    )
 
     private enum class MeldingStatus {
         MOTTATT,

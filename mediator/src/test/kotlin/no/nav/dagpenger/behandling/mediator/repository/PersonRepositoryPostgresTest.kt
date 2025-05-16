@@ -11,7 +11,7 @@ import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.regel.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
