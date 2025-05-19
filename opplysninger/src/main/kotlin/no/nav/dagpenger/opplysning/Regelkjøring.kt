@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning
 
 import mu.KotlinLogging
+import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
@@ -116,7 +117,13 @@ class Regelkjøring(
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
-            observers.forEach { observer -> observer.evaluert(rapport, opplysninger, Opplysninger(opplysninger.aktiveOpplysninger)) }
+            observers.forEach { observer ->
+                observer.evaluert(
+                    rapport,
+                    opplysninger,
+                    Opplysninger(opplysninger.aktiveOpplysninger.utenErstattet()),
+                )
+            }
         }
     }
 
