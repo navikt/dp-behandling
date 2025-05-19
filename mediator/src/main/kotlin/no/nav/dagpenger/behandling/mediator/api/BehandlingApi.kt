@@ -340,10 +340,6 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
                             }
 
-                            if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp") {
-                                throw BadRequestException("Kan ikke redigere opplysninger i dev")
-                            }
-
                             logger.info { "Mottok en endring i behandling" }
 
                             val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
