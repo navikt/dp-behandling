@@ -184,7 +184,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9441-7d1b-a06a-6727543a141f|Det er godkjent at bruker kun søker deltidsarbeid|Det er godkjent at bruker kun søker deltidsarbeid|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877bd8|Oppfyller kravet til heltid- og deltidsarbeid|Oppfyller kravet til heltid- og deltidsarbeid|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877bd9|Kan jobbe i hele Norge|KanJobbeHvorSomHelst|Boolsk|boolean|
-|0194881f-9442-707b-a6ee-e96c06877bda|Det er godkjent at bruker kun søk arbeid lokalt|Det er godkjent at bruker kun søk arbeid lokalt|Boolsk|boolean|
+|0194881f-9442-707b-a6ee-e96c06877bda|Det er godkjent at bruker kun søker arbeid lokalt|Det er godkjent at bruker kun søker arbeid lokalt|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877bdb|Oppfyller kravet til mobilitet|Oppfyller kravet til mobilitet|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877bdc|Kan ta alle typer arbeid|HelseTilAlleTyperJobb|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877bdd|Oppfyller kravet til å være arbeidsfør|Oppfyller kravet til å være arbeidsfør|Boolsk|boolean|

@@ -75,7 +75,7 @@ Mottar ikke andre fulle ytelser
 Oppfyller unntak for opphold i Norge
 Er personen medlem av folketrygden
 Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søk arbeid lokalt
+Det er godkjent at bruker kun søker arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
 Kan kravet til reell arbeidssøker vurderes

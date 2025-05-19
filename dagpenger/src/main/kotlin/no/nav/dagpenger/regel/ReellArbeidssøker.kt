@@ -53,7 +53,7 @@ object ReellArbeidssøker {
     val kanJobbeHvorSomHelst =
         boolsk(KanJobbeHvorSomHelstId, beskrivelse = "Kan jobbe i hele Norge", Bruker, behovId = KanJobbeHvorSomHelst)
     val godkjentLokalArbeidssøker =
-        boolsk(GodkjentLokalArbeidssøker, "Det er godkjent at bruker kun søk arbeid lokalt", synlig = {
+        boolsk(GodkjentLokalArbeidssøker, "Det er godkjent at bruker kun søker arbeid lokalt", synlig = {
             it.erSann(kanJobbeHvorSomHelst) == false
         })
     val oppfyllerKravTilMobilitet = boolsk(OppfyllerKravTilMobilitetId, "Oppfyller kravet til mobilitet", synlig = aldriSynlig)
