@@ -66,6 +66,8 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.regel.OpplysningsTyper.prøvingsdatoId
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -340,13 +342,15 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
                             }
 
-                            if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp") {
-                                throw BadRequestException("Kan ikke redigere opplysninger i dev")
-                            }
-
                             logger.info { "Mottok en endring i behandling" }
 
                             val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
+                            if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp" &&
+                                opplysning.opplysningstype.id == prøvingsdatoId
+                            ) {
+                                throw BadRequestException("Kan ikke redigere prøvingsdato i dev")
+                            }
+
                             val svar =
                                 OpplysningsSvar(
                                     behandlingId,
