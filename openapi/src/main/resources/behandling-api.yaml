@@ -1343,9 +1343,6 @@ components:
         vurderingstidspunkt:
           type: string
           format: date-time
-        id:
-          type: string
-          format: uuid
 
     Barn:
       type: object
