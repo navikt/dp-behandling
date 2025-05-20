@@ -1333,6 +1333,7 @@ components:
         - navn
         - status
         - vurderingstidspunkt
+        - id
       properties:
         navn:
           type: string
@@ -1344,6 +1345,9 @@ components:
         vurderingstidspunkt:
           type: string
           format: date-time
+        id:
+          type: string
+          format: uuid
 
     Barn:
       type: object

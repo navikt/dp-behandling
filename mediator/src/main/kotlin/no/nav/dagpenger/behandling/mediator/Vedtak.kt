@@ -270,6 +270,7 @@ private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
                 else -> VilkaarDTOStatusDTO.IKKE_OPPFYLT
             },
         vurderingstidspunkt = this.opprettet,
+        id = this.opplysningstype.id.uuid,
     )
 
 fun VedtakDTO.toMap() = objectMapper.convertValue<Map<String, Any>>(this)
