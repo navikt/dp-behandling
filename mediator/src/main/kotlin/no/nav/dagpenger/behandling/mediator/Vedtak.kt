@@ -20,6 +20,7 @@ import no.nav.dagpenger.behandling.api.models.VedtakDTOGrunnlagDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTOSatsDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarDTOStatusDTO
+import no.nav.dagpenger.behandling.api.models.VilkaarNavnDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
@@ -29,13 +30,27 @@ import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.Alderskrav
+import no.nav.dagpenger.regel.FulleYtelser
+import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
+import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.Permittering
 import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
+import no.nav.dagpenger.regel.ReellArbeidssøker
+import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Samordning
+import no.nav.dagpenger.regel.StreikOgLockout
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
+import no.nav.dagpenger.regel.Utdanning
+import no.nav.dagpenger.regel.Utestengning
+import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
@@ -106,7 +121,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
             }
 
     logger.info {
-        "VedtakDTO med utfall $utfall, dette var alle vilkårene:\n${vilkår.joinToString("\n") { it.navn + " -> " + it.status.name }}"
+        "VedtakDTO med utfall $utfall, dette var alle vilkårene:\n${vilkår.joinToString("\n") { it.navn.value + " -> " + it.status.name }}"
     }
     val fastsatt = vedtakFastsattDTO(utfall, opplysningerSomGjelderPåPrøvingsdato)
     return VedtakDTO(
@@ -262,7 +277,7 @@ private fun vedtakFastsattDTO(
 
 private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
     VilkaarDTO(
-        navn = this.opplysningstype.toString(),
+        navn = this.opplysningstype.tilVilkårNavn(),
         hjemmel = hjemmel ?: "Mangler mapping til hjemmel",
         status =
             when (this.verdi) {
@@ -272,5 +287,35 @@ private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
         vurderingstidspunkt = this.opprettet,
         id = this.opplysningstype.id.uuid,
     )
+
+internal val opplysningTilVilkårMap =
+    mapOf(
+        Alderskrav.kravTilAlder to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_ALDER,
+        FulleYtelser.ikkeFulleYtelser to VilkaarNavnDTO.MOTTAR_IKKE_ANDRE_FULLE_YTELSER,
+        Minsteinntekt.minsteinntekt to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_MINSTEINNTEKT,
+        Opphold.oppfyllerKravetTilOpphold to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_OPPHOLD_I_NORGE_ELLER_UNNTAK,
+        Opphold.oppfyllerMedlemskap to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_MEDLEMSKAP,
+        Opphold.oppfyllerKravet to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_OPPHOLD_I_NORGE,
+        ReellArbeidssøker.oppfyllerKravTilArbeidssøker to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_HELTID__OG_DELTIDSARBEID,
+        ReellArbeidssøker.oppfyllerKravTilMobilitet to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_MOBILITET,
+        ReellArbeidssøker.oppfyllerKravTilArbeidsfør to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_Å_VÆRE_ARBEIDSFØR,
+        ReellArbeidssøker.oppfyllerKravetTilEthvertArbeid to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_Å_TA_ETHVERT_ARBEID,
+        ReellArbeidssøker.kravTilArbeidssøker to VilkaarNavnDTO.KRAV_TIL_ARBEIDSSØKER,
+        RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker to VilkaarNavnDTO.REGISTRERT_SOM_ARBEIDSSØKER_PÅ_SØKNADSTIDSPUNKTET,
+        StreikOgLockout.ikkeStreikEllerLockout to VilkaarNavnDTO.ER_MEDLEMMET_IKKE_PÅVIRKET_AV_STREIK_ELLER_LOCK_OUT_,
+        TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntekt to VilkaarNavnDTO.KRAV_TIL_TAP_AV_ARBEIDSINNTEKT,
+        TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid to VilkaarNavnDTO.TAP_AV_ARBEIDSTID_ER_MINST_TERSKEL,
+        TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntektOgArbeidstid to
+            VilkaarNavnDTO.KRAV_TIL_TAP_AV_ARBEIDSINNTEKT_OG_ARBEIDSTID,
+        Utdanning.kravTilUtdanning to VilkaarNavnDTO.KRAV_TIL_UTDANNING_ELLER_OPPLÆRING,
+        Utestengning.oppfyllerKravetTilIkkeUtestengt to VilkaarNavnDTO.OPPFYLLER_KRAV_TIL_IKKE_UTESTENGT,
+        Permittering.oppfyllerKravetTilPermittering to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_PERMITTERING,
+        Verneplikt.oppfyllerKravetTilVerneplikt to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_VERNEPLIKT,
+        PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri to
+            VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_PERMITTERING_I_FISKEINDUSTRIEN,
+        Samordning.utfallEtterSamordning to VilkaarNavnDTO.UTFALL_ETTER_SAMORDNING,
+    )
+
+private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")
 
 fun VedtakDTO.toMap() = objectMapper.convertValue<Map<String, Any>>(this)

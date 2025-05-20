@@ -58,6 +58,13 @@ class Regelverk(
             .flatMap { it.utfall }
             .all { opplysninger.erSann(it) }
 
+    val vilkårsopplysninger by lazy {
+        regelsett
+            .filter { regelsett ->
+                regelsett.type == RegelsettType.Vilkår
+            }.flatMap { it.utfall }
+    }
+
     // Bruker Breadth-First Search (BFS) til å traversere regelsettene
     private fun traverseOpplysningstyper(
         start: Opplysningstype<*>,

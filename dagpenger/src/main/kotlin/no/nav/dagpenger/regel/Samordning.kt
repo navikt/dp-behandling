@@ -142,7 +142,7 @@ object Samordning {
         )
     val samordnetBeregnetArbeidstid =
         Opplysningstype.desimaltall(samordnetFastsattArbeidstidId, "Samordnet fastsatt arbeidstid", synlig = visesHvisSamordning)
-    internal val utfallEtterSamordning =
+    val utfallEtterSamordning =
         Opplysningstype.boolsk(
             utfallEtterSamordningId,
             "Utfall etter samordning",
