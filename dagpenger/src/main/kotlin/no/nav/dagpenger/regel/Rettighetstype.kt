@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -22,16 +23,17 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 object Rettighetstype {
     val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
     private val ordinærArbeid = boolsk(OrdinærId, beskrivelse = "Har rett til ordinære dagpenger gjennom arbeidsforhold", behovId = Ordinær)
-    private val lønnsgaranti = boolsk(LønnsgarantiId, beskrivelse = "Har rett til dagpenger etter konkurs", behovId = Lønnsgaranti)
+    private val lønnsgaranti =
+        boolsk(LønnsgarantiId, beskrivelse = "Forskutterte lønnsgarantimidler i form av dagpenger", behovId = Lønnsgaranti)
     val permitteringFiskeforedling =
         boolsk(
             PermittertFiskeforedlingId,
-            beskrivelse = "Har rett til dagpenger under permittering i fiskeforedlingsindustri",
+            beskrivelse = "Permittert fra fiskeindustrien",
             behovId = PermittertFiskeforedling,
         )
 
-    private val ordinær = boolsk(HarRettTilOrdinærId, "Har rett til ordinære dagpenger")
-    private val ingenArbeid = boolsk(IngenArbeidId, "Har rett til ordinære dagpenger uten arbeidsforhold")
+    private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
+    private val ingenArbeid = boolsk(IngenArbeidId, "Har rett til ordinære dagpenger uten arbeidsforhold", synlig = aldriSynlig)
 
     val rettighetstype = boolsk(RettighetstypeId, beskrivelse = "Rettighetstype", behovId = "Rettighetstype")
 

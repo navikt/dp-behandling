@@ -74,7 +74,7 @@ object DagpengenesStørrelse {
     val ukesatsMedBarnetillegg =
         beløp(AvrundetUkessatsMedBarnetilleggFørSmordningId, "Avrundet ukessats med barnetillegg før samordning", Legacy, aldriSynlig)
     private val avrundetDagsatsUtenBarnetillegg =
-        beløp(AvrundetDagsatsUtenBarnetilleggId, "Avrundet dagsats uten barnetillegg før samordning")
+        beløp(AvrundetDagsatsUtenBarnetilleggId, "Dagsats uten barnetillegg før samordning")
     private val beløpOverMaks =
         beløp(
             beløpOverMaksId,
@@ -103,7 +103,7 @@ object DagpengenesStørrelse {
     private val samordnetDagsatsMedBarnetillegg = beløp(SamordnetDagsatsMedBarnetilleggId, "Samordnet dagsats med barnetillegg")
     val ukessats = beløp(UkessatsId, "Ukessats med barnetillegg etter samordning", Legacy, aldriSynlig)
     val dagsatsEtterSamordningMedBarnetillegg =
-        beløp(DagsatsEtterSamordningMedBarnetilleggId, "Dagsats med barnetillegg etter samordning og 90% regel")
+        beløp(DagsatsEtterSamordningMedBarnetilleggId, "Dagsats med barnetillegg etter samordning og 90 % regel")
     val harSamordnet = boolsk(HarSamordnetId, "Har samordnet")
 
     val regelsett =

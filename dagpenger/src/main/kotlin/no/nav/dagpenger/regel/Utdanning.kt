@@ -34,7 +34,7 @@ object Utdanning {
     val tarUtdanning =
         Opplysningstype.boolsk(
             tarUtdanningEllerOpplæringId,
-            "Tar utdanning eller opplæring?",
+            "Brukeren er under utdanning eller opplæring",
             Bruker,
             behovId = TarUtdanningEllerOpplæring,
         )

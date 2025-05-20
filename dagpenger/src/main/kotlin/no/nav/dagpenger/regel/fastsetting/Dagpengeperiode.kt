@@ -64,7 +64,7 @@ object Dagpengeperiode {
     private val ingenOrdinærPeriode =
         heltall(IngenOrdinærPeriodeId, "Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt", synlig = aldriSynlig)
 
-    val ordinærPeriode = heltall(OrdinærPeriodeId, "Antall stønadsuker som gis ved ordinære dagpenger")
+    val ordinærPeriode = heltall(OrdinærPeriodeId, "Antall stønadsuker (stønadsperiode)")
 
     val regelsett =
         fastsettelse(

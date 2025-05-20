@@ -15,9 +15,9 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-91d1-7df2-ba1d-4533f37fcc75|Søknadstidspunkt|Søknadstidspunkt|Dato|LocalDate|
 |0194881f-91d1-7df2-ba1d-4533f37fcc76|Prøvingsdato|Prøvingsdato|Dato|LocalDate|
 |0194881f-91d1-7df2-ba1d-4533f37fcc77|søknadId|søknadId|Tekst|String|
-|0194881f-91df-746a-a8ac-4a6b2b30685d|Deltar medlemmet i streik eller er omfattet av lock-out?|Deltar medlemmet i streik eller er omfattet av lock-out?|Boolsk|boolean|
-|0194881f-91df-746a-a8ac-4a6b2b30685e|Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?|Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?|Boolsk|boolean|
-|0194881f-91df-746a-a8ac-4a6b2b30685f|Er medlemmet ikke påvirket av streik eller lock-out?|Er medlemmet ikke påvirket av streik eller lock-out?|Boolsk|boolean|
+|0194881f-91df-746a-a8ac-4a6b2b30685d|Brukeren deltar i streik eller er omfattet av lock-out|Brukeren deltar i streik eller er omfattet av lock-out|Boolsk|boolean|
+|0194881f-91df-746a-a8ac-4a6b2b30685e|Brukeren er ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet|Brukeren er ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet|Boolsk|boolean|
+|0194881f-91df-746a-a8ac-4a6b2b30685f|Brukeren er ikke påvirket av streik eller lock-out|Brukeren er ikke påvirket av streik eller lock-out|Boolsk|boolean|
 |0194881f-940b-76ff-acf5-ba7bcb367233|Fødselsdato|Fødselsdato|Dato|LocalDate|
 |0194881f-940b-76ff-acf5-ba7bcb367234|Aldersgrense|Aldersgrense|Heltall|int|
 |0194881f-940b-76ff-acf5-ba7bcb367235|Dato søker når maks alder|Dato søker når maks alder|Dato|LocalDate|
@@ -29,12 +29,12 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9410-7481-b263-4606fdd10ca7|Faktor for maksimalt mulig grunnlag|Faktor for maksimalt mulig grunnlag|Desimaltall|double|
 |0194881f-9410-7481-b263-4606fdd10ca8|6 ganger grunnbeløp|6 ganger grunnbeløp|Penger|Beløp|
 |0194881f-9410-7481-b263-4606fdd10ca9|Antall år i 36 måneder|Antall år i 36 måneder|Desimaltall|double|
-|0194881f-9410-7481-b263-4606fdd10caa|Grunnlag siste 12 mnd.|Grunnlag siste 12 mnd.|Penger|Beløp|
+|0194881f-9410-7481-b263-4606fdd10caa|Inntekt etter avkortning og oppjustering siste 12 måneder|Inntekt etter avkortning og oppjustering siste 12 måneder|Penger|Beløp|
 |0194881f-9410-7481-b263-4606fdd10cab|Inntekt siste 36 måneder|Inntekt siste 36 måneder|Penger|Beløp|
-|0194881f-9410-7481-b263-4606fdd10cac|Gjennomsnittlig arbeidsinntekt siste 36 måneder|Gjennomsnittlig arbeidsinntekt siste 36 måneder|Penger|Beløp|
-|0194881f-9410-7481-b263-4606fdd10cad|Utbetalt arbeidsinntekt periode 1|Utbetalt arbeidsinntekt periode 1|Penger|Beløp|
-|0194881f-9410-7481-b263-4606fdd10cae|Utbetalt arbeidsinntekt periode 2|Utbetalt arbeidsinntekt periode 2|Penger|Beløp|
-|0194881f-9410-7481-b263-4606fdd10caf|Utbetalt arbeidsinntekt periode 3|Utbetalt arbeidsinntekt periode 3|Penger|Beløp|
+|0194881f-9410-7481-b263-4606fdd10cac|Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder|Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder|Penger|Beløp|
+|0194881f-9410-7481-b263-4606fdd10cad|Utbetalt inntekt periode 1|Utbetalt inntekt periode 1|Penger|Beløp|
+|0194881f-9410-7481-b263-4606fdd10cae|Utbetalt inntekt periode 2|Utbetalt inntekt periode 2|Penger|Beløp|
+|0194881f-9410-7481-b263-4606fdd10caf|Utbetalt inntekt periode 3|Utbetalt inntekt periode 3|Penger|Beløp|
 |0194881f-9410-7481-b263-4606fdd10cb0|Inntektperiode 1|Inntektperiode 1|Penger|Beløp|
 |0194881f-9410-7481-b263-4606fdd10cb1|Inntektperiode 2|Inntektperiode 2|Penger|Beløp|
 |0194881f-9410-7481-b263-4606fdd10cb2|Inntektperiode 3|Inntektperiode 3|Penger|Beløp|
@@ -48,22 +48,22 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9410-7481-b263-4606fdd10cba|Brukt beregningsregel|Brukt beregningsregel|Tekst|String|
 |0194881f-9410-7481-b263-4606fdd10cbb|Uavrundet grunnlag|Uavrundet grunnlag|Penger|Beløp|
 |0194881f-9410-7481-b263-4606fdd10cbc|Grunnlag ved ordinære dagpenger|Grunnlag ved ordinære dagpenger|Penger|Beløp|
-|0194881f-9410-7481-b263-4606fdd10cbd|Grunnlag|Grunnlag|Penger|Beløp|
+|0194881f-9410-7481-b263-4606fdd10cbd|Dagpengegrunnlag|Dagpengegrunnlag|Penger|Beløp|
 |0194881f-9410-7481-b263-4606fdd10cbe|Uavkortet grunnlag siste 12 mnd|Uavkortet grunnlag siste 12 mnd|Penger|Beløp|
 |0194881f-9410-7481-b263-4606fdd10cbf|Uavkortet grunnlag siste 36 mnd|Uavkortet grunnlag siste 36 mnd|Penger|Beløp|
 |0194881f-9413-77ce-92ec-d29700f0423f|Antall G for krav til 12 mnd arbeidsinntekt|Antall G for krav til 12 mnd arbeidsinntekt|Desimaltall|double|
 |0194881f-9413-77ce-92ec-d29700f04240|Antall G for krav til 36 mnd arbeidsinntekt|Antall G for krav til 36 mnd arbeidsinntekt|Desimaltall|double|
-|0194881f-9413-77ce-92ec-d29700f04241|Arbeidsinntekt siste 12 mnd|InntektSiste12Mnd|Penger|Beløp|
-|0194881f-9413-77ce-92ec-d29700f04242|Arbeidsinntekt siste 36 mnd|InntektSiste36Mnd|Penger|Beløp|
+|0194881f-9413-77ce-92ec-d29700f04241|Arbeidsinntekt siste 12 måneder|InntektSiste12Mnd|Penger|Beløp|
+|0194881f-9413-77ce-92ec-d29700f04242|Arbeidsinntekt siste 36 måneder|InntektSiste36Mnd|Penger|Beløp|
 |0194881f-9413-77ce-92ec-d29700f04243|Grunnbeløp|Grunnbeløp|Penger|Beløp|
 |0194881f-9413-77ce-92ec-d29700f04244|Inntektsopplysninger|Inntekt|InntektDataType|Inntekt|
 |0194881f-9413-77ce-92ec-d29700f04245|Brutto arbeidsinntekt|Brutto arbeidsinntekt|InntektDataType|Inntekt|
 |0194881f-9413-77ce-92ec-d29700f04246|Maks lengde på opptjeningsperiode|Maks lengde på opptjeningsperiode|Heltall|int|
 |0194881f-9413-77ce-92ec-d29700f04247|Første måned av opptjeningsperiode|OpptjeningsperiodeFraOgMed|Dato|LocalDate|
-|0194881f-9413-77ce-92ec-d29700f04248|Inntektskrav for siste 12 mnd|Inntektskrav for siste 12 mnd|Penger|Beløp|
-|0194881f-9413-77ce-92ec-d29700f04249|Inntektskrav for siste 36 mnd|Inntektskrav for siste 36 mnd|Penger|Beløp|
-|0194881f-9413-77ce-92ec-d29700f0424a|Arbeidsinntekt er over kravet for siste 12 mnd|Arbeidsinntekt er over kravet for siste 12 mnd|Boolsk|boolean|
-|0194881f-9413-77ce-92ec-d29700f0424b|Arbeidsinntekt er over kravet for siste 36 mnd|Arbeidsinntekt er over kravet for siste 36 mnd|Boolsk|boolean|
+|0194881f-9413-77ce-92ec-d29700f04248|Inntektskrav for siste 12 måneder|Inntektskrav for siste 12 måneder|Penger|Beløp|
+|0194881f-9413-77ce-92ec-d29700f04249|Inntektskrav for siste 36 måneder|Inntektskrav for siste 36 måneder|Penger|Beløp|
+|0194881f-9413-77ce-92ec-d29700f0424a|Arbeidsinntekt er over kravet for siste 12 måneder|Arbeidsinntekt er over kravet for siste 12 måneder|Boolsk|boolean|
+|0194881f-9413-77ce-92ec-d29700f0424b|Arbeidsinntekt er over kravet for siste 36 måneder|Arbeidsinntekt er over kravet for siste 36 måneder|Boolsk|boolean|
 |0194881f-9413-77ce-92ec-d29700f0424c|Oppfyller kravet til minsteinntekt|Oppfyller kravet til minsteinntekt|Boolsk|boolean|
 |0194881f-9414-7823-8d29-0e25b7feb7ce|Lovpålagt rapporteringsfrist for A-ordningen|Lovpålagt rapporteringsfrist for A-ordningen|Dato|LocalDate|
 |0194881f-9414-7823-8d29-0e25b7feb7cf|Arbeidsgivers rapporteringsfrist|Arbeidsgivers rapporteringsfrist|Dato|LocalDate|
@@ -81,7 +81,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a23e|Faktor for utregning av dagsats etter dagpengegrunnlaget|Faktor for utregning av dagsats etter dagpengegrunnlaget|Desimaltall|double|
 |0194881f-9428-74d5-b160-f63a4c61a23f|Dagsats uten barnetillegg før samordning|Dagsats uten barnetillegg før samordning|Penger|Beløp|
 |0194881f-9428-74d5-b160-f63a4c61a240|Avrundet ukessats med barnetillegg før samordning|Avrundet ukessats med barnetillegg før samordning|Penger|Beløp|
-|0194881f-9428-74d5-b160-f63a4c61a241|Avrundet dagsats uten barnetillegg før samordning|Avrundet dagsats uten barnetillegg før samordning|Penger|Beløp|
+|0194881f-9428-74d5-b160-f63a4c61a241|Dagsats uten barnetillegg før samordning|Dagsats uten barnetillegg før samordning|Penger|Beløp|
 |0194881f-9428-74d5-b160-f63a4c61a242|Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget|Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget|Penger|Beløp|
 |0194881f-9428-74d5-b160-f63a4c61a243|Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget|Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget|Penger|Beløp|
 |0194881f-9428-74d5-b160-f63a4c61a244|Sum av barnetillegg|Sum av barnetillegg|Penger|Beløp|
@@ -95,7 +95,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a24c|Har barnetillegg|Har barnetillegg|Boolsk|boolean|
 |0194881f-9428-74d5-b160-f63a4c61a24d|Samordnet dagsats med barnetillegg|Samordnet dagsats med barnetillegg|Penger|Beløp|
 |0194881f-9428-74d5-b160-f63a4c61a24e|Ukessats med barnetillegg etter samordning|Ukessats med barnetillegg etter samordning|Penger|Beløp|
-|0194881f-9428-74d5-b160-f63a4c61a24f|Dagsats med barnetillegg etter samordning og 90% regel|Dagsats med barnetillegg etter samordning og 90% regel|Penger|Beløp|
+|0194881f-9428-74d5-b160-f63a4c61a24f|Dagsats med barnetillegg etter samordning og 90 % regel|Dagsats med barnetillegg etter samordning og 90 % regel|Penger|Beløp|
 |0194881f-9428-74d5-b160-f63a4c61a250|Har samordnet|Har samordnet|Boolsk|boolean|
 |0194881f-942e-7cb0-aa59-05ea449d88e0|Oppgitt andre ytelser utenfor NAV i søknaden|OppgittAndreYtelserUtenforNav|Boolsk|boolean|
 |0194881f-942e-7cb0-aa59-05ea449d88e1|Mottar pensjon fra en offentlig tjenestepensjonsordning|Mottar pensjon fra en offentlig tjenestepensjonsordning|Boolsk|boolean|
@@ -176,7 +176,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943d-77a7-969c-147999f15456|Antall stønadsuker|Antall stønadsuker|Heltall|int|
 |0194881f-943d-77a7-969c-147999f15457|Antall stønadsdager|Antall stønadsdager|Heltall|int|
 |0194881f-943d-77a7-969c-147999f15458|Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt|Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt|Heltall|int|
-|0194881f-943d-77a7-969c-147999f15459|Antall stønadsuker som gis ved ordinære dagpenger|Antall stønadsuker som gis ved ordinære dagpenger|Heltall|int|
+|0194881f-943d-77a7-969c-147999f15459|Antall stønadsuker (stønadsperiode)|Antall stønadsuker (stønadsperiode)|Heltall|int|
 |0194881f-943f-78d9-b874-00a4944c54ef|Egenandel|Egenandel|Penger|Beløp|
 |0194881f-943f-78d9-b874-00a4944c54f0|Antall dagsats for egenandel|Antall dagsats for egenandel|Desimaltall|double|
 |0194881f-943f-78d9-b874-00a4944c54f1|Mottar ikke andre fulle ytelser|Mottar ikke andre fulle ytelser|Boolsk|boolean|
@@ -193,20 +193,20 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9442-707b-a6ee-e96c06877be0|Registrert som arbeidssøker|RegistrertSomArbeidssøker|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877be1|Registrert som arbeidssøker på søknadstidspunktet|Registrert som arbeidssøker på søknadstidspunktet|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877be2|Krav til arbeidssøker|Krav til arbeidssøker|Boolsk|boolean|
-|0194881f-9443-72b4-8b30-5f6cdb24d549|Opphold i Norge|OppholdINorge|Boolsk|boolean|
+|0194881f-9443-72b4-8b30-5f6cdb24d549|Bruker oppholder seg i Norge|OppholdINorge|Boolsk|boolean|
 |0194881f-9443-72b4-8b30-5f6cdb24d54a|Oppfyller unntak for opphold i Norge|Oppfyller unntak for opphold i Norge|Boolsk|boolean|
 |0194881f-9443-72b4-8b30-5f6cdb24d54b|Oppfyller kravet til opphold i Norge eller unntak|Oppfyller kravet til opphold i Norge eller unntak|Boolsk|boolean|
-|0194881f-9443-72b4-8b30-5f6cdb24d54c|Er personen medlem av folketrygden|Er personen medlem av folketrygden|Boolsk|boolean|
+|0194881f-9443-72b4-8b30-5f6cdb24d54c|Bruker er medlem av folketrygden|Bruker er medlem av folketrygden|Boolsk|boolean|
 |0194881f-9443-72b4-8b30-5f6cdb24d54d|Oppfyller kravet til medlemskap|Oppfyller kravet til medlemskap|Boolsk|boolean|
-|0194881f-9443-72b4-8b30-5f6cdb24d54e|Oppfyller kravet til opphold i Norge|Oppfyller kravet til opphold i Norge|Boolsk|boolean|
+|0194881f-9443-72b4-8b30-5f6cdb24d54e|Kravet til opphold i Norge er oppfylt|Kravet til opphold i Norge er oppfylt|Boolsk|boolean|
 |0194881f-9444-7a73-a458-0af81c034d85|Har rett til ordinære dagpenger gjennom arbeidsforhold|Ordinær|Boolsk|boolean|
 |0194881f-9444-7a73-a458-0af81c034d86|Bruker er permittert|Permittert|Boolsk|boolean|
-|0194881f-9444-7a73-a458-0af81c034d87|Har rett til dagpenger etter konkurs|Lønnsgaranti|Boolsk|boolean|
-|0194881f-9444-7a73-a458-0af81c034d88|Har rett til dagpenger under permittering i fiskeforedlingsindustri|PermittertFiskeforedling|Boolsk|boolean|
+|0194881f-9444-7a73-a458-0af81c034d87|Forskutterte lønnsgarantimidler i form av dagpenger|Lønnsgaranti|Boolsk|boolean|
+|0194881f-9444-7a73-a458-0af81c034d88|Permittert fra fiskeindustrien|PermittertFiskeforedling|Boolsk|boolean|
 |0194881f-9444-7a73-a458-0af81c034d89|Har rett til ordinære dagpenger uten arbeidsforhold|Har rett til ordinære dagpenger uten arbeidsforhold|Boolsk|boolean|
-|0194881f-9444-7a73-a458-0af81c034d8a|Har rett til ordinære dagpenger|Har rett til ordinære dagpenger|Boolsk|boolean|
+|0194881f-9444-7a73-a458-0af81c034d8a|Ordinære dagpenger|Ordinære dagpenger|Boolsk|boolean|
 |0194881f-9444-7a73-a458-0af81c034d8b|Rettighetstype|Rettighetstype|Boolsk|boolean|
-|0194881f-9445-734c-a7ee-045edf29b522|Tar utdanning eller opplæring?|TarUtdanningEllerOpplæring|Boolsk|boolean|
+|0194881f-9445-734c-a7ee-045edf29b522|Brukeren er under utdanning eller opplæring|TarUtdanningEllerOpplæring|Boolsk|boolean|
 |0194881f-9445-734c-a7ee-045edf29b523|Godkjent unntak for utdanning eller opplæring?|Godkjent unntak for utdanning eller opplæring?|Boolsk|boolean|
 |0194881f-9445-734c-a7ee-045edf29b524|Har svart ja på spørsmål om utdanning eller opplæring|Har svart ja på spørsmål om utdanning eller opplæring|Boolsk|boolean|
 |0194881f-9445-734c-a7ee-045edf29b525|Har svart nei på spørsmål om utdanning eller opplæring|Har svart nei på spørsmål om utdanning eller opplæring|Boolsk|boolean|
@@ -227,7 +227,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194d105-bd54-7b2b-9dc6-6e6664951894|Årsaken til permitteringen er godkjent|Årsaken til permitteringen er godkjent|Boolsk|boolean|
 |0194d111-db2f-7395-bcfb-959f245fd2a6|Oppfyller kravet til permittering|Oppfyller kravet til permittering|Boolsk|boolean|
 |0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|
-|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kan kravet til reell arbeidssøker vurderes|Kan kravet til reell arbeidssøker vurderes|Boolsk|boolean|
+|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kravet til reell arbeidssøker er ikke relevant|Kravet til reell arbeidssøker er ikke relevant|Boolsk|boolean|
 |0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Periode som gis ved permittering|Heltall|int|
 |019522b0-c722-76d4-8d7f-78f556c51f72|Oppfyller kravet til permittering i fiskeindustrien|Oppfyller kravet til permittering i fiskeindustrien|Boolsk|boolean|
 |019522b8-0f1b-7536-8691-fd824bca86de|Årsaken til permitteringen fra fiskeindustrien er godkjent|Årsaken til permitteringen fra fiskeindustrien er godkjent|Boolsk|boolean|

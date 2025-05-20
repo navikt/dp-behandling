@@ -76,7 +76,7 @@ object ReellArbeidssøker {
     val kanReellArbeidssøkerVurderes =
         boolsk(
             KanReellArbeidssøkerVurderesId,
-            "Kan kravet til reell arbeidssøker vurderes",
+            "Kravet til reell arbeidssøker er ikke relevant",
             synlig = { !oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) },
         )
 
