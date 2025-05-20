@@ -49,28 +49,11 @@ Uføre dagsats
 Sum hvis Uføre ikke skal samordnes
 Foreldrepenger dagsats
 Svangerskapspenger dagsats
-Antall arbeidsdager per uke
-Hvor mange prosent av G skal brukes som terskel ved samordning
-Pensjon fra en offentlig tjenestepensjonsordning beløp
-Uførepensjon fra offentlig pensjonsordning beløp
-Vartpenger beløp
-Ventelønn beløp
-Etterlønn beløp
-Garantilott fra Garantikassen for fiskere beløp
 Grunnbeløp
 Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
-Terskelfaktor for 12 måneder
-Lang dagpengeperiode
-Kort dagpengeperiode
-Divisior
-Terskelfaktor for 36 måneder
-Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
-Antall dager som skal regnes med i hver uke
 Årsaken til permitteringen fra fiskeindustrien er godkjent
 Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
-Ingen egenandel
-Antall dagsats for egenandel
 Mottar ikke andre fulle ytelser
 Oppfyller unntak for opphold i Norge
 Er personen medlem av folketrygden
@@ -79,12 +62,6 @@ Det er godkjent at bruker kun søker arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
 Kan kravet til reell arbeidssøker vurderes
-Mottar pensjon fra en offentlig tjenestepensjonsordning
-Mottar redusert uførepensjon fra offentlig pensjonsordning
-Mottar vartpenger
-Mottar ventelønn
-Mottar etterlønn
-Mottar garantilott fra Garantikassen for fiskere.
 Deltar medlemmet i streik eller er omfattet av lock-out?
 Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?
 Har tapt arbeid
@@ -107,7 +84,6 @@ Deltar i høyere yrkesfaglig utdanning
 Deltar i høyere utdanning
 Deltar på kurs mv
 Bruker er utestengt fra dagpenger
-Periode som gis ved verneplikt
 Årsaken til permitteringen er godkjent
 Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
@@ -116,12 +92,8 @@ Arbeidsgivers rapporteringsfrist
 Grunnlag for gis ved verneplikt
 Sum av barnetillegg
 Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
-Beløp tilsvarende nedre terskel av G
-Sum av ytelser utenfor folketrygden
 Inntektskrav for siste 12 mnd
 Inntektskrav for siste 36 mnd
-Terskel for 12 måneder
-Terskel for 36 måneder
 Oppfyller kravet til permittering i fiskeindustrien
 Oppfyller kravet til opphold i Norge eller unntak
 Oppfyller kravet til medlemskap
@@ -158,46 +130,27 @@ Svangerskapspenger etter lovens kapittel 14
 Foreldrepenger etter lovens kapittel 14
 Opplæringspenger etter lovens kapittel 9
 Pleiepenger etter lovens kapittel 9
-Oppgitt andre ytelser utenfor NAV i søknaden
-Mottar andre økonomiske ytelser fra arbeidsgiver eller tidligere arbeidsgiver enn lønn
 Tellende inntekt
 Brutto arbeidsinntekt
 Registrert som arbeidssøker på søknadstidspunktet
-Skal samordnes med ytelser utenfor folketrygden
 Medlem har reduserte ytelser fra folketrygden (Samordning)
-Oppjustert inntekt
-Utbetalt arbeidsinntekt periode 1
-Utbetalt arbeidsinntekt periode 2
-Utbetalt arbeidsinntekt periode 3
 Arbeidsinntekt siste 12 mnd
 Arbeidsinntekt siste 36 mnd
+Oppjustert inntekt
+Arbeidsinntekt er over kravet for siste 12 mnd
+Arbeidsinntekt er over kravet for siste 36 mnd
 Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
-Arbeidsinntekt er over kravet for siste 12 mnd
-Arbeidsinntekt er over kravet for siste 36 mnd
-Over terskel for 12 måneder
-Snittinntekt siste 36 måneder
+Oppfyller kravet til minsteinntekt
 Grunnlag siste 12 mnd.
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
 Avkortet inntektperiode 3
-Har avkortet grunnlaget i periode 1
-Har avkortet grunnlaget i periode 2
-Har avkortet grunnlaget i periode 3
-Oppfyller kravet til minsteinntekt
-Stønadsuker ved siste 12 måneder
-Over terskel for 36 måneder
 Inntekt siste 36 måneder
-Har avkortet grunnlag
-Stønadsuker ved siste 36 måneder
 Gjennomsnittlig arbeidsinntekt siste 36 måneder
-Antall stønadsuker
 Uavrundet grunnlag
-Antall stønadsuker som gis ved ordinære dagpenger
-Antall stønadsdager
 Grunnlag ved ordinære dagpenger
-Brukt beregningsregel
 Grunnlag
 Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget
 Dagsats uten barnetillegg før samordning
@@ -210,20 +163,8 @@ Dagsats med barnetillegg før samordning
 Avrundet maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
 Tap av arbeidstid er minst terskel
 Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
-Avrundet ukessats med barnetillegg før samordning
 Krav til tap av arbeidsinntekt og arbeidstid
 Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
-Samordnet dagsats uten barnetillegg
 Samordnet dagsats er større enn 0
-Samordnet ukessats uten barnetillegg
+Samordnet dagsats uten barnetillegg
 Utfall etter samordning
-Minste mulige ukessats som som kan brukes
-Ukessats trukket ned for ytelser utenfor folketrygden
-Samordnet ukessats med ytelser utenfor folketrygden
-Dagsats uten barnetillegg samordnet
-Samordnet dagsats med barnetillegg
-Har samordnet
-Dagsats med barnetillegg etter samordning og 90% regel
-Ukessats med barnetillegg etter samordning
-Tre ganger dagsats
-Egenandel

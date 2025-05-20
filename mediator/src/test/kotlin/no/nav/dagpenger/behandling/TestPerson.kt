@@ -59,6 +59,7 @@ class TestPerson(
     val InntektSiste36Mnd: Int = 1234,
     internal var ønskerFraDato: LocalDate = søknadsdato,
     var arbeidssøkerregistreringsdato: LocalDate = søknadsdato,
+    var registrertSomArbeidssøker: Boolean = true,
     var søkerVerneplikt: Boolean = false,
     val ordinær: Boolean = true,
     val permittering: Boolean = false,
@@ -318,9 +319,14 @@ class TestPerson(
                 // Arbeidssøkerregistrering
                 RegistrertSomArbeidssøker to
                     mapOf(
-                        "verdi" to true,
+                        "verdi" to registrertSomArbeidssøker,
                         "gyldigFraOgMed" to arbeidssøkerregistreringsdato,
-                    ),
+                    ) +
+                    if (!registrertSomArbeidssøker) {
+                        mapOf("gyldigTilOgMed" to arbeidssøkerregistreringsdato)
+                    } else {
+                        emptyMap()
+                    },
                 // Rettighetsype
                 Ordinær to ordinær,
                 Permittert to permittering,

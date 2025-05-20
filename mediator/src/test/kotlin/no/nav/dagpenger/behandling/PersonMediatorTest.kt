@@ -806,6 +806,7 @@ internal class PersonMediatorTest {
             godkjennOpplysninger("innvilgelse")
 
             val nyPrøvingsdato = 22.juli(2024)
+            testPerson.registrertSomArbeidssøker = false
             testPerson.arbeidssøkerregistreringsdato = nyPrøvingsdato
             testPerson.endreOpplysning("Prøvingsdato", nyPrøvingsdato)
 
@@ -831,7 +832,7 @@ internal class PersonMediatorTest {
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
-                    oppfylt
+                    `ikke oppfylt`
                 }
                 medOpplysning<LocalDate>("Prøvingsdato") shouldBe nyPrøvingsdato
             }
@@ -841,6 +842,7 @@ internal class PersonMediatorTest {
             }
 
             val endaNyerePrøvingsdato = 22.august(2024)
+            testPerson.registrertSomArbeidssøker = true
             testPerson.arbeidssøkerregistreringsdato = endaNyerePrøvingsdato
             testPerson.InntektSiste12Mnd = 0
             testPerson.endreOpplysning("Prøvingsdato", endaNyerePrøvingsdato)
