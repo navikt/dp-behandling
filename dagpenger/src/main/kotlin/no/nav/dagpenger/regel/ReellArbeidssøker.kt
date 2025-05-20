@@ -72,7 +72,7 @@ object ReellArbeidssøker {
     val oppfyllerKravetTilEthvertArbeid =
         boolsk(OppfyllerKravetTilEthvertArbeidId, "Oppfyller kravet til å ta ethvert arbeid", synlig = aldriSynlig)
 
-    val kravTilArbeidssøker = boolsk(KravTilArbeidssøkerId, "Krav til arbeidssøker")
+    val kravTilArbeidssøker = boolsk(KravTilArbeidssøkerId, "Reell arbeidssøker")
     val kanReellArbeidssøkerVurderes =
         boolsk(
             KanReellArbeidssøkerVurderesId,

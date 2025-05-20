@@ -192,7 +192,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9442-707b-a6ee-e96c06877bdf|Oppfyller kravet til å ta ethvert arbeid|Oppfyller kravet til å ta ethvert arbeid|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877be0|Registrert som arbeidssøker|RegistrertSomArbeidssøker|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877be1|Registrert som arbeidssøker på søknadstidspunktet|Registrert som arbeidssøker på søknadstidspunktet|Boolsk|boolean|
-|0194881f-9442-707b-a6ee-e96c06877be2|Krav til arbeidssøker|Krav til arbeidssøker|Boolsk|boolean|
+|0194881f-9442-707b-a6ee-e96c06877be2|Reell arbeidssøker|Reell arbeidssøker|Boolsk|boolean|
 |0194881f-9443-72b4-8b30-5f6cdb24d549|Bruker oppholder seg i Norge|OppholdINorge|Boolsk|boolean|
 |0194881f-9443-72b4-8b30-5f6cdb24d54a|Oppfyller unntak for opphold i Norge|Oppfyller unntak for opphold i Norge|Boolsk|boolean|
 |0194881f-9443-72b4-8b30-5f6cdb24d54b|Oppfyller kravet til opphold i Norge eller unntak|Oppfyller kravet til opphold i Norge eller unntak|Boolsk|boolean|

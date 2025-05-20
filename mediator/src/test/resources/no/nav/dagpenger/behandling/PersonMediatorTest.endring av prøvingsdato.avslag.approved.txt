@@ -50,7 +50,7 @@ Oppfyller kravet til permittering
 Oppfyller kravet til permittering i fiskeindustrien
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
-Krav til arbeidssøker
+Reell arbeidssøker
 Oppfyller kravet til alder
 Første måned av opptjeningsperiode
 Inntektsopplysninger

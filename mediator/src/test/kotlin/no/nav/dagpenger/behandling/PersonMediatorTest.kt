@@ -282,7 +282,7 @@ internal class PersonMediatorTest {
                 medVilkår("Oppfyller kravet til minsteinntekt") {
                     erIkkeOppfylt()
                 }
-                medVilkår("Krav til arbeidssøker") {
+                medVilkår("Reell arbeidssøker") {
                     erOppfylt()
                 }
                 /*

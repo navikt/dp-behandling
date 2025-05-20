@@ -137,7 +137,7 @@ Oppfyller kravet til å være arbeidsfør
 Oppfyller kravet til å ta ethvert arbeid
 Villig til å jobbe minimum arbeidstid
 Fastsatt arbeidstid per uke før tap
-Krav til arbeidssøker
+Reell arbeidssøker
 Tap av arbeidstid er minst terskel
 Krav til tap av arbeidsinntekt og arbeidstid
 Bostedsland er Norge
