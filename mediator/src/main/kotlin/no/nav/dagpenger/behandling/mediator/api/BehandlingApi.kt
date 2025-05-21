@@ -157,7 +157,7 @@ internal fun Application.behandlingApi(
                             .hent(ident.tilPersonIdentfikator())!!
                             .behandlinger()
                             .single { it.behandler.eksternId == hendelse.eksternId }
-                            .tilBehandlingOpplysningerDTO(),
+                            .tilBehandlingDTO(),
                     )
                 }
             }
@@ -173,7 +173,7 @@ internal fun Application.behandlingApi(
 
                     auditlogg.les("Listet ut behandlinger", ident, call.saksbehandlerId())
 
-                    call.respond(HttpStatusCode.OK, person.behandlinger().map { it.tilBehandlingOpplysningerDTO() })
+                    call.respond(HttpStatusCode.OK, person.behandlinger().map { it.tilBehandlingDTO() })
                 }
 
                 route("{behandlingId}") {
@@ -317,14 +317,6 @@ internal fun Application.behandlingApi(
                         hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
 
                         call.respond(HttpStatusCode.Created)
-                    }
-
-                    get("opplysning") {
-                        val behandling = hentBehandling(personRepository, call.behandlingId)
-
-                        auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
-
-                        call.respond(HttpStatusCode.OK, behandling.tilBehandlingOpplysningerDTO())
                     }
 
                     put("opplysning/{opplysningId}") {

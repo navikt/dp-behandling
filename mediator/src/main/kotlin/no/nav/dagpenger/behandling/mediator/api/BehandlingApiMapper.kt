@@ -10,8 +10,6 @@ import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingDTOTilstandDTO
-import no.nav.dagpenger.behandling.api.models.BehandlingOpplysningerDTO
-import no.nav.dagpenger.behandling.api.models.BehandlingOpplysningerDTOTilstandDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
@@ -131,7 +129,8 @@ private val logger = KotlinLogging.logger { }
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
-        val lesbareOpplysninger = opplysninger().forDato(opplysninger.finnOpplysning(prøvingsdato).verdi)
+        val prøvingsdato = behandler.forretningsprosess.virkningsdato(opplysninger)
+        val lesbareOpplysninger = opplysninger().forDato(prøvingsdato)
         val opplysningSet = lesbareOpplysninger.finnAlle().toSet()
         val avklaringer = avklaringer().toSet()
         val spesifikkeAvklaringskoder =
@@ -270,56 +269,6 @@ private fun tilStatus(utfall: List<Opplysning<Boolean>>): RegelsettDTOStatusDTO 
         RegelsettDTOStatusDTO.IKKE_OPPFYLT
     }
 }
-
-internal fun Behandling.tilBehandlingOpplysningerDTO(): BehandlingOpplysningerDTO =
-    withLoggingContext("behandlingId" to this.behandlingId.toString()) {
-        val lesbareOpplysninger = this.opplysninger()
-        BehandlingOpplysningerDTO(
-            behandlingId = this.behandlingId,
-            tilstand =
-                when (this.tilstand().first) {
-                    Behandling.TilstandType.UnderOpprettelse -> BehandlingOpplysningerDTOTilstandDTO.UNDER_OPPRETTELSE
-                    Behandling.TilstandType.UnderBehandling -> BehandlingOpplysningerDTOTilstandDTO.UNDER_BEHANDLING
-                    Behandling.TilstandType.ForslagTilVedtak -> BehandlingOpplysningerDTOTilstandDTO.FORSLAG_TIL_VEDTAK
-                    Behandling.TilstandType.Låst -> BehandlingOpplysningerDTOTilstandDTO.LÅST
-                    Behandling.TilstandType.Avbrutt -> BehandlingOpplysningerDTOTilstandDTO.AVBRUTT
-                    Behandling.TilstandType.Ferdig -> BehandlingOpplysningerDTOTilstandDTO.FERDIG
-                    Behandling.TilstandType.Redigert -> BehandlingOpplysningerDTOTilstandDTO.REDIGERT
-                    Behandling.TilstandType.TilGodkjenning -> BehandlingOpplysningerDTOTilstandDTO.TIL_GODKJENNING
-                    Behandling.TilstandType.TilBeslutning -> BehandlingOpplysningerDTOTilstandDTO.TIL_BESLUTNING
-                },
-            opplysning =
-                lesbareOpplysninger.finnAlle().map { opplysning ->
-                    opplysning.tilOpplysningDTO(lesbareOpplysninger)
-                },
-            opplysningsgrupper =
-                lesbareOpplysninger.finnAlle().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
-                    OpplysningsgruppeDTO(
-                        opplysningTypeId = type.id.uuid,
-                        navn = type.navn,
-                        datatype = type.datatype.tilDataTypeDTO(),
-                        opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO(lesbareOpplysninger) },
-                    )
-                },
-            kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
-            aktiveAvklaringer =
-                this
-                    .aktiveAvklaringer()
-                    .map { avklaring ->
-                        avklaring.tilAvklaringDTO()
-                    }.also {
-                        logger.info { "Mapper '${it.size}' (aktive) avklaringer til AvklaringDTO " }
-                    },
-            avklaringer =
-                this
-                    .avklaringer()
-                    .map { avklaring ->
-                        avklaring.tilAvklaringDTO()
-                    }.also {
-                        logger.info { "Mapper '${it.size}' (alle) avklaringer til AvklaringDTO " }
-                    },
-        )
-    }
 
 internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
     val sisteEndring = this.endringer.last()
