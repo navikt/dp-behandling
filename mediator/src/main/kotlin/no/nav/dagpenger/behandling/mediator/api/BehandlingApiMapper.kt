@@ -24,6 +24,7 @@ import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTOFormålDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTOStatusDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningsgruppeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
@@ -41,6 +42,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
+import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
@@ -183,6 +185,15 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
             avklaringer = generelleAvklaringer.map { it.tilAvklaringDTO() },
             opplysninger = opplysningSet.map { it.tilOpplysningDTO(lesbareOpplysninger) },
+            opplysningsgrupper =
+                lesbareOpplysninger.finnAlle().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                    OpplysningsgruppeDTO(
+                        opplysningTypeId = type.id.uuid,
+                        navn = type.navn,
+                        datatype = type.datatype.tilDataTypeDTO(),
+                        opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO(lesbareOpplysninger) },
+                    )
+                },
         )
     }
 
@@ -281,6 +292,15 @@ internal fun Behandling.tilBehandlingOpplysningerDTO(): BehandlingOpplysningerDT
                 lesbareOpplysninger.finnAlle().map { opplysning ->
                     opplysning.tilOpplysningDTO(lesbareOpplysninger)
                 },
+            opplysningsgrupper =
+                lesbareOpplysninger.finnAlle().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                    OpplysningsgruppeDTO(
+                        opplysningTypeId = type.id.uuid,
+                        navn = type.navn,
+                        datatype = type.datatype.tilDataTypeDTO(),
+                        opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO(lesbareOpplysninger) },
+                    )
+                },
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
             aktiveAvklaringer =
                 this
@@ -360,6 +380,7 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                             )
                         },
                     )
+
                 Boolsk -> BoolskVerdiDTO(this.verdi as Boolean)
                 Dato -> DatoVerdiDTO(this.verdi as LocalDate)
                 Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double)
@@ -369,27 +390,17 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                     PengeVerdiDTO(
                         verdi = (this.verdi as Beløp).verdien,
                     )
+
                 PeriodeDataType ->
                     (this.verdi as Periode).let {
                         PeriodeVerdiDTO(it.fraOgMed, it.tilOgMed)
                     }
+
                 Tekst, ULID -> TekstVerdiDTO(this.verdi.toString())
             },
         gyldigFraOgMed = this.gyldighetsperiode.fom.tilApiDato(),
         gyldigTilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
-        datatype =
-            when (this.opplysningstype.datatype) {
-                Boolsk -> DataTypeDTO.BOOLSK
-                Dato -> DataTypeDTO.DATO
-                Desimaltall -> DataTypeDTO.DESIMALTALL
-                Heltall -> DataTypeDTO.HELTALL
-                ULID -> DataTypeDTO.ULID
-                Penger -> DataTypeDTO.PENGER
-                InntektDataType -> DataTypeDTO.INNTEKT
-                BarnDatatype -> DataTypeDTO.BARN
-                Tekst -> DataTypeDTO.TEKST
-                PeriodeDataType -> DataTypeDTO.DATO // TODO
-            },
+        datatype = this.opplysningstype.datatype.tilDataTypeDTO(),
         kilde =
             this.kilde?.let {
                 val registrert = it.registrert
@@ -428,6 +439,20 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                 Opplysningsformål.Regel -> OpplysningDTOFormålDTO.REGEL
             },
     )
+
+private fun Datatype<*>.tilDataTypeDTO() =
+    when (this) {
+        Boolsk -> DataTypeDTO.BOOLSK
+        Dato -> DataTypeDTO.DATO
+        Desimaltall -> DataTypeDTO.DESIMALTALL
+        Heltall -> DataTypeDTO.HELTALL
+        ULID -> DataTypeDTO.ULID
+        Penger -> DataTypeDTO.PENGER
+        InntektDataType -> DataTypeDTO.INNTEKT
+        BarnDatatype -> DataTypeDTO.BARN
+        Tekst -> DataTypeDTO.TEKST
+        PeriodeDataType -> DataTypeDTO.DATO // TODO
+    }
 
 private fun LocalDate.tilApiDato(): LocalDate? =
     when (this) {
