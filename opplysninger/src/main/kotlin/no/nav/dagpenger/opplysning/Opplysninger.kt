@@ -74,8 +74,8 @@ class Opplysninger private constructor(
                     else -> {
                         throw IllegalArgumentException(
                             """
-                            |Kan ikke legge til opplysning (type=${opplysning.opplysningstype.navn}) som 
-                            |overlapper med eksisterende opplysning
+                            |Kan ikke legge til opplysning (id=${opplysning.id}, type=${opplysning.opplysningstype.navn}) som 
+                            |overlapper med eksisterende opplysning (id=${erstattes.id}, type=${erstattes.opplysningstype.navn}).
                             """.trimMargin(),
                         )
                     }
