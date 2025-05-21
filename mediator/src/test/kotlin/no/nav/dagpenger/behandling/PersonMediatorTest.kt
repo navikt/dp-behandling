@@ -704,7 +704,7 @@ internal class PersonMediatorTest {
                     "JobbetUtenforNorge",
                     "MuligGjenopptak",
                     "SvangerskapsrelaterteSykepenger",
-                    "ØnskerEtterRapporteringsfrist",
+                    "PrøvingsdatoEtterRapporteringsfrist",
                     "HarTilleggsopplysninger",
                     "VirkningstidspunktForLangtFramItid",
                 ),
@@ -806,7 +806,7 @@ internal class PersonMediatorTest {
                     "MuligGjenopptak",
                     "SvangerskapsrelaterteSykepenger",
                     "VirkningstidspunktForLangtFramItid",
-                    "ØnskerEtterRapporteringsfrist",
+                    "PrøvingsdatoEtterRapporteringsfrist",
                     "HarTilleggsopplysninger",
                 ),
             )

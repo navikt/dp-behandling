@@ -143,8 +143,8 @@ object Minsteinntekt {
     val InntektNesteKalendermånedKontroll =
         Kontrollpunkt(Avklaringspunkter.InntektNesteKalendermåned) { it.har(inntektFraSkatt) }
 
-    val ØnskerEtterRapporteringsfristKontroll =
-        Kontrollpunkt(Avklaringspunkter.ØnskerEtterRapporteringsfrist) {
+    val PrøverEtterRapporteringsfristKontroll =
+        Kontrollpunkt(Avklaringspunkter.PrøvingsdatoEtterRapporteringsfrist) {
             if (!it.har(justertRapporteringsfrist)) return@Kontrollpunkt false
             if (!it.har(søknadstidspunkt)) return@Kontrollpunkt false
             if (!it.har(søknadsdato)) return@Kontrollpunkt false
