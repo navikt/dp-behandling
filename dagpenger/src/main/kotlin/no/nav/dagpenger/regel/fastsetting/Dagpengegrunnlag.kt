@@ -73,29 +73,29 @@ object Dagpengegrunnlag {
 
     private val antallÅrI36Måneder = Opplysningstype.desimaltall(AntallÅrI36MånederId, "Antall år i 36 måneder", synlig = aldriSynlig)
 
-    internal val grunnlag12mnd = Opplysningstype.beløp(GrunnlagSiste12MndId, "Grunnlag siste 12 mnd.")
+    internal val grunnlag12mnd = Opplysningstype.beløp(GrunnlagSiste12MndId, "Inntekt etter avkortning og oppjustering siste 12 måneder")
     private val beløpSiste36 = Opplysningstype.beløp(InntektSiste36MånederId, "Inntekt siste 36 måneder", synlig = aldriSynlig)
     internal val grunnlag36mnd =
         Opplysningstype.som(
             GjennomsnittligArbeidsinntektSiste36MånederId,
-            "Gjennomsnittlig arbeidsinntekt siste 36 måneder",
+            "Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder",
         )
 
     // Brutto
     private val utbetaltArbeidsinntektPeriode1 =
         Opplysningstype.beløp(
             UtbetaltArbeidsinntektPeriode1Id,
-            "Utbetalt arbeidsinntekt periode 1",
+            "Utbetalt inntekt periode 1",
         )
     private val utbetaltArbeidsinntektPeriode2 =
         Opplysningstype.beløp(
             UtbetaltArbeidsinntektPeriode2Id,
-            "Utbetalt arbeidsinntekt periode 2",
+            "Utbetalt inntekt periode 2",
         )
     private val utbetaltArbeidsinntektPeriode3 =
         Opplysningstype.beløp(
             UtbetaltArbeidsinntektPeriode3Id,
-            "Utbetalt arbeidsinntekt periode 3",
+            "Utbetalt inntekt periode 3",
         )
 
     private val inntektperiode1 = Opplysningstype.beløp(Inntektperiode1Id, "Inntektperiode 1", synlig = aldriSynlig)
@@ -117,7 +117,7 @@ object Dagpengegrunnlag {
     internal val bruktBeregningsregel = Opplysningstype.tekst(BruktBeregningsregelId, "Brukt beregningsregel")
     val uavrundetGrunnlag = Opplysningstype.beløp(UavrundetGrunnlagId, "Uavrundet grunnlag", synlig = aldriSynlig)
     val dagpengegrunnlag = Opplysningstype.beløp(GrunnlagVedOrdinæreDagpengerId, "Grunnlag ved ordinære dagpenger")
-    val grunnlag = Opplysningstype.beløp(GrunnlagId, "Grunnlag")
+    val grunnlag = Opplysningstype.beløp(GrunnlagId, "Dagpengegrunnlag")
     val uavkortet12mnd = Opplysningstype.beløp(UavkortetGrunnlagSiste12MndId, "Uavkortet grunnlag siste 12 mnd", Legacy, aldriSynlig)
     val uavkortet36mnd = Opplysningstype.beløp(UavkortetGrunnlagSiste36MndId, "Uavkortet grunnlag siste 36 mnd", Legacy, aldriSynlig)
 

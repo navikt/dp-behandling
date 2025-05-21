@@ -22,16 +22,16 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Opphold {
-    var oppholdINorge = boolsk(OppholdINorgeId, beskrivelse = "Opphold i Norge", behovId = "OppholdINorge")
+    var oppholdINorge = boolsk(OppholdINorgeId, beskrivelse = "Bruker oppholder seg i Norge", behovId = "OppholdINorge")
     var unntakForOpphold =
         boolsk(UnntakForOppholdId, "Oppfyller unntak for opphold i Norge", synlig = { it.erSann(oppholdINorge) == false })
     val oppfyllerKravetTilOpphold =
         boolsk(OppfyllerKravetTilOppholdId, "Oppfyller kravet til opphold i Norge eller unntak", synlig = aldriSynlig)
 
-    val medlemFolketrygden = boolsk(MedlemFolketrygdenId, "Er personen medlem av folketrygden")
+    val medlemFolketrygden = boolsk(MedlemFolketrygdenId, "Bruker er medlem av folketrygden")
     val oppfyllerMedlemskap = boolsk(OppfyllerMedlemskapId, "Oppfyller kravet til medlemskap", synlig = aldriSynlig)
 
-    val oppfyllerKravet = boolsk(OppfyllerKravetOppholdId, "Oppfyller kravet til opphold i Norge")
+    val oppfyllerKravet = boolsk(OppfyllerKravetOppholdId, "Kravet til opphold i Norge er oppfylt")
     val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge", behovId = BostedslandErNorge)
 
     val regelsett =

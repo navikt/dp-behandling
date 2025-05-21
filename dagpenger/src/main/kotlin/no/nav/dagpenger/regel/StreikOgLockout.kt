@@ -14,18 +14,18 @@ object StreikOgLockout {
     val deltarIStreikOgLockout =
         Opplysningstype.boolsk(
             deltarStreikEllerLockoutId,
-            "Deltar medlemmet i streik eller er omfattet av lock-out?",
+            "Brukeren deltar i streik eller er omfattet av lock-out",
         )
     val sammeBedriftOgPåvirket =
         Opplysningstype.boolsk(
             ledigVedSammeBedriftOgPåvirketAvUtfalletId,
-            "Ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet?",
+            "Brukeren er ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet",
         )
 
     val ikkeStreikEllerLockout =
         Opplysningstype.boolsk(
             ikkePåvirketAvStreikEllerLockoutId,
-            "Er medlemmet ikke påvirket av streik eller lock-out?",
+            "Brukeren er ikke påvirket av streik eller lock-out",
             synlig = aldriSynlig,
         )
 

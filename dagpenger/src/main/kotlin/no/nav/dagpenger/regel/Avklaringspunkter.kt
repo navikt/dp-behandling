@@ -136,6 +136,17 @@ object Avklaringspunkter {
             beskrivelse = "Personen har søkt om dagpenger med ønsket startdato i neste rapporteringsperiode.",
         )
 
+    val PrøvingsdatoEtterRapporteringsfrist =
+        Avklaringkode(
+            kode = "PrøvingsdatoEtterRapporteringsfrist",
+            tittel = "Sjekk om behandlingen bør ventes til etter A-ordningens rapporteringsfrist",
+            beskrivelse =
+                """
+                Prøvingsdatoen er innenfor neste rapporteringsperiode for inntekt. 
+                Vurder om du bør vente til etter fristen for å få med korrekte inntekter.
+                """.trimIndent(),
+        )
+
     val BrukerUnder18 =
         Avklaringkode(
             kode = "BrukerUnder18",

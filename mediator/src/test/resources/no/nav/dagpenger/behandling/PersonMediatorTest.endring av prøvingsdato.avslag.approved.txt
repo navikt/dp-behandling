@@ -6,11 +6,11 @@ Søknadsdato
 Ønsker dagpenger fra dato
 Har rett til ordinære dagpenger gjennom arbeidsforhold
 Bruker er permittert
-Har rett til dagpenger etter konkurs
-Har rett til dagpenger under permittering i fiskeforedlingsindustri
+Forskutterte lønnsgarantimidler i form av dagpenger
+Permittert fra fiskeindustrien
 Søknadstidspunkt
 Har rett til ordinære dagpenger uten arbeidsforhold
-Har rett til ordinære dagpenger
+Ordinære dagpenger
 Rettighetstype
 Avtjent verneplikt
 Oppfyller kravet til verneplikt
@@ -33,15 +33,15 @@ Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søker arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
-Kan kravet til reell arbeidssøker vurderes
+Kravet til reell arbeidssøker er ikke relevant
 Årsaken til permitteringen er godkjent
 Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Årsaken til permitteringen fra fiskeindustrien er godkjent
 Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Dato søker når maks alder
 Arbeidsgivers rapporteringsfrist
-Inntektskrav for siste 12 mnd
-Inntektskrav for siste 36 mnd
+Inntektskrav for siste 12 måneder
+Inntektskrav for siste 36 måneder
 Oppfyller kravet til heltid- og deltidsarbeid
 Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
@@ -50,15 +50,15 @@ Oppfyller kravet til permittering
 Oppfyller kravet til permittering i fiskeindustrien
 Siste mulige dag bruker kan oppfylle alderskrav
 Siste avsluttende kalendermåned
-Krav til arbeidssøker
+Reell arbeidssøker
 Oppfyller kravet til alder
 Første måned av opptjeningsperiode
 Inntektsopplysninger
 Registrert som arbeidssøker
 Brutto arbeidsinntekt
 Registrert som arbeidssøker på søknadstidspunktet
-Arbeidsinntekt siste 12 mnd
-Arbeidsinntekt siste 36 mnd
-Arbeidsinntekt er over kravet for siste 12 mnd
-Arbeidsinntekt er over kravet for siste 36 mnd
+Arbeidsinntekt siste 12 måneder
+Arbeidsinntekt siste 36 måneder
+Arbeidsinntekt er over kravet for siste 12 måneder
+Arbeidsinntekt er over kravet for siste 36 måneder
 Oppfyller kravet til minsteinntekt

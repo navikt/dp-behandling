@@ -648,7 +648,7 @@ internal class PersonMediatorTest {
             rapid.inspektør.size shouldBe 6
         }
 
-    @Test
+    /*@Test
     fun `søker før ny rapporteringsfrist, men ønsker etter`() =
         withMigratedDb {
             registrerOpplysningstyper()
@@ -675,6 +675,38 @@ internal class PersonMediatorTest {
                     "SvangerskapsrelaterteSykepenger",
                     "ØnskerEtterRapporteringsfrist",
                     "HarTilleggsopplysninger",
+                ),
+            )
+        }*/
+
+    @Test
+    fun `søker før ny rapporteringsfrist, men ønsker etter`() =
+        withMigratedDb {
+            registrerOpplysningstyper()
+            val testPerson =
+                TestPerson(
+                    ident,
+                    rapid,
+                    søknadsdato = LocalDate.now().minusMonths(1),
+                    innsendt = LocalDate.now().minusMonths(1).atTime(12, 0),
+                    ønskerFraDato = LocalDate.now().plusMonths(1),
+                    arbeidssøkerregistreringsdato = LocalDate.now().minusMonths(1),
+                )
+            løsBehandlingFramTilMinsteinntekt(testPerson)
+
+            rapid.harHendelse("forslag_til_vedtak")
+
+            åpneAvklaringer().values.shouldContainExactlyInAnyOrder(
+                listOf(
+                    "EØSArbeid",
+                    "HattLukkedeSakerSiste8Uker",
+                    "InntektNesteKalendermåned",
+                    "JobbetUtenforNorge",
+                    "MuligGjenopptak",
+                    "SvangerskapsrelaterteSykepenger",
+                    "PrøvingsdatoEtterRapporteringsfrist",
+                    "HarTilleggsopplysninger",
+                    "VirkningstidspunktForLangtFramItid",
                 ),
             )
         }
@@ -774,7 +806,7 @@ internal class PersonMediatorTest {
                     "MuligGjenopptak",
                     "SvangerskapsrelaterteSykepenger",
                     "VirkningstidspunktForLangtFramItid",
-                    "ØnskerEtterRapporteringsfrist",
+                    "PrøvingsdatoEtterRapporteringsfrist",
                     "HarTilleggsopplysninger",
                 ),
             )

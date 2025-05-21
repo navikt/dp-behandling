@@ -13,8 +13,8 @@ import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
 import no.nav.dagpenger.regel.Minsteinntekt.EØSArbeidKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
+import no.nav.dagpenger.regel.Minsteinntekt.PrøverEtterRapporteringsfristKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.SvangerskapsrelaterteSykepengerKontroll
-import no.nav.dagpenger.regel.Minsteinntekt.ØnskerEtterRapporteringsfristKontroll
 import no.nav.dagpenger.regel.Opphold.BostedslandKontroll
 import no.nav.dagpenger.regel.Permittering.PermitteringKontroll
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.PermitteringFiskKontroll
@@ -62,7 +62,7 @@ class Søknadsprosess : RegistrertForretningsprosess() {
             Under18Kontroll,
             VernepliktKontroll,
             YtelserUtenforFolketrygdenKontroll,
-            ØnskerEtterRapporteringsfristKontroll,
+            PrøverEtterRapporteringsfristKontroll,
             PermitteringKontroll,
             TilleggsopplysningsKontroll,
             PermitteringFiskKontroll,

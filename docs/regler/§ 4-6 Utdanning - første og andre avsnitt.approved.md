@@ -4,7 +4,7 @@
 
 ```mermaid
 graph RL
-  A["Tar utdanning eller opplæring?"] -->|"Ekstern"| B["søknadId"]
+  A["Brukeren er under utdanning eller opplæring"] -->|"Ekstern"| B["søknadId"]
   C["Deltar i arbeidsmarkedstiltak"] -->|"Oppslag"| D["Prøvingsdato"]
   E["Deltar i opplæring for innvandrere"] -->|"Oppslag"| D["Prøvingsdato"]
   F["Deltar i grunnskoleopplæring, videregående opplæring og opplæring i grunnleggende ferdigheter"] -->|"Oppslag"| D["Prøvingsdato"]
@@ -17,8 +17,8 @@ graph RL
   J["Godkjent unntak for utdanning eller opplæring?"] -->|"EnAv"| G["Deltar i høyere yrkesfaglig utdanning"]
   J["Godkjent unntak for utdanning eller opplæring?"] -->|"EnAv"| H["Deltar i høyere utdanning"]
   J["Godkjent unntak for utdanning eller opplæring?"] -->|"EnAv"| I["Deltar på kurs mv"]
-  K["Har svart ja på spørsmål om utdanning eller opplæring"] -->|"ErSann"| A["Tar utdanning eller opplæring?"]
-  L["Har svart nei på spørsmål om utdanning eller opplæring"] -->|"ErUsann"| A["Tar utdanning eller opplæring?"]
+  K["Har svart ja på spørsmål om utdanning eller opplæring"] -->|"ErSann"| A["Brukeren er under utdanning eller opplæring"]
+  L["Har svart nei på spørsmål om utdanning eller opplæring"] -->|"ErUsann"| A["Brukeren er under utdanning eller opplæring"]
   M["Oppfyller kravet på unntak for utdanning eller opplæring"] -->|"Alle"| K["Har svart ja på spørsmål om utdanning eller opplæring"]
   M["Oppfyller kravet på unntak for utdanning eller opplæring"] -->|"Alle"| J["Godkjent unntak for utdanning eller opplæring?"]
   N["Krav til utdanning eller opplæring"] -->|"EnAv"| M["Oppfyller kravet på unntak for utdanning eller opplæring"]
