@@ -340,7 +340,7 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
                             }
 
-                            logger.info { "Mottok en endring i behandling" }
+                            logger.info { "Mottok en endring i behandlingId=$behandlingId" }
 
                             val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
                             val svar =
