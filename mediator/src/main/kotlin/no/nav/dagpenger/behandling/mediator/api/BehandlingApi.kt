@@ -347,6 +347,8 @@ internal fun Application.behandlingApi(
                                     behandling.behandler.ident,
                                     HttpVerdiMapper(oppdaterOpplysningRequestDTO).map(opplysning.opplysningstype.datatype),
                                     call.saksbehandlerId(),
+                                    oppdaterOpplysningRequestDTO.gyldigFraOgMed,
+                                    oppdaterOpplysningRequestDTO.gyldigTilOgMed,
                                 )
 
                             apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {

@@ -527,6 +527,12 @@ components:
           type: string
         begrunnelse:
           type: string
+        gyldigFraOgMed:
+          type: string
+          format: date
+        gyldigTilOgMed:
+          type: string
+          format: date
 
     AvklaringKvittering:
       type: object
