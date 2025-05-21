@@ -332,9 +332,13 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
                             }
 
+                            val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
+                            if (!redigerbareOpplysninger.kanRedigere(opplysning.opplysningstype)) {
+                                throw BadRequestException("Opplysningstype ${opplysning.opplysningstype} kan ikke redigeres")
+                            }
+
                             logger.info { "Mottok en endring i behandlingId=$behandlingId" }
 
-                            val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
                             val svar =
                                 OpplysningsSvar(
                                     behandlingId,

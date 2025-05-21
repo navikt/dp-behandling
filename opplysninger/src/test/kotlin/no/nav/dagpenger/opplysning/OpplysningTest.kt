@@ -58,6 +58,6 @@ class OpplysningTest {
     private object RedigerbarPerOpplysningstype : Redigerbar {
         private val redigerbare = setOf(dato1)
 
-        override fun kanRedigere(opplysning: Opplysning<*>): Boolean = redigerbare.contains(opplysning.opplysningstype)
+        override fun kanRedigere(opplysningstype: Opplysningstype<*>): Boolean = redigerbare.contains(opplysningstype)
     }
 }

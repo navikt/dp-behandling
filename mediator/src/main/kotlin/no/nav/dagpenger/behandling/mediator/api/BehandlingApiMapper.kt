@@ -50,6 +50,7 @@ import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningsformål
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Redigerbar
@@ -130,8 +131,8 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
         val prøvingsdato = behandler.forretningsprosess.virkningsdato(opplysninger)
-        val lesbareOpplysninger = opplysninger().forDato(prøvingsdato)
-        val opplysningSet = lesbareOpplysninger.finnAlle().toSet()
+        val opplysningerPåPrøvingsdato = opplysninger().forDato(prøvingsdato)
+        val opplysningSet = opplysningerPåPrøvingsdato.finnAlle().toSet()
         val avklaringer = avklaringer().toSet()
         val spesifikkeAvklaringskoder =
             behandler.regelverk.regelsett
@@ -140,8 +141,8 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 .toSet()
         val generelleAvklaringer = avklaringer.filterNot { it.kode in spesifikkeAvklaringskoder }
 
-        val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(lesbareOpplysninger)
-        val utfall = relevanteVilkår.flatMap { it.utfall }.all { lesbareOpplysninger.oppfyller(it) }
+        val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysningerPåPrøvingsdato)
+        val utfall = relevanteVilkår.flatMap { it.utfall }.all { opplysningerPåPrøvingsdato.oppfyller(it) }
 
         BehandlingDTO(
             behandlingId = this.behandlingId,
@@ -161,12 +162,12 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             vilkår =
                 behandler.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
-                    .map { it.tilRegelsettDTO(opplysningSet, avklaringer, lesbareOpplysninger) }
+                    .map { it.tilRegelsettDTO(opplysningSet, avklaringer, opplysningerPåPrøvingsdato) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             fastsettelser =
                 behandler.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
-                    .map { it.tilRegelsettDTO(opplysningSet, avklaringer, lesbareOpplysninger) }
+                    .map { it.tilRegelsettDTO(opplysningSet, avklaringer, opplysningerPåPrøvingsdato) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             behandletHendelse =
                 HendelseDTO(
@@ -183,14 +184,14 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 ),
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
             avklaringer = generelleAvklaringer.map { it.tilAvklaringDTO() },
-            opplysninger = opplysningSet.map { it.tilOpplysningDTO(lesbareOpplysninger) },
+            opplysninger = opplysningSet.map { it.tilOpplysningDTO(opplysningerPåPrøvingsdato) },
             opplysningsgrupper =
-                lesbareOpplysninger.finnAlle().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                opplysninger().finnAlle().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
                     OpplysningsgruppeDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
                         datatype = type.datatype.tilDataTypeDTO(),
-                        opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO(lesbareOpplysninger) },
+                        opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO(opplysningerPåPrøvingsdato) },
                     )
                 },
         )
@@ -417,7 +418,7 @@ private fun Opplysning<*>.kanOppfriskes(): Boolean =
         )
 
 // TODO: Denne bor nok et annet sted - men bare for å vise at det er mulig å ha en slik funksjon
-private val redigerbareOpplysninger =
+internal val redigerbareOpplysninger =
     object : Redigerbar {
         private val redigerbare =
             setOf(
@@ -490,5 +491,5 @@ private val redigerbareOpplysninger =
                 arbeidstidsreduksjonIkkeBruktTidligere,
             )
 
-        override fun kanRedigere(opplysning: Opplysning<*>): Boolean = redigerbare.contains(opplysning.opplysningstype)
+        override fun kanRedigere(opplysningstype: Opplysningstype<*>): Boolean = redigerbare.contains(opplysningstype)
     }

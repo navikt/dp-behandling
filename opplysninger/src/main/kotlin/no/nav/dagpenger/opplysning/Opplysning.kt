@@ -42,7 +42,11 @@ sealed class Opplysning<T : Comparable<T>>(
 
     val erFjernet get() = fjernet
 
-    val kanRedigeres: (Redigerbar) -> Boolean get() = { redigerbar -> redigerbar.kanRedigere(this) && defaultRedigering.kanRedigere(this) }
+    val kanRedigeres: (Redigerbar) -> Boolean
+        get() = { redigerbar ->
+            redigerbar.kanRedigere(opplysningstype) &&
+                defaultRedigering.kanRedigere(opplysningstype)
+        }
 
     fun overlapper(opplysning: Opplysning<*>) =
         opplysningstype.er(opplysning.opplysningstype) && gyldighetsperiode.overlapp(opplysning.gyldighetsperiode)
