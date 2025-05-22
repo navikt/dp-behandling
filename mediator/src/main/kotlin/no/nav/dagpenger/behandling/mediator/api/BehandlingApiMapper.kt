@@ -257,9 +257,10 @@ private fun Regelsett.tilRegelsettDTO(
                 url = hjemmel.url,
             ),
         avklaringer = egneAvklaringer.map { it.tilAvklaringDTO() },
-        opplysningIder = produkter.map { opplysning -> opplysning.id },
         status = status,
         relevantForVedtak = erRelevant,
+        opplysningIder = produkter.map { opplysning -> opplysning.id },
+        opplysningTypeIder = produkter.map { opplysning -> opplysning.opplysningstype.id.uuid },
     )
 }
 

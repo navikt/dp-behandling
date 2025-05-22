@@ -619,7 +619,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Avklaring'
-
         opplysningsgrupper:
           type: array
           items:
@@ -659,7 +658,6 @@ components:
         - kanKvitteres
         - status
         - maskinelt
-        - begrunnelse
         - sistEndret
       properties:
         id:
@@ -680,7 +678,6 @@ components:
           type: boolean
         begrunnelse:
           type: string
-          nullable: true
         sistEndret:
           type: string
           format: date-time
@@ -723,6 +720,7 @@ components:
         - status
         - avklaringer
         - opplysningIder
+        - opplysningTypeIder
       properties:
         navn:
           description: Kort navn som beskriver regelsettet
@@ -745,6 +743,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningsId'
+        opplysningTypeIder:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningTypeId'
 
     Hjemmel:
       type: object
