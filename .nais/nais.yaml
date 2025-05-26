@@ -33,9 +33,9 @@ spec:
     - name: JDK_JAVA_OPTIONS
       value: -XX:+UseParallelGC -XX:MaxRAMPercentage=35.0 -XX:ActiveProcessorCount=4
     - name: GRUPPER_SAKSBEHANDLER
-      value: {{azure.grupper.saksbehandler}}
+      value: "{{azure.grupper.saksbehandler}}"
     - name: KAFKA_EXTRA_TOPIC
-      value: {{kafka.extra_topic}}
+      value: "{{kafka.extra_topic}}"
   envFrom:
     - secret: dp-behandling-unleash-api-token
   {{#if ingresses}}
@@ -49,13 +49,13 @@ spec:
   azure:
     application:
       enabled: true
-      tenant: {{azure.tenant}}
+      tenant: "{{azure.tenant}}"
       claims:
         extra:
           - NAVident
         groups:
-          - id: {{azure.grupper.saksbehandler}}
-          - id: {{azure.grupper.beslutter}}
+          - id: "{{azure.grupper.saksbehandler}}"
+          - id: "{{azure.grupper.beslutter}}"
   observability:
     logging:
       destinations:
@@ -70,8 +70,8 @@ spec:
         highAvailability: true
         diskAutoresize: true
         pointInTimeRecovery: true
-        retainedBackups: {{gcp.sql.retainedBackups}}
-        tier: {{gcp.sql.tier}}
+        retainedBackups: "{{gcp.sql.retainedBackups}}"
+        tier: "{{gcp.sql.tier}}"
         flags:
           - name: cloudsql.enable_pgaudit
             value: "true"
