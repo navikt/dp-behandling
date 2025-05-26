@@ -12,8 +12,6 @@ dependencies {
     implementation(project(path = ":dato"))
     implementation(project(path = ":avklaring"))
     implementation(project(path = ":konfigurasjon"))
-    implementation("no.nav.dagpenger:dp-grunnbelop:20250422.156.910f4f")
-
     testImplementation("io.cucumber:cucumber-java:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
