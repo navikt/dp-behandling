@@ -70,7 +70,7 @@ spec:
         highAvailability: true
         diskAutoresize: true
         pointInTimeRecovery: true
-        retainedBackups: "{{gcp.sql.retainedBackups}}"
+        retainedBackups: {{gcp.sql.retainedBackups}}
         tier: "{{gcp.sql.tier}}"
         flags:
           - name: cloudsql.enable_pgaudit
