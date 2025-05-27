@@ -34,7 +34,7 @@ dependencies {
     implementation(libs.bundles.ktor.server)
     implementation("io.ktor:ktor-server-core-jvm:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-swagger:${libs.versions.ktor.get()}")
-    implementation("com.github.navikt.tbd-libs:naisful-app:2025.04.04-09.18-7cc3badf")
+    implementation("com.github.navikt.tbd-libs:naisful-app:2025.05.27-07.38-d5cd9804")
 
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
 
