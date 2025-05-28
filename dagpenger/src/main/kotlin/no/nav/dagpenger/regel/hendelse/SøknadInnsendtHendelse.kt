@@ -65,6 +65,7 @@ class SøknadInnsendtHendelse(
                 Faktum(
                     søknadIdOpplysningstype,
                     this.eksternId.id.toString(),
+                    gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
                     kilde = Systemkilde(meldingsreferanseId, opprettet),
                 ),
                 Faktum(

@@ -20,6 +20,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OppholdINorgeId
 import no.nav.dagpenger.regel.OpplysningsTyper.UnntakForOppholdId
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 
 object Opphold {
     var oppholdINorge = boolsk(OppholdINorgeId, beskrivelse = "Bruker oppholder seg i Norge", behovId = "OppholdINorge")
@@ -40,7 +41,7 @@ object Opphold {
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
-            regel(bostedsland) { innhentMed(søknadIdOpplysningstype) }
+            regel(bostedsland) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
             regel(oppholdINorge) { erSann(bostedsland) }
             regel(unntakForOpphold) { oppslag(prøvingsdato) { false } }
 

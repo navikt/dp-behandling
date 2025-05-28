@@ -5,7 +5,8 @@
 ```mermaid
 graph RL
   A["Avtjent verneplikt"] -->|"Ekstern"| B["søknadId"]
-  C["Oppfyller kravet til verneplikt"] -->|"ErSann"| A["Avtjent verneplikt"]
+  A["Avtjent verneplikt"] -->|"Ekstern"| C["Søknadsdato"]
+  D["Oppfyller kravet til verneplikt"] -->|"ErSann"| A["Avtjent verneplikt"]
 ```
 
 ## Akseptansetester

@@ -10,6 +10,7 @@ import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.OpplysningsTyper.avtjentVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilVernepliktId
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 
 object Verneplikt {
@@ -28,7 +29,7 @@ object Verneplikt {
         ) {
             skalVurderes { it.oppfyller(Alderskrav.kravTilAlder) }
 
-            regel(avtjentVerneplikt) { innhentMed(søknadIdOpplysningstype) }
+            regel(avtjentVerneplikt) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
             utfall(oppfyllerKravetTilVerneplikt) { erSann(avtjentVerneplikt) }
 
             avklaring(Avklaringspunkter.Verneplikt)

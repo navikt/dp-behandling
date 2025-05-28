@@ -19,6 +19,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 
 object Rettighetstype {
     val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
@@ -41,10 +42,10 @@ object Rettighetstype {
         fastsettelse(
             folketrygden.hjemmel(0, 0, "Rettighetstype", "Rettighetstype"),
         ) {
-            regel(erPermittert) { innhentMed(søknadIdOpplysningstype) }
-            regel(ordinærArbeid) { innhentMed(søknadIdOpplysningstype) }
-            regel(lønnsgaranti) { innhentMed(søknadIdOpplysningstype) }
-            regel(permitteringFiskeforedling) { innhentMed(søknadIdOpplysningstype) }
+            regel(erPermittert) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
+            regel(ordinærArbeid) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
+            regel(lønnsgaranti) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
+            regel(permitteringFiskeforedling) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
 
             regel(ingenArbeid) { ingenAv(ordinærArbeid, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
             regel(ordinær) { enAv(ordinærArbeid, ingenArbeid) }

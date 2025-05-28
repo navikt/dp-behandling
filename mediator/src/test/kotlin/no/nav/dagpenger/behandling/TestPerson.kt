@@ -54,7 +54,7 @@ class TestPerson(
     private val rapid: TestRapid,
     internal val søknadsdato: LocalDate = 5.mai(2021),
     val alder: Int = 30,
-    private val innsendt: LocalDateTime = LocalDateTime.now(),
+    private val innsendt: LocalDateTime = søknadsdato.atStartOfDay(),
     var InntektSiste12Mnd: Int = 1234,
     val InntektSiste36Mnd: Int = 1234,
     internal var ønskerFraDato: LocalDate = søknadsdato,

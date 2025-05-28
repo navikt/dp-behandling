@@ -49,6 +49,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UkessatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpOverMaksId
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden
 import no.nav.dagpenger.regel.folketrygden
@@ -112,7 +113,7 @@ object DagpengenesStørrelse {
         ) {
             skalVurderes { kravPåDagpenger(it) }
 
-            regel(barn) { innhentMed(søknadIdOpplysningstype) }
+            regel(barn) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
             regel(antallBarn) { antallAv(barn) { kvalifiserer } }
 
             // Regn ut dagsats uten barnetillegg, før samordning

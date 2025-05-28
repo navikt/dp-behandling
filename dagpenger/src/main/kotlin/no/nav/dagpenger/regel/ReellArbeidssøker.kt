@@ -38,6 +38,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.ønsketArbeidstidId
 import no.nav.dagpenger.regel.Samordning.uføre
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 
 object ReellArbeidssøker {
     // c.	å ta arbeid uavhengig av om det er på heltid eller deltid,
@@ -96,20 +97,20 @@ object ReellArbeidssøker {
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
             skalVurderes { it.oppfyller(kravTilAlder) }
 
-            regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
+            regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
             regel(minimumVanligArbeidstid) { oppslag(prøvingsdato) { 18.75 } }
             regel(villigTilMinimumArbeidstid) { størreEnnEllerLik(ønsketArbeidstid, minimumVanligArbeidstid) }
 
-            regel(kanJobbeDeltid) { innhentMed(søknadIdOpplysningstype) }
+            regel(kanJobbeDeltid) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
             regel(godkjentDeltidssøker) { oppslag(prøvingsdato) { false } }
 
-            regel(kanJobbeHvorSomHelst) { innhentMed(søknadIdOpplysningstype) }
+            regel(kanJobbeHvorSomHelst) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
             regel(godkjentLokalArbeidssøker) { oppslag(prøvingsdato) { false } }
 
-            regel(erArbeidsfør) { innhentMed(søknadIdOpplysningstype) }
+            regel(erArbeidsfør) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
             regel(godkjentArbeidsufør) { oppslag(prøvingsdato) { false } }
 
-            regel(villigTilEthvertArbeid) { innhentMed(søknadIdOpplysningstype) }
+            regel(villigTilEthvertArbeid) { innhentMed(søknadIdOpplysningstype, søknadsdato) }
 
             utfall(oppfyllerKravTilArbeidssøker) { enAv(kanJobbeDeltid, godkjentDeltidssøker) }
             utfall(oppfyllerKravTilMobilitet) { enAv(kanJobbeHvorSomHelst, godkjentLokalArbeidssøker) }
