@@ -56,6 +56,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode2Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode3Id
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagHvisVerneplikt
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
@@ -194,7 +195,10 @@ object Dagpengegrunnlag {
             regel(harAvkortetPeriode3) { størreEnn(inntektperiode3, maksgrenseForGrunnlag) }
             regel(harAvkortet) { enAv(harAvkortetPeriode1, harAvkortetPeriode2, harAvkortetPeriode3) }
 
-            påvirkerResultat { it.erSann(kravTilAlder) }
+            påvirkerResultat {
+                if (it.erSann(grunnlagForVernepliktErGunstigst)) return@påvirkerResultat false
+                it.erSann(kravTilAlder)
+            }
 
             ønsketResultat(
                 grunnlag,
