@@ -5,6 +5,7 @@ data class Avklaringkode(
     val tittel: String,
     val beskrivelse: String,
     val kanKvitteres: Boolean = true,
+    val kanAvbrytes: Boolean = true,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -47,7 +47,10 @@ class Avklaringer(
                 .filterIsInstance<KreverAvklaring>()
 
         // Avbryt alle avklaringer som ikke lenger er aktive
-        avklaringer.filter { it.måAvklares() && !aktiveAvklaringer.any { aktiv -> aktiv.avklaringkode == it.kode } }.forEach { it.avbryt() }
+        avklaringer
+            .filter { it.måAvklares() && !aktiveAvklaringer.any { aktiv -> aktiv.avklaringkode == it.kode } }
+            .filter { it.kode.kanAvbrytes }
+            .forEach { it.avbryt() }
 
         // Gjenåpne avklaringer som er aktive igjen, men har blitt avbrutt tidligere
         // Avklaringer som er kvittert skal ikke gjenåpnes

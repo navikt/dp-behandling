@@ -131,7 +131,9 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
         val prøvingsdato = behandler.forretningsprosess.virkningsdato(opplysninger)
-        val opplysningerPåPrøvingsdato = opplysninger().forDato(prøvingsdato)
+
+        // TODO: Filtrer bort erstattete opplysninger - dette utgår når vi periodiserer alt
+        val opplysningerPåPrøvingsdato = opplysninger().forDato(prøvingsdato).utenErstattet
         val opplysningSet = opplysningerPåPrøvingsdato.finnAlle().toSet()
         val avklaringer = avklaringer().toSet()
         val spesifikkeAvklaringskoder =
@@ -255,9 +257,10 @@ private fun Regelsett.tilRegelsettDTO(
                 url = hjemmel.url,
             ),
         avklaringer = egneAvklaringer.map { it.tilAvklaringDTO() },
-        opplysningIder = produkter.map { opplysning -> opplysning.id },
         status = status,
         relevantForVedtak = erRelevant,
+        opplysningIder = produkter.map { opplysning -> opplysning.id },
+        opplysningTypeIder = produkter.map { opplysning -> opplysning.opplysningstype.id.uuid },
     )
 }
 

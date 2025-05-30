@@ -106,7 +106,12 @@ object Samordning {
         Opplysningstype.beløp(opplæringspengerDagsatsId, "Opplæringspenger dagsats", synlig = {
             it.erSann(opplæringspenger)
         })
-    val uføreDagsats = Opplysningstype.beløp(uføreDagsatsId, "Uføre dagsats", synlig = { it.erSann(uføre) })
+    val uføreDagsats =
+        Opplysningstype.beløp(
+            uføreDagsatsId,
+            "Uføre dagsats",
+            synlig = { it.erSann(uføre) && it.erSann(skalUføreSamordnes) },
+        )
     val foreldrepengerDagsats =
         Opplysningstype.beløp(
             foreldrepengerDagsatsId,

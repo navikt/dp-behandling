@@ -70,7 +70,14 @@ class OpprettBehandlingHendelse(
             ),
         avklaringer =
             listOf(
-                Avklaring(Avklaringkode("ManuellBehandling", "Manuell behandling", begrunnelse ?: "")),
+                Avklaring(
+                    Avklaringkode(
+                        kode = "ManuellBehandling",
+                        tittel = "Manuell behandling",
+                        beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
+                        kanAvbrytes = false,
+                    ),
+                ),
             ),
     )
 }
