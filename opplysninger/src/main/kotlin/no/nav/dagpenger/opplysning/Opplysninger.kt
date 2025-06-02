@@ -71,6 +71,12 @@ class Opplysninger private constructor(
                         opplysninger.add(opplysning)
                     }
 
+                    erstattes.gyldighetsperiode.erUendelig -> {
+                        // Opplysningen som erstattes har uendelig gyldighetsperiode
+                        erstattes.erstattesAv(opplysning)
+                        opplysninger.add(opplysning)
+                    }
+
                     else -> {
                         throw IllegalArgumentException(
                             """
