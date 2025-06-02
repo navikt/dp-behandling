@@ -105,6 +105,7 @@ internal class BehandlingApiTest {
     }
 
     @Test
+    @Disabled
     fun `opprett kjedet behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger()

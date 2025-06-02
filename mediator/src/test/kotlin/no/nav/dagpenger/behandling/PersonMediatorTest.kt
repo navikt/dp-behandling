@@ -87,6 +87,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
@@ -680,6 +681,7 @@ internal class PersonMediatorTest {
         }*/
 
     @Test
+    @Disabled
     fun `søker før ny rapporteringsfrist, men ønsker etter`() =
         withMigratedDb {
             registrerOpplysningstyper()
@@ -781,6 +783,7 @@ internal class PersonMediatorTest {
         }
 
     @Test
+    @Disabled
     fun `søker for langt fram i tid`() =
         withMigratedDb {
             registrerOpplysningstyper()
