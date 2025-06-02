@@ -87,7 +87,6 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
@@ -681,7 +680,6 @@ internal class PersonMediatorTest {
         }*/
 
     @Test
-    @Disabled
     fun `søker før ny rapporteringsfrist, men ønsker etter`() =
         withMigratedDb {
             registrerOpplysningstyper()
@@ -691,7 +689,8 @@ internal class PersonMediatorTest {
                     rapid,
                     søknadsdato = LocalDate.now().minusMonths(1),
                     innsendt = LocalDate.now().minusMonths(1).atTime(12, 0),
-                    ønskerFraDato = LocalDate.now().plusMonths(1),
+                    // Langt nok fram til å treffe neste rapporteringsfristvindu (1 til 5-ish neste måned
+                    ønskerFraDato = LocalDate.now().plusDays(41),
                     arbeidssøkerregistreringsdato = LocalDate.now().minusMonths(1),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
@@ -783,7 +782,6 @@ internal class PersonMediatorTest {
         }
 
     @Test
-    @Disabled
     fun `søker for langt fram i tid`() =
         withMigratedDb {
             registrerOpplysningstyper()
@@ -793,7 +791,8 @@ internal class PersonMediatorTest {
                     rapid,
                     søknadsdato = LocalDate.now(),
                     innsendt = LocalDate.now().atTime(12, 0),
-                    ønskerFraDato = LocalDate.now().plusDays(31),
+                    // Langt nok fram til å treffe neste rapporteringsfristvindu (1 til 5-ish neste måned)
+                    ønskerFraDato = LocalDate.now().plusDays(41),
                     // Denne må stemme med prøvingsdato som blir siste av søknadsdato og ønsket fra dato
                     arbeidssøkerregistreringsdato = 30.juni(2024),
                 )
