@@ -143,7 +143,12 @@ internal class OpplysningSvarMessage(
                         throw IllegalArgumentException("Ukjent opplysningstype: $typeNavn")
                     }
 
-                val svar = lagSvar(løsning)
+                val svar =
+                    lagSvar(løsning).also {
+                        logger.info {
+                            "Løsning for opplysning $typeNavn med svartype: ${it::class.simpleName}. Svar=${it.gyldighetsperiode}"
+                        }
+                    }
                 val kilde =
                     when (løsning.has("@kilde")) {
                         true -> {
