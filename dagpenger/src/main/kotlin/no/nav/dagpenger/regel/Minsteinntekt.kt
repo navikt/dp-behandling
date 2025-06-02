@@ -57,7 +57,7 @@ object Minsteinntekt {
         desimaltall(TerskelFaktor36MndId, "Antall G for krav til 36 mnd arbeidsinntekt", synlig = aldriSynlig)
     val inntekt12 = beløp(InntektSiste12MndId, "Arbeidsinntekt siste 12 måneder", behovId = "InntektSiste12Mnd")
     val inntekt36 = beløp(InntektSiste36MndId, "Arbeidsinntekt siste 36 måneder", behovId = "InntektSiste36Mnd")
-    val grunnbeløp = beløp(GrunnbeløpId, "Grunnbeløp", synlig = aldriSynlig)
+    val grunnbeløp = beløp(GrunnbeløpId, "Grunnbeløp")
 
     val inntektFraSkatt = inntekt(InntektsopplysningerId, beskrivelse = "Inntektsopplysninger", Register, behovId = Inntekt)
     private val tellendeInntekt = inntekt(BruttoArbeidsinntektId, "Brutto arbeidsinntekt", synlig = aldriSynlig)
