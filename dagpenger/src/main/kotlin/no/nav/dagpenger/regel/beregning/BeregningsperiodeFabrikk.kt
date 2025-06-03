@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.beregning
 
+import mu.KotlinLogging
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -25,9 +26,12 @@ internal class BeregningsperiodeFabrikk(
     private val opplysninger: LesbarOpplysninger = opplysninger.utenErstattet
     private val meldeperiode = Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed)
 
+    private val logger = KotlinLogging.logger { }
+
     fun lagBeregningsperiode(): Beregningsperiode {
         val gjenståendeEgenandel = hentGjenståendeEgenandel()
         val dager = hentMeldekortDagerMedRett()
+        logger.info { "Meldekort dager med rett: ${dager.joinToString("\n") { it.toString() }}" }
         val periode = opprettPeriode(dager)
         val stønadsdagerIgjen =
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
