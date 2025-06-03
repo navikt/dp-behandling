@@ -43,6 +43,7 @@ class BeregnMeldekortHendelse(
     ) {
     override val forretningsprosess = Søknadsprosess()
 
+    private val logger = mu.KotlinLogging.logger {}
     override val regelverk: Regelverk
         get() = forretningsprosess.regelverk
 
@@ -72,6 +73,7 @@ class BeregnMeldekortHendelse(
     ): Behandling {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
         val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
+        logger.info { "Baserer meldekortberegning på: ${forrigeBehandling.behandlingId}" }
 
         return Behandling(
             behandler = this,

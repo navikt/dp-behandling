@@ -35,7 +35,7 @@ data class Rettighetstatus(
 class Person(
     val ident: Ident,
     behandlinger: List<Behandling>,
-    private val rettighetstatus: TemporalCollection<Rettighetstatus> = TemporalCollection<Rettighetstatus>(),
+    private val rettighetstatus: TemporalCollection<Rettighetstatus> = TemporalCollection(),
 ) : Aktivitetskontekst,
     PersonHåndter,
     PersonObservatør {
