@@ -1164,11 +1164,9 @@ internal class PersonMediatorTest {
          */
         rapid.harBehov(Inntekt) {
             medDato("Prøvingsdato") shouldBe maxOf(testPerson.søknadsdato, testPerson.ønskerFraDato)
-            /**
-             * TODO: Vi må ta vekk opptjeningsperiode fra dp-inntekt og skive om måten dp-inntekt lagrer inntekt på beregningsdato
-             * medDato(OpptjeningsperiodeFraOgMed) shouldBe 1.april(2018)
-             * opptjeningsperiodeEr(måneder = 36)
-             */
+            medTekst(OpptjeningsperiodeFraOgMed).shouldNotBeNull()
+            medTekst(SisteAvsluttendeKalenderMåned).shouldNotBeNull()
+            opptjeningsperiodeEr(måneder = 36)
         }
         testPerson.løsBehov(Inntekt)
 
