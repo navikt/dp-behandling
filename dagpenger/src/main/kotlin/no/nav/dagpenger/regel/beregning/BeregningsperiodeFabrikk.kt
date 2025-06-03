@@ -31,6 +31,7 @@ internal class BeregningsperiodeFabrikk(
     fun lagBeregningsperiode(): Beregningsperiode {
         val gjenståendeEgenandel = hentGjenståendeEgenandel()
         val dager = hentMeldekortDagerMedRett()
+        logger.info { "Rettighetstatuser for meldeperiode, $meldeperiode  : ${rettighetstatuser.contents()}" }
         logger.info { "Meldekort dager med rett: ${dager.joinToString("\n") { it.toString() }}" }
         val periode = opprettPeriode(dager)
         val stønadsdagerIgjen =
