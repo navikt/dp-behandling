@@ -124,7 +124,7 @@ class Behandling private constructor(
 
     private fun erAutomatiskBehandlet() =
         avklaringer().none { it.løstAvSaksbehandler() } &&
-            opplysninger().finnAlle().none { it.kilde is Saksbehandlerkilde } &&
+            opplysninger.aktiveOpplysninger.finnAlle().none { it.kilde is Saksbehandlerkilde } &&
             !godkjent.erUtført
 
     fun kreverTotrinnskontroll() = behandler.kreverTotrinnskontroll(opplysninger)
@@ -415,7 +415,7 @@ class Behandling private constructor(
             hendelse: StartHendelse,
         ) {
             hendelse.kontekst(this)
-            hendelse.info("Mottatt søknad og startet behandling")
+            hendelse.info("Mottatt ${hendelse.type} og startet behandling")
             behandling.emitOpprettet()
             behandling.tilstand(UnderBehandling(), hendelse)
         }

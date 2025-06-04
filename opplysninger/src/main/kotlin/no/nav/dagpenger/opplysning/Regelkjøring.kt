@@ -118,7 +118,7 @@ class Regelkjøring(
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
             observers.forEach { observer ->
-                val aktiveOpplysninger = Opplysninger(opplysninger.aktiveOpplysninger.utenErstattet()).forDato(prøvingsdato)
+                val aktiveOpplysninger = opplysninger.aktiveOpplysninger.forDato(prøvingsdato)
                 observer.evaluert(
                     rapport,
                     opplysninger,

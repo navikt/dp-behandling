@@ -82,7 +82,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         )
 
         OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(
-            opplysninger.aktiveOpplysninger.filter { it.skalLagres },
+            opplysninger.aktiveOpplysningerListe.filter { it.skalLagres },
             opplysninger.fjernet(),
         )
     }

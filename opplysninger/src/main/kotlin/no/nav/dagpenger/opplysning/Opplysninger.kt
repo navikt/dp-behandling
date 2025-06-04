@@ -31,7 +31,15 @@ class Opplysninger private constructor(
 
     override val utenErstattet get() = Opplysninger(id, alleOpplysninger.utenErstattet())
 
-    val aktiveOpplysninger get() = opplysninger.toList()
+    // TODO: Denne burde bare brukes av databaselaget
+    val aktiveOpplysningerListe get() = opplysninger.toList()
+
+    val aktiveOpplysninger
+        get() =
+            Opplysninger(
+                id = id,
+                opplysninger = opplysninger,
+            )
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
         val opplysningerForDato = alleOpplysninger.bareAktive().gyldigeFor(gjelderFor)

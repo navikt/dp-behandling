@@ -235,7 +235,7 @@ class OpplysningerRepositoryPostgresTest {
                 repo.hentOpplysninger(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
-            fraDb.aktiveOpplysninger shouldContainExactly listOf(opplysningErstattet)
+            fraDb.aktiveOpplysningerListe shouldContainExactly listOf(opplysningErstattet)
             fraDb.finnOpplysning(heltall).verdi shouldBe opplysningErstattet.verdi
         }
     }
@@ -257,15 +257,15 @@ class OpplysningerRepositoryPostgresTest {
             repo.lagreOpplysninger(erstattetOpplysninger)
 
             // Verifiser
-            opprinneligOpplysninger.aktiveOpplysninger shouldContainExactly listOf(opplysning)
+            opprinneligOpplysninger.aktiveOpplysningerListe shouldContainExactly listOf(opplysning)
             val opprinneligFraDb = repo.hentOpplysninger(opprinneligOpplysninger.id)
-            opprinneligFraDb.aktiveOpplysninger shouldContainExactly opprinneligOpplysninger.aktiveOpplysninger
+            opprinneligFraDb.aktiveOpplysningerListe shouldContainExactly opprinneligOpplysninger.aktiveOpplysningerListe
 
             val fraDb: Opplysninger =
                 // Simulerer hvordan Behandling setter opp Opplysninger
                 repo.hentOpplysninger(erstattetOpplysninger.id) + listOf(opprinneligFraDb)
 
-            fraDb.aktiveOpplysninger shouldContainExactly erstattetOpplysninger.aktiveOpplysninger
+            fraDb.aktiveOpplysningerListe shouldContainExactly erstattetOpplysninger.aktiveOpplysningerListe
             fraDb
                 .forDato(10.mai)
                 .utenErstattet
@@ -325,8 +325,8 @@ class OpplysningerRepositoryPostgresTest {
 
             val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id)
             tidligereOpplysningerFraDb.finnAlle().utenErstattet().size shouldBe 0
-            tidligereOpplysningerFraDb.aktiveOpplysninger.size shouldBe 2
-            with(tidligereOpplysninger.aktiveOpplysninger.find { it.id == baseOpplysning.id }) {
+            tidligereOpplysningerFraDb.aktiveOpplysningerListe.size shouldBe 2
+            with(tidligereOpplysninger.aktiveOpplysningerListe.find { it.id == baseOpplysning.id }) {
                 this.shouldNotBeNull()
                 this.verdi shouldBe baseOpplysning.verdi
                 this.gyldighetsperiode shouldBe baseOpplysning.gyldighetsperiode
