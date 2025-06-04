@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -36,11 +37,16 @@ internal class BeregningsperiodeFabrikk(
         val periode = opprettPeriode(dager)
         val stønadsdagerIgjen =
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
-                opplysninger
-                    .finnAlle()
-                    .filter { it.er(forbruk) && it.verdi as Boolean }
-                    .size
+                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size
 
+        logger.info {
+            """
+            Oppretter beregningsperiode med:
+            - gjenståendeEgenandel = $gjenståendeEgenandel, 
+            - stønadsdagerIgjen = $stønadsdagerIgjen, 
+            - periode = $periode
+            """.trimIndent()
+        }
         return Beregningsperiode(gjenståendeEgenandel, periode, stønadsdagerIgjen)
     }
 
@@ -48,7 +54,8 @@ internal class BeregningsperiodeFabrikk(
         opplysninger
             .finnOpplysning(Egenandel.egenandel)
             .verdi.verdien
-            .toDouble()
+            .toDouble() -
+            opplysninger.finnAlle().filter { it.er(forbruktEgenandel) }.sumOf { it.verdi as Int }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> =
         meldeperiode.filter { meldekortDag -> runCatching { rettighetstatuser.get(meldekortDag).utfall }.getOrElse { false } }

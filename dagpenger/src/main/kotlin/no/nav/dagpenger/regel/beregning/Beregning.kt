@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbrukId
+import no.nav.dagpenger.regel.OpplysningsTyper.forbruktEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelId
@@ -19,6 +20,7 @@ object Beregning {
     val forbruk = Opplysningstype.boolsk(forbrukId, "Dag som fører til forbruk av dagpengeperiode")
     val meldt = Opplysningstype.boolsk(meldtId, "Har meldt seg via meldekort")
 
+    val forbruktEgenandel = Opplysningstype.heltall(forbruktEgenandelId, "Forbrukt egenandel")
     val utbetaling = Opplysningstype.heltall(utbetalingId, "Penger som skal utbetales")
 
     // TODO: Er dette noe annet enn krav til tap?

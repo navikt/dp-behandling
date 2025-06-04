@@ -309,6 +309,7 @@ object OpplysningsTyper {
 
     val terskelId = Opplysningstype.Id(UUID.fromString("01948ea2-22f3-7da8-9547-90d0c64e74e0"), Desimaltall)
     val meldtId = Opplysningstype.Id(UUID.fromString("01956ab8-126c-7636-803e-a5d87eda2015"), Boolsk)
+    val forbruktEgenandelId = Opplysningstype.Id(UUID.fromString("01973a27-d8b3-7ffd-a81a-a3826963b079"), Heltall)
     val utbetalingId = Opplysningstype.Id(UUID.fromString("01957069-d7d5-7f7c-b359-c00686fbf1f7"), Heltall)
 
     // Hendelser

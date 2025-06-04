@@ -21,6 +21,8 @@ import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
+import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
@@ -136,12 +138,16 @@ class BeregnMeldekortHendelse(
             meldekort
                 .periode()
                 .forEach { dato ->
-                    val tilUtbetaling = forbruksdager.singleOrNull { it.dato == dato }?.tilUtbetaling?.roundToInt() ?: 0
+                    val forbruksdag = forbruksdager.singleOrNull { it.dato == dato }
                     val gyldighetsperiode = Gyldighetsperiode(dato, dato)
 
-                    val erForbruk = tilUtbetaling > 0
+                    val tilUtbetaling = forbruksdag?.tilUtbetaling?.roundToInt() ?: 0
+                    val forbruktEgenandel = forbruksdag?.forbruktEgenandel?.roundToInt() ?: 0
+
+                    val erForbruk = tilUtbetaling > 0 || forbruktEgenandel > 0
                     opplysninger.leggTil(Faktum(forbruk, erForbruk, gyldighetsperiode))
-                    opplysninger.leggTil(Faktum(Beregning.utbetaling, tilUtbetaling, gyldighetsperiode))
+                    opplysninger.leggTil(Faktum(utbetaling, tilUtbetaling, gyldighetsperiode))
+                    opplysninger.leggTil(Faktum(Beregning.forbruktEgenandel, forbruktEgenandel, gyldighetsperiode))
                 }
         }
     }

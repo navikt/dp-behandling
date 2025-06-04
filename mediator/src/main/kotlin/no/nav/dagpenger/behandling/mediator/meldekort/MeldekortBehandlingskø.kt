@@ -62,7 +62,12 @@ class MeldekortBehandlingskø(
                                     meldekort.eksternMeldekortId,
                                 )
                             } else {
-                                logger.info { "Meldekort skal ikke behandles" }
+                                logger.info {
+                                    """
+                                    Meldekort skal ikke behandles. Ingen overlapp mellom meldekortes fraOgMed=${meldekortPeriode.fraOgMed}, 
+                                    og tilOgMed=${meldekortPeriode.tilOgMed} og rettighetstatus. 
+                                    """.trimIndent()
+                                }
                             }
                         }
                     }
