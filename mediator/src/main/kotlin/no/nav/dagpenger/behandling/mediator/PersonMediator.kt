@@ -64,6 +64,7 @@ internal class PersonMediator : PersonObservatør {
                 mapOf(
                     "ident" to requireNotNull(ident) { "Mangler ident i BehandlingOpprettet" },
                     "behandlingId" to behandlingId.toString(),
+                    "basertPåBehandlinger" to basertPåBehandlinger.map { it.toString() },
                     "behandletHendelse" to
                         mapOf(
                             "id" to hendelse.id,
