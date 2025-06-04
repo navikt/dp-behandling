@@ -55,17 +55,19 @@ class BeregnMeldekortHendelse(
             throw IllegalStateException("Fant ikke prøvingsdato")
         }
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
-        Regelkjøring(
-            regelverksdato = prøvingsdato(opplysninger = opplysninger),
-            prøvingsperiode =
-                Regelkjøring.Periode(
-                    start = meldekort.fom,
-                    endInclusive = meldekort.tom,
-                ),
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+        val prøvingsdato = prøvingsdato(opplysninger = opplysninger)
+        val førsteDagMedRett = maxOf(prøvingsdato, meldekort.fom)
+
+        // TODO: Vi trenger også en smartere måte å finne stansdato
+
+        return Regelkjøring(
+            regelverksdato = prøvingsdato,
+            prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = meldekort.tom),
             opplysninger = opplysninger,
             forretningsprosess = forretningsprosess,
         )
+    }
 
     override fun behandling(
         forrigeBehandling: Behandling?,
@@ -128,6 +130,8 @@ class BeregnMeldekortHendelse(
             val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger(), rettighetstatus)
             val periode = fabrikk.lagBeregningsperiode()
             val forbruksdager = periode.forbruksdager
+
+            // Kjør regler
 
             meldekort
                 .periode()
