@@ -171,6 +171,7 @@ fun registrerRegelverk(
                 Beregning.meldeperiode +
                 Beregning.utbetaling +
                 Beregning.terskel +
+                Beregning.forbruktEgenandel +
                 hendelseTypeOpplysningstype,
         )
 }
