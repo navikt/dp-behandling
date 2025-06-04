@@ -30,7 +30,7 @@ internal class BeregnMeldekortMottak(
             }.register(this)
     }
 
-    private val skipMeldekort = setOf<String>("019735b7-28cc-711f-b65e-5e0c4d6ef4c2")
+    private val skipMeldekort = setOf("ingen")
 
     @WithSpan
     override fun onPacket(
