@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -33,7 +34,16 @@ class OpprettBehandlingHendelse(
     override val regelverk: Regelverk
         get() = forretningsprosess.regelverk
 
-    override fun regelkjøring(opplysninger: Opplysninger) = forretningsprosess.regelkjøring(opplysninger)
+    override fun regelkjøring(opplysninger: Opplysninger) =
+        Regelkjøring(
+            virkningsdato(opplysninger),
+            opplysninger,
+            this,
+            opplysningerGyldigPåPrøvingsdato,
+        )
+
+    private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
+        { forDato(virkningsdato(this)) }
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = forretningsprosess.ønsketResultat(opplysninger)
 
