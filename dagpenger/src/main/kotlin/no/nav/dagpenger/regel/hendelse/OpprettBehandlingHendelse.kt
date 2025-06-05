@@ -15,7 +15,6 @@ import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Søknadsprosess
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -42,7 +41,7 @@ class OpprettBehandlingHendelse(
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
-    override fun virkningsdato(opplysninger: LesbarOpplysninger) = opplysninger.finnOpplysning(prøvingsdato).verdi
+    override fun virkningsdato(opplysninger: LesbarOpplysninger) = skjedde
 
     override fun behandling(
         forrigeBehandling: Behandling?,
