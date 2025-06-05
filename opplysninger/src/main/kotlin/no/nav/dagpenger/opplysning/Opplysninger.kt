@@ -155,7 +155,8 @@ class Opplysninger private constructor(
         this.gyldighetsperiode == opplysning.gyldighetsperiode
 
     private fun <T : Comparable<T>> Opplysning<T>.starterFørOgOverlapper(opplysning: Opplysning<T>) =
-        this.gyldighetsperiode.fom.isBefore(opplysning.gyldighetsperiode.fom) &&
+        this.gyldighetsperiode.fom.isBefore(opplysning.gyldighetsperiode.fom) ||
+            this.gyldighetsperiode.fom == opplysning.gyldighetsperiode.fom &&
             opplysning.gyldighetsperiode.inneholder(this.gyldighetsperiode.tom)
 
     operator fun plus(tidligereOpplysninger: List<Opplysninger>) = Opplysninger(id, opplysninger, tidligereOpplysninger)
