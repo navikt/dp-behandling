@@ -90,6 +90,7 @@ class Opplysninger private constructor(
                             """
                             |Kan ikke legge til opplysning (id=${opplysning.id}, type=${opplysning.opplysningstype.navn}) som 
                             |overlapper med eksisterende opplysning (id=${erstattes.id}, type=${erstattes.opplysningstype.navn}).
+                            |gyldighetsperiode ny=${opplysning.gyldighetsperiode}, gammel=${erstattes.gyldighetsperiode}).
                             """.trimMargin(),
                         )
                     }
