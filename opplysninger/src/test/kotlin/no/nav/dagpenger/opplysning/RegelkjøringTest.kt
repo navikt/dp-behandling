@@ -126,7 +126,7 @@ class RegelkjøringTest {
         val opplysninger2 = Opplysninger(opplysninger1)
         opplysninger2.leggTil(Faktum(b, false, gyldighetsperiode = Gyldighetsperiode(14.januar))).also {
             Regelkjøring(
-                1.januar,
+                15.januar,
                 opplysninger2,
                 regelsett,
             ).evaluer()
