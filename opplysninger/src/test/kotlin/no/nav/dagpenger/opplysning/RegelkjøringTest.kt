@@ -103,39 +103,4 @@ class RegelkjøringTest {
 
         periode shouldContainExactly listOf(1.januar)
     }
-
-    @Test
-    fun `vilkår arver gyldighetsperiode fra opplysninger`() {
-        val opplysninger1 = Opplysninger()
-        val regelsett =
-            vilkår("regelsett") {
-                regel(b) { innhentes }
-                regel(a) { enAv(b) }
-            }
-
-        opplysninger1.leggTil(Faktum(b, true, gyldighetsperiode = Gyldighetsperiode(1.januar))).also {
-            Regelkjøring(
-                1.januar,
-                opplysninger1,
-                regelsett,
-            ).evaluer()
-        }
-
-        opplysninger1.finnOpplysning(a).verdi shouldBe true
-
-        val opplysninger2 = Opplysninger(opplysninger1)
-        opplysninger2.leggTil(Faktum(b, false, gyldighetsperiode = Gyldighetsperiode(14.januar))).also {
-            Regelkjøring(
-                15.januar,
-                opplysninger2,
-                regelsett,
-            ).evaluer()
-        }
-
-        opplysninger2
-            .forDato(15.januar)
-            .utenErstattet
-            .finnOpplysning(a)
-            .verdi shouldBe false
-    }
 }

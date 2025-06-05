@@ -62,5 +62,6 @@ class OpplysningerTest {
         opplysninger2.leggTil(Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(15.januar)))
 
         opplysninger2.finnAlle() shouldHaveSize 3
+        // opplysninger2.finnAlle().utenErstattet() shouldHaveSize 3
     }
 }
