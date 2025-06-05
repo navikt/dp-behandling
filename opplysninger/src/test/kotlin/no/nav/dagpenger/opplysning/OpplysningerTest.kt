@@ -51,4 +51,17 @@ class OpplysningerTest {
         opplysninger2.finnAlle() shouldHaveSize 3
         opplysninger2.finnAlle().utenErstattet() shouldHaveSize 2
     }
+
+    @Test
+    fun `skal ikke erstatte opplysning med fra og med dato `() {
+        val opplysninger1 = Opplysninger()
+
+        opplysninger1.leggTil(Faktum(desimaltall, 0.5, Gyldighetsperiode(5.januar)))
+
+        val opplysninger2 = Opplysninger(opplysninger1)
+        opplysninger2.leggTil(Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(15.januar)))
+
+        opplysninger2.finnAlle() shouldHaveSize 3
+        // opplysninger2.finnAlle().utenErstattet() shouldHaveSize 3
+    }
 }
