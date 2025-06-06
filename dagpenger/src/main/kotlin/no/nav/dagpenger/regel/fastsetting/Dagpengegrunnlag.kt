@@ -222,7 +222,7 @@ val NyttGrunnbeløpForGrunnlag =
             val policy = getGrunnbeløpForRegel(no.nav.dagpenger.grunnbelop.Regel.Grunnlag).forDato(prøvingdato)
 
             (prøvingdato.isAfter(sisteDagMedGammelG) && policy.iverksattFom.year != prøvingdato.year) ||
-                (it.finnOpplysning(grunnbeløpForDagpengeGrunnlag).verdi != policy.verdi)
+                (it.finnOpplysning(grunnbeløpForDagpengeGrunnlag).verdi.verdien != policy.verdi)
         } else {
             false
         }

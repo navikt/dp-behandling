@@ -131,7 +131,7 @@ object Minsteinntekt {
 
     val SvangerskapsrelaterteSykepengerKontroll =
         Kontrollpunkt(Avklaringspunkter.SvangerskapsrelaterteSykepenger) {
-            it.har(inntektFraSkatt) && it.finnOpplysning(minsteinntekt).verdi == false
+            it.har(inntektFraSkatt) && (it.har(minsteinntekt) && it.finnOpplysning(minsteinntekt).verdi == false)
         }
 
     val EØSArbeidKontroll =
