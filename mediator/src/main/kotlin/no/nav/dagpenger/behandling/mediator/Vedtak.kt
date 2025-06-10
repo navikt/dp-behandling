@@ -30,6 +30,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -167,9 +168,9 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
 }
 
 private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
-    val meldeperioder: List<Opplysning<*>> = finnAlle(listOf(Beregning.meldeperiode))
+    val meldeperioder: List<Opplysning<*>> = finnAlle(listOf(Beregning.meldeperiode)).utenErstattet()
 
-    return finnAlle(listOf(Beregning.utbetaling)).filterIsInstance<Opplysning<Int>>().map { dag ->
+    return finnAlle(listOf(Beregning.utbetaling)).utenErstattet().filterIsInstance<Opplysning<Int>>().map { dag ->
         val sats = finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi
         val periode: Opplysning<*> = meldeperioder.first { it.gyldighetsperiode.overlapp(dag.gyldighetsperiode) }
 
