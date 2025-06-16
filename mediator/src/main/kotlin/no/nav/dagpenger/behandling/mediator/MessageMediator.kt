@@ -23,6 +23,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.OppgaveReturnertTilSaksbehand
 import no.nav.dagpenger.behandling.mediator.mottak.OppgaveSendtTilKontroll
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMottak
+import no.nav.dagpenger.behandling.mediator.mottak.OpprettBehandlingMessage
+import no.nav.dagpenger.behandling.mediator.mottak.OpprettBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.PåminnelseMottak
 import no.nav.dagpenger.behandling.mediator.mottak.RekjørBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.RekjørBehandlingMottak
@@ -44,6 +46,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import java.util.UUID
 
 internal class MessageMediator(
@@ -67,6 +70,7 @@ internal class MessageMediator(
         OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
         MeldekortInnsendtMottak(rapidsConnection, this)
         BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
+        OpprettBehandlingMottak(rapidsConnection, this)
     }
 
     private companion object {
@@ -180,10 +184,20 @@ internal class MessageMediator(
 
     override fun behandle(
         hendelse: StartHendelse,
-        beregnMeldekortMessage: BeregnMeldekortMessage,
+        message: BeregnMeldekortMessage,
         context: MessageContext,
     ) {
-        behandle(hendelse, beregnMeldekortMessage) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
+    override fun behandle(
+        hendelse: OpprettBehandlingHendelse,
+        message: OpprettBehandlingMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
             hendelseMediator.behandle(it, context)
         }
     }
@@ -266,7 +280,13 @@ internal interface IMessageMediator {
 
     fun behandle(
         hendelse: StartHendelse,
-        beregnMeldekortMessage: BeregnMeldekortMessage,
+        message: BeregnMeldekortMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: OpprettBehandlingHendelse,
+        message: OpprettBehandlingMessage,
         context: MessageContext,
     )
 }

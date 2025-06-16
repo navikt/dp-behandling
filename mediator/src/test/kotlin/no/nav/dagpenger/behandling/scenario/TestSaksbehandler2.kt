@@ -66,7 +66,7 @@ internal class TestSaksbehandler2(
     }
 
     fun lukkAlleAvklaringer() {
-        val behandling = personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.first()
+        val behandling = personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.last()
         behandling.shouldNotBeNull()
         val avklaringer: List<Avklaring> = behandling.aktiveAvklaringer()
 

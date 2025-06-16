@@ -64,7 +64,7 @@ class Regelkjøring(
         private val logger = KotlinLogging.logger { }
     }
 
-    private val observers: MutableSet<RegelkjøringObserver> = mutableSetOf()
+    private val observatører: MutableSet<RegelkjøringObserver> = mutableSetOf()
 
     // Setter opp hvilke regler som skal gjelde
     private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
@@ -90,8 +90,8 @@ class Regelkjøring(
         }
     }
 
-    fun registrer(observer: RegelkjøringObserver) {
-        observers.add(observer)
+    fun leggTilObservatør(observer: RegelkjøringObserver) {
+        observatører.add(observer)
     }
 
     fun evaluer(): Regelkjøringsrapport =
@@ -116,7 +116,7 @@ class Regelkjøring(
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
-            observers.forEach { observer ->
+            observatører.forEach { observer ->
                 val aktiveOpplysninger = opplysninger.aktiveOpplysninger.forDato(prøvingsdato)
                 observer.evaluert(
                     rapport,

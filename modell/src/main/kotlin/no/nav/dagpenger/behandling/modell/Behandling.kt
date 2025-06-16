@@ -74,13 +74,12 @@ class Behandling private constructor(
 
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
 
-    val opplysninger: Opplysninger =
-        (gjeldendeOpplysninger + tidligereOpplysninger)
+    val opplysninger: Opplysninger = (gjeldendeOpplysninger + tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
         get() =
             behandler.regelkjøring(opplysninger).apply {
-                registrer(avklaringer)
+                leggTilObservatør(avklaringer)
             }
 
     private val kontrollpunkter =

@@ -11,6 +11,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnM
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
+import no.nav.dagpenger.behandling.mediator.mottak.OpprettBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import org.postgresql.util.PGobject
@@ -95,6 +96,7 @@ internal class PostgresMeldingRepository : MeldingRepository {
             is SøknadInnsendtMessage -> MeldingTypeDTO.SØKNAD_INNSENDT
             is MeldekortInnsendtMessage -> MeldingTypeDTO.MELDEKORT_INNSENDT
             is BeregnMeldekortMessage -> MeldingTypeDTO.BEREGN_MELDEKORT
+            is OpprettBehandlingMessage -> MeldingTypeDTO.OPPRETT_BEHANDLING
             is ApiMelding -> MeldingTypeDTO.API
             else ->
                 null.also {
@@ -116,4 +118,5 @@ private enum class MeldingTypeDTO {
     SØKNAD_INNSENDT,
     MELDEKORT_INNSENDT,
     API,
+    OPPRETT_BEHANDLING,
 }

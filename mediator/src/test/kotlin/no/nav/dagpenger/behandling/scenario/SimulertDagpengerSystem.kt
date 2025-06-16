@@ -23,6 +23,7 @@ import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.scenario.assertions.ForslagAssertions
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import kotlin.random.Random
 
 internal class SimulertDagpengerSystem(
     oppsett: ScenarioOptions,
@@ -91,7 +92,7 @@ internal class SimulertDagpengerSystem(
     }
 
     class ScenarioOptions(
-        var ident: String = "12312312311",
+        var ident: String = Random.Default.nextLong(10000000000, 19999999999).toString(),
         var alder: Int = 33,
         var inntektSiste12Mnd: Int = 50000,
         var permittering: Boolean = false,

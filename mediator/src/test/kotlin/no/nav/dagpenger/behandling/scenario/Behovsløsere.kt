@@ -2,8 +2,10 @@ package no.nav.dagpenger.behandling.scenario
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.dagpenger.behandling.objectMapper
+import java.time.LocalDate
 
 internal class Behovsløsere(
     private val rapid: TestRapid,
@@ -52,5 +54,32 @@ internal class Behovsløsere(
         val sisteMelding = rapid.inspektør.message(rapid.inspektør.size - 1)
         require(sisteMelding["@event_name"].asText() == "vedtak_fattet")
         return sisteMelding
+    }
+
+    fun løsningFor(
+        opplysning: String,
+        verdi: Any,
+        fraOgMed: LocalDate = LocalDate.now(),
+    ) {
+        rapid.sendTestMessage(
+            JsonMessage
+                .newNeed(
+                    listOf("behov"),
+                    mapOf(
+                        "@final" to true,
+                        "@opplysningsbehov" to true,
+                        "ident" to person.ident,
+                        "behandlingId" to person.behandlingId,
+                        "@løsning" to
+                            mapOf(
+                                opplysning to
+                                    mapOf(
+                                        "verdi" to verdi,
+                                        "gyldigFraOgMed" to fraOgMed,
+                                    ),
+                            ),
+                    ),
+                ).toJson(),
+        )
     }
 }

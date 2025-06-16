@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.januar
@@ -75,6 +76,16 @@ internal class Mennesket(
             }
         }
         throw NoSuchElementException("Fant ingen behandling med UUID=$behandlingId")
+    }
+
+    fun opprettBehandling(fraDato: LocalDate) {
+        rapid.sendTestMessage(
+            JsonMessage
+                .newMessage(
+                    "opprett_behandling",
+                    mapOf("ident" to ident, "prøvingsdato" to fraDato),
+                ).toJson(),
+        )
     }
 
     val avklaringer: List<Avklaring>

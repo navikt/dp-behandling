@@ -67,7 +67,7 @@ class KontrollpunktTest {
 
         val ding = Avklaringer(kontrollpunkter)
         val opplysninger = Opplysninger()
-        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.registrer(ding) }
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.leggTilObservatør(ding) }
         opplysninger.leggTil(getOpplysning(321))
         regelkjøring.evaluer()
 
@@ -108,7 +108,7 @@ class KontrollpunktTest {
 
         val ding = Avklaringer(kontrollpunkter)
         val opplysninger = Opplysninger()
-        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.registrer(ding) }
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.leggTilObservatør(ding) }
         opplysninger.leggTil(Faktum(inntekterInneholderSykepenger, true)).also { regelkjøring.evaluer() }
 
         ding.måAvklares().also { avklaringer ->
@@ -159,7 +159,7 @@ class KontrollpunktTest {
 
         val ding = Avklaringer(kontrollpunkter)
         val opplysninger = Opplysninger()
-        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.registrer(ding) }
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.leggTilObservatør(ding) }
 
         opplysninger.leggTil(Faktum(regel1, false) as Opplysning<*>).also { regelkjøring.evaluer() }
         opplysninger.leggTil(Faktum(regel2, false) as Opplysning<*>).also { regelkjøring.evaluer() }
