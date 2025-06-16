@@ -94,8 +94,8 @@ class ScenarioTest {
             }
 
             // Opprett stans
-            person.opprettBehandling(21.juli(2018))
-            behovsløsere.løsningFor(Behov.RegistrertSomArbeidssøker, false, 21.juli(2018))
+            person.opprettBehandling(22.juli(2018))
+            behovsløsere.løsningFor(Behov.RegistrertSomArbeidssøker, false, 22.juli(2018))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -106,8 +106,8 @@ class ScenarioTest {
             }
 
             // Gjenoppta
-            person.opprettBehandling(21.august(2018))
-            behovsløsere.løsningFor(Behov.RegistrertSomArbeidssøker, true, 21.august(2018))
+            person.opprettBehandling(23.august(2018))
+            behovsløsere.løsningFor(Behov.RegistrertSomArbeidssøker, true, 23.august(2018))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()

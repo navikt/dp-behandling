@@ -217,17 +217,17 @@ private fun interface SvarStrategi {
         val gyldigFraOgMed: LocalDate? = null,
         val gyldigTilOgMed: LocalDate? = null,
     ) {
-        val gyldighetsperiode
-            get() =
-                if (gyldigFraOgMed != null && gyldigTilOgMed != null) {
-                    Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed)
-                } else if (gyldigFraOgMed != null && gyldigTilOgMed == null) {
-                    Gyldighetsperiode(gyldigFraOgMed)
-                } else if (gyldigTilOgMed != null) {
-                    Gyldighetsperiode(tom = gyldigTilOgMed)
-                } else {
-                    null
-                }
+        val gyldighetsperiode by lazy {
+            if (gyldigFraOgMed != null && gyldigTilOgMed != null) {
+                Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed)
+            } else if (gyldigFraOgMed != null && gyldigTilOgMed == null) {
+                Gyldighetsperiode(gyldigFraOgMed)
+            } else if (gyldigTilOgMed != null) {
+                Gyldighetsperiode(tom = gyldigTilOgMed)
+            } else {
+                null
+            }
+        }
     }
 }
 

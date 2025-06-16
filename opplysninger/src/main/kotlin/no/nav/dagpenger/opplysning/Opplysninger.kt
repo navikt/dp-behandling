@@ -52,6 +52,9 @@ class Opplysninger private constructor(
         }
 
         if (basertPåOpplysninger.contains(eksisterende)) {
+            require(!opplysning.gyldighetsperiode.erUendelig) {
+                "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
+            }
             // Endre gyldighetsperiode på gammel opplysning og legg til ny opplysning kant i kant
             val erstattes: Opplysning<T>? = alleOpplysninger.find { it.overlapper(opplysning) } as Opplysning<T>?
             if (erstattes !== null) {
