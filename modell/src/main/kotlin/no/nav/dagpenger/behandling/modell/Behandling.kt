@@ -74,32 +74,6 @@ class Behandling private constructor(
 
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
 
-    val vedtakopplysninger
-        get() =
-            Resultat(
-                behandlingId = behandlingId,
-                basertPåBehandlinger = basertPåBehandlinger(),
-                utfall = behandler.utfall(opplysninger().utenErstattet),
-                virkningsdato = behandler.virkningsdato(opplysninger().utenErstattet),
-                behandlingAv = behandler,
-                opplysninger = opplysninger,
-                automatiskBehandlet = erAutomatiskBehandlet(),
-                godkjentAv = godkjent,
-                besluttetAv = besluttet,
-            )
-
-    data class Resultat(
-        override val behandlingId: UUID,
-        override val basertPåBehandlinger: List<UUID>,
-        override val utfall: Boolean,
-        override val virkningsdato: LocalDate,
-        override val behandlingAv: StartHendelse,
-        override val opplysninger: LesbarOpplysninger,
-        override val automatiskBehandlet: Boolean,
-        override val godkjentAv: Arbeidssteg,
-        override val besluttetAv: Arbeidssteg,
-    ) : VedtakOpplysninger
-
     val opplysninger: Opplysninger =
         (gjeldendeOpplysninger + tidligereOpplysninger)
 
@@ -929,6 +903,20 @@ class Behandling private constructor(
 
     fun basertPåBehandlinger() = basertPå.map { it.behandlingId }
 
+    val vedtakopplysninger
+        get() =
+            Resultat(
+                behandlingId = behandlingId,
+                basertPåBehandlinger = basertPåBehandlinger(),
+                utfall = behandler.utfall(opplysninger().utenErstattet),
+                virkningsdato = behandler.virkningsdato(opplysninger().utenErstattet),
+                behandlingAv = behandler,
+                opplysninger = opplysninger,
+                automatiskBehandlet = erAutomatiskBehandlet(),
+                godkjentAv = godkjent,
+                besluttetAv = besluttet,
+            )
+
     private fun emitOpprettet() {
         val event =
             BehandlingOpprettet(
@@ -1011,6 +999,18 @@ class Behandling private constructor(
 
         fun opplysningerPåVirkningsdato() = opplysninger.forDato(virkningsdato)
     }
+
+    data class Resultat(
+        override val behandlingId: UUID,
+        override val basertPåBehandlinger: List<UUID>,
+        override val utfall: Boolean,
+        override val virkningsdato: LocalDate,
+        override val behandlingAv: StartHendelse,
+        override val opplysninger: LesbarOpplysninger,
+        override val automatiskBehandlet: Boolean,
+        override val godkjentAv: Arbeidssteg,
+        override val besluttetAv: Arbeidssteg,
+    ) : VedtakOpplysninger
 }
 
 interface BehandlingObservatør {
