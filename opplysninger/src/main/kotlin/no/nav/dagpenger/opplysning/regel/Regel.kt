@@ -48,14 +48,17 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                     // Om alle avhengigheter er tilstede, må denne regelen kjøres på nytt
                     plan.add(this)
                 }
-                return
+            }
+
+            // Om en annen regel i planen endrer våre avhengigheter må vi vente på neste planlegging før vi kan kjøre
+            if (avhengerAv.any { vårAvhengighet -> plan.any { annenRegel -> annenRegel.produserer == vårAvhengighet } }) {
+                plan.remove(this)
             }
         } else {
             val avhengigheter = opplysninger.finnAlle(avhengerAv)
 
             if (avhengigheter.size == avhengerAv.size) {
                 plan.add(this)
-                return
             } else {
                 avhengerAv.forEach { avhengighet ->
                     val produsent = produsenter[avhengighet] ?: throw IllegalStateException("Fant ikke produsent for $avhengighet")
@@ -63,7 +66,6 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 }
             }
         }
-        return
     }
 
     private fun utledetAvErEndret(utledetAv: Utledning) = utledetAv.opplysninger.any { it.erErstattet || it.erFjernet }
