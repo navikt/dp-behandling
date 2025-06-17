@@ -137,7 +137,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
         val opplysningSet = opplysningerPåPrøvingsdato.finnAlle().toSet()
         val avklaringer = avklaringer().toSet()
         val spesifikkeAvklaringskoder =
-            behandler.regelverk.regelsett
+            behandler.forretningsprosess.regelverk.regelsett
                 .asSequence()
                 .flatMap { it.avklaringer }
                 .toSet()
@@ -162,12 +162,12 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                     Behandling.TilstandType.TilBeslutning -> BehandlingDTOTilstandDTO.TIL_BESLUTNING
                 },
             vilkår =
-                behandler.regelverk
+                behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
                     .map { it.tilRegelsettDTO(opplysningSet, avklaringer, opplysningerPåPrøvingsdato) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             fastsettelser =
-                behandler.regelverk
+                behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
                     .map { it.tilRegelsettDTO(opplysningSet, avklaringer, opplysningerPåPrøvingsdato) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
@@ -207,7 +207,7 @@ internal fun Behandling.tilSaksbehandlersVurderinger() =
         val avklaringer = avklaringer().filter { it.løstAvSaksbehandler() }.toSet()
         val endredeOpplysninger = opplysninger().finnAlle().filter { it.kilde is Saksbehandlerkilde }.toSet()
 
-        val regelsett = behandler.regelverk.regelsett
+        val regelsett = behandler.forretningsprosess.regelverk.regelsett
 
         // Ta med kun regelsett som har endrede opplysninger
         val endredRegelsett =

@@ -71,22 +71,21 @@ class Behandling private constructor(
     }
 
     private val observatører = mutableListOf<BehandlingObservatør>()
-
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
+    private val forretningsprosess = behandler.forretningsprosess
 
     val opplysninger: Opplysninger = (gjeldendeOpplysninger + tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
         get() =
-            behandler.regelkjøring(opplysninger).apply {
+            forretningsprosess.regelkjøring(opplysninger).apply {
                 leggTilObservatør(avklaringer)
             }
-
     private val kontrollpunkter =
         when (tilstand) {
             is Avbrutt -> emptyList()
             is Ferdig -> emptyList()
-            else -> behandler.kontrollpunkter()
+            else -> forretningsprosess.kontrollpunkter()
         }
 
     private val avklaringer = Avklaringer(kontrollpunkter, avklaringer)
@@ -100,7 +99,7 @@ class Behandling private constructor(
             opplysninger.aktiveOpplysninger.finnAlle().none { it.kilde is Saksbehandlerkilde } &&
             !godkjent.erUtført
 
-    fun kreverTotrinnskontroll() = behandler.kreverTotrinnskontroll(opplysninger)
+    fun kreverTotrinnskontroll() = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
     companion object {
         fun rehydrer(
@@ -739,14 +738,14 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             behandling.godkjent.utførtAv(hendelse.godkjentAv)
-            if (!behandling.behandler.kreverTotrinnskontroll(behandling.opplysninger)) {
+            if (!behandling.forretningsprosess.kreverTotrinnskontroll(behandling.opplysninger)) {
                 hendelse.info("Ble godkjent, men krever ikke totrinnskontroll")
                 behandling.tilstand(Ferdig(), hendelse)
             }
 
             hendelse.info("Ble godkjent og krever totrinnskontroll")
             // Om behandlingen ikke krever totrinnskontroller vi ferdige
-            if (!behandling.behandler.kreverTotrinnskontroll(behandling.opplysninger)) {
+            if (!behandling.forretningsprosess.kreverTotrinnskontroll(behandling.opplysninger)) {
                 return behandling.tilstand(Ferdig(), hendelse)
             }
 
@@ -907,8 +906,8 @@ class Behandling private constructor(
             Resultat(
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
-                utfall = behandler.utfall(opplysninger().utenErstattet),
-                virkningsdato = behandler.virkningsdato(opplysninger().utenErstattet),
+                utfall = forretningsprosess.utfall(opplysninger().utenErstattet),
+                virkningsdato = forretningsprosess.virkningsdato(opplysninger().utenErstattet),
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
                 automatiskBehandlet = erAutomatiskBehandlet(),
@@ -994,7 +993,7 @@ class Behandling private constructor(
         val godkjentAv: Arbeidssteg
         val besluttetAv: Arbeidssteg
 
-        fun relevanteVilkår() = behandlingAv.regelverk.relevanteVilkår(opplysningerPåVirkningsdato())
+        fun relevanteVilkår() = behandlingAv.forretningsprosess.regelverk.relevanteVilkår(opplysningerPåVirkningsdato())
 
         fun opplysningerPåVirkningsdato() = opplysninger.forDato(virkningsdato)
     }

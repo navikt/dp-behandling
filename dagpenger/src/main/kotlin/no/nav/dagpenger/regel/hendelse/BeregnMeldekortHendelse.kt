@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.hendelse
 
-import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
@@ -9,22 +8,15 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.Søknadsprosess
-import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.math.roundToInt
@@ -42,33 +34,7 @@ class BeregnMeldekortHendelse(
         skjedde = meldekort.innsendtTidspunkt.toLocalDate(),
         opprettet = opprettet,
     ) {
-    override val forretningsprosess = Søknadsprosess()
-
-    private val logger = mu.KotlinLogging.logger {}
-    override val regelverk: Regelverk
-        get() = forretningsprosess.regelverk
-
-    // TODO: DETTE ER HELT FEIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
-            opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
-        } else {
-            throw IllegalStateException("Fant ikke prøvingsdato")
-        }
-
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        val prøvingsdato = prøvingsdato(opplysninger = opplysninger)
-        val førsteDagMedRett = maxOf(prøvingsdato, meldekort.fom)
-
-        // TODO: Vi trenger også en smartere måte å finne stansdato
-
-        return Regelkjøring(
-            regelverksdato = prøvingsdato,
-            prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = meldekort.tom),
-            opplysninger = opplysninger,
-            forretningsprosess = forretningsprosess,
-        )
-    }
+    override val forretningsprosess = Meldekortprosess()
 
     override fun behandling(
         forrigeBehandling: Behandling?,
@@ -151,12 +117,7 @@ class BeregnMeldekortHendelse(
         }
     }
 
-    override fun kontrollpunkter(): List<Kontrollpunkt> = emptyList()
-
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean = false
-
-    // TODO: Finne riktig dato i en meldekort behandling
-    override fun virkningsdato(opplysninger: LesbarOpplysninger) = prøvingsdato(opplysninger)
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = emptyList()
+    companion object {
+        private val logger = mu.KotlinLogging.logger {}
+    }
 }

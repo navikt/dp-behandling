@@ -4,7 +4,6 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldBeWithin
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderBehandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderOpprettelse
@@ -164,8 +163,6 @@ private class TestHendelse(
         gjelderDato,
         opprettet,
     ) {
-    override val regelverk: Regelverk
-        get() = forretningsprosess.regelverk
     private val opplysningstypeBehov = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "trengerDenne")
     private val opplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "opplysning")
     override val forretningsprosess: Forretningsprosess
@@ -174,13 +171,14 @@ private class TestHendelse(
                 override val regelverk: Regelverk
                     get() = TODO("Not yet implemented")
 
-                override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-                    TODO("Not yet implemented")
-                }
+                override fun regelkjøring(opplysninger: Opplysninger) =
+                    Regelkjøring(
+                        skjedde,
+                        opplysninger,
+                        regelsett,
+                    )
 
-                override fun kontrollpunkter(): List<IKontrollpunkt> {
-                    TODO("Not yet implemented")
-                }
+                override fun kontrollpunkter(): List<IKontrollpunkt> = emptyList()
 
                 override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
                     TODO("Not yet implemented")
@@ -203,31 +201,10 @@ private class TestHendelse(
             regel(opplysningstype) { enAv(opplysningstypeBehov) }
         }
 
-    override fun regelkjøring(opplysninger: Opplysninger) =
-        Regelkjøring(
-            skjedde,
-            opplysninger,
-            regelsett,
-        )
-
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): Behandling {
-        TODO("Not yet implemented")
-    }
-
-    override fun kontrollpunkter(): List<Kontrollpunkt> = emptyList()
-
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
-        TODO("Not yet implemented")
-    }
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
         TODO("Not yet implemented")
     }
 }

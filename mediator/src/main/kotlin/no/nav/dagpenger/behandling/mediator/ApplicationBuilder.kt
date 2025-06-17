@@ -31,6 +31,8 @@ import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.Manuellprosess
+import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.beregning.Beregning
@@ -161,6 +163,8 @@ fun registrerRegelverk(
     opplysningstyper: Set<Opplysningstype<*>>,
 ) {
     Søknadsprosess().registrer()
+    Meldekortprosess().registrer()
+    Manuellprosess().registrer()
     opplysningRepository
         .lagreOpplysningstyper(
             opplysningstyper + fagsakIdOpplysningstype +

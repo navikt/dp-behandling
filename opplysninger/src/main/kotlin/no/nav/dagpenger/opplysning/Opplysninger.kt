@@ -24,12 +24,20 @@ class Opplysninger private constructor(
     private val opplysninger: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
     private val alleOpplysninger = CachedList { basertPåOpplysninger + opplysninger.bareAktive() }
 
-    override val utenErstattet get() = Opplysninger(id, alleOpplysninger.utenErstattet())
+    override val utenErstattet
+        get() =
+            Opplysninger(
+                id,
+                aktiveOpplysningerListe.utenErstattet(),
+                listOf(
+                    Opplysninger(UUIDv7.ny(), basertPåOpplysninger.utenErstattet()),
+                ),
+            )
 
     // TODO: Denne burde bare brukes av databaselaget
     val aktiveOpplysningerListe get() = opplysninger.toList()
 
-    val aktiveOpplysninger
+    override val aktiveOpplysninger
         get() =
             Opplysninger(
                 id = id,
@@ -37,8 +45,9 @@ class Opplysninger private constructor(
             )
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
-        val opplysningerForDato = alleOpplysninger.bareAktive().gyldigeFor(gjelderFor)
-        return Opplysninger(UUIDv7.ny(), opplysningerForDato)
+        val aktiveForDato = aktiveOpplysningerListe.bareAktive().gyldigeFor(gjelderFor)
+        val basertPåDato = basertPåOpplysninger.bareAktive().gyldigeFor(gjelderFor)
+        return Opplysninger(id, aktiveForDato, listOf(Opplysninger(UUIDv7.ny(), basertPåDato)))
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -52,9 +61,9 @@ class Opplysninger private constructor(
         }
 
         if (basertPåOpplysninger.contains(eksisterende)) {
-            require(!opplysning.gyldighetsperiode.erUendelig) {
-                "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
-            }
+            // require(!opplysning.gyldighetsperiode.erUendelig) {
+            // "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
+            // }
             // Endre gyldighetsperiode på gammel opplysning og legg til ny opplysning kant i kant
             val erstattes: Opplysning<T>? = alleOpplysninger.find { it.overlapper(opplysning) } as Opplysning<T>?
             if (erstattes !== null) {

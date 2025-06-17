@@ -9,13 +9,9 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.regel.Søknadsprosess
+import no.nav.dagpenger.regel.Manuellprosess
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -29,29 +25,7 @@ class OpprettBehandlingHendelse(
     private val begrunnelse: String? = null,
     opprettet: LocalDateTime,
 ) : StartHendelse(meldingsreferanseId, ident, eksternId, gjelderDato, opprettet) {
-    override val forretningsprosess = Søknadsprosess()
-
-    override val regelverk: Regelverk
-        get() = forretningsprosess.regelverk
-
-    override fun regelkjøring(opplysninger: Opplysninger) =
-        Regelkjøring(
-            virkningsdato(opplysninger),
-            opplysninger,
-            this,
-            opplysningerGyldigPåPrøvingsdato,
-        )
-
-    private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
-        { forDato(virkningsdato(this)) }
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger) = forretningsprosess.ønsketResultat(opplysninger)
-
-    override fun kontrollpunkter() = forretningsprosess.kontrollpunkter()
-
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = forretningsprosess.kreverTotrinnskontroll(opplysninger)
-
-    override fun virkningsdato(opplysninger: LesbarOpplysninger) = skjedde
+    override val forretningsprosess = Manuellprosess()
 
     override fun behandling(
         forrigeBehandling: Behandling?,

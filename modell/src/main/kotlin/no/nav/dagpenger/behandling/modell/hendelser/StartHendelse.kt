@@ -15,8 +15,7 @@ abstract class StartHendelse(
     val eksternId: EksternId<*>,
     val skjedde: LocalDate,
     opprettet: LocalDateTime,
-) : PersonHendelse(meldingsreferanseId, ident, opprettet),
-    Forretningsprosess {
+) : PersonHendelse(meldingsreferanseId, ident, opprettet) {
     open val type: String = this.javaClass.simpleName
 
     override fun kontekstMap() =
