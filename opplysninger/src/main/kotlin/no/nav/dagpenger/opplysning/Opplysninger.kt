@@ -65,7 +65,7 @@ class Opplysninger private constructor(
             // "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
             // }
             // Endre gyldighetsperiode på gammel opplysning og legg til ny opplysning kant i kant
-            val erstattes: Opplysning<T>? = alleOpplysninger.find { it.overlapper(opplysning) } as Opplysning<T>?
+            val erstattes: Opplysning<T>? = alleOpplysninger.utenErstattet().find { it.overlapper(opplysning) } as Opplysning<T>?
             if (erstattes !== null) {
                 when {
                     opplysning.overlapperHalenAv(erstattes) -> {
@@ -85,6 +85,8 @@ class Opplysninger private constructor(
                         erstattes.erstattesAv(opplysning)
                         opplysninger.add(opplysning)
                     }
+
+                    // Forkortet gyldighetsperiode på eksisterende opplysning
 
                     erstattes.gyldighetsperiode.erUendelig -> {
                         // Opplysningen som erstattes har uendelig gyldighetsperiode
@@ -152,7 +154,7 @@ class Opplysninger private constructor(
         opplysningstype: Opplysningstype<T>,
         gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
     ): Opplysning<T>? {
-        if (alleOpplysninger.count { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) } > 1) {
+        if (alleOpplysninger.utenErstattet().count { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) } > 1) {
             throw IllegalStateException(
                 """Har mer enn 1 opplysning av type $opplysningstype i opplysningerId=$id.
                 |Fant ${alleOpplysninger.count { it.er(opplysningstype) }} duplikater blant ${alleOpplysninger.size} opplysninger.
@@ -160,7 +162,7 @@ class Opplysninger private constructor(
                 """.trimMargin(),
             )
         }
-        return alleOpplysninger.singleOrNull {
+        return alleOpplysninger.utenErstattet().singleOrNull {
             it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode)
         } as Opplysning<T>?
     }
