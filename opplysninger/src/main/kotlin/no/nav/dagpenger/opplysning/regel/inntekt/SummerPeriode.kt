@@ -16,7 +16,7 @@ class SummerPeriode(
         return periode.map { it.block(inntekt.verdi) }.reduce { acc, beløp -> acc + beløp }
     }
 
-    override fun toString() = "Summerer periode ${periode.joinToString { "$it" }} av inntekt $inntekt"
+    override fun toString() = "Produserer ${produserer.navn} ved å summere ${periode.joinToString { "$it" }} periode av inntekt $inntekt"
 
     enum class InntektPeriode(
         val block: (no.nav.dagpenger.inntekt.v1.Inntekt) -> Beløp,
