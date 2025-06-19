@@ -30,14 +30,8 @@ object Beregning {
 
     val regelsett =
         fastsettelse(tomHjemmel("DETTE ER MELDEKORTBEREGNING")) {
-            // Finn alle meldeperioder som ikke er beregnet
-            // Er det noe å beregne?
-            // 1. Har dagpenger i perioden?
+            skalVurderes { it.har(meldeperiode) }
 
-            // Er det trekk ved for sen melding?
-
-            // Beregne noe greier
-            // regel(meldeperiode) { tomRegel }
             regel(arbeidsdag) { tomRegel }
             regel(arbeidstimer) { tomRegel }
             regel(forbruk) { tomRegel }
@@ -47,7 +41,6 @@ object Beregning {
             regel(terskel) { tomRegel }
 
             ønsketResultat(
-                // meldeperiode,
                 arbeidsdag,
                 arbeidstimer,
                 forbruk,
