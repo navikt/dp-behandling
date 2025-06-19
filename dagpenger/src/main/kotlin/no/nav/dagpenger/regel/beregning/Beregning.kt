@@ -29,8 +29,9 @@ object Beregning {
     val terskel = Opplysningstype.desimaltall(terskelId, "Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger")
 
     val regelsett =
-        fastsettelse(tomHjemmel("DETTE ER MELDEKORTBEREGNING")) {
+        fastsettelse(tomHjemmel("Meldekortberegning")) {
             skalVurderes { it.har(meldeperiode) }
+            påvirkerResultat { it.har(meldeperiode) }
 
             regel(arbeidsdag) { tomRegel }
             regel(arbeidstimer) { tomRegel }
