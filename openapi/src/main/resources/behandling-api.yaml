@@ -786,6 +786,7 @@ components:
         - opplysningTypeId
         - navn
         - datatype
+        - synlig
         - opplysninger
       properties:
         opplysningTypeId:
@@ -794,6 +795,8 @@ components:
           type: string
         datatype:
           $ref: '#/components/schemas/DataType'
+        synlig:
+          type: boolean
         opplysninger:
           type: array
           items:

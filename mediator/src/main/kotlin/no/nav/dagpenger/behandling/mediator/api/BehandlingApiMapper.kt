@@ -193,6 +193,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
                         datatype = type.datatype.tilDataTypeDTO(),
+                        synlig = type.synlig(opplysningerPåPrøvingsdato),
                         opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO(opplysningerPåPrøvingsdato) },
                     )
                 },
