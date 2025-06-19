@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Avklaringkode
 
+@Suppress("ktlint:standard:max-line-length")
 object Avklaringspunkter {
     val YtelserUtenforFolketrygden: Avklaringkode =
         Avklaringkode(
@@ -14,7 +15,7 @@ object Avklaringspunkter {
         Avklaringkode(
             kode = "Samordning",
             tittel = "Sjekk om det er andre ytelser fra folketrygden som skal samordnes",
-            beskrivelse = "Sjekk om det er andre ytelser fra folketrygden som skal samordnes.",
+            beskrivelse = "Vi har funnet andre ytelser fra folketrygden. Det må vurderes om, og eventuelt hvordan, de skal samordnes med dagpengene.",
         )
 
     val FulleYtelser: Avklaringkode =

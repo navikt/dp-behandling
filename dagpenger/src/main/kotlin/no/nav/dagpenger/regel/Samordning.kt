@@ -231,8 +231,9 @@ object Samordning {
                 it.har(skalSamordnes) && it.finnOpplysning(skalSamordnes).verdi
             }
 
-            // TODO: Big badda boom. Dette er både fastsettelse og vilkår
             ønsketResultat(samordnetDagsats, skalSamordnes, utfallEtterSamordning)
+
+            avklaring(Avklaringspunkter.Samordning)
         }
 
     val SkalSamordnes =
