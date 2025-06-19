@@ -29,7 +29,7 @@ object Beregning {
     val terskel = Opplysningstype.desimaltall(terskelId, "Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger")
 
     val regelsett =
-        fastsettelse(tomHjemmel("regelsett")) {
+        fastsettelse(tomHjemmel("DETTE ER MELDEKORTBEREGNING")) {
             // Finn alle meldeperioder som ikke er beregnet
             // Er det noe å beregne?
             // 1. Har dagpenger i perioden?
