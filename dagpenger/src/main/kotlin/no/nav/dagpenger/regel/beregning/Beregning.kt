@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel.beregning
 
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.opplysning.tomHjemmel
@@ -14,7 +15,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.terskelId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
 
 object Beregning {
-    val meldeperiode = Opplysningstype.periode(meldeperiodeId, "Meldeperiode")
+    val meldeperiode = Opplysningstype.periode(meldeperiodeId, "Meldeperiode", synlig = aldriSynlig)
     val arbeidsdag = Opplysningstype.boolsk(arbeidsdagId, "Arbeidsdag")
     val arbeidstimer = Opplysningstype.heltall(arbeidstimerId, "Arbeidstimer på en arbeidsdag")
 
