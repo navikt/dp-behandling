@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.beregning
 
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
+import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
@@ -35,5 +36,24 @@ object Beregning {
             // Er det trekk ved for sen melding?
 
             // Beregne noe greier
+            regel(meldeperiode) { tomRegel }
+            regel(arbeidsdag) { tomRegel }
+            regel(arbeidstimer) { tomRegel }
+            regel(forbruk) { tomRegel }
+            regel(meldt) { tomRegel }
+            regel(forbruktEgenandel) { tomRegel }
+            regel(utbetaling) { tomRegel }
+            regel(terskel) { tomRegel }
+
+            ønsketResultat(
+                meldeperiode,
+                arbeidsdag,
+                arbeidstimer,
+                forbruk,
+                meldt,
+                forbruktEgenandel,
+                utbetaling,
+                terskel,
+            )
         }
 }

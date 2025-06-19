@@ -223,6 +223,10 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9462-78af-8977-46092bb030eb|fagsakId|fagsakId|Heltall|int|
 |01948d3c-4bea-7802-9d18-5342a5e2be99|Avtjent verneplikt|Verneplikt|Boolsk|boolean|
 |01948d43-e218-76f1-b29b-7e604241d98a|Oppfyller kravet til verneplikt|Oppfyller kravet til verneplikt|Boolsk|boolean|
+|01948ea0-36e8-72cc-aa4f-16bc446ed3bd|Arbeidsdag|Arbeidsdag|Boolsk|boolean|
+|01948ea0-e25c-7c47-8429-a05045d80eca|Arbeidstimer på en arbeidsdag|Arbeidstimer på en arbeidsdag|Heltall|int|
+|01948ea0-ffdc-7964-ab55-52a7e35e1020|Dag som fører til forbruk av dagpengeperiode|Dag som fører til forbruk av dagpengeperiode|Boolsk|boolean|
+|01948ea2-22f3-7da8-9547-90d0c64e74e0|Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger|Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger|Desimaltall|double|
 |0194929e-2036-7ac1-ada3-5cbe05a83f08|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Boolsk|boolean|
 |0194d105-bd54-7b2b-9dc6-6e6664951894|Årsaken til permitteringen er godkjent|Årsaken til permitteringen er godkjent|Boolsk|boolean|
 |0194d111-db2f-7395-bcfb-959f245fd2a6|Oppfyller kravet til permittering|Oppfyller kravet til permittering|Boolsk|boolean|
@@ -237,8 +241,12 @@ Dette er opplysninger som blir brukt av regelverket.
 |0195235a-599b-7b27-97a8-bc6142066a87|Periode som gis ved permittering fra fiskeindustrien|Periode som gis ved permittering fra fiskeindustrien|Heltall|int|
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Tre ganger dagsats|Penger|Beløp|
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Ingen egenandel|Penger|Beløp|
+|01956ab8-126c-7636-803e-a5d87eda2015|Har meldt seg via meldekort|Har meldt seg via meldekort|Boolsk|boolean|
+|01956abd-2871-7517-a332-b462c0c31292|Meldeperiode|Meldeperiode|PeriodeDataType|Periode|
+|01957069-d7d5-7f7c-b359-c00686fbf1f7|Penger som skal utbetales|Penger som skal utbetales|Heltall|int|
 |0196ab10-0cff-7301-99d6-65be50a50201|Bostedsland er Norge|BostedslandErNorge|Boolsk|boolean|
 |0196afaf-afbd-7079-b2cf-3669ad9d86aa|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Boolsk|boolean|
 |0196afbf-e32d-775a-ad10-f476e26dcb6f|Uførebeløp som skal samordnes|Uførebeløp som skal samordnes|Penger|Beløp|
 |0196afc0-6807-7fa3-83e4-cf7f621f3a7e|Sum hvis Uføre ikke skal samordnes|Sum hvis Uføre ikke skal samordnes|Penger|Beløp|
 |0196b4a7-23b5-7b2c-aa95-e4167d900de8|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Boolsk|boolean|
+|01973a27-d8b3-7ffd-a81a-a3826963b079|Forbrukt egenandel|Forbrukt egenandel|Heltall|int|
