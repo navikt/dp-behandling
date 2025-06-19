@@ -37,7 +37,7 @@ object Beregning {
             // Er det trekk ved for sen melding?
 
             // Beregne noe greier
-            regel(meldeperiode) { tomRegel }
+            // regel(meldeperiode) { tomRegel }
             regel(arbeidsdag) { tomRegel }
             regel(arbeidstimer) { tomRegel }
             regel(forbruk) { tomRegel }
@@ -47,7 +47,7 @@ object Beregning {
             regel(terskel) { tomRegel }
 
             ønsketResultat(
-                meldeperiode,
+                // meldeperiode,
                 arbeidsdag,
                 arbeidstimer,
                 forbruk,

@@ -242,7 +242,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Tre ganger dagsats|Penger|Beløp|
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Ingen egenandel|Penger|Beløp|
 |01956ab8-126c-7636-803e-a5d87eda2015|Har meldt seg via meldekort|Har meldt seg via meldekort|Boolsk|boolean|
-|01956abd-2871-7517-a332-b462c0c31292|Meldeperiode|Meldeperiode|PeriodeDataType|Periode|
 |01957069-d7d5-7f7c-b359-c00686fbf1f7|Penger som skal utbetales|Penger som skal utbetales|Heltall|int|
 |0196ab10-0cff-7301-99d6-65be50a50201|Bostedsland er Norge|BostedslandErNorge|Boolsk|boolean|
 |0196afaf-afbd-7079-b2cf-3669ad9d86aa|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Boolsk|boolean|
