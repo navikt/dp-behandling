@@ -5,13 +5,8 @@ import no.nav.dagpenger.opplysning.Opplysning.Companion.bareAktive
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
 import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.uuid.UUIDv7
-import java.lang.Exception
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.collections.filter
-import kotlin.collections.filterNot
-import kotlin.collections.find
-import kotlin.collections.toList
 
 class Opplysninger private constructor(
     override val id: UUID,
@@ -103,6 +98,10 @@ class Opplysninger private constructor(
         if (opplysninger.contains(eksisterende)) {
             // Erstatt hele opplysningen
             eksisterende.fjern()
+
+            // Fjern alle opplysninger som er utledet av opplysningen som endres
+            fjernAvhengigheter(eksisterende)
+
             opplysninger.add(opplysning)
             alleOpplysninger.refresh()
             return
@@ -110,6 +109,12 @@ class Opplysninger private constructor(
 
         opplysninger.add(opplysning)
         alleOpplysninger.refresh()
+    }
+
+    private fun fjernAvhengigheter(eksisterende: Opplysning<*>) {
+        val graf = OpplysningGraf(aktiveOpplysningerListe)
+        val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
+        avhengigheter.forEach { avhengighet -> avhengighet.fjern() }
     }
 
     internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
@@ -174,6 +179,13 @@ class Opplysninger private constructor(
                     }
                 }
             }.forEach { it.fjern() }
+        alleOpplysninger.refresh()
+    }
+
+    fun fjern(opplysningId: UUID) {
+        val opplysning = finnOpplysning(opplysningId)
+        fjernAvhengigheter(opplysning)
+        opplysning.fjern()
         alleOpplysninger.refresh()
     }
 }

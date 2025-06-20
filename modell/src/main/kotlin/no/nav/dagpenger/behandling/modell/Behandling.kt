@@ -441,7 +441,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring er ikke lenger relevant")
+                hendelse.info("Avklaring ${hendelse.kode} er ikke lenger relevant")
             }
         }
     }
@@ -487,7 +487,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring er ikke lenger relevant")
+                hendelse.info("Avklaring ${hendelse.kode} er ikke lenger relevant")
                 behandling.emitAvklaringLukket(hendelse.avklaringId, hendelse.kode)
             }
 
@@ -528,7 +528,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Mottok beskjed om rekjøring av behandling")
             hendelse.oppfriskOpplysningIder.map {
-                behandling.opplysninger.finnOpplysning(it).fjern()
+                behandling.opplysninger.fjern(it)
             }
             behandling.tilstand(Redigert(), hendelse)
         }
@@ -587,7 +587,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring er ikke lenger relevant")
+                hendelse.info("Avklaring ${hendelse.kode} er ikke lenger relevant")
                 behandling.emitAvklaringLukket(hendelse.avklaringId, hendelse.kode)
             }
         }

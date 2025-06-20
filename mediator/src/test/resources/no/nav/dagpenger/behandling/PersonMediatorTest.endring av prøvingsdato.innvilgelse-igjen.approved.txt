@@ -20,27 +20,73 @@ Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
 Oppfyller kravet til å ta ethvert arbeid
-Bostedsland er Norge
-Bruker oppholder seg i Norge
-Brukeren er under utdanning eller opplæring
-Har svart ja på spørsmål om utdanning eller opplæring
-Har svart nei på spørsmål om utdanning eller opplæring
-Barn
-Antall barn som gir rett til barnetillegg
-Sykepenger dagsats
 Prøvingsdato
 Aldersgrense
-Grunnbeløp for grunnlag
+Dato søker når maks alder
+Siste mulige dag bruker kan oppfylle alderskrav
+Oppfyller kravet til alder
 Lovpålagt rapporteringsfrist for A-ordningen
 Maks lengde på opptjeningsperiode
+Grunnbeløp
+Antall G for krav til 12 mnd arbeidsinntekt
+Antall G for krav til 36 mnd arbeidsinntekt
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søker arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
+Minimum vanlig arbeidstid
+Kravet til reell arbeidssøker er ikke relevant
+Årsaken til permitteringen er godkjent
+Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
+Årsaken til permitteringen fra fiskeindustrien er godkjent
+Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
+Arbeidsgivers rapporteringsfrist
+Inntektskrav for siste 12 måneder
+Inntektskrav for siste 36 måneder
+Oppfyller kravet til heltid- og deltidsarbeid
+Oppfyller kravet til mobilitet
+Oppfyller kravet til å være arbeidsfør
+Villig til å jobbe minimum arbeidstid
+Oppfyller kravet til permittering
+Oppfyller kravet til permittering i fiskeindustrien
+Siste avsluttende kalendermåned
+Reell arbeidssøker
+Første måned av opptjeningsperiode
+Inntektsopplysninger
+Registrert som arbeidssøker
+Brukeren er under utdanning eller opplæring
+Bostedsland er Norge
+Barn
+Sykepenger etter lovens kapittel 8
+Omsorgspenger etter lovens kapittel 9
+Svangerskapspenger etter lovens kapittel 14
+Foreldrepenger etter lovens kapittel 14
+Opplæringspenger etter lovens kapittel 9
+Pleiepenger etter lovens kapittel 9
+Oppgitt andre ytelser utenfor NAV i søknaden
+Mottar andre økonomiske ytelser fra arbeidsgiver eller tidligere arbeidsgiver enn lønn
+Brutto arbeidsinntekt
+Registrert som arbeidssøker på søknadstidspunktet
+Arbeidsinntekt siste 12 måneder
+Arbeidsinntekt siste 36 måneder
+Arbeidsinntekt er over kravet for siste 12 måneder
+Arbeidsinntekt er over kravet for siste 36 måneder
+Oppfyller kravet til minsteinntekt
+Mottar ikke andre fulle ytelser
+Bruker oppholder seg i Norge
+Oppfyller unntak for opphold i Norge
+Bruker er medlem av folketrygden
+Grunnbeløp for grunnlag
+Tellende inntekt
 Faktor for maksimalt mulig grunnlag
 Antall år i 36 måneder
 Antall G som gis som grunnlag ved verneplikt
 Grunnlag for verneplikt hvis kravet ikke er oppfylt
 Faktor for utregning av dagsats etter dagpengegrunnlaget
 Barnetilleggets størrelse i kroner per dag for hvert barn
+Antall barn som gir rett til barnetillegg
 90% av grunnlag for dagpenger
 Antall arbeidsdager per år
+Sykepenger dagsats
 Pleiepenger dagsats
 Omsorgspenger dagsats
 Opplæringspenger dagsats
@@ -49,19 +95,6 @@ Uføre dagsats
 Sum hvis Uføre ikke skal samordnes
 Foreldrepenger dagsats
 Svangerskapspenger dagsats
-Grunnbeløp
-Antall G for krav til 12 mnd arbeidsinntekt
-Antall G for krav til 36 mnd arbeidsinntekt
-Årsaken til permitteringen fra fiskeindustrien er godkjent
-Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
-Mottar ikke andre fulle ytelser
-Oppfyller unntak for opphold i Norge
-Bruker er medlem av folketrygden
-Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søker arbeid lokalt
-Har helsemessige begrensninger og kan ikke ta alle typer arbeid
-Minimum vanlig arbeidstid
-Kravet til reell arbeidssøker er ikke relevant
 Brukeren deltar i streik eller er omfattet av lock-out
 Brukeren er ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet
 Har tapt arbeid
@@ -77,30 +110,22 @@ Beregningsregel: Arbeidstid siste 6 måneder
 Beregningsregel: Arbeidstid siste 12 måneder
 Beregningsregel: Arbeidstid siste 36 måneder
 Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode
+Har svart ja på spørsmål om utdanning eller opplæring
 Deltar i arbeidsmarkedstiltak
 Deltar i opplæring for innvandrere
 Deltar i grunnskoleopplæring, videregående opplæring og opplæring i grunnleggende ferdigheter
 Deltar i høyere yrkesfaglig utdanning
 Deltar i høyere utdanning
 Deltar på kurs mv
+Har svart nei på spørsmål om utdanning eller opplæring
 Bruker er utestengt fra dagpenger
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
-Dato søker når maks alder
-Arbeidsgivers rapporteringsfrist
+Oppfyller kravet til opphold i Norge eller unntak
+Oppfyller kravet til medlemskap
+Oppjustert inntekt
 6 ganger grunnbeløp
 Grunnlag for gis ved verneplikt
 Sum av barnetillegg
 Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
-Inntektskrav for siste 12 måneder
-Inntektskrav for siste 36 måneder
-Oppfyller kravet til permittering i fiskeindustrien
-Oppfyller kravet til opphold i Norge eller unntak
-Oppfyller kravet til medlemskap
-Oppfyller kravet til heltid- og deltidsarbeid
-Oppfyller kravet til mobilitet
-Oppfyller kravet til å være arbeidsfør
-Villig til å jobbe minimum arbeidstid
 Brukeren er ikke påvirket av streik eller lock-out
 Ikke krav på lønn fra tidligere arbeidsgiver
 Samordnet fastsatt arbeidstid
@@ -108,45 +133,22 @@ Krav til prosentvis tap av arbeidstid
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
-Oppfyller kravet til permittering
-Siste mulige dag bruker kan oppfylle alderskrav
-Siste avsluttende kalendermåned
-Grunnlag for verneplikt hvis kravet er oppfylt
-Uførebeløp som skal samordnes
 Kravet til opphold i Norge er oppfylt
-Reell arbeidssøker
-Har barnetillegg
-Krav til tap av arbeidsinntekt
-Oppfyller kravet på unntak for utdanning eller opplæring
-Oppfyller kravet til alder
-Første måned av opptjeningsperiode
-Sum andre ytelser
-Krav til utdanning eller opplæring
-Inntektsopplysninger
-Registrert som arbeidssøker
-Sykepenger etter lovens kapittel 8
-Omsorgspenger etter lovens kapittel 9
-Svangerskapspenger etter lovens kapittel 14
-Foreldrepenger etter lovens kapittel 14
-Opplæringspenger etter lovens kapittel 9
-Pleiepenger etter lovens kapittel 9
-Tellende inntekt
-Brutto arbeidsinntekt
-Registrert som arbeidssøker på søknadstidspunktet
-Medlem har reduserte ytelser fra folketrygden (Samordning)
-Arbeidsinntekt siste 12 måneder
-Arbeidsinntekt siste 36 måneder
-Oppjustert inntekt
-Arbeidsinntekt er over kravet for siste 12 måneder
-Arbeidsinntekt er over kravet for siste 36 måneder
 Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
-Oppfyller kravet til minsteinntekt
+Grunnlag for verneplikt hvis kravet er oppfylt
+Uførebeløp som skal samordnes
+Har barnetillegg
+Medlem har reduserte ytelser fra folketrygden (Samordning)
+Krav til tap av arbeidsinntekt
+Oppfyller kravet på unntak for utdanning eller opplæring
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
 Avkortet inntektperiode 3
+Sum andre ytelser
+Krav til utdanning eller opplæring
 Inntekt siste 36 måneder
 Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder
 Uavrundet grunnlag
@@ -164,7 +166,64 @@ Avrundet maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
 Tap av arbeidstid er minst terskel
 Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
 Krav til tap av arbeidsinntekt og arbeidstid
+Har avkortet grunnlaget i periode 1
+Har avkortet grunnlaget i periode 2
+Har avkortet grunnlaget i periode 3
+Brukt beregningsregel
+Utbetalt inntekt periode 1
+Utbetalt inntekt periode 2
+Utbetalt inntekt periode 3
 Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
-Samordnet dagsats er større enn 0
+Antall arbeidsdager per uke
+Hvor mange prosent av G skal brukes som terskel ved samordning
+Pensjon fra en offentlig tjenestepensjonsordning beløp
+Uførepensjon fra offentlig pensjonsordning beløp
+Vartpenger beløp
+Ventelønn beløp
+Etterlønn beløp
+Garantilott fra Garantikassen for fiskere beløp
+Terskelfaktor for 12 måneder
+Lang dagpengeperiode
+Kort dagpengeperiode
+Divisior
+Terskelfaktor for 36 måneder
+Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
+Antall dager som skal regnes med i hver uke
+Ingen egenandel
+Antall dagsats for egenandel
+Mottar pensjon fra en offentlig tjenestepensjonsordning
+Mottar redusert uførepensjon fra offentlig pensjonsordning
+Mottar vartpenger
+Mottar ventelønn
+Mottar etterlønn
+Mottar garantilott fra Garantikassen for fiskere.
+Periode som gis ved verneplikt
+Har avkortet grunnlag
 Samordnet dagsats uten barnetillegg
+Beløp tilsvarende nedre terskel av G
+Sum av ytelser utenfor folketrygden
+Avrundet ukessats med barnetillegg før samordning
+Terskel for 12 måneder
+Snittinntekt siste 36 måneder
+Terskel for 36 måneder
+Skal samordnes med ytelser utenfor folketrygden
+Samordnet dagsats er større enn 0
+Samordnet ukessats uten barnetillegg
+Over terskel for 12 måneder
+Over terskel for 36 måneder
 Utfall etter samordning
+Minste mulige ukessats som som kan brukes
+Ukessats trukket ned for ytelser utenfor folketrygden
+Stønadsuker ved siste 12 måneder
+Stønadsuker ved siste 36 måneder
+Samordnet ukessats med ytelser utenfor folketrygden
+Antall stønadsuker
+Dagsats uten barnetillegg samordnet
+Antall stønadsuker (stønadsperiode)
+Antall stønadsdager
+Samordnet dagsats med barnetillegg
+Har samordnet
+Dagsats med barnetillegg etter samordning og 90 % regel
+Ukessats med barnetillegg etter samordning
+Tre ganger dagsats
+Egenandel

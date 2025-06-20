@@ -341,17 +341,23 @@ class RegelmotorIntegrasjonsTest {
 
         regelkjøring.evaluer().mangler.shouldBeEmpty()
 
+        // Sjekk at A blir produsert
         opplysninger.har(a) shouldBe true
-
         opplysninger.finnOpplysning(a).verdi shouldBe true
 
+        // Endre verdi av G
         opplysninger.leggTil(Faktum(g, false))
 
         regelkjøring.evaluer().mangler.shouldBeEmpty()
 
+        // D har blitt oppdatert på grunn av endring i G
         opplysninger.har(d) shouldBe true
         opplysninger.finnOpplysning(d).verdi shouldBe false
 
+        // Fordi at D er falsk, så A skal ikke ha blitt utledet på grunn av ønsketResultat
+        opplysninger.har(a) shouldBe false
+
+        // Denne skal aldri forsvinne (emulerer opplysninger uten regel)
         opplysninger.har(i) shouldBe true
 
         opplysninger.har(b) shouldBe false
