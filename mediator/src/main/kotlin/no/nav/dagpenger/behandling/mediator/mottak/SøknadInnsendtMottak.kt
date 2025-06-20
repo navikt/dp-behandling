@@ -48,7 +48,7 @@ internal class SøknadInnsendtMottak(
         val søknadId = packet["søknadId"].asUUID().toString()
 
         // Skip i dev
-        if (søknadId == "1e467703-ea3c-4d30-bafb-9efff39d73dd") return
+        if (søknadId == "17b3df5e-3e4a-45df-9bd5-f54a820b7c92") return
 
         Span.current().apply {
             setAttribute("app.river", name())
