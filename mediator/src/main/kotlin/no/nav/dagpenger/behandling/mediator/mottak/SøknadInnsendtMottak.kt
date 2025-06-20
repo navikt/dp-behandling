@@ -46,6 +46,10 @@ internal class SøknadInnsendtMottak(
         meterRegistry: MeterRegistry,
     ) {
         val søknadId = packet["søknadId"].asUUID().toString()
+
+        // Skip i dev
+        if (søknadId == "1e467703-ea3c-4d30-bafb-9efff39d73dd") return
+
         Span.current().apply {
             setAttribute("app.river", name())
             setAttribute("app.søknadId", søknadId)
