@@ -797,6 +797,10 @@ components:
           $ref: '#/components/schemas/DataType'
         synlig:
           type: boolean
+        redigerbar:
+          type: boolean
+        redigertAvSaksbehandler:
+          type: boolean
         opplysninger:
           type: array
           items:
