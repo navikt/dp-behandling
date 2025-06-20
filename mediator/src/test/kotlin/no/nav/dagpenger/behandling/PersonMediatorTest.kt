@@ -219,7 +219,10 @@ internal class PersonMediatorTest {
             personRepository.hent(ident.tilPersonIdentfikator()).also {
                 it.shouldNotBeNull()
                 it.behandlinger().size shouldBe 1
-
+                it
+                    .behandlinger()
+                    .first()
+                    .opplysninger.aktiveOpplysningerListe shouldHaveSize 21
                 it
                     .behandlinger()
                     .first()
@@ -852,6 +855,7 @@ internal class PersonMediatorTest {
                 medDato("Prøvingsdato") shouldBe nyPrøvingsdato
             }
             testPerson.løsBehov(
+                Inntekt,
                 RegistrertSomArbeidssøker,
                 Sykepenger,
                 Omsorgspenger,
@@ -859,9 +863,9 @@ internal class PersonMediatorTest {
                 Foreldrepenger,
                 Opplæringspenger,
                 Pleiepenger,
-                OppgittAndreYtelserUtenforNav,
-                AndreØkonomiskeYtelser,
-                Inntekt,
+                BostedslandErNorge,
+                Barnetillegg,
+                TarUtdanningEllerOpplæring,
             )
 
             rapid.harHendelse("forslag_til_vedtak") {
@@ -871,14 +875,13 @@ internal class PersonMediatorTest {
                 medOpplysning<LocalDate>("Prøvingsdato") shouldBe nyPrøvingsdato
             }
 
-            withClue("Skal kun ha opplysninger nødvendig for innvilgelse") {
-                godkjennOpplysninger("innvilgelse-igjen")
+            withClue("Skal kun ha opplysninger nødvendig for avslag") {
+                godkjennOpplysninger("avslag")
             }
 
             val endaNyerePrøvingsdato = 22.august(2024)
             testPerson.registrertSomArbeidssøker = true
             testPerson.arbeidssøkerregistreringsdato = endaNyerePrøvingsdato
-            testPerson.InntektSiste12Mnd = 0
             testPerson.endreOpplysning("Prøvingsdato", endaNyerePrøvingsdato)
 
             rapid.harBehov("RegistrertSomArbeidssøker") {
@@ -900,17 +903,20 @@ internal class PersonMediatorTest {
                 OppgittAndreYtelserUtenforNav,
                 AndreØkonomiskeYtelser,
                 Inntekt,
+                BostedslandErNorge,
+                Barnetillegg,
+                TarUtdanningEllerOpplæring,
             )
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
-                    `ikke oppfylt`
+                    oppfylt
                 }
                 medOpplysning<LocalDate>("Prøvingsdato") shouldBe endaNyerePrøvingsdato
             }
 
-            withClue("Skal kun ha opplysninger nødvendig for avslag") {
-                godkjennOpplysninger("avslag")
+            withClue("Skal kun ha opplysninger nødvendig for innvilgelse") {
+                godkjennOpplysninger("innvilgelse-igjen")
             }
 
             // Sletter opplysninger som ikke lenger er relevante
