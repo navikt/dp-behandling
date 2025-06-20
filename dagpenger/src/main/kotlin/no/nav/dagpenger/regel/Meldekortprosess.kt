@@ -13,14 +13,14 @@ class Meldekortprosess : RegistrertForretningsprosess() {
     override val regelverk = RegelverkDagpenger
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        val prøvingsdato = prøvingsdato(opplysninger)
+        val innvilgelsesdato = innvilgelsesdato(opplysninger)
         val meldeperiode = meldeperiode(opplysninger)
-        val førsteDagMedRett = maxOf(prøvingsdato, meldeperiode.first)
+        val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.first)
 
         // TODO: Vi trenger også en smartere måte å finne stansdato
 
         return Regelkjøring(
-            regelverksdato = prøvingsdato,
+            regelverksdato = innvilgelsesdato,
             prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = meldeperiode.second),
             opplysninger = opplysninger,
             forretningsprosess = this,
@@ -37,7 +37,8 @@ class Meldekortprosess : RegistrertForretningsprosess() {
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = emptyList()
 
-    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate = opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
+    private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): LocalDate =
+        opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Pair<LocalDate, LocalDate> {
         val meldeperiode = opplysninger.aktiveOpplysninger.finnOpplysning(Beregning.meldeperiode)
