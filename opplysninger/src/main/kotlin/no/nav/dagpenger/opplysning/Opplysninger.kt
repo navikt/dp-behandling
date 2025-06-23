@@ -70,9 +70,9 @@ class Opplysninger private constructor(
                 when {
                     opplysning.overlapperHalenAv(erstattes) -> {
                         // Overlapp på halen av eksisterende opplysning
-                        val forkortet = erstattes.lagErstatning(opplysning)
+                        val forkortet = erstattes.lagForkortet(opplysning)
                         opplysninger.add(forkortet)
-                        opplysninger.add(opplysning)
+                        opplysninger.add(opplysning.nyID())
                     }
 
                     erstattes.harSammegyldighetsperiode(opplysning) -> {
