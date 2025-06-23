@@ -49,11 +49,6 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                     plan.add(this)
                 }
             }
-
-            // Om en annen regel i planen endrer våre avhengigheter må vi vente på neste planlegging før vi kan kjøre
-            if (avhengerAv.any { vårAvhengighet -> plan.any { annenRegel -> annenRegel.produserer == vårAvhengighet } }) {
-                plan.remove(this)
-            }
         } else {
             val avhengigheter = opplysninger.finnAlle(avhengerAv)
 

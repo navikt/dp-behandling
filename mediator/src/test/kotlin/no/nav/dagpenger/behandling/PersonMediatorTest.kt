@@ -686,15 +686,17 @@ internal class PersonMediatorTest {
     fun `søker før ny rapporteringsfrist, men ønsker etter`() =
         withMigratedDb {
             registrerOpplysningstyper()
+            val søknadsdato = LocalDate.now().minusMonths(1)
             val testPerson =
                 TestPerson(
                     ident,
                     rapid,
-                    søknadsdato = LocalDate.now().minusMonths(1),
-                    innsendt = LocalDate.now().minusMonths(1).atTime(12, 0),
-                    // Langt nok fram til å treffe neste rapporteringsfristvindu (1 til 5-ish neste måned
-                    ønskerFraDato = LocalDate.now().plusDays(41),
-                    arbeidssøkerregistreringsdato = LocalDate.now().minusMonths(1),
+                    // Søkte i forrige måned
+                    søknadsdato = søknadsdato,
+                    innsendt = søknadsdato.atTime(12, 0),
+                    arbeidssøkerregistreringsdato = søknadsdato,
+                    // Ønsker fra en dato i neste inntektsperiode
+                    ønskerFraDato = søknadsdato.plusMonths(2),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
@@ -795,7 +797,7 @@ internal class PersonMediatorTest {
                     søknadsdato = LocalDate.now(),
                     innsendt = LocalDate.now().atTime(12, 0),
                     // Langt nok fram til å treffe neste rapporteringsfristvindu (1 til 5-ish neste måned)
-                    ønskerFraDato = LocalDate.now().plusDays(41),
+                    ønskerFraDato = LocalDate.now().plusMonths(2),
                     // Denne må stemme med prøvingsdato som blir siste av søknadsdato og ønsket fra dato
                     arbeidssøkerregistreringsdato = 30.juni(2024),
                 )
