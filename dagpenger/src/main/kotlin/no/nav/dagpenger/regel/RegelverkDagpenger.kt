@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
@@ -43,8 +44,7 @@ val RegelverkDagpenger =
         PermitteringFastsetting.regelsett,
         PermitteringFraFiskeindustrien.regelsett,
         PermitteringFraFiskeindustrienFastsetting.regelsett,
-        // TODO: Denne har vært lagt til for å kunne vise de i saksbehandlingen
-        // Beregning.regelsett,
+        Beregning.regelsett,
     )
 
 fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =

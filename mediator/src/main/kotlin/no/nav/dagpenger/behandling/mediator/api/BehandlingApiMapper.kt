@@ -407,7 +407,7 @@ private fun Datatype<*>.tilDataTypeDTO() =
         InntektDataType -> DataTypeDTO.INNTEKT
         BarnDatatype -> DataTypeDTO.BARN
         Tekst -> DataTypeDTO.TEKST
-        PeriodeDataType -> DataTypeDTO.DATO // TODO
+        PeriodeDataType -> DataTypeDTO.PERIODE
     }
 
 private fun LocalDate.tilApiDato(): LocalDate? =
