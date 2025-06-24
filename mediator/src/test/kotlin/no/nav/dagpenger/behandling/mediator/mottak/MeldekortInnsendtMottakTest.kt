@@ -33,7 +33,7 @@ class MeldekortInnsendtMottakTest {
         rapid.sendTestMessage(meldekortJson())
         val hendelse = slot<MeldekortInnsendtHendelse>()
 
-        verify {
+        verify(exactly = 1) {
             messageMediator.behandle(capture(hendelse), any(), any())
         }
 
@@ -67,7 +67,7 @@ class MeldekortInnsendtMottakTest {
         rapid.sendTestMessage(meldekortJson(1000))
         val hendelse = slot<MeldekortInnsendtHendelse>()
 
-        verify {
+        verify(exactly = 1) {
             messageMediator.behandle(capture(hendelse), any(), any())
         }
 
@@ -95,138 +95,150 @@ class MeldekortInnsendtMottakTest {
             .first()
             .timer shouldBe 5.hours
     }
-}
 
-// language=json
-private fun meldekortJson(korrigeringAv: Long? = null) =
-    """
-    {
-      "@event_name": "meldekort_innsendt",
-      "ident": "12345123451",
-      "innsendtTidspunkt": "2025-02-02T00:00:00",
-      "korrigeringAv": $korrigeringAv,
-      "id": 1000,
-        "periode": { 
-            "fraOgMed": "2025-01-20",
-            "tilOgMed": "2025-02-02"
-        },
-      "kilde": {
-        "rolle": "Bruker",
-        "ident": "12345123451"
-      },
-      "mottattDato": "2025-02-02",
-      "dager": [
-        {
-          "dato": "2025-01-20",
-          "dagIndex": 1,
-          "aktiviteter": [
-            {
-              "type": "Arbeid",
-              "timer": "PT5H"
-            }
-          ]
-        },
-        {
-          "dato": "2025-01-21",
-          "meldt" : true, 
-          "dagIndex": 2,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-01-22",
-          "meldt" : true, 
-          "dagIndex": 3,
-          "aktiviteter": [
-            {
-              "type": "Fravaer",
-              "timer": null
-            }
-          ]
-        },
-        {
-          "dato": "2025-01-23",
-          "meldt" : true, 
-          "dagIndex": 4,
-          "aktiviteter": [
-            {
-              "type": "Syk"
-            }
-          ]
-        },
-        {
-          "dato": "2025-01-24",
-          "meldt" : true, 
-          "dagIndex": 5,
-          "aktiviteter": [
-            {
-              "type": "Arbeid",
-              "timer": "PT2H"
-            }
-          ]
-        },
-        {
-          "dato": "2025-01-25",
-          "meldt" : true, 
-          "dagIndex": 6,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-01-26",
-          "meldt" : true, 
-          "dagIndex": 7,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-01-27",
-          "meldt" : true, 
-          "dagIndex": 8,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-01-28",
-          "meldt" : true, 
-          "dagIndex": 9,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-01-29",
-          "meldt" : true, 
-          "dagIndex": 10,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-01-30",
-          "meldt" : true, 
-          "dagIndex": 11,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-01-31",
-          "meldt" : true, 
-          "dagIndex": 12,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-02-01",
-          "meldt" : true, 
-          "dagIndex": 13,
-          "aktiviteter": []
-        },
-        {
-          "dato": "2025-02-02",
-          "meldt" : true, 
-          "dagIndex": 14,
-          "aktiviteter": []
+    @Test
+    fun `vi kan ta i mot et meldekort i testmiljøet`() {
+        rapid.sendTestMessage(meldekortJson(eventNavn = "meldekort_innsendt_test"))
+        val hendelse = slot<MeldekortInnsendtHendelse>()
+
+        verify(exactly = 1) {
+            messageMediator.behandle(capture(hendelse), any(), any())
         }
-      ],
-      "@id": "c1e95eca-cc53-4c58-aa16-957f1e623f74",
-      "@opprettet": "2023-06-12T08:40:44.544584",
-      "system_read_count": 0,
-      "system_participating_services": [
-        {
-          "id": "c1e95eca-cc53-4c58-aa16-957f1e623f74",
-          "time": "2023-06-12T08:40:44.544584"
-        }
-      ]
     }
-    """.trimIndent()
+
+    private fun meldekortJson(
+        korrigeringAv: Long? = null,
+        eventNavn: String = "meldekort_innsendt",
+    ) = // language=json
+        """
+        {
+          "@event_name": "$eventNavn",
+          "ident": "12345123451",
+          "innsendtTidspunkt": "2025-02-02T00:00:00",
+          "korrigeringAv": $korrigeringAv,
+          "id": 1000,
+            "periode": { 
+                "fraOgMed": "2025-01-20",
+                "tilOgMed": "2025-02-02"
+            },
+          "kilde": {
+            "rolle": "Bruker",
+            "ident": "12345123451"
+          },
+          "mottattDato": "2025-02-02",
+          "dager": [
+            {
+              "dato": "2025-01-20",
+              "dagIndex": 1,
+              "aktiviteter": [
+                {
+                  "type": "Arbeid",
+                  "timer": "PT5H"
+                }
+              ]
+            },
+            {
+              "dato": "2025-01-21",
+              "meldt" : true, 
+              "dagIndex": 2,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-01-22",
+              "meldt" : true, 
+              "dagIndex": 3,
+              "aktiviteter": [
+                {
+                  "type": "Fravaer",
+                  "timer": null
+                }
+              ]
+            },
+            {
+              "dato": "2025-01-23",
+              "meldt" : true, 
+              "dagIndex": 4,
+              "aktiviteter": [
+                {
+                  "type": "Syk"
+                }
+              ]
+            },
+            {
+              "dato": "2025-01-24",
+              "meldt" : true, 
+              "dagIndex": 5,
+              "aktiviteter": [
+                {
+                  "type": "Arbeid",
+                  "timer": "PT2H"
+                }
+              ]
+            },
+            {
+              "dato": "2025-01-25",
+              "meldt" : true, 
+              "dagIndex": 6,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-01-26",
+              "meldt" : true, 
+              "dagIndex": 7,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-01-27",
+              "meldt" : true, 
+              "dagIndex": 8,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-01-28",
+              "meldt" : true, 
+              "dagIndex": 9,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-01-29",
+              "meldt" : true, 
+              "dagIndex": 10,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-01-30",
+              "meldt" : true, 
+              "dagIndex": 11,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-01-31",
+              "meldt" : true, 
+              "dagIndex": 12,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-02-01",
+              "meldt" : true, 
+              "dagIndex": 13,
+              "aktiviteter": []
+            },
+            {
+              "dato": "2025-02-02",
+              "meldt" : true, 
+              "dagIndex": 14,
+              "aktiviteter": []
+            }
+          ],
+          "@id": "c1e95eca-cc53-4c58-aa16-957f1e623f74",
+          "@opprettet": "2023-06-12T08:40:44.544584",
+          "system_read_count": 0,
+          "system_participating_services": [
+            {
+              "id": "c1e95eca-cc53-4c58-aa16-957f1e623f74",
+              "time": "2023-06-12T08:40:44.544584"
+            }
+          ]
+        }
+        """.trimIndent()
+}
