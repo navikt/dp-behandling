@@ -14,6 +14,8 @@ interface LesbarOpplysninger {
 
     fun finnAlle(opplysningstyper: List<Opplysningstype<*>>): List<Opplysning<*>>
 
+    fun finnAlle(vararg opplysningstyper: Opplysningstype<*>): List<Opplysning<*>>
+
     fun finnAlle(): List<Opplysning<*>>
 
     fun finnOpplysning(opplysningId: UUID): Opplysning<*>

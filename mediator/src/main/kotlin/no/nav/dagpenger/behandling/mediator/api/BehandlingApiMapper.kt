@@ -33,6 +33,7 @@ import no.nav.dagpenger.behandling.api.models.RegelsettDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
+import no.nav.dagpenger.behandling.api.models.TidslinjehendelseDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
@@ -122,6 +123,7 @@ import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import kotlin.collections.map
 
@@ -148,6 +150,13 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
 
         BehandlingDTO(
             behandlingId = this.behandlingId,
+            tidslinje =
+                opplysninger().finnAlle(hendelseTypeOpplysningstype).map {
+                    TidslinjehendelseDTO(
+                        dato = it.gyldighetsperiode.fom,
+                        hendelse = it.verdi as String,
+                    )
+                },
             utfall = utfall,
             tilstand =
                 when (this.tilstand().first) {

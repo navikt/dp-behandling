@@ -142,7 +142,9 @@ class Opplysninger private constructor(
 
     override fun har(opplysningstype: Opplysningstype<*>) = alleOpplysninger.utenErstattet().any { it.er(opplysningstype) }
 
-    override fun finnAlle(opplysningstyper: List<Opplysningstype<*>>) =
+    override fun finnAlle(opplysningstyper: List<Opplysningstype<*>>) = finnAlle(*opplysningstyper.toTypedArray())
+
+    override fun finnAlle(vararg opplysningstyper: Opplysningstype<*>) =
         opplysningstyper.flatMap { type -> alleOpplysninger.filter { it.er(type) } }
 
     override fun finnAlle() = alleOpplysninger.toList()
