@@ -26,6 +26,8 @@ interface LesbarOpplysninger {
 
     fun oppfyller(opplysningstype: Opplysningstype<Boolean>) = erSann(opplysningstype)
 
+    fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean
+
     val utenErstattet: Opplysninger
     val aktiveOpplysninger: Opplysninger
 }

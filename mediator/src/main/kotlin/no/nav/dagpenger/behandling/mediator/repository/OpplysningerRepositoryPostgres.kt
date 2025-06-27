@@ -496,14 +496,6 @@ private fun List<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
     val opplysningMap = mutableMapOf<UUID, Opplysning<*>>()
 
     fun <T : Comparable<T>> OpplysningRad<T>.finnErstattesAv() {
-        if (this.erstattetAv.isNotEmpty()) {
-            val erstattetAvListe =
-                this.erstattetAv.map { erstattetAvId ->
-                    require(opplysningMap.contains(erstattetAvId)) { "Opplysning med id $erstattetAvId er ikke funnet" }
-                    opplysningMap[erstattetAvId] as Opplysning<T>
-                }
-            (opplysningMap[this.id] as Opplysning<T>).erstattesAv(*erstattetAvListe.toTypedArray())
-        }
         this.erstatter?.let {
             require(opplysningMap.contains(it)) { "Opplysning med id $it er ikke funnet" }
             (opplysningMap[this.id] as Opplysning<T>).erstatter(opplysningMap[it] as Opplysning<T>)
