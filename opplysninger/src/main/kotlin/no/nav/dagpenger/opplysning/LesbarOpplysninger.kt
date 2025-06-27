@@ -28,8 +28,7 @@ interface LesbarOpplysninger {
 
     fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean
 
-    val utenErstattet: Opplysninger
-    val aktiveOpplysninger: Opplysninger
+    val egneOpplysninger: Opplysninger
 }
 
 typealias Opplysningssjekk = (LesbarOpplysninger) -> Boolean

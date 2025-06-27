@@ -24,7 +24,6 @@ sealed class Opplysning<T : Comparable<T>>(
     val kilde: Kilde?,
     val opprettet: LocalDateTime,
     private var _erstatter: Opplysning<T>? = null,
-    private var fjernet: Boolean = false,
     private var _skalLagres: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
     private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID }
@@ -34,8 +33,6 @@ sealed class Opplysning<T : Comparable<T>>(
     val skalLagres get() = _skalLagres
 
     val erstatter get() = _erstatter
-
-    val erFjernet get() = fjernet
 
     val kanRedigeres: (Redigerbar) -> Boolean
         get() = { redigerbar ->
@@ -52,11 +49,6 @@ sealed class Opplysning<T : Comparable<T>>(
 
     override fun toString() = "${javaClass.simpleName} om ${opplysningstype.navn} har verdi: $verdi som er $gyldighetsperiode"
 
-    fun fjern() {
-        _erstatter?.fjern()
-        fjernet = true
-    }
-
     fun erstatter(erstattet: Opplysning<T>) {
         _erstatter = erstattet
     }
@@ -66,10 +58,6 @@ sealed class Opplysning<T : Comparable<T>>(
     abstract fun nyID(): Opplysning<T>
 
     companion object {
-        fun Collection<Opplysning<*>>.bareAktive() = filterNot { it.erFjernet }
-
-        fun Collection<Opplysning<*>>.utenErstattet() = filterNot { it.erFjernet }
-
         fun Collection<Opplysning<*>>.gyldigeFor(dato: LocalDate) = filter { it.gyldighetsperiode.inneholder(dato) }
     }
 }

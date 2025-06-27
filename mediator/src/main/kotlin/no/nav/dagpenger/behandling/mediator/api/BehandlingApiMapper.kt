@@ -135,7 +135,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
         val prøvingsdato = behandler.forretningsprosess.virkningsdato(opplysninger)
 
         // TODO: Filtrer bort erstattete opplysninger - dette utgår når vi periodiserer alt
-        val opplysningerPåPrøvingsdato = opplysninger().forDato(prøvingsdato).utenErstattet
+        val opplysningerPåPrøvingsdato = opplysninger().forDato(prøvingsdato)
         val opplysningSet = opplysningerPåPrøvingsdato.finnAlle().toSet()
         val avklaringer = avklaringer().toSet()
         val spesifikkeAvklaringskoder =

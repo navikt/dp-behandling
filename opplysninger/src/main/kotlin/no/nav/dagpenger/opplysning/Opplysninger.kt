@@ -1,7 +1,6 @@
 package no.nav.dagpenger.opplysning
 
 import mu.KotlinLogging
-import no.nav.dagpenger.opplysning.Opplysning.Companion.bareAktive
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -18,35 +17,25 @@ class Opplysninger private constructor(
     constructor(opplysninger: List<Opplysning<*>>, basertPå: List<Opplysninger> = emptyList()) : this(UUIDv7.ny(), opplysninger, basertPå)
     constructor(vararg basertPå: Opplysninger) : this(emptyList(), basertPå.toList())
 
-    private val opplysninger: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
+    private val egne: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
+    private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
 
-    private val basertPåOpplysninger: List<Opplysning<*>> = basertPå.flatMap { it.basertPåOpplysninger + it.opplysninger }.bareAktive()
+    private val basertPåOpplysninger: List<Opplysning<*>> =
+        basertPå
+            .flatMap {
+                it.basertPåOpplysninger.utenErstattet() + it.egne.utenErstattet()
+            }
 
-    private val alleOpplysninger = CachedList { basertPåOpplysninger.utenErstattet() + opplysninger.bareAktive() }
-
-    override val utenErstattet
-        get() =
-            Opplysninger(
-                id,
-                aktiveOpplysningerListe.utenErstattet(),
-                listOf(
-                    Opplysninger(UUIDv7.ny(), basertPåOpplysninger.utenErstattet()),
-                ),
-            )
+    private val alleOpplysninger = CachedList { basertPåOpplysninger.utenErstattet() + egne }
 
     // TODO: Denne burde bare brukes av databaselaget
-    val aktiveOpplysningerListe get() = opplysninger.toList()
+    val aktiveOpplysningerListe get() = egne.toList()
 
-    override val aktiveOpplysninger
-        get() =
-            Opplysninger(
-                id = id,
-                opplysninger = opplysninger,
-            )
+    override val egneOpplysninger get() = Opplysninger(id = id, opplysninger = egne)
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
-        val aktiveForDato = aktiveOpplysningerListe.bareAktive().gyldigeFor(gjelderFor)
-        val basertPåDato = basertPåOpplysninger.utenErstattet().bareAktive().gyldigeFor(gjelderFor)
+        val aktiveForDato = aktiveOpplysningerListe.gyldigeFor(gjelderFor)
+        val basertPåDato = basertPåOpplysninger.utenErstattet().gyldigeFor(gjelderFor)
         return Opplysninger(id, aktiveForDato, listOf(Opplysninger(UUIDv7.ny(), basertPåDato)))
     }
 
@@ -60,7 +49,7 @@ class Opplysninger private constructor(
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende == null) {
-            opplysninger.add(opplysning)
+            egne.add(opplysning)
             alleOpplysninger.refresh()
             return
         }
@@ -78,20 +67,20 @@ class Opplysninger private constructor(
                         val forkortet = erstattes.lagForkortet(opplysning)
                         forkortet.erstatter(erstattes)
                         opplysning.erstatter(erstattes)
-                        opplysninger.add(forkortet)
-                        opplysninger.add(opplysning.nyID())
+                        egne.add(forkortet)
+                        egne.add(opplysning.nyID())
                     }
 
                     erstattes.harSammegyldighetsperiode(opplysning) -> {
                         // Overlapp for samme periode
                         opplysning.erstatter(erstattes)
-                        opplysninger.add(opplysning)
+                        egne.add(opplysning)
                     }
 
                     opplysning.starterFørOgOverlapper(erstattes) -> {
                         // Overlapp på starten av eksisterende opplysning
                         opplysning.erstatter(erstattes)
-                        opplysninger.add(opplysning)
+                        egne.add(opplysning)
                     }
 
                     // Forkortet gyldighetsperiode på eksisterende opplysning
@@ -99,7 +88,7 @@ class Opplysninger private constructor(
                     erstattes.gyldighetsperiode.erUendelig -> {
                         // Opplysningen som erstattes har uendelig gyldighetsperiode
                         opplysning.erstatter(erstattes)
-                        opplysninger.add(opplysning)
+                        egne.add(opplysning)
                     }
 
                     else -> {
@@ -117,29 +106,20 @@ class Opplysninger private constructor(
             }
         }
 
-        if (opplysninger.contains(eksisterende)) {
+        if (egne.contains(eksisterende)) {
             // Erstatt hele opplysningen
-            eksisterende.fjern()
-
-            // Fjern alle opplysninger som er utledet av opplysningen som endres
-            fjernAvhengigheter(eksisterende)
+            fjern(eksisterende)
 
             // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
             eksisterende.erstatter?.let { opplysning.erstatter(it) }
 
-            opplysninger.add(opplysning)
+            egne.add(opplysning)
             alleOpplysninger.refresh()
             return
         }
 
-        opplysninger.add(opplysning)
+        egne.add(opplysning)
         alleOpplysninger.refresh()
-    }
-
-    private fun fjernAvhengigheter(eksisterende: Opplysning<*>) {
-        val graf = OpplysningGraf(aktiveOpplysningerListe)
-        val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
-        avhengigheter.forEach { avhengighet -> avhengighet.fjern() }
     }
 
     internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
@@ -160,7 +140,7 @@ class Opplysninger private constructor(
 
     override fun finnAlle() = alleOpplysninger.toList()
 
-    fun fjernet(): Set<Opplysning<*>> = opplysninger.filter { it.erFjernet }.toSet()
+    fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
 
     @Suppress("UNCHECKED_CAST")
     private fun <T : Comparable<T>> finnNullableOpplysning(
@@ -191,10 +171,10 @@ class Opplysninger private constructor(
         this.gyldighetsperiode.fom.isBefore(opplysning.gyldighetsperiode.fom) &&
             opplysning.gyldighetsperiode.inneholder(this.gyldighetsperiode.tom)
 
-    operator fun plus(tidligereOpplysninger: List<Opplysninger>) = Opplysninger(id, opplysninger, tidligereOpplysninger)
+    operator fun plus(tidligereOpplysninger: List<Opplysninger>) = Opplysninger(id, egne, tidligereOpplysninger)
 
     fun fjernUbrukteOpplysninger(beholdDisse: Set<Opplysningstype<*>>) {
-        opplysninger
+        egne
             .filterNot { beholdDisse.contains(it.opplysningstype) }
             .filterNot {
                 (it.erstatter != null).also { erstatter ->
@@ -205,18 +185,31 @@ class Opplysninger private constructor(
                         """.trimMargin()
                     }
                 }
-            }.forEach { it.fjern() }
+            }.forEach { fjern(it) }
         alleOpplysninger.refresh()
     }
 
     fun fjern(opplysningId: UUID) {
-        val opplysning = finnOpplysning(opplysningId)
+        fjern(finnOpplysning(opplysningId))
+    }
+
+    fun fjern(opplysning: Opplysning<*>) {
+        // Fjern alle opplysninger som er utledet av opplysningen som fjernes
         fjernAvhengigheter(opplysning)
-        opplysning.fjern()
+
+        egne.remove(opplysning)
+        fjernet.add(opplysning)
+
         alleOpplysninger.refresh()
     }
 
-    private val opplysningerSomErErstattet get() = opplysninger.mapNotNull { it.erstatter }.map { it.id }
+    private fun fjernAvhengigheter(eksisterende: Opplysning<*>) {
+        val graf = OpplysningGraf(aktiveOpplysningerListe)
+        val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
+        avhengigheter.forEach { avhengighet -> fjern(avhengighet) }
+    }
+
+    private val opplysningerSomErErstattet get() = egne.mapNotNull { it.erstatter }.map { it.id }
 
     private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> {
         val opplysningerSomErErstattet = opplysningerSomErErstattet

@@ -96,7 +96,7 @@ class Behandling private constructor(
 
     private fun erAutomatiskBehandlet() =
         avklaringer().none { it.løstAvSaksbehandler() } &&
-            opplysninger.aktiveOpplysninger.finnAlle().none { it.kilde is Saksbehandlerkilde } &&
+            opplysninger.egneOpplysninger.finnAlle().none { it.kilde is Saksbehandlerkilde } &&
             !godkjent.erUtført
 
     fun kreverTotrinnskontroll() = forretningsprosess.kreverTotrinnskontroll(opplysninger)
@@ -801,7 +801,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Mottok beskjed om rekjøring av behandling")
             hendelse.oppfriskOpplysningIder.map {
-                behandling.opplysninger.finnOpplysning(it).fjern()
+                behandling.opplysninger.fjern(behandling.opplysninger.finnOpplysning(it))
             }
             behandling.tilstand(Redigert(), hendelse)
         }
@@ -906,8 +906,8 @@ class Behandling private constructor(
             Resultat(
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
-                utfall = forretningsprosess.utfall(opplysninger().utenErstattet),
-                virkningsdato = forretningsprosess.virkningsdato(opplysninger().utenErstattet),
+                utfall = forretningsprosess.utfall(opplysninger()),
+                virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
                 automatiskBehandlet = erAutomatiskBehandlet(),

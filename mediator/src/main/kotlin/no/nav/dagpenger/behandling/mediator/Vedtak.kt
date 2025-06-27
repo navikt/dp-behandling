@@ -30,7 +30,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -106,7 +105,7 @@ private val logger = KotlinLogging.logger { }
 
 fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
     // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
-    val opplysningerSomGjelderPåPrøvingsdato = opplysningerPåVirkningsdato().utenErstattet
+    val opplysningerSomGjelderPåPrøvingsdato = opplysningerPåVirkningsdato()
     val relevanteVilkår: List<Regelsett> = relevanteVilkår()
     val vilkår: List<VilkaarDTO> =
         relevanteVilkår
@@ -168,9 +167,9 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
 }
 
 private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
-    val meldeperioder: List<Opplysning<*>> = finnAlle(listOf(Beregning.meldeperiode)).utenErstattet()
+    val meldeperioder: List<Opplysning<*>> = finnAlle(listOf(Beregning.meldeperiode))
 
-    return finnAlle(listOf(Beregning.utbetaling)).utenErstattet().filterIsInstance<Opplysning<Int>>().map { dag ->
+    return finnAlle(listOf(Beregning.utbetaling)).filterIsInstance<Opplysning<Int>>().map { dag ->
         val sats = finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi
         val periode: Opplysning<*> = meldeperioder.first { it.gyldighetsperiode.overlapp(dag.gyldighetsperiode) }
 
