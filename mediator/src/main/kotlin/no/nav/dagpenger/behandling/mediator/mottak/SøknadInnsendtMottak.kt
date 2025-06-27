@@ -87,6 +87,10 @@ internal class SøknadInnsendtMessage(
     ) {
         withLoggingContext(hendelse.kontekstMap()) {
             logger.info { "Behandler søknad innsendt hendelse" }
+            if (hendelse.fagsakId == 0) {
+                logger.warn { "FagsakId er 0 for søknadId: $søknadId. Vi kan ikke behandle den da det ikke opprettet sak i Arena" }
+                return
+            }
             mediator.behandle(hendelse, this, context)
         }
     }
