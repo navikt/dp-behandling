@@ -4,7 +4,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.desimaltall
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.foreldrevilkår
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.undervilkår1
@@ -49,10 +48,11 @@ class OpplysningerTest {
         val opplysninger2 = Opplysninger(opplysninger1)
 
         // Endre opplysning fra forrige behandling
-        opplysninger2.leggTil(Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 10.januar)))
+        val forkortetOpplysning = Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 10.januar))
+        opplysninger2.leggTil(forkortetOpplysning)
 
-        opplysninger2.finnAlle() shouldHaveSize 3
-        opplysninger2.finnAlle().utenErstattet() shouldHaveSize 2
+        opplysninger1.finnAlle() shouldHaveSize 1
+        opplysninger2.finnAlle() shouldHaveSize 2
 
         // Angre forrige endring, men dette fører til hull
         opplysninger2.leggTil(Faktum(desimaltall, 2.0, gyldighetsperiode = Gyldighetsperiode(8.januar, 10.januar)))
@@ -66,6 +66,16 @@ class OpplysningerTest {
         // Endre opplysninger i etterkant
         opplysninger2.leggTil(Faktum(desimaltall, 4.0, gyldighetsperiode = Gyldighetsperiode(11.januar, 17.januar)))
         opplysninger2.leggTil(Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(11.januar, 17.januar)))
+
+        /*opplysninger2.leggTil(Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(1.januar, 3.januar)))
+        val opplysning1 = Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(4.januar, 4.januar))
+        opplysninger2.leggTil(opplysning1)
+        val opplysning2 = Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 5.januar))
+        opplysninger2.leggTil(opplysning2)
+
+        opplysninger2.fjern(opplysning1.id)
+        opplysninger2.fjern(opplysning2.id)
+        opplysninger2.leggTil(Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(4.januar, 5.januar)))*/
 
         opplysninger2.forDato(1.januar).finnOpplysning(desimaltall).verdi shouldBe 0.5
         opplysninger2.forDato(6.januar).finnOpplysning(desimaltall).verdi shouldBe 3.0
@@ -82,7 +92,7 @@ class OpplysningerTest {
         val opplysninger2 = Opplysninger(opplysninger1)
         opplysninger2.leggTil(Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(15.januar)))
 
-        opplysninger2.finnAlle() shouldHaveSize 3
+        opplysninger2.finnAlle() shouldHaveSize 2
     }
 
     //language=Mermaid

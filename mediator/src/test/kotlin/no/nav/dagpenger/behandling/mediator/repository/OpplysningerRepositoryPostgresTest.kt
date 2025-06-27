@@ -332,8 +332,6 @@ class OpplysningerRepositoryPostgresTest {
                 this.gyldighetsperiode shouldBe baseOpplysning.gyldighetsperiode
                 this.opplysningstype shouldBe baseOpplysning.opplysningstype
                 this.utledetAv.shouldBeNull()
-                this.erErstattet shouldBe true
-                this.erstattetAv.size shouldBe 1
             }
         }
     }
@@ -402,7 +400,7 @@ class OpplysningerRepositoryPostgresTest {
             val heltallFaktum = Faktum(heltall, 10)
             val heltallFaktum2 = Faktum(heltall, 20)
             val opplysninger = Opplysninger(listOf(heltallFaktum))
-            heltallFaktum.erstattesAv(heltallFaktum2)
+            // TODO: ???? heltallFaktum.erstattesAv(heltallFaktum2)
             repo.lagreOpplysninger(opplysninger)
             heltallFaktum.fjern()
             repo.lagreOpplysninger(opplysninger)

@@ -3,10 +3,10 @@ package no.nav.dagpenger.opplysning
 import mu.KotlinLogging
 import no.nav.dagpenger.opplysning.Opplysning.Companion.bareAktive
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
-import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.collections.map
 
 class Opplysninger private constructor(
     override val id: UUID,
@@ -18,11 +18,11 @@ class Opplysninger private constructor(
     constructor(opplysninger: List<Opplysning<*>>, basertPå: List<Opplysninger> = emptyList()) : this(UUIDv7.ny(), opplysninger, basertPå)
     constructor(vararg basertPå: Opplysninger) : this(emptyList(), basertPå.toList())
 
-    private val basertPåOpplysninger: List<Opplysning<*>> =
-        basertPå.flatMap { it.basertPåOpplysninger + it.opplysninger }.bareAktive()
-
     private val opplysninger: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
-    private val alleOpplysninger = CachedList { basertPåOpplysninger + opplysninger.bareAktive() }
+
+    private val basertPåOpplysninger: List<Opplysning<*>> = basertPå.flatMap { it.basertPåOpplysninger + it.opplysninger }.bareAktive()
+
+    private val alleOpplysninger = CachedList { basertPåOpplysninger.utenErstattet() + opplysninger.bareAktive() }
 
     override val utenErstattet
         get() =
@@ -46,8 +46,13 @@ class Opplysninger private constructor(
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
         val aktiveForDato = aktiveOpplysningerListe.bareAktive().gyldigeFor(gjelderFor)
-        val basertPåDato = basertPåOpplysninger.bareAktive().gyldigeFor(gjelderFor)
+        val basertPåDato = basertPåOpplysninger.utenErstattet().bareAktive().gyldigeFor(gjelderFor)
         return Opplysninger(id, aktiveForDato, listOf(Opplysninger(UUIDv7.ny(), basertPåDato)))
+    }
+
+    override fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean {
+        val id = opplysninger.map { it.id }
+        return opplysningerSomErErstattet.any { it in id }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -71,18 +76,21 @@ class Opplysninger private constructor(
                     opplysning.overlapperHalenAv(erstattes) -> {
                         // Overlapp på halen av eksisterende opplysning
                         val forkortet = erstattes.lagForkortet(opplysning)
+                        forkortet.erstatter(erstattes)
+                        opplysning.erstatter(erstattes)
                         opplysninger.add(forkortet)
                         opplysninger.add(opplysning.nyID())
                     }
 
                     erstattes.harSammegyldighetsperiode(opplysning) -> {
                         // Overlapp for samme periode
-                        opplysninger.addAll(erstattes.erstattesAv(opplysning))
+                        opplysning.erstatter(erstattes)
+                        opplysninger.add(opplysning)
                     }
 
                     opplysning.starterFørOgOverlapper(erstattes) -> {
                         // Overlapp på starten av eksisterende opplysning
-                        erstattes.erstattesAv(opplysning)
+                        opplysning.erstatter(erstattes)
                         opplysninger.add(opplysning)
                     }
 
@@ -90,7 +98,7 @@ class Opplysninger private constructor(
 
                     erstattes.gyldighetsperiode.erUendelig -> {
                         // Opplysningen som erstattes har uendelig gyldighetsperiode
-                        erstattes.erstattesAv(opplysning)
+                        opplysning.erstatter(erstattes)
                         opplysninger.add(opplysning)
                     }
 
@@ -115,6 +123,9 @@ class Opplysninger private constructor(
 
             // Fjern alle opplysninger som er utledet av opplysningen som endres
             fjernAvhengigheter(eksisterende)
+
+            // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
+            eksisterende.erstatter?.let { opplysning.erstatter(it) }
 
             opplysninger.add(opplysning)
             alleOpplysninger.refresh()
@@ -203,6 +214,13 @@ class Opplysninger private constructor(
         fjernAvhengigheter(opplysning)
         opplysning.fjern()
         alleOpplysninger.refresh()
+    }
+
+    private val opplysningerSomErErstattet get() = opplysninger.mapNotNull { it.erstatter }.map { it.id }
+
+    private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> {
+        val opplysningerSomErErstattet = opplysningerSomErErstattet
+        return filterNot { it.id in opplysningerSomErErstattet }
     }
 }
 

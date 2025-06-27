@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 abstract class Regel<T : Comparable<T>> internal constructor(
     internal val produserer: Opplysningstype<T>,
@@ -37,7 +38,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
 
             // Sjekk om regelen har fått nye avhengigheter
             val regelForProdukt = produsenter[produkt.opplysningstype]
-            if (harRegelNyeAvhengigheter(regelForProdukt, produkt.utledetAv) || utledetAvErEndret(produkt.utledetAv)) {
+            if (harRegelNyeAvhengigheter(regelForProdukt, produkt.utledetAv) || opplysninger.erErstattet(produkt.utledetAv.opplysninger)) {
                 // Om en avhengighet mangler, må denne regelen kjøres på nytt
                 if (regelForProdukt?.avhengerAv?.any { opplysninger.mangler(it) } == true) {
                     regelForProdukt.avhengerAv.map { avhengighet ->
@@ -63,7 +64,12 @@ abstract class Regel<T : Comparable<T>> internal constructor(
         }
     }
 
-    private fun utledetAvErEndret(utledetAv: Utledning) = utledetAv.opplysninger.any { it.erErstattet || it.erFjernet }
+    private fun utledetAvErEndret(
+        sistEndret: LocalDateTime,
+        utledetAv: Utledning,
+    ) = utledetAv.opplysninger.any {
+        it.opprettet.isAfter(sistEndret)
+    }
 
     private fun harRegelNyeAvhengigheter(
         regelForProdukt: Regel<*>?,

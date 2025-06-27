@@ -41,6 +41,10 @@ class LesbarOpplysningerMedLogg(
             }
         }
 
+    override fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean {
+        TODO("Not yet implemented")
+    }
+
     override val utenErstattet: Opplysninger get() = opplysninger.utenErstattet
     override val aktiveOpplysninger: Opplysninger get() = TODO("Not yet implemented")
 

@@ -24,21 +24,16 @@ sealed class Opplysning<T : Comparable<T>>(
     val kilde: Kilde?,
     val opprettet: LocalDateTime,
     private var _erstatter: Opplysning<T>? = null,
-    private val _erstattetAv: MutableSet<Opplysning<T>> = mutableSetOf(),
     private var fjernet: Boolean = false,
     private var _skalLagres: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
-    private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID && !erErstattet }
+    private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID }
 
     abstract fun bekreft(): Faktum<T>
 
     val skalLagres get() = _skalLagres
 
     val erstatter get() = _erstatter
-
-    val erErstattet get() = _erstattetAv.isNotEmpty()
-
-    val erstattetAv get() = _erstattetAv.toList()
 
     val erFjernet get() = fjernet
 
@@ -62,16 +57,8 @@ sealed class Opplysning<T : Comparable<T>>(
         fjernet = true
     }
 
-    fun erstattesAv(vararg erstatning: Opplysning<T>): List<Opplysning<T>> {
-        val erstatninger = erstatning.toList().onEach { it._erstatter = this }
-        _erstattetAv.addAll(erstatninger)
-        _skalLagres = true
-        return erstatninger
-    }
-
     fun erstatter(erstattet: Opplysning<T>) {
         _erstatter = erstattet
-        erstattet.erstattesAv(this)
     }
 
     abstract fun lagForkortet(opplysning: Opplysning<T>): Opplysning<T>
@@ -81,7 +68,7 @@ sealed class Opplysning<T : Comparable<T>>(
     companion object {
         fun Collection<Opplysning<*>>.bareAktive() = filterNot { it.erFjernet }
 
-        fun Collection<Opplysning<*>>.utenErstattet() = filterNot { it.erErstattet || it.erFjernet }
+        fun Collection<Opplysning<*>>.utenErstattet() = filterNot { it.erFjernet }
 
         fun Collection<Opplysning<*>>.gyldigeFor(dato: LocalDate) = filter { it.gyldighetsperiode.inneholder(dato) }
     }
@@ -123,7 +110,7 @@ class Hypotese<T : Comparable<T>>(
             kilde,
             opplysning.opprettet,
             erstatter = this,
-        ).also { this.erstattesAv(it) }
+        )
 }
 
 class Faktum<T : Comparable<T>>(
@@ -179,5 +166,5 @@ class Faktum<T : Comparable<T>>(
             kilde,
             opplysning.opprettet,
             this,
-        ).also { this.erstattesAv(it) }
+        )
 }
