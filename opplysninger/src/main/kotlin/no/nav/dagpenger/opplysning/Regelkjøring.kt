@@ -117,7 +117,7 @@ class Regelkjøring(
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
             observatører.forEach { observer ->
-                val aktiveOpplysninger = opplysninger.aktiveOpplysninger.forDato(prøvingsdato)
+                val aktiveOpplysninger = opplysninger.egneOpplysninger.forDato(prøvingsdato)
                 observer.evaluert(
                     rapport,
                     opplysninger,
@@ -128,7 +128,7 @@ class Regelkjøring(
     }
 
     private fun aktiverRegler(prøvingsdato: LocalDate) {
-        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato).utenErstattet
+        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = gjeldendeRegler.associateBy { it.produserer }
         val besøkt = mutableSetOf<Regel<*>>()

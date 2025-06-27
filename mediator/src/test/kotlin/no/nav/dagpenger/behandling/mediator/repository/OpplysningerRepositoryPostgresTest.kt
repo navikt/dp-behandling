@@ -30,7 +30,6 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.Opplysning.Companion.utenErstattet
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -268,14 +267,12 @@ class OpplysningerRepositoryPostgresTest {
             fraDb.aktiveOpplysningerListe shouldContainExactly erstattetOpplysninger.aktiveOpplysningerListe
             fraDb
                 .forDato(10.mai)
-                .utenErstattet
                 .finnOpplysning(heltall)
                 .verdi shouldBe opplysningErstattet.verdi
 
             // TODO: Noe muffens oppstod i arbeidet rundt erstatning
             fraDb
                 .forDato(10.mai)
-                .utenErstattet
                 .finnOpplysning(heltall)
                 .erstatter shouldBe opplysning
         }
@@ -324,7 +321,7 @@ class OpplysningerRepositoryPostgresTest {
             }
 
             val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id)
-            tidligereOpplysningerFraDb.finnAlle().utenErstattet().size shouldBe 0
+            // tidligereOpplysningerFraDb.finnAlle().utenErstattet().size shouldBe 0
             tidligereOpplysningerFraDb.aktiveOpplysningerListe.size shouldBe 2
             with(tidligereOpplysninger.aktiveOpplysningerListe.find { it.id == baseOpplysning.id }) {
                 this.shouldNotBeNull()
@@ -402,7 +399,7 @@ class OpplysningerRepositoryPostgresTest {
             val opplysninger = Opplysninger(listOf(heltallFaktum))
             // TODO: ???? heltallFaktum.erstattesAv(heltallFaktum2)
             repo.lagreOpplysninger(opplysninger)
-            heltallFaktum.fjern()
+            opplysninger.fjern(heltallFaktum)
             repo.lagreOpplysninger(opplysninger)
             val fraDb = repo.hentOpplysninger(opplysninger.id)
             fraDb.finnAlle().shouldBeEmpty()

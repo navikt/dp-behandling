@@ -67,16 +67,6 @@ class OpplysningerTest {
         opplysninger2.leggTil(Faktum(desimaltall, 4.0, gyldighetsperiode = Gyldighetsperiode(11.januar, 17.januar)))
         opplysninger2.leggTil(Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(11.januar, 17.januar)))
 
-        /*opplysninger2.leggTil(Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(1.januar, 3.januar)))
-        val opplysning1 = Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(4.januar, 4.januar))
-        opplysninger2.leggTil(opplysning1)
-        val opplysning2 = Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 5.januar))
-        opplysninger2.leggTil(opplysning2)
-
-        opplysninger2.fjern(opplysning1.id)
-        opplysninger2.fjern(opplysning2.id)
-        opplysninger2.leggTil(Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(4.januar, 5.januar)))*/
-
         opplysninger2.forDato(1.januar).finnOpplysning(desimaltall).verdi shouldBe 0.5
         opplysninger2.forDato(6.januar).finnOpplysning(desimaltall).verdi shouldBe 3.0
         opplysninger2.forDato(9.januar).finnOpplysning(desimaltall).verdi shouldBe 2.0

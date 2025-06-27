@@ -134,7 +134,6 @@ class RegelkjøringTest {
 
         opplysninger2
             .forDato(15.januar)
-            .utenErstattet
             .finnOpplysning(a)
             .verdi shouldBe false
     }

@@ -42,5 +42,5 @@ class Meldekortprosess : RegistrertForretningsprosess() {
         opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode =
-        opplysninger.aktiveOpplysninger.finnOpplysning(Beregning.meldeperiode).verdi
+        opplysninger.egneOpplysninger.finnOpplysning(Beregning.meldeperiode).verdi
 }
