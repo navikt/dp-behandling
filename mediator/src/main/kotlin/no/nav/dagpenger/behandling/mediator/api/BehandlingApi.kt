@@ -337,7 +337,15 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Opplysningstype ${opplysning.opplysningstype} kan ikke redigeres")
                             }
 
-                            logger.info { "Mottok en endring i behandlingId=$behandlingId" }
+                            logger.info {
+                                """
+                                Mottok en endring i behandlingId=$behandlingId, 
+                                behovId=${opplysning.opplysningstype.behovId},
+                                datatype=${opplysning.opplysningstype.datatype},
+                                gyldigFraOgMed=${oppdaterOpplysningRequestDTO.gyldigFraOgMed},
+                                gyldigTilOgMed=${oppdaterOpplysningRequestDTO.gyldigTilOgMed}
+                                """.trimIndent()
+                            }
 
                             val svar =
                                 OpplysningsSvar(

@@ -51,7 +51,7 @@ class BeregnMeldekortHendelse(
                     Faktum(
                         hendelseTypeOpplysningstype,
                         type,
-                        gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                        gyldighetsperiode = Gyldighetsperiode(fom = meldekort.fom, tom = meldekort.tom),
                         kilde = Systemkilde(meldingsreferanseId, opprettet),
                     ),
                     Faktum(

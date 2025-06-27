@@ -546,6 +546,7 @@ components:
       type: object
       required:
         - behandlingId
+        - perioder
         - tilstand
         - kreverTotrinnskontroll
         - vilkår
@@ -557,6 +558,10 @@ components:
         behandlingId:
           type: string
           format: uuid
+        tidslinje:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tidslinjehendelse'
         tilstand:
           type: string
           enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
@@ -1410,6 +1415,18 @@ components:
           enum: [ "saksbehandler", "beslutter" ]
         behandler:
           $ref: '#/components/schemas/Saksbehandler'
+
+    Tidslinjehendelse:
+      type: object
+      required:
+        - dato
+        - hendelse
+      properties:
+        dato:
+          type: string
+          format: date
+        hendelse:
+          type: string
 
     Hendelse:
       type: object

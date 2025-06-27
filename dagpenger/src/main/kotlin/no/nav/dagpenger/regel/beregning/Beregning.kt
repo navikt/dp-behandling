@@ -33,6 +33,7 @@ object Beregning {
             skalVurderes { it.har(meldeperiode) }
             påvirkerResultat { it.har(meldeperiode) }
 
+            regel(meldeperiode) { tomRegel }
             regel(arbeidsdag) { tomRegel }
             regel(arbeidstimer) { tomRegel }
             regel(forbruk) { tomRegel }
@@ -42,6 +43,7 @@ object Beregning {
             regel(terskel) { tomRegel }
 
             ønsketResultat(
+                meldeperiode,
                 arbeidsdag,
                 arbeidstimer,
                 forbruk,

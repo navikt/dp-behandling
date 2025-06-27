@@ -19,6 +19,7 @@ internal class Avhengighetsgraf(
         ønsketResultat: List<Opplysningstype<*>>,
     ): Set<Opplysningstype<*>> {
         val nødvendigeOpplysninger = mutableSetOf<Opplysningstype<*>>()
+        nødvendigeOpplysninger.addAll(ønsketResultat)
 
         // Identifiser eksisterende opplysninger som ikke produseres av noen regel
         val opplysningerUtenRegel = opplysninger.finnAlle().map { it.opplysningstype }.filter { it !in reglerEtterOutput }

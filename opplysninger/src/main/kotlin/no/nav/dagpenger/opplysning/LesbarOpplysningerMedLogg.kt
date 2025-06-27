@@ -46,6 +46,8 @@ class LesbarOpplysningerMedLogg(
 
     override fun finnAlle(opplysningstyper: List<Opplysningstype<*>>) = TODO()
 
+    override fun finnAlle(vararg opplysningstyper: Opplysningstype<*>) = TODO()
+
     override fun finnAlle() = TODO()
 
     override fun forDato(gjelderFor: LocalDate) = TODO()

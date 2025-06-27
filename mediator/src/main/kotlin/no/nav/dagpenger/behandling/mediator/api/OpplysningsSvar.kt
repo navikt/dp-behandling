@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.api
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import mu.KotlinLogging
 import java.time.LocalDate
 import java.util.UUID
 
@@ -43,5 +44,12 @@ internal data class OpplysningsSvar(
                         ),
                 ),
             ).toJson()
+            .also {
+                sikkerlogg.info { "Publiserer opplysningsvar fra APIet: $it" }
+            }
+    }
+
+    private companion object {
+        private val sikkerlogg = KotlinLogging.logger("tjenestekall.OpplysningsSvar")
     }
 }

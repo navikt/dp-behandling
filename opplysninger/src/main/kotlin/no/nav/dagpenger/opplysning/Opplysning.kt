@@ -74,7 +74,9 @@ sealed class Opplysning<T : Comparable<T>>(
         erstattet.erstattesAv(this)
     }
 
-    abstract fun lagErstatning(opplysning: Opplysning<T>): Opplysning<T>
+    abstract fun lagForkortet(opplysning: Opplysning<T>): Opplysning<T>
+
+    abstract fun nyID(): Opplysning<T>
 
     companion object {
         fun Collection<Opplysning<*>>.bareAktive() = filterNot { it.erFjernet }
@@ -108,7 +110,11 @@ class Hypotese<T : Comparable<T>>(
 
     override fun bekreft() = Faktum(id, super.opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet)
 
-    override fun lagErstatning(opplysning: Opplysning<T>) =
+    override fun nyID(): Opplysning<T> {
+        TODO("Not yet implemented")
+    }
+
+    override fun lagForkortet(opplysning: Opplysning<T>) =
         Hypotese(
             opplysningstype,
             verdi,
@@ -143,7 +149,23 @@ class Faktum<T : Comparable<T>>(
 
     override fun bekreft() = this
 
-    override fun lagErstatning(opplysning: Opplysning<T>) =
+    /* Metode for å lage en ny instans av Faktum med en ny UUID. Vi sorterer etter ID,
+     * og når vi forkorter tidligere opplysning må vi få ny UUID som kommer senere enn den forkortede opplysningen.
+     */
+    override fun nyID() =
+        Faktum(
+            UUIDv7.ny(),
+            opplysningstype,
+            verdi,
+            gyldighetsperiode,
+            utledetAv,
+            kilde,
+            opprettet,
+            erstatter,
+            skalLagres,
+        )
+
+    override fun lagForkortet(opplysning: Opplysning<T>) =
         Faktum(
             opplysningstype,
             verdi,

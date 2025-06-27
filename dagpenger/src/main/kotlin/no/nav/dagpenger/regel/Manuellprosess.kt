@@ -28,7 +28,6 @@ import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKontroll
 import no.nav.dagpenger.regel.fastsetting.NyttGrunnbeløpForGrunnlag
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
 class Manuellprosess : RegistrertForretningsprosess() {
@@ -91,6 +90,7 @@ class Manuellprosess : RegistrertForretningsprosess() {
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
         opplysninger.aktiveOpplysninger
-            .finnOpplysning(hendelseTypeOpplysningstype)
+            .finnAlle()
+            .last()
             .gyldighetsperiode.fom
 }
