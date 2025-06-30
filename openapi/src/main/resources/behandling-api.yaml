@@ -383,6 +383,26 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+    delete:
+      summary: Fjern en opplysning
+      operationId: fjernOpplysning
+      security:
+        - azureAd: [ ]
+      tags:
+        - Behandling
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kvittering'
+          description: OK
+        default:
+          description: Feil ved fjerning av opplysning
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
   /behandling/{behandlingId}/opplysning/:
     parameters:
       - name: behandlingId

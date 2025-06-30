@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.mediator.api
+package no.nav.dagpenger.behandling.mediator.api.melding
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import mu.KotlinLogging
@@ -21,7 +21,7 @@ internal data class OpplysningsSvar(
                 gyldigTilOgMed?.let { "gyldigTilOgMed" to it },
             ).toMap()
 
-        return JsonMessage
+        return JsonMessage.Companion
             .newNeed(
                 listOf(opplysningNavn),
                 mapOf(

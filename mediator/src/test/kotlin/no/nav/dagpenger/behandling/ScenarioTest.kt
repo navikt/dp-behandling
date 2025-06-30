@@ -118,4 +118,20 @@ class ScenarioTest {
             }
         }
     }
+
+    @Test
+    fun `Fjerning og redigering av opplysninger`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            val fjern = person.behandling.opplysninger.random()
+            saksbehandler.fjernOpplysning(fjern.id, fjern.navn)
+
+            harOpplysning(fjern.id) shouldBe false
+        }
+    }
 }

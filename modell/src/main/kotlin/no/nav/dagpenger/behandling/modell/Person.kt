@@ -11,6 +11,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
@@ -162,6 +163,12 @@ class Person(
     }
 
     override fun håndter(hendelse: SendTilbakeHendelse) {
+        hendelse.leggTilKontekst(this)
+        val behandling = behandlinger.finn(hendelse.behandlingId)
+        behandling.håndter(hendelse)
+    }
+
+    override fun håndter(hendelse: FjernOpplysningHendelse) {
         hendelse.leggTilKontekst(this)
         val behandling = behandlinger.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)

@@ -23,6 +23,7 @@ import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.scenario.assertions.ForslagAssertions
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import java.util.UUID
 import kotlin.random.Random
 
 internal class SimulertDagpengerSystem(
@@ -89,6 +90,11 @@ internal class SimulertDagpengerSystem(
 
     fun vedtak(block: ForslagAssertions.() -> Unit) {
         ForslagAssertions(behovsløsere.sisteVedtak()).block()
+    }
+
+    fun harOpplysning(opplysningId: UUID): Boolean {
+        val behandling = personRepository.hentBehandling(person.behandlingId)
+        return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
     }
 
     class ScenarioOptions(

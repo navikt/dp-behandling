@@ -1,0 +1,100 @@
+package no.nav.dagpenger.behandling.mediator.mottak
+
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.micrometer.core.instrument.MeterRegistry
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
+import mu.KotlinLogging
+import mu.withLoggingContext
+import no.nav.dagpenger.behandling.mediator.IMessageMediator
+import no.nav.dagpenger.behandling.mediator.asUUID
+import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
+import no.nav.dagpenger.opplysning.Opplysningstype
+import java.time.LocalDateTime
+import java.util.UUID
+import kotlin.String
+
+internal class FjernOpplysningMottak(
+    rapidsConnection: RapidsConnection,
+    private val messageMediator: IMessageMediator,
+    private val opplysningstyper: Set<Opplysningstype<*>>,
+) : River.PacketListener {
+    init {
+        River(rapidsConnection)
+            .apply {
+                precondition { it.requireAllOrAny("@behov", listOf("FjernOpplysning")) }
+                precondition { it.requireValue("@final", true) }
+                validate { it.requireKey("ident") }
+                validate { it.requireKey("behandlingId") }
+                validate { it.requireKey("opplysningId") }
+                validate { it.requireKey("behovId") }
+                validate { it.interestedIn("@id", "@opprettet", "@behovId") }
+            }.register(this)
+    }
+
+    @WithSpan
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry,
+    ) {
+        val behovId = packet["@behovId"].asText()
+        val behandlingId = packet["behandlingId"].asUUID()
+        addOtelAttributes(behovId, behandlingId)
+
+        withLoggingContext(
+            "behovId" to behovId.toString(),
+            "behandlingId" to behandlingId.toString(),
+        ) {
+            logger.info { "Mottok behov for å fjerne opplysning" }
+
+            val opplysningstype = packet["behovId"].asText()
+            val message = FjernOpplysningMessage(packet, opplysningstype)
+            message.behandle(messageMediator, context)
+        }
+    }
+
+    private fun addOtelAttributes(
+        behovId: String,
+        behandlingId: UUID,
+    ) {
+        Span.current().apply {
+            setAttribute("app.river", name())
+            setAttribute("app.behovId", behovId)
+            setAttribute("app.behandlingId", behandlingId.toString())
+        }
+    }
+
+    private companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+}
+
+internal class FjernOpplysningMessage(
+    packet: JsonMessage,
+    opplysningstype: String,
+) : KafkaMelding(packet) {
+    override val ident: String = packet["ident"].asText()
+    private val hendelse =
+        FjernOpplysningHendelse(
+            meldingsreferanseId = UUID.fromString(packet.id),
+            ident = ident,
+            behandlingId = packet["behandlingId"].asUUID(),
+            opplysningId = packet["opplysningId"].asUUID(),
+            behovId = opplysningstype,
+            opprettet = LocalDateTime.now(),
+        )
+
+    override fun behandle(
+        mediator: IMessageMediator,
+        context: MessageContext,
+    ) {
+        mediator.behandle(hendelse, this, context)
+    }
+}

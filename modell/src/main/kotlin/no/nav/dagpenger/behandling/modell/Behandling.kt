@@ -16,6 +16,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendels
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
+import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
@@ -209,6 +210,11 @@ class Behandling private constructor(
         hendelse.info("Mottok meldekort")
     }
 
+    override fun håndter(hendelse: FjernOpplysningHendelse) {
+        hendelse.kontekst(this)
+        tilstand.håndter(this, hendelse)
+    }
+
     fun registrer(observatør: BehandlingObservatør) {
         observatører.add(observatør)
     }
@@ -361,6 +367,11 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: SendTilbakeHendelse,
         ): Unit = throw IllegalStateException("Behandlingen skal sendest tilbake fra totrinnskontroll, men tilstanden støtter ikke dette")
+
+        fun håndter(
+            behandling: Behandling,
+            hendelse: FjernOpplysningHendelse,
+        ): Unit = throw IllegalStateException("Opplysning skal fjernes, men tilstanden støtter ikke dette")
 
         fun leaving(
             behandling: Behandling,
@@ -529,6 +540,16 @@ class Behandling private constructor(
                 behandling.opplysninger.fjern(it)
             }
             behandling.tilstand(Redigert(), hendelse)
+        }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: FjernOpplysningHendelse,
+        ) {
+            hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
+            behandling.opplysninger.fjern(hendelse.opplysningId)
+
+            behandling.kjørRegler(hendelse)
         }
     }
 
@@ -766,6 +787,16 @@ class Behandling private constructor(
             }
 
             behandling.tilstand(Redigert(), hendelse)
+        }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: FjernOpplysningHendelse,
+        ) {
+            hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
+            behandling.opplysninger.fjern(hendelse.opplysningId)
+
+            behandling.kjørRegler(hendelse)
         }
 
         override fun håndter(

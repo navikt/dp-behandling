@@ -14,6 +14,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
+import no.nav.dagpenger.behandling.mediator.mottak.FjernOpplysningMessage
+import no.nav.dagpenger.behandling.mediator.mottak.FjernOpplysningMottak
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.InnsendingFerdigstiltMottak
@@ -36,6 +38,7 @@ import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
@@ -60,17 +63,18 @@ internal class MessageMediator(
     init {
         AvbrytBehandlingMottak(rapidsConnection, this)
         AvklaringIkkeRelevantMottak(rapidsConnection, this)
+        BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
+        FjernOpplysningMottak(rapidsConnection, this, opplysningstyper)
         GodkjennBehandlingMottak(rapidsConnection, this)
         InnsendingFerdigstiltMottak(rapidsConnection)
+        MeldekortInnsendtMottak(rapidsConnection, this)
+        OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
+        OppgaveSendtTilKontroll(rapidsConnection, this)
         OpplysningSvarMottak(rapidsConnection, this, opplysningstyper)
+        OpprettBehandlingMottak(rapidsConnection, this)
         PåminnelseMottak(rapidsConnection, this)
         RekjørBehandlingMottak(rapidsConnection, this)
         SøknadInnsendtMottak(rapidsConnection, this)
-        OppgaveSendtTilKontroll(rapidsConnection, this)
-        OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
-        MeldekortInnsendtMottak(rapidsConnection, this)
-        BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
-        OpprettBehandlingMottak(rapidsConnection, this)
     }
 
     private companion object {
@@ -202,6 +206,18 @@ internal class MessageMediator(
         }
     }
 
+    override fun behandle(
+        hendelse: FjernOpplysningHendelse,
+        message: FjernOpplysningMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+
+            apiRepositoryPostgres.behovLøst(hendelse.behandlingId, hendelse.behovId)
+        }
+    }
+
     private fun <HENDELSE : PersonHendelse> behandle(
         hendelse: HENDELSE,
         message: KafkaMelding,
@@ -287,6 +303,12 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: OpprettBehandlingHendelse,
         message: OpprettBehandlingMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: FjernOpplysningHendelse,
+        message: FjernOpplysningMessage,
         context: MessageContext,
     )
 }

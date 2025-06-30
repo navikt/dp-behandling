@@ -12,6 +12,7 @@ import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
@@ -32,9 +33,12 @@ import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
+import no.nav.dagpenger.behandling.konfigurasjon.Configuration.Grupper.saksbehandler
 import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
+import no.nav.dagpenger.behandling.mediator.api.melding.FjernOpplysning
+import no.nav.dagpenger.behandling.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.barnMapper
 import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
@@ -367,6 +371,53 @@ internal fun Application.behandlingApi(
                             }
 
                             logger.info { "Svarer med at opplysning er oppdatert" }
+
+                            call.respond(HttpStatusCode.OK, KvitteringDTO(behandlingId))
+                        }
+                    }
+
+                    delete("opplysning/{opplysningId}") {
+                        val behandlingId = call.behandlingId
+                        val opplysningId = call.opplysningId
+                        withLoggingContext(
+                            "behandlingId" to behandlingId.toString(),
+                        ) {
+                            val behandling = hentBehandling(personRepository, behandlingId)
+
+                            if (behandling.harTilstand(Redigert)) {
+                                throw BadRequestException("Kan ikke fjerne opplysning før forrige redigering er ferdig")
+                            }
+
+                            val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
+                            if (!redigerbareOpplysninger.kanRedigere(opplysning.opplysningstype)) {
+                                throw BadRequestException("Opplysningstype ${opplysning.opplysningstype} kan ikke redigeres")
+                            }
+
+                            logger.info {
+                                """
+                                Skal fjerne opplysning i behandlingId=$behandlingId, 
+                                behovId=${opplysning.opplysningstype.behovId},
+                                datatype=${opplysning.opplysningstype.datatype},
+                                """.trimIndent()
+                            }
+
+                            val svar =
+                                FjernOpplysning(
+                                    behandlingId = behandlingId,
+                                    opplysningId = opplysningId,
+                                    behovId = opplysning.opplysningstype.behovId,
+                                    ident = behandling.behandler.ident,
+                                    saksbehandler = call.saksbehandlerId(),
+                                )
+
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
+                                logger.info { "Starter en fjerning av opplysning i behandling" }
+                                messageContext(behandling.behandler.ident).publish(svar.toJson())
+                                auditlogg.oppdater("Fjernet opplysning", behandling.behandler.ident, call.saksbehandlerId())
+                                logger.info { "Venter på endring i behandling" }
+                            }
+
+                            logger.info { "Svarer med at opplysning er fjernet" }
 
                             call.respond(HttpStatusCode.OK, KvitteringDTO(behandlingId))
                         }
