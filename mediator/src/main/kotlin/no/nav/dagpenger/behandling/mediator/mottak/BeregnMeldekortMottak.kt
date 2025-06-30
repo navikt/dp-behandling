@@ -16,6 +16,7 @@ import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
+import java.util.UUID
 
 internal class BeregnMeldekortMottak(
     rapidsConnection: RapidsConnection,
@@ -64,7 +65,7 @@ internal class BeregnMeldekortMottak(
         packet: JsonMessage,
         private val meldekort: Meldekort,
     ) : KafkaMelding(packet) {
-        val meldekortId = packet["meldekortId"].asUUID()
+        val meldekortId: UUID = packet["meldekortId"].asUUID()
         override val ident = packet["ident"].asText()
 
         override fun behandle(
@@ -74,7 +75,6 @@ internal class BeregnMeldekortMottak(
             mediator.behandle(hendelse, this, context)
         }
 
-        private val hendelse
-            get() = BeregnMeldekortHendelse(id, ident, meldekortId, opprettet, meldekort)
+        private val hendelse get() = BeregnMeldekortHendelse(id, ident, meldekortId, opprettet, meldekort)
     }
 }

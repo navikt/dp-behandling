@@ -357,6 +357,7 @@ paths:
           format: uuid
         description: Opplysningens id
     put:
+      deprecated: true
       summary: Overskriv en opplysning
       operationId: oppdaterOpplysning
       security:
@@ -369,6 +370,41 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/OppdaterOpplysning'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kvittering'
+          description: OK
+        default:
+          description: Feil ved redigering av opplysninger
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+  /behandling/{behandlingId}/opplysning/:
+    parameters:
+      - name: behandlingId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Behandlingens id
+    post:
+      summary: Legg til en opplysning
+      operationId: leggTilOpplysning
+      security:
+        - azureAd: [ ]
+      tags:
+        - Behandling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NyOpplysning'
       responses:
         200:
           content:
@@ -516,6 +552,26 @@ components:
           format: date
         begrunnelse:
           type: string
+
+    NyOpplysning:
+      type: object
+      required:
+        - opplysningstype
+        - verdi
+        - begrunnelse
+      properties:
+        opplysningstype:
+          $ref: '#/components/schemas/OpplysningTypeId'
+        verdi:
+          type: string
+        begrunnelse:
+          type: string
+        gyldigFraOgMed:
+          type: string
+          format: date
+        gyldigTilOgMed:
+          type: string
+          format: date
 
     OppdaterOpplysning:
       type: object

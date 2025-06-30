@@ -27,6 +27,7 @@ import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
+import no.nav.dagpenger.behandling.api.models.NyOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
@@ -350,7 +351,6 @@ internal fun Application.behandlingApi(
                             val svar =
                                 OpplysningsSvar(
                                     behandlingId,
-                                    opplysningId,
                                     opplysning.opplysningstype.behovId,
                                     behandling.behandler.ident,
                                     HttpVerdiMapper(oppdaterOpplysningRequestDTO).map(opplysning.opplysningstype.datatype),
@@ -360,6 +360,61 @@ internal fun Application.behandlingApi(
                                 )
 
                             apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
+                                logger.info { "Starter en endring i behandling" }
+                                messageContext(behandling.behandler.ident).publish(svar.toJson())
+                                auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
+                                logger.info { "Venter på endring i behandling" }
+                            }
+
+                            logger.info { "Svarer med at opplysning er oppdatert" }
+
+                            call.respond(HttpStatusCode.OK, KvitteringDTO(behandlingId))
+                        }
+                    }
+
+                    post("opplysning/") {
+                        val behandlingId = call.behandlingId
+
+                        withLoggingContext(
+                            "behandlingId" to behandlingId.toString(),
+                        ) {
+                            val nyOpplysningDTO = call.receive<NyOpplysningDTO>()
+                            val behandling = hentBehandling(personRepository, behandlingId)
+
+                            if (behandling.harTilstand(Redigert)) {
+                                throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
+                            }
+
+                            val opplysningstype =
+                                opplysningstyper.singleOrNull { it.id.uuid == nyOpplysningDTO.opplysningstype }
+                                    ?: throw NotFoundException("Opplysningstype med id ${nyOpplysningDTO.opplysningstype} ikke funnet")
+
+                            if (!redigerbareOpplysninger.kanRedigere(opplysningstype)) {
+                                throw BadRequestException("Opplysningstype $opplysningstype kan ikke redigeres")
+                            }
+
+                            logger.info {
+                                """
+                                Mottok en endring i behandlingId=$behandlingId, 
+                                behovId=${opplysningstype.behovId},
+                                datatype=${opplysningstype.datatype},
+                                gyldigFraOgMed=${nyOpplysningDTO.gyldigFraOgMed},
+                                gyldigTilOgMed=${nyOpplysningDTO.gyldigTilOgMed}
+                                """.trimIndent()
+                            }
+
+                            val svar =
+                                OpplysningsSvar(
+                                    behandlingId,
+                                    opplysningstype.behovId,
+                                    behandling.behandler.ident,
+                                    HttpVerdiMapper2(nyOpplysningDTO).map(opplysningstype.datatype),
+                                    call.saksbehandlerId(),
+                                    nyOpplysningDTO.gyldigFraOgMed,
+                                    nyOpplysningDTO.gyldigTilOgMed,
+                                )
+
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysningstype.behovId) {
                                 logger.info { "Starter en endring i behandling" }
                                 messageContext(behandling.behandler.ident).publish(svar.toJson())
                                 auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
@@ -469,6 +524,7 @@ private val OtelTraceIdPlugin =
     }
 
 @Suppress("UNCHECKED_CAST")
+// Deprecated, fjernes når frontend bruker opplysnignstype ID til å redigere opplysning
 private class HttpVerdiMapper(
     private val oppdaterOpplysningRequestDTO: OppdaterOpplysningDTO,
 ) : VerdiMapper {
@@ -480,6 +536,22 @@ private class HttpVerdiMapper(
             Penger -> oppdaterOpplysningRequestDTO.verdi.toDouble() as T
             Dato -> oppdaterOpplysningRequestDTO.verdi.let { LocalDate.parse(it) } as T
             BarnDatatype -> barnMapper(oppdaterOpplysningRequestDTO.verdi) as T
+            else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
+        }
+}
+
+@Suppress("UNCHECKED_CAST")
+private class HttpVerdiMapper2(
+    private val nyOpplysning: NyOpplysningDTO,
+) : VerdiMapper {
+    override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
+        when (datatype) {
+            Heltall -> nyOpplysning.verdi.toInt() as T
+            Boolsk -> nyOpplysning.verdi.toBoolean() as T
+            Desimaltall -> nyOpplysning.verdi.toDouble() as T
+            Penger -> nyOpplysning.verdi.toDouble() as T
+            Dato -> nyOpplysning.verdi.let { LocalDate.parse(it) } as T
+            BarnDatatype -> barnMapper(nyOpplysning.verdi) as T
             else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
         }
 }

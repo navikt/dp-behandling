@@ -7,7 +7,6 @@ import java.util.UUID
 
 internal data class OpplysningsSvar(
     val behandlingId: UUID,
-    val opplysningId: UUID,
     val opplysningNavn: String,
     val ident: String,
     val verdi: Any,
@@ -28,7 +27,6 @@ internal data class OpplysningsSvar(
                 mapOf(
                     "@final" to true,
                     "@opplysningsbehov" to true,
-                    "opplysningId" to opplysningId,
                     "behandlingId" to behandlingId,
                     "ident" to ident,
                     "@løsning" to

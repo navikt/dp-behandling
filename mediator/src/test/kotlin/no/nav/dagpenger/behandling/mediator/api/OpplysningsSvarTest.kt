@@ -12,7 +12,6 @@ class OpplysningsSvarTest {
         val opplysningsSvar =
             OpplysningsSvar(
                 behandlingId = UUID.randomUUID(),
-                opplysningId = UUID.randomUUID(),
                 opplysningNavn = "testOpplysning",
                 ident = "12345678901",
                 verdi = "testVerdi",

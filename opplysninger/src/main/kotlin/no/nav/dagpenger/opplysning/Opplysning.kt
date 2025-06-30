@@ -10,8 +10,6 @@ data class Utledning(
     val regel: String,
     val opplysninger: List<Opplysning<*>>,
 ) {
-    fun erUtdatert(opprettet: LocalDateTime): Boolean = opplysninger.any { it.opprettet.isAfter(opprettet) }
-
     internal constructor(regel: Regel<*>, opplysninger: List<Opplysning<*>>) : this(regel::class.java.simpleName, opplysninger)
 }
 
