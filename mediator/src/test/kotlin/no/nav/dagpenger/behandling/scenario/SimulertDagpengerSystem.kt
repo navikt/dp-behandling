@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling.scenario
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.ktor.server.application.Application
 import io.mockk.mockk
+import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.db.Postgres
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
@@ -92,7 +93,7 @@ internal class SimulertDagpengerSystem(
         ForslagAssertions(behovsløsere.sisteVedtak()).block()
     }
 
-    fun harOpplysning(opplysningId: UUID): Boolean {
+    fun VedtakDTO.harOpplysning(opplysningId: UUID): Boolean {
         val behandling = personRepository.hentBehandling(person.behandlingId)
         return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
     }
@@ -116,40 +117,40 @@ internal class SimulertDagpengerSystem(
     private fun opprettPerson(ident: String) {
         personRepository.lagre(Person(ident.tilPersonIdentfikator()))
     }
+}
 
-    class TestAuditlogg internal constructor() : Auditlogg {
-        val aktivitet = mutableListOf<String>()
+class TestAuditlogg internal constructor() : Auditlogg {
+    val aktivitet = mutableListOf<String>()
 
-        override fun les(
-            melding: String,
-            ident: String,
-            saksbehandler: String,
-        ) {
-            aktivitet.add("les")
-        }
+    override fun les(
+        melding: String,
+        ident: String,
+        saksbehandler: String,
+    ) {
+        aktivitet.add("les")
+    }
 
-        override fun opprett(
-            melding: String,
-            ident: String,
-            saksbehandler: String,
-        ) {
-            aktivitet.add("opprett")
-        }
+    override fun opprett(
+        melding: String,
+        ident: String,
+        saksbehandler: String,
+    ) {
+        aktivitet.add("opprett")
+    }
 
-        override fun oppdater(
-            melding: String,
-            ident: String,
-            saksbehandler: String,
-        ) {
-            aktivitet.add("oppdater")
-        }
+    override fun oppdater(
+        melding: String,
+        ident: String,
+        saksbehandler: String,
+    ) {
+        aktivitet.add("oppdater")
+    }
 
-        override fun slett(
-            melding: String,
-            ident: String,
-            saksbehandler: String,
-        ) {
-            aktivitet.add("slett")
-        }
+    override fun slett(
+        melding: String,
+        ident: String,
+        saksbehandler: String,
+    ) {
+        aktivitet.add("slett")
     }
 }

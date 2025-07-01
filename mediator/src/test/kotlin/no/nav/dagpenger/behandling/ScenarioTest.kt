@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.Behov
 import org.junit.jupiter.api.Test
 
@@ -128,10 +129,8 @@ class ScenarioTest {
 
             behovsløsere.løsTilForslag()
 
-            val fjern = person.behandling.opplysninger.random()
-            saksbehandler.fjernOpplysning(fjern.id, fjern.navn)
-
-            harOpplysning(fjern.id) shouldBe false
+            val opplysning = saksbehandler.fjernOpplysning(fødselsdato)
+            person.behandling.harOpplysning(opplysning.id) shouldBe false
         }
     }
 }
