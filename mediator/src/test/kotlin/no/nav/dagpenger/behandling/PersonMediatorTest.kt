@@ -695,7 +695,7 @@ internal class PersonMediatorTest {
                     innsendt = søknadsdato.atTime(12, 0),
                     arbeidssøkerregistreringsdato = søknadsdato,
                     // Ønsker fra en dato i neste inntektsperiode
-                    ønskerFraDato = søknadsdato.plusMonths(2),
+                    ønskerFraDato = søknadsdato.plusMonths(2).withDayOfMonth(8),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 
@@ -796,7 +796,7 @@ internal class PersonMediatorTest {
                     søknadsdato = LocalDate.now(),
                     innsendt = LocalDate.now().atTime(12, 0),
                     // Langt nok fram til å treffe neste rapporteringsfristvindu (1 til 5-ish neste måned)
-                    ønskerFraDato = LocalDate.now().plusMonths(2),
+                    ønskerFraDato = LocalDate.now().plusMonths(1).withDayOfMonth(8),
                     // Denne må stemme med prøvingsdato som blir siste av søknadsdato og ønsket fra dato
                     arbeidssøkerregistreringsdato = 30.juni(2024),
                 )
