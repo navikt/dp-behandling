@@ -39,6 +39,13 @@ object Avklaringspunkter {
             beskrivelse = "Virkningstidspunkt ligger mer enn 14 dager fram i tid",
         )
 
+    val SjekkPrøvingsdato =
+        Avklaringkode(
+            kode = "SjekkPrøvingsdato",
+            tittel = "Sjekk om valgt prøvingsdato er riktig",
+            beskrivelse = "Sjekk at valgt prøvingsdato er riktig",
+        )
+
     val Verneplikt =
         Avklaringkode(
             kode = "Verneplikt",

@@ -48,4 +48,10 @@ object Søknadstidspunkt {
                     LocalDate.now().plusDays(14),
                 )
         }
+
+    val SjekkPrøvingsdato =
+        Kontrollpunkt(Avklaringspunkter.SjekkPrøvingsdato) {
+            it.har(prøvingsdato) &&
+                kravPåDagpenger(it)
+        }
 }

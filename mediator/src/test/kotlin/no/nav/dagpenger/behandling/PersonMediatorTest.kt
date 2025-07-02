@@ -403,7 +403,7 @@ internal class PersonMediatorTest {
             }
 
             // TODO: Beregningsmetode for tapt arbeidstid har defaultverdi for testing av innvilgelse og derfor mangler avklaringen
-            rapid.inspektør.size shouldBe 23
+            rapid.inspektør.size shouldBe 24
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
@@ -695,7 +695,7 @@ internal class PersonMediatorTest {
                     innsendt = søknadsdato.atTime(12, 0),
                     arbeidssøkerregistreringsdato = søknadsdato,
                     // Ønsker fra en dato i neste inntektsperiode
-                    ønskerFraDato = søknadsdato.plusMonths(2).withDayOfMonth(8),
+                    ønskerFraDato = LocalDate.now().plusMonths(1).withDayOfMonth(8),
                 )
             løsBehandlingFramTilMinsteinntekt(testPerson)
 

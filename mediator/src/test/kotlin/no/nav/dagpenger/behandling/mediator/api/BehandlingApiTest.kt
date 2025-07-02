@@ -170,7 +170,7 @@ internal class BehandlingApiTest {
                 avklaringer.any { it.kode == "InntektNesteKalendermåned" } shouldBe true
             }
 
-            behandlingDto.avklaringer shouldHaveSize 5
+            behandlingDto.avklaringer shouldHaveSize 6
             auditlogg.aktivitet shouldContainExactly listOf("les")
         }
     }
