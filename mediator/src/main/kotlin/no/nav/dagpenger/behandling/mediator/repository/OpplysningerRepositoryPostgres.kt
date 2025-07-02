@@ -39,6 +39,7 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.mapNotNull
 
 class OpplysningerRepositoryPostgres : OpplysningerRepository {
     private companion object {
@@ -114,42 +115,45 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         private val kildeRespository: KildeRepository = kildeRepository,
     ) {
         fun hentOpplysninger(): List<Opplysning<*>> {
-            val rader: List<OpplysningRad<*>> =
-                sessionOf(dataSource).use { session ->
-                    session.run(
-                        queryOf(
-                            //language=PostgreSQL
-                            "SELECT * FROM opplysningstabell WHERE opplysninger_id = :id ",
-                            mapOf("id" to opplysningerId),
-                        ).map { row ->
-                            val datatype = Datatype.fromString(row.string("datatype"))
-                            row.somOpplysningRad(datatype)
-                        }.asList,
-                    )
-                }
+            val rader: MutableSet<OpplysningRad<*>> =
+                sessionOf(dataSource)
+                    .use { session ->
+                        session.run(
+                            queryOf(
+                                //language=PostgreSQL
+                                "SELECT * FROM opplysningstabell WHERE opplysninger_id = :id ",
+                                mapOf("id" to opplysningerId),
+                            ).map { row ->
+                                val datatype = Datatype.fromString(row.string("datatype"))
+                                row.somOpplysningRad(datatype)
+                            }.asList,
+                        )
+                    }.toMutableSet()
 
-            val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId })
-            val erstattetAv =
-                rader
-                    .map {
-                        it.erstattetAv.filterNot(eksisterer(rader)).mapNotNull { uuid -> hentOpplysning(uuid) }
-                    }.flatten()
-            val erstatter =
-                rader.mapNotNull {
-                    it.erstatter?.takeUnless { uuid -> eksisterer(rader)(uuid) }?.let { uuid ->
-                        hentOpplysning(uuid)
-                    }
+            // Hent alle opplysninger fra tidligere opplysninger som erstattes av opplysninger i denne
+            val erstatter = ArrayDeque(rader.mapNotNull { it.erstatter })
+            while (erstatter.isNotEmpty()) {
+                val uuid = erstatter.removeFirst()
+                if (rader.none { it.id == uuid }) {
+                    val opplysning = hentOpplysning(uuid)!!
+                    rader.add(opplysning)
+                    opplysning.erstatter?.let { erstatter.add(it) }
                 }
+            }
 
             // Hent utledetAv-opplysninger fra tidligere opplysninger
-            val utledetAv =
-                rader
-                    .mapNotNull {
-                        it.utledetAv?.opplysninger?.filterNot { uuid -> eksisterer(rader)(uuid) }?.mapNotNull { uuid ->
-                            hentOpplysning(uuid)
-                        }
-                    }.flatten()
-                    .toSet()
+            val utledetAv = ArrayDeque(rader.mapNotNull { it.utledetAv?.opplysninger }.flatten().distinct())
+            while (utledetAv.isNotEmpty()) {
+                val uuid = utledetAv.removeFirst()
+                if (rader.none { it.id == uuid }) {
+                    val opplysning = hentOpplysning(uuid)!!
+                    rader.add(opplysning)
+                    opplysning.utledetAv?.opplysninger?.let { utledetAv.addAll(it) }
+                }
+            }
+
+            // Hent inn kilde for alle opplysninger vi trenger
+            val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId })
             val raderMedKilde =
                 rader.map {
                     if (it.kildeId == null) return@map it
@@ -157,15 +161,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     it.copy(kilde = kilde)
                 }
 
-            val merged = raderMedKilde + erstattetAv + erstatter + utledetAv
-            val raderFraTidligereOpplysninger = merged.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
-            return merged.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
+            val brutto = raderMedKilde
+            val raderFraTidligereOpplysninger = brutto.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
+            return brutto.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
         }
-
-        private fun eksisterer(rader: List<OpplysningRad<*>>): (UUID) -> Boolean =
-            { opplysningId: UUID ->
-                rader.any { annen -> annen.id == opplysningId }
-            }
 
         private fun hentOpplysning(id: UUID): OpplysningRad<*>? {
             val rader: OpplysningRad<*>? =
@@ -225,7 +224,6 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             val opprettet = this.localDateTime("opprettet")
             val utledetAvId = this.arrayOrNull<UUID>("utledet_av_id")?.toList() ?: emptyList()
             val utledetAv = this.stringOrNull("utledet_av")?.let { UtledningRad(it, utledetAvId) }
-            val erstattetAvId = this.arrayOrNull<UUID>("erstattet_av_id")?.toList() ?: emptyList()
             val erstatterId = this.uuidOrNull("erstatter_id")
 
             val kildeId = this.uuidOrNull("kilde_id")
@@ -241,7 +239,6 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 kildeId = kildeId,
                 kilde = null,
                 opprettet = opprettet,
-                erstattetAv = erstattetAvId,
                 erstatter = erstatterId,
             )
         }
@@ -280,7 +277,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             kildeRespository.lagreKilder(opplysninger.mapNotNull { it.kilde }, tx)
             batchOpplysninger(opplysninger).run(tx)
             batchFjernet(fjernet).run(tx)
-            lagreErstattetAv(opplysninger).run(tx)
+            lagreErstatter(opplysninger).run(tx)
             batchVerdi(opplysninger).run(tx)
             batchOpplysningLink(opplysninger).run(tx)
             lagreUtledetAv(opplysninger)
@@ -381,19 +378,19 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 },
             )
 
-        private fun lagreErstattetAv(opplysninger: List<Opplysning<*>>) =
+        private fun lagreErstatter(opplysninger: List<Opplysning<*>>) =
             BatchStatement(
                 //language=PostgreSQL
                 """
-                INSERT INTO opplysning_erstattet_av (opplysning_id, erstattet_av) 
-                VALUES (:opplysning_id, :erstattet_av)
+                INSERT INTO opplysning_erstatter (opplysning_id, erstatter_id) 
+                VALUES (:opplysning_id, :erstatter_id)
                 ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 opplysninger.mapNotNull { opplysning ->
                     if (opplysning.erstatter == null) return@mapNotNull null
                     mapOf(
-                        "opplysning_id" to opplysning.erstatter!!.id,
-                        "erstattet_av" to opplysning.id,
+                        "opplysning_id" to opplysning.id,
+                        "erstatter_id" to opplysning.erstatter!!.id,
                     )
                 },
             )
@@ -492,12 +489,13 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun List<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
+private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
     val opplysningMap = mutableMapOf<UUID, Opplysning<*>>()
 
-    fun <T : Comparable<T>> OpplysningRad<T>.finnErstattesAv() {
+    // Finn opplysningen som erstattes av denne
+    fun <T : Comparable<T>> OpplysningRad<T>.finnErstatter() {
         this.erstatter?.let {
-            require(opplysningMap.contains(it)) { "Opplysning med id $it er ikke funnet" }
+            require(opplysningMap.contains(it)) { "Opplysning ${this.id} trenger id $it er ikke funnet" }
             (opplysningMap[this.id] as Opplysning<T>).erstatter(opplysningMap[it] as Opplysning<T>)
         }
     }
@@ -555,7 +553,7 @@ private fun List<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
     // Convert all OpplysningRad instances to Opplysning instances
     val alleOpplysninger = this.map { it.toOpplysning() }
     this.forEach {
-        it.finnErstattesAv()
+        it.finnErstatter()
     }
     return alleOpplysninger
 }
@@ -576,6 +574,5 @@ private data class OpplysningRad<T : Comparable<T>>(
     val kildeId: UUID? = null,
     val kilde: Kilde? = null,
     val opprettet: LocalDateTime,
-    val erstattetAv: List<UUID>,
     val erstatter: UUID? = null,
 )

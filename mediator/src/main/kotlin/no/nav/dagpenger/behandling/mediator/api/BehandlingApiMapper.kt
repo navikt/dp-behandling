@@ -126,6 +126,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import kotlin.collections.map
+import kotlin.collections.sortedBy
 
 private val logger = KotlinLogging.logger { }
 

@@ -250,10 +250,10 @@ class OpplysningerRepositoryPostgresTest {
             repo.lagreOpplysninger(opprinneligOpplysninger)
 
             // Lag ny opplysninger med erstattet opplysning
+            val opplysningerSomErstatter = Opplysninger(opprinneligOpplysninger)
             val opplysningErstattet = Faktum(heltall, 20)
-            val erstattetOpplysninger = Opplysninger(opprinneligOpplysninger)
-            erstattetOpplysninger.leggTil(opplysningErstattet as Opplysning<*>)
-            repo.lagreOpplysninger(erstattetOpplysninger)
+            opplysningerSomErstatter.leggTil(opplysningErstattet as Opplysning<*>)
+            repo.lagreOpplysninger(opplysningerSomErstatter)
 
             // Verifiser
             opprinneligOpplysninger.aktiveOpplysningerListe shouldContainExactly listOf(opplysning)
@@ -262,9 +262,9 @@ class OpplysningerRepositoryPostgresTest {
 
             val fraDb: Opplysninger =
                 // Simulerer hvordan Behandling setter opp Opplysninger
-                repo.hentOpplysninger(erstattetOpplysninger.id) + listOf(opprinneligFraDb)
+                repo.hentOpplysninger(opplysningerSomErstatter.id) + listOf(opprinneligFraDb)
 
-            fraDb.aktiveOpplysningerListe shouldContainExactly erstattetOpplysninger.aktiveOpplysningerListe
+            fraDb.aktiveOpplysningerListe shouldContainExactly opplysningerSomErstatter.aktiveOpplysningerListe
             fraDb
                 .forDato(10.mai)
                 .finnOpplysning(heltall)

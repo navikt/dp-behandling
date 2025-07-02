@@ -21,10 +21,9 @@ internal class VaktmesterPostgresRepo {
         val slettet = mutableListOf<UUID>()
         try {
             sessionOf(dataSource).use { session ->
-
                 val kandidater = session.hentOpplysningerSomErFjernet(antall)
-                session.transaction { tx ->
 
+                session.transaction { tx ->
                     kandidater.forEach { kandidat ->
                         tx.medLås(låsenøkkel) {
                             withLoggingContext(
@@ -38,7 +37,7 @@ internal class VaktmesterPostgresRepo {
                                         val statements = mutableListOf<BatchStatement>()
 
                                         // Slett erstatninger
-                                        statements.add(slettErstatteAv(fjernetOpplysing.id))
+                                        statements.add(slettErstatter(fjernetOpplysing.id))
 
                                         // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
                                         statements.add(slettOpplysningUtledetAv(fjernetOpplysing.id))
@@ -171,11 +170,11 @@ internal class VaktmesterPostgresRepo {
         return opplysningerIder
     }
 
-    private fun slettErstatteAv(opplysningId: UUID) =
+    private fun slettErstatter(opplysningId: UUID) =
         BatchStatement(
             //language=PostgreSQL
             """
-            DELETE FROM opplysning_erstattet_av WHERE erstattet_av = :id
+            DELETE FROM opplysning_erstatter WHERE opplysning_id= :id
             """.trimIndent(),
             listOf(mapOf("id" to opplysningId)),
         )
