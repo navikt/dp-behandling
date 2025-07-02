@@ -37,6 +37,8 @@ internal class FjernOpplysningMottak(
             }.register(this)
     }
 
+    private val skipOpplysning = listOf("0197b113-1c65-7eaa-b4d1-b7d4dfee9313")
+
     @WithSpan
     override fun onPacket(
         packet: JsonMessage,
@@ -46,6 +48,12 @@ internal class FjernOpplysningMottak(
     ) {
         val behovId = packet["@behovId"].asText()
         val behandlingId = packet["behandlingId"].asUUID()
+        val opplysningId = packet["opplysningId"].asUUID()
+
+        if (skipOpplysning.contains(opplysningId.toString())) {
+            logger.info { "Skipper opplysning med id=$opplysningId" }
+            return
+        }
         addOtelAttributes(behovId, behandlingId)
 
         withLoggingContext(
