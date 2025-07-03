@@ -285,6 +285,8 @@ private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
                 else -> VilkaarDTOStatusDTO.IKKE_OPPFYLT
             },
         vurderingstidspunkt = this.opprettet,
+        fraOgMed = this.gyldighetsperiode.fom,
+        tilOgMed = this.gyldighetsperiode.tom,
     )
 
 internal val opplysningTilVilkårMap =

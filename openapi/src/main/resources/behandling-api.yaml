@@ -1431,6 +1431,7 @@ components:
         - status
         - vurderingstidspunkt
         - id
+        - fraOgMed
       properties:
         navn:
           $ref: '#/components/schemas/VilkaarNavn'
@@ -1442,6 +1443,14 @@ components:
         vurderingstidspunkt:
           type: string
           format: date-time
+        fraOgMed:
+          type: string
+          format: date
+          nullable: false
+        tilOgMed:
+          type: string
+          format: date
+          nullable: true
 
     Barn:
       type: object
