@@ -420,7 +420,7 @@ private fun Datatype<*>.tilDataTypeDTO() =
         PeriodeDataType -> DataTypeDTO.PERIODE
     }
 
-private fun LocalDate.tilApiDato(): LocalDate? =
+internal fun LocalDate.tilApiDato(): LocalDate? =
     when (this) {
         LocalDate.MIN -> null
         LocalDate.MAX -> null

@@ -21,6 +21,7 @@ import no.nav.dagpenger.behandling.api.models.VedtakDTOSatsDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarNavnDTO
+import no.nav.dagpenger.behandling.mediator.api.tilApiDato
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
@@ -115,9 +116,14 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         it to regelsett.hjemmel
                     }
             }.toMap()
-            .map {
-                val opplysning = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(it.key)
-                opplysning.tilVilkårDTO(it.value.toString())
+            .flatMap { (opplysningstype, hjemmel) ->
+                opplysninger
+                    .finnAlle()
+                    .filterIsInstance<Opplysning<Boolean>>()
+                    .filter { it.opplysningstype == opplysningstype }
+                    .map { opplysning ->
+                        opplysning.tilVilkårDTO(hjemmel.toString())
+                    }
             }
 
     logger.info {
@@ -286,7 +292,7 @@ private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
             },
         vurderingstidspunkt = this.opprettet,
         fraOgMed = this.gyldighetsperiode.fom,
-        tilOgMed = this.gyldighetsperiode.tom,
+        tilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
     )
 
 internal val opplysningTilVilkårMap =
