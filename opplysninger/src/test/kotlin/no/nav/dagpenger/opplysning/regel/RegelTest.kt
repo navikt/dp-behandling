@@ -23,7 +23,7 @@ class RegelTest {
 
         val exception: IllegalArgumentException =
             assertThrows<IllegalArgumentException> {
-                regelsett.regler().first().lagProdukt(Opplysninger(listOf(Faktum(b, false))))
+                regelsett.regler().first().lagProdukt(Opplysninger.med(Faktum(b, false)))
             }
 
         exception.message shouldBe

@@ -1430,6 +1430,7 @@ components:
         - navn
         - status
         - vurderingstidspunkt
+        - fraOgMed
         - id
         - periode
       properties:

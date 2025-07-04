@@ -112,11 +112,9 @@ class AvklaringRepositoryPostgresTest {
                 behandlingId = UUIDv7.ny(),
                 behandler = SøknadInnsendtHendelse(UUIDv7.ny(), "123", UUIDv7.ny(), LocalDate.now(), 1, LocalDateTime.now()),
                 gjeldendeOpplysninger =
-                    Opplysninger(
-                        listOf(
-                            Faktum(prøvingsdato, LocalDate.now()),
-                            Faktum(kravTilAlder, false),
-                        ),
+                    Opplysninger.med(
+                        Faktum(prøvingsdato, LocalDate.now()),
+                        Faktum(kravTilAlder, false),
                     ),
                 basertPå = emptyList(),
                 tilstand = TilstandType.ForslagTilVedtak,

@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning
 
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -36,7 +37,7 @@ class OpplysningGrafTest {
 
         val graf =
             OpplysningGraf(
-                opplysninger.aktiveOpplysningerListe,
+                opplysninger.somListe(Egne),
             )
         graf.hentAlleUtledetAv(faktumB).map { it.opplysningstype } shouldBe listOf(c)
     }

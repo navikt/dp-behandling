@@ -31,12 +31,12 @@ class OpplysningerTest {
     @Test
     fun `caching av opplysninger oppdateres`() {
         val opplysninger = Opplysninger()
-        opplysninger.finnAlle().shouldBeEmpty()
+        opplysninger.somListe().shouldBeEmpty()
 
         val opplysning = Faktum(desimaltall, 0.5)
         opplysninger.leggTil(opplysning)
 
-        opplysninger.finnAlle().shouldContainExactly(opplysning)
+        opplysninger.somListe().shouldContainExactly(opplysning)
     }
 
     @Test
@@ -45,14 +45,14 @@ class OpplysningerTest {
 
         opplysninger1.leggTil(Faktum(desimaltall, 0.5))
 
-        val opplysninger2 = Opplysninger(opplysninger1)
+        val opplysninger2 = Opplysninger.basertPå(opplysninger1)
 
         // Endre opplysning fra forrige behandling
         val forkortetOpplysning = Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 10.januar))
         opplysninger2.leggTil(forkortetOpplysning)
 
-        opplysninger1.finnAlle() shouldHaveSize 1
-        opplysninger2.finnAlle() shouldHaveSize 2
+        opplysninger1.somListe() shouldHaveSize 1
+        opplysninger2.somListe() shouldHaveSize 2
 
         // Angre forrige endring, men dette fører til hull
         opplysninger2.leggTil(Faktum(desimaltall, 2.0, gyldighetsperiode = Gyldighetsperiode(8.januar, 10.januar)))
@@ -79,10 +79,10 @@ class OpplysningerTest {
 
         opplysninger1.leggTil(Faktum(desimaltall, 0.5, Gyldighetsperiode(5.januar)))
 
-        val opplysninger2 = Opplysninger(opplysninger1)
+        val opplysninger2 = Opplysninger.basertPå(opplysninger1)
         opplysninger2.leggTil(Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(15.januar)))
 
-        opplysninger2.finnAlle() shouldHaveSize 2
+        opplysninger2.somListe() shouldHaveSize 2
     }
 
     //language=Mermaid

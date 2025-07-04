@@ -19,6 +19,7 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Kilde
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningsformål
@@ -55,7 +56,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         sessionOf(dataSource)
             .use { session ->
                 OpplysningRepository(opplysningerId, session).hentOpplysninger()
-            }.let { Opplysninger(opplysningerId, it) }
+            }.let { Opplysninger.rehydrer(opplysningerId, it) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
         val unitOfWork = PostgresUnitOfWork.transaction()
@@ -83,7 +84,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         )
 
         OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(
-            opplysninger.aktiveOpplysningerListe.filter { it.skalLagres },
+            opplysninger.somListe(LesbarOpplysninger.Filter.Egne).filter { it.skalLagres },
             opplysninger.fjernet(),
         )
     }

@@ -108,7 +108,7 @@ class Regelkjøring(
 
         // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
         val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
-        opplysninger.fjernUbrukteOpplysninger(brukteOpplysninger)
+        opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
@@ -117,7 +117,7 @@ class Regelkjøring(
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
             observatører.forEach { observer ->
-                val aktiveOpplysninger = opplysninger.egneOpplysninger.forDato(prøvingsdato)
+                val aktiveOpplysninger = opplysninger.kunEgne.forDato(prøvingsdato)
                 observer.evaluert(
                     rapport,
                     opplysninger,

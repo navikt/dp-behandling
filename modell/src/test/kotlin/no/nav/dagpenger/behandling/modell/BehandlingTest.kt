@@ -79,8 +79,8 @@ internal class BehandlingTest {
     @Test
     fun `Behandling basert på tidligere behandlinger`() {
         val behandlingskjede = behandlingskjede(5, testHendelse)
-        behandlingskjede.opplysninger().finnAlle() shouldHaveSize 5
-        behandlingskjede.opplysninger().finnAlle().map {
+        behandlingskjede.opplysninger().somListe() shouldHaveSize 5
+        behandlingskjede.opplysninger().somListe().map {
             it.verdi
         } shouldContainAll listOf(1.0, 2.0, 3.0, 4.0, 5.0)
     }
@@ -97,13 +97,11 @@ internal class BehandlingTest {
                     behandlingId = UUIDv7.ny(),
                     behandler = hendelse,
                     gjeldendeOpplysninger =
-                        Opplysninger(
-                            listOf(
-                                Faktum(
-                                    tidligereOpplysning,
-                                    nummer.toDouble(),
-                                    Gyldighetsperiode(fomTom, fomTom),
-                                ),
+                        Opplysninger.med(
+                            Faktum(
+                                tidligereOpplysning,
+                                nummer.toDouble(),
+                                Gyldighetsperiode(fomTom, fomTom),
                             ),
                         ),
                     basertPå = forrigeBehandling?.let { listOf(it) } ?: emptyList(),

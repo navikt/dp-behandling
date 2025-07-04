@@ -7,7 +7,7 @@ class Alle internal constructor(
     produserer: Opplysningstype<Boolean>,
     private vararg val opplysningstyper: Opplysningstype<Boolean>,
 ) : Regel<Boolean>(produserer, opplysningstyper.toList()) {
-    override fun kjør(opplysninger: LesbarOpplysninger) = opplysninger.finnAlle(opplysningstyper.toList()).all { it.verdi as Boolean }
+    override fun kjør(opplysninger: LesbarOpplysninger) = opplysninger.finnAlle(opplysningstyper.toList()).all { it.verdi }
 
     override fun toString() = "Sjekker om alle ${opplysningstyper.joinToString(", ")} er sanne"
 }

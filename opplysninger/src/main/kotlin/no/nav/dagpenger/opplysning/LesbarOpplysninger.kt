@@ -6,17 +6,19 @@ import java.util.UUID
 interface LesbarOpplysninger {
     val id: UUID
 
+    val kunEgne: Opplysninger
+
     fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>
 
     fun har(opplysningstype: Opplysningstype<*>): Boolean
 
     fun mangler(opplysningstype: Opplysningstype<*>): Boolean = !har(opplysningstype)
 
-    fun finnAlle(opplysningstyper: List<Opplysningstype<*>>): List<Opplysning<*>>
+    fun finnFlere(opplysningstyper: List<Opplysningstype<*>>): List<Opplysning<*>>
 
-    fun finnAlle(vararg opplysningstyper: Opplysningstype<*>): List<Opplysning<*>>
+    fun <T : Comparable<T>> finnAlle(opplysningstyper: List<Opplysningstype<T>>): List<Opplysning<T>>
 
-    fun finnAlle(): List<Opplysning<*>>
+    fun <T : Comparable<T>> finnAlle(opplysningstype: Opplysningstype<T>): List<Opplysning<T>>
 
     fun finnOpplysning(opplysningId: UUID): Opplysning<*>
 
@@ -28,7 +30,16 @@ interface LesbarOpplysninger {
 
     fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean
 
-    val egneOpplysninger: Opplysninger
+    fun somListe(filter: Filter = Filter.Alle): List<Opplysning<*>>
+
+    companion object {
+        fun Collection<Opplysning<*>>.somOpplysninger() = Opplysninger.med(this)
+    }
+
+    enum class Filter {
+        Alle,
+        Egne,
+    }
 }
 
 typealias Opplysningssjekk = (LesbarOpplysninger) -> Boolean

@@ -10,7 +10,7 @@ class SisteAv internal constructor(
     private vararg val datoer: Opplysningstype<LocalDate>,
 ) : Regel<LocalDate>(produserer, datoer.toList()) {
     override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
-        val dager = opplysninger.finnAlle(datoer.toList()).map { it.verdi as LocalDate }
+        val dager = opplysninger.finnAlle(datoer.toList()).map { it.verdi }
         return dager.maxOrNull() ?: throw IllegalStateException("Ingen datoer funnet")
     }
 

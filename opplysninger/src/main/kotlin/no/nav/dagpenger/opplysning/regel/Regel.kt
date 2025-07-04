@@ -51,7 +51,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 }
             }
         } else {
-            val avhengigheter = opplysninger.finnAlle(avhengerAv)
+            val avhengigheter = opplysninger.finnFlere(avhengerAv)
 
             if (avhengigheter.size == avhengerAv.size) {
                 plan.add(this)
@@ -91,7 +91,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
             return Faktum(produserer, produkt)
         }
 
-        val basertPå = opplysninger.finnAlle(avhengerAv)
+        val basertPå = opplysninger.finnFlere(avhengerAv)
         requireAlleAvhengigheter(basertPå)
 
         val produkt = kjør(opplysninger)

@@ -35,12 +35,10 @@ class VernepliktTest {
         vernepliktErBest: Boolean,
         minsteinntekt: Boolean,
     ): Opplysninger =
-        Opplysninger(
-            listOf(
-                Faktum(Verneplikt.avtjentVerneplikt, søktOmVerneplikt),
-                Faktum(Verneplikt.oppfyllerKravetTilVerneplikt, oppfyllerKravetTilVerneplikt),
-                Faktum(grunnlagForVernepliktErGunstigst, vernepliktErBest),
-                Faktum(Minsteinntekt.minsteinntekt, minsteinntekt),
-            ),
+        Opplysninger.med(
+            Faktum(Verneplikt.avtjentVerneplikt, søktOmVerneplikt),
+            Faktum(Verneplikt.oppfyllerKravetTilVerneplikt, oppfyllerKravetTilVerneplikt),
+            Faktum(grunnlagForVernepliktErGunstigst, vernepliktErBest),
+            Faktum(Minsteinntekt.minsteinntekt, minsteinntekt),
         )
 }

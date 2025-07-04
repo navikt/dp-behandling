@@ -7,8 +7,7 @@ class EnAv internal constructor(
     produserer: Opplysningstype<Boolean>,
     private vararg val opplysningstyper: Opplysningstype<Boolean>,
 ) : Regel<Boolean>(produserer, opplysningstyper.toList()) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Boolean =
-        opplysninger.finnAlle(opplysningstyper.toList()).any { it.verdi as Boolean }
+    override fun kjør(opplysninger: LesbarOpplysninger): Boolean = opplysninger.finnAlle(opplysningstyper.toList()).any { it.verdi }
 
     override fun toString() = "Sjekker om minst en av ${opplysningstyper.joinToString(", ")} er sanne"
 }

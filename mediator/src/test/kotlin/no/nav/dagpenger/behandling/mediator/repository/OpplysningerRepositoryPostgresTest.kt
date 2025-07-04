@@ -29,6 +29,8 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -83,14 +85,14 @@ class OpplysningerRepositoryPostgresTest {
                         ),
                     ),
                 )
-            val opplysninger = Opplysninger(listOf(heltallFaktum, boolskFaktum, datoFaktum, desimalltallFaktum, tekstFaktum, barn, periode))
+            val opplysninger = Opplysninger.med(heltallFaktum, boolskFaktum, datoFaktum, desimalltallFaktum, tekstFaktum, barn, periode)
             repo.lagreOpplysninger(opplysninger)
 
             val fraDb =
                 repo.hentOpplysninger(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
-            fraDb.finnAlle().size shouldBe opplysninger.finnAlle().size
+            fraDb.somListe().size shouldBe opplysninger.somListe().size
             fraDb.finnOpplysning(heltallFaktum.opplysningstype).verdi shouldBe heltallFaktum.verdi
             fraDb.finnOpplysning(boolskFaktum.opplysningstype).verdi shouldBe boolskFaktum.verdi
             fraDb.finnOpplysning(boolskFaktum.opplysningstype).kilde?.id shouldBe kildeA.id
@@ -110,7 +112,7 @@ class OpplysningerRepositoryPostgresTest {
             val repo = opplysningerRepository()
             val gyldighetsperiode1 = Gyldighetsperiode(LocalDate.now(), LocalDate.now().plusDays(14))
             val faktum1 = Faktum(heltall, 10, gyldighetsperiode1)
-            val opplysninger = Opplysninger(listOf(faktum1))
+            val opplysninger = Opplysninger.med(faktum1)
             repo.lagreOpplysninger(opplysninger)
             val fraDb =
                 repo.hentOpplysninger(opplysninger.id).also {
@@ -127,7 +129,7 @@ class OpplysningerRepositoryPostgresTest {
             val kilde = Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("foo"))
             val maksDatoFaktum = Faktum(maksdato, LocalDate.MAX, kilde = kilde)
             val minDatoFaktum = Faktum(mindato, LocalDate.MIN, kilde = kilde)
-            val opplysninger = Opplysninger(listOf(maksDatoFaktum, minDatoFaktum))
+            val opplysninger = Opplysninger.med(maksDatoFaktum, minDatoFaktum)
             repo.lagreOpplysninger(opplysninger)
 
             val fraDb =
@@ -150,7 +152,7 @@ class OpplysningerRepositoryPostgresTest {
             val ulidFaktum = Faktum(opplysningstype, Ulid("01E5Z6Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1"))
             val ulidBoolskFaktum = Faktum(opplysningstype1, false)
 
-            val opplysninger = Opplysninger(listOf(ulidFaktum, ulidBoolskFaktum))
+            val opplysninger = Opplysninger.med(ulidFaktum, ulidBoolskFaktum)
             repo.lagreOpplysninger(opplysninger)
 
             val fraDb =
@@ -185,7 +187,7 @@ class OpplysningerRepositoryPostgresTest {
             repo.lagreOpplysninger(opplysninger)
 
             val fraDb = repo.hentOpplysninger(opplysninger.id).also { Regelkjøring(LocalDate.now(), it) }
-            fraDb.finnAlle().size shouldBe opplysninger.finnAlle().size
+            fraDb.somListe().size shouldBe opplysninger.somListe().size
 
             with(fraDb.finnOpplysning(utledetOpplysningstype)) {
                 verdi shouldBe 5
@@ -208,13 +210,13 @@ class OpplysningerRepositoryPostgresTest {
         withMigratedDb {
             val repo = opplysningerRepository()
             val fakta = (1..50000).map { Faktum(desimal, it.toDouble()) }
-            val opplysninger = Opplysninger(fakta)
+            val opplysninger = Opplysninger.med(fakta)
 
             val tidBrukt = measureTimeMillis { repo.lagreOpplysninger(opplysninger) }
             tidBrukt shouldBeLessThan 5555
 
             val fraDb = repo.hentOpplysninger(opplysninger.id)
-            fraDb.finnAlle().size shouldBe fakta.size
+            fraDb.somListe().size shouldBe fakta.size
         }
     }
 
@@ -224,7 +226,7 @@ class OpplysningerRepositoryPostgresTest {
             val repo = opplysningerRepository()
             val opplysning = Faktum(heltall, 10)
             val opplysningErstattet = Faktum(heltall, 20)
-            val opplysninger = Opplysninger(listOf(opplysning))
+            val opplysninger = Opplysninger.med(opplysning)
             val regelkjøring = Regelkjøring(LocalDate.now(), opplysninger)
 
             repo.lagreOpplysninger(opplysninger)
@@ -234,7 +236,7 @@ class OpplysningerRepositoryPostgresTest {
                 repo.hentOpplysninger(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
-            fraDb.aktiveOpplysningerListe shouldContainExactly listOf(opplysningErstattet)
+            fraDb.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly listOf(opplysningErstattet)
             fraDb.finnOpplysning(heltall).verdi shouldBe opplysningErstattet.verdi
         }
     }
@@ -246,25 +248,29 @@ class OpplysningerRepositoryPostgresTest {
 
             // Lag opplysninger med opprinnelig opplysning
             val opplysning = Faktum(heltall, 10)
-            val opprinneligOpplysninger = Opplysninger(listOf(opplysning))
+            val opprinneligOpplysninger = Opplysninger.med(opplysning)
             repo.lagreOpplysninger(opprinneligOpplysninger)
 
             // Lag ny opplysninger med erstattet opplysning
-            val opplysningerSomErstatter = Opplysninger(opprinneligOpplysninger)
+            val opplysningerSomErstatter = Opplysninger.basertPå(opprinneligOpplysninger)
             val opplysningErstattet = Faktum(heltall, 20)
             opplysningerSomErstatter.leggTil(opplysningErstattet as Opplysning<*>)
             repo.lagreOpplysninger(opplysningerSomErstatter)
 
             // Verifiser
-            opprinneligOpplysninger.aktiveOpplysningerListe shouldContainExactly listOf(opplysning)
+            opprinneligOpplysninger.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly listOf(opplysning)
             val opprinneligFraDb = repo.hentOpplysninger(opprinneligOpplysninger.id)
-            opprinneligFraDb.aktiveOpplysningerListe shouldContainExactly opprinneligOpplysninger.aktiveOpplysningerListe
+            opprinneligFraDb.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly
+                opprinneligOpplysninger.somListe(
+                    LesbarOpplysninger.Filter.Egne,
+                )
 
             val fraDb: Opplysninger =
                 // Simulerer hvordan Behandling setter opp Opplysninger
-                repo.hentOpplysninger(opplysningerSomErstatter.id) + listOf(opprinneligFraDb)
+                repo.hentOpplysninger(opplysningerSomErstatter.id).baserPå(listOf(opprinneligFraDb))
 
-            fraDb.aktiveOpplysningerListe shouldContainExactly opplysningerSomErstatter.aktiveOpplysningerListe
+            fraDb.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly
+                opplysningerSomErstatter.somListe(LesbarOpplysninger.Filter.Egne)
             fraDb
                 .forDato(10.mai)
                 .finnOpplysning(heltall)
@@ -297,14 +303,14 @@ class OpplysningerRepositoryPostgresTest {
 
             repo.lagreOpplysninger(tidligereOpplysninger)
 
-            val nyeOpplysninger = Opplysninger(opplysninger = emptyList(), basertPå = listOf(tidligereOpplysninger))
+            val nyeOpplysninger = Opplysninger.basertPå(tidligereOpplysninger)
             val nyRegelkjøring = Regelkjøring(LocalDate.now(), nyeOpplysninger, regelsett)
             val endretBaseOpplysningstype = Faktum(baseOpplysningstype, LocalDate.now().plusDays(1))
             nyeOpplysninger.leggTil(endretBaseOpplysningstype as Opplysning<*>).also { nyRegelkjøring.evaluer() }
             repo.lagreOpplysninger(nyeOpplysninger)
 
             val fraDb = repo.hentOpplysninger(nyeOpplysninger.id)
-            fraDb.finnAlle().size shouldBe 2
+            fraDb.somListe().size shouldBe 2
 
             with(fraDb.finnOpplysning(utledetOpplysningstype)) {
                 verdi shouldBe 5
@@ -322,8 +328,8 @@ class OpplysningerRepositoryPostgresTest {
 
             val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id)
             // tidligereOpplysningerFraDb.finnAlle().utenErstattet().size shouldBe 0
-            tidligereOpplysningerFraDb.aktiveOpplysningerListe.size shouldBe 2
-            with(tidligereOpplysninger.aktiveOpplysningerListe.find { it.id == baseOpplysning.id }) {
+            tidligereOpplysningerFraDb.somListe(Egne).size shouldBe 2
+            with(tidligereOpplysninger.somListe(Egne).find { it.id == baseOpplysning.id }) {
                 this.shouldNotBeNull()
                 this.verdi shouldBe baseOpplysning.verdi
                 this.gyldighetsperiode shouldBe baseOpplysning.gyldighetsperiode
@@ -343,7 +349,7 @@ class OpplysningerRepositoryPostgresTest {
             val beløpFaktumA = Faktum(beløpA, Beløp(verdi1))
             val beløpFaktumB = Faktum(beløpB, Beløp("EUR 20"))
 
-            val opplysninger = Opplysninger(listOf(beløpFaktumA, beløpFaktumB))
+            val opplysninger = Opplysninger.med(beløpFaktumA, beløpFaktumB)
             repo.lagreOpplysninger(opplysninger)
 
             val fraDb =
@@ -351,7 +357,7 @@ class OpplysningerRepositoryPostgresTest {
                     Regelkjøring(LocalDate.now(), it)
                 }
 
-            fraDb.finnAlle().size shouldBe opplysninger.finnAlle().size
+            fraDb.somListe().size shouldBe opplysninger.somListe().size
             val beløpAFraDB = fraDb.finnOpplysning(beløpFaktumA.opplysningstype)
             beløpAFraDB.verdi shouldBe beløpFaktumA.verdi
             beløpAFraDB.verdi.toString() shouldBe "NOK $verdi"
@@ -378,7 +384,7 @@ class OpplysningerRepositoryPostgresTest {
                         inntektV1,
                     ),
                 )
-            val opplysninger = Opplysninger(listOf(inntektFaktum))
+            val opplysninger = Opplysninger.med(inntektFaktum)
             repo.lagreOpplysninger(opplysninger)
             val fraDb = repo.hentOpplysninger(opplysninger.id)
 
@@ -396,13 +402,13 @@ class OpplysningerRepositoryPostgresTest {
             val vaktmesterRepo = VaktmesterPostgresRepo()
             val heltallFaktum = Faktum(heltall, 10)
             val heltallFaktum2 = Faktum(heltall, 20)
-            val opplysninger = Opplysninger(listOf(heltallFaktum))
+            val opplysninger = Opplysninger.med(heltallFaktum)
             // TODO: ???? heltallFaktum.erstattesAv(heltallFaktum2)
             repo.lagreOpplysninger(opplysninger)
-            opplysninger.fjern(heltallFaktum)
+            opplysninger.fjernHvis { it == heltallFaktum }
             repo.lagreOpplysninger(opplysninger)
             val fraDb = repo.hentOpplysninger(opplysninger.id)
-            fraDb.finnAlle().shouldBeEmpty()
+            fraDb.somListe().shouldBeEmpty()
             vaktmesterRepo.slettOpplysninger() shouldContainExactly listOf(heltallFaktum.id)
         }
     }
@@ -429,7 +435,7 @@ class OpplysningerRepositoryPostgresTest {
             repo.lagreOpplysninger(tidligereOpplysninger)
 
             // Ny behandling som baseres på den gamle
-            val nyeOpplysninger = Opplysninger(opplysninger = emptyList(), basertPå = listOf(tidligereOpplysninger))
+            val nyeOpplysninger = Opplysninger.basertPå(tidligereOpplysninger)
             val endretBaseOpplysningstype = Faktum(baseOpplysningstype, LocalDate.now().plusDays(1))
             nyeOpplysninger.leggTil(endretBaseOpplysningstype as Opplysning<*>).also {
                 Regelkjøring(LocalDate.now(), nyeOpplysninger, regelsett).evaluer()
@@ -438,7 +444,7 @@ class OpplysningerRepositoryPostgresTest {
 
             // Hent lagrede opplysninger fra ny behandling
             val fraDb = repo.hentOpplysninger(nyeOpplysninger.id)
-            fraDb.finnAlle().size shouldBe 2
+            fraDb.somListe().size shouldBe 2
             vaktmesterRepo.slettOpplysninger().shouldBeEmpty()
             val utledet = fraDb.finnOpplysning(utledetOpplysningstype)
 
@@ -454,12 +460,12 @@ class OpplysningerRepositoryPostgresTest {
             vaktmesterRepo.slettOpplysninger().shouldContainExactly(utledet.id, endretBaseOpplysningstype.id)
 
             with(repo.hentOpplysninger(nyeOpplysninger.id)) {
-                finnAlle().size shouldBe 2
+                somListe().size shouldBe 2
                 finnOpplysning(baseOpplysningstype).verdi shouldBe endretDato
             }
 
             with(repo.hentOpplysninger(tidligereOpplysninger.id)) {
-                finnAlle().size shouldBe 2
+                somListe().size shouldBe 2
                 finnOpplysning(baseOpplysningstype).verdi shouldBe opprinneligDato
             }
         }

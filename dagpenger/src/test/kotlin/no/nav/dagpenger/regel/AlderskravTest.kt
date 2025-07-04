@@ -5,8 +5,8 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.KreverAvklaring
 import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.OK
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
@@ -40,9 +40,5 @@ class AlderskravTest {
             ).shouldBeInstanceOf<KreverAvklaring>()
     }
 
-    private fun opplysninger(vararg opplysning: Opplysning<*>) =
-        Opplysninger(
-            opplysning.toList(),
-            emptyList(),
-        )
+    private fun opplysninger(vararg opplysning: Opplysning<*>) = opplysning.asList().somOpplysninger()
 }

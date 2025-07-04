@@ -123,7 +123,7 @@ class RegelkjøringTest {
 
         opplysninger1.finnOpplysning(a).verdi shouldBe true
 
-        val opplysninger2 = Opplysninger(opplysninger1)
+        val opplysninger2 = Opplysninger.basertPå(opplysninger1)
         opplysninger2.leggTil(Faktum(b, false, gyldighetsperiode = Gyldighetsperiode(14.januar))).also {
             Regelkjøring(
                 15.januar,

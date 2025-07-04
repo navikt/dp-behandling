@@ -29,6 +29,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -59,7 +60,7 @@ class Behandling private constructor(
     ) : this(
         behandlingId = UUIDv7.ny(),
         behandler = behandler,
-        gjeldendeOpplysninger = Opplysninger(opplysninger),
+        gjeldendeOpplysninger = opplysninger.somOpplysninger(),
         basertPå = basertPå,
         tilstand = UnderOpprettelse(LocalDateTime.now()),
         avklaringer = avklaringer,
@@ -75,7 +76,7 @@ class Behandling private constructor(
     private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
     private val forretningsprosess = behandler.forretningsprosess
 
-    val opplysninger: Opplysninger = (gjeldendeOpplysninger + tidligereOpplysninger)
+    val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
         get() =
@@ -97,7 +98,7 @@ class Behandling private constructor(
 
     private fun erAutomatiskBehandlet() =
         avklaringer().none { it.løstAvSaksbehandler() } &&
-            opplysninger.egneOpplysninger.finnAlle().none { it.kilde is Saksbehandlerkilde } &&
+            opplysninger.kunEgne.somListe().none { it.kilde is Saksbehandlerkilde } &&
             !godkjent.erUtført
 
     fun kreverTotrinnskontroll() = forretningsprosess.kreverTotrinnskontroll(opplysninger)
@@ -832,7 +833,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Mottok beskjed om rekjøring av behandling")
             hendelse.oppfriskOpplysningIder.map {
-                behandling.opplysninger.fjern(behandling.opplysninger.finnOpplysning(it))
+                behandling.opplysninger.fjern(it)
             }
             behandling.tilstand(Redigert(), hendelse)
         }

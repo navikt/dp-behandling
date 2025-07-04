@@ -50,6 +50,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
@@ -221,7 +222,8 @@ internal class PersonMediatorTest {
                 it
                     .behandlinger()
                     .first()
-                    .opplysninger.aktiveOpplysningerListe shouldHaveSize 21
+                    .opplysninger
+                    .somListe(Egne) shouldHaveSize 21
                 it
                     .behandlinger()
                     .first()
@@ -1014,11 +1016,10 @@ internal class PersonMediatorTest {
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 val forbrukt = 30
-                this
-                    .opplysninger()
-                    .finnAlle()
+                opplysninger()
+                    .somListe()
                     .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
-                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe forbrukt
+                opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe forbrukt
             }
 
             // Meldekort 5 leses inn som en korrigering til meldekort 4
@@ -1031,13 +1032,10 @@ internal class PersonMediatorTest {
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 val forbrukt = 20
-                this
-                    .opplysninger()
-                    .finnAlle()
-                    .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
+                opplysninger().somListe().filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
 
                 opplysninger
-                    .finnAlle()
+                    .somListe()
                     .filter { it.er(forbruk) && it.verdi as Boolean }
                     .size shouldBe forbrukt
             }
@@ -1084,10 +1082,9 @@ internal class PersonMediatorTest {
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 val antallDagerMedUtbetaling = 5
-                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe antallDagerMedUtbetaling
-                this
-                    .opplysninger()
-                    .finnAlle()
+                opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe antallDagerMedUtbetaling
+                opplysninger()
+                    .somListe()
                     .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize antallDagerMedUtbetaling
             }
         }
@@ -1243,7 +1240,7 @@ internal class PersonMediatorTest {
     private fun antallOpplysninger() =
         personRepository.hent(ident.tilPersonIdentfikator())?.let {
             it.behandlinger().size shouldBe 1
-            it.behandlinger().flatMap { behandling -> behandling.opplysninger().finnAlle() }.size
+            it.behandlinger().flatMap { behandling -> behandling.opplysninger().somListe() }.size
         }
 
     private fun aktiveOpplysninger() =
@@ -1251,7 +1248,7 @@ internal class PersonMediatorTest {
             it.behandlinger().size shouldBe 1
             it
                 .behandlinger()
-                .flatMap { behandling -> behandling.opplysninger().finnAlle() }
+                .flatMap { behandling -> behandling.opplysninger().somListe() }
                 .joinToString("\n") { it.opplysningstype.navn }
         }
 

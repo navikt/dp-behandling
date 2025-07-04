@@ -51,6 +51,16 @@ sealed class Opplysning<T : Comparable<T>>(
         _erstatter = erstattet
     }
 
+    fun overlapperHalenAv(opplysning: Opplysning<T>) =
+        this.gyldighetsperiode.fom.isAfter(opplysning.gyldighetsperiode.fom) &&
+            this.gyldighetsperiode.fom <= opplysning.gyldighetsperiode.tom
+
+    fun harSammegyldighetsperiode(opplysning: Opplysning<T>) = this.gyldighetsperiode == opplysning.gyldighetsperiode
+
+    fun starterFørOgOverlapper(opplysning: Opplysning<T>) =
+        this.gyldighetsperiode.fom.isBefore(opplysning.gyldighetsperiode.fom) &&
+            opplysning.gyldighetsperiode.inneholder(this.gyldighetsperiode.tom)
+
     abstract fun lagForkortet(opplysning: Opplysning<T>): Opplysning<T>
 
     abstract fun nyID(): Opplysning<T>

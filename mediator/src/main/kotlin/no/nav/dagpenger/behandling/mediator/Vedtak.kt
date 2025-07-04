@@ -69,26 +69,23 @@ import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakI
 import java.time.LocalDateTime
 
 private fun LesbarOpplysninger.samordninger(): List<SamordningDTO> {
-    @Suppress("UNCHECKED_CAST")
     val ytelser: List<Opplysning<Beløp>> =
-        (
-            finnAlle(
-                listOf(
-                    Samordning.sykepengerDagsats,
-                    Samordning.pleiepengerDagsats,
-                    Samordning.omsorgspengerDagsats,
-                    Samordning.opplæringspengerDagsats,
-                    Samordning.uføreDagsats,
-                    Samordning.foreldrepengerDagsats,
-                    Samordning.svangerskapspengerDagsats,
-                    SamordingUtenforFolketrygden.pensjonFraOffentligTjenestepensjonsordningBeløp,
-                    SamordingUtenforFolketrygden.redusertUførepensjonBeløp,
-                    SamordingUtenforFolketrygden.vartpengerBeløp,
-                    SamordingUtenforFolketrygden.ventelønnBeløp,
-                    SamordingUtenforFolketrygden.etterlønnBeløp,
-                    SamordingUtenforFolketrygden.garantilottGFFBeløp,
-                ),
-            ) as List<Opplysning<Beløp>>
+        finnAlle(
+            listOf(
+                Samordning.sykepengerDagsats,
+                Samordning.pleiepengerDagsats,
+                Samordning.omsorgspengerDagsats,
+                Samordning.opplæringspengerDagsats,
+                Samordning.uføreDagsats,
+                Samordning.foreldrepengerDagsats,
+                Samordning.svangerskapspengerDagsats,
+                SamordingUtenforFolketrygden.pensjonFraOffentligTjenestepensjonsordningBeløp,
+                SamordingUtenforFolketrygden.redusertUførepensjonBeløp,
+                SamordingUtenforFolketrygden.vartpengerBeløp,
+                SamordingUtenforFolketrygden.ventelønnBeløp,
+                SamordingUtenforFolketrygden.etterlønnBeløp,
+                SamordingUtenforFolketrygden.garantilottGFFBeløp,
+            ),
         ).filterNot {
             it.verdi == Beløp(0.0)
         }
@@ -119,9 +116,9 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
             }.toMap()
             .flatMap { (opplysningstype, hjemmel) ->
                 opplysninger
-                    .finnAlle()
-                    .filterIsInstance<Opplysning<Boolean>>()
+                    .somListe()
                     .filter { it.opplysningstype == opplysningstype }
+                    .filterIsInstance<Opplysning<Boolean>>()
                     .map { opplysning ->
                         opplysning.tilVilkårDTO(hjemmel.toString())
                     }
@@ -169,14 +166,14 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
         fastsatt = fastsatt,
         gjenstående = VedtakDTOGjenståendeDTO(),
         utbetalinger = opplysninger.utbetalinger(),
-        opplysninger = opplysningerSomGjelderPåPrøvingsdato.finnAlle().map { it.tilOpplysningDTO(opplysningerSomGjelderPåPrøvingsdato) },
+        opplysninger = opplysningerSomGjelderPåPrøvingsdato.somListe().map { it.tilOpplysningDTO(opplysningerSomGjelderPåPrøvingsdato) },
     )
 }
 
 private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
-    val meldeperioder: List<Opplysning<*>> = finnAlle(listOf(Beregning.meldeperiode))
+    val meldeperioder = finnAlle(Beregning.meldeperiode)
 
-    return finnAlle(listOf(Beregning.utbetaling)).filterIsInstance<Opplysning<Int>>().map { dag ->
+    return finnAlle(Beregning.utbetaling).map { dag ->
         val sats = finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi
         val periode: Opplysning<*> = meldeperioder.first { it.gyldighetsperiode.overlapp(dag.gyldighetsperiode) }
 

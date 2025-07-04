@@ -1,6 +1,6 @@
 package no.nav.dagpenger.opplysning
 
-import mu.KotlinLogging
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -9,42 +9,23 @@ import kotlin.collections.map
 
 class Opplysninger private constructor(
     override val id: UUID,
-    initielleOpplysninger: List<Opplysning<*>> = emptyList(),
-    basertPå: List<Opplysninger> = emptyList(),
+    initielleOpplysninger: List<Opplysning<*>>,
+    basertPå: List<Opplysninger>,
 ) : LesbarOpplysninger {
     constructor() : this(UUIDv7.ny(), emptyList(), emptyList())
-    constructor(id: UUID, opplysninger: List<Opplysning<*>>) : this(id, opplysninger, emptyList())
-    constructor(opplysninger: List<Opplysning<*>>, basertPå: List<Opplysninger> = emptyList()) : this(UUIDv7.ny(), opplysninger, basertPå)
-    constructor(vararg basertPå: Opplysninger) : this(emptyList(), basertPå.toList())
+    private constructor(id: UUID, opplysninger: List<Opplysning<*>>) : this(id, opplysninger, emptyList())
 
     private val egne: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
     private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
+    private val erstattet: MutableSet<UUID> = egne.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
     private val basertPåOpplysninger: List<Opplysning<*>> =
-        basertPå
-            .flatMap {
-                it.basertPåOpplysninger.utenErstattet() + it.egne.utenErstattet()
-            }
+        basertPå.flatMap { it.basertPåOpplysninger.utenErstattet() + it.egne.utenErstattet() }
 
     private val alleOpplysninger = CachedList { basertPåOpplysninger.utenErstattet() + egne }
 
-    // TODO: Denne burde bare brukes av databaselaget
-    val aktiveOpplysningerListe get() = egne.toList()
+    override val kunEgne get() = Opplysninger(id = id, opplysninger = egne)
 
-    override val egneOpplysninger get() = Opplysninger(id = id, opplysninger = egne)
-
-    override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
-        val aktiveForDato = aktiveOpplysningerListe.gyldigeFor(gjelderFor)
-        val basertPåDato = basertPåOpplysninger.utenErstattet().gyldigeFor(gjelderFor)
-        return Opplysninger(id, aktiveForDato, listOf(Opplysninger(UUIDv7.ny(), basertPåDato)))
-    }
-
-    override fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean {
-        val id = opplysninger.map { it.id }
-        return opplysningerSomErErstattet.any { it in id }
-    }
-
-    @Suppress("UNCHECKED_CAST")
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
@@ -59,7 +40,7 @@ class Opplysninger private constructor(
             // "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
             // }
             // Endre gyldighetsperiode på gammel opplysning og legg til ny opplysning kant i kant
-            val erstattes: Opplysning<T>? = alleOpplysninger.utenErstattet().find { it.overlapper(opplysning) } as Opplysning<T>?
+            val erstattes: Opplysning<T>? = alleOpplysninger.filterIsInstance<Opplysning<T>>().find { it.overlapper(opplysning) }
             if (erstattes !== null) {
                 when {
                     opplysning.overlapperHalenAv(erstattes) -> {
@@ -101,6 +82,8 @@ class Opplysninger private constructor(
                         )
                     }
                 }
+
+                erstattet.add(erstattes.id)
                 alleOpplysninger.refresh()
                 return
             }
@@ -118,9 +101,10 @@ class Opplysninger private constructor(
             return
         }
 
-        egne.add(opplysning)
-        alleOpplysninger.refresh()
+        throw IllegalStateException("Kan ikke legge til opplysning")
     }
+
+    override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
 
     internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
 
@@ -131,93 +115,95 @@ class Opplysninger private constructor(
         alleOpplysninger.singleOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
-    override fun har(opplysningstype: Opplysningstype<*>) = alleOpplysninger.utenErstattet().any { it.er(opplysningstype) }
+    override fun har(opplysningstype: Opplysningstype<*>) = alleOpplysninger.any { it.er(opplysningstype) }
 
-    override fun finnAlle(opplysningstyper: List<Opplysningstype<*>>) = finnAlle(*opplysningstyper.toTypedArray())
+    override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) =
+        opplysningstyper.mapNotNull { type -> alleOpplysninger.singleOrNull { it.er(type) } }
 
-    override fun finnAlle(vararg opplysningstyper: Opplysningstype<*>) =
-        opplysningstyper.flatMap { type -> alleOpplysninger.filter { it.er(type) } }
+    override fun <T : Comparable<T>> finnAlle(opplysningstyper: List<Opplysningstype<T>>) =
+        opplysningstyper.flatMap { type -> finnAlle(type) }
 
-    override fun finnAlle() = alleOpplysninger.toList()
+    override fun <T : Comparable<T>> finnAlle(opplysningstype: Opplysningstype<T>) =
+        alleOpplysninger.filter { it.er(opplysningstype) }.filterIsInstance<Opplysning<T>>()
+
+    override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
+        val aktiveForDato = egne.gyldigeFor(gjelderFor)
+        // basertPåOpplysninger blir bare filtrert på init, men nye opplysninger kan ha blitt lagt til som nå erstatter noe og de må fjernes
+        val basertPåDato = basertPåOpplysninger.utenErstattet().gyldigeFor(gjelderFor)
+        return Opplysninger(id, aktiveForDato, listOf(Opplysninger(UUIDv7.ny(), basertPåDato)))
+    }
+
+    override fun somListe(filter: Filter) =
+        when (filter) {
+            Filter.Alle -> alleOpplysninger
+            Filter.Egne -> egne
+        }
+
+    fun baserPå(tidligereOpplysninger: List<Opplysninger>) = Opplysninger(id, egne, tidligereOpplysninger)
 
     fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <T : Comparable<T>> finnNullableOpplysning(
-        opplysningstype: Opplysningstype<T>,
-        gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
-    ): Opplysning<T>? {
-        if (alleOpplysninger.utenErstattet().count { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) } > 1) {
-            throw IllegalStateException(
-                """Har mer enn 1 opplysning av type $opplysningstype i opplysningerId=$id.
-                |Fant ${alleOpplysninger.count { it.er(opplysningstype) }} duplikater blant ${alleOpplysninger.size} opplysninger.
-                |Basert på (${basertPåOpplysninger.size} opplysninger) 
-                """.trimMargin(),
-            )
+    fun fjernHvis(block: (Opplysning<*>) -> Boolean) =
+        egne.filter { block(it) }.forEach { fjern(it, false) }.also {
+            // Oppdaterer alleOpplysninger etter at opplysninger er fjernet
+            alleOpplysninger.refresh()
         }
-        return alleOpplysninger.utenErstattet().singleOrNull {
-            it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode)
-        } as Opplysning<T>?
-    }
 
-    private fun <T : Comparable<T>> Opplysning<T>.overlapperHalenAv(opplysning: Opplysning<T>) =
-        this.gyldighetsperiode.fom.isAfter(opplysning.gyldighetsperiode.fom) &&
-            this.gyldighetsperiode.fom <= opplysning.gyldighetsperiode.tom
+    fun fjern(opplysningId: UUID) = fjern(finnOpplysning(opplysningId))
 
-    private fun <T : Comparable<T>> Opplysning<T>.harSammegyldighetsperiode(opplysning: Opplysning<T>) =
-        this.gyldighetsperiode == opplysning.gyldighetsperiode
-
-    private fun <T : Comparable<T>> Opplysning<T>.starterFørOgOverlapper(opplysning: Opplysning<T>) =
-        this.gyldighetsperiode.fom.isBefore(opplysning.gyldighetsperiode.fom) &&
-            opplysning.gyldighetsperiode.inneholder(this.gyldighetsperiode.tom)
-
-    operator fun plus(tidligereOpplysninger: List<Opplysninger>) = Opplysninger(id, egne, tidligereOpplysninger)
-
-    fun fjernUbrukteOpplysninger(beholdDisse: Set<Opplysningstype<*>>) {
-        egne
-            .filterNot { beholdDisse.contains(it.opplysningstype) }
-            .filterNot {
-                (it.erstatter != null).also { erstatter ->
-                    if (!erstatter) return@also
-                    logger.warn {
-                        """Prøver å fjerne opplysning id=${it.id}, navn=${it.opplysningstype.navn}, 
-                        |som er en erstatning for id=${it.erstatter!!.id}
-                        """.trimMargin()
-                    }
-                }
-            }.forEach { fjern(it) }
-        alleOpplysninger.refresh()
-    }
-
-    fun fjern(opplysningId: UUID) {
-        fjern(finnOpplysning(opplysningId))
-    }
-
-    fun fjern(opplysning: Opplysning<*>) {
+    private fun fjern(
+        opplysning: Opplysning<*>,
+        skalOppfriske: Boolean = true,
+    ) {
         // Fjern alle opplysninger som er utledet av opplysningen som fjernes
         fjernAvhengigheter(opplysning)
 
         egne.remove(opplysning)
         fjernet.add(opplysning)
 
-        alleOpplysninger.refresh()
+        if (skalOppfriske) alleOpplysninger.refresh()
     }
 
     private fun fjernAvhengigheter(eksisterende: Opplysning<*>) {
-        val graf = OpplysningGraf(aktiveOpplysningerListe)
+        val graf = OpplysningGraf(egne.toList())
         val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
-        avhengigheter.forEach { avhengighet -> fjern(avhengighet) }
+        avhengigheter.forEach { avhengighet -> fjern(avhengighet, false) }
     }
 
-    private val opplysningerSomErErstattet get() = egne.mapNotNull { it.erstatter }.map { it.id }
+    private fun <T : Comparable<T>> finnNullableOpplysning(
+        opplysningstype: Opplysningstype<T>,
+        gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
+    ): Opplysning<T>? {
+        val opplysninger =
+            alleOpplysninger
+                .filter { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) }
+                .filterIsInstance<Opplysning<T>>()
 
-    private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> {
-        val opplysningerSomErErstattet = opplysningerSomErErstattet
-        return filterNot { it.id in opplysningerSomErErstattet }
+        require(opplysninger.size <= 1) {
+            """Har mer enn 1 opplysning av type $opplysningstype i opplysningerId=$id.
+            |Fant ${alleOpplysninger.count { it.er(opplysningstype) }} duplikater blant ${alleOpplysninger.size} opplysninger.
+            |Basert på (${basertPåOpplysninger.size} opplysninger) 
+            """.trimMargin()
+        }
+
+        return opplysninger.singleOrNull()
+    }
+
+    private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> = filterNot { it.id in erstattet }
+
+    companion object {
+        fun med(opplysninger: Collection<Opplysning<*>>) = Opplysninger(UUIDv7.ny(), opplysninger.toList())
+
+        fun med(vararg opplysning: Opplysning<*>) = Opplysninger(UUIDv7.ny(), opplysning.toList())
+
+        fun basertPå(vararg andre: Opplysninger) = Opplysninger(UUIDv7.ny(), emptyList(), andre.toList())
+
+        fun rehydrer(
+            id: UUID,
+            opplysninger: List<Opplysning<*>>,
+        ) = Opplysninger(id, opplysninger, emptyList())
     }
 }
-
-private val logger = KotlinLogging.logger {}
 
 class OpplysningIkkeFunnetException(
     message: String,

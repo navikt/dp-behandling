@@ -137,7 +137,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
 
         // TODO: Filtrer bort erstattete opplysninger - dette utgår når vi periodiserer alt
         val opplysningerPåPrøvingsdato = opplysninger().forDato(prøvingsdato)
-        val opplysningSet = opplysningerPåPrøvingsdato.finnAlle().toSet()
+        val opplysningSet = opplysningerPåPrøvingsdato.somListe().toSet()
         val avklaringer = avklaringer().toSet()
         val spesifikkeAvklaringskoder =
             behandler.forretningsprosess.regelverk.regelsett
@@ -155,7 +155,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 opplysninger().finnAlle(hendelseTypeOpplysningstype).map {
                     TidslinjehendelseDTO(
                         dato = it.gyldighetsperiode.fom,
-                        hendelse = it.verdi as String,
+                        hendelse = it.verdi,
                     )
                 },
             utfall = utfall,
@@ -198,7 +198,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             avklaringer = generelleAvklaringer.map { it.tilAvklaringDTO() },
             opplysninger = opplysningSet.map { it.tilOpplysningDTO(opplysningerPåPrøvingsdato) },
             opplysningsgrupper =
-                opplysninger().finnAlle().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                opplysninger().somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
                     OpplysningsgruppeDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
@@ -215,7 +215,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
 internal fun Behandling.tilSaksbehandlersVurderinger() =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val avklaringer = avklaringer().filter { it.løstAvSaksbehandler() }.toSet()
-        val endredeOpplysninger = opplysninger().finnAlle().filter { it.kilde is Saksbehandlerkilde }.toSet()
+        val endredeOpplysninger = opplysninger().somListe().filter { it.kilde is Saksbehandlerkilde }.toSet()
 
         val regelsett = behandler.forretningsprosess.regelverk.regelsett
 

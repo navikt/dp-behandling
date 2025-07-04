@@ -11,7 +11,7 @@ class Substraksjon<T : Comparable<T>> internal constructor(
     private val operasjon: (List<T>) -> T,
 ) : Regel<T>(produserer, opplysningstyper.toList()) {
     override fun kjør(opplysninger: LesbarOpplysninger): T {
-        val verdier = opplysninger.finnAlle(opplysningstyper.toList()).map { it.verdi as T }
+        val verdier = opplysninger.finnAlle(opplysningstyper.toList()).map { it.verdi }
         return operasjon(verdier)
     }
 

@@ -9,7 +9,6 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper
 import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
-import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
@@ -85,90 +84,86 @@ class BehandlingApiMapperTest {
         )
     private val behandling =
         Behandling.rehydrer(
-            behandlingId =
-                UUIDv7
-                    .ny(),
+            behandlingId = UUIDv7.ny(),
             behandler = hendelse,
             gjeldendeOpplysninger =
-                Opplysninger(
-                    listOf(
-                        Faktum(
-                            Søknadstidspunkt.prøvingsdato,
+                Opplysninger.med(
+                    Faktum(
+                        Søknadstidspunkt.prøvingsdato,
+                        LocalDate
+                            .now(),
+                    ),
+                    Faktum(
+                        Verneplikt.avtjentVerneplikt,
+                        true,
+                    ),
+                    Faktum(
+                        opplysningstype = Søknadstidspunkt.søknadsdato,
+                        verdi =
                             LocalDate
                                 .now(),
-                        ),
-                        Faktum(
-                            Verneplikt.avtjentVerneplikt,
-                            true,
-                        ),
-                        Faktum(
-                            opplysningstype = Søknadstidspunkt.søknadsdato,
-                            verdi =
-                                LocalDate
-                                    .now(),
-                            kilde =
-                                Saksbehandlerkilde(
-                                    UUIDv7
-                                        .ny(),
-                                    Saksbehandler("Z123456"),
-                                ),
-                        ),
-                        Faktum(
-                            opplysningstype = Minsteinntekt.inntekt12,
-                            verdi =
-                                Beløp(3000.034.toBigDecimal()),
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.heltall,
-                            verdi = 3,
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.desimal,
-                            verdi = 3.0,
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.boolsk,
-                            verdi = true,
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.dato,
-                            verdi =
-                                LocalDate
-                                    .now(),
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.beløpA,
-                            verdi =
-                                Beløp(1000.toBigDecimal()),
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.periode,
-                            verdi =
-                                Periode(16.april(2025), 25.april(2025)),
-                        ),
-                        Faktum(
-                            opplysningstype = TestOpplysningstyper.barn,
-                            verdi =
-                                BarnListe(
-                                    listOf(
-                                        Barn(
-                                            fornavnOgMellomnavn = "Navn",
-                                            etternavn = "Navnesen",
-                                            statsborgerskap = "NOR",
-                                            fødselsdato =
-                                                LocalDate
-                                                    .now(),
-                                            kvalifiserer = true,
-                                        ),
+                        kilde =
+                            Saksbehandlerkilde(
+                                UUIDv7
+                                    .ny(),
+                                Saksbehandler("Z123456"),
+                            ),
+                    ),
+                    Faktum(
+                        opplysningstype = Minsteinntekt.inntekt12,
+                        verdi =
+                            Beløp(3000.034.toBigDecimal()),
+                    ),
+                    Faktum(
+                        opplysningstype = TestOpplysningstyper.heltall,
+                        verdi = 3,
+                    ),
+                    Faktum(
+                        opplysningstype = TestOpplysningstyper.desimal,
+                        verdi = 3.0,
+                    ),
+                    Faktum(
+                        opplysningstype = TestOpplysningstyper.boolsk,
+                        verdi = true,
+                    ),
+                    Faktum(
+                        opplysningstype = TestOpplysningstyper.dato,
+                        verdi =
+                            LocalDate
+                                .now(),
+                    ),
+                    Faktum(
+                        opplysningstype = TestOpplysningstyper.beløpA,
+                        verdi =
+                            Beløp(1000.toBigDecimal()),
+                    ),
+                    Faktum(
+                        opplysningstype = TestOpplysningstyper.periode,
+                        verdi =
+                            Periode(16.april(2025), 25.april(2025)),
+                    ),
+                    Faktum(
+                        opplysningstype = TestOpplysningstyper.barn,
+                        verdi =
+                            BarnListe(
+                                listOf(
+                                    Barn(
+                                        fornavnOgMellomnavn = "Navn",
+                                        etternavn = "Navnesen",
+                                        statsborgerskap = "NOR",
+                                        fødselsdato =
+                                            LocalDate
+                                                .now(),
+                                        kvalifiserer = true,
                                     ),
                                 ),
-                            kilde =
-                                Saksbehandlerkilde(
-                                    UUIDv7
-                                        .ny(),
-                                    Saksbehandler("Z123456"),
-                                ),
-                        ),
+                            ),
+                        kilde =
+                            Saksbehandlerkilde(
+                                UUIDv7
+                                    .ny(),
+                                Saksbehandler("Z123456"),
+                            ),
                     ),
                 ),
             basertPå = emptyList(),

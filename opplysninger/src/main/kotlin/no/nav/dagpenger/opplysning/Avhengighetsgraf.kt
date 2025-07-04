@@ -22,7 +22,7 @@ internal class Avhengighetsgraf(
         nødvendigeOpplysninger.addAll(ønsketResultat)
 
         // Identifiser eksisterende opplysninger som ikke produseres av noen regel
-        val opplysningerUtenRegel = opplysninger.finnAlle().map { it.opplysningstype }.filter { it !in reglerEtterOutput }
+        val opplysningerUtenRegel = opplysninger.somListe().map { it.opplysningstype }.filter { it !in reglerEtterOutput }
         nødvendigeOpplysninger.addAll(opplysningerUtenRegel)
 
         // Traverser fra ønskede outputs og legg til avhengigheter

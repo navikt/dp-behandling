@@ -87,7 +87,7 @@ class PersonRepositoryPostgresTest {
                     .id shouldBe behandling.opplysninger().id
                 it
                     .behandlinger()
-                    .flatMap { behandling -> behandling.opplysninger().finnAlle() } shouldContain opplysning
+                    .flatMap { behandling -> behandling.opplysninger().somListe() } shouldContain opplysning
             }
         }
 

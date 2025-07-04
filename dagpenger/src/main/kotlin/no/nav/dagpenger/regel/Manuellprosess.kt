@@ -89,8 +89,8 @@ class Manuellprosess : RegistrertForretningsprosess() {
         { forDato(prøvingsdato(this)) }
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        opplysninger.egneOpplysninger
-            .finnAlle()
+        opplysninger.kunEgne
+            .somListe()
             .last()
             .gyldighetsperiode.fom
 }

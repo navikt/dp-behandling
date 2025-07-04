@@ -41,17 +41,17 @@ class LesbarOpplysningerMedLogg(
             }
         }
 
-    override fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) = TODO("Not yet implemented")
 
-    override val egneOpplysninger: Opplysninger get() = TODO("Not yet implemented")
+    override fun <T : Comparable<T>> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = TODO("Not yet implemented")
 
-    override fun finnAlle(opplysningstyper: List<Opplysningstype<*>>) = TODO()
+    override fun <T : Comparable<T>> finnAlle(opplysningstype: Opplysningstype<T>) = TODO("Not yet implemented")
 
-    override fun finnAlle(vararg opplysningstyper: Opplysningstype<*>) = TODO()
+    override fun erErstattet(opplysninger: List<Opplysning<*>>) = TODO("Not yet implemented")
 
-    override fun finnAlle() = TODO()
+    override val kunEgne: Opplysninger get() = TODO("Not yet implemented")
+
+    override fun somListe(filter: LesbarOpplysninger.Filter) = TODO("Not yet implemented")
 
     override fun forDato(gjelderFor: LocalDate) = TODO()
 }

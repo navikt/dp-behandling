@@ -6,8 +6,8 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
@@ -95,7 +95,7 @@ class BeregningSteg : No {
     }
 
     private val beregning by lazy {
-        val opplysninger = Opplysninger(opplysninger)
+        val opplysninger = opplysninger.somOpplysninger()
         BeregningsperiodeFabrikk(meldeperiodeFraOgMed, meldeperiodeTilOgMed, opplysninger, rettighetstatus).lagBeregningsperiode()
     }
 

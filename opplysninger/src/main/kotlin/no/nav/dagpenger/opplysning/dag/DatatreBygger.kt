@@ -12,7 +12,7 @@ class DatatreBygger(
     private val edges = mutableListOf<Edge<Opplysning<*>, Any?>>()
 
     fun dag(): DAG<Opplysning<*>, Any?> {
-        opplysninger.finnAlle().forEach { opplysning ->
+        opplysninger.somListe().forEach { opplysning ->
             val element = Node("${opplysning.opplysningstype.navn}: ${opplysning.verdi}", opplysning)
             opplysning.utledetAv?.opplysninger?.forEach { utledning ->
                 val utledningNode = Node("${utledning.opplysningstype.navn}: ${utledning.verdi}", utledning)

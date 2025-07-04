@@ -32,14 +32,12 @@ class RegelmotorIntegrasjonsTest {
     fun `som sjekker minsteinntekt og kravet til alder`() {
         val regelverksdato = 10.mai
         val tidligereBehandling =
-            Opplysninger(
-                listOf(
-                    // Setter opp opplysninger med ting som er kjent fra før
-                    // Har er ikke lengre gyldig og må hentes på nytt
-                    Faktum(ReglerForInntektTest.inntekt12, Beløp(221221.0), Gyldighetsperiode(1.januar, 1.mai)),
-                ),
+            Opplysninger.med(
+                // Setter opp opplysninger med ting som er kjent fra før
+                // Har er ikke lengre gyldig og må hentes på nytt
+                Faktum(ReglerForInntektTest.inntekt12, Beløp(221221.0), Gyldighetsperiode(1.januar, 1.mai)),
             )
-        val opplysninger = Opplysninger(tidligereBehandling)
+        val opplysninger = Opplysninger.basertPå(tidligereBehandling)
         val alleVilkår = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Vilkår")
         val regelsett =
             vilkår("Krav til Dagpenger") {

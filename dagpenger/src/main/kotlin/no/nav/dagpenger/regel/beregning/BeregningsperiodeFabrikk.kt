@@ -36,7 +36,7 @@ internal class BeregningsperiodeFabrikk(
         val periode = opprettPeriode(dager)
         val stønadsdagerIgjen =
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
-                opplysninger.finnAlle().filter { it.er(forbruk) && it.verdi as Boolean }.size
+                opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
 
         logger.info {
             """
@@ -54,7 +54,7 @@ internal class BeregningsperiodeFabrikk(
             .finnOpplysning(Egenandel.egenandel)
             .verdi.verdien
             .toDouble() -
-            opplysninger.finnAlle().filter { it.er(forbruktEgenandel) }.sumOf { it.verdi as Int }
+            opplysninger.somListe().filter { it.er(forbruktEgenandel) }.sumOf { it.verdi as Int }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> =
         meldeperiode.filter { meldekortDag -> runCatching { rettighetstatuser.get(meldekortDag).utfall }.getOrElse { false } }

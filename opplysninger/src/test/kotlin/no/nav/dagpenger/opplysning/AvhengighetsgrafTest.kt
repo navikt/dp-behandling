@@ -26,14 +26,12 @@ class AvhengighetsgrafTest {
 
         val alleRegler = setOf(regelA, regelB, regelC, regelD)
         val opplysninger =
-            Opplysninger(
-                listOf(
-                    Faktum(opplysningstypeA, 2.0),
-                    Faktum(opplysningstypeB, 2.0),
-                    Faktum(opplysningstypeC, 2.0),
-                    Faktum(opplysningstypeD, 2.0),
-                    Faktum(opplysningstypeE, 2.0),
-                ),
+            Opplysninger.med(
+                Faktum(opplysningstypeA, 2.0),
+                Faktum(opplysningstypeB, 2.0),
+                Faktum(opplysningstypeC, 2.0),
+                Faktum(opplysningstypeD, 2.0),
+                Faktum(opplysningstypeE, 2.0),
             )
 
         // Det er opplysningstype C vi ønsker å finne

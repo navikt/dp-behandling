@@ -33,11 +33,9 @@ class MinsteinntektTest {
         inntekt: Boolean,
         verneplikt: Boolean,
     ): Opplysninger =
-        Opplysninger(
-            listOf(
-                Faktum(kravTilAlder, alder),
-                Faktum(minsteinntekt, inntekt),
-                Faktum(grunnlagForVernepliktErGunstigst, verneplikt),
-            ),
+        Opplysninger.med(
+            Faktum(kravTilAlder, alder),
+            Faktum(minsteinntekt, inntekt),
+            Faktum(grunnlagForVernepliktErGunstigst, verneplikt),
         )
 }
