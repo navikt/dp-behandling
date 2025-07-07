@@ -9,6 +9,7 @@ import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.KvoteDTO
 import no.nav.dagpenger.behandling.api.models.KvoteDTOTypeDTO
+import no.nav.dagpenger.behandling.api.models.PeriodeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SamordningDTO
 import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
@@ -291,8 +292,11 @@ private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
                 else -> VilkaarDTOStatusDTO.IKKE_OPPFYLT
             },
         vurderingstidspunkt = this.opprettet,
-        fraOgMed = this.gyldighetsperiode.fom,
-        tilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
+        periode =
+            PeriodeDTO(
+                fraOgMed = this.gyldighetsperiode.fom,
+                tilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
+            ),
     )
 
 internal val opplysningTilVilkårMap =

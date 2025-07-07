@@ -1431,7 +1431,7 @@ components:
         - status
         - vurderingstidspunkt
         - id
-        - fraOgMed
+        - periode
       properties:
         navn:
           $ref: '#/components/schemas/VilkaarNavn'
@@ -1443,14 +1443,8 @@ components:
         vurderingstidspunkt:
           type: string
           format: date-time
-        fraOgMed:
-          type: string
-          format: date
-          nullable: false
-        tilOgMed:
-          type: string
-          format: date
-          nullable: true
+        periode:
+          $ref: '#/components/schemas/Periode'
 
     Barn:
       type: object
@@ -1471,6 +1465,18 @@ components:
           enum: [ "dager", "uker", "beløp" ]
         verdi:
           type: number
+
+    Periode:
+      type: object
+      required:
+        - fraOgMed
+      properties:
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          type: string
+          format: date
 
     Utbetaling:
       type: object
