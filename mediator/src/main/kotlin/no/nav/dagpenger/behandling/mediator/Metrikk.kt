@@ -25,4 +25,12 @@ internal object Metrikk {
             .quantile(0.95, 0.001)
             .quantile(0.99, 0.001)
             .register(PrometheusRegistry.defaultRegistry)
+
+    val tidBruktPerHendelse: Histogram =
+        Histogram
+            .builder()
+            .name("hendelse_behandling_tid_sekunder")
+            .help("Tid det tar å behandle en hendelse, i sekunder")
+            .labelNames("hendelse")
+            .register()
 }

@@ -7,6 +7,7 @@ import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import mu.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
+import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerHendelse
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident
@@ -103,7 +104,12 @@ internal class HendelseMediator(
             person(ident) { person ->
                 person.registrer(personMediator)
                 observatører.forEach { observatør -> person.registrer(observatør) }
-                handler(person)
+                tidBruktPerHendelse
+                    .labelValues(
+                        hendelse.javaClass.simpleName,
+                    ).time {
+                        handler(person)
+                    }
             }
             ferdigstill(context, personMediator, hendelse)
         } catch (e: Exception) {
