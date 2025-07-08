@@ -137,13 +137,6 @@ object Avklaringspunkter {
                 """.trimIndent(),
         )
 
-    val ØnskerEtterRapporteringsfrist =
-        Avklaringkode(
-            kode = "ØnskerEtterRapporteringsfrist",
-            tittel = "Sjekk om det bør ventes til etter A-ordningens rapporteringsfrist",
-            beskrivelse = "Personen har søkt om dagpenger med ønsket startdato i neste rapporteringsperiode.",
-        )
-
     val PrøvingsdatoEtterRapporteringsfrist =
         Avklaringkode(
             kode = "PrøvingsdatoEtterRapporteringsfrist",

@@ -107,7 +107,6 @@ object Minsteinntekt {
 
             avklaring(Avklaringspunkter.SvangerskapsrelaterteSykepenger)
             avklaring(Avklaringspunkter.InntektNesteKalendermåned)
-            avklaring(Avklaringspunkter.ØnskerEtterRapporteringsfrist)
 
             påvirkerResultat {
                 // Hvis alder ikke er oppfylt, er minsteinntekt ikke relevant
