@@ -131,7 +131,14 @@ object Minsteinntekt {
 
     val SvangerskapsrelaterteSykepengerKontroll =
         Kontrollpunkt(Avklaringspunkter.SvangerskapsrelaterteSykepenger) {
-            it.har(inntektFraSkatt) && (it.har(minsteinntekt) && it.finnOpplysning(minsteinntekt).verdi == false)
+            if (!it.har(inntektFraSkatt) || it.erSann(minsteinntekt)) return@Kontrollpunkt false
+
+            val inntekt = it.finnOpplysning(inntektFraSkatt).verdi.verdi
+            inntekt.inntektsListe.any { inntektMåned ->
+                inntektMåned.klassifiserteInntekter.any { inntekt ->
+                    inntekt.inntektKlasse in listOf(InntektKlasse.SYKEPENGER, InntektKlasse.SYKEPENGER_FANGST_FISKE)
+                }
+            }
         }
 
     val EØSArbeidKontroll =

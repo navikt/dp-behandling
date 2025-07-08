@@ -295,6 +295,10 @@ class TestPerson(
                                         beløp = InntektSiste12Mnd.toBigDecimal(),
                                         inntektKlasse = no.nav.dagpenger.inntekt.v1.InntektKlasse.ARBEIDSINNTEKT,
                                     ),
+                                    no.nav.dagpenger.inntekt.v1.KlassifisertInntekt(
+                                        beløp = 50.toBigDecimal(),
+                                        inntektKlasse = no.nav.dagpenger.inntekt.v1.InntektKlasse.SYKEPENGER,
+                                    ),
                                 ),
                             harAvvik = false,
                         ),
