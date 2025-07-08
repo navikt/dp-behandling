@@ -6,6 +6,7 @@ import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
+import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -83,9 +84,11 @@ class PersonRepositoryPostgres(
             }
 
     override fun lagre(person: Person) {
-        val unitOfWork = PostgresUnitOfWork.transaction()
-        lagre(person, unitOfWork)
-        unitOfWork.commit()
+        lagrePersonMetrikk.time {
+            val unitOfWork = PostgresUnitOfWork.transaction()
+            lagre(person, unitOfWork)
+            unitOfWork.commit()
+        }
     }
 
     override fun lagre(

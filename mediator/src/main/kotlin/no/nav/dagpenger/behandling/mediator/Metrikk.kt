@@ -33,4 +33,11 @@ internal object Metrikk {
             .help("Tid det tar å behandle en hendelse, i sekunder")
             .labelNames("hendelse")
             .register()
+
+    val lagrePersonMetrikk: Histogram =
+        Histogram
+            .builder()
+            .name("behandling_lagre_person_tid_sekunder")
+            .help("Tid det tar å lagre en person, i sekunder")
+            .register()
 }
