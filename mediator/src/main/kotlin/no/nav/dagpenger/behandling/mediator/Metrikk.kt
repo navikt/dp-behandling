@@ -40,4 +40,12 @@ internal object Metrikk {
             .name("behandling_lagre_person_tid_sekunder")
             .help("Tid det tar å lagre en person, i sekunder")
             .register()
+
+    val totalTidBruktPerHendelse: Histogram =
+        Histogram
+            .builder()
+            .name("hendelse_behandling_total_tid_sekunder")
+            .help("Total tid det tar å behandle en hendelse, i sekunder")
+            .labelNames("hendelse")
+            .register()
 }
