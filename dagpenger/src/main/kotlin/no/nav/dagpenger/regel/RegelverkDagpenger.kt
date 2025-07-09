@@ -17,7 +17,6 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 
 val RegelverkDagpenger =
     Regelverk(
-        Rettighetstype.regelsett,
         Alderskrav.regelsett,
         Vanligarbeidstid.regelsett,
         Dagpengegrunnlag.regelsett,
