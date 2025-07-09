@@ -14,15 +14,11 @@ Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De 
 |KanJobbeDeltid | Kan jobbe heltid og deltid | Boolsk|boolean|
 |KanJobbeHvorSomHelst | Kan jobbe i hele Norge | Boolsk|boolean|
 |Lønnsgaranti | Forskutterte lønnsgarantimidler i form av dagpenger | Boolsk|boolean|
-|Lønnsgaranti | Forskutterte lønnsgarantimidler i form av dagpenger | Boolsk|boolean|
 |Omsorgspenger | Omsorgspenger etter lovens kapittel 9 | Boolsk|boolean|
 |OppgittAndreYtelserUtenforNav | Oppgitt andre ytelser utenfor NAV i søknaden | Boolsk|boolean|
 |Opplæringspenger | Opplæringspenger etter lovens kapittel 9 | Boolsk|boolean|
 |Ordinær | Har rett til ordinære dagpenger gjennom arbeidsforhold | Boolsk|boolean|
-|Ordinær | Har rett til ordinære dagpenger gjennom arbeidsforhold | Boolsk|boolean|
 |Permittert | Bruker er permittert | Boolsk|boolean|
-|Permittert | Bruker er permittert | Boolsk|boolean|
-|PermittertFiskeforedling | Permittert fra fiskeindustrien | Boolsk|boolean|
 |PermittertFiskeforedling | Permittert fra fiskeindustrien | Boolsk|boolean|
 |Pleiepenger | Pleiepenger etter lovens kapittel 9 | Boolsk|boolean|
 |RegistrertSomArbeidssøker | Registrert som arbeidssøker | Boolsk|boolean|

@@ -13,9 +13,9 @@ import no.nav.dagpenger.regel.Behov.Lønnsgaranti
 import no.nav.dagpenger.regel.Behov.Ordinær
 import no.nav.dagpenger.regel.Behov.Permittert
 import no.nav.dagpenger.regel.Behov.PermittertFiskeforedling
+import no.nav.dagpenger.regel.OpplysningsTyper.ErReellArbeidssøkerVurdertId
 import no.nav.dagpenger.regel.OpplysningsTyper.HarRettTilOrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenArbeidId
-import no.nav.dagpenger.regel.OpplysningsTyper.KanReellArbeidssøkerVurderesId
 import no.nav.dagpenger.regel.OpplysningsTyper.LønnsgarantiId
 import no.nav.dagpenger.regel.OpplysningsTyper.OrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
@@ -35,11 +35,11 @@ object Rettighetstype {
             beskrivelse = "Permittert fra fiskeindustrien",
             behovId = PermittertFiskeforedling,
         )
-    val kanReellArbeidssøkerVurderes: Opplysningstype<Boolean> =
+    val erReellArbeidssøkerVurdert: Opplysningstype<Boolean> =
         boolsk(
-            KanReellArbeidssøkerVurderesId,
+            ErReellArbeidssøkerVurdertId,
             "Kravet til reell arbeidssøker er vurdert",
-            synlig = { !kravPåDagpenger(it) || !it.erSann(kanReellArbeidssøkerVurderes) },
+            synlig = { !kravPåDagpenger(it) || !it.erSann(erReellArbeidssøkerVurdert) },
         )
 
     private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
@@ -61,8 +61,8 @@ object Rettighetstype {
 
             regel(rettighetstype) { enAv(ordinær, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
 
-            regel(kanReellArbeidssøkerVurderes) { oppslag(prøvingsdato) { true } }
+            regel(erReellArbeidssøkerVurdert) { oppslag(prøvingsdato) { true } }
 
-            ønsketResultat(rettighetstype, kanReellArbeidssøkerVurderes)
+            ønsketResultat(rettighetstype, erReellArbeidssøkerVurdert)
         }
 }

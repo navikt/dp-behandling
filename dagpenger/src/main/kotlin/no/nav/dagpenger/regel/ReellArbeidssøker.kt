@@ -34,7 +34,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.VilligTilEthvertArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.minimumVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.villigTilMinimumArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønsketArbeidstidId
-import no.nav.dagpenger.regel.Rettighetstype.kanReellArbeidssøkerVurderes
+import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Samordning.uføre
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
@@ -88,7 +88,7 @@ object ReellArbeidssøker {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
-            skalVurderes { it.oppfyller(kravTilAlder) && it.erSann(kanReellArbeidssøkerVurderes) }
+            skalVurderes { it.oppfyller(kravTilAlder) && it.erSann(erReellArbeidssøkerVurdert) }
 
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
             regel(minimumVanligArbeidstid) { oppslag(prøvingsdato) { 18.75 } }
@@ -120,7 +120,7 @@ object ReellArbeidssøker {
                 )
             }
 
-            ønsketResultat(kanReellArbeidssøkerVurderes)
+            ønsketResultat(erReellArbeidssøkerVurdert)
 
             avklaring(ReellArbeidssøkerUnntak)
             avklaring(IkkeRegistrertSomArbeidsøker)

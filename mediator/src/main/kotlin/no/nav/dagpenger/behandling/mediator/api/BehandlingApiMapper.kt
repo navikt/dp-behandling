@@ -84,7 +84,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
-import no.nav.dagpenger.regel.Rettighetstype.kanReellArbeidssøkerVurderes
+import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
@@ -460,7 +460,7 @@ internal val redigerbareOpplysninger =
                 godkjentDeltidssøker,
                 godkjentLokalArbeidssøker,
                 godkjentArbeidsufør,
-                kanReellArbeidssøkerVurderes,
+                erReellArbeidssøkerVurdert,
                 // 4-6 Utdanning
                 tarUtdanning,
                 deltakelseIArbeidsmarkedstiltak,

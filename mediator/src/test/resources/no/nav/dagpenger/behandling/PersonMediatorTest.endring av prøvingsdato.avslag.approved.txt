@@ -8,8 +8,8 @@ Har rett til ordinære dagpenger gjennom arbeidsforhold
 Bruker er permittert
 Forskutterte lønnsgarantimidler i form av dagpenger
 Permittert fra fiskeindustrien
-Har rett til ordinære dagpenger uten arbeidsforhold
 Søknadstidspunkt
+Har rett til ordinære dagpenger uten arbeidsforhold
 Ordinære dagpenger
 Rettighetstype
 Avtjent verneplikt
@@ -21,8 +21,8 @@ Kan ta alle typer arbeid
 Villig til å bytte yrke
 Oppfyller kravet til å ta ethvert arbeid
 Prøvingsdato
-Kravet til reell arbeidssøker er ikke relevant
 Aldersgrense
+Kravet til reell arbeidssøker er vurdert
 Dato søker når maks alder
 Siste mulige dag bruker kan oppfylle alderskrav
 Oppfyller kravet til alder
