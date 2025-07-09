@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning
 
 import mu.KotlinLogging
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
@@ -109,6 +110,13 @@ class Regelkjøring(
         // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
         val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
         opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
+
+        val opplysningerSomPåvirkerResultatet: List<Opplysningstype<*>> =
+            forretningsprosess.regelsett().filter { it.påvirkerResultat(opplysningerPåPrøvingsdato) }.flatMap { it.produserer }
+
+        opplysninger.somListe(Egne).forEach {
+            it.erRelevant = it.opplysningstype in opplysningerSomPåvirkerResultatet
+        }
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,

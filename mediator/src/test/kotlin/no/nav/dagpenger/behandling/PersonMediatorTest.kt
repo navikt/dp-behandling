@@ -223,7 +223,7 @@ internal class PersonMediatorTest {
                     .behandlinger()
                     .first()
                     .opplysninger
-                    .somListe(Egne) shouldHaveSize 21
+                    .somListe(Egne) shouldHaveSize 22
                 it
                     .behandlinger()
                     .first()

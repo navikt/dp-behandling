@@ -1,23 +1,27 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
+import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.Behov.Lønnsgaranti
 import no.nav.dagpenger.regel.Behov.Ordinær
 import no.nav.dagpenger.regel.Behov.Permittert
 import no.nav.dagpenger.regel.Behov.PermittertFiskeforedling
 import no.nav.dagpenger.regel.OpplysningsTyper.HarRettTilOrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenArbeidId
+import no.nav.dagpenger.regel.OpplysningsTyper.KanReellArbeidssøkerVurderesId
 import no.nav.dagpenger.regel.OpplysningsTyper.LønnsgarantiId
 import no.nav.dagpenger.regel.OpplysningsTyper.OrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Rettighetstype {
@@ -30,6 +34,12 @@ object Rettighetstype {
             PermittertFiskeforedlingId,
             beskrivelse = "Permittert fra fiskeindustrien",
             behovId = PermittertFiskeforedling,
+        )
+    val kanReellArbeidssøkerVurderes: Opplysningstype<Boolean> =
+        boolsk(
+            KanReellArbeidssøkerVurderesId,
+            "Kravet til reell arbeidssøker er ikke relevant",
+            synlig = { !kravPåDagpenger(it) || !it.erSann(kanReellArbeidssøkerVurderes) },
         )
 
     private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
@@ -51,6 +61,8 @@ object Rettighetstype {
 
             regel(rettighetstype) { enAv(ordinær, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
 
-            ønsketResultat(rettighetstype)
+            regel(kanReellArbeidssøkerVurderes) { oppslag(prøvingsdato) { true } }
+
+            ønsketResultat(rettighetstype, kanReellArbeidssøkerVurderes)
         }
 }

@@ -79,12 +79,12 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentDeltidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentLokalArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeDeltid
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
-import no.nav.dagpenger.regel.ReellArbeidssøker.kanReellArbeidssøkerVurderes
 import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
+import no.nav.dagpenger.regel.Rettighetstype.kanReellArbeidssøkerVurderes
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
@@ -247,7 +247,7 @@ private fun Regelsett.tilRegelsettDTO(
 
     val egneAvklaringer = avklaringer.filter { it.kode in this.avklaringer }
 
-    val opplysningMedUtfall = opplysninger.filterIsInstance<Opplysning<Boolean>>().filter { utfall.contains(it.opplysningstype) }
+    val opplysningMedUtfall = opplysninger.filter { utfall.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
     var status = tilStatus(opplysningMedUtfall)
     val erRelevant = påvirkerResultat(lesbarOpplysninger)
 

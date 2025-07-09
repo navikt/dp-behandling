@@ -25,7 +25,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.GodkjentDeltidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.GodkjentLokalArbeidssøker
 import no.nav.dagpenger.regel.OpplysningsTyper.KanJobbeDeltidId
 import no.nav.dagpenger.regel.OpplysningsTyper.KanJobbeHvorSomHelstId
-import no.nav.dagpenger.regel.OpplysningsTyper.KanReellArbeidssøkerVurderesId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravTilArbeidsførId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravTilArbeidssøkerId
@@ -35,6 +34,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.VilligTilEthvertArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.minimumVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.villigTilMinimumArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønsketArbeidstidId
+import no.nav.dagpenger.regel.Rettighetstype.kanReellArbeidssøkerVurderes
 import no.nav.dagpenger.regel.Samordning.uføre
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
@@ -73,12 +73,6 @@ object ReellArbeidssøker {
         boolsk(OppfyllerKravetTilEthvertArbeidId, "Oppfyller kravet til å ta ethvert arbeid", synlig = aldriSynlig)
 
     val kravTilArbeidssøker = boolsk(KravTilArbeidssøkerId, "Reell arbeidssøker")
-    val kanReellArbeidssøkerVurderes =
-        boolsk(
-            KanReellArbeidssøkerVurderesId,
-            "Kravet til reell arbeidssøker er ikke relevant",
-            synlig = { !oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) },
-        )
 
     val ønsketArbeidstid =
         desimaltall(
@@ -94,7 +88,7 @@ object ReellArbeidssøker {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
-            skalVurderes { it.oppfyller(kravTilAlder) }
+            skalVurderes { it.oppfyller(kravTilAlder) && it.erSann(kanReellArbeidssøkerVurderes) }
 
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
             regel(minimumVanligArbeidstid) { oppslag(prøvingsdato) { 18.75 } }
@@ -126,15 +120,13 @@ object ReellArbeidssøker {
                 )
             }
 
-            regel(kanReellArbeidssøkerVurderes) { oppslag(prøvingsdato) { true } }
             ønsketResultat(kanReellArbeidssøkerVurderes)
 
             avklaring(ReellArbeidssøkerUnntak)
             avklaring(IkkeRegistrertSomArbeidsøker)
 
             påvirkerResultat {
-                it.erSann(kravTilAlder) &&
-                    (it.oppfyller(kanReellArbeidssøkerVurderes) || oppfyllerKravetTilMinsteinntektEllerVerneplikt(it))
+                it.erSann(kravTilAlder) || oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)
             }
         }
 
