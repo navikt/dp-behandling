@@ -218,4 +218,14 @@ object Avklaringspunkter {
                 Du må sjekke om bruker oppfyller vilkåret om opphold i Norge eller er unntatt fra vilkåret om opphold
                 """.trimIndent(),
         )
+
+    val ManglerReellArbeidssøker =
+        Avklaringkode(
+            kode = "ManglerReellArbeidssøker",
+            tittel = "Vurderingen av reell arbeidssøker mangler og utfallet er innvilgelse",
+            beskrivelse =
+                """
+                Du må sørge for at vurderingen av reell arbeidssøker er utført før du kan innvilge 
+                """.trimIndent(),
+        )
 }

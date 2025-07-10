@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
@@ -64,5 +65,10 @@ object Rettighetstype {
             regel(erReellArbeidssøkerVurdert) { oppslag(prøvingsdato) { true } }
 
             ønsketResultat(rettighetstype, erReellArbeidssøkerVurdert)
+        }
+
+    val ManglerReellArbeidssøkerKontroll =
+        Kontrollpunkt(sjekker = Avklaringspunkter.ManglerReellArbeidssøker) { opplysninger ->
+            kravPåDagpenger(opplysninger) && !opplysninger.erSann(erReellArbeidssøkerVurdert)
         }
 }

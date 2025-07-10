@@ -20,6 +20,7 @@ import no.nav.dagpenger.regel.Permittering.PermitteringKontroll
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.PermitteringFiskKontroll
 import no.nav.dagpenger.regel.ReellArbeidssøker.ReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.IkkeRegistrertSomArbeidsøkerKontroll
+import no.nav.dagpenger.regel.Rettighetstype.ManglerReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.Søknadstidspunkt.SjekkPrøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
@@ -46,29 +47,30 @@ class Søknadsprosess : RegistrertForretningsprosess() {
     override fun kontrollpunkter() =
         listOf(
             BarnetilleggKontroll,
+            BostedslandKontroll,
             EØSArbeidKontroll,
             FulleYtelserKontrollpunkt,
-            NyttGrunnbeløpForGrunnlag,
             HattLukkedeSakerSiste8UkerKontroll,
             IkkeRegistrertSomArbeidsøkerKontroll,
             InntektNesteKalendermånedKontroll,
             JobbetUtenforNorgeKontroll,
+            ManglerReellArbeidssøkerKontroll,
             MuligGjenopptakKontroll,
+            NyttGrunnbeløpForGrunnlag,
+            PermitteringFiskKontroll,
+            PermitteringKontroll,
+            PrøverEtterRapporteringsfristKontroll,
             ReellArbeidssøkerKontroll,
+            SjekkPrøvingsdato,
             SkalSamordnes,
             SvangerskapsrelaterteSykepengerKontroll,
-            VirkningstidspunktForLangtFremITid,
-            SjekkPrøvingsdato,
             TapArbeidstidBeregningsregelKontroll,
-            beregnetArbeidstidKontroll,
+            TilleggsopplysningsKontroll,
             Under18Kontroll,
             VernepliktKontroll,
+            VirkningstidspunktForLangtFremITid,
             YtelserUtenforFolketrygdenKontroll,
-            PrøverEtterRapporteringsfristKontroll,
-            PermitteringKontroll,
-            TilleggsopplysningsKontroll,
-            PermitteringFiskKontroll,
-            BostedslandKontroll,
+            beregnetArbeidstidKontroll,
         )
 
     private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
