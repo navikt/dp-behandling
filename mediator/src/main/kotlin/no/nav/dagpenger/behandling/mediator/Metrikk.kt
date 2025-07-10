@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator
 
+import io.prometheus.metrics.core.metrics.Counter
 import io.prometheus.metrics.core.metrics.Histogram
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 
@@ -43,5 +44,13 @@ internal object Metrikk {
             .name("hendelse_behandling_total_tid_sekunder")
             .help("Total tid det tar å behandle en hendelse, i sekunder")
             .labelNames("hendelse")
+            .register()
+
+    val avklaringOpprettetTeller: Counter =
+        Counter
+            .builder()
+            .name("dp_behandling_avklaring_opprettet")
+            .help("Avklaringer opprettet i behandling")
+            .labelNames("kode")
             .register()
 }
