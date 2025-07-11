@@ -4,8 +4,7 @@
 
 ```mermaid
 graph RL
-  A["Bruker er utestengt fra dagpenger"] -->|"Oppslag"| B["Prøvingsdato"]
-  C["Oppfyller krav til ikke utestengt"] -->|"IngenAv"| A["Bruker er utestengt fra dagpenger"]
+  A["Oppfyller krav til ikke utestengt"] -->|"IngenAv"| B["Bruker er utestengt fra dagpenger"]
 ```
 
 ## Akseptansetester

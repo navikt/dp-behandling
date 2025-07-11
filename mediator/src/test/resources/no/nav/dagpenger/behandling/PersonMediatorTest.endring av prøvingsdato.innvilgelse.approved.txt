@@ -1,6 +1,8 @@
 fagsakId
 søknadId
 hendelseType
+Aldersgrense
+Kravet til reell arbeidssøker er vurdert
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
@@ -9,28 +11,26 @@ Bruker er permittert
 Forskutterte lønnsgarantimidler i form av dagpenger
 Permittert fra fiskeindustrien
 Søknadstidspunkt
+Dato søker når maks alder
 Har rett til ordinære dagpenger uten arbeidsforhold
 Prøvingsdato
-Ordinære dagpenger
-Aldersgrense
-Rettighetstype
-Kravet til reell arbeidssøker er vurdert
-Dato søker når maks alder
 Siste mulige dag bruker kan oppfylle alderskrav
+Ordinære dagpenger
 Oppfyller kravet til alder
+Rettighetstype
 Lovpålagt rapporteringsfrist for A-ordningen
 Maks lengde på opptjeningsperiode
 Grunnbeløp
 Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
-Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søker arbeid lokalt
-Har helsemessige begrensninger og kan ikke ta alle typer arbeid
-Minimum vanlig arbeidstid
 Årsaken til permitteringen er godkjent
 Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
 Årsaken til permitteringen fra fiskeindustrien er godkjent
 Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søker arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
+Minimum vanlig arbeidstid
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 måneder
 Inntektskrav for siste 36 måneder
@@ -167,7 +167,7 @@ Garantilott fra Garantikassen for fiskere beløp
 Terskelfaktor for 12 måneder
 Lang dagpengeperiode
 Kort dagpengeperiode
-Divisior
+Snittinntekt siste 36 måneder
 Terskelfaktor for 36 måneder
 Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
 Antall dager som skal regnes med i hver uke
@@ -184,7 +184,6 @@ Har avkortet grunnlag
 Beløp tilsvarende nedre terskel av G
 Sum av ytelser utenfor folketrygden
 Terskel for 12 måneder
-Snittinntekt siste 36 måneder
 Terskel for 36 måneder
 Over terskel for 12 måneder
 Over terskel for 36 måneder

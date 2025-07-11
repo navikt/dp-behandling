@@ -4,7 +4,6 @@
 
 ```mermaid
 graph RL
-  A["Mottar ikke andre fulle ytelser"] -->|"Oppslag"| B["Prøvingsdato"]
 ```
 
 ## Akseptansetester
