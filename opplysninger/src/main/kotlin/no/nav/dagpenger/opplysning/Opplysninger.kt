@@ -20,7 +20,10 @@ class Opplysninger private constructor(
     private val erstattet: MutableSet<UUID> = egne.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
     private val basertPåOpplysninger: List<Opplysning<*>> =
-        basertPå.flatMap { it.basertPåOpplysninger.utenErstattet() + it.egne.utenErstattet() }
+        basertPå.flatMap {
+            it.basertPåOpplysninger.filter { it.erRelevant }.utenErstattet() +
+                it.egne.filter { it.erRelevant }.utenErstattet()
+        }
 
     private val alleOpplysninger = CachedList { basertPåOpplysninger.utenErstattet() + egne }
 

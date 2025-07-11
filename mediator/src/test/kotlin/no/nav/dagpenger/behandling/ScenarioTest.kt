@@ -121,6 +121,51 @@ class ScenarioTest {
     }
 
     @Test
+    fun `tester overgang mellom rettigheter og ikke relevante opplysninger`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            vedtak {
+                utfall shouldBe true
+            }
+
+            // Opprett stans
+            person.opprettBehandling(22.august(2018))
+            behovsløsere.løsningFor(Behov.RegistrertSomArbeidssøker, false, 22.august(2018))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            vedtak {
+                utfall shouldBe false
+            }
+
+            // Gjenoppta med permittering
+            person.opprettBehandling(23.oktober(2018))
+            behovsløsere.løsningFor(Behov.Prøvingsdato, 23.oktober(2018), 23.oktober(2018))
+            behovsløsere.løsningFor(Behov.Permittert, true, 23.oktober(2018))
+            behovsløsere.løsningFor(Behov.RegistrertSomArbeidssøker, true, 23.oktober(2018))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            vedtak {
+                utfall shouldBe true
+            }
+        }
+    }
+
+    @Test
     fun `Fjerning og redigering av opplysninger`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
