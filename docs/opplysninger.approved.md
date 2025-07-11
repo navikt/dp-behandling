@@ -165,7 +165,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943d-77a7-969c-147999f1544b|Lang dagpengeperiode|Lang dagpengeperiode|Heltall|int|
 |0194881f-943d-77a7-969c-147999f1544c|Terskel for 12 måneder|Terskel for 12 måneder|Penger|Beløp|
 |0194881f-943d-77a7-969c-147999f1544d|Terskel for 36 måneder|Terskel for 36 måneder|Penger|Beløp|
-|0194881f-943d-77a7-969c-147999f1544e|Divisior|Divisior|Desimaltall|double|
 |0194881f-943d-77a7-969c-147999f1544f|Terskelfaktor for 12 måneder|Terskelfaktor for 12 måneder|Desimaltall|double|
 |0194881f-943d-77a7-969c-147999f15450|Terskelfaktor for 36 måneder|Terskelfaktor for 36 måneder|Desimaltall|double|
 |0194881f-943d-77a7-969c-147999f15451|Snittinntekt siste 36 måneder|Snittinntekt siste 36 måneder|Penger|Beløp|

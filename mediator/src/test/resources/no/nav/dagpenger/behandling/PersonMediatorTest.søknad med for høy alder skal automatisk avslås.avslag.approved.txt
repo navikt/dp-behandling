@@ -1,6 +1,8 @@
 fagsakId
 søknadId
 hendelseType
+Aldersgrense
+Kravet til reell arbeidssøker er vurdert
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
@@ -9,14 +11,12 @@ Bruker er permittert
 Forskutterte lønnsgarantimidler i form av dagpenger
 Permittert fra fiskeindustrien
 Søknadstidspunkt
+Dato søker når maks alder
 Har rett til ordinære dagpenger uten arbeidsforhold
 Prøvingsdato
-Ordinære dagpenger
-Aldersgrense
-Rettighetstype
-Kravet til reell arbeidssøker er vurdert
-Dato søker når maks alder
 Siste mulige dag bruker kan oppfylle alderskrav
+Ordinære dagpenger
 Oppfyller kravet til alder
+Rettighetstype
 Registrert som arbeidssøker
 Registrert som arbeidssøker på søknadstidspunktet
