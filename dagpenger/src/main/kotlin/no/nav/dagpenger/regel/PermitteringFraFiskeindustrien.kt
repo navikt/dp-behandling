@@ -7,12 +7,15 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Avklaringspunkter.HarOppgittPermitteringFiskeindustri
 import no.nav.dagpenger.regel.OpplysningsTyper.erPermitteringenFraFiskeindustriMidlertidigId
 import no.nav.dagpenger.regel.OpplysningsTyper.godkjentÅrsakPermitteringFraFiskindustriId
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilProsentvisTapAvArbeidstidFiskepermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFiskeindustriId
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.erPermitteringenFraFiskeindustriMidlertidig
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
@@ -54,8 +57,8 @@ object PermitteringFraFiskeindustrien {
         ) {
             skalVurderes { it.erSann(kravTilAlder) }
 
-            regel(godkjentÅrsakPermitteringFraFiskindustri) { oppslag(prøvingsdato) { true } }
-            regel(erPermitteringenFraFiskeindustriMidlertidig) { oppslag(prøvingsdato) { true } }
+            regel(godkjentÅrsakPermitteringFraFiskindustri) { somUtgangspunkt(true) }
+            regel(erPermitteringenFraFiskeindustriMidlertidig) { somUtgangspunkt(true) }
             regel(kravTilArbeidstidsreduksjonVedFiskepermittering) { oppslag(prøvingsdato) { 40.0 } }
 
             utfall(oppfyllerKravetTilPermitteringFiskeindustri) {

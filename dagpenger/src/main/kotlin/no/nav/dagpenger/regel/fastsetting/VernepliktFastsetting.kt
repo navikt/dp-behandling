@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallGVernepliktId
@@ -60,7 +61,7 @@ object VernepliktFastsetting {
             regel(vernepliktPeriode) { oppslag(prøvingsdato) { 26 } }
             regel(vernepliktFastsattVanligArbeidstid) { oppslag(prøvingsdato) { 37.5 } }
 
-            regel(grunnlagUtenVerneplikt) { oppslag(prøvingsdato) { Beløp(0) } }
+            regel(grunnlagUtenVerneplikt) { somUtgangspunkt(Beløp(0)) }
 
             // Setter grunnlag avhengig av om bruker oppfyller kravet til verneplikt (0G eller 3G)
             regel(grunnlagHvisVerneplikt) { hvisSannMedResultat(oppfyllerKravetTilVerneplikt, vernepliktGrunnlag, grunnlagUtenVerneplikt) }

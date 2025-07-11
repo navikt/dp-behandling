@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentMed
-import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter.Bostedsland
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.regel.OpplysningsTyper.BostedslandId
@@ -18,7 +18,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetTilOppholdId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerMedlemskapId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppholdINorgeId
 import no.nav.dagpenger.regel.OpplysningsTyper.UnntakForOppholdId
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Opphold {
@@ -42,11 +41,11 @@ object Opphold {
 
             regel(bostedsland) { innhentMed(søknadIdOpplysningstype) }
             regel(oppholdINorge) { erSann(bostedsland) }
-            regel(unntakForOpphold) { oppslag(prøvingsdato) { false } }
+            regel(unntakForOpphold) { somUtgangspunkt(false) }
 
             utfall(oppfyllerKravetTilOpphold) { enAv(oppholdINorge, unntakForOpphold) }
 
-            regel(medlemFolketrygden) { oppslag(prøvingsdato) { true } }
+            regel(medlemFolketrygden) { somUtgangspunkt(true) }
             utfall(oppfyllerMedlemskap) { erSann(medlemFolketrygden) }
 
             utfall(oppfyllerKravet) { alle(oppfyllerKravetTilOpphold, oppfyllerMedlemskap) }

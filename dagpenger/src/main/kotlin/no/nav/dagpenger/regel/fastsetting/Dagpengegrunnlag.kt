@@ -21,6 +21,7 @@ import no.nav.dagpenger.opplysning.regel.inntekt.summerPeriode
 import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
@@ -72,7 +73,7 @@ object Dagpengegrunnlag {
         Opplysningstype.som(FaktorForMaksimaltMuligGrunnlagId, "Faktor for maksimalt mulig grunnlag", synlig = aldriSynlig)
     private val maksgrenseForGrunnlag = Opplysningstype.beløp(SeksGangerGrunnbeløpId, "6 ganger grunnbeløp", synlig = aldriSynlig)
 
-    private val antallÅrI36Måneder = Opplysningstype.desimaltall(AntallÅrI36MånederId, "Antall år i 36 måneder", synlig = aldriSynlig)
+    val antallÅrI36Måneder = Opplysningstype.desimaltall(AntallÅrI36MånederId, "Antall år i 36 måneder", synlig = aldriSynlig)
 
     internal val grunnlag12mnd = Opplysningstype.beløp(GrunnlagSiste12MndId, "Inntekt etter avkortning og oppjustering siste 12 måneder")
     private val beløpSiste36 = Opplysningstype.beløp(InntektSiste36MånederId, "Inntekt siste 36 måneder", synlig = aldriSynlig)
@@ -128,11 +129,11 @@ object Dagpengegrunnlag {
         ) {
             skalVurderes { kravPåDagpenger(it) }
 
-            regel(antallÅrI36Måneder) { oppslag(prøvingsdato) { 3.0 } } // Teknisk - skal ikke vises
-            regel(faktorForMaksgrense) { oppslag(prøvingsdato) { 6.0 } } // Konstant i regelverket - skal ikke vises
-            regel(maksgrenseForGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, faktorForMaksgrense) } // Teknisk - skal ikke vises
+            regel(antallÅrI36Måneder) { somUtgangspunkt(3.0) }
+            regel(faktorForMaksgrense) { oppslag(prøvingsdato) { 6.0 } }
+            regel(maksgrenseForGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, faktorForMaksgrense) }
 
-            regel(grunnbeløpForDagpengeGrunnlag) { oppslag(prøvingsdato) { grunnbeløpFor(it) } } // Konstant i regelverket - skal ikke vises
+            regel(grunnbeløpForDagpengeGrunnlag) { oppslag(prøvingsdato) { grunnbeløpFor(it) } }
 
             regel(relevanteinntekter) {
                 filtrerRelevanteInntekter(

@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.prosentTerskel
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter.BeregnetArbeidstid
 import no.nav.dagpenger.regel.Avklaringspunkter.TapAvArbeidstidBeregningsregel
 import no.nav.dagpenger.regel.Behov.HarTaptArbeid
@@ -36,6 +37,10 @@ import no.nav.dagpenger.regel.OpplysningsTyper.tapAvArbeidstidErMinstTerskelId
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel36mnd
+import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktFastsattVanligArbeidstid
@@ -126,8 +131,8 @@ object TapAvArbeidsinntektOgArbeidstid {
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
-            regel(tapAvArbeid) { oppslag(prøvingsdato) { true } } // TODO: Satt til true for testing av innvilgelse
-            regel(kravPåLønn) { oppslag(prøvingsdato) { false } }
+            regel(tapAvArbeid) { somUtgangspunkt(true) }
+            regel(kravPåLønn) { somUtgangspunkt(false) }
             regel(ikkeKravPåLønn) { ikke(kravPåLønn) }
             utfall(kravTilTapAvArbeidsinntekt) { alle(tapAvArbeid, ikkeKravPåLønn) }
 
@@ -142,21 +147,20 @@ object TapAvArbeidsinntektOgArbeidstid {
             }
 
             // TODO: Kun en av disse må være sann. Enforces med Avklaring (i gang framtiden)
-            regel(beregningsregel6mnd) { oppslag(prøvingsdato) { true } } // TODO: Satt til true for testing av innvilgelse
-            regel(beregningsregel12mnd) { oppslag(prøvingsdato) { false } }
-            regel(beregningsregel36mnd) { oppslag(prøvingsdato) { false } }
+            regel(beregningsregel6mnd) { somUtgangspunkt(true) }
+            regel(beregningsregel12mnd) { somUtgangspunkt(false) }
+            regel(beregningsregel36mnd) { somUtgangspunkt(false) }
 
             // TODO: Bør hentes fra noe
-            regel(beregnetArbeidstid) { oppslag(prøvingsdato) { 37.5 } }
-
-            regel(arbeidstidsreduksjonIkkeBruktTidligere) { oppslag(prøvingsdato) { true } }
+            regel(beregnetArbeidstid) { somUtgangspunkt(37.5) }
+            regel(arbeidstidsreduksjonIkkeBruktTidligere) { somUtgangspunkt(true) }
 
             // FVA fra verneplikt overstyrer ordinær FVA om verneplikt er gunstigst
             regel(ordinærEllerVernepliktArbeidstid) {
                 hvisSannMedResultat(grunnlagForVernepliktErGunstigst, vernepliktFastsattVanligArbeidstid, beregnetArbeidstid)
             }
 
-            regel(nyArbeidstid) { oppslag(prøvingsdato) { 0.0 } }
+            regel(nyArbeidstid) { somUtgangspunkt(0.0) }
             regel(maksimalVanligArbeidstid) { oppslag(prøvingsdato) { 40.0 } }
 
             utfall(kravTilTaptArbeidstid) { prosentTerskel(nyArbeidstid, fastsattVanligArbeidstid, kravTilArbeidstidsreduksjon) }

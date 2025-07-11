@@ -2,7 +2,6 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
@@ -12,20 +11,19 @@ import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilÅr
 import no.nav.dagpenger.opplysning.regel.dato.sisteDagIMåned
 import no.nav.dagpenger.opplysning.regel.innhentes
-import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Alderskrav.sisteDagIMåned
 import no.nav.dagpenger.regel.OpplysningsTyper.AldersgrenseId
 import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteDagIMånedId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteMånedId
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 
 object Alderskrav {
-    val fødselsdato = Opplysningstype.dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)
-
-    private val prøvingsdato = Søknadstidspunkt.prøvingsdato
+    val fødselsdato = dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)
 
     private val aldersgrense = heltall(AldersgrenseId, "Aldersgrense", synlig = aldriSynlig)
     private val sisteMåned = dato(SisteMånedId, "Dato søker når maks alder", synlig = aldriSynlig)
@@ -38,7 +36,7 @@ object Alderskrav {
             folketrygden.hjemmel(4, 23, "Bortfall på grunn av alder", "Alder"),
         ) {
             regel(fødselsdato) { innhentes }
-            regel(aldersgrense) { oppslag(prøvingsdato) { 67 } }
+            regel(aldersgrense) { somUtgangspunkt(67) }
             regel(sisteMåned) { leggTilÅr(fødselsdato, aldersgrense) }
             regel(sisteDagIMåned) { sisteDagIMåned(sisteMåned) }
 

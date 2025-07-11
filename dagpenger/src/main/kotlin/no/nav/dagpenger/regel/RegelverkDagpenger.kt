@@ -18,7 +18,7 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 val RegelverkDagpenger =
     Regelverk(
         Alderskrav.regelsett,
-        Vanligarbeidstid.regelsett,
+        Beregning.regelsett,
         Dagpengegrunnlag.regelsett,
         DagpengenesStørrelse.regelsett,
         Dagpengeperiode.regelsett,
@@ -28,6 +28,10 @@ val RegelverkDagpenger =
         Minsteinntekt.regelsett,
         Opphold.regelsett,
         Opptjeningstid.regelsett,
+        Permittering.regelsett,
+        PermitteringFastsetting.regelsett,
+        PermitteringFraFiskeindustrien.regelsett,
+        PermitteringFraFiskeindustrienFastsetting.regelsett,
         ReellArbeidssøker.regelsett,
         RegistrertArbeidssøker.regelsett,
         Rettighetstype.regelsett,
@@ -38,13 +42,9 @@ val RegelverkDagpenger =
         TapAvArbeidsinntektOgArbeidstid.regelsett,
         Utdanning.regelsett,
         Utestengning.regelsett,
+        Vanligarbeidstid.regelsett,
         Verneplikt.regelsett,
         VernepliktFastsetting.regelsett,
-        Permittering.regelsett,
-        PermitteringFastsetting.regelsett,
-        PermitteringFraFiskeindustrien.regelsett,
-        PermitteringFraFiskeindustrienFastsetting.regelsett,
-        Beregning.regelsett,
     )
 
 fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =

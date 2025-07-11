@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallDagsatsForEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.EgenandelId
@@ -22,7 +23,7 @@ object Egenandel {
     private val treGangerDagsats = beløp(TreGangerDagsatsId, "Tre ganger dagsats", synlig = aldriSynlig)
     private val ingenEgenandel = beløp(IngenEgenandelId, "Ingen egenandel", synlig = aldriSynlig)
     private val sats = DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-    private val faktor = desimaltall(AntallDagsatsForEgenandelId, "Antall dagsats for egenandel", synlig = aldriSynlig)
+    private val antallDagsatsIEgenandel = desimaltall(AntallDagsatsForEgenandelId, "Antall dagsats for egenandel", synlig = aldriSynlig)
 
     val regelsett =
         fastsettelse(
@@ -30,9 +31,9 @@ object Egenandel {
         ) {
             skalVurderes { kravPåDagpenger(it) }
 
-            regel(faktor) { oppslag(prøvingsdato) { 3.0 } }
-            regel(treGangerDagsats) { multiplikasjon(sats, faktor) }
-            regel(ingenEgenandel) { oppslag(prøvingsdato) { Beløp(0.0) } }
+            regel(antallDagsatsIEgenandel) { oppslag(prøvingsdato) { 3.0 } }
+            regel(treGangerDagsats) { multiplikasjon(sats, antallDagsatsIEgenandel) }
+            regel(ingenEgenandel) { somUtgangspunkt(Beløp(0.0)) }
 
             regel(egenandel) { hvisSannMedResultat(oppfyllerKravetTilPermitteringFiskeindustri, ingenEgenandel, treGangerDagsats) }
 

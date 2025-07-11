@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.regel.inntekt.sumAv
 import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Avklaringspunkter
@@ -169,21 +170,21 @@ object SamordingUtenforFolketrygden {
 
             regel(andreYtelser) { innhentes }
 
-            regel(pensjonFraOffentligTjenestepensjonsordning) { oppslag(prøvingsdato) { false } }
-            regel(mottarRedusertUførepensjon) { oppslag(prøvingsdato) { false } }
-            regel(vartpenger) { oppslag(prøvingsdato) { false } }
-            regel(ventelønn) { oppslag(prøvingsdato) { false } }
-            regel(etterlønn) { oppslag(prøvingsdato) { false } }
-            regel(garantilottGFF) { oppslag(prøvingsdato) { false } }
+            regel(pensjonFraOffentligTjenestepensjonsordning) { somUtgangspunkt(false) }
+            regel(mottarRedusertUførepensjon) { somUtgangspunkt(false) }
+            regel(vartpenger) { somUtgangspunkt(false) }
+            regel(ventelønn) { somUtgangspunkt(false) }
+            regel(etterlønn) { somUtgangspunkt(false) }
+            regel(garantilottGFF) { somUtgangspunkt(false) }
 
             regel(andreØkonomiskeYtelser) { innhentes }
 
-            regel(pensjonFraOffentligTjenestepensjonsordningBeløp) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(redusertUførepensjonBeløp) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(vartpengerBeløp) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(ventelønnBeløp) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(etterlønnBeløp) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(garantilottGFFBeløp) { oppslag(prøvingsdato) { Beløp(0.0) } }
+            regel(pensjonFraOffentligTjenestepensjonsordningBeløp) { somUtgangspunkt(Beløp(0.0)) }
+            regel(redusertUførepensjonBeløp) { somUtgangspunkt(Beløp(0.0)) }
+            regel(vartpengerBeløp) { somUtgangspunkt(Beløp(0.0)) }
+            regel(ventelønnBeløp) { somUtgangspunkt(Beløp(0.0)) }
+            regel(etterlønnBeløp) { somUtgangspunkt(Beløp(0.0)) }
+            regel(garantilottGFFBeløp) { somUtgangspunkt(Beløp(0.0)) }
 
             regel(sumAvYtelserUtenforFolketrygden) {
                 sumAv(

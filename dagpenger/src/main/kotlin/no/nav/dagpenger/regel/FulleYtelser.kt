@@ -3,10 +3,9 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
-import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.OpplysningsTyper.IkkeFulleYtelserId
 import no.nav.dagpenger.regel.Samordning.skalSamordnes
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
 
 object FulleYtelser {
@@ -23,7 +22,7 @@ object FulleYtelser {
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
-            utfall(ikkeFulleYtelser) { oppslag(prøvingsdato) { true } }
+            utfall(ikkeFulleYtelser) { somUtgangspunkt(true) }
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
         }
