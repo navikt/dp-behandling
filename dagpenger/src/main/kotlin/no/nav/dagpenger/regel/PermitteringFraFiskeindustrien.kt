@@ -55,7 +55,7 @@ object PermitteringFraFiskeindustrien {
                 kortnavn = "Permittering fiskeindustri",
             ),
         ) {
-            skalVurderes { it.erSann(kravTilAlder) }
+            skalVurderes { it.erSann(kravTilAlder) && it.erSann(permitteringFiskeforedling) }
 
             regel(godkjentÅrsakPermitteringFraFiskindustri) { somUtgangspunkt(true) }
             regel(erPermitteringenFraFiskeindustriMidlertidig) { somUtgangspunkt(true) }

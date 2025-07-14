@@ -23,10 +23,6 @@ Maks lengde på opptjeningsperiode
 Grunnbeløp
 Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
-Årsaken til permitteringen fra fiskeindustrien er godkjent
-Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søker arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
@@ -34,8 +30,6 @@ Minimum vanlig arbeidstid
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 måneder
 Inntektskrav for siste 36 måneder
-Oppfyller kravet til permittering
-Oppfyller kravet til permittering i fiskeindustrien
 Siste avsluttende kalendermåned
 Første måned av opptjeningsperiode
 Registrert som arbeidssøker

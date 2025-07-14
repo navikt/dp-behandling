@@ -16,16 +16,10 @@ Har rett til ordinære dagpenger uten arbeidsforhold
 Siste mulige dag bruker kan oppfylle alderskrav
 Ordinære dagpenger
 Rettighetstype
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
-Årsaken til permitteringen fra fiskeindustrien er godkjent
-Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søker arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
-Oppfyller kravet til permittering
-Oppfyller kravet til permittering i fiskeindustrien
 Avtjent verneplikt
 Oppfyller kravet til verneplikt
 Ønsket arbeidstid
@@ -189,6 +183,8 @@ Snittinntekt siste 36 måneder
 Terskelfaktor for 36 måneder
 Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
 Antall dager som skal regnes med i hver uke
+Årsaken til permitteringen fra fiskeindustrien er godkjent
+Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Ingen egenandel
 Antall dagsats for egenandel
 Mottar pensjon fra en offentlig tjenestepensjonsordning
@@ -205,6 +201,7 @@ Sum av ytelser utenfor folketrygden
 Avrundet ukessats med barnetillegg før samordning
 Terskel for 12 måneder
 Terskel for 36 måneder
+Oppfyller kravet til permittering i fiskeindustrien
 Skal samordnes med ytelser utenfor folketrygden
 Samordnet dagsats er større enn 0
 Samordnet ukessats uten barnetillegg

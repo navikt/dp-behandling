@@ -27,7 +27,7 @@ object Permittering {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering")) {
-            skalVurderes { it.erSann(kravTilAlder) }
+            skalVurderes { it.erSann(kravTilAlder) && it.erSann(erPermittert) }
 
             regel(godkjentPermitteringsårsak) { somUtgangspunkt(true) }
             regel(erPermitteringenMidlertidig) { somUtgangspunkt(true) }
@@ -45,12 +45,7 @@ object Permittering {
             avklaring(HarOppgittPermittering)
         }
 
-    private fun erPermittert(): (LesbarOpplysninger) -> Boolean =
-        {
-            it.erSann(
-                erPermittert,
-            )
-        }
+    private fun erPermittert(): (LesbarOpplysninger) -> Boolean = { it.erSann(erPermittert) }
 
     val PermitteringKontroll =
         Kontrollpunkt(HarOppgittPermittering) {

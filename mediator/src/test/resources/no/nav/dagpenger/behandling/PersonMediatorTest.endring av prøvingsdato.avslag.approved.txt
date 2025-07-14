@@ -16,16 +16,10 @@ Har rett til ordinære dagpenger uten arbeidsforhold
 Siste mulige dag bruker kan oppfylle alderskrav
 Ordinære dagpenger
 Rettighetstype
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
-Årsaken til permitteringen fra fiskeindustrien er godkjent
-Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søker arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
-Oppfyller kravet til permittering
-Oppfyller kravet til permittering i fiskeindustrien
 Avtjent verneplikt
 Oppfyller kravet til verneplikt
 Ønsket arbeidstid
