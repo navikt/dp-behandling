@@ -74,12 +74,7 @@ object PermitteringFraFiskeindustrien {
             avklaring(HarOppgittPermitteringFiskeindustri)
         }
 
-    private fun erPermittertFraFisk(): (LesbarOpplysninger) -> Boolean =
-        {
-            it.erSann(
-                permitteringFiskeforedling,
-            )
-        }
+    private fun erPermittertFraFisk(): (LesbarOpplysninger) -> Boolean = { it.erSann(permitteringFiskeforedling) }
 
     val PermitteringFiskKontroll =
         Kontrollpunkt(HarOppgittPermitteringFiskeindustri) {

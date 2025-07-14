@@ -22,7 +22,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
-import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Rettighetstype {
@@ -33,7 +32,8 @@ object Rettighetstype {
     val permitteringFiskeforedling =
         boolsk(
             PermittertFiskeforedlingId,
-            beskrivelse = "Permittert fra fiskeindustrien",
+            "Permittert fra fiskeindustrien",
+            Bruker,
             behovId = PermittertFiskeforedling,
         )
     val erReellArbeidssøkerVurdert: Opplysningstype<Boolean> =
