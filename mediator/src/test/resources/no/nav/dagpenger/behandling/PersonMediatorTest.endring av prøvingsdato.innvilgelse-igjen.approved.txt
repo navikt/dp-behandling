@@ -183,8 +183,6 @@ Snittinntekt siste 36 måneder
 Terskelfaktor for 36 måneder
 Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt
 Antall dager som skal regnes med i hver uke
-Årsaken til permitteringen fra fiskeindustrien er godkjent
-Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Ingen egenandel
 Antall dagsats for egenandel
 Mottar pensjon fra en offentlig tjenestepensjonsordning
@@ -201,7 +199,6 @@ Sum av ytelser utenfor folketrygden
 Avrundet ukessats med barnetillegg før samordning
 Terskel for 12 måneder
 Terskel for 36 måneder
-Oppfyller kravet til permittering i fiskeindustrien
 Skal samordnes med ytelser utenfor folketrygden
 Samordnet dagsats er større enn 0
 Samordnet ukessats uten barnetillegg

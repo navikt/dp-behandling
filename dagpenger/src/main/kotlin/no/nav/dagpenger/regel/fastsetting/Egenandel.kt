@@ -13,7 +13,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.AntallDagsatsForEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.EgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.TreGangerDagsatsId
-import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
+import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
@@ -35,7 +35,7 @@ object Egenandel {
             regel(treGangerDagsats) { multiplikasjon(sats, antallDagsatsIEgenandel) }
             regel(ingenEgenandel) { somUtgangspunkt(Beløp(0.0)) }
 
-            regel(egenandel) { hvisSannMedResultat(oppfyllerKravetTilPermitteringFiskeindustri, ingenEgenandel, treGangerDagsats) }
+            regel(egenandel) { hvisSannMedResultat(permitteringFiskeforedling, ingenEgenandel, treGangerDagsats) }
 
             påvirkerResultat { kravPåDagpenger(it) }
 
