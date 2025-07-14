@@ -146,12 +146,12 @@ object TapAvArbeidsinntektOgArbeidstid {
                 )
             }
 
-            // TODO: Kun en av disse må være sann. Enforces med Avklaring (i gang framtiden)
+            // TODO: Dette bør bli en ENUM en gang i framtiden
             regel(beregningsregel6mnd) { somUtgangspunkt(true) }
             regel(beregningsregel12mnd) { somUtgangspunkt(false) }
             regel(beregningsregel36mnd) { somUtgangspunkt(false) }
 
-            // TODO: Bør hentes fra noe
+            // TODO: Bør hentes fra noe, f.eks. innbyggerflate
             regel(beregnetArbeidstid) { somUtgangspunkt(37.5) }
             regel(arbeidstidsreduksjonIkkeBruktTidligere) { somUtgangspunkt(true) }
 
