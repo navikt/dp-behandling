@@ -696,7 +696,7 @@ components:
         opplysninger:
           type: array
           items:
-            $ref: '#/components/schemas/Opplysningsgruppe'
+            $ref: '#/components/schemas/OpplysningsgruppeKlump'
 
     Noesomharblittvurdert:
       type: object
@@ -997,6 +997,61 @@ components:
         formål:
           type: string
           enum: [ "Legacy", "Bruker", "Register", "Regel" ]
+
+    OpplysningsgruppeKlump:
+      type: object
+      required:
+        - opplysningTypeId
+        - navn
+        - datatype
+        - opplysninger
+      properties:
+        opplysningTypeId:
+          $ref: '#/components/schemas/OpplysningTypeId'
+        navn:
+          type: string
+        datatype:
+          $ref: '#/components/schemas/DataType'
+        opplysninger:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningKlump'
+
+    OpplysningKlump:
+      type: object
+      required:
+        - id
+        - opplysningTypeId
+        - navn
+        - verdi
+        - datatype
+      properties:
+        id:
+          $ref: '#/components/schemas/OpplysningsId'
+        opplysningTypeId:
+          $ref: '#/components/schemas/OpplysningTypeId'
+        navn:
+          type: string
+        verdien:
+          $ref: '#/components/schemas/Opplysningsverdi'
+        verdi:
+          type: string
+        gyldigFraOgMed:
+          type: string
+          format: date
+          nullable: true
+          description: Om opplysningen er gyldig fra en bestemt dato. Er den null, er den gyldig fra tidens morgen.
+        gyldigTilOgMed:
+          type: string
+          format: date
+          nullable: true
+          description: Om opplysningen er gyldig fra en bestemt dato. Er den null, er den gyldig til evig tid.
+        datatype:
+          $ref: '#/components/schemas/DataType'
+        kilde:
+          $ref: '#/components/schemas/Opplysningskilde'
+        utledetAv:
+          $ref: '#/components/schemas/Utledning'
 
     Opplysningsverdi:
       description: |
