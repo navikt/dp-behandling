@@ -249,3 +249,4 @@ Dette er opplysninger som blir brukt av regelverket.
 |0196afc0-6807-7fa3-83e4-cf7f621f3a7e|Sum hvis Uføre ikke skal samordnes|Sum hvis Uføre ikke skal samordnes|Penger|Beløp|
 |0196b4a7-23b5-7b2c-aa95-e4167d900de8|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Boolsk|boolean|
 |01973a27-d8b3-7ffd-a81a-a3826963b079|Forbrukt egenandel|Forbrukt egenandel|Heltall|int|
+|01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Skal kravet til verneplikt vurderes|Boolsk|boolean|

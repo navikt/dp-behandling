@@ -7,9 +7,11 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.enAv
+import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Behov.Lønnsgaranti
 import no.nav.dagpenger.regel.Behov.Ordinær
 import no.nav.dagpenger.regel.Behov.Permittert
@@ -22,7 +24,10 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OrdinærId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
+import no.nav.dagpenger.regel.OpplysningsTyper.SkalVernepliktVurderesId
+import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Verneplikt.avtjentVerneplikt
 
 object Rettighetstype {
     val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)
@@ -43,6 +48,12 @@ object Rettighetstype {
             synlig = { !kravPåDagpenger(it) || !it.erSann(erReellArbeidssøkerVurdert) },
         )
 
+    val skalVernepliktVurderes: Opplysningstype<Boolean> =
+        boolsk(
+            SkalVernepliktVurderesId,
+            "Skal kravet til verneplikt vurderes",
+        )
+
     private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
     private val ingenArbeid = boolsk(IngenArbeidId, "Har rett til ordinære dagpenger uten arbeidsforhold", synlig = aldriSynlig)
 
@@ -52,6 +63,8 @@ object Rettighetstype {
         fastsettelse(
             folketrygden.hjemmel(0, 0, "Rettighetstype", "Rettighetstype"),
         ) {
+            skalVurderes { it.oppfyller(kravTilAlder) }
+
             regel(erPermittert) { innhentMed(søknadIdOpplysningstype) }
             regel(ordinærArbeid) { innhentMed(søknadIdOpplysningstype) }
             regel(lønnsgaranti) { innhentMed(søknadIdOpplysningstype) }
@@ -63,8 +76,9 @@ object Rettighetstype {
             regel(rettighetstype) { enAv(ordinær, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
 
             regel(erReellArbeidssøkerVurdert) { somUtgangspunkt(true) }
+            regel(skalVernepliktVurderes) { erSann(avtjentVerneplikt) }
 
-            ønsketResultat(rettighetstype, erReellArbeidssøkerVurdert)
+            ønsketResultat(rettighetstype, erReellArbeidssøkerVurdert, skalVernepliktVurderes)
         }
 
     val ManglerReellArbeidssøkerKontroll =

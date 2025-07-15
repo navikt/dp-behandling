@@ -12,6 +12,7 @@ import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.fastsetting.PermitteringFraFiskeindustrienFastsetting
 
 class PermitteringFiskeindustrienFastsettingSteg : No {
@@ -22,6 +23,7 @@ class PermitteringFiskeindustrienFastsettingSteg : No {
             PermitteringFraFiskeindustrien.regelsett,
             PermitteringFraFiskeindustrienFastsetting.regelsett,
             Søknadstidspunkt.regelsett,
+            Verneplikt.regelsett,
         )
     private val opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring

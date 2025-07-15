@@ -406,7 +406,7 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
             },
     )
 
-private fun Datatype<*>.tilDataTypeDTO() =
+fun Datatype<*>.tilDataTypeDTO() =
     when (this) {
         Boolsk -> DataTypeDTO.BOOLSK
         Dato -> DataTypeDTO.DATO

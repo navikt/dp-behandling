@@ -2,7 +2,6 @@ fagsakId
 søknadId
 hendelseType
 Aldersgrense
-Kravet til reell arbeidssøker er vurdert
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
@@ -12,12 +11,9 @@ Forskutterte lønnsgarantimidler i form av dagpenger
 Permittert fra fiskeindustrien
 Søknadstidspunkt
 Dato søker når maks alder
-Har rett til ordinære dagpenger uten arbeidsforhold
 Prøvingsdato
 Siste mulige dag bruker kan oppfylle alderskrav
-Ordinære dagpenger
 Oppfyller kravet til alder
-Rettighetstype
 Lovpålagt rapporteringsfrist for A-ordningen
 Maks lengde på opptjeningsperiode
 Grunnbeløp
@@ -25,16 +21,20 @@ Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
 Årsaken til permitteringen fra fiskeindustrien er godkjent
 Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
-Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søker arbeid lokalt
-Har helsemessige begrensninger og kan ikke ta alle typer arbeid
-Minimum vanlig arbeidstid
+Har rett til ordinære dagpenger uten arbeidsforhold
+Kravet til reell arbeidssøker er vurdert
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 måneder
 Inntektskrav for siste 36 måneder
 Oppfyller kravet til permittering i fiskeindustrien
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søker arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
+Minimum vanlig arbeidstid
+Ordinære dagpenger
 Siste avsluttende kalendermåned
 Periode som gis ved permittering fra fiskeindustrien
+Rettighetstype
 Første måned av opptjeningsperiode
 Registrert som arbeidssøker
 Registrert som arbeidssøker på søknadstidspunktet
@@ -114,7 +114,7 @@ Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder
 Uavrundet grunnlag
 Grunnlag ved ordinære dagpenger
 Avtjent verneplikt
-Oppfyller kravet til verneplikt
+Skal kravet til verneplikt vurderes
 Grunnlag for verneplikt hvis kravet er oppfylt
 Dagpengegrunnlag
 Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget

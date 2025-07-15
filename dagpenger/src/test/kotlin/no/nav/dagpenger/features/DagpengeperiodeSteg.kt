@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opptjeningstid
+import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt
@@ -28,6 +29,7 @@ class DagpengeperiodeSteg : No {
             Dagpengeperiode.regelsett,
             Minsteinntekt.regelsett,
             Opptjeningstid.regelsett,
+            Rettighetstype.regelsett,
             Søknadstidspunkt.regelsett,
             Verneplikt.regelsett,
             VernepliktFastsetting.regelsett,

@@ -13,6 +13,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Minsteinntekt.inntekt12
 import no.nav.dagpenger.regel.Minsteinntekt.inntekt36
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
@@ -42,6 +43,7 @@ class VernepliktFastsettingSteg : No {
         Gitt("at kravet til verneplikt er {boolsk}") { verneplikt: Boolean ->
             opplysninger.leggTil(Faktum(prøvingsdato, fraDato))
             opplysninger.leggTil(Faktum(oppfyllerKravetTilVerneplikt, verneplikt))
+            opplysninger.leggTil(Faktum(skalVernepliktVurderes, verneplikt))
             regelkjøring.evaluer()
         }
 

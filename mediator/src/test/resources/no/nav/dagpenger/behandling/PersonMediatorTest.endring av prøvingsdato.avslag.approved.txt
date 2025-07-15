@@ -2,7 +2,6 @@ fagsakId
 søknadId
 hendelseType
 Aldersgrense
-Kravet til reell arbeidssøker er vurdert
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
@@ -12,16 +11,17 @@ Forskutterte lønnsgarantimidler i form av dagpenger
 Permittert fra fiskeindustrien
 Søknadstidspunkt
 Dato søker når maks alder
-Har rett til ordinære dagpenger uten arbeidsforhold
 Siste mulige dag bruker kan oppfylle alderskrav
-Ordinære dagpenger
-Rettighetstype
+Har rett til ordinære dagpenger uten arbeidsforhold
+Kravet til reell arbeidssøker er vurdert
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søker arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
+Ordinære dagpenger
+Rettighetstype
 Avtjent verneplikt
-Oppfyller kravet til verneplikt
+Skal kravet til verneplikt vurderes
 Ønsket arbeidstid
 Kan jobbe heltid og deltid
 Kan jobbe i hele Norge
