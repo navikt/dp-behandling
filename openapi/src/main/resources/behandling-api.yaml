@@ -669,6 +669,62 @@ components:
           items:
             $ref: '#/components/schemas/Opplysningsgruppe'
 
+    Verdenbesteklumpmeddata:
+      type: object
+      required:
+        - behandlingId
+        - behandletHendelse
+        - kreverTotrinnskontroll
+        - vilkår
+        - fastsettelser
+        - opplysninger
+      properties:
+        behandlingId:
+          type: string
+          format: uuid
+        behandletHendelse:
+          description: Hvilken hendelse som utløste behandlingen
+          $ref: '#/components/schemas/Hendelse'
+        vilkår:
+          type: array
+          items:
+            $ref: '#/components/schemas/Noesomharblittvurdert'
+        fastsettelser:
+          type: array
+          items:
+            $ref: '#/components/schemas/Noesomharblittvurdert'
+        opplysninger:
+          type: array
+          items:
+            $ref: '#/components/schemas/Opplysningsgruppe'
+
+    Noesomharblittvurdert:
+      type: object
+      required:
+        - navn
+        - hjemmel
+        - opplysningTypeIder
+      properties:
+        navn:
+          description: Kort navn som beskriver regelsettet
+          type: string
+        hjemmel:
+          description: Hvilken hjemmel er regelsettet basert på
+          $ref: '#/components/schemas/Hjemmel'
+        utfall:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningTypeId'
+        ønsketResultat:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningTypeId'
+        opplysningTypeIder:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningTypeId'
+
+
     BehandlingOpplysninger:
       type: object
       required:
@@ -1432,7 +1488,6 @@ components:
         - vurderingstidspunkt
         - fraOgMed
         - id
-        - periode
       properties:
         navn:
           $ref: '#/components/schemas/VilkaarNavn'
