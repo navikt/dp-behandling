@@ -12,7 +12,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.avtjentVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilVernepliktId
 import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
-import no.nav.dagpenger.regel.Verneplikt.avtjentVerneplikt
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 
 object Verneplikt {
@@ -37,12 +36,17 @@ object Verneplikt {
             avklaring(Avklaringspunkter.Verneplikt)
 
             påvirkerResultat {
+                val skalVurderes = it.erSann(skalVernepliktVurderes)
                 val oppfyllerVerneplikt = it.erSann(oppfyllerKravetTilVerneplikt)
                 val vernepliktErGunstigst = it.erSann(grunnlagForVernepliktErGunstigst)
                 val oppfyllerMinsteinntekt = it.erSann(minsteinntekt)
                 val søktOmVerneplikt = it.erSann(avtjentVerneplikt)
 
-                if (oppfyllerVerneplikt && (vernepliktErGunstigst || !oppfyllerMinsteinntekt)) {
+                if (!skalVurderes) {
+                    return@påvirkerResultat false
+                }
+
+                if (skalVurderes && (vernepliktErGunstigst || !oppfyllerMinsteinntekt)) {
                     return@påvirkerResultat true
                 }
 
