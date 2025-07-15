@@ -86,6 +86,7 @@ import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
 import no.nav.dagpenger.regel.Samordning.omsorgspenger
@@ -478,7 +479,8 @@ internal val redigerbareOpplysninger =
                 godkjentÅrsakPermitteringFraFiskindustri,
                 // 4-19 Verneplikt
                 oppfyllerKravetTilVerneplikt,
-                // 4-22 Streik og lockøout
+                skalVernepliktVurderes,
+                // 4-22 Streik og lockout
                 deltarIStreikOgLockout,
                 sammeBedriftOgPåvirket,
                 // 4-24 Fulle ytelser
