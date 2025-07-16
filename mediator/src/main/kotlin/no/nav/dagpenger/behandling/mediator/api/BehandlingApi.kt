@@ -33,7 +33,6 @@ import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
-import no.nav.dagpenger.behandling.konfigurasjon.Configuration.Grupper.saksbehandler
 import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
@@ -316,10 +315,24 @@ internal fun Application.behandlingApi(
                                 call.behandlingId,
                                 LocalDateTime.now(),
                                 rekjøring.opplysninger ?: emptyList(),
-                            )
-                        hendelse.info("Rekjør behandling", rekjøring.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+                            ).apply {
+                                info("Rekjør behandling", rekjøring.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+                            }
 
-                        hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
+                        when (rekjøring.opplysninger?.isEmpty()) {
+                            // Hvis ingen opplysninger er endret kan vi kjøre synkront
+                            null, true -> hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
+                            // Hvis opplysninger er endret må vi vente på at behovene løses
+                            false -> {
+                                val behandling = hentBehandling(personRepository, call.behandlingId)
+                                // TODO: Vi bør klare å vente på alle endringene
+                                val opplysning = behandling.opplysninger().finnOpplysning(rekjøring.opplysninger!!.first())
+
+                                apiRepositoryPostgres.endreOpplysning(call.behandlingId, opplysning.opplysningstype.behovId) {
+                                    hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
+                                }
+                            }
+                        }
 
                         call.respond(HttpStatusCode.Created)
                     }
