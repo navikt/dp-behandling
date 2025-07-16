@@ -675,6 +675,7 @@ components:
         - vilkår
         - fastsettelser
         - opplysninger
+        - rettighetsperioder
       properties:
         behandlingId:
           type: string
@@ -696,6 +697,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningsgruppeKlump'
+        rettighetsperioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
 
     Personident:
       type: string
