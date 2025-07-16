@@ -66,6 +66,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
+import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
@@ -431,6 +432,7 @@ internal fun LocalDate.tilApiDato(): LocalDate? =
 private fun Opplysning<*>.kanOppfriskes(): Boolean =
     this.opplysningstype in
         setOf(
+            inntektFraSkatt,
             grunnbeløpForDagpengeGrunnlag,
         )
 
