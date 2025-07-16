@@ -43,6 +43,7 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
@@ -51,37 +52,36 @@ import java.time.LocalDate
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-internal fun Behandling.tilKlumpDTO(): VerdenbesteklumpmeddataDTO =
+internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): VerdenbesteklumpmeddataDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val opplysningSet = opplysninger.somListe().toSet()
 
         VerdenbesteklumpmeddataDTO(
-            behandlingId = this.behandlingId,
+            behandlingId = behandlingId,
+            ident = ident,
             vilkår =
-                behandler.forretningsprosess.regelverk
+                behandlingAv.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
                     .mapNotNull { it.tilNoesomharblittvurdertDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             fastsettelser =
-                behandler.forretningsprosess.regelverk
+                behandlingAv.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
                     .mapNotNull { it.tilNoesomharblittvurdertDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             behandletHendelse =
                 HendelseDTO(
-                    id =
-                        this.behandler.eksternId.id
-                            .toString(),
-                    datatype = this.behandler.eksternId.datatype,
+                    id = behandlingAv.eksternId.id.toString(),
+                    datatype = behandlingAv.eksternId.datatype,
                     type =
-                        when (this.behandler.eksternId) {
+                        when (behandlingAv.eksternId) {
                             is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                             is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                             is ManuellId -> HendelseDTOTypeDTO.MANUELL
                         },
                 ),
             opplysninger =
-                opplysninger().somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                opplysninger.somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
                     OpplysningsgruppeKlumpDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,

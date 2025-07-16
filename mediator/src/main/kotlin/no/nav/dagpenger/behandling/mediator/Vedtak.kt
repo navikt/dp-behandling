@@ -326,4 +326,4 @@ internal val opplysningTilVilkårMap =
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")
 
-fun VedtakDTO.toMap() = objectMapper.convertValue<Map<String, Any>>(this)
+fun toMap(it: Any) = objectMapper.convertValue<Map<String, Any>>(it)

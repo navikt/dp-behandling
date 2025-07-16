@@ -299,7 +299,7 @@ internal class PersonMediatorTest {
                 }*/
             }
 
-            rapid.inspektør.size shouldBe 25
+            rapid.inspektør.size shouldBe 27
 
             testObservatør.tilstandsendringer.size shouldBe 3
 
@@ -404,8 +404,7 @@ internal class PersonMediatorTest {
                 }
             }
 
-            // TODO: Beregningsmetode for tapt arbeidstid har defaultverdi for testing av innvilgelse og derfor mangler avklaringen
-            rapid.inspektør.size shouldBe 24
+            rapid.inspektør.size shouldBe 25
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
@@ -572,6 +571,7 @@ internal class PersonMediatorTest {
                     "avklaring" to 7,
                     "forslag" to 1,
                     "event" to 2,
+                    "klump" to 1,
                 ).sumOf { it.second }
         }
 
@@ -1098,7 +1098,7 @@ internal class PersonMediatorTest {
                 )
 
             // Dette er vedtaket som brukes i dp-arena-sink: vedtak_fattet_innvilgelse.json
-            JsonMessage.newMessage("vedtak_fattet", vedtak.toMap()).toJson().also {
+            JsonMessage.newMessage("vedtak_fattet", toMap(vedtak)).toJson().also {
                 println(it)
             }
         }

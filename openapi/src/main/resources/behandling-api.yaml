@@ -541,8 +541,7 @@ components:
         - ident
       properties:
         ident:
-          type: string
-          pattern: '^[0-9]{11}$'
+          $ref: '#/components/schemas/Personident'
         opplysninger:
           type: array
           items:
@@ -554,8 +553,7 @@ components:
         - ident
       properties:
         ident:
-          type: string
-          pattern: '^[0-9]{11}$'
+          $ref: '#/components/schemas/Personident'
 
     NyBehandling:
       type: object
@@ -563,8 +561,7 @@ components:
         - ident
       properties:
         ident:
-          type: string
-          pattern: '^[0-9]{11}$'
+          $ref: '#/components/schemas/Personident'
         hendelse:
           $ref: '#/components/schemas/Hendelse'
         prøvingsdato:
@@ -674,7 +671,7 @@ components:
       required:
         - behandlingId
         - behandletHendelse
-        - kreverTotrinnskontroll
+        - ident
         - vilkår
         - fastsettelser
         - opplysninger
@@ -685,6 +682,8 @@ components:
         behandletHendelse:
           description: Hvilken hendelse som utløste behandlingen
           $ref: '#/components/schemas/Hendelse'
+        ident:
+          $ref: '#/components/schemas/Personident'
         vilkår:
           type: array
           items:
@@ -697,6 +696,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningsgruppeKlump'
+
+    Personident:
+      type: string
+      pattern: '^[0-9]{11}$'
 
     Noesomharblittvurdert:
       type: object
@@ -1375,8 +1378,7 @@ components:
           type: boolean
         ident:
           description: Person vedtak gjelder for
-          type: string
-          pattern: '^[0-9]{11}$'
+          $ref: '#/components/schemas/Personident'
         vedtakstidspunkt:
           description: Når vedtaket ble fattet
           type: string
