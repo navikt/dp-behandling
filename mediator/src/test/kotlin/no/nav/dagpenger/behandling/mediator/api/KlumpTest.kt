@@ -20,7 +20,6 @@ import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
-import org.junit.jupiter.api.Disabled
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -40,6 +39,7 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(PeriodeDTO(1.mai(2025), 10.mai(2025)))
 
         godkjennJSON(klump)
     }
@@ -55,6 +55,7 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(PeriodeDTO(1.mai(2025), 30.mai(2025)))
 
         godkjennJSON(klump)
     }
@@ -70,6 +71,10 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 2
+        klump.rettighetsperioder.shouldContainExactly(
+            PeriodeDTO(1.mai(2025), 10.mai(2025)),
+            PeriodeDTO(21.mai(2025), 30.mai(2025)),
+        )
 
         godkjennJSON(klump)
     }
@@ -84,12 +89,13 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(PeriodeDTO(1.mai(2025), 10.mai(2025)))
 
         godkjennJSON(klump)
     }
 
+    //    @Disabled("Vi støtter ikke hull")
     @Test
-    @Disabled("Vi støtter ikke hull")
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold med hull`() {
         val resultat =
             resultat(
@@ -100,6 +106,11 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 3
+        klump.rettighetsperioder.shouldContainExactly(
+            PeriodeDTO(1.mai(2025), 10.mai(2025)),
+            PeriodeDTO(21.mai(2025), 30.mai(2025)),
+            PeriodeDTO(5.juni(2025), 5.juni(2028)),
+        )
 
         godkjennJSON(klump)
     }
@@ -117,6 +128,11 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 3
+        klump.rettighetsperioder.shouldContainExactly(
+            PeriodeDTO(1.mai(2025), 10.mai(2025)),
+            PeriodeDTO(21.mai(2025), 30.mai(2025)),
+            PeriodeDTO(5.juni(2025), 5.juni(2028)),
+        )
 
         godkjennJSON(klump)
     }

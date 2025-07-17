@@ -91,9 +91,85 @@ internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): Verdenbes
                         opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO() },
                     )
                 },
-            rettighetsperioder = rettighetsperioder(),
+            rettighetsperioder = rettighetsperioder2(),
         )
     }
+
+data class PeriodeMedUtfall(
+    val periode: PeriodeDTO,
+    val utfall: Boolean,
+)
+
+private fun Behandling.VedtakOpplysninger.rettighetsperioder2(): List<PeriodeDTO> {
+    val vilkår: List<Opplysningstype<Boolean>> =
+        behandlingAv.forretningsprosess.regelverk
+            .regelsettAvType(RegelsettType.Vilkår)
+            .flatMap { it.utfall }
+
+    val utfall =
+        opplysninger
+            .somListe()
+            .filter { it.opplysningstype in vilkår }
+            .filter { it.erRelevant }
+            .filterIsInstance<Opplysning<Boolean>>()
+
+    if (utfall.isEmpty()) return emptyList()
+
+    // En liste med gyldighetsperioder for alle relevante vilkår
+    val førsteDag = utfall.minOf { it.gyldighetsperiode.fom }
+    val sisteDag = utfall.filter { it.gyldighetsperiode.tom != MAX }.maxOf { it.gyldighetsperiode.tom }
+
+    val perioderMedNei = utfall.filter { !it.verdi }.map { it.gyldighetsperiode }
+    val perioderMedJa = utfall.filter { it.verdi }.map { it.gyldighetsperiode }
+
+    // Returner en liste med periode per dag hvor alle relevante vilkår er oppfylt
+    val dagerMedAlleVilkår =
+        førsteDag
+            .datesUntil(sisteDag.plusDays(1))
+            .asSequence()
+            .map { dag ->
+//                val finnesUtfallJaIDag = perioderMedJa.any { it.inneholder(dag) }
+                val finnesUtfallNeiIDag = perioderMedNei.any { it.inneholder(dag) }
+                val finnesIngenUtfallJaIDag = perioderMedJa.none { it.inneholder(dag) }
+
+                if (finnesIngenUtfallJaIDag || finnesUtfallNeiIDag) {
+                    return@map PeriodeMedUtfall(
+                        periode = PeriodeDTO(fraOgMed = dag, tilOgMed = dag),
+                        utfall = false,
+                    )
+                }
+
+                // Hvis vi kommer hit så finnes det minst ett utfall ja i perioden, og ingen utfall nei
+                // Man kan sjekke finnesUtfallJa for å være sikker, men det skal ikke være nødvendig
+                PeriodeMedUtfall(
+                    periode = PeriodeDTO(fraOgMed = dag, tilOgMed = dag),
+                    utfall = true,
+                )
+            }.toList()
+
+    val perioderSlåttSammen =
+        dagerMedAlleVilkår.fold(emptyList<PeriodeMedUtfall>()) { periodisertliste, nesteDag ->
+            periodisertliste.slåSammen(nesteDag)
+        }
+    return perioderSlåttSammen.filter { it.utfall }.map { it.periode }
+}
+
+private fun List<PeriodeMedUtfall>.slåSammen(neste: PeriodeMedUtfall): List<PeriodeMedUtfall> {
+    if (this.isEmpty()) return listOf(neste)
+    val forrige = this.last()
+    return if (forrige.utfall == neste.utfall) {
+        this.dropLast(1) +
+            forrige.copy(
+                periode =
+                    PeriodeDTO(
+                        fraOgMed = forrige.periode.fraOgMed,
+                        tilOgMed = neste.periode.tilOgMed,
+                    ),
+            )
+    } else {
+        this + neste
+    }
+}
 
 private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<PeriodeDTO> {
     val vilkår: List<Opplysningstype<Boolean>> =
