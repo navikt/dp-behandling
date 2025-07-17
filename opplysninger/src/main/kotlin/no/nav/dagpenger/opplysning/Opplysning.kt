@@ -21,7 +21,7 @@ sealed class Opplysning<T : Comparable<T>>(
     val utledetAv: Utledning?,
     val kilde: Kilde?,
     val opprettet: LocalDateTime,
-    var erRelevant: Boolean = true,
+    private var _erRelevant: Boolean = true,
     private var _erstatter: Opplysning<T>? = null,
     private var _skalLagres: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
@@ -32,6 +32,13 @@ sealed class Opplysning<T : Comparable<T>>(
     val skalLagres get() = _skalLagres
 
     val erstatter get() = _erstatter
+
+    val erRelevant get() = _erRelevant
+
+    fun erRelevant(relevant: Boolean) {
+        _erRelevant = relevant
+        _skalLagres = true
+    }
 
     val kanRedigeres: (Redigerbar) -> Boolean
         get() = { redigerbar ->

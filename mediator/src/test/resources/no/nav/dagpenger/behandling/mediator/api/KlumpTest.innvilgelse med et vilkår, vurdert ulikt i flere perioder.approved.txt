@@ -71,5 +71,11 @@
       "utledetAv" : null
     } ]
   } ],
-  "rettighetsperioder" : [ ]
+  "rettighetsperioder" : [ {
+    "fraOgMed" : "2025-05-01",
+    "tilOgMed" : "2025-05-10"
+  }, {
+    "fraOgMed" : "2025-05-21",
+    "tilOgMed" : "2025-05-30"
+  } ]
 }
