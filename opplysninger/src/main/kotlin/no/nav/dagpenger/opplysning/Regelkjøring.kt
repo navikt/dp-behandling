@@ -114,9 +114,14 @@ class Regelkjøring(
         val opplysningerSomPåvirkerResultatet: List<Opplysningstype<*>> =
             forretningsprosess.regelsett().filter { it.påvirkerResultat(opplysningerPåPrøvingsdato) }.flatMap { it.produserer }
 
-        opplysninger.somListe(Egne).forEach {
-            it.erRelevant = it.opplysningstype in opplysningerSomPåvirkerResultatet
-        }
+        // Sett erRelevant på opplysninger om de er relevante for resultatet
+        opplysninger
+            .somListe(Egne)
+            .partition { it.opplysningstype in opplysningerSomPåvirkerResultatet }
+            .also { (relevante, irrelevante) ->
+                relevante.forEach { it.erRelevant(true) }
+                irrelevante.forEach { it.erRelevant(false) }
+            }
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,

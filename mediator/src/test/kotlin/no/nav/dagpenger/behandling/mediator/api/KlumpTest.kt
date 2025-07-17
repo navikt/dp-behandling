@@ -1,7 +1,10 @@
 package no.nav.dagpenger.behandling.mediator.api
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.mockk.mockk
+import no.nav.dagpenger.behandling.api.models.PeriodeDTO
 import no.nav.dagpenger.behandling.api.models.VerdenbesteklumpmeddataDTO
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.mai
@@ -11,10 +14,13 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.regel.Alderskrav
+import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
+import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
+import org.junit.jupiter.api.Disabled
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -29,10 +35,12 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, vurdert i en periode`() {
         val resultat =
             resultat(
-                periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 1
+
         godkjennJSON(klump)
     }
 
@@ -40,12 +48,14 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, vurdert likt i flere perioder`() {
         val resultat =
             resultat(
-                periode(1.mai(2025), 10.mai(2025)),
-                periode(11.mai(2025), 20.mai(2025)),
-                periode(21.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(11.mai(2025), 20.mai(2025)),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 1
+
         godkjennJSON(klump)
     }
 
@@ -53,38 +63,91 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder`() {
         val resultat =
             resultat(
-                periode(1.mai(2025), 10.mai(2025)),
-                periode(11.mai(2025), 20.mai(2025), false),
-                periode(21.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(11.mai(2025), 20.mai(2025), false),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 2
+
         godkjennJSON(klump)
     }
 
     @Test
-    fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold`() {
+    fun `innvilgelse med et vilkår, men har ett vilkår som ikke relevant i perioden med false`() {
         val resultat =
             resultat(
-                periode(1.mai(2025), 10.mai(2025)),
-                periode(21.mai(2025), 30.mai(2025)),
-                periode(5.juni(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                minsteinntekt.periode(1.mai(2025), 20.mai(2025), false, false),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 1
+
         godkjennJSON(klump)
     }
 
-    private fun periode(
+    @Test
+    @Disabled("Vi støtter ikke hull")
+    fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold med hull`() {
+        val resultat =
+            resultat(
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(5.juni(2025), 5.juni(2028)),
+            )
+
+        val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 3
+
+        godkjennJSON(klump)
+    }
+
+    @Test
+    fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold, uten hull`() {
+        val resultat =
+            resultat(
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(11.mai(2025), 20.mai(2025), false),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(31.mai(2025), 4.juni(2025), false),
+                kravTilAlder.periode(5.juni(2025), 5.juni(2028)),
+            )
+
+        val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 3
+
+        godkjennJSON(klump)
+    }
+
+    @Test
+    fun `innvilgelse med flere vilkår, oppfylt på ulik startdato`() {
+        val resultat =
+            resultat(
+                kravTilAlder.periode(1.mai(2025), 30.mai(2025)),
+                minsteinntekt.periode(1.mai(2025), 4.mai(2025), false),
+                minsteinntekt.periode(5.mai(2025), 30.mai(2025)),
+            )
+
+        val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(PeriodeDTO(5.mai(2025), 30.mai(2025)))
+
+        godkjennJSON(klump)
+    }
+
+    private fun Opplysningstype<Boolean>.periode(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate? = null,
         vurdering: Boolean = true,
+        erRelevant: Boolean = true,
     ): Opplysning<*> =
         Faktum(
-            Alderskrav.kravTilAlder,
+            this,
             vurdering,
             tilOgMed?.let { Gyldighetsperiode(fraOgMed, tilOgMed) } ?: Gyldighetsperiode(fraOgMed),
-        )
+        ).also { it.erRelevant(erRelevant) }
 
     private fun resultat(vararg vurderinger: Opplysning<*>): Behandling.Resultat =
         Behandling.Resultat(

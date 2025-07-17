@@ -18,6 +18,7 @@ import no.nav.dagpenger.behandling.api.models.OpplysningsgruppeKlumpDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
+import no.nav.dagpenger.behandling.api.models.PeriodeDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
@@ -43,14 +44,15 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
-import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
+import java.time.LocalDate.MAX
 import kotlin.collections.component1
 import kotlin.collections.component2
+import kotlin.streams.asSequence
 
 internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): VerdenbesteklumpmeddataDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -89,9 +91,60 @@ internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): Verdenbes
                         opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO() },
                     )
                 },
-            rettighetsperioder = emptyList(),
+            rettighetsperioder = rettighetsperioder(),
         )
     }
+
+private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<PeriodeDTO> {
+    val vilkår: List<Opplysningstype<Boolean>> =
+        behandlingAv.forretningsprosess.regelverk
+            .regelsettAvType(RegelsettType.Vilkår)
+            .flatMap { it.utfall }
+
+    val utfall =
+        opplysninger
+            .somListe()
+            .filter { it.opplysningstype in vilkår }
+            .filter { it.erRelevant }
+            .filterIsInstance<Opplysning<Boolean>>()
+
+    if (utfall.isEmpty()) return emptyList()
+
+    // En liste med gyldighetsperioder for alle relevante vilkår
+    val førsteDag = utfall.minOf { it.gyldighetsperiode.fom }
+    val sisteDag = utfall.filter { it.gyldighetsperiode.tom != MAX }.maxOf { it.gyldighetsperiode.tom }
+
+    val perioderMedNei = utfall.filter { !it.verdi }.map { it.gyldighetsperiode }
+
+    // Returner en liste med periode per dag hvor alle relevante vilkår er oppfylt
+    val dagerMedAlleVilkår =
+        førsteDag
+            .datesUntil(sisteDag.plusDays(1))
+            .asSequence()
+            .mapNotNull { dag ->
+                val harIkkeRett = perioderMedNei.any { it.inneholder(dag) }
+                if (harIkkeRett) return@mapNotNull null
+
+                PeriodeDTO(fraOgMed = dag, tilOgMed = dag)
+            }.toList()
+
+    // Slå sammen perioder som ligger kant i kant
+    val perioder =
+        dagerMedAlleVilkår.fold(mutableListOf<PeriodeDTO>()) { acc, periode ->
+            if (acc.isEmpty()) {
+                acc.add(periode)
+            } else {
+                val last = acc.last()
+                if (periode.fraOgMed == last.tilOgMed?.plusDays(1)) {
+                    acc[acc.lastIndex] = PeriodeDTO(last.fraOgMed, periode.tilOgMed)
+                } else {
+                    acc.add(periode)
+                }
+            }
+            acc
+        }
+    return perioder
+}
 
 private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*>>): NoesomharblittvurdertDTO? {
     val produkter: Set<Opplysning<*>> =
