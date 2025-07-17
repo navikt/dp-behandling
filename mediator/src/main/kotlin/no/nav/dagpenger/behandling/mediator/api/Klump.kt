@@ -89,6 +89,7 @@ internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): Verdenbes
                         opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO() },
                     )
                 },
+            rettighetsperioder = emptyList(),
         )
     }
 
