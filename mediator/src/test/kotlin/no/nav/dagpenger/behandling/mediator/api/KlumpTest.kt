@@ -61,6 +61,22 @@ class KlumpTest {
     }
 
     @Test
+    fun `innvilgelse med et vilkår, vurdert likt i flere perioder som har MAX`() {
+        val resultat =
+            resultat(
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(11.mai(2025), 20.mai(2025)),
+                kravTilAlder.periode(21.mai(2025), LocalDate.MAX),
+            )
+
+        val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(PeriodeDTO(1.mai(2025), LocalDate.MAX))
+
+        godkjennJSON(klump)
+    }
+
+    @Test
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder`() {
         val resultat =
             resultat(

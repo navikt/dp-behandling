@@ -117,7 +117,8 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder2(): List<PeriodeDTO
 
     // En liste med gyldighetsperioder for alle relevante vilkår
     val førsteDag = utfall.minOf { it.gyldighetsperiode.fom }
-    val sisteDag = utfall.filter { it.gyldighetsperiode.tom != MAX }.maxOf { it.gyldighetsperiode.tom }
+    val sisteDag = utfall.maxOf { it.gyldighetsperiode.tom }
+    val høyesteFom = utfall.maxOf { it.gyldighetsperiode.fom }
 
     val perioderMedNei = utfall.filter { !it.verdi }.map { it.gyldighetsperiode }
     val perioderMedJa = utfall.filter { it.verdi }.map { it.gyldighetsperiode }
@@ -125,9 +126,11 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder2(): List<PeriodeDTO
     // Returner en liste med periode per dag hvor alle relevante vilkår er oppfylt
     val dagerMedAlleVilkår =
         førsteDag
-            .datesUntil(sisteDag.plusDays(1))
+            .datesUntil(if (sisteDag == MAX) MAX else sisteDag.plusDays(1))
             .asSequence()
-            .map { dag ->
+            .takeWhile { dag ->
+                (!utfall.filter { it.gyldighetsperiode.inneholder(dag) }.all { it.gyldighetsperiode.tom == MAX } || dag < høyesteFom)
+            }.map { dag ->
 //                val finnesUtfallJaIDag = perioderMedJa.any { it.inneholder(dag) }
                 val finnesUtfallNeiIDag = perioderMedNei.any { it.inneholder(dag) }
                 val finnesIngenUtfallJaIDag = perioderMedJa.none { it.inneholder(dag) }
@@ -145,7 +148,17 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder2(): List<PeriodeDTO
                     periode = PeriodeDTO(fraOgMed = dag, tilOgMed = dag),
                     utfall = true,
                 )
-            }.toList()
+            }.toMutableList()
+            .also {
+                if (sisteDag == MAX) {
+                    it.add(
+                        PeriodeMedUtfall(
+                            periode = PeriodeDTO(fraOgMed = it.last().periode.fraOgMed, tilOgMed = sisteDag),
+                            utfall = it.last().utfall,
+                        ),
+                    )
+                }
+            }
 
     val perioderSlåttSammen =
         dagerMedAlleVilkår.fold(emptyList<PeriodeMedUtfall>()) { periodisertliste, nesteDag ->
