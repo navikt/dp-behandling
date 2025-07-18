@@ -38,9 +38,7 @@
       "verdi" : "true",
       "gyldigFraOgMed" : "2025-05-01",
       "gyldigTilOgMed" : "2025-05-10",
-      "datatype" : "boolsk",
-      "kilde" : null,
-      "utledetAv" : null
+      "datatype" : "boolsk"
     }, {
       "id" : "00000000-0000-0000-0000-000000000000",
       "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
@@ -52,9 +50,7 @@
       "verdi" : "true",
       "gyldigFraOgMed" : "2025-05-11",
       "gyldigTilOgMed" : "2025-05-20",
-      "datatype" : "boolsk",
-      "kilde" : null,
-      "utledetAv" : null
+      "datatype" : "boolsk"
     }, {
       "id" : "00000000-0000-0000-0000-000000000000",
       "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
@@ -66,13 +62,12 @@
       "verdi" : "true",
       "gyldigFraOgMed" : "2025-05-21",
       "gyldigTilOgMed" : "2025-05-30",
-      "datatype" : "boolsk",
-      "kilde" : null,
-      "utledetAv" : null
+      "datatype" : "boolsk"
     } ]
   } ],
   "rettighetsperioder" : [ {
     "fraOgMed" : "2025-05-01",
-    "tilOgMed" : "2025-05-30"
+    "tilOgMed" : "2025-05-30",
+    "harRett" : true
   } ]
 }

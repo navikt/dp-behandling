@@ -299,7 +299,7 @@ internal class PersonMediatorTest {
                 }*/
             }
 
-            rapid.inspektør.size shouldBe 27
+            rapid.inspektør.size shouldBe 25
 
             testObservatør.tilstandsendringer.size shouldBe 3
 
@@ -404,7 +404,7 @@ internal class PersonMediatorTest {
                 }
             }
 
-            rapid.inspektør.size shouldBe 25
+            rapid.inspektør.size shouldBe 24
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
@@ -571,7 +571,7 @@ internal class PersonMediatorTest {
                     "avklaring" to 7,
                     "forslag" to 1,
                     "event" to 2,
-                    "klump" to 1,
+                    "klump" to 0,
                 ).sumOf { it.second }
         }
 

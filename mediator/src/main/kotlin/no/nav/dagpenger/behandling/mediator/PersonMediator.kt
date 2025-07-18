@@ -34,13 +34,13 @@ internal class PersonMediator : PersonObservatør {
 
     override fun forslagTilVedtak(event: BehandlingForslagTilVedtak) {
         val ident = requireNotNull(event.ident) { "Mangler ident i ForslagTilVedtak" }
-        runCatching { meldinger.add(ident to event.tilKlumpen(ident)) }.onFailure { logger.warn { "Klare ikke å lage klump" } }
+        runCatching { meldinger.add(ident to event.tilKlumpen(ident)) }.onFailure { logger.warn(it) { "Klarte ikke å lage klump" } }
         meldinger.add(ident to event.toJsonMessage())
     }
 
     override fun ferdig(event: BehandlingFerdig) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
-        runCatching { meldinger.add(ident to event.tilKlumpen(ident)) }.onFailure { logger.warn { "Klare ikke å lage klump" } }
+        runCatching { meldinger.add(ident to event.tilKlumpen(ident)) }.onFailure { logger.warn(it) { "Klarte ikke å lage klump" } }
         meldinger.add(ident to event.tilVedtakFattetMelding())
     }
 

@@ -18,9 +18,9 @@ import no.nav.dagpenger.behandling.api.models.OpplysningsgruppeKlumpDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
-import no.nav.dagpenger.behandling.api.models.PeriodeDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
+import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.api.models.VerdenbesteklumpmeddataDTO
@@ -32,6 +32,7 @@ import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysning
@@ -52,7 +53,6 @@ import java.time.LocalDate
 import java.time.LocalDate.MAX
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.streams.asSequence
 
 internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): VerdenbesteklumpmeddataDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -95,7 +95,7 @@ internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): Verdenbes
         )
     }
 
-private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<PeriodeDTO> {
+private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<RettighetsperiodeDTO> {
     val vilkår: List<Opplysningstype<Boolean>> =
         behandlingAv.forretningsprosess.regelverk
             .regelsettAvType(RegelsettType.Vilkår)
@@ -110,41 +110,38 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<PeriodeDTO>
 
     if (utfall.isEmpty()) return emptyList()
 
-    // En liste med gyldighetsperioder for alle relevante vilkår
-    val førsteDag = utfall.minOf { it.gyldighetsperiode.fom }
-    val sisteDag = utfall.filter { it.gyldighetsperiode.tom != MAX }.maxOf { it.gyldighetsperiode.tom }
-
     val perioderMedNei = utfall.filter { !it.verdi }.map { it.gyldighetsperiode }
 
     // Returner en liste med periode per dag hvor alle relevante vilkår er oppfylt
-    val dagerMedAlleVilkår =
-        førsteDag
-            .datesUntil(sisteDag.plusDays(1))
-            .asSequence()
-            .mapNotNull { dag ->
-                val harIkkeRett = perioderMedNei.any { it.inneholder(dag) }
-                if (harIkkeRett) return@mapNotNull null
-
-                PeriodeDTO(fraOgMed = dag, tilOgMed = dag)
-            }.toList()
+    val grensedatoer = unikePerioder(utfall)
+    val perioder =
+        grensedatoer.mapNotNull {
+            val harRett = !perioderMedNei.any { neiPeriode -> neiPeriode.inneholder(it.fom) }
+            if (!harRett) return@mapNotNull null
+            RettighetsperiodeDTO(it.fom, it.tom, harRett) // minus 1 fordi end er eksklusiv
+        }
 
     // Slå sammen perioder som ligger kant i kant
-    val perioder =
-        dagerMedAlleVilkår.fold(mutableListOf<PeriodeDTO>()) { acc, periode ->
+    val slåttSammen =
+        perioder.fold(mutableListOf<RettighetsperiodeDTO>()) { acc, neste ->
             if (acc.isEmpty()) {
-                acc.add(periode)
+                acc.add(neste)
             } else {
-                val last = acc.last()
-                if (periode.fraOgMed == last.tilOgMed?.plusDays(1)) {
-                    acc[acc.lastIndex] = PeriodeDTO(last.fraOgMed, periode.tilOgMed)
+                val siste = acc.last()
+                if (siste.harRett == neste.harRett && siste.tilOgMed.takeIf { it != MAX }?.plusDays(1) == neste.fraOgMed) {
+                    acc[acc.lastIndex] = siste.copy(tilOgMed = neste.tilOgMed)
                 } else {
-                    acc.add(periode)
+                    acc.add(neste)
                 }
             }
             acc
         }
-    return perioder
+
+    return slåttSammen
 }
+
+private fun unikePerioder(utfall: List<Opplysning<Boolean>>): Sequence<Gyldighetsperiode> =
+    utfall.asSequence().map { it.gyldighetsperiode }.distinct()
 
 private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*>>): NoesomharblittvurdertDTO? {
     val produkter: Set<Opplysning<*>> =
@@ -249,3 +246,9 @@ private fun Opplysning<*>.tilOpplysningDTO() =
                 )
             },
     )
+
+data class PeriodeMedStatus(
+    val fraOgMed: LocalDate,
+    val tilOgMed: LocalDate,
+    val harRett: Boolean,
+)

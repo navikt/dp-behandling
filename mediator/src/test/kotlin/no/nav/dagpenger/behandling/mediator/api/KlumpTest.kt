@@ -1,10 +1,9 @@
 package no.nav.dagpenger.behandling.mediator.api
 
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.mockk.mockk
-import no.nav.dagpenger.behandling.api.models.PeriodeDTO
+import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.VerdenbesteklumpmeddataDTO
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.mai
@@ -20,7 +19,6 @@ import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
-import org.junit.jupiter.api.Disabled
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -40,6 +38,7 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true))
 
         godkjennJSON(klump)
     }
@@ -55,6 +54,7 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(RettighetsperiodeDTO(1.mai(2025), 30.mai(2025), true))
 
         godkjennJSON(klump)
     }
@@ -70,6 +70,10 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 2
+        klump.rettighetsperioder.shouldContainExactly(
+            RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
+            RettighetsperiodeDTO(21.mai(2025), 30.mai(2025), true),
+        )
 
         godkjennJSON(klump)
     }
@@ -84,12 +88,15 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(
+            RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
+        )
 
         godkjennJSON(klump)
     }
 
+    // @Disabled("Vi støtter ikke hull")
     @Test
-    @Disabled("Vi støtter ikke hull")
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold med hull`() {
         val resultat =
             resultat(
@@ -100,6 +107,11 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 3
+        klump.rettighetsperioder.shouldContainExactly(
+            RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
+            RettighetsperiodeDTO(21.mai(2025), 30.mai(2025), true),
+            RettighetsperiodeDTO(5.juni(2025), 5.juni(2028), true),
+        )
 
         godkjennJSON(klump)
     }
@@ -132,7 +144,9 @@ class KlumpTest {
 
         val klump = resultat.tilKlumpDTO(ident)
         klump.rettighetsperioder shouldHaveSize 1
-        klump.rettighetsperioder.shouldContainExactly(PeriodeDTO(5.mai(2025), 30.mai(2025)))
+        klump.rettighetsperioder.shouldContainExactly(
+            RettighetsperiodeDTO(5.mai(2025), 30.mai(2025), harRett = true),
+        )
 
         godkjennJSON(klump)
     }
@@ -171,11 +185,7 @@ class KlumpTest {
         )
 
     private fun godkjennJSON(klump: VerdenbesteklumpmeddataDTO) {
-        val json =
-            objectMapper
-                .apply {
-                    enable(SerializationFeature.INDENT_OUTPUT)
-                }.writeValueAsString(klump)
+        val json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(klump)
 
         Approvals.verify(maskUUIDs(json))
     }

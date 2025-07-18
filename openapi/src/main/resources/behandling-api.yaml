@@ -700,7 +700,7 @@ components:
         rettighetsperioder:
           type: array
           items:
-            $ref: '#/components/schemas/Periode'
+            $ref: '#/components/schemas/Rettighetsperiode'
 
     Personident:
       type: string
@@ -1595,6 +1595,21 @@ components:
         tilOgMed:
           type: string
           format: date
+
+    Rettighetsperiode:
+      type: object
+      required:
+        - fraOgMed
+        - harRett
+      properties:
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          type: string
+          format: date
+        harRett:
+          type: boolean
 
     Utbetaling:
       type: object

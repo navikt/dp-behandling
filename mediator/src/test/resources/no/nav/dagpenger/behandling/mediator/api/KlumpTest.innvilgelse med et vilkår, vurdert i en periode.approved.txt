@@ -38,13 +38,12 @@
       "verdi" : "true",
       "gyldigFraOgMed" : "2025-05-01",
       "gyldigTilOgMed" : "2025-05-10",
-      "datatype" : "boolsk",
-      "kilde" : null,
-      "utledetAv" : null
+      "datatype" : "boolsk"
     } ]
   } ],
   "rettighetsperioder" : [ {
     "fraOgMed" : "2025-05-01",
-    "tilOgMed" : "2025-05-10"
+    "tilOgMed" : "2025-05-10",
+    "harRett" : true
   } ]
 }
