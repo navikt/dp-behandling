@@ -94,7 +94,6 @@ class KlumpTest {
         godkjennJSON(klump)
     }
 
-    //    @Disabled("Vi støtter ikke hull")
     @Test
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold med hull`() {
         val resultat =
@@ -110,6 +109,25 @@ class KlumpTest {
             PeriodeDTO(1.mai(2025), 10.mai(2025)),
             PeriodeDTO(21.mai(2025), 30.mai(2025)),
             PeriodeDTO(5.juni(2025), 5.juni(2028)),
+        )
+
+        godkjennJSON(klump)
+    }
+
+    @Test
+    fun `innvilgelse som til sammen utgjør en periode med innvilget`() {
+        val resultat =
+            resultat(
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(5.juni(2025), 5.juni(2028)),
+                minsteinntekt.periode(1.mai(2025), 5.juni(2025)),
+            )
+
+        val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder shouldHaveSize 1
+        klump.rettighetsperioder.shouldContainExactly(
+            PeriodeDTO(1.mai(2025), 5.juni(2028)),
         )
 
         godkjennJSON(klump)
