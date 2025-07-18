@@ -32,7 +32,6 @@ import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysning
@@ -50,9 +49,9 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
-import java.time.LocalDate.MAX
-import kotlin.collections.component1
+import java.time.LocalDate.MIN
 import kotlin.collections.component2
+import kotlin.sequences.sorted
 
 internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): VerdenbesteklumpmeddataDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -66,6 +65,7 @@ internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): Verdenbes
                     .regelsettAvType(RegelsettType.Vilkår)
                     .mapNotNull { it.tilNoesomharblittvurdertDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
+            rettighetsperioder = rettighetsperioder(),
             fastsettelser =
                 behandlingAv.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
@@ -91,7 +91,6 @@ internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): Verdenbes
                         opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO() },
                     )
                 },
-            rettighetsperioder = rettighetsperioder(),
         )
     }
 
@@ -113,12 +112,17 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
     val perioderMedNei = utfall.filter { !it.verdi }.map { it.gyldighetsperiode }
 
     // Returner en liste med periode per dag hvor alle relevante vilkår er oppfylt
-    val grensedatoer = unikePerioder(utfall)
+    val grensedatoer = ytterpunkter(utfall)
     val perioder =
-        grensedatoer.mapNotNull {
-            val harRett = !perioderMedNei.any { neiPeriode -> neiPeriode.inneholder(it.fom) }
-            if (!harRett) return@mapNotNull null
-            RettighetsperiodeDTO(it.fom, it.tom, harRett) // minus 1 fordi end er eksklusiv
+        grensedatoer.zipWithNext().mapNotNull { (start, end) ->
+            // Special case 1: "Tomme" perioder som ligger mellom overganger
+            if (start == end.minusDays(1)) return@mapNotNull null
+            // Special case 2: Det må være minst 1 utfall i perioden
+            if (utfall.none { it.gyldighetsperiode.inneholder(end.minusDays(1)) }) {
+                return@mapNotNull RettighetsperiodeDTO(start.plusDays(1), end.minusDays(1).tilApiDato(), false)
+            }
+            val harRett = !perioderMedNei.any { neiPeriode -> neiPeriode.inneholder(start) }
+            RettighetsperiodeDTO(start, end.tilApiDato(), harRett)
         }
 
     // Slå sammen perioder som ligger kant i kant
@@ -128,7 +132,7 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
                 acc.add(neste)
             } else {
                 val siste = acc.last()
-                if (siste.harRett == neste.harRett && siste.tilOgMed.takeIf { it != MAX }?.plusDays(1) == neste.fraOgMed) {
+                if (siste.harRett == neste.harRett && siste.tilOgMed?.plusDays(1) == neste.fraOgMed) {
                     acc[acc.lastIndex] = siste.copy(tilOgMed = neste.tilOgMed)
                 } else {
                     acc.add(neste)
@@ -140,8 +144,13 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
     return slåttSammen
 }
 
-private fun unikePerioder(utfall: List<Opplysning<Boolean>>): Sequence<Gyldighetsperiode> =
-    utfall.asSequence().map { it.gyldighetsperiode }.distinct()
+private fun ytterpunkter(utfall: List<Opplysning<Boolean>>): Sequence<LocalDate> =
+    utfall
+        .asSequence()
+        .flatMap { sequenceOf(it.gyldighetsperiode.fom, it.gyldighetsperiode.tom) }
+        .distinct()
+        .filter { it != MIN } // Fjerner MIN som er default verdi for LocalDate
+        .sorted()
 
 private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*>>): NoesomharblittvurdertDTO? {
     val produkter: Set<Opplysning<*>> =
@@ -246,9 +255,3 @@ private fun Opplysning<*>.tilOpplysningDTO() =
                 )
             },
     )
-
-data class PeriodeMedStatus(
-    val fraOgMed: LocalDate,
-    val tilOgMed: LocalDate,
-    val harRett: Boolean,
-)

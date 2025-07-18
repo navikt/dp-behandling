@@ -70,6 +70,10 @@
     "tilOgMed" : "2025-05-10",
     "harRett" : true
   }, {
+    "fraOgMed" : "2025-05-11",
+    "tilOgMed" : "2025-05-20",
+    "harRett" : false
+  }, {
     "fraOgMed" : "2025-05-21",
     "tilOgMed" : "2025-05-30",
     "harRett" : true

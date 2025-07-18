@@ -1,10 +1,11 @@
 package no.nav.dagpenger.behandling.mediator.api
 
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldHaveSize
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.VerdenbesteklumpmeddataDTO
+import no.nav.dagpenger.behandling.august
+import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -37,7 +38,6 @@ class KlumpTest {
             )
 
         val klump = resultat.tilKlumpDTO(ident)
-        klump.rettighetsperioder shouldHaveSize 1
         klump.rettighetsperioder.shouldContainExactly(RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true))
 
         godkjennJSON(klump)
@@ -53,7 +53,6 @@ class KlumpTest {
             )
 
         val klump = resultat.tilKlumpDTO(ident)
-        klump.rettighetsperioder shouldHaveSize 1
         klump.rettighetsperioder.shouldContainExactly(RettighetsperiodeDTO(1.mai(2025), 30.mai(2025), true))
 
         godkjennJSON(klump)
@@ -69,9 +68,9 @@ class KlumpTest {
             )
 
         val klump = resultat.tilKlumpDTO(ident)
-        klump.rettighetsperioder shouldHaveSize 2
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
+            RettighetsperiodeDTO(fraOgMed = 11.mai(2025), tilOgMed = 20.mai(2025), harRett = false),
             RettighetsperiodeDTO(21.mai(2025), 30.mai(2025), true),
         )
 
@@ -87,7 +86,6 @@ class KlumpTest {
             )
 
         val klump = resultat.tilKlumpDTO(ident)
-        klump.rettighetsperioder shouldHaveSize 1
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
         )
@@ -95,7 +93,6 @@ class KlumpTest {
         godkjennJSON(klump)
     }
 
-    // @Disabled("Vi støtter ikke hull")
     @Test
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold med hull`() {
         val resultat =
@@ -106,10 +103,11 @@ class KlumpTest {
             )
 
         val klump = resultat.tilKlumpDTO(ident)
-        klump.rettighetsperioder shouldHaveSize 3
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
+            RettighetsperiodeDTO(11.mai(2025), 20.mai(2025), false),
             RettighetsperiodeDTO(21.mai(2025), 30.mai(2025), true),
+            RettighetsperiodeDTO(31.mai(2025), 4.juni(2025), false),
             RettighetsperiodeDTO(5.juni(2025), 5.juni(2028), true),
         )
 
@@ -128,7 +126,13 @@ class KlumpTest {
             )
 
         val klump = resultat.tilKlumpDTO(ident)
-        klump.rettighetsperioder shouldHaveSize 3
+        klump.rettighetsperioder.shouldContainExactly(
+            RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
+            RettighetsperiodeDTO(11.mai(2025), 20.mai(2025), false),
+            RettighetsperiodeDTO(21.mai(2025), 30.mai(2025), true),
+            RettighetsperiodeDTO(31.mai(2025), 4.juni(2025), false),
+            RettighetsperiodeDTO(5.juni(2025), 5.juni(2028), true),
+        )
 
         godkjennJSON(klump)
     }
@@ -143,9 +147,29 @@ class KlumpTest {
             )
 
         val klump = resultat.tilKlumpDTO(ident)
-        klump.rettighetsperioder shouldHaveSize 1
         klump.rettighetsperioder.shouldContainExactly(
+            RettighetsperiodeDTO(1.mai(2025), 4.mai(2025), harRett = false),
             RettighetsperiodeDTO(5.mai(2025), 30.mai(2025), harRett = true),
+        )
+
+        godkjennJSON(klump)
+    }
+
+    @Test
+    fun `innvilgelse med start, stopp, og gjenopptak`() {
+        val resultat =
+            resultat(
+                minsteinntekt.periode(21.juni(2025), LocalDate.MAX),
+                kravTilAlder.periode(21.juni(2025), 21.juli(2025)),
+                kravTilAlder.periode(22.juli(2025), 22.august(2025), false),
+                kravTilAlder.periode(23.august(2025)),
+            )
+
+        val klump = resultat.tilKlumpDTO(ident)
+        klump.rettighetsperioder.shouldContainExactly(
+            RettighetsperiodeDTO(21.juni(2025), 21.juli(2025), harRett = true),
+            RettighetsperiodeDTO(22.juli(2025), 22.august(2025), harRett = false),
+            RettighetsperiodeDTO(23.august(2025), harRett = true),
         )
 
         godkjennJSON(klump)
