@@ -49,6 +49,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
+import java.time.LocalDate.MAX
 import java.time.LocalDate.MIN
 import kotlin.collections.component2
 import kotlin.sequences.sorted
@@ -114,15 +115,15 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
     // Returner en liste med periode per dag hvor alle relevante vilkår er oppfylt
     val grensedatoer = ytterpunkter(utfall)
     val perioder =
-        grensedatoer.zipWithNext().mapNotNull { (start, end) ->
-            // Special case 1: "Tomme" perioder som ligger mellom overganger
-            if (start == end.minusDays(1)) return@mapNotNull null
+        grensedatoer.zipWithNext().map { (start, end) ->
+            val sluttdato = end.takeIf { it != MAX }?.minusDays(1) ?: MAX
+
             // Special case 2: Det må være minst 1 utfall i perioden
             if (utfall.none { it.gyldighetsperiode.inneholder(end.minusDays(1)) }) {
-                return@mapNotNull RettighetsperiodeDTO(start.plusDays(1), end.minusDays(1).tilApiDato(), false)
+                return@map RettighetsperiodeDTO(start, sluttdato.tilApiDato(), false)
             }
             val harRett = !perioderMedNei.any { neiPeriode -> neiPeriode.inneholder(start) }
-            RettighetsperiodeDTO(start, end.tilApiDato(), harRett)
+            RettighetsperiodeDTO(start, sluttdato.tilApiDato(), harRett)
         }
 
     // Slå sammen perioder som ligger kant i kant
@@ -147,8 +148,15 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
 private fun ytterpunkter(utfall: List<Opplysning<Boolean>>): Sequence<LocalDate> =
     utfall
         .asSequence()
-        .flatMap { sequenceOf(it.gyldighetsperiode.fom, it.gyldighetsperiode.tom) }
-        .distinct()
+        .flatMap {
+            sequenceOf(
+                it.gyldighetsperiode.fom,
+                // Legg til en dag for emulere endExclusive som gjør zipWithNext enklere
+                it.gyldighetsperiode.tom
+                    .takeIf { tom -> tom != MAX }
+                    ?.plusDays(1) ?: MAX,
+            )
+        }.distinct()
         .filter { it != MIN } // Fjerner MIN som er default verdi for LocalDate
         .sorted()
 
