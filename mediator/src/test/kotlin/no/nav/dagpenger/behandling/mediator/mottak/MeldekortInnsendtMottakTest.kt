@@ -8,6 +8,7 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -76,7 +77,7 @@ class MeldekortInnsendtMottakTest {
         meldekort.ident shouldBe "12345123451"
         meldekort.fom shouldBe LocalDate.of(2025, 1, 20)
         meldekort.tom shouldBe LocalDate.of(2025, 2, 2)
-        meldekort.korrigeringAv shouldBe 1000
+        meldekort.korrigeringAv shouldBe MeldekortId("1000")
         meldekort.dager.size shouldBe 14
         meldekort.dager
             .first()

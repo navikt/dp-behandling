@@ -4,6 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import org.junit.jupiter.api.Test
 
 class VedtakFattetMottakTest {
@@ -30,6 +31,6 @@ class VedtakFattetMottakTest {
 
         rapid.sendTestMessage(vedtak)
 
-        verify { meldekortRepository.markerSomFerdig(1) }
+        verify { meldekortRepository.markerSomFerdig(MeldekortId("1")) }
     }
 }

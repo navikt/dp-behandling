@@ -6,6 +6,7 @@ import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDateTime
 import java.util.UUID
@@ -69,9 +70,9 @@ interface MeldekortRepository {
 
     fun hent(meldekortId: UUID): Meldekort?
 
-    fun behandlingStartet(meldekortId: Long)
+    fun behandlingStartet(meldekortId: MeldekortId)
 
-    fun markerSomFerdig(meldekortId: Long)
+    fun markerSomFerdig(meldekortId: MeldekortId)
 
     data class Meldekortkø(
         val behandlingsklare: List<Meldekortstatus>,

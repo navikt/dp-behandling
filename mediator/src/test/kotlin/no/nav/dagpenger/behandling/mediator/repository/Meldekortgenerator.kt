@@ -5,6 +5,7 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.uuid.UUIDv7
@@ -33,7 +34,7 @@ class Meldekortgenerator private constructor(
                         .copy(
                             id = UUIDv7.ny(),
                             meldingsreferanseId = UUIDv7.ny(),
-                            eksternMeldekortId = eksternMeldekortId.next(),
+                            eksternMeldekortId = MeldekortId(eksternMeldekortId.next().toString()),
                             korrigeringAv = meldekort.eksternMeldekortId,
                             dager = block(),
                         )
@@ -69,7 +70,7 @@ class Meldekortgenerator private constructor(
                 id = UUIDv7.ny(),
                 meldingsreferanseId = meldingsreferanseId,
                 ident = ident,
-                eksternMeldekortId = eksternMeldekortId.next(),
+                eksternMeldekortId = MeldekortId(eksternMeldekortId.next().toString()),
                 fom = periode.start,
                 tom = periode.endInclusive,
                 kilde = MeldekortKilde("Bruker", ident),

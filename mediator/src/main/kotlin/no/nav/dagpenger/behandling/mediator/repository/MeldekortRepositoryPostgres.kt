@@ -12,6 +12,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import org.postgresql.util.PGobject
 import java.time.LocalDate
@@ -83,7 +84,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             )
         }
 
-    override fun behandlingStartet(meldekortId: Long) {
+    override fun behandlingStartet(meldekortId: MeldekortId) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
@@ -93,7 +94,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         UPDATE meldekort SET behandling_startet = :startet WHERE meldekort_id= :meldekortId
                         """.trimIndent(),
                         mapOf(
-                            "meldekortId" to meldekortId,
+                            "meldekortId" to meldekortId.id,
                             "startet" to LocalDateTime.now(),
                         ),
                     ).asUpdate,
@@ -102,7 +103,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun markerSomFerdig(meldekortId: Long) {
+    override fun markerSomFerdig(meldekortId: MeldekortId) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
@@ -112,7 +113,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         UPDATE meldekort SET behandling_ferdig = :ferdig WHERE meldekort_id = :meldekortId
                         """.trimIndent(),
                         mapOf(
-                            "meldekortId" to meldekortId,
+                            "meldekortId" to meldekortId.id,
                             "ferdig" to LocalDateTime.now(),
                         ),
                     ).asUpdate,
@@ -126,7 +127,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             id = uuid("id"),
             meldingsreferanseId = uuid("meldingsreferanse_id"),
             ident = string("ident"),
-            eksternMeldekortId = long("meldekort_id"),
+            eksternMeldekortId = MeldekortId(string("meldekort_id")),
             fom = localDate("fom"),
             tom = localDate("tom"),
             kilde =
@@ -134,14 +135,14 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     rolle = string("kilde_rolle"),
                     ident = string("kilde_ident"),
                 ),
-            dager = session.hentDager(long("meldekort_id")),
+            dager = session.hentDager(MeldekortId(string("meldekort_id"))),
             innsendtTidspunkt = localDateTime("innsendt_tidspunkt"),
-            korrigeringAv = longOrNull("korrigert_meldekort_id"),
+            korrigeringAv = stringOrNull("korrigert_meldekort_id")?.let { MeldekortId(it) },
         )
 
     private fun TransactionalSession.markerSomKorrigert(
-        korrigertAvMeldekortId: Long,
-        originaltMeldekortId: Long,
+        korrigertAvMeldekortId: MeldekortId,
+        originaltMeldekortId: MeldekortId,
     ) {
         run(
             queryOf(
@@ -150,8 +151,8 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 UPDATE meldekort SET korrigert_av_meldekort_id = :korrigertAvMeldekortId WHERE meldekort_id = :originaltMeldekortId
                 """.trimIndent(),
                 mapOf(
-                    "originaltMeldekortId" to originaltMeldekortId,
-                    "korrigertAvMeldekortId" to korrigertAvMeldekortId,
+                    "originaltMeldekortId" to originaltMeldekortId.id,
+                    "korrigertAvMeldekortId" to korrigertAvMeldekortId.id,
                 ),
             ).asUpdate,
         )
@@ -168,11 +169,11 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 mapOf(
                     "id" to meldekort.id,
                     "meldingReferanseId" to meldekort.meldingsreferanseId,
-                    "meldekortId" to meldekort.eksternMeldekortId,
+                    "meldekortId" to meldekort.eksternMeldekortId.id,
                     "ident" to meldekort.ident,
                     "fom" to meldekort.fom,
                     "tom" to meldekort.tom,
-                    "korrigertMeldekortId" to meldekort.korrigeringAv,
+                    "korrigertMeldekortId" to meldekort.korrigeringAv?.id,
                     "kildeIdent" to meldekort.kilde.ident,
                     "kildeRolle" to meldekort.kilde.rolle,
                     "innsendtTidspunkt" to meldekort.innsendtTidspunkt,
@@ -193,7 +194,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 VALUES (:meldekortId, :meldt, :dato)
                 """.trimIndent(),
                 mapOf(
-                    "meldekortId" to meldekort.eksternMeldekortId,
+                    "meldekortId" to meldekort.eksternMeldekortId.id,
                     "meldt" to dag.meldt,
                     "dato" to dag.dato,
                 ),
@@ -218,7 +219,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 VALUES (:meldekortId, :dato, :type, :timer)
                 """.trimIndent(),
                 mapOf(
-                    "meldekortId" to meldekort.eksternMeldekortId,
+                    "meldekortId" to meldekort.eksternMeldekortId.id,
                     "dato" to dag.dato,
                     "type" to aktivitet.type.name,
                     "timer" to
@@ -233,7 +234,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         )
     }
 
-    private fun Session.hentDager(meldkortId: Long): List<Dag> =
+    private fun Session.hentDager(meldkortId: MeldekortId): List<Dag> =
         run(
             queryOf(
                 //language=PostgreSQL
@@ -241,7 +242,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 SELECT * FROM meldekort_dag WHERE meldekort_id = :meldekortId
                 """.trimIndent(),
                 mapOf(
-                    "meldekortId" to meldkortId,
+                    "meldekortId" to meldkortId.id,
                 ),
             ).map {
                 Dag(
@@ -253,7 +254,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         )
 
     private fun Session.hentAktiviteter(
-        meldkortId: Long,
+        meldkortId: MeldekortId,
         localDate: LocalDate,
     ): List<MeldekortAktivitet> =
         run(
@@ -263,7 +264,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 SELECT dato, type, EXTRACT(EPOCH FROM timer) AS timer FROM meldekort_aktivitet WHERE meldekort_id = :meldekortId AND dato = :dato
                 """.trimIndent(),
                 mapOf(
-                    "meldekortId" to meldkortId,
+                    "meldekortId" to meldkortId.id,
                     "dato" to localDate,
                 ),
             ).map {

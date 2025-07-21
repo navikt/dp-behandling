@@ -4,7 +4,6 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -30,7 +29,7 @@ class BeregnMeldekortHendelse(
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
-        eksternId = MeldekortId(meldekort.eksternMeldekortId),
+        eksternId = meldekort.eksternMeldekortId,
         skjedde = meldekort.innsendtTidspunkt.toLocalDate(),
         opprettet = opprettet,
     ) {

@@ -16,13 +16,13 @@ data class Meldekort(
     val id: UUID,
     val meldingsreferanseId: UUID,
     val ident: String,
-    val eksternMeldekortId: Long,
+    val eksternMeldekortId: MeldekortId,
     val fom: LocalDate,
     val tom: LocalDate,
     val kilde: MeldekortKilde,
     val dager: List<Dag>,
     val innsendtTidspunkt: LocalDateTime,
-    val korrigeringAv: Long?,
+    val korrigeringAv: MeldekortId?,
 ) : Comparable<Meldekort> {
     fun periode() = Periode(fom, tom)
 
