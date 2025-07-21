@@ -10,7 +10,7 @@ import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.erUsann
 import no.nav.dagpenger.opplysning.regel.innhentMed
-import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Behov.TarUtdanningEllerOpplæring
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarIArbeidsmarkedstiltakId
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarIHøyereUtdanningId
@@ -24,7 +24,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetPåUnntakForUtdann
 import no.nav.dagpenger.regel.OpplysningsTyper.svartJaPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.svartNeiPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.tarUtdanningEllerOpplæringId
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Utdanning {
@@ -118,12 +117,12 @@ object Utdanning {
             regel(tarUtdanning) { innhentMed(søknadIdOpplysningstype) }
 
             // TODO: Legg til regler for å om kravet til utdanning skal vurderes
-            regel(deltakelseIArbeidsmarkedstiltak) { oppslag(prøvingsdato) { false } }
-            regel(opplæringForInnvandrere) { oppslag(prøvingsdato) { false } }
-            regel(grunnskoleopplæring) { oppslag(prøvingsdato) { false } }
-            regel(høyereYrkesfagligUtdanning) { oppslag(prøvingsdato) { false } }
-            regel(høyereUtdanning) { oppslag(prøvingsdato) { false } }
-            regel(deltakelsePåKurs) { oppslag(prøvingsdato) { false } }
+            regel(deltakelseIArbeidsmarkedstiltak) { somUtgangspunkt(false) }
+            regel(opplæringForInnvandrere) { somUtgangspunkt(false) }
+            regel(grunnskoleopplæring) { somUtgangspunkt(false) }
+            regel(høyereYrkesfagligUtdanning) { somUtgangspunkt(false) }
+            regel(høyereUtdanning) { somUtgangspunkt(false) }
+            regel(deltakelsePåKurs) { somUtgangspunkt(false) }
 
             regel(godkjentUnntakForUtdanning) {
                 enAv(

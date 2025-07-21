@@ -9,7 +9,9 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.Egenandel
@@ -36,15 +38,20 @@ class EgenandelSteg : No {
                 ).also { regelkjøring.evaluer() }
         }
         Og("søker har ikke permittering fra fiskeindustrien") {
-            opplysninger
-                .leggTil(Faktum(PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri, false))
-                .also { regelkjøring.evaluer() }
+            opplysninger.apply {
+                leggTil(Faktum(oppfyllerKravetTilPermitteringFiskeindustri, false))
+                leggTil(Faktum(permitteringFiskeforedling, false))
+                regelkjøring.evaluer()
+            }
         }
 
         Og("søker har permittering fra fiskeindustrien") {
             opplysninger
-                .leggTil(Faktum(PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri, true))
-                .also { regelkjøring.evaluer() }
+                .apply {
+                    leggTil(Faktum(oppfyllerKravetTilPermitteringFiskeindustri, true))
+                    leggTil(Faktum(permitteringFiskeforedling, true))
+                    regelkjøring.evaluer()
+                }
         }
 
         Så("skal egenandel være {string}") { string: String ->

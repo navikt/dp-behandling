@@ -51,7 +51,6 @@ object Søknadstidspunkt {
 
     val SjekkPrøvingsdato =
         Kontrollpunkt(Avklaringspunkter.SjekkPrøvingsdato) {
-            it.har(prøvingsdato) &&
-                kravPåDagpenger(it)
+            it.har(prøvingsdato) && kravPåDagpenger(it)
         }
 }

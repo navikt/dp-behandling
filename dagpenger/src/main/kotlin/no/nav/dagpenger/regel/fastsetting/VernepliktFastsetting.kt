@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallGVernepliktId
@@ -19,6 +20,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagUtenVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktFastsattVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktPeriodeId
+import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -53,17 +55,17 @@ object VernepliktFastsetting {
         fastsettelse(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Dagpenger ved verneplikt"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) } // && it.erSann(skalVernepliktVurderes) }
 
             regel(antallG) { oppslag(prøvingsdato) { 3.0 } }
             regel(vernepliktGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, antallG) }
             regel(vernepliktPeriode) { oppslag(prøvingsdato) { 26 } }
             regel(vernepliktFastsattVanligArbeidstid) { oppslag(prøvingsdato) { 37.5 } }
 
-            regel(grunnlagUtenVerneplikt) { oppslag(prøvingsdato) { Beløp(0) } }
+            regel(grunnlagUtenVerneplikt) { somUtgangspunkt(Beløp(0)) }
 
             // Setter grunnlag avhengig av om bruker oppfyller kravet til verneplikt (0G eller 3G)
-            regel(grunnlagHvisVerneplikt) { hvisSannMedResultat(oppfyllerKravetTilVerneplikt, vernepliktGrunnlag, grunnlagUtenVerneplikt) }
+            regel(grunnlagHvisVerneplikt) { hvisSannMedResultat(skalVernepliktVurderes, vernepliktGrunnlag, grunnlagUtenVerneplikt) }
 
             // Kriteriet om vi skal bruke grunnlag og FVA fra verneplikt eller dagpengegrunnlag
             regel(grunnlagForVernepliktErGunstigst) { størreEnn(grunnlagHvisVerneplikt, dagpengegrunnlag) }

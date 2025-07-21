@@ -9,11 +9,10 @@ graph RL
   C["Grunnlag for gis ved verneplikt"] -->|"Multiplikasjon"| A["Antall G som gis som grunnlag ved verneplikt"]
   E["Periode som gis ved verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
   F["Fastsatt vanlig arbeidstid for verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
-  G["Grunnlag for verneplikt hvis kravet ikke er oppfylt"] -->|"Oppslag"| B["Prøvingsdato"]
-  H["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| I["Oppfyller kravet til verneplikt"]
-  H["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| C["Grunnlag for gis ved verneplikt"]
-  H["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| G["Grunnlag for verneplikt hvis kravet ikke er oppfylt"]
-  J["Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget"] -->|"StørreEnn"| H["Grunnlag for verneplikt hvis kravet er oppfylt"]
+  G["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| H["Skal kravet til verneplikt vurderes"]
+  G["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| C["Grunnlag for gis ved verneplikt"]
+  G["Grunnlag for verneplikt hvis kravet er oppfylt"] -->|"HvisSannMedResultat"| I["Grunnlag for verneplikt hvis kravet ikke er oppfylt"]
+  J["Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget"] -->|"StørreEnn"| G["Grunnlag for verneplikt hvis kravet er oppfylt"]
   J["Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget"] -->|"StørreEnn"| K["Grunnlag ved ordinære dagpenger"]
 ```
 

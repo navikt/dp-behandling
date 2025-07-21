@@ -10,8 +10,7 @@ class Oppslag<T : Comparable<T>> internal constructor(
     private val block: (LocalDate) -> T,
 ) : Regel<T>(produserer, listOf(dato)) {
     override fun kjør(opplysninger: LesbarOpplysninger): T {
-        val oppslagsdato =
-            opplysninger.finnOpplysning(dato).verdi
+        val oppslagsdato = opplysninger.finnOpplysning(dato).verdi
 
         return block(oppslagsdato)
     }

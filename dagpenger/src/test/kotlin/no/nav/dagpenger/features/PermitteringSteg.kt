@@ -11,15 +11,17 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.Permittering
 import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 
 class PermitteringSteg : No {
     private val fraDato = 23.mai(2024)
     private val regelsett =
         listOf(
-            Rettighetstype.regelsett,
+            Verneplikt.regelsett,
             Permittering.regelsett,
             PermitteringFastsetting.regelsett,
+            Rettighetstype.regelsett,
             Søknadstidspunkt.regelsett,
         )
     private val opplysninger = Opplysninger()

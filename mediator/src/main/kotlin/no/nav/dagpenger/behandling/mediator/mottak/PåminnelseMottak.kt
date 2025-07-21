@@ -29,7 +29,7 @@ internal class PåminnelseMottak(
     }
 
     private val skipBehandlinger =
-        setOf("0196cb38-bb3c-7c95-8772-f98637b645cc", "0196cb32-7a1d-71be-8e27-7ca790414c6c", "0196cb39-3928-731a-b670-2ceefe03ac27")
+        setOf("0197ee07-aa05-7552-9734-200d9e600bcb")
 
     @WithSpan
     override fun onPacket(

@@ -4,6 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import mu.KotlinLogging
 import mu.withLoggingContext
+import no.nav.dagpenger.behandling.mediator.Metrikk.avklaringOpprettetTeller
 
 class AvklaringKafkaObservatør(
     private val rapid: MessageContext,
@@ -13,6 +14,10 @@ class AvklaringKafkaObservatør(
             "avklaringId" to nyAvklaringHendelse.avklaring.id.toString(),
             "kode" to nyAvklaringHendelse.avklaring.kode.kode,
         ) {
+            avklaringOpprettetTeller
+                .labelValues(nyAvklaringHendelse.avklaring.kode.kode)
+                .inc()
+
             rapid.publish(
                 nyAvklaringHendelse.ident,
                 JsonMessage

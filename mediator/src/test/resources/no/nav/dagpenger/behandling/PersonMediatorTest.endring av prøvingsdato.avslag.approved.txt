@@ -1,6 +1,7 @@
 fagsakId
 søknadId
 hendelseType
+Aldersgrense
 Fødselsdato
 Søknadsdato
 Ønsker dagpenger fra dato
@@ -9,47 +10,40 @@ Bruker er permittert
 Forskutterte lønnsgarantimidler i form av dagpenger
 Permittert fra fiskeindustrien
 Søknadstidspunkt
+Dato søker når maks alder
+Siste mulige dag bruker kan oppfylle alderskrav
 Har rett til ordinære dagpenger uten arbeidsforhold
+Kravet til reell arbeidssøker er vurdert
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søker arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
+Minimum vanlig arbeidstid
 Ordinære dagpenger
 Rettighetstype
 Avtjent verneplikt
-Oppfyller kravet til verneplikt
+Skal kravet til verneplikt vurderes
 Ønsket arbeidstid
 Kan jobbe heltid og deltid
 Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
+Oppfyller kravet til heltid- og deltidsarbeid
+Oppfyller kravet til mobilitet
+Oppfyller kravet til å være arbeidsfør
 Oppfyller kravet til å ta ethvert arbeid
+Villig til å jobbe minimum arbeidstid
+Reell arbeidssøker
 Prøvingsdato
-Aldersgrense
-Dato søker når maks alder
-Siste mulige dag bruker kan oppfylle alderskrav
 Oppfyller kravet til alder
 Lovpålagt rapporteringsfrist for A-ordningen
 Maks lengde på opptjeningsperiode
 Grunnbeløp
 Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
-Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søker arbeid lokalt
-Har helsemessige begrensninger og kan ikke ta alle typer arbeid
-Minimum vanlig arbeidstid
-Kravet til reell arbeidssøker er ikke relevant
-Årsaken til permitteringen er godkjent
-Permitteringen er midlertidig driftsinnskrenkning eller driftsstans
-Årsaken til permitteringen fra fiskeindustrien er godkjent
-Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 måneder
 Inntektskrav for siste 36 måneder
-Oppfyller kravet til heltid- og deltidsarbeid
-Oppfyller kravet til mobilitet
-Oppfyller kravet til å være arbeidsfør
-Villig til å jobbe minimum arbeidstid
-Oppfyller kravet til permittering
-Oppfyller kravet til permittering i fiskeindustrien
 Siste avsluttende kalendermåned
-Reell arbeidssøker
 Første måned av opptjeningsperiode
 Inntektsopplysninger
 Registrert som arbeidssøker

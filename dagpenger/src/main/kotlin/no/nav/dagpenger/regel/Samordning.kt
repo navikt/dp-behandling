@@ -10,7 +10,7 @@ import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.innhentMed
-import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -176,21 +176,21 @@ object Samordning {
             regel(svangerskapspenger) { innhentMed(prøvingsdato) }
 
             // TODO: Hent uførestrygd og barnepenger fra pesys
-            regel(uføre) { oppslag(prøvingsdato) { false } }
+            regel(uføre) { somUtgangspunkt(false) }
             regel(skalUføreSamordnes) { erSann(uføre) }
 
-            regel(samordnetArbeidstid) { oppslag(prøvingsdato) { 0.0 } }
+            regel(samordnetArbeidstid) { somUtgangspunkt(0.0) }
             regel(samordnetBeregnetArbeidstid) { substraksjonTilNull(beregnetArbeidstid, samordnetArbeidstid) }
 
-            regel(sykepengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(pleiepengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(omsorgspengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(opplæringspengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(uføreDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(svangerskapspengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
-            regel(foreldrepengerDagsats) { oppslag(prøvingsdato) { Beløp(0.0) } }
+            regel(sykepengerDagsats) { somUtgangspunkt(Beløp(0.0)) }
+            regel(pleiepengerDagsats) { somUtgangspunkt(Beløp(0.0)) }
+            regel(omsorgspengerDagsats) { somUtgangspunkt(Beløp(0.0)) }
+            regel(opplæringspengerDagsats) { somUtgangspunkt(Beløp(0.0)) }
+            regel(uføreDagsats) { somUtgangspunkt(Beløp(0.0)) }
+            regel(svangerskapspengerDagsats) { somUtgangspunkt(Beløp(0.0)) }
+            regel(foreldrepengerDagsats) { somUtgangspunkt(Beløp(0.0)) }
 
-            regel(sumHvisUføreIkkeSkalSamordnes) { oppslag(prøvingsdato) { Beløp(0.0) } }
+            regel(sumHvisUføreIkkeSkalSamordnes) { somUtgangspunkt(Beløp(0.0)) }
             regel(uføreBeløpSomSkalSamordnes) {
                 hvisSannMedResultat(
                     skalUføreSamordnes,

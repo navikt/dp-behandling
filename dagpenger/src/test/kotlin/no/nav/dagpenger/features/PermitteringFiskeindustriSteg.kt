@@ -11,14 +11,16 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Verneplikt
 
 class PermitteringFiskeindustriSteg : No {
     private val fraDato = 23.mai(2024)
     private val regelsett =
         listOf(
-            Rettighetstype.regelsett,
             PermitteringFraFiskeindustrien.regelsett,
+            Rettighetstype.regelsett,
             Søknadstidspunkt.regelsett,
+            Verneplikt.regelsett,
         )
     private val opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring

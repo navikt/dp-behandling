@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.withMDC
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import com.sun.org.apache.xalan.internal.lib.ExsltDatetime.time
 import mu.KotlinLogging
+import no.nav.dagpenger.behandling.mediator.Metrikk.totalTidBruktPerHendelse
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
@@ -224,11 +226,15 @@ internal class MessageMediator(
         håndter: (HENDELSE) -> Unit,
     ) {
         withMDC(message.tracinginfo()) {
-            logger.info { "Behandler hendelse: ${hendelse.javaClass.simpleName}" }
-            message.lagreMelding(meldingRepository)
-            håndter(hendelse) // @todo: feilhåndtering
-            meldingRepository.markerSomBehandlet(message.id)
-            logger.info { "Behandlet hendelse: ${hendelse.javaClass.simpleName}" }
+            totalTidBruktPerHendelse
+                .labelValues(hendelse.javaClass.simpleName)
+                .time {
+                    logger.info { "Behandler hendelse: ${hendelse.javaClass.simpleName}" }
+                    message.lagreMelding(meldingRepository)
+                    håndter(hendelse) // @todo: feilhåndtering
+                    meldingRepository.markerSomBehandlet(message.id)
+                    logger.info { "Behandlet hendelse: ${hendelse.javaClass.simpleName}" }
+                }
         }
     }
 }

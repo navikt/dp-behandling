@@ -31,6 +31,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.Terskel36Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor36Id
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.antallÅrI36Måneder
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
@@ -42,6 +43,8 @@ object Dagpengeperiode {
     private val langPeriode = heltall(LangPeriodeId, "Lang dagpengeperiode", synlig = aldriSynlig)
     private val terskelFaktor12 = desimaltall(TerskelFaktor12Id, "Terskelfaktor for 12 måneder", synlig = aldriSynlig)
     private val terskelFaktor36 = desimaltall(TerskelFaktor36Id, "Terskelfaktor for 36 måneder", synlig = aldriSynlig)
+
+    // Denne er ikke lenger i bruk, men må være igjen for å fortsette å være skjult i saksbehandlingsløsningen
     private val divisor = desimaltall(DivisiorId, "Divisior", synlig = aldriSynlig)
 
     private val grunnbeløp = Minsteinntekt.grunnbeløp
@@ -76,10 +79,9 @@ object Dagpengeperiode {
             regel(langPeriode) { oppslag(prøvingsdato) { 104 } }
             regel(terskelFaktor12) { oppslag(prøvingsdato) { 2.0 } }
             regel(terskelFaktor36) { oppslag(prøvingsdato) { 2.0 } }
-            regel(divisor) { oppslag(prøvingsdato) { 3.0 } }
             regel(terskel12) { multiplikasjon(grunnbeløp, terskelFaktor12) }
             regel(terskel36) { multiplikasjon(grunnbeløp, terskelFaktor36) }
-            regel(inntektSnittSiste36) { divisjon(inntektSiste36, divisor) }
+            regel(inntektSnittSiste36) { divisjon(inntektSiste36, antallÅrI36Måneder) }
 
             regel(overterskel12) { størreEnnEllerLik(inntektSiste12, terskel12) }
             regel(overterskel36) { størreEnnEllerLik(inntektSnittSiste36, terskel36) }

@@ -66,6 +66,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
+import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
@@ -79,13 +80,14 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentDeltidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentLokalArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeDeltid
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
-import no.nav.dagpenger.regel.ReellArbeidssøker.kanReellArbeidssøkerVurderes
 import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
+import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
 import no.nav.dagpenger.regel.Samordning.omsorgspenger
@@ -247,7 +249,7 @@ private fun Regelsett.tilRegelsettDTO(
 
     val egneAvklaringer = avklaringer.filter { it.kode in this.avklaringer }
 
-    val opplysningMedUtfall = opplysninger.filterIsInstance<Opplysning<Boolean>>().filter { utfall.contains(it.opplysningstype) }
+    val opplysningMedUtfall = opplysninger.filter { utfall.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
     var status = tilStatus(opplysningMedUtfall)
     val erRelevant = påvirkerResultat(lesbarOpplysninger)
 
@@ -406,7 +408,7 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
             },
     )
 
-private fun Datatype<*>.tilDataTypeDTO() =
+fun Datatype<*>.tilDataTypeDTO() =
     when (this) {
         Boolsk -> DataTypeDTO.BOOLSK
         Dato -> DataTypeDTO.DATO
@@ -430,6 +432,7 @@ internal fun LocalDate.tilApiDato(): LocalDate? =
 private fun Opplysning<*>.kanOppfriskes(): Boolean =
     this.opplysningstype in
         setOf(
+            inntektFraSkatt,
             grunnbeløpForDagpengeGrunnlag,
         )
 
@@ -460,7 +463,7 @@ internal val redigerbareOpplysninger =
                 godkjentDeltidssøker,
                 godkjentLokalArbeidssøker,
                 godkjentArbeidsufør,
-                kanReellArbeidssøkerVurderes,
+                erReellArbeidssøkerVurdert,
                 // 4-6 Utdanning
                 tarUtdanning,
                 deltakelseIArbeidsmarkedstiltak,
@@ -478,7 +481,8 @@ internal val redigerbareOpplysninger =
                 godkjentÅrsakPermitteringFraFiskindustri,
                 // 4-19 Verneplikt
                 oppfyllerKravetTilVerneplikt,
-                // 4-22 Streik og lockøout
+                skalVernepliktVurderes,
+                // 4-22 Streik og lockout
                 deltarIStreikOgLockout,
                 sammeBedriftOgPåvirket,
                 // 4-24 Fulle ytelser

@@ -21,6 +21,7 @@ sealed class Opplysning<T : Comparable<T>>(
     val utledetAv: Utledning?,
     val kilde: Kilde?,
     val opprettet: LocalDateTime,
+    var erRelevant: Boolean = true,
     private var _erstatter: Opplysning<T>? = null,
     private var _skalLagres: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
@@ -52,14 +53,14 @@ sealed class Opplysning<T : Comparable<T>>(
     }
 
     fun overlapperHalenAv(opplysning: Opplysning<T>) =
-        this.gyldighetsperiode.fom.isAfter(opplysning.gyldighetsperiode.fom) &&
-            this.gyldighetsperiode.fom <= opplysning.gyldighetsperiode.tom
+        gyldighetsperiode.fom.isAfter(opplysning.gyldighetsperiode.fom) &&
+            gyldighetsperiode.fom <= opplysning.gyldighetsperiode.tom
 
-    fun harSammegyldighetsperiode(opplysning: Opplysning<T>) = this.gyldighetsperiode == opplysning.gyldighetsperiode
+    fun harSammegyldighetsperiode(opplysning: Opplysning<T>) = gyldighetsperiode == opplysning.gyldighetsperiode
 
     fun starterFørOgOverlapper(opplysning: Opplysning<T>) =
         this.gyldighetsperiode.fom.isBefore(opplysning.gyldighetsperiode.fom) &&
-            opplysning.gyldighetsperiode.inneholder(this.gyldighetsperiode.tom)
+            opplysning.gyldighetsperiode.inneholder(gyldighetsperiode.tom)
 
     abstract fun lagForkortet(opplysning: Opplysning<T>): Opplysning<T>
 
@@ -80,7 +81,7 @@ class Hypotese<T : Comparable<T>>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
-) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter, _skalLagres = skalLagres) {
+) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, true, erstatter, _skalLagres = skalLagres) {
     constructor(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
@@ -119,7 +120,7 @@ class Faktum<T : Comparable<T>>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
-) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter, _skalLagres = skalLagres) {
+) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, true, erstatter, _skalLagres = skalLagres) {
     constructor(
         opplysningstype: Opplysningstype<T>,
         verdi: T,

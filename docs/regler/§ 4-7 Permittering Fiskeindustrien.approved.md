@@ -4,12 +4,10 @@
 
 ```mermaid
 graph RL
-  A["Årsaken til permitteringen fra fiskeindustrien er godkjent"] -->|"Oppslag"| B["Prøvingsdato"]
-  C["Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans"] -->|"Oppslag"| B["Prøvingsdato"]
-  D["Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien"] -->|"Oppslag"| B["Prøvingsdato"]
-  E["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| F["Permittert fra fiskeindustrien"]
-  E["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| A["Årsaken til permitteringen fra fiskeindustrien er godkjent"]
-  E["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| C["Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans"]
+  A["Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien"] -->|"Oppslag"| B["Prøvingsdato"]
+  C["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| D["Permittert fra fiskeindustrien"]
+  C["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| E["Årsaken til permitteringen fra fiskeindustrien er godkjent"]
+  C["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| F["Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans"]
 ```
 
 ## Akseptansetester

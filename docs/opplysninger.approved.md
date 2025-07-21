@@ -165,7 +165,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943d-77a7-969c-147999f1544b|Lang dagpengeperiode|Lang dagpengeperiode|Heltall|int|
 |0194881f-943d-77a7-969c-147999f1544c|Terskel for 12 måneder|Terskel for 12 måneder|Penger|Beløp|
 |0194881f-943d-77a7-969c-147999f1544d|Terskel for 36 måneder|Terskel for 36 måneder|Penger|Beløp|
-|0194881f-943d-77a7-969c-147999f1544e|Divisior|Divisior|Desimaltall|double|
 |0194881f-943d-77a7-969c-147999f1544f|Terskelfaktor for 12 måneder|Terskelfaktor for 12 måneder|Desimaltall|double|
 |0194881f-943d-77a7-969c-147999f15450|Terskelfaktor for 36 måneder|Terskelfaktor for 36 måneder|Desimaltall|double|
 |0194881f-943d-77a7-969c-147999f15451|Snittinntekt siste 36 måneder|Snittinntekt siste 36 måneder|Penger|Beløp|
@@ -231,7 +230,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194d105-bd54-7b2b-9dc6-6e6664951894|Årsaken til permitteringen er godkjent|Årsaken til permitteringen er godkjent|Boolsk|boolean|
 |0194d111-db2f-7395-bcfb-959f245fd2a6|Oppfyller kravet til permittering|Oppfyller kravet til permittering|Boolsk|boolean|
 |0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|
-|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kravet til reell arbeidssøker er ikke relevant|Kravet til reell arbeidssøker er ikke relevant|Boolsk|boolean|
+|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kravet til reell arbeidssøker er vurdert|Kravet til reell arbeidssøker er vurdert|Boolsk|boolean|
 |0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Periode som gis ved permittering|Heltall|int|
 |019522b0-c722-76d4-8d7f-78f556c51f72|Oppfyller kravet til permittering i fiskeindustrien|Oppfyller kravet til permittering i fiskeindustrien|Boolsk|boolean|
 |019522b8-0f1b-7536-8691-fd824bca86de|Årsaken til permitteringen fra fiskeindustrien er godkjent|Årsaken til permitteringen fra fiskeindustrien er godkjent|Boolsk|boolean|
@@ -250,3 +249,4 @@ Dette er opplysninger som blir brukt av regelverket.
 |0196afc0-6807-7fa3-83e4-cf7f621f3a7e|Sum hvis Uføre ikke skal samordnes|Sum hvis Uføre ikke skal samordnes|Penger|Beløp|
 |0196b4a7-23b5-7b2c-aa95-e4167d900de8|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Boolsk|boolean|
 |01973a27-d8b3-7ffd-a81a-a3826963b079|Forbrukt egenandel|Forbrukt egenandel|Heltall|int|
+|01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Skal kravet til verneplikt vurderes|Boolsk|boolean|
