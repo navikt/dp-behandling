@@ -8,6 +8,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 
 class VedtakFattetMottak(
     rapidsConnection: RapidsConnection,
@@ -39,8 +40,8 @@ class VedtakFattetMottak(
             "event_name" to "vedtak_fattet",
         ) {
             logger.info { "Mottok vedtak_fattet melding" }
-            val meldekortId = packet["behandletHendelse"]["id"].asLong()
-            meldekortRepository.markerSomFerdig(meldekortId)
+            val meldekortId = packet["behandletHendelse"]["id"].asText()
+            meldekortRepository.markerSomFerdig(MeldekortId(meldekortId))
         }
     }
 }

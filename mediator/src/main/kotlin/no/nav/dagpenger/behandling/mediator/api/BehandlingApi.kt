@@ -135,7 +135,7 @@ internal fun Application.behandlingApi(
                     val hendelseId =
                         when (nyBehandlingDto.hendelse?.type) {
                             HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
-                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id.toLong())
+                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id)
                             HendelseDTOTypeDTO.MANUELL,
                             null,
                             -> ManuellId(UUIDv7.ny())

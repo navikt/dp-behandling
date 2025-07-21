@@ -14,6 +14,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
@@ -221,7 +222,7 @@ class TestPerson(
         val meldekort =
             Meldekort(
                 id = meldekortId,
-                eksternMeldekortId = løpenummer,
+                eksternMeldekortId = MeldekortId(løpenummer.toString()),
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = ident,
                 fom = start,
@@ -236,7 +237,7 @@ class TestPerson(
                         )
                     },
                 innsendtTidspunkt = 14.juni(2021).atStartOfDay(),
-                korrigeringAv = korrigeringAv,
+                korrigeringAv = korrigeringAv?.let { MeldekortId(it.toString()) },
             )
         sessionOf(dataSource).use { session ->
             session.run(

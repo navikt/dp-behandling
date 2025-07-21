@@ -10,7 +10,7 @@ sealed class EksternId<T>(
     val datatype =
         when (id) {
             is UUID -> "UUID"
-            is Long -> "Long"
+            is String -> "String"
             else -> throw IllegalArgumentException("Ukjent idType: $id")
         }
 
@@ -27,9 +27,9 @@ sealed class EksternId<T>(
             eksternIdType: String,
             id: String,
         ) = when (eksternIdType) {
-            "SøknadId" -> SøknadId(UUID.fromString(id))
-            "MeldekortId" -> MeldekortId(id.toLong())
-            "ManuellId" -> ManuellId(UUID.fromString(id))
+            "SøknadId" -> SøknadId(id)
+            "MeldekortId" -> MeldekortId(id)
+            "ManuellId" -> ManuellId(id)
             else -> throw IllegalArgumentException("Ukjent idType: $eksternIdType")
         }
     }
@@ -38,6 +38,8 @@ sealed class EksternId<T>(
 class SøknadId(
     id: UUID,
 ) : EksternId<UUID>(id) {
+    constructor(id: String) : this(UUID.fromString(id))
+
     override fun kontekstMap() =
         mapOf(
             "søknadId" to id.toString(),
@@ -46,17 +48,19 @@ class SøknadId(
 }
 
 class MeldekortId(
-    id: Long,
-) : EksternId<Long>(id) {
+    id: String,
+) : EksternId<String>(id) {
     override fun kontekstMap() =
         mapOf(
-            "meldekortId" to id.toString(),
+            "meldekortId" to id,
         )
 }
 
 class ManuellId(
     id: UUID,
 ) : EksternId<UUID>(id) {
+    constructor(id: String) : this(UUID.fromString(id))
+
     override fun kontekstMap() =
         mapOf(
             "manuellId" to id.toString(),
