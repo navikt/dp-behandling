@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.audit
 
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
@@ -68,6 +69,8 @@ internal class ApiAuditlogg(
         ) {
             rapid.publish(ident, message)
         }
+
+        override fun publish(messages: List<OutgoingMessage>) = rapid.publish(messages)
 
         override fun rapidName() = "apiAuditlogg"
     }

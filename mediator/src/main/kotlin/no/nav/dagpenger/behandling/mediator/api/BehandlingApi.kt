@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.api
 
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -558,6 +559,8 @@ internal class ApiMessageContext(
     ) {
         rapid.publish(ident, message)
     }
+
+    override fun publish(messages: List<OutgoingMessage>) = rapid.publish(messages)
 
     override fun rapidName() = "API"
 }
