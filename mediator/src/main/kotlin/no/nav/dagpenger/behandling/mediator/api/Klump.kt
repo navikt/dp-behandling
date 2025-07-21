@@ -43,16 +43,15 @@ import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
+import no.nav.dagpenger.opplysning.TidslinjeBygger
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
-import java.time.LocalDate.MAX
-import java.time.LocalDate.MIN
 import kotlin.collections.component2
-import kotlin.sequences.sorted
+import kotlin.collections.contains
 
 internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): VerdenbesteklumpmeddataDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -108,57 +107,16 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
             .filter { it.erRelevant }
             .filterIsInstance<Opplysning<Boolean>>()
 
-    if (utfall.isEmpty()) return emptyList()
-
-    val perioderMedNei = utfall.filter { !it.verdi }.map { it.gyldighetsperiode }
-
-    // Returner en liste med periode per dag hvor alle relevante vilkår er oppfylt
-    val grensedatoer = ytterpunkter(utfall)
-    val perioder =
-        grensedatoer.zipWithNext().map { (start, end) ->
-            val sluttdato = end.takeIf { it != MAX }?.minusDays(1) ?: MAX
-
-            // Special case 2: Det må være minst 1 utfall i perioden
-            if (utfall.none { it.gyldighetsperiode.inneholder(end.minusDays(1)) }) {
-                return@map RettighetsperiodeDTO(start, sluttdato.tilApiDato(), false)
-            }
-            val harRett = !perioderMedNei.any { neiPeriode -> neiPeriode.inneholder(start) }
-            RettighetsperiodeDTO(start, sluttdato.tilApiDato(), harRett)
-        }
-
-    // Slå sammen perioder som ligger kant i kant
-    val slåttSammen =
-        perioder.fold(mutableListOf<RettighetsperiodeDTO>()) { acc, neste ->
-            if (acc.isEmpty()) {
-                acc.add(neste)
-            } else {
-                val siste = acc.last()
-                if (siste.harRett == neste.harRett && siste.tilOgMed?.plusDays(1) == neste.fraOgMed) {
-                    acc[acc.lastIndex] = siste.copy(tilOgMed = neste.tilOgMed)
-                } else {
-                    acc.add(neste)
-                }
-            }
-            acc
-        }
-
-    return slåttSammen
-}
-
-private fun ytterpunkter(utfall: List<Opplysning<Boolean>>): Sequence<LocalDate> =
-    utfall
-        .asSequence()
-        .flatMap {
-            sequenceOf(
-                it.gyldighetsperiode.fom,
-                // Legg til en dag for emulere endExclusive som gjør zipWithNext enklere
-                it.gyldighetsperiode.tom
-                    .takeIf { tom -> tom != MAX }
-                    ?.plusDays(1) ?: MAX,
+    return TidslinjeBygger(utfall)
+        .lagPeriode(hvorAlleVilkårErOppfylt())
+        .map {
+            RettighetsperiodeDTO(
+                fraOgMed = it.fraOgMed,
+                tilOgMed = it.tilOgMed.tilApiDato(),
+                harRett = it.verdi,
             )
-        }.distinct()
-        .filter { it != MIN } // Fjerner MIN som er default verdi for LocalDate
-        .sorted()
+        }
+}
 
 private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*>>): NoesomharblittvurdertDTO? {
     val produkter: Set<Opplysning<*>> =
@@ -173,6 +131,14 @@ private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*
 
     val utfall1: List<Opplysningstype<*>> = typerSomFinnes.filter { it in utfall }
     val ønsket: List<Opplysningstype<*>> = typerSomFinnes.filter { it in ønsketInformasjon }
+
+    val utfall =
+        opplysninger
+            .filter { it.opplysningstype in utfall1 }
+            .filterIsInstance<Opplysning<Boolean>>()
+
+    val perioder = TidslinjeBygger(utfall).medLikVerdi()
+
     return NoesomharblittvurdertDTO(
         navn = hjemmel.kortnavn,
         hjemmel =
@@ -183,11 +149,22 @@ private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*
                 tittel = hjemmel.toString(),
                 url = hjemmel.url,
             ),
+        perioder =
+            perioder.map {
+                RettighetsperiodeDTO(
+                    fraOgMed = it.fraOgMed,
+                    tilOgMed = it.tilOgMed.tilApiDato(),
+                    harRett = it.verdi,
+                )
+            },
         utfall = utfall1.map { it.id.uuid },
         ønsketResultat = ønsket.map { it.id.uuid },
-        opplysningTypeIder = typerSomFinnes.map { opplysningstype -> opplysningstype.id.uuid },
+        opplysninger = typerSomFinnes.map { opplysningstype -> opplysningstype.id.uuid },
     )
 }
+
+private fun hvorAlleVilkårErOppfylt(): (Collection<Opplysning<Boolean>>) -> Boolean? =
+    { påDato -> påDato.isNotEmpty() && påDato.all { it.verdi } }
 
 private fun Opplysning<*>.tilOpplysningDTO() =
     OpplysningKlumpDTO(

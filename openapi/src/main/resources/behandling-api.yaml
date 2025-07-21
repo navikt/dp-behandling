@@ -719,6 +719,10 @@ components:
         hjemmel:
           description: Hvilken hjemmel er regelsettet basert på
           $ref: '#/components/schemas/Hjemmel'
+        perioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rettighetsperiode'
         utfall:
           type: array
           items:
@@ -727,7 +731,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningTypeId'
-        opplysningTypeIder:
+        opplysninger:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningTypeId'

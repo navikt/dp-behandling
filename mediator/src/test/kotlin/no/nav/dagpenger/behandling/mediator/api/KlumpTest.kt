@@ -34,7 +34,7 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, vurdert i en periode`() {
         val resultat =
             resultat(
-                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025), true),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
@@ -47,9 +47,9 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, vurdert likt i flere perioder`() {
         val resultat =
             resultat(
-                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
-                kravTilAlder.periode(11.mai(2025), 20.mai(2025)),
-                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025), true),
+                kravTilAlder.periode(11.mai(2025), 20.mai(2025), true),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025), true),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
@@ -62,9 +62,9 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder`() {
         val resultat =
             resultat(
-                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025), true),
                 kravTilAlder.periode(11.mai(2025), 20.mai(2025), false),
-                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025), true),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
@@ -81,7 +81,7 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, men har ett vilkår som ikke relevant i perioden med false`() {
         val resultat =
             resultat(
-                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025), true),
                 minsteinntekt.periode(1.mai(2025), 20.mai(2025), false, false),
             )
 
@@ -97,9 +97,9 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold med hull`() {
         val resultat =
             resultat(
-                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
-                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
-                kravTilAlder.periode(5.juni(2025), 5.juni(2028)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025), true),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025), true),
+                kravTilAlder.periode(5.juni(2025), 5.juni(2028), true),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
@@ -118,11 +118,11 @@ class KlumpTest {
     fun `innvilgelse med et vilkår, vurdert ulikt i flere perioder med opphold, uten hull`() {
         val resultat =
             resultat(
-                kravTilAlder.periode(1.mai(2025), 10.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 10.mai(2025), true),
                 kravTilAlder.periode(11.mai(2025), 20.mai(2025), false),
-                kravTilAlder.periode(21.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(21.mai(2025), 30.mai(2025), true),
                 kravTilAlder.periode(31.mai(2025), 4.juni(2025), false),
-                kravTilAlder.periode(5.juni(2025), 5.juni(2028)),
+                kravTilAlder.periode(5.juni(2025), 5.juni(2028), true),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
@@ -141,9 +141,9 @@ class KlumpTest {
     fun `innvilgelse med flere vilkår, oppfylt på ulik startdato`() {
         val resultat =
             resultat(
-                kravTilAlder.periode(1.mai(2025), 30.mai(2025)),
+                kravTilAlder.periode(1.mai(2025), 30.mai(2025), true),
                 minsteinntekt.periode(1.mai(2025), 4.mai(2025), false),
-                minsteinntekt.periode(5.mai(2025), 30.mai(2025)),
+                minsteinntekt.periode(5.mai(2025), 30.mai(2025), true),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
@@ -159,10 +159,10 @@ class KlumpTest {
     fun `innvilgelse med start, stopp, og gjenopptak`() {
         val resultat =
             resultat(
-                minsteinntekt.periode(21.juni(2025), LocalDate.MAX),
-                kravTilAlder.periode(21.juni(2025), 21.juli(2025)),
+                minsteinntekt.periode(21.juni(2025), LocalDate.MAX, true),
+                kravTilAlder.periode(21.juni(2025), 21.juli(2025), true),
                 kravTilAlder.periode(22.juli(2025), 22.august(2025), false),
-                kravTilAlder.periode(23.august(2025)),
+                kravTilAlder.periode(23.august(2025), null, true),
             )
 
         val klump = resultat.tilKlumpDTO(ident)
@@ -175,10 +175,10 @@ class KlumpTest {
         godkjennJSON(klump)
     }
 
-    private fun Opplysningstype<Boolean>.periode(
+    private fun <T : Comparable<T>> Opplysningstype<T>.periode(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate? = null,
-        vurdering: Boolean = true,
+        vurdering: T,
         erRelevant: Boolean = true,
     ): Opplysning<*> =
         Faktum(
