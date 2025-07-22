@@ -32,7 +32,7 @@ internal object PostgresDataSourceBuilder {
             keepaliveTime = 2.minutes.inWholeMilliseconds
             // Default 30 minutter
             maxLifetime = 30.minutes.inWholeMilliseconds
-            leakDetectionThreshold = 2.seconds.inWholeMilliseconds
+            leakDetectionThreshold = 10.seconds.inWholeMilliseconds
         }
     }
 
