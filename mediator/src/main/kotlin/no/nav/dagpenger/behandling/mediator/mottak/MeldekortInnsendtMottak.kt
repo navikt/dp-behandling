@@ -41,7 +41,7 @@ internal class MeldekortInnsendtMottak(
             }.register(this)
     }
 
-    private val skipMeldekort = setOf<Long>(0)
+    private val skipMeldekort = setOf("")
 
     @WithSpan
     override fun onPacket(
@@ -50,18 +50,18 @@ internal class MeldekortInnsendtMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val meldekortId = packet["id"].asLong()
+        val meldekortId = packet["id"].asText()
         if (meldekortId in skipMeldekort) {
             logger.info { "Skipper $meldekortId" }
             return
         }
         Span.current().apply {
             setAttribute("app.river", name())
-            setAttribute("app.meldekortId", meldekortId.toString())
+            setAttribute("app.meldekortId", meldekortId)
         }
 
         withLoggingContext(
-            "meldekortId" to meldekortId.toString(),
+            "meldekortId" to meldekortId,
         ) {
             val message = MeldekortInnsendtMessage(packet)
             logger.info("Vi har mottatt et meldekort")
