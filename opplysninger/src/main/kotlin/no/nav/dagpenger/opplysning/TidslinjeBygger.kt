@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning
 
 import java.time.LocalDate
 import java.time.LocalDate.MAX
+import java.time.LocalDate.MIN
 
 data class PeriodisertVerdi<T>(
     val fraOgMed: LocalDate,
@@ -43,7 +44,7 @@ class TidslinjeBygger<T : Comparable<T>>(
             .asSequence()
             .flatMap { sequenceOf(it.gyldighetsperiode.fom, it.gyldighetsperiode.tom.nesteDag()) }
             .distinct()
-            // .filter { it != MIN } // Fjerner MIN som er default verdi
+            .filter { it != MIN } // Fjerner MIN som er default verdi
             .sorted()
 
     // Legg til en dag for emulere endExclusive som gjør zipWithNext enklere
