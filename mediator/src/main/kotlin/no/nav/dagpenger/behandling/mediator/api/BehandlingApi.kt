@@ -3,7 +3,6 @@ package no.nav.dagpenger.behandling.mediator.api
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -13,9 +12,11 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.swagger.swaggerUI
-import io.ktor.server.request.accept
+import io.ktor.server.request.acceptItems
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.contentType
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -101,16 +102,13 @@ internal fun Application.behandlingApi(
         get("/internal/prometrics") {
             if (meterRegistry == null) call.respond("")
             logger.info { "Scraping metrics" }
-            val metrics =
-                call.request.accept()?.let {
-                    logger.info { "Scraping metrics with accept header: $it" }
-                    if (it.contains("application/openmetrics-text")) {
-                        call.response.headers.append(HttpHeaders.ContentType, "application/openmetrics-text; version=1.0.0; charset=utf-8")
-                    }
-                    meterRegistry!!.scrape(it)
-                } ?: meterRegistry!!.scrape()
 
-            call.respond(metrics)
+            call.request.acceptItems().firstOrNull()?.let {
+                val contentType = ContentType.parse(it.value)
+                val metrics = meterRegistry!!.scrape(it.value)
+
+                call.respondText(metrics, contentType)
+            } ?: call.respond(HttpStatusCode.NotAcceptable, "Supported types: application/openmetrics-text and text/plain")
         }
 
         get("/") { call.respond(HttpStatusCode.OK) }
