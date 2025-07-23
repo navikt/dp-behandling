@@ -10,6 +10,7 @@ import io.prometheus.metrics.model.registry.PrometheusRegistry
 import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
+import no.nav.dagpenger.behandling.konfigurasjon.Configuration.config
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
@@ -43,17 +44,17 @@ import no.nav.helse.rapids_rivers.RapidApplication
 internal class ApplicationBuilder(
     config: Map<String, String>,
 ) : RapidsConnection.StatusListener {
-    companion object {
+    private companion object {
         private val logger = KotlinLogging.logger { }
-    }
 
-    private val meterRegistry =
-        PrometheusMeterRegistry(
-            PrometheusConfig.DEFAULT,
-            PrometheusRegistry.defaultRegistry,
-            Clock.SYSTEM,
-            SpanContextSupplier.getSpanContext(),
-        )
+        private val meterRegistry =
+            PrometheusMeterRegistry(
+                PrometheusConfig.DEFAULT,
+                PrometheusRegistry.defaultRegistry,
+                Clock.SYSTEM,
+                SpanContextSupplier.getSpanContext(),
+            )
+    }
 
     // TODO: Last alle regler ved startup. Dette må inn i ett register.
     private val opplysningstyper: Set<Opplysningstype<*>> = RegelverkDagpenger.produserer
