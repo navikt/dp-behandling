@@ -5,6 +5,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import mu.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerHendelse
@@ -93,6 +94,7 @@ internal class HendelseMediator(
         }
     }
 
+    @WithSpan
     private fun <Hendelse : PersonHendelse> hentPersonOgHåndter(
         ident: Ident,
         hendelse: Hendelse,
@@ -126,6 +128,7 @@ internal class HendelseMediator(
         personRepository.håndter(ident, handler)
     }
 
+    @WithSpan
     private fun ferdigstill(
         context: MessageContext,
         personMediator: PersonMediator,

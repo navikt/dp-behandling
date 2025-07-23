@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
@@ -21,6 +22,7 @@ class PersonRepositoryPostgres(
         val logger = KotlinLogging.logger { }
     }
 
+    @WithSpan
     override fun hent(ident: Ident) =
         sessionOf(dataSource).use { session ->
             val timer = hentPersonTimer.startTimer()

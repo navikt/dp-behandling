@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
@@ -12,11 +13,13 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 interface AvklaringRepository {
+    @WithSpan
     fun lagreAvklaringer(
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
     )
 
+    @WithSpan
     fun hentAvklaringer(behandlingId: UUID): List<Avklaring>
 }
 
@@ -30,10 +33,12 @@ interface BegrunnelseRepository {
 interface BehandlingRepository :
     AvklaringRepository,
     BegrunnelseRepository {
+    @WithSpan
     fun hentBehandling(behandlingId: UUID): Behandling?
 
     fun lagre(behandling: Behandling)
 
+    @WithSpan
     fun lagre(
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
@@ -41,10 +46,12 @@ interface BehandlingRepository :
 }
 
 interface PersonRepository : BehandlingRepository {
+    @WithSpan
     fun hent(ident: Ident): Person?
 
     fun lagre(person: Person)
 
+    @WithSpan
     fun lagre(
         person: Person,
         unitOfWork: UnitOfWork<*>,
