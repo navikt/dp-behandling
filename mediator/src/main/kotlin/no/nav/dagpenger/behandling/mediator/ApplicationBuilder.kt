@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.github.navikt.tbd_libs.naisful.NaisEndpoints
 import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
@@ -89,10 +88,6 @@ internal class ApplicationBuilder(
                         aliveCheck = rapid::isReady,
                         readyCheck = rapid::isReady,
                         preStopHook = preStopHook::handlePreStopRequest,
-                        naisEndpoints =
-                            NaisEndpoints.Default.copy(
-                                metricsEndpoint = "/mertics",
-                            ),
                         statusPagesConfig = { statusPagesConfig() },
                     ) {
                         behandlingApi(
