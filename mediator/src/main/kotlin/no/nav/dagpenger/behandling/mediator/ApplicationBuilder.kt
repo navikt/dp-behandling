@@ -47,6 +47,14 @@ internal class ApplicationBuilder(
         private val logger = KotlinLogging.logger { }
     }
 
+    private val meterRegistry =
+        PrometheusMeterRegistry(
+            PrometheusConfig.DEFAULT,
+            PrometheusRegistry.defaultRegistry,
+            Clock.SYSTEM,
+            SpanContextSupplier.getSpanContext(),
+        )
+
     // TODO: Last alle regler ved startup. Dette må inn i ett register.
     private val opplysningstyper: Set<Opplysningstype<*>> = RegelverkDagpenger.produserer
 
@@ -72,13 +80,6 @@ internal class ApplicationBuilder(
             env = config,
             builder = {
                 withKtor { preStopHook, rapid ->
-                    val meterRegistry =
-                        PrometheusMeterRegistry(
-                            PrometheusConfig.DEFAULT,
-                            PrometheusRegistry.defaultRegistry,
-                            Clock.SYSTEM,
-                            SpanContextSupplier.getSpanContext(),
-                        )
                     naisApp(
                         meterRegistry =
                         meterRegistry,
