@@ -48,6 +48,7 @@ internal object Metrikk {
     val totalTidBruktPerHendelse: Histogram =
         Histogram
             .builder()
+            .withExemplars()
             .name("hendelse_behandling_total_tid_sekunder")
             .help("Total tid det tar å behandle en hendelse, i sekunder")
             .labelNames("hendelse")
@@ -68,4 +69,18 @@ internal object Metrikk {
             .help("Tid det tar å utføre en endring i behandlingen, i sekunder")
             .labelNames("opplysningstype")
             .register()
+
+    val scraped1: Counter =
+        Counter
+            .builder()
+            .name("dp_behandling_scraped1")
+            .help("Antall ganger behandlingsdata er hentet fra Arena")
+            .register(PrometheusRegistry.defaultRegistry)
+    val scraped2: Counter =
+        Counter
+            .builder()
+            .withExemplars()
+            .name("dp_behandling_scraped2")
+            .help("Antall ganger behandlingsdata er hentet fra Arena")
+            .register(PrometheusRegistry.defaultRegistry)
 }

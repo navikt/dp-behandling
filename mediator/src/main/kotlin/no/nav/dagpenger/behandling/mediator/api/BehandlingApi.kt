@@ -41,6 +41,8 @@ import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
 import no.nav.dagpenger.behandling.mediator.IHendelseMediator
+import no.nav.dagpenger.behandling.mediator.Metrikk.scraped1
+import no.nav.dagpenger.behandling.mediator.Metrikk.scraped2
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.behandling.mediator.api.melding.FjernOpplysning
@@ -107,6 +109,8 @@ internal fun Application.behandlingApi(
                 val spanContext = SpanContextSupplier.getSpanContext()
                 "SpanContext (${spanContext.javaClass.simpleName}) sier traceId=" + spanContext.currentTraceId
             }
+            scraped1.inc()
+            scraped2.inc()
             call.request.acceptItems().firstOrNull()?.let {
                 val contentType = ContentType.parse(it.value)
                 val metrics = meterRegistry!!.scrape(it.value)
