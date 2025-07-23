@@ -19,7 +19,8 @@ spec:
     path: /isready
   prometheus:
     enabled: true
-    path: /metrics
+    # path: /metrics
+    path: /internal/prometrics
   replicas:
     min: 2
     max: 2

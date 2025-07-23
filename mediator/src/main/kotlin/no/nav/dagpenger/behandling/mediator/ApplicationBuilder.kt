@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator
 
+import com.github.navikt.tbd_libs.naisful.NaisEndpoints
 import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
@@ -72,20 +73,26 @@ internal class ApplicationBuilder(
             env = config,
             builder = {
                 withKtor { preStopHook, rapid ->
+                    val meterRegistry =
+                        PrometheusMeterRegistry(
+                            PrometheusConfig.DEFAULT,
+                            PrometheusRegistry.defaultRegistry,
+                            Clock.SYSTEM,
+                            SpanContextSupplier.getSpanContext(),
+                        )
                     naisApp(
                         meterRegistry =
-                            PrometheusMeterRegistry(
-                                PrometheusConfig.DEFAULT,
-                                PrometheusRegistry.defaultRegistry,
-                                Clock.SYSTEM,
-                                SpanContextSupplier.getSpanContext(),
-                            ),
+                        meterRegistry,
                         objectMapper = objectMapper,
                         applicationLogger = KotlinLogging.logger("ApplicationLogger"),
                         callLogger = KotlinLogging.logger("CallLogger"),
                         aliveCheck = rapid::isReady,
                         readyCheck = rapid::isReady,
                         preStopHook = preStopHook::handlePreStopRequest,
+                        naisEndpoints =
+                            NaisEndpoints.Default.copy(
+                                metricsEndpoint = "/mertics",
+                            ),
                         statusPagesConfig = { statusPagesConfig() },
                     ) {
                         behandlingApi(
@@ -94,6 +101,7 @@ internal class ApplicationBuilder(
                             auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapid),
                             opplysningstyper = opplysningstyper,
                             apiRepositoryPostgres = apiRepositoryPostgres,
+                            meterRegistry,
                         ) { ident: String -> ApiMessageContext(rapid, ident) }
                     }
                 }

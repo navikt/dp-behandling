@@ -11,6 +11,7 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.request.accept
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.delete
@@ -19,6 +20,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.opentelemetry.api.trace.Span
 import mu.KotlinLogging
 import mu.withLoggingContext
@@ -85,6 +87,7 @@ internal fun Application.behandlingApi(
     auditlogg: Auditlogg,
     opplysningstyper: Set<Opplysningstype<*>>,
     apiRepositoryPostgres: ApiRepositoryPostgres,
+    meterRegistry: PrometheusMeterRegistry? = null,
     messageContext: (ident: String) -> MessageContext,
 ) {
     authenticationConfig()
@@ -92,6 +95,16 @@ internal fun Application.behandlingApi(
 
     routing {
         swaggerUI(path = "openapi", swaggerFile = "behandling-api.yaml")
+
+        get("/internal/prometrics") {
+            if (meterRegistry == null) call.respond("")
+            val metrics =
+                call.request.accept()?.let {
+                    meterRegistry!!.scrape(it)
+                } ?: meterRegistry!!.scrape()
+
+            call.respond(metrics)
+        }
 
         get("/") { call.respond(HttpStatusCode.OK) }
         get("/features") {
