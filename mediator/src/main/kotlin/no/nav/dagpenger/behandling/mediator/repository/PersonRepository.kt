@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -34,8 +35,12 @@ interface BehandlingRepository :
     AvklaringRepository,
     BegrunnelseRepository {
     @WithSpan
-    fun hentBehandling(behandlingId: UUID): Behandling?
+    fun hentBehandling(
+        @SpanAttribute
+        behandlingId: UUID,
+    ): Behandling?
 
+    @WithSpan
     fun lagre(behandling: Behandling)
 
     @WithSpan
@@ -49,6 +54,7 @@ interface PersonRepository : BehandlingRepository {
     @WithSpan
     fun hent(ident: Ident): Person?
 
+    @WithSpan
     fun lagre(person: Person)
 
     @WithSpan
