@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator
 
 import io.prometheus.metrics.core.metrics.Counter
+import io.prometheus.metrics.core.metrics.Gauge
 import io.prometheus.metrics.core.metrics.Histogram
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 
@@ -76,11 +77,16 @@ internal object Metrikk {
             .name("dp_behandling_scraped1")
             .help("Antall ganger behandlingsdata er hentet fra Arena")
             .register(PrometheusRegistry.defaultRegistry)
-    val scraped2: Counter =
-        Counter
+    val scraped2: Gauge =
+        Gauge
             .builder()
-            .withExemplars()
-            .name("dp_behandling_scraped2")
+            .name("dp_behandling_scraped2_gauge")
+            .help("Antall ganger behandlingsdata er hentet fra Arena")
+            .register(PrometheusRegistry.defaultRegistry)
+    val scraped3: Histogram =
+        Histogram
+            .builder()
+            .name("dp_behandling_scraped2_histogram")
             .help("Antall ganger behandlingsdata er hentet fra Arena")
             .register(PrometheusRegistry.defaultRegistry)
 }

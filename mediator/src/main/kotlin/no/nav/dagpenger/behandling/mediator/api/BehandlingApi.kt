@@ -43,6 +43,7 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
 import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.Metrikk.scraped1
 import no.nav.dagpenger.behandling.mediator.Metrikk.scraped2
+import no.nav.dagpenger.behandling.mediator.Metrikk.scraped3
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.behandling.mediator.api.melding.FjernOpplysning
@@ -111,6 +112,7 @@ internal fun Application.behandlingApi(
             }
             scraped1.inc()
             scraped2.inc()
+            scraped3.observe(5.5)
             call.request.acceptItems().firstOrNull()?.let {
                 val contentType = ContentType.parse(it.value)
                 val metrics = meterRegistry!!.scrape(it.value)
