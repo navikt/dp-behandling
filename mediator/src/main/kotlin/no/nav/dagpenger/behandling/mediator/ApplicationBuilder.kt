@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.Clock
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
+import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
@@ -77,6 +78,7 @@ internal class ApplicationBuilder(
                                 PrometheusConfig.DEFAULT,
                                 PrometheusRegistry.defaultRegistry,
                                 Clock.SYSTEM,
+                                SpanContextSupplier.getSpanContext(),
                             ),
                         objectMapper = objectMapper,
                         applicationLogger = KotlinLogging.logger("ApplicationLogger"),
