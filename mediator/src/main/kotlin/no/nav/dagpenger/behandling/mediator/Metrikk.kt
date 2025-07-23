@@ -23,6 +23,13 @@ internal object Metrikk {
             .help("Tid brukt på å hente person med behandlinger")
             .register(PrometheusRegistry.defaultRegistry)
 
+    val hentBehandlingTimer: Histogram =
+        Histogram
+            .builder()
+            .name("dp_behandling_hent_behandling_tid")
+            .help("Tid brukt på å hente en behandling")
+            .register(PrometheusRegistry.defaultRegistry)
+
     val tidBruktPerHendelse: Histogram =
         Histogram
             .builder()
@@ -52,5 +59,13 @@ internal object Metrikk {
             .name("dp_behandling_avklaring_opprettet")
             .help("Avklaringer opprettet i behandling")
             .labelNames("kode")
+            .register()
+
+    val tidBruktPerEndring: Histogram =
+        Histogram
+            .builder()
+            .name("dp_behandling_tid_brukt_per_endring")
+            .help("Tid det tar å utføre en endring i behandlingen, i sekunder")
+            .labelNames("opplysningstype")
             .register()
 }

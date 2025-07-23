@@ -6,6 +6,7 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
 import no.nav.dagpenger.behandling.mediator.melding.Melding
 import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
@@ -70,6 +71,8 @@ internal class ApiRepositoryPostgres(
         behov: String,
         block: () -> Unit,
     ) {
+        val start = tidBruktPerEndring.labelValues(behov).startTimer()
+
         // 1. Insert an "active change" row in a separate transaction.
         logger.info { "Oppretter behov som uløst for behandlingId=$behandlingId, behov=$behov" }
         sessionOf(dataSource).use { session ->
@@ -124,6 +127,8 @@ internal class ApiRepositoryPostgres(
             logger.info { "Tilstand timeout for behandlingId=$behandlingId, behov=$behov" }
             throw TimeoutException("Aggregate did not reach desired state for behandlingId: $behandlingId")
         }
+
+        start.observeDuration()
     }
 
     /** Polls the active_changes table for removal or a status change */

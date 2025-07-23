@@ -4,6 +4,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -21,8 +22,10 @@ internal class BehandlingRepositoryPostgres(
 ) : BehandlingRepository,
     AvklaringRepository by avklaringRepository {
     override fun hentBehandling(behandlingId: UUID): Behandling? =
-        sessionOf(dataSource).use { session ->
-            return@use session.hentBehandling(behandlingId)
+        hentBehandlingTimer.time<Behandling?> {
+            sessionOf(dataSource).use { session ->
+                session.hentBehandling(behandlingId)
+            }
         }
 
     private fun Session.hentBehandling(behandlingId: UUID): Behandling? =
