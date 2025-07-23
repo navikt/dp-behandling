@@ -98,8 +98,10 @@ internal fun Application.behandlingApi(
 
         get("/internal/prometrics") {
             if (meterRegistry == null) call.respond("")
+            logger.info { "Scraping metrics" }
             val metrics =
                 call.request.accept()?.let {
+                    logger.info { "Scraping metrics with accept header: $it" }
                     meterRegistry!!.scrape(it)
                 } ?: meterRegistry!!.scrape()
 
