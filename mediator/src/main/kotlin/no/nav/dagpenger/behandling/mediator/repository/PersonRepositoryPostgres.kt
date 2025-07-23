@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import mu.KotlinLogging
@@ -33,8 +34,8 @@ class PersonRepositoryPostgres(
                         mapOf("ident" to ident.identifikator()),
                     ).map { row ->
                         val dbIdent = Ident(row.string("ident"))
-                        val rettighetstatuser = rettighetstatusFor(dbIdent)
-                        val behandlinger = behandlingerFor(dbIdent)
+                        val rettighetstatuser = session.rettighetstatusFor(dbIdent)
+                        val behandlinger = session.behandlingerFor(dbIdent)
                         logger.info { "Hentet person med ${behandlinger.size} behandlinger" }
                         Metrikk.registrerAntallBehandlinger(behandlinger.size)
                         Person(dbIdent, behandlinger, rettighetstatuser)
@@ -44,40 +45,42 @@ class PersonRepositoryPostgres(
                 }
         }
 
-    private fun behandlingerFor(ident: Ident) =
-        sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    SELECT * FROM person_behandling WHERE ident IN (:ident) 
-                    """.trimIndent(),
-                    mapOf("ident" to ident.alleIdentifikatorer().first()),
-                ).map { row ->
-                    behandlingRepository.hentBehandling(row.uuid("behandling_id"))
-                }.asList,
-            )
-        }
+    private fun Session.behandlingerFor(ident: Ident) =
+        this.run(
+            queryOf(
+                //language=PostgreSQL
+                """
+                SELECT * FROM person_behandling WHERE ident IN (:ident) 
+                """.trimIndent(),
+                mapOf("ident" to ident.alleIdentifikatorer().first()),
+            ).map { row ->
+                behandlingRepository.hentBehandling(row.uuid("behandling_id"))
+            }.asList,
+        )
 
     override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         sessionOf(dataSource)
             .use { session ->
-                session.run(
-                    queryOf(
-                        //language=PostgreSQL
-                        """
-                        SELECT * FROM rettighetstatus WHERE ident = :ident
-                        """.trimIndent(),
-                        mapOf("ident" to ident.identifikator()),
-                    ).map { row ->
-                        val gjelderFra = row.localDateTime("gjelder_fra")
-                        val virkningsdato = row.localDate("virkningsdato")
-                        val utfall = row.boolean("har_rettighet")
-                        val behandlingId = row.uuid("behandling_id")
-                        Pair(gjelderFra, Rettighetstatus(virkningsdato, utfall, behandlingId))
-                    }.asList,
-                )
-            }.let {
+                session.rettighetstatusFor(ident)
+            }
+
+    private fun Session.rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
+        this
+            .run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT * FROM rettighetstatus WHERE ident = :ident
+                    """.trimIndent(),
+                    mapOf("ident" to ident.identifikator()),
+                ).map { row ->
+                    val gjelderFra = row.localDateTime("gjelder_fra")
+                    val virkningsdato = row.localDate("virkningsdato")
+                    val utfall = row.boolean("har_rettighet")
+                    val behandlingId = row.uuid("behandling_id")
+                    Pair(gjelderFra, Rettighetstatus(virkningsdato, utfall, behandlingId))
+                }.asList,
+            ).let {
                 TemporalCollection<Rettighetstatus>().apply {
                     it.forEach { pair -> put(pair.first, pair.second) }
                 }
