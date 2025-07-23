@@ -112,7 +112,7 @@ internal fun Application.behandlingApi(
             }
             scraped1.inc()
             scraped2.inc()
-            scraped3.observe(5.5)
+            scraped3.time { 5 * 5 }
             call.request.acceptItems().firstOrNull()?.let {
                 val contentType = ContentType.parse(it.value)
                 val metrics = meterRegistry!!.scrape(it.value)
