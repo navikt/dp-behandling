@@ -2,6 +2,8 @@ package no.nav.dagpenger.behandling.mediator.api
 
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -102,6 +104,9 @@ internal fun Application.behandlingApi(
             val metrics =
                 call.request.accept()?.let {
                     logger.info { "Scraping metrics with accept header: $it" }
+                    if (it.contains("application/openmetrics-text")) {
+                        call.response.headers.append(HttpHeaders.ContentType, "application/openmetrics-text; version=1.0.0; charset=utf-8")
+                    }
                     meterRegistry!!.scrape(it)
                 } ?: meterRegistry!!.scrape()
 
