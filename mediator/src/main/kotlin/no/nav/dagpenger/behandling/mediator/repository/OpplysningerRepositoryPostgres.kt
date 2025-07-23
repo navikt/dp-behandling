@@ -122,7 +122,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     .run(
                         queryOf(
                             //language=PostgreSQL
-                            "SELECT * FROM opplysningstabell WHERE opplysninger_id = :id ",
+                            "SELECT * FROM opplysningstabell WHERE opplysninger_id = :id ORDER BY id",
                             mapOf("id" to opplysningerId),
                         ).map { row ->
                             val datatype = Datatype.fromString(row.string("datatype"))
@@ -170,7 +170,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             session.run(
                 queryOf(
                     //language=PostgreSQL
-                    "SELECT * FROM opplysningstabell WHERE id = :id",
+                    "SELECT * FROM opplysningstabell WHERE id = :id LIMIT 1",
                     mapOf("id" to id),
                 ).map { row ->
                     val datatype = Datatype.fromString(row.string("datatype"))
