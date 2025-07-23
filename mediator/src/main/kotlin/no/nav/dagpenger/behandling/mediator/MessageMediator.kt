@@ -5,6 +5,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.withMDC
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import com.sun.org.apache.xalan.internal.lib.ExsltDatetime.time
+import io.opentelemetry.api.trace.Span
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.mediator.Metrikk.totalTidBruktPerHendelse
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
@@ -226,6 +227,9 @@ internal class MessageMediator(
         håndter: (HENDELSE) -> Unit,
     ) {
         withMDC(message.tracinginfo()) {
+            val span = Span.current()
+            logger.info("Is span valid? ${span.spanContext.isValid}")
+
             totalTidBruktPerHendelse
                 .labelValues(hendelse.javaClass.simpleName)
                 .time {

@@ -49,7 +49,6 @@ internal object Metrikk {
     val totalTidBruktPerHendelse: Histogram =
         Histogram
             .builder()
-            .withExemplars()
             .name("hendelse_behandling_total_tid_sekunder")
             .help("Total tid det tar å behandle en hendelse, i sekunder")
             .labelNames("hendelse")
