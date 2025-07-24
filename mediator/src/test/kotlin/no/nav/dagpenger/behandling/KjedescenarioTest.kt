@@ -109,6 +109,10 @@ class KjedescenarioTest {
             // Søknad kan ikke gjenoppta fordi forrige periode er for lenge siden
             // Saksbehandler må manuelt flytte behandlingen til en ny kjede
             saksbehandler.flyttBehandlingTilNyKjede(person.behandlingId)
+
+            // Ny kjede fører til manglende opplysninger som må innhentes på nytt
+            behovsløsere.løsTilForslag()
+            person.behandling.basertPåBehandling.shouldBeNull()
         }
     }
 }

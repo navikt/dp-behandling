@@ -46,7 +46,7 @@ class Behandling private constructor(
     val behandlingId: UUID,
     val behandler: StartHendelse,
     gjeldendeOpplysninger: Opplysninger,
-    val basertPå: Behandling? = null,
+    var basertPå: Behandling? = null,
     val godkjent: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Godkjent),
     val besluttet: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
     private var tilstand: BehandlingTilstand,
@@ -68,7 +68,7 @@ class Behandling private constructor(
     )
 
     init {
-        require(basertPå == null || basertPå.tilstand is Ferdig) {
+        require(basertPå == null || basertPå!!.tilstand is Ferdig) {
             "Kan ikke basere en ny behandling på en som ikke er ferdig"
         }
     }
@@ -77,7 +77,8 @@ class Behandling private constructor(
     private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
 
-    val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
+    // TODO: VIL VI VIRKELIG DETTE?
+    var opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
         get() =
@@ -568,9 +569,12 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: FlyttBehandlingHendelse,
         ) {
-            hendelse.info("Skal flytte behandlingen fra ${behandling.basertPå} til ${hendelse.nyBasertPåId}")
+            hendelse.info("Flytter behandlingen fra ${behandling.basertPå?.behandlingId} til ${hendelse.nyBasertPåId}")
+            behandling.basertPå = hendelse.nyBasertPå
 
-            behandling.kjørRegler(hendelse)
+            behandling.opplysninger = behandling.opplysninger.kunEgne
+
+            behandling.tilstand(Redigert(), hendelse)
         }
     }
 
