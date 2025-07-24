@@ -86,8 +86,13 @@ class Person(
     }
 
     // TODO: Dette er en veldig dum måte å finne forrige behandling på
+    // 1. Det finnes ingen tidligere behandling = ingen kjede
+    // 2. Det finnes tidligere behandling, men ikke ferdig = ingen kjede
+    // 3. Det finnes tidligere behandling, men ikke rett på dagpenger = ingen kjede
+    // 4. Det finnes tidligere behandling, med rett på dagpenger = kjede
     private fun enVeldigSmartMåteÅfinneRiktigForrigeBehandling() =
         behandlinger.lastOrNull {
+            it.vedtakopplysninger.utfall
             it.harTilstand(Behandling.TilstandType.Ferdig)
         }
 

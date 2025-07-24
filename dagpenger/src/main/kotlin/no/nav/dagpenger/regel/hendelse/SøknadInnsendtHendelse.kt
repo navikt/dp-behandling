@@ -32,34 +32,52 @@ class SøknadInnsendtHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ) = Behandling(
-        basertPå = listOfNotNull(forrigeBehandling),
-        behandler =
-            Hendelse(
-                meldingsreferanseId = meldingsreferanseId,
-                type = type,
-                ident = ident,
-                eksternId = eksternId,
-                skjedde = skjedde,
-                opprettet = opprettet,
-                forretningsprosess = forretningsprosess,
-            ),
-        opplysninger =
-            buildList {
-                if (forrigeBehandling == null) {
-                    add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)))
-                }
-                add(Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = Systemkilde(meldingsreferanseId, opprettet)))
-                add(
-                    Faktum(
-                        hendelseTypeOpplysningstype,
-                        type,
-                        gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
-                        kilde = Systemkilde(meldingsreferanseId, opprettet),
-                    ),
-                )
-            },
-    )
+    ): Behandling {
+        val basertPå =
+            listOfNotNull(
+                when (forrigeBehandling?.behandler?.type) {
+                    "SøknadInnsendtHendelse" -> {
+                        when (forrigeBehandling.vedtakopplysninger.utfall) {
+                            // Skal IKKE kjede
+                            false -> null
+                            // Skal kjede
+                            else -> forrigeBehandling
+                        }
+                    }
+                    // Skal kjede
+                    else -> forrigeBehandling
+                },
+            )
+
+        return Behandling(
+            basertPå = basertPå,
+            behandler =
+                Hendelse(
+                    meldingsreferanseId = meldingsreferanseId,
+                    type = type,
+                    ident = ident,
+                    eksternId = eksternId,
+                    skjedde = skjedde,
+                    opprettet = opprettet,
+                    forretningsprosess = forretningsprosess,
+                ),
+            opplysninger =
+                buildList {
+                    if (basertPå.isEmpty()) {
+                        add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)))
+                    }
+                    add(Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = Systemkilde(meldingsreferanseId, opprettet)))
+                    add(
+                        Faktum(
+                            hendelseTypeOpplysningstype,
+                            type,
+                            gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                            kilde = Systemkilde(meldingsreferanseId, opprettet),
+                        ),
+                    )
+                },
+        )
+    }
 
     companion object {
         val fagsakIdOpplysningstype = Opplysningstype.heltall(FagsakIdId, "fagsakId")
