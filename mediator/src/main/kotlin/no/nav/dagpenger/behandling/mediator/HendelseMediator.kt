@@ -295,6 +295,8 @@ internal class HendelseMediator(
         context: MessageContext,
     ) {
         hentPersonOgHåndter(hendelse, context) { person ->
+            // TODO: VIL VI VIRKELIG DETTE?
+            hendelse.nyBasertPåId?.let { hendelse.nyBasertPå = this.personRepository.hentBehandling(it) }
             person.håndter(hendelse)
         }
     }
