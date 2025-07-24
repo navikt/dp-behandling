@@ -267,7 +267,7 @@ class OpplysningerRepositoryPostgresTest {
 
             val fraDb: Opplysninger =
                 // Simulerer hvordan Behandling setter opp Opplysninger
-                repo.hentOpplysninger(opplysningerSomErstatter.id).baserPå(listOf(opprinneligFraDb))
+                repo.hentOpplysninger(opplysningerSomErstatter.id).baserPå(opprinneligFraDb)
 
             fraDb.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly
                 opplysningerSomErstatter.somListe(LesbarOpplysninger.Filter.Egne)

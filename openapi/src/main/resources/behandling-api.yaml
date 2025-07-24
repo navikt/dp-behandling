@@ -1377,10 +1377,15 @@ components:
           type: string
           format: uuid
         basertPåBehandlinger:
+          deprecated: true
           type: array
           items:
             type: string
             format: uuid
+        basertPåBehandling:
+          type: string
+          format: uuid
+          nullable: true
         fagsakId:
           type: string
         automatisk:

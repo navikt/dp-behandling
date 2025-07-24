@@ -130,7 +130,8 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
     val fastsatt = vedtakFastsattDTO(utfall, opplysningerSomGjelderPåPrøvingsdato)
     return VedtakDTO(
         behandlingId = behandlingId,
-        basertPåBehandlinger = basertPåBehandlinger,
+        basertPåBehandlinger = listOfNotNull(basertPåBehandling),
+        basertPåBehandling = basertPåBehandling,
         behandletHendelse =
             HendelseDTO(
                 id = behandlingAv.eksternId.id.toString(),

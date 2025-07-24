@@ -190,7 +190,7 @@ class KlumpTest {
     private fun resultat(vararg vurderinger: Opplysning<*>): Behandling.Resultat =
         Behandling.Resultat(
             behandlingId = behandlingId,
-            basertPåBehandlinger = emptyList(),
+            basertPåBehandling = null,
             utfall = true,
             virkningsdato = LocalDate.now(),
             behandlingAv =

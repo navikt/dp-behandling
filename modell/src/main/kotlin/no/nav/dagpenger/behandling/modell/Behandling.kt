@@ -17,6 +17,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
@@ -45,7 +46,7 @@ class Behandling private constructor(
     val behandlingId: UUID,
     val behandler: StartHendelse,
     gjeldendeOpplysninger: Opplysninger,
-    val basertPå: List<Behandling> = emptyList(),
+    val basertPå: Behandling? = null,
     val godkjent: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Godkjent),
     val besluttet: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
     private var tilstand: BehandlingTilstand,
@@ -55,7 +56,7 @@ class Behandling private constructor(
     constructor(
         behandler: StartHendelse,
         opplysninger: List<Opplysning<*>>,
-        basertPå: List<Behandling> = emptyList(),
+        basertPå: Behandling? = null,
         avklaringer: List<Avklaring> = emptyList(),
     ) : this(
         behandlingId = UUIDv7.ny(),
@@ -67,13 +68,13 @@ class Behandling private constructor(
     )
 
     init {
-        require(basertPå.all { it.tilstand is Ferdig }) {
+        require(basertPå == null || basertPå.tilstand is Ferdig) {
             "Kan ikke basere en ny behandling på en som ikke er ferdig"
         }
     }
 
     private val observatører = mutableListOf<BehandlingObservatør>()
-    private val tidligereOpplysninger: List<Opplysninger> = basertPå.map { it.opplysninger }
+    private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
 
     val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
@@ -108,7 +109,7 @@ class Behandling private constructor(
             behandlingId: UUID,
             behandler: StartHendelse,
             gjeldendeOpplysninger: Opplysninger,
-            basertPå: List<Behandling> = emptyList(),
+            basertPå: Behandling? = null,
             tilstand: TilstandType,
             sistEndretTilstand: LocalDateTime,
             avklaringer: List<Avklaring>,
@@ -212,6 +213,11 @@ class Behandling private constructor(
     }
 
     override fun håndter(hendelse: FjernOpplysningHendelse) {
+        hendelse.kontekst(this)
+        tilstand.håndter(this, hendelse)
+    }
+
+    override fun håndter(hendelse: FlyttBehandlingHendelse) {
         hendelse.kontekst(this)
         tilstand.håndter(this, hendelse)
     }
@@ -373,6 +379,11 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: FjernOpplysningHendelse,
         ): Unit = throw IllegalStateException("Opplysning skal fjernes, men tilstanden støtter ikke dette")
+
+        fun håndter(
+            behandling: Behandling,
+            hendelse: FlyttBehandlingHendelse,
+        ): Unit = throw IllegalStateException("Behandlingen skal flyttes til en ny behandlingsskjede, men tilstanden støtter ikke dette")
 
         fun leaving(
             behandling: Behandling,
@@ -549,6 +560,15 @@ class Behandling private constructor(
         ) {
             hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
+
+            behandling.kjørRegler(hendelse)
+        }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: FlyttBehandlingHendelse,
+        ) {
+            hendelse.info("Skal flytte behandlingen fra ${behandling.basertPå} til ${hendelse.nyBasertPåId}")
 
             behandling.kjørRegler(hendelse)
         }
@@ -931,13 +951,13 @@ class Behandling private constructor(
         tilstand.entering(this, hendelse)
     }
 
-    fun basertPåBehandlinger() = basertPå.map { it.behandlingId }
+    fun basertPåBehandlinger() = basertPå?.behandlingId
 
     val vedtakopplysninger
         get() =
             Resultat(
                 behandlingId = behandlingId,
-                basertPåBehandlinger = basertPåBehandlinger(),
+                basertPåBehandling = basertPåBehandlinger(),
                 utfall = forretningsprosess.utfall(opplysninger()),
                 virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,
@@ -1016,7 +1036,7 @@ class Behandling private constructor(
 
     interface VedtakOpplysninger {
         val behandlingId: UUID
-        val basertPåBehandlinger: List<UUID>
+        val basertPåBehandling: UUID?
         val utfall: Boolean
         val virkningsdato: LocalDate
         val behandlingAv: StartHendelse
@@ -1032,7 +1052,7 @@ class Behandling private constructor(
 
     data class Resultat(
         override val behandlingId: UUID,
-        override val basertPåBehandlinger: List<UUID>,
+        override val basertPåBehandling: UUID?,
         override val utfall: Boolean,
         override val virkningsdato: LocalDate,
         override val behandlingAv: StartHendelse,
@@ -1046,7 +1066,7 @@ class Behandling private constructor(
 interface BehandlingObservatør {
     data class BehandlingOpprettet(
         val behandlingId: UUID,
-        val basertPåBehandlinger: List<UUID>,
+        val basertPåBehandlinger: UUID?,
         val hendelse: EksternId<*>,
     ) : PersonEvent()
 

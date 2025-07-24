@@ -104,7 +104,7 @@ internal class BehandlingTest {
                                 Gyldighetsperiode(fomTom, fomTom),
                             ),
                         ),
-                    basertPå = forrigeBehandling?.let { listOf(it) } ?: emptyList(),
+                    basertPå = forrigeBehandling,
                     tilstand = Ferdig,
                     sistEndretTilstand = LocalDateTime.now(),
                     avklaringer = emptyList(),

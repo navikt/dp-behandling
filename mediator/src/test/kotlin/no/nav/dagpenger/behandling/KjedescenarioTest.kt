@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling
 
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
@@ -39,6 +40,7 @@ class KjedescenarioTest {
                 person.søkDagpenger(21.august(2018))
                 behovsløsere.løsTilForslag()
                 person.behandling.basertPåBehandlinger.shouldContainExactly(sisteFerdige)
+                person.behandling.basertPåBehandling shouldBe sisteFerdige
             }
         }
     }
@@ -69,6 +71,7 @@ class KjedescenarioTest {
                 person.søkDagpenger(21.august(2018))
                 behovsløsere.løsTilForslag()
                 person.behandling.basertPåBehandlinger.shouldBeEmpty()
+                person.behandling.basertPåBehandling.shouldBeNull()
             }
         }
     }
@@ -95,10 +98,17 @@ class KjedescenarioTest {
                 utfall shouldBe true
             }
 
-            person.søkDagpenger(21.august(2020))
+            val sisteFerdige = person.behandlingId
 
-            // TODO: Fiks dette
-            // saksbehandler.flyttBehandlingTilNyKjede()
+            // Søknad behandles som gjenopptak på forrige behandling
+            person.søkDagpenger(21.august(2020))
+            behovsløsere.løsTilForslag()
+            person.behandling.basertPåBehandlinger.shouldContainExactly(sisteFerdige)
+            person.behandling.basertPåBehandling shouldBe sisteFerdige
+
+            // Søknad kan ikke gjenoppta fordi forrige periode er for lenge siden
+            // Saksbehandler må manuelt flytte behandlingen til en ny kjede
+            saksbehandler.flyttBehandlingTilNyKjede(person.behandlingId)
         }
     }
 }

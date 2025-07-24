@@ -18,6 +18,8 @@ abstract class StartHendelse(
 ) : PersonHendelse(meldingsreferanseId, ident, opprettet) {
     open val type: String = this.javaClass.simpleName
 
+    fun erSammeType(hendelse: StartHendelse): Boolean = this.type == hendelse.type
+
     override fun kontekstMap() =
         mapOf(
             "gjelderDato" to skjedde.toString(),
