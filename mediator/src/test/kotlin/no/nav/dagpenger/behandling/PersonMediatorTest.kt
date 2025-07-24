@@ -1099,7 +1099,7 @@ internal class PersonMediatorTest {
 
             // Dette er vedtaket som brukes i dp-arena-sink: vedtak_fattet_innvilgelse.json
             JsonMessage.newMessage("vedtak_fattet", toMap(vedtak)).toJson().also {
-                println(it)
+                // println(it)
             }
         }
 
