@@ -7,6 +7,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Opplysninger.Companion.basertPå
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -32,6 +33,7 @@ class SøknadInnsendtHendelse(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ) = Behandling(
+        basertPå = listOfNotNull(forrigeBehandling),
         behandler =
             Hendelse(
                 meldingsreferanseId = meldingsreferanseId,
@@ -43,20 +45,20 @@ class SøknadInnsendtHendelse(
                 forretningsprosess = forretningsprosess,
             ),
         opplysninger =
-            listOf(
-                Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)),
-                Faktum(
-                    søknadIdOpplysningstype,
-                    this.eksternId.id.toString(),
-                    kilde = Systemkilde(meldingsreferanseId, opprettet),
-                ),
-                Faktum(
-                    hendelseTypeOpplysningstype,
-                    type,
-                    gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
-                    kilde = Systemkilde(meldingsreferanseId, opprettet),
-                ),
-            ),
+            buildList {
+                if (forrigeBehandling == null) {
+                    add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)))
+                }
+                add(Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = Systemkilde(meldingsreferanseId, opprettet)))
+                add(
+                    Faktum(
+                        hendelseTypeOpplysningstype,
+                        type,
+                        gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                        kilde = Systemkilde(meldingsreferanseId, opprettet),
+                    ),
+                )
+            },
     )
 
     companion object {
