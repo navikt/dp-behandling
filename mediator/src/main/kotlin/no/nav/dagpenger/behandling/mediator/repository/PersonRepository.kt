@@ -63,6 +63,7 @@ interface PersonRepository : BehandlingRepository {
         unitOfWork: UnitOfWork<*>,
     )
 
+    @WithSpan
     fun håndter(
         ident: Ident,
         handler: (Person) -> Unit,
