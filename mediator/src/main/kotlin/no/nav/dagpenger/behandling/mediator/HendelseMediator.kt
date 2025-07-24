@@ -106,12 +106,9 @@ internal class HendelseMediator(
             person(ident) { person ->
                 person.registrer(personMediator)
                 observatører.forEach { observatør -> person.registrer(observatør) }
-                tidBruktPerHendelse
-                    .labelValues(
-                        hendelse.javaClass.simpleName,
-                    ).time {
-                        handler(person)
-                    }
+                tidBruktPerHendelse.labelValues(hendelse.javaClass.simpleName).time {
+                    handler(person)
+                }
             }
             ferdigstill(context, personMediator, hendelse)
         } catch (e: Exception) {

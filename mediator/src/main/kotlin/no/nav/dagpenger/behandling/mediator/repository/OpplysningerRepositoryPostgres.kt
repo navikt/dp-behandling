@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import com.fasterxml.jackson.core.type.TypeReference
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -278,6 +279,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             lagreUtledetAv(opplysninger)
         }
 
+        @WithSpan
         private fun lagreUtledetAv(opplysninger: List<Opplysning<*>>) {
             val utlededeOpplysninger = opplysninger.filterNot { it.utledetAv == null }
             batchUtledning(utlededeOpplysninger).run(session)
@@ -286,6 +288,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             }
         }
 
+        @WithSpan
         private fun batchUtledning(opplysninger: List<Opplysning<*>>) =
             BatchStatement(
                 // language=PostgreSQL
@@ -304,6 +307,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 },
             )
 
+        @WithSpan
         private fun batchUtledetAv(opplysning: Opplysning<*>) =
             BatchStatement(
                 // language=PostgreSQL
@@ -320,6 +324,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 },
             )
 
+        @WithSpan
         private fun batchOpplysningLink(opplysninger: List<Opplysning<*>>) =
             BatchStatement(
                 //language=PostgreSQL
@@ -336,6 +341,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 },
             )
 
+        @WithSpan
         private fun batchOpplysninger(opplysninger: List<Opplysning<*>>) =
             BatchStatement(
                 //language=PostgreSQL
@@ -362,6 +368,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 },
             )
 
+        @WithSpan
         private fun batchFjernet(fjernet: Set<Opplysning<*>>) =
             BatchStatement(
                 //language=PostgreSQL
@@ -373,6 +380,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 },
             )
 
+        @WithSpan
         private fun lagreErstatter(opplysninger: List<Opplysning<*>>) =
             BatchStatement(
                 //language=PostgreSQL
@@ -390,6 +398,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 },
             )
 
+        @WithSpan
         private fun batchVerdi(opplysninger: List<Opplysning<*>>): BatchStatement {
             val defaultVerdi =
                 mapOf(
