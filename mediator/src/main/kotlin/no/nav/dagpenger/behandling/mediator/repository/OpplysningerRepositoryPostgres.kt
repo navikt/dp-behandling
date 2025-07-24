@@ -43,20 +43,21 @@ import java.util.UUID
 import kotlin.collections.mapNotNull
 
 class OpplysningerRepositoryPostgres : OpplysningerRepository {
-    private companion object {
+    internal companion object {
         private val opplysningstyper by lazy {
             Opplysningstype.definerteTyper.associateBy { it.id }
         }
         private val logger = KotlinLogging.logger { }
 
         private val kildeRepository = KildeRepository()
+
+        fun Session.hentOpplysninger(opplysningerId: UUID) =
+            OpplysningRepository(opplysningerId, this).hentOpplysninger().let { Opplysninger.rehydrer(opplysningerId, it) }
     }
 
     override fun hentOpplysninger(opplysningerId: UUID) =
         sessionOf(dataSource)
-            .use { session ->
-                OpplysningRepository(opplysningerId, session).hentOpplysninger()
-            }.let { Opplysninger.rehydrer(opplysningerId, it) }
+            .use { session -> return@use session.hentOpplysninger(opplysningerId) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
         val unitOfWork = PostgresUnitOfWork.transaction()
@@ -112,24 +113,22 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
     private class OpplysningRepository(
         private val opplysningerId: UUID,
-        private val tx: Session,
+        private val session: Session,
         private val kildeRespository: KildeRepository = kildeRepository,
     ) {
         fun hentOpplysninger(): List<Opplysning<*>> {
             val rader: MutableSet<OpplysningRad<*>> =
-                sessionOf(dataSource)
-                    .use { session ->
-                        session.run(
-                            queryOf(
-                                //language=PostgreSQL
-                                "SELECT * FROM opplysningstabell WHERE opplysninger_id = :id ",
-                                mapOf("id" to opplysningerId),
-                            ).map { row ->
-                                val datatype = Datatype.fromString(row.string("datatype"))
-                                row.somOpplysningRad(datatype)
-                            }.asList,
-                        )
-                    }.toMutableSet()
+                session
+                    .run(
+                        queryOf(
+                            //language=PostgreSQL
+                            "SELECT * FROM opplysningstabell WHERE opplysninger_id = :id ORDER BY id",
+                            mapOf("id" to opplysningerId),
+                        ).map { row ->
+                            val datatype = Datatype.fromString(row.string("datatype"))
+                            row.somOpplysningRad(datatype)
+                        }.asList,
+                    ).toMutableSet()
 
             // Hent alle opplysninger fra tidligere opplysninger som erstattes av opplysninger i denne
             val erstatter = ArrayDeque(rader.mapNotNull { it.erstatter })
@@ -167,22 +166,17 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             return brutto.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
         }
 
-        private fun hentOpplysning(id: UUID): OpplysningRad<*>? {
-            val rader: OpplysningRad<*>? =
-                sessionOf(dataSource).use { session ->
-                    session.run(
-                        queryOf(
-                            //language=PostgreSQL
-                            "SELECT * FROM opplysningstabell WHERE id = :id",
-                            mapOf("id" to id),
-                        ).map { row ->
-                            val datatype = Datatype.fromString(row.string("datatype"))
-                            row.somOpplysningRad(datatype)
-                        }.asSingle,
-                    )
-                }
-            return rader
-        }
+        private fun hentOpplysning(id: UUID) =
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    "SELECT * FROM opplysningstabell WHERE id = :id LIMIT 1",
+                    mapOf("id" to id),
+                ).map { row ->
+                    val datatype = Datatype.fromString(row.string("datatype"))
+                    row.somOpplysningRad(datatype)
+                }.asSingle,
+            )
 
         private fun <T : Comparable<T>> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
             val opplysingerId = uuid("opplysninger_id")
@@ -275,20 +269,20 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             opplysninger: List<Opplysning<*>>,
             fjernet: Set<Opplysning<*>>,
         ) {
-            kildeRespository.lagreKilder(opplysninger.mapNotNull { it.kilde }, tx)
-            batchOpplysninger(opplysninger).run(tx)
-            batchFjernet(fjernet).run(tx)
-            lagreErstatter(opplysninger).run(tx)
-            batchVerdi(opplysninger).run(tx)
-            batchOpplysningLink(opplysninger).run(tx)
+            kildeRespository.lagreKilder(opplysninger.mapNotNull { it.kilde }, session)
+            batchOpplysninger(opplysninger).run(session)
+            batchFjernet(fjernet).run(session)
+            lagreErstatter(opplysninger).run(session)
+            batchVerdi(opplysninger).run(session)
+            batchOpplysningLink(opplysninger).run(session)
             lagreUtledetAv(opplysninger)
         }
 
         private fun lagreUtledetAv(opplysninger: List<Opplysning<*>>) {
             val utlededeOpplysninger = opplysninger.filterNot { it.utledetAv == null }
-            batchUtledning(utlededeOpplysninger).run(tx)
+            batchUtledning(utlededeOpplysninger).run(session)
             utlededeOpplysninger.forEach { opplysning ->
-                batchUtledetAv(opplysning).run(tx)
+                batchUtledetAv(opplysning).run(session)
             }
         }
 

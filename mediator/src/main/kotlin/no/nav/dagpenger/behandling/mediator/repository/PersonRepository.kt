@@ -1,21 +1,26 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDateTime
 import java.util.UUID
 
 interface AvklaringRepository {
+    @WithSpan
     fun lagreAvklaringer(
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
     )
 
+    @WithSpan
     fun hentAvklaringer(behandlingId: UUID): List<Avklaring>
 }
 
@@ -29,10 +34,16 @@ interface BegrunnelseRepository {
 interface BehandlingRepository :
     AvklaringRepository,
     BegrunnelseRepository {
-    fun hentBehandling(behandlingId: UUID): Behandling?
+    @WithSpan
+    fun hentBehandling(
+        @SpanAttribute
+        behandlingId: UUID,
+    ): Behandling?
 
+    @WithSpan
     fun lagre(behandling: Behandling)
 
+    @WithSpan
     fun lagre(
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
@@ -40,15 +51,19 @@ interface BehandlingRepository :
 }
 
 interface PersonRepository : BehandlingRepository {
+    @WithSpan
     fun hent(ident: Ident): Person?
 
+    @WithSpan
     fun lagre(person: Person)
 
+    @WithSpan
     fun lagre(
         person: Person,
         unitOfWork: UnitOfWork<*>,
     )
 
+    @WithSpan
     fun håndter(
         ident: Ident,
         handler: (Person) -> Unit,
@@ -69,9 +84,9 @@ interface MeldekortRepository {
 
     fun hent(meldekortId: UUID): Meldekort?
 
-    fun behandlingStartet(meldekortId: Long)
+    fun behandlingStartet(meldekortId: MeldekortId)
 
-    fun markerSomFerdig(meldekortId: Long)
+    fun markerSomFerdig(meldekortId: MeldekortId)
 
     data class Meldekortkø(
         val behandlingsklare: List<Meldekortstatus>,

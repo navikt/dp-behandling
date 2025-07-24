@@ -20,6 +20,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.uuid.UUIDv7
@@ -40,7 +41,7 @@ internal class MeldekortInnsendtMottak(
             }.register(this)
     }
 
-    private val skipMeldekort = setOf<Long>(0)
+    private val skipMeldekort = setOf("")
 
     @WithSpan
     override fun onPacket(
@@ -49,18 +50,18 @@ internal class MeldekortInnsendtMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val meldekortId = packet["id"].asLong()
+        val meldekortId = packet["id"].asText()
         if (meldekortId in skipMeldekort) {
             logger.info { "Skipper $meldekortId" }
             return
         }
         Span.current().apply {
             setAttribute("app.river", name())
-            setAttribute("app.meldekortId", meldekortId.toString())
+            setAttribute("app.meldekortId", meldekortId)
         }
 
         withLoggingContext(
-            "meldekortId" to meldekortId.toString(),
+            "meldekortId" to meldekortId,
         ) {
             val message = MeldekortInnsendtMessage(packet)
             logger.info("Vi har mottatt et meldekort")
@@ -100,7 +101,7 @@ internal class MeldekortInnsendtMessage(
                     Meldekort(
                         id = UUIDv7.ny(),
                         ident = packet["ident"].asText(),
-                        eksternMeldekortId = packet["id"].asLong(),
+                        eksternMeldekortId = MeldekortId(packet["id"].asText()),
                         innsendtTidspunkt = packet["innsendtTidspunkt"].asLocalDateTime(),
                         fom = packet["periode"]["fraOgMed"].asLocalDate(),
                         tom = packet["periode"]["tilOgMed"].asLocalDate(),
@@ -109,7 +110,7 @@ internal class MeldekortInnsendtMessage(
                                 rolle = packet["kilde"]["rolle"].asText(),
                                 ident = packet["kilde"]["ident"].asText(),
                             ),
-                        korrigeringAv = packet["korrigeringAv"].takeIf { !it.isMissingOrNull() }?.asLong(),
+                        korrigeringAv = packet["korrigeringAv"].takeIf { !it.isMissingOrNull() }?.asText()?.let { MeldekortId(it) },
                         meldingsreferanseId = meldingsreferanseId,
                         dager =
                             packet["dager"].map { dag ->

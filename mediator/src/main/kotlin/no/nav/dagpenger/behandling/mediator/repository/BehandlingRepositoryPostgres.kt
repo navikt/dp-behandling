@@ -4,6 +4,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
+import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
@@ -20,52 +22,57 @@ internal class BehandlingRepositoryPostgres(
 ) : BehandlingRepository,
     AvklaringRepository by avklaringRepository {
     override fun hentBehandling(behandlingId: UUID): Behandling? =
-        sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    SELECT *  
-                    FROM behandling 
-                    LEFT JOIN behandler_hendelse_behandling ON behandling.behandling_id = behandler_hendelse_behandling.behandling_id
-                    LEFT JOIN behandler_hendelse ON behandler_hendelse.melding_id = behandler_hendelse_behandling.melding_id
-                    LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
-                    WHERE behandling.behandling_id = :id 
-                    """.trimIndent(),
-                    mapOf(
-                        "id" to behandlingId,
-                    ),
-                ).map { row ->
-                    val basertPåBehandlingId = session.hentBasertPåFor(behandlingId)
-                    val basertPåBehandling = basertPåBehandlingId.mapNotNull { id -> hentBehandling(id) }
-
-                    Behandling.rehydrer(
-                        behandlingId = row.uuid("behandling_id"),
-                        behandler =
-                            Hendelse(
-                                meldingsreferanseId = row.uuid("melding_id"),
-                                type = row.string("hendelse_type"),
-                                ident = row.string("ident"),
-                                eksternId =
-                                    EksternId.fromString(
-                                        row.string("ekstern_id_type"),
-                                        row.string("ekstern_id"),
-                                    ),
-                                skjedde = row.localDate("skjedde"),
-                                forretningsprosess = RegistrertForretningsprosess.opprett(row.string("forretningsprosess")),
-                                opprettet = row.localDateTime("opprettet"),
-                            ),
-                        gjeldendeOpplysninger = opplysningRepository.hentOpplysninger(row.uuid("opplysninger_id"))!!,
-                        basertPå = basertPåBehandling,
-                        tilstand = Behandling.TilstandType.valueOf(row.string("tilstand")),
-                        sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
-                        avklaringer = hentAvklaringer(behandlingId),
-                        godkjent = session.hentArbeidssteg(behandlingId, Arbeidssteg.Oppgave.Godkjent),
-                        besluttet = session.hentArbeidssteg(behandlingId, Arbeidssteg.Oppgave.Besluttet),
-                    )
-                }.asSingle,
-            )
+        hentBehandlingTimer.time<Behandling?> {
+            sessionOf(dataSource).use { session ->
+                session.hentBehandling(behandlingId)
+            }
         }
+
+    private fun Session.hentBehandling(behandlingId: UUID): Behandling? =
+        this.run(
+            queryOf(
+                // language=PostgreSQL
+                """
+                SELECT *  
+                FROM behandling 
+                LEFT JOIN behandler_hendelse_behandling ON behandling.behandling_id = behandler_hendelse_behandling.behandling_id
+                LEFT JOIN behandler_hendelse ON behandler_hendelse.melding_id = behandler_hendelse_behandling.melding_id
+                LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
+                WHERE behandling.behandling_id = :id 
+                """.trimIndent(),
+                mapOf(
+                    "id" to behandlingId,
+                ),
+            ).map { row ->
+                val basertPåBehandlingId = this.hentBasertPåFor(behandlingId)
+                val basertPåBehandling = basertPåBehandlingId.mapNotNull { id -> this.hentBehandling(id) }
+
+                Behandling.rehydrer(
+                    behandlingId = row.uuid("behandling_id"),
+                    behandler =
+                        Hendelse(
+                            meldingsreferanseId = row.uuid("melding_id"),
+                            type = row.string("hendelse_type"),
+                            ident = row.string("ident"),
+                            eksternId =
+                                EksternId.fromString(
+                                    row.string("ekstern_id_type"),
+                                    row.string("ekstern_id"),
+                                ),
+                            skjedde = row.localDate("skjedde"),
+                            forretningsprosess = RegistrertForretningsprosess.opprett(row.string("forretningsprosess")),
+                            opprettet = row.localDateTime("opprettet"),
+                        ),
+                    gjeldendeOpplysninger = this.hentOpplysninger(row.uuid("opplysninger_id")),
+                    basertPå = basertPåBehandling,
+                    tilstand = Behandling.TilstandType.valueOf(row.string("tilstand")),
+                    sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
+                    avklaringer = hentAvklaringer(behandlingId),
+                    godkjent = this.hentArbeidssteg(behandlingId, Arbeidssteg.Oppgave.Godkjent),
+                    besluttet = this.hentArbeidssteg(behandlingId, Arbeidssteg.Oppgave.Besluttet),
+                )
+            }.asSingle,
+        )
 
     private fun Session.hentArbeidssteg(
         behandlingId: UUID,

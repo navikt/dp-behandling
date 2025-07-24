@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
@@ -8,8 +7,10 @@ import io.micrometer.core.instrument.Clock
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
+import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
+import no.nav.dagpenger.behandling.konfigurasjon.Configuration.config
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
@@ -43,8 +44,16 @@ import no.nav.helse.rapids_rivers.RapidApplication
 internal class ApplicationBuilder(
     config: Map<String, String>,
 ) : RapidsConnection.StatusListener {
-    companion object {
+    private companion object {
         private val logger = KotlinLogging.logger { }
+
+        private val meterRegistry =
+            PrometheusMeterRegistry(
+                PrometheusConfig.DEFAULT,
+                PrometheusRegistry.defaultRegistry,
+                Clock.SYSTEM,
+                SpanContextSupplier.getSpanContext(),
+            )
     }
 
     // TODO: Last alle regler ved startup. Dette må inn i ett register.
@@ -74,16 +83,8 @@ internal class ApplicationBuilder(
                 withKtor { preStopHook, rapid ->
                     naisApp(
                         meterRegistry =
-                            PrometheusMeterRegistry(
-                                PrometheusConfig.DEFAULT,
-                                PrometheusRegistry.defaultRegistry,
-                                Clock.SYSTEM,
-                            ),
-                        objectMapper =
-                            objectMapper.apply {
-                                // OpenAPI-generator klarer ikke optional-felter. Derfor må vi eksplisitt fjerne null-verdier
-                                setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                            },
+                        meterRegistry,
+                        objectMapper = objectMapper,
                         applicationLogger = KotlinLogging.logger("ApplicationLogger"),
                         callLogger = KotlinLogging.logger("CallLogger"),
                         aliveCheck = rapid::isReady,
@@ -97,6 +98,7 @@ internal class ApplicationBuilder(
                             auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapid),
                             opplysningstyper = opplysningstyper,
                             apiRepositoryPostgres = apiRepositoryPostgres,
+                            meterRegistry,
                         ) { ident: String -> ApiMessageContext(rapid, ident) }
                     }
                 }

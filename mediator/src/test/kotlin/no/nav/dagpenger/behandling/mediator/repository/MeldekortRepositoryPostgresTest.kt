@@ -15,6 +15,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.uuid.UUIDv7
@@ -62,7 +63,7 @@ class MeldekortRepositoryPostgresTest {
                     id = UUIDv7.ny(),
                     meldingsreferanseId = meldingsreferanseId1,
                     ident = ident,
-                    eksternMeldekortId = 1,
+                    eksternMeldekortId = MeldekortId("1"),
                     fom = start,
                     tom = start.plusDays(14),
                     kilde = MeldekortKilde("Bruker", ident),
@@ -87,7 +88,7 @@ class MeldekortRepositoryPostgresTest {
                         meldekort.copy(
                             id = UUIDv7.ny(),
                             meldingsreferanseId = meldingsreferanseId2,
-                            eksternMeldekortId = 2,
+                            eksternMeldekortId = MeldekortId("2"),
                             korrigeringAv = meldekort.eksternMeldekortId,
                         ),
                 )

@@ -1,6 +1,8 @@
 package no.nav.dagpenger.behandling.mediator.api
 
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -10,14 +12,18 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.request.acceptItems
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.contentType
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.opentelemetry.api.trace.Span
 import mu.KotlinLogging
 import mu.withLoggingContext
@@ -84,6 +90,7 @@ internal fun Application.behandlingApi(
     auditlogg: Auditlogg,
     opplysningstyper: Set<Opplysningstype<*>>,
     apiRepositoryPostgres: ApiRepositoryPostgres,
+    meterRegistry: PrometheusMeterRegistry? = null,
     messageContext: (ident: String) -> MessageContext,
 ) {
     authenticationConfig()
@@ -91,6 +98,17 @@ internal fun Application.behandlingApi(
 
     routing {
         swaggerUI(path = "openapi", swaggerFile = "behandling-api.yaml")
+
+        get("/internal/prometrics") {
+            if (meterRegistry == null) call.respond("")
+
+            call.request.acceptItems().firstOrNull()?.let {
+                val contentType = ContentType.parse(it.value)
+                val metrics = meterRegistry!!.scrape(it.value)
+
+                call.respondText(metrics, contentType)
+            } ?: call.respond(HttpStatusCode.NotAcceptable, "Supported types: application/openmetrics-text and text/plain")
+        }
 
         get("/") { call.respond(HttpStatusCode.OK) }
         get("/features") {
@@ -134,7 +152,7 @@ internal fun Application.behandlingApi(
                     val hendelseId =
                         when (nyBehandlingDto.hendelse?.type) {
                             HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
-                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id.toLong())
+                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id)
                             HendelseDTOTypeDTO.MANUELL,
                             null,
                             -> ManuellId(UUIDv7.ny())
@@ -558,6 +576,8 @@ internal class ApiMessageContext(
     ) {
         rapid.publish(ident, message)
     }
+
+    override fun publish(messages: List<OutgoingMessage>) = rapid.publish(messages)
 
     override fun rapidName() = "API"
 }

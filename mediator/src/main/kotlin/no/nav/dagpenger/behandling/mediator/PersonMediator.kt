@@ -3,6 +3,8 @@ package no.nav.dagpenger.behandling.mediator
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import mu.KotlinLogging
+import no.nav.dagpenger.behandling.mediator.api.tilKlumpDTO
+import no.nav.dagpenger.behandling.modell.BehandlingObservatør
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.AvklaringLukket
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingAvbrutt
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
@@ -25,19 +27,21 @@ internal class PersonMediator : PersonObservatør {
         meldinger.add(ident to event.toJsonMessage())
     }
 
-    override fun forslagTilVedtak(event: BehandlingForslagTilVedtak) {
-        val ident = requireNotNull(event.ident) { "Mangler ident i ForslagTilVedtak" }
-        meldinger.add(ident to event.toJsonMessage())
-    }
-
     override fun endretTilstand(event: BehandlingEndretTilstand) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingEndretTilstand" }
         meldinger.add(ident to event.toJsonMessage())
     }
 
+    override fun forslagTilVedtak(event: BehandlingForslagTilVedtak) {
+        val ident = requireNotNull(event.ident) { "Mangler ident i ForslagTilVedtak" }
+        runCatching { meldinger.add(ident to event.tilKlumpen(ident)) }.onFailure { logger.warn(it) { "Klarte ikke å lage klump" } }
+        meldinger.add(ident to event.toJsonMessage())
+    }
+
     override fun ferdig(event: BehandlingFerdig) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
-        meldinger.add(ident to event.toJsonMessage())
+        runCatching { meldinger.add(ident to event.tilKlumpen(ident)) }.onFailure { logger.warn(it) { "Klarte ikke å lage klump" } }
+        meldinger.add(ident to event.tilVedtakFattetMelding())
     }
 
     override fun avbrutt(event: BehandlingAvbrutt) {
@@ -96,13 +100,18 @@ internal class PersonMediator : PersonObservatør {
     private fun BehandlingForslagTilVedtak.toJsonMessage(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
         val vedtak = this.lagVedtakDTO(ident)
-        return JsonMessage.newMessage("forslag_til_vedtak", vedtak.toMap())
+        return JsonMessage.newMessage("forslag_til_vedtak", toMap(vedtak))
     }
 
-    private fun BehandlingFerdig.toJsonMessage(): JsonMessage {
+    private fun BehandlingFerdig.tilVedtakFattetMelding(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
         val vedtak = this.lagVedtakDTO(ident)
-        return JsonMessage.newMessage("vedtak_fattet", vedtak.toMap())
+        return JsonMessage.newMessage("vedtak_fattet", toMap(vedtak))
+    }
+
+    private fun BehandlingObservatør.VedtakEvent.tilKlumpen(ident: String): JsonMessage {
+        val vedtak = this.tilKlumpDTO(ident)
+        return JsonMessage.newMessage("klumpen_er_laget", toMap(vedtak))
     }
 
     private fun BehandlingAvbrutt.toJsonMessage() =
@@ -139,6 +148,7 @@ internal class PersonMediator : PersonObservatør {
             )
 
     private companion object {
+        private val logger = KotlinLogging.logger {}
         private val sikkerlogg = KotlinLogging.logger("tjenestekall.PersonMediator")
     }
 }

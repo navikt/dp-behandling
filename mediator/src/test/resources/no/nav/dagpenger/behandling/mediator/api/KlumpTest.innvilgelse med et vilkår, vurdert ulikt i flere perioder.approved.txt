@@ -1,0 +1,94 @@
+{
+  "behandlingId" : "00000000-0000-0000-0000-000000000000",
+  "behandletHendelse" : {
+    "datatype" : "UUID",
+    "id" : "00000000-0000-0000-0000-000000000000",
+    "type" : "Søknad"
+  },
+  "ident" : "123123123",
+  "vilkår" : [ {
+    "navn" : "Alder",
+    "hjemmel" : {
+      "kilde" : {
+        "navn" : "Folketrygdloven",
+        "kortnavn" : "ftrl"
+      },
+      "kapittel" : "4",
+      "paragraf" : "23",
+      "tittel" : "§ 4-23. Bortfall på grunn av alder",
+      "url" : "https://lovdata.no/nav/lov/1997-02-28-19/§4-23"
+    },
+    "perioder" : [ {
+      "fraOgMed" : "2025-05-01",
+      "tilOgMed" : "2025-05-10",
+      "harRett" : true
+    }, {
+      "fraOgMed" : "2025-05-11",
+      "tilOgMed" : "2025-05-20",
+      "harRett" : false
+    }, {
+      "fraOgMed" : "2025-05-21",
+      "tilOgMed" : "2025-05-30",
+      "harRett" : true
+    } ],
+    "utfall" : [ "00000000-0000-0000-0000-000000000000" ],
+    "ønsketResultat" : [ "00000000-0000-0000-0000-000000000000" ],
+    "opplysninger" : [ "00000000-0000-0000-0000-000000000000" ]
+  } ],
+  "fastsettelser" : [ ],
+  "opplysninger" : [ {
+    "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
+    "navn" : "Oppfyller kravet til alder",
+    "datatype" : "boolsk",
+    "opplysninger" : [ {
+      "id" : "00000000-0000-0000-0000-000000000000",
+      "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
+      "navn" : "Oppfyller kravet til alder",
+      "verdien" : {
+        "verdi" : true,
+        "datatype" : "boolsk"
+      },
+      "verdi" : "true",
+      "gyldigFraOgMed" : "2025-05-01",
+      "gyldigTilOgMed" : "2025-05-10",
+      "datatype" : "boolsk"
+    }, {
+      "id" : "00000000-0000-0000-0000-000000000000",
+      "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
+      "navn" : "Oppfyller kravet til alder",
+      "verdien" : {
+        "verdi" : false,
+        "datatype" : "boolsk"
+      },
+      "verdi" : "false",
+      "gyldigFraOgMed" : "2025-05-11",
+      "gyldigTilOgMed" : "2025-05-20",
+      "datatype" : "boolsk"
+    }, {
+      "id" : "00000000-0000-0000-0000-000000000000",
+      "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
+      "navn" : "Oppfyller kravet til alder",
+      "verdien" : {
+        "verdi" : true,
+        "datatype" : "boolsk"
+      },
+      "verdi" : "true",
+      "gyldigFraOgMed" : "2025-05-21",
+      "gyldigTilOgMed" : "2025-05-30",
+      "datatype" : "boolsk"
+    } ]
+  } ],
+  "rettighetsperioder" : [ {
+    "fraOgMed" : "2025-05-01",
+    "tilOgMed" : "2025-05-10",
+    "harRett" : true
+  }, {
+    "fraOgMed" : "2025-05-11",
+    "tilOgMed" : "2025-05-20",
+    "harRett" : false
+  }, {
+    "fraOgMed" : "2025-05-21",
+    "tilOgMed" : "2025-05-30",
+    "harRett" : true
+  } ]
+}
