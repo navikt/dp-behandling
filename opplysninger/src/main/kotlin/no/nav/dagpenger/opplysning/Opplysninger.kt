@@ -10,17 +10,17 @@ import kotlin.collections.map
 class Opplysninger private constructor(
     override val id: UUID,
     initielleOpplysninger: List<Opplysning<*>>,
-    basertPå: List<Opplysninger>,
+    basertPå: Opplysninger? = null,
 ) : LesbarOpplysninger {
-    constructor() : this(UUIDv7.ny(), emptyList(), emptyList())
-    private constructor(id: UUID, opplysninger: List<Opplysning<*>>) : this(id, opplysninger, emptyList())
+    constructor() : this(UUIDv7.ny(), emptyList(), null)
+    private constructor(id: UUID, opplysninger: List<Opplysning<*>>) : this(id, opplysninger, null)
 
     private val egne: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
     private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
     private val erstattet: MutableSet<UUID> = egne.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
     private val basertPåOpplysninger: List<Opplysning<*>> =
-        basertPå.flatMap { it.basertPåOpplysninger.utenErstattet() + it.egne.utenErstattet() }
+        basertPå?.let { it.basertPåOpplysninger.utenErstattet() + it.egne.utenErstattet() } ?: emptyList()
 
     private val alleOpplysninger = CachedList { basertPåOpplysninger.utenErstattet() + egne }
 
@@ -130,7 +130,7 @@ class Opplysninger private constructor(
         val aktiveForDato = egne.gyldigeFor(gjelderFor)
         // basertPåOpplysninger blir bare filtrert på init, men nye opplysninger kan ha blitt lagt til som nå erstatter noe og de må fjernes
         val basertPåDato = basertPåOpplysninger.utenErstattet().gyldigeFor(gjelderFor)
-        return Opplysninger(id, aktiveForDato, listOf(Opplysninger(UUIDv7.ny(), basertPåDato)))
+        return Opplysninger(id, aktiveForDato, Opplysninger(UUIDv7.ny(), basertPåDato))
     }
 
     override fun somListe(filter: Filter) =
@@ -139,7 +139,7 @@ class Opplysninger private constructor(
             Filter.Egne -> egne
         }
 
-    fun baserPå(tidligereOpplysninger: List<Opplysninger>) = Opplysninger(id, egne, tidligereOpplysninger)
+    fun baserPå(tidligereOpplysninger: Opplysninger?) = Opplysninger(id, egne, tidligereOpplysninger)
 
     fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
 
@@ -196,12 +196,12 @@ class Opplysninger private constructor(
 
         fun med(vararg opplysning: Opplysning<*>) = Opplysninger(UUIDv7.ny(), opplysning.toList())
 
-        fun basertPå(vararg andre: Opplysninger) = Opplysninger(UUIDv7.ny(), emptyList(), andre.toList())
+        fun basertPå(andre: Opplysninger) = Opplysninger(UUIDv7.ny(), emptyList(), andre)
 
         fun rehydrer(
             id: UUID,
             opplysninger: List<Opplysning<*>>,
-        ) = Opplysninger(id, opplysninger, emptyList())
+        ) = Opplysninger(id, opplysninger, null)
     }
 }
 

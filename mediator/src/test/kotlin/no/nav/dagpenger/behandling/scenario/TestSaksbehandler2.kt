@@ -10,6 +10,7 @@ import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
@@ -138,5 +139,17 @@ internal class TestSaksbehandler2(
         )
 
         return opplysningSomSkalFjernes
+    }
+
+    fun flyttBehandlingTilNyKjede(behandlingId: UUID) {
+        hendelseMediator.behandle(
+            FlyttBehandlingHendelse(
+                meldingsreferanseId = UUIDv7.ny(),
+                ident = testPerson.ident,
+                behandlingId = testPerson.behandlingId,
+                opprettet = LocalDateTime.now(),
+            ),
+            rapid,
+        )
     }
 }

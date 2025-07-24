@@ -34,9 +34,9 @@ class SøknadInnsendtHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): Behandling {
         val basertPå =
-            listOfNotNull(
-                when (forrigeBehandling?.behandler?.type) {
-                    "SøknadInnsendtHendelse" -> {
+            forrigeBehandling?.let { forrigeBehandling ->
+                when (forrigeBehandling.behandler.erSammeType(this)) {
+                    true -> {
                         when (forrigeBehandling.vedtakopplysninger.utfall) {
                             // Skal IKKE kjede
                             false -> null
@@ -46,8 +46,8 @@ class SøknadInnsendtHendelse(
                     }
                     // Skal kjede
                     else -> forrigeBehandling
-                },
-            )
+                }
+            }
 
         return Behandling(
             basertPå = basertPå,
@@ -63,7 +63,7 @@ class SøknadInnsendtHendelse(
                 ),
             opplysninger =
                 buildList {
-                    if (basertPå.isEmpty()) {
+                    if (basertPå == null) {
                         add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)))
                     }
                     add(Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = Systemkilde(meldingsreferanseId, opprettet)))

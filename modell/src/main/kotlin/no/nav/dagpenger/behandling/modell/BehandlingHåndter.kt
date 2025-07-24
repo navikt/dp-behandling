@@ -5,6 +5,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendels
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
@@ -48,4 +49,6 @@ interface BehandlingHåndter {
     fun håndter(hendelse: MeldekortInnsendtHendelse)
 
     fun håndter(hendelse: FjernOpplysningHendelse)
+
+    fun håndter(hendelse: FlyttBehandlingHendelse)
 }

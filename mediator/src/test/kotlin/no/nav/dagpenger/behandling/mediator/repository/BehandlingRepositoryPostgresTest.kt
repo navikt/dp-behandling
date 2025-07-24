@@ -57,7 +57,7 @@ class BehandlingRepositoryPostgresTest {
             behandlingId = UUIDv7.ny(),
             behandler = søknadInnsendtHendelse,
             gjeldendeOpplysninger = Opplysninger.med(opplysning1, opplysning2, opplysning3),
-            basertPå = listOf(basertPåBehandling),
+            basertPå = basertPåBehandling,
             tilstand = Behandling.TilstandType.UnderBehandling,
             sistEndretTilstand = LocalDateTime.now(),
             avklaringer = listOf(avklaring),
@@ -75,8 +75,7 @@ class BehandlingRepositoryPostgresTest {
             val rehydrertBehandling = behandlingRepositoryPostgres.hentBehandling(behandling.behandlingId).shouldNotBeNull()
 
             rehydrertBehandling.behandlingId shouldBe behandling.behandlingId
-            rehydrertBehandling.basertPå.size shouldBe behandling.basertPå.size
-            rehydrertBehandling.basertPå shouldContainExactly behandling.basertPå
+            rehydrertBehandling.basertPå shouldBe behandling.basertPå
 
             rehydrertBehandling.opplysninger().somListe().size shouldBe behandling.opplysninger().somListe().size
             rehydrertBehandling.opplysninger().somListe() shouldContainExactly behandling.opplysninger().somListe()

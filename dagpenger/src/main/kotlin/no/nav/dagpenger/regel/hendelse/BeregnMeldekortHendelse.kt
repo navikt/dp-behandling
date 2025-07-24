@@ -44,6 +44,7 @@ class BeregnMeldekortHendelse(
         logger.info { "Baserer meldekortberegning på: ${forrigeBehandling.behandlingId}" }
 
         return Behandling(
+            basertPå = forrigeBehandling,
             behandler = this,
             opplysninger =
                 listOf(
@@ -60,7 +61,6 @@ class BeregnMeldekortHendelse(
                         kilde = kilde,
                     ),
                 ),
-            basertPå = listOf(forrigeBehandling),
         ).apply {
             meldekort.dager.forEach { dag ->
                 val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)

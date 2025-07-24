@@ -166,7 +166,7 @@ class BehandlingApiMapperTest {
                             ),
                     ),
                 ),
-            basertPå = emptyList(),
+            basertPå = null,
             tilstand = Behandling.TilstandType.TilGodkjenning,
             sistEndretTilstand =
                 LocalDateTime

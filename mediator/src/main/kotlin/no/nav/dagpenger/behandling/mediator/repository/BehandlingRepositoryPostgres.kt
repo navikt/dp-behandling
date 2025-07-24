@@ -44,8 +44,8 @@ internal class BehandlingRepositoryPostgres(
                     "id" to behandlingId,
                 ),
             ).map { row ->
-                val basertPåBehandlingId = this.hentBasertPåFor(behandlingId)
-                val basertPåBehandling = basertPåBehandlingId.mapNotNull { id -> this.hentBehandling(id) }
+                val basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id")
+                val basertPåBehandling = basertPåBehandlingId?.let { id -> this.hentBehandling(id) }
 
                 Behandling.rehydrer(
                     behandlingId = row.uuid("behandling_id"),
@@ -101,23 +101,6 @@ internal class BehandlingRepositoryPostgres(
             }.asSingle,
         ) ?: Arbeidssteg(oppgave)
 
-    private fun Session.hentBasertPåFor(behandlingId: UUID) =
-        this.run(
-            queryOf(
-                // language=PostgreSQL
-                """
-                SELECT *  
-                FROM behandling_basertpå 
-                WHERE behandling_id = :id 
-                """.trimIndent(),
-                mapOf(
-                    "id" to behandlingId,
-                ),
-            ).map { row ->
-                row.uuid("basert_på_behandling_id")
-            }.asList,
-        )
-
     override fun lagre(behandling: Behandling) {
         val unitOfWork = PostgresUnitOfWork.transaction()
         lagre(behandling, unitOfWork)
@@ -156,14 +139,17 @@ internal class BehandlingRepositoryPostgres(
                 queryOf(
                     // language=PostgreSQL
                     """
-                    INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand)
-                    VALUES (:id, :tilstand, :sisteEndretTilstand)
-                    ON CONFLICT (behandling_id) DO UPDATE SET tilstand = :tilstand, sist_endret_tilstand = :sisteEndretTilstand
+                    INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand, basert_på_behandling_id)
+                    VALUES (:id, :tilstand, :sisteEndretTilstand, :basertPaaBehandlingId)
+                    ON CONFLICT (behandling_id) DO UPDATE SET tilstand                = :tilstand,
+                                                              sist_endret_tilstand    = :sisteEndretTilstand,
+                                                              basert_på_behandling_id = :basertPaaBehandlingId
                     """.trimIndent(),
                     mapOf(
                         "id" to behandling.behandlingId,
                         "tilstand" to behandling.tilstand().first.name,
                         "sisteEndretTilstand" to behandling.tilstand().second,
+                        "basertPaaBehandlingId" to behandling.basertPå?.behandlingId,
                     ),
                 ).asUpdate,
             )
@@ -215,22 +201,6 @@ internal class BehandlingRepositoryPostgres(
                     ),
                 ).asUpdate,
             )
-
-            behandling.basertPå.forEach { basertPåBehandling ->
-                tx.run(
-                    queryOf(
-                        // language=PostgreSQL
-                        """
-                        INSERT INTO behandling_basertpå (behandling_id, basert_på_behandling_id) 
-                        VALUES (:behandling_id, :basert_paa_behandling_id) ON CONFLICT DO NOTHING
-                        """.trimIndent(),
-                        mapOf(
-                            "behandling_id" to behandling.behandlingId,
-                            "basert_paa_behandling_id" to basertPåBehandling.behandlingId,
-                        ),
-                    ).asUpdate,
-                )
-            }
 
             avklaringRepository.lagreAvklaringer(behandling, unitOfWork)
         }

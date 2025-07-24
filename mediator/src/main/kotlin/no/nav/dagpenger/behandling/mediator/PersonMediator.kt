@@ -68,7 +68,7 @@ internal class PersonMediator : PersonObservatør {
                 mapOf(
                     "ident" to requireNotNull(ident) { "Mangler ident i BehandlingOpprettet" },
                     "behandlingId" to behandlingId.toString(),
-                    "basertPåBehandlinger" to basertPåBehandlinger.map { it.toString() },
+                    "basertPåBehandlinger" to listOf(basertPåBehandlinger.toString()),
                     "behandletHendelse" to
                         mapOf(
                             "id" to hendelse.id,
@@ -80,7 +80,10 @@ internal class PersonMediator : PersonObservatør {
                                     is ManuellId -> "Manuell"
                                 },
                         ),
-                ),
+                ) +
+                    listOfNotNull(
+                        basertPåBehandlinger?.let { "basertPåBehandling" to it.toString() },
+                    ),
             )
 
     private fun BehandlingEndretTilstand.toJsonMessage() =

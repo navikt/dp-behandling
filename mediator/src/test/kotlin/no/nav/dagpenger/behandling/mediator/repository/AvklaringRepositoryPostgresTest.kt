@@ -116,7 +116,7 @@ class AvklaringRepositoryPostgresTest {
                         Faktum(prøvingsdato, LocalDate.now()),
                         Faktum(kravTilAlder, false),
                     ),
-                basertPå = emptyList(),
+                basertPå = null,
                 tilstand = TilstandType.ForslagTilVedtak,
                 sistEndretTilstand = LocalDateTime.now(),
                 avklaringer = avklaring.toList(),
