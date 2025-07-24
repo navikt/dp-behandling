@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
@@ -12,8 +13,10 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import java.util.UUID
 
 internal class KildeRepository {
+    @WithSpan
     fun hentKilde(uuid: UUID): Kilde? = hentKilder(listOf(uuid))[uuid]
 
+    @WithSpan
     fun hentKilder(uuid: List<UUID>): Map<UUID, Kilde> =
         sessionOf(dataSource)
             .use { session ->
@@ -73,11 +76,13 @@ internal class KildeRepository {
                 )
             }.associateBy { it.id }
 
+    @WithSpan
     fun lagreKilde(
         kilde: Kilde,
         tx: Session,
     ) = lagreKilder(listOf(kilde), tx)
 
+    @WithSpan
     fun lagreKilder(
         kilder: List<Kilde>,
         tx: Session,
