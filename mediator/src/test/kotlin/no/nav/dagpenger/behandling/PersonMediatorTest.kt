@@ -797,8 +797,8 @@ internal class PersonMediatorTest {
                     rapid,
                     søknadsdato = LocalDate.now(),
                     innsendt = LocalDate.now().atTime(12, 0),
-                    // Langt nok fram til å treffe neste rapporteringsfristvindu (1 til 5-ish neste måned)
-                    ønskerFraDato = LocalDate.now().plusMonths(1).withDayOfMonth(8),
+                    // Ønsker dagpenger fra en dato som er mer enn 14 dager fram i tid
+                    ønskerFraDato = LocalDate.now().plusMonths(2).withDayOfMonth(8),
                     // Denne må stemme med prøvingsdato som blir siste av søknadsdato og ønsket fra dato
                     arbeidssøkerregistreringsdato = 30.juni(2024),
                 )
