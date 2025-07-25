@@ -28,6 +28,24 @@ internal class BehandlingRepositoryPostgres(
             }
         }
 
+    override fun flyttBehandling(
+        behandlingId: UUID,
+        nyBasertPåId: UUID?,
+    ) {
+        sessionOf(dataSource).use { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    "UPDATE behandling SET basert_på_behandling_id=:basertPaa WHERE behandling_id=:behandlingId",
+                    mapOf(
+                        "behandlingId" to behandlingId,
+                        "basertPaa" to nyBasertPåId,
+                    ),
+                ).asUpdate,
+            )
+        }
+    }
+
     private fun Session.hentBehandling(behandlingId: UUID): Behandling? =
         this.run(
             queryOf(

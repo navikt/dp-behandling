@@ -24,6 +24,13 @@ class InMemoryPersonRepository :
                 it.behandlinger()
             }.find { it.behandlingId == behandlingId }
 
+    override fun flyttBehandling(
+        behandlingId: UUID,
+        nyBasertPåId: UUID?,
+    ) {
+        TODO("Not yet implemented")
+    }
+
     override fun lagre(behandling: Behandling) {
         // no-op
     }

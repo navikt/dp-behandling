@@ -15,10 +15,12 @@ import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDateTime
 import java.util.UUID
@@ -141,12 +143,21 @@ internal class TestSaksbehandler2(
         return opplysningSomSkalFjernes
     }
 
-    fun flyttBehandlingTilNyKjede(behandlingId: UUID) {
+    fun flyttBehandlingTilNyKjede(
+        behandlingId: UUID,
+        nyBehandlingskjedeId: UUID? = null,
+        fagsakId: Int? = null,
+    ) {
         hendelseMediator.behandle(
             FlyttBehandlingHendelse(
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = testPerson.ident,
-                behandlingId = testPerson.behandlingId,
+                behandlingId = behandlingId,
+                nyBasertPåId = nyBehandlingskjedeId,
+                opplysninger =
+                    listOfNotNull(
+                        fagsakId?.let { Faktum(fagsakIdOpplysningstype, fagsakId) },
+                    ),
                 opprettet = LocalDateTime.now(),
             ),
             rapid,

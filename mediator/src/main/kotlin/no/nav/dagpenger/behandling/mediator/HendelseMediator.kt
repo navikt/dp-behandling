@@ -13,6 +13,7 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
+import no.nav.dagpenger.behandling.modell.PersonHåndter
 import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
@@ -76,7 +77,7 @@ internal class HendelseMediator(
     private fun <Hendelse : PersonHendelse> hentPersonOgHåndter(
         hendelse: Hendelse,
         context: MessageContext,
-        handler: (Person) -> Unit,
+        handler: (PersonHåndter) -> Unit,
     ) {
         val personidentifikator = Ident(hendelse.ident())
         hentPersonOgHåndter(personidentifikator, hendelse, context, handler)
@@ -294,9 +295,15 @@ internal class HendelseMediator(
         hendelse: FlyttBehandlingHendelse,
         context: MessageContext,
     ) {
+        val behandling = personRepository.hentBehandling(hendelse.behandlingId)
+        if (behandling == null) {
+            logger.error { "Ingen behandling funnet for id ${hendelse.behandlingId}" }
+            return
+        }
+        if (behandling.kanFlyttes()) {
+            personRepository.flyttBehandling(hendelse.behandlingId, hendelse.nyBasertPåId)
+        }
         hentPersonOgHåndter(hendelse, context) { person ->
-            // TODO: VIL VI VIRKELIG DETTE?
-            hendelse.nyBasertPåId?.let { hendelse.nyBasertPå = this.personRepository.hentBehandling(it) }
             person.håndter(hendelse)
         }
     }

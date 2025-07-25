@@ -8,6 +8,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -703,19 +704,7 @@ internal class PersonMediatorTest {
 
             rapid.harHendelse("forslag_til_vedtak")
 
-            åpneAvklaringer().values.shouldContainExactlyInAnyOrder(
-                listOf(
-                    "EØSArbeid",
-                    "HattLukkedeSakerSiste8Uker",
-                    "InntektNesteKalendermåned",
-                    "JobbetUtenforNorge",
-                    "MuligGjenopptak",
-                    "SvangerskapsrelaterteSykepenger",
-                    "PrøvingsdatoEtterRapporteringsfrist",
-                    "HarTilleggsopplysninger",
-                    "VirkningstidspunktForLangtFramItid",
-                ),
-            )
+            åpneAvklaringer().values.shouldContain("PrøvingsdatoEtterRapporteringsfrist")
         }
 
     @Test

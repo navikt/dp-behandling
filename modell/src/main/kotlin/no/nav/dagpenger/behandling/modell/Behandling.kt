@@ -5,6 +5,8 @@ import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaringer
 import no.nav.dagpenger.behandling.modell.Behandling.BehandlingTilstand.Companion.fraType
+import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.ForslagTilVedtak
+import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
 import no.nav.dagpenger.behandling.modell.Behandling.VedtakOpplysninger
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.AvklaringLukket
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingAvbrutt
@@ -46,7 +48,7 @@ class Behandling private constructor(
     val behandlingId: UUID,
     val behandler: StartHendelse,
     gjeldendeOpplysninger: Opplysninger,
-    var basertPå: Behandling? = null,
+    val basertPå: Behandling? = null,
     val godkjent: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Godkjent),
     val besluttet: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
     private var tilstand: BehandlingTilstand,
@@ -68,7 +70,7 @@ class Behandling private constructor(
     )
 
     init {
-        require(basertPå == null || basertPå!!.tilstand is Ferdig) {
+        require(basertPå == null || basertPå.tilstand is Ferdig) {
             "Kan ikke basere en ny behandling på en som ikke er ferdig"
         }
     }
@@ -77,8 +79,7 @@ class Behandling private constructor(
     private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
 
-    // TODO: VIL VI VIRKELIG DETTE?
-    var opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
+    val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
         get() =
@@ -140,6 +141,8 @@ class Behandling private constructor(
     val sistEndret get() = tilstand.opprettet
 
     fun harTilstand(tilstand: TilstandType) = this.tilstand.type == tilstand
+
+    fun kanFlyttes() = harTilstand(ForslagTilVedtak) || harTilstand(TilGodkjenning)
 
     fun opplysninger(): LesbarOpplysninger = opplysninger
 
@@ -220,6 +223,8 @@ class Behandling private constructor(
 
     override fun håndter(hendelse: FlyttBehandlingHendelse) {
         hendelse.kontekst(this)
+        // Behandlingen har blitt flytten fra en kjede til en ny eller annen kjede
+        // Ved å gå til redigert tilstand kjøres regler og avklaringer på nytt
         tilstand.håndter(this, hendelse)
     }
 
@@ -265,12 +270,12 @@ class Behandling private constructor(
             ) = when (type) {
                 TilstandType.UnderOpprettelse -> UnderOpprettelse(opprettet)
                 TilstandType.UnderBehandling -> UnderBehandling(opprettet)
-                TilstandType.ForslagTilVedtak -> ForslagTilVedtak(opprettet)
+                ForslagTilVedtak -> ForslagTilVedtak(opprettet)
                 TilstandType.Låst -> Låst(opprettet)
                 TilstandType.Avbrutt -> Avbrutt(opprettet)
                 TilstandType.Ferdig -> Ferdig(opprettet)
                 TilstandType.Redigert -> Redigert(opprettet)
-                TilstandType.TilGodkjenning -> TilGodkjenning(opprettet)
+                TilGodkjenning -> TilGodkjenning(opprettet)
                 TilstandType.TilBeslutning -> TilBeslutning(opprettet)
             }
         }
@@ -471,7 +476,7 @@ class Behandling private constructor(
     private data class ForslagTilVedtak(
         override val opprettet: LocalDateTime = LocalDateTime.now(),
     ) : BehandlingTilstand {
-        override val type = TilstandType.ForslagTilVedtak
+        override val type = ForslagTilVedtak
 
         override fun entering(
             behandling: Behandling,
@@ -569,11 +574,8 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: FlyttBehandlingHendelse,
         ) {
-            hendelse.info("Flytter behandlingen fra ${behandling.basertPå?.behandlingId} til ${hendelse.nyBasertPåId}")
-            behandling.basertPå = hendelse.nyBasertPå
-
-            behandling.opplysninger = behandling.opplysninger.kunEgne
-
+            hendelse.info("Flytter behandlingen ${behandling.behandlingId} til ${hendelse.nyBasertPåId ?: "ny kjede"}")
+            hendelse.leggTilOpplysninger(behandling.opplysninger)
             behandling.tilstand(Redigert(), hendelse)
         }
     }
@@ -766,7 +768,7 @@ class Behandling private constructor(
     private class TilGodkjenning(
         override val opprettet: LocalDateTime = LocalDateTime.now(),
     ) : BehandlingTilstand {
-        override val type = TilstandType.TilGodkjenning
+        override val type = TilGodkjenning
 
         override fun entering(
             behandling: Behandling,
