@@ -115,6 +115,13 @@ object Avklaringspunkter {
             beskrivelse = "Personen har åpne saker i Arena som kan være gjenopptak. Saker som skal gjenopptas må håndteres i Arena.",
         )
 
+    val GjenopptakBehandling =
+        Avklaringkode(
+            kode = "GjenopptakBehandling",
+            tittel = "!! Behandles som gjenopptak i ny løsning. Disse støtter vi ikke, så IKKE RØR 😬",
+            beskrivelse = "Denne saken har en innvilget behandling i ny løsning, og det må vurderes om den skal gjenopptas.",
+        )
+
     val InntektNesteKalendermåned =
         Avklaringkode(
             kode = "InntektNesteKalendermåned",

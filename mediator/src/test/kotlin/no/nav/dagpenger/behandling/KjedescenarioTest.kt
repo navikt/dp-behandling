@@ -4,6 +4,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.behandling.konfigurasjon.Configuration.Grupper.saksbehandler
 import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
 
@@ -153,10 +154,74 @@ class KjedescenarioTest {
             person.behandling.basertPåBehandling shouldBe behandling2
 
             // Saksbehandler flytter behandling 3 til behandling 1, og hopper over behandling 2
-            saksbehandler.flyttBehandlingTilNyKjede(behandlingId = person.behandlingId, nyBehandlingskjedeId = behandling1)
+            saksbehandler.flyttBehandlingTilNyKjede(
+                behandlingId = person.behandlingId,
+                nyBehandlingskjedeId = behandling1,
+            )
 
             // Ny kjede fører til manglende opplysninger som må innhentes på nytt
             // behovsløsere.løsTilForslag()
+            person.behandling.basertPåBehandling shouldBe behandling1
+        }
+    }
+
+    @Test
+    fun `søknad om dagpenger uten ferdig behandling gir ny kjede`() {
+        nyttScenario {
+            inntektSiste12Mnd = 50000
+        }.test {
+            person.søkDagpenger(21.juni(2015))
+            behovsløsere.løsTilForslag()
+
+            // Søker på nytt før forrige behandling er ferdig
+            person.søkDagpenger(21.juni(2015))
+            behovsløsere.løsTilForslag()
+
+            // Ny behandling har ikke blitt kjedet på forrige behandling
+            person.behandling.basertPåBehandling.shouldBeNull()
+        }
+    }
+
+    @Test
+    fun `søknad om dagpenger etter avslag gir ny kjede`() {
+        nyttScenario {
+            inntektSiste12Mnd = 50000
+        }.test {
+            person.søkDagpenger(21.juni(2015))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            val behandling1 = person.behandlingId
+
+            // Søker på nytt etter avslag, får ny kjede
+            person.søkDagpenger(21.juni(2015))
+            behovsløsere.løsTilForslag()
+
+            // Ny behandling har ikke blitt kjedet på forrige behandling
+            person.behandling.basertPåBehandling.shouldBeNull()
+        }
+    }
+
+    @Test
+    fun `søknad om dagpenger etter innvilgelse bygger videre på eksisterende kjede`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2015))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val behandling1 = person.behandlingId
+
+            // Søker på nytt etter innvilgelse, blir kjedet på forrige behandling
+            person.søkDagpenger(21.juni(2015))
+
+            // Ny behandling har blitt kjedet på forrige behandling
             person.behandling.basertPåBehandling shouldBe behandling1
         }
     }
