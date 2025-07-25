@@ -124,9 +124,6 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                     }
             }
 
-    logger.info {
-        "VedtakDTO med utfall $utfall, dette var alle vilkårene:\n${vilkår.joinToString("\n") { it.navn.value + " -> " + it.status.name }}"
-    }
     val fastsatt = vedtakFastsattDTO(utfall, opplysningerSomGjelderPåPrøvingsdato)
     return VedtakDTO(
         behandlingId = behandlingId,

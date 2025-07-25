@@ -49,7 +49,7 @@ internal class Mennesket(
 
     fun løsningFor(behov: List<String>): Map<String, Any> {
         val behovSomLøses = løsninger.filterKeys { it in behov }
-        require(behovSomLøses.size == behov.size) { "Fant ikke løsning for alle behov: $behov" }
+        require(behovSomLøses.size == behov.toSet().size) { "Fant ikke løsning for alle behov: $behov" }
         return behovSomLøses
     }
 

@@ -41,6 +41,13 @@ interface BehandlingRepository :
     ): Behandling?
 
     @WithSpan
+    fun flyttBehandling(
+        @SpanAttribute
+        behandlingId: UUID,
+        nyBasertPåId: UUID? = null,
+    )
+
+    @WithSpan
     fun lagre(behandling: Behandling)
 
     @WithSpan
