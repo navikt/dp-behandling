@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.hendelse
 
+import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
@@ -11,6 +12,7 @@ import no.nav.dagpenger.opplysning.Opplysninger.Companion.basertPå
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.Søknadsprosess
@@ -75,6 +77,12 @@ class SøknadInnsendtHendelse(
                             kilde = Systemkilde(meldingsreferanseId, opprettet),
                         ),
                     )
+                },
+            avklaringer =
+                buildList {
+                    if (basertPå != null) {
+                        add(Avklaring(GjenopptakBehandling))
+                    }
                 },
         )
     }
