@@ -9,7 +9,7 @@ import io.getunleash.util.UnleashConfig
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration.properties
 import java.net.InetAddress
 
-internal val unleash: Unleash =
+val unleash: Unleash =
     if (properties.getOrNull(Key("UNLEASH_SERVER_API_URL", stringType)) == null) {
         FakeUnleash()
     } else {
@@ -41,4 +41,6 @@ fun skruAvFeatures() {
 
 enum class Feature(
     val navn: String,
-)
+) {
+    KJEDING_AV_BEHANDLING("dp-behandling.kjeding"),
+}

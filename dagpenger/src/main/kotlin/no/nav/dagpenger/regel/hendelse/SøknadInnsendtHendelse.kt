@@ -1,6 +1,8 @@
 package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
+import no.nav.dagpenger.behandling.konfigurasjon.Feature
+import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
@@ -8,7 +10,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Opplysninger.Companion.basertPå
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -36,19 +37,23 @@ class SøknadInnsendtHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): Behandling {
         val basertPå =
-            forrigeBehandling?.let { forrigeBehandling ->
-                when (forrigeBehandling.behandler.erSammeType(this)) {
-                    true -> {
-                        when (forrigeBehandling.vedtakopplysninger.utfall) {
-                            // Skal IKKE kjede
-                            false -> null
-                            // Skal kjede
-                            else -> forrigeBehandling
+            if (unleash.isEnabled(Feature.KJEDING_AV_BEHANDLING.navn)) {
+                forrigeBehandling?.let { forrigeBehandling ->
+                    when (forrigeBehandling.behandler.erSammeType(this)) {
+                        true -> {
+                            when (forrigeBehandling.vedtakopplysninger.utfall) {
+                                // Skal IKKE kjede
+                                false -> null
+                                // Skal kjede
+                                else -> forrigeBehandling
+                            }
                         }
+                        // Skal kjede
+                        else -> forrigeBehandling
                     }
-                    // Skal kjede
-                    else -> forrigeBehandling
                 }
+            } else {
+                null
             }
 
         return Behandling(
