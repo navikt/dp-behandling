@@ -38,8 +38,8 @@ spec:
     limits:
       memory: 512Mi
     requests:
-      cpu: 239m
-      memory: 480Mi
+      cpu: 50m
+      memory: 384Mi
   env:
     - name: JDK_JAVA_OPTIONS
       value: -XX:+UseParallelGC -XX:MaxRAMPercentage=35.0 -XX:ActiveProcessorCount=4
