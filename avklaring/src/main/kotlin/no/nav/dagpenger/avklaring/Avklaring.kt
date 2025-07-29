@@ -10,7 +10,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDateTime
 import java.util.UUID
 
-data class Avklaring internal constructor(
+data class Avklaring(
     val id: UUID,
     val kode: Avklaringkode,
     private val historikk: MutableList<Endring> = mutableListOf(UnderBehandling()),
