@@ -24,6 +24,8 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+    reports.junitXml.includeSystemOutLog = false
+    reports.junitXml.includeSystemErrLog = false
     testLogging {
         showExceptions = true
         showStandardStreams = false
