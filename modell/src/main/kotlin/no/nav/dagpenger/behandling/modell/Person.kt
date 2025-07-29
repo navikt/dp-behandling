@@ -93,7 +93,6 @@ class Person(
     // 4. Det finnes tidligere behandling, med rett på dagpenger = kjede
     private fun enVeldigSmartMåteÅfinneRiktigForrigeBehandling() =
         behandlinger.lastOrNull {
-            it.vedtakopplysninger.utfall
             it.harTilstand(Behandling.TilstandType.Ferdig)
         }
 
