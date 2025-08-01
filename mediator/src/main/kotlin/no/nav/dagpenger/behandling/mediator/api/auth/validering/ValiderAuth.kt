@@ -18,15 +18,15 @@ internal fun JWTAuthenticationProvider.Config.autoriser() {
         logger.info("Tilgangsjekker idtype: $type")
         when (type) {
             "app" -> {
-                jwtClaims.tilgangSjekkFor(apper)
+                jwtClaims.tilgangsjekkForMaskinToken(apper)
             }
-            else -> jwtClaims.måInneholde(ADGruppe = saksbehandlerGruppe)
+            else -> jwtClaims.tilgangsjekkForSaksbehandler(ADGruppe = saksbehandlerGruppe)
         }
         JWTPrincipal(jwtClaims.payload)
     }
 }
 
-private fun JWTCredential.tilgangSjekkFor(apper: List<String>) =
+private fun JWTCredential.tilgangsjekkForMaskinToken(apper: List<String>) =
     require(
         this.saksbehandlerApp().let { apper.contains(it) },
     ) {
@@ -35,7 +35,7 @@ private fun JWTCredential.tilgangSjekkFor(apper: List<String>) =
         }
     }
 
-private fun JWTCredential.måInneholde(ADGruppe: String) =
+private fun JWTCredential.tilgangsjekkForSaksbehandler(ADGruppe: String) =
     require(
         this.payload.claims["groups"]
             ?.asList(String::class.java)
