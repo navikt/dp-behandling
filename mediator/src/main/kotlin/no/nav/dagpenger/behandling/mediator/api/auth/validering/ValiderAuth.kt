@@ -30,7 +30,7 @@ private fun JWTCredential.tilgangSjekkFor(apper: List<String>) =
     require(
         this.saksbehandlerApp().let { apper.contains(it) },
     ) {
-        "Applikasjon mangler tilgang: ${this.payload.claims["azp_name"]}".also {
+        "Applikasjon mangler tilgang: ${this.saksbehandlerApp()}".also {
             logger.warn { it }
         }
     }
