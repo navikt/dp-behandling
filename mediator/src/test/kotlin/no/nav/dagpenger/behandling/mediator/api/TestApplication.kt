@@ -28,6 +28,18 @@ object TestApplication {
         }
     }
 
+    internal fun maskinToken(app: String): String =
+        mockOAuth2Server
+            .issueToken(
+                issuerId = AZUREAD_ISSUER_ID,
+                audience = CLIENT_ID,
+                claims =
+                    mapOf(
+                        "idtype" to "app",
+                        "azp_name" to app,
+                    ),
+            ).serialize()
+
     internal fun testAzureAdToken(
         ADGrupper: List<String>,
         navIdent: String,

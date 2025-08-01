@@ -26,8 +26,10 @@ import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
+import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
+import no.nav.dagpenger.behandling.mediator.api.TestApplication.maskinToken
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.withMockAuthServerAndTestApplication
 import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem
@@ -172,6 +174,37 @@ internal class BehandlingApiTest {
 
             behandlingDto.avklaringer shouldHaveSize 6
             auditlogg.aktivitet shouldContainExactly listOf("les")
+        }
+    }
+
+    @Test
+    fun `hent vedtak gitt behandlingId - autentisert som saksbehandler`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/${person.behandlingId}/vedtak")
+            response.status shouldBe HttpStatusCode.OK
+            response.bodyAsText().shouldNotBeEmpty()
+            val vedtakDTO = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), VedtakDTO::class.java) }
+            vedtakDTO.behandlingId shouldBe person.behandlingId
+        }
+    }
+
+    @Test
+    fun `hent vedtak gitt behandlingId - autentisert som maskintokern`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Get,
+                    endepunkt = "/behandling/${person.behandlingId}/vedtak",
+                    token = maskinToken("test-app"),
+                )
+            response.status shouldBe HttpStatusCode.OK
+            response.bodyAsText().shouldNotBeEmpty()
+            val vedtakDTO = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), VedtakDTO::class.java) }
+            vedtakDTO.behandlingId shouldBe person.behandlingId
         }
     }
 
@@ -405,6 +438,7 @@ internal class BehandlingApiTest {
     private fun medSikretBehandlingApi(block: suspend SimulertDagpengerSystem.(TestContext) -> Unit) {
         System.setProperty("Grupper.saksbehandler", "dagpenger-saksbehandler")
         System.setProperty("Grupper.beslutter", "dagpenger-beslutter")
+        System.setProperty("Maskintilgang.navn", "test-app")
         nyttScenario {
             inntektSiste12Mnd = 350000
         }.test {
@@ -412,6 +446,7 @@ internal class BehandlingApiTest {
         }
         System.clearProperty("Grupper.saksbehandler")
         System.clearProperty("Grupper.beslutter")
+        System.clearProperty("Maskintilgang.navn")
     }
 
     private companion object {

@@ -45,6 +45,8 @@ spec:
       value: -XX:+UseParallelGC -XX:MaxRAMPercentage=35.0 -XX:ActiveProcessorCount=4
     - name: GRUPPER_SAKSBEHANDLER
       value: "{{azure.grupper.saksbehandler}}"
+    - name: MASKINTILGANG_NAVN
+      value: "{{azure.maskintilgang.navn}}"
     - name: KAFKA_EXTRA_TOPIC
       value: "{{kafka.extra_topic}}"
   envFrom:

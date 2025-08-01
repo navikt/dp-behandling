@@ -5,6 +5,7 @@ import com.natpryce.konfig.ConfigurationProperties
 import com.natpryce.konfig.EnvironmentVariables
 import com.natpryce.konfig.PropertyGroup
 import com.natpryce.konfig.getValue
+import com.natpryce.konfig.listType
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
 
@@ -25,6 +26,10 @@ object Configuration {
     object Grupper : PropertyGroup() {
         val saksbehandler by stringType
         val beslutter by stringType
+    }
+
+    object Maskintilgang : PropertyGroup() {
+        val navn by listType(stringType, Regex(","))
     }
 
     val properties =

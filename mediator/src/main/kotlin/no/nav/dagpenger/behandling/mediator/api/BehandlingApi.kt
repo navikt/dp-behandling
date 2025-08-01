@@ -42,6 +42,7 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
 import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
+import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerIdOrNull
 import no.nav.dagpenger.behandling.mediator.api.melding.FjernOpplysning
 import no.nav.dagpenger.behandling.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
@@ -210,7 +211,10 @@ internal fun Application.behandlingApi(
                     get("vedtak") {
                         val behandling = hentBehandling(personRepository, call.behandlingId)
 
-                        auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
+                        call.saksbehandlerIdOrNull()?.let {
+                            auditlogg.les("Så en behandling", behandling.behandler.ident, it)
+                        }
+
                         val vedtakOpplysninger = behandling.vedtakopplysninger
 
                         call.respond(
