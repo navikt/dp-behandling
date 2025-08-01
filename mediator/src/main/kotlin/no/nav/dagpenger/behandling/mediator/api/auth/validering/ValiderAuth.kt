@@ -15,7 +15,7 @@ internal fun JWTAuthenticationProvider.Config.autoriser() {
 
     validate { jwtClaims: JWTCredential ->
         val type = jwtClaims.payload.claims["idtyp"]?.asString()
-        logger.info("Tilgangsjekker idtyp: $type")
+        logger.trace("Tilgangsjekker idtyp: $type")
         when (type) {
             "app" -> {
                 jwtClaims.tilgangsjekkForMaskinToken(apper)
