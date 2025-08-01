@@ -13,8 +13,8 @@ internal fun JWTAuthenticationProvider.Config.autoriser() {
     val saksbehandlerGruppe = Configuration.properties[Configuration.Grupper.saksbehandler]
     val apper: List<String> = Configuration.properties[Configuration.Maskintilgang.navn]
 
-    validate { jwtClaims ->
-        val type = jwtClaims.payload.claims["idtype"]?.asString()
+    validate { jwtClaims: JWTCredential ->
+        val type = jwtClaims.payload.claims["idtyp"]?.asString()
         logger.info("Tilgangsjekker idtype: $type")
         when (type) {
             "app" -> {

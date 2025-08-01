@@ -35,7 +35,7 @@ object TestApplication {
                 audience = CLIENT_ID,
                 claims =
                     mapOf(
-                        "idtype" to "app",
+                        "idtyp" to "app",
                         "azp_name" to app,
                     ),
             ).serialize()
