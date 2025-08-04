@@ -36,13 +36,13 @@ spec:
     max: 2
   resources:
     limits:
-      memory: 768Mi
+      memory: 640Mi
     requests:
-      cpu: 239m
+      cpu: 220m
       memory: 480Mi
   env:
     - name: JDK_JAVA_OPTIONS
-      value: -XX:+UseParallelGC -XX:MaxRAMPercentage=35.0 -XX:ActiveProcessorCount=4
+      value: -XX:+UseParallelGC -XX:MaxRAMPercentage=25.0 -XX:ActiveProcessorCount=4
     - name: GRUPPER_SAKSBEHANDLER
       value: "{{azure.grupper.saksbehandler}}"
     - name: MASKINTILGANG_NAVN
