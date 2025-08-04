@@ -70,7 +70,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                 ).map { row ->
                     val endringerJson = objectMapper.readValue<List<RawEndringJson>>(row.stringOrNull("endringer") ?: "[]")
                     val kildeIder = endringerJson.mapNotNull { it.kilde_id }
-                    val kilder = kildeRepository.hentKilder(kildeIder)
+                    val kilder = kildeRepository.hentKilder(kildeIder, session)
 
                     Avklaring.rehydrer(
                         id = row.uuid("avklaring_id"),

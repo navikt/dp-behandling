@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import com.fasterxml.uuid.impl.UUIDUtil.uuid
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
@@ -17,64 +18,68 @@ internal class KildeRepository {
     fun hentKilde(uuid: UUID): Kilde? = hentKilder(listOf(uuid))[uuid]
 
     @WithSpan
-    fun hentKilder(uuid: List<UUID>): Map<UUID, Kilde> =
-        sessionOf(dataSource)
-            .use { session ->
-                session.run(
-                    queryOf(
-                        //language=PostgreSQL
-                        """
-                        SELECT 
-                            kilde.id, 
-                            kilde.type, 
-                            kilde.opprettet, 
-                            kilde.registrert, 
-                            kilde_system.melding_id AS system_melding_id, 
-                            kilde_saksbehandler.melding_id AS saksbehandler_melding_id, 
-                            kilde_saksbehandler.ident AS saksbehandler_ident,
-                            kilde_saksbehandler.begrunnelse AS begrunnelse,
-                            kilde_saksbehandler.begrunnelse_sist_endret AS begrunnelse_sist_endret
-                        FROM 
-                            kilde 
-                        LEFT JOIN 
-                            kilde_system ON kilde.id = kilde_system.kilde_id
-                        LEFT JOIN 
-                            kilde_saksbehandler ON kilde.id = kilde_saksbehandler.kilde_id
-                        WHERE kilde.id = ANY(?)
-                        """.trimIndent(),
-                        uuid.toTypedArray(),
-                    ).map { row ->
-                        val kildeId = row.uuid("id")
-                        val kildeType = row.string("type")
-                        val opprettet = row.localDateTime("opprettet")
-                        val registrert = row.localDateTime("registrert")
-                        when (kildeType) {
-                            Systemkilde::class.java.simpleName ->
-                                Systemkilde(
-                                    row.uuid("system_melding_id"),
-                                    opprettet,
-                                    kildeId,
-                                    registrert,
-                                )
+    fun hentKilder(uuid: List<UUID>): Map<UUID, Kilde> = sessionOf(dataSource).use { hentKilder(uuid, it) }
 
-                            Saksbehandlerkilde::class.java.simpleName ->
-                                Saksbehandlerkilde(
-                                    meldingsreferanseId = row.uuid("saksbehandler_melding_id"),
-                                    saksbehandler = Saksbehandler(row.string("saksbehandler_ident")),
-                                    begrunnelse =
-                                        row.stringOrNull("begrunnelse")?.takeIf { it.isNotEmpty() }?.let {
-                                            Saksbehandlerbegrunnelse(it, row.localDateTime("begrunnelse_sist_endret"))
-                                        },
-                                    opprettet = opprettet,
-                                    id = kildeId,
-                                    registrert = registrert,
-                                )
+    @WithSpan
+    fun hentKilder(
+        uuid: List<UUID>,
+        session: Session,
+    ): Map<UUID, Kilde> =
+        session
+            .run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT 
+                        kilde.id, 
+                        kilde.type, 
+                        kilde.opprettet, 
+                        kilde.registrert, 
+                        kilde_system.melding_id AS system_melding_id, 
+                        kilde_saksbehandler.melding_id AS saksbehandler_melding_id, 
+                        kilde_saksbehandler.ident AS saksbehandler_ident,
+                        kilde_saksbehandler.begrunnelse AS begrunnelse,
+                        kilde_saksbehandler.begrunnelse_sist_endret AS begrunnelse_sist_endret
+                    FROM 
+                        kilde 
+                    LEFT JOIN 
+                        kilde_system ON kilde.id = kilde_system.kilde_id
+                    LEFT JOIN 
+                        kilde_saksbehandler ON kilde.id = kilde_saksbehandler.kilde_id
+                    WHERE kilde.id = ANY(?)
+                    """.trimIndent(),
+                    uuid.toTypedArray(),
+                ).map { row ->
+                    val kildeId = row.uuid("id")
+                    val kildeType = row.string("type")
+                    val opprettet = row.localDateTime("opprettet")
+                    val registrert = row.localDateTime("registrert")
+                    when (kildeType) {
+                        Systemkilde::class.java.simpleName ->
+                            Systemkilde(
+                                row.uuid("system_melding_id"),
+                                opprettet,
+                                kildeId,
+                                registrert,
+                            )
 
-                            else -> throw IllegalStateException("Ukjent kilde")
-                        }
-                    }.asList,
-                )
-            }.associateBy { it.id }
+                        Saksbehandlerkilde::class.java.simpleName ->
+                            Saksbehandlerkilde(
+                                meldingsreferanseId = row.uuid("saksbehandler_melding_id"),
+                                saksbehandler = Saksbehandler(row.string("saksbehandler_ident")),
+                                begrunnelse =
+                                    row.stringOrNull("begrunnelse")?.takeIf { it.isNotEmpty() }?.let {
+                                        Saksbehandlerbegrunnelse(it, row.localDateTime("begrunnelse_sist_endret"))
+                                    },
+                                opprettet = opprettet,
+                                id = kildeId,
+                                registrert = registrert,
+                            )
+
+                        else -> throw IllegalStateException("Ukjent kilde")
+                    }
+                }.asList,
+            ).associateBy { it.id }
 
     @WithSpan
     fun lagreKilde(
