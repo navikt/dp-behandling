@@ -14,13 +14,13 @@ import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
+import no.nav.dagpenger.behandling.api.models.FormålDTO
 import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.HjemmelDTO
 import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningDTOFormålDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningsgruppeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
@@ -206,9 +206,15 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         navn = type.navn,
                         datatype = type.datatype.tilDataTypeDTO(),
                         synlig = type.synlig(opplysningerPåPrøvingsdato),
-                        opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO(opplysningerPåPrøvingsdato) },
+                        opplysninger =
+                            opplysninger.map { opplysning ->
+                                opplysning.tilOpplysningDTO(
+                                    opplysningerPåPrøvingsdato,
+                                )
+                            },
                         redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                         redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
+                        formål = type.tilFormålDTO(),
                     )
                 },
         )
@@ -249,7 +255,8 @@ private fun Regelsett.tilRegelsettDTO(
 
     val egneAvklaringer = avklaringer.filter { it.kode in this.avklaringer }
 
-    val opplysningMedUtfall = opplysninger.filter { utfall.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
+    val opplysningMedUtfall =
+        opplysninger.filter { utfall.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
     var status = tilStatus(opplysningMedUtfall)
     val erRelevant = påvirkerResultat(lesbarOpplysninger)
 
@@ -399,14 +406,16 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
         redigerbar = this.kanRedigeres(redigerbareOpplysninger),
         kanOppfriskes = this.kanOppfriskes(),
         synlig = this.opplysningstype.synlig(opplysninger),
-        formål =
-            when (this.opplysningstype.formål) {
-                Opplysningsformål.Legacy -> OpplysningDTOFormålDTO.LEGACY
-                Opplysningsformål.Bruker -> OpplysningDTOFormålDTO.BRUKER
-                Opplysningsformål.Register -> OpplysningDTOFormålDTO.REGISTER
-                Opplysningsformål.Regel -> OpplysningDTOFormålDTO.REGEL
-            },
+        formål = opplysningstype.tilFormålDTO(),
     )
+
+private fun Opplysningstype<*>.tilFormålDTO(): FormålDTO =
+    when (formål) {
+        Opplysningsformål.Legacy -> FormålDTO.LEGACY
+        Opplysningsformål.Bruker -> FormålDTO.BRUKER
+        Opplysningsformål.Register -> FormålDTO.REGISTER
+        Opplysningsformål.Regel -> FormålDTO.REGEL
+    }
 
 fun Datatype<*>.tilDataTypeDTO() =
     when (this) {
