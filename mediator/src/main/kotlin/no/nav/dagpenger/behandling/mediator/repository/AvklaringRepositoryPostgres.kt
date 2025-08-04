@@ -12,6 +12,7 @@ import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryObserv
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
@@ -68,6 +69,8 @@ internal class AvklaringRepositoryPostgres private constructor(
                     ),
                 ).map { row ->
                     val endringerJson = objectMapper.readValue<List<RawEndringJson>>(row.stringOrNull("endringer") ?: "[]")
+                    val kildeIder = endringerJson.mapNotNull { it.kilde_id }
+                    val kilder = kildeRepository.hentKilder(kildeIder)
 
                     Avklaring.rehydrer(
                         id = row.uuid("avklaring_id"),
@@ -78,7 +81,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                                 beskrivelse = row.string("beskrivelse"),
                                 kanKvitteres = row.boolean("kan_kvitteres"),
                             ),
-                        historikk = endringerJson.map { it.somHistorikk(kildeRepository) }.toMutableList(),
+                        historikk = endringerJson.map { it.somHistorikk(kilder) }.toMutableList(),
                     )
                 }.asList,
             )
@@ -91,12 +94,12 @@ internal class AvklaringRepositoryPostgres private constructor(
         val kilde_id: UUID?,
         val begrunnelse: String?,
     ) {
-        fun somHistorikk(kildeRepository: KildeRepository) =
+        fun somHistorikk(kilder: Map<UUID, Kilde>) =
             when (EndringType.valueOf(type)) {
                 EndringType.UnderBehandling -> UnderBehandling(endring_id, endret)
                 EndringType.Avbrutt -> Avbrutt(endring_id, endret)
                 EndringType.Avklart -> {
-                    val kilde = kildeRepository.hentKilde(kilde_id!!) ?: Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("DIGIDAG"))
+                    val kilde = kilder[kilde_id!!] ?: Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("DIGIDAG"))
                     Avklart(endring_id, kilde, begrunnelse ?: "", endret)
                 }
             }
