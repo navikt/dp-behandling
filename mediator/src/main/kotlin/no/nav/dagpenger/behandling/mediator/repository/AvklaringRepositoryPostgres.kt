@@ -1,6 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
-import kotliquery.Session
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.avklaring.Avklaring
@@ -10,15 +10,17 @@ import no.nav.dagpenger.avklaring.Avklaring.Endring.UnderBehandling
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryObserver.NyAvklaringHendelse
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
+import java.time.LocalDateTime
 import java.util.UUID
 
 internal class AvklaringRepositoryPostgres private constructor(
     private val observatører: MutableList<AvklaringRepositoryObserver> = mutableListOf(),
-    private val kildeRespository: KildeRepository = KildeRepository(),
+    private val kildeRepository: KildeRepository = KildeRepository(),
 ) : AvklaringRepository {
     constructor(vararg observatører: AvklaringRepositoryObserver) : this(observatører.toMutableList())
 
@@ -39,16 +41,36 @@ internal class AvklaringRepositoryPostgres private constructor(
                 queryOf(
                     // language=PostgreSQL
                     """
-                    SELECT *
-                    FROM avklaring
-                    WHERE behandling_id = :behandling_id 
+                    SELECT a.id                                               AS avklaring_id,
+                           a.kode,
+                           a.tittel,
+                           a.beskrivelse,
+                           a.kan_kvitteres,
+
+                           JSON_AGG(
+                           JSON_BUILD_OBJECT(
+                                   'endring_id', ae.endring_id,
+                                   'endret', ae.endret,
+                                   'type', ae.type,
+                                   'kilde_id', ae.kilde_id,
+                                   'begrunnelse', ae.begrunnelse
+                           )
+                           ORDER BY ae.endret
+                                   ) FILTER (WHERE ae.endring_id IS NOT NULL) AS endringer
+
+                    FROM avklaring a
+                             LEFT JOIN avklaring_endring ae ON a.id = ae.avklaring_id
+                    WHERE a.behandling_id = :behandling_id
+                    GROUP BY a.id
                     """.trimIndent(),
                     mapOf(
                         "behandling_id" to behandlingId,
                     ),
                 ).map { row ->
+                    val endringerJson = objectMapper.readValue<List<RawEndringJson>>(row.stringOrNull("endringer") ?: "[]")
+
                     Avklaring.rehydrer(
-                        id = row.uuid("id"),
+                        id = row.uuid("avklaring_id"),
                         kode =
                             Avklaringkode(
                                 kode = row.string("kode"),
@@ -56,47 +78,29 @@ internal class AvklaringRepositoryPostgres private constructor(
                                 beskrivelse = row.string("beskrivelse"),
                                 kanKvitteres = row.boolean("kan_kvitteres"),
                             ),
-                        historikk = session.hentEndringer(row.uuid("id")).toMutableList(),
+                        historikk = endringerJson.map { it.somHistorikk(kildeRepository) }.toMutableList(),
                     )
                 }.asList,
             )
         }
 
-    private enum class EndringType {
-        UnderBehandling,
-        Avklart,
-        Avbrutt,
-    }
-
-    private fun Session.hentEndringer(uuid: UUID): List<Avklaring.Endring> =
-        run(
-            queryOf(
-                // language=PostgreSQL
-                """
-                SELECT * FROM avklaring_endring WHERE avklaring_id = :avklaring_id 
-                """.trimIndent(),
-                mapOf("avklaring_id" to uuid),
-            ).map {
-                val id = it.uuid("endring_id")
-                val endret = it.localDateTime("endret")
-                when (EndringType.valueOf(it.string("type"))) {
-                    EndringType.UnderBehandling -> UnderBehandling(id, endret)
-                    EndringType.Avklart ->
-                        Avklart(
-                            id,
-                            // Lager en dummy kilde hvis kilde ikke finnes (migrering endret funksjonalitet)
-                            kildeRespository.hentKilde(it.uuid("kilde_id")) ?: Saksbehandlerkilde(
-                                UUIDv7.ny(),
-                                Saksbehandler("DIGIDAG"),
-                            ),
-                            it.stringOrNull("begrunnelse") ?: "",
-                            endret,
-                        )
-
-                    EndringType.Avbrutt -> Avbrutt(id, endret)
+    private data class RawEndringJson(
+        val endring_id: UUID,
+        val endret: LocalDateTime,
+        val type: String,
+        val kilde_id: UUID?,
+        val begrunnelse: String?,
+    ) {
+        fun somHistorikk(kildeRepository: KildeRepository) =
+            when (EndringType.valueOf(type)) {
+                EndringType.UnderBehandling -> UnderBehandling(endring_id, endret)
+                EndringType.Avbrutt -> Avbrutt(endring_id, endret)
+                EndringType.Avklart -> {
+                    val kilde = kildeRepository.hentKilde(kilde_id!!) ?: Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("DIGIDAG"))
+                    Avklart(endring_id, kilde, begrunnelse ?: "", endret)
                 }
-            }.asList,
-        )
+            }
+    }
 
     private fun lagre(
         behandling: Behandling,
@@ -134,7 +138,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                             when (endring) {
                                 is Avklart -> {
                                     endring.avklartAv.let { kilde ->
-                                        kildeRespository.lagreKilde(kilde, tx)
+                                        kildeRepository.lagreKilde(kilde, tx)
                                         kilde.id
                                     }
                                 }
@@ -194,6 +198,12 @@ internal class AvklaringRepositoryPostgres private constructor(
                 ),
             )
         }
+    }
+
+    private enum class EndringType {
+        UnderBehandling,
+        Avklart,
+        Avbrutt,
     }
 }
 
