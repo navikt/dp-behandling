@@ -12,6 +12,7 @@ Permittert fra fiskeindustrien
 Søknadstidspunkt
 Dato søker når maks alder
 Siste mulige dag bruker kan oppfylle alderskrav
+Har rimelig grunn til å ikke være registrert som arbeidssøker
 Har rett til ordinære dagpenger uten arbeidsforhold
 Kravet til reell arbeidssøker er vurdert
 Det er godkjent at bruker kun søker deltidsarbeid

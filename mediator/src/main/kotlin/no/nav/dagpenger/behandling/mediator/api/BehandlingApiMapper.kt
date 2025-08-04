@@ -84,6 +84,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.RegistrertArbeidssøker.unntakForArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
@@ -463,6 +464,7 @@ internal val redigerbareOpplysninger =
                 beregnetArbeidstid,
                 nyArbeidstid,
                 // 4-5
+                unntakForArbeidssøker,
                 ønsketArbeidstid,
                 minimumVanligArbeidstid,
                 kanJobbeDeltid,

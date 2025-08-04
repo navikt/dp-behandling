@@ -21,6 +21,7 @@ Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
 Årsaken til permitteringen fra fiskeindustrien er godkjent
 Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans
+Har rimelig grunn til å ikke være registrert som arbeidssøker
 Har rett til ordinære dagpenger uten arbeidsforhold
 Kravet til reell arbeidssøker er vurdert
 Arbeidsgivers rapporteringsfrist
