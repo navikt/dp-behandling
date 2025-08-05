@@ -10,6 +10,5 @@ Dato søker når maks alder
 Prøvingsdato
 Siste mulige dag bruker kan oppfylle alderskrav
 Oppfyller kravet til alder
-Har rimelig grunn til å ikke være registrert som arbeidssøker
 Registrert som arbeidssøker
 Registrert som arbeidssøker på søknadstidspunktet

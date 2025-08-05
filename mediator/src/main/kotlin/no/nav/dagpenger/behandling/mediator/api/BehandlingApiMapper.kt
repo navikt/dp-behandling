@@ -35,6 +35,8 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.TidslinjehendelseDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
+import no.nav.dagpenger.behandling.konfigurasjon.Feature
+import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -84,7 +86,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.RegistrertArbeidssøker.unntakForArbeidssøker
+import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
@@ -450,77 +452,87 @@ private fun Opplysning<*>.kanOppfriskes(): Boolean =
 internal val redigerbareOpplysninger =
     object : Redigerbar {
         private val redigerbare =
-            setOf(
-                prøvingsdato,
-                // 4-2 Opphold
-                oppholdINorge,
-                unntakForOpphold,
-                medlemFolketrygden,
-                // 4-3
-                kravPåLønn,
-                beregningsregel6mnd,
-                beregningsregel12mnd,
-                beregningsregel36mnd,
-                beregnetArbeidstid,
-                nyArbeidstid,
-                // 4-5
-                unntakForArbeidssøker,
-                ønsketArbeidstid,
-                minimumVanligArbeidstid,
-                kanJobbeDeltid,
-                kanJobbeHvorSomHelst,
-                erArbeidsfør,
-                villigTilEthvertArbeid,
-                godkjentDeltidssøker,
-                godkjentLokalArbeidssøker,
-                godkjentArbeidsufør,
-                erReellArbeidssøkerVurdert,
-                // 4-6 Utdanning
-                tarUtdanning,
-                deltakelseIArbeidsmarkedstiltak,
-                opplæringForInnvandrere,
-                grunnskoleopplæring,
-                høyereYrkesfagligUtdanning,
-                høyereUtdanning,
-                deltakelsePåKurs,
-                // 4-7 Permittering
-                erPermittert,
-                godkjentPermitteringsårsak,
-                erPermitteringenMidlertidig,
-                permitteringFiskeforedling,
-                erPermitteringenFraFiskeindustriMidlertidig,
-                godkjentÅrsakPermitteringFraFiskindustri,
-                // 4-19 Verneplikt
-                oppfyllerKravetTilVerneplikt,
-                skalVernepliktVurderes,
-                // 4-22 Streik og lockout
-                deltarIStreikOgLockout,
-                sammeBedriftOgPåvirket,
-                // 4-24 Fulle ytelser
-                ikkeFulleYtelser,
-                // 4-25 Samordning
-                samordnetArbeidstid,
-                sykepenger,
-                pleiepenger,
-                omsorgspenger,
-                opplæringspenger,
-                uføre,
-                foreldrepenger,
-                svangerskapspenger,
-                sykepengerDagsats,
-                pleiepengerDagsats,
-                omsorgspengerDagsats,
-                opplæringspengerDagsats,
-                uføreDagsats,
-                skalUføreSamordnes,
-                foreldrepengerDagsats,
-                svangerskapspengerDagsats,
-                // 4-28 Utestenging
-                utestengt,
-                // 4-12 Redigering av barne opplysninger
-                barn,
-                arbeidstidsreduksjonIkkeBruktTidligere,
-            )
+            buildSet {
+                addAll(
+                    listOf(
+                        prøvingsdato,
+                        // 4-2 Opphold
+                        oppholdINorge,
+                        unntakForOpphold,
+                        medlemFolketrygden,
+                        // 4-3
+                        kravPåLønn,
+                        beregningsregel6mnd,
+                        beregningsregel12mnd,
+                        beregningsregel36mnd,
+                        beregnetArbeidstid,
+                        nyArbeidstid,
+                        // 4-5
+                        ønsketArbeidstid,
+                        minimumVanligArbeidstid,
+                        kanJobbeDeltid,
+                        kanJobbeHvorSomHelst,
+                        erArbeidsfør,
+                        villigTilEthvertArbeid,
+                        godkjentDeltidssøker,
+                        godkjentLokalArbeidssøker,
+                        godkjentArbeidsufør,
+                        erReellArbeidssøkerVurdert,
+                        // 4-6 Utdanning
+                        tarUtdanning,
+                        deltakelseIArbeidsmarkedstiltak,
+                        opplæringForInnvandrere,
+                        grunnskoleopplæring,
+                        høyereYrkesfagligUtdanning,
+                        høyereUtdanning,
+                        deltakelsePåKurs,
+                        // 4-7 Permittering
+                        erPermittert,
+                        godkjentPermitteringsårsak,
+                        erPermitteringenMidlertidig,
+                        permitteringFiskeforedling,
+                        erPermitteringenFraFiskeindustriMidlertidig,
+                        godkjentÅrsakPermitteringFraFiskindustri,
+                        // 4-19 Verneplikt
+                        oppfyllerKravetTilVerneplikt,
+                        skalVernepliktVurderes,
+                        // 4-22 Streik og lockout
+                        deltarIStreikOgLockout,
+                        sammeBedriftOgPåvirket,
+                        // 4-24 Fulle ytelser
+                        ikkeFulleYtelser,
+                        // 4-25 Samordning
+                        samordnetArbeidstid,
+                        sykepenger,
+                        pleiepenger,
+                        omsorgspenger,
+                        opplæringspenger,
+                        uføre,
+                        foreldrepenger,
+                        svangerskapspenger,
+                        sykepengerDagsats,
+                        pleiepengerDagsats,
+                        omsorgspengerDagsats,
+                        opplæringspengerDagsats,
+                        uføreDagsats,
+                        skalUføreSamordnes,
+                        foreldrepengerDagsats,
+                        svangerskapspengerDagsats,
+                        // 4-28 Utestenging
+                        utestengt,
+                        // 4-12 Redigering av barne opplysninger
+                        barn,
+                        arbeidstidsreduksjonIkkeBruktTidligere,
+                    ),
+                )
+
+                // 4-5 Registrert arbeidssøker
+                if (unleash.isEnabled(Feature.REDIGERING_AV_REGISTRERT_ARBEIDSSØKER.navn)) {
+                    add(
+                        RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
+                    )
+                }
+            }
 
         override fun kanRedigere(opplysningstype: Opplysningstype<*>): Boolean = redigerbare.contains(opplysningstype)
     }
