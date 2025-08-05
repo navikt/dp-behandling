@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
+import no.nav.dagpenger.opplysning.Opplysninger.LeggTilStrategi.Companion.overlapp
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.util.UUID
@@ -27,81 +28,13 @@ class Opplysninger private constructor(
     override val kunEgne get() = Opplysninger(id = id, opplysninger = egne)
 
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
-        val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
+        // Ulike scenario
+        // 1. Opplysningen finnes ikke fra før, legg til
+        // 2. Opplysningen finnes fra før i basertPå
+        // 3. Opplysningen finnes fra før i egne opplysninger
+        // 4. Opplysningen finnes fra før i egne opplysninger OG erstatter opplysninger i basertPå
 
-        if (eksisterende == null) {
-            egne.add(opplysning)
-            alleOpplysninger.refresh()
-            return
-        }
-
-        if (basertPåOpplysninger.contains(eksisterende)) {
-            // require(!opplysning.gyldighetsperiode.erUendelig) {
-            // "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
-            // }
-            // Endre gyldighetsperiode på gammel opplysning og legg til ny opplysning kant i kant
-            val erstattes: Opplysning<T>? = alleOpplysninger.filterIsInstance<Opplysning<T>>().find { it.overlapper(opplysning) }
-            if (erstattes !== null) {
-                when {
-                    opplysning.overlapperHalenAv(erstattes) -> {
-                        // Overlapp på halen av eksisterende opplysning
-                        val forkortet = erstattes.lagForkortet(opplysning)
-                        forkortet.erstatter(erstattes)
-                        opplysning.erstatter(erstattes)
-                        egne.add(forkortet)
-                        egne.add(opplysning.nyID())
-                    }
-
-                    erstattes.harSammegyldighetsperiode(opplysning) -> {
-                        // Overlapp for samme periode
-                        opplysning.erstatter(erstattes)
-                        egne.add(opplysning)
-                    }
-
-                    opplysning.starterFørOgOverlapper(erstattes) -> {
-                        // Overlapp på starten av eksisterende opplysning
-                        opplysning.erstatter(erstattes)
-                        egne.add(opplysning)
-                    }
-
-                    // Forkortet gyldighetsperiode på eksisterende opplysning
-
-                    erstattes.gyldighetsperiode.erUendelig -> {
-                        // Opplysningen som erstattes har uendelig gyldighetsperiode
-                        opplysning.erstatter(erstattes)
-                        egne.add(opplysning)
-                    }
-
-                    else -> {
-                        throw IllegalArgumentException(
-                            """
-                            |Kan ikke legge til opplysning (id=${opplysning.id}, type=${opplysning.opplysningstype.navn}) som 
-                            |overlapper med eksisterende opplysning (id=${erstattes.id}, type=${erstattes.opplysningstype.navn}).
-                            |gyldighetsperiode ny=${opplysning.gyldighetsperiode}, gammel=${erstattes.gyldighetsperiode}).
-                            """.trimMargin(),
-                        )
-                    }
-                }
-
-                erstattet.add(erstattes.id)
-                alleOpplysninger.refresh()
-                return
-            }
-        }
-
-        if (egne.contains(eksisterende)) {
-            // Erstatt hele opplysningen
-            fjern(eksisterende)
-
-            // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
-            eksisterende.erstatter?.let { opplysning.erstatter(it) }
-
-            egne.add(opplysning)
-            alleOpplysninger.refresh()
-            return
-        }
-
-        throw IllegalStateException("Kan ikke legge til opplysning")
+        overlapp(opplysning).apply { utfør(opplysning) }
     }
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
@@ -109,7 +42,7 @@ class Opplysninger private constructor(
     internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
 
     override fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T> =
-        finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
+        finnNullableOpplysning(opplysningstype) ?: throw kotlin.IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
 
     override fun finnOpplysning(opplysningId: UUID) =
         alleOpplysninger.singleOrNull { it.id == opplysningId }
@@ -193,6 +126,99 @@ class Opplysninger private constructor(
     }
 
     private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> = filterNot { it.id in erstattet }
+
+    private sealed interface LeggTilStrategi {
+        fun <T : Comparable<T>> Opplysninger.utfør(opplysning: Opplysning<T>)
+
+        companion object {
+            fun Opplysninger.overlapp(opplysning: Opplysning<*>): LeggTilStrategi =
+                when {
+                    basertPåOpplysninger.utenErstattet().any { it.overlapper(opplysning) } -> OverlappBasertPå
+                    egne.any { it.overlapper(opplysning) } -> OverlappEgne
+                    else -> IkkeOverlapp
+                }
+        }
+
+        object IkkeOverlapp : LeggTilStrategi {
+            override fun <T : Comparable<T>> Opplysninger.utfør(opplysning: Opplysning<T>) {
+                egne.add(opplysning)
+                alleOpplysninger.refresh()
+            }
+        }
+
+        object OverlappBasertPå : LeggTilStrategi {
+            override fun <T : Comparable<T>> Opplysninger.utfør(opplysning: Opplysning<T>) {
+                // require(!opplysning.gyldighetsperiode.erUendelig) {
+                // "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
+                // }
+                // Endre gyldighetsperiode på gammel opplysning og legg til ny opplysning kant i kant
+                val erstattes: Opplysning<T>? = alleOpplysninger.filterIsInstance<Opplysning<T>>().find { it.overlapper(opplysning) }
+                if (erstattes !== null) {
+                    when {
+                        opplysning.overlapperHalenAv(erstattes) -> {
+                            // Overlapp på halen av eksisterende opplysning
+                            val forkortet = erstattes.lagForkortet(opplysning)
+                            forkortet.erstatter(erstattes)
+                            opplysning.erstatter(erstattes)
+                            egne.add(forkortet)
+                            egne.add(opplysning.nyID())
+                        }
+
+                        erstattes.harSammegyldighetsperiode(opplysning) -> {
+                            // Overlapp for samme periode
+                            opplysning.erstatter(erstattes)
+                            egne.add(opplysning)
+                        }
+
+                        opplysning.starterFørOgOverlapper(erstattes) -> {
+                            // Overlapp på starten av eksisterende opplysning
+                            opplysning.erstatter(erstattes)
+                            egne.add(opplysning)
+                        }
+
+                        // Forkortet gyldighetsperiode på eksisterende opplysning
+
+                        erstattes.gyldighetsperiode.erUendelig -> {
+                            // Opplysningen som erstattes har uendelig gyldighetsperiode
+                            opplysning.erstatter(erstattes)
+                            egne.add(opplysning)
+                        }
+
+                        else -> {
+                            throw kotlin.IllegalArgumentException(
+                                """
+                            |Kan ikke legge til opplysning (id=${opplysning.id}, type=${opplysning.opplysningstype.navn}) som 
+                            |overlapper med eksisterende opplysning (id=${erstattes.id}, type=${erstattes.opplysningstype.navn}).
+                            |gyldighetsperiode ny=${opplysning.gyldighetsperiode}, gammel=${erstattes.gyldighetsperiode}).
+                                """.trimMargin(),
+                            )
+                        }
+                    }
+
+                    erstattet.add(erstattes.id)
+                    alleOpplysninger.refresh()
+                }
+            }
+        }
+
+        object OverlappEgne : LeggTilStrategi {
+            override fun <T : Comparable<T>> Opplysninger.utfør(opplysning: Opplysning<T>) {
+                // Fjern både eksisterende opplysning, og eventuelt avkortet opplysning
+                val overlappende = egne.filter { it.overlapper(opplysning) }.filterIsInstance<Opplysning<T>>()
+
+                overlappende.forEach { eksisterende ->
+                    // Erstatt hele opplysningen
+                    fjern(eksisterende)
+
+                    // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
+                    eksisterende.erstatter?.let { opplysning.erstatter(it) }
+                }
+
+                egne.add(opplysning)
+                alleOpplysninger.refresh()
+            }
+        }
+    }
 
     companion object {
         fun med(opplysninger: Collection<Opplysning<*>>) = Opplysninger(UUIDv7.ny(), opplysninger.toList())

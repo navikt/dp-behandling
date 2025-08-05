@@ -13,6 +13,8 @@ class ForslagAssertions(
         Fastsettelser(forslag["fastsatt"]).apply { block() }
     }
 
+    fun opplysning(navn: String): List<JsonNode> = forslag["opplysninger"].filter { it["navn"].asText() == navn }
+
     class Fastsettelser(
         private val jsonNode: JsonNode,
     ) {
