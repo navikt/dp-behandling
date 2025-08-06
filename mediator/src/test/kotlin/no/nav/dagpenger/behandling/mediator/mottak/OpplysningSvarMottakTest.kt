@@ -5,6 +5,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Called
 import io.mockk.clearMocks
 import io.mockk.every
@@ -173,6 +174,26 @@ class OpplysningSvarMottakTest {
     }
 
     @Test
+    fun `leser inn kilde og begrunnelse til opplysningen`() {
+        rapid.sendTestMessage(
+            løsningMedMetadata(
+                null,
+                gyldigTilOgMed,
+                kilde = "Test kilde",
+            ).toJson(),
+        )
+
+        val hendelse = slot<OpplysningSvarHendelse>()
+        verify {
+            messageMediator.behandle(capture(hendelse), any(), any())
+        }
+
+        val opplysning = requireNotNull(hendelse.captured.opplysninger.first())
+        opplysning.kilde.shouldBeInstanceOf<Saksbehandlerkilde>()
+        (opplysning.kilde as Saksbehandlerkilde).begrunnelse?.verdi shouldBe "Test kilde"
+    }
+
+    @Test
     fun `logger og kaster behov uten opplysningsbehov`() {
         rapid.sendTestMessage(
             JsonMessage
@@ -244,24 +265,29 @@ class OpplysningSvarMottakTest {
         gyldigTilOgMed: LocalDate?,
         utledetAv: List<UUID> = emptyList(),
         opplysningstype: String = "boolsk",
+        kilde: String? = null,
     ): JsonMessage =
         JsonMessage.newNeed(
             listOf(opplysningstype),
-            konvolutt +
-                mapOf(
-                    "@løsning" to
-                        mapOf(
-                            opplysningstype to
-                                mapOf(
-                                    "verdi" to true,
-                                ) +
-                                mapOf(
-                                    "gyldigFraOgMed" to gyldigFraOgMed?.toString(),
-                                    "gyldigTilOgMed" to gyldigTilOgMed?.toString(),
-                                ).filterValues { it != null },
-                        ),
-                    "@utledetAv" to mapOf(opplysningstype to utledetAv.map { it.toString() }),
-                ),
+            buildMap {
+                putAll(konvolutt)
+                put(
+                    "@løsning",
+                    mapOf<String, Any>(
+                        opplysningstype to
+                            buildMap {
+                                put("verdi", true)
+                                gyldigFraOgMed?.let { put("gyldigFraOgMed", it.toString()) }
+                                gyldigTilOgMed?.let { put("gyldigTilOgMed", it.toString()) }
+
+                                kilde?.let {
+                                    put("@kilde", mapOf("saksbehandler" to "Z123456", "begrunnelse" to kilde))
+                                }
+                            },
+                    ),
+                )
+                put("@utledetAv", mapOf(opplysningstype to utledetAv.map { it.toString() }))
+            },
         )
 
     @Language("JSON")

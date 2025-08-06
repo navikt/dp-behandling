@@ -136,8 +136,8 @@ internal class KildeRepository {
         BatchStatement(
             // language=PostgreSQL
             """
-            INSERT INTO kilde_saksbehandler (kilde_id, ident, melding_id, begrunnelse) 
-            VALUES (:kildeId, :ident, :meldingId, :begrunnelse)
+            INSERT INTO kilde_saksbehandler (kilde_id, ident, melding_id, begrunnelse, begrunnelse_sist_endret) 
+            VALUES (:kildeId, :ident, :meldingId, :begrunnelse, :begrunnelseSistEndret)
             ON CONFLICT DO NOTHING
             """.trimIndent(),
             kilder.map { kilde ->
@@ -146,6 +146,7 @@ internal class KildeRepository {
                     "ident" to kilde.saksbehandler.ident,
                     "meldingId" to kilde.meldingsreferanseId,
                     "begrunnelse" to kilde.begrunnelse?.verdi,
+                    "begrunnelseSistEndret" to kilde.begrunnelse?.sistEndret,
                 )
             },
         )
