@@ -159,7 +159,7 @@ internal class OpplysningSvarMessage(
                                 meldingsreferanseId = packet["@id"].asUUID(),
                                 opprettet = packet["@opprettet"].asLocalDateTime(),
                                 saksbehandler = Saksbehandler(ident),
-                                begrunnelse = Saksbehandlerbegrunnelse(packet["@kilde"]["begrunnelse"].asText()),
+                                begrunnelse = Saksbehandlerbegrunnelse(løsning["@kilde"]["begrunnelse"].asText()),
                             )
                         }
 

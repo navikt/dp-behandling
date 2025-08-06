@@ -14,10 +14,12 @@ import io.mockk.verify
 import no.nav.dagpenger.behandling.TestOpplysningstyper.boolsk
 import no.nav.dagpenger.behandling.TestOpplysningstyper.inntektA
 import no.nav.dagpenger.behandling.mediator.MessageMediator
+import no.nav.dagpenger.behandling.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
@@ -185,6 +187,32 @@ class OpplysningSvarMottakTest {
         verify {
             messageMediator wasNot Called
         }
+    }
+
+    @Test
+    fun `kan lese opplysningsvar fra APIet`() {
+        val melding = slot<OpplysningSvarHendelse>()
+        val svar =
+            OpplysningsSvar(
+                behandlingId = UUIDv7.ny(),
+                opplysningNavn = boolsk.navn,
+                ident = "12345678901",
+                verdi = false,
+                saksbehandler = "S123456",
+                begrunnelse = "HURRA",
+                gyldigFraOgMed = null,
+                gyldigTilOgMed = null,
+            )
+        rapid.sendTestMessage(svar.toJson())
+        verify(exactly = 1) {
+            messageMediator.behandle(capture(melding), any(), any())
+        }
+        melding.isCaptured shouldBe true
+        (
+            melding.captured.opplysninger
+                .first()
+                .kilde as Saksbehandlerkilde
+        ).begrunnelse?.verdi shouldBe "HURRA"
     }
 
     private val behandlingId = UUIDv7.ny()
