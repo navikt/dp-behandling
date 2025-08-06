@@ -37,6 +37,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
@@ -156,8 +157,9 @@ internal class OpplysningSvarMessage(
                                 løsning["@kilde"]["saksbehandler"]?.asText() ?: throw IllegalArgumentException("Mangler saksbehandler")
                             Saksbehandlerkilde(
                                 meldingsreferanseId = packet["@id"].asUUID(),
-                                saksbehandler = Saksbehandler(ident),
                                 opprettet = packet["@opprettet"].asLocalDateTime(),
+                                saksbehandler = Saksbehandler(ident),
+                                begrunnelse = Saksbehandlerbegrunnelse(packet["@kilde"]["begrunnelse"].asText()),
                             )
                         }
 

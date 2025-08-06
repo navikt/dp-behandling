@@ -81,6 +81,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.first
 
 private val logger = KotlinLogging.logger { }
 
@@ -393,6 +394,7 @@ internal fun Application.behandlingApi(
                                     behandling.behandler.ident,
                                     HttpVerdiMapper(oppdaterOpplysningRequestDTO).map(opplysning.opplysningstype.datatype),
                                     call.saksbehandlerId(),
+                                    oppdaterOpplysningRequestDTO.begrunnelse,
                                     oppdaterOpplysningRequestDTO.gyldigFraOgMed,
                                     oppdaterOpplysningRequestDTO.gyldigTilOgMed,
                                 )
@@ -495,6 +497,7 @@ internal fun Application.behandlingApi(
                                     behandling.behandler.ident,
                                     HttpVerdiMapper2(nyOpplysningDTO).map(opplysningstype.datatype),
                                     call.saksbehandlerId(),
+                                    nyOpplysningDTO.begrunnelse,
                                     nyOpplysningDTO.gyldigFraOgMed,
                                     nyOpplysningDTO.gyldigTilOgMed,
                                 )

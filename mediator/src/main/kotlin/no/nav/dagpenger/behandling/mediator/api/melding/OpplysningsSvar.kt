@@ -11,6 +11,7 @@ internal data class OpplysningsSvar(
     val ident: String,
     val verdi: Any,
     val saksbehandler: String,
+    val begrunnelse: String,
     val gyldigFraOgMed: LocalDate? = null,
     val gyldigTilOgMed: LocalDate? = null,
 ) {
@@ -37,6 +38,7 @@ internal data class OpplysningsSvar(
                                     "@kilde" to
                                         mapOf(
                                             "saksbehandler" to saksbehandler,
+                                            "begrunnelse" to begrunnelse,
                                         ),
                                 ) + gyldighetsperiode,
                         ),
