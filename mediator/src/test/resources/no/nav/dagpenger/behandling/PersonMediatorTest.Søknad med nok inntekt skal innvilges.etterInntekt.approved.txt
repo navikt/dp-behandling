@@ -33,7 +33,7 @@ Siste avsluttende kalendermåned
 Rettighetstype
 Første måned av opptjeningsperiode
 Registrert som arbeidssøker
-Registrert som arbeidssøker på søknadstidspunktet
+Oppfyller kravet til å være registrert som arbeidssøker
 Inntektsopplysninger
 Brutto arbeidsinntekt
 Arbeidsinntekt siste 12 måneder

@@ -59,7 +59,7 @@ Pleiepenger etter lovens kapittel 9
 Oppgitt andre ytelser utenfor NAV i søknaden
 Mottar andre økonomiske ytelser fra arbeidsgiver eller tidligere arbeidsgiver enn lønn
 Brutto arbeidsinntekt
-Registrert som arbeidssøker på søknadstidspunktet
+Oppfyller kravet til å være registrert som arbeidssøker
 Arbeidsinntekt siste 12 måneder
 Arbeidsinntekt siste 36 måneder
 Arbeidsinntekt er over kravet for siste 12 måneder

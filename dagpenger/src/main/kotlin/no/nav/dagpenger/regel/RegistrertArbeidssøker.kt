@@ -1,7 +1,7 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
-import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.Opplysningsformål.Register
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.erSann
@@ -16,9 +16,14 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 object RegistrertArbeidssøker {
     // Registrert som arbeidssøker
     internal val registrertArbeidssøker =
-        boolsk(RegistrertSomArbeidssøkerId, beskrivelse = "Registrert som arbeidssøker", behovId = RegistrertSomArbeidssøker)
+        boolsk(
+            RegistrertSomArbeidssøkerId,
+            beskrivelse = "Registrert som arbeidssøker",
+            behovId = RegistrertSomArbeidssøker,
+            formål = Register,
+        )
     val oppyllerKravTilRegistrertArbeidssøker =
-        boolsk(OppyllerKravTilRegistrertArbeidssøkerId, "Registrert som arbeidssøker på søknadstidspunktet", synlig = aldriSynlig)
+        boolsk(OppyllerKravTilRegistrertArbeidssøkerId, "Oppfyller kravet til å være registrert som arbeidssøker")
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere - registrert som arbeidssøker", "Registrert som arbeidssøker")) {
