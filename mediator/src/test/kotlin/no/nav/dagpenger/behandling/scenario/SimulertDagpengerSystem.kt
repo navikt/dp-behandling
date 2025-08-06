@@ -19,6 +19,7 @@ import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostg
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.scenario.assertions.ForslagAssertions
@@ -92,6 +93,8 @@ internal class SimulertDagpengerSystem(
     fun vedtak(block: ForslagAssertions.() -> Unit) {
         ForslagAssertions(behovsløsere.sisteVedtak()).block()
     }
+
+    fun flush() = VaktmesterPostgresRepo().slettOpplysninger()
 
     fun VedtakDTO.harOpplysning(opplysningId: UUID): Boolean {
         val behandling = personRepository.hentBehandling(person.behandlingId)
