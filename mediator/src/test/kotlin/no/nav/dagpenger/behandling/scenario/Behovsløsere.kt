@@ -59,7 +59,7 @@ internal class Behovsløsere(
     fun løsningFor(
         opplysning: String,
         verdi: Any,
-        fraOgMed: LocalDate = LocalDate.now(),
+        fraOgMed: LocalDate? = null,
     ) {
         rapid.sendTestMessage(
             JsonMessage
@@ -73,10 +73,10 @@ internal class Behovsløsere(
                         "@løsning" to
                             mapOf(
                                 opplysning to
-                                    mapOf(
-                                        "verdi" to verdi,
-                                        "gyldigFraOgMed" to fraOgMed,
-                                    ),
+                                    buildMap {
+                                        put("verdi", verdi)
+                                        fraOgMed?.let { put("gyldigFraOgMed", it) }
+                                    },
                             ),
                     ),
                 ).toJson(),

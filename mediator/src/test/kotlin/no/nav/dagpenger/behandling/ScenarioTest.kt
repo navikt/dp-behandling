@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling
 
-import com.fasterxml.jackson.databind.JsonNode
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
@@ -151,26 +150,22 @@ class ScenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            var originalVurdering: List<JsonNode>? = null
-            vedtak {
-                utfall shouldBe true
-                originalVurdering = opplysning("Oppfyller kravet til alder")
-            }
+            vedtak { utfall shouldBe true }
 
-            // Lag ny behadnling og endre prøvingsdato
+            // Lag ny behandling og endre prøvingsdato tre ganger
             person.opprettBehandling(21.juni(2018))
             behovsløsere.løsningFor(Behov.Prøvingsdato, 25.juni(2018), 25.juni(2018))
-            flush()
             behovsløsere.løsningFor(Behov.Prøvingsdato, 21.juni(2018), 21.juni(2018))
-            flush()
-            behovsløsere.løsningFor(Behov.Prøvingsdato, 21.juni(2018), 22.juni(2018))
-            flush()
+            behovsløsere.løsningFor(Behov.Prøvingsdato, 22.juni(2018), 22.juni(2018))
 
-            forslag {
-                with(opplysning("Oppfyller kravet til alder")) {
-                    this shouldHaveSize 1
-                    this.first()["verdi"] shouldBe originalVurdering!!.first()["verdi"]
-                    // this.first()["gyldigFraOgMed"] shouldBe originalVurdering!!.first()["gyldigFraOgMed"]
+            rapidInspektør.message(rapidInspektør.size - 2).also { message ->
+                message["@event_name"].asText() shouldBe "klumpen_er_laget"
+                message["opplysninger"].find { it["navn"].asText() == "Oppfyller kravet til alder" }?.also { opplysninger ->
+                    opplysninger["opplysninger"] shouldHaveSize 2
+                    opplysninger["opplysninger"][0]["gyldigFraOgMed"].asText() shouldBe "2018-06-21"
+                    opplysninger["opplysninger"][0]["gyldigTilOgMed"].asText() shouldBe "2018-06-21"
+                    opplysninger["opplysninger"][1]["gyldigFraOgMed"].asText() shouldBe "2018-06-22"
+                    opplysninger["opplysninger"][1]["gyldigTilOgMed"] shouldBe null
                 }
             }
         }

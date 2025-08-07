@@ -166,7 +166,9 @@ class Faktum<T : Comparable<T>>(
                         .takeIf { it != LocalDate.MIN }
                         ?.minusDays(1) ?: LocalDate.MIN,
             ),
-            utledetAv,
+            // Forkortet blir bare en kopi, men uten at vi forstår hvorfor. Om vi legger til en kobling til opplysningene som førte til
+            // den nye opplysningen, kan vi rydde opp begge i framtiden
+            utledetAv?.copy(opplysninger = utledetAv.opplysninger + (opplysning.utledetAv?.opplysninger ?: emptyList())),
             kilde,
             opplysning.opprettet,
             this,

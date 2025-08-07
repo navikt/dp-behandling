@@ -152,7 +152,7 @@ class Opplysninger private constructor(
                 // "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
                 // }
                 // Endre gyldighetsperiode på gammel opplysning og legg til ny opplysning kant i kant
-                val erstattes: Opplysning<T>? = alleOpplysninger.filterIsInstance<Opplysning<T>>().find { it.overlapper(opplysning) }
+                val erstattes: Opplysning<T>? = basertPåOpplysninger.filterIsInstance<Opplysning<T>>().find { it.overlapper(opplysning) }
                 if (erstattes !== null) {
                     when {
                         opplysning.overlapperHalenAv(erstattes) -> {
@@ -203,19 +203,26 @@ class Opplysninger private constructor(
 
         object OverlappEgne : LeggTilStrategi {
             override fun <T : Comparable<T>> Opplysninger.utfør(opplysning: Opplysning<T>) {
-                // Fjern både eksisterende opplysning, og eventuelt avkortet opplysning
-                val overlappende = egne.filter { it.overlapper(opplysning) }.filterIsInstance<Opplysning<T>>()
+                fjernOverlappende(this, opplysning)
+
+                egne.add(opplysning)
+                alleOpplysninger.refresh()
+            }
+
+            private fun <T : Comparable<T>> fjernOverlappende(
+                opplysninger: Opplysninger,
+                opplysning: Opplysning<T>,
+            ) {
+                val overlappende = opplysninger.egne.filter { it.overlapper(opplysning) }.filterIsInstance<Opplysning<T>>()
+                if (overlappende.isEmpty()) return
 
                 overlappende.forEach { eksisterende ->
                     // Erstatt hele opplysningen
-                    fjern(eksisterende)
+                    opplysninger.fjern(eksisterende)
 
                     // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
                     eksisterende.erstatter?.let { opplysning.erstatter(it) }
                 }
-
-                egne.add(opplysning)
-                alleOpplysninger.refresh()
             }
         }
     }
