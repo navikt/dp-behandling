@@ -49,6 +49,7 @@ internal class BeregnMeldekortMottak(
         withLoggingContext(
             "meldekortId" to meldekortId.toString(),
         ) {
+            log.info { "Mottok beregn_meldekort" }
             val meldekort =
                 meldekortRepository.hent(meldekortId)
                     ?: throw IllegalStateException("Meldekort med id $meldekortId finnes ikke")
