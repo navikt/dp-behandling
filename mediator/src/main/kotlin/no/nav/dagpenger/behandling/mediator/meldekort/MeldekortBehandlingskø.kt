@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.mediator.meldekort
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.sessionOf
 import mu.withLoggingContext
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
@@ -20,6 +21,7 @@ class MeldekortBehandlingskø(
         private val logger = mu.KotlinLogging.logger {}
     }
 
+    @WithSpan
     fun sendMeldekortTilBehandling() {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
