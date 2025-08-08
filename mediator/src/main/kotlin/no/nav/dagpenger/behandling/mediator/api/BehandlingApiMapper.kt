@@ -124,7 +124,6 @@ import no.nav.dagpenger.regel.Utdanning.høyereUtdanning
 import no.nav.dagpenger.regel.Utdanning.høyereYrkesfagligUtdanning
 import no.nav.dagpenger.regel.Utdanning.opplæringForInnvandrere
 import no.nav.dagpenger.regel.Utdanning.tarUtdanning
-import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
