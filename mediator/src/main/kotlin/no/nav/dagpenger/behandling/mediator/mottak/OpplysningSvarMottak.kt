@@ -29,6 +29,7 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.DuplikateOpplysningerException
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
@@ -198,6 +199,10 @@ internal class OpplysningSvarMessage(
             } catch (e: OpplysningIkkeFunnetException) {
                 logger.error(e) {
                     "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi en opplysning ikke ble funnet"
+                }
+            } catch (e: DuplikateOpplysningerException) {
+                logger.error(e) {
+                    "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi det er duplikater av opplysningstyper i opplysningene."
                 }
             }
         }
