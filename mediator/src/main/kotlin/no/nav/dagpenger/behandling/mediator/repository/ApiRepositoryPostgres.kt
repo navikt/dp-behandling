@@ -7,7 +7,6 @@ import kotliquery.sessionOf
 import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
-import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerSletting
 import no.nav.dagpenger.behandling.mediator.melding.Melding
 import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
@@ -126,34 +125,6 @@ internal class ApiRepositoryPostgres(
         // 4. Poll until the aggregate reaches the desired state.
         if (!ventBehandlingTilstand(behandlingId, sistEndret)) {
             logger.info { "Tilstand timeout for behandlingId=$behandlingId, behov=$behov" }
-            throw TimeoutException("Aggregate did not reach desired state for behandlingId: $behandlingId")
-        }
-
-        start.observeDuration()
-    }
-
-    suspend fun fjernOpplysning(
-        behandlingId: UUID,
-        opplysningstype: String,
-        block: () -> Unit,
-    ) {
-        val start = tidBruktPerSletting.labelValues(opplysningstype).startTimer()
-
-        // Hent ut når tilstanden var endret før, så vi ikke henter samme tilstand igjen
-        val sistEndret = hentBehandlingSistEndret(behandlingId)
-
-        try {
-            logger.info { "Sletter opplysning \"$opplysningstype\" for behandlingId=$behandlingId" }
-            block()
-        } catch (e: Exception) {
-            logger.info { "Fikk feil under sletting av opplysning for behandlingId=$behandlingId" }
-            throw e
-        }
-
-        logger.info { "Venter på riktig tilstand for behandlingId=$behandlingId" }
-
-        if (!ventBehandlingTilstand(behandlingId, sistEndret)) {
-            logger.info { "Tilstand timeout for behandlingId=$behandlingId" }
             throw TimeoutException("Aggregate did not reach desired state for behandlingId: $behandlingId")
         }
 

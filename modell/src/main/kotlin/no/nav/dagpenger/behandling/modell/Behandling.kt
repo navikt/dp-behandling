@@ -567,7 +567,7 @@ class Behandling private constructor(
             hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
 
-            behandling.kjørRegler(hendelse)
+            behandling.tilstand(Redigert(), hendelse)
         }
 
         override fun håndter(
@@ -823,7 +823,7 @@ class Behandling private constructor(
             hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
 
-            behandling.kjørRegler(hendelse)
+            behandling.tilstand(Redigert(), hendelse)
         }
 
         override fun håndter(

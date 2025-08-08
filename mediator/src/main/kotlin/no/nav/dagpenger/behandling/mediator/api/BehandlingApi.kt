@@ -461,7 +461,7 @@ internal fun Application.behandlingApi(
                                     saksbehandler = call.saksbehandlerId(),
                                 )
 
-                            apiRepositoryPostgres.fjernOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
                                 logger.info { "Starter en fjerning av opplysning i behandling" }
                                 messageContext(behandling.behandler.ident).publish(svar.toJson())
                                 auditlogg.oppdater("Fjernet opplysning", behandling.behandler.ident, call.saksbehandlerId())
