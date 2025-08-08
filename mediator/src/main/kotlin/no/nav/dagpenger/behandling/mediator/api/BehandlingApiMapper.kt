@@ -519,7 +519,8 @@ internal val redigerbareOpplysninger =
                         foreldrepengerDagsats,
                         svangerskapspengerDagsats,
                         // 4-28 Utestenging
-                        utestengt,
+                        // TODO: Arena støtter ikke at vi skriver dette vilkåret. Skru på igjen når vi eier vedtak selv.
+                        // utestengt,
                         // 4-12 Redigering av barne opplysninger
                         barn,
                         arbeidstidsreduksjonIkkeBruktTidligere,
