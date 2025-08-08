@@ -225,6 +225,21 @@ internal fun Application.behandlingApi(
                         )
                     }
 
+                    get("klumpen") {
+                        val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                        call.saksbehandlerIdOrNull()?.let {
+                            auditlogg.les("Så en behandling", behandling.behandler.ident, it)
+                        }
+
+                        val vedtakOpplysninger = behandling.vedtakopplysninger
+
+                        call.respond(
+                            HttpStatusCode.OK,
+                            vedtakOpplysninger.tilKlumpDTO(behandling.behandler.ident),
+                        )
+                    }
+
                     get("vurderinger") {
                         val behandling = hentBehandling(personRepository, call.behandlingId)
 
