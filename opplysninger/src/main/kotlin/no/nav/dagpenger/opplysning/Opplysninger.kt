@@ -90,7 +90,7 @@ class Opplysninger private constructor(
             alleOpplysninger.refresh()
         }
 
-    fun fjern(opplysningId: UUID) = fjern(finnOpplysning(opplysningId))
+    fun fjern(opplysningId: UUID) = fjern(kunEgne.finnOpplysning(opplysningId))
 
     private fun fjern(
         opplysning: Opplysning<*>,
@@ -99,8 +99,9 @@ class Opplysninger private constructor(
         // Fjern alle opplysninger som er utledet av opplysningen som fjernes
         fjernAvhengigheter(opplysning)
 
-        egne.remove(opplysning)
-        fjernet.add(opplysning)
+        if (egne.remove(opplysning)) {
+            fjernet.add(opplysning)
+        }
 
         if (skalOppfriske) alleOpplysninger.refresh()
     }
