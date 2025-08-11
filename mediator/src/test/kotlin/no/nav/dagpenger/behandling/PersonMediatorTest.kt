@@ -965,6 +965,9 @@ internal class PersonMediatorTest {
                     rapid.sendTestMessage(medRåData().toPrettyString())
                 }
             }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
             rapid.harHendelse("vedtak_fattet") {
                 rapid.sendTestMessage(medRåData().toPrettyString())
             }
@@ -976,6 +979,8 @@ internal class PersonMediatorTest {
                     rapid.sendTestMessage(medRåData().toPrettyString())
                 }
             }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
             rapid.harHendelse("vedtak_fattet") {
                 rapid.sendTestMessage(medRåData().toPrettyString())
             }
@@ -991,6 +996,8 @@ internal class PersonMediatorTest {
                     rapid.sendTestMessage(medRåData().toPrettyString())
                 }
             }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
             rapid.harHendelse("vedtak_fattet") {
                 rapid.sendTestMessage(medRåData().toPrettyString())
             }
@@ -1002,6 +1009,8 @@ internal class PersonMediatorTest {
                     rapid.sendTestMessage(medRåData().toPrettyString())
                 }
             }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 val forbrukt = 30
@@ -1275,11 +1284,14 @@ internal class PersonMediatorTest {
         }
 
         fun godkjenn() {
+            val behandling =
+                personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.last()
+                    ?: throw IllegalStateException("Fant ikke behandling")
             hendelseMediator.behandle(
                 GodkjennBehandlingHendelse(
                     meldingsreferanseId = UUIDv7.ny(),
                     ident = testPerson.ident,
-                    behandlingId = testPerson.behandlingId.toUUID(),
+                    behandlingId = behandling.behandlingId,
                     godkjentAv = Saksbehandler("NAV123123"),
                     opprettet = LocalDateTime.now(),
                 ),
@@ -1300,7 +1312,7 @@ internal class PersonMediatorTest {
         }
 
         fun lukkAlleAvklaringer() {
-            val behandling = personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.first()
+            val behandling = personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.last()
             behandling.shouldNotBeNull()
             val avklaringer: List<Avklaring> = behandling.aktiveAvklaringer()
 

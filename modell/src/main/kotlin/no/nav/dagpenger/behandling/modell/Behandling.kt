@@ -369,7 +369,7 @@ class Behandling private constructor(
         fun håndter(
             behandling: Behandling,
             hendelse: GodkjennBehandlingHendelse,
-        ): Unit = throw IllegalStateException("Behandlingen skal godkjennes, men tilstanden støtter ikke dette")
+        ): Unit = throw IllegalStateException("Behandlingen skal godkjennes, men tilstanden ${this.type.name} støtter ikke dette")
 
         fun håndter(
             behandling: Behandling,
