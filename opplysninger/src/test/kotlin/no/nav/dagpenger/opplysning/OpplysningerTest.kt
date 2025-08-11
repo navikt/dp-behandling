@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -84,6 +85,20 @@ class OpplysningerTest {
         opplysninger2.leggTil(Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(15.januar)))
 
         opplysninger2.somListe() shouldHaveSize 2
+    }
+
+    @Test
+    fun `kan ikke slette opplysninger i basert på opplysninger`() {
+        val opplysninger1 = Opplysninger()
+
+        opplysninger1.leggTil(Faktum(desimaltall, 0.5))
+
+        val opplysninger2 = Opplysninger.basertPå(opplysninger1)
+
+        // Kan ikke slette opplysning i basert på opplysninger
+        shouldThrow<OpplysningIkkeFunnetException> {
+            opplysninger2.fjern(opplysninger2.finnOpplysning(desimaltall).id)
+        }
     }
 
     //language=Mermaid
