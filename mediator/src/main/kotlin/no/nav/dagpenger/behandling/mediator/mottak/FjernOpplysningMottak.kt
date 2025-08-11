@@ -14,6 +14,7 @@ import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
+import no.nav.dagpenger.opplysning.OpplysningIkkeFunnetException
 import no.nav.dagpenger.opplysning.Opplysningstype
 import java.time.LocalDateTime
 import java.util.UUID
@@ -64,7 +65,14 @@ internal class FjernOpplysningMottak(
 
             val opplysningstype = packet["behovId"].asText()
             val message = FjernOpplysningMessage(packet, opplysningstype)
-            message.behandle(messageMediator, context)
+
+            try {
+                message.behandle(messageMediator, context)
+            } catch (e: OpplysningIkkeFunnetException) {
+                logger.warn(e) {
+                    "Opplysning med id=$opplysningId ble ikke funnet og kan derfor ikke fjernes for behandlingId=$behandlingId"
+                }
+            }
         }
     }
 
