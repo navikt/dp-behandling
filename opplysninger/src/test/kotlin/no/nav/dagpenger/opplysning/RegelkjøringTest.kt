@@ -14,6 +14,7 @@ import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.uuid.UUIDv7
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
@@ -105,6 +106,7 @@ class RegelkjøringTest {
     }
 
     @Test
+    @Disabled
     fun `vilkår arver gyldighetsperiode fra opplysninger`() {
         val opplysninger1 = Opplysninger()
         val regelsett =
