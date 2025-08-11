@@ -209,11 +209,14 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         datatype = type.datatype.tilDataTypeDTO(),
                         synlig = type.synlig(opplysningerPåPrøvingsdato),
                         opplysninger =
-                            opplysninger.map { opplysning ->
-                                opplysning.tilOpplysningDTO(
-                                    opplysningerPåPrøvingsdato,
-                                )
-                            },
+                            opplysninger
+                                .sortedBy {
+                                    it.gyldighetsperiode.fom
+                                }.map { opplysning ->
+                                    opplysning.tilOpplysningDTO(
+                                        opplysningerPåPrøvingsdato,
+                                    )
+                                },
                         redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                         redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
                         formål = type.tilFormålDTO(),
