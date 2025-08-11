@@ -70,7 +70,7 @@ class BeregnMeldekortHendelse(
                             kode = "MeldekortBehandling",
                             tittel = "Beregning av meldekort",
                             beskrivelse = "Behandlingen er opprettet av meldekort og kan ikke automatisk behandles",
-                            kanAvbrytes = true,
+                            kanAvbrytes = false,
                         ),
                     ),
                 ),
