@@ -445,7 +445,7 @@ internal fun Application.behandlingApi(
                             }
 
                             val perioder = behandling.opplysninger().kunEgne.finnAlle(opplysning.opplysningstype)
-                            if (perioder.size > 1 && perioder.first().id != opplysningId) {
+                            if (perioder.size > 1 && perioder.first().id == opplysningId) {
                                 throw BadRequestException("Kan ikke fjerne denne opplysningen, de påfølgende periodene må fjernes først")
                             }
 
