@@ -439,12 +439,13 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Kan ikke fjerne opplysning før forrige redigering er ferdig")
                             }
 
-                            val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
+                            val kunEgne = behandling.opplysninger().kunEgne
+                            val opplysning = kunEgne.finnOpplysning(opplysningId)
                             if (!redigerbareOpplysninger.kanRedigere(opplysning.opplysningstype)) {
                                 throw BadRequestException("Opplysningstype ${opplysning.opplysningstype} kan ikke redigeres")
                             }
 
-                            val perioder = behandling.opplysninger().kunEgne.finnAlle(opplysning.opplysningstype)
+                            val perioder = kunEgne.finnAlle(opplysning.opplysningstype)
                             if (perioder.size > 1 && perioder.first().id == opplysningId) {
                                 throw BadRequestException("Kan ikke fjerne denne opplysningen, de påfølgende periodene må fjernes først")
                             }
