@@ -91,6 +91,6 @@ class Manuellprosess : RegistrertForretningsprosess() {
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
         opplysninger.kunEgne
             .somListe()
-            .last()
+            .last { !it.gyldighetsperiode.fom.isEqual(LocalDate.MIN) }
             .gyldighetsperiode.fom
 }
