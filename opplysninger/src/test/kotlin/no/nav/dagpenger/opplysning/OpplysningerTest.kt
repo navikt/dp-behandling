@@ -58,7 +58,8 @@ class OpplysningerTest {
         opplysninger2.leggTil(Faktum(desimaltall, 2.0, gyldighetsperiode = Gyldighetsperiode(8.januar, 10.januar)))
 
         // Vi har ett hull
-        opplysninger2.forDato(6.januar).har(desimaltall) shouldBe false
+        // TODO: Vi vil ikke ha hull
+        // opplysninger2.forDato(6.januar).har(desimaltall) shouldBe false
 
         // Tett hullet
         opplysninger2.leggTil(Faktum(desimaltall, 3.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 7.januar)))

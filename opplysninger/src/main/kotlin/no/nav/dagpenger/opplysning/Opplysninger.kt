@@ -29,79 +29,20 @@ class Opplysninger private constructor(
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
-        if (eksisterende == null) {
-            egne.add(opplysning)
-            alleOpplysninger.refresh()
-            return
-        }
-
-        if (basertPåOpplysninger.contains(eksisterende)) {
-            // require(!opplysning.gyldighetsperiode.erUendelig) {
-            // "Kan ikke legge til opplysning som har uendelig gyldighetsperiode når opplysningen finnes fra tidligere opplysninger"
-            // }
-            // Endre gyldighetsperiode på gammel opplysning og legg til ny opplysning kant i kant
-            val erstattes: Opplysning<T>? = alleOpplysninger.filterIsInstance<Opplysning<T>>().find { it.overlapper(opplysning) }
-            if (erstattes !== null) {
-                when {
-                    opplysning.overlapperHalenAv(erstattes) -> {
-                        // Overlapp på halen av eksisterende opplysning
-                        val forkortet = erstattes.lagForkortet(opplysning)
-                        forkortet.erstatter(erstattes)
-                        opplysning.erstatter(erstattes)
-                        egne.add(forkortet)
-                        egne.add(opplysning.nyID())
-                    }
-
-                    erstattes.harSammegyldighetsperiode(opplysning) -> {
-                        // Overlapp for samme periode
-                        opplysning.erstatter(erstattes)
-                        egne.add(opplysning)
-                    }
-
-                    opplysning.starterFørOgOverlapper(erstattes) -> {
-                        // Overlapp på starten av eksisterende opplysning
-                        opplysning.erstatter(erstattes)
-                        egne.add(opplysning)
-                    }
-
-                    // Forkortet gyldighetsperiode på eksisterende opplysning
-
-                    erstattes.gyldighetsperiode.erUendelig -> {
-                        // Opplysningen som erstattes har uendelig gyldighetsperiode
-                        opplysning.erstatter(erstattes)
-                        egne.add(opplysning)
-                    }
-
-                    else -> {
-                        throw IllegalArgumentException(
-                            """
-                            |Kan ikke legge til opplysning (id=${opplysning.id}, type=${opplysning.opplysningstype.navn}) som 
-                            |overlapper med eksisterende opplysning (id=${erstattes.id}, type=${erstattes.opplysningstype.navn}).
-                            |gyldighetsperiode ny=${opplysning.gyldighetsperiode}, gammel=${erstattes.gyldighetsperiode}).
-                            """.trimMargin(),
-                        )
-                    }
-                }
-
-                erstattet.add(erstattes.id)
-                alleOpplysninger.refresh()
-                return
-            }
-        }
-
-        if (egne.contains(eksisterende)) {
+        if (eksisterende != null && egne.contains(eksisterende)) {
             // Erstatt hele opplysningen
             fjern(eksisterende)
 
             // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
             eksisterende.erstatter?.let { opplysning.erstatter(it) }
-
-            egne.add(opplysning)
-            alleOpplysninger.refresh()
-            return
         }
 
-        throw IllegalStateException("Kan ikke legge til opplysning")
+        if (eksisterende != null && basertPåOpplysninger.contains(eksisterende)) {
+            opplysning.erstatter(eksisterende)
+        }
+
+        egne.add(opplysning)
+        alleOpplysninger.refresh()
     }
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
@@ -112,13 +53,13 @@ class Opplysninger private constructor(
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
 
     override fun finnOpplysning(opplysningId: UUID) =
-        alleOpplysninger.singleOrNull { it.id == opplysningId }
+        alleOpplysninger.lastOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
     override fun har(opplysningstype: Opplysningstype<*>) = alleOpplysninger.any { it.er(opplysningstype) }
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) =
-        opplysningstyper.mapNotNull { type -> alleOpplysninger.singleOrNull { it.er(type) } }
+        opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) } }
 
     override fun <T : Comparable<T>> finnAlle(opplysningstyper: List<Opplysningstype<T>>) =
         opplysningstyper.flatMap { type -> finnAlle(type) }
@@ -179,17 +120,7 @@ class Opplysninger private constructor(
                 .filter { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) }
                 .filterIsInstance<Opplysning<T>>()
 
-        if (opplysninger.size > 1) {
-            throw DuplikateOpplysningerException(
-                """
-                |Har mer enn 1 opplysning av type $opplysningstype i opplysningerId=$id.
-                |Fant ${alleOpplysninger.count { it.er(opplysningstype) }} duplikater blant ${alleOpplysninger.size} opplysninger.
-                |Basert på (${basertPåOpplysninger.size} opplysninger) 
-                """.trimMargin(),
-            )
-        }
-
-        return opplysninger.singleOrNull()
+        return opplysninger.lastOrNull()
     }
 
     private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> = filterNot { it.id in erstattet }

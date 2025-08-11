@@ -1029,6 +1029,7 @@ internal class PersonMediatorTest {
             }
 
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
+                // Det er egentlig 20 dager, men vi har en korrigering som gir 10 ekstra dager
                 val forbrukt = 20
                 opplysninger().somListe().filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
 
