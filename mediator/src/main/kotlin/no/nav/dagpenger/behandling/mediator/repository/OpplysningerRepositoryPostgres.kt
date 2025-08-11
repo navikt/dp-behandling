@@ -147,7 +147,9 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             while (utledetAv.isNotEmpty()) {
                 val uuid = utledetAv.removeFirst()
                 if (rader.none { it.id == uuid }) {
-                    val opplysning = hentOpplysning(uuid)!!
+                    val opplysning =
+                        hentOpplysning(uuid)
+                            ?: throw IllegalStateException("Opplysning (id=$uuid) som har vært brukt som utledning finnes ikke")
                     rader.add(opplysning)
                     opplysning.utledetAv?.opplysninger?.let { utledetAv.addAll(it) }
                 }
