@@ -444,6 +444,11 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Opplysningstype ${opplysning.opplysningstype} kan ikke redigeres")
                             }
 
+                            val perioder = behandling.opplysninger().kunEgne.finnAlle(opplysning.opplysningstype)
+                            if (perioder.size > 1 && perioder.first().id != opplysningId) {
+                                throw BadRequestException("Kan ikke fjerne denne opplysningen, de påfølgende periodene må fjernes først")
+                            }
+
                             logger.info {
                                 """
                                 Skal fjerne opplysning i behandlingId=$behandlingId, 
