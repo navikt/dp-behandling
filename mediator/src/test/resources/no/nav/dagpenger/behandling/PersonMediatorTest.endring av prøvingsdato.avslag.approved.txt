@@ -57,7 +57,7 @@ Foreldrepenger etter lovens kapittel 14
 Opplæringspenger etter lovens kapittel 9
 Pleiepenger etter lovens kapittel 9
 Brutto arbeidsinntekt
-Registrert som arbeidssøker på søknadstidspunktet
+Oppfyller kravet til å være registrert som arbeidssøker
 Arbeidsinntekt siste 12 måneder
 Arbeidsinntekt siste 36 måneder
 Arbeidsinntekt er over kravet for siste 12 måneder

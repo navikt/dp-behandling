@@ -179,11 +179,14 @@ class Opplysninger private constructor(
                 .filter { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) }
                 .filterIsInstance<Opplysning<T>>()
 
-        require(opplysninger.size <= 1) {
-            """Har mer enn 1 opplysning av type $opplysningstype i opplysningerId=$id.
-            |Fant ${alleOpplysninger.count { it.er(opplysningstype) }} duplikater blant ${alleOpplysninger.size} opplysninger.
-            |Basert på (${basertPåOpplysninger.size} opplysninger) 
-            """.trimMargin()
+        if (opplysninger.size > 1) {
+            throw DuplikateOpplysningerException(
+                """
+                |Har mer enn 1 opplysning av type $opplysningstype i opplysningerId=$id.
+                |Fant ${alleOpplysninger.count { it.er(opplysningstype) }} duplikater blant ${alleOpplysninger.size} opplysninger.
+                |Basert på (${basertPåOpplysninger.size} opplysninger) 
+                """.trimMargin(),
+            )
         }
 
         return opplysninger.singleOrNull()
@@ -206,6 +209,11 @@ class Opplysninger private constructor(
 }
 
 class OpplysningIkkeFunnetException(
+    message: String,
+    exception: Exception? = null,
+) : RuntimeException(message, exception)
+
+class DuplikateOpplysningerException(
     message: String,
     exception: Exception? = null,
 ) : RuntimeException(message, exception)

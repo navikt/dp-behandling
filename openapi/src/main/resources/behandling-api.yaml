@@ -937,6 +937,7 @@ components:
         - datatype
         - synlig
         - opplysninger
+        - formål
       properties:
         opplysningTypeId:
           $ref: '#/components/schemas/OpplysningTypeId'
@@ -950,10 +951,16 @@ components:
           type: boolean
         redigertAvSaksbehandler:
           type: boolean
+        formål:
+          $ref: '#/components/schemas/Formål'
         opplysninger:
           type: array
           items:
             $ref: '#/components/schemas/Opplysning'
+
+    Formål:
+      type: string
+      enum: [ "Legacy", "Bruker", "Register", "Regel" ]
 
     Opplysning:
       type: object
@@ -1007,8 +1014,7 @@ components:
           type: boolean
           description: Indikerer om opplysningen skal vises i grensesnittet
         formål:
-          type: string
-          enum: [ "Legacy", "Bruker", "Register", "Regel" ]
+          $ref: '#/components/schemas/Formål'
 
     OpplysningsgruppeKlump:
       type: object

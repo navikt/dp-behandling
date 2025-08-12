@@ -17,6 +17,7 @@ class OpplysningsSvarTest {
                 ident = "12345678901",
                 verdi = "testVerdi",
                 saksbehandler = "saksbehandler",
+                begrunnelse = "testBegrunnelse",
                 gyldigFraOgMed = LocalDate.now(),
             )
 

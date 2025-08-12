@@ -8,6 +8,7 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
+import no.nav.dagpenger.behandling.mediator.mottak.FjernOpplysningMessage
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
@@ -98,6 +99,7 @@ internal class PostgresMeldingRepository : MeldingRepository {
             is BeregnMeldekortMessage -> MeldingTypeDTO.BEREGN_MELDEKORT
             is OpprettBehandlingMessage -> MeldingTypeDTO.OPPRETT_BEHANDLING
             is ApiMelding -> MeldingTypeDTO.API
+            is FjernOpplysningMessage -> MeldingTypeDTO.FJERN_OPPLYSNING
             else ->
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
@@ -119,4 +121,5 @@ private enum class MeldingTypeDTO {
     MELDEKORT_INNSENDT,
     API,
     OPPRETT_BEHANDLING,
+    FJERN_OPPLYSNING,
 }

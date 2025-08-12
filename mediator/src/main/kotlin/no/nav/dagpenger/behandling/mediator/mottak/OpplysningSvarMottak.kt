@@ -29,6 +29,7 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.DuplikateOpplysningerException
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
@@ -37,6 +38,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
@@ -67,8 +69,8 @@ internal class OpplysningSvarMottak(
             }.register(this)
     }
 
-    private val skipBehovId = listOf("353f5d02-fa72-4800-8061-57d64f86da75")
-    private val skipBehandlingsId = listOf("0197ee07-aa05-7552-9734-200d9e600bcb")
+    private val skipBehovId = listOf("8d2ca48c-d68f-4a06-880c-833857b28c55")
+    private val skipBehandlingsId = listOf("01987502-cbbf-7fd1-9890-0e35101ba008")
 
     @WithSpan
     override fun onPacket(
@@ -156,8 +158,9 @@ internal class OpplysningSvarMessage(
                                 løsning["@kilde"]["saksbehandler"]?.asText() ?: throw IllegalArgumentException("Mangler saksbehandler")
                             Saksbehandlerkilde(
                                 meldingsreferanseId = packet["@id"].asUUID(),
-                                saksbehandler = Saksbehandler(ident),
                                 opprettet = packet["@opprettet"].asLocalDateTime(),
+                                saksbehandler = Saksbehandler(ident),
+                                begrunnelse = Saksbehandlerbegrunnelse(løsning["@kilde"]["begrunnelse"].asText()),
                             )
                         }
 
@@ -196,6 +199,10 @@ internal class OpplysningSvarMessage(
             } catch (e: OpplysningIkkeFunnetException) {
                 logger.error(e) {
                     "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi en opplysning ikke ble funnet"
+                }
+            } catch (e: DuplikateOpplysningerException) {
+                logger.error(e) {
+                    "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi det er duplikater av opplysningstyper i opplysningene."
                 }
             }
         }

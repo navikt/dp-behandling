@@ -31,7 +31,7 @@ internal class BeregnMeldekortMottak(
             }.register(this)
     }
 
-    private val skipMeldekort = setOf("019851ee-2994-73d0-b948-fa54f6086fb4")
+    private val skipMeldekort = setOf("01987e8b-3402-72ce-9553-97344c41a00a")
 
     @WithSpan
     override fun onPacket(
@@ -49,6 +49,7 @@ internal class BeregnMeldekortMottak(
         withLoggingContext(
             "meldekortId" to meldekortId.toString(),
         ) {
+            log.info { "Mottok beregn_meldekort" }
             val meldekort =
                 meldekortRepository.hent(meldekortId)
                     ?: throw IllegalStateException("Meldekort med id $meldekortId finnes ikke")

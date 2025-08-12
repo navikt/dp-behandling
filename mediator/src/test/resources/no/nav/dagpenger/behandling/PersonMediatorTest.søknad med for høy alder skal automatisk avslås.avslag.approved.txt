@@ -11,4 +11,4 @@ Prøvingsdato
 Siste mulige dag bruker kan oppfylle alderskrav
 Oppfyller kravet til alder
 Registrert som arbeidssøker
-Registrert som arbeidssøker på søknadstidspunktet
+Oppfyller kravet til å være registrert som arbeidssøker

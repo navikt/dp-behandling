@@ -186,7 +186,7 @@ graph RL
   DY["Reell arbeidssøker"] -->|"Alle"| DV["Oppfyller kravet til å være arbeidsfør"]
   DY["Reell arbeidssøker"] -->|"Alle"| DX["Oppfyller kravet til å ta ethvert arbeid"]
   DZ["Registrert som arbeidssøker"] -->|"Ekstern"| F["Prøvingsdato"]
-  EA["Registrert som arbeidssøker på søknadstidspunktet"] -->|"ErSann"| DZ["Registrert som arbeidssøker"]
+  EA["Oppfyller kravet til å være registrert som arbeidssøker"] -->|"ErSann"| DZ["Registrert som arbeidssøker"]
   DB["Bruker er permittert"] -->|"Ekstern"| AL["søknadId"]
   EB["Har rett til ordinære dagpenger gjennom arbeidsforhold"] -->|"Ekstern"| AL["søknadId"]
   EC["Forskutterte lønnsgarantimidler i form av dagpenger"] -->|"Ekstern"| AL["søknadId"]

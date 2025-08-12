@@ -67,4 +67,12 @@ internal object Metrikk {
             .help("Tid det tar å utføre en endring i behandlingen, i sekunder")
             .labelNames("opplysningstype")
             .register()
+
+    val tidBruktPerSletting: Histogram =
+        Histogram
+            .builder()
+            .name("dp_behandling_tid_brukt_per_sletting")
+            .help("Tid det tar å utføre en sletting i behandlingen, i sekunder")
+            .labelNames("opplysningstype")
+            .register()
 }

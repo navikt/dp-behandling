@@ -1,10 +1,12 @@
 package no.nav.dagpenger.regel.hendelse
 
+import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
@@ -59,6 +61,17 @@ class BeregnMeldekortHendelse(
                         Periode(meldekort.fom, meldekort.tom),
                         Gyldighetsperiode(meldekort.fom, meldekort.tom),
                         kilde = kilde,
+                    ),
+                ),
+            avklaringer =
+                listOf(
+                    Avklaring(
+                        Avklaringkode(
+                            kode = "MeldekortBehandling",
+                            tittel = "Beregning av meldekort",
+                            beskrivelse = "Behandlingen er opprettet av meldekort og kan ikke automatisk behandles",
+                            kanAvbrytes = false,
+                        ),
                     ),
                 ),
         ).apply {

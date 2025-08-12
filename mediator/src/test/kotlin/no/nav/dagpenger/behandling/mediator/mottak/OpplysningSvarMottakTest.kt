@@ -5,6 +5,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Called
 import io.mockk.clearMocks
 import io.mockk.every
@@ -14,10 +15,12 @@ import io.mockk.verify
 import no.nav.dagpenger.behandling.TestOpplysningstyper.boolsk
 import no.nav.dagpenger.behandling.TestOpplysningstyper.inntektA
 import no.nav.dagpenger.behandling.mediator.MessageMediator
+import no.nav.dagpenger.behandling.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
@@ -171,6 +174,26 @@ class OpplysningSvarMottakTest {
     }
 
     @Test
+    fun `leser inn kilde og begrunnelse til opplysningen`() {
+        rapid.sendTestMessage(
+            løsningMedMetadata(
+                null,
+                gyldigTilOgMed,
+                kilde = "Test kilde",
+            ).toJson(),
+        )
+
+        val hendelse = slot<OpplysningSvarHendelse>()
+        verify {
+            messageMediator.behandle(capture(hendelse), any(), any())
+        }
+
+        val opplysning = requireNotNull(hendelse.captured.opplysninger.first())
+        opplysning.kilde.shouldBeInstanceOf<Saksbehandlerkilde>()
+        (opplysning.kilde as Saksbehandlerkilde).begrunnelse?.verdi shouldBe "Test kilde"
+    }
+
+    @Test
     fun `logger og kaster behov uten opplysningsbehov`() {
         rapid.sendTestMessage(
             JsonMessage
@@ -185,6 +208,32 @@ class OpplysningSvarMottakTest {
         verify {
             messageMediator wasNot Called
         }
+    }
+
+    @Test
+    fun `kan lese opplysningsvar fra APIet`() {
+        val melding = slot<OpplysningSvarHendelse>()
+        val svar =
+            OpplysningsSvar(
+                behandlingId = UUIDv7.ny(),
+                opplysningNavn = boolsk.navn,
+                ident = "12345678901",
+                verdi = false,
+                saksbehandler = "S123456",
+                begrunnelse = "HURRA",
+                gyldigFraOgMed = null,
+                gyldigTilOgMed = null,
+            )
+        rapid.sendTestMessage(svar.toJson())
+        verify(exactly = 1) {
+            messageMediator.behandle(capture(melding), any(), any())
+        }
+        melding.isCaptured shouldBe true
+        (
+            melding.captured.opplysninger
+                .first()
+                .kilde as Saksbehandlerkilde
+        ).begrunnelse?.verdi shouldBe "HURRA"
     }
 
     private val behandlingId = UUIDv7.ny()
@@ -216,24 +265,29 @@ class OpplysningSvarMottakTest {
         gyldigTilOgMed: LocalDate?,
         utledetAv: List<UUID> = emptyList(),
         opplysningstype: String = "boolsk",
+        kilde: String? = null,
     ): JsonMessage =
         JsonMessage.newNeed(
             listOf(opplysningstype),
-            konvolutt +
-                mapOf(
-                    "@løsning" to
-                        mapOf(
-                            opplysningstype to
-                                mapOf(
-                                    "verdi" to true,
-                                ) +
-                                mapOf(
-                                    "gyldigFraOgMed" to gyldigFraOgMed?.toString(),
-                                    "gyldigTilOgMed" to gyldigTilOgMed?.toString(),
-                                ).filterValues { it != null },
-                        ),
-                    "@utledetAv" to mapOf(opplysningstype to utledetAv.map { it.toString() }),
-                ),
+            buildMap {
+                putAll(konvolutt)
+                put(
+                    "@løsning",
+                    mapOf<String, Any>(
+                        opplysningstype to
+                            buildMap {
+                                put("verdi", true)
+                                gyldigFraOgMed?.let { put("gyldigFraOgMed", it.toString()) }
+                                gyldigTilOgMed?.let { put("gyldigTilOgMed", it.toString()) }
+
+                                kilde?.let {
+                                    put("@kilde", mapOf("saksbehandler" to "Z123456", "begrunnelse" to kilde))
+                                }
+                            },
+                    ),
+                )
+                put("@utledetAv", mapOf(opplysningstype to utledetAv.map { it.toString() }))
+            },
         )
 
     @Language("JSON")

@@ -369,7 +369,7 @@ class Behandling private constructor(
         fun håndter(
             behandling: Behandling,
             hendelse: GodkjennBehandlingHendelse,
-        ): Unit = throw IllegalStateException("Behandlingen skal godkjennes, men tilstanden støtter ikke dette")
+        ): Unit = throw IllegalStateException("Behandlingen skal godkjennes, men tilstanden ${this.type.name} støtter ikke dette")
 
         fun håndter(
             behandling: Behandling,
@@ -567,7 +567,7 @@ class Behandling private constructor(
             hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
 
-            behandling.kjørRegler(hendelse)
+            behandling.tilstand(Redigert(), hendelse)
         }
 
         override fun håndter(
@@ -823,7 +823,7 @@ class Behandling private constructor(
             hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
 
-            behandling.kjørRegler(hendelse)
+            behandling.tilstand(Redigert(), hendelse)
         }
 
         override fun håndter(

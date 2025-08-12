@@ -49,10 +49,7 @@ object Rettighetstype {
         )
 
     val skalVernepliktVurderes: Opplysningstype<Boolean> =
-        boolsk(
-            SkalVernepliktVurderesId,
-            "Skal kravet til verneplikt vurderes",
-        )
+        boolsk(SkalVernepliktVurderesId, "Skal kravet til verneplikt vurderes")
 
     private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
     private val ingenArbeid = boolsk(IngenArbeidId, "Har rett til ordinære dagpenger uten arbeidsforhold", synlig = aldriSynlig)

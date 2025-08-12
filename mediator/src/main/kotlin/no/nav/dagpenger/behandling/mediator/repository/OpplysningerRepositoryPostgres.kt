@@ -154,7 +154,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             }
 
             // Hent inn kilde for alle opplysninger vi trenger
-            val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId })
+            val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId }, session)
             val raderMedKilde =
                 rader.map {
                     if (it.kildeId == null) return@map it

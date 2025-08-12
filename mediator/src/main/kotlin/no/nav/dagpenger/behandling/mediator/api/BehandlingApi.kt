@@ -81,6 +81,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.first
 
 private val logger = KotlinLogging.logger { }
 
@@ -221,6 +222,21 @@ internal fun Application.behandlingApi(
                             vedtakOpplysninger.lagVedtakDTO(
                                 behandling.behandler.ident.tilPersonIdentfikator(),
                             ),
+                        )
+                    }
+
+                    get("klumpen") {
+                        val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                        call.saksbehandlerIdOrNull()?.let {
+                            auditlogg.les("Så en behandling", behandling.behandler.ident, it)
+                        }
+
+                        val vedtakOpplysninger = behandling.vedtakopplysninger
+
+                        call.respond(
+                            HttpStatusCode.OK,
+                            vedtakOpplysninger.tilKlumpDTO(behandling.behandler.ident),
                         )
                     }
 
@@ -393,6 +409,7 @@ internal fun Application.behandlingApi(
                                     behandling.behandler.ident,
                                     HttpVerdiMapper(oppdaterOpplysningRequestDTO).map(opplysning.opplysningstype.datatype),
                                     call.saksbehandlerId(),
+                                    oppdaterOpplysningRequestDTO.begrunnelse,
                                     oppdaterOpplysningRequestDTO.gyldigFraOgMed,
                                     oppdaterOpplysningRequestDTO.gyldigTilOgMed,
                                 )
@@ -448,7 +465,7 @@ internal fun Application.behandlingApi(
                                 logger.info { "Starter en fjerning av opplysning i behandling" }
                                 messageContext(behandling.behandler.ident).publish(svar.toJson())
                                 auditlogg.oppdater("Fjernet opplysning", behandling.behandler.ident, call.saksbehandlerId())
-                                logger.info { "Venter på endring i behandling" }
+                                logger.info { "Venter på slettingen blir ferdig i behandling" }
                             }
 
                             logger.info { "Svarer med at opplysning er fjernet" }
@@ -495,6 +512,7 @@ internal fun Application.behandlingApi(
                                     behandling.behandler.ident,
                                     HttpVerdiMapper2(nyOpplysningDTO).map(opplysningstype.datatype),
                                     call.saksbehandlerId(),
+                                    nyOpplysningDTO.begrunnelse,
                                     nyOpplysningDTO.gyldigFraOgMed,
                                     nyOpplysningDTO.gyldigTilOgMed,
                                 )

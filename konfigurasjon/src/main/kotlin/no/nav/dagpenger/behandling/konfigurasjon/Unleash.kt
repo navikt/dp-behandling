@@ -43,4 +43,5 @@ enum class Feature(
     val navn: String,
 ) {
     KJEDING_AV_BEHANDLING("dp-behandling.kjeding"),
+    REDIGERING_AV_REGISTRERT_ARBEIDSSØKER("dp-behandling.redigering-arbeidssoker"),
 }
