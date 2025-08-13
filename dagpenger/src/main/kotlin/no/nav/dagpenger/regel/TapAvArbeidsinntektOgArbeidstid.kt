@@ -53,7 +53,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             "Ikke krav på lønn fra tidligere arbeidsgiver",
             synlig = aldriSynlig,
         )
-    val kravTilTapAvArbeidsinntekt = boolsk(kravTilTapAvArbeidsinntektId, "Oppfyller krav til tap av arbeidsinntekt")
+    val kravTilTapAvArbeidsinntekt = boolsk(kravTilTapAvArbeidsinntektId, "Oppfyller kravet til tap av arbeidsinntekt")
 
     val kravTilArbeidstidsreduksjon =
         desimaltall(
@@ -117,9 +117,9 @@ object TapAvArbeidsinntektOgArbeidstid {
             "Fastsatt vanlig arbeidstid etter ordinær eller verneplikt",
             synlig = aldriSynlig,
         )
-    val kravTilTaptArbeidstid = boolsk(tapAvArbeidstidErMinstTerskelId, "Oppfyller krav til tap av arbeidstid er minst terskel")
+    val kravTilTaptArbeidstid = boolsk(tapAvArbeidstidErMinstTerskelId, "Oppfyller kravet til tap av arbeidstid")
     val kravTilTapAvArbeidsinntektOgArbeidstid =
-        boolsk(kravTilTapAvArbeidsinntektOgArbeidstidId, "Krav til tap av arbeidsinntekt og arbeidstid", synlig = aldriSynlig)
+        boolsk(kravTilTapAvArbeidsinntektOgArbeidstidId, "Oppfyller kravet til tap av arbeidsinntekt og arbeidstid", synlig = aldriSynlig)
 
     val regelsett =
         vilkår(
