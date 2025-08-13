@@ -1,7 +1,6 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
@@ -46,15 +45,15 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVerne
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktFastsattVanligArbeidstid
 
 object TapAvArbeidsinntektOgArbeidstid {
-    internal val tapAvArbeid = Opplysningstype.boolsk(harTaptArbeidId, "Har tapt arbeid", behovId = HarTaptArbeid)
-    val kravPåLønn = Opplysningstype.boolsk(kravPåLønnId, "Krav på lønn fra tidligere arbeidsgiver", behovId = KravPåLønn)
+    internal val tapAvArbeid = boolsk(harTaptArbeidId, "Har tapt arbeid", behovId = HarTaptArbeid, synlig = aldriSynlig)
+    val kravPåLønn = boolsk(kravPåLønnId, "Krav på lønn fra tidligere arbeidsgiver", behovId = KravPåLønn)
     private val ikkeKravPåLønn =
-        Opplysningstype.boolsk(
+        boolsk(
             ikkeKravPåLønnFraTidligereArbeidsgiverId,
             "Ikke krav på lønn fra tidligere arbeidsgiver",
             synlig = aldriSynlig,
         )
-    val kravTilTapAvArbeidsinntekt = Opplysningstype.boolsk(kravTilTapAvArbeidsinntektId, "Krav til tap av arbeidsinntekt")
+    val kravTilTapAvArbeidsinntekt = boolsk(kravTilTapAvArbeidsinntektId, "Oppfyller krav til tap av arbeidsinntekt")
 
     val kravTilArbeidstidsreduksjon =
         desimaltall(
@@ -76,24 +75,24 @@ object TapAvArbeidsinntektOgArbeidstid {
         )
 
     private val beregningsregel =
-        Opplysningstype.boolsk(
+        boolsk(
             beregningsregelTaptArbeidstidId,
             "Beregningsregel: Tapt arbeidstid",
             synlig = aldriSynlig,
         )
 
     val beregningsregel6mnd =
-        Opplysningstype.boolsk(
+        boolsk(
             beregningsregelArbeidstidSiste6MånederId,
             "Beregningsregel: Arbeidstid siste 6 måneder",
         )
     val beregningsregel12mnd =
-        Opplysningstype.boolsk(
+        boolsk(
             beregningsregelArbeidstidSiste12MånederId,
             "Beregningsregel: Arbeidstid siste 12 måneder",
         )
     val beregningsregel36mnd =
-        Opplysningstype.boolsk(
+        boolsk(
             beregeningsregelArbeidstidSiste36MånederId,
             "Beregningsregel: Arbeidstid siste 36 måneder",
         )
@@ -118,12 +117,9 @@ object TapAvArbeidsinntektOgArbeidstid {
             "Fastsatt vanlig arbeidstid etter ordinær eller verneplikt",
             synlig = aldriSynlig,
         )
-    val kravTilTaptArbeidstid = Opplysningstype.boolsk(tapAvArbeidstidErMinstTerskelId, "Tap av arbeidstid er minst terskel")
+    val kravTilTaptArbeidstid = boolsk(tapAvArbeidstidErMinstTerskelId, "Oppfyller krav til tap av arbeidstid er minst terskel")
     val kravTilTapAvArbeidsinntektOgArbeidstid =
-        Opplysningstype.boolsk(
-            kravTilTapAvArbeidsinntektOgArbeidstidId,
-            "Krav til tap av arbeidsinntekt og arbeidstid",
-        )
+        boolsk(kravTilTapAvArbeidsinntektOgArbeidstidId, "Krav til tap av arbeidsinntekt og arbeidstid", synlig = aldriSynlig)
 
     val regelsett =
         vilkår(

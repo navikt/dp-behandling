@@ -15,8 +15,8 @@ graph RL
   K["Har svart nei på spørsmål om utdanning eller opplæring"] -->|"ErUsann"| A["Brukeren er under utdanning eller opplæring"]
   L["Oppfyller kravet på unntak for utdanning eller opplæring"] -->|"Alle"| J["Har svart ja på spørsmål om utdanning eller opplæring"]
   L["Oppfyller kravet på unntak for utdanning eller opplæring"] -->|"Alle"| C["Godkjent unntak for utdanning eller opplæring?"]
-  M["Krav til utdanning eller opplæring"] -->|"EnAv"| L["Oppfyller kravet på unntak for utdanning eller opplæring"]
-  M["Krav til utdanning eller opplæring"] -->|"EnAv"| K["Har svart nei på spørsmål om utdanning eller opplæring"]
+  M["Oppfyller krav til utdanning eller opplæring"] -->|"EnAv"| L["Oppfyller kravet på unntak for utdanning eller opplæring"]
+  M["Oppfyller krav til utdanning eller opplæring"] -->|"EnAv"| K["Har svart nei på spørsmål om utdanning eller opplæring"]
 ```
 
 ## Akseptansetester

@@ -145,7 +145,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9435-72a8-b1ce-9575cbc2a75e|Krav på lønn fra tidligere arbeidsgiver|KravPåLønn|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a75f|Ønsket arbeidstid|ØnsketArbeidstid|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a760|Ikke krav på lønn fra tidligere arbeidsgiver|Ikke krav på lønn fra tidligere arbeidsgiver|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a761|Krav til tap av arbeidsinntekt|Krav til tap av arbeidsinntekt|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a761|Oppfyller krav til tap av arbeidsinntekt|Oppfyller krav til tap av arbeidsinntekt|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a762|Krav til prosentvis tap av arbeidstid|Krav til prosentvis tap av arbeidstid|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a763|Beregningsregel: Tapt arbeidstid|Beregningsregel: Tapt arbeidstid|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a764|Beregningsregel: Arbeidstid siste 6 måneder|Beregningsregel: Arbeidstid siste 6 måneder|Boolsk|boolean|
@@ -158,7 +158,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9435-72a8-b1ce-9575cbc2a76b|Ny arbeidstid per uke|Ny arbeidstid per uke|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a76c|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a76d|Villig til å jobbe minimum arbeidstid|Villig til å jobbe minimum arbeidstid|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a76e|Tap av arbeidstid er minst terskel|Tap av arbeidstid er minst terskel|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a76e|Oppfyller krav til tap av arbeidstid er minst terskel|Oppfyller krav til tap av arbeidstid er minst terskel|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a76f|Krav til tap av arbeidsinntekt og arbeidstid|Krav til tap av arbeidsinntekt og arbeidstid|Boolsk|boolean|
 |0194881f-943d-77a7-969c-147999f15449|Antall dager som skal regnes med i hver uke|Antall dager som skal regnes med i hver uke|Heltall|int|
 |0194881f-943d-77a7-969c-147999f1544a|Kort dagpengeperiode|Kort dagpengeperiode|Heltall|int|
@@ -216,7 +216,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9445-734c-a7ee-045edf29b52a|Deltar i høyere yrkesfaglig utdanning|Deltar i høyere yrkesfaglig utdanning|Boolsk|boolean|
 |0194881f-9445-734c-a7ee-045edf29b52b|Deltar i høyere utdanning|Deltar i høyere utdanning|Boolsk|boolean|
 |0194881f-9445-734c-a7ee-045edf29b52c|Deltar på kurs mv|Deltar på kurs mv|Boolsk|boolean|
-|0194881f-9445-734c-a7ee-045edf29b52d|Krav til utdanning eller opplæring|Krav til utdanning eller opplæring|Boolsk|boolean|
+|0194881f-9445-734c-a7ee-045edf29b52d|Oppfyller krav til utdanning eller opplæring|Oppfyller krav til utdanning eller opplæring|Boolsk|boolean|
 |0194881f-9447-7e36-a569-3e9f42bff9f6|Bruker er utestengt fra dagpenger|Bruker er utestengt fra dagpenger|Boolsk|boolean|
 |0194881f-9447-7e36-a569-3e9f42bff9f7|Oppfyller krav til ikke utestengt|Oppfyller krav til ikke utestengt|Boolsk|boolean|
 |0194881f-9462-78af-8977-46092bb030eb|fagsakId|fagsakId|Heltall|int|

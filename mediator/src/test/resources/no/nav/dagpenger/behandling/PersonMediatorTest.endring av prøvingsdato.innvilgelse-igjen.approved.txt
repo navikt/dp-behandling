@@ -135,14 +135,14 @@ Grunnlag for verneplikt hvis kravet er oppfylt
 Uførebeløp som skal samordnes
 Har barnetillegg
 Medlem har reduserte ytelser fra folketrygden (Samordning)
-Krav til tap av arbeidsinntekt
+Oppfyller krav til tap av arbeidsinntekt
 Oppfyller kravet på unntak for utdanning eller opplæring
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
 Avkortet inntektperiode 3
 Sum andre ytelser
-Krav til utdanning eller opplæring
+Oppfyller krav til utdanning eller opplæring
 Inntekt siste 36 måneder
 Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder
 Uavrundet grunnlag
@@ -157,7 +157,7 @@ Maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
 Fastsatt arbeidstid per uke før tap
 Dagsats med barnetillegg før samordning
 Avrundet maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
-Tap av arbeidstid er minst terskel
+Oppfyller krav til tap av arbeidstid er minst terskel
 Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
 Krav til tap av arbeidsinntekt og arbeidstid
 Har avkortet grunnlaget i periode 1

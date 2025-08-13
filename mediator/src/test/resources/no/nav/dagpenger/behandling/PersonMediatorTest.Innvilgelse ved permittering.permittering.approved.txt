@@ -104,7 +104,7 @@ Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
 Uførebeløp som skal samordnes
-Krav til tap av arbeidsinntekt
+Oppfyller krav til tap av arbeidsinntekt
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
@@ -136,7 +136,7 @@ Oppfyller kravet til å ta ethvert arbeid
 Villig til å jobbe minimum arbeidstid
 Fastsatt arbeidstid per uke før tap
 Reell arbeidssøker
-Tap av arbeidstid er minst terskel
+Oppfyller krav til tap av arbeidstid er minst terskel
 Krav til tap av arbeidsinntekt og arbeidstid
 Bostedsland er Norge
 Bruker oppholder seg i Norge
@@ -146,7 +146,7 @@ Brukeren er under utdanning eller opplæring
 Har svart ja på spørsmål om utdanning eller opplæring
 Har svart nei på spørsmål om utdanning eller opplæring
 Oppfyller kravet på unntak for utdanning eller opplæring
-Krav til utdanning eller opplæring
+Oppfyller krav til utdanning eller opplæring
 Har avkortet grunnlaget i periode 1
 Har avkortet grunnlaget i periode 2
 Har avkortet grunnlaget i periode 3

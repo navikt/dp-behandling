@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
@@ -21,17 +22,18 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UnntakForOppholdId
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Opphold {
-    var oppholdINorge = boolsk(OppholdINorgeId, beskrivelse = "Bruker oppholder seg i Norge", behovId = "OppholdINorge")
+    val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge", behovId = BostedslandErNorge, formål = Bruker)
+    var oppholdINorge =
+        boolsk(OppholdINorgeId, beskrivelse = "Bruker oppholder seg i Norge", behovId = "OppholdINorge", formål = Bruker)
     var unntakForOpphold =
         boolsk(UnntakForOppholdId, "Oppfyller unntak for opphold i Norge", synlig = { it.erSann(oppholdINorge) == false })
+
     val oppfyllerKravetTilOpphold =
         boolsk(OppfyllerKravetTilOppholdId, "Oppfyller kravet til opphold i Norge eller unntak", synlig = aldriSynlig)
-
     val medlemFolketrygden = boolsk(MedlemFolketrygdenId, "Bruker er medlem av folketrygden")
-    val oppfyllerMedlemskap = boolsk(OppfyllerMedlemskapId, "Oppfyller kravet til medlemskap", synlig = aldriSynlig)
 
+    val oppfyllerMedlemskap = boolsk(OppfyllerMedlemskapId, "Oppfyller kravet til medlemskap", synlig = aldriSynlig)
     val oppfyllerKravet = boolsk(OppfyllerKravetOppholdId, "Kravet til opphold i Norge er oppfylt")
-    val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge", behovId = BostedslandErNorge)
 
     val regelsett =
         vilkår(
