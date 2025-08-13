@@ -439,6 +439,12 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Kan ikke fjerne opplysning før forrige redigering er ferdig")
                             }
 
+                            if (!behandling.kanRedigeres()) {
+                                throw BadRequestException(
+                                    "Kan ikke fjerne opplysning fordi behandlingen er ikke i redigerbar tilstand",
+                                )
+                            }
+
                             val kunEgne = behandling.opplysninger().kunEgne
                             val opplysning = kunEgne.finnOpplysning(opplysningId)
                             if (!redigerbareOpplysninger.kanRedigere(opplysning.opplysningstype)) {
@@ -491,6 +497,12 @@ internal fun Application.behandlingApi(
 
                             if (behandling.harTilstand(Redigert)) {
                                 throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
+                            }
+
+                            if (!behandling.kanRedigeres()) {
+                                throw BadRequestException(
+                                    "Kan ikke redigere opplysning fordi behandlingen er ikke i redigerbar tilstand",
+                                )
                             }
 
                             val opplysningstype =
