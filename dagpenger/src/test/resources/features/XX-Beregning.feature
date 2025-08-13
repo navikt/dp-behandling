@@ -80,8 +80,48 @@ Egenskap: Beregning av meldekort
       | Lørdag  | Arbeidstimer | 0     |
       | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
-    Og utbetales 754,1333333333333 kroner
+    Og utbetales 754 kroner
     Og det forbrukes 10 dager
+    Og utbetales 75 kroner etter avrunding på dag 1
+    Og utbetales 75 kroner etter avrunding på dag 2
+    Og utbetales 75 kroner etter avrunding på dag 3
+    Og utbetales 75 kroner etter avrunding på dag 4
+    Og utbetales 75 kroner etter avrunding på dag 5
+    Og utbetales 75 kroner etter avrunding på dag 6
+    Og utbetales 75 kroner etter avrunding på dag 7
+    Og utbetales 75 kroner etter avrunding på dag 8
+    Og utbetales 75 kroner etter avrunding på dag 9
+    Og utbetales 79 kroner etter avrunding på dag 10
+
+  Scenario: Jobbet under terskel og fordeler desimaltall overskytende riktig
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 01.01.2020 |          |
+      | Sats       | 903   | 01.01.2020 |          |
+      | FVA        | 37.5  | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 3     |
+      | Tirsdag | Arbeidstimer | 2     |
+      | Onsdag  | Arbeidstimer | 2     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 8187 kroner
+    Og det forbrukes 10 dager
+    Og utbetales 818 kroner etter avrunding på dag 1
+    Og utbetales 825 kroner etter avrunding på dag 10
 
   Scenario: Jobbet under terskel og får 50% gradert utbetaling med endring av sats midt i perioden
     Gitt at mottaker har vedtak med
@@ -496,4 +536,4 @@ Egenskap: Beregning av meldekort
     Og det forbrukes 2400 i egenandel
     Og gjenstår 0 i egenandel
     # TODO: Vi må håndtere avrunding
-    Og utbetales 8800,000000000002 kroner
+    Og utbetales 8800 kroner

@@ -70,6 +70,10 @@ class BeregningSteg : No {
         Så("utbetales {double} kroner på dag {int}") { utbetaling: Double, dag: Int ->
             beregning.forbruksdager[dag - 1].tilUtbetaling shouldBe utbetaling
         }
+
+        Så("utbetales {int} kroner etter avrunding på dag {int}") { utbetaling: Int, dag: Int ->
+            beregning.forbruksdager[dag - 1].avrundetTilUtbetaling shouldBe utbetaling
+        }
         Så("det gjenstår {int} dager") { dager: Int ->
             // TODO: Dette må bo et sted
             val utgangspunkt: Int = opplysninger.find { it.er(antallStønadsdager) }!!.verdi as Int

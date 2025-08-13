@@ -10,6 +10,7 @@ internal sealed interface Dag {
     val timerArbeidet: Int?
 }
 
+// TODO: Gå over til BigDecimal for sats og fva og dagsbeløp og forbruktEgenandel
 internal class Arbeidsdag(
     override val dato: LocalDate,
     override val sats: Int,
@@ -22,6 +23,9 @@ internal class Arbeidsdag(
     var dagsbeløp: Double = 0.0
         internal set
     val tilUtbetaling get() = dagsbeløp - forbruktEgenandel
+
+    var avrundetTilUtbetaling: Int = 0
+        internal set
 
     fun forbrukEgenandel(egenandel: Double) {
         forbruktEgenandel = minOf(egenandel, dagsbeløp)

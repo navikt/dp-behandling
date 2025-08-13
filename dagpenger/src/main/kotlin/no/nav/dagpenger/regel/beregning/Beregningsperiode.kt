@@ -1,5 +1,8 @@
 package no.nav.dagpenger.regel.beregning
 
+import java.math.BigDecimal
+import java.math.RoundingMode
+
 internal class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Double,
     dager: List<Dag>,
@@ -46,10 +49,25 @@ internal class Beregningsperiode private constructor(
         return (sumFva - timerArbeidet) / sumFva
     }
 
-    private fun beregnUtbetaling(arbeidsdager: List<Arbeidsdag>): Double {
-        val fordeling = beregnDagsløp(arbeidsdager)
-        val trekkEgenandel = fordelEgenandel(fordeling)
-        return trekkEgenandel.sumOf(Arbeidsdag::tilUtbetaling)
+    private fun beregnUtbetaling(arbeidsdager: List<Arbeidsdag>): Int {
+        val fordeling: List<Arbeidsdag> = beregnDagsløp(arbeidsdager)
+        val trekkEgenandel: List<Arbeidsdag> = fordelEgenandel(fordeling)
+        // Avrunde
+
+        val decimalReminder =
+            trekkEgenandel.fold(0.0) { acc, arbeidsdag -> acc + arbeidsdag.tilUtbetaling % 1 }
+
+        val avrundet =
+            trekkEgenandel.onEach { arbeidsdag ->
+                val avrundetBeløp = BigDecimal.valueOf(arbeidsdag.tilUtbetaling).setScale(0, RoundingMode.FLOOR).toInt()
+                arbeidsdag.avrundetTilUtbetaling = avrundetBeløp
+            }
+
+        val rest = BigDecimal.valueOf(decimalReminder).setScale(0, RoundingMode.HALF_UP).toInt()
+        avrundet.lastOrNull()?.let {
+            it.avrundetTilUtbetaling = it.avrundetTilUtbetaling + rest
+        }
+        return avrundet.sumOf(Arbeidsdag::avrundetTilUtbetaling)
     }
 
     private fun beregnDagsløp(arbeidsdager: List<Arbeidsdag>): List<Arbeidsdag> =
