@@ -1,0 +1,36 @@
+package no.nav.dagpenger.behandling.scenario.assertions
+
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.treeToValue
+import no.nav.dagpenger.behandling.mediator.asUUID
+import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.opplysning.Opplysningstype
+import java.time.LocalDate
+import java.util.UUID
+
+internal class KlumpenAssertions(
+    private val klump: JsonNode,
+) {
+    val rettighetsperioder: List<Rettighetsperiode> = objectMapper.treeToValue(klump["rettighetsperioder"])
+
+    fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysning> {
+        val opplysninger = klump["opplysninger"].single { it["opplysningTypeId"].asUUID() == opplysningstype.id.uuid }
+
+        return objectMapper.treeToValue(opplysninger["opplysninger"])
+    }
+}
+
+internal data class Rettighetsperiode(
+    val fraOgMed: LocalDate,
+    val tilOgMed: LocalDate? = null,
+    val harRett: Boolean,
+)
+
+internal data class Opplysning(
+    val id: UUID,
+    val navn: String,
+    val gyldigFraOgMed: LocalDate? = null,
+    val gyldigTilOgMed: LocalDate? = null,
+    val datatype: String,
+    val verdi: String,
+)
