@@ -73,10 +73,10 @@ object AuthFactory {
 }
 
 private data class OpenIdConfiguration(
-    @JsonProperty("jwks_uri") val jwksUri: String,
-    @JsonProperty("issuer") val issuer: String,
-    @JsonProperty("token_endpoint") val tokenEndpoint: String,
-    @JsonProperty("authorization_endpoint") val authorizationEndpoint: String,
+    @param:JsonProperty("jwks_uri") val jwksUri: String,
+    @param:JsonProperty("issuer") val issuer: String,
+    @param:JsonProperty("token_endpoint") val tokenEndpoint: String,
+    @param:JsonProperty("authorization_endpoint") val authorizationEndpoint: String,
 )
 
 private val httpClient =

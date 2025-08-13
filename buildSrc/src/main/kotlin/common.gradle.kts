@@ -29,7 +29,7 @@ tasks.test {
     testLogging {
         showExceptions = true
         showStandardStreams = false
-        exceptionFormat = TestExceptionFormat.SHORT
+        exceptionFormat = TestExceptionFormat.FULL
         // events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
     }
 }

@@ -363,8 +363,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         "typeUuid" to opplysning.opplysningstype.id.uuid,
                         "datatype" to opplysning.opplysningstype.datatype.navn(),
                         "kilde_id" to opplysning.kilde?.id,
-                        "fom" to gyldighetsperiode.fom.let { if (it == LocalDate.MIN) null else it },
-                        "tom" to gyldighetsperiode.tom.let { if (it == LocalDate.MAX) null else it },
+                        "fom" to gyldighetsperiode.fom.takeUnless { it.isEqual(LocalDate.MIN) },
+                        "tom" to gyldighetsperiode.tom.takeUnless { it.isEqual(LocalDate.MAX) },
                         "opprettet" to opplysning.opprettet,
                     )
                 },
@@ -435,7 +435,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             verdi: Any,
         ) = when (datatype) {
             Boolsk -> Pair("verdi_boolsk", verdi)
-            Dato -> Pair("verdi_dato", tilPostgresqlTimestamp(verdi))
+            Dato -> Pair("verdi_dato", tilPostgresqlTimestamp(verdi as LocalDate))
             Desimaltall -> Pair("verdi_desimaltall", verdi)
             Heltall -> Pair("verdi_heltall", verdi)
             ULID -> Pair("verdi_string", (verdi as Ulid).verdi)
@@ -475,21 +475,21 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 )
         }
 
-        private fun tilPostgresqlTimestamp(verdi: Any) =
-            when (val dato = verdi as LocalDate) {
-                LocalDate.MIN ->
+        private fun tilPostgresqlTimestamp(verdi: LocalDate) =
+            when {
+                verdi.isEqual(LocalDate.MIN) ->
                     PGobject().apply {
                         type = "timestamp"
                         value = "-infinity"
                     }
 
-                LocalDate.MAX ->
+                verdi.isEqual(LocalDate.MAX) ->
                     PGobject().apply {
                         type = "timestamp"
                         value = "infinity"
                     }
 
-                else -> dato
+                else -> verdi
             }
     }
 }

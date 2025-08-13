@@ -432,9 +432,9 @@ fun Datatype<*>.tilDataTypeDTO() =
     }
 
 internal fun LocalDate.tilApiDato(): LocalDate? =
-    when (this) {
-        LocalDate.MIN -> null
-        LocalDate.MAX -> null
+    when {
+        this.isEqual(LocalDate.MIN) -> null
+        this.isEqual(LocalDate.MAX) -> null
         else -> this
     }
 

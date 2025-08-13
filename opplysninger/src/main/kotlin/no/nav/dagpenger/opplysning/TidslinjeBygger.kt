@@ -24,7 +24,7 @@ class TidslinjeBygger<T : Comparable<T>>(
 
         val perioder: Sequence<PeriodisertVerdi<T>> =
             skjæringsdatoer(opplysninger).zipWithNext().mapNotNull { (start, slutt) ->
-                val sluttdato = slutt.takeIf { it != MAX }?.minusDays(1) ?: MAX
+                val sluttdato = slutt.takeIf { !it.isEqual(MAX) }?.minusDays(1) ?: MAX
 
                 val verdi = evaluerVerdi(verdierPåSkjæringsdato(start))
                 if (verdi == null) return@mapNotNull null
@@ -44,11 +44,11 @@ class TidslinjeBygger<T : Comparable<T>>(
             .asSequence()
             .flatMap { sequenceOf(it.gyldighetsperiode.fom, it.gyldighetsperiode.tom.nesteDag()) }
             .distinct()
-            .filter { it != MIN } // Fjerner MIN som er default verdi
+            .filterNot { it.isEqual(MIN) } // Fjerner MIN som er default verdi
             .sorted()
 
     // Legg til en dag for emulere endExclusive som gjør zipWithNext enklere
-    private fun LocalDate.nesteDag(): LocalDate = if (this == MAX) this else this.plusDays(1)
+    private fun LocalDate.nesteDag(): LocalDate = if (this.isEqual(MAX)) this else this.plusDays(1)
 
     private fun slåSammenLike(perioder: Sequence<PeriodisertVerdi<T>>): MutableList<PeriodisertVerdi<T>> {
         val resultat = mutableListOf<PeriodisertVerdi<T>>()
@@ -56,7 +56,7 @@ class TidslinjeBygger<T : Comparable<T>>(
         for (neste in perioder) {
             val siste = resultat.lastOrNull()
 
-            if (siste != null && siste.verdi == neste.verdi && siste.tilOgMed.nesteDag() == neste.fraOgMed) {
+            if (siste != null && siste.verdi == neste.verdi && siste.tilOgMed.nesteDag().isEqual(neste.fraOgMed)) {
                 resultat[resultat.lastIndex] = siste.copy(tilOgMed = neste.tilOgMed)
             } else {
                 resultat.add(neste)

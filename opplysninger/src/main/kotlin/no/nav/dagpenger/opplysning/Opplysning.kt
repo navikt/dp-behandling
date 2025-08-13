@@ -163,7 +163,7 @@ class Faktum<T : Comparable<T>>(
             gyldighetsperiode.kopi(
                 tom =
                     opplysning.gyldighetsperiode.fom
-                        .takeIf { it != LocalDate.MIN }
+                        .takeIf { !it.isEqual(LocalDate.MIN) }
                         ?.minusDays(1) ?: LocalDate.MIN,
             ),
             utledetAv,

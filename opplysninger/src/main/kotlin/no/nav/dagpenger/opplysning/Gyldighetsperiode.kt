@@ -9,8 +9,6 @@ data class Gyldighetsperiode(
 ) : ClosedRange<LocalDate> by range {
     constructor(fom: LocalDate) : this(fom, LocalDate.MAX)
 
-    val erUendelig = fom == LocalDate.MIN && tom == LocalDate.MAX
-
     fun inneholder(dato: LocalDate) = dato in range
 
     fun overlapp(gyldighetsperiode: Gyldighetsperiode) =
@@ -21,9 +19,9 @@ data class Gyldighetsperiode(
 
     override fun toString(): String =
         when {
-            fom == LocalDate.MIN && tom == LocalDate.MAX -> "gyldig for alltid"
-            fom == LocalDate.MIN -> "gyldig til $tom"
-            tom == LocalDate.MAX -> "gyldig fra $fom"
+            fom.isEqual(LocalDate.MIN) && tom.isEqual(LocalDate.MAX) -> "gyldig for alltid"
+            fom.isEqual(LocalDate.MIN) -> "gyldig til $tom"
+            tom.isEqual(LocalDate.MAX) -> "gyldig fra $fom"
             else -> "gyldig fra $fom til $tom"
         }
 
