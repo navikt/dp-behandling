@@ -85,16 +85,16 @@ class BeregningSteg : No {
             opplysninger.add(Faktum(ordinærPeriode, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
         }
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
-            beregning.forbruksdager.sumOf { it.forbruktEgenandel } shouldBe forbruktEgenandel.toDouble()
+            beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }.toInt() shouldBe forbruktEgenandel
         }
         Så("det trekkes {double} kroner i egenandel på dag {int}") { egenandel: Double, dag: Int ->
-            beregning.forbruksdager[dag - 1].forbruktEgenandel shouldBe egenandel
+            Beløp(egenandel) shouldBe beregning.forbruksdager[dag - 1].forbruktEgenandel
         }
         Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
             val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
-            val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel }
+            val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }
 
-            egenandel.verdien.toInt() - forbrukt shouldBe gjenståendeEgenandel
+            egenandel.verdien - forbrukt shouldBe gjenståendeEgenandel.toBigDecimal()
         }
     }
 
