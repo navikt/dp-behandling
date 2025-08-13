@@ -1,15 +1,14 @@
 package no.nav.dagpenger.regel.beregning
 
-import java.math.BigDecimal
-import java.math.RoundingMode
+import no.nav.dagpenger.opplysning.verdier.Beløp
 
 internal class Beregningsperiode private constructor(
-    private val gjenståendeEgenandel: Double,
+    private val gjenståendeEgenandel: Beløp,
     dager: List<Dag>,
     terskelstrategi: Terskelstrategi,
     private val stønadsdagerIgjen: Int,
 ) {
-    constructor(gjenståendeEgenandel: Double, dag: List<Dag>, stønadsdagerIgjen: Int) : this(
+    constructor(gjenståendeEgenandel: Beløp, dag: List<Dag>, stønadsdagerIgjen: Int) : this(
         gjenståendeEgenandel,
         dag,
         snitterskel,
@@ -52,31 +51,22 @@ internal class Beregningsperiode private constructor(
     private fun beregnUtbetaling(arbeidsdager: List<Arbeidsdag>): Int {
         val fordeling: List<Arbeidsdag> = beregnDagsløp(arbeidsdager)
         val trekkEgenandel: List<Arbeidsdag> = fordelEgenandel(fordeling)
-        // Avrunde
 
-        val decimalReminder =
-            trekkEgenandel.fold(0.0) { acc, arbeidsdag -> acc + arbeidsdag.tilUtbetaling % 1 }
+        val overskytendeRest =
+            trekkEgenandel.fold(Beløp(0.0)) { acc, arbeidsdag -> acc + Beløp(arbeidsdag.uavrundetUtbetaling.verdien % 1.toBigDecimal()) }
 
-        val avrundet =
-            trekkEgenandel.onEach { arbeidsdag ->
-                val avrundetBeløp = BigDecimal.valueOf(arbeidsdag.tilUtbetaling).setScale(0, RoundingMode.FLOOR).toInt()
-                arbeidsdag.avrundetTilUtbetaling = avrundetBeløp
-            }
+        trekkEgenandel.lastOrNull()?.overskytendeRest(overskytendeRest)
 
-        val rest = BigDecimal.valueOf(decimalReminder).setScale(0, RoundingMode.HALF_UP).toInt()
-        avrundet.lastOrNull()?.let {
-            it.avrundetTilUtbetaling = it.avrundetTilUtbetaling + rest
-        }
-        return avrundet.sumOf(Arbeidsdag::avrundetTilUtbetaling)
+        return trekkEgenandel.sumOf(Arbeidsdag::avrundetUtbetaling)
     }
 
     private fun beregnDagsløp(arbeidsdager: List<Arbeidsdag>): List<Arbeidsdag> =
         arbeidsdager.onEach { it.dagsbeløp = it.sats * prosentfaktor }
 
     private fun fordelEgenandel(fordeling: List<Arbeidsdag>): List<Arbeidsdag> {
-        val totalTilUtbetaling = fordeling.sumOf { it.dagsbeløp }
+        val totalTilUtbetaling = Beløp(fordeling.sumOf { it.dagsbeløp.verdien })
         return fordeling.onEach {
-            val egenandelPerDag = minOf(it.dagsbeløp, it.dagsbeløp / totalTilUtbetaling * gjenståendeEgenandel)
+            val egenandelPerDag = minOf(it.dagsbeløp, (it.dagsbeløp / totalTilUtbetaling) * gjenståendeEgenandel)
             it.forbrukEgenandel(egenandelPerDag)
         }
     }

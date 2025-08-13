@@ -1,11 +1,12 @@
 package no.nav.dagpenger.regel.beregning
 
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import java.math.BigDecimal
 import java.time.LocalDate
 
 internal sealed interface Dag {
     val dato: LocalDate
-    val sats: Int?
+    val sats: Beløp?
     val fva: Double?
     val timerArbeidet: Int?
 }
@@ -13,25 +14,30 @@ internal sealed interface Dag {
 // TODO: Gå over til BigDecimal for sats og fva og dagsbeløp og forbruktEgenandel
 internal class Arbeidsdag(
     override val dato: LocalDate,
-    override val sats: Int,
+    override val sats: Beløp,
     override val fva: Double,
     override val timerArbeidet: Int,
     val terskel: BigDecimal,
 ) : Dag {
-    var forbruktEgenandel: Double = 0.0
+    internal var overskytendeRest: Beløp = Beløp(0.0)
         private set
-    var dagsbeløp: Double = 0.0
+    internal var forbruktEgenandel: Beløp = Beløp(0.0)
+        private set
+    var dagsbeløp: Beløp = Beløp(0.0)
         internal set
-    val tilUtbetaling get() = dagsbeløp - forbruktEgenandel
+    internal val uavrundetUtbetaling get() = dagsbeløp - forbruktEgenandel
 
-    var avrundetTilUtbetaling: Int = 0
-        internal set
+    val avrundetUtbetaling: Int get() = uavrundetUtbetaling.avrundNed.toInt() + overskytendeRest.avrundet.toInt()
 
-    fun forbrukEgenandel(egenandel: Double) {
+    fun forbrukEgenandel(egenandel: Beløp) {
         forbruktEgenandel = minOf(egenandel, dagsbeløp)
     }
 
-    constructor(dato: LocalDate, sats: Int, fva: Double, timerArbeidet: Int, terskel: Double) :
+    fun overskytendeRest(overskytende: Beløp) {
+        overskytendeRest = overskytende
+    }
+
+    constructor(dato: LocalDate, sats: Beløp, fva: Double, timerArbeidet: Int, terskel: Double) :
         this(dato, sats, fva, timerArbeidet, BigDecimal.valueOf(terskel))
 }
 

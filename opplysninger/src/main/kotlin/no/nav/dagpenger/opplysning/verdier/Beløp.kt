@@ -33,6 +33,7 @@ class Beløp private constructor(
 
     val avrundet: NumberValue get() = verdi.with(ører).number
     val heleKroner: NumberValue get() = verdi.with(kroner).number
+    val avrundNed: NumberValue get() = verdi.with(Companion.avrundNed).number
     val valuta: String get() = verdi.currency.currencyCode
 
     val verdien: BigDecimal get() = verdi.number.numberValueExact(BigDecimal::class.java)
@@ -50,6 +51,10 @@ class Beløp private constructor(
     operator fun times(faktor: Double): Beløp = Beløp(verdi.multiply(faktor))
 
     operator fun times(faktor: Int): Beløp = Beløp(verdi.multiply(faktor))
+
+    operator fun times(faktor: BigDecimal): Beløp = Beløp(verdi.multiply(faktor))
+
+    operator fun times(faktor: Beløp): Beløp = Beløp(verdi.multiply(faktor.verdien))
 
     override fun compareTo(other: Beløp): Int = verdi.compareTo(other.verdi)
 
@@ -82,6 +87,14 @@ class Beløp private constructor(
                     .of()
                     .setScale(0)
                     .set(RoundingMode.HALF_UP)
+                    .build(),
+            )
+        private val avrundNed =
+            Monetary.getRounding(
+                RoundingQueryBuilder
+                    .of()
+                    .setScale(0)
+                    .set(RoundingMode.FLOOR)
                     .build(),
             )
     }

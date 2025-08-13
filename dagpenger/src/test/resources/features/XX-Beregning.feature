@@ -439,12 +439,12 @@ Egenskap: Beregning av meldekort
     Så skal kravet til tapt arbeidstid være oppfylt
     Og det forbrukes 10 dager
     Og det forbrukes 3000 i egenandel
-    Og det trekkes 545,4545454545455 kroner i egenandel på dag 1
-    Og det trekkes 54,54545454545454 kroner i egenandel på dag 10
+    Og det trekkes "545.45454545454545454" kroner i egenandel på dag 1
+    Og det trekkes "54.54545454545454546" kroner i egenandel på dag 10
     Og gjenstår 0 i egenandel
     Og utbetales 2500,0 kroner
-    Og utbetales 454,5454545454545 kroner på dag 1
-    Og utbetales 45,45454545454546 kroner på dag 10
+    Og utbetales 454,54545454545456 kroner på dag 1
+    Og utbetales 45,45454545454545 kroner på dag 10
 
   Scenario: Har for lav sats til å få utbetaling og bruker ikke opp all egenandel
     Gitt at mottaker har vedtak med
@@ -535,5 +535,4 @@ Egenskap: Beregning av meldekort
     Og det forbrukes 10 dager
     Og det forbrukes 2400 i egenandel
     Og gjenstår 0 i egenandel
-    # TODO: Vi må håndtere avrunding
     Og utbetales 8800 kroner

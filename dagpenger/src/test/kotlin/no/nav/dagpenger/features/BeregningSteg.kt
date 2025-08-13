@@ -4,6 +4,7 @@ import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
+import no.nav.dagpenger.features.utils.tilBeløp
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
@@ -68,11 +69,12 @@ class BeregningSteg : No {
             }
         }
         Så("utbetales {double} kroner på dag {int}") { utbetaling: Double, dag: Int ->
-            beregning.forbruksdager[dag - 1].tilUtbetaling shouldBe utbetaling
+            beregning.forbruksdager[dag - 1]
+                .uavrundetUtbetaling.verdien
+                .toDouble() shouldBe utbetaling
         }
-
         Så("utbetales {int} kroner etter avrunding på dag {int}") { utbetaling: Int, dag: Int ->
-            beregning.forbruksdager[dag - 1].avrundetTilUtbetaling shouldBe utbetaling
+            beregning.forbruksdager[dag - 1].avrundetUtbetaling shouldBe utbetaling
         }
         Så("det gjenstår {int} dager") { dager: Int ->
             // TODO: Dette må bo et sted
@@ -85,14 +87,15 @@ class BeregningSteg : No {
             opplysninger.add(Faktum(ordinærPeriode, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
         }
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
-            beregning.forbruksdager.sumOf { it.forbruktEgenandel } shouldBe forbruktEgenandel.toDouble()
+            beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }.toInt() shouldBe forbruktEgenandel
         }
-        Så("det trekkes {double} kroner i egenandel på dag {int}") { egenandel: Double, dag: Int ->
-            beregning.forbruksdager[dag - 1].forbruktEgenandel shouldBe egenandel
+        Så("det trekkes {string} kroner i egenandel på dag {int}") { egenandel: String, dag: Int ->
+            beregning.forbruksdager[dag - 1]
+                .forbruktEgenandel shouldBe egenandel.tilBeløp()
         }
         Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
             val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
-            val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel }
+            val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }.toInt()
 
             egenandel.verdien.toInt() - forbrukt shouldBe gjenståendeEgenandel
         }

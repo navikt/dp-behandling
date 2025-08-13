@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
@@ -52,9 +53,12 @@ internal class BeregningsperiodeFabrikk(
     private fun hentGjenståendeEgenandel() =
         opplysninger
             .finnOpplysning(Egenandel.egenandel)
-            .verdi.verdien
-            .toDouble() -
-            opplysninger.somListe().filter { it.er(forbruktEgenandel) }.sumOf { it.verdi as Int }
+            .verdi -
+            opplysninger
+                .somListe()
+                .filter { it.er(forbruktEgenandel) }
+                .sumOf { it.verdi as Int }
+                .let { Beløp(it) }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> =
         meldeperiode.filter { meldekortDag -> runCatching { rettighetstatuser.get(meldekortDag).utfall }.getOrElse { false } }
@@ -79,8 +83,7 @@ internal class BeregningsperiodeFabrikk(
                 sats =
                     opplysninger
                         .finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
-                        .verdi.verdien
-                        .toInt(),
+                        .verdi,
                 fva = opplysninger.finnOpplysning(Vanligarbeidstid.fastsattVanligArbeidstid).verdi / 5,
                 timerArbeidet = opplysninger.finnOpplysning(Beregning.arbeidstimer).verdi,
                 terskel = opplysninger.finnOpplysning(TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon).verdi,

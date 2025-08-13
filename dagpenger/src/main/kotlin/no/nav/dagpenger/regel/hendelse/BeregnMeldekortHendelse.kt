@@ -20,7 +20,6 @@ import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.math.roundToInt
 
 class BeregnMeldekortHendelse(
     meldingsreferanseId: UUID,
@@ -118,10 +117,10 @@ class BeregnMeldekortHendelse(
                     val forbruksdag = forbruksdager.singleOrNull { it.dato.equals(dato) }
                     val gyldighetsperiode = Gyldighetsperiode(dato, dato)
 
-                    val tilUtbetaling = forbruksdag?.avrundetTilUtbetaling ?: 0
+                    val tilUtbetaling = forbruksdag?.avrundetUtbetaling ?: 0
 
                     // TODO: Denne vil vi skal være desimaltall - her må vi endre på opplysningstype
-                    val forbruktEgenandel = forbruksdag?.forbruktEgenandel?.roundToInt() ?: 0
+                    val forbruktEgenandel = forbruksdag?.forbruktEgenandel?.avrundet?.toInt() ?: 0
 
                     val erForbruk = tilUtbetaling > 0 || forbruktEgenandel > 0
                     opplysninger.leggTil(Faktum(forbruk, erForbruk, gyldighetsperiode))
