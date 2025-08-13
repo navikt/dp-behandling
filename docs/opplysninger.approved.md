@@ -145,7 +145,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9435-72a8-b1ce-9575cbc2a75e|Krav på lønn fra tidligere arbeidsgiver|KravPåLønn|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a75f|Ønsket arbeidstid|ØnsketArbeidstid|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a760|Ikke krav på lønn fra tidligere arbeidsgiver|Ikke krav på lønn fra tidligere arbeidsgiver|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a761|Oppfyller krav til tap av arbeidsinntekt|Oppfyller krav til tap av arbeidsinntekt|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a761|Oppfyller kravet til tap av arbeidsinntekt|Oppfyller kravet til tap av arbeidsinntekt|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a762|Krav til prosentvis tap av arbeidstid|Krav til prosentvis tap av arbeidstid|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a763|Beregningsregel: Tapt arbeidstid|Beregningsregel: Tapt arbeidstid|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a764|Beregningsregel: Arbeidstid siste 6 måneder|Beregningsregel: Arbeidstid siste 6 måneder|Boolsk|boolean|
@@ -158,8 +158,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9435-72a8-b1ce-9575cbc2a76b|Ny arbeidstid per uke|Ny arbeidstid per uke|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a76c|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a76d|Villig til å jobbe minimum arbeidstid|Villig til å jobbe minimum arbeidstid|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a76e|Oppfyller krav til tap av arbeidstid er minst terskel|Oppfyller krav til tap av arbeidstid er minst terskel|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a76f|Krav til tap av arbeidsinntekt og arbeidstid|Krav til tap av arbeidsinntekt og arbeidstid|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a76e|Oppfyller kravet til tap av arbeidstid|Oppfyller kravet til tap av arbeidstid|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a76f|Oppfyller kravet til tap av arbeidsinntekt og arbeidstid|Oppfyller kravet til tap av arbeidsinntekt og arbeidstid|Boolsk|boolean|
 |0194881f-943d-77a7-969c-147999f15449|Antall dager som skal regnes med i hver uke|Antall dager som skal regnes med i hver uke|Heltall|int|
 |0194881f-943d-77a7-969c-147999f1544a|Kort dagpengeperiode|Kort dagpengeperiode|Heltall|int|
 |0194881f-943d-77a7-969c-147999f1544b|Lang dagpengeperiode|Lang dagpengeperiode|Heltall|int|
