@@ -117,7 +117,7 @@ class BeregnMeldekortHendelse(
                     val forbruksdag = forbruksdager.singleOrNull { it.dato.equals(dato) }
                     val gyldighetsperiode = Gyldighetsperiode(dato, dato)
 
-                    val tilUtbetaling = forbruksdag?.avrundetTilUtbetaling ?: 0
+                    val tilUtbetaling = forbruksdag?.avrundetUtbetaling ?: 0
 
                     // TODO: Denne vil vi skal være desimaltall - her må vi endre på opplysningstype
                     val forbruktEgenandel = forbruksdag?.forbruktEgenandel?.avrundet?.toInt() ?: 0
