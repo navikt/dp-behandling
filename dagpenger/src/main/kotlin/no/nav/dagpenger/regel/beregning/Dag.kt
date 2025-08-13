@@ -27,7 +27,7 @@ internal class Arbeidsdag(
         internal set
     internal val uavrundetUtbetaling get() = dagsbeløp - forbruktEgenandel
 
-    val avrundetUtbetaling: Int get() = uavrundetUtbetaling.avrundNed.toInt() + overskytendeRest.avrundet.toInt()
+    val avrundetUtbetaling: Int get() = uavrundetUtbetaling.avrundetNedover.toInt() + overskytendeRest.avrundet.toInt()
 
     fun forbrukEgenandel(egenandel: Beløp) {
         forbruktEgenandel = minOf(egenandel, dagsbeløp)

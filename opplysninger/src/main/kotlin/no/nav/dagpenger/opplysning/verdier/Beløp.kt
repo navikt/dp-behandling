@@ -33,7 +33,7 @@ class Beløp private constructor(
 
     val avrundet: NumberValue get() = verdi.with(ører).number
     val heleKroner: NumberValue get() = verdi.with(kroner).number
-    val avrundNed: NumberValue get() = verdi.with(Companion.avrundNed).number
+    val avrundetNedover: NumberValue get() = verdi.with(avrundNedover).number
     val valuta: String get() = verdi.currency.currencyCode
 
     val verdien: BigDecimal get() = verdi.number.numberValueExact(BigDecimal::class.java)
@@ -89,7 +89,7 @@ class Beløp private constructor(
                     .set(RoundingMode.HALF_UP)
                     .build(),
             )
-        private val avrundNed =
+        private val avrundNedover =
             Monetary.getRounding(
                 RoundingQueryBuilder
                     .of()

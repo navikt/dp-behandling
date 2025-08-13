@@ -59,4 +59,12 @@ class BeløpTest {
         beløp4.heleKroner.doubleValueExact() shouldBe 167.0
         beløp4.heleKroner.intValueExact() shouldBe 167
     }
+
+    @Test
+    fun `test avrundingsmetoder `() {
+        val beløp = Beløp("NOK 33.555")
+        beløp.avrundet.toInt() shouldBe 34
+        beløp.heleKroner.toInt() shouldBe 34
+        beløp.avrundetNedover.toInt() shouldBe 33
+    }
 }
