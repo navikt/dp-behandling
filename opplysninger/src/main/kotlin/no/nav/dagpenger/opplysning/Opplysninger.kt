@@ -29,16 +29,18 @@ class Opplysninger private constructor(
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
-        if (eksisterende != null && egne.contains(eksisterende)) {
-            // Erstatt hele opplysningen
-            fjern(eksisterende)
+        if (eksisterende != null) {
+            if (egne.contains(eksisterende)) {
+                // Erstatt hele opplysningen
+                fjern(eksisterende)
 
-            // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
-            eksisterende.erstatter?.let { opplysning.erstatter(it) }
-        }
+                // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
+                eksisterende.erstatter?.let { opplysning.erstatter(it) }
+            }
 
-        if (eksisterende != null && basertPåOpplysninger.contains(eksisterende)) {
-            opplysning.erstatter(eksisterende)
+            if (basertPåOpplysninger.contains(eksisterende)) {
+                opplysning.erstatter(eksisterende)
+            }
         }
 
         egne.add(opplysning)
