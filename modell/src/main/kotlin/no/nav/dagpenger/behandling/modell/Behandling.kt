@@ -142,7 +142,7 @@ class Behandling private constructor(
 
     fun harTilstand(tilstand: TilstandType) = this.tilstand.type == tilstand
 
-    fun kanFlyttes() = harTilstand(ForslagTilVedtak) || harTilstand(TilGodkjenning)
+    fun kanRedigeres() = harTilstand(ForslagTilVedtak) || harTilstand(TilGodkjenning)
 
     fun opplysninger(): LesbarOpplysninger = opplysninger
 
@@ -994,10 +994,7 @@ class Behandling private constructor(
     }
 
     private fun emitFerdig() {
-        val event =
-            BehandlingFerdig(
-                this.vedtakopplysninger,
-            )
+        val event = BehandlingFerdig(this.vedtakopplysninger)
 
         observatører.forEach { it.ferdig(event) }
     }
