@@ -16,12 +16,14 @@ import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -69,6 +71,10 @@ internal class TestSaksbehandler2(
         )
     }
 
+    fun lagBehandling(gjelder: LocalDate) {
+        rapid.sendTestMessage(Meldingskatalog.opprettBehandling(testPerson.ident, gjelder), testPerson.ident)
+    }
+
     fun lukkAlleAvklaringer() {
         val behandling = personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.last()
         behandling.shouldNotBeNull()
@@ -94,6 +100,7 @@ internal class TestSaksbehandler2(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
         begrunnelse: String = "",
+        gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
     ): UUID {
         val meldingsreferanseId = UUIDv7.ny()
         val kildeId = UUIDv7.ny()
@@ -107,6 +114,7 @@ internal class TestSaksbehandler2(
                         opplysningstype = opplysningstype,
                         verdi = verdi,
                         tilstand = OpplysningSvar.Tilstand.Faktum,
+                        gyldighetsperiode = gyldighetsperiode,
                         kilde =
                             Saksbehandlerkilde(
                                 meldingsreferanseId = meldingsreferanseId,

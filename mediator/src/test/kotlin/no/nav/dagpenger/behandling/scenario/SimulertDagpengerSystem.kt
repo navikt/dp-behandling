@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.ktor.server.application.Application
 import io.mockk.mockk
@@ -22,6 +23,7 @@ import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.scenario.assertions.ForslagAssertions
+import no.nav.dagpenger.behandling.scenario.assertions.KlumpenAssertions
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import java.util.UUID
@@ -93,6 +95,10 @@ internal class SimulertDagpengerSystem(
         ForslagAssertions(behovsløsere.sisteVedtak()).block()
     }
 
+    fun klumpen(block: KlumpenAssertions.() -> Unit) {
+        KlumpenAssertions(behovsløsere.sisteKlumpen()).block()
+    }
+
     fun VedtakDTO.harOpplysning(opplysningId: UUID): Boolean {
         val behandling = personRepository.hentBehandling(person.behandlingId)
         return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
@@ -117,6 +123,16 @@ internal class SimulertDagpengerSystem(
     private fun opprettPerson(ident: String) {
         personRepository.lagre(Person(ident.tilPersonIdentfikator()))
     }
+}
+
+fun TestRapid.RapidInspector.sisteMelding(navn: String): JsonNode {
+    for (offset in size - 1 downTo 0) {
+        val message = message(offset)
+        if (message["@event_name"].asText() == navn) {
+            return message
+        }
+    }
+    throw NoSuchElementException("Fant ingen melding av type=$navn")
 }
 
 class TestAuditlogg internal constructor() : Auditlogg {

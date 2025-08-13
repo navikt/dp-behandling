@@ -90,16 +90,16 @@ internal class PostgresMeldingRepository : MeldingRepository {
 
     private fun meldingType(hendelseMessage: Melding): MeldingTypeDTO? =
         when (hendelseMessage) {
+            is ApiMelding -> MeldingTypeDTO.API
             is AvbrytBehandlingMessage -> MeldingTypeDTO.AVBRYT_BEHANDLING
             is AvklaringIkkeRelevantMessage -> MeldingTypeDTO.AVKLARING_IKKE_RELEVANT
-            is GodkjennBehandlingMessage -> MeldingTypeDTO.MANUELL_BEHANDLING_AVKLART
-            is OpplysningSvarMessage -> MeldingTypeDTO.OPPLYSNING_SVAR
-            is SøknadInnsendtMessage -> MeldingTypeDTO.SØKNAD_INNSENDT
-            is MeldekortInnsendtMessage -> MeldingTypeDTO.MELDEKORT_INNSENDT
             is BeregnMeldekortMessage -> MeldingTypeDTO.BEREGN_MELDEKORT
-            is OpprettBehandlingMessage -> MeldingTypeDTO.OPPRETT_BEHANDLING
-            is ApiMelding -> MeldingTypeDTO.API
             is FjernOpplysningMessage -> MeldingTypeDTO.FJERN_OPPLYSNING
+            is GodkjennBehandlingMessage -> MeldingTypeDTO.MANUELL_BEHANDLING_AVKLART
+            is MeldekortInnsendtMessage -> MeldingTypeDTO.MELDEKORT_INNSENDT
+            is OpplysningSvarMessage -> MeldingTypeDTO.OPPLYSNING_SVAR
+            is OpprettBehandlingMessage -> MeldingTypeDTO.OPPRETT_BEHANDLING
+            is SøknadInnsendtMessage -> MeldingTypeDTO.SØKNAD_INNSENDT
             else ->
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
