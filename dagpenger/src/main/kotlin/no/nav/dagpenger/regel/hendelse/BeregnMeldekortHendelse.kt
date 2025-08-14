@@ -87,7 +87,7 @@ class BeregnMeldekortHendelse(
                     AktivitetType.Arbeid -> {
                         listOf(
                             opplysninger.leggTil(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde)),
-                            opplysninger.leggTil(Faktum(Beregning.arbeidstimer, timer.timer.toInt(), gyldighetsperiode, kilde = kilde)),
+                            opplysninger.leggTil(Faktum(Beregning.arbeidstimer, timer.timer, gyldighetsperiode, kilde = kilde)),
                         )
                     }
 
@@ -101,7 +101,7 @@ class BeregnMeldekortHendelse(
                             Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
                         )
                         opplysninger.leggTil(
-                            Faktum(Beregning.arbeidstimer, 0, gyldighetsperiode, kilde = kilde),
+                            Faktum(Beregning.arbeidstimer, 0.0, gyldighetsperiode, kilde = kilde),
                         )
                     }
                 }

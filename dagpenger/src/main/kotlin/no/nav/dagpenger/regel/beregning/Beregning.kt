@@ -17,7 +17,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
 object Beregning {
     val meldeperiode = Opplysningstype.periode(meldeperiodeId, "Meldeperiode", synlig = aldriSynlig)
     val arbeidsdag = Opplysningstype.boolsk(arbeidsdagId, "Arbeidsdag")
-    val arbeidstimer = Opplysningstype.heltall(arbeidstimerId, "Arbeidstimer på en arbeidsdag")
+    val arbeidstimer = Opplysningstype.desimaltall(arbeidstimerId, "Arbeidstimer på en arbeidsdag")
 
     val forbruk = Opplysningstype.boolsk(forbrukId, "Dag som fører til forbruk av dagpengeperiode")
     val meldt = Opplysningstype.boolsk(meldtId, "Har meldt seg via meldekort")

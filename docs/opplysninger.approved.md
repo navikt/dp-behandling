@@ -220,7 +220,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01948d3c-4bea-7802-9d18-5342a5e2be99|Avtjent verneplikt|Verneplikt|Boolsk|boolean|
 |01948d43-e218-76f1-b29b-7e604241d98a|Oppfyller kravet til verneplikt|Oppfyller kravet til verneplikt|Boolsk|boolean|
 |01948ea0-36e8-72cc-aa4f-16bc446ed3bd|Arbeidsdag|Arbeidsdag|Boolsk|boolean|
-|01948ea0-e25c-7c47-8429-a05045d80eca|Arbeidstimer på en arbeidsdag|Arbeidstimer på en arbeidsdag|Heltall|int|
+|01948ea0-e25c-7c47-8429-a05045d80eca|Arbeidstimer på en arbeidsdag|Arbeidstimer på en arbeidsdag|Desimaltall|double|
 |01948ea0-ffdc-7964-ab55-52a7e35e1020|Dag som fører til forbruk av dagpengeperiode|Dag som fører til forbruk av dagpengeperiode|Boolsk|boolean|
 |01948ea2-22f3-7da8-9547-90d0c64e74e0|Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger|Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger|Desimaltall|double|
 |0194929e-2036-7ac1-ada3-5cbe05a83f08|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Har helsemessige begrensninger og kan ikke ta alle typer arbeid|Boolsk|boolean|

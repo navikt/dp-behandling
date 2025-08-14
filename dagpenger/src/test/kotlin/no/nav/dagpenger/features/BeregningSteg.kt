@@ -138,7 +138,7 @@ class BeregningSteg : No {
             dager
                 .mapIndexed { i, dag ->
                     val dato = fraOgMed.plusDays(i.toLong())
-                    val timer = dag["verdi"]?.toInt() ?: 0
+                    val timer = dag["verdi"]?.toDouble() ?: 0.0
                     val type = dag["type"] ?: "Arbeidstimer"
                     when (type) {
                         "Arbeidstimer" ->
