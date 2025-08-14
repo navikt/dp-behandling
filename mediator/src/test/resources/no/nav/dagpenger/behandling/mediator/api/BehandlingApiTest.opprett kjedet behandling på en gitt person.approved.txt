@@ -46,20 +46,7 @@ Forslag til vedtak med utfall=true
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
 Har fattet vedtak med utfall=true
-Laget avklaring om GjenopptakBehandling
-Laget avklaring om HarTilleggsopplysninger
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=true
-Laget avklaring om GjenopptakBehandling
-Laget avklaring om HarTilleggsopplysninger
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=true
-Laget avklaring om GjenopptakBehandling
-Laget avklaring om HarTilleggsopplysninger
+Laget avklaring om ManuellBehandling
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak

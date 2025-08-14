@@ -49,7 +49,7 @@ object TapAvArbeidsinntektOgArbeidstid {
     val kravPåLønn =
         boolsk(
             kravPåLønnId,
-            "Har lønn fra tidligere arbeidsgiver",
+            "Har krav på lønn fra arbeidsgiver",
             behovId = AndreØkonomiskeYtelser,
             formål = Opplysningsformål.Bruker,
         )

@@ -133,7 +133,7 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
     for (offset in 0..<inspektør.size) {
         val melding = inspektør.message(offset)
         when (melding["@event_name"].asText()) {
-            "behov" -> meldinger.add("Behov: ${melding["@behov"].joinToString("\n- ", "\n- ") { it.asText() }}")
+            "behov" -> meldinger.add("Behov:${melding["@behov"].joinToString("\n- ", "\n- ") { it.asText() }}")
             "NyAvklaring" -> meldinger.add("Laget avklaring om ${melding["kode"].asText()}")
             "behandling_opprettet" -> meldinger.add("Opprettet ny behandling")
             "behandling_endret_tilstand" -> meldinger.add("Behandling endret tilstand til: ${melding["gjeldendeTilstand"].asText()}")

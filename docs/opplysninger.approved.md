@@ -140,7 +140,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9434-79e8-a64d-1a23cc5d86ed|Antall timer arbeidstiden skal samordnes mot|Antall timer arbeidstiden skal samordnes mot|Desimaltall|double|
 |0194881f-9434-79e8-a64d-1a23cc5d86ee|Samordnet fastsatt arbeidstid|Samordnet fastsatt arbeidstid|Desimaltall|double|
 |0194881f-9434-79e8-a64d-1a23cc5d86ef|Utfall etter samordning|Utfall etter samordning|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a75e|Har lønn fra tidligere arbeidsgiver|AndreØkonomiskeYtelser|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a75e|Har krav på lønn fra arbeidsgiver|AndreØkonomiskeYtelser|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a75f|Ønsket arbeidstid|ØnsketArbeidstid|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a761|Oppfyller vilkåret til tap av arbeidsinntekt|Oppfyller vilkåret til tap av arbeidsinntekt|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a762|Krav til prosentvis tap av arbeidstid|Krav til prosentvis tap av arbeidstid|Desimaltall|double|

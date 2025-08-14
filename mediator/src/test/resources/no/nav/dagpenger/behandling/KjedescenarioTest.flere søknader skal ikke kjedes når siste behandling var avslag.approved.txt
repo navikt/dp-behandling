@@ -1,13 +1,13 @@
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behov: 
+Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - Fødselsdato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
-Behov: 
+Behov:
 - Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -32,13 +32,13 @@ Har fattet vedtak med utfall=false
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behov: 
+Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - Fødselsdato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
-Behov: 
+Behov:
 - Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -59,13 +59,13 @@ Forslag til vedtak med utfall=false
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behov: 
+Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - Fødselsdato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
-Behov: 
+Behov:
 - Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -86,13 +86,13 @@ Forslag til vedtak med utfall=false
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behov: 
+Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - Fødselsdato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
-Behov: 
+Behov:
 - Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst

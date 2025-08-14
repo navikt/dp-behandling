@@ -4,7 +4,7 @@ Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De 
 
 |Behov|Beskrivelse|Logisk datatype|Datatype|
 |---|---|---|---|
-|AndreØkonomiskeYtelser | Har lønn fra tidligere arbeidsgiver | Boolsk|boolean|
+|AndreØkonomiskeYtelser | Har krav på lønn fra arbeidsgiver | Boolsk|boolean|
 |Barnetillegg | Barn | BarnDatatype|BarnListe|
 |BostedslandErNorge | Bostedsland er Norge | Boolsk|boolean|
 |Foreldrepenger | Foreldrepenger etter lovens kapittel 14 | Boolsk|boolean|
