@@ -16,8 +16,10 @@ class ScenarioTest {
             person.søkDagpenger(21.juni(2018))
 
             behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
-            forslag {
+            vedtak {
                 utfall shouldBe false
             }
         }
@@ -31,8 +33,10 @@ class ScenarioTest {
             person.søkDagpenger(21.juni(2018))
 
             behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
-            forslag {
+            vedtak {
                 utfall shouldBe false
             }
         }

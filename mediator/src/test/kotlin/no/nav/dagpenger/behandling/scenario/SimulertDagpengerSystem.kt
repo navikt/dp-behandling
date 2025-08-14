@@ -26,6 +26,7 @@ import no.nav.dagpenger.behandling.scenario.assertions.ForslagAssertions
 import no.nav.dagpenger.behandling.scenario.assertions.KlumpenAssertions
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import org.approvaltests.Approvals
 import java.util.UUID
 import kotlin.random.Random
 
@@ -116,6 +117,8 @@ internal class SimulertDagpengerSystem(
                 val test = SimulertDagpengerSystem(this)
                 test.opprettPerson(ident)
                 test.block()
+
+                godkjennMeldinger(test.rapid.inspektør)
             }
         }
     }
@@ -123,6 +126,25 @@ internal class SimulertDagpengerSystem(
     private fun opprettPerson(ident: String) {
         personRepository.lagre(Person(ident.tilPersonIdentfikator()))
     }
+}
+
+private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
+    val meldinger = mutableListOf<String>()
+    for (offset in 0..<inspektør.size) {
+        val melding = inspektør.message(offset)
+        when (melding["@event_name"].asText()) {
+            "behov" -> meldinger.add("Behov: ${melding["@behov"].joinToString("\n- ", "\n- ") { it.asText() }}")
+            "NyAvklaring" -> meldinger.add("Laget avklaring om ${melding["kode"].asText()}")
+            "behandling_opprettet" -> meldinger.add("Opprettet ny behandling")
+            "behandling_endret_tilstand" -> meldinger.add("Behandling endret tilstand til: ${melding["gjeldendeTilstand"].asText()}")
+            "forslag_til_vedtak" -> meldinger.add("Forslag til vedtak med utfall=${melding["fastsatt"]["utfall"].asBoolean()}")
+            "vedtak_fattet" -> meldinger.add("Har fattet vedtak med utfall=${melding["fastsatt"]["utfall"].asBoolean()}")
+            "klumpen_er_laget" -> {}
+
+            else -> meldinger.add("melding: ${melding["@event_name"].asText()}")
+        }
+    }
+    Approvals.verify(meldinger.joinToString("\n"))
 }
 
 fun TestRapid.RapidInspector.sisteMelding(navn: String): JsonNode {
