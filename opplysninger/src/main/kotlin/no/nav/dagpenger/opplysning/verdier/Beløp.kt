@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning.verdier
 
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import org.javamoney.moneta.Money
 import java.math.BigDecimal
 import java.math.MathContext
@@ -51,6 +52,8 @@ class Beløp private constructor(
     operator fun times(faktor: Double): Beløp = Beløp(verdi.multiply(faktor))
 
     operator fun times(faktor: Int): Beløp = Beløp(verdi.multiply(faktor))
+
+    operator fun times(faktor: Timer): Beløp = Beløp(verdi.multiply(faktor.timer))
 
     operator fun times(faktor: BigDecimal): Beløp = Beløp(verdi.multiply(faktor))
 

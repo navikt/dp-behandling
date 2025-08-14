@@ -2,10 +2,11 @@ package no.nav.dagpenger.opplysning.verdier.enhet
 
 import kotlin.time.Duration
 
-class Timer(
-    timer: Number,
+@JvmInline
+value class Timer(
+    val timer: Double,
 ) : Comparable<Timer> {
-    val timer = timer.toDouble()
+    constructor(number: Number) : this(number.toDouble())
 
     operator fun div(number: Int): Timer = Timer(this.timer / number)
 
@@ -19,8 +20,6 @@ class Timer(
 
     override fun compareTo(other: Timer): Int = this.timer.compareTo(other.timer)
 
-    override fun equals(other: Any?) = other is Timer && other.timer == this.timer
-
     override fun toString() = "Timer($timer)"
 
     companion object {
@@ -29,6 +28,4 @@ class Timer(
 
         fun List<Timer>.summer() = this.sumOf { it.timer }.timer
     }
-
-    override fun hashCode(): Int = timer.hashCode()
 }

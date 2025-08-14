@@ -63,7 +63,7 @@ internal class Beregningsperiode private constructor(
     }
 
     private fun beregnDagsløp(arbeidsdager: List<Arbeidsdag>): List<Arbeidsdag> =
-        arbeidsdager.onEach { it.dagsbeløp = it.sats * prosentfaktor.timer }
+        arbeidsdager.onEach { it.dagsbeløp = it.sats * prosentfaktor }
 
     private fun fordelEgenandel(fordeling: List<Arbeidsdag>): List<Arbeidsdag> {
         val totalTilUtbetaling = Beløp(fordeling.sumOf { it.dagsbeløp.verdien })
