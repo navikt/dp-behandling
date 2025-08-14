@@ -12,6 +12,9 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.tilTimer
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
@@ -77,15 +80,14 @@ class BeregnMeldekortHendelse(
             meldekort.dager.forEach { dag ->
                 val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
 
-                // TODO: Dette bør være en double
-                val timer = dag.aktiviteter.sumOf { it.timer?.inWholeHours ?: 0 }.toInt()
+                val timer = dag.aktiviteter.map { it.timer?.tilTimer ?: Timer(0) }.summer()
                 // TODO: Hva om det er flere aktiviteter?
                 val type = dag.aktiviteter.firstOrNull()?.type
                 when (type) {
                     AktivitetType.Arbeid -> {
                         listOf(
                             opplysninger.leggTil(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde)),
-                            opplysninger.leggTil(Faktum(Beregning.arbeidstimer, timer, gyldighetsperiode, kilde = kilde)),
+                            opplysninger.leggTil(Faktum(Beregning.arbeidstimer, timer.timer.toInt(), gyldighetsperiode, kilde = kilde)),
                         )
                     }
 
@@ -114,7 +116,7 @@ class BeregnMeldekortHendelse(
             meldekort
                 .periode()
                 .forEach { dato ->
-                    val forbruksdag = forbruksdager.singleOrNull { it.dato.equals(dato) }
+                    val forbruksdag = forbruksdager.singleOrNull { it.dato.isEqual(dato) }
                     val gyldighetsperiode = Gyldighetsperiode(dato, dato)
 
                     val tilUtbetaling = forbruksdag?.avrundetUtbetaling ?: 0

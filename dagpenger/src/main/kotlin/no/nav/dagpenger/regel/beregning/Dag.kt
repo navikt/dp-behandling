@@ -1,22 +1,22 @@
 package no.nav.dagpenger.regel.beregning
 
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import java.math.BigDecimal
 import java.time.LocalDate
 
 internal sealed interface Dag {
     val dato: LocalDate
     val sats: Beløp?
-    val fva: Double?
-    val timerArbeidet: Int?
+    val fva: Timer?
+    val timerArbeidet: Timer?
 }
 
-// TODO: Gå over til BigDecimal for sats og fva og dagsbeløp og forbruktEgenandel
 internal class Arbeidsdag(
     override val dato: LocalDate,
     override val sats: Beløp,
-    override val fva: Double,
-    override val timerArbeidet: Int,
+    override val fva: Timer,
+    override val timerArbeidet: Timer,
     val terskel: BigDecimal,
 ) : Dag {
     internal var overskytendeRest: Beløp = Beløp(0.0)
@@ -37,7 +37,7 @@ internal class Arbeidsdag(
         overskytendeRest = overskytende
     }
 
-    constructor(dato: LocalDate, sats: Beløp, fva: Double, timerArbeidet: Int, terskel: Double) :
+    constructor(dato: LocalDate, sats: Beløp, fva: Timer, timerArbeidet: Timer, terskel: Double) :
         this(dato, sats, fva, timerArbeidet, BigDecimal.valueOf(terskel))
 }
 
@@ -51,7 +51,7 @@ internal class Fraværsdag(
 
 internal class Helgedag(
     override val dato: LocalDate,
-    override val timerArbeidet: Int?,
+    override val timerArbeidet: Timer?,
 ) : Dag {
     override val sats = null
     override val fva = null

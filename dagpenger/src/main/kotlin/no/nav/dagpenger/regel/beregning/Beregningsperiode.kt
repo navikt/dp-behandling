@@ -1,6 +1,8 @@
 package no.nav.dagpenger.regel.beregning
 
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 
 internal class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Beløp,
@@ -28,11 +30,11 @@ internal class Beregningsperiode private constructor(
      * ·       Dersom «ja» finner vi den dagen og denne har opplysning om hvor mange dager med rettighet som gjenstår etter.
      */
 
-    private val sumFva = dager.mapNotNull { it.fva }.sum()
+    private val sumFva = dager.mapNotNull { it.fva }.summer()
     private val arbeidsdager = arbeidsdager(dager)
     private val prosentfaktor = beregnProsentfaktor(dager)
     val terskel = (100 - terskelstrategi.beregnTerskel(arbeidsdager)) / 100
-    val oppfyllerKravTilTaptArbeidstid = (arbeidsdager.sumOf { it.timerArbeidet } / sumFva) <= terskel
+    val oppfyllerKravTilTaptArbeidstid = (arbeidsdager.map { it.timerArbeidet }.summer() / sumFva).timer <= terskel
 
     val utbetaling = beregnUtbetaling(arbeidsdager)
 
@@ -43,8 +45,8 @@ internal class Beregningsperiode private constructor(
         return arbeidsdager.subList(0, minOf(arbeidsdager.size, stønadsdagerIgjen))
     }
 
-    private fun beregnProsentfaktor(dager: List<Dag>): Double {
-        val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.sum()
+    private fun beregnProsentfaktor(dager: List<Dag>): Timer {
+        val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.summer()
         return (sumFva - timerArbeidet) / sumFva
     }
 
@@ -61,7 +63,7 @@ internal class Beregningsperiode private constructor(
     }
 
     private fun beregnDagsløp(arbeidsdager: List<Arbeidsdag>): List<Arbeidsdag> =
-        arbeidsdager.onEach { it.dagsbeløp = it.sats * prosentfaktor }
+        arbeidsdager.onEach { it.dagsbeløp = it.sats * prosentfaktor.timer }
 
     private fun fordelEgenandel(fordeling: List<Arbeidsdag>): List<Arbeidsdag> {
         val totalTilUtbetaling = Beløp(fordeling.sumOf { it.dagsbeløp.verdien })

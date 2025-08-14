@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
@@ -68,7 +69,7 @@ internal class BeregningsperiodeFabrikk(
             val gjeldendeOpplysninger = opplysninger.forDato(dato)
             when (dato.dagstype) {
                 Hverdag -> opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
-                Helg -> Helgedag(dato, gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi)
+                Helg -> Helgedag(dato, Timer(gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi))
             }
         }
 
@@ -84,8 +85,8 @@ internal class BeregningsperiodeFabrikk(
                     opplysninger
                         .finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
                         .verdi,
-                fva = opplysninger.finnOpplysning(Vanligarbeidstid.fastsattVanligArbeidstid).verdi / 5,
-                timerArbeidet = opplysninger.finnOpplysning(Beregning.arbeidstimer).verdi,
+                fva = Timer(opplysninger.finnOpplysning(Vanligarbeidstid.fastsattVanligArbeidstid).verdi / 5),
+                timerArbeidet = Timer(opplysninger.finnOpplysning(Beregning.arbeidstimer).verdi),
                 terskel = opplysninger.finnOpplysning(TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon).verdi,
             )
         } else {
