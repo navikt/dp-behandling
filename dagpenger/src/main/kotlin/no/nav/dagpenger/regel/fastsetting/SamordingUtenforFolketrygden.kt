@@ -16,6 +16,7 @@ import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Avklaringspunkter
+import no.nav.dagpenger.regel.Avklaringspunkter.YtelserUtenforFolketrygden
 import no.nav.dagpenger.regel.Behov.OppgittAndreYtelserUtenforNav
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpEtterlønnId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpFraOffentligTjenestepensjonsordningId
@@ -214,6 +215,8 @@ object SamordingUtenforFolketrygden {
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
             ønsketResultat(skalSamordnesUtenforFolketrygden, dagsatsSamordnetUtenforFolketrygden)
+
+            avklaring(YtelserUtenforFolketrygden)
         }
 
     val YtelserUtenforFolketrygdenKontroll =

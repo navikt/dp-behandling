@@ -25,6 +25,8 @@ object FulleYtelser {
             utfall(ikkeFulleYtelser) { somUtgangspunkt(true) }
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+
+            avklaring(Avklaringspunkter.FulleYtelser)
         }
 
     val FulleYtelserKontrollpunkt =
