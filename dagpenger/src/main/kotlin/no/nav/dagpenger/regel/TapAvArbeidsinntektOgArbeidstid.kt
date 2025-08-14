@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
@@ -9,13 +10,14 @@ import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.ikke
+import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.prosentTerskel
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter.BeregnetArbeidstid
 import no.nav.dagpenger.regel.Avklaringspunkter.TapAvArbeidstidBeregningsregel
+import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.HarTaptArbeid
-import no.nav.dagpenger.regel.Behov.KravPåLønn
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstidsreduksjonIkkeBruktTidligereId
 import no.nav.dagpenger.regel.OpplysningsTyper.beregeningsregelArbeidstidSiste36MånederId
 import no.nav.dagpenger.regel.OpplysningsTyper.beregnetVanligArbeidstidPerUkeFørTapId
@@ -24,7 +26,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.beregningsregelArbeidstidSiste6M�
 import no.nav.dagpenger.regel.OpplysningsTyper.beregningsregelTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.fastsattVanligArbeidstidEtterOrdinærEllerVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.harTaptArbeidId
-import no.nav.dagpenger.regel.OpplysningsTyper.ikkeKravPåLønnFraTidligereArbeidsgiverId
 import no.nav.dagpenger.regel.OpplysningsTyper.kravPåLønnId
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilProsentvisTapAvArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilTapAvArbeidsinntektId
@@ -36,24 +37,23 @@ import no.nav.dagpenger.regel.OpplysningsTyper.tapAvArbeidstidErMinstTerskelId
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel36mnd
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktFastsattVanligArbeidstid
 
 object TapAvArbeidsinntektOgArbeidstid {
-    internal val tapAvArbeid = boolsk(harTaptArbeidId, "Har tapt arbeid", behovId = HarTaptArbeid, synlig = aldriSynlig)
-    val kravPåLønn = boolsk(kravPåLønnId, "Krav på lønn fra tidligere arbeidsgiver", behovId = KravPåLønn)
-    private val ikkeKravPåLønn =
+    // Ligger igjen så opplysningen ikke er synlig for gamle behandlinger
+    private val tapAvArbeid = boolsk(harTaptArbeidId, "Har tapt arbeid", behovId = HarTaptArbeid, synlig = aldriSynlig)
+
+    val kravPåLønn =
         boolsk(
-            ikkeKravPåLønnFraTidligereArbeidsgiverId,
-            "Ikke krav på lønn fra tidligere arbeidsgiver",
-            synlig = aldriSynlig,
+            kravPåLønnId,
+            "Har lønn fra tidligere arbeidsgiver",
+            behovId = AndreØkonomiskeYtelser,
+            formål = Opplysningsformål.Bruker,
         )
-    val kravTilTapAvArbeidsinntekt = boolsk(kravTilTapAvArbeidsinntektId, "Oppfyller kravet til tap av arbeidsinntekt")
+    val kravTilTapAvArbeidsinntekt = boolsk(kravTilTapAvArbeidsinntektId, "Oppfyller vilkåret til tap av arbeidsinntekt")
 
     val kravTilArbeidstidsreduksjon =
         desimaltall(
@@ -117,20 +117,18 @@ object TapAvArbeidsinntektOgArbeidstid {
             "Fastsatt vanlig arbeidstid etter ordinær eller verneplikt",
             synlig = aldriSynlig,
         )
-    val kravTilTaptArbeidstid = boolsk(tapAvArbeidstidErMinstTerskelId, "Oppfyller kravet til tap av arbeidstid")
+    val kravTilTaptArbeidstid = boolsk(tapAvArbeidstidErMinstTerskelId, "Oppfyller vilkåret om tap av arbeidstid")
     val kravTilTapAvArbeidsinntektOgArbeidstid =
-        boolsk(kravTilTapAvArbeidsinntektOgArbeidstidId, "Oppfyller kravet til tap av arbeidsinntekt og arbeidstid", synlig = aldriSynlig)
+        boolsk(kravTilTapAvArbeidsinntektOgArbeidstidId, "Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid", synlig = aldriSynlig)
 
     val regelsett =
         vilkår(
-            folketrygden.hjemmel(4, 3, "Krav til tap av arbeidsinntekt og arbeidstid", "Tap av arbeidsinntekt og arbeidstid"),
+            folketrygden.hjemmel(4, 3, "Tap av arbeidsinntekt og arbeidstid", "Tap av arbeidsinntekt og arbeidstid"),
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
-            regel(tapAvArbeid) { somUtgangspunkt(true) }
-            regel(kravPåLønn) { somUtgangspunkt(false) }
-            regel(ikkeKravPåLønn) { ikke(kravPåLønn) }
-            utfall(kravTilTapAvArbeidsinntekt) { alle(tapAvArbeid, ikkeKravPåLønn) }
+            regel(kravPåLønn) { innhentMed(søknadIdOpplysningstype) }
+            utfall(kravTilTapAvArbeidsinntekt) { ikke(kravPåLønn) }
 
             regel(ordinærtKravTilTaptArbeidstid) { oppslag(prøvingsdato) { 50.0 } }
 

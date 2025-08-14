@@ -110,7 +110,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-942f-7bde-ab16-68ffd19e9a27|Ventelønn beløp|Ventelønn beløp|Penger|Beløp|
 |0194881f-942f-7bde-ab16-68ffd19e9a28|Etterlønn beløp|Etterlønn beløp|Penger|Beløp|
 |0194881f-942f-7bde-ab16-68ffd19e9a29|Garantilott fra Garantikassen for fiskere beløp|Garantilott fra Garantikassen for fiskere beløp|Penger|Beløp|
-|0194881f-942f-7bde-ab16-68ffd19e9a2a|Mottar andre økonomiske ytelser fra arbeidsgiver eller tidligere arbeidsgiver enn lønn|AndreØkonomiskeYtelser|Boolsk|boolean|
 |0194881f-942f-7bde-ab16-68ffd19e9a2b|Hvor mange prosent av G skal brukes som terskel ved samordning|Hvor mange prosent av G skal brukes som terskel ved samordning|Desimaltall|double|
 |0194881f-942f-7bde-ab16-68ffd19e9a2c|Beløp tilsvarende nedre terskel av G|Beløp tilsvarende nedre terskel av G|Penger|Beløp|
 |0194881f-942f-7bde-ab16-68ffd19e9a2d|Skal samordnes med ytelser utenfor folketrygden|Skal samordnes med ytelser utenfor folketrygden|Boolsk|boolean|
@@ -141,11 +140,9 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9434-79e8-a64d-1a23cc5d86ed|Antall timer arbeidstiden skal samordnes mot|Antall timer arbeidstiden skal samordnes mot|Desimaltall|double|
 |0194881f-9434-79e8-a64d-1a23cc5d86ee|Samordnet fastsatt arbeidstid|Samordnet fastsatt arbeidstid|Desimaltall|double|
 |0194881f-9434-79e8-a64d-1a23cc5d86ef|Utfall etter samordning|Utfall etter samordning|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a75d|Har tapt arbeid|HarTaptArbeid|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a75e|Krav på lønn fra tidligere arbeidsgiver|KravPåLønn|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a75e|Har lønn fra tidligere arbeidsgiver|AndreØkonomiskeYtelser|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a75f|Ønsket arbeidstid|ØnsketArbeidstid|Desimaltall|double|
-|0194881f-9435-72a8-b1ce-9575cbc2a760|Ikke krav på lønn fra tidligere arbeidsgiver|Ikke krav på lønn fra tidligere arbeidsgiver|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a761|Oppfyller kravet til tap av arbeidsinntekt|Oppfyller kravet til tap av arbeidsinntekt|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a761|Oppfyller vilkåret til tap av arbeidsinntekt|Oppfyller vilkåret til tap av arbeidsinntekt|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a762|Krav til prosentvis tap av arbeidstid|Krav til prosentvis tap av arbeidstid|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a763|Beregningsregel: Tapt arbeidstid|Beregningsregel: Tapt arbeidstid|Boolsk|boolean|
 |0194881f-9435-72a8-b1ce-9575cbc2a764|Beregningsregel: Arbeidstid siste 6 måneder|Beregningsregel: Arbeidstid siste 6 måneder|Boolsk|boolean|
@@ -158,8 +155,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9435-72a8-b1ce-9575cbc2a76b|Ny arbeidstid per uke|Ny arbeidstid per uke|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a76c|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Desimaltall|double|
 |0194881f-9435-72a8-b1ce-9575cbc2a76d|Villig til å jobbe minimum arbeidstid|Villig til å jobbe minimum arbeidstid|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a76e|Oppfyller kravet til tap av arbeidstid|Oppfyller kravet til tap av arbeidstid|Boolsk|boolean|
-|0194881f-9435-72a8-b1ce-9575cbc2a76f|Oppfyller kravet til tap av arbeidsinntekt og arbeidstid|Oppfyller kravet til tap av arbeidsinntekt og arbeidstid|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a76e|Oppfyller vilkåret om tap av arbeidstid|Oppfyller vilkåret om tap av arbeidstid|Boolsk|boolean|
+|0194881f-9435-72a8-b1ce-9575cbc2a76f|Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid|Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid|Boolsk|boolean|
 |0194881f-943d-77a7-969c-147999f15449|Antall dager som skal regnes med i hver uke|Antall dager som skal regnes med i hver uke|Heltall|int|
 |0194881f-943d-77a7-969c-147999f1544a|Kort dagpengeperiode|Kort dagpengeperiode|Heltall|int|
 |0194881f-943d-77a7-969c-147999f1544b|Lang dagpengeperiode|Lang dagpengeperiode|Heltall|int|
@@ -178,7 +175,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943d-77a7-969c-147999f15459|Antall stønadsuker (stønadsperiode)|Antall stønadsuker (stønadsperiode)|Heltall|int|
 |0194881f-943f-78d9-b874-00a4944c54ef|Egenandel|Egenandel|Penger|Beløp|
 |0194881f-943f-78d9-b874-00a4944c54f0|Antall dagsats for egenandel|Antall dagsats for egenandel|Desimaltall|double|
-|0194881f-943f-78d9-b874-00a4944c54f1|Mottar ikke andre fulle ytelser|Mottar ikke andre fulle ytelser|Boolsk|boolean|
+|0194881f-943f-78d9-b874-00a4944c54f1|Oppfyller vilkåret om å ikke motta andre fulle ytelser|Oppfyller vilkåret om å ikke motta andre fulle ytelser|Boolsk|boolean|
 |0194881f-9441-7d1b-a06a-6727543a141e|Kan jobbe heltid og deltid|KanJobbeDeltid|Boolsk|boolean|
 |0194881f-9441-7d1b-a06a-6727543a141f|Det er godkjent at bruker kun søker deltidsarbeid|Det er godkjent at bruker kun søker deltidsarbeid|Boolsk|boolean|
 |0194881f-9442-707b-a6ee-e96c06877bd8|Oppfyller kravet til heltid- og deltidsarbeid|Oppfyller kravet til heltid- og deltidsarbeid|Boolsk|boolean|

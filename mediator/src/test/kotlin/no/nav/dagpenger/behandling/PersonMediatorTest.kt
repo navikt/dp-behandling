@@ -405,7 +405,7 @@ internal class PersonMediatorTest {
                 }
             }
 
-            rapid.inspektør.size shouldBe 25
+            rapid.inspektør.size shouldBe 26
 
             rapid.harHendelse("forslag_til_vedtak") {
                 medFastsettelser {
@@ -858,6 +858,7 @@ internal class PersonMediatorTest {
                 BostedslandErNorge,
                 Barnetillegg,
                 TarUtdanningEllerOpplæring,
+                AndreØkonomiskeYtelser,
             )
 
             rapid.harHendelse("forslag_til_vedtak") {
@@ -1219,7 +1220,6 @@ internal class PersonMediatorTest {
             Foreldrepenger,
             Opplæringspenger,
             Pleiepenger,
-            OppgittAndreYtelserUtenforNav,
             AndreØkonomiskeYtelser,
         )
         testPerson.løsBehov(Sykepenger, true)
@@ -1231,9 +1231,11 @@ internal class PersonMediatorTest {
             Foreldrepenger,
             Opplæringspenger,
             Pleiepenger,
-            OppgittAndreYtelserUtenforNav,
             AndreØkonomiskeYtelser,
         )
+
+        rapid.harBehov(OppgittAndreYtelserUtenforNav)
+        testPerson.løsBehov(OppgittAndreYtelserUtenforNav)
     }
 
     private fun antallOpplysninger() =

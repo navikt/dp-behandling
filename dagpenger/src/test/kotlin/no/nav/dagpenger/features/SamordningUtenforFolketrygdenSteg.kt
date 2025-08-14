@@ -15,7 +15,6 @@ import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.andreYtelser
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.andreØkonomiskeYtelser
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.nedreGrenseForSamordning
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.samordnetUkessats
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.samordnetUkessatsUtenBarnetillegg
@@ -55,7 +54,6 @@ class SamordningUtenforFolketrygdenSteg : No {
         }
 
         Gitt("søker har oppgitt ytelse {string}") { ytelse: String ->
-            opplysninger.leggTil(Faktum(andreØkonomiskeYtelser, false))
             when (ytelse) {
                 else -> opplysninger.leggTil(Faktum(andreYtelser, true)).also { regelkjøring.evaluer() }
             }

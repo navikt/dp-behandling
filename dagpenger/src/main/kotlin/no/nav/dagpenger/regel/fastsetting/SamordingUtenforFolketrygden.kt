@@ -16,9 +16,7 @@ import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Avklaringspunkter
-import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.OppgittAndreYtelserUtenforNav
-import no.nav.dagpenger.regel.OpplysningsTyper.andreØkonomiskeYtelserId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpEtterlønnId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpFraOffentligTjenestepensjonsordningId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpGarantilottId
@@ -100,13 +98,6 @@ object SamordingUtenforFolketrygden {
             )
         })
 
-    val andreØkonomiskeYtelser =
-        Opplysningstype.boolsk(
-            id = andreØkonomiskeYtelserId,
-            beskrivelse = "Mottar andre økonomiske ytelser fra arbeidsgiver eller tidligere arbeidsgiver enn lønn",
-            behovId = AndreØkonomiskeYtelser,
-        )
-
     private val terskelVedSamordning =
         Opplysningstype.desimaltall(
             id = terskelVedSamordningId,
@@ -177,8 +168,6 @@ object SamordingUtenforFolketrygden {
             regel(etterlønn) { somUtgangspunkt(false) }
             regel(garantilottGFF) { somUtgangspunkt(false) }
 
-            regel(andreØkonomiskeYtelser) { innhentes }
-
             regel(pensjonFraOffentligTjenestepensjonsordningBeløp) { somUtgangspunkt(Beløp(0.0)) }
             regel(redusertUførepensjonBeløp) { somUtgangspunkt(Beløp(0.0)) }
             regel(vartpengerBeløp) { somUtgangspunkt(Beløp(0.0)) }
@@ -219,7 +208,6 @@ object SamordingUtenforFolketrygden {
                     ventelønn,
                     etterlønn,
                     garantilottGFF,
-                    andreØkonomiskeYtelser,
                 )
             }
 

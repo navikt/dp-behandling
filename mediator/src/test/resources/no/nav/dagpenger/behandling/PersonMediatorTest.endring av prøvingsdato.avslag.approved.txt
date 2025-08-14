@@ -56,6 +56,7 @@ Svangerskapspenger etter lovens kapittel 14
 Foreldrepenger etter lovens kapittel 14
 Opplæringspenger etter lovens kapittel 9
 Pleiepenger etter lovens kapittel 9
+Har lønn fra tidligere arbeidsgiver
 Brutto arbeidsinntekt
 Oppfyller kravet til å være registrert som arbeidssøker
 Arbeidsinntekt siste 12 måneder
@@ -63,7 +64,7 @@ Arbeidsinntekt siste 36 måneder
 Arbeidsinntekt er over kravet for siste 12 måneder
 Arbeidsinntekt er over kravet for siste 36 måneder
 Oppfyller kravet til minsteinntekt
-Mottar ikke andre fulle ytelser
+Oppfyller vilkåret om å ikke motta andre fulle ytelser
 Bruker oppholder seg i Norge
 Oppfyller unntak for opphold i Norge
 Bruker er medlem av folketrygden
@@ -89,8 +90,7 @@ Foreldrepenger dagsats
 Svangerskapspenger dagsats
 Brukeren deltar i streik eller er omfattet av lock-out
 Brukeren er ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet
-Har tapt arbeid
-Krav på lønn fra tidligere arbeidsgiver
+Oppfyller vilkåret til tap av arbeidsinntekt
 Ny arbeidstid per uke
 Maksimal vanlig arbeidstid
 Fastsatt vanlig arbeidstid for verneplikt
@@ -119,7 +119,6 @@ Grunnlag for gis ved verneplikt
 Sum av barnetillegg
 Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
 Brukeren er ikke påvirket av streik eller lock-out
-Ikke krav på lønn fra tidligere arbeidsgiver
 Samordnet fastsatt arbeidstid
 Krav til prosentvis tap av arbeidstid
 Beregningsregel: Tapt arbeidstid
@@ -133,7 +132,6 @@ Grunnlag for verneplikt hvis kravet er oppfylt
 Uførebeløp som skal samordnes
 Har barnetillegg
 Medlem har reduserte ytelser fra folketrygden (Samordning)
-Oppfyller kravet til tap av arbeidsinntekt
 Oppfyller kravet på unntak for utdanning eller opplæring
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
@@ -155,9 +153,9 @@ Maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
 Fastsatt arbeidstid per uke før tap
 Dagsats med barnetillegg før samordning
 Avrundet maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget
-Oppfyller kravet til tap av arbeidstid
+Oppfyller vilkåret om tap av arbeidstid
 Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
-Oppfyller kravet til tap av arbeidsinntekt og arbeidstid
+Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid
 Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
 Samordnet dagsats er større enn 0
 Samordnet dagsats uten barnetillegg

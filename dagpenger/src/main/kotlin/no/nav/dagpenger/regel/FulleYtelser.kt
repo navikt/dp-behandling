@@ -9,7 +9,7 @@ import no.nav.dagpenger.regel.Samordning.skalSamordnes
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
 
 object FulleYtelser {
-    val ikkeFulleYtelser = boolsk(IkkeFulleYtelserId, "Mottar ikke andre fulle ytelser")
+    val ikkeFulleYtelser = boolsk(IkkeFulleYtelserId, "Oppfyller vilkåret om å ikke motta andre fulle ytelser")
 
     val regelsett =
         vilkår(

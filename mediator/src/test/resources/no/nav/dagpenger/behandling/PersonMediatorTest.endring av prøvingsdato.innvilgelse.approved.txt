@@ -41,7 +41,7 @@ Arbeidsinntekt siste 36 måneder
 Arbeidsinntekt er over kravet for siste 12 måneder
 Arbeidsinntekt er over kravet for siste 36 måneder
 Oppfyller kravet til minsteinntekt
-Mottar ikke andre fulle ytelser
+Oppfyller vilkåret om å ikke motta andre fulle ytelser
 Oppfyller unntak for opphold i Norge
 Bruker er medlem av folketrygden
 Grunnbeløp for grunnlag
@@ -64,8 +64,6 @@ Foreldrepenger dagsats
 Svangerskapspenger dagsats
 Brukeren deltar i streik eller er omfattet av lock-out
 Brukeren er ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet
-Har tapt arbeid
-Krav på lønn fra tidligere arbeidsgiver
 Ny arbeidstid per uke
 Maksimal vanlig arbeidstid
 Fastsatt vanlig arbeidstid for verneplikt
@@ -90,7 +88,6 @@ Oppjustert inntekt
 Grunnlag for gis ved verneplikt
 Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
 Brukeren er ikke påvirket av streik eller lock-out
-Ikke krav på lønn fra tidligere arbeidsgiver
 Samordnet fastsatt arbeidstid
 Krav til prosentvis tap av arbeidstid
 Beregningsregel: Tapt arbeidstid
@@ -100,7 +97,6 @@ Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
 Uførebeløp som skal samordnes
-Oppfyller kravet til tap av arbeidsinntekt
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
@@ -132,8 +128,7 @@ Oppfyller kravet til å ta ethvert arbeid
 Villig til å jobbe minimum arbeidstid
 Fastsatt arbeidstid per uke før tap
 Reell arbeidssøker
-Oppfyller kravet til tap av arbeidstid
-Oppfyller kravet til tap av arbeidsinntekt og arbeidstid
+Oppfyller vilkåret om tap av arbeidstid
 Bostedsland er Norge
 Bruker oppholder seg i Norge
 Oppfyller kravet til opphold i Norge eller unntak
@@ -143,6 +138,28 @@ Har svart ja på spørsmål om utdanning eller opplæring
 Har svart nei på spørsmål om utdanning eller opplæring
 Oppfyller kravet på unntak for utdanning eller opplæring
 Oppfyller krav til utdanning eller opplæring
+Barn
+Antall barn som gir rett til barnetillegg
+Sum av barnetillegg
+Dagsats med barnetillegg før samordning
+Har barnetillegg
+Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
+Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
+Sykepenger dagsats
+Sum andre ytelser
+Samordnet dagsats er større enn 0
+Samordnet dagsats uten barnetillegg
+Utfall etter samordning
+Sykepenger etter lovens kapittel 8
+Omsorgspenger etter lovens kapittel 9
+Svangerskapspenger etter lovens kapittel 14
+Foreldrepenger etter lovens kapittel 14
+Opplæringspenger etter lovens kapittel 9
+Pleiepenger etter lovens kapittel 9
+Har lønn fra tidligere arbeidsgiver
+Medlem har reduserte ytelser fra folketrygden (Samordning)
+Oppfyller vilkåret til tap av arbeidsinntekt
+Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid
 Har avkortet grunnlaget i periode 1
 Har avkortet grunnlaget i periode 2
 Har avkortet grunnlaget i periode 3
@@ -175,48 +192,28 @@ Mottar etterlønn
 Mottar garantilott fra Garantikassen for fiskere.
 Periode som gis ved verneplikt
 Har avkortet grunnlag
+Samordnet ukessats uten barnetillegg
 Beløp tilsvarende nedre terskel av G
 Sum av ytelser utenfor folketrygden
+Avrundet ukessats med barnetillegg før samordning
 Terskel for 12 måneder
 Terskel for 36 måneder
-Over terskel for 12 måneder
-Over terskel for 36 måneder
-Stønadsuker ved siste 12 måneder
-Stønadsuker ved siste 36 måneder
-Antall stønadsuker
-Antall stønadsuker (stønadsperiode)
-Antall stønadsdager
-Barn
-Antall barn som gir rett til barnetillegg
-Sum av barnetillegg
-Dagsats med barnetillegg før samordning
-Har barnetillegg
-Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
-Avrundet ukessats med barnetillegg før samordning
-Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
-Sykepenger dagsats
-Sum andre ytelser
-Samordnet dagsats uten barnetillegg
-Samordnet dagsats er større enn 0
-Samordnet ukessats uten barnetillegg
-Utfall etter samordning
 Minste mulige ukessats som som kan brukes
 Ukessats trukket ned for ytelser utenfor folketrygden
+Over terskel for 12 måneder
+Over terskel for 36 måneder
 Samordnet ukessats med ytelser utenfor folketrygden
+Stønadsuker ved siste 12 måneder
+Stønadsuker ved siste 36 måneder
 Dagsats uten barnetillegg samordnet
+Antall stønadsuker
 Samordnet dagsats med barnetillegg
 Har samordnet
+Antall stønadsuker (stønadsperiode)
+Antall stønadsdager
 Dagsats med barnetillegg etter samordning og 90 % regel
 Ukessats med barnetillegg etter samordning
 Tre ganger dagsats
 Egenandel
-Sykepenger etter lovens kapittel 8
-Omsorgspenger etter lovens kapittel 9
-Svangerskapspenger etter lovens kapittel 14
-Foreldrepenger etter lovens kapittel 14
-Opplæringspenger etter lovens kapittel 9
-Pleiepenger etter lovens kapittel 9
 Oppgitt andre ytelser utenfor NAV i søknaden
-Mottar andre økonomiske ytelser fra arbeidsgiver eller tidligere arbeidsgiver enn lønn
 Skal samordnes med ytelser utenfor folketrygden
-Medlem har reduserte ytelser fra folketrygden (Samordning)
