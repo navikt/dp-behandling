@@ -20,6 +20,14 @@ enum class Opplysningsformål {
     Regel,
 }
 
+interface Enhet<T : Comparable<T>, E> {
+    val navn: String
+
+    fun valider(verdi: T)
+
+    fun somEnhet(verdi: T): E
+}
+
 class Opplysningstype<T : Comparable<T>>(
     val id: Id<T>,
     val navn: String,
@@ -27,6 +35,7 @@ class Opplysningstype<T : Comparable<T>>(
     val formål: Opplysningsformål,
     val synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
     private val gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
+    val enhet: Enhet<T, *>? = null,
 ) : Klassifiserbart {
     val datatype = id.datatype
 
@@ -106,7 +115,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<Double> = som(id, beskrivelse, formål, synlig, behovId)
+            enhet: Enhet<Double, *>? = null,
+        ): Opplysningstype<Double> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet)
 
         fun tekst(
             id: Id<String>,
@@ -139,7 +149,8 @@ class Opplysningstype<T : Comparable<T>>(
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
             gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
-        ): Opplysningstype<T> = Opplysningstype(id, beskrivelse, behovId, formål, synlig, gyldighetsperiodeStrategi)
+            enhet: Enhet<T, *>? = null,
+        ): Opplysningstype<T> = Opplysningstype(id, beskrivelse, behovId, formål, synlig, gyldighetsperiodeStrategi, enhet)
     }
 
     override infix fun er(type: Opplysningstype<*>): Boolean = id == type.id

@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Id
+import no.nav.dagpenger.opplysning.verdier.enhet.TimerEnhet
 import no.nav.dagpenger.uuid.UUIDv7
 import java.util.UUID
 
@@ -40,6 +41,13 @@ internal object TestOpplysningstyper {
         Opplysningstype.boolsk(
             Id(UUIDv7.ny(), Boolsk),
             "Foreldrevilkår",
+        )
+    }
+    val desimaltallSomTimer by lazy {
+        Opplysningstype.desimaltall(
+            Id(UUIDv7.ny(), Desimaltall),
+            "desimaltallSomTimer",
+            enhet = TimerEnhet,
         )
     }
     val undervilkår1 by lazy { Opplysningstype.boolsk(Id(UUIDv7.ny(), Boolsk), "Undervilkår1") }

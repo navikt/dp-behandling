@@ -46,7 +46,7 @@ internal class Beregningsperiode private constructor(
     }
 
     private fun beregnProsentfaktor(dager: List<Dag>): Timer {
-        val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.summer()
+        val timerArbeidet: Timer = dager.mapNotNull { it.timerArbeidet }.summer()
         return (sumFva - timerArbeidet) / sumFva
     }
 

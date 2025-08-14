@@ -138,6 +138,10 @@ class Faktum<T : Comparable<T>>(
         erstatter: Opplysning<T>? = null,
     ) : this(UUIDv7.ny(), opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter)
 
+    init {
+        opplysningstype.enhet?.valider(verdi)
+    }
+
     override fun bekreft() = this
 
     /* Metode for å lage en ny instans av Faktum med en ny UUID. Vi sorterer etter ID,
@@ -171,4 +175,6 @@ class Faktum<T : Comparable<T>>(
             opplysning.opprettet,
             this,
         )
+
+    fun somEnhet() = opplysningstype.enhet?.somEnhet(verdi)
 }
