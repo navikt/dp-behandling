@@ -5,11 +5,13 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import java.math.BigDecimal
 import java.time.LocalDate
 
-internal sealed interface Dag {
+internal sealed interface Dag : Comparable<Dag> {
     val dato: LocalDate
     val sats: Beløp?
     val fva: Timer?
     val timerArbeidet: Timer?
+
+    override fun compareTo(other: Dag) = dato.compareTo(other.dato)
 }
 
 internal class Arbeidsdag(

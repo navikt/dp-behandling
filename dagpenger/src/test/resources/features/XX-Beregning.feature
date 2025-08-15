@@ -67,9 +67,9 @@ Egenskap: Beregning av meldekort
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 5     |
       | Tirsdag | Arbeidstimer | 5     |
-      | Onsdag  | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 2.5   |
       | Torsdag | Arbeidstimer | 4     |
-      | Fredag  | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 2.5   |
       | Lørdag  | Arbeidstimer | 0     |
       | Søndag  | Arbeidstimer | 0     |
       | Mandag  | Arbeidstimer | 0     |

@@ -21,8 +21,8 @@ import java.time.LocalDate
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 internal class BeregningsperiodeFabrikk(
-    private val meldeperiodeFraOgMed: LocalDate,
-    private val meldeperiodeTilOgMed: LocalDate,
+    meldeperiodeFraOgMed: LocalDate,
+    meldeperiodeTilOgMed: LocalDate,
     private val opplysninger: LesbarOpplysninger,
     private val rettighetstatuser: TemporalCollection<Rettighetstatus>,
 ) {
@@ -64,14 +64,15 @@ internal class BeregningsperiodeFabrikk(
     private fun hentMeldekortDagerMedRett(): List<LocalDate> =
         meldeperiode.filter { meldekortDag -> runCatching { rettighetstatuser.get(meldekortDag).utfall }.getOrElse { false } }
 
-    private fun opprettPeriode(dager: List<LocalDate>): List<Dag> =
-        dager.map { dato ->
-            val gjeldendeOpplysninger = opplysninger.forDato(dato)
-            when (dato.dagstype) {
-                Hverdag -> opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
-                Helg -> Helgedag(dato, Timer(gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi))
-            }
-        }
+    private fun opprettPeriode(dager: List<LocalDate>): Set<Dag> =
+        dager
+            .map { dato ->
+                val gjeldendeOpplysninger = opplysninger.forDato(dato)
+                when (dato.dagstype) {
+                    Hverdag -> opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
+                    Helg -> Helgedag(dato, Timer(gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi))
+                }
+            }.toSortedSet()
 
     private fun opprettArbeidsdagEllerFraværsdag(
         dato: LocalDate,

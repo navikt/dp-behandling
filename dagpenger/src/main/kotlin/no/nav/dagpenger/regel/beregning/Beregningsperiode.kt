@@ -6,11 +6,11 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 
 internal class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Beløp,
-    dager: List<Dag>,
+    dager: Set<Dag>,
     terskelstrategi: Terskelstrategi,
     private val stønadsdagerIgjen: Int,
 ) {
-    constructor(gjenståendeEgenandel: Beløp, dag: List<Dag>, stønadsdagerIgjen: Int) : this(
+    constructor(gjenståendeEgenandel: Beløp, dag: Set<Dag>, stønadsdagerIgjen: Int) : this(
         gjenståendeEgenandel,
         dag,
         snitterskel,
@@ -38,20 +38,20 @@ internal class Beregningsperiode private constructor(
 
     val utbetaling = beregnUtbetaling(arbeidsdager)
 
-    val forbruksdager = if (oppfyllerKravTilTaptArbeidstid) arbeidsdager else emptyList()
+    val forbruksdager = if (oppfyllerKravTilTaptArbeidstid) arbeidsdager.toList() else emptyList()
 
-    private fun arbeidsdager(dager: List<Dag>): List<Arbeidsdag> {
+    private fun arbeidsdager(dager: Set<Dag>): Set<Arbeidsdag> {
         val arbeidsdager = dager.filterIsInstance<Arbeidsdag>()
-        return arbeidsdager.subList(0, minOf(arbeidsdager.size, stønadsdagerIgjen))
+        return arbeidsdager.subList(0, minOf(arbeidsdager.size, stønadsdagerIgjen)).toSortedSet()
     }
 
-    private fun beregnProsentfaktor(dager: List<Dag>): Timer {
+    private fun beregnProsentfaktor(dager: Set<Dag>): Timer {
         val timerArbeidet: Timer = dager.mapNotNull { it.timerArbeidet }.summer()
         return (sumFva - timerArbeidet) / sumFva
     }
 
-    private fun beregnUtbetaling(arbeidsdager: List<Arbeidsdag>): Int {
-        val fordeling: List<Arbeidsdag> = beregnDagsløp(arbeidsdager)
+    private fun beregnUtbetaling(arbeidsdager: Set<Arbeidsdag>): Int {
+        val fordeling: List<Arbeidsdag> = beregnDagsløp(arbeidsdager).sorted()
         val trekkEgenandel: List<Arbeidsdag> = fordelEgenandel(fordeling)
 
         val overskytendeRest =
@@ -62,7 +62,7 @@ internal class Beregningsperiode private constructor(
         return trekkEgenandel.sumOf(Arbeidsdag::avrundetUtbetaling)
     }
 
-    private fun beregnDagsløp(arbeidsdager: List<Arbeidsdag>): List<Arbeidsdag> =
+    private fun beregnDagsløp(arbeidsdager: Set<Arbeidsdag>): Set<Arbeidsdag> =
         arbeidsdager.onEach { it.dagsbeløp = it.sats * prosentfaktor }
 
     private fun fordelEgenandel(fordeling: List<Arbeidsdag>): List<Arbeidsdag> {
@@ -74,7 +74,7 @@ internal class Beregningsperiode private constructor(
     }
 
     internal fun interface Terskelstrategi {
-        fun beregnTerskel(dager: List<Arbeidsdag>): Double
+        fun beregnTerskel(dager: Set<Arbeidsdag>): Double
     }
 
     companion object {
