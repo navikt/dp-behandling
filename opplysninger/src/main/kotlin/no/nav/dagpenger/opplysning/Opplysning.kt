@@ -46,9 +46,6 @@ sealed class Opplysning<T : Comparable<T>>(
                 defaultRedigering.kanRedigere(opplysningstype)
         }
 
-    fun overlapper(opplysning: Opplysning<*>) =
-        opplysningstype.er(opplysning.opplysningstype) && gyldighetsperiode.overlapp(opplysning.gyldighetsperiode)
-
     override fun equals(other: Any?) = other is Opplysning<*> && id == other.id
 
     override fun hashCode() = id.hashCode()
@@ -58,20 +55,6 @@ sealed class Opplysning<T : Comparable<T>>(
     fun erstatter(erstattet: Opplysning<T>) {
         _erstatter = erstattet
     }
-
-    fun overlapperHalenAv(opplysning: Opplysning<T>) =
-        gyldighetsperiode.fom.isAfter(opplysning.gyldighetsperiode.fom) &&
-            gyldighetsperiode.fom <= opplysning.gyldighetsperiode.tom
-
-    fun harSammegyldighetsperiode(opplysning: Opplysning<T>) = gyldighetsperiode == opplysning.gyldighetsperiode
-
-    fun starterFørOgOverlapper(opplysning: Opplysning<T>) =
-        this.gyldighetsperiode.fom.isBefore(opplysning.gyldighetsperiode.fom) &&
-            opplysning.gyldighetsperiode.inneholder(gyldighetsperiode.tom)
-
-    abstract fun lagForkortet(opplysning: Opplysning<T>): Opplysning<T>
-
-    abstract fun nyID(): Opplysning<T>
 
     companion object {
         fun Collection<Opplysning<*>>.gyldigeFor(dato: LocalDate) = filter { it.gyldighetsperiode.inneholder(dato) }
@@ -100,21 +83,6 @@ class Hypotese<T : Comparable<T>>(
     ) : this(UUIDv7.ny(), opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter)
 
     override fun bekreft() = Faktum(id, super.opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet)
-
-    override fun nyID(): Opplysning<T> {
-        TODO("Not yet implemented")
-    }
-
-    override fun lagForkortet(opplysning: Opplysning<T>) =
-        Hypotese(
-            opplysningstype,
-            verdi,
-            gyldighetsperiode.kopi(tom = opplysning.gyldighetsperiode.fom.minusDays(1)),
-            utledetAv,
-            kilde,
-            opplysning.opprettet,
-            erstatter = this,
-        )
 }
 
 class Faktum<T : Comparable<T>>(
@@ -143,38 +111,6 @@ class Faktum<T : Comparable<T>>(
     }
 
     override fun bekreft() = this
-
-    /* Metode for å lage en ny instans av Faktum med en ny UUID. Vi sorterer etter ID,
-     * og når vi forkorter tidligere opplysning må vi få ny UUID som kommer senere enn den forkortede opplysningen.
-     */
-    override fun nyID() =
-        Faktum(
-            UUIDv7.ny(),
-            opplysningstype,
-            verdi,
-            gyldighetsperiode,
-            utledetAv,
-            kilde,
-            opprettet,
-            erstatter,
-            skalLagres,
-        )
-
-    override fun lagForkortet(opplysning: Opplysning<T>) =
-        Faktum(
-            opplysningstype,
-            verdi,
-            gyldighetsperiode.kopi(
-                tom =
-                    opplysning.gyldighetsperiode.fom
-                        .takeIf { !it.isEqual(LocalDate.MIN) }
-                        ?.minusDays(1) ?: LocalDate.MIN,
-            ),
-            utledetAv,
-            kilde,
-            opplysning.opprettet,
-            this,
-        )
 
     fun somEnhet() = opplysningstype.enhet?.somEnhet(verdi)
 }

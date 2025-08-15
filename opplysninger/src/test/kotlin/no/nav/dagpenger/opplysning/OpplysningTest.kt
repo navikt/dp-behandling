@@ -52,7 +52,8 @@ class OpplysningTest {
         val opplysning2 = Faktum(dato2, LocalDate.now())
         val opplysning3 = Faktum(desimaltall, 2.0, utledetAv = Utledning("regel", listOf(opplysning1, opplysning2)))
         val opplysning4 = Faktum(ulid, Ulid("01F9KZ3YX4QZJZQVQZJZQVQVQZ"))
-        val erstattet = opplysning4.lagForkortet(Faktum(ulid, Ulid("01F9KZ3YX4QZJZQVQZJZQVQVQZ")))
+        val erstattet = Faktum(ulid, Ulid("01F9KZ3YX4QZJZQVQZJZQVQVQZ"))
+        opplysning4.erstatter(erstattet)
 
         opplysning1.kanRedigeres(RedigerbarPerOpplysningstype) shouldBe true
         opplysning2.kanRedigeres(RedigerbarPerOpplysningstype) shouldBe false
