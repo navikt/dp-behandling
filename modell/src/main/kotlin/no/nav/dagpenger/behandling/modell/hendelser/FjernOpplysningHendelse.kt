@@ -15,5 +15,6 @@ class FjernOpplysningHendelse(
     override fun kontekstMap(): Map<String, String> =
         mapOf(
             "behandlingId" to behandlingId.toString(),
+            "opplysningId" to opplysningId.toString(),
         )
 }

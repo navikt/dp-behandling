@@ -10,6 +10,8 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.isNotEmpty
+import kotlin.collections.map
 
 class OpplysningSvarHendelse(
     meldingsreferanseId: UUID,
@@ -26,7 +28,7 @@ class OpplysningSvarHendelse(
     override fun kontekstMap(): Map<String, String> =
         mapOf(
             "behandlingId" to behandlingId.toString(),
-            "opplysninger" to opplysninger.joinToString(", ") { it.opplysningstype.toString() },
+            "opplysninger" to opplysninger.map { it.opplysningstype.behovId }.sorted().joinToString(", "),
         )
 }
 

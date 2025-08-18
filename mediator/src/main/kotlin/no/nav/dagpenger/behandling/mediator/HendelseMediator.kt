@@ -103,7 +103,12 @@ internal class HendelseMediator(
         context: MessageContext,
         handler: (Person) -> Unit,
     ) {
-        Span.current().setAttribute("hendelse", hendelse.javaClass.simpleName)
+        Span.current().apply {
+            setAttribute("hendelse", hendelse.javaClass.simpleName)
+            hendelse.kontekstMap().forEach {
+                setAttribute(it.key, it.value)
+            }
+        }
         try {
             val personMediator = PersonMediator()
             person(ident) { person ->

@@ -15,6 +15,7 @@ class AvklaringIkkeRelevantHendelse(
     BehandlingHendelse {
     override fun kontekstMap(): Map<String, String> =
         mapOf(
+            "behandlingId" to behandlingId.toString(),
             "avklaringId" to avklaringId.toString(),
             "kode" to kode,
         )
