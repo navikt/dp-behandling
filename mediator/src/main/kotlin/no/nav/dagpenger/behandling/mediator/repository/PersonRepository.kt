@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.avklaring.Avklaring
@@ -12,6 +13,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.jvm.java
 
 interface AvklaringRepository {
     @WithSpan
@@ -76,12 +78,30 @@ interface PersonRepository : BehandlingRepository {
         handler: (Person) -> Unit,
     ): Person {
         val person = hent(ident) ?: Person(ident)
-        handler(person)
+        medSpan("personHandler") {
+            handler(person)
+        }
         lagre(person)
         return person
     }
 
     fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus>
+
+    private fun medSpan(
+        string: String,
+        block: () -> Unit,
+    ) {
+        val handlerSpan = tracer.spanBuilder(string).startSpan()
+        try {
+            handlerSpan.makeCurrent().use { block() }
+        } finally {
+            handlerSpan.end()
+        }
+    }
+
+    private companion object {
+        private val tracer = GlobalOpenTelemetry.getTracer(PersonRepository::class.java.name)
+    }
 }
 
 interface MeldekortRepository {
