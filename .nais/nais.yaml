@@ -42,7 +42,9 @@ spec:
       memory: 480Mi
   env:
     - name: JDK_JAVA_OPTIONS
-      value: -XX:+UseParallelGC -XX:MaxRAMPercentage=25.0 -XX:ActiveProcessorCount=4
+      value: -XX:+UseParallelGC -XX:MaxRAMPercentage=25.0 -XX:ActiveProcessorCount=4 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false
+        -Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote.rmi.port=9999
     - name: GRUPPER_SAKSBEHANDLER
       value: "{{azure.grupper.saksbehandler}}"
     - name: MASKINTILGANG_NAVN
