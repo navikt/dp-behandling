@@ -533,6 +533,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
+  /behandling/{behandlingId}/klumpen:
+    parameters:
+      - name: behandlingId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      description: Viser et vedtak / resultat av en behandling
+      security:
+        - azureAd: [ ]
+      tags:
+        - Vedtak
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verdenbesteklumpmeddata'
+        default:
+          description: Feil ved uthenting av vedtak
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
 components:
   schemas:
     Rekjoring:
