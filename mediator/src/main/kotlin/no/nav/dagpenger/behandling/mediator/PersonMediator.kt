@@ -3,7 +3,7 @@ package no.nav.dagpenger.behandling.mediator
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import mu.KotlinLogging
-import no.nav.dagpenger.behandling.mediator.api.tilKlumpDTO
+import no.nav.dagpenger.behandling.mediator.api.tilBehandlingsresultatDTO
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.AvklaringLukket
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingAvbrutt
@@ -113,7 +113,7 @@ internal class PersonMediator : PersonObservatør {
     }
 
     private fun BehandlingObservatør.VedtakEvent.tilKlumpen(ident: String): JsonMessage {
-        val vedtak = this.tilKlumpDTO(ident)
+        val vedtak = this.tilBehandlingsresultatDTO(ident)
         return JsonMessage.newMessage("klumpen_er_laget", toMap(vedtak))
     }
 

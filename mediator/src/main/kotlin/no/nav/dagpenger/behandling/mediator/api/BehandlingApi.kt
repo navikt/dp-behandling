@@ -225,7 +225,7 @@ internal fun Application.behandlingApi(
                         )
                     }
 
-                    get("klumpen") {
+                    get("behandlingsresultat") {
                         val behandling = hentBehandling(personRepository, call.behandlingId)
 
                         call.saksbehandlerIdOrNull()?.let {
@@ -236,7 +236,7 @@ internal fun Application.behandlingApi(
 
                         call.respond(
                             HttpStatusCode.OK,
-                            vedtakOpplysninger.tilKlumpDTO(behandling.behandler.ident),
+                            vedtakOpplysninger.tilBehandlingsresultatDTO(behandling.behandler.ident),
                         )
                     }
 

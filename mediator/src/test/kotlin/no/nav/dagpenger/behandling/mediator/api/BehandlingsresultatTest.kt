@@ -2,8 +2,8 @@ package no.nav.dagpenger.behandling.mediator.api
 
 import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.mockk
+import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
-import no.nav.dagpenger.behandling.api.models.VerdenbesteklumpmeddataDTO
 import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
@@ -25,7 +25,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.Test
 
-class KlumpTest {
+class BehandlingsresultatTest {
     private val ident = "123123123"
     private val behandlingId: UUID = UUID.fromString("0198132a-4d87-7622-8fd3-9aa4558b8538")
     private val søknadId: UUID = UUID.fromString("0198132a-4d99-701c-b44c-c24ddcbb2801")
@@ -37,7 +37,7 @@ class KlumpTest {
                 kravTilAlder.periode(1.mai(2025), 10.mai(2025), true),
             )
 
-        val klump = resultat.tilKlumpDTO(ident)
+        val klump = resultat.tilBehandlingsresultatDTO(ident)
         klump.rettighetsperioder.shouldContainExactly(RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true))
 
         godkjennJSON(klump)
@@ -52,7 +52,7 @@ class KlumpTest {
                 kravTilAlder.periode(21.mai(2025), 30.mai(2025), true),
             )
 
-        val klump = resultat.tilKlumpDTO(ident)
+        val klump = resultat.tilBehandlingsresultatDTO(ident)
         klump.rettighetsperioder.shouldContainExactly(RettighetsperiodeDTO(1.mai(2025), 30.mai(2025), true))
 
         godkjennJSON(klump)
@@ -67,7 +67,7 @@ class KlumpTest {
                 kravTilAlder.periode(21.mai(2025), 30.mai(2025), true),
             )
 
-        val klump = resultat.tilKlumpDTO(ident)
+        val klump = resultat.tilBehandlingsresultatDTO(ident)
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
             RettighetsperiodeDTO(fraOgMed = 11.mai(2025), tilOgMed = 20.mai(2025), harRett = false),
@@ -85,7 +85,7 @@ class KlumpTest {
                 minsteinntekt.periode(1.mai(2025), 20.mai(2025), false, false),
             )
 
-        val klump = resultat.tilKlumpDTO(ident)
+        val klump = resultat.tilBehandlingsresultatDTO(ident)
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
         )
@@ -102,7 +102,7 @@ class KlumpTest {
                 kravTilAlder.periode(5.juni(2025), 5.juni(2028), true),
             )
 
-        val klump = resultat.tilKlumpDTO(ident)
+        val klump = resultat.tilBehandlingsresultatDTO(ident)
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
             RettighetsperiodeDTO(11.mai(2025), 20.mai(2025), false),
@@ -125,7 +125,7 @@ class KlumpTest {
                 kravTilAlder.periode(5.juni(2025), 5.juni(2028), true),
             )
 
-        val klump = resultat.tilKlumpDTO(ident)
+        val klump = resultat.tilBehandlingsresultatDTO(ident)
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(1.mai(2025), 10.mai(2025), true),
             RettighetsperiodeDTO(11.mai(2025), 20.mai(2025), false),
@@ -146,7 +146,7 @@ class KlumpTest {
                 minsteinntekt.periode(5.mai(2025), 30.mai(2025), true),
             )
 
-        val klump = resultat.tilKlumpDTO(ident)
+        val klump = resultat.tilBehandlingsresultatDTO(ident)
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(1.mai(2025), 4.mai(2025), harRett = false),
             RettighetsperiodeDTO(5.mai(2025), 30.mai(2025), harRett = true),
@@ -165,7 +165,7 @@ class KlumpTest {
                 kravTilAlder.periode(23.august(2025), null, true),
             )
 
-        val klump = resultat.tilKlumpDTO(ident)
+        val klump = resultat.tilBehandlingsresultatDTO(ident)
         klump.rettighetsperioder.shouldContainExactly(
             RettighetsperiodeDTO(21.juni(2025), 21.juli(2025), harRett = true),
             RettighetsperiodeDTO(22.juli(2025), 22.august(2025), harRett = false),
@@ -208,10 +208,10 @@ class KlumpTest {
             besluttetAv = mockk(),
         )
 
-    private fun godkjennJSON(klump: VerdenbesteklumpmeddataDTO) {
+    private fun godkjennJSON(klump: BehandlingsresultatDTO) {
         val json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(klump)
 
-        Approvals.verify(maskUUIDs(json))
+        Approvals.verify(maskTimestamps(maskUUIDs(json)))
     }
 
     private fun maskUUIDs(json: String): String {
@@ -219,6 +219,14 @@ class KlumpTest {
         return json.replace(
             Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"),
             "00000000-0000-0000-0000-000000000000",
+        )
+    }
+
+    private fun maskTimestamps(json: String): String {
+        // Regex matches timestamps (standard format)
+        return json.replace(
+            Regex("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+"),
+            "2025-08-20T14:24:44.325688",
         )
     }
 }

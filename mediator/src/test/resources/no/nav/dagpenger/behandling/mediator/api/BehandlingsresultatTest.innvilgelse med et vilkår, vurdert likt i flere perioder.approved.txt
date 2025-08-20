@@ -20,14 +20,6 @@
     },
     "perioder" : [ {
       "fraOgMed" : "2025-05-01",
-      "tilOgMed" : "2025-05-10",
-      "harRett" : true
-    }, {
-      "fraOgMed" : "2025-05-11",
-      "tilOgMed" : "2025-05-20",
-      "harRett" : false
-    }, {
-      "fraOgMed" : "2025-05-21",
       "tilOgMed" : "2025-05-30",
       "harRett" : true
     } ],
@@ -39,55 +31,40 @@
   "opplysninger" : [ {
     "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
     "navn" : "Oppfyller kravet til alder",
-    "datatype" : "boolsk",
-    "opplysninger" : [ {
+    "perioder" : [ {
       "id" : "00000000-0000-0000-0000-000000000000",
-      "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
-      "navn" : "Oppfyller kravet til alder",
-      "verdien" : {
-        "verdi" : true,
-        "datatype" : "boolsk"
-      },
-      "verdi" : "true",
+      "opprettet" : "2025-08-20T14:24:44.325688",
+      "status" : "Ny",
       "gyldigFraOgMed" : "2025-05-01",
       "gyldigTilOgMed" : "2025-05-10",
-      "datatype" : "boolsk"
-    }, {
-      "id" : "00000000-0000-0000-0000-000000000000",
-      "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
-      "navn" : "Oppfyller kravet til alder",
-      "verdien" : {
-        "verdi" : false,
-        "datatype" : "boolsk"
-      },
-      "verdi" : "false",
-      "gyldigFraOgMed" : "2025-05-11",
-      "gyldigTilOgMed" : "2025-05-20",
-      "datatype" : "boolsk"
-    }, {
-      "id" : "00000000-0000-0000-0000-000000000000",
-      "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
-      "navn" : "Oppfyller kravet til alder",
-      "verdien" : {
+      "verdi" : {
         "verdi" : true,
         "datatype" : "boolsk"
-      },
-      "verdi" : "true",
+      }
+    }, {
+      "id" : "00000000-0000-0000-0000-000000000000",
+      "opprettet" : "2025-08-20T14:24:44.325688",
+      "status" : "Ny",
+      "gyldigFraOgMed" : "2025-05-11",
+      "gyldigTilOgMed" : "2025-05-20",
+      "verdi" : {
+        "verdi" : true,
+        "datatype" : "boolsk"
+      }
+    }, {
+      "id" : "00000000-0000-0000-0000-000000000000",
+      "opprettet" : "2025-08-20T14:24:44.325688",
+      "status" : "Ny",
       "gyldigFraOgMed" : "2025-05-21",
       "gyldigTilOgMed" : "2025-05-30",
-      "datatype" : "boolsk"
+      "verdi" : {
+        "verdi" : true,
+        "datatype" : "boolsk"
+      }
     } ]
   } ],
   "rettighetsperioder" : [ {
     "fraOgMed" : "2025-05-01",
-    "tilOgMed" : "2025-05-10",
-    "harRett" : true
-  }, {
-    "fraOgMed" : "2025-05-11",
-    "tilOgMed" : "2025-05-20",
-    "harRett" : false
-  }, {
-    "fraOgMed" : "2025-05-21",
     "tilOgMed" : "2025-05-30",
     "harRett" : true
   } ]

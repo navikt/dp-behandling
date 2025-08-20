@@ -4,6 +4,7 @@ import mu.withLoggingContext
 import no.nav.dagpenger.behandling.api.models.BarnVerdiDTO
 import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
@@ -12,18 +13,18 @@ import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.HjemmelDTO
 import no.nav.dagpenger.behandling.api.models.LovkildeDTO
-import no.nav.dagpenger.behandling.api.models.NoesomharblittvurdertDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningKlumpDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningsgruppeKlumpDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
-import no.nav.dagpenger.behandling.api.models.VerdenbesteklumpmeddataDTO
+import no.nav.dagpenger.behandling.api.models.VurderingsresultatDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -50,26 +51,29 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
+import java.util.UUID
 import kotlin.collections.component2
 import kotlin.collections.contains
 
-internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): VerdenbesteklumpmeddataDTO =
+internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val opplysningSet = opplysninger.somListe().toSet()
 
-        VerdenbesteklumpmeddataDTO(
+        val egneId = opplysningSet.map { it.id }
+
+        BehandlingsresultatDTO(
             behandlingId = behandlingId,
             ident = ident,
             vilkår =
                 behandlingAv.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
-                    .mapNotNull { it.tilNoesomharblittvurdertDTO(opplysningSet) }
+                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             rettighetsperioder = rettighetsperioder(),
             fastsettelser =
                 behandlingAv.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
-                    .mapNotNull { it.tilNoesomharblittvurdertDTO(opplysningSet) }
+                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             behandletHendelse =
                 HendelseDTO(
@@ -84,11 +88,10 @@ internal fun Behandling.VedtakOpplysninger.tilKlumpDTO(ident: String): Verdenbes
                 ),
             opplysninger =
                 opplysninger.somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
-                    OpplysningsgruppeKlumpDTO(
+                    OpplysningerDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
-                        datatype = type.datatype.tilDataTypeDTO(),
-                        opplysninger = opplysninger.map { opplysning -> opplysning.tilOpplysningDTO() },
+                        perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
                     )
                 },
         )
@@ -118,7 +121,7 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
         }
 }
 
-private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*>>): NoesomharblittvurdertDTO? {
+private fun Regelsett.tilVurderingsresultatDTO(opplysninger: Set<Opplysning<*>>): VurderingsresultatDTO? {
     val produkter: Set<Opplysning<*>> =
         opplysninger
             .filter { opplysning -> opplysning.opplysningstype in produserer }
@@ -139,7 +142,7 @@ private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*
 
     val perioder = TidslinjeBygger(utfall).medLikVerdi()
 
-    return NoesomharblittvurdertDTO(
+    return VurderingsresultatDTO(
         navn = hjemmel.kortnavn,
         hjemmel =
             HjemmelDTO(
@@ -166,18 +169,18 @@ private fun Regelsett.tilNoesomharblittvurdertDTO(opplysninger: Set<Opplysning<*
 private fun hvorAlleVilkårErOppfylt(): (Collection<Opplysning<Boolean>>) -> Boolean? =
     { påDato -> påDato.isNotEmpty() && påDato.all { it.verdi } }
 
-private fun Opplysning<*>.tilOpplysningDTO() =
-    OpplysningKlumpDTO(
+private fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
+    OpplysningsperiodeDTO(
         id = this.id,
-        opplysningTypeId = this.opplysningstype.id.uuid,
-        navn = this.opplysningstype.navn,
-        verdi =
-            when (this.opplysningstype.datatype) {
-                // todo: Frontenden burde vite om det er penger og håndtere det med valuta
-                Penger -> (this.verdi as Beløp).uavrundet.toString()
-                else -> this.verdi.toString()
+        opprettet = opprettet,
+        status =
+            when (id in egneId) {
+                true -> OpplysningsperiodeDTOStatusDTO.NY
+                false -> OpplysningsperiodeDTOStatusDTO.ARVET
             },
-        verdien =
+        gyldigFraOgMed = this.gyldighetsperiode.fom.tilApiDato(),
+        gyldigTilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
+        verdi =
             when (this.opplysningstype.datatype) {
                 BarnDatatype ->
                     BarnelisteDTO(
@@ -209,9 +212,6 @@ private fun Opplysning<*>.tilOpplysningDTO() =
 
                 Tekst, ULID -> TekstVerdiDTO(this.verdi.toString())
             },
-        gyldigFraOgMed = this.gyldighetsperiode.fom.tilApiDato(),
-        gyldigTilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
-        datatype = this.opplysningstype.datatype.tilDataTypeDTO(),
         kilde =
             this.kilde?.let {
                 val registrert = it.registrert

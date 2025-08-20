@@ -533,7 +533,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
-  /behandling/{behandlingId}/klumpen:
+  /behandling/{behandlingId}/behandlingsresultat:
     parameters:
       - name: behandlingId
         in: path
@@ -553,7 +553,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Verdenbesteklumpmeddata'
+                $ref: '#/components/schemas/Behandlingsresultat'
         default:
           description: Feil ved uthenting av vedtak
           content:
@@ -693,7 +693,7 @@ components:
           items:
             $ref: '#/components/schemas/Opplysningsgruppe'
 
-    Verdenbesteklumpmeddata:
+    Behandlingsresultat:
       type: object
       required:
         - behandlingId
@@ -715,15 +715,15 @@ components:
         vilkår:
           type: array
           items:
-            $ref: '#/components/schemas/Noesomharblittvurdert'
+            $ref: '#/components/schemas/Vurderingsresultat'
         fastsettelser:
           type: array
           items:
-            $ref: '#/components/schemas/Noesomharblittvurdert'
+            $ref: '#/components/schemas/Vurderingsresultat'
         opplysninger:
           type: array
           items:
-            $ref: '#/components/schemas/OpplysningsgruppeKlump'
+            $ref: '#/components/schemas/Opplysninger'
         rettighetsperioder:
           type: array
           items:
@@ -733,7 +733,7 @@ components:
       type: string
       pattern: '^[0-9]{11}$'
 
-    Noesomharblittvurdert:
+    Vurderingsresultat:
       type: object
       required:
         - navn
@@ -762,7 +762,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningTypeId'
-
 
     BehandlingOpplysninger:
       type: object
@@ -1043,7 +1042,7 @@ components:
         formål:
           $ref: '#/components/schemas/Formål'
 
-    OpplysningsgruppeKlump:
+    Opplysninger:
       type: object
       required:
         - opplysningTypeId
@@ -1055,32 +1054,28 @@ components:
           $ref: '#/components/schemas/OpplysningTypeId'
         navn:
           type: string
-        datatype:
-          $ref: '#/components/schemas/DataType'
-        opplysninger:
+        perioder:
           type: array
           items:
-            $ref: '#/components/schemas/OpplysningKlump'
+            $ref: '#/components/schemas/Opplysningsperiode'
 
-    OpplysningKlump:
+    Opplysningsperiode:
       type: object
       required:
         - id
-        - opplysningTypeId
-        - navn
+        - opprettet
+        - status
         - verdi
-        - datatype
       properties:
         id:
           $ref: '#/components/schemas/OpplysningsId'
-        opplysningTypeId:
-          $ref: '#/components/schemas/OpplysningTypeId'
-        navn:
+        opprettet:
           type: string
-        verdien:
-          $ref: '#/components/schemas/Opplysningsverdi'
-        verdi:
+          format: date-time
+        status:
+          description: Om opplysningen ble opprettet i denne behandlingen eller arvet fra tidligere behandlinger
           type: string
+          enum: [ "Ny", "Arvet" ]
         gyldigFraOgMed:
           type: string
           format: date
@@ -1091,8 +1086,8 @@ components:
           format: date
           nullable: true
           description: Om opplysningen er gyldig fra en bestemt dato. Er den null, er den gyldig til evig tid.
-        datatype:
-          $ref: '#/components/schemas/DataType'
+        verdi:
+          $ref: '#/components/schemas/Opplysningsverdi'
         kilde:
           $ref: '#/components/schemas/Opplysningskilde'
         utledetAv:

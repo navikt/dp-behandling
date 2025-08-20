@@ -31,19 +31,16 @@
   "opplysninger" : [ {
     "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
     "navn" : "Oppfyller kravet til alder",
-    "datatype" : "boolsk",
-    "opplysninger" : [ {
+    "perioder" : [ {
       "id" : "00000000-0000-0000-0000-000000000000",
-      "opplysningTypeId" : "00000000-0000-0000-0000-000000000000",
-      "navn" : "Oppfyller kravet til alder",
-      "verdien" : {
-        "verdi" : true,
-        "datatype" : "boolsk"
-      },
-      "verdi" : "true",
+      "opprettet" : "2025-08-20T14:24:44.325688",
+      "status" : "Ny",
       "gyldigFraOgMed" : "2025-05-01",
       "gyldigTilOgMed" : "2025-05-10",
-      "datatype" : "boolsk"
+      "verdi" : {
+        "verdi" : true,
+        "datatype" : "boolsk"
+      }
     } ]
   } ],
   "rettighetsperioder" : [ {

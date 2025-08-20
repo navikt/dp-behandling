@@ -13,10 +13,10 @@ internal class KlumpenAssertions(
 ) {
     val rettighetsperioder: List<Rettighetsperiode> = objectMapper.treeToValue(klump["rettighetsperioder"])
 
-    fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysning> {
+    fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysningsperiode> {
         val opplysninger = klump["opplysninger"].single { it["opplysningTypeId"].asUUID() == opplysningstype.id.uuid }
 
-        return objectMapper.treeToValue(opplysninger["opplysninger"])
+        return objectMapper.treeToValue(opplysninger["perioder"])
     }
 }
 
@@ -26,11 +26,14 @@ internal data class Rettighetsperiode(
     val harRett: Boolean,
 )
 
-internal data class Opplysning(
+internal data class Opplysningsperiode(
     val id: UUID,
-    val navn: String,
     val gyldigFraOgMed: LocalDate? = null,
     val gyldigTilOgMed: LocalDate? = null,
-    val datatype: String,
-    val verdi: String,
-)
+    val verdi: Opplysningsverdi,
+) {
+    data class Opplysningsverdi(
+        val datatype: String,
+        val verdi: String,
+    )
+}
