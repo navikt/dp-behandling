@@ -101,14 +101,15 @@ spec:
     outbound:
       external:
         - host: teamdagpenger-unleash-api.nav.cloud.nais.io
+      rules:
+        - application: logging
+          namespace: nais-system
     inbound:
       rules:
         - application: dp-saksbehandling-frontend
         - application: dp-saksbehandling
         - application: dp-melding-om-vedtak
         - application: dp-soknad-orkestrator
-        - application: logging
-          namespace: nais-system
         {{#if wonderwalled}}
         - application: wonderwalled-idporten
           namespace: nais
