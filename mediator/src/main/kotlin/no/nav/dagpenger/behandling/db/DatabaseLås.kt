@@ -1,8 +1,8 @@
 package no.nav.dagpenger.behandling.db
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import mu.KotlinLogging
 
 val logger = KotlinLogging.logger {}
 

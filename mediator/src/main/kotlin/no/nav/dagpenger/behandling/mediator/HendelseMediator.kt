@@ -2,11 +2,11 @@ package no.nav.dagpenger.behandling.mediator
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import mu.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerHendelse
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
@@ -142,10 +142,9 @@ internal class HendelseMediator(
         personMediator.ferdigstill(context)
         if (!hendelse.harAktiviteter()) return
         if (hendelse.harFunksjonelleFeilEllerVerre()) {
-            logger.info("aktivitetslogg inneholder feil (se sikkerlogg)")
-            sikkerlogg.error("aktivitetslogg inneholder feil:\n${hendelse.toLogString()}")
-        } else {
-            sikkerlogg.info("aktivitetslogg inneholder meldinger:\n${hendelse.toLogString()}")
+            logger.info { "aktivitetslogg inneholder feil (se sikkerlogg)" }
+            sikkerlogg.error { "aktivitetslogg inneholder feil:\n${hendelse.toLogString()}" }
+            sikkerlogg.info { "aktivitetslogg inneholder meldinger:\n${hendelse.toLogString()}" }
         }
 
         // TODO: Fjern denne når vi fjerner Behandlingshendelser

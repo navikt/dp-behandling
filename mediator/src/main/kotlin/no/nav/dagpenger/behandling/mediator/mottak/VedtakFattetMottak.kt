@@ -5,8 +5,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
-import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 
@@ -15,7 +15,9 @@ class VedtakFattetMottak(
     private val meldekortRepository: MeldekortRepository,
 ) : River.PacketListener {
     companion object {
-        private val logger = mu.KotlinLogging.logger {}
+        private val logger =
+            io.github.oshai.kotlinlogging.KotlinLogging
+                .logger {}
     }
 
     init {

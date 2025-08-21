@@ -8,11 +8,11 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.isMissingOrNull
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import mu.KotlinLogging
-import mu.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
@@ -64,7 +64,7 @@ internal class MeldekortInnsendtMottak(
             "meldekortId" to meldekortId,
         ) {
             val message = MeldekortInnsendtMessage(packet)
-            logger.info("Vi har mottatt et meldekort")
+            logger.info { "Vi har mottatt et meldekort" }
             sikkerlogg.info { "Mottatt meldekort: ${packet.toJson()}" }
             message.behandle(messageMediator, context)
         }

@@ -1,10 +1,10 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
 import no.nav.dagpenger.behandling.mediator.melding.Melding

@@ -1,6 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.api
 
-import mu.withLoggingContext
+import io.github.oshai.kotlinlogging.withLoggingContext
 import no.nav.dagpenger.behandling.api.models.BarnVerdiDTO
 import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO

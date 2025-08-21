@@ -3,12 +3,12 @@ package no.nav.dagpenger.behandling.mediator
 import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Clock
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
-import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration.config
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
@@ -41,6 +41,7 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.helse.rapids_rivers.RapidApplication
+import org.slf4j.LoggerFactory
 
 internal class ApplicationBuilder(
     config: Map<String, String>,
@@ -86,8 +87,8 @@ internal class ApplicationBuilder(
                         meterRegistry =
                         meterRegistry,
                         objectMapper = objectMapper,
-                        applicationLogger = KotlinLogging.logger("ApplicationLogger"),
-                        callLogger = KotlinLogging.logger("CallLogger"),
+                        applicationLogger = LoggerFactory.getLogger("ApplicationLogger"),
+                        callLogger = LoggerFactory.getLogger("CallLogger"),
                         aliveCheck = rapid::isReady,
                         readyCheck = rapid::isReady,
                         preStopHook = preStopHook::handlePreStopRequest,

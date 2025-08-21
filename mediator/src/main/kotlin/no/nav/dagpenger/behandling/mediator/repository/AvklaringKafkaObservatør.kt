@@ -2,8 +2,8 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
-import mu.KotlinLogging
-import mu.withLoggingContext
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.Metrikk.avklaringOpprettetTeller
 
 class AvklaringKafkaObservatør(
