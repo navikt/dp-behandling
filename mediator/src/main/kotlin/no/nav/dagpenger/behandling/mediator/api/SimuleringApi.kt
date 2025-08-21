@@ -113,15 +113,19 @@ internal fun Application.simuleringApi() {
 
                 val egenandel = opplysningsliste.find { it.opplysningstype == egenandel }!!.verdi as Beløp
                 val forbruktEgenandel = beregningsperiode.forbruksdager.sumOf { it.forbruktEgenandel.verdien }.toDouble()
+                val forbrukt = beregningsperiode.forbruksdager.sumOf { it.avrundetUtbetaling }
 
                 val beregning =
                     BeregningDTO(
                         gjenståendeEgenandel = egenandel.verdien.toDouble() - forbruktEgenandel,
+                        kvoteForbruk = beregningsperiode.forbruksdager.size,
                         dager =
                             beregningsperiode.forbruksdager.map { dag ->
                                 BeregningDagDTO(
                                     dato = dag.dato,
                                     sats = dag.sats.verdien.toDouble(),
+                                    forbruktEgenandel = dag.forbruktEgenandel.verdien.toDouble(),
+                                    utbetalt = dag.avrundetUtbetaling,
                                     fva = dag.fva.timer,
                                     timerArbeidet = dag.timerArbeidet.timer,
                                 )

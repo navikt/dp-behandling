@@ -52,19 +52,19 @@ components:
         terskel:
           type: array
           items:
-              type: object
-              required:
-                - verdi
-              properties:
-                fom:
-                    type: string
-                    format: date
-                tom:
-                    type: string
-                    format: date
-                verdi:
-                  type: number
-                  format: double
+            type: object
+            required:
+              - verdi
+            properties:
+              fom:
+                type: string
+                format: date
+              tom:
+                type: string
+                format: date
+              verdi:
+                type: number
+                format: double
         stonadsperiode:
           type: object
           required:
@@ -89,15 +89,15 @@ components:
             required:
               - verdi
             properties:
-                fom:
-                    type: string
-                    format: date
-                tom:
-                  type: string
-                  format: date
-                verdi:
-                    type: number
-                    format: double
+              fom:
+                type: string
+                format: date
+              tom:
+                type: string
+                format: date
+              verdi:
+                type: number
+                format: double
         fva:
           type: number
           format: double
@@ -113,14 +113,14 @@ components:
               - type
               - verdi
             properties:
-                dag:
-                    type: string
-                type:
-                    type: string
-                    enum: [ "Arbeidstimer", "Fravær", "Sykdom" ]
-                verdi:
-                    type: number
-                    format: double
+              dag:
+                type: string
+              type:
+                type: string
+                enum: [ "Arbeidstimer", "Fravær", "Sykdom" ]
+              verdi:
+                type: number
+                format: double
 
     Beregning:
       type: object
@@ -128,6 +128,8 @@ components:
         gjenståendeEgenandel:
           type: number
           format: double
+        kvoteForbruk:
+          type: integer
         dager:
           type: array
           items:
@@ -140,6 +142,8 @@ components:
         - sats
         - fva
         - timerArbeidet
+        - forbruktEgenandel
+        - utbetalt
       properties:
         dato:
           type: string
@@ -153,6 +157,11 @@ components:
         timerArbeidet:
           type: number
           format: double
+        forbruktEgenandel:
+          type: number
+          format: double
+        utbetalt:
+          type: integer
 
     HttpProblem:
       type: object
