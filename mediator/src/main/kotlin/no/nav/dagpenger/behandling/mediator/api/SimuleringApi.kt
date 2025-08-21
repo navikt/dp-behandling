@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.api
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.plugins.swagger.swaggerUI
@@ -8,7 +9,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
-import mu.KotlinLogging
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningDTO
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningDagDTO
