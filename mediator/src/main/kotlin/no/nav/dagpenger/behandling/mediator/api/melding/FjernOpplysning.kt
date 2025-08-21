@@ -1,7 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.api.melding
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.UUID
 
 internal data class FjernOpplysning(

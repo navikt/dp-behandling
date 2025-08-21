@@ -1,9 +1,9 @@
 package no.nav.dagpenger.behandling.mediator.api.auth.validering
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.auth.jwt.JWTAuthenticationProvider
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.auth.jwt.JWTPrincipal
-import mu.KotlinLogging
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerApp
 

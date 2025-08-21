@@ -1,12 +1,12 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import com.fasterxml.jackson.core.type.TypeReference
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import mu.KotlinLogging
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -191,14 +191,14 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 opplysningstyper[opplysningTypeId]
                     ?.let {
                         if (datatype != it.datatype) {
-                            logger.warn(
+                            logger.warn {
                                 """
                                 Lastet opplysningstype med feil 
                                 datatype: ${opplysningTypeId.datatype} - Id ${opplysningTypeId.uuid} - Har navn: ${string("type_id")}
                                 database: $datatype, 
                                 kode: ${it.datatype}
-                                """.trimIndent(),
-                            )
+                                """.trimIndent()
+                            }
                             return@let null
                         }
                         @Suppress("UNCHECKED_CAST")

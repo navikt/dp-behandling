@@ -2,12 +2,12 @@ package no.nav.dagpenger.behandling.mediator
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import mu.KotlinLogging
-import mu.withLoggingContext
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Behov
 
@@ -111,12 +111,12 @@ class BehovMediator {
             .distinct()
             .also { detaljer ->
                 require(detaljer.size == 1) {
-                    sikkerlogg.error(
+                    sikkerlogg.error {
                         "Forsøkte å sende duplikate behov på kontekst " +
-                            kontekst.entries.joinToString { "${it.key}=${it.value}" },
-                    )
-                    "Kan ikke produsere samme behov på samme kontekst med ulike detaljer. " +
-                        "Forsøkte å be om ${behovliste.joinToString { it.type.name }}"
+                            kontekst.entries.joinToString { "${it.key}=${it.value}" }
+                        "Kan ikke produsere samme behov på samme kontekst med ulike detaljer. " +
+                            "Forsøkte å be om ${behovliste.joinToString { it.type.name }}"
+                    }
                 }
             }.single()
     }

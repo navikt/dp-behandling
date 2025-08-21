@@ -1,7 +1,7 @@
 package no.nav.dagpenger.behandling.mediator
 
 import com.fasterxml.jackson.module.kotlin.convertValue
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.behandling.api.models.BarnDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTORolleDTO

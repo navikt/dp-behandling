@@ -1,6 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.jobber
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import kotlin.concurrent.fixedRateTimer
 import kotlin.time.Duration.Companion.minutes

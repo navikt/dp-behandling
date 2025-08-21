@@ -133,6 +133,8 @@ class BeregnMeldekortHendelse(
     }
 
     companion object {
-        private val logger = mu.KotlinLogging.logger {}
+        private val logger =
+            io.github.oshai.kotlinlogging.KotlinLogging
+                .logger {}
     }
 }
