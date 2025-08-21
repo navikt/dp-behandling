@@ -12,7 +12,7 @@ servers:
     description: prod
 
 paths:
-  /meldekort/beregning:
+  /simulering/beregning:
     put:
       description: Simulerer beregning av et meldekort
       operationId: beregnBehandling
