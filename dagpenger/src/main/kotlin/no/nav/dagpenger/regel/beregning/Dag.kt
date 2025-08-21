@@ -5,7 +5,7 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import java.math.BigDecimal
 import java.time.LocalDate
 
-internal sealed interface Dag : Comparable<Dag> {
+sealed interface Dag : Comparable<Dag> {
     val dato: LocalDate
     val sats: Beløp?
     val fva: Timer?
@@ -14,7 +14,7 @@ internal sealed interface Dag : Comparable<Dag> {
     override fun compareTo(other: Dag) = dato.compareTo(other.dato)
 }
 
-internal class Arbeidsdag(
+class Arbeidsdag(
     override val dato: LocalDate,
     override val sats: Beløp,
     override val fva: Timer,
@@ -23,7 +23,7 @@ internal class Arbeidsdag(
 ) : Dag {
     internal var overskytendeRest: Beløp = Beløp(0.0)
         private set
-    internal var forbruktEgenandel: Beløp = Beløp(0.0)
+    var forbruktEgenandel: Beløp = Beløp(0.0)
         private set
     var dagsbeløp: Beløp = Beløp(0.0)
         internal set

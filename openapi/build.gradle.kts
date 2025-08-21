@@ -56,4 +56,23 @@ fabrikt {
             suffix = "DTO"
         }
     }
+    generate("simulering") {
+        apiFile = file("$projectDir/src/main/resources/simulering-api.yaml")
+        basePackage = "no.nav.dagpenger.behandling.simulering.api"
+        skip = false
+        quarkusReflectionConfig = disabled
+        typeOverrides {
+            datetime = LocalDateTime
+        }
+        model {
+            generate = enabled
+            validationLibrary = NoValidation
+            extensibleEnums = disabled
+            sealedInterfacesForOneOf = enabled
+            ignoreUnknownProperties = disabled
+            nonNullMapValues = enabled
+            serializationLibrary = Jackson
+            suffix = "DTO"
+        }
+    }
 }

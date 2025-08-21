@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 
-internal class Beregningsperiode private constructor(
+class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Beløp,
     dager: Set<Dag>,
     terskelstrategi: Terskelstrategi,

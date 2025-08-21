@@ -13,6 +13,7 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration.config
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
+import no.nav.dagpenger.behandling.mediator.api.simuleringApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
 import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
 import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
@@ -100,6 +101,7 @@ internal class ApplicationBuilder(
                             apiRepositoryPostgres = apiRepositoryPostgres,
                             meterRegistry,
                         ) { ident: String -> ApiMessageContext(rapid, ident) }
+                        simuleringApi()
                     }
                 }
             },
