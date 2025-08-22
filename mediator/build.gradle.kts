@@ -53,4 +53,5 @@ application {
 
 tasks.withType<ShadowJar> {
     mergeServiceFiles()
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
