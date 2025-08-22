@@ -76,6 +76,13 @@ class BeregningSteg : No {
         Så("utbetales {int} kroner etter avrunding på dag {int}") { utbetaling: Int, dag: Int ->
             beregning.forbruksdager[dag - 1].avrundetUtbetaling shouldBe utbetaling
         }
+
+        Så("utbetales {int} kroner etter avrunding på dag {int} til {int}") { utbetaling: Int, fraDagNr: Int, tilDagNr: Int ->
+            (fraDagNr until tilDagNr).forEach { dag ->
+                beregning.forbruksdager[dag - 1].avrundetUtbetaling shouldBe utbetaling
+            }
+        }
+
         Så("det gjenstår {int} dager") { dager: Int ->
             // TODO: Dette må bo et sted
             val utgangspunkt: Int = opplysninger.find { it.er(antallStønadsdager) }!!.verdi as Int
@@ -87,7 +94,8 @@ class BeregningSteg : No {
             opplysninger.add(Faktum(ordinærPeriode, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
         }
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
-            beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }.toInt() shouldBe forbruktEgenandel
+            val ss = beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }.toInt()
+            ss shouldBe forbruktEgenandel
         }
         Så("det trekkes {string} kroner i egenandel på dag {int}") { egenandel: String, dag: Int ->
             beregning.forbruksdager[dag - 1]
@@ -168,6 +176,18 @@ class BeregningSteg : No {
                         behandlingId = UUIDv7.ny(),
                     ),
                 )
+                if (!gyldighetsperiode.tom.isEqual(LocalDate.MAX)) {
+                    // TODO: Simulerer at vi har fått en stans!
+                    rettighetstatus.put(
+                        gyldighetsperiode.tom,
+                        Rettighetstatus(
+                            virkningsdato = gyldighetsperiode.tom,
+                            utfall = false,
+                            behandlingId = UUIDv7.ny(),
+                        ),
+                    )
+                }
+
                 Faktum(ordinærPeriode, args["verdi"]!!.toInt(), gyldighetsperiode)
                 Faktum(antallStønadsdager, args["verdi"]!!.toInt() * 5, gyldighetsperiode)
             },
