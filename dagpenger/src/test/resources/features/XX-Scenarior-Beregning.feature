@@ -256,15 +256,18 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
     Og det forbrukes 2400 i egenandel
     Og det forbrukes 6 dager
 
-    @wip
+  @wip
       ## Todo: Vi håndterer ikke sanksjon
   Scenario: 11 - Bruker får innvilget dagpenger fra fredag i uke 1 med forlenget ventetid jfr. §4-10. For eksemplets skyld er antall uker ventetid satt til 2, selv om det ikke er et reelt antall uker.
   Beregningsperioden er ulik meldeperioden.
   Bruker jobber under terskelverdi og avtjener sanksjonen i løpet av den tredje uka med stønad, forutsatt at ingen dager uten rett til utbetaling grunnet syksom eller annet fravær.
   OBS: Ved forlenget ventetid, skal det ikke gis ordinær ventetid.
 
+
+
+
+  ### Todo: Vi håndterer ikke sanksjon, scenariorer nedover er ikke ferdige
   @wip
-       ## Todo: Vi håndterer ikke sanksjon
   Scenario: 12 - Bruker får innvilget dagpenger fra fredag i uke 1 med forlenget ventetid jfr. §4-10. For eksemplets skyld er antall uker forlenget ventetid satt til 2, selv om det ikke er et reelt antall uker.
   Bruker har 1 sykedag. Dager med sykdom og fravær skal ikke inngå i meldeperioden. De skal dermed ikke inngå i terskelberegningen og man skal heller ikke kunne avtjene sanksjon på slike dager.
   For 1. meldekort er beregningsperioden ulik meldeperioden. Beregningsperioden har bare 5 arbeidsdager.
@@ -272,3 +275,21 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
   Bruker avtjener her sanksjonen i løpet av uke 3 (2. meldekort).
   OBS: Ved forlenget ventetid, skal det ikke gis ordinær ventetid.
 
+
+
+  @wip
+  Scenario: 13a - Det gjenstår 6 dager med sanksjon.
+  Bruker jobber 12 timer i helg og 2 timer mandag før sanksjonen er ferdig avtjent.
+  Disse 14 timene skal ikke gå til avkorting av utbetalingen, siden sanksjonen ikke er avtjent ennå.
+  Bruker jobber også en full arbeidsdag etter at sanksjonen er avtjent. Disse 8 timene skal avkorte utbetalingen.
+
+  @wip
+  Scenario: 13b
+
+  @wip
+  Scenario: 13c
+
+  @wip
+  Scenario: 14  - Det gjenstår 6 dager med sanksjon.
+  Bruker har 1 fraværsdag i uke 1.
+  Bruker jobber i helg før sanksjonen er ferdig avtjent.
