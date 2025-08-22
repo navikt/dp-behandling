@@ -36,9 +36,9 @@ spec:
     max: 2
   resources:
     limits:
-      memory: 512Mi
+      memory: 640Mi
     requests:
-      cpu: 120m
+      cpu: 140m
       memory: 480Mi
   env:
     - name: JDK_JAVA_OPTIONS
