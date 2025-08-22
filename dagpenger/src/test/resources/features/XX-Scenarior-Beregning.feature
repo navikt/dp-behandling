@@ -195,14 +195,14 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
     Og det forbrukes 2400 i egenandel
     Og det forbrukes 10 dager
 
-  Scenario: 8 - Bruker får innvilget dagpenger fra fredag i uke 1 med ordinær egenandel på 3 dagsatser. Beregningsperioden er ulik meldeperioden. Bruker avtjener egenandelen i løpet av 2 hele og 2 halve dager.
+  Scenario: 9 - Bruker får innvilget dagpenger fra fredag i uke 1 med ordinær egenandel på 3 dagsatser. Beregningsperioden er ulik meldeperioden. Bruker avtjener egenandelen i løpet av 2 hele og 2 halve dager.
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
       | Terskel    | 50.0  |            |          |
-      | Periode    | 52    | 01.01.2020 |          |
-      | Sats       | 800   | 01.01.2020 |          |
-      | FVA        | 40    | 01.01.2020 |          |
-      | Egenandel  | 2400  | 01.01.2020 |          |
+      | Periode    | 52    | 10.01.2020 |          |
+      | Sats       | 800   | 10.01.2020 |          |
+      | FVA        | 40    | 10.01.2020 |          |
+      | Egenandel  | 2400  | 10.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 8     |
@@ -224,4 +224,51 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
     Og det forbrukes 2400 i egenandel
     Og det forbrukes 6 dager
 
+  Scenario: 9 - Bruker får innvilget dagpenger fra fredag i uke 1 med ordinær ordinær egenandel på 3 dagsatser.
+  Beregningsperioden er ulik meldeperioden. Bruker jobber under terskelverdi.
+  Bruker betaler egenandelen på første meldekort, men jobber også på lørdag/søndag (ikke stønadsdager) og jobber over 8 timer på en stønadsdag .
+  Siste dag egenandel trekkes, gjenstår 4 timer for utbetaling.
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 10.01.2020 |          |
+      | Sats       | 800   | 10.01.2020 |          |
+      | FVA        | 40    | 10.01.2020 |          |
+      | Egenandel  | 2400  | 10.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 8     |
+      | Tirsdag | Arbeidstimer | 8     |
+      | Onsdag  | Arbeidstimer | 8     |
+      | Torsdag | Arbeidstimer | 8     |
+      | Fredag  | Arbeidstimer | 4     |
+      | Lørdag  | Arbeidstimer | 2     |
+      | Søndag  | Arbeidstimer | 2     |
+      | Mandag  | Arbeidstimer | 10    |
+      | Tirsdag | Arbeidstimer | 2     |
+      | Onsdag  |              | 0     |
+      | Torsdag |              | 0     |
+      | Fredag  |              | 0     |
+      | Lørdag  |              | 0     |
+      | Søndag  |              | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 400,0 kroner
+    Og det forbrukes 2400 i egenandel
+    Og det forbrukes 6 dager
+
+    @wip
+      ## Todo: Vi håndterer ikke sanksjon
+  Scenario: 11 - Bruker får innvilget dagpenger fra fredag i uke 1 med forlenget ventetid jfr. §4-10. For eksemplets skyld er antall uker ventetid satt til 2, selv om det ikke er et reelt antall uker.
+  Beregningsperioden er ulik meldeperioden.
+  Bruker jobber under terskelverdi og avtjener sanksjonen i løpet av den tredje uka med stønad, forutsatt at ingen dager uten rett til utbetaling grunnet syksom eller annet fravær.
+  OBS: Ved forlenget ventetid, skal det ikke gis ordinær ventetid.
+
+  @wip
+       ## Todo: Vi håndterer ikke sanksjon
+  Scenario: 12 - Bruker får innvilget dagpenger fra fredag i uke 1 med forlenget ventetid jfr. §4-10. For eksemplets skyld er antall uker forlenget ventetid satt til 2, selv om det ikke er et reelt antall uker.
+  Bruker har 1 sykedag. Dager med sykdom og fravær skal ikke inngå i meldeperioden. De skal dermed ikke inngå i terskelberegningen og man skal heller ikke kunne avtjene sanksjon på slike dager.
+  For 1. meldekort er beregningsperioden ulik meldeperioden. Beregningsperioden har bare 5 arbeidsdager.
+  For 2. meldekort er beregningsperioden = meldeperioden.
+  Bruker avtjener her sanksjonen i løpet av uke 3 (2. meldekort).
+  OBS: Ved forlenget ventetid, skal det ikke gis ordinær ventetid.
 
