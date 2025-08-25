@@ -26,9 +26,9 @@ internal object Alderskrav {
     val regelsett =
         vilkår("alder") {
             regel(fødselsdato) { innhentes }
-            regel(aldersgrense) { oppslag(virkningsdato) { 67 } }
+            regel(aldersgrense) { oppslag { 67 } }
             regel(sisteMåned) { leggTilÅr(fødselsdato, aldersgrense) }
             regel(sisteDagIMåned) { sisteDagIMåned(sisteMåned) }
-            regel(vilkår) { førEllerLik(virkningsdato, sisteDagIMåned) }
+            regel(vilkår) { førEllerLik(sisteDagIMåned) }
         }
 }

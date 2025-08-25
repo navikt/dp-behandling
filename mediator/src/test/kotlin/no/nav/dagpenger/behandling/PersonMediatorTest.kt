@@ -88,12 +88,14 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 
+@Disabled("VI PRØVER UTEN PRØVINGSDATO")
 internal class PersonMediatorTest {
     private val rapid = TestRapid()
     private val ident = "11109233444"

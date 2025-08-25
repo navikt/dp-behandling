@@ -36,7 +36,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.ordinærtKravTilTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.tapAvArbeidstidErMinstTerskelId
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
@@ -130,7 +129,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(kravPåLønn) { innhentMed(søknadIdOpplysningstype) }
             utfall(kravTilTapAvArbeidsinntekt) { ikke(kravPåLønn) }
 
-            regel(ordinærtKravTilTaptArbeidstid) { oppslag(prøvingsdato) { 50.0 } }
+            regel(ordinærtKravTilTaptArbeidstid) { oppslag { 50.0 } }
 
             regel(kravTilArbeidstidsreduksjon) {
                 hvisSannMedResultat(
@@ -155,7 +154,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             }
 
             regel(nyArbeidstid) { somUtgangspunkt(0.0) }
-            regel(maksimalVanligArbeidstid) { oppslag(prøvingsdato) { 40.0 } }
+            regel(maksimalVanligArbeidstid) { oppslag { 40.0 } }
 
             utfall(kravTilTaptArbeidstid) { prosentTerskel(nyArbeidstid, fastsattVanligArbeidstid, kravTilArbeidstidsreduksjon) }
 

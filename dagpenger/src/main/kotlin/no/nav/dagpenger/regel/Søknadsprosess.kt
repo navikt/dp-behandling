@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -93,7 +94,24 @@ class Søknadsprosess : RegistrertForretningsprosess() {
     private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
         { forDato(prøvingsdato(this)) }
 
-    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
+    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate {
+        val opplysningerSomSierNoeOmNårVilkårErOppfylt =
+            opplysninger.kunEgne
+                .somListe()
+                .filter { it.opplysningstype in regelverk.vilkårsopplysninger }
+                .filterIsInstance<Opplysning<Boolean>>()
+                .filter { it.verdi }
+
+        val hvilkenDatoErDenSisteMuligeDatoMedAlleVilkår =
+            opplysningerSomSierNoeOmNårVilkårErOppfylt
+                .maxByOrNull { it.gyldighetsperiode.fom }
+                ?.gyldighetsperiode
+                ?.fom
+
+        return hvilkenDatoErDenSisteMuligeDatoMedAlleVilkår ?: utgangspunkt(opplysninger)
+    }
+
+    private fun utgangspunkt(opplysninger: LesbarOpplysninger): LocalDate =
         if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
             opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
         } else if (opplysninger.har(hendelseTypeOpplysningstype)) {

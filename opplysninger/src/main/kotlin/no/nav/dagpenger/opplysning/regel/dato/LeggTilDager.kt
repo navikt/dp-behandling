@@ -10,7 +10,10 @@ class LeggTilDager internal constructor(
     private val dato: Opplysningstype<LocalDate>,
     private val antallDager: Opplysningstype<Int>,
 ) : Regel<LocalDate>(produserer, listOf(dato, antallDager)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val a = opplysninger.finnOpplysning(dato).verdi
         return a.plusDays(opplysninger.finnOpplysning(antallDager).verdi.toLong())
     }

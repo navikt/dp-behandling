@@ -7,19 +7,17 @@ import java.time.LocalDate
 
 class FørEllerLik internal constructor(
     produserer: Opplysningstype<Boolean>,
-    private val dato: Opplysningstype<LocalDate>,
     private val tom: Opplysningstype<LocalDate>,
-) : Regel<Boolean>(produserer, listOf(dato, tom)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Boolean {
-        val a = opplysninger.finnOpplysning(dato).verdi
+) : Regel<Boolean>(produserer, listOf(tom)) {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Boolean {
         val b = opplysninger.finnOpplysning(tom).verdi
-        return a.isBefore(b) || a.isEqual(b)
+        return prøvingsdato.isBefore(b) || prøvingsdato.isEqual(b)
     }
 
-    override fun toString() = "Sjekker at $dato er før eller lik $tom"
+    override fun toString() = "Sjekker at dato er før eller lik $tom"
 }
 
-fun Opplysningstype<Boolean>.førEllerLik(
-    dato: Opplysningstype<LocalDate>,
-    tom: Opplysningstype<LocalDate>,
-) = FørEllerLik(this, dato, tom)
+fun Opplysningstype<Boolean>.førEllerLik(tom: Opplysningstype<LocalDate>) = FørEllerLik(this, tom)

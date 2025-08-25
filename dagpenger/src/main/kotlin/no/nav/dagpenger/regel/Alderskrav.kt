@@ -18,7 +18,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteDagIMånedId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteMånedId
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 
@@ -40,7 +39,7 @@ object Alderskrav {
             regel(sisteMåned) { leggTilÅr(fødselsdato, aldersgrense) }
             regel(sisteDagIMåned) { sisteDagIMåned(sisteMåned) }
 
-            utfall(kravTilAlder) { førEllerLik(prøvingsdato, sisteDagIMåned) }
+            utfall(kravTilAlder) { førEllerLik(sisteDagIMåned) }
         }
 
     val MuligGjenopptakKontroll =

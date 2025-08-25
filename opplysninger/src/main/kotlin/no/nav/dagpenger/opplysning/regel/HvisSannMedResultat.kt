@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import java.time.LocalDate
 
 class HvisSannMedResultat<T : Comparable<T>>(
     produserer: Opplysningstype<T>,
@@ -9,7 +10,10 @@ class HvisSannMedResultat<T : Comparable<T>>(
     private val hvisSann: Opplysningstype<T>,
     private val hvisUsann: Opplysningstype<T>,
 ) : Regel<T>(produserer, listOf(sjekk, hvisSann, hvisUsann)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): T {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): T {
         val sjekk = opplysninger.finnOpplysning(sjekk).verdi
         val hvisSann = opplysninger.finnOpplysning(hvisSann).verdi
         val hvisUsann = opplysninger.finnOpplysning(hvisUsann).verdi

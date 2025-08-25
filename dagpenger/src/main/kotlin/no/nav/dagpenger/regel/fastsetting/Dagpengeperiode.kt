@@ -30,7 +30,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.Terskel12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.Terskel36Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor36Id
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.antallÅrI36Måneder
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
@@ -75,10 +74,10 @@ object Dagpengeperiode {
         ) {
             skalVurderes { kravPåDagpenger(it) }
 
-            regel(kortPeriode) { oppslag(prøvingsdato) { 52 } }
-            regel(langPeriode) { oppslag(prøvingsdato) { 104 } }
-            regel(terskelFaktor12) { oppslag(prøvingsdato) { 2.0 } }
-            regel(terskelFaktor36) { oppslag(prøvingsdato) { 2.0 } }
+            regel(kortPeriode) { oppslag { 52 } }
+            regel(langPeriode) { oppslag { 104 } }
+            regel(terskelFaktor12) { oppslag { 2.0 } }
+            regel(terskelFaktor36) { oppslag { 2.0 } }
             regel(terskel12) { multiplikasjon(grunnbeløp, terskelFaktor12) }
             regel(terskel36) { multiplikasjon(grunnbeløp, terskelFaktor36) }
             regel(inntektSnittSiste36) { divisjon(inntektSiste36, antallÅrI36Måneder) }
@@ -91,11 +90,11 @@ object Dagpengeperiode {
 
             regel(antallStønadsuker) { høyesteAv(stønadsuker12, stønadsuker36) }
 
-            regel(ingenOrdinærPeriode) { oppslag(prøvingsdato) { 0 } }
+            regel(ingenOrdinærPeriode) { oppslag { 0 } }
 
             regel(ordinærPeriode) { hvisSannMedResultat(Minsteinntekt.minsteinntekt, antallStønadsuker, ingenOrdinærPeriode) }
 
-            regel(dagerIUka) { oppslag(prøvingsdato) { 5 } }
+            regel(dagerIUka) { oppslag { 5 } }
             regel(antallStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }

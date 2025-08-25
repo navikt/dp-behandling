@@ -130,10 +130,10 @@ object Dagpengegrunnlag {
             skalVurderes { kravPåDagpenger(it) }
 
             regel(antallÅrI36Måneder) { somUtgangspunkt(3.0) }
-            regel(faktorForMaksgrense) { oppslag(prøvingsdato) { 6.0 } }
+            regel(faktorForMaksgrense) { oppslag { 6.0 } }
             regel(maksgrenseForGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, faktorForMaksgrense) }
 
-            regel(grunnbeløpForDagpengeGrunnlag) { oppslag(prøvingsdato) { grunnbeløpFor(it) } }
+            regel(grunnbeløpForDagpengeGrunnlag) { oppslag { grunnbeløpFor(it) } }
 
             regel(relevanteinntekter) {
                 filtrerRelevanteInntekter(

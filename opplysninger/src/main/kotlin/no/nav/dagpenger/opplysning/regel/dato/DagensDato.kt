@@ -27,7 +27,10 @@ class DagensDato internal constructor(
         }
     }
 
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate = LocalDate.now()
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate = LocalDate.now()
 
     override fun toString() = "Fastsetter $produserer til dagens dato"
 }

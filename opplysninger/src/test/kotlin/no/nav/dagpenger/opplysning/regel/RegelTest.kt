@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 
 class RegelTest {
     @Test
@@ -23,7 +24,7 @@ class RegelTest {
 
         val exception: IllegalArgumentException =
             assertThrows<IllegalArgumentException> {
-                regelsett.regler().first().lagProdukt(Opplysninger.med(Faktum(b, false)))
+                regelsett.regler().first().lagProdukt(Opplysninger.med(Faktum(b, false)), LocalDate.now())
             }
 
         exception.message shouldBe

@@ -9,7 +9,10 @@ class SisteDagIMåned internal constructor(
     produserer: Opplysningstype<LocalDate>,
     private val dato: Opplysningstype<LocalDate>,
 ) : Regel<LocalDate>(produserer, listOf(dato)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val a = opplysninger.finnOpplysning(dato).verdi
         return a.withDayOfMonth(a.lengthOfMonth())
     }

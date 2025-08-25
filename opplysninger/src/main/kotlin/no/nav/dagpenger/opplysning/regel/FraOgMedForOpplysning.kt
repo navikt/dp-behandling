@@ -8,7 +8,10 @@ class FraOgMedForOpplysning internal constructor(
     produserer: Opplysningstype<LocalDate>,
     private val opplysningstype: Opplysningstype<Boolean>,
 ) : Regel<LocalDate>(produserer, listOf(opplysningstype)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val opplysning = opplysninger.finnOpplysning(opplysningstype)
         return opplysning.gyldighetsperiode.fom
     }

@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import java.time.LocalDate
 
 // TODO : Flytt denne til dagpenger-regelverks modul
 class Oppjuster(
@@ -15,7 +16,10 @@ class Oppjuster(
     private val grunnbeløp: Opplysningstype<Beløp>,
     private val inntekt: Opplysningstype<Inntekt>,
 ) : Regel<Inntekt>(produserer, listOf(grunnbeløp, inntekt)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Inntekt {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Inntekt {
         val søknadstidspunktetsGrunnbeløp = opplysninger.finnOpplysning(this.grunnbeløp).verdi
         val inntekt = opplysninger.finnOpplysning(this.inntekt).verdi
 

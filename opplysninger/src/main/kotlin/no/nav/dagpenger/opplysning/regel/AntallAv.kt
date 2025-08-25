@@ -5,13 +5,17 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.ComparableListe
+import java.time.LocalDate
 
 class AntallAv<T : Comparable<T>>(
     produserer: Opplysningstype<Int>,
     val opplysningstype: Opplysningstype<ComparableListe<T>>,
     val filter: T.() -> Boolean,
 ) : Regel<Int>(produserer, listOf(opplysningstype)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Int {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Int {
         val liste = opplysninger.finnOpplysning(opplysningstype).verdi
         return liste.filter { filter(it) }.size
     }

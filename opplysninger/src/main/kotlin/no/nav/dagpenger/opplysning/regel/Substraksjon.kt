@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import java.time.LocalDate
 
 @Suppress("UNCHECKED_CAST")
 class Substraksjon<T : Comparable<T>> internal constructor(
@@ -10,7 +11,10 @@ class Substraksjon<T : Comparable<T>> internal constructor(
     private vararg val opplysningstyper: Opplysningstype<T>,
     private val operasjon: (List<T>) -> T,
 ) : Regel<T>(produserer, opplysningstyper.toList()) {
-    override fun kjør(opplysninger: LesbarOpplysninger): T {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): T {
         val verdier = opplysninger.finnAlle(opplysningstyper.toList()).map { it.verdi }
         return operasjon(verdier)
     }

@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import java.time.LocalDate
 
 class Divisjon<T : Comparable<T>> internal constructor(
     produserer: Opplysningstype<Beløp>,
@@ -10,7 +11,10 @@ class Divisjon<T : Comparable<T>> internal constructor(
     private val faktor: Opplysningstype<T>,
     private val operasjon: (Beløp, T) -> Beløp,
 ) : Regel<Beløp>(produserer, listOf(beløp, faktor)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Beløp {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Beløp {
         val a = opplysninger.finnOpplysning(beløp).verdi
         val b = opplysninger.finnOpplysning(faktor).verdi
         return operasjon.invoke(a, b)

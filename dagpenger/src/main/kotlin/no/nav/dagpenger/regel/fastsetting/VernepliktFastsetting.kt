@@ -21,7 +21,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktFastsattVanligArbeidsti
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktPeriodeId
 import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
@@ -57,10 +56,10 @@ object VernepliktFastsetting {
         ) {
             skalVurderes { kravPåDagpenger(it) } // && it.erSann(skalVernepliktVurderes) }
 
-            regel(antallG) { oppslag(prøvingsdato) { 3.0 } }
+            regel(antallG) { oppslag { 3.0 } }
             regel(vernepliktGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, antallG) }
-            regel(vernepliktPeriode) { oppslag(prøvingsdato) { 26 } }
-            regel(vernepliktFastsattVanligArbeidstid) { oppslag(prøvingsdato) { 37.5 } }
+            regel(vernepliktPeriode) { oppslag { 26 } }
+            regel(vernepliktFastsattVanligArbeidstid) { oppslag { 37.5 } }
 
             regel(grunnlagUtenVerneplikt) { somUtgangspunkt(Beløp(0)) }
 

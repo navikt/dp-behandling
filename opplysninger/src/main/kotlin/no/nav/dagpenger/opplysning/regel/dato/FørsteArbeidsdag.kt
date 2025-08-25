@@ -21,22 +21,24 @@ class FørsteArbeidsdag internal constructor(
     produserer: Opplysningstype<LocalDate>,
     private val dato: Opplysningstype<LocalDate>,
 ) : Regel<LocalDate>(produserer, listOf(dato)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val arbeidsdag = opplysninger.finnOpplysning(dato).verdi
         return finnFørsteArbeidsdag(arbeidsdag)
     }
 
     override fun toString() = "Finn første virkedag etter $dato"
 
-    private tailrec fun finnFørsteArbeidsdag(dato: LocalDate): LocalDate {
-        return if (dato.arbeidsdag()) {
+    private tailrec fun finnFørsteArbeidsdag(dato: LocalDate): LocalDate =
+        if (dato.arbeidsdag()) {
             dato
         } else {
             finnFørsteArbeidsdag(
                 dato.plusDays(1),
             )
         }
-    }
 
     private fun LocalDate.arbeidsdag(): Boolean =
         NorwegianDateUtil.isWorkingDay(Date.from(this.atStartOfDay(ZoneId.systemDefault()).toInstant()))

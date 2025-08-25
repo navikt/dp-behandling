@@ -41,7 +41,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.skalSamordnesMedYtelserUtenforFol
 import no.nav.dagpenger.regel.OpplysningsTyper.sumYtelserUtenforFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelVedSamordningId
 import no.nav.dagpenger.regel.Samordning.samordnetDagsats
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
 import no.nav.dagpenger.regel.folketrygden
@@ -187,7 +186,7 @@ object SamordingUtenforFolketrygden {
                 )
             }
 
-            regel(terskelVedSamordning) { oppslag(prøvingsdato) { 0.03 } }
+            regel(terskelVedSamordning) { oppslag { 0.03 } }
             regel(nedreGrenseForSamordning) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, terskelVedSamordning) }
 
             regel(samordnetUkessatsUtenBarnetillegg) { multiplikasjon(samordnetDagsats, arbeidsdagerPerUke) }

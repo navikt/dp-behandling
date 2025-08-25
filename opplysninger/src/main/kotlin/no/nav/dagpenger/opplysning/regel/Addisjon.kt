@@ -3,12 +3,16 @@ package no.nav.dagpenger.opplysning.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import java.time.LocalDate
 
 class Addisjon(
     produserer: Opplysningstype<Beløp>,
     private val ledd: List<Opplysningstype<Beløp>>,
 ) : Regel<Beløp>(produserer, ledd) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Beløp {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Beløp {
         val verdier = ledd.map { opplysninger.finnOpplysning(it).verdi }
         return Beløp(verdier.sumOf { it.verdien })
     }

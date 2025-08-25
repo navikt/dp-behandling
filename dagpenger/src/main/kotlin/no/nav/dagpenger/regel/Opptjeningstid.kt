@@ -32,7 +32,7 @@ object Opptjeningstid {
         ) {
             skalVurderes { it.oppfyller(kravTilAlder) }
 
-            regel(pliktigRapporteringsfrist) { oppslag(prøvingsdato) { Aordningen.rapporteringsfrist(it) } }
+            regel(pliktigRapporteringsfrist) { oppslag { Aordningen.rapporteringsfrist(it) } }
             regel(justertRapporteringsfrist) { førsteArbeidsdag(pliktigRapporteringsfrist) }
             regel(sisteAvsluttendendeKalenderMåned) { sisteAvsluttendeKalenderMåned(prøvingsdato, justertRapporteringsfrist) }
         }

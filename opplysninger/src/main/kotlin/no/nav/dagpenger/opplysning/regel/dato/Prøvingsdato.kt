@@ -9,7 +9,10 @@ class Prøvingsdato internal constructor(
     produserer: Opplysningstype<LocalDate>,
     private val dato: Opplysningstype<LocalDate>,
 ) : Regel<LocalDate>(produserer, listOf(dato)) {
-    override fun kjør(opplysninger: LesbarOpplysninger) = opplysninger.finnOpplysning(dato).verdi
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ) = opplysninger.finnOpplysning(dato).verdi
 
     override fun toString() = "Fastsetter $produserer med verdi $dato og gyldighetsperiode fom $dato"
 }

@@ -103,7 +103,7 @@ class Regelkjøring(
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         aktiverRegler(prøvingsdato)
         while (plan.isNotEmpty()) {
-            kjørRegelPlan()
+            kjørRegelPlan(prøvingsdato)
             aktiverRegler(prøvingsdato)
         }
 
@@ -115,6 +115,7 @@ class Regelkjøring(
             forretningsprosess.regelsett().filter { it.påvirkerResultat(opplysningerPåPrøvingsdato) }.flatMap { it.produserer }
 
         // Sett erRelevant på opplysninger om de er relevante for resultatet
+        // TODO: Gjør en vurdering om det fortsatt er nødvendig
         opplysninger
             .somListe(Egne)
             .partition { it.opplysningstype in opplysningerSomPåvirkerResultatet }
@@ -158,15 +159,18 @@ class Regelkjøring(
         trenger = ekstern.toSet()
     }
 
-    private fun kjørRegelPlan() {
+    private fun kjørRegelPlan(prøvingsdato: LocalDate) {
         while (plan.size > 0) {
-            kjør(plan.first())
+            kjør(plan.first(), prøvingsdato)
         }
     }
 
-    private fun kjør(regel: Regel<*>) {
+    private fun kjør(
+        regel: Regel<*>,
+        prøvingsdato: LocalDate,
+    ) {
         try {
-            val opplysning = regel.lagProdukt(opplysningerPåPrøvingsdato)
+            val opplysning = regel.lagProdukt(opplysningerPåPrøvingsdato, prøvingsdato)
             kjørteRegler.add(regel)
             plan.remove(regel)
             opplysninger.leggTilUtledet(opplysning)

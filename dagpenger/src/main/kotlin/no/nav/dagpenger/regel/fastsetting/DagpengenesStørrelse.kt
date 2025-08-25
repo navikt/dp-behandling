@@ -47,7 +47,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.NittiProsentId
 import no.nav.dagpenger.regel.OpplysningsTyper.SamordnetDagsatsMedBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.UkessatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpOverMaksId
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden
@@ -116,14 +115,14 @@ object DagpengenesStørrelse {
             regel(antallBarn) { antallAv(barn) { kvalifiserer } }
 
             // Regn ut dagsats uten barnetillegg, før samordning
-            regel(dekningsgrad) { oppslag(prøvingsdato) { DagpengensStørrelseFaktor.forDato(it) } }
+            regel(dekningsgrad) { oppslag { DagpengensStørrelseFaktor.forDato(it) } }
             regel(dagsatsUtenBarnetillegg) { multiplikasjon(grunnlag, dekningsgrad) }
 
             // Avrunder og sender over til samordning
             regel(avrundetDagsatsUtenBarnetillegg) { avrund(dagsatsUtenBarnetillegg) }
 
             // Regn ut barnetillegg
-            regel(barnetilleggetsStørrelse) { oppslag(prøvingsdato) { BarnetilleggSats.forDato(it) } }
+            regel(barnetilleggetsStørrelse) { oppslag { BarnetilleggSats.forDato(it) } }
             regel(barnetillegg) { multiplikasjon(barnetilleggetsStørrelse, antallBarn) }
 
             // Regn ut dagsats med barnetillegg, før maks og samordning
@@ -133,8 +132,8 @@ object DagpengenesStørrelse {
             regel(ukesatsMedBarnetillegg) { multiplikasjon(avrundetDagsatsMedBarnetillegg, arbeidsdagerPerUke) }
 
             // Regn ut 90% av dagpengegrunnlaget
-            regel(nittiProsent) { oppslag(prøvingsdato) { 0.9 } }
-            regel(antallArbeidsdagerPerÅr) { oppslag(prøvingsdato) { 260 } }
+            regel(nittiProsent) { oppslag { 0.9 } }
+            regel(antallArbeidsdagerPerÅr) { oppslag { 260 } }
             regel(maksGrunnlag) { multiplikasjon(grunnlag, nittiProsent) }
             regel(maksSats) { divisjon(maksGrunnlag, antallArbeidsdagerPerÅr) }
             regel(avrundetMaksSats) { avrund(maksSats) }
@@ -149,7 +148,7 @@ object DagpengenesStørrelse {
             regel(harSamordnet) { erUlik(dagsatsEtterNittiProsent, dagsatsSamordnetUtenforFolketrygden) }
 
             // Regn ut ukessats
-            regel(arbeidsdagerPerUke) { oppslag(prøvingsdato) { 5 } }
+            regel(arbeidsdagerPerUke) { oppslag { 5 } }
             regel(ukessats) { multiplikasjon(dagsatsEtterSamordningMedBarnetillegg, arbeidsdagerPerUke) }
 
             regel(harBarnetillegg) { størreEnnEllerLik(barnetillegg, barnetilleggetsStørrelse) }

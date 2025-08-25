@@ -10,7 +10,10 @@ class LeggTilÅr internal constructor(
     private val dato: Opplysningstype<LocalDate>,
     private val antallÅr: Opplysningstype<Int>,
 ) : Regel<LocalDate>(produserer, listOf(dato, antallÅr)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val a = opplysninger.finnOpplysning(dato).verdi
         return a.plusYears(opplysninger.finnOpplysning(antallÅr).verdi.toLong())
     }

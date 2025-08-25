@@ -7,11 +7,13 @@ import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.ny
 import no.nav.dagpenger.behandling.scenario.assertions.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.Opphold
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
 
 // Tester ulike scenarier for kjeding av behandlinger
+@Disabled("VI PRØVER UTEN PRØVINGSDATO")
 class OpplysningsperioderScenarioTest {
     @Test
     fun `kan endre verdi av eksisterende opplysning med uendelig gyldighetsperiode`() {

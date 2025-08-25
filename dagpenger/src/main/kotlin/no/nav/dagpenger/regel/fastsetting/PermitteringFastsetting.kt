@@ -5,7 +5,6 @@ import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.OpplysningsTyper.permitteringsperiodeId
 import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
 
 object PermitteringFastsetting {
@@ -18,7 +17,7 @@ object PermitteringFastsetting {
         ) {
             skalVurderes { it.erSann(oppfyllerKravetTilPermittering) }
 
-            regel(permitteringsperiode) { oppslag(prøvingsdato) { 26 } }
+            regel(permitteringsperiode) { oppslag { 26 } }
 
             ønsketResultat(permitteringsperiode)
             påvirkerResultat { it.erSann(oppfyllerKravetTilPermittering) }

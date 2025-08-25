@@ -81,23 +81,32 @@ abstract class Regel<T : Comparable<T>> internal constructor(
 
     abstract override fun toString(): String
 
-    protected abstract fun kjør(opplysninger: LesbarOpplysninger): T
+    protected abstract fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): T
 
     fun produserer(opplysningstype: Opplysningstype<*>) = produserer.er(opplysningstype)
 
-    internal fun lagProdukt(opplysninger: LesbarOpplysninger): Opplysning<T> {
+    internal fun lagProdukt(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Opplysning<T> {
         if (avhengerAv.isEmpty()) {
-            val produkt = kjør(opplysninger)
-            return Faktum(produserer, produkt)
+            val produkt = kjør(opplysninger, prøvingsdato)
+            return Faktum(produserer, produkt, Gyldighetsperiode(fom = prøvingsdato))
         }
 
         val basertPå = opplysninger.finnFlere(avhengerAv)
         requireAlleAvhengigheter(basertPå)
 
-        val produkt = kjør(opplysninger)
+        val produkt = kjør(opplysninger, prøvingsdato)
         val erAlleFaktum = basertPå.all { it is Faktum<*> }
         val utledetAv = Utledning(this, basertPå)
         val gyldighetsperiode = produserer.gyldighetsperiode(produkt, basertPå)
+
+        // if (gyldighetsperiode.fom.isBefore(prøvingsdato)) throw IllegalStateException("BOOM")
+        // val blurp = Gyldighetsperiode(fom = maxOf(gyldighetsperiode.fom, prøvingsdato), tom = gyldighetsperiode.tom)
 
         return when (erAlleFaktum) {
             true -> Faktum(opplysningstype = produserer, verdi = produkt, utledetAv = utledetAv, gyldighetsperiode = gyldighetsperiode)

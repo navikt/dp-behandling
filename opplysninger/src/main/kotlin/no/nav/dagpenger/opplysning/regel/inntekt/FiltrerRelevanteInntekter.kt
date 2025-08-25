@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import java.time.LocalDate
 
 // TODO : Flytt denne til dagpenger-regelverks modul
 class FiltrerRelevanteInntekter(
@@ -13,7 +14,10 @@ class FiltrerRelevanteInntekter(
     private val ufiltrertInntekt: Opplysningstype<Inntekt>,
     private val inntektsklasser: List<InntektKlasse>,
 ) : Regel<Inntekt>(produserer, listOf(ufiltrertInntekt)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Inntekt {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Inntekt {
         val inntekt = opplysninger.finnOpplysning(this.ufiltrertInntekt).verdi
         val relevanteInntekter =
             inntekt.verdi.inntektsListe.map {

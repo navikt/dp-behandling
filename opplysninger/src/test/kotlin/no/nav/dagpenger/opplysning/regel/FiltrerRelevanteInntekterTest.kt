@@ -39,7 +39,7 @@ class FiltrerRelevanteInntekterTest {
             ),
         )
 
-        val filtrertInntekt = regel.lagProdukt(opplysninger)
+        val filtrertInntekt = regel.lagProdukt(opplysninger, LocalDate.now())
         filtrertInntekt
             .verdi.verdi.inntektsListe
             .flatMap { it.klassifiserteInntekter } shouldHaveSize 1

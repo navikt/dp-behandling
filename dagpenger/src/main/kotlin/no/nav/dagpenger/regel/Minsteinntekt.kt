@@ -77,17 +77,17 @@ object Minsteinntekt {
         vilkår(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
             skalVurderes { it.oppfyller(kravTilAlder) }
 
-            regel(maksPeriodeLengde) { oppslag(prøvingsdato) { 36 } }
+            regel(maksPeriodeLengde) { oppslag { 36 } }
             regel(førsteMånedAvOpptjeningsperiode) { trekkFraMånedTilFørste(sisteAvsluttendendeKalenderMåned, maksPeriodeLengde) }
 
             regel(inntektFraSkatt) { innhentMed(prøvingsdato, sisteAvsluttendendeKalenderMåned, førsteMånedAvOpptjeningsperiode) }
 
             regel(tellendeInntekt) { filtrerRelevanteInntekter(inntektFraSkatt, listOf(InntektKlasse.ARBEIDSINNTEKT)) }
 
-            regel(grunnbeløp) { oppslag(prøvingsdato) { grunnbeløpFor(it) } }
+            regel(grunnbeløp) { oppslag { grunnbeløpFor(it) } }
 
             regel(inntekt12) { summerPeriode(tellendeInntekt, SummerPeriode.InntektPeriode.Første) }
-            regel(`12mndTerskelFaktor`) { oppslag(prøvingsdato) { finnTerskel(it).nedre } }
+            regel(`12mndTerskelFaktor`) { oppslag { finnTerskel(it).nedre } }
             regel(`12mndTerskel`) { multiplikasjon(grunnbeløp, `12mndTerskelFaktor`) }
             regel(over12mndTerskel) { størreEnnEllerLik(inntekt12, `12mndTerskel`) }
 
@@ -99,7 +99,7 @@ object Minsteinntekt {
                     SummerPeriode.InntektPeriode.Tredje,
                 )
             }
-            regel(`36mndTerskelFaktor`) { oppslag(prøvingsdato) { finnTerskel(it).øvre } }
+            regel(`36mndTerskelFaktor`) { oppslag { finnTerskel(it).øvre } }
             regel(`36mndTerskel`) { multiplikasjon(grunnbeløp, `36mndTerskelFaktor`) }
             regel(over36mndTerskel) { størreEnnEllerLik(inntekt36, `36mndTerskel`) }
 

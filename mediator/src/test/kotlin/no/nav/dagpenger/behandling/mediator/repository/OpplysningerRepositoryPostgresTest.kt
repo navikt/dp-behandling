@@ -177,7 +177,7 @@ class OpplysningerRepositoryPostgresTest {
                         innhentes
                     }
                     regel(utledetOpplysningstype) {
-                        oppslag(baseOpplysningstype) { 5 }
+                        oppslag { 5 }
                     }
                 }
             val opplysninger = Opplysninger()
@@ -298,7 +298,7 @@ class OpplysningerRepositoryPostgresTest {
             val regelsett =
                 vilkår("vilkår") {
                     regel(baseOpplysningstype) { innhentes }
-                    regel(utledetOpplysningstype) { oppslag(baseOpplysningstype) { 5 } }
+                    regel(utledetOpplysningstype) { oppslag { 5 } }
                 }
             val tidligereOpplysninger = Opplysninger()
             val regelkjøring = Regelkjøring(LocalDate.now(), tidligereOpplysninger, regelsett)
@@ -430,7 +430,7 @@ class OpplysningerRepositoryPostgresTest {
             val regelsett =
                 vilkår("vilkår") {
                     regel(baseOpplysningstype) { innhentes }
-                    regel(utledetOpplysningstype) { oppslag(baseOpplysningstype) { 5 } }
+                    regel(utledetOpplysningstype) { oppslag { 5 } }
                 }
             val tidligereOpplysninger = Opplysninger()
             val regelkjøring = Regelkjøring(LocalDate.now(), tidligereOpplysninger, regelsett)

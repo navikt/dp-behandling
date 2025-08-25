@@ -38,6 +38,8 @@ object Søknadstidspunkt {
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
             regel(prøvingsdato) { sisteAv(søknadstidspunkt) }
 
+            ønsketResultat(søknadstidspunkt)
+
             avklaring(Avklaringspunkter.VirkningstidspunktForLangtFramITid)
         }
 

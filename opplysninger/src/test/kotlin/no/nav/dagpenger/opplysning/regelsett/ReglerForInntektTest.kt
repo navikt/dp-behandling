@@ -66,13 +66,13 @@ internal object ReglerForInntektTest {
 
     val regelsett =
         vilkår("Minsteinntekt") {
-            regel(antattRapporteringsFrist) { oppslag(prøvingsdato) { LocalDate.of(it.year, it.month, 5) } }
+            regel(antattRapporteringsFrist) { oppslag { LocalDate.of(it.year, it.month, 5) } }
             regel(reellRapporteringsFrist) { førsteArbeidsdag(antattRapporteringsFrist) }
-            regel(antallG12mndInntekt) { oppslag(prøvingsdato) { 1.5 } }
-            regel(antallG36mndInntekt) { oppslag(prøvingsdato) { 3.0 } }
+            regel(antallG12mndInntekt) { oppslag { 1.5 } }
+            regel(antallG36mndInntekt) { oppslag { 3.0 } }
             regel(inntekt12) { innhentMed(prøvingsdato) }
             regel(inntekt36) { innhentMed(prøvingsdato) }
-            regel(grunnbeløp) { oppslag(prøvingsdato) { Grunnbeløp.finnFor(it) } }
+            regel(grunnbeløp) { oppslag { Grunnbeløp.finnFor(it) } }
             regel(nedreTerskel) { multiplikasjon(grunnbeløp, antallG12mndInntekt) }
             regel(øvreTerskel) { multiplikasjon(grunnbeløp, antallG36mndInntekt) }
             regel(overNedreTerskel) { størreEnnEllerLik(inntekt12, nedreTerskel) }

@@ -17,7 +17,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFis
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.erPermitteringenFraFiskeindustriMidlertidig
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object PermitteringFraFiskeindustrien {
     val godkjentÅrsakPermitteringFraFiskindustri =
@@ -59,7 +58,7 @@ object PermitteringFraFiskeindustrien {
 
             regel(godkjentÅrsakPermitteringFraFiskindustri) { somUtgangspunkt(true) }
             regel(erPermitteringenFraFiskeindustriMidlertidig) { somUtgangspunkt(true) }
-            regel(kravTilArbeidstidsreduksjonVedFiskepermittering) { oppslag(prøvingsdato) { 40.0 } }
+            regel(kravTilArbeidstidsreduksjonVedFiskepermittering) { oppslag { 40.0 } }
 
             utfall(oppfyllerKravetTilPermitteringFiskeindustri) {
                 alle(
