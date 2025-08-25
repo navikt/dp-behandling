@@ -3,7 +3,6 @@ package no.nav.dagpenger.regel.hendelse
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
-import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
@@ -12,9 +11,6 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.opplysning.verdier.enhet.Timer
-import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
-import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.tilTimer
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
@@ -77,36 +73,8 @@ class BeregnMeldekortHendelse(
                     ),
                 ),
         ).apply {
-            meldekort.dager.forEach { dag ->
-                val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
-
-                val timer = dag.aktiviteter.map { it.timer?.tilTimer ?: Timer(0) }.summer()
-                // TODO: Hva om det er flere aktiviteter?
-                val type = dag.aktiviteter.firstOrNull()?.type
-                when (type) {
-                    AktivitetType.Arbeid -> {
-                        listOf(
-                            opplysninger.leggTil(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde)),
-                            opplysninger.leggTil(Faktum(Beregning.arbeidstimer, timer.timer, gyldighetsperiode, kilde = kilde)),
-                        )
-                    }
-
-                    AktivitetType.Syk,
-                    AktivitetType.Utdanning,
-                    AktivitetType.Fravær,
-                    -> opplysninger.leggTil(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
-
-                    null -> {
-                        opplysninger.leggTil(
-                            Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
-                        )
-                        opplysninger.leggTil(
-                            Faktum(Beregning.arbeidstimer, 0.0, gyldighetsperiode, kilde = kilde),
-                        )
-                    }
-                }
-                opplysninger.leggTil(Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde))
-            }
+            val meldekortOpplysninger = meldekort.dager.tilOpplysninger(kilde)
+            meldekortOpplysninger.forEach { this.opplysninger.leggTil(it) }
             val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger(), rettighetstatus)
             val periode = fabrikk.lagBeregningsperiode()
             val forbruksdager = periode.forbruksdager

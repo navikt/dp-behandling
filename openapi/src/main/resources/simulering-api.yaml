@@ -47,7 +47,7 @@ components:
         - sats
         - fva
         - egenandel
-        - meldekort
+        - dager
       properties:
         terskel:
           type: array
@@ -104,26 +104,59 @@ components:
         egenandel:
           type: number
           format: double
-        meldekort:
-          type: array
-          items:
-            type: object
-            required:
-              - dag
-              - type
-              - verdi
-            properties:
-              dag:
-                type: string
-              type:
-                type: string
-                enum: [ "Arbeidstimer", "Fravær", "Sykdom" ]
-              verdi:
-                type: number
-                format: double
+        dager:
+          $ref: '#/components/schemas/Dager'
+
+    Dager:
+      type: array
+      items:
+        type: object
+        required:
+          - dato
+          - aktiviteter
+          - dagIndex
+          - meldt
+        properties:
+          dato:
+            type: string
+            format: date
+          aktiviteter:
+            type: array
+            items:
+              $ref: '#/components/schemas/Aktivitet'
+          dagIndex:
+            type: number
+          meldt:
+            type: boolean
+    AktivitetType:
+      type: string
+      enum:
+        - Arbeid
+        - Syk
+        - Utdanning
+        - Fravaer
+    Aktivitet:
+      required:
+        - type
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/AktivitetType'
+        timer:
+          type: string
+          format: ISO8601 Duration
+          description: Må representeres som en ISO8601 Duration
+      example:
+        type: Arbeid
+        timer: PT8H30M
 
     Beregning:
       type: object
+      required:
+        - dager
       properties:
         gjenståendeEgenandel:
           type: number

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.header
 import io.ktor.client.request.put
@@ -13,21 +14,31 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.withMockAuthServerAndTestApplication
+import no.nav.dagpenger.behandling.simulering.api.models.BeregningDTO
 import org.junit.jupiter.api.Test
-import kotlin.collections.forEach
 
 internal class SimuleringApiTest {
     @Test
-    fun `beregning uten meldekort`() {
+    fun `simulerer beregning av meldekort`() {
         withMockAuthServerAndTestApplication(
             moduleFunction = { this.simuleringApi() },
             {
                 val response =
                     this.client.put("simulering/beregning") {
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
-                        setBody(
-                            """
-                               {
+                        setBody(json)
+                    }
+
+                response.status shouldBe HttpStatusCode.OK
+                val beregningDTO = objectMapper.readValue<BeregningDTO>(response.bodyAsText())
+                beregningDTO.dager.size shouldBe 10
+            },
+        )
+    }
+
+    // language=JSON
+    private val json = """
+                            {
                               "terskel": [
                                 {
                                   "verdi": 50.0
@@ -46,100 +57,98 @@ internal class SimuleringApiTest {
                               ],
                               "fva": 40.0,
                               "egenandel": 300.0,
-                              "meldekort": [
+                              "dager": [
                                 {
-                                  "dag": "Mandag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                  "dato": "2020-01-16",
+                                  "aktiviteter": [
+                                    {
+                                      "type": "Arbeid",
+                                      "timer": "PT8H30M"
+                                    }
+                                  ],
+                                  "dagIndex": 0,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Tirsdag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                 {
+                                  "dato": "2020-01-17",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Onsdag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                 {
+                                  "dato": "2020-01-18",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Torsdag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                 {
+                                  "dato": "2020-01-19",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Fredag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                 {
+                                  "dato": "2020-01-20",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Lørdag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                   {
+                                  "dato": "2020-01-21",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Søndag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                   {
+                                  "dato": "2020-01-22",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Mandag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                   {
+                                  "dato": "2020-01-23",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Tirsdag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                   {
+                                  "dato": "2020-01-24",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Onsdag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                   {
+                                  "dato": "2020-01-25",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
+                                },   {
+                                  "dato": "2020-01-26",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Torsdag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                   {
+                                  "dato": "2020-01-27",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Fredag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                   {
+                                  "dato": "2020-01-28",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 },
-                                {
-                                  "dag": "Lørdag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
-                                },
-                                {
-                                  "dag": "Søndag",
-                                  "type": "Arbeidstimer",
-                                  "verdi": 0.0
+                                   {
+                                  "dato": "2020-01-29",
+                                  "aktiviteter": [ ],
+                                  "dagIndex": 1,
+                                  "meldt": true
                                 }
                               ]
                             }
-                            """.trimIndent(),
-                        )
-                    }
-
-                response.status shouldBe HttpStatusCode.OK
-
-                val resp = response.bodyAsText()
-                val svar = objectMapper.readTree(resp)
-                println("""gjenståendeEgenandel: ${svar.get("gjenståendeEgenandel")}""")
-                val dager = svar.get("dager")
-                dager.forEach {
-                    println(
-                        """Dato: ${it.get("dato").asText()} """ +
-                            """Sats: ${it.get("sats").asDouble()} """ +
-                            """FVA: ${it.get("fva").asDouble()} """ +
-                            """TimerArbeidet: ${it.get("timerArbeidet").asDouble()}""".trimIndent(),
-                    )
-                }
-            },
-        )
-    }
+                            """
 
     private companion object {
         private val objectMapper =
