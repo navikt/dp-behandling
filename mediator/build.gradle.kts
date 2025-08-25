@@ -1,8 +1,5 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     id("common")
-    alias(libs.plugins.shadow.jar)
     application
     kotlin("plugin.serialization") version "2.2.10"
 }
@@ -49,9 +46,4 @@ dependencies {
 
 application {
     mainClass.set("no.nav.dagpenger.behandling.mediator.AppKt")
-}
-
-tasks.withType<ShadowJar> {
-    mergeServiceFiles()
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
