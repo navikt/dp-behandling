@@ -50,12 +50,12 @@ internal class SimuleringApiTest {
                               },
                               "meldekortFom": "2020-01-16",
                               "antallMeldekortdager": 14,
-                              "sats": [
+                              "dagsats": [
                                 {
                                   "verdi": 100.0
                                 }
                               ],
-                              "fva": 40.0,
+                              "fastsattVanligArbeidstid": 40.0,
                               "egenandel": 300.0,
                               "dager": [
                                 {
