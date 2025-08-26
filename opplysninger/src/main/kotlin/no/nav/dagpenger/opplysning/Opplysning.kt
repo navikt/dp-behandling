@@ -59,6 +59,8 @@ sealed class Opplysning<T : Comparable<T>>(
     companion object {
         fun Collection<Opplysning<*>>.gyldigeFor(dato: LocalDate) = filter { it.gyldighetsperiode.inneholder(dato) }
     }
+
+    abstract fun lagForkortet(tilOgMed: Opplysning<*>): Opplysning<T>
 }
 
 class Hypotese<T : Comparable<T>>(
@@ -83,6 +85,10 @@ class Hypotese<T : Comparable<T>>(
     ) : this(UUIDv7.ny(), opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter)
 
     override fun bekreft() = Faktum(id, super.opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet)
+
+    override fun lagForkortet(tilOgMed: Opplysning<*>): Opplysning<T> {
+        TODO("Not yet implemented")
+    }
 }
 
 class Faktum<T : Comparable<T>>(
@@ -113,4 +119,21 @@ class Faktum<T : Comparable<T>>(
     override fun bekreft() = this
 
     fun somEnhet() = opplysningstype.enhet?.somEnhet(verdi)
+
+    override fun lagForkortet(tilOgMed: Opplysning<*>): Opplysning<T> {
+        val forrigeFom =
+            tilOgMed.gyldighetsperiode.fom
+                .takeUnless { it.isEqual(LocalDate.MIN) }
+                ?.minusDays(1) ?: LocalDate.MIN
+        return Faktum(
+            id,
+            opplysningstype,
+            verdi,
+            Gyldighetsperiode(fom = gyldighetsperiode.fom, tom = forrigeFom),
+            utledetAv,
+            kilde,
+            opprettet,
+            erstatter,
+        )
+    }
 }

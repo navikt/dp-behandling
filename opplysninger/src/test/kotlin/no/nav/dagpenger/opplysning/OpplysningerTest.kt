@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.desimaltall
@@ -11,6 +12,7 @@ import no.nav.dagpenger.opplysning.TestOpplysningstyper.undervilkår1
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.undervilkår2
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class OpplysningerTest {
     @Test
@@ -49,28 +51,25 @@ class OpplysningerTest {
         val opplysninger2 = Opplysninger.basertPå(opplysninger1)
 
         // Endre opplysning fra forrige behandling
-        val forkortetOpplysning = Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 10.januar))
+        val forkortetOpplysning = Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 7.januar))
         opplysninger2.leggTil(forkortetOpplysning)
 
         opplysninger1.somListe() shouldHaveSize 1
         opplysninger2.somListe() shouldHaveSize 2
 
-        // Angre forrige endring, men dette fører til hull
+        opplysninger2.somListe().map { it.verdi } shouldContainInOrder listOf(0.5, 1.0)
+
+        // Legger til ny opplysning etter
         opplysninger2.leggTil(Faktum(desimaltall, 2.0, gyldighetsperiode = Gyldighetsperiode(8.januar, 10.januar)))
-
-        // Vi har ett hull
-        // TODO: Vi vil ikke ha hull
-        // opplysninger2.forDato(6.januar).har(desimaltall) shouldBe false
-
-        // Tett hullet
-        opplysninger2.leggTil(Faktum(desimaltall, 3.0, gyldighetsperiode = Gyldighetsperiode(5.januar, 7.januar)))
+        opplysninger2.somListe().map { it.verdi } shouldContainInOrder listOf(0.5, 1.0, 2.0)
 
         // Endre opplysninger i etterkant
         opplysninger2.leggTil(Faktum(desimaltall, 4.0, gyldighetsperiode = Gyldighetsperiode(11.januar, 17.januar)))
         opplysninger2.leggTil(Faktum(desimaltall, 5.0, gyldighetsperiode = Gyldighetsperiode(11.januar, 17.januar)))
 
+        opplysninger2.somListe().map { it.verdi } shouldContainInOrder listOf(0.5, 1.0, 2.0, 5.0)
+
         opplysninger2.forDato(1.januar).finnOpplysning(desimaltall).verdi shouldBe 0.5
-        opplysninger2.forDato(6.januar).finnOpplysning(desimaltall).verdi shouldBe 3.0
         opplysninger2.forDato(9.januar).finnOpplysning(desimaltall).verdi shouldBe 2.0
         opplysninger2.forDato(12.januar).finnOpplysning(desimaltall).verdi shouldBe 5.0
     }
@@ -98,6 +97,34 @@ class OpplysningerTest {
         // Kan ikke slette opplysning i basert på opplysninger
         shouldThrow<OpplysningIkkeFunnetException> {
             opplysninger2.fjern(opplysninger2.finnOpplysning(desimaltall).id)
+        }
+    }
+
+    @Test
+    fun `lager tidslinje og sånt`() {
+        val datoer = listOf(5.januar, 11.januar, 21.januar, 25.januar, 30.januar, 5.juni, 21.juni)
+
+        val sisteOpplysninger =
+            datoer.fold(Opplysninger()) { acc, dato ->
+                Opplysninger.basertPå(acc).apply {
+                    leggTil(Faktum(undervilkår1, true, gyldighetsperiode = Gyldighetsperiode(dato)))
+                    leggTil(Faktum(undervilkår2, true, gyldighetsperiode = Gyldighetsperiode(dato)))
+                }
+            }
+
+        with(sisteOpplysninger.somListe()) {
+            this shouldHaveSize datoer.size * 2
+            this[0].gyldighetsperiode.fom shouldBe 5.januar
+            this[0].gyldighetsperiode.tom shouldBe 10.januar
+
+            this[2].gyldighetsperiode.fom shouldBe 11.januar
+            this[2].gyldighetsperiode.tom shouldBe 20.januar
+
+            this[4].gyldighetsperiode.fom shouldBe 21.januar
+            this[4].gyldighetsperiode.tom shouldBe 24.januar
+
+            this.last { it.er(undervilkår1) }.gyldighetsperiode.tom shouldBe LocalDate.MAX
+            this.last { it.er(undervilkår2) }.gyldighetsperiode.tom shouldBe LocalDate.MAX
         }
     }
 

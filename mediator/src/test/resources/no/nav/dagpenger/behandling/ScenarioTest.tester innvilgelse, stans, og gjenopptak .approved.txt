@@ -51,10 +51,7 @@ Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=true
-Laget avklaring om IkkeRegistrertSomArbeidsøker
 Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=false
 Behandling endret tilstand til: TilGodkjenning
 Forslag til vedtak med utfall=false
 Behandling endret tilstand til: TilBeslutning

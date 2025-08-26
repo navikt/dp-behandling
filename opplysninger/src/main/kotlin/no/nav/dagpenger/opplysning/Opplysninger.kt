@@ -17,12 +17,12 @@ class Opplysninger private constructor(
 
     private val egne: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
     private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
-    private val erstattet: MutableSet<UUID> = egne.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
+    private val erstattet: MutableSet<UUID> get() = alleOpplysninger.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
     private val basertPåOpplysninger: List<Opplysning<*>> =
-        basertPå?.let { it.basertPåOpplysninger.utenErstattet() + it.egne.utenErstattet() } ?: emptyList()
+        basertPå?.let { it.basertPåOpplysninger + it.egne } ?: emptyList()
 
-    private val alleOpplysninger = CachedList { basertPåOpplysninger.utenErstattet() + egne }
+    private val alleOpplysninger = CachedList { (basertPåOpplysninger + egne).utenErstattet() }
 
     override val kunEgne get() = Opplysninger(id = id, opplysninger = egne)
 
@@ -70,9 +70,8 @@ class Opplysninger private constructor(
         alleOpplysninger.filter { it.er(opplysningstype) }.filterIsInstance<Opplysning<T>>()
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
-        val aktiveForDato = egne.gyldigeFor(gjelderFor)
-        // basertPåOpplysninger blir bare filtrert på init, men nye opplysninger kan ha blitt lagt til som nå erstatter noe og de må fjernes
-        val basertPåDato = basertPåOpplysninger.utenErstattet().gyldigeFor(gjelderFor)
+        val forDato = alleOpplysninger.gyldigeFor(gjelderFor)
+        val (aktiveForDato, basertPåDato) = forDato.partition { it in egne }
         return Opplysninger(id, aktiveForDato, Opplysninger(UUIDv7.ny(), basertPåDato))
     }
 
@@ -80,7 +79,7 @@ class Opplysninger private constructor(
         when (filter) {
             Filter.Alle -> alleOpplysninger
             Filter.Egne -> egne
-        }
+        }.utenErstattet()
 
     fun baserPå(tidligereOpplysninger: Opplysninger?) = Opplysninger(id, egne, tidligereOpplysninger)
 
@@ -126,7 +125,30 @@ class Opplysninger private constructor(
         return opplysninger.lastOrNull()
     }
 
-    private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> = filterNot { it.id in erstattet }
+    private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> {
+        val bearbeidet =
+            this
+                .groupBy { it.opplysningstype }
+                .mapValues { (_, perioder) ->
+                    perioder
+                        // Finn den siste for hver opplysning som har lik gyldighetsperiode
+                        .distinctByLast<Opplysning<*>, Gyldighetsperiode> { it.gyldighetsperiode }
+                        // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
+                        .zipWithNext()
+                        .map { (høyre, venstre) ->
+                            if (!høyre.gyldighetsperiode.overlapp(venstre.gyldighetsperiode)) return@map høyre
+                            høyre.lagForkortet(venstre)
+                        }
+                        // Legg til den siste som ikke blir med i zipWithNext
+                        .plus(perioder.last())
+                        .toMutableList()
+                }
+
+        // Sorter opplysningene i samme rekkefølge som de var i før bearbeiding
+        return this.mapNotNull { opplysning ->
+            bearbeidet[opplysning.opplysningstype]?.takeIf { it.isNotEmpty() }?.removeFirst()
+        }
+    }
 
     companion object {
         fun med(opplysninger: Collection<Opplysning<*>>) = Opplysninger(UUIDv7.ny(), opplysninger.toList())
@@ -151,3 +173,11 @@ class DuplikateOpplysningerException(
     message: String,
     exception: Exception? = null,
 ) : RuntimeException(message, exception)
+
+private inline fun <T, K> Iterable<T>.distinctByLast(selector: (T) -> K): List<T> {
+    val map = LinkedHashMap<K, T>()
+    for (element in this) {
+        map[selector(element)] = element // overskriver hvis nøkkelen finnes fra før
+    }
+    return map.values.toList()
+}
