@@ -35,6 +35,7 @@ import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
@@ -57,19 +58,18 @@ import kotlin.collections.contains
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
-        val opplysningSet = opplysninger.somListe().toSet()
-
-        val egneId = opplysningSet.map { it.id }
+        val opplysningSet = opplysninger.somListe()
+        val egneId = opplysninger.somListe(Egne).map { it.id }
 
         BehandlingsresultatDTO(
             behandlingId = behandlingId,
             ident = ident,
+            rettighetsperioder = rettighetsperioder(),
             vilkår =
                 behandlingAv.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
                     .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
-            rettighetsperioder = rettighetsperioder(),
             fastsettelser =
                 behandlingAv.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
@@ -87,7 +87,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                         },
                 ),
             opplysninger =
-                opplysninger.somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                opplysningSet.groupBy { it.opplysningstype }.map { (type, opplysninger) ->
                     OpplysningerDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
@@ -121,7 +121,7 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
         }
 }
 
-private fun Regelsett.tilVurderingsresultatDTO(opplysninger: Set<Opplysning<*>>): VurderingsresultatDTO? {
+private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>): VurderingsresultatDTO? {
     val produkter: Set<Opplysning<*>> =
         opplysninger
             .filter { opplysning -> opplysning.opplysningstype in produserer }

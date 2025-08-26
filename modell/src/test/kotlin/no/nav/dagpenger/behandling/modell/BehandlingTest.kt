@@ -89,9 +89,9 @@ internal class BehandlingTest {
         antall: Int,
         hendelse: TestHendelse,
     ): Behandling {
-        var fomTom = LocalDate.now()
         var forrigeBehandling: Behandling? = null
         for (nummer in 1..antall) {
+            val fomTom = LocalDate.now().plusDays(nummer.toLong())
             val behandling =
                 Behandling.rehydrer(
                     behandlingId = UUIDv7.ny(),

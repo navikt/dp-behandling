@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter.Bostedsland
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
+import no.nav.dagpenger.regel.Behov.OppholdINorge
 import no.nav.dagpenger.regel.OpplysningsTyper.BostedslandId
 import no.nav.dagpenger.regel.OpplysningsTyper.MedlemFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetOppholdId
@@ -24,7 +25,7 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 object Opphold {
     val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge", behovId = BostedslandErNorge, formål = Bruker)
     var oppholdINorge =
-        boolsk(OppholdINorgeId, beskrivelse = "Bruker oppholder seg i Norge", behovId = "OppholdINorge", formål = Bruker)
+        boolsk(OppholdINorgeId, beskrivelse = "Bruker oppholder seg i Norge", behovId = OppholdINorge, formål = Bruker)
     var unntakForOpphold =
         boolsk(UnntakForOppholdId, "Oppfyller unntak for opphold i Norge", synlig = { it.erSann(oppholdINorge) == false })
 

@@ -209,7 +209,11 @@ class OpplysningerRepositoryPostgresTest {
     fun `Klarer å lagre store mengder opplysninger effektivt`() {
         withMigratedDb {
             val repo = opplysningerRepository()
-            val fakta = (1..50000).map { Faktum(desimal, it.toDouble()) }
+            val fakta =
+                (1..50000).map {
+                    val fomTom = LocalDate.now().minusDays(it.toLong())
+                    Faktum(desimal, it.toDouble(), Gyldighetsperiode(fomTom, fomTom))
+                }
             val opplysninger = Opplysninger.med(fakta)
 
             val tidBrukt = measureTimeMillis { repo.lagreOpplysninger(opplysninger) }

@@ -1,9 +1,12 @@
 package no.nav.dagpenger.behandling
 
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.behandling.scenario.assertions.Opplysningsperiode.Periodestatus
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.Behov
+import no.nav.dagpenger.regel.Opphold
 import org.junit.jupiter.api.Test
 
 class ScenarioTest {
@@ -94,32 +97,72 @@ class ScenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak {
-                utfall shouldBe true
+            klumpen {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                opplysninger(Opphold.oppholdINorge) shouldHaveSize 1
             }
 
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
-            behovsløsere.løsningFor(Behov.RegistrertSomArbeidssøker, false, 22.juli(2018))
+            behovsløsere.løsningFor(Behov.OppholdINorge, false, 22.juli(2018))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak {
-                utfall shouldBe false
+            klumpen {
+                /*rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)*/
+
+                with(opplysninger(Opphold.oppholdINorge)) {
+                    this shouldHaveSize 2
+                    this[0].status shouldBe Periodestatus.Arvet
+                    this[1].status shouldBe Periodestatus.Ny
+                }
+                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
+                    this[0].verdi.verdi shouldBe "true"
+                    this[1].verdi.verdi shouldBe "false"
+                }
             }
 
             // Gjenoppta
             person.opprettBehandling(23.august(2018))
-            behovsløsere.løsningFor(Behov.RegistrertSomArbeidssøker, true, 23.august(2018))
+            behovsløsere.løsningFor(Behov.OppholdINorge, true, 23.august(2018))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak {
-                utfall shouldBe true
+            klumpen {
+                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
+                    this[0].verdi.verdi shouldBe "true"
+                    this[1].verdi.verdi shouldBe "false"
+                    this[2].verdi.verdi shouldBe "true"
+                }
+
+                rettighetsperioder shouldHaveSize 3
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
+
+                rettighetsperioder[2].harRett shouldBe true
+                rettighetsperioder[2].fraOgMed shouldBe 23.august(2018)
+
+                with(opplysninger(Opphold.oppholdINorge)) {
+                    this shouldHaveSize 3
+                    this[0].status shouldBe Periodestatus.Arvet
+                    this[1].status shouldBe Periodestatus.Arvet
+                    this[2].status shouldBe Periodestatus.Ny
+                }
             }
         }
     }

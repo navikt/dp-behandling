@@ -31,9 +31,15 @@ internal data class Opplysningsperiode(
     val gyldigFraOgMed: LocalDate? = null,
     val gyldigTilOgMed: LocalDate? = null,
     val verdi: Opplysningsverdi,
+    val status: Periodestatus,
 ) {
     data class Opplysningsverdi(
         val datatype: String,
         val verdi: String,
     )
+
+    enum class Periodestatus {
+        Ny,
+        Arvet,
+    }
 }
