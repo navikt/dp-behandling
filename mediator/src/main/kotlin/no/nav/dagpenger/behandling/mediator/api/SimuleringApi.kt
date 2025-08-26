@@ -60,7 +60,7 @@ internal fun Application.simuleringApi() {
                     }
 
                 val sats =
-                    beregningRequestDTO.sats.map { sats ->
+                    beregningRequestDTO.dagsats.map { sats ->
                         Faktum(
                             dagsatsEtterSamordningMedBarnetillegg,
                             Beløp(sats.verdi),
@@ -78,7 +78,7 @@ internal fun Application.simuleringApi() {
                 opplysningsliste.addAll(terskel)
                 opplysningsliste.add(Faktum(egenandel, Beløp(beregningRequestDTO.egenandel)))
                 opplysningsliste.addAll(sats)
-                opplysningsliste.add(Faktum(fastsattVanligArbeidstid, beregningRequestDTO.fva))
+                opplysningsliste.add(Faktum(fastsattVanligArbeidstid, beregningRequestDTO.fastsattVanligArbeidstid))
                 opplysningsliste.add(Faktum(ordinærPeriode, antUker))
                 opplysningsliste.add(Faktum(antallStønadsdager, antUker * 5))
 
@@ -121,10 +121,10 @@ internal fun Application.simuleringApi() {
                             beregningsperiode.forbruksdager.map { dag ->
                                 BeregningDagDTO(
                                     dato = dag.dato,
-                                    sats = dag.sats.verdien.toDouble(),
+                                    dagsats = dag.sats.verdien.toDouble(),
                                     forbruktEgenandel = dag.forbruktEgenandel.verdien.toDouble(),
                                     utbetalt = dag.avrundetUtbetaling,
-                                    fva = dag.fva.timer,
+                                    fastsattVanligArbeidstid = dag.fva.timer,
                                     timerArbeidet = dag.timerArbeidet.timer,
                                 )
                             },

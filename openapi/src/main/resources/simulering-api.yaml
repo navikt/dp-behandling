@@ -44,8 +44,8 @@ components:
       required:
         - terskel
         - stonadsperiode
-        - sats
-        - fva
+        - dagsats
+        - fastsattVanligArbeidstid
         - egenandel
         - dager
       properties:
@@ -69,20 +69,24 @@ components:
           type: object
           required:
             - fom
+            - uker
           properties:
             fom:
               type: string
               format: date
             uker:
-              type: number
-              format: int32
+              type: integer
+              enum:
+                - 26
+                - 52
+                - 104
         antallMeldekortdager:
           type: number
           format: int32
         meldekortFom:
           type: string
           format: date
-        sats:
+        dagsats:
           type: array
           items:
             type: object
@@ -98,7 +102,7 @@ components:
               verdi:
                 type: number
                 format: double
-        fva:
+        fastsattVanligArbeidstid:
           type: number
           format: double
         egenandel:
@@ -172,8 +176,8 @@ components:
       type: object
       required:
         - dato
-        - sats
-        - fva
+        - dagsats
+        - fastsattVanligArbeidstid
         - timerArbeidet
         - forbruktEgenandel
         - utbetalt
@@ -181,10 +185,10 @@ components:
         dato:
           type: string
           format: date
-        sats:
+        dagsats:
           type: number
           format: double
-        fva:
+        fastsattVanligArbeidstid:
           type: number
           format: double
         timerArbeidet:
