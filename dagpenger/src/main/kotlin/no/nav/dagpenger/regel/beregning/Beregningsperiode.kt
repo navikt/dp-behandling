@@ -56,18 +56,8 @@ class Beregningsperiode private constructor(
         val fordeling: List<Arbeidsdag> = beregnDagsløp(arbeidsdager).sorted()
         val trekkEgenandel: List<Arbeidsdag> = fordelEgenandel(fordeling)
 
-        val overskytendeRest =
-            trekkEgenandel.fold(Beløp(0.0)) { acc, arbeidsdag -> acc + Beløp(arbeidsdag.uavrundetUtbetaling.verdien % 1.toBigDecimal()) }
-
-        val overskytendeEgenandel =
-            Beløp(
-                trekkEgenandel
-                    .fold(
-                        Beløp(0.0),
-                    ) { acc, arbeidsdag -> acc + Beløp((arbeidsdag.uavRundetforbruktEgenandel.verdien % 1.toBigDecimal())) }
-                    .avrundet
-                    .toInt(),
-            )
+        val overskytendeRest = Beløp(trekkEgenandel.sumOf { it.uavrundetUtbetaling.verdien % 1.toBigDecimal() })
+        val overskytendeEgenandel = Beløp(trekkEgenandel.sumOf { it.uavRundetforbruktEgenandel.verdien % 1.toBigDecimal() }).avrundetBeløp
 
         trekkEgenandel.lastOrNull()?.overskytendeRest(overskytendeRest)
         trekkEgenandel.lastOrNull()?.overskytendeEgenandel(overskytendeEgenandel)

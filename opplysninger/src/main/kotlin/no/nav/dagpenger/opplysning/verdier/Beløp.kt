@@ -33,8 +33,10 @@ class Beløp private constructor(
     val uavrundet: NumberValue get() = verdi.number
 
     val avrundet: NumberValue get() = verdi.with(ører).number
+    val avrundetBeløp: Beløp get() = Beløp(this.avrundet.toInt())
     val heleKroner: NumberValue get() = verdi.with(kroner).number
     val avrundetNedover: NumberValue get() = verdi.with(avrundNedover).number
+    val avrundetNedoverBeløp: Beløp get() = Beløp(this.avrundetNedover.toInt())
     val valuta: String get() = verdi.currency.currencyCode
 
     val verdien: BigDecimal get() = verdi.number.numberValueExact(BigDecimal::class.java)

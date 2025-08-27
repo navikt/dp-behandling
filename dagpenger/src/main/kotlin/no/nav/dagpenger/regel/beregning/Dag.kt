@@ -26,7 +26,7 @@ class Arbeidsdag(
     internal var uavRundetforbruktEgenandel: Beløp = Beløp(0.0)
         private set
 
-    val forbruktEgenandel get() = Beløp(uavRundetforbruktEgenandel.avrundetNedover.toInt()) + overskytendeEgenandel
+    val forbruktEgenandel get() = uavRundetforbruktEgenandel.avrundetNedoverBeløp + overskytendeEgenandel
 
     private var overskytendeEgenandel: Beløp = Beløp(0.0)
 
