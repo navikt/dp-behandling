@@ -39,6 +39,7 @@ class Beregningsperiode private constructor(
 
     val utbetaling = beregnUtbetaling(arbeidsdager)
 
+    // TODO: Forbruksdager må filtreres ytterligere for å ta hensyn til _faktisk_ forbruk (ekempelvis ved sanksjonsdager)
     val forbruksdager = if (oppfyllerKravTilTaptArbeidstid) arbeidsdager.toList() else emptyList()
 
     private fun arbeidsdager(dager: Set<Dag>): Set<Arbeidsdag> {
@@ -58,7 +59,18 @@ class Beregningsperiode private constructor(
         val overskytendeRest =
             trekkEgenandel.fold(Beløp(0.0)) { acc, arbeidsdag -> acc + Beløp(arbeidsdag.uavrundetUtbetaling.verdien % 1.toBigDecimal()) }
 
+        val overskytendeEgenandel =
+            Beløp(
+                trekkEgenandel
+                    .fold(
+                        Beløp(0.0),
+                    ) { acc, arbeidsdag -> acc + Beløp((arbeidsdag.uavRundetforbruktEgenandel.verdien % 1.toBigDecimal())) }
+                    .avrundet
+                    .toInt(),
+            )
+
         trekkEgenandel.lastOrNull()?.overskytendeRest(overskytendeRest)
+        trekkEgenandel.lastOrNull()?.overskytendeEgenandel(overskytendeEgenandel)
 
         return trekkEgenandel.sumOf(Arbeidsdag::avrundetUtbetaling)
     }

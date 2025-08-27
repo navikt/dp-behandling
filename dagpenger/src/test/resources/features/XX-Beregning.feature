@@ -443,8 +443,8 @@ Egenskap: Beregning av meldekort
     Og det trekkes "54.54545454545454546" kroner i egenandel på dag 10
     Og gjenstår 0 i egenandel
     Og utbetales 2500,0 kroner
-    Og utbetales 454,54545454545456 kroner på dag 1
-    Og utbetales 45,45454545454545 kroner på dag 10
+    Og utbetales 455 kroner på dag 1
+    Og utbetales 41 kroner på dag 10
 
   Scenario: Har for lav sats til å få utbetaling og bruker ikke opp all egenandel
     Gitt at mottaker har vedtak med

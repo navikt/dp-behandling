@@ -153,17 +153,15 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 3200,0 kroner
     Og det trekkes "342.857142857142857136" kroner i egenandel på dag 1
-    ## TODO: egenandel skal være 2400. Hvordan skal det rundes?
-    Og det forbrukes 2399 i egenandel
-    Og gjenstår 1 i egenandel
-    ## TODO: Hva skjer med gjenstående egenandel?
-    Og utbetales 457 kroner etter avrunding på dag 1
-    Og utbetales 457 kroner etter avrunding på dag 2
-    Og utbetales 457 kroner etter avrunding på dag 3
-    Og utbetales 457 kroner etter avrunding på dag 4
-    Og utbetales 457 kroner etter avrunding på dag 5
-    Og utbetales 457 kroner etter avrunding på dag 6
-    Og utbetales 458 kroner etter avrunding på dag 7
+    Og det forbrukes 2400 i egenandel
+    Og gjenstår 0 i egenandel
+    Og utbetales 458 kroner etter avrunding på dag 1
+    Og utbetales 458 kroner etter avrunding på dag 2
+    Og utbetales 458 kroner etter avrunding på dag 3
+    Og utbetales 458 kroner etter avrunding på dag 4
+    Og utbetales 458 kroner etter avrunding på dag 5
+    Og utbetales 458 kroner etter avrunding på dag 6
+    Og utbetales 452 kroner etter avrunding på dag 7
     Og det forbrukes 7 dager
 
   Scenario: 7 - Bruker får innvilget dagpenger med ordinær egenandel tilsvarende 3 dagsatser, fra første dag i meldeperioden.

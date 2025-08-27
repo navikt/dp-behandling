@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.hendelse
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -86,12 +87,10 @@ class BeregnMeldekortHendelse(
                 .forEach { dato ->
                     val forbruksdag = forbruksdager.singleOrNull { it.dato.isEqual(dato) }
                     val gyldighetsperiode = Gyldighetsperiode(dato, dato)
-
                     val tilUtbetaling = forbruksdag?.avrundetUtbetaling ?: 0
+                    val forbruktEgenandel = forbruksdag?.forbruktEgenandel?.verdien?.toInt() ?: 0
 
-                    // TODO: Denne vil vi skal være desimaltall - her må vi endre på opplysningstype
-                    val forbruktEgenandel = forbruksdag?.forbruktEgenandel?.avrundet?.toInt() ?: 0
-
+                    // TODO: VI kan ikke gjøre det slik. Vi må finne en annen måte å si ifra på at det er forbruk (eksempel hvis det er sanksjon)
                     val erForbruk = tilUtbetaling > 0 || forbruktEgenandel > 0
                     opplysninger.leggTil(Faktum(forbruk, erForbruk, gyldighetsperiode))
                     opplysninger.leggTil(Faktum(utbetaling, tilUtbetaling, gyldighetsperiode))
@@ -101,8 +100,6 @@ class BeregnMeldekortHendelse(
     }
 
     companion object {
-        private val logger =
-            io.github.oshai.kotlinlogging.KotlinLogging
-                .logger {}
+        private val logger = KotlinLogging.logger {}
     }
 }

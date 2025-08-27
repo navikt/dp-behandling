@@ -98,13 +98,13 @@ class BeregningSteg : No {
         }
         Så("det trekkes {string} kroner i egenandel på dag {int}") { egenandel: String, dag: Int ->
             beregning.forbruksdager[dag - 1]
-                .forbruktEgenandel shouldBe egenandel.tilBeløp()
+                .uavRundetforbruktEgenandel shouldBe egenandel.tilBeløp()
         }
         Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
             val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
-            val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }.toInt()
+            val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }
 
-            egenandel.verdien.toInt() - forbrukt shouldBe gjenståendeEgenandel
+            (egenandel.verdien - forbrukt).toInt() shouldBe gjenståendeEgenandel
         }
     }
 
