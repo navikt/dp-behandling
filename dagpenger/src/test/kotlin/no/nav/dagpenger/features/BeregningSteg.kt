@@ -58,7 +58,6 @@ class BeregningSteg : No {
             beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
         }
         Så("utbetales {double} kroner") { utbetaling: Double ->
-            beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
             beregning.utbetaling shouldBe utbetaling
         }
         Så("det forbrukes {int} dager") { dager: Int ->

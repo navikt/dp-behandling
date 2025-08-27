@@ -33,8 +33,9 @@ class Beregningsperiode private constructor(
     private val sumFva = dager.mapNotNull { it.fva }.summer()
     private val arbeidsdager = arbeidsdager(dager)
     private val prosentfaktor = beregnProsentfaktor(dager)
+    private val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.summer()
     val terskel = (100 - terskelstrategi.beregnTerskel(arbeidsdager)) / 100
-    val oppfyllerKravTilTaptArbeidstid = (arbeidsdager.map { it.timerArbeidet }.summer() / sumFva).timer <= terskel
+    val oppfyllerKravTilTaptArbeidstid = (timerArbeidet / sumFva).timer <= terskel
 
     val utbetaling = beregnUtbetaling(arbeidsdager)
 
@@ -67,6 +68,7 @@ class Beregningsperiode private constructor(
 
     private fun fordelEgenandel(fordeling: List<Arbeidsdag>): List<Arbeidsdag> {
         val totalTilUtbetaling = Beløp(fordeling.sumOf { it.dagsbeløp.verdien })
+        if (totalTilUtbetaling == Beløp(0.0)) return fordeling
         return fordeling.onEach {
             val egenandelPerDag = minOf(it.dagsbeløp, (it.dagsbeløp / totalTilUtbetaling) * gjenståendeEgenandel)
             it.forbrukEgenandel(egenandelPerDag)

@@ -536,3 +536,32 @@ Egenskap: Beregning av meldekort
     Og det forbrukes 2400 i egenandel
     Og gjenstår 0 i egenandel
     Og utbetales 8800 kroner
+
+
+  Scenario: Jobbet over terskel i helg
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed   |
+      | Terskel    | 50.0  |            |            |
+      | Periode    | 52    | 01.01.2020 |            |
+      | Sats       | 1200  | 01.01.2020 |            |
+      | FVA        | 40    | 01.01.2020 |            |
+      | Egenandel  | 0     | 01.01.2020 |            |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 20     |
+      | Søndag  | Arbeidstimer | 20     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 20    |
+      | Søndag  | Arbeidstimer | 20    |
+    Så skal kravet til tapt arbeidstid ikke være oppfylt
+    Og utbetales 0 kroner
+    Og det forbrukes 0 dager
