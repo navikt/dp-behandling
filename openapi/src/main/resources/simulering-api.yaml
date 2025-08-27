@@ -41,9 +41,12 @@ components:
   schemas:
     BeregningRequest:
       type: object
+      description: |
+        Request som beskriver grunnlaget for simulering av beregning.
+        Alle feltene er obligatoriske med mindre annet er spesifisert.
       required:
         - terskel
-        - stonadsperiode
+        - stønadsperiode
         - dagsats
         - fastsattVanligArbeidstid
         - egenandel
@@ -51,6 +54,7 @@ components:
       properties:
         terskel:
           type: array
+          description: Terskel (Krav til prosentvis tap av arbeidstid) er gitt i prosent - eksempelvis 40 eller 50 for henholdsvis 40% og 50% tap av arbeidstid
           items:
             type: object
             required:
@@ -65,8 +69,9 @@ components:
               verdi:
                 type: number
                 format: double
-        stonadsperiode:
+        stønadsperiode:
           type: object
+          description: Antall uker i stønadsperiode kan være 26, 52 eller 104. Kan også være mindre hvis en vil simulere en pågående stønadsperiode. Eksempelvis 1 uke igjen.
           required:
             - fom
             - uker
@@ -76,18 +81,17 @@ components:
               format: date
             uker:
               type: integer
-              enum:
-                - 26
-                - 52
-                - 104
         antallMeldekortdager:
           type: number
-          format: int32
+          description: Antall dager i meldekortperioden. Standard er 14 dager.
+          format: integer
         meldekortFom:
           type: string
+          description: Startdato for meldekortperioden. Standard er første dag i stønadsperiode.
           format: date
         dagsats:
           type: array
+          description: Dagsats er gitt i hele kroner. Er maksimal hva en kan få utbetalt per dag.
           items:
             type: object
             required:
@@ -104,9 +108,11 @@ components:
                 format: double
         fastsattVanligArbeidstid:
           type: number
+          description: Hva den fastsatte vanlige arbeidstiden er i løpet av en uke. Oppgis i timer. Eksempelvis 37.5 eller 40 for henholdsvis 37.5 og 40 timer per uke.
           format: double
         egenandel:
           type: number
+          description: Hvor den egenandelen ligger i kroner. Egenandel trekkes fra i beregningingen. Oppgis i hele kroner.
           format: double
         dager:
           $ref: '#/components/schemas/Dager'

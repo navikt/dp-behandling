@@ -44,7 +44,7 @@ internal class SimuleringApiTest {
                                   "verdi": 50.0
                                 }
                               ],
-                              "stonadsperiode": {
+                              "stønadsperiode": {
                                 "fom": "2020-01-16",
                                 "uker": 52
                               },

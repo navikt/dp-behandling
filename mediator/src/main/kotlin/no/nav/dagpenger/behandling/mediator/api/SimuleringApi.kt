@@ -45,10 +45,10 @@ internal fun Application.simuleringApi() {
                 val beregningRequestDTO = call.receive<BeregningRequestDTO>()
                 val opplysningsliste = mutableListOf<Opplysning<*>>()
                 val rettighetstatus = TemporalCollection<Rettighetstatus>()
-                val stønadsperiodeFom = beregningRequestDTO.stonadsperiode.fom
+                val stønadsperiodeFom = beregningRequestDTO.stønadsperiode.fom
                 val meldekortFom = beregningRequestDTO.meldekortFom ?: stønadsperiodeFom
                 val antDager = beregningRequestDTO.antallMeldekortdager?.toLong() ?: 14
-                val antUker = beregningRequestDTO.stonadsperiode.uker?.toInt() ?: 52
+                val antUker = beregningRequestDTO.stønadsperiode?.uker ?: 52
                 val meldekortTom = meldekortFom.plusDays(antDager - 1)
                 val terskel =
                     beregningRequestDTO.terskel.map { terskel ->
