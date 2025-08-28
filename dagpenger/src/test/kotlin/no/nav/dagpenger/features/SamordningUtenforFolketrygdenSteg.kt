@@ -1,10 +1,8 @@
 package no.nav.dagpenger.features
 
-import io.cucumber.java.BeforeStep
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.juni
-import no.nav.dagpenger.dato.mai
 import no.nav.dagpenger.features.utils.opplysningerTilRegelkjøring
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
@@ -20,37 +18,35 @@ import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.samordnet
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.samordnetUkessatsUtenBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.sumAvYtelserUtenforFolketrygden
+import java.time.LocalDate
 
 class SamordningUtenforFolketrygdenSteg : No {
-    private val fraDato = 10.mai(2022)
+    private lateinit var fraDato: LocalDate
     private val regelsett =
         RegelverkDagpenger.regelsettFor(
             skalSamordnesUtenforFolketrygden,
         )
     private val opplysninger: Opplysninger = Opplysninger()
-    private lateinit var regelkjøring: Regelkjøring
-
-    @BeforeStep
-    fun kjørRegler() {
-        regelkjøring =
-            Regelkjøring(
-                fraDato,
-                opplysninger,
-                opplysningerTilRegelkjøring,
-                *regelsett.toTypedArray(),
-            )
-    }
+    private val regelkjøring: Regelkjøring get() =
+        Regelkjøring(
+            fraDato,
+            opplysninger,
+            opplysningerTilRegelkjøring,
+            *regelsett.toTypedArray(),
+        )
 
     init {
         Gitt("at søker har søkt om dagpenger med andre ytelser") {
+            val søknadstidspunkt = 11.juni(2024)
+            fraDato = søknadstidspunkt
             opplysninger
                 .leggTil(
-                    Faktum(Søknadstidspunkt.søknadsdato, 11.juni(2024)) as Opplysning<*>,
-                ).also { regelkjøring.evaluer() }
+                    Faktum(Søknadstidspunkt.søknadsdato, søknadstidspunkt) as Opplysning<*>,
+                )
             opplysninger
                 .leggTil(
-                    Faktum(Søknadstidspunkt.ønsketdato, 11.juni(2024)) as Opplysning<*>,
-                ).also { regelkjøring.evaluer() }
+                    Faktum(Søknadstidspunkt.ønsketdato, søknadstidspunkt) as Opplysning<*>,
+                )
         }
 
         Gitt("søker har oppgitt ytelse {string}") { ytelse: String ->

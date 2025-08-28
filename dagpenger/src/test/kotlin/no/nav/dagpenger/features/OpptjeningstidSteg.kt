@@ -2,7 +2,6 @@ package no.nav.dagpenger.features
 
 import io.cucumber.java8.No
 import io.kotest.matchers.equals.shouldBeEqual
-import no.nav.dagpenger.dato.mai
 import no.nav.dagpenger.features.utils.opplysningerTilRegelkjøring
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -12,22 +11,25 @@ import no.nav.dagpenger.regel.Søknadstidspunkt
 import java.time.LocalDate
 
 class OpptjeningstidSteg : No {
-    private val forDato = 10.mai(2022)
+    private lateinit var forDato: LocalDate
     private val regelsett = listOf(Opptjeningstid.regelsett, Søknadstidspunkt.regelsett)
     private val opplysninger = Opplysninger()
 
+    private val regelkjøring: Regelkjøring get() =
+        Regelkjøring(
+            forDato,
+            opplysninger,
+            opplysningerTilRegelkjøring,
+            *regelsett.toTypedArray(),
+        )
+
     init {
-        val regelkjøring =
-            Regelkjøring(
-                forDato,
-                opplysninger,
-                opplysningerTilRegelkjøring,
-                *regelsett.toTypedArray(),
-            )
 
         Gitt(
             "at søknadstidspunktet er {dato}",
         ) { søknadstidspunktet: LocalDate ->
+
+            forDato = søknadstidspunktet
             opplysninger
                 .leggTil(
                     Faktum(

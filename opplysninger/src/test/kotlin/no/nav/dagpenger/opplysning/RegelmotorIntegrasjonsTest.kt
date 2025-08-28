@@ -110,7 +110,7 @@ class RegelmotorIntegrasjonsTest {
 
     @Test
     fun `test av datoer ved å sjekke kravet til alder`() {
-        val fraDato = 10.mai
+        val fraDato = 28.februar(2020)
         val opplysninger = Opplysninger()
         val regelkjøring =
             Regelkjøring(fraDato, opplysninger, TestProsess()) { prøvingsdato ->

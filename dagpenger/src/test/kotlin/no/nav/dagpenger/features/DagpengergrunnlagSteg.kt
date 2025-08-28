@@ -1,11 +1,9 @@
 package no.nav.dagpenger.features
 
 import io.cucumber.datatable.DataTable
-import io.cucumber.java.BeforeStep
 import io.cucumber.java8.No
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.dato.mai
 import no.nav.dagpenger.features.DagpengergrunnlagSteg.Månedsinntekt.Companion.finnSisteAvsluttendeKalenderMåned
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
@@ -29,19 +27,16 @@ import java.util.UUID
 import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
 class DagpengergrunnlagSteg : No {
-    private val fraDato = 10.mai(2021)
+    private lateinit var fraDato: LocalDate
     private val regelsett = RegelverkDagpenger.regelsettFor(uavrundetGrunnlag)
     private val opplysninger: Opplysninger = Opplysninger()
-    private lateinit var regelkjøring: Regelkjøring
 
-    @BeforeStep
-    fun kjørRegler() {
-        regelkjøring = Regelkjøring(fraDato, opplysninger, *regelsett.toTypedArray())
-    }
+    private val regelkjøring get() = Regelkjøring(fraDato, opplysninger, *regelsett.toTypedArray())
 
     init {
-        Gitt("at søknadsdato for dagpenger er {dato}") { søknadsdato: LocalDate ->
-            opplysninger.leggTil(Faktum(prøvingsdato, søknadsdato)).also { regelkjøring.evaluer() }
+        Gitt("at søknadsdato for dagpenger er {dato}") { søknadstidspunkt: LocalDate ->
+            fraDato = søknadstidspunkt
+            opplysninger.leggTil(Faktum(prøvingsdato, søknadstidspunkt)).also { regelkjøring.evaluer() }
 
             opplysninger.leggTil(Faktum(grunnlagHvisVerneplikt, Beløp(0.0)))
         }
@@ -54,7 +49,6 @@ class DagpengergrunnlagSteg : No {
             val f = Inntekt(lagInntekt(inntektstabell))
             opplysninger.leggTil(Faktum(Minsteinntekt.inntektFraSkatt, f))
             val rapport = regelkjøring.evaluer()
-            println(rapport)
         }
 
         Så("beregnet uavrundet grunnlag være {string}") { uavrundetGrunnlag: String ->
