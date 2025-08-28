@@ -11,21 +11,10 @@ import org.junit.platform.suite.api.SelectClasspathResource
 import org.junit.platform.suite.api.Suite
 import java.time.LocalDate
 
+// Konfigurasjon av cucumber ligger i src/test/resources/junit-platform.properties
 @Suite
 @SelectClasspathResource("features")
-@IncludeEngines("cucumber") //
-@ConfigurationParameter(
-    key = PLUGIN_PROPERTY_NAME,
-    value = "pretty, html:build/reports/cucumber.html, no.nav.dagpenger.features.utils.RegeltreDokumentasjonPlugin",
-)
-@ConfigurationParameter(
-    key = PLUGIN_PUBLISH_ENABLED_PROPERTY_NAME,
-    value = "false",
-)
-@ConfigurationParameter(
-    key = FILTER_TAGS_PROPERTY_NAME,
-    value = "not @wip",
-)
+@IncludeEngines("cucumber")
 class RunCucumberTest
 
 internal val opplysningerTilRegelkjøring: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger = {
