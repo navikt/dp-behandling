@@ -2,9 +2,9 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
+- Fødselsdato
 - Søknadsdato
 - ØnskerDagpengerFraDato
-- Fødselsdato
 Behov:
 - RegistrertSomArbeidssøker
 Behandling endret tilstand til: ForslagTilVedtak

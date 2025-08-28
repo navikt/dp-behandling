@@ -4,35 +4,29 @@
 
 ```mermaid
 graph RL
-  A["Kort dagpengeperiode"] -->|"Oppslag"| B["Prøvingsdato"]
-  C["Lang dagpengeperiode"] -->|"Oppslag"| B["Prøvingsdato"]
-  D["Terskelfaktor for 12 måneder"] -->|"Oppslag"| B["Prøvingsdato"]
-  E["Terskelfaktor for 36 måneder"] -->|"Oppslag"| B["Prøvingsdato"]
-  F["Terskel for 12 måneder"] -->|"Multiplikasjon"| G["Grunnbeløp"]
-  F["Terskel for 12 måneder"] -->|"Multiplikasjon"| D["Terskelfaktor for 12 måneder"]
-  H["Terskel for 36 måneder"] -->|"Multiplikasjon"| G["Grunnbeløp"]
-  H["Terskel for 36 måneder"] -->|"Multiplikasjon"| E["Terskelfaktor for 36 måneder"]
-  I["Snittinntekt siste 36 måneder"] -->|"Divisjon"| J["Arbeidsinntekt siste 36 måneder"]
-  I["Snittinntekt siste 36 måneder"] -->|"Divisjon"| K["Antall år i 36 måneder"]
-  L["Over terskel for 12 måneder"] -->|"StørreEnnEllerLik"| M["Arbeidsinntekt siste 12 måneder"]
-  L["Over terskel for 12 måneder"] -->|"StørreEnnEllerLik"| F["Terskel for 12 måneder"]
-  N["Over terskel for 36 måneder"] -->|"StørreEnnEllerLik"| I["Snittinntekt siste 36 måneder"]
-  N["Over terskel for 36 måneder"] -->|"StørreEnnEllerLik"| H["Terskel for 36 måneder"]
-  O["Stønadsuker ved siste 12 måneder"] -->|"HvisSannMedResultat"| L["Over terskel for 12 måneder"]
-  O["Stønadsuker ved siste 12 måneder"] -->|"HvisSannMedResultat"| C["Lang dagpengeperiode"]
-  O["Stønadsuker ved siste 12 måneder"] -->|"HvisSannMedResultat"| A["Kort dagpengeperiode"]
-  P["Stønadsuker ved siste 36 måneder"] -->|"HvisSannMedResultat"| N["Over terskel for 36 måneder"]
-  P["Stønadsuker ved siste 36 måneder"] -->|"HvisSannMedResultat"| C["Lang dagpengeperiode"]
-  P["Stønadsuker ved siste 36 måneder"] -->|"HvisSannMedResultat"| A["Kort dagpengeperiode"]
-  Q["Antall stønadsuker"] -->|"HøyesteAv"| O["Stønadsuker ved siste 12 måneder"]
-  Q["Antall stønadsuker"] -->|"HøyesteAv"| P["Stønadsuker ved siste 36 måneder"]
-  R["Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt"] -->|"Oppslag"| B["Prøvingsdato"]
-  S["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| T["Oppfyller kravet til minsteinntekt"]
-  S["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| Q["Antall stønadsuker"]
-  S["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| R["Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt"]
-  U["Antall dager som skal regnes med i hver uke"] -->|"Oppslag"| B["Prøvingsdato"]
-  V["Antall stønadsdager"] -->|"Multiplikasjon"| Q["Antall stønadsuker"]
-  V["Antall stønadsdager"] -->|"Multiplikasjon"| U["Antall dager som skal regnes med i hver uke"]
+  A["Terskel for 12 måneder"] -->|"Multiplikasjon"| B["Grunnbeløp"]
+  A["Terskel for 12 måneder"] -->|"Multiplikasjon"| C["Terskelfaktor for 12 måneder"]
+  D["Terskel for 36 måneder"] -->|"Multiplikasjon"| B["Grunnbeløp"]
+  D["Terskel for 36 måneder"] -->|"Multiplikasjon"| E["Terskelfaktor for 36 måneder"]
+  F["Snittinntekt siste 36 måneder"] -->|"Divisjon"| G["Arbeidsinntekt siste 36 måneder"]
+  F["Snittinntekt siste 36 måneder"] -->|"Divisjon"| H["Antall år i 36 måneder"]
+  I["Over terskel for 12 måneder"] -->|"StørreEnnEllerLik"| J["Arbeidsinntekt siste 12 måneder"]
+  I["Over terskel for 12 måneder"] -->|"StørreEnnEllerLik"| A["Terskel for 12 måneder"]
+  K["Over terskel for 36 måneder"] -->|"StørreEnnEllerLik"| F["Snittinntekt siste 36 måneder"]
+  K["Over terskel for 36 måneder"] -->|"StørreEnnEllerLik"| D["Terskel for 36 måneder"]
+  L["Stønadsuker ved siste 12 måneder"] -->|"HvisSannMedResultat"| I["Over terskel for 12 måneder"]
+  L["Stønadsuker ved siste 12 måneder"] -->|"HvisSannMedResultat"| M["Lang dagpengeperiode"]
+  L["Stønadsuker ved siste 12 måneder"] -->|"HvisSannMedResultat"| N["Kort dagpengeperiode"]
+  O["Stønadsuker ved siste 36 måneder"] -->|"HvisSannMedResultat"| K["Over terskel for 36 måneder"]
+  O["Stønadsuker ved siste 36 måneder"] -->|"HvisSannMedResultat"| M["Lang dagpengeperiode"]
+  O["Stønadsuker ved siste 36 måneder"] -->|"HvisSannMedResultat"| N["Kort dagpengeperiode"]
+  P["Antall stønadsuker"] -->|"HøyesteAv"| L["Stønadsuker ved siste 12 måneder"]
+  P["Antall stønadsuker"] -->|"HøyesteAv"| O["Stønadsuker ved siste 36 måneder"]
+  Q["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| R["Oppfyller kravet til minsteinntekt"]
+  Q["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| P["Antall stønadsuker"]
+  Q["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| S["Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt"]
+  T["Antall stønadsdager"] -->|"Multiplikasjon"| P["Antall stønadsuker"]
+  T["Antall stønadsdager"] -->|"Multiplikasjon"| U["Antall dager som skal regnes med i hver uke"]
 ```
 
 ## Akseptansetester
@@ -43,7 +37,7 @@ graph RL
 Egenskap: § 4-15 Antall stønadsuker, stønadsperiode
 
   Scenariomal: Søker har rett til dagpenger
-    Gitt at søker har har rett til dagpenger fra "<virkningstidspunkt>"
+    Gitt at søker har har rett til dagpenger fra <virkningstidspunkt>
     Og at søker har "<inntekt siste 12>" siste 12 måneder
     Og at søker har "<inntekt siste 36>" siste 36 måneder
     Så skal søker ha <antall uker> uker med dagpenger

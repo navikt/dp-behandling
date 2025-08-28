@@ -4,7 +4,6 @@
 
 ```mermaid
 graph RL
-  A["Periode som gis ved permittering"] -->|"Oppslag"| B["Prøvingsdato"]
 ```
 
 ## Akseptansetester

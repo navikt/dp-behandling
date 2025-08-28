@@ -2,9 +2,9 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-late- Søknadsdato
-- ØnskerDagpengerFraDato
 - Fødselsdato
+- Søknadsdato
+- ØnskerDagpengerFraDato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:

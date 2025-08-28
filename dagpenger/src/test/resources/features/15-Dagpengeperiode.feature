@@ -3,7 +3,7 @@
 Egenskap: § 4-15 Antall stønadsuker, stønadsperiode
 
   Scenariomal: Søker har rett til dagpenger
-    Gitt at søker har har rett til dagpenger fra "<virkningstidspunkt>"
+    Gitt at søker har har rett til dagpenger fra <virkningstidspunkt>
     Og at søker har "<inntekt siste 12>" siste 12 måneder
     Og at søker har "<inntekt siste 36>" siste 36 måneder
     Så skal søker ha <antall uker> uker med dagpenger

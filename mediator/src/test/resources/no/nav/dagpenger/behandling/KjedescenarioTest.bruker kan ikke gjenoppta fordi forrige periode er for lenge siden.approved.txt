@@ -2,9 +2,9 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
+- Fødselsdato
 - Søknadsdato
 - ØnskerDagpengerFraDato
-- Fødselsdato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
@@ -54,9 +54,9 @@ Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=true
 Behandling endret tilstand til: Redigert
 Behov:
+- Fødselsdato
 - Søknadsdato
 - ØnskerDagpengerFraDato
-- Fødselsdato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:

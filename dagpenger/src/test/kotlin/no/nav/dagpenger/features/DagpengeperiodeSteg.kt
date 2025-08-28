@@ -1,9 +1,7 @@
 package no.nav.dagpenger.features
 
-import io.cucumber.java.BeforeStep
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.dato.mai
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -19,10 +17,9 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class DagpengeperiodeSteg : No {
-    private val fraDato = 10.mai(2022)
+    private lateinit var fraDato: LocalDate
     private val regelsett =
         listOf(
             Dagpengegrunnlag.regelsett,
@@ -35,23 +32,18 @@ class DagpengeperiodeSteg : No {
             VernepliktFastsetting.regelsett,
         )
     private val opplysninger: Opplysninger = Opplysninger()
-    private lateinit var regelkjøring: Regelkjøring
-
-    @BeforeStep
-    fun kjørRegler() {
-        regelkjøring = Regelkjøring(fraDato, opplysninger, *regelsett.toTypedArray())
-    }
+    private val regelkjøring: Regelkjøring get() = Regelkjøring(fraDato, opplysninger, *regelsett.toTypedArray())
 
     init {
 
-        Gitt("at søker har har rett til dagpenger fra {string}") { dato: String ->
-            val dato = LocalDate.parse(dato, DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+        Gitt("at søker har har rett til dagpenger fra {dato}") { søknadstidspunkt: LocalDate ->
+            fraDato = søknadstidspunkt
             opplysninger.leggTil(Faktum(prøvingsdato, fraDato)).also { regelkjøring.evaluer() }
             opplysninger
                 .leggTil(
                     Faktum<LocalDate>(
                         prøvingsdato,
-                        dato,
+                        søknadstidspunkt,
                     ) as Opplysning<*>,
                 ).also { regelkjøring.evaluer() }
         }
