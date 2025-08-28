@@ -104,6 +104,7 @@ class Søknadsprosess : RegistrertForretningsprosess() {
 
         val hvilkenDatoErDenSisteMuligeDatoMedAlleVilkår =
             opplysningerSomSierNoeOmNårVilkårErOppfylt
+                .filterNot { it.gyldighetsperiode.fom.isEqual(LocalDate.MIN) }
                 .maxByOrNull { it.gyldighetsperiode.fom }
                 ?.gyldighetsperiode
                 ?.fom
