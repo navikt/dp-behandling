@@ -2,9 +2,11 @@ name: Cucumber Report to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
     paths:
-      - dagpenger
+       - 'dagpenger/**'
+       - '.github/workflows/cucumber-pages.yaml'
 
 permissions:
   contents: read
