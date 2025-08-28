@@ -6,7 +6,7 @@ on:
       - 'dependabot/**'
     paths-ignore:
       - 'docs/**'
-      - '**/cucumber-pages.yaml'
+      - '.github/workflows/cucumber-pages.yaml'
 
 jobs:
   build:

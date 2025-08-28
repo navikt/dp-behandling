@@ -3,7 +3,8 @@ name: Cucumber Report to GitHub Pages
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
+    paths:
+      - dagpenger
 
 permissions:
   contents: read
@@ -32,10 +33,10 @@ jobs:
         with:
           dependency-graph: generate-and-submit
           cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
-      - run: ./gradlew --configuration-cache :dagpenger:test
+      - run: ./gradlew clean :dagpenger:test
 
       - name: Prepare Pages artifact
-        if: ${{ always() }}
+        if: success()
         run: |
           set -euo pipefail
           mkdir -p dist
