@@ -177,7 +177,7 @@ class OpplysningerRepositoryPostgresTest {
                         innhentes
                     }
                     regel(utledetOpplysningstype) {
-                        oppslag { 5 }
+                        oppslag(baseOpplysningstype) { 5 }
                     }
                 }
             val opplysninger = Opplysninger()
@@ -192,7 +192,6 @@ class OpplysningerRepositoryPostgresTest {
             with(fraDb.finnOpplysning(utledetOpplysningstype)) {
                 verdi shouldBe 5
                 utledetAv.shouldNotBeNull()
-                utledetAv!!.regel shouldBe "Oppslag"
                 utledetAv!!.opplysninger shouldContainExactly listOf(baseOpplysning)
             }
             with(fraDb.finnOpplysning(baseOpplysning.id)) {
@@ -293,13 +292,13 @@ class OpplysningerRepositoryPostgresTest {
         withMigratedDb {
             val repo = opplysningerRepository()
 
-            val baseOpplysning = Faktum(baseOpplysningstype, LocalDate.now())
-
             val regelsett =
                 vilkår("vilkår") {
                     regel(baseOpplysningstype) { innhentes }
-                    regel(utledetOpplysningstype) { oppslag { 5 } }
+                    regel(utledetOpplysningstype) { oppslag(baseOpplysningstype) { 5 } }
                 }
+
+            val baseOpplysning = Faktum(baseOpplysningstype, LocalDate.now())
             val tidligereOpplysninger = Opplysninger()
             val regelkjøring = Regelkjøring(LocalDate.now(), tidligereOpplysninger, regelsett)
 
@@ -319,7 +318,7 @@ class OpplysningerRepositoryPostgresTest {
             with(fraDb.finnOpplysning(utledetOpplysningstype)) {
                 verdi shouldBe 5
                 utledetAv.shouldNotBeNull()
-                utledetAv!!.regel shouldBe "Oppslag"
+                utledetAv!!.regel shouldBe "OppslagMedOpplysning"
                 utledetAv!!.opplysninger shouldContainExactly listOf(endretBaseOpplysningstype)
             }
             with(fraDb.finnOpplysning(endretBaseOpplysningstype.id)) {
@@ -430,7 +429,7 @@ class OpplysningerRepositoryPostgresTest {
             val regelsett =
                 vilkår("vilkår") {
                     regel(baseOpplysningstype) { innhentes }
-                    regel(utledetOpplysningstype) { oppslag { 5 } }
+                    regel(utledetOpplysningstype) { oppslag(baseOpplysningstype) { 5 } }
                 }
             val tidligereOpplysninger = Opplysninger()
             val regelkjøring = Regelkjøring(LocalDate.now(), tidligereOpplysninger, regelsett)
