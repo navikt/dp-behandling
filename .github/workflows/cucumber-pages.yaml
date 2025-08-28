@@ -37,14 +37,51 @@ jobs:
       - name: Prepare Pages artifact
         if: ${{ always() }}
         run: |
+          set -euo pipefail
           mkdir -p dist
-          # Kopier den genererte HTML-rapporten som index.html
-          if [ -f "dagpenger/build/reports/cucumber.html" ]; then
-            cp build/reports/cucumber.html dist/index.html
-          else
-            echo "Fant ikke dagpenger/build/reports/cucumber.html"
+          
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE:-$(pwd)}"
+          cd "${GITHUB_WORKSPACE:-.}"
+          
+          echo "Søker etter Cucumber HTML-rapporter…"
+          # Kandidater: enkel formatter (cucumber.html / index.html) og Masterthought (cucumber-html-reports)
+          mapfile -t candidates < <(
+            { find . -type f -path "*/build/reports/cucumber.html" -printf "%T@ %p\n" 2>/dev/null || true; 
+              find . -type f -path "*/build/reports/index.html" -printf "%T@ %p\n" 2>/dev/null || true;
+              find . -type f -path "*/build/reports/cucumber-html-reports/overview-features.html" -printf "%T@ %p\n" 2>/dev/null || true; } \
+            | sort -nr | awk '{ $1=""; sub(/^ /,""); print }'
+          )
+          
+          if [ ${#candidates[@]} -eq 0 ]; then
+            echo "Fant ingen HTML-rapporter under */build/reports/*"
+            echo "Lister alt under build/reports for feilsøking:"
+            find . -type d -path "*/build/reports" -print -exec sh -c 'ls -la {} || true' \;
             exit 1
           fi
+          
+          REPORT="${candidates[0]}"
+          REPORT_DIR="$(dirname "$REPORT")"
+          echo "Fant rapport: $REPORT"
+          
+          # Hvis dette er Masterthought: bevar mappestruktur, sett en enkel index.html i rot
+          if [[ "$REPORT" == *"/cucumber-html-reports/"*"/overview-features.html" ]]; then
+            cp -r "$REPORT_DIR" dist/cucumber-html-reports
+            printf '%s\n' '<meta http-equiv="refresh" content="0; url=cucumber-html-reports/overview-features.html">' > dist/index.html
+          else
+            # Enkel formatter: kopier selve fila som index.html + eventuelle sidefiler i samme mappe
+            cp "$REPORT" dist/index.html
+            shopt -s nullglob
+            for f in "$REPORT_DIR"/*; do
+              b="$(basename "$f")"
+              if [ "$b" != "index.html" ] && [ "$b" != "cucumber.html" ]; then
+                cp -r "$f" "dist/$b"
+              fi
+            done
+          fi
+          
+          echo "Innhold i dist/:"
+          ls -la dist
+
 
       - name: Upload artifact
         if: ${{ always() }}
