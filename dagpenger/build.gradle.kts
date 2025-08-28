@@ -20,3 +20,13 @@ dependencies {
     testImplementation(libs.bundles.jackson)
     testImplementation(libs.kotest.assertions.core)
 }
+
+tasks.test {
+    useJUnitPlatform()
+    // Generer både HTML og JSON (JSON er nyttig til videre prosessering)
+    systemProperty(
+        "cucumber.plugin",
+        "pretty, html:build/reports/cucumber.html, no.nav.dagpenger.features.utils.RegeltreDokumentasjonPlugin",
+    )
+    systemProperty("cucumber.publish.quiet", "true")
+}
