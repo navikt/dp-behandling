@@ -124,6 +124,7 @@ import no.nav.dagpenger.regel.Utdanning.høyereUtdanning
 import no.nav.dagpenger.regel.Utdanning.høyereYrkesfagligUtdanning
 import no.nav.dagpenger.regel.Utdanning.opplæringForInnvandrere
 import no.nav.dagpenger.regel.Utdanning.tarUtdanning
+import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
@@ -516,8 +517,7 @@ internal val redigerbareOpplysninger =
                         foreldrepengerDagsats,
                         svangerskapspengerDagsats,
                         // 4-28 Utestenging
-                        // TODO: Arena støtter ikke at vi skriver dette vilkåret. Skru på igjen når vi eier vedtak selv.
-                        // utestengt,
+                        utestengt,
                         // 4-12 Redigering av barne opplysninger
                         barn,
                         arbeidstidsreduksjonIkkeBruktTidligere,
