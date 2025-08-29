@@ -38,7 +38,10 @@ abstract class Regel<T : Comparable<T>> internal constructor(
 
             // Sjekk om regelen har fått nye avhengigheter
             val regelForProdukt = produsenter[produkt.opplysningstype]
-            if (harRegelNyeAvhengigheter(regelForProdukt, produkt.utledetAv) || opplysninger.erErstattet(produkt.utledetAv.opplysninger)) {
+            if (harRegelNyeAvhengigheter(regelForProdukt, produkt.utledetAv) ||
+                opplysninger.erErstattet(produkt.utledetAv.opplysninger) ||
+                utledetAvErEndret(produkt.opprettet, produkt.utledetAv)
+            ) {
                 // Om en avhengighet mangler, må denne regelen kjøres på nytt
                 if (regelForProdukt?.avhengerAv?.any { opplysninger.mangler(it) } == true) {
                     regelForProdukt.avhengerAv.map { avhengighet ->
