@@ -1,10 +1,8 @@
 package no.nav.dagpenger.features
 
-import io.cucumber.java.BeforeStep
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.mai
-import no.nav.dagpenger.features.utils.opplysningerTilRegelkjøring
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -21,30 +19,27 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.ukessats
 import java.time.LocalDate
 
 class SamordningSteg : No {
-    private val fraDato = 10.mai(2022)
+    private lateinit var fraDato: LocalDate
     private val regelsett =
         RegelverkDagpenger.regelsettFor(
             ukessats,
         )
     private val opplysninger: Opplysninger = Opplysninger()
-    private lateinit var regelkjøring: Regelkjøring
-
-    @BeforeStep
-    fun kjørRegler() {
-        regelkjøring =
-            Regelkjøring(fraDato, opplysninger, opplysningerTilRegelkjøring, *regelsett.toTypedArray())
-    }
+    private val regelkjøring: Regelkjøring get() =
+        Regelkjøring(fraDato, opplysninger, *regelsett.toTypedArray())
 
     init {
 
         Gitt("at søker har søkt om dagpenger og har redusert ytelse") {
+            val søknadstidspunkt = 11.mai(2022)
+            fraDato = søknadstidspunkt
             opplysninger
                 .leggTil(
-                    Faktum(Søknadstidspunkt.søknadsdato, 11.mai(2022)) as Opplysning<*>,
+                    Faktum(Søknadstidspunkt.søknadsdato, søknadstidspunkt) as Opplysning<*>,
                 ).also { regelkjøring.evaluer() }
             opplysninger
                 .leggTil(
-                    Faktum(Søknadstidspunkt.ønsketdato, 11.mai(2022)) as Opplysning<*>,
+                    Faktum(Søknadstidspunkt.ønsketdato, søknadstidspunkt) as Opplysning<*>,
                 ).also { regelkjøring.evaluer() }
         }
 
@@ -53,7 +48,7 @@ class SamordningSteg : No {
                 (1..antall).map {
                     Barn(
                         fødselsdato = LocalDate.now(),
-                        fornavnOgMellomnavn = "Donlald",
+                        fornavnOgMellomnavn = "Donald",
                         etternavn = "Duck $it",
                         statsborgerskap = "NOR",
                         kvalifiserer = true,
