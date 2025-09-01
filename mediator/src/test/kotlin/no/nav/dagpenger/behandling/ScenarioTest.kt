@@ -76,13 +76,20 @@ class ScenarioTest {
 
             saksbehandler.endreOpplysning(
                 opplysningstype = Opphold.oppholdINorge,
+                verdi = false,
+                gyldighetsperiode = Gyldighetsperiode(tom = 24.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                opplysningstype = Opphold.oppholdINorge,
                 verdi = true,
                 gyldighetsperiode = Gyldighetsperiode(fom = 25.juni(2018)),
             )
             klumpen {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 25.juni(2018)
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe false
+                rettighetsperioder[0].tilOgMed shouldBe 24.juni(2018)
+                rettighetsperioder[1].harRett shouldBe true
+                rettighetsperioder[1].fraOgMed shouldBe 25.juni(2018)
             }
         }
     }

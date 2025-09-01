@@ -544,7 +544,11 @@ class Behandling private constructor(
                 hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
                 opplysning.leggTil(behandling.opplysninger)
 
-                val regelkjøring = behandling.forretningsprosess.regelkjøring(behandling.opplysninger, opplysning.gyldighetsperiode?.fom)
+                val regelkjøring =
+                    behandling.forretningsprosess.regelkjøring(
+                        behandling.opplysninger,
+                        opplysning.gyldighetsperiode?.takeUnless { it.fom.isEqual(LocalDate.MIN) }?.fom,
+                    )
                 val rapport = regelkjøring.evaluer()
             }
 
