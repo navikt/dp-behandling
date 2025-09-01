@@ -37,13 +37,17 @@ import java.time.LocalDate
 class Søknadsprosess : RegistrertForretningsprosess() {
     override val regelverk = RegelverkDagpenger
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
-        Regelkjøring(
-            virkningsdato(opplysninger),
+    override fun regelkjøring(
+        opplysninger: Opplysninger,
+        regeldato: LocalDate?,
+    ): Regelkjøring {
+        val regelverksdato = regeldato ?: virkningsdato(opplysninger)
+        return Regelkjøring(
+            regelverksdato,
             opplysninger,
             this,
-            opplysningerGyldigPåPrøvingsdato,
         )
+    }
 
     override fun kontrollpunkter() =
         listOf(
@@ -90,9 +94,6 @@ class Søknadsprosess : RegistrertForretningsprosess() {
         regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMap {
             it.ønsketInformasjon
         }
-
-    private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
-        { forDato(prøvingsdato(this)) }
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate {
         val opplysningerSomSierNoeOmNårVilkårErOppfylt =

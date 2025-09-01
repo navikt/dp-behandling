@@ -543,6 +543,9 @@ class Behandling private constructor(
             hendelse.opplysninger.forEach { opplysning ->
                 hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
                 opplysning.leggTil(behandling.opplysninger)
+
+                val regelkjøring = behandling.forretningsprosess.regelkjøring(behandling.opplysninger, opplysning.gyldighetsperiode?.fom)
+                val rapport = regelkjøring.evaluer()
             }
 
             behandling.tilstand(Redigert(), hendelse)

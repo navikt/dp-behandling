@@ -165,7 +165,10 @@ class RegelmotorIntegrasjonsTest {
                     override val regelverk: Regelverk
                         get() = TODO("Not yet implemented")
 
-                    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+                    override fun regelkjøring(
+                        opplysninger: Opplysninger,
+                        regeldato: LocalDate?,
+                    ): Regelkjøring {
                         TODO("Not yet implemented")
                     }
 
@@ -225,7 +228,10 @@ class RegelmotorIntegrasjonsTest {
                     override val regelverk: Regelverk
                         get() = TODO("Not yet implemented")
 
-                    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+                    override fun regelkjøring(
+                        opplysninger: Opplysninger,
+                        regeldato: LocalDate?,
+                    ): Regelkjøring {
                         TODO("Not yet implemented")
                     }
 
@@ -299,7 +305,10 @@ class RegelmotorIntegrasjonsTest {
                     override val regelverk: Regelverk
                         get() = TODO("Not yet implemented")
 
-                    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+                    override fun regelkjøring(
+                        opplysninger: Opplysninger,
+                        regeldato: LocalDate?,
+                    ): Regelkjøring {
                         TODO("Not yet implemented")
                     }
 
@@ -369,7 +378,10 @@ private class TestProsess : Forretningsprosess {
     override val regelverk: Regelverk
         get() = TODO("Not yet implemented")
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+    override fun regelkjøring(
+        opplysninger: Opplysninger,
+        regeldato: LocalDate?,
+    ): Regelkjøring {
         TODO("Not yet implemented")
     }
 

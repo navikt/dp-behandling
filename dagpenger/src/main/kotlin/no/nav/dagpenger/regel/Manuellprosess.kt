@@ -33,12 +33,14 @@ import java.time.LocalDate
 class Manuellprosess : RegistrertForretningsprosess() {
     override val regelverk = RegelverkDagpenger
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
+    override fun regelkjøring(
+        opplysninger: Opplysninger,
+        regeldato: LocalDate?,
+    ): Regelkjøring =
         Regelkjøring(
             virkningsdato(opplysninger),
             opplysninger,
             this,
-            opplysningerGyldigPåPrøvingsdato,
         )
 
     override fun kontrollpunkter() =

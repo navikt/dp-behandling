@@ -111,6 +111,7 @@ internal class SimulertDagpengerSystem(
         var inntektSiste12Mnd: Int = 50000,
         var permittering: Boolean = false,
         val ordinær: Boolean = !permittering,
+        var godkjennMeldinger: Boolean = true,
     ) {
         fun test(block: SimulertDagpengerSystem.() -> Unit) {
             Postgres.withMigratedDb {
@@ -118,7 +119,9 @@ internal class SimulertDagpengerSystem(
                 test.opprettPerson(ident)
                 test.block()
 
-                godkjennMeldinger(test.rapid.inspektør)
+                if (godkjennMeldinger) {
+                    godkjennMeldinger(test.rapid.inspektør)
+                }
             }
         }
     }

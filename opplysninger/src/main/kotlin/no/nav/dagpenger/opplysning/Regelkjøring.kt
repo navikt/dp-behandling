@@ -19,7 +19,6 @@ class Regelkjøring(
     private val prøvingsperiode: Periode,
     private val opplysninger: Opplysninger,
     private val forretningsprosess: Forretningsprosess,
-    val opplysningerTilRegelkjøring: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger = { prøvingsdato -> forDato(prøvingsdato) },
 ) {
     // Brukes kun av tester
     constructor(
@@ -33,32 +32,15 @@ class Regelkjøring(
         forretningsprosess = Regelsettprosess(regelsett.toList(), regelsett.toList().flatMap { it.produserer }),
     )
 
-    // brukes av tester
-    constructor(
-        regelverksdato: LocalDate,
-        opplysninger: Opplysninger,
-        opplysningerTilRegelkjøring: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger,
-        vararg regelsett: Regelsett,
-    ) : this(
-        regelverksdato = regelverksdato,
-        prøvingsperiode = Periode(regelverksdato),
-        opplysninger = opplysninger,
-        forretningsprosess = Regelsettprosess(regelsett.toList(), regelsett.toList().flatMap { it.produserer }),
-        opplysningerTilRegelkjøring,
-    )
-
-    // Brukes av hendelser (uten prøvingsdato/periode)
     constructor(
         regelverksdato: LocalDate,
         opplysninger: Opplysninger,
         forretningsprosess: Forretningsprosess,
-        opplysningerTilRegelkjøring: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger,
     ) : this(
         regelverksdato = regelverksdato,
         prøvingsperiode = Periode(regelverksdato),
         opplysninger = opplysninger,
         forretningsprosess = forretningsprosess,
-        opplysningerTilRegelkjøring,
     )
 
     companion object {
@@ -142,7 +124,7 @@ class Regelkjøring(
     }
 
     private fun aktiverRegler(prøvingsdato: LocalDate) {
-        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
+        opplysningerPåPrøvingsdato = opplysninger.forDato(prøvingsdato)
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = gjeldendeRegler.associateBy { it.produserer }
         val besøkt = mutableSetOf<Regel<*>>()
@@ -212,7 +194,10 @@ class Regelkjøring(
         override val regelverk: Regelverk
             get() = TODO("Not yet implemented")
 
-        override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+        override fun regelkjøring(
+            opplysninger: Opplysninger,
+            regeldato: LocalDate?,
+        ): Regelkjøring {
             TODO("Not yet implemented")
         }
 

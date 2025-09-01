@@ -4,6 +4,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.scenario.assertions.Opplysningsperiode.Periodestatus
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Opphold
@@ -60,6 +61,28 @@ class ScenarioTest {
 
             vedtak {
                 utfall shouldBe true
+            }
+        }
+    }
+
+    @Test
+    fun `tester innvilgelse etter endring `() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            godkjennMeldinger = false
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                opplysningstype = Opphold.oppholdINorge,
+                verdi = true,
+                gyldighetsperiode = Gyldighetsperiode(fom = 25.juni(2018)),
+            )
+            klumpen {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 25.juni(2018)
             }
         }
     }

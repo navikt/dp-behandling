@@ -6,7 +6,10 @@ interface Forretningsprosess {
     val regelverk: Regelverk
     val navn: String get() = this.javaClass.simpleName
 
-    fun regelkjøring(opplysninger: Opplysninger): Regelkjøring
+    fun regelkjøring(
+        opplysninger: Opplysninger,
+        regeldato: LocalDate? = null,
+    ): Regelkjøring
 
     fun kontrollpunkter(): List<IKontrollpunkt>
 

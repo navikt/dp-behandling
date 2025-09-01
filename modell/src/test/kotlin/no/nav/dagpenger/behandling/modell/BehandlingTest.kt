@@ -169,12 +169,14 @@ private class TestHendelse(
                 override val regelverk: Regelverk
                     get() = TODO("Not yet implemented")
 
-                override fun regelkjøring(opplysninger: Opplysninger) =
-                    Regelkjøring(
-                        skjedde,
-                        opplysninger,
-                        regelsett,
-                    )
+                override fun regelkjøring(
+                    opplysninger: Opplysninger,
+                    regeldato: LocalDate?,
+                ) = Regelkjøring(
+                    skjedde,
+                    opplysninger,
+                    regelsett,
+                )
 
                 override fun kontrollpunkter(): List<IKontrollpunkt> = emptyList()
 

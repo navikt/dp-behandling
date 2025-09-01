@@ -13,7 +13,10 @@ import java.time.LocalDate
 class Meldekortprosess : RegistrertForretningsprosess() {
     override val regelverk = RegelverkDagpenger
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+    override fun regelkjøring(
+        opplysninger: Opplysninger,
+        regeldato: LocalDate?,
+    ): Regelkjøring {
         val innvilgelsesdato = innvilgelsesdato(opplysninger)
         val meldeperiode = meldeperiode(opplysninger)
         val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
