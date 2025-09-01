@@ -17,7 +17,10 @@ class ScenarioTest {
             alder = 88
             inntektSiste12Mnd = 500000
         }.test {
-            person.søkDagpenger(21.juni(2018))
+            person.søkDagpenger(
+                21.juni(2018),
+                ønskerFraDato = 22.juni(2018),
+            )
 
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
