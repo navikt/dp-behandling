@@ -90,7 +90,7 @@ class Regelkjøring(
         }
 
         // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
-        val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
+        val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysningerPåPrøvingsdato, ønsketResultat)
         opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
 
         val opplysningerSomPåvirkerResultatet: List<Opplysningstype<*>> =

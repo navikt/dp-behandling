@@ -15,7 +15,7 @@ internal class Avhengighetsgraf(
      * Opplysninger som ikke brukes for å produsere C vil bli ikke bli med.
      */
     fun nødvendigeOpplysninger(
-        opplysninger: Opplysninger,
+        opplysninger: LesbarOpplysninger,
         ønsketResultat: List<Opplysningstype<*>>,
     ): Set<Opplysningstype<*>> {
         val nødvendigeOpplysninger = mutableSetOf<Opplysningstype<*>>()
