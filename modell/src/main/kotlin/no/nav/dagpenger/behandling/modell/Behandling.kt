@@ -540,16 +540,19 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Fikk svar på opplysning i ${this.type.name}.")
 
-            hendelse.opplysninger.forEach { opplysning ->
-                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
-                opplysning.leggTil(behandling.opplysninger)
+            hendelse.opplysninger.forEach { opplysningSvar ->
+                hendelse.info("Mottok svar på opplysning om ${opplysningSvar.opplysningstype}")
+                val opplysning = opplysningSvar.leggTil(behandling.opplysninger)
 
-                val regelkjøring =
-                    behandling.forretningsprosess.regelkjøring(
-                        behandling.opplysninger,
-                        opplysning.gyldighetsperiode?.takeUnless { it.fom.isEqual(LocalDate.MIN) }?.fom,
-                    )
-                val rapport = regelkjøring.evaluer()
+                val harFraOgMed = !opplysning.gyldighetsperiode.fom.isEqual(LocalDate.MIN)
+                if (harFraOgMed) {
+                    val regelkjøring =
+                        behandling.forretningsprosess.regelkjøring(
+                            behandling.opplysninger,
+                            opplysning.gyldighetsperiode.fom,
+                        )
+                    val rapport = regelkjøring.evaluer()
+                }
             }
 
             behandling.tilstand(Redigert(), hendelse)
