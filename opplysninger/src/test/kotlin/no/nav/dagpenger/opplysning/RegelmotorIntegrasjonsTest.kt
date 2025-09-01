@@ -112,10 +112,7 @@ class RegelmotorIntegrasjonsTest {
     fun `test av datoer ved å sjekke kravet til alder`() {
         val fraDato = 28.februar(2020)
         val opplysninger = Opplysninger()
-        val regelkjøring =
-            Regelkjøring(fraDato, opplysninger, TestProsess()) { prøvingsdato ->
-                forDato(prøvingsdato)
-            }
+        val regelkjøring = Regelkjøring(fraDato, opplysninger, TestProsess())
 
         // Flyt for å innhente manglende opplysninger
         val mangler = regelkjøring.evaluer().mangler
@@ -188,9 +185,7 @@ class RegelmotorIntegrasjonsTest {
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
                 },
-            ) { prøvingsdato ->
-                forDato(prøvingsdato)
-            }
+            )
 
         opplysninger.leggTil(Faktum(a0, true)).also { regelkjøring.evaluer() }
         opplysninger.leggTil(Faktum(d, true)).also { regelkjøring.evaluer() }
@@ -251,9 +246,7 @@ class RegelmotorIntegrasjonsTest {
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
                 },
-            ) { prøvingsdato ->
-                forDato(prøvingsdato)
-            }
+            )
 
         opplysninger.leggTil(Faktum(b, true)).also { regelkjøring.evaluer() }
 
@@ -336,9 +329,7 @@ class RegelmotorIntegrasjonsTest {
                         return ønsker
                     }
                 },
-            ) { prøvingsdato ->
-                forDato(prøvingsdato)
-            }
+            )
 
         opplysninger.leggTil(Faktum(e, true))
         opplysninger.leggTil(Faktum(f, true))
