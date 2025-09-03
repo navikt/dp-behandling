@@ -370,22 +370,28 @@ class Behandling private constructor(
         fun håndter(
             behandling: Behandling,
             hendelse: BesluttBehandlingHendelse,
-        ): Unit = throw IllegalStateException("Behandlingen skal besluttes, men tilstanden støtter ikke dette")
+        ): Unit = throw IllegalStateException("Behandlingen skal besluttes, men tilstanden ${this.type.name} støtter ikke dette")
 
         fun håndter(
             behandling: Behandling,
             hendelse: SendTilbakeHendelse,
-        ): Unit = throw IllegalStateException("Behandlingen skal sendest tilbake fra totrinnskontroll, men tilstanden støtter ikke dette")
+        ): Unit =
+            throw IllegalStateException(
+                "Behandlingen skal sendest tilbake fra totrinnskontroll, men tilstanden ${this.type.name} støtter ikke dette",
+            )
 
         fun håndter(
             behandling: Behandling,
             hendelse: FjernOpplysningHendelse,
-        ): Unit = throw IllegalStateException("Opplysning skal fjernes, men tilstanden støtter ikke dette")
+        ): Unit = throw IllegalStateException("Opplysning skal fjernes, men tilstanden ${this.type.name} støtter ikke dette")
 
         fun håndter(
             behandling: Behandling,
             hendelse: FlyttBehandlingHendelse,
-        ): Unit = throw IllegalStateException("Behandlingen skal flyttes til en ny behandlingsskjede, men tilstanden støtter ikke dette")
+        ): Unit =
+            throw IllegalStateException(
+                "Behandlingen skal flyttes til en ny behandlingsskjede, men tilstanden ${this.type.name} støtter ikke dette",
+            )
 
         fun leaving(
             behandling: Behandling,
@@ -595,6 +601,9 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             hendelse.info("Endret tilstand til redigert")
+
+            // TODO: Denne må vi tenke litt på plassering og rekkefølge
+            behandling.forretningsprosess.klatten(Klatteland.Start, behandling.opplysninger)
 
             // Kjør regelkjøring for alle opplysninger
             behandling.kjørRegler(hendelse)

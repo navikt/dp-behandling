@@ -9,7 +9,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
-import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
@@ -21,8 +20,8 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -44,7 +43,6 @@ internal fun Application.simuleringApi() {
             put("beregning") {
                 val beregningRequestDTO = call.receive<BeregningRequestDTO>()
                 val opplysningsliste = mutableListOf<Opplysning<*>>()
-                val rettighetstatus = TemporalCollection<Rettighetstatus>()
                 val stønadsperiodeFom = beregningRequestDTO.stønadsperiode.fom
                 val meldekortFom = beregningRequestDTO.meldekortFom ?: stønadsperiodeFom
                 val antDager = beregningRequestDTO.antallMeldekortdager?.toLong() ?: 14
@@ -67,14 +65,7 @@ internal fun Application.simuleringApi() {
                             Gyldighetsperiode(sats.fom ?: stønadsperiodeFom, sats.tom ?: LocalDate.MAX),
                         )
                     }
-                rettighetstatus.put(
-                    stønadsperiodeFom,
-                    Rettighetstatus(
-                        virkningsdato = stønadsperiodeFom,
-                        utfall = true,
-                        behandlingId = UUIDv7.ny(),
-                    ),
-                )
+                opplysningsliste.add(Faktum(harLøpendeRett, true, Gyldighetsperiode(stønadsperiodeFom, LocalDate.MAX)))
                 opplysningsliste.addAll(terskel)
                 opplysningsliste.add(Faktum(egenandel, Beløp(beregningRequestDTO.egenandel)))
                 opplysningsliste.addAll(sats)
@@ -106,7 +97,6 @@ internal fun Application.simuleringApi() {
                         meldekortFom,
                         meldekortTom,
                         opplysningsliste.somOpplysninger(),
-                        rettighetstatus,
                     ).lagBeregningsperiode()
 
                 val egenandel = opplysningsliste.find { it.opplysningstype == egenandel }!!.verdi as Beløp

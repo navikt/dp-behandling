@@ -1,12 +1,11 @@
 package no.nav.dagpenger.regel.beregning
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
+import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
@@ -24,7 +23,6 @@ class BeregningsperiodeFabrikk(
     meldeperiodeFraOgMed: LocalDate,
     meldeperiodeTilOgMed: LocalDate,
     private val opplysninger: LesbarOpplysninger,
-    private val rettighetstatuser: TemporalCollection<Rettighetstatus>,
 ) {
     private val meldeperiode = Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed)
 
@@ -33,7 +31,6 @@ class BeregningsperiodeFabrikk(
     fun lagBeregningsperiode(): Beregningsperiode {
         val gjenståendeEgenandel = hentGjenståendeEgenandel()
         val dager = hentMeldekortDagerMedRett()
-        logger.info { "Rettighetstatuser for meldeperiode, $meldeperiode  : ${rettighetstatuser.contents()}" }
         logger.info { "Meldekort dager med rett: ${dager.joinToString("\n") { it.toString() }}" }
         val periode = opprettPeriode(dager)
         val stønadsdagerIgjen =
@@ -61,8 +58,11 @@ class BeregningsperiodeFabrikk(
                 .sumOf { it.verdi as Int }
                 .let { Beløp(it) }
 
-    private fun hentMeldekortDagerMedRett(): List<LocalDate> =
-        meldeperiode.filter { meldekortDag -> runCatching { rettighetstatuser.get(meldekortDag).utfall }.getOrElse { false } }
+    private fun hentMeldekortDagerMedRett(): List<LocalDate> {
+        val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
+
+        return meldeperiode.filter { meldekortDag -> perioderMedRett.any { it.inneholder(meldekortDag) } }
+    }
 
     private fun opprettPeriode(dager: List<LocalDate>): Set<Dag> =
         dager

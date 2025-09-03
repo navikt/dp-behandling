@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.OpplysningsTyper.søknadId
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -34,6 +35,53 @@ internal object Meldingskatalog {
                 "ident" to ident,
                 "prøvingsdato" to gjelder,
                 "begrunnelse" to "Automatisk opprettet av test",
+            ),
+        ).toJson()
+
+    fun sendMeldekort(
+        ident: String,
+        meldekortId: UUID,
+        meldeperiode: Periode,
+    ) = JsonMessage
+        .newMessage(
+            "meldekort_innsendt",
+            mapOf(
+                "id" to meldekortId,
+                "ident" to ident,
+                "periode" to
+                    mapOf(
+                        "fraOgMed" to meldeperiode.fraOgMed,
+                        "tilOgMed" to meldeperiode.tilOgMed,
+                    ),
+                "dager" to
+                    meldeperiode.map { meldedag ->
+                        mapOf(
+                            "dato" to meldedag,
+                            "meldt" to true,
+                            "aktiviteter" to
+                                listOf(
+                                    mapOf("type" to "Arbeid", "timer" to "PT0H"),
+                                ),
+                        )
+                    },
+                "kilde" to
+                    mapOf(
+                        "rolle" to "Søker",
+                        "ident" to ident,
+                    ),
+                "innsendtTidspunkt" to LocalDateTime.now(),
+            ),
+        ).toJson()
+
+    fun beregnMeldekort(
+        ident: String,
+        meldekortId: UUID,
+    ) = JsonMessage
+        .newMessage(
+            "beregn_meldekort",
+            mapOf(
+                "meldekortId" to meldekortId,
+                "ident" to ident,
             ),
         ).toJson()
 }

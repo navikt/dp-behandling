@@ -3,14 +3,13 @@ package no.nav.dagpenger.features
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.features.utils.tilBeløp
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidsdag
 import no.nav.dagpenger.regel.beregning.Beregning.arbeidstimer
@@ -22,14 +21,12 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
-import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class BeregningSteg : No {
     private val opplysninger = mutableListOf<Opplysning<*>>()
-    private val rettighetstatus = TemporalCollection<Rettighetstatus>()
     private lateinit var meldeperiodeFraOgMed: LocalDate
     private lateinit var meldeperiodeTilOgMed: LocalDate
 
@@ -110,11 +107,11 @@ class BeregningSteg : No {
 
     private val beregning by lazy {
         val opplysninger = opplysninger.somOpplysninger()
-        BeregningsperiodeFabrikk(meldeperiodeFraOgMed, meldeperiodeTilOgMed, opplysninger, rettighetstatus).lagBeregningsperiode()
+        BeregningsperiodeFabrikk(meldeperiodeFraOgMed, meldeperiodeTilOgMed, opplysninger).lagBeregningsperiode()
     }
 
     private fun lagVedtak(vedtakstabell: List<MutableMap<String, String>>): List<Opplysning<*>> =
-        vedtakstabell.map {
+        vedtakstabell.flatMap {
             val factory = opplysningFactory(it)
             factory(it, gyldighetsperiode(it["fraOgMed"].toLocalDate(), it["tilOgMed"].toLocalDate()))
         }
@@ -164,47 +161,30 @@ class BeregningSteg : No {
         return opplysninger
     }
 
-    private val opplysningFactories: Map<String, (Map<String, String>, Gyldighetsperiode) -> Opplysning<*>> =
+    private val opplysningFactories: Map<String, (Map<String, String>, Gyldighetsperiode) -> List<Opplysning<*>>> =
         mapOf(
             "Periode" to { args, gyldighetsperiode ->
-                rettighetstatus.put(
-                    gyldighetsperiode.fom,
-                    Rettighetstatus(
-                        virkningsdato = gyldighetsperiode.fom,
-                        utfall = true,
-                        behandlingId = UUIDv7.ny(),
-                    ),
+                listOf(
+                    Faktum(harLøpendeRett, true, gyldighetsperiode),
+                    Faktum(ordinærPeriode, args["verdi"]!!.toInt(), gyldighetsperiode),
+                    Faktum(antallStønadsdager, args["verdi"]!!.toInt() * 5, gyldighetsperiode),
                 )
-                if (!gyldighetsperiode.tom.isEqual(LocalDate.MAX)) {
-                    // TODO: Simulerer at vi har fått en stans!
-                    rettighetstatus.put(
-                        gyldighetsperiode.tom,
-                        Rettighetstatus(
-                            virkningsdato = gyldighetsperiode.tom,
-                            utfall = false,
-                            behandlingId = UUIDv7.ny(),
-                        ),
-                    )
-                }
-
-                Faktum(ordinærPeriode, args["verdi"]!!.toInt(), gyldighetsperiode)
-                Faktum(antallStønadsdager, args["verdi"]!!.toInt() * 5, gyldighetsperiode)
             },
             "Sats" to { args, gyldighetsperiode ->
-                Faktum(dagsatsEtterSamordningMedBarnetillegg, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode)
+                listOf(Faktum(dagsatsEtterSamordningMedBarnetillegg, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode))
             },
             "FVA" to { args, gyldighetsperiode ->
-                Faktum(fastsattVanligArbeidstid, args["verdi"]!!.toDouble(), gyldighetsperiode)
+                listOf(Faktum(fastsattVanligArbeidstid, args["verdi"]!!.toDouble(), gyldighetsperiode))
             },
             "Terskel" to { args, gyldighetsperiode ->
-                Faktum(kravTilArbeidstidsreduksjon, args["verdi"]!!.toDouble(), gyldighetsperiode)
+                listOf(Faktum(kravTilArbeidstidsreduksjon, args["verdi"]!!.toDouble(), gyldighetsperiode))
             },
             "Egenandel" to { args, gyldighetsperiode ->
-                Faktum(egenandel, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode)
+                listOf(Faktum(egenandel, Beløp(args["verdi"]!!.toInt()), gyldighetsperiode))
             },
         )
 
-    private fun opplysningFactory(it: Map<String, String>): (Map<String, String>, Gyldighetsperiode) -> Opplysning<*> {
+    private fun opplysningFactory(it: Map<String, String>): (Map<String, String>, Gyldighetsperiode) -> List<Opplysning<*>> {
         val opplysningstype = it["Opplysning"]!!
         return opplysningFactories[opplysningstype]
             ?: throw IllegalArgumentException("Ukjent opplysningstype: $opplysningstype")

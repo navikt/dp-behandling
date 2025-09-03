@@ -12,6 +12,7 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
+import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
@@ -61,6 +62,7 @@ internal class SimulertDagpengerSystem(
     val auditlogg = TestAuditlogg()
 
     init {
+        VedtakFattetMottak(rapid, meldekortRepository)
         MessageMediator(
             rapidsConnection = rapid,
             hendelseMediator = hendelseMediator,
@@ -125,6 +127,20 @@ internal class SimulertDagpengerSystem(
 
     private fun opprettPerson(ident: String) {
         personRepository.lagre(Person(ident.tilPersonIdentfikator()))
+    }
+
+    fun meldekortBatch(avklar: Boolean = false) {
+        meldekortRepository.hentMeldekortkø().behandlingsklare.forEach {
+            rapid.sendTestMessage(Meldingskatalog.beregnMeldekort(person.ident, it.meldekort.id))
+
+            if (avklar) {
+                saksbehandler.lukkAlleAvklaringer()
+                saksbehandler.godkjenn()
+
+                // Marker som ferdig (vi klarer ikke å fange det i VedtakFattetMottak)
+                meldekortRepository.markerSomFerdig(it.meldekort.eksternMeldekortId)
+            }
+        }
     }
 }
 

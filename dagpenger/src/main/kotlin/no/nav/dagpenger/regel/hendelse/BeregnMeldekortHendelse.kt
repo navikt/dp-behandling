@@ -14,9 +14,6 @@ import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.beregning.Beregning.forbruk
-import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
-import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDateTime
 import java.util.UUID
@@ -24,7 +21,6 @@ import java.util.UUID
 class BeregnMeldekortHendelse(
     meldingsreferanseId: UUID,
     ident: String,
-    meldekortId: UUID,
     opprettet: LocalDateTime,
     private val meldekort: Meldekort,
 ) : StartHendelse(
@@ -76,26 +72,6 @@ class BeregnMeldekortHendelse(
         ).apply {
             val meldekortOpplysninger = meldekort.dager.tilOpplysninger(kilde)
             meldekortOpplysninger.forEach { this.opplysninger.leggTil(it) }
-            val fabrikk = BeregningsperiodeFabrikk(meldekort.fom, meldekort.tom, this.opplysninger(), rettighetstatus)
-            val periode = fabrikk.lagBeregningsperiode()
-            val forbruksdager = periode.forbruksdager
-
-            // Kjør regler
-
-            meldekort
-                .periode()
-                .forEach { dato ->
-                    val forbruksdag = forbruksdager.singleOrNull { it.dato.isEqual(dato) }
-                    val gyldighetsperiode = Gyldighetsperiode(dato, dato)
-                    val tilUtbetaling = forbruksdag?.avrundetUtbetaling ?: 0
-                    val forbruktEgenandel = forbruksdag?.forbruktEgenandel?.verdien?.toInt() ?: 0
-
-                    // TODO: VI kan ikke gjøre det slik. Vi må finne en annen måte å si ifra på at det er forbruk (eksempel hvis det er sanksjon)
-                    val erForbruk = tilUtbetaling > 0 || forbruktEgenandel > 0
-                    opplysninger.leggTil(Faktum(forbruk, erForbruk, gyldighetsperiode))
-                    opplysninger.leggTil(Faktum(utbetaling, tilUtbetaling, gyldighetsperiode))
-                    opplysninger.leggTil(Faktum(Beregning.forbruktEgenandel, forbruktEgenandel, gyldighetsperiode))
-                }
         }
     }
 

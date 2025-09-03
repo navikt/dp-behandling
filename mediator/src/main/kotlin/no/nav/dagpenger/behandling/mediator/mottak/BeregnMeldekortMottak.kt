@@ -64,7 +64,7 @@ internal class BeregnMeldekortMottak(
 
     class BeregnMeldekortMessage(
         packet: JsonMessage,
-        private val meldekort: Meldekort,
+        meldekort: Meldekort,
     ) : KafkaMelding(packet) {
         val meldekortId: UUID = packet["meldekortId"].asUUID()
         override val ident = packet["ident"].asText()
@@ -76,6 +76,6 @@ internal class BeregnMeldekortMottak(
             mediator.behandle(hendelse, this, context)
         }
 
-        private val hendelse get() = BeregnMeldekortHendelse(id, ident, meldekortId, opprettet, meldekort)
+        private val hendelse = BeregnMeldekortHendelse(id, ident, opprettet, meldekort)
     }
 }

@@ -36,7 +36,7 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
       | Terskel    | 50.0  |            |            |
-      | Periode    | 52    | 01.01.2020 | 15.01.2020 |
+      | Periode    | 52    | 01.01.2020 | 14.01.2020 |
       | Sats       | 800   | 01.01.2020 |            |
       | FVA        | 40    | 01.01.2020 |            |
       | Egenandel  | 0     | 01.01.2020 |            |
@@ -130,7 +130,7 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed   |
       | Terskel    | 50.0  |            |            |
-      | Periode    | 52    | 01.01.2020 | 15.01.2020 |
+      | Periode    | 52    | 01.01.2020 | 14.01.2020 |
       | Sats       | 800   | 01.01.2020 |            |
       | FVA        | 40    | 01.01.2020 |            |
       | Egenandel  | 2400  | 01.01.2020 |            |

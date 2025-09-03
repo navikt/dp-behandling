@@ -11,6 +11,7 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
+import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
@@ -28,6 +29,7 @@ internal class Mennesket(
     private val fagsak = mutableListOf<Int>()
     private lateinit var søknadsdato: LocalDate
     private lateinit var ønskerFraDato: LocalDate
+    private lateinit var meldesyklus: Meldesyklus
 
     fun søkDagpenger(
         dato: LocalDate = LocalDate.now(),
@@ -35,6 +37,7 @@ internal class Mennesket(
     ) {
         this.søknadsdato = dato
         this.ønskerFraDato = ønskerFraDato
+        this.meldesyklus = Meldesyklus(søknadsdato)
 
         rapid.sendTestMessage(
             Meldingskatalog.søknadInnsendt(
@@ -86,6 +89,12 @@ internal class Mennesket(
                     mapOf("ident" to ident, "prøvingsdato" to fraDato),
                 ).toJson(),
         )
+    }
+
+    fun sendInnMeldekort(nummer: Int) {
+        val meldekortId = UUIDv7.ny()
+        val message = Meldingskatalog.sendMeldekort(ident, meldekortId, meldesyklus.periode(nummer))
+        rapid.sendTestMessage(message)
     }
 
     val avklaringer: List<Avklaring>
