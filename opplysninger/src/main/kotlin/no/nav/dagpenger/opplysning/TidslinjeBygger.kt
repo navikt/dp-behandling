@@ -65,4 +65,9 @@ class TidslinjeBygger<T : Comparable<T>>(
 
         return resultat
     }
+
+    companion object {
+        fun hvorAlleVilkårErOppfylt(): (Collection<Opplysning<Boolean>>) -> Boolean? =
+            { påDato -> påDato.isNotEmpty() && påDato.all { it.verdi } }
+    }
 }

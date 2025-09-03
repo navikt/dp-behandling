@@ -1,15 +1,26 @@
 package no.nav.dagpenger.regel
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Klatteland
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.RegistrertForretningsprosess
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.TidslinjeBygger
+import no.nav.dagpenger.opplysning.TidslinjeBygger.Companion.hvorAlleVilkårErOppfylt
 import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
+import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Minsteinntekt.EØSArbeidKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
@@ -90,6 +101,45 @@ class Søknadsprosess : RegistrertForretningsprosess() {
             it.ønsketInformasjon
         }
 
+    override fun klatten(
+        tilstand: Klatteland,
+        opplysninger: Opplysninger,
+    ) {
+        logger.info { "Nå ble klatten kalt med tilstand $tilstand" }
+        when (tilstand) {
+            Klatteland.Start -> {}
+            Klatteland.Underveis -> {}
+            Klatteland.Ferdig -> {
+                // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk
+                val harPerioder = opplysninger.kunEgne.har(harLøpendeRett)
+                val harPilla = harPerioder && opplysninger.kunEgne.finnOpplysning(harLøpendeRett).kilde is Saksbehandlerkilde
+                if (harPilla) return
+
+                val vilkår: List<Opplysningstype<Boolean>> =
+                    regelverk
+                        .regelsettAvType(RegelsettType.Vilkår)
+                        .flatMap { it.utfall }
+
+                val utfall =
+                    opplysninger
+                        .somListe(Egne)
+                        .filter { it.opplysningstype in vilkår }
+                        .filter { it.erRelevant }
+                        .filterIsInstance<Opplysning<Boolean>>()
+
+                logger.info { "Legger til noe greier " }
+
+                return TidslinjeBygger(utfall)
+                    .lagPeriode(hvorAlleVilkårErOppfylt())
+                    .forEach { periode ->
+                        logger.info { "Legger til ${periode.verdi} fra ${periode.fraOgMed} til ${periode.tilOgMed}" }
+                        val gyldighetsperiode = Gyldighetsperiode(periode.fraOgMed, periode.tilOgMed)
+                        opplysninger.leggTil(Faktum(harLøpendeRett, periode.verdi, gyldighetsperiode))
+                    }
+            }
+        }
+    }
+
     private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
         { forDato(prøvingsdato(this)) }
 
@@ -101,4 +151,8 @@ class Søknadsprosess : RegistrertForretningsprosess() {
         } else {
             throw IllegalStateException("Mangler både prøvingsdato og hendelsedato. Må ha en dato å ta utgangspunkt i for behandlingen.")
         }
+
+    companion object {
+        private val logger = KotlinLogging.logger { }
+    }
 }

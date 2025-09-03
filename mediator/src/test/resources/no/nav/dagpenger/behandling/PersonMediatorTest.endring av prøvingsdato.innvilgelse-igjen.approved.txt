@@ -33,6 +33,7 @@ Oppfyller kravet til å være arbeidsfør
 Oppfyller kravet til å ta ethvert arbeid
 Villig til å jobbe minimum arbeidstid
 Reell arbeidssøker
+Har løpende rett på dagpenger
 Prøvingsdato
 Oppfyller kravet til alder
 Lovpålagt rapporteringsfrist for A-ordningen
@@ -217,3 +218,4 @@ Dagsats med barnetillegg etter samordning og 90 % regel
 Ukessats med barnetillegg etter samordning
 Tre ganger dagsats
 Egenandel
+Har løpende rett på dagpenger

@@ -46,6 +46,7 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.TidslinjeBygger
+import no.nav.dagpenger.opplysning.TidslinjeBygger.Companion.hvorAlleVilkårErOppfylt
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -165,9 +166,6 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>
         opplysninger = typerSomFinnes.map { opplysningstype -> opplysningstype.id.uuid },
     )
 }
-
-private fun hvorAlleVilkårErOppfylt(): (Collection<Opplysning<Boolean>>) -> Boolean? =
-    { påDato -> påDato.isNotEmpty() && påDato.all { it.verdi } }
 
 private fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
     OpplysningsperiodeDTO(

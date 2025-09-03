@@ -160,3 +160,5 @@ Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
 Samordnet dagsats er større enn 0
 Samordnet dagsats uten barnetillegg
 Utfall etter samordning
+Har løpende rett på dagpenger
+Har løpende rett på dagpenger

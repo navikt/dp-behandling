@@ -19,6 +19,17 @@ interface Forretningsprosess {
     fun regelsett() = regelverk.regelsett
 
     fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>>
+
+    fun klatten(
+        tilstand: Klatteland,
+        opplysninger: Opplysninger,
+    ) {}
+}
+
+enum class Klatteland {
+    Start,
+    Underveis,
+    Ferdig,
 }
 
 abstract class RegistrertForretningsprosess : Forretningsprosess {
