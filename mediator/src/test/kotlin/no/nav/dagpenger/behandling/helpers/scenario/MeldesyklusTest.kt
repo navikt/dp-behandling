@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.scenario
+package no.nav.dagpenger.behandling.helpers.scenario
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.februar

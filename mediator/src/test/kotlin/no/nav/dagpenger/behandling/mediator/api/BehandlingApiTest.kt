@@ -27,13 +27,13 @@ import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
+import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem
+import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.maskinToken
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.withMockAuthServerAndTestApplication
-import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem
-import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.ReellArbeidssøker

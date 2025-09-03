@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.scenario
+package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode

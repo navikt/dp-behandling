@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.scenario
+package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
@@ -6,6 +6,8 @@ import io.ktor.server.application.Application
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.db.Postgres
+import no.nav.dagpenger.behandling.helpers.scenario.assertions.ForslagAssertions
+import no.nav.dagpenger.behandling.helpers.scenario.assertions.KlumpenAssertions
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
@@ -23,8 +25,6 @@ import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPos
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
-import no.nav.dagpenger.behandling.scenario.assertions.ForslagAssertions
-import no.nav.dagpenger.behandling.scenario.assertions.KlumpenAssertions
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import org.approvaltests.Approvals

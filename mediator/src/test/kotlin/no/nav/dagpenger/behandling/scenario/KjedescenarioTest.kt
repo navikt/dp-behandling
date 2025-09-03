@@ -1,13 +1,15 @@
-package no.nav.dagpenger.behandling
+package no.nav.dagpenger.behandling.scenario
 
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.behandling.august
+import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
 import no.nav.dagpenger.behandling.konfigurasjon.skruAvFeatures
 import no.nav.dagpenger.behandling.konfigurasjon.skruPåFeature
-import no.nav.dagpenger.behandling.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

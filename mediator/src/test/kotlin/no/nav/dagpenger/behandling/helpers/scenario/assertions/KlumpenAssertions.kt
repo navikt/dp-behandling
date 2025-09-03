@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.scenario.assertions
+package no.nav.dagpenger.behandling.helpers.scenario.assertions
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.treeToValue

@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.scenario
+package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
@@ -6,6 +6,7 @@ import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.inntekt.v1.Inntekt
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
@@ -167,7 +168,7 @@ internal class Mennesket(
 
     private val inntektV1
         get() =
-            no.nav.dagpenger.inntekt.v1.Inntekt(
+            Inntekt(
                 inntektsId = "01J677GHJRC2H08Q55DASFD0XX",
                 inntektsListe =
                     listOf(

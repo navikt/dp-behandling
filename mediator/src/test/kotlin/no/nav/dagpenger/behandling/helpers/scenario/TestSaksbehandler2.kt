@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.scenario
+package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.matchers.nulls.shouldNotBeNull

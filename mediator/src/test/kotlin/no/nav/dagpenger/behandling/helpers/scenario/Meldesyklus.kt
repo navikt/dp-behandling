@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.scenario
+package no.nav.dagpenger.behandling.helpers.scenario
 
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
