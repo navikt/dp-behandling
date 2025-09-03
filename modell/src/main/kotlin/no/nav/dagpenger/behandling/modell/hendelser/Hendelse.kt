@@ -16,8 +16,7 @@ class Hendelse(
     skjedde: LocalDate,
     opprettet: LocalDateTime,
     override val forretningsprosess: Forretningsprosess,
-) : StartHendelse(meldingsreferanseId, ident, eksternId, skjedde, opprettet),
-    Forretningsprosess by forretningsprosess {
+) : StartHendelse(meldingsreferanseId, ident, eksternId, skjedde, opprettet) {
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,

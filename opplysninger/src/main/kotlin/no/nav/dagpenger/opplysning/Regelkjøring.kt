@@ -204,10 +204,7 @@ class Regelkjøring(
     private class Regelsettprosess(
         val regelsett: List<Regelsett>,
         val opplysningstypes: List<Opplysningstype<*>> = regelsett.flatMap { it.produserer },
-    ) : Forretningsprosess {
-        override val regelverk: Regelverk
-            get() = TODO("Not yet implemented")
-
+    ) : Forretningsprosess(Regelverk(*regelsett.toTypedArray())) {
         override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
             TODO("Not yet implemented")
         }
@@ -223,8 +220,6 @@ class Regelkjøring(
         override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
             TODO("Not yet implemented")
         }
-
-        override fun regelsett() = regelsett
 
         override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = opplysningstypes
     }

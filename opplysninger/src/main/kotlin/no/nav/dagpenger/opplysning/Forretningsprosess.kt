@@ -2,52 +2,55 @@ package no.nav.dagpenger.opplysning
 
 import java.time.LocalDate
 
-interface Forretningsprosess {
-    val regelverk: Regelverk
+abstract class Forretningsprosess(
+    val regelverk: Regelverk,
+) {
+    private val plugins: MutableList<ProsessPlugin> = mutableListOf()
+
     val navn: String get() = this.javaClass.simpleName
 
-    fun regelkjøring(opplysninger: Opplysninger): Regelkjøring
+    abstract fun regelkjøring(opplysninger: Opplysninger): Regelkjøring
 
-    fun kontrollpunkter(): List<IKontrollpunkt>
+    abstract fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate
 
-    fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean
+    abstract fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>>
 
-    fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate
+    open fun kontrollpunkter(): List<IKontrollpunkt> = emptyList()
 
-    fun utfall(opplysninger: LesbarOpplysninger) = regelverk.utfall(opplysninger.forDato(virkningsdato(opplysninger)))
+    open fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean = false
+
+    open fun utfall(opplysninger: LesbarOpplysninger) = regelverk.utfall(opplysninger.forDato(virkningsdato(opplysninger)))
 
     fun regelsett() = regelverk.regelsett
 
-    fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>>
+    fun registrer(handler: ProsessPlugin) = plugins.add(handler)
 
-    fun klatten(
-        tilstand: Klatteland,
-        opplysninger: Opplysninger,
-    ) {}
+    fun kjørStart(opplysninger: Opplysninger) = plugins.forEach { it.start(opplysninger) }
+
+    fun kjørUnderveis(opplysninger: Opplysninger) = plugins.forEach { it.underveis(opplysninger) }
+
+    fun kjørFerdig(opplysninger: Opplysninger) = plugins.forEach { it.ferdig(opplysninger) }
 }
 
-enum class Klatteland {
-    Start,
-    Underveis,
-    Ferdig,
+interface ProsessPlugin {
+    fun start(opplysninger: Opplysninger) {}
+
+    fun underveis(opplysninger: Opplysninger) {}
+
+    fun ferdig(opplysninger: Opplysninger) {}
 }
 
-abstract class RegistrertForretningsprosess : Forretningsprosess {
-    fun registrer() {
-        registrer(navn, this)
-    }
-
+class Prosessregister {
     companion object {
-        private val forretningsprosesser = mutableMapOf<String, Forretningsprosess>()
-
-        private fun registrer(
-            type: String,
-            forretningsprosess: Forretningsprosess,
-        ) {
-            forretningsprosesser[type] = forretningsprosess
-        }
-
-        fun opprett(string: String): Forretningsprosess =
-            forretningsprosesser[string] ?: throw IllegalArgumentException("Ukjent forretningsprosess: $string")
+        val RegistrertForretningsprosess = Prosessregister()
     }
+
+    private val forretningsprosesser = mutableMapOf<String, Forretningsprosess>()
+
+    fun registrer(forretningsprosess: Forretningsprosess) {
+        forretningsprosesser[forretningsprosess.navn] = forretningsprosess
+    }
+
+    fun opprett(string: String): Forretningsprosess =
+        forretningsprosesser[string] ?: throw IllegalArgumentException("Ukjent forretningsprosess: $string")
 }

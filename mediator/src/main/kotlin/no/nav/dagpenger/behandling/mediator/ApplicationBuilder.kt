@@ -10,7 +10,6 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
-import no.nav.dagpenger.behandling.konfigurasjon.Configuration.config
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.api.simuleringApi
@@ -33,6 +32,7 @@ import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
 import no.nav.dagpenger.regel.Manuellprosess
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.RegelverkDagpenger
@@ -167,9 +167,12 @@ fun registrerRegelverk(
     opplysningRepository: OpplysningerRepositoryPostgres,
     opplysningstyper: Set<Opplysningstype<*>>,
 ) {
-    Søknadsprosess().registrer()
-    Meldekortprosess().registrer()
-    Manuellprosess().registrer()
+    RegistrertForretningsprosess.apply {
+        registrer(Søknadsprosess())
+        registrer(Meldekortprosess())
+        registrer(Manuellprosess())
+    }
+
     opplysningRepository
         .lagreOpplysningstyper(
             opplysningstyper + fagsakIdOpplysningstype +

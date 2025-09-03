@@ -165,10 +165,7 @@ private class TestHendelse(
     private val opplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "opplysning")
     override val forretningsprosess: Forretningsprosess
         get() =
-            object : Forretningsprosess {
-                override val regelverk: Regelverk
-                    get() = TODO("Not yet implemented")
-
+            object : Forretningsprosess(Regelverk(regelsett)) {
                 override fun regelkjøring(opplysninger: Opplysninger) =
                     Regelkjøring(
                         skjedde,
@@ -185,8 +182,6 @@ private class TestHendelse(
                 override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
                     TODO("Not yet implemented")
                 }
-
-                override fun regelsett() = listOf(regelsett)
 
                 override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
                     TODO("Not yet implemented")

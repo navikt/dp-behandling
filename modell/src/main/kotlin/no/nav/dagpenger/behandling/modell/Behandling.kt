@@ -31,7 +31,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
-import no.nav.dagpenger.opplysning.Klatteland
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
@@ -421,7 +420,7 @@ class Behandling private constructor(
             hendelse.info("Mottatt ${hendelse.type} og startet behandling")
             behandling.emitOpprettet()
 
-            behandling.forretningsprosess.klatten(Klatteland.Start, behandling.opplysninger)
+            behandling.forretningsprosess.kjørStart(behandling.opplysninger)
 
             behandling.tilstand(UnderBehandling(), hendelse)
         }
@@ -490,7 +489,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Alle opplysninger mottatt, lager forslag til vedtak")
 
-            behandling.forretningsprosess.klatten(Klatteland.Ferdig, behandling.opplysninger)
+            behandling.forretningsprosess.kjørFerdig(behandling.opplysninger)
 
             behandling.emitForslagTilVedtak()
         }
@@ -603,7 +602,7 @@ class Behandling private constructor(
             hendelse.info("Endret tilstand til redigert")
 
             // TODO: Denne må vi tenke litt på plassering og rekkefølge
-            behandling.forretningsprosess.klatten(Klatteland.Start, behandling.opplysninger)
+            behandling.forretningsprosess.kjørStart(behandling.opplysninger)
 
             // Kjør regelkjøring for alle opplysninger
             behandling.kjørRegler(hendelse)
@@ -787,7 +786,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Har et nytt forslag til vedtak som må godkjennes")
 
-            behandling.forretningsprosess.klatten(Klatteland.Ferdig, behandling.opplysninger)
+            behandling.forretningsprosess.kjørFerdig(behandling.opplysninger)
 
             behandling.emitForslagTilVedtak()
         }
@@ -931,7 +930,7 @@ class Behandling private constructor(
 
         hendelse.lagBehov(rapport.informasjonsbehov)
 
-        forretningsprosess.klatten(Klatteland.Underveis, opplysninger)
+        forretningsprosess.kjørUnderveis(opplysninger)
 
         if (rapport.erFerdig()) {
             avgjørNesteTilstand(hendelse)

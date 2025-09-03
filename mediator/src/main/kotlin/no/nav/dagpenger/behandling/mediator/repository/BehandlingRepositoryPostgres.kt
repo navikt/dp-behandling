@@ -11,7 +11,7 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.RegistrertForretningsprosess
+import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.util.UUID
 

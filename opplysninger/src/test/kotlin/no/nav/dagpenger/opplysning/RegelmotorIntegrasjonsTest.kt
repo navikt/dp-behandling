@@ -161,10 +161,7 @@ class RegelmotorIntegrasjonsTest {
             Regelkjøring(
                 fraDato,
                 opplysninger,
-                object : Forretningsprosess {
-                    override val regelverk: Regelverk
-                        get() = TODO("Not yet implemented")
-
+                object : Forretningsprosess(Regelverk(regelsett)) {
                     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
                         TODO("Not yet implemented")
                     }
@@ -180,8 +177,6 @@ class RegelmotorIntegrasjonsTest {
                     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
                         TODO("Not yet implemented")
                     }
-
-                    override fun regelsett(): List<Regelsett> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
                 },
@@ -221,10 +216,7 @@ class RegelmotorIntegrasjonsTest {
             Regelkjøring(
                 fraDato,
                 opplysninger,
-                object : Forretningsprosess {
-                    override val regelverk: Regelverk
-                        get() = TODO("Not yet implemented")
-
+                object : Forretningsprosess(Regelverk(regelsett)) {
                     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
                         TODO("Not yet implemented")
                     }
@@ -240,8 +232,6 @@ class RegelmotorIntegrasjonsTest {
                     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
                         TODO("Not yet implemented")
                     }
-
-                    override fun regelsett(): List<Regelsett> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
                 },
@@ -295,10 +285,7 @@ class RegelmotorIntegrasjonsTest {
             Regelkjøring(
                 fraDato,
                 opplysninger,
-                object : Forretningsprosess {
-                    override val regelverk: Regelverk
-                        get() = TODO("Not yet implemented")
-
+                object : Forretningsprosess(Regelverk(regelsett)) {
                     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
                         TODO("Not yet implemented")
                     }
@@ -314,8 +301,6 @@ class RegelmotorIntegrasjonsTest {
                     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
                         TODO("Not yet implemented")
                     }
-
-                    override fun regelsett(): List<Regelsett> = listOf(regelsett)
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
                         val ønsker = mutableListOf<Opplysningstype<*>>()
@@ -365,10 +350,7 @@ class RegelmotorIntegrasjonsTest {
     }
 }
 
-private class TestProsess : Forretningsprosess {
-    override val regelverk: Regelverk
-        get() = TODO("Not yet implemented")
-
+private class TestProsess : Forretningsprosess(Regelverk(Alderskrav.regelsett, Prøvingsdato.regelsett)) {
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
         TODO("Not yet implemented")
     }
@@ -384,8 +366,6 @@ private class TestProsess : Forretningsprosess {
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
         TODO("Not yet implemented")
     }
-
-    override fun regelsett(): List<Regelsett> = listOf(Alderskrav.regelsett, Prøvingsdato.regelsett)
 
     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = listOf(Alderskrav.vilkår, prøvingsdato)
 }
