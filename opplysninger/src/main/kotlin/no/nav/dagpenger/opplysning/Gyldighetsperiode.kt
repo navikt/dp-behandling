@@ -9,6 +9,10 @@ data class Gyldighetsperiode(
 ) : ClosedRange<LocalDate> by range {
     constructor(fom: LocalDate) : this(fom, LocalDate.MAX)
 
+    init {
+        require(fom.isEqual(tom) || fom.isBefore(tom)) { "tilOgMed=$tom kan ikke være før fraOgMed=$fom" }
+    }
+
     fun inneholder(dato: LocalDate) = dato in range
 
     fun overlapp(gyldighetsperiode: Gyldighetsperiode) =
@@ -26,4 +30,8 @@ data class Gyldighetsperiode(
         }
 
     fun kopi(tom: LocalDate) = Gyldighetsperiode(fom, tom)
+
+    companion object {
+        fun kun(dato: LocalDate) = Gyldighetsperiode(dato, dato)
+    }
 }

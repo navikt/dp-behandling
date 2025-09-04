@@ -78,7 +78,7 @@ class SøknadInnsendtHendelse(
                         Faktum(
                             hendelseTypeOpplysningstype,
                             type,
-                            gyldighetsperiode = Gyldighetsperiode(fom = skjedde),
+                            gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
                             kilde = Systemkilde(meldingsreferanseId, opprettet),
                         ),
                     )

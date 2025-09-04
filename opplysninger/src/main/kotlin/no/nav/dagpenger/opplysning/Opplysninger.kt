@@ -5,7 +5,6 @@ import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.collections.map
 
 class Opplysninger private constructor(
     override val id: UUID,
@@ -135,9 +134,10 @@ class Opplysninger private constructor(
                         .distinctByLast<Opplysning<*>, Gyldighetsperiode> { it.gyldighetsperiode }
                         // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
                         .zipWithNext()
-                        .map { (høyre, venstre) ->
-                            if (!høyre.gyldighetsperiode.overlapp(venstre.gyldighetsperiode)) return@map høyre
-                            høyre.lagForkortet(venstre)
+                        .mapNotNull { (venstre, høyre) ->
+                            if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
+                            if (venstre.gyldighetsperiode.fom.isEqual(høyre.gyldighetsperiode.fom)) return@mapNotNull null
+                            venstre.lagForkortet(høyre)
                         }
                         // Legg til den siste som ikke blir med i zipWithNext
                         .plus(perioder.last())

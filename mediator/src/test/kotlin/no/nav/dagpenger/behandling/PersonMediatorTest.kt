@@ -1045,7 +1045,7 @@ internal class PersonMediatorTest {
     }
 
     @Test
-    fun `Innvilgelse og tømme stønadsperioden i meldekort`() {
+    fun `Innvilgelse og forbruk av siste del av stønadsperioden i meldekort`() {
         withMigratedDb {
             val meldekortBehandlingskø =
                 MeldekortBehandlingskø(
