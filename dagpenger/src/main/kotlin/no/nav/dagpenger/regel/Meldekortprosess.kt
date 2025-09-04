@@ -44,7 +44,10 @@ class Meldekortprosess :
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = meldeperiode(opplysninger).tilOgMed
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = Beregning.regelsett.ønsketInformasjon
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
+        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMap {
+            it.ønsketInformasjon
+        }
 
     override fun start(opplysninger: Opplysninger) {
         val meldeperiode = meldeperiode(opplysninger)

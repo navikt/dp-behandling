@@ -11,6 +11,7 @@ import no.nav.dagpenger.behandling.konfigurasjon.skruAvFeatures
 import no.nav.dagpenger.behandling.konfigurasjon.skruPåFeature
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.beregning.Beregning
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -86,13 +87,19 @@ class BeregningTest {
                 }
 
                 // Vilkår blir vurderte som ikke oppfylt
+                saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "", Gyldighetsperiode(8.juli(2018)))
 
                 // Behandlingen av meldekort har stoppet opp og vi endrer rettighetsperiode på grunn av stans
-                saksbehandler.endreOpplysning(harLøpendeRett, true, "", Gyldighetsperiode(tom = 7.juli(2018)))
                 saksbehandler.endreOpplysning(harLøpendeRett, false, "", Gyldighetsperiode(8.juli(2018)))
 
                 // Verifiser at behandlingen nå bare beregner et subset av meldeperioden
                 klumpen {
+                    with(opplysninger(harLøpendeRett)) {
+                        this shouldHaveSize 2
+                        this.first().gyldigFraOgMed shouldBe 21.juni(2018)
+                        this.last().gyldigFraOgMed shouldBe 8.juli(2018)
+                    }
+
                     with(opplysninger(Beregning.forbruk)) {
                         this shouldHaveSize 28
 
