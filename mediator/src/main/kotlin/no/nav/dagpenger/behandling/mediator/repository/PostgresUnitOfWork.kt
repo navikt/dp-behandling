@@ -8,6 +8,8 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 class PostgresUnitOfWork private constructor(
     private val session: Session,
 ) : UnitOfWork<Session> {
+    private val transactionTimer = DbMetrics.transactionDuration.startTimer()
+
     companion object {
         fun transaction() =
             PostgresUnitOfWork(sessionOf(dataSource)).apply {
@@ -19,7 +21,6 @@ class PostgresUnitOfWork private constructor(
     }
 
     override fun commit() {
-        val transactionTimer = DbMetrics.transactionDuration.startTimer()
         val commitTimer = DbMetrics.commitDuration.startTimer()
         try {
             session.connection.commit()

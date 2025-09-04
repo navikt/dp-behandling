@@ -4,7 +4,7 @@ import io.prometheus.metrics.core.metrics.Counter
 import io.prometheus.metrics.core.metrics.Gauge
 import io.prometheus.metrics.core.metrics.Histogram
 
-object DbMetrics {
+internal object DbMetrics {
     val commitCounter: Counter =
         Counter
             .builder()
