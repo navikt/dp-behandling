@@ -47,6 +47,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                            a.tittel,
                            a.beskrivelse,
                            a.kan_kvitteres,
+                           a.kan_avbrytes,
 
                            JSON_AGG(
                            JSON_BUILD_OBJECT(
@@ -80,6 +81,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                                 tittel = row.string("tittel"),
                                 beskrivelse = row.string("beskrivelse"),
                                 kanKvitteres = row.boolean("kan_kvitteres"),
+                                kanAvbrytes = row.boolean("kan_avbrytes"),
                             ),
                         historikk = endringerJson.map { it.somHistorikk(kilder) }.toMutableList(),
                     )
@@ -120,8 +122,8 @@ internal class AvklaringRepositoryPostgres private constructor(
                         queryOf(
                             // language=PostgreSQL
                             """
-                            INSERT INTO avklaring (id, behandling_id, kode, tittel, beskrivelse, kan_kvitteres)
-                            VALUES (:avklaring_id, :behandling_id, :kode, :tittel, :beskrivelse, :kanKvitteres)
+                            INSERT INTO avklaring (id, behandling_id, kode, tittel, beskrivelse, kan_kvitteres, kan_avbrytes)
+                            VALUES (:avklaring_id, :behandling_id, :kode, :tittel, :beskrivelse, :kanKvitteres, :kanAvbrytes)
                             ON CONFLICT (id) DO NOTHING
                             """.trimIndent(),
                             mapOf(
@@ -131,6 +133,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                                 "tittel" to avklaringskode.tittel,
                                 "beskrivelse" to avklaringskode.beskrivelse,
                                 "kanKvitteres" to avklaringskode.kanKvitteres,
+                                "kanAvbrytes" to avklaringskode.kanAvbrytes,
                             ),
                         ).asUpdate,
                     )

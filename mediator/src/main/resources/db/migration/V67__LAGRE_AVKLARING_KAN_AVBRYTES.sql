@@ -1,0 +1,2 @@
+ALTER TABLE avklaring
+    ADD COLUMN kan_avbrytes BOOLEAN DEFAULT TRUE;
