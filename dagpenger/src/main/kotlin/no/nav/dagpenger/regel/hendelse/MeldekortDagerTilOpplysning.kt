@@ -31,13 +31,17 @@ fun List<Dag>.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
 
             AktivitetType.Syk,
             AktivitetType.Fravær,
-            -> opplysninger.add(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
+            -> {
+                opplysninger.add(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
+                opplysninger.add(Faktum(Beregning.arbeidstimer, 0.0, gyldighetsperiode, kilde = kilde))
+            }
 
             null -> {
                 opplysninger.add(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde))
                 opplysninger.add(Faktum(Beregning.arbeidstimer, 0.0, gyldighetsperiode, kilde = kilde))
             }
         }
+
         opplysninger.add(Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde))
     }
     return opplysninger.toList()
