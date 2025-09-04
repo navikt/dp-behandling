@@ -17,10 +17,12 @@ fun List<Dag>.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
         val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
 
         val timer = dag.aktiviteter.map { it.timer?.tilTimer ?: Timer(0) }.summer()
-        // TODO: Hva om det er flere aktiviteter?
+        // TODO: Hva om det er flere aktiviteter? Utdanning og arbeid kan kombineres
         val type = dag.aktiviteter.firstOrNull()?.type
         when (type) {
-            AktivitetType.Arbeid -> {
+            AktivitetType.Utdanning,
+            AktivitetType.Arbeid,
+            -> {
                 listOf(
                     opplysninger.add(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde)),
                     opplysninger.add(Faktum(Beregning.arbeidstimer, timer.timer, gyldighetsperiode, kilde = kilde)),
@@ -28,17 +30,12 @@ fun List<Dag>.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
             }
 
             AktivitetType.Syk,
-            AktivitetType.Utdanning,
             AktivitetType.Fravær,
             -> opplysninger.add(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
 
             null -> {
-                opplysninger.add(
-                    Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde),
-                )
-                opplysninger.add(
-                    Faktum(Beregning.arbeidstimer, 0.0, gyldighetsperiode, kilde = kilde),
-                )
+                opplysninger.add(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde))
+                opplysninger.add(Faktum(Beregning.arbeidstimer, 0.0, gyldighetsperiode, kilde = kilde))
             }
         }
         opplysninger.add(Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde))
