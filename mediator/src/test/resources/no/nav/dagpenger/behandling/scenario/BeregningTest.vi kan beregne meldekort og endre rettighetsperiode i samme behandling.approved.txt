@@ -61,5 +61,8 @@ Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=true
 Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: Ferdig
-Har fattet vedtak med utfall=true
+Behandling endret tilstand til: ForslagTilVedtak
+Forslag til vedtak med utfall=true
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Forslag til vedtak med utfall=true
