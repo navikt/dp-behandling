@@ -48,7 +48,7 @@ class BeregnMeldekortHendelse(
                     Faktum(
                         hendelseTypeOpplysningstype,
                         type,
-                        gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
+                        Gyldighetsperiode.kun(skjedde),
                         kilde = Systemkilde(meldingsreferanseId, opprettet),
                     ),
                     Faktum(

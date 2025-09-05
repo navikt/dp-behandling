@@ -12,7 +12,7 @@ object KravPåDagpenger {
         vilkår(
             folketrygden.hjemmel(0, 0, "Krav på dagpenger", "Krav på dagpenger"),
         ) {
-            regel(harLøpendeRett) { somUtgangspunkt(true) }
+            regel(harLøpendeRett) { somUtgangspunkt(false) }
 
             ønsketResultat(harLøpendeRett)
         }
