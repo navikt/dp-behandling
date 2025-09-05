@@ -76,6 +76,7 @@ import no.nav.dagpenger.regel.Behov.SisteAvsluttendeKalenderMåned
 import no.nav.dagpenger.regel.Behov.Svangerskapspenger
 import no.nav.dagpenger.regel.Behov.Sykepenger
 import no.nav.dagpenger.regel.Behov.TarUtdanningEllerOpplæring
+import no.nav.dagpenger.regel.Behov.Uføre
 import no.nav.dagpenger.regel.Behov.Verneplikt
 import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
@@ -854,6 +855,7 @@ internal class PersonMediatorTest {
                 Svangerskapspenger,
                 Foreldrepenger,
                 Opplæringspenger,
+                Uføre,
                 Pleiepenger,
                 BostedslandErNorge,
                 Barnetillegg,
@@ -892,6 +894,7 @@ internal class PersonMediatorTest {
                 Svangerskapspenger,
                 Foreldrepenger,
                 Opplæringspenger,
+                Uføre,
                 Pleiepenger,
                 OppgittAndreYtelserUtenforNav,
                 AndreØkonomiskeYtelser,
@@ -1219,6 +1222,7 @@ internal class PersonMediatorTest {
             Svangerskapspenger,
             Foreldrepenger,
             Opplæringspenger,
+            Uføre,
             Pleiepenger,
             AndreØkonomiskeYtelser,
         )
@@ -1230,6 +1234,7 @@ internal class PersonMediatorTest {
             Svangerskapspenger,
             Foreldrepenger,
             Opplæringspenger,
+            Uføre,
             Pleiepenger,
             AndreØkonomiskeYtelser,
         )

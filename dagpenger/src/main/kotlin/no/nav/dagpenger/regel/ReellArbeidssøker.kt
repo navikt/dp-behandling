@@ -34,15 +34,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.VilligTilEthvertArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.minimumVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.villigTilMinimumArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønsketArbeidstidId
-import no.nav.dagpenger.regel.ReellArbeidssøker.erArbeidsfør
-import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentArbeidsufør
-import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentDeltidssøker
-import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentLokalArbeidssøker
-import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeDeltid
-import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
-import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
-import no.nav.dagpenger.regel.Samordning.uføre
+import no.nav.dagpenger.regel.Samordning.uføretrygd
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 
 object ReellArbeidssøker {
@@ -88,7 +81,7 @@ object ReellArbeidssøker {
             behovId = ØnsketArbeidstid,
             synlig = { it.erSann(kanJobbeDeltid) == false },
         )
-    val minimumVanligArbeidstid = desimaltall(minimumVanligArbeidstidId, "Minimum vanlig arbeidstid", synlig = { it.erSann(uføre) })
+    val minimumVanligArbeidstid = desimaltall(minimumVanligArbeidstidId, "Minimum vanlig arbeidstid", synlig = { it.erSann(uføretrygd) })
     private val villigTilMinimumArbeidstid =
         boolsk(villigTilMinimumArbeidstidId, "Villig til å jobbe minimum arbeidstid", synlig = { it.erSann(kanJobbeDeltid) == false })
 

@@ -159,6 +159,7 @@ internal class Mennesket(
                 Behov.Sykepenger to false,
                 Behov.Omsorgspenger to false,
                 Behov.Svangerskapspenger to false,
+                Behov.Uføre to false,
                 Behov.Foreldrepenger to false,
                 Behov.Opplæringspenger to false,
                 Behov.Pleiepenger to false,

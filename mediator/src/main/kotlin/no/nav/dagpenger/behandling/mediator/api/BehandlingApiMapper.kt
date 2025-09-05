@@ -68,7 +68,6 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
@@ -106,8 +105,8 @@ import no.nav.dagpenger.regel.Samordning.svangerskapspenger
 import no.nav.dagpenger.regel.Samordning.svangerskapspengerDagsats
 import no.nav.dagpenger.regel.Samordning.sykepenger
 import no.nav.dagpenger.regel.Samordning.sykepengerDagsats
-import no.nav.dagpenger.regel.Samordning.uføre
 import no.nav.dagpenger.regel.Samordning.uføreDagsats
+import no.nav.dagpenger.regel.Samordning.uføretrygd
 import no.nav.dagpenger.regel.StreikOgLockout.deltarIStreikOgLockout
 import no.nav.dagpenger.regel.StreikOgLockout.sammeBedriftOgPåvirket
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -507,7 +506,7 @@ internal val redigerbareOpplysninger =
                         pleiepenger,
                         omsorgspenger,
                         opplæringspenger,
-                        uføre,
+                        uføretrygd,
                         foreldrepenger,
                         svangerskapspenger,
                         sykepengerDagsats,

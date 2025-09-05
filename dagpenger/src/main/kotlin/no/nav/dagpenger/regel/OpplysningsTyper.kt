@@ -192,7 +192,7 @@ object OpplysningsTyper {
     val opplæringspengerId = Opplysningstype.Id(UUID.fromString("0194881f-9433-70e9-a85b-c246150c45d0"), Boolsk)
     val foreldrepengerId = Opplysningstype.Id(UUID.fromString("0194881f-9433-70e9-a85b-c246150c45d2"), Boolsk)
     val svangerskapspengerId = Opplysningstype.Id(UUID.fromString("0194881f-9433-70e9-a85b-c246150c45d3"), Boolsk)
-    val uføreId = Opplysningstype.Id(UUID.fromString("0194881f-9433-70e9-a85b-c246150c45d1"), Boolsk)
+    val uføretrygdId = Opplysningstype.Id(UUID.fromString("0194881f-9433-70e9-a85b-c246150c45d1"), Boolsk)
     val antallTimerArbeidstidenSkalSamordnesMotId = Opplysningstype.Id(UUID.fromString("0194881f-9434-79e8-a64d-1a23cc5d86ed"), Desimaltall)
     val samordnetFastsattArbeidstidId = Opplysningstype.Id(UUID.fromString("0194881f-9434-79e8-a64d-1a23cc5d86ee"), Desimaltall)
     val sykepengerDagsatsId = Opplysningstype.Id(UUID.fromString("0194881f-9433-70e9-a85b-c246150c45d4"), Penger)
