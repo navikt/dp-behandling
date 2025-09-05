@@ -454,7 +454,7 @@ internal val redigerbareOpplysninger =
             buildSet {
                 addAll(
                     listOf(
-                        harLøpendeRett,
+                        // harLøpendeRett,
                         prøvingsdato,
                         // 4-2 Opphold
                         oppholdINorge,
