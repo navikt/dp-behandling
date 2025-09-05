@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
-import com.fasterxml.jackson.core.type.TypeReference
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Row
@@ -8,6 +7,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
@@ -41,7 +41,7 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.collections.mapNotNull
+import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
 class OpplysningerRepositoryPostgres : OpplysningerRepository {
     internal companion object {
@@ -49,11 +49,14 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             Opplysningstype.definerteTyper.associateBy { it.id }
         }
         private val logger = KotlinLogging.logger { }
-
         private val kildeRepository = KildeRepository()
 
         fun Session.hentOpplysninger(opplysningerId: UUID) =
             OpplysningRepository(opplysningerId, this).hentOpplysninger().let { Opplysninger.rehydrer(opplysningerId, it) }
+
+        private val serdeBarn = objectMapper.serde<List<Barn>>()
+        private val serdeInntekt = objectMapper.serde<InntektV1>()
+        private val serdePeriode = objectMapper.serde<Periode>()
     }
 
     override fun hentOpplysninger(opplysningerId: UUID) =
@@ -256,16 +259,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 Heltall -> row.int("verdi_heltall")
                 ULID -> Ulid(row.string("verdi_string"))
                 Penger -> Beløp(row.string("verdi_string"))
-                BarnDatatype -> BarnListe(objectMapper.readValue(row.string("verdi_jsonb"), object : TypeReference<List<Barn>>() {})) as T
-                InntektDataType ->
-                    Inntekt(
-                        row.binaryStream("verdi_jsonb").use {
-                            objectMapper.readValue(it, no.nav.dagpenger.inntekt.v1.Inntekt::class.java)
-                        },
-                    )
-
                 Tekst -> row.string("verdi_string")
-                PeriodeDataType -> objectMapper.readValue(row.string("verdi_jsonb"), Periode::class.java) as T
+                BarnDatatype -> BarnListe(serdeBarn.fromJson(row.string("verdi_jsonb")))
+                InntektDataType -> Inntekt(row.binaryStream("verdi_jsonb").use { serdeInntekt.fromJson(it) })
+                PeriodeDataType -> serdePeriode.fromJson(row.string("verdi_jsonb"))
             } as T
 
         fun lagreOpplysninger(
@@ -440,13 +437,14 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             Heltall -> Pair("verdi_heltall", verdi)
             ULID -> Pair("verdi_string", (verdi as Ulid).verdi)
             Penger -> Pair("verdi_string", (verdi as Beløp).toString())
+            Tekst -> Pair("verdi_string", verdi)
             BarnDatatype ->
                 Pair(
                     "verdi_jsonb",
                     (verdi as BarnListe).let {
                         PGobject().apply {
                             type = "jsonb"
-                            value = objectMapper.writeValueAsString(it)
+                            value = serdeBarn.toJson(it)
                         }
                     },
                 )
@@ -457,19 +455,18 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     (verdi as Inntekt).verdi.let {
                         PGobject().apply {
                             type = "jsonb"
-                            value = objectMapper.writeValueAsString(it)
+                            value = serdeInntekt.toJson(it)
                         }
                     },
                 )
 
-            Tekst -> Pair("verdi_string", verdi)
             PeriodeDataType ->
                 Pair(
                     "verdi_jsonb",
                     (verdi as Periode).let {
                         PGobject().apply {
                             type = "jsonb"
-                            value = objectMapper.writeValueAsString(it)
+                            value = serdePeriode.toJson(it)
                         }
                     },
                 )
