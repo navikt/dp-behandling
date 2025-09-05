@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectReader
 import com.fasterxml.jackson.databind.ObjectWriter
+import no.nav.dagpenger.behandling.objectMapper
 import java.io.InputStream
 
 class JsonSerde<T>(
@@ -21,8 +22,8 @@ class JsonSerde<T>(
             val type = object : TypeReference<T>() {}.type
             val javaType = typeFactory.constructType(type)
             return JsonSerde(
-                reader = readerFor(javaType),
-                writer = writerFor(javaType),
+                reader = objectMapper.readerFor(javaType),
+                writer = objectMapper.writerFor(javaType),
             )
         }
     }
