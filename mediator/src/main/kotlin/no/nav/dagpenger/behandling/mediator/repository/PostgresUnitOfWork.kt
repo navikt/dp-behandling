@@ -35,6 +35,15 @@ class PostgresUnitOfWork private constructor(
 
     override fun rollback() = rollbackQuietly()
 
+    override fun <T> inTransaction(block: (Session) -> T): T =
+        try {
+            block(session)
+        } catch (e: Exception) {
+            logger.error(e) { "Transaksjonen feilet, ruller tilbake" }
+            rollbackQuietly()
+            throw e
+        }
+
     private fun rollbackQuietly() {
         val timer = DbMetrics.transactionDuration.startTimer()
         try {
@@ -48,13 +57,4 @@ class PostgresUnitOfWork private constructor(
             session.close()
         }
     }
-
-    override fun <T> inTransaction(block: (Session) -> T): T =
-        try {
-            block(session)
-        } catch (e: Exception) {
-            logger.error(e) { "Transaksjonen feilet, ruller tilbake" }
-            rollbackQuietly()
-            throw e
-        }
 }

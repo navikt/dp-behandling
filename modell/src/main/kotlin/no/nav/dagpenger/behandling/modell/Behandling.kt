@@ -99,11 +99,6 @@ class Behandling private constructor(
 
     fun aktiveAvklaringer() = avklaringer.måAvklares()
 
-    private fun erAutomatiskBehandlet() =
-        avklaringer().none { it.løstAvSaksbehandler() } &&
-            opplysninger.kunEgne.somListe().none { it.kilde is Saksbehandlerkilde } &&
-            !godkjent.erUtført
-
     fun kreverTotrinnskontroll() = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
     companion object {
@@ -941,6 +936,14 @@ class Behandling private constructor(
         return tilstand(Ferdig(), hendelse)
     }
 
+    private fun erAutomatiskBehandlet(): Boolean {
+        val ingenAvklaringerLøstAvSaksbehandler = avklaringer().none { it.løstAvSaksbehandler() }
+        val ingenOpplysningerFraSaksbehandler = opplysninger.kunEgne.somListe().none { it.kilde is Saksbehandlerkilde }
+        val ikkeGodkjentUtført = !godkjent.erUtført
+
+        return ingenAvklaringerLøstAvSaksbehandler && ingenOpplysningerFraSaksbehandler && ikkeGodkjentUtført
+    }
+
     private fun tilstand(
         nyTilstand: BehandlingTilstand,
         hendelse: PersonHendelse,
@@ -957,7 +960,7 @@ class Behandling private constructor(
         tilstand.entering(this, hendelse)
     }
 
-    fun basertPåBehandlinger() = basertPå?.behandlingId
+    private fun basertPåBehandlinger() = basertPå?.behandlingId
 
     val vedtakopplysninger
         get() =
