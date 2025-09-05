@@ -17,7 +17,7 @@ class PostgresUnitOfWork private constructor(
                 DbMetrics.activeTransactions.inc()
             }
 
-        val logger = KotlinLogging.logger {}
+        private val logger = KotlinLogging.logger {}
     }
 
     override fun commit() {
