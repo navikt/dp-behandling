@@ -61,6 +61,7 @@ Antall arbeidsdager per år
 Pleiepenger dagsats
 Omsorgspenger dagsats
 Opplæringspenger dagsats
+Uføretrygd etter lovens kapittel 12
 Uføre dagsats
 Sum hvis Uføre ikke skal samordnes
 Foreldrepenger dagsats
@@ -89,6 +90,7 @@ Oppfyller kravet til medlemskap
 Oppjustert inntekt
 6 ganger grunnbeløp
 Grunnlag for gis ved verneplikt
+Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
 Brukeren er ikke påvirket av streik eller lock-out
 Samordnet fastsatt arbeidstid
 Krav til prosentvis tap av arbeidstid
@@ -98,6 +100,7 @@ Oppfyller krav til ikke utestengt
 Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
+Uførebeløp som skal samordnes
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
@@ -147,18 +150,19 @@ Har barnetillegg
 Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
 Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
 Sykepenger dagsats
+Sum andre ytelser
+Samordnet dagsats er større enn 0
+Samordnet dagsats uten barnetillegg
+Utfall etter samordning
 Sykepenger etter lovens kapittel 8
 Omsorgspenger etter lovens kapittel 9
 Svangerskapspenger etter lovens kapittel 14
-Uføretrygd etter lovens kapittel 12
 Foreldrepenger etter lovens kapittel 14
 Opplæringspenger etter lovens kapittel 9
 Pleiepenger etter lovens kapittel 9
 Har krav på lønn fra arbeidsgiver
-Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
-Oppfyller vilkåret til tap av arbeidsinntekt
-Uførebeløp som skal samordnes
 Medlem har reduserte ytelser fra folketrygden (Samordning)
+Oppfyller vilkåret til tap av arbeidsinntekt
 Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid
 Har avkortet grunnlaget i periode 1
 Har avkortet grunnlaget i periode 2
@@ -167,7 +171,6 @@ Brukt beregningsregel
 Utbetalt inntekt periode 1
 Utbetalt inntekt periode 2
 Utbetalt inntekt periode 3
-Sum andre ytelser
 Antall arbeidsdager per uke
 Hvor mange prosent av G skal brukes som terskel ved samordning
 Pensjon fra en offentlig tjenestepensjonsordning beløp
@@ -193,28 +196,25 @@ Mottar etterlønn
 Mottar garantilott fra Garantikassen for fiskere.
 Periode som gis ved verneplikt
 Har avkortet grunnlag
-Samordnet dagsats uten barnetillegg
+Samordnet ukessats uten barnetillegg
 Beløp tilsvarende nedre terskel av G
 Sum av ytelser utenfor folketrygden
 Avrundet ukessats med barnetillegg før samordning
 Terskel for 12 måneder
 Terskel for 36 måneder
-Samordnet dagsats er større enn 0
-Samordnet ukessats uten barnetillegg
-Over terskel for 12 måneder
-Over terskel for 36 måneder
-Utfall etter samordning
 Minste mulige ukessats som som kan brukes
 Ukessats trukket ned for ytelser utenfor folketrygden
+Over terskel for 12 måneder
+Over terskel for 36 måneder
+Samordnet ukessats med ytelser utenfor folketrygden
 Stønadsuker ved siste 12 måneder
 Stønadsuker ved siste 36 måneder
-Samordnet ukessats med ytelser utenfor folketrygden
-Antall stønadsuker
 Dagsats uten barnetillegg samordnet
-Antall stønadsuker (stønadsperiode)
-Antall stønadsdager
+Antall stønadsuker
 Samordnet dagsats med barnetillegg
 Har samordnet
+Antall stønadsuker (stønadsperiode)
+Antall stønadsdager
 Dagsats med barnetillegg etter samordning og 90 % regel
 Ukessats med barnetillegg etter samordning
 Tre ganger dagsats

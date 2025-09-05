@@ -27,7 +27,6 @@ Laget avklaring om BeregnetArbeidstid
 Behov:
 - BostedslandErNorge
 - Barnetillegg
-- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -80,7 +79,6 @@ Laget avklaring om BeregnetArbeidstid
 Behov:
 - BostedslandErNorge
 - Barnetillegg
-- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger

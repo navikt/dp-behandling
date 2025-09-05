@@ -38,7 +38,6 @@ import no.nav.dagpenger.regel.Behov.Svangerskapspenger
 import no.nav.dagpenger.regel.Behov.Sykepenger
 import no.nav.dagpenger.regel.Behov.Søknadsdato
 import no.nav.dagpenger.regel.Behov.TarUtdanningEllerOpplæring
-import no.nav.dagpenger.regel.Behov.Uføre
 import no.nav.dagpenger.regel.Behov.Verneplikt
 import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
@@ -356,7 +355,6 @@ class TestPerson(
                 Sykepenger to false,
                 Omsorgspenger to false,
                 Svangerskapspenger to false,
-                Uføre to false,
                 Foreldrepenger to false,
                 Opplæringspenger to false,
                 Pleiepenger to false,

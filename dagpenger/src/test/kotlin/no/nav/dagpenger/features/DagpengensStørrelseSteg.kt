@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Samordning.uføretrygd
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -21,10 +20,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.ukessats
 class DagpengensStørrelseSteg : No {
     private val fraDato = 10.mai(2024)
     private val regelsett = RegelverkDagpenger.regelsettFor(ukessats)
-    private val opplysninger: Opplysninger =
-        Opplysninger().apply {
-            leggTil(Faktum(uføretrygd, false))
-        }
+    private val opplysninger: Opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 
     @BeforeStep

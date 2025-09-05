@@ -110,7 +110,7 @@ class SamordningSteg : No {
         Gitt("søker har redusert uføre {boolsk}") { uføre: Boolean ->
             opplysninger
                 .leggTil(
-                    Faktum(Samordning.uføretrygd, uføre),
+                    Faktum(Samordning.uføre, uføre),
                 ).also {
                     regelkjøring.evaluer()
                 }

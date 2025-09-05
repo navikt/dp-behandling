@@ -53,7 +53,6 @@ Barn
 Sykepenger etter lovens kapittel 8
 Omsorgspenger etter lovens kapittel 9
 Svangerskapspenger etter lovens kapittel 14
-Uføretrygd etter lovens kapittel 12
 Foreldrepenger etter lovens kapittel 14
 Opplæringspenger etter lovens kapittel 9
 Pleiepenger etter lovens kapittel 9
@@ -84,7 +83,7 @@ Sykepenger dagsats
 Pleiepenger dagsats
 Omsorgspenger dagsats
 Opplæringspenger dagsats
-Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
+Uføretrygd etter lovens kapittel 12
 Uføre dagsats
 Sum hvis Uføre ikke skal samordnes
 Foreldrepenger dagsats
@@ -118,8 +117,7 @@ Oppjustert inntekt
 6 ganger grunnbeløp
 Grunnlag for gis ved verneplikt
 Sum av barnetillegg
-Uførebeløp som skal samordnes
-Medlem har reduserte ytelser fra folketrygden (Samordning)
+Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
 Brukeren er ikke påvirket av streik eller lock-out
 Samordnet fastsatt arbeidstid
 Krav til prosentvis tap av arbeidstid
@@ -131,13 +129,15 @@ Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
 Grunnlag for verneplikt hvis kravet er oppfylt
-Sum andre ytelser
+Uførebeløp som skal samordnes
 Har barnetillegg
+Medlem har reduserte ytelser fra folketrygden (Samordning)
 Oppfyller kravet på unntak for utdanning eller opplæring
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2
 Avkortet inntektperiode 3
+Sum andre ytelser
 Oppfyller krav til utdanning eller opplæring
 Inntekt siste 36 måneder
 Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder

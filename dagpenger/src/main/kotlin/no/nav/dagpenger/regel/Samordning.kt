@@ -43,7 +43,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.sykepengerDagsatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.sykepengerId
 import no.nav.dagpenger.regel.OpplysningsTyper.uføreBeløpSomSkalSamordnesId
 import no.nav.dagpenger.regel.OpplysningsTyper.uføreDagsatsId
-import no.nav.dagpenger.regel.OpplysningsTyper.uføretrygdId
+import no.nav.dagpenger.regel.OpplysningsTyper.uføreId
 import no.nav.dagpenger.regel.OpplysningsTyper.utfallEtterSamordningId
 import no.nav.dagpenger.regel.Samordning.skalSamordnes
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -66,13 +66,13 @@ object Samordning {
             "Opplæringspenger etter lovens kapittel 9",
             behovId = Opplæringspenger,
         )
-    val uføretrygd = Opplysningstype.boolsk(uføretrygdId, "Uføretrygd etter lovens kapittel 12", behovId = Uføre)
+    val uføre = Opplysningstype.boolsk(uføreId, "Uføretrygd etter lovens kapittel 12", behovId = Uføre)
     val skalUføreSamordnes =
         Opplysningstype.boolsk(
             skalUføreSamordnesId,
             "Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår",
             synlig = {
-                it.erSann(uføretrygd)
+                it.erSann(uføre)
             },
         )
     val uføreBeløpSomSkalSamordnes =
@@ -110,7 +110,7 @@ object Samordning {
         Opplysningstype.beløp(
             uføreDagsatsId,
             "Uføre dagsats",
-            synlig = { it.erSann(uføretrygd) && it.erSann(skalUføreSamordnes) },
+            synlig = { it.erSann(uføre) && it.erSann(skalUføreSamordnes) },
         )
     val foreldrepengerDagsats =
         Opplysningstype.beløp(
@@ -176,8 +176,8 @@ object Samordning {
             regel(svangerskapspenger) { innhentMed(prøvingsdato) }
 
             // TODO: Hent uførestrygd og barnepenger fra pesys
-            regel(uføretrygd) { innhentMed(prøvingsdato) }
-            regel(skalUføreSamordnes) { erSann(uføretrygd) }
+            regel(uføre) { somUtgangspunkt(false) }
+            regel(skalUføreSamordnes) { erSann(uføre) }
 
             regel(samordnetArbeidstid) { somUtgangspunkt(0.0) }
             regel(samordnetBeregnetArbeidstid) { substraksjonTilNull(beregnetArbeidstid, samordnetArbeidstid) }
