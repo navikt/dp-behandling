@@ -282,9 +282,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         private fun lagreUtledetAv(opplysninger: List<Opplysning<*>>) {
             val utlededeOpplysninger = opplysninger.filterNot { it.utledetAv == null }
             batchUtledning(utlededeOpplysninger).run(session)
-            utlededeOpplysninger.forEach { opplysning ->
-                batchUtledetAv(opplysning).run(session)
-            }
+            batchUtledetAv(utlededeOpplysninger).run(session)
         }
 
         @WithSpan
@@ -307,7 +305,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             )
 
         @WithSpan
-        private fun batchUtledetAv(opplysning: Opplysning<*>) =
+        private fun batchUtledetAv(opplysninger: List<Opplysning<*>>) =
             BatchStatement(
                 // language=PostgreSQL
                 """
@@ -315,11 +313,13 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 VALUES (:opplysningId, :utledetAv)
                 ON CONFLICT DO NOTHING
                 """.trimIndent(),
-                opplysning.utledetAv!!.opplysninger.map {
-                    mapOf(
-                        "opplysningId" to opplysning.id,
-                        "utledetAv" to it.id,
-                    )
+                opplysninger.flatMap { opplysning ->
+                    opplysning.utledetAv!!.opplysninger.map {
+                        mapOf(
+                            "opplysningId" to opplysning.id,
+                            "utledetAv" to it.id,
+                        )
+                    }
                 },
             )
 
