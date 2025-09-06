@@ -33,6 +33,8 @@ dependencies {
     implementation("io.ktor:ktor-server-swagger:${libs.versions.ktor.get()}")
     implementation("com.github.navikt.tbd-libs:naisful-app:2025.08.16-09.21-71db7cad")
 
+    implementation("com.fasterxml.jackson.module:jackson-module-afterburner:2.20.0")
+
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
 
     testImplementation(libs.rapids.and.rivers.test)
