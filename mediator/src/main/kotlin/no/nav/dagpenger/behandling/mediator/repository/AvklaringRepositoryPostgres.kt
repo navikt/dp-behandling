@@ -9,6 +9,7 @@ import no.nav.dagpenger.avklaring.Avklaring.Endring.Avklart
 import no.nav.dagpenger.avklaring.Avklaring.Endring.UnderBehandling
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryObserver.NyAvklaringHendelse
+import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Avklaringkode
@@ -38,44 +39,43 @@ internal class AvklaringRepositoryPostgres private constructor(
 
     override fun hentAvklaringer(behandlingId: UUID) =
         sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    SELECT a.id                                               AS avklaring_id,
-                           a.kode,
-                           a.tittel,
-                           a.beskrivelse,
-                           a.kan_kvitteres,
-                           a.kan_avbrytes,
+            val avklaringer =
+                session.run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        SELECT a.id                                               AS avklaring_id,
+                               a.kode,
+                               a.tittel,
+                               a.beskrivelse,
+                               a.kan_kvitteres,
+                               a.kan_avbrytes,
 
-                           JSON_AGG(
-                           JSON_BUILD_OBJECT(
-                                   'endring_id', ae.endring_id,
-                                   'endret', ae.endret,
-                                   'type', ae.type,
-                                   'kilde_id', ae.kilde_id,
-                                   'begrunnelse', ae.begrunnelse
-                           )
-                           ORDER BY ae.endret
-                                   ) FILTER (WHERE ae.endring_id IS NOT NULL) AS endringer
+                               JSON_AGG(
+                               JSON_BUILD_OBJECT(
+                                       'endring_id', ae.endring_id,
+                                       'endret', ae.endret,
+                                       'type', ae.type,
+                                       'kilde_id', ae.kilde_id,
+                                       'begrunnelse', ae.begrunnelse
+                               )
+                               ORDER BY ae.endret
+                                       ) FILTER (WHERE ae.endring_id IS NOT NULL) AS endringer
 
-                    FROM avklaring a
-                             LEFT JOIN avklaring_endring ae ON a.id = ae.avklaring_id
-                    WHERE a.behandling_id = :behandling_id
-                    GROUP BY a.id
-                    """.trimIndent(),
-                    mapOf(
-                        "behandling_id" to behandlingId,
-                    ),
-                ).map { row ->
-                    val endringerJson = objectMapper.readValue<List<RawEndringJson>>(row.stringOrNull("endringer") ?: "[]")
-                    val kildeIder = endringerJson.mapNotNull { it.kilde_id }
-                    val kilder = kildeRepository.hentKilder(kildeIder, session)
-
-                    Avklaring.rehydrer(
-                        id = row.uuid("avklaring_id"),
-                        kode =
+                        FROM avklaring a
+                                 LEFT JOIN avklaring_endring ae ON a.id = ae.avklaring_id
+                        WHERE a.behandling_id = :behandling_id
+                        GROUP BY a.id
+                        """.trimIndent(),
+                        mapOf(
+                            "behandling_id" to behandlingId,
+                        ),
+                    ).map { row ->
+                        // val endringerJson = endringSerde.fromJson(row.stringOrNull("endringer") ?: "[]")
+                        val endringerJson = objectMapper.readValue<List<RawEndringJson>>(row.stringOrNull("endringer") ?: "[]")
+                        Triple(
+                            row.uuid("avklaring_id"),
+                            endringerJson,
                             Avklaringkode(
                                 kode = row.string("kode"),
                                 tittel = row.string("tittel"),
@@ -83,10 +83,25 @@ internal class AvklaringRepositoryPostgres private constructor(
                                 kanKvitteres = row.boolean("kan_kvitteres"),
                                 kanAvbrytes = row.boolean("kan_avbrytes"),
                             ),
-                        historikk = endringerJson.map { it.somHistorikk(kilder) }.toMutableList(),
-                    )
-                }.asList,
-            )
+                        )
+                    }.asList,
+                )
+
+            val alleKildeIder =
+                avklaringer
+                    .flatMap { (_, endringerJson, _) ->
+                        endringerJson.mapNotNull { it.kilde_id }
+                    }.distinct()
+
+            val kilder = kildeRepository.hentKilder(alleKildeIder, session)
+
+            avklaringer.map { (avklaringId, endringerJson, kode) ->
+                Avklaring.rehydrer(
+                    id = avklaringId,
+                    kode = kode,
+                    historikk = endringerJson.map { it.somHistorikk(kilder) }.toMutableList(),
+                )
+            }
         }
 
     private data class RawEndringJson(
@@ -210,6 +225,10 @@ internal class AvklaringRepositoryPostgres private constructor(
         UnderBehandling,
         Avklart,
         Avbrutt,
+    }
+
+    private companion object {
+        val endringSerde = JsonSerde.mapper.serde<List<RawEndringJson>>()
     }
 }
 
