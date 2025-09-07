@@ -28,13 +28,6 @@ internal class AvklaringRepositoryPostgres private constructor(
         observatører.add(observer)
     }
 
-    override fun lagreAvklaringer(
-        behandling: Behandling,
-        unitOfWork: UnitOfWork<*>,
-    ) {
-        lagre(behandling, unitOfWork as PostgresUnitOfWork)
-    }
-
     override fun hentAvklaringer(behandlingId: UUID) =
         sessionOf(dataSource).use { session ->
             val avklaringer =
@@ -101,6 +94,100 @@ internal class AvklaringRepositoryPostgres private constructor(
             }
         }
 
+    override fun lagreAvklaringer(
+        behandling: Behandling,
+        unitOfWork: UnitOfWork<*>,
+    ) {
+        lagre(behandling, unitOfWork as PostgresUnitOfWork)
+    }
+
+    private fun lagre(
+        behandling: Behandling,
+        unitOfWork: PostgresUnitOfWork,
+    ) {
+        val avklaringer = behandling.avklaringer()
+        val nyeAvklaringer = mutableListOf<Avklaring>()
+
+        unitOfWork.inTransaction { tx ->
+            val nyeAvklaringerIder: List<Int> =
+                BatchStatement(
+                    // language=PostgreSQL
+                    """
+                    INSERT INTO avklaring (id, behandling_id, kode, tittel, beskrivelse, kan_kvitteres, kan_avbrytes)
+                    VALUES (:avklaring_id, :behandling_id, :kode, :tittel, :beskrivelse, :kanKvitteres, :kanAvbrytes)
+                    ON CONFLICT (id) DO NOTHING
+                    """.trimIndent(),
+                    avklaringer.map { avklaring ->
+                        val avklaringskode = avklaring.kode
+                        mapOf(
+                            "avklaring_id" to avklaring.id,
+                            "behandling_id" to behandling.behandlingId,
+                            "kode" to avklaringskode.kode,
+                            "tittel" to avklaringskode.tittel,
+                            "beskrivelse" to avklaringskode.beskrivelse,
+                            "kanKvitteres" to avklaringskode.kanKvitteres,
+                            "kanAvbrytes" to avklaringskode.kanAvbrytes,
+                        )
+                    },
+                ).run(tx)
+
+            nyeAvklaringerIder.forEachIndexed { idx, count ->
+                if (count != 0) {
+                    nyeAvklaringer.add(avklaringer.elementAt(idx))
+                }
+            }
+
+            val alleKilder =
+                avklaringer
+                    .flatMap { it.endringer.filterIsInstance<Avklart>().map { it.avklartAv } }
+                    .distinctBy { it.id }
+
+            if (alleKilder.isNotEmpty()) {
+                kildeRepository.lagreKilder(alleKilder, tx)
+            }
+
+            val alleEndringer =
+                avklaringer.flatMap { avklaring ->
+                    avklaring.endringer.map { endring ->
+                        val kildeId = (endring as? Avklart)?.avklartAv?.id
+                        mapOf(
+                            "endring_id" to endring.id,
+                            "avklaring_id" to avklaring.id,
+                            "endret" to endring.endret,
+                            "endring_type" to
+                                when (endring) {
+                                    is UnderBehandling -> "UnderBehandling"
+                                    is Avklart -> "Avklart"
+                                    is Avbrutt -> "Avbrutt"
+                                },
+                            "kilde_id" to kildeId,
+                            "begrunnelse" to (endring as? Avklart)?.begrunnelse,
+                        )
+                    }
+                }
+
+            if (alleEndringer.isNotEmpty()) {
+                BatchStatement(
+                    // language=PostgreSQL
+                    """
+                    INSERT INTO avklaring_endring (endring_id, avklaring_id, endret, type, kilde_id, begrunnelse)
+                    VALUES (:endring_id, :avklaring_id, :endret, :endring_type, :kilde_id, :begrunnelse)
+                    ON CONFLICT DO NOTHING
+                    """.trimIndent(),
+                    alleEndringer,
+                ).run(tx)
+            }
+        }
+
+        nyeAvklaringer.forEach {
+            emitNyAvklaring(
+                behandling.behandler.ident,
+                behandling.toSpesifikkKontekst(),
+                it,
+            )
+        }
+    }
+
     private data class RawEndringJson(
         val endring_id: UUID,
         val endret: LocalDateTime,
@@ -117,89 +204,6 @@ internal class AvklaringRepositoryPostgres private constructor(
                     Avklart(endring_id, kilde, begrunnelse ?: "", endret)
                 }
             }
-    }
-
-    private fun lagre(
-        behandling: Behandling,
-        unitOfWork: PostgresUnitOfWork,
-    ) {
-        val avklaringer = behandling.avklaringer()
-        val nyeAvklaringer = mutableListOf<Avklaring>()
-
-        unitOfWork.inTransaction { tx ->
-            avklaringer.forEach { avklaring ->
-                val avklaringskode = avklaring.kode
-                val lagret =
-                    tx.run(
-                        queryOf(
-                            // language=PostgreSQL
-                            """
-                            INSERT INTO avklaring (id, behandling_id, kode, tittel, beskrivelse, kan_kvitteres, kan_avbrytes)
-                            VALUES (:avklaring_id, :behandling_id, :kode, :tittel, :beskrivelse, :kanKvitteres, :kanAvbrytes)
-                            ON CONFLICT (id) DO NOTHING
-                            """.trimIndent(),
-                            mapOf(
-                                "avklaring_id" to avklaring.id,
-                                "behandling_id" to behandling.behandlingId,
-                                "kode" to avklaringskode.kode,
-                                "tittel" to avklaringskode.tittel,
-                                "beskrivelse" to avklaringskode.beskrivelse,
-                                "kanKvitteres" to avklaringskode.kanKvitteres,
-                                "kanAvbrytes" to avklaringskode.kanAvbrytes,
-                            ),
-                        ).asUpdate,
-                    )
-
-                val endringerLagret =
-                    avklaring.endringer.map { endring ->
-                        val kildeId =
-                            when (endring) {
-                                is Avklart -> {
-                                    endring.avklartAv.let { kilde ->
-                                        kildeRepository.lagreKilde(kilde, tx)
-                                        kilde.id
-                                    }
-                                }
-
-                                else -> null
-                            }
-
-                        tx.run(
-                            queryOf(
-                                // language=PostgreSQL
-                                """
-                                INSERT INTO avklaring_endring (endring_id, avklaring_id, endret, type, kilde_id, begrunnelse)
-                                VALUES (:endring_id, :avklaring_id, :endret, :endring_type, :kilde_id, :begrunnelse)
-                                ON CONFLICT DO NOTHING
-                                """.trimIndent(),
-                                mapOf(
-                                    "endring_id" to endring.id,
-                                    "avklaring_id" to avklaring.id,
-                                    "endret" to endring.endret,
-                                    "endring_type" to
-                                        when (endring) {
-                                            is UnderBehandling -> "UnderBehandling"
-                                            is Avklart -> "Avklart"
-                                            is Avbrutt -> "Avbrutt"
-                                        },
-                                    "kilde_id" to kildeId,
-                                    "begrunnelse" to (endring as? Avklart)?.begrunnelse,
-                                ),
-                            ).asUpdate,
-                        )
-                    }
-
-                if (lagret != 0) nyeAvklaringer.add(avklaring)
-                // if (endringerLagret.any { it == 1 }) TODO("Avklaringen er endret")
-            }
-        }
-        nyeAvklaringer.forEach {
-            emitNyAvklaring(
-                behandling.behandler.ident,
-                behandling.toSpesifikkKontekst(),
-                it,
-            )
-        }
     }
 
     private fun emitNyAvklaring(
