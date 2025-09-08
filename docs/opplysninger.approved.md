@@ -248,3 +248,5 @@ Dette er opplysninger som blir brukt av regelverket.
 |01973a27-d8b3-7ffd-a81a-a3826963b079|Forbrukt egenandel|Forbrukt egenandel|Heltall|int|
 |01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Skal kravet til verneplikt vurderes|Boolsk|boolean|
 |01990a09-0eab-7957-b88f-14484a50e194|Har løpende rett på dagpenger|Har løpende rett på dagpenger|Boolsk|boolean|
+|01992934-66e4-7606-bdd3-c6c9dd420ffd|Antall dager som er forbrukt|Antall dager som er forbrukt|Heltall|int|
+|01992956-e349-76b1-8f68-c9d481df3a32|Antall dager som gjenstår|Antall dager som gjenstår|Heltall|int|
