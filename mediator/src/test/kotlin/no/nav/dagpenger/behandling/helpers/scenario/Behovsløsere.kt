@@ -56,7 +56,9 @@ internal class Behovsløsere(
         return sisteMelding
     }
 
-    fun sisteKlumpen(): JsonNode = rapid.inspektør.sisteMelding("klumpen_er_laget")
+    fun sisteBehandlingsresultatForslag(): JsonNode = rapid.inspektør.sisteMelding("forslag_til_behandlingsresultat")
+
+    fun sisteBehandlingsresultat(): JsonNode = rapid.inspektør.sisteMelding("behandlingsresultat")
 
     fun løsningFor(
         opplysning: String,

@@ -6,8 +6,8 @@ import io.ktor.server.application.Application
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.db.Postgres
+import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.ForslagAssertions
-import no.nav.dagpenger.behandling.helpers.scenario.assertions.KlumpenAssertions
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
@@ -98,8 +98,12 @@ internal class SimulertDagpengerSystem(
         ForslagAssertions(behovsløsere.sisteVedtak()).block()
     }
 
-    fun klumpen(block: KlumpenAssertions.() -> Unit) {
-        KlumpenAssertions(behovsløsere.sisteKlumpen()).block()
+    fun behandlingsresultatForslag(block: BehandlingsresultatAssertions.() -> Unit) {
+        BehandlingsresultatAssertions(behovsløsere.sisteBehandlingsresultatForslag()).block()
+    }
+
+    fun behandlingsresultat(block: BehandlingsresultatAssertions.() -> Unit) {
+        BehandlingsresultatAssertions(behovsløsere.sisteBehandlingsresultat()).block()
     }
 
     fun VedtakDTO.harOpplysning(opplysningId: UUID): Boolean {
@@ -155,7 +159,8 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
             "behandling_endret_tilstand" -> meldinger.add("Behandling endret tilstand til: ${melding["gjeldendeTilstand"].asText()}")
             "forslag_til_vedtak" -> meldinger.add("Forslag til vedtak med utfall=${melding["fastsatt"]["utfall"].asBoolean()}")
             "vedtak_fattet" -> meldinger.add("Har fattet vedtak med utfall=${melding["fastsatt"]["utfall"].asBoolean()}")
-            "klumpen_er_laget" -> {}
+            "forslag_til_behandlingsresultat" -> {}
+            "behandlingsresultat" -> {}
 
             else -> meldinger.add("melding: ${melding["@event_name"].asText()}")
         }

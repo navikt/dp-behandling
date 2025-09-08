@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import java.time.LocalDate
 import java.util.UUID
 
-internal class KlumpenAssertions(
+internal class BehandlingsresultatAssertions(
     private val klump: JsonNode,
 ) {
     val rettighetsperioder: List<Rettighetsperiode> = objectMapper.treeToValue(klump["rettighetsperioder"])

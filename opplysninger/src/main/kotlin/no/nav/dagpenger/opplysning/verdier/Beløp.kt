@@ -6,15 +6,17 @@ import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
 import javax.money.Monetary
+import javax.money.Monetary.getCurrency
+import javax.money.MonetaryAmount
 import javax.money.MonetaryContextBuilder
 import javax.money.NumberValue
 import javax.money.RoundingQueryBuilder
 import javax.money.convert.MonetaryConversions
 
 class Beløp private constructor(
-    private val verdi: Money,
+    private val verdi: MonetaryAmount,
 ) : Comparable<Beløp> {
-    constructor(verdi: String) : this(Money.parse(verdi))
+    constructor(verdi: String) : this(fastParse(verdi))
     constructor(verdi: Double) : this(BigDecimal.valueOf(verdi))
     constructor(verdi: Int) : this(verdi.toBigDecimal())
     constructor(verdi: BigDecimal) : this(
@@ -77,6 +79,14 @@ class Beløp private constructor(
     }
 
     private companion object {
+        private fun fastParse(verdi: String): Money {
+            val parts = verdi.trim().split(" ")
+            require(parts.size == 2) { "Invalid format: $verdi" }
+            val currency = getCurrency(parts[0]) // cached lookup
+            val amount = BigDecimal(parts[1])
+            return Money.of(amount, currency)
+        }
+
         private const val DECIMAL_PRESISJON = 20
         private val ører =
             Monetary.getRounding(

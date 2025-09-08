@@ -52,7 +52,7 @@ class BeregningTest {
                 // Systemet kjører beregningsbatchen
                 meldekortBatch(true)
 
-                klumpen {
+                behandlingsresultatForslag {
                     with(opplysninger(Beregning.forbruk)) {
                         this shouldHaveSize 14
 
@@ -71,7 +71,7 @@ class BeregningTest {
                 meldekortBatch()
 
                 // Vi lager et forslag om beregning for hele meldeperioden
-                klumpen {
+                behandlingsresultatForslag {
                     with(opplysninger(Beregning.forbruk)) {
                         this shouldHaveSize 28
 
@@ -93,7 +93,7 @@ class BeregningTest {
                 saksbehandler.endreOpplysning(harLøpendeRett, false, "", Gyldighetsperiode(8.juli(2018)))
 
                 // Verifiser at behandlingen nå bare beregner et subset av meldeperioden
-                klumpen {
+                behandlingsresultatForslag {
                     with(opplysninger(harLøpendeRett)) {
                         this shouldHaveSize 2
                         this.first().gyldigFraOgMed shouldBe 21.juni(2018)

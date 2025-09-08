@@ -23,7 +23,7 @@ class OpplysningsperioderScenarioTest {
             person.søkDagpenger(21.juni(2018))
             behovsløsere.løsTilForslag()
 
-            klumpen {
+            behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder[0].gyldigFraOgMed shouldBe null
                 perioder[0].gyldigTilOgMed shouldBe null
@@ -34,7 +34,7 @@ class OpplysningsperioderScenarioTest {
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode())
 
             // Assert at vi har endret verdi
-            klumpen {
+            behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder shouldHaveSize 1
                 perioder[0].gyldigFraOgMed shouldBe null
@@ -53,7 +53,7 @@ class OpplysningsperioderScenarioTest {
             behovsløsere.løsTilForslag()
 
             var opprinneligId: UUID? = null
-            klumpen {
+            behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder[0].gyldigFraOgMed shouldBe null
                 perioder[0].gyldigTilOgMed shouldBe null
@@ -66,7 +66,7 @@ class OpplysningsperioderScenarioTest {
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode(26.juni(2018)))
 
             // Assert at vi ikke har lagt til noen nye perioder
-            klumpen {
+            behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder shouldHaveSize 1
                 perioder[0].gyldigFraOgMed shouldBe null
@@ -82,7 +82,7 @@ class OpplysningsperioderScenarioTest {
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode(fom = 26.juni(2018)))
 
             // Assert at vi ikke har lagt til noen nye perioder
-            klumpen {
+            behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder shouldHaveSize 2
                 perioder[0].gyldigFraOgMed shouldBe null
@@ -116,7 +116,7 @@ class OpplysningsperioderScenarioTest {
             saksbehandler.endreOpplysning(Opphold.unntakForOpphold, false, "fjas", Gyldighetsperiode(LocalDate.MIN, 27.juni(2018)))
             saksbehandler.endreOpplysning(Opphold.unntakForOpphold, true, "fjas", Gyldighetsperiode(28.juni(2018)))
 
-            klumpen {
+            behandlingsresultatForslag {
                 rettighetsperioder.shouldContainExactly(
                     Rettighetsperiode(21.juni(2018), 25.juni(2018), true),
                     Rettighetsperiode(26.juni(2018), 27.juni(2018), false),

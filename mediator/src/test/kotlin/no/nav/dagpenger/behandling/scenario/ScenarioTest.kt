@@ -100,7 +100,7 @@ class ScenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            klumpen {
+            behandlingsresultatForslag {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
@@ -116,7 +116,7 @@ class ScenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            klumpen {
+            behandlingsresultatForslag {
                 /*rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
@@ -143,7 +143,7 @@ class ScenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            klumpen {
+            behandlingsresultatForslag {
                 with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
                     this[0].verdi.verdi shouldBe "true"
                     this[1].verdi.verdi shouldBe "false"
