@@ -33,5 +33,10 @@ data class Gyldighetsperiode(
 
     companion object {
         fun kun(dato: LocalDate) = Gyldighetsperiode(dato, dato)
+
+        fun Collection<Gyldighetsperiode>.overlappendePerioder(): Boolean {
+            val sorted = this.sortedBy { it.fom }
+            return sorted.zipWithNext().any { (første, andre) -> første.overlapp(andre) }
+        }
     }
 }
