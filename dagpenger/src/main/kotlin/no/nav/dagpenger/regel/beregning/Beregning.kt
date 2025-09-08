@@ -47,6 +47,9 @@ object Beregning {
             regel(utbetaling) { tomRegel }
             regel(terskel) { tomRegel }
 
+            regel(forbrukt) { tomRegel }
+            regel(gjenstående) { tomRegel }
+
             ønsketResultat(
                 meldeperiode,
                 arbeidsdag,
@@ -56,6 +59,8 @@ object Beregning {
                 forbruktEgenandel,
                 utbetaling,
                 terskel,
+                forbrukt,
+                gjenstående,
             )
         }
 }

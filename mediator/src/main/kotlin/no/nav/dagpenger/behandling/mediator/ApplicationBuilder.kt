@@ -37,7 +37,6 @@ import no.nav.dagpenger.regel.Manuellprosess
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadsprosess
-import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.helse.rapids_rivers.RapidApplication
@@ -175,15 +174,8 @@ fun registrerRegelverk(
 
     opplysningRepository
         .lagreOpplysningstyper(
-            opplysningstyper + fagsakIdOpplysningstype +
-                Beregning.arbeidsdag +
-                Beregning.arbeidstimer +
-                Beregning.forbruk +
-                Beregning.meldt +
-                Beregning.meldeperiode +
-                Beregning.utbetaling +
-                Beregning.terskel +
-                Beregning.forbruktEgenandel +
+            opplysningstyper +
+                fagsakIdOpplysningstype +
                 hendelseTypeOpplysningstype,
         )
 }
