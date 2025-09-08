@@ -45,6 +45,8 @@ object Beregning {
             regel(meldt) { tomRegel }
             regel(forbruktEgenandel) { tomRegel }
             regel(utbetaling) { tomRegel }
+
+            // Skal denne være her? Per dag?
             regel(terskel) { tomRegel }
 
             regel(forbrukt) { tomRegel }
