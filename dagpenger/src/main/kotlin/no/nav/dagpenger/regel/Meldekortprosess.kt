@@ -12,8 +12,11 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.beregning.Beregning.forbrukt
+import no.nav.dagpenger.regel.beregning.Beregning.gjenstående
 import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
+import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import java.time.LocalDate
 
 class Meldekortprosess :
@@ -21,6 +24,7 @@ class Meldekortprosess :
     ProsessPlugin {
     init {
         registrer(this)
+        registrer(Kvotetelling())
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -75,4 +79,29 @@ class Meldekortprosess :
         opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi
+}
+
+class Kvotetelling : ProsessPlugin {
+    override fun ferdig(opplysninger: Opplysninger) {
+        val innvilgetStønadsdager = opplysninger.finnOpplysning(antallStønadsdager).verdi
+
+        val dager = opplysninger.kunEgne.finnAlle(forbruk)
+        var utgangspunkt =
+            opplysninger
+                .finnAlle(forbrukt)
+                .lastOrNull {
+                    it.gyldighetsperiode.fom.isBefore(dager.first().gyldighetsperiode.fom)
+                }?.verdi ?: 0
+
+        dager.forEach {
+            if (it.verdi) utgangspunkt++
+            opplysninger.leggTil(Faktum(forbrukt, utgangspunkt, it.gyldighetsperiode))
+
+            val gjenståendeDager = innvilgetStønadsdager - utgangspunkt
+            // TODO: Dette må vi bygge inn ett annet sted.
+            require(gjenståendeDager >= 0) { "Gjenstående dager kan ikke være negativt. Har $gjenståendeDager dager igjen" }
+
+            opplysninger.leggTil(Faktum(gjenstående, gjenståendeDager, it.gyldighetsperiode))
+        }
+    }
 }

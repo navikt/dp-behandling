@@ -322,6 +322,8 @@ object OpplysningsTyper {
     val arbeidstidsreduksjonIkkeBruktTidligereId = Opplysningstype.Id(UUID.fromString("0196b4a7-23b5-7b2c-aa95-e4167d900de8"), Boolsk)
 
     val harLøpendeRettId = Opplysningstype.Id(UUID.fromString("01990a09-0eab-7957-b88f-14484a50e194"), Boolsk)
+    val forbrukteDagerId = Opplysningstype.Id(UUID.fromString("01992934-66e4-7606-bdd3-c6c9dd420ffd"), Heltall)
+    val gjenståendeDagerId = Opplysningstype.Id(UUID.fromString("01992956-e349-76b1-8f68-c9d481df3a32"), Heltall)
 }
 
 /**
