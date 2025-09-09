@@ -698,6 +698,7 @@ components:
       required:
         - behandlingId
         - behandletHendelse
+        - automatisk
         - ident
         - vilkår
         - fastsettelser
@@ -710,6 +711,8 @@ components:
         behandletHendelse:
           description: Hvilken hendelse som utløste behandlingen
           $ref: '#/components/schemas/Hendelse'
+        automatisk:
+          type: boolean
         ident:
           $ref: '#/components/schemas/Personident'
         vilkår:

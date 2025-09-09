@@ -54,8 +54,6 @@ import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.collections.component2
-import kotlin.collections.contains
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -66,6 +64,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
             behandlingId = behandlingId,
             ident = ident,
             rettighetsperioder = rettighetsperioder(),
+            automatisk = automatiskBehandlet,
             vilkår =
                 behandlingAv.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
