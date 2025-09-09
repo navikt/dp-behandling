@@ -37,7 +37,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: success() || failure()
         with:
-          junit_files: "**/build/test-results/test/TEST-*.xml"
+          files: "**/build/test-results/test/TEST-*.xml"
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
