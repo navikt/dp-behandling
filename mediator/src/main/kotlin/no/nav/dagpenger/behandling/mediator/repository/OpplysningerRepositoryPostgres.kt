@@ -16,7 +16,6 @@ import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Gyldighetsperiode.Companion.overlappendePerioder
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.InntektDataType
@@ -90,7 +89,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         )
 
         val somListe: List<Opplysning<*>> = opplysninger.somListe(LesbarOpplysninger.Filter.Egne)
-        // TODO: Denne kontrollen er ikke tiltenkt å kjøre for alltid :) Den bør fjernes når vi er sikre på at data er bra
+        /* // TODO: Denne kontrollen er ikke tiltenkt å kjøre for alltid :) Den bør fjernes når vi er sikre på at data er bra
         val overlappende: Map<Opplysningstype<out Comparable<*>>, Boolean> =
             somListe
                 .groupBy { opplysning -> opplysning.opplysningstype }
@@ -106,7 +105,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     }.keys
                 }""",
             )
-        }
+        }*/
 
         OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(
             somListe.filter { it.skalLagres },
