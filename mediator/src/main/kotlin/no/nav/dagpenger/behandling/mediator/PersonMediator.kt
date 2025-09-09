@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling.mediator
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import no.nav.dagpenger.behandling.mediator.api.tilBehandlingsresultatDTO
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.AvklaringLukket
@@ -59,9 +60,12 @@ internal class PersonMediator : PersonObservatør {
     }
 
     internal fun ferdigstill(context: MessageContext) {
-        meldinger.forEach {
-            context.publish(it.first, it.second.toJson())
-            sikkerlogg.info { "Publisert melding. Innhold: ${it.second.toJson()}" }
+        meldinger.forEach { (key, melding) ->
+            context.publish(key, melding.toJson())
+            withLoggingContext("meldingId" to melding.id) {
+                logger.info { "Publisert melding." }
+                sikkerlogg.info { "Publisert melding. Innhold: ${melding.toJson()}" }
+            }
         }
     }
 
