@@ -11,6 +11,8 @@ import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerHendelse
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
+import no.nav.dagpenger.behandling.mediator.utboks.Utboks
+import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.PersonHåndter
@@ -41,6 +43,8 @@ internal class HendelseMediator(
     private val aktivitetsloggMediator: AktivitetsloggMediator = AktivitetsloggMediator(),
     observatører: Collection<PersonObservatør> = emptySet(),
 ) : IHendelseMediator {
+    private val postgres = UtboksLagerPostgres()
+
     private val observatører = observatører.toSet()
 
     private companion object {
@@ -139,7 +143,10 @@ internal class HendelseMediator(
         personMediator: PersonMediator,
         hendelse: PersonHendelse,
     ) {
-        personMediator.ferdigstill(context)
+        val utboks = Utboks(context, postgres)
+
+        personMediator.ferdigstill(utboks)
+
         if (!hendelse.harAktiviteter()) return
         if (hendelse.harFunksjonelleFeilEllerVerre()) {
             logger.info { "aktivitetslogg inneholder feil (se sikkerlogg)" }
@@ -147,8 +154,9 @@ internal class HendelseMediator(
             sikkerlogg.info { "aktivitetslogg inneholder meldinger:\n${hendelse.toLogString()}" }
         }
 
-        // TODO: Fjern denne når vi fjerner Behandlingshendelser
-        håndter(hendelse, context)
+        håndter(hendelse, utboks)
+
+        // Behov og aktivitetslogg blir ikke lagret i utboks
         behovMediator.håndter(context, hendelse)
         aktivitetsloggMediator.håndter(context, hendelse)
     }
