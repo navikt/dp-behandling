@@ -20,9 +20,13 @@ internal class VaktmesterPostgresRepo {
     fun slettOpplysninger(antallBehandlinger: Int = 1): List<UUID> {
         val slettet = mutableListOf<UUID>()
         try {
+            logger.info { "Skal finne $antallBehandlinger kandidater til sletting" }
             sessionOf(dataSource).use { session ->
+                logger.info { "Har opprettet session" }
                 session.transaction { tx ->
+                    logger.info { "Har startet transaksjonb" }
                     tx.medLås(låsenøkkel) {
+                        logger.info { "Finner kandidater" }
                         val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
 
                         logger.info {
