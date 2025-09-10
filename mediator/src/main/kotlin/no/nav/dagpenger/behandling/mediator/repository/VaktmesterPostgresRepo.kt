@@ -41,24 +41,25 @@ internal class VaktmesterPostgresRepo {
                                         logger.info { "Skal slette ${opplysningIder.size} opplysninger " }
 
                                         val statements = mutableListOf<BatchStatement>()
+                                        val params = opplysningIder.map { mapOf("id" to it) }
 
                                         // Slett erstatninger
-                                        statements.add(slettErstatter(opplysningIder))
+                                        statements.add(slettErstatter(params))
 
                                         // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledetAv(opplysningIder))
+                                        statements.add(slettOpplysningUtledetAv(params))
 
                                         // Slett hvilken regel som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledning(opplysningIder))
+                                        statements.add(slettOpplysningUtledning(params))
 
                                         // Slett verdien av opplysningen
-                                        statements.add(slettOpplysningVerdi(opplysningIder))
+                                        statements.add(slettOpplysningVerdi(params))
 
                                         // Fjern opplysningen fra opplysninger-settet
-                                        statements.add(slettOpplysningLink(opplysningIder))
+                                        statements.add(slettOpplysningLink(params))
 
                                         // Slett opplysningen
-                                        statements.add(slettOpplysning(opplysningIder))
+                                        statements.add(slettOpplysning(params))
 
                                         try {
                                             statements.forEach { batch ->
@@ -176,57 +177,57 @@ internal class VaktmesterPostgresRepo {
         return opplysningerIder
     }
 
-    private fun slettErstatter(id: List<UUID>) =
+    private fun slettErstatter(params: List<Map<String, UUID>>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning_erstatter WHERE opplysning_id = :id
             """.trimIndent(),
-            id.map { mapOf("id" to it) },
+            params,
         )
 
-    private fun slettOpplysningVerdi(id: List<UUID>) =
+    private fun slettOpplysningVerdi(params: List<Map<String, UUID>>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning_verdi WHERE opplysning_id = :id
             """.trimIndent(),
-            id.map { mapOf("id" to it) },
+            params,
         )
 
-    private fun slettOpplysningLink(id: List<UUID>) =
+    private fun slettOpplysningLink(params: List<Map<String, UUID>>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysninger_opplysning WHERE opplysning_id = :id
             """.trimIndent(),
-            id.map { mapOf("id" to it) },
+            params,
         )
 
-    private fun slettOpplysningUtledetAv(id: List<UUID>) =
+    private fun slettOpplysningUtledetAv(params: List<Map<String, UUID>>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning_utledet_av WHERE opplysning_id = :id OR utledet_av = :id
             """.trimIndent(),
-            id.map { mapOf("id" to it) },
+            params,
         )
 
-    private fun slettOpplysningUtledning(id: List<UUID>) =
+    private fun slettOpplysningUtledning(params: List<Map<String, UUID>>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning_utledning WHERE opplysning_id = :id
             """.trimIndent(),
-            id.map { mapOf("id" to it) },
+            params,
         )
 
-    private fun slettOpplysning(id: List<UUID>) =
+    private fun slettOpplysning(params: List<Map<String, UUID>>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning WHERE id = :id
             """.trimIndent(),
-            id.map { mapOf("id" to it) },
+            params,
         )
 }
