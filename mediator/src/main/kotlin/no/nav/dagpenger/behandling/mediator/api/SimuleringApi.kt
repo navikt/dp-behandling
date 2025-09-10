@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.api
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.plugins.swagger.swaggerUI
@@ -29,8 +28,6 @@ import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
-import no.nav.dagpenger.regel.beregning.Beregningsperiode
-import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
@@ -41,13 +38,6 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.net.URI
 import java.time.LocalDate
 import kotlin.time.Duration
-
-private val logger = KotlinLogging.logger { }
-
-class SimuleringsException(
-    string: String,
-    throwable: Throwable,
-) : RuntimeException(string, throwable)
 
 internal fun Application.simuleringApi() {
     routing {
@@ -67,7 +57,14 @@ internal fun Application.simuleringApi() {
                             status = HttpStatusCode.BadRequest.value,
                             title = "Kunne ikke beregne simulering",
                             type = URI("urn:nav:no:dp:simulering:broke"),
-                            detail = e.message ?: "Ukjent feil ved simulering",
+                            detail =
+                                (e.message ?: "Ukjent feil ved simulering") + "Opplysninger: ${
+                                    opplysninger.somListe().joinToString("\n") {
+                                        """
+                                        - ${it.opplysningstype.navn} : ${it.verdi} (${it.gyldighetsperiode.fom} - ${it.gyldighetsperiode.tom}))
+                                        """.trimIndent()
+                                    }
+                                }",
                         ),
                     )
                     return@put
@@ -100,20 +97,6 @@ internal fun Application.simuleringApi() {
             }
         }
     }
-}
-
-private fun beregningsperiode(
-    meldekortFom: LocalDate,
-    meldekortTom: LocalDate,
-    opplysninger: Opplysninger,
-): Beregningsperiode {
-    val beregningsperiode =
-        BeregningsperiodeFabrikk(
-            meldekortFom,
-            meldekortTom,
-            opplysninger,
-        ).lagBeregningsperiode()
-    return beregningsperiode
 }
 
 private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysninger {
