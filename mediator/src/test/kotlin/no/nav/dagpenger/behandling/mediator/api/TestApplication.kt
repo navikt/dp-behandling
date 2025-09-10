@@ -68,7 +68,7 @@ object TestApplication {
             },
             objectMapper.apply {
                 // OpenAPI-generator klarer ikke optional-felter. Derfor må vi eksplisitt fjerne null-verdier
-                setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
             },
             PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
         ) {

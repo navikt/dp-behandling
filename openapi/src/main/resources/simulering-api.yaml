@@ -167,11 +167,12 @@ components:
       type: object
       required:
         - dager
+        - forbruktEgenandel
+        - forbrukt
       properties:
-        gjenståendeEgenandel:
-          type: number
-          format: double
-        kvoteForbruk:
+        forbruktEgenandel:
+          type: integer
+        forbruktKvote:
           type: integer
         dager:
           type: array
@@ -192,8 +193,7 @@ components:
           type: string
           format: date
         dagsats:
-          type: number
-          format: double
+          type: integer
         fastsattVanligArbeidstid:
           type: number
           format: double
@@ -202,7 +202,7 @@ components:
           format: double
         forbruktEgenandel:
           type: number
-          format: double
+          format: int
         utbetalt:
           type: integer
 
