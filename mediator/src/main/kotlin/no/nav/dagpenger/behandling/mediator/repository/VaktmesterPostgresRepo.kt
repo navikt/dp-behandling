@@ -25,6 +25,14 @@ internal class VaktmesterPostgresRepo {
                     tx.medLås(låsenøkkel) {
                         val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
 
+                        logger.info {
+                            "Fant ${kandidater.size} kandidater med ${
+                                kandidater.sumOf {
+                                    it.opplysninger().size
+                                }
+                            } opplysninger til sletting"
+                        }
+
                         kandidater.forEach { kandidat ->
                             withLoggingContext(
                                 "behandlingId" to kandidat.behandlingId.toString(),
