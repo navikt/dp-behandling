@@ -15,6 +15,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningDTO
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningDagDTO
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningRequestDTO
+import no.nav.dagpenger.behandling.simulering.api.models.HttpProblemDTO
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
@@ -22,9 +23,11 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
-import no.nav.dagpenger.regel.Kvotetelling
+import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
+import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
 import no.nav.dagpenger.regel.beregning.Beregningsperiode
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
@@ -35,6 +38,7 @@ import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.hendelse.tilOpplysninger
 import no.nav.dagpenger.uuid.UUIDv7
+import java.net.URI
 import java.time.LocalDate
 import kotlin.time.Duration
 
@@ -51,31 +55,43 @@ internal fun Application.simuleringApi() {
         route("simulering") {
             put("beregning") {
                 val beregningRequestDTO = call.receive<BeregningRequestDTO>()
-                val (meldekortFom, meldekortTom, opplysninger) = simuleringsdata(beregningRequestDTO)
+                val opplysninger = simuleringsdata(beregningRequestDTO)
 
-                val beregningsperiode =
-                    try {
-                        beregningsperiode(meldekortFom, meldekortTom, opplysninger).also {
-                            Kvotetelling().ferdig(opplysninger)
-                        }
-                    } catch (e: Exception) {
-                        throw SimuleringsException("Feil ved beregning av meldekortperiode", e)
-                    }
+                try {
+                    val meldekortprosess = Meldekortprosess()
+                    meldekortprosess.start(opplysninger)
+                    meldekortprosess.ferdig(opplysninger)
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpProblemDTO(
+                            status = HttpStatusCode.BadRequest.value,
+                            title = "Kunne ikke beregne simulering",
+                            type = URI("urn:nav:no:dp:simulering:broke"),
+                            detail = e.message ?: "Ukjent feil ved simulering",
+                        ),
+                    )
+                    return@put
+                }
 
                 val forbruktEgenandel = opplysninger.finnAlle(forbruktEgenandel).sumOf { it.verdi }
+                val forbruksdager = opplysninger.finnAlle(Beregning.forbruk)
+                val dagsats = opplysninger.finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi.verdien
+                val fva = opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi
+
                 val beregning =
                     BeregningDTO(
                         forbruktEgenandel = forbruktEgenandel,
-                        forbruktKvote = beregningsperiode.forbruksdager.size,
+                        forbruktKvote = forbruksdager.count { it.verdi },
                         dager =
-                            beregningsperiode.forbruksdager.map { dag ->
+                            forbruksdager.map { dag ->
+                                val opplysingerPåDag = opplysninger.forDato(dag.gyldighetsperiode.fom)
                                 BeregningDagDTO(
-                                    dato = dag.dato,
-                                    dagsats = dag.sats.verdien.intValueExact(),
-                                    forbruktEgenandel = dag.forbruktEgenandel.verdien,
-                                    utbetalt = dag.avrundetUtbetaling,
-                                    fastsattVanligArbeidstid = dag.fva.timer,
-                                    timerArbeidet = dag.timerArbeidet.timer,
+                                    dato = dag.gyldighetsperiode.fom,
+                                    dagsats = dagsats.toInt(),
+                                    forbruktEgenandel = opplysingerPåDag.finnOpplysning(Beregning.forbruktEgenandel).verdi.toBigDecimal(),
+                                    utbetalt = opplysingerPåDag.finnOpplysning(Beregning.utbetaling).verdi,
+                                    fastsattVanligArbeidstid = fva,
+                                    timerArbeidet = opplysingerPåDag.finnOpplysning(Beregning.arbeidstimer).verdi,
                                 )
                             },
                     )
@@ -100,12 +116,12 @@ private fun beregningsperiode(
     return beregningsperiode
 }
 
-private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Triple<LocalDate, LocalDate, Opplysninger> {
-    val opplysningsliste = mutableListOf<Opplysning<*>>()
+private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysninger {
+    val opplysninger = mutableListOf<Opplysning<*>>()
     val stønadsperiodeFom = beregningRequestDTO.stønadsperiode.fom
     val meldekortFom = beregningRequestDTO.meldekortFom ?: stønadsperiodeFom
     val antDager = beregningRequestDTO.antallMeldekortdager?.toLong() ?: 14
-    val antUker = beregningRequestDTO.stønadsperiode?.uker ?: 52
+    val antUker = beregningRequestDTO.stønadsperiode.uker
     val meldekortTom = meldekortFom.plusDays(antDager - 1)
     val terskel =
         beregningRequestDTO.terskel.map { terskel ->
@@ -124,13 +140,14 @@ private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Triple<Lo
                 Gyldighetsperiode(sats.fom ?: stønadsperiodeFom, sats.tom ?: LocalDate.MAX),
             )
         }
-    opplysningsliste.add(Faktum(harLøpendeRett, true, Gyldighetsperiode(stønadsperiodeFom, LocalDate.MAX)))
-    opplysningsliste.addAll(terskel)
-    opplysningsliste.add(Faktum(egenandel, Beløp(beregningRequestDTO.egenandel)))
-    opplysningsliste.addAll(sats)
-    opplysningsliste.add(Faktum(fastsattVanligArbeidstid, beregningRequestDTO.fastsattVanligArbeidstid))
-    opplysningsliste.add(Faktum(ordinærPeriode, antUker))
-    opplysningsliste.add(Faktum(antallStønadsdager, antUker * 5))
+    opplysninger.add(Faktum(harLøpendeRett, true, Gyldighetsperiode(stønadsperiodeFom, LocalDate.MAX)))
+    opplysninger.addAll(terskel)
+    opplysninger.add(Faktum(egenandel, Beløp(beregningRequestDTO.egenandel)))
+    opplysninger.addAll(sats)
+    opplysninger.add(Faktum(fastsattVanligArbeidstid, beregningRequestDTO.fastsattVanligArbeidstid))
+    opplysninger.add(Faktum(ordinærPeriode, antUker))
+    opplysninger.add(Faktum(antallStønadsdager, antUker * 5))
+    opplysninger.add(Faktum(Beregning.meldeperiode, Periode(meldekortFom, meldekortTom)))
 
     val meldekortdager =
         beregningRequestDTO.dager
@@ -149,7 +166,6 @@ private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Triple<Lo
             }
 
     val meldkortOpplysning = meldekortdager.tilOpplysninger(Systemkilde(UUIDv7.ny(), LocalDate.now().atStartOfDay()))
-    opplysningsliste.addAll(meldkortOpplysning)
-    val opplysninger = opplysningsliste.somOpplysninger()
-    return Triple(meldekortFom, meldekortTom, opplysninger)
+    opplysninger.addAll(meldkortOpplysning)
+    return opplysninger.somOpplysninger()
 }

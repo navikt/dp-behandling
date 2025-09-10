@@ -16,6 +16,7 @@ import io.ktor.http.HttpStatusCode
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.withMockAuthServerAndTestApplication
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningDTO
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 internal class SimuleringApiTest {
     @Test
@@ -31,7 +32,10 @@ internal class SimuleringApiTest {
 
                 response.status shouldBe HttpStatusCode.OK
                 val beregningDTO = objectMapper.readValue<BeregningDTO>(response.bodyAsText())
-                beregningDTO.dager.size shouldBe 10
+                beregningDTO.forbruktKvote shouldBe 10
+                beregningDTO.dager.size shouldBe 14
+                beregningDTO.dager.first().dato shouldBe LocalDate.of(2020, 1, 16)
+                beregningDTO.dager.first().timerArbeidet shouldBe 8.5
             },
         )
     }

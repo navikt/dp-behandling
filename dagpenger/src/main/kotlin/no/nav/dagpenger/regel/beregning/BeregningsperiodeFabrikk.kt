@@ -42,7 +42,7 @@ class BeregningsperiodeFabrikk(
             Oppretter beregningsperiode med:
             - gjenståendeEgenandel = $gjenståendeEgenandel, 
             - stønadsdagerIgjen = $stønadsdagerIgjen, 
-            - periode = $periode
+            - periode = ${periode.joinToString("|") { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ")" }}
             """.trimIndent()
         }
         return Beregningsperiode(gjenståendeEgenandel, periode, stønadsdagerIgjen)
