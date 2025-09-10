@@ -55,23 +55,25 @@ class Meldekortprosess :
 
     override fun start(opplysninger: Opplysninger) {
         val meldeperiode = meldeperiode(opplysninger)
-
-        val fabrikk = BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
-        val periode = fabrikk.lagBeregningsperiode()
-        val forbruksdager = periode.forbruksdager
+        val forbruksdager =
+            BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
+                .lagBeregningsperiode()
+                .forbruksdager
 
         meldeperiode
             .forEach { dato ->
                 val forbruksdag = forbruksdager.singleOrNull { it.dato.isEqual(dato) }
                 val gyldighetsperiode = Gyldighetsperiode(dato, dato)
-                val tilUtbetaling = forbruksdag?.avrundetUtbetaling ?: 0
-                val forbruktEgenandel = forbruksdag?.forbruktEgenandel?.verdien?.toInt() ?: 0
 
-                // TODO: VI kan ikke gjøre det slik. Vi må finne en annen måte å si ifra på at det er forbruk (eksempel hvis det er sanksjon)
-                val erForbruk = tilUtbetaling > 0 || forbruktEgenandel > 0
-                opplysninger.leggTil(Faktum(forbruk, erForbruk, gyldighetsperiode))
-                opplysninger.leggTil(Faktum(utbetaling, tilUtbetaling, gyldighetsperiode))
-                opplysninger.leggTil(Faktum(Beregning.forbruktEgenandel, forbruktEgenandel, gyldighetsperiode))
+                opplysninger.leggTil(Faktum(forbruk, forbruksdag != null, gyldighetsperiode))
+                opplysninger.leggTil(Faktum(utbetaling, forbruksdag?.avrundetUtbetaling ?: 0, gyldighetsperiode))
+                opplysninger.leggTil(
+                    Faktum(
+                        Beregning.forbruktEgenandel,
+                        forbruksdag?.forbruktEgenandel?.verdien?.toInt() ?: 0,
+                        gyldighetsperiode,
+                    ),
+                )
             }
     }
 
