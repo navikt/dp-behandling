@@ -149,8 +149,10 @@ internal class VaktmesterPostgresRepo {
                     kandidater.map {
                         it.behandlingId
                     }
-                } som inneholder $${kandidater.sumOf { it.opplysninger().size }} opplysninger som er fjernet og som skal slettes"
+                } som inneholder ${kandidater.sumOf { it.opplysninger().size }} opplysninger som er fjernet og som skal slettes"
             }
+        } else {
+            logger.info { "Fant ingen kandidater til sletting" }
         }
         return opplysninger
     }
