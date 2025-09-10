@@ -20,7 +20,7 @@ internal class VaktmesterPostgresRepo {
     fun slettOpplysninger(antallBehandlinger: Int = 1): List<UUID> {
         val slettet = mutableListOf<UUID>()
         try {
-            logger.info { "Skal finne $antallBehandlinger kandidater til sletting" }
+            logger.info { "Skal finne kandidater til sletting, med øvre grense på $antallBehandlinger" }
             sessionOf(dataSource).use { session ->
                 logger.info { "Har opprettet session" }
                 session.transaction { tx ->
@@ -30,7 +30,7 @@ internal class VaktmesterPostgresRepo {
                         val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
 
                         logger.info {
-                            "Fant ${kandidater.size} kandidater med ${
+                            "Fant ${kandidater.size} opplysningssett med ${
                                 kandidater.sumOf {
                                     it.opplysninger.size
                                 }
@@ -45,7 +45,7 @@ internal class VaktmesterPostgresRepo {
                                 kandidat
                                     .opplysninger
                                     .asSequence()
-                                    .map { it.id }
+                                    .map { it }
                                     .chunked(100)
                                     .forEach { opplysningIder ->
                                         try {
@@ -99,13 +99,7 @@ internal class VaktmesterPostgresRepo {
     internal data class Kandidat(
         val behandlingId: UUID?,
         val opplysningerId: UUID,
-        val opplysninger: List<FjernetOpplysing> = emptyList(),
-    )
-
-    internal data class FjernetOpplysing(
-        val id: UUID,
-        val navn: String,
-        val opplysningstypeId: UUID,
+        val opplysninger: List<UUID> = emptyList(),
     )
 
     private fun Session.hentOpplysningerSomErFjernet(antall: Int): List<Kandidat> {
@@ -131,11 +125,7 @@ internal class VaktmesterPostgresRepo {
                                 query,
                                 mapOf("opplysninger_id" to kandidat.opplysningerId),
                             ).map { row ->
-                                FjernetOpplysing(
-                                    row.uuid("id"),
-                                    row.string("navn"),
-                                    row.uuid("uuid"),
-                                )
+                                row.uuid("id")
                             }.asList,
                         )
                     kandidat.copy(opplysninger = opplysninger)
@@ -185,6 +175,8 @@ internal class VaktmesterPostgresRepo {
                     )
                 }.asList,
             )
+
+        logger.info { "Hentet ut ${opplysningerIder.size} kandidater for sletting" }
         return opplysningerIder
     }
 
