@@ -107,6 +107,7 @@ spec:
         - application: dp-saksbehandling-frontend
         - application: dp-saksbehandling
         - application: dp-melding-om-vedtak
+        - application: dp-meldekort-testdata
         - application: dp-soknad-orkestrator
         {{#if wonderwalled}}
         - application: wonderwalled-idporten
