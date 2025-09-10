@@ -17,83 +17,87 @@ internal class VaktmesterPostgresRepo {
     }
 
     @WithSpan
-    fun slettOpplysninger(antallBehandlinger: Int = 1): Int {
+    fun slettOpplysninger(antallBehandlinger: Int = 1): List<UUID> {
         var antallSlettet = 0
-        try {
-            logger.info { "Skal finne kandidater til sletting, med øvre grense på $antallBehandlinger" }
-            sessionOf(dataSource).use { session ->
-                logger.info { "Har opprettet session" }
-                session.transaction { tx ->
-                    logger.info { "Har startet transaksjon" }
-                    tx.medLås(låsenøkkel) {
-                        logger.info { "Finner kandidater" }
-                        val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
 
-                        logger.info {
-                            "Fant ${kandidater.size} opplysningssett med ${
-                                kandidater.sumOf {
-                                    it.opplysninger.size
-                                }
-                            } opplysninger til sletting"
-                        }
+        val rapport =
+            try {
+                logger.info { "Skal finne kandidater til sletting, med øvre grense på $antallBehandlinger" }
+                sessionOf(dataSource).use { session ->
+                    logger.info { "Har opprettet session" }
+                    session.transaction { tx ->
+                        logger.info { "Har startet transaksjon" }
+                        tx.medLås(låsenøkkel) {
+                            logger.info { "Finner kandidater" }
+                            val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
 
-                        kandidater.forEach { kandidat ->
-                            withLoggingContext(
-                                "behandlingId" to kandidat.behandlingId.toString(),
-                                "opplysningerId" to kandidat.opplysningerId.toString(),
-                            ) {
-                                kandidat
-                                    .opplysninger
-                                    .asSequence()
-                                    .map { it }
-                                    .chunked(100)
-                                    .forEach { batch ->
-                                        try {
-                                            logger.info { "Skal slette ${batch.size} opplysninger i batch" }
-
-                                            val statements = mutableListOf<BatchStatement>()
-                                            val params = batch.map { mapOf("id" to it) }
-
-                                            // Slett erstatninger
-                                            statements.add(slettErstatter(params))
-
-                                            // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                            statements.add(slettOpplysningUtledetAv(params))
-
-                                            // Slett hvilken regel som har vært brukt for å utlede opplysningen
-                                            statements.add(slettOpplysningUtledning(params))
-
-                                            // Slett verdien av opplysningen
-                                            statements.add(slettOpplysningVerdi(params))
-
-                                            // Fjern opplysningen fra opplysninger-settet
-                                            statements.add(slettOpplysningLink(params))
-
-                                            // Slett opplysningen
-                                            statements.add(slettOpplysning(params))
-
-                                            try {
-                                                statements.forEach { batch ->
-                                                    batch.run(tx)
-                                                }
-                                            } catch (e: Exception) {
-                                                throw IllegalStateException("Kunne ikke slette ", e)
-                                            }
-                                            antallSlettet += batch.size
-                                        } catch (e: Exception) {
-                                            logger.error(e) { "Feil ved sletting av opplysninger" }
-                                        }
+                            logger.info {
+                                "Fant ${kandidater.size} opplysningssett med ${
+                                    kandidater.sumOf {
+                                        it.opplysninger.size
                                     }
-                                logger.info { "Slettet $antallSlettet opplysninger" }
+                                } opplysninger til sletting"
                             }
+
+                            kandidater.forEach { kandidat ->
+                                withLoggingContext(
+                                    "behandlingId" to kandidat.behandlingId.toString(),
+                                    "opplysningerId" to kandidat.opplysningerId.toString(),
+                                ) {
+                                    kandidat
+                                        .opplysninger
+                                        .asSequence()
+                                        .map { it }
+                                        .chunked(10000)
+                                        .forEach { batch ->
+                                            try {
+                                                logger.info { "Skal slette ${batch.size} opplysninger i batch" }
+
+                                                val statements = mutableListOf<BatchStatement>()
+                                                val params = batch.map { mapOf("id" to it) }
+
+                                                // Slett erstatninger
+                                                statements.add(slettErstatter(params))
+
+                                                // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
+                                                statements.add(slettOpplysningUtledetAv(params))
+
+                                                // Slett hvilken regel som har vært brukt for å utlede opplysningen
+                                                statements.add(slettOpplysningUtledning(params))
+
+                                                // Slett verdien av opplysningen
+                                                statements.add(slettOpplysningVerdi(params))
+
+                                                // Fjern opplysningen fra opplysninger-settet
+                                                statements.add(slettOpplysningLink(params))
+
+                                                // Slett opplysningen
+                                                statements.add(slettOpplysning(params))
+
+                                                try {
+                                                    statements.forEach { batch ->
+                                                        batch.run(tx)
+                                                    }
+                                                } catch (e: Exception) {
+                                                    throw IllegalStateException("Kunne ikke slette ", e)
+                                                }
+                                                antallSlettet += batch.size
+                                            } catch (e: Exception) {
+                                                logger.error(e) { "Feil ved sletting av opplysninger" }
+                                            }
+                                        }
+                                    logger.info { "Slettet $antallSlettet opplysninger" }
+                                }
+                            }
+                            kandidater
                         }
                     }
                 }
+            } catch (e: Exception) {
+                logger.error(e) { "Feil ved sletting av opplysninger" }
+                null
             }
-        } catch (e: Exception) {
-            logger.error(e) { "Feil ved sletting av opplysninger" }
-        }
-        return antallSlettet
+        return rapport?.flatMap { it.opplysninger } ?: emptyList()
     }
 
     internal data class Kandidat(
