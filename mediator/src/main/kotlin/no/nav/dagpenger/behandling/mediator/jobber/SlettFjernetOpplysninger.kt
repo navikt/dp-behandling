@@ -5,7 +5,6 @@ import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import kotlin.concurrent.fixedRateTimer
 import kotlin.random.Random
 import kotlin.random.nextInt
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 internal object SlettFjernetOpplysninger {
