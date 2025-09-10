@@ -21,11 +21,11 @@ internal class VaktmesterPostgresRepo {
         val slettet = mutableListOf<UUID>()
         try {
             sessionOf(dataSource).use { session ->
-                val kandidater = session.hentOpplysningerSomErFjernet(antallBehandlinger)
-
                 session.transaction { tx ->
-                    kandidater.forEach { kandidat ->
-                        tx.medLås(låsenøkkel) {
+                    tx.medLås(låsenøkkel) {
+                        val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
+
+                        kandidater.forEach { kandidat ->
                             withLoggingContext(
                                 "behandlingId" to kandidat.behandlingId.toString(),
                                 "opplysningerId" to kandidat.opplysningerId.toString(),
