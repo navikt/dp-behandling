@@ -17,11 +17,11 @@ internal class VaktmesterPostgresRepo {
     }
 
     @WithSpan
-    fun slettOpplysninger(antall: Int = 1): List<UUID> {
+    fun slettOpplysninger(antallBehandlinger: Int = 1): List<UUID> {
         val slettet = mutableListOf<UUID>()
         try {
             sessionOf(dataSource).use { session ->
-                val kandidater = session.hentOpplysningerSomErFjernet(antall)
+                val kandidater = session.hentOpplysningerSomErFjernet(antallBehandlinger)
 
                 session.transaction { tx ->
                     kandidater.forEach { kandidat ->
@@ -30,50 +30,49 @@ internal class VaktmesterPostgresRepo {
                                 "behandlingId" to kandidat.behandlingId.toString(),
                                 "opplysningerId" to kandidat.opplysningerId.toString(),
                             ) {
-                                val skalSlettes = kandidat.opplysninger().map { it.id }
-                                val batchSize = 1000
-
-                                for (i in skalSlettes.indices step batchSize) {
-                                    val end = minOf(i + batchSize, skalSlettes.size)
-                                    val opplysningIder = skalSlettes.subList(i, end)
-
-                                    try {
-                                        logger.info { "Skal slette ${opplysningIder.size} opplysninger " }
-
-                                        val statements = mutableListOf<BatchStatement>()
-                                        val params = opplysningIder.map { mapOf("id" to it) }
-
-                                        // Slett erstatninger
-                                        statements.add(slettErstatter(params))
-
-                                        // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledetAv(params))
-
-                                        // Slett hvilken regel som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledning(params))
-
-                                        // Slett verdien av opplysningen
-                                        statements.add(slettOpplysningVerdi(params))
-
-                                        // Fjern opplysningen fra opplysninger-settet
-                                        statements.add(slettOpplysningLink(params))
-
-                                        // Slett opplysningen
-                                        statements.add(slettOpplysning(params))
-
+                                kandidat
+                                    .opplysninger()
+                                    .asSequence()
+                                    .map { it.id }
+                                    .chunked(1000)
+                                    .forEach { opplysningIder ->
                                         try {
-                                            statements.forEach { batch ->
-                                                batch.run(tx)
+                                            logger.info { "Skal slette ${opplysningIder.size} opplysninger " }
+
+                                            val statements = mutableListOf<BatchStatement>()
+                                            val params = opplysningIder.map { mapOf("id" to it) }
+
+                                            // Slett erstatninger
+                                            statements.add(slettErstatter(params))
+
+                                            // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
+                                            statements.add(slettOpplysningUtledetAv(params))
+
+                                            // Slett hvilken regel som har vært brukt for å utlede opplysningen
+                                            statements.add(slettOpplysningUtledning(params))
+
+                                            // Slett verdien av opplysningen
+                                            statements.add(slettOpplysningVerdi(params))
+
+                                            // Fjern opplysningen fra opplysninger-settet
+                                            statements.add(slettOpplysningLink(params))
+
+                                            // Slett opplysningen
+                                            statements.add(slettOpplysning(params))
+
+                                            try {
+                                                statements.forEach { batch ->
+                                                    batch.run(tx)
+                                                }
+                                            } catch (e: Exception) {
+                                                throw IllegalStateException("Kunne ikke slette ", e)
                                             }
+                                            slettet.addAll(opplysningIder)
+                                            logger.info { "Slettet ${slettet.size} opplysninger" }
                                         } catch (e: Exception) {
-                                            throw IllegalStateException("Kunne ikke slette ", e)
+                                            logger.error(e) { "Feil ved sletting av opplysninger" }
                                         }
-                                        slettet.addAll(opplysningIder)
-                                        logger.info { "Slettet ${slettet.size} opplysninger" }
-                                    } catch (e: Exception) {
-                                        logger.error(e) { "Feil ved sletting av opplysninger" }
                                     }
-                                }
                             }
                         }
                     }

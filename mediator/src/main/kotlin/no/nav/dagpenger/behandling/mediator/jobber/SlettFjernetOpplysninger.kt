@@ -18,7 +18,7 @@ internal object SlettFjernetOpplysninger {
             period = 10.minutes.inWholeMilliseconds,
             action = {
                 try {
-                    vaktmesterRepository.slettOpplysninger(antall = 1000)
+                    vaktmesterRepository.slettOpplysninger(antallBehandlinger = 1000)
                 } catch (e: Exception) {
                     logger.error(e) { "Slett opplysninger jobben feilet" }
                 }

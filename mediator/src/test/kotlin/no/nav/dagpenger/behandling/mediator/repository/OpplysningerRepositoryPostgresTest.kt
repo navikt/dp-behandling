@@ -581,7 +581,7 @@ class OpplysningerRepositoryPostgresTest {
             opplysninger2.leggTil(endretQFaktum).also { regelkjøring2.evaluer() }
             repo.lagreOpplysninger(opplysninger2)
 
-            vaktmesterRepo.slettOpplysninger(antall = 10).size shouldBe 6
+            vaktmesterRepo.slettOpplysninger(antallBehandlinger = 10).size shouldBe 6
         }
     }
 }
