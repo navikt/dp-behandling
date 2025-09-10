@@ -295,7 +295,7 @@ Egenskap: Beregning av meldekort
   Scenario: Jobbet under terskel og skal forbruke siste rest av perioden
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
-      | Terskel    | 50.0   |            |          |
+      | Terskel    | 50.0  |            |          |
       | Periode    | 1     | 01.01.2019 |          |
       | Sats       | 100   | 01.01.2020 |          |
       | FVA        | 40    | 01.01.2020 |          |
@@ -540,12 +540,12 @@ Egenskap: Beregning av meldekort
 
   Scenario: Jobbet over terskel i helg
     Gitt at mottaker har vedtak med
-      | Opplysning | verdi | fraOgMed   | tilOgMed   |
-      | Terskel    | 50.0  |            |            |
-      | Periode    | 52    | 01.01.2020 |            |
-      | Sats       | 1200  | 01.01.2020 |            |
-      | FVA        | 40    | 01.01.2020 |            |
-      | Egenandel  | 0     | 01.01.2020 |            |
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 01.01.2020 |          |
+      | Sats       | 1200  | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
     Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
       | Dag     | type         | verdi |
       | Mandag  | Arbeidstimer | 0     |
@@ -553,8 +553,8 @@ Egenskap: Beregning av meldekort
       | Onsdag  | Arbeidstimer | 0     |
       | Torsdag | Arbeidstimer | 0     |
       | Fredag  | Arbeidstimer | 0     |
-      | Lørdag  | Arbeidstimer | 20     |
-      | Søndag  | Arbeidstimer | 20     |
+      | Lørdag  | Arbeidstimer | 20    |
+      | Søndag  | Arbeidstimer | 20    |
       | Mandag  | Arbeidstimer | 0     |
       | Tirsdag | Arbeidstimer | 0     |
       | Onsdag  | Arbeidstimer | 0     |
@@ -565,3 +565,33 @@ Egenskap: Beregning av meldekort
     Så skal kravet til tapt arbeidstid ikke være oppfylt
     Og utbetales 0 kroner
     Og det forbrukes 0 dager
+
+
+  Scenario: Kombinerer aktiviteter på samme dag
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 01.01.2020 |          |
+      | Sats       | 1200  | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type                    | verdi |
+      | Mandag  | Arbeidstimer, Utdanning | 0     |
+      | Tirsdag | Utdanning, Fravær       | 0     |
+      | Onsdag  | Arbeidstimer            | 0     |
+      | Torsdag | Arbeidstimer            | 0     |
+      | Fredag  | Arbeidstimer            | 0     |
+      | Lørdag  | Arbeidstimer            | 0     |
+      | Søndag  | Arbeidstimer            | 0     |
+      | Mandag  | Arbeidstimer            | 0     |
+      | Tirsdag | Arbeidstimer            | 0     |
+      | Onsdag  | Arbeidstimer            | 0     |
+      | Torsdag | Arbeidstimer            | 0     |
+      | Fredag  | Arbeidstimer            | 0     |
+      | Lørdag  | Arbeidstimer            | 0     |
+      | Søndag  | Arbeidstimer            | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 10800 kroner
+    Og det forbrukes 9 dager
+

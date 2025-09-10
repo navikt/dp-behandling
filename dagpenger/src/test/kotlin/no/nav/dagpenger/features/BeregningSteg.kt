@@ -3,16 +3,21 @@ package no.nav.dagpenger.features
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Arbeid
+import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Fravær
+import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Syk
+import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Utdanning
+import no.nav.dagpenger.behandling.modell.hendelser.Dag
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.features.utils.tilBeløp
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
-import no.nav.dagpenger.regel.beregning.Beregning.arbeidsdag
-import no.nav.dagpenger.regel.beregning.Beregning.arbeidstimer
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
@@ -21,9 +26,13 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
+import no.nav.dagpenger.regel.hendelse.tilOpplysninger
+import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class BeregningSteg : No {
     private val opplysninger = mutableListOf<Opplysning<*>>()
@@ -141,23 +150,46 @@ class BeregningSteg : No {
         val opplysninger =
             dager
                 .mapIndexed { i, dag ->
-                    val dato = fraOgMed.plusDays(i.toLong())
+
                     val timer = dag["verdi"]?.toDouble() ?: 0.0
-                    val type = dag["type"] ?: "Arbeidstimer"
-                    when (type) {
-                        "Arbeidstimer" ->
-                            listOf(
-                                Faktum(arbeidstimer, timer, Gyldighetsperiode(dato, dato)),
-                                Faktum(arbeidsdag, true, Gyldighetsperiode(dato, dato)),
-                            )
+                    val muligeAktiviteter = dag["type"]?.split(",")?.map { it.trim() } ?: emptyList()
+                    val aktiviteter =
+                        muligeAktiviteter
+                            .mapNotNull { aktivitet ->
+                                when (aktivitet) {
+                                    "Arbeidstimer" ->
+                                        MeldekortAktivitet(
+                                            type = Arbeid,
+                                            timer = timer.toDuration(DurationUnit.HOURS),
+                                        )
 
-                        "Fravær",
-                        "Sykdom",
-                        -> listOf(Faktum(arbeidsdag, false, Gyldighetsperiode(dato, dato)))
+                                    "Fravær" ->
+                                        MeldekortAktivitet(
+                                            type = Fravær,
+                                            timer = null,
+                                        )
 
-                        else -> throw IllegalArgumentException("Ukjent dagtype: $type")
-                    }
-                }.flatten()
+                                    "Sykdom" ->
+                                        MeldekortAktivitet(
+                                            type = Syk,
+                                            timer = null,
+                                        )
+
+                                    "Utdanning" ->
+                                        MeldekortAktivitet(
+                                            type = Utdanning,
+                                            timer = timer.toDuration(DurationUnit.HOURS),
+                                        )
+
+                                    else -> null
+                                }
+                            }
+                    Dag(
+                        dato = fraOgMed.plusDays(i.toLong()),
+                        meldt = true,
+                        aktiviteter = aktiviteter,
+                    )
+                }.tilOpplysninger(Systemkilde(UUIDv7.ny(), LocalDate.now().atStartOfDay()))
         return opplysninger
     }
 
