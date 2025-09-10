@@ -42,7 +42,7 @@ internal class VaktmesterPostgresRepo {
                                     .opplysninger()
                                     .asSequence()
                                     .map { it.id }
-                                    .chunked(1000)
+                                    .chunked(100)
                                     .forEach { opplysningIder ->
                                         try {
                                             logger.info { "Skal slette ${opplysningIder.size} opplysninger " }
