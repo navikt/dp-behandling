@@ -14,7 +14,7 @@ internal object SlettFjernetOpplysninger {
         fixedRateTimer(
             name = "Slett fjernet opplysninger",
             daemon = true,
-            initialDelay = randomInitialDelay(),
+            initialDelay = 1.minutes.inWholeMilliseconds,
             period = 10.minutes.inWholeMilliseconds,
             action = {
                 try {
@@ -26,5 +26,3 @@ internal object SlettFjernetOpplysninger {
         )
     }
 }
-
-private fun randomInitialDelay() = Random.nextInt(1..15).minutes.inWholeMilliseconds
