@@ -17,8 +17,8 @@ internal class VaktmesterPostgresRepo {
     }
 
     @WithSpan
-    fun slettOpplysninger(antallBehandlinger: Int = 1): List<UUID> {
-        val slettet = mutableListOf<UUID>()
+    fun slettOpplysninger(antallBehandlinger: Int = 1): Int {
+        var antallSlettet = 0
         try {
             logger.info { "Skal finne kandidater til sletting, med øvre grense på $antallBehandlinger" }
             sessionOf(dataSource).use { session ->
@@ -47,12 +47,12 @@ internal class VaktmesterPostgresRepo {
                                     .asSequence()
                                     .map { it }
                                     .chunked(100)
-                                    .forEach { opplysningIder ->
+                                    .forEach { batch ->
                                         try {
-                                            logger.info { "Skal slette ${opplysningIder.size} opplysninger " }
+                                            logger.info { "Skal slette ${batch.size} opplysninger i batch" }
 
                                             val statements = mutableListOf<BatchStatement>()
-                                            val params = opplysningIder.map { mapOf("id" to it) }
+                                            val params = batch.map { mapOf("id" to it) }
 
                                             // Slett erstatninger
                                             statements.add(slettErstatter(params))
@@ -79,12 +79,12 @@ internal class VaktmesterPostgresRepo {
                                             } catch (e: Exception) {
                                                 throw IllegalStateException("Kunne ikke slette ", e)
                                             }
-                                            slettet.addAll(opplysningIder)
-                                            logger.info { "Slettet ${slettet.size} opplysninger" }
+                                            antallSlettet += batch.size
                                         } catch (e: Exception) {
                                             logger.error(e) { "Feil ved sletting av opplysninger" }
                                         }
                                     }
+                                logger.info { "Slettet $antallSlettet opplysninger" }
                             }
                         }
                     }
@@ -93,7 +93,7 @@ internal class VaktmesterPostgresRepo {
         } catch (e: Exception) {
             logger.error(e) { "Feil ved sletting av opplysninger" }
         }
-        return slettet
+        return antallSlettet
     }
 
     internal data class Kandidat(
