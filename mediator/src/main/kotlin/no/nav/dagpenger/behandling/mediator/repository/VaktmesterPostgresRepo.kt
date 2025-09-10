@@ -33,36 +33,35 @@ internal class VaktmesterPostgresRepo {
                                 try {
                                     logger.info { "Skal slette ${kandidat.opplysninger().size} opplysninger " }
 
-                                    kandidat.opplysninger().forEach { fjernetOpplysing ->
-                                        val statements = mutableListOf<BatchStatement>()
+                                    val opplysningIder = kandidat.opplysninger().map { it.id }
+                                    val statements = mutableListOf<BatchStatement>()
 
-                                        // Slett erstatninger
-                                        statements.add(slettErstatter(fjernetOpplysing.id))
+                                    // Slett erstatninger
+                                    statements.add(slettErstatter(opplysningIder))
 
-                                        // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledetAv(fjernetOpplysing.id))
+                                    // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
+                                    statements.add(slettOpplysningUtledetAv(opplysningIder))
 
-                                        // Slett hvilken regel som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledning(fjernetOpplysing.id))
+                                    // Slett hvilken regel som har vært brukt for å utlede opplysningen
+                                    statements.add(slettOpplysningUtledning(opplysningIder))
 
-                                        // Slett verdien av opplysningen
-                                        statements.add(slettOpplysningVerdi(fjernetOpplysing.id))
+                                    // Slett verdien av opplysningen
+                                    statements.add(slettOpplysningVerdi(opplysningIder))
 
-                                        // Fjern opplysningen fra opplysninger-settet
-                                        statements.add(slettOpplysningLink(fjernetOpplysing.id))
+                                    // Fjern opplysningen fra opplysninger-settet
+                                    statements.add(slettOpplysningLink(opplysningIder))
 
-                                        // Slett opplysningen
-                                        statements.add(slettOpplysning(fjernetOpplysing.id))
+                                    // Slett opplysningen
+                                    statements.add(slettOpplysning(opplysningIder))
 
-                                        try {
-                                            statements.forEach { batch ->
-                                                batch.run(tx)
-                                            }
-                                        } catch (e: Exception) {
-                                            throw IllegalStateException("Kunne ikke slette $fjernetOpplysing", e)
+                                    try {
+                                        statements.forEach { batch ->
+                                            batch.run(tx)
                                         }
-                                        slettet.add(fjernetOpplysing.id)
+                                    } catch (e: Exception) {
+                                        throw IllegalStateException("Kunne ikke slette ", e)
                                     }
+                                    slettet.addAll(opplysningIder)
                                     logger.info { "Slettet ${kandidat.opplysninger().size} opplysninger" }
                                 } catch (e: Exception) {
                                     logger.error(e) { "Feil ved sletting av opplysninger" }
@@ -170,57 +169,57 @@ internal class VaktmesterPostgresRepo {
         return opplysningerIder
     }
 
-    private fun slettErstatter(opplysningId: UUID) =
+    private fun slettErstatter(id: List<UUID>) =
         BatchStatement(
             //language=PostgreSQL
             """
-            DELETE FROM opplysning_erstatter WHERE opplysning_id= :id
+            DELETE FROM opplysning_erstatter WHERE opplysning_id = :id
             """.trimIndent(),
-            listOf(mapOf("id" to opplysningId)),
+            id.map { mapOf("id" to it) },
         )
 
-    private fun slettOpplysningVerdi(id: UUID) =
+    private fun slettOpplysningVerdi(id: List<UUID>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning_verdi WHERE opplysning_id = :id
             """.trimIndent(),
-            listOf(mapOf("id" to id)),
+            id.map { mapOf("id" to it) },
         )
 
-    private fun slettOpplysningLink(id: UUID) =
+    private fun slettOpplysningLink(id: List<UUID>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysninger_opplysning WHERE opplysning_id = :id
             """.trimIndent(),
-            listOf(mapOf("id" to id)),
+            id.map { mapOf("id" to it) },
         )
 
-    private fun slettOpplysningUtledetAv(id: UUID) =
+    private fun slettOpplysningUtledetAv(id: List<UUID>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning_utledet_av WHERE opplysning_id = :id OR utledet_av = :id
             """.trimIndent(),
-            listOf(mapOf("id" to id)),
+            id.map { mapOf("id" to it) },
         )
 
-    private fun slettOpplysningUtledning(id: UUID) =
+    private fun slettOpplysningUtledning(id: List<UUID>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning_utledning WHERE opplysning_id = :id
             """.trimIndent(),
-            listOf(mapOf("id" to id)),
+            id.map { mapOf("id" to it) },
         )
 
-    private fun slettOpplysning(id: UUID) =
+    private fun slettOpplysning(id: List<UUID>) =
         BatchStatement(
             //language=PostgreSQL
             """
             DELETE FROM opplysning WHERE id = :id
             """.trimIndent(),
-            listOf(mapOf("id" to id)),
+            id.map { mapOf("id" to it) },
         )
 }
