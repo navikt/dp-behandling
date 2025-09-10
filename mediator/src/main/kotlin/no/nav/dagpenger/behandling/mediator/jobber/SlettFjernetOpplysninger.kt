@@ -16,10 +16,10 @@ internal object SlettFjernetOpplysninger {
             name = "Slett fjernet opplysninger",
             daemon = true,
             initialDelay = randomInitialDelay(),
-            period = 1.hours.inWholeMilliseconds,
+            period = 10.minutes.inWholeMilliseconds,
             action = {
                 try {
-                    vaktmesterRepository.slettOpplysninger(antall = 10)
+                    vaktmesterRepository.slettOpplysninger(antall = 1000)
                 } catch (e: Exception) {
                     logger.error(e) { "Slett opplysninger jobben feilet" }
                 }
