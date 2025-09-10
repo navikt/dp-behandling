@@ -24,7 +24,7 @@ internal class VaktmesterPostgresRepo {
             sessionOf(dataSource).use { session ->
                 logger.info { "Har opprettet session" }
                 session.transaction { tx ->
-                    logger.info { "Har startet transaksjonb" }
+                    logger.info { "Har startet transaksjon" }
                     tx.medLås(låsenøkkel) {
                         logger.info { "Finner kandidater" }
                         val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
@@ -32,7 +32,7 @@ internal class VaktmesterPostgresRepo {
                         logger.info {
                             "Fant ${kandidater.size} kandidater med ${
                                 kandidater.sumOf {
-                                    it.opplysninger().size
+                                    it.opplysninger.size
                                 }
                             } opplysninger til sletting"
                         }
@@ -43,7 +43,7 @@ internal class VaktmesterPostgresRepo {
                                 "opplysningerId" to kandidat.opplysningerId.toString(),
                             ) {
                                 kandidat
-                                    .opplysninger()
+                                    .opplysninger
                                     .asSequence()
                                     .map { it.id }
                                     .chunked(100)
@@ -99,14 +99,8 @@ internal class VaktmesterPostgresRepo {
     internal data class Kandidat(
         val behandlingId: UUID?,
         val opplysningerId: UUID,
-        private val opplysninger: MutableList<FjernetOpplysing> = mutableListOf(),
-    ) {
-        fun leggTil(fjernet: FjernetOpplysing) {
-            opplysninger.add(fjernet)
-        }
-
-        fun opplysninger() = opplysninger.toList()
-    }
+        val opplysninger: List<FjernetOpplysing> = emptyList(),
+    )
 
     internal data class FjernetOpplysing(
         val id: UUID,
@@ -128,37 +122,41 @@ internal class VaktmesterPostgresRepo {
             ORDER BY op.opplysninger_id, opplysning.opprettet DESC;
             """.trimIndent()
 
-        val opplysninger =
+        val kandidaterMedOpplysninger =
             kandidater
-                .onEach { kandidat ->
-                    this.run(
-                        queryOf(
-                            query,
-                            mapOf("opplysninger_id" to kandidat.opplysningerId),
-                        ).map { row ->
-                            kandidat.leggTil(
+                .map { kandidat ->
+                    val opplysninger =
+                        this.run(
+                            queryOf(
+                                query,
+                                mapOf("opplysninger_id" to kandidat.opplysningerId),
+                            ).map { row ->
                                 FjernetOpplysing(
                                     row.uuid("id"),
                                     row.string("navn"),
                                     row.uuid("uuid"),
-                                ),
-                            )
-                        }.asList,
-                    )
+                                )
+                            }.asList,
+                        )
+                    kandidat.copy(opplysninger = opplysninger)
                 }
 
-        if (kandidater.isNotEmpty()) {
+        if (kandidaterMedOpplysninger.isNotEmpty()) {
             logger.info {
                 "Fant ${kandidater.size} opplysningsett for behandlinger ${
                     kandidater.map {
                         it.behandlingId
                     }
-                } som inneholder ${kandidater.sumOf { it.opplysninger().size }} opplysninger som er fjernet og som skal slettes"
+                } som inneholder ${
+                    kandidaterMedOpplysninger.sumOf {
+                        it.opplysninger.size
+                    }
+                } opplysninger som er fjernet og som skal slettes"
             }
         } else {
             logger.info { "Fant ingen kandidater til sletting" }
         }
-        return opplysninger
+        return kandidaterMedOpplysninger
     }
 
     private fun Session.hentOpplysningerIder(antall: Int): List<Kandidat> {
