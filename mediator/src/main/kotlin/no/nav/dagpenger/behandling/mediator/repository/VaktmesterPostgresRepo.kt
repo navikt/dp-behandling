@@ -25,31 +25,31 @@ internal class VaktmesterPostgresRepo {
                 logger.info { "Skal finne kandidater til sletting, med øvre grense på $antallBehandlinger" }
                 sessionOf(dataSource).use { session ->
                     logger.info { "Har opprettet session" }
-                    logger.info { "Har startet transaksjon" }
-                    logger.info { "Finner kandidater" }
-                    val kandidater = session.hentOpplysningerSomErFjernet(antallBehandlinger)
+                    session.transaction { tx ->
+                        logger.info { "Har startet transaksjon" }
+                        tx.medLås(låsenøkkel) {
+                            logger.info { "Finner kandidater" }
+                            val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
 
-                    logger.info {
-                        "Fant ${kandidater.size} opplysningssett med ${
-                            kandidater.sumOf {
-                                it.opplysninger.size
+                            logger.info {
+                                "Fant ${kandidater.size} opplysningssett med ${
+                                    kandidater.sumOf {
+                                        it.opplysninger.size
+                                    }
+                                } opplysninger til sletting"
                             }
-                        } opplysninger til sletting"
-                    }
 
-                    kandidater.forEach { kandidat ->
-                        withLoggingContext(
-                            "behandlingId" to kandidat.behandlingId.toString(),
-                            "opplysningerId" to kandidat.opplysningerId.toString(),
-                        ) {
-                            kandidat
-                                .opplysninger
-                                .asSequence()
-                                .map { it }
-                                .chunked(1000)
-                                .forEach { batch ->
-                                    session.transaction { tx ->
-                                        tx.medLås(låsenøkkel) {
+                            kandidater.forEach { kandidat ->
+                                withLoggingContext(
+                                    "behandlingId" to kandidat.behandlingId.toString(),
+                                    "opplysningerId" to kandidat.opplysningerId.toString(),
+                                ) {
+                                    kandidat
+                                        .opplysninger
+                                        .asSequence()
+                                        .map { it }
+                                        .chunked(10000)
+                                        .forEach { batch ->
                                             try {
                                                 logger.info { "Skal slette ${batch.size} opplysninger i batch" }
 
@@ -86,12 +86,12 @@ internal class VaktmesterPostgresRepo {
                                                 logger.error(e) { "Feil ved sletting av opplysninger" }
                                             }
                                         }
-                                        logger.info { "Slettet $antallSlettet opplysninger" }
-                                    }
+                                    logger.info { "Slettet $antallSlettet opplysninger" }
                                 }
+                            }
+                            kandidater
                         }
                     }
-                    kandidater
                 }
             } catch (e: Exception) {
                 logger.error(e) { "Feil ved sletting av opplysninger" }
