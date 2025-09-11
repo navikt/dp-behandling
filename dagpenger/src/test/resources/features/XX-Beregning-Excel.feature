@@ -193,6 +193,37 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
     Og det forbrukes 2400 i egenandel
     Og det forbrukes 10 dager
 
+
+
+  Scenario: 7b - Bruker får innvilget dagpenger med ordinær egenandel tilsvarende 3 dagsatser, fra første dag i meldeperioden. (med sats som ikke er delelig på 10)
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 01.01.2020 |          |
+      | Sats       | 793   | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 2379  | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 2     |
+      | Torsdag |              | 0     |
+      | Fredag  | Arbeidstimer | 4     |
+      | Lørdag  |              | 0     |
+      | Søndag  |              | 0     |
+      | Mandag  |              | 0     |
+      | Tirsdag |              | 0     |
+      | Onsdag  |              | 0     |
+      | Torsdag |              | 0     |
+      | Fredag  |              | 0     |
+      | Lørdag  |              | 0     |
+      | Søndag  |              | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 3965,0 kroner
+    Og det forbrukes 2379 i egenandel
+    Og det forbrukes 10 dager
+
   Scenario: 9 - Bruker får innvilget dagpenger fra fredag i uke 1 med ordinær egenandel på 3 dagsatser. Beregningsperioden er ulik meldeperioden. Bruker avtjener egenandelen i løpet av 2 hele og 2 halve dager.
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
