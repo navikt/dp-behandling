@@ -100,28 +100,27 @@ internal class VaktmesterPostgresRepo {
     )
 
     private fun Session.hentOpplysningerIder(antall: Int): List<Kandidat> {
-        //language=PostgreSQL
-        val query =
-            """
-            SELECT DISTINCT (op.opplysninger_id) AS opplysinger_id, b.behandling_id
-            FROM opplysning
-                INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
-                LEFT OUTER JOIN behandling_opplysninger b ON b.opplysninger_id = op.opplysninger_id
-            WHERE fjernet = TRUE
-            LIMIT :antall;
-            """.trimIndent()
-
         val opplysningerIder =
             this.run(
                 queryOf(
-                    query,
-                    mapOf(
-                        "antall" to antall,
-                    ),
+                    //language=PostgreSQL
+                    """
+                    SELECT f.opplysninger_id, b.behandling_id
+                    FROM (
+                        SELECT DISTINCT op.opplysninger_id
+                        FROM opplysninger_opplysning op
+                        JOIN opplysning o ON o.id = op.opplysning_id
+                        WHERE o.fjernet = TRUE
+                    ) f
+                    LEFT JOIN behandling_opplysninger b ON b.opplysninger_id = f.opplysninger_id
+                    ORDER BY f.opplysninger_id
+                    LIMIT ? 
+                    """.trimIndent(),
+                    antall,
                 ).map { row ->
                     Kandidat(
                         row.uuidOrNull("behandling_id"),
-                        row.uuid("opplysinger_id"),
+                        row.uuid("opplysninger_id"),
                     )
                 }.asList,
             )
@@ -133,24 +132,20 @@ internal class VaktmesterPostgresRepo {
     private fun Session.hentOpplysningerSomErFjernet(antall: Int): List<Kandidat> {
         val kandidater = this.hentOpplysningerIder(antall)
 
-        //language=PostgreSQL
-        val query =
-            """
-            SELECT id, navn, uuid
-            FROM opplysning
-            INNER JOIN opplysningstype ON opplysning.opplysningstype_id = opplysningstype.opplysningstype_id
-            INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
-            WHERE fjernet = TRUE AND op.opplysninger_id = :opplysninger_id
-            ORDER BY op.opplysninger_id, opplysning.opprettet DESC;
-            """.trimIndent()
-
         val kandidaterMedOpplysninger =
             kandidater
                 .map { kandidat ->
                     val opplysninger =
                         this.run(
                             queryOf(
-                                query,
+                                //language=PostgreSQL
+                                """
+                                SELECT o.id
+                                FROM opplysning o 
+                                JOIN opplysninger_opplysning op ON o.id = op.opplysning_id
+                                WHERE fjernet = TRUE AND op.opplysninger_id = :opplysninger_id
+                                ORDER BY o.opprettet DESC;
+                                """.trimIndent(),
                                 mapOf("opplysninger_id" to kandidat.opplysningerId),
                             ).map { row ->
                                 row.uuid("id")
