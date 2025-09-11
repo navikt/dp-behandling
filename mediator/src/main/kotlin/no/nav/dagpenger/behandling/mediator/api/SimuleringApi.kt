@@ -81,19 +81,21 @@ internal fun Application.simuleringApi() {
                     call.respond(HttpStatusCode.OK, beregning)
                 } catch (e: Exception) {
                     call.respond(
-                        HttpProblemDTO(
-                            status = HttpStatusCode.BadRequest.value,
-                            title = "Kunne ikke beregne simulering",
-                            type = URI("urn:nav:no:dp:simulering:broke"),
-                            detail =
-                                (e.message ?: "Ukjent feil ved simulering") + "Opplysninger: ${
-                                    opplysninger.somListe().joinToString("\n") {
-                                        """
-                                        - ${it.opplysningstype.navn} : ${it.verdi} (${it.gyldighetsperiode.fom} - ${it.gyldighetsperiode.tom}))
-                                        """.trimIndent()
-                                    }
-                                }",
-                        ),
+                        status = HttpStatusCode.BadRequest,
+                        message =
+                            HttpProblemDTO(
+                                status = HttpStatusCode.BadRequest.value,
+                                title = "Kunne ikke beregne simulering",
+                                type = URI("urn:nav:no:dp:simulering:broke"),
+                                detail =
+                                    (e.message ?: "Ukjent feil ved simulering") + "Opplysninger: ${
+                                        opplysninger.somListe().joinToString("\n") {
+                                            """
+                                            - ${it.opplysningstype.navn} : ${it.verdi} (${it.gyldighetsperiode.fom} - ${it.gyldighetsperiode.tom}))
+                                            """.trimIndent()
+                                        }
+                                    }",
+                            ),
                     )
                 }
             }
