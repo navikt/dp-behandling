@@ -13,7 +13,7 @@ import javax.money.NumberValue
 import javax.money.RoundingQueryBuilder
 import javax.money.convert.MonetaryConversions
 
-class Beløp private constructor(
+class Beløp(
     private val verdi: MonetaryAmount,
 ) : Comparable<Beløp> {
     constructor(verdi: String) : this(fastParse(verdi))

@@ -65,6 +65,7 @@ class BeregningSteg : No {
         }
         Så("utbetales {double} kroner") { utbetaling: Double ->
             beregning.utbetaling shouldBe utbetaling
+            //  beregning.utbetalingHelePerioden shouldBe Beløp(utbetaling)
         }
         Så("det forbrukes {int} dager") { dager: Int ->
             beregning.forbruksdager.size shouldBe dager
@@ -77,6 +78,9 @@ class BeregningSteg : No {
             beregning.forbruksdager[dag - 1]
                 .uavrundetUtbetaling.verdien
                 .toDouble() shouldBe utbetaling
+            beregning.forbruksdager[dag - 1]
+                .beløpTilFordeling
+                .avrundetBeløp.verdien shouldBe utbetaling.toBigDecimal()
         }
         Så("utbetales {int} kroner etter avrunding på dag {int}") { utbetaling: Int, dag: Int ->
             beregning.forbruksdager[dag - 1].avrundetUtbetaling shouldBe utbetaling
