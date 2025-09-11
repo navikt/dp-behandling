@@ -44,51 +44,44 @@ internal class VaktmesterPostgresRepo {
                                     "behandlingId" to kandidat.behandlingId.toString(),
                                     "opplysningerId" to kandidat.opplysningerId.toString(),
                                 ) {
-                                    kandidat
-                                        .opplysninger
-                                        .asSequence()
-                                        .map { it }
-                                        .chunked(10000)
-                                        .forEach { batch ->
-                                            try {
-                                                logger.info { "Skal slette ${batch.size} opplysninger i batch" }
+                                    try {
+                                        logger.info { "Skal slette ${kandidat.opplysninger.size} opplysninger" }
 
-                                                val statements = mutableListOf<BatchStatement>()
-                                                val params = batch.map { mapOf("id" to it) }
+                                        val statements = mutableListOf<BatchStatement>()
+                                        val params = kandidat.opplysninger.map { mapOf("id" to it) }
 
-                                                // Slett erstatninger
-                                                statements.add(slettErstatter(params))
+                                        // Slett erstatninger
+                                        statements.add(slettErstatter(params))
 
-                                                // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                                statements.add(slettOpplysningUtledetAv(params))
+                                        // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
+                                        statements.add(slettOpplysningUtledetAv(params))
 
-                                                // Slett hvilken regel som har vært brukt for å utlede opplysningen
-                                                statements.add(slettOpplysningUtledning(params))
+                                        // Slett hvilken regel som har vært brukt for å utlede opplysningen
+                                        statements.add(slettOpplysningUtledning(params))
 
-                                                // Slett verdien av opplysningen
-                                                statements.add(slettOpplysningVerdi(params))
+                                        // Slett verdien av opplysningen
+                                        statements.add(slettOpplysningVerdi(params))
 
-                                                // Fjern opplysningen fra opplysninger-settet
-                                                statements.add(slettOpplysningLink(params))
+                                        // Fjern opplysningen fra opplysninger-settet
+                                        statements.add(slettOpplysningLink(params))
 
-                                                // Slett opplysningen
-                                                statements.add(slettOpplysning(params))
+                                        // Slett opplysningen
+                                        statements.add(slettOpplysning(params))
 
-                                                try {
-                                                    statements.forEach { batch ->
-                                                        batch.run(tx)
-                                                    }
-                                                } catch (e: Exception) {
-                                                    throw IllegalStateException("Kunne ikke slette ", e)
-                                                }
-                                                antallSlettet += batch.size
-                                            } catch (e: Exception) {
-                                                logger.error(e) { "Feil ved sletting av opplysninger" }
+                                        try {
+                                            statements.forEach { batch ->
+                                                batch.run(tx)
                                             }
+                                        } catch (e: Exception) {
+                                            throw IllegalStateException("Kunne ikke slette ", e)
                                         }
-                                    logger.info { "Slettet $antallSlettet opplysninger" }
+                                        antallSlettet += kandidat.opplysninger.size
+                                    } catch (e: Exception) {
+                                        logger.error(e) { "Feil ved sletting av opplysninger" }
+                                    }
                                 }
                             }
+                            logger.info { "Slettet $antallSlettet opplysninger" }
                             kandidater
                         }
                     }
@@ -105,6 +98,37 @@ internal class VaktmesterPostgresRepo {
         val opplysningerId: UUID,
         val opplysninger: List<UUID> = emptyList(),
     )
+
+    private fun Session.hentOpplysningerIder(antall: Int): List<Kandidat> {
+        //language=PostgreSQL
+        val query =
+            """
+            SELECT DISTINCT (op.opplysninger_id) AS opplysinger_id, b.behandling_id
+            FROM opplysning
+                INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
+                LEFT OUTER JOIN behandling_opplysninger b ON b.opplysninger_id = op.opplysninger_id
+            WHERE fjernet = TRUE
+            LIMIT :antall;
+            """.trimIndent()
+
+        val opplysningerIder =
+            this.run(
+                queryOf(
+                    query,
+                    mapOf(
+                        "antall" to antall,
+                    ),
+                ).map { row ->
+                    Kandidat(
+                        row.uuidOrNull("behandling_id"),
+                        row.uuid("opplysinger_id"),
+                    )
+                }.asList,
+            )
+
+        logger.info { "Hentet ut ${opplysningerIder.size} kandidater for sletting" }
+        return opplysningerIder
+    }
 
     private fun Session.hentOpplysningerSomErFjernet(antall: Int): List<Kandidat> {
         val kandidater = this.hentOpplysningerIder(antall)
@@ -151,37 +175,6 @@ internal class VaktmesterPostgresRepo {
             logger.info { "Fant ingen kandidater til sletting" }
         }
         return kandidaterMedOpplysninger
-    }
-
-    private fun Session.hentOpplysningerIder(antall: Int): List<Kandidat> {
-        //language=PostgreSQL
-        val query =
-            """
-            SELECT DISTINCT (op.opplysninger_id) AS opplysinger_id, b.behandling_id
-            FROM opplysning
-                INNER JOIN opplysninger_opplysning op ON opplysning.id = op.opplysning_id
-                LEFT OUTER JOIN behandling_opplysninger b ON b.opplysninger_id = op.opplysninger_id
-            WHERE fjernet = TRUE
-            LIMIT :antall;
-            """.trimIndent()
-
-        val opplysningerIder =
-            this.run(
-                queryOf(
-                    query,
-                    mapOf(
-                        "antall" to antall,
-                    ),
-                ).map { row ->
-                    Kandidat(
-                        row.uuidOrNull("behandling_id"),
-                        row.uuid("opplysinger_id"),
-                    )
-                }.asList,
-            )
-
-        logger.info { "Hentet ut ${opplysningerIder.size} kandidater for sletting" }
-        return opplysningerIder
     }
 
     private fun slettErstatter(params: List<Map<String, UUID>>) =
