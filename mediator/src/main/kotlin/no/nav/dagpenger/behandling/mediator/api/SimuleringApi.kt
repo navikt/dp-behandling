@@ -46,11 +46,39 @@ internal fun Application.simuleringApi() {
             put("beregning") {
                 val beregningRequestDTO = call.receive<BeregningRequestDTO>()
                 val opplysninger = simuleringsdata(beregningRequestDTO)
-
                 try {
                     val meldekortprosess = Meldekortprosess()
                     meldekortprosess.start(opplysninger)
                     meldekortprosess.ferdig(opplysninger)
+                    val forbruktEgenandel = opplysninger.finnAlle(forbruktEgenandel).sumOf { it.verdi }
+                    val forbruksdager = opplysninger.finnAlle(Beregning.forbruk)
+                    val dagsats = opplysninger.finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi.verdien
+                    val fva = opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi
+
+                    val beregning =
+                        BeregningDTO(
+                            forbruktEgenandel = forbruktEgenandel,
+                            forbruktKvote = forbruksdager.count { it.verdi },
+                            dager =
+                                forbruksdager.map { dag ->
+                                    with(opplysninger.forDato(dag.gyldighetsperiode.fom)) {
+                                        BeregningDagDTO(
+                                            dato = dag.gyldighetsperiode.fom,
+                                            dagsats = dagsats.toInt(),
+                                            forbruktEgenandel =
+                                                finnOpplysning(
+                                                    Beregning.forbruktEgenandel,
+                                                ).verdi
+                                                    .toBigDecimal(),
+                                            utbetalt = finnOpplysning(Beregning.utbetaling).verdi,
+                                            fastsattVanligArbeidstid = fva,
+                                            timerArbeidet = finnOpplysning(Beregning.arbeidstimer).verdi,
+                                        )
+                                    }
+                                },
+                        )
+
+                    call.respond(HttpStatusCode.OK, beregning)
                 } catch (e: Exception) {
                     call.respond(
                         HttpProblemDTO(
@@ -67,33 +95,7 @@ internal fun Application.simuleringApi() {
                                 }",
                         ),
                     )
-                    return@put
                 }
-
-                val forbruktEgenandel = opplysninger.finnAlle(forbruktEgenandel).sumOf { it.verdi }
-                val forbruksdager = opplysninger.finnAlle(Beregning.forbruk)
-                val dagsats = opplysninger.finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi.verdien
-                val fva = opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi
-
-                val beregning =
-                    BeregningDTO(
-                        forbruktEgenandel = forbruktEgenandel,
-                        forbruktKvote = forbruksdager.count { it.verdi },
-                        dager =
-                            forbruksdager.map { dag ->
-                                val opplysingerPåDag = opplysninger.forDato(dag.gyldighetsperiode.fom)
-                                BeregningDagDTO(
-                                    dato = dag.gyldighetsperiode.fom,
-                                    dagsats = dagsats.toInt(),
-                                    forbruktEgenandel = opplysingerPåDag.finnOpplysning(Beregning.forbruktEgenandel).verdi.toBigDecimal(),
-                                    utbetalt = opplysingerPåDag.finnOpplysning(Beregning.utbetaling).verdi,
-                                    fastsattVanligArbeidstid = fva,
-                                    timerArbeidet = opplysingerPåDag.finnOpplysning(Beregning.arbeidstimer).verdi,
-                                )
-                            },
-                    )
-
-                call.respond(HttpStatusCode.OK, beregning)
             }
         }
     }
