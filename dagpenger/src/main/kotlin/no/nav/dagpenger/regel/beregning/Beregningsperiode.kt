@@ -4,6 +4,22 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 
+class Bøtteholder(
+    val arbeidsdag: Arbeidsdag,
+) {
+    var beløpTilFordeling: Beløp = Beløp(0.0)
+        internal set
+
+    var prosentTrekkForEgenandel: Beløp = Beløp(0.0)
+        internal set
+
+    var totalEgenandel: Beløp = Beløp(0.0)
+        internal set
+
+    val utbetaling get() = beløpTilFordeling - egenandelTrukket
+    val egenandelTrukket get() = totalEgenandel * prosentTrekkForEgenandel
+}
+
 class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Beløp,
     dager: Set<Dag>,
@@ -31,8 +47,28 @@ class Beregningsperiode private constructor(
      */
 
     private val sumFva = dager.mapNotNull { it.fva }.summer()
-    private val arbeidsdager = arbeidsdager(dager)
+    private val arbeidsdager = arbeidsdager(dager) // todo: Endre til stønadsdager
+    private val bøtter: Map<Beløp, List<Arbeidsdag>> = arbeidsdager.groupBy { it.sats }
     private val prosentfaktor = beregnProsentfaktor(dager)
+    private val gradertPerSatsperiode = bøtter.map { ((it.key * it.value.size) * prosentfaktor) to it.value }.toList()
+    private val sumFørEgenAndelstrekk = Beløp(gradertPerSatsperiode.sumOf { it.first.verdien })
+    private val egenandelTrekkPerBøtte =
+        gradertPerSatsperiode
+            .map {
+                val bøttetrekk = it.first / sumFørEgenAndelstrekk
+                it.second.map {
+                    Bøtteholder(it).also {
+                        it.beløpTilFordeling = sumFørEgenAndelstrekk / arbeidsdager.size
+                        it.prosentTrekkForEgenandel = bøttetrekk
+                        it.totalEgenandel = gjenståendeEgenandel
+                    }
+                }
+            }.toList()
+    // private val potensielSum: List<Beløp> = bøtter.map { (it.key * it.value.size) * prosentfaktor }
+
+// val utbetalingHelePerioden = maxOf(Beløp(0.0), Beløp(potensielSum.sumOf { it.verdien }) - gjenståendeEgenandel).avrundetBeløp
+    //  private val perDagFordeling: Beløp = utbetalingHelePerioden / arbeidsdager.size
+
     private val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.summer()
     val terskel = (100 - terskelstrategi.beregnTerskel(arbeidsdager)) / 100
     val oppfyllerKravTilTaptArbeidstid = (timerArbeidet / sumFva).timer <= terskel
@@ -54,6 +90,7 @@ class Beregningsperiode private constructor(
 
     private fun beregnUtbetaling(arbeidsdager: Set<Arbeidsdag>): Int {
         val fordeling: List<Arbeidsdag> = beregnDagsløp(arbeidsdager).sorted()
+
         val trekkEgenandel: List<Arbeidsdag> = fordelEgenandel(fordeling)
 
         val overskytendeRest = Beløp(trekkEgenandel.sumOf { it.uavrundetUtbetaling.verdien % 1.toBigDecimal() })

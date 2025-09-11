@@ -21,6 +21,9 @@ class Arbeidsdag(
     override val timerArbeidet: Timer,
     val terskel: BigDecimal,
 ) : Dag {
+    internal var beløpTilFordeling: Beløp = Beløp(0.0)
+        internal set
+
     internal var overskytendeRest: Beløp = Beløp(0.0)
         private set
     internal var uavRundetforbruktEgenandel: Beløp = Beløp(0.0)
