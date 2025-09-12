@@ -9,7 +9,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Syk
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Utdanning
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
-import no.nav.dagpenger.features.utils.tilBeløp
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
@@ -64,33 +63,34 @@ class BeregningSteg : No {
             beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
         }
         Så("utbetales {double} kroner") { utbetaling: Double ->
-            beregning.utbetaling shouldBe utbetaling
-            beregning.utbetaling2 shouldBe utbetaling.toInt()
-            beregning.nyeDager.sumOf { it.utbetalt.toDouble() } shouldBe utbetaling
+            val resultat = beregning.beregn()
+            resultat.utbetaling shouldBe utbetaling
+            resultat.forbruksdager.sumOf { it.tilUtbetaling } shouldBe utbetaling
         }
         Så("det forbrukes {int} dager") { dager: Int ->
-            beregning.forbruksdager.size shouldBe dager
+            val beregningresultat = beregning.beregn()
+            beregningresultat.forbruksdager.size shouldBe dager
 
-            beregning.forbruksdager.forEach {
-                opplysninger.add(Faktum(forbruk, true, Gyldighetsperiode(it.dato, it.dato)))
+            // TODO: Bruk attpåklatten !
+            beregningresultat.forbruksdager.forEach {
+                opplysninger.add(Faktum(forbruk, true, Gyldighetsperiode(it.dag.dato, it.dag.dato)))
             }
         }
         Så("utbetales {double} kroner på dag {int}") { utbetaling: Double, dag: Int ->
-//            beregning.forbruksdager[dag - 1]
-//                .uavrundetUtbetaling.verdien
-//                .toDouble() shouldBe utbetaling
-
-            beregning.nyeDager[dag - 1]
-                .utbetalt
+            val beregningresultat = beregning.beregn()
+            beregningresultat.forbruksdager[dag - 1]
+                .tilUtbetaling
                 .toDouble() shouldBe utbetaling
         }
         Så("utbetales {int} kroner etter avrunding på dag {int}") { utbetaling: Int, dag: Int ->
-            beregning.forbruksdager[dag - 1].avrundetUtbetaling shouldBe utbetaling
+            val beregningresultat = beregning.beregn()
+            beregningresultat.forbruksdager[dag - 1].tilUtbetaling shouldBe utbetaling
         }
 
         Så("utbetales {int} kroner etter avrunding på dag {int} til {int}") { utbetaling: Int, fraDagNr: Int, tilDagNr: Int ->
+            val beregningresultat = beregning.beregn()
             (fraDagNr until tilDagNr).forEach { dag ->
-                beregning.forbruksdager[dag - 1].avrundetUtbetaling shouldBe utbetaling
+                beregningresultat.forbruksdager[dag - 1].tilUtbetaling shouldBe utbetaling
             }
         }
 
@@ -105,18 +105,16 @@ class BeregningSteg : No {
             opplysninger.add(Faktum(ordinærPeriode, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
         }
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
-            val ss = beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }.toInt()
-            ss shouldBe forbruktEgenandel
+            val beregningresultat = beregning.beregn()
+            beregningresultat.forbruktEgenandel shouldBe forbruktEgenandel
         }
-        Så("det trekkes {string} kroner i egenandel på dag {int}") { egenandel: String, dag: Int ->
-            beregning.forbruksdager[dag - 1]
-                .uavRundetforbruktEgenandel shouldBe egenandel.tilBeløp()
-        }
-        Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
-            val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
-            val forbrukt = beregning.forbruksdager.sumOf { it.forbruktEgenandel.verdien }
 
-            (egenandel.verdien - forbrukt).toInt() shouldBe gjenståendeEgenandel
+        Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
+            val beregningresultat = beregning.beregn()
+            val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
+            val forbrukt = beregningresultat.forbruktEgenandel
+
+            (egenandel.verdien - forbrukt.toBigDecimal()).toInt() shouldBe gjenståendeEgenandel
         }
     }
 
