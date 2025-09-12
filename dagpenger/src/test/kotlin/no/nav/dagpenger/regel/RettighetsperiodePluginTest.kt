@@ -56,7 +56,7 @@ class RettighetsperiodePluginTest {
     }
 
     @Test
-    fun `lager riktige perioder med den rare feilen som av og til skjer`() {
+    fun `oppfyller ikke vilkår i starten, men oppfyller senere`() {
         val plugin = RettighetsperiodePlugin(regelverk)
         val opplysninger =
             Opplysninger().apply {
@@ -73,30 +73,17 @@ class RettighetsperiodePluginTest {
             this[0].verdi shouldBe true
         }
 
-        val opplysninger2 =
-            Opplysninger.basertPå(opplysninger).apply {
-                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(10.januar(2018), 15.januar(2018))))
-            }
+        opplysninger.leggTil(Faktum(utfall2, true, Gyldighetsperiode(15.januar(2018))))
 
-        plugin.ferdig(opplysninger2)
+        plugin.ferdig(opplysninger)
 
-        with(opplysninger2.finnAlle(harLøpendeRett)) {
-            this shouldHaveSize 1
-            this[0].gyldighetsperiode shouldBe Gyldighetsperiode(10.januar(2018), 15.januar(2018))
-            this[0].verdi shouldBe true
-        }
-
-        opplysninger2.leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(16.januar(2018))))
-
-        plugin.ferdig(opplysninger2)
-
-        with(opplysninger2.finnAlle(harLøpendeRett)) {
+        with(opplysninger.finnAlle(harLøpendeRett)) {
             this shouldHaveSize 2
-            this[0].gyldighetsperiode shouldBe Gyldighetsperiode(10.januar(2018), 15.januar(2018))
-            this[0].verdi shouldBe true
+            this[0].gyldighetsperiode shouldBe Gyldighetsperiode(10.januar(2018), 14.januar(2018))
+            this[0].verdi shouldBe false
 
-            this[1].gyldighetsperiode shouldBe Gyldighetsperiode(16.januar(2018))
-            this[1].verdi shouldBe false
+            this[1].gyldighetsperiode shouldBe Gyldighetsperiode(15.januar(2018))
+            this[1].verdi shouldBe true
         }
     }
 }
