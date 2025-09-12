@@ -55,25 +55,26 @@ class Meldekortprosess :
 
     override fun start(opplysninger: Opplysninger) {
         val meldeperiode = meldeperiode(opplysninger)
-        val forbruksdager =
+        val resultat =
             BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
                 .lagBeregningsperiode()
-                .forbruksdager
+                .beregn()
 
+        opplysninger.leggTil(
+            Faktum(
+                Beregning.forbruktEgenandel,
+                resultat.forbruktEgenandel,
+                Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed),
+            ),
+        )
+        val forbruksdager = resultat.forbruksdager
         meldeperiode
             .forEach { dato ->
-                val forbruksdag = forbruksdager.singleOrNull { it.dato.isEqual(dato) }
+                val forbruksdag = forbruksdager.singleOrNull { it.dag.dato.isEqual(dato) }
                 val gyldighetsperiode = Gyldighetsperiode(dato, dato)
 
                 opplysninger.leggTil(Faktum(forbruk, forbruksdag != null, gyldighetsperiode))
-                opplysninger.leggTil(Faktum(utbetaling, forbruksdag?.avrundetUtbetaling ?: 0, gyldighetsperiode))
-                opplysninger.leggTil(
-                    Faktum(
-                        Beregning.forbruktEgenandel,
-                        forbruksdag?.forbruktEgenandel?.verdien?.toInt() ?: 0,
-                        gyldighetsperiode,
-                    ),
-                )
+                opplysninger.leggTil(Faktum(utbetaling, forbruksdag?.tilUtbetaling ?: 0, gyldighetsperiode))
             }
     }
 

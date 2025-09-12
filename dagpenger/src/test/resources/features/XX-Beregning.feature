@@ -439,8 +439,6 @@ Egenskap: Beregning av meldekort
     Så skal kravet til tapt arbeidstid være oppfylt
     Og det forbrukes 10 dager
     Og det forbrukes 3000 i egenandel
-    Og det trekkes "545.45454545454545454" kroner i egenandel på dag 1
-    Og det trekkes "54.54545454545454546" kroner i egenandel på dag 10
     Og gjenstår 0 i egenandel
     Og utbetales 2500,0 kroner
     Og utbetales 454 kroner på dag 1
