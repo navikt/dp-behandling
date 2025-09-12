@@ -63,34 +63,28 @@ class BeregningSteg : No {
             beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
         }
         Så("utbetales {double} kroner") { utbetaling: Double ->
-            val resultat = beregning.beregn()
-            resultat.utbetaling shouldBe utbetaling
-            resultat.forbruksdager.sumOf { it.tilUtbetaling } shouldBe utbetaling
+            beregning.resultat.utbetaling shouldBe utbetaling
+            beregning.resultat.forbruksdager.sumOf { it.tilUtbetaling } shouldBe utbetaling
         }
         Så("det forbrukes {int} dager") { dager: Int ->
-            val beregningresultat = beregning.beregn()
-            beregningresultat.forbruksdager.size shouldBe dager
-
+            beregning.resultat.forbruksdager.size shouldBe dager
             // TODO: Bruk attpåklatten !
-            beregningresultat.forbruksdager.forEach {
+            beregning.resultat.forbruksdager.forEach {
                 opplysninger.add(Faktum(forbruk, true, Gyldighetsperiode(it.dag.dato, it.dag.dato)))
             }
         }
         Så("utbetales {double} kroner på dag {int}") { utbetaling: Double, dag: Int ->
-            val beregningresultat = beregning.beregn()
-            beregningresultat.forbruksdager[dag - 1]
+            beregning.resultat.forbruksdager[dag - 1]
                 .tilUtbetaling
                 .toDouble() shouldBe utbetaling
         }
         Så("utbetales {int} kroner etter avrunding på dag {int}") { utbetaling: Int, dag: Int ->
-            val beregningresultat = beregning.beregn()
-            beregningresultat.forbruksdager[dag - 1].tilUtbetaling shouldBe utbetaling
+            beregning.resultat.forbruksdager[dag - 1].tilUtbetaling shouldBe utbetaling
         }
 
         Så("utbetales {int} kroner etter avrunding på dag {int} til {int}") { utbetaling: Int, fraDagNr: Int, tilDagNr: Int ->
-            val beregningresultat = beregning.beregn()
             (fraDagNr until tilDagNr).forEach { dag ->
-                beregningresultat.forbruksdager[dag - 1].tilUtbetaling shouldBe utbetaling
+                beregning.resultat.forbruksdager[dag - 1].tilUtbetaling shouldBe utbetaling
             }
         }
 
@@ -105,14 +99,12 @@ class BeregningSteg : No {
             opplysninger.add(Faktum(ordinærPeriode, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
         }
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
-            val beregningresultat = beregning.beregn()
-            beregningresultat.forbruktEgenandel shouldBe forbruktEgenandel
+            beregning.resultat.forbruktEgenandel shouldBe forbruktEgenandel
         }
 
         Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
-            val beregningresultat = beregning.beregn()
             val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
-            val forbrukt = beregningresultat.forbruktEgenandel
+            val forbrukt = beregning.resultat.forbruktEgenandel
 
             (egenandel.verdien - forbrukt.toBigDecimal()).toInt() shouldBe gjenståendeEgenandel
         }

@@ -58,7 +58,7 @@ class Meldekortprosess :
         val resultat =
             BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
                 .lagBeregningsperiode()
-                .beregn()
+                .resultat
 
         opplysninger.leggTil(
             Faktum(
