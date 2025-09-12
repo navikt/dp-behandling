@@ -21,36 +21,8 @@ class Arbeidsdag(
     override val timerArbeidet: Timer,
     val terskel: BigDecimal,
 ) : Dag {
-    internal var beløpTilFordeling: Beløp = Beløp(0.0)
-        internal set
-
-    internal var overskytendeRest: Beløp = Beløp(0.0)
-        private set
-    internal var uavRundetforbruktEgenandel: Beløp = Beløp(0.0)
-        private set
-
-    val forbruktEgenandel get() = uavRundetforbruktEgenandel.avrundetNedoverBeløp + overskytendeEgenandel
-
-    private var overskytendeEgenandel: Beløp = Beløp(0.0)
-
     var dagsbeløp: Beløp = Beløp(0.0)
         internal set
-
-    internal val uavrundetUtbetaling get() = dagsbeløp - forbruktEgenandel
-
-    val avrundetUtbetaling: Int get() = uavrundetUtbetaling.avrundetNedover.toInt() + overskytendeRest.avrundet.toInt()
-
-    fun forbrukEgenandel(egenandel: Beløp) {
-        uavRundetforbruktEgenandel = minOf(egenandel, dagsbeløp)
-    }
-
-    fun overskytendeRest(overskytende: Beløp) {
-        overskytendeRest = overskytende
-    }
-
-    fun overskytendeEgenandel(overkytendeEgenAndel: Beløp) {
-        overskytendeEgenandel = overkytendeEgenAndel
-    }
 
     constructor(dato: LocalDate, sats: Beløp, fva: Timer, timerArbeidet: Timer, terskel: Double) :
         this(dato, sats, fva, timerArbeidet, BigDecimal.valueOf(terskel))
