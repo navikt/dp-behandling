@@ -14,6 +14,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeDagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelId
+import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingForPeriodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
 
 object Beregning {
@@ -26,6 +27,7 @@ object Beregning {
 
     val forbruktEgenandel = Opplysningstype.heltall(forbruktEgenandelId, "Forbrukt egenandel")
     val utbetaling = Opplysningstype.heltall(utbetalingId, "Penger som skal utbetales")
+    val utbetalingForPeriode = Opplysningstype.heltall(utbetalingForPeriodeId, "Penger som skal utbetales for perioden")
 
     val forbrukt = Opplysningstype.heltall(forbrukteDagerId, "Antall dager som er forbrukt")
     val gjenstående = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår")
@@ -45,6 +47,7 @@ object Beregning {
             regel(meldt) { tomRegel }
             regel(forbruktEgenandel) { tomRegel }
             regel(utbetaling) { tomRegel }
+            regel(utbetalingForPeriode) { tomRegel }
 
             // Skal denne være her? Per dag?
             regel(terskel) { tomRegel }
@@ -60,6 +63,7 @@ object Beregning {
                 meldt,
                 forbruktEgenandel,
                 utbetaling,
+                utbetalingForPeriode,
                 terskel,
                 forbrukt,
                 gjenstående,

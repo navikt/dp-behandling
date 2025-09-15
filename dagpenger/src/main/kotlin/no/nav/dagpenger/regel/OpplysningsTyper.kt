@@ -313,6 +313,7 @@ object OpplysningsTyper {
     val meldtId = Opplysningstype.Id(UUID.fromString("01956ab8-126c-7636-803e-a5d87eda2015"), Boolsk)
     val forbruktEgenandelId = Opplysningstype.Id(UUID.fromString("01973a27-d8b3-7ffd-a81a-a3826963b079"), Heltall)
     val utbetalingId = Opplysningstype.Id(UUID.fromString("01957069-d7d5-7f7c-b359-c00686fbf1f7"), Heltall)
+    val utbetalingForPeriodeId = Opplysningstype.Id(UUID.fromString("01994cfd-9a27-762e-81fa-61f550467c95"), Heltall)
 
     // Hendelser
     val HendelseTypeId = Opplysningstype.Id(UUID.fromString("01958ef2-e237-77c4-89e1-de91256e2e4a"), Tekst)

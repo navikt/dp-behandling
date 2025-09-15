@@ -250,3 +250,4 @@ Dette er opplysninger som blir brukt av regelverket.
 |01990a09-0eab-7957-b88f-14484a50e194|Har løpende rett på dagpenger|Har løpende rett på dagpenger|Boolsk|boolean|
 |01992934-66e4-7606-bdd3-c6c9dd420ffd|Antall dager som er forbrukt|Antall dager som er forbrukt|Heltall|int|
 |01992956-e349-76b1-8f68-c9d481df3a32|Antall dager som gjenstår|Antall dager som gjenstår|Heltall|int|
+|01994cfd-9a27-762e-81fa-61f550467c95|Penger som skal utbetales for perioden|Penger som skal utbetales for perioden|Heltall|int|

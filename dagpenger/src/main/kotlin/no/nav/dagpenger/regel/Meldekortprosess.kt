@@ -67,6 +67,13 @@ class Meldekortprosess :
                 Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed),
             ),
         )
+        opplysninger.leggTil(
+            Faktum(
+                Beregning.utbetalingForPeriode,
+                resultat.utbetaling,
+                Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed),
+            ),
+        )
         val forbruksdager = resultat.forbruksdager
         meldeperiode
             .forEach { dato ->
