@@ -30,12 +30,55 @@ class RettighetsperiodePluginTest {
         )
 
     @Test
+    fun `lager ikke perioder når alle relevant vilkår mangler`() {
+        val plugin = RettighetsperiodePlugin(regelverk)
+        val opplysninger =
+            Opplysninger().apply {
+                leggTil(Faktum(utfall1, true, Gyldighetsperiode(1.januar(2018))))
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(15.januar(2018))))
+            }
+
+        // Lag perioder av løpende rett
+        plugin.ferdig(opplysninger)
+
+        val perioder = opplysninger.finnAlle(harLøpendeRett)
+
+        perioder shouldHaveSize 1
+        perioder[0].gyldighetsperiode shouldBe Gyldighetsperiode(15.januar(2018))
+        perioder[0].verdi shouldBe true
+    }
+
+    @Test
+    fun `lager bare perioder når alle relevant vilkår er vurdert `() {
+        val plugin = RettighetsperiodePlugin(regelverk)
+        val opplysninger =
+            Opplysninger().apply {
+                leggTil(Faktum(utfall1, true, Gyldighetsperiode(1.januar(2018))))
+                leggTil(Faktum(utfall2, false, Gyldighetsperiode(1.januar(2018), 14.januar(2018))))
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(15.januar(2018))))
+            }
+
+        // Lag perioder av løpende rett
+        plugin.ferdig(opplysninger)
+
+        val perioder = opplysninger.finnAlle(harLøpendeRett)
+
+        perioder shouldHaveSize 2
+        perioder[0].gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2018), 14.januar(2018))
+        perioder[0].verdi shouldBe false
+
+        perioder[1].gyldighetsperiode shouldBe Gyldighetsperiode(15.januar(2018))
+        perioder[1].verdi shouldBe true
+    }
+
+    @Test
     fun `lager riktige perioder`() {
         val plugin = RettighetsperiodePlugin(regelverk)
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(utfall1, true, Gyldighetsperiode(1.januar(2018))))
                 leggTil(Faktum(utfall2, true, Gyldighetsperiode(1.januar(2018), 10.januar(2018))))
+                leggTil(Faktum(utfall2, false, Gyldighetsperiode(11.januar(2018), 14.januar(2018))))
                 leggTil(Faktum(utfall2, true, Gyldighetsperiode(15.januar(2018))))
             }
 
@@ -53,37 +96,5 @@ class RettighetsperiodePluginTest {
 
         perioder[2].gyldighetsperiode shouldBe Gyldighetsperiode(15.januar(2018))
         perioder[2].verdi shouldBe true
-    }
-
-    @Test
-    fun `oppfyller ikke vilkår i starten, men oppfyller senere`() {
-        val plugin = RettighetsperiodePlugin(regelverk)
-        val opplysninger =
-            Opplysninger().apply {
-                leggTil(Faktum(utfall1, true, Gyldighetsperiode(10.januar(2018))))
-                leggTil(Faktum(utfall2, true, Gyldighetsperiode(10.januar(2018))))
-            }
-
-        // Lag perioder av løpende rett
-        plugin.ferdig(opplysninger)
-
-        with(opplysninger.finnAlle(harLøpendeRett)) {
-            this shouldHaveSize 1
-            this[0].gyldighetsperiode shouldBe Gyldighetsperiode(10.januar(2018))
-            this[0].verdi shouldBe true
-        }
-
-        opplysninger.leggTil(Faktum(utfall2, true, Gyldighetsperiode(15.januar(2018))))
-
-        plugin.ferdig(opplysninger)
-
-        with(opplysninger.finnAlle(harLøpendeRett)) {
-            this shouldHaveSize 2
-            this[0].gyldighetsperiode shouldBe Gyldighetsperiode(10.januar(2018), 14.januar(2018))
-            this[0].verdi shouldBe false
-
-            this[1].gyldighetsperiode shouldBe Gyldighetsperiode(15.januar(2018))
-            this[1].verdi shouldBe true
-        }
     }
 }

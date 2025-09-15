@@ -34,9 +34,10 @@ class RettighetsperiodePlugin(
         return TidslinjeBygger(utfall)
             .lagPeriode { påDato ->
                 val harVurdertAlle = påDato.map { it.opplysningstype }.containsAll(vilkår)
-                val alleVilkårOppfylt = påDato.all { it.verdi }
+                if (!harVurdertAlle) return@lagPeriode null
 
-                harVurdertAlle && alleVilkårOppfylt
+                val alleVilkårOppfylt = påDato.all { it.verdi }
+                alleVilkårOppfylt
             }.forEach { periode ->
                 val gyldighetsperiode = Gyldighetsperiode(periode.fraOgMed, periode.tilOgMed)
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
