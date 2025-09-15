@@ -1303,6 +1303,8 @@ components:
           items:
             type: string
             format: uuid
+        versjon:
+          type: string
 
     Regel:
       type: object

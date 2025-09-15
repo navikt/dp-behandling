@@ -9,6 +9,7 @@ import java.util.UUID
 data class Utledning(
     val regel: String,
     val opplysninger: List<Opplysning<*>>,
+    val versjon: String? = System.getenv("NAIS_APP_IMAGE"),
 ) {
     internal constructor(regel: Regel<*>, opplysninger: List<Opplysning<*>>) : this(regel::class.java.simpleName, opplysninger)
 }

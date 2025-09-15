@@ -243,7 +243,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             val verdi = datatype.verdi(this)
             val opprettet = this.localDateTime("opprettet")
             val utledetAvId = this.arrayOrNull<UUID>("utledet_av_id")?.toList() ?: emptyList()
-            val utledetAv = this.stringOrNull("utledet_av")?.let { UtledningRad(it, utledetAvId) }
+            val utledetAv = this.stringOrNull("utledet_av")?.let { UtledningRad(it, utledetAvId, this.stringOrNull("utledet_versjon")) }
             val erstatterId = this.uuidOrNull("erstatter_id")
 
             val kildeId = this.uuidOrNull("kilde_id")
@@ -309,8 +309,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             BatchStatement(
                 // language=PostgreSQL
                 """
-                INSERT INTO opplysning_utledning (opplysning_id, regel) 
-                VALUES (:opplysningId, :regel)
+                INSERT INTO opplysning_utledning (opplysning_id, regel, versjon) 
+                VALUES (:opplysningId, :regel, :versjon)
                 ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 opplysninger.mapNotNull { opplysningSomBleUtledet ->
@@ -318,6 +318,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         mapOf(
                             "opplysningId" to opplysningSomBleUtledet.id,
                             "regel" to utledning.regel,
+                            "versjon" to utledning.versjon,
                         )
                     }
                 },
@@ -534,6 +535,7 @@ private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> 
                     utledetAv.opplysninger.mapNotNull { opplysningId ->
                         opplysningMap[opplysningId] ?: this@somOpplysninger.find { it.id == opplysningId }?.toOpplysning()
                     },
+                    utledetAv.versjon,
                 )
             }
 
@@ -583,6 +585,7 @@ private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> 
 private data class UtledningRad(
     val regel: String,
     val opplysninger: List<UUID>,
+    val versjon: String? = null,
 )
 
 private data class OpplysningRad<T : Comparable<T>>(

@@ -220,6 +220,7 @@ private fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
                 UtledningDTO(
                     regel = RegelDTO(navn = utledning.regel),
                     opplysninger = utledning.opplysninger.map { it.id },
+                    versjon = utledning.versjon,
                 )
             },
     )
