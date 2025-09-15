@@ -100,7 +100,7 @@ class ScenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
@@ -111,12 +111,13 @@ class ScenarioTest {
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
             behovsløsere.løsningFor(Behov.OppholdINorge, false, 22.juli(2018))
+            behovsløsere.løsningFor("Har løpende rett på dagpenger", false, 22.juli(2018))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
@@ -138,12 +139,13 @@ class ScenarioTest {
             // Gjenoppta
             person.opprettBehandling(23.august(2018))
             behovsløsere.løsningFor(Behov.OppholdINorge, true, 23.august(2018))
+            behovsløsere.løsningFor("Har løpende rett på dagpenger", true, 23.august(2018))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
                     this[0].verdi.verdi shouldBe "true"
                     this[1].verdi.verdi shouldBe "false"

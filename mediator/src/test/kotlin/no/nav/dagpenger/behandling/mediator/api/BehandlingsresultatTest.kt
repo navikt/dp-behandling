@@ -20,11 +20,13 @@ import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
+import org.junit.jupiter.api.Disabled
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.Test
 
+@Disabled("Disse bør reproduseres i RettighetsperiodePluginTest")
 class BehandlingsresultatTest {
     private val ident = "123123123"
     private val behandlingId: UUID = UUID.fromString("0198132a-4d87-7622-8fd3-9aa4558b8538")

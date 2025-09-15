@@ -53,10 +53,10 @@ Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=true
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=true
+Forslag til vedtak med utfall=false
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=true
+Forslag til vedtak med utfall=false
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=false

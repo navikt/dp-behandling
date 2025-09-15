@@ -46,12 +46,12 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.TidslinjeBygger
-import no.nav.dagpenger.opplysning.TidslinjeBygger.Companion.hvorAlleVilkårErOppfylt
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.KravPåDagpenger
 import java.time.LocalDate
 import java.util.UUID
 
@@ -98,27 +98,15 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
     }
 
 private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<RettighetsperiodeDTO> {
-    val vilkår: List<Opplysningstype<Boolean>> =
-        behandlingAv.forretningsprosess.regelverk
-            .regelsettAvType(RegelsettType.Vilkår)
-            .flatMap { it.utfall }
-
-    val utfall =
-        opplysninger
-            .somListe()
-            .filter { it.opplysningstype in vilkår }
-            .filter { it.erRelevant }
-            .filterIsInstance<Opplysning<Boolean>>()
-
-    return TidslinjeBygger(utfall)
-        .lagPeriode(hvorAlleVilkårErOppfylt())
-        .map {
-            RettighetsperiodeDTO(
-                fraOgMed = it.fraOgMed,
-                tilOgMed = it.tilOgMed.tilApiDato(),
-                harRett = it.verdi,
-            )
-        }
+    // TODO: Unngå å være hardkoda til denne opplysningstypen
+    val perioder = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
+    return perioder.map {
+        RettighetsperiodeDTO(
+            fraOgMed = it.gyldighetsperiode.fom,
+            tilOgMed = it.gyldighetsperiode.tom.tilApiDato(),
+            harRett = it.verdi,
+        )
+    }
 }
 
 private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>): VurderingsresultatDTO? {

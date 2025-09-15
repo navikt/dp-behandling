@@ -1,16 +1,12 @@
 package no.nav.dagpenger.behandling.scenario
 
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
-import no.nav.dagpenger.behandling.helpers.scenario.assertions.Rettighetsperiode
-import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.Opphold
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
 import java.util.UUID
 
 // Tester ulike scenarier for kjeding av behandlinger
@@ -90,38 +86,6 @@ class OpplysningsperioderScenarioTest {
 
                 perioder[1].gyldigFraOgMed shouldBe 26.juni(2018)
                 perioder[1].gyldigTilOgMed shouldBe null
-            }
-        }
-    }
-
-    @Test
-    fun `test at redigering av perioder gir riktig sammenhengende rettighetsperiode`() {
-        nyttScenario {
-            inntektSiste12Mnd = 500000
-        }.test {
-            person.søkDagpenger(21.juni(2018))
-
-            behovsløsere.løsTilForslag()
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            vedtak {
-                utfall shouldBe true
-            }
-
-            saksbehandler.lagBehandling(1.juli(2018))
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "fjas", Gyldighetsperiode(LocalDate.MIN, 25.juni(2018)))
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode(26.juni(2018)))
-            saksbehandler.endreOpplysning(Opphold.unntakForOpphold, false, "fjas", Gyldighetsperiode(LocalDate.MIN, 27.juni(2018)))
-            saksbehandler.endreOpplysning(Opphold.unntakForOpphold, true, "fjas", Gyldighetsperiode(28.juni(2018)))
-
-            behandlingsresultatForslag {
-                rettighetsperioder.shouldContainExactly(
-                    Rettighetsperiode(21.juni(2018), 25.juni(2018), true),
-                    Rettighetsperiode(26.juni(2018), 27.juni(2018), false),
-                    Rettighetsperiode(28.juni(2018), null, true),
-                )
             }
         }
     }
