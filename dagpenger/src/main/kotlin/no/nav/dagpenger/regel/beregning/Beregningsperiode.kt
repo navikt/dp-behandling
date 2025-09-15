@@ -3,22 +3,14 @@ package no.nav.dagpenger.regel.beregning
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
-import java.math.BigDecimal
 
 data class Bøtte(
-    val sats: Beløp,
     val arbeidsdager: List<Arbeidsdag>,
-    val totalBeløp: Beløp,
-    val egenandelProsent: BigDecimal,
     val egenandel: Beløp,
     val utbetalt: Beløp,
-    val avrundetBeløpPerDag: Int = (utbetalt / arbeidsdager.size).avrundetNedoverBeløp.verdien.toInt(),
     val reminder: Beløp = Beløp(utbetalt.verdien % arbeidsdager.size.toBigDecimal()),
     val dagsbeløp: Int = ((utbetalt - reminder) / arbeidsdager.size).heleKroner.toInt(),
     val beløpSisteDag: Int = dagsbeløp + reminder.heleKroner.toInt(),
-    val totaltUtbetalt: Int = avrundetBeløpPerDag * arbeidsdager.size,
-    val egenandelPerDag: Beløp = egenandel / arbeidsdager.size,
-    val rest: Beløp = utbetalt - Beløp(totaltUtbetalt),
 )
 
 data class Beregningresultat(
@@ -91,12 +83,12 @@ class Beregningsperiode private constructor(
         val sumFørEgenAndelstrekk = Beløp(dagerGruppertPåSatsGradert.sumOf { it.first.verdien })
 
         val bøtter =
-            dagerGruppertPåSatsGradert.map { (totalBeløp, arbeidsdager) ->
+            dagerGruppertPåSatsGradert.map { (bøtteSum, arbeidsdager) ->
                 val bøtteStørrelseIProsent =
                     if (sumFørEgenAndelstrekk == Beløp(0.0)) {
                         0.0.toBigDecimal()
                     } else {
-                        (totalBeløp / sumFørEgenAndelstrekk).verdien
+                        (bøtteSum / sumFørEgenAndelstrekk).verdien
                     }
                 val egenandel =
                     minOf(
@@ -104,12 +96,9 @@ class Beregningsperiode private constructor(
                         Beløp(gjenståendeEgenandel.verdien * bøtteStørrelseIProsent).avrundetBeløp,
                     )
                 Bøtte(
-                    sats = arbeidsdager.first().sats,
                     arbeidsdager = arbeidsdager,
-                    totalBeløp = totalBeløp,
-                    egenandelProsent = bøtteStørrelseIProsent,
                     egenandel = egenandel,
-                    utbetalt = (totalBeløp - egenandel).avrundetBeløp,
+                    utbetalt = (bøtteSum - egenandel).avrundetBeløp,
                 )
             }
 
