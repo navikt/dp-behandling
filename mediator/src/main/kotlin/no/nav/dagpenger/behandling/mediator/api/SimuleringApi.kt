@@ -61,9 +61,9 @@ internal fun Application.simuleringApi() {
                             forbruktKvote = forbruksdager.count { it.verdi },
                             dager =
                                 forbruksdager.map { dag ->
-                                    with(opplysninger.forDato(dag.gyldighetsperiode.fom)) {
+                                    with(opplysninger.forDato(dag.gyldighetsperiode.fraOgMed)) {
                                         BeregningDagDTO(
-                                            dato = dag.gyldighetsperiode.fom,
+                                            dato = dag.gyldighetsperiode.fraOgMed,
                                             dagsats = dagsats.toInt(),
                                             forbruktEgenandel =
                                                 finnOpplysning(
@@ -91,7 +91,7 @@ internal fun Application.simuleringApi() {
                                     (e.message ?: "Ukjent feil ved simulering") + "Opplysninger: ${
                                         opplysninger.somListe().joinToString("\n") {
                                             """
-                                            - ${it.opplysningstype.navn} : ${it.verdi} (${it.gyldighetsperiode.fom} - ${it.gyldighetsperiode.tom}))
+                                            - ${it.opplysningstype.navn} : ${it.verdi} (${it.gyldighetsperiode.fraOgMed} - ${it.gyldighetsperiode.tilOgMed}))
                                             """.trimIndent()
                                         }
                                     }",

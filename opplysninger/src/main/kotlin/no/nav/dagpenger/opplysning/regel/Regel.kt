@@ -124,8 +124,8 @@ fun interface GyldighetsperiodeStrategi<T> {
             GyldighetsperiodeStrategi<Any> { _, basertPå ->
                 if (basertPå.isEmpty()) return@GyldighetsperiodeStrategi Gyldighetsperiode()
                 Gyldighetsperiode(
-                    fom = basertPå.maxOf { it.gyldighetsperiode.fom },
-                    tom = basertPå.minOf { it.gyldighetsperiode.tom },
+                    fraOgMed = basertPå.maxOf { it.gyldighetsperiode.fraOgMed },
+                    tilOgMed = basertPå.minOf { it.gyldighetsperiode.tilOgMed },
                 )
             }
         val egenVerdi = GyldighetsperiodeStrategi<LocalDate> { produkt, _ -> Gyldighetsperiode(fom = produkt) }

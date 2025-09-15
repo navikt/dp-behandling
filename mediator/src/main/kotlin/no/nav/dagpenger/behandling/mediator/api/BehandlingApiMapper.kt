@@ -159,7 +159,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             tidslinje =
                 opplysninger().finnAlle(hendelseTypeOpplysningstype).map {
                     TidslinjehendelseDTO(
-                        dato = it.gyldighetsperiode.fom,
+                        dato = it.gyldighetsperiode.fraOgMed,
                         hendelse = it.verdi,
                     )
                 },
@@ -211,7 +211,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         synlig = type.synlig(opplysninger()),
                         opplysninger =
                             opplysninger
-                                .sortedBy { it.gyldighetsperiode.fom }
+                                .sortedBy { it.gyldighetsperiode.fraOgMed }
                                 .map { opplysning -> opplysning.tilOpplysningDTO(opplysninger()) },
                         redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                         redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
@@ -374,8 +374,8 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
 
                 Tekst, ULID -> TekstVerdiDTO(this.verdi.toString())
             },
-        gyldigFraOgMed = this.gyldighetsperiode.fom.tilApiDato(),
-        gyldigTilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
+        gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
+        gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
         datatype = this.opplysningstype.datatype.tilDataTypeDTO(),
         kilde =
             this.kilde?.let {

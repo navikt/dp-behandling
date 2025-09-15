@@ -114,17 +114,17 @@ class OpplysningerTest {
 
         with(sisteOpplysninger.somListe()) {
             this shouldHaveSize datoer.size * 2
-            this[0].gyldighetsperiode.fom shouldBe 5.januar
-            this[0].gyldighetsperiode.tom shouldBe 10.januar
+            this[0].gyldighetsperiode.fraOgMed shouldBe 5.januar
+            this[0].gyldighetsperiode.tilOgMed shouldBe 10.januar
 
-            this[2].gyldighetsperiode.fom shouldBe 11.januar
-            this[2].gyldighetsperiode.tom shouldBe 20.januar
+            this[2].gyldighetsperiode.fraOgMed shouldBe 11.januar
+            this[2].gyldighetsperiode.tilOgMed shouldBe 20.januar
 
-            this[4].gyldighetsperiode.fom shouldBe 21.januar
-            this[4].gyldighetsperiode.tom shouldBe 24.januar
+            this[4].gyldighetsperiode.fraOgMed shouldBe 21.januar
+            this[4].gyldighetsperiode.tilOgMed shouldBe 24.januar
 
-            this.last { it.er(undervilkår1) }.gyldighetsperiode.tom shouldBe LocalDate.MAX
-            this.last { it.er(undervilkår2) }.gyldighetsperiode.tom shouldBe LocalDate.MAX
+            this.last { it.er(undervilkår1) }.gyldighetsperiode.tilOgMed shouldBe LocalDate.MAX
+            this.last { it.er(undervilkår2) }.gyldighetsperiode.tilOgMed shouldBe LocalDate.MAX
         }
     }
 

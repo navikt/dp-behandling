@@ -379,8 +379,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         "typeUuid" to opplysning.opplysningstype.id.uuid,
                         "datatype" to opplysning.opplysningstype.datatype.navn(),
                         "kilde_id" to opplysning.kilde?.id,
-                        "fom" to gyldighetsperiode.fom.takeUnless { it.isEqual(LocalDate.MIN) },
-                        "tom" to gyldighetsperiode.tom.takeUnless { it.isEqual(LocalDate.MAX) },
+                        "fom" to gyldighetsperiode.fraOgMed.takeUnless { it.isEqual(LocalDate.MIN) },
+                        "tom" to gyldighetsperiode.tilOgMed.takeUnless { it.isEqual(LocalDate.MAX) },
                         "opprettet" to opplysning.opprettet,
                     )
                 },

@@ -100,7 +100,7 @@ class Kvotetelling : ProsessPlugin {
             opplysninger
                 .finnAlle(forbrukt)
                 .lastOrNull {
-                    it.gyldighetsperiode.fom.isBefore(dager.first().gyldighetsperiode.fom)
+                    it.gyldighetsperiode.fraOgMed.isBefore(dager.first().gyldighetsperiode.fraOgMed)
                 }?.verdi ?: 0
 
         dager.forEach {

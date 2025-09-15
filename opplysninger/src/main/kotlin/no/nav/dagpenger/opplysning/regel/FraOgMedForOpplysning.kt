@@ -10,7 +10,7 @@ class FraOgMedForOpplysning internal constructor(
 ) : Regel<LocalDate>(produserer, listOf(opplysningstype)) {
     override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
         val opplysning = opplysninger.finnOpplysning(opplysningstype)
-        return opplysning.gyldighetsperiode.fom
+        return opplysning.gyldighetsperiode.fraOgMed
     }
 
     override fun toString() = "Opplysning $opplysningstype er sann"

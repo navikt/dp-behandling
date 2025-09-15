@@ -124,7 +124,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                     }
             }
 
-    val fastsatt = vedtakFastsattDTO(utfall, opplysningerSomGjelderPåPrøvingsdato)
+    val fastsatt = vedtakFastsattDTO(rettighetsperioder.last().harRett, opplysningerSomGjelderPåPrøvingsdato)
     return VedtakDTO(
         behandlingId = behandlingId,
         basertPåBehandlinger = listOfNotNull(basertPåBehandling),
@@ -177,7 +177,7 @@ private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
 
         UtbetalingDTO(
             meldeperiode = periode.verdi.hashCode().toString(),
-            dato = dag.gyldighetsperiode.fom,
+            dato = dag.gyldighetsperiode.fraOgMed,
             sats = sats.verdien.toInt(),
             utbetaling = dag.verdi,
         )
@@ -289,8 +289,8 @@ private fun Opplysning<Boolean>.tilVilkårDTO(hjemmel: String?): VilkaarDTO =
         vurderingstidspunkt = this.opprettet,
         periode =
             PeriodeDTO(
-                fraOgMed = this.gyldighetsperiode.fom,
-                tilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
+                fraOgMed = this.gyldighetsperiode.fraOgMed,
+                tilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
             ),
     )
 

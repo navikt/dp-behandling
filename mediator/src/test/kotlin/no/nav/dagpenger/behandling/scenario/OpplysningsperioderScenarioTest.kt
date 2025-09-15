@@ -74,7 +74,7 @@ class OpplysningsperioderScenarioTest {
             }
 
             // Opprinnelig periode må først kuttes
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "fjas", Gyldighetsperiode(tom = 25.juni(2018)))
+            saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "fjas", Gyldighetsperiode(tilOgMed = 25.juni(2018)))
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode(fom = 26.juni(2018)))
 
             // Assert at vi ikke har lagt til noen nye perioder

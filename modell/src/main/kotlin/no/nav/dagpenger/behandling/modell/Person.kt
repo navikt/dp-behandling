@@ -57,7 +57,10 @@ class Person(
     }
 
     override fun ferdig(event: BehandlingFerdig) {
-        rettighetstatus.put(event.virkningsdato, Rettighetstatus(event.virkningsdato, event.utfall, event.behandlingId))
+        rettighetstatus.put(
+            event.virkningsdato,
+            Rettighetstatus(event.virkningsdato, event.rettighetsperioder.last().harRett, event.behandlingId),
+        )
     }
 
     override fun håndter(hendelse: StartHendelse) {

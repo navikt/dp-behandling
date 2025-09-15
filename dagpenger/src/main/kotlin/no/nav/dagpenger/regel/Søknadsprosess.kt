@@ -97,7 +97,7 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
             opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
         } else if (opplysninger.har(hendelseTypeOpplysningstype)) {
-            opplysninger.finnOpplysning(hendelseTypeOpplysningstype).gyldighetsperiode.fom
+            opplysninger.finnOpplysning(hendelseTypeOpplysningstype).gyldighetsperiode.fraOgMed
         } else {
             throw IllegalStateException("Mangler både prøvingsdato og hendelsedato. Må ha en dato å ta utgangspunkt i for behandlingen.")
         }

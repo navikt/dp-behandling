@@ -51,7 +51,6 @@ import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.KravPåDagpenger
 import java.time.LocalDate
 import java.util.UUID
 
@@ -98,13 +97,12 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
     }
 
 private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<RettighetsperiodeDTO> {
-    // TODO: Unngå å være hardkoda til denne opplysningstypen
-    val perioder = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
+    val perioder = behandlingAv.forretningsprosess.regelverk.rettighetsperioder(opplysninger)
     return perioder.map {
         RettighetsperiodeDTO(
-            fraOgMed = it.gyldighetsperiode.fom,
-            tilOgMed = it.gyldighetsperiode.tom.tilApiDato(),
-            harRett = it.verdi,
+            fraOgMed = it.fraOgMed,
+            tilOgMed = it.tilOgMed.tilApiDato(),
+            harRett = it.harRett,
         )
     }
 }
@@ -163,8 +161,8 @@ private fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
                 true -> OpplysningsperiodeDTOStatusDTO.NY
                 false -> OpplysningsperiodeDTOStatusDTO.ARVET
             },
-        gyldigFraOgMed = this.gyldighetsperiode.fom.tilApiDato(),
-        gyldigTilOgMed = this.gyldighetsperiode.tom.tilApiDato(),
+        gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
+        gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
         verdi =
             when (this.opplysningstype.datatype) {
                 BarnDatatype ->

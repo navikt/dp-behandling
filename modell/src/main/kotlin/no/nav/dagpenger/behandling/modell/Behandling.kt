@@ -36,6 +36,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.uuid.UUIDv7
@@ -985,7 +986,7 @@ class Behandling private constructor(
             Resultat(
                 behandlingId = behandlingId,
                 basertPåBehandling = basertPåBehandlinger(),
-                utfall = forretningsprosess.utfall(opplysninger()),
+                rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()),
                 virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
@@ -1061,7 +1062,7 @@ class Behandling private constructor(
     interface VedtakOpplysninger {
         val behandlingId: UUID
         val basertPåBehandling: UUID?
-        val utfall: Boolean
+        val rettighetsperioder: List<Rettighetsperiode>
         val virkningsdato: LocalDate
         val behandlingAv: StartHendelse
         val opplysninger: LesbarOpplysninger
@@ -1077,7 +1078,7 @@ class Behandling private constructor(
     data class Resultat(
         override val behandlingId: UUID,
         override val basertPåBehandling: UUID?,
-        override val utfall: Boolean,
+        override val rettighetsperioder: List<Rettighetsperiode>,
         override val virkningsdato: LocalDate,
         override val behandlingAv: StartHendelse,
         override val opplysninger: LesbarOpplysninger,

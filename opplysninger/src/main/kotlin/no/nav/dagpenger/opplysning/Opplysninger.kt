@@ -136,7 +136,7 @@ class Opplysninger private constructor(
                         .zipWithNext()
                         .mapNotNull { (venstre, høyre) ->
                             if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
-                            if (venstre.gyldighetsperiode.fom.isEqual(høyre.gyldighetsperiode.fom)) return@mapNotNull null
+                            if (venstre.gyldighetsperiode.fraOgMed.isEqual(høyre.gyldighetsperiode.fraOgMed)) return@mapNotNull null
                             venstre.lagForkortet(høyre)
                         }
                         // Legg til den siste som ikke blir med i zipWithNext

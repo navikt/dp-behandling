@@ -122,14 +122,14 @@ class Faktum<T : Comparable<T>>(
 
     override fun lagForkortet(tilOgMed: Opplysning<*>): Opplysning<T> {
         val forrigeFom =
-            tilOgMed.gyldighetsperiode.fom
+            tilOgMed.gyldighetsperiode.fraOgMed
                 .takeUnless { it.isEqual(LocalDate.MIN) }
                 ?.minusDays(1) ?: LocalDate.MIN
         return Faktum(
             id,
             opplysningstype,
             verdi,
-            Gyldighetsperiode(fom = gyldighetsperiode.fom, tom = forrigeFom),
+            Gyldighetsperiode(fraOgMed = gyldighetsperiode.fraOgMed, tilOgMed = forrigeFom),
             utledetAv,
             kilde,
             opprettet,

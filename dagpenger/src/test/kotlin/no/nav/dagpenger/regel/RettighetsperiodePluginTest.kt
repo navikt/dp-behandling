@@ -21,9 +21,7 @@ class RettighetsperiodePluginTest {
 
     private val regelverk =
         Regelverk(
-            vilkår("vilkår 1") {
-                utfall(utfall1) { somUtgangspunkt(true) }
-            },
+            null,
             vilkår("vilkår 2") {
                 utfall(utfall2) { somUtgangspunkt(true) }
             },

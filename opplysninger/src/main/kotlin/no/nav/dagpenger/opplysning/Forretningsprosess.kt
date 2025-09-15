@@ -19,7 +19,7 @@ abstract class Forretningsprosess(
 
     open fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean = false
 
-    open fun utfall(opplysninger: LesbarOpplysninger) = regelverk.utfall(opplysninger.forDato(virkningsdato(opplysninger)))
+    open fun rettighetsperioder(opplysninger: LesbarOpplysninger) = regelverk.rettighetsperioder(opplysninger)
 
     fun regelsett() = regelverk.regelsett
 

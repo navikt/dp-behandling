@@ -11,6 +11,7 @@ data class Utfall(
 )
 
 class Regelverk(
+    val rettighetsperiodetype: Opplysningstype<Boolean>? = null,
     vararg regelsett: Regelsett,
 ) {
     private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
@@ -53,10 +54,17 @@ class Regelverk(
             .filter { it.skalKjøres(opplysninger) }
             .filter { it.påvirkerResultat(opplysninger) }
 
-    fun utfall(opplysninger: LesbarOpplysninger): Boolean =
-        relevanteVilkår(opplysninger)
-            .flatMap { it.utfall }
-            .all { opplysninger.erSann(it) }
+    fun rettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode> {
+        if (rettighetsperiodetype == null) return emptyList()
+
+        return opplysninger.finnAlle(rettighetsperiodetype).map {
+            Rettighetsperiode(
+                fraOgMed = it.gyldighetsperiode.fraOgMed,
+                tilOgMed = it.gyldighetsperiode.tilOgMed,
+                harRett = it.verdi,
+            )
+        }
+    }
 
     val vilkårsopplysninger by lazy {
         regelsett
@@ -85,3 +93,9 @@ class Regelverk(
         }
     }
 }
+
+data class Rettighetsperiode(
+    val fraOgMed: LocalDate,
+    val tilOgMed: LocalDate,
+    val harRett: Boolean,
+)

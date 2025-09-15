@@ -87,6 +87,6 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
         opplysninger.kunEgne
             .somListe()
-            .last { !it.gyldighetsperiode.fom.isEqual(LocalDate.MIN) }
-            .gyldighetsperiode.fom
+            .last { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+            .gyldighetsperiode.fraOgMed
 }

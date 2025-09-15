@@ -29,7 +29,7 @@ class RegelverkTest {
     private val r2 = vilkår("Inntekt") { regel(typeB) { innhentMed(typeA) } }
     private val r3 = vilkår("Dagpenger") { regel(typeC) { innhentMed(typeA, typeB) } }
 
-    private val regelverk = Regelverk(r1, r2, r3)
+    private val regelverk = Regelverk(null, r1, r2, r3)
 
     @Test
     fun `finner alle nødvendige regler for en opplysning helt til venstre`() {

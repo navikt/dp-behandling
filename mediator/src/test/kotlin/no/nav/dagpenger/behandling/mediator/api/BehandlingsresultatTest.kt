@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
@@ -22,6 +23,8 @@ import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.Disabled
 import java.time.LocalDate
+import java.time.LocalDate.MAX
+import java.time.LocalDate.MIN
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -193,7 +196,7 @@ class BehandlingsresultatTest {
         Behandling.Resultat(
             behandlingId = behandlingId,
             basertPåBehandling = null,
-            utfall = true,
+            rettighetsperioder = listOf(Rettighetsperiode(MIN, MAX, true)),
             virkningsdato = LocalDate.now(),
             behandlingAv =
                 SøknadInnsendtHendelse(

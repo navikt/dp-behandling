@@ -39,18 +39,25 @@ class SøknadInnsendtHendelse(
         val basertPå =
             if (unleash.isEnabled(Feature.KJEDING_AV_BEHANDLING.navn)) {
                 forrigeBehandling?.let { forrigeBehandling ->
-                    when (forrigeBehandling.behandler.erSammeType(this)) {
-                        true -> {
-                            when (forrigeBehandling.vedtakopplysninger.utfall) {
-                                // Skal IKKE kjede
-                                false -> null
-                                // Skal kjede
-                                else -> forrigeBehandling
-                            }
-                        }
-                        // Skal kjede
-                        else -> forrigeBehandling
+                    val erSammeType = forrigeBehandling.behandler.erSammeType(this)
+                    val rettighetsperioder = forrigeBehandling.vedtakopplysninger.rettighetsperioder
+
+                    // Gamle behandlinger mangler rettighetsperioder
+                    // Da skal vi ikke kjede
+                    if (rettighetsperioder.isEmpty()) {
+                        return@let null
                     }
+
+                    // TODO: VI MÅ IKKE KJEDE OSS PÅ GAMLE SAKER
+
+                    // Forrige behandling var avslag
+                    val varAvslag = rettighetsperioder.size == 1 && !rettighetsperioder.single().harRett
+
+                    if (erSammeType && varAvslag) {
+                        return@let null
+                    }
+
+                    forrigeBehandling
                 }
             } else {
                 null

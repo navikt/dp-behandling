@@ -165,7 +165,7 @@ private class TestHendelse(
     private val opplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "opplysning")
     override val forretningsprosess: Forretningsprosess
         get() =
-            object : Forretningsprosess(Regelverk(regelsett)) {
+            object : Forretningsprosess(Regelverk(null, regelsett)) {
                 override fun regelkjøring(opplysninger: Opplysninger) =
                     Regelkjøring(
                         skjedde,

@@ -15,7 +15,7 @@ typealias Tidslinje<T> = List<PeriodisertVerdi<T>>
 class TidslinjeBygger<T : Comparable<T>>(
     private val opplysninger: Collection<Opplysning<T>>,
 ) {
-    val sortertOpplysninger = opplysninger.sortedBy { it.gyldighetsperiode.fom }
+    val sortertOpplysninger = opplysninger.sortedBy { it.gyldighetsperiode.fraOgMed }
 
     fun medLikVerdi(default: T? = null) = lagPeriode { opplysninger -> opplysninger.singleOrNull()?.verdi ?: default }
 
@@ -42,7 +42,7 @@ class TidslinjeBygger<T : Comparable<T>>(
     private fun skjæringsdatoer(utfall: Collection<Opplysning<*>>): Sequence<LocalDate> =
         utfall
             .asSequence()
-            .flatMap { sequenceOf(it.gyldighetsperiode.fom, it.gyldighetsperiode.tom.nesteDag()) }
+            .flatMap { sequenceOf(it.gyldighetsperiode.fraOgMed, it.gyldighetsperiode.tilOgMed.nesteDag()) }
             .distinct()
             .filterNot { it.isEqual(MIN) } // Fjerner MIN som er default verdi
             .sorted()

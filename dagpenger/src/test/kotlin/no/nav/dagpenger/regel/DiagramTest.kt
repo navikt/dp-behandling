@@ -54,6 +54,7 @@ class DiagramTest {
     fun `lager tre av regelsettene`() {
         val regelverk =
             Regelverk(
+                KravPåDagpenger.harLøpendeRett,
                 *RegelverkDagpenger.regelsett.toTypedArray(),
             )
 

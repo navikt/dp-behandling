@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 
 val RegelverkDagpenger =
     Regelverk(
+        KravPåDagpenger.harLøpendeRett,
         Alderskrav.regelsett,
         Beregning.regelsett,
         Dagpengegrunnlag.regelsett,
@@ -51,4 +52,8 @@ val RegelverkDagpenger =
 fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
     opplysninger.erSann(minsteinntekt) || opplysninger.erSann(oppfyllerKravetTilVerneplikt)
 
-fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean = RegelverkDagpenger.utfall(opplysninger)
+fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
+    RegelverkDagpenger
+        .relevanteVilkår(opplysninger)
+        .flatMap { it.utfall }
+        .all { opplysninger.erSann(it) }
