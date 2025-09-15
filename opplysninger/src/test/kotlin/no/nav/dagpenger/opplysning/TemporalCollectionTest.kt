@@ -3,7 +3,9 @@ package no.nav.dagpenger.opplysning
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 internal class TemporalCollectionTest {
     private lateinit var satser: TemporalCollection<BigDecimal>
@@ -19,7 +21,7 @@ internal class TemporalCollectionTest {
 
     @Test
     fun `får riktig sats til riktig dato`() {
-        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+        assertThrows<IllegalArgumentException> {
             satser.get(1.januar)
         }
         assertEquals(lavSats, satser.get(1.mars))
@@ -34,5 +36,28 @@ internal class TemporalCollectionTest {
         satser.put(7.juli, BigDecimal(20))
 
         assertEquals(BigDecimal(20), satser.get(7.juli))
+    }
+
+    @Test
+    fun `Skal gi riktig verdi uansett innsettingsrekkefølge`() {
+        val temporal = TemporalCollection<String>()
+
+        temporal.put(LocalDateTime.parse("2025-05-20T00:00:00"), "R1")
+        temporal.put(LocalDateTime.parse("2024-03-10T00:00:00"), "R2") // ut av rekkefølge
+        temporal.put(LocalDateTime.parse("2025-09-30T00:00:00"), "R3")
+
+        val result = temporal.get(LocalDateTime.parse("2025-05-21T00:00:00"))
+
+        assertEquals("R1", result) // fungerer som forventet
+    }
+
+    @Test
+    fun `get kaster exception hvis ingen data er gamle nok`() {
+        val temporal = TemporalCollection<String>()
+        temporal.put(LocalDateTime.parse("2025-05-20T00:00:00"), "R1")
+
+        assertThrows<IllegalArgumentException> {
+            temporal.get(LocalDateTime.parse("2020-01-01T00:00:00"))
+        }
     }
 }
