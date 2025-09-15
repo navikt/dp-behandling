@@ -3,15 +3,54 @@ package no.nav.dagpenger.regel.beregning
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
+import java.util.SortedSet
 
-data class Bøtte(
-    val arbeidsdager: List<Arbeidsdag>,
+private data class Vedtaksopplysninger(
+    val gjenståendeEgenandel: Beløp,
+    val meldekortdager: Set<Dag>,
+    val terskelstrategi: Beregningsperiode.Terskelstrategi,
+    val stønadsdagerIgjen: Int,
+)
+
+private data class Stønadsdager(
+    val dager: SortedSet<Arbeidsdag>,
+    val sumFva: Timer,
+    val timerArbeidet: Timer,
+)
+
+private data class TaptArbeidstid(
+    val prosentfaktor: Double,
+    val terskel: Double,
+    val oppfylt: Boolean,
+)
+
+private data class SatsGruppe(
+    val sats: Beløp,
+    val dager: List<Arbeidsdag>,
+    val totalBeløpFørEgenandel: Beløp,
+)
+
+private data class Bøtte(
+    val stønadsdager: List<Arbeidsdag>,
     val egenandel: Beløp,
     val utbetalt: Beløp,
-    val reminder: Beløp = Beløp(utbetalt.verdien % arbeidsdager.size.toBigDecimal()),
-    val dagsbeløp: Int = ((utbetalt - reminder) / arbeidsdager.size).heleKroner.toInt(),
-    val beløpSisteDag: Int = dagsbeløp + reminder.heleKroner.toInt(),
-)
+) {
+    private val antallDager = stønadsdager.size
+
+    // Rester/fordeling for å sikre samme siste-dag-logikk:
+    private val desimaldel: Beløp = Beløp(utbetalt.verdien % antallDager.toBigDecimal())
+    private val dagsbeløpHeleKroner: Int =
+        ((utbetalt - desimaldel) / antallDager).heleKroner.toInt()
+    private val beløpSisteDagHeleKroner: Int =
+        dagsbeløpHeleKroner + desimaldel.heleKroner.toInt()
+
+    fun tilForbruksdager(): List<Beregningresultat.Forbruksdag> =
+        stønadsdager.mapIndexed { index, dag ->
+            val siste = index == stønadsdager.lastIndex
+            val tilUtbetaling = if (siste) beløpSisteDagHeleKroner else dagsbeløpHeleKroner
+            Beregningresultat.Forbruksdag(dag, tilUtbetaling)
+        }
+}
 
 data class Beregningresultat(
     val utbetaling: Int,
@@ -25,100 +64,123 @@ data class Beregningresultat(
 }
 
 class Beregningsperiode private constructor(
-    private val gjenståendeEgenandel: Beløp,
+    gjenståendeEgenandel: Beløp,
     dager: Set<Dag>,
     terskelstrategi: Terskelstrategi,
-    private val stønadsdagerIgjen: Int,
+    stønadsdagerIgjen: Int,
 ) {
     constructor(gjenståendeEgenandel: Beløp, dag: Set<Dag>, stønadsdagerIgjen: Int) : this(
-        gjenståendeEgenandel,
-        dag,
-        snitterskel,
-        stønadsdagerIgjen,
+        gjenståendeEgenandel = gjenståendeEgenandel,
+        dager = dag,
+        terskelstrategi = snitterskel,
+        stønadsdagerIgjen = stønadsdagerIgjen,
     )
 
     init {
         require(dager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
     }
 
-    /***
-     * Beregning av ett MK, Udos naive forbruksteller:
-     * ·       Vi har funnet at det er «rettighetsdager (dager fom. Virkningstidspunkt) i meldeperioden, og hvilke dager dette er.
-     * ·       Begynnende med tidligste dag spør vi : er den dagen vurdert tidligere med utfall ja?
-     * ·       Dersom «ja»: vurderes ikke dagen, med mindre det skal kjøres  en revurdering
-     * ·       Dersom  «nei»: spør vi: er det tidligere dager i rettighetsperioden som er vurdert med utfall ja?
-     * ·       Dersom «ja» finner vi den dagen og denne har opplysning om hvor mange dager med rettighet som gjenstår etter.
-     */
+    // 1) Pakk inndata
+    private val vedtaksopplysninger =
+        Vedtaksopplysninger(
+            gjenståendeEgenandel = gjenståendeEgenandel,
+            meldekortdager = dager,
+            terskelstrategi = terskelstrategi,
+            stønadsdagerIgjen = stønadsdagerIgjen,
+        )
 
-    private val sumFva = dager.mapNotNull { it.fva }.summer()
-    private val arbeidsdager = arbeidsdager(dager) // todo: Endre til stønadsdager
-    private val prosentfaktor = beregnProsentfaktor(dager)
+    // 2) Filtrer/ordne dager og summer timer
+    private val stønadsdager =
+        run {
+            val stønadsdager =
+                vedtaksopplysninger.meldekortdager
+                    .filterIsInstance<Arbeidsdag>()
+                    .take(minOf(vedtaksopplysninger.meldekortdager.size, vedtaksopplysninger.stønadsdagerIgjen))
+                    .toSortedSet()
 
-    private val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.summer()
-    private val terskel = (100 - terskelstrategi.beregnTerskel(arbeidsdager)) / 100
-    val oppfyllerKravTilTaptArbeidstid = (timerArbeidet / sumFva).timer <= terskel
-    val resultat = beregnUtbetaling()
+            val sumFva = vedtaksopplysninger.meldekortdager.mapNotNull { it.fva }.summer()
+            val timerArbeidet = vedtaksopplysninger.meldekortdager.mapNotNull { it.timerArbeidet }.summer()
 
-    private fun arbeidsdager(dager: Set<Dag>): Set<Arbeidsdag> {
-        val arbeidsdager = dager.filterIsInstance<Arbeidsdag>()
-        return arbeidsdager.subList(0, minOf(arbeidsdager.size, stønadsdagerIgjen)).toSortedSet()
-    }
-
-    private fun beregnProsentfaktor(dager: Set<Dag>): Timer {
-        val timerArbeidet: Timer = dager.mapNotNull { it.timerArbeidet }.summer()
-        return (sumFva - timerArbeidet) / sumFva
-    }
-
-    private fun beregnUtbetaling(): Beregningresultat {
-        if (!oppfyllerKravTilTaptArbeidstid) {
-            return Beregningresultat(0, 0, emptyList())
+            Stønadsdager(
+                dager = stønadsdager,
+                sumFva = sumFva,
+                timerArbeidet = timerArbeidet,
+            )
         }
 
-        val dagerGruppertPåSats = arbeidsdager.groupBy { it.sats }
-        val dagerGruppertPåSatsGradert =
-            dagerGruppertPåSats.map { (sats, dager) ->
-                ((sats * dager.size) * prosentfaktor) to dager
-            }
+    // 3) Beregn tapt arbeidstid/prosentfaktor og terskel
+    private val taptArbeidstid =
+        run {
+            val prosentfaktor = ((stønadsdager.sumFva - stønadsdager.timerArbeidet) / stønadsdager.sumFva).timer
+            val terskel: Double = (100 - vedtaksopplysninger.terskelstrategi.beregnTerskel(stønadsdager.dager)) / 100
+            val oppfylt = (stønadsdager.timerArbeidet / stønadsdager.sumFva).timer <= terskel
+            TaptArbeidstid(prosentfaktor, terskel, oppfylt)
+        }
 
-        val sumFørEgenAndelstrekk = Beløp(dagerGruppertPåSatsGradert.sumOf { it.first.verdien })
+    val oppfyllerKravTilTaptArbeidstid: Boolean = taptArbeidstid.oppfylt
 
-        val bøtter =
-            dagerGruppertPåSatsGradert.map { (bøtteSum, arbeidsdager) ->
-                val bøtteStørrelseIProsent =
-                    if (sumFørEgenAndelstrekk == Beløp(0.0)) {
+    // 4) Endelig resultat (immutable, beregnes én gang)
+    val resultat: Beregningresultat = beregn()
+
+    private fun beregn(): Beregningresultat {
+        if (!oppfyllerKravTilTaptArbeidstid) {
+            return Beregningresultat(utbetaling = 0, forbruktEgenandel = 0, forbruksdager = emptyList())
+        }
+
+        // 4.1) Grupper stønadsdagene per sats og beregn totalbeløp pr. gruppe før egenandel
+        val grupper: List<SatsGruppe> =
+            stønadsdager.dager
+                .groupBy { it.sats }
+                .map { (sats, dager) ->
+                    val total = ((sats * dager.size) * taptArbeidstid.prosentfaktor)
+                    SatsGruppe(
+                        sats = sats,
+                        dager = dager,
+                        totalBeløpFørEgenandel = total,
+                    )
+                }
+
+        // 4.2) Summer totalen før egenandel
+        val sumFørEgenandel = Beløp(grupper.sumOf { it.totalBeløpFørEgenandel.verdien })
+
+        // 4.3) Fordel egenandel proporsjonalt i "bøtter" og beregn utbetaling pr bøtte
+        val bøtter: List<Bøtte> =
+            grupper.map { gruppe ->
+                val andelProsent =
+                    if (sumFørEgenandel == Beløp(0.0)) {
                         0.0.toBigDecimal()
                     } else {
-                        (bøtteSum / sumFørEgenAndelstrekk).verdien
+                        (gruppe.totalBeløpFørEgenandel / sumFørEgenandel).verdien
                     }
-                val egenandel =
+
+                val egenandelForBøtte =
                     minOf(
-                        sumFørEgenAndelstrekk,
-                        Beløp(gjenståendeEgenandel.verdien * bøtteStørrelseIProsent).avrundetBeløp,
+                        sumFørEgenandel,
+                        Beløp(vedtaksopplysninger.gjenståendeEgenandel.verdien * andelProsent).avrundetBeløp,
                     )
+
+                val utbetalt = (gruppe.totalBeløpFørEgenandel - egenandelForBøtte).avrundetBeløp
+
                 Bøtte(
-                    arbeidsdager = arbeidsdager,
-                    egenandel = egenandel,
-                    utbetalt = (bøtteSum - egenandel).avrundetBeløp,
+                    stønadsdager = gruppe.dager,
+                    egenandel = egenandelForBøtte,
+                    utbetalt = utbetalt,
                 )
             }
 
+        // 4.4) Forbruksdager fra alle bøtter, sortert på dag
         val forbruksdager =
             bøtter
-                .flatMap { bøtte ->
-                    bøtte.arbeidsdager.map { dag ->
-                        val tilUtbetaling =
-                            if (dag.dato.isEqual(bøtte.arbeidsdager.last().dato)) {
-                                bøtte.beløpSisteDag
-                            } else {
-                                bøtte.dagsbeløp
-                            }
-                        Beregningresultat.Forbruksdag(dag, tilUtbetaling)
-                    }
-                }.sortedBy { it.dag.dato }
+                .flatMap { it.tilForbruksdager() }
+                .sortedBy { it.dag }
+
+        // 4.5) Summer sluttbeløp
+        val totalUtbetaling = bøtter.sumOf { it.utbetalt.verdien }.intValueExact()
+        val totalForbruktEgenandel = bøtter.sumOf { it.egenandel.heleKroner.toInt() }
 
         return Beregningresultat(
-            utbetaling = bøtter.sumOf { it.utbetalt.verdien }.intValueExact(),
-            forbruktEgenandel = bøtter.sumOf { it.egenandel.heleKroner.toInt() },
+            utbetaling = totalUtbetaling,
+            forbruktEgenandel = totalForbruktEgenandel,
             forbruksdager = forbruksdager,
         )
     }
