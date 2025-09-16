@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.mediator.meldekort
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
@@ -17,9 +18,7 @@ class MeldekortBehandlingskø(
 ) {
     companion object {
         private const val LÅSE_NØKKEL = 98769876
-        private val logger =
-            io.github.oshai.kotlinlogging.KotlinLogging
-                .logger {}
+        private val logger = KotlinLogging.logger {}
     }
 
     fun sendMeldekortTilBehandling() {
