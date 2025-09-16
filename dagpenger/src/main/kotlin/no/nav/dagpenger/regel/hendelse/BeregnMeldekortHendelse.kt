@@ -60,6 +60,7 @@ class BeregnMeldekortHendelse(
                 ),
             avklaringer =
                 listOf(
+                    // TODO: Lag en avklaring om meldekortet er korrigering
                     Avklaring(
                         Avklaringkode(
                             kode = "MeldekortBehandling",
