@@ -45,8 +45,8 @@ internal class GyldighetsperiodeTest {
 
     @Test
     fun `overlapper inni`() {
-        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
-        val b = Gyldighetsperiode(5.januar(2024), 20.januar(2024))
+        val a = Gyldighetsperiode(fraOgMed = 1.januar(2024), tilOgMed = 10.januar(2024))
+        val b = Gyldighetsperiode(fraOgMed = 5.januar(2024), tilOgMed = 20.januar(2024))
 
         a.overlapp(b) shouldBe true
         b.overlapp(a) shouldBe true
@@ -54,8 +54,17 @@ internal class GyldighetsperiodeTest {
 
     @Test
     fun `overlapper i endepunkt`() {
-        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
-        val b = Gyldighetsperiode(10.januar(2024), 15.januar(2024))
+        val a = Gyldighetsperiode(fraOgMed = 1.januar(2024), tilOgMed = 10.januar(2024))
+        val b = Gyldighetsperiode(fraOgMed = 10.januar(2024), tilOgMed = 15.januar(2024))
+        a.overlapp(b) shouldBe true
+    }
+
+    @Test
+    fun `overlapper i starten`() {
+        val a = Gyldighetsperiode(fraOgMed = 10.januar(2024), tilOgMed = 20.januar(2024))
+        val b = Gyldighetsperiode(fraOgMed = 1.januar(2024), tilOgMed = 15.januar(2024))
+
+        b.overlapp(a) shouldBe true
         a.overlapp(b) shouldBe true
     }
 
