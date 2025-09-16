@@ -63,9 +63,9 @@ internal class MeldekortInnsendtMottak(
         withLoggingContext(
             "meldekortId" to meldekortId,
         ) {
-            val message = MeldekortInnsendtMessage(packet)
             logger.info { "Vi har mottatt et meldekort" }
             sikkerlogg.info { "Mottatt meldekort: ${packet.toJson()}" }
+            val message = MeldekortInnsendtMessage(packet)
             message.behandle(messageMediator, context)
         }
     }
