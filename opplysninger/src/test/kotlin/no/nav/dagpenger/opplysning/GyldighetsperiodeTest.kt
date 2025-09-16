@@ -42,4 +42,27 @@ internal class GyldighetsperiodeTest {
 
         overlapp shouldBe mapOf(boolskA to false, boolskB to true)
     }
+
+    @Test
+    fun `overlapper inni`() {
+        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        val b = Gyldighetsperiode(5.januar(2024), 20.januar(2024))
+
+        a.overlapp(b) shouldBe true
+        b.overlapp(a) shouldBe true
+    }
+
+    @Test
+    fun `overlapper i endepunkt`() {
+        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        val b = Gyldighetsperiode(10.januar(2024), 15.januar(2024))
+        a.overlapp(b) shouldBe true
+    }
+
+    @Test
+    fun `overlapper ikke`() {
+        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        val b = Gyldighetsperiode(11.januar(2024), 20.januar(2024))
+        a.overlapp(b) shouldBe false
+    }
 }
