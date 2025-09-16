@@ -131,7 +131,7 @@ internal class MeldekortInnsendtMessage(
                                                     )
                                                 },
                                             timer =
-                                                if (it.hasNonNull("timer")) {
+                                                if (it.hasNonNull("timer") && it["timer"].asText() != "") {
                                                     Duration.parseIsoString(it["timer"].asText())
                                                 } else {
                                                     null
