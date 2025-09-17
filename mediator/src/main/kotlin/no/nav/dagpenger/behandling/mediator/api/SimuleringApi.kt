@@ -8,6 +8,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import no.nav.dagpenger.behandling.db.logger
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
@@ -68,7 +69,12 @@ internal fun Application.simuleringApi() {
                                             dagsats = dagsats.toInt(),
                                             utbetalt = finnOpplysning(Beregning.utbetaling).verdi,
                                             fastsattVanligArbeidstid = fva,
-                                            timerArbeidet = finnOpplysning(Beregning.arbeidstimer).verdi,
+                                            timerArbeidet =
+                                                if (har(Beregning.arbeidstimer)) {
+                                                    finnOpplysning(Beregning.arbeidstimer).verdi
+                                                } else {
+                                                    0.0
+                                                },
                                         )
                                     }
                                 },
@@ -76,6 +82,7 @@ internal fun Application.simuleringApi() {
 
                     call.respond(HttpStatusCode.OK, beregning)
                 } catch (e: Exception) {
+                    logger.error(e) { e.message }
                     call.respond(
                         status = HttpStatusCode.BadRequest,
                         message =

@@ -178,85 +178,85 @@ internal class SimuleringApiTest {
           "dager": [
             {
               "dagIndex": 0,
-              "dato": "2025-09-08",
-              "aktiviteter": [],
-              "meldt": true
-            },
-            {
-              "dagIndex": 1,
-              "dato": "2025-09-09",
-              "aktiviteter": [],
-              "meldt": true
-            },
-            {
-              "dagIndex": 2,
-              "dato": "2025-09-10",
-              "aktiviteter": [],
-              "meldt": true
-            },
-            {
-              "dagIndex": 3,
-              "dato": "2025-09-11",
-              "aktiviteter": [],
-              "meldt": true
-            },
-            {
-              "dagIndex": 4,
-              "dato": "2025-09-12",
-              "aktiviteter": [],
-              "meldt": true
-            },
-            {
-              "dagIndex": 5,
-              "dato": "2025-09-13",
-              "aktiviteter": [],
-              "meldt": true
-            },
-            {
-              "dagIndex": 6,
-              "dato": "2025-09-14",
-              "aktiviteter": [],
-              "meldt": true
-            },
-            {
-              "dagIndex": 7,
               "dato": "2025-09-15",
               "aktiviteter": [],
               "meldt": true
             },
             {
-              "dagIndex": 8,
+              "dagIndex": 1,
               "dato": "2025-09-16",
               "aktiviteter": [],
               "meldt": true
             },
             {
-              "dagIndex": 9,
+              "dagIndex": 2,
               "dato": "2025-09-17",
               "aktiviteter": [],
               "meldt": true
             },
             {
-              "dagIndex": 10,
+              "dagIndex": 3,
               "dato": "2025-09-18",
               "aktiviteter": [],
               "meldt": true
             },
             {
-              "dagIndex": 11,
+              "dagIndex": 4,
               "dato": "2025-09-19",
               "aktiviteter": [],
               "meldt": true
             },
             {
-              "dagIndex": 12,
+              "dagIndex": 5,
               "dato": "2025-09-20",
               "aktiviteter": [],
               "meldt": true
             },
             {
-              "dagIndex": 13,
+              "dagIndex": 6,
               "dato": "2025-09-21",
+              "aktiviteter": [],
+              "meldt": true
+            },
+            {
+              "dagIndex": 7,
+              "dato": "2025-09-22",
+              "aktiviteter": [],
+              "meldt": true
+            },
+            {
+              "dagIndex": 8,
+              "dato": "2025-09-23",
+              "aktiviteter": [],
+              "meldt": true
+            },
+            {
+              "dagIndex": 9,
+              "dato": "2025-09-24",
+              "aktiviteter": [],
+              "meldt": true
+            },
+            {
+              "dagIndex": 10,
+              "dato": "2025-09-25",
+              "aktiviteter": [],
+              "meldt": true
+            },
+            {
+              "dagIndex": 11,
+              "dato": "2025-09-26",
+              "aktiviteter": [],
+              "meldt": true
+            },
+            {
+              "dagIndex": 12,
+              "dato": "2025-09-27",
+              "aktiviteter": [],
+              "meldt": true
+            },
+            {
+              "dagIndex": 13,
+              "dato": "2025-09-28",
               "aktiviteter": [],
               "meldt": true
             }
@@ -268,9 +268,9 @@ internal class SimuleringApiTest {
           ],
           "egenandel": 2400,
           "fastsattVanligArbeidstid": 40,
-          "meldekortFom": "2025-09-08",
+          "meldekortFom": "2025-09-17",
           "stønadsperiode": {
-            "fom": "2025-09-08",
+            "fom": "2025-09-01",
             "uker": 52
           },
           "terskel": [
