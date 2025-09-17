@@ -192,7 +192,6 @@ components:
         - dagsats
         - fastsattVanligArbeidstid
         - timerArbeidet
-        - forbruktEgenandel
         - utbetalt
       properties:
         dato:
@@ -207,9 +206,6 @@ components:
         timerArbeidet:
           type: number
           format: double
-        forbruktEgenandel:
-          type: number
-          format: int32
         utbetalt:
           type: integer
           format: int32

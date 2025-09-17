@@ -66,11 +66,6 @@ internal fun Application.simuleringApi() {
                                         BeregningDagDTO(
                                             dato = dag.gyldighetsperiode.fraOgMed,
                                             dagsats = dagsats.toInt(),
-                                            forbruktEgenandel =
-                                                finnOpplysning(
-                                                    Beregning.forbruktEgenandel,
-                                                ).verdi
-                                                    .toBigDecimal(),
                                             utbetalt = finnOpplysning(Beregning.utbetaling).verdi,
                                             fastsattVanligArbeidstid = fva,
                                             timerArbeidet = finnOpplysning(Beregning.arbeidstimer).verdi,
