@@ -59,6 +59,7 @@ internal fun Application.simuleringApi() {
                         BeregningDTO(
                             forbruktEgenandel = forbruktEgenandel,
                             forbruktKvote = forbruksdager.count { it.verdi },
+                            utbetalt = opplysninger.finnOpplysning(Beregning.utbetalingForPeriode).verdi,
                             dager =
                                 forbruksdager.map { dag ->
                                     with(opplysninger.forDato(dag.gyldighetsperiode.fraOgMed)) {

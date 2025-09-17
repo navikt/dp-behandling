@@ -169,11 +169,17 @@ components:
         - dager
         - forbruktEgenandel
         - forbrukt
+        - utbetalt
       properties:
         forbruktEgenandel:
           type: integer
+          format: int32
         forbruktKvote:
           type: integer
+          format: int32
+        utbetalt:
+          type: integer
+          format: int32
         dager:
           type: array
           items:
@@ -194,6 +200,7 @@ components:
           format: date
         dagsats:
           type: integer
+          format: int32
         fastsattVanligArbeidstid:
           type: number
           format: double
@@ -202,9 +209,10 @@ components:
           format: double
         forbruktEgenandel:
           type: number
-          format: int
+          format: int32
         utbetalt:
           type: integer
+          format: int32
 
     HttpProblem:
       type: object
