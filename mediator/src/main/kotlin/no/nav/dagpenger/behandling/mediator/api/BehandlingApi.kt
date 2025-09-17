@@ -81,7 +81,6 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.collections.first
 
 private val logger = KotlinLogging.logger { }
 
@@ -380,8 +379,12 @@ internal fun Application.behandlingApi(
                         withLoggingContext(
                             "behandlingId" to behandlingId.toString(),
                         ) {
-                            val oppdaterOpplysningRequestDTO = call.receive<OppdaterOpplysningDTO>()
+                            val nyOpplysning = call.receive<OppdaterOpplysningDTO>()
                             val behandling = hentBehandling(personRepository, behandlingId)
+
+                            logger.warn {
+                                "PUT /opplysning/{opplysningId} er deprecated og vil fjernes. Bruk POST /opplysning/ med opplysningId i body"
+                            }
 
                             if (behandling.harTilstand(Redigert)) {
                                 throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
@@ -397,8 +400,8 @@ internal fun Application.behandlingApi(
                                 Mottok en endring i behandlingId=$behandlingId, 
                                 behovId=${opplysning.opplysningstype.behovId},
                                 datatype=${opplysning.opplysningstype.datatype},
-                                gyldigFraOgMed=${oppdaterOpplysningRequestDTO.gyldigFraOgMed},
-                                gyldigTilOgMed=${oppdaterOpplysningRequestDTO.gyldigTilOgMed}
+                                gyldigFraOgMed=${nyOpplysning.gyldigFraOgMed},
+                                gyldigTilOgMed=${nyOpplysning.gyldigTilOgMed}
                                 """.trimIndent()
                             }
 
@@ -407,11 +410,11 @@ internal fun Application.behandlingApi(
                                     behandlingId,
                                     opplysning.opplysningstype.behovId,
                                     behandling.behandler.ident,
-                                    HttpVerdiMapper(oppdaterOpplysningRequestDTO).map(opplysning.opplysningstype.datatype),
+                                    HttpVerdiMapper(nyOpplysning).map(opplysning.opplysningstype.datatype),
                                     call.saksbehandlerId(),
-                                    oppdaterOpplysningRequestDTO.begrunnelse,
-                                    oppdaterOpplysningRequestDTO.gyldigFraOgMed,
-                                    oppdaterOpplysningRequestDTO.gyldigTilOgMed,
+                                    nyOpplysning.begrunnelse,
+                                    nyOpplysning.gyldigFraOgMed,
+                                    nyOpplysning.gyldigTilOgMed,
                                 )
 
                             apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
@@ -453,7 +456,9 @@ internal fun Application.behandlingApi(
 
                             val perioder = kunEgne.finnAlle(opplysning.opplysningstype)
                             if (perioder.size > 1 && perioder.singleOrNull { it.erstatter != null }?.id == opplysningId) {
-                                throw BadRequestException("Kan ikke fjerne denne opplysningen, de påfølgende periodene må fjernes først")
+                                throw BadRequestException(
+                                    "Kan ikke fjerne denne opplysningen, de påfølgende periodene må fjernes først",
+                                )
                             }
 
                             logger.info {
@@ -502,6 +507,15 @@ internal fun Application.behandlingApi(
                             if (!behandling.kanRedigeres()) {
                                 throw BadRequestException(
                                     "Kan ikke redigere opplysning fordi behandlingen er ikke i redigerbar tilstand",
+                                )
+                            }
+
+                            val erTilOgMedFørFraOgMed = nyOpplysningDTO.gyldigTilOgMed?.isBefore(nyOpplysningDTO.gyldigFraOgMed) == true
+                            if (erTilOgMedFørFraOgMed) {
+                                throw BadRequestException(
+                                    """
+                                        |tilOgMed=${nyOpplysningDTO.gyldigTilOgMed} kan ikke være før fraOgMed=${nyOpplysningDTO.gyldigFraOgMed}
+                                    """.trimMargin(),
                                 )
                             }
 

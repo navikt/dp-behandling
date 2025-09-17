@@ -14,6 +14,7 @@ import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeEmpty
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -432,6 +433,29 @@ internal class BehandlingApiTest {
                 )
 
             response.status shouldBe HttpStatusCode.NoContent
+        }
+    }
+
+    @Test
+    fun `opplysning kan ikke få tilOgMed før fraOgMed`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+
+            val behandlingId = person.behandlingId
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Post,
+                    endepunkt = "/behandling/$behandlingId/opplysning/",
+                    // language=JSON
+                    body = """{ "opplysningstype": "${
+                        ReellArbeidssøker.kanJobbeDeltid.id.uuid
+                    }","verdi":"true","begrunnelse":"tekst", "gyldigFraOgMed": "2024-01-01", "gyldigTilOgMed": "2023-01-01" }""",
+                )
+
+            response.status shouldBe HttpStatusCode.BadRequest
+            val bodyAsText = response.bodyAsText()
+            bodyAsText shouldContain "tilOgMed=2023-01-01 kan ikke være før fraOgMed=2024-01-01"
         }
     }
 
