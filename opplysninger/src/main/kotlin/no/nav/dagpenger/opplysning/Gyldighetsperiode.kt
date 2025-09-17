@@ -16,10 +16,7 @@ data class Gyldighetsperiode(
     fun inneholder(dato: LocalDate) = dato in range
 
     fun overlapp(gyldighetsperiode: Gyldighetsperiode) =
-        this.contains(gyldighetsperiode.fraOgMed) ||
-            this.contains(gyldighetsperiode.fraOgMed) ||
-            gyldighetsperiode.contains(this.fraOgMed) ||
-            gyldighetsperiode.contains(this.fraOgMed)
+        this.contains(gyldighetsperiode.fraOgMed) || gyldighetsperiode.contains(this.fraOgMed)
 
     override fun toString(): String =
         when {
@@ -28,8 +25,6 @@ data class Gyldighetsperiode(
             tilOgMed.isEqual(LocalDate.MAX) -> "gyldig fra $fraOgMed"
             else -> "gyldig fra $fraOgMed til $tilOgMed"
         }
-
-    fun kopi(tom: LocalDate) = Gyldighetsperiode(fraOgMed, tom)
 
     companion object {
         fun kun(dato: LocalDate) = Gyldighetsperiode(dato, dato)
