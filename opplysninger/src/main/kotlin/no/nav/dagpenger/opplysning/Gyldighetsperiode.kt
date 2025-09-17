@@ -9,9 +9,9 @@ data class Gyldighetsperiode(
 ) : ClosedRange<LocalDate> by range {
     constructor(fom: LocalDate) : this(fom, LocalDate.MAX)
 
-    /*init {
+    init {
         require(fraOgMed.isEqual(tilOgMed) || fraOgMed.isBefore(tilOgMed)) { "tilOgMed=$tilOgMed kan ikke være før fraOgMed=$fraOgMed" }
-    }*/
+    }
 
     fun inneholder(dato: LocalDate) = dato in range
 
