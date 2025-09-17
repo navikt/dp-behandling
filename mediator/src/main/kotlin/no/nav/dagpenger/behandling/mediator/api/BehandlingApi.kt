@@ -516,7 +516,7 @@ internal fun Application.behandlingApi(
                             if (erTilOgMedFørFraOgMed) {
                                 throw BadRequestException(
                                     """
-                                        |tilOgMed=${nyOpplysningDTO.gyldigTilOgMed} kan ikke være før fraOgMed=${nyOpplysningDTO.gyldigFraOgMed}
+                                        |Til og med dato "${nyOpplysningDTO.gyldigTilOgMed}" kan ikke være før fra og med dato "${nyOpplysningDTO.gyldigFraOgMed}"
                                     """.trimMargin(),
                                 )
                             }
