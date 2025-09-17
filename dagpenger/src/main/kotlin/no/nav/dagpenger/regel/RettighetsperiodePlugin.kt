@@ -8,7 +8,6 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.TidslinjeBygger
-import no.nav.dagpenger.opplysning.Utledning
 
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
@@ -41,14 +40,8 @@ class RettighetsperiodePlugin(
                 alleVilkårOppfylt
             }.forEach { periode ->
                 val gyldighetsperiode = Gyldighetsperiode(periode.fraOgMed, periode.tilOgMed)
-                opplysninger.leggTil(
-                    Faktum(
-                        KravPåDagpenger.harLøpendeRett,
-                        periode.verdi,
-                        gyldighetsperiode,
-                        Utledning("Rettighetsperiode", utfall),
-                    ),
-                )
+
+                opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
             }
     }
 }
