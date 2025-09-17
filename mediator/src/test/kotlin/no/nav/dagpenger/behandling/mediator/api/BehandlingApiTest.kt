@@ -455,7 +455,7 @@ internal class BehandlingApiTest {
 
             response.status shouldBe HttpStatusCode.BadRequest
             val bodyAsText = response.bodyAsText()
-            bodyAsText shouldContain "tilOgMed=2023-01-01 kan ikke være før fraOgMed=2024-01-01"
+            bodyAsText shouldContain """Til og med dato \"2023-01-01\" kan ikke være før fra og med dato \"2024-01-01\""""
         }
     }
 
