@@ -383,7 +383,9 @@ internal fun Application.behandlingApi(
                             val behandling = hentBehandling(personRepository, behandlingId)
 
                             logger.warn {
-                                "PUT /opplysning/{opplysningId} er deprecated og vil fjernes. Bruk POST /opplysning/ med opplysningId i body"
+                                """PUT /opplysning/{opplysningId} er deprecated og vil fjernes. 
+                                    |Bruk POST /opplysning/ med opplysningId i body
+                                """.trimMargin()
                             }
 
                             if (behandling.harTilstand(Redigert)) {
