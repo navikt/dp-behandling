@@ -965,8 +965,9 @@ components:
         - navn
         - datatype
         - synlig
-        - opplysninger
         - formål
+        - kanOppfriskes
+        - opplysninger
       properties:
         opplysningTypeId:
           $ref: '#/components/schemas/OpplysningTypeId'
@@ -982,6 +983,9 @@ components:
           type: boolean
         formål:
           $ref: '#/components/schemas/Formål'
+        kanOppfriskes:
+          type: boolean
+          description: Indikerer om opplysningen kan oppfriskes (enten hentes inn eller utledes på nytt)
         opplysninger:
           type: array
           items:

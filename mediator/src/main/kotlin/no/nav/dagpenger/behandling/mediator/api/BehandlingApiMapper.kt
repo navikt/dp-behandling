@@ -208,6 +208,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                         redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
                         formål = type.tilFormålDTO(),
+                        kanOppfriskes = type.kanOppfriskes(),
                     )
                 },
         )
@@ -399,7 +400,7 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                 )
             },
         redigerbar = this.kanRedigeres(redigerbareOpplysninger),
-        kanOppfriskes = this.kanOppfriskes(),
+        kanOppfriskes = this.opplysningstype.kanOppfriskes(),
         synlig = this.opplysningstype.synlig(opplysninger),
         formål = opplysningstype.tilFormålDTO(),
     )
@@ -433,8 +434,8 @@ internal fun LocalDate.tilApiDato(): LocalDate? =
         else -> this
     }
 
-private fun Opplysning<*>.kanOppfriskes(): Boolean =
-    this.opplysningstype in
+private fun Opplysningstype<*>.kanOppfriskes(): Boolean =
+    this in
         setOf(
             inntektFraSkatt,
             grunnbeløpForDagpengeGrunnlag,
