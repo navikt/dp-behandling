@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.api
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.api.models.AvklaringDTO
@@ -132,16 +131,10 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
-private val logger = KotlinLogging.logger { }
-
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
-        // TODO: Det her må vi slutte med. Innholdet i vedtaktet må periodiseres
-        val prøvingsdato = behandler.forretningsprosess.virkningsdato(opplysninger)
-
-        // TODO: Filtrer bort erstattete opplysninger - dette utgår når vi periodiserer alt
-        val opplysningerPåPrøvingsdato = opplysninger().forDato(prøvingsdato)
-        val opplysningSet = opplysningerPåPrøvingsdato.somListe().toSet()
+        val opplysninger = opplysninger()
+        val somListe = opplysninger.somListe()
         val avklaringer = avklaringer().toSet()
         val spesifikkeAvklaringskoder =
             behandler.forretningsprosess.regelverk.regelsett
@@ -150,8 +143,8 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 .toSet()
         val generelleAvklaringer = avklaringer.filterNot { it.kode in spesifikkeAvklaringskoder }
 
-        val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysningerPåPrøvingsdato)
-        val utfall = relevanteVilkår.flatMap { it.utfall }.all { opplysningerPåPrøvingsdato.oppfyller(it) }
+        val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysninger)
+        val utfall = relevanteVilkår.flatMap { it.utfall }.all { opplysninger.oppfyller(it) }
 
         BehandlingDTO(
             behandlingId = this.behandlingId,
@@ -178,12 +171,12 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             vilkår =
                 behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
-                    .map { it.tilRegelsettDTO(opplysningSet, avklaringer, opplysningerPåPrøvingsdato) }
+                    .map { it.tilRegelsettDTO(somListe, avklaringer, opplysninger) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             fastsettelser =
                 behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
-                    .map { it.tilRegelsettDTO(opplysningSet, avklaringer, opplysningerPåPrøvingsdato) }
+                    .map { it.tilRegelsettDTO(somListe, avklaringer, opplysninger) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             behandletHendelse =
                 HendelseDTO(
@@ -200,7 +193,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 ),
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
             avklaringer = generelleAvklaringer.map { it.tilAvklaringDTO() },
-            opplysninger = opplysningSet.map { it.tilOpplysningDTO(opplysningerPåPrøvingsdato) },
+            opplysninger = somListe.map { it.tilOpplysningDTO(opplysninger) },
             opplysningsgrupper =
                 opplysninger().somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
                     OpplysningsgruppeDTO(
@@ -223,7 +216,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
 internal fun Behandling.tilSaksbehandlersVurderinger() =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val avklaringer = avklaringer().filter { it.løstAvSaksbehandler() }.toSet()
-        val endredeOpplysninger = opplysninger().somListe().filter { it.kilde is Saksbehandlerkilde }.toSet()
+        val endredeOpplysninger = opplysninger().somListe().filter { it.kilde is Saksbehandlerkilde }
 
         val regelsett = behandler.forretningsprosess.regelverk.regelsett
 
@@ -244,7 +237,7 @@ internal fun Behandling.tilSaksbehandlersVurderinger() =
     }
 
 private fun Regelsett.tilRegelsettDTO(
-    opplysninger: Set<Opplysning<*>>,
+    opplysninger: List<Opplysning<*>>,
     avklaringer: Set<Avklaring>,
     lesbarOpplysninger: LesbarOpplysninger,
 ): RegelsettDTO {
@@ -289,7 +282,7 @@ private fun Regelsett.tilRegelsettDTO(
 private fun tilStatus(utfall: List<Opplysning<Boolean>>): RegelsettDTOStatusDTO {
     if (utfall.isEmpty()) return RegelsettDTOStatusDTO.INFO
 
-    return if (utfall.all { it.verdi }) {
+    return if (utfall.last().verdi) {
         RegelsettDTOStatusDTO.OPPFYLT
     } else {
         RegelsettDTOStatusDTO.IKKE_OPPFYLT

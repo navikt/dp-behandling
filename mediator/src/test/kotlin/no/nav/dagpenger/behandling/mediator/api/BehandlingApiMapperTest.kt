@@ -14,9 +14,11 @@ import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.april
+import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -25,6 +27,7 @@ import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Søknadstidspunkt
@@ -96,6 +99,16 @@ class BehandlingApiMapperTest {
                     Faktum(
                         Verneplikt.avtjentVerneplikt,
                         true,
+                    ),
+                    Faktum(
+                        kravTilAlder,
+                        true,
+                        gyldighetsperiode = Gyldighetsperiode(LocalDate.MIN, 15.januar),
+                    ),
+                    Faktum(
+                        kravTilAlder,
+                        false,
+                        gyldighetsperiode = Gyldighetsperiode(16.januar),
                     ),
                     Faktum(
                         opplysningstype = Søknadstidspunkt.søknadsdato,
@@ -173,6 +186,16 @@ class BehandlingApiMapperTest {
                     .now(),
             avklaringer = avklaringer,
         )
+
+    @Test
+    fun `inneholder utfall og vilkår`() {
+        val behandlingDto = behandling.tilBehandlingDTO()
+
+        behandlingDto.utfall shouldBe false
+
+        behandlingDto.vilkår shouldHaveSize 16
+        behandlingDto.vilkår.single { it.navn == "Alder" }.relevantForVedtak shouldBe true
+    }
 
     @Test
     fun `mapper til riktig type`() {
