@@ -13,6 +13,8 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.mediator.utboks.Utboks
 import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
+import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.BehandlingHåndter
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.PersonHåndter
@@ -20,6 +22,7 @@ import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.BehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.FlyttBehandlingHendelse
@@ -35,6 +38,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
+import java.util.UUID
 
 internal class HendelseMediator(
     private val personRepository: PersonRepository,
@@ -87,17 +91,22 @@ internal class HendelseMediator(
         hentPersonOgHåndter(personidentifikator, hendelse, context, handler)
     }
 
-    private fun lagreMeldekort(
-        hendelse: MeldekortInnsendtHendelse,
+    private fun <Hendelse : BehandlingHendelse> hentBehandlingOgHåndter(
+        hendelse: Hendelse,
         context: MessageContext,
+        handler: (BehandlingHåndter) -> Unit,
     ) {
-        val personidentifikator = Ident(hendelse.ident())
-        val person = personRepository.hent(personidentifikator)
-        if (person != null) {
-            meldekortRepository.lagre(hendelse.meldekort)
-        } else {
-            logger.warn { "Vi kjenner ikke personen" }
-        }
+        behandling(hendelse.behandlingId, handler)
+        // TODO Finalize og sånt
+        val personMediator = PersonMediator()
+        ferdigstill(context, personMediator, hendelse)
+    }
+
+    private fun behandling(
+        behandlingId: UUID,
+        handler: (Behandling) -> Unit,
+    ) {
+        personRepository.håndter(behandlingId, handler)
     }
 
     @WithSpan
@@ -137,6 +146,19 @@ internal class HendelseMediator(
         personRepository.håndter(ident, handler)
     }
 
+    private fun lagreMeldekort(
+        hendelse: MeldekortInnsendtHendelse,
+        context: MessageContext,
+    ) {
+        val personidentifikator = Ident(hendelse.ident())
+        val person = personRepository.hent(personidentifikator)
+        if (person != null) {
+            meldekortRepository.lagre(hendelse.meldekort)
+        } else {
+            logger.warn { "Vi kjenner ikke personen" }
+        }
+    }
+
     @WithSpan
     private fun ferdigstill(
         context: MessageContext,
@@ -174,8 +196,8 @@ internal class HendelseMediator(
         hendelse: OpplysningSvarHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -183,8 +205,8 @@ internal class HendelseMediator(
         hendelse: AvklaringIkkeRelevantHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -192,8 +214,8 @@ internal class HendelseMediator(
         hendelse: AvklaringKvittertHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -201,8 +223,8 @@ internal class HendelseMediator(
         hendelse: PåminnelseHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -210,8 +232,8 @@ internal class HendelseMediator(
         hendelse: RekjørBehandlingHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -226,8 +248,8 @@ internal class HendelseMediator(
         hendelse: ForslagGodkjentHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -235,8 +257,8 @@ internal class HendelseMediator(
         hendelse: LåsHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -244,8 +266,8 @@ internal class HendelseMediator(
         hendelse: LåsOppHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -253,8 +275,8 @@ internal class HendelseMediator(
         hendelse: AvbrytBehandlingHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -262,8 +284,8 @@ internal class HendelseMediator(
         hendelse: GodkjennBehandlingHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -271,8 +293,8 @@ internal class HendelseMediator(
         hendelse: BesluttBehandlingHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -280,8 +302,8 @@ internal class HendelseMediator(
         hendelse: SendTilbakeHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -289,8 +311,8 @@ internal class HendelseMediator(
         hendelse: BeregnMeldekortHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentPersonOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -298,8 +320,8 @@ internal class HendelseMediator(
         hendelse: FjernOpplysningHendelse,
         context: MessageContext,
     ) {
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 
@@ -315,8 +337,8 @@ internal class HendelseMediator(
         if (behandling.kanRedigeres()) {
             personRepository.flyttBehandling(hendelse.behandlingId, hendelse.nyBasertPåId)
         }
-        hentPersonOgHåndter(hendelse, context) { person ->
-            person.håndter(hendelse)
+        hentBehandlingOgHåndter(hendelse, context) { behandling ->
+            behandling.håndter(hendelse)
         }
     }
 }

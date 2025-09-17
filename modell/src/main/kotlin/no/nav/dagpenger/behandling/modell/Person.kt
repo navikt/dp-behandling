@@ -3,26 +3,10 @@ package no.nav.dagpenger.behandling.modell
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
-import no.nav.dagpenger.behandling.modell.Behandling.Companion.finn
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.behandling.modell.PersonObservatør.PersonEvent
-import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.FlyttBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
@@ -41,8 +25,7 @@ class Person(
 ) : Aktivitetskontekst,
     PersonHåndter,
     PersonObservatør {
-    private val observatører =
-        mutableSetOf<PersonObservatør>()
+    private val observatører = mutableSetOf<PersonObservatør>()
 
     fun rettighethistorikk() = rettighetstatus.contents()
 
@@ -72,7 +55,7 @@ class Person(
         // Oppskrift for å opprette en behandling
         hendelse.leggTilKontekst(this)
         val behandling =
-            hendelse.behandling(enVeldigSmartMåteÅfinneRiktigForrigeBehandling(), rettighetstatus).also { behandling ->
+            hendelse.behandling(enVeldigSmartMåteÅfinneRiktigForrigeBehandling()).also { behandling ->
                 logger.info {
                     """
                     Oppretter behandling med behandlingId=${behandling.behandlingId} for 
@@ -98,95 +81,6 @@ class Person(
         behandlinger.lastOrNull {
             it.harTilstand(Behandling.TilstandType.Ferdig)
         }
-
-    override fun håndter(hendelse: AvklaringIkkeRelevantHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: AvklaringKvittertHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: OpplysningSvarHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: AvbrytBehandlingHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: ForslagGodkjentHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: LåsHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: LåsOppHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: PåminnelseHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: RekjørBehandlingHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: MeldekortInnsendtHendelse) {
-        hendelse.leggTilKontekst(this)
-        logger.info { "Vet ikke hvordan vi skal behandle meldekort ${hendelse.meldekort.eksternMeldekortId}" }
-    }
-
-    override fun håndter(hendelse: GodkjennBehandlingHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: BesluttBehandlingHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: SendTilbakeHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: FjernOpplysningHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
-
-    override fun håndter(hendelse: FlyttBehandlingHendelse) {
-        hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
-    }
 
     fun behandlinger() = behandlinger.toList()
 

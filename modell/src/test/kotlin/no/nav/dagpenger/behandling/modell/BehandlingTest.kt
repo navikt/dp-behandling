@@ -20,7 +20,6 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -194,10 +193,7 @@ private class TestHendelse(
             regel(opplysningstype) { enAv(opplysningstypeBehov) }
         }
 
-    override fun behandling(
-        forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling {
+    override fun behandling(forrigeBehandling: Behandling?): Behandling {
         TODO("Not yet implemented")
     }
 }

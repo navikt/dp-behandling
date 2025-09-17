@@ -13,7 +13,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.jvm.java
 
 interface AvklaringRepository {
     @WithSpan
@@ -57,6 +56,17 @@ interface BehandlingRepository :
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
     )
+
+    @WithSpan
+    fun håndter(
+        behandlingId: UUID,
+        handler: (Behandling) -> Unit,
+    ): Behandling {
+        val behandling = hentBehandling(behandlingId)!!
+        handler(behandling)
+        lagre(behandling)
+        return behandling
+    }
 }
 
 interface PersonRepository : BehandlingRepository {

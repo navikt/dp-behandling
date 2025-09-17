@@ -4,7 +4,6 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
 import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
@@ -12,7 +11,6 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
@@ -32,10 +30,7 @@ class SøknadInnsendtHendelse(
 ) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
     override val forretningsprosess = Søknadsprosess()
 
-    override fun behandling(
-        forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling {
+    override fun behandling(forrigeBehandling: Behandling?): Behandling {
         val basertPå =
             if (unleash.isEnabled(Feature.KJEDING_AV_BEHANDLING.navn)) {
                 forrigeBehandling?.let { forrigeBehandling ->

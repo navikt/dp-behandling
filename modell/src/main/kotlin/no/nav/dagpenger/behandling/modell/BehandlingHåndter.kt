@@ -17,11 +17,11 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 
-interface PersonHåndter : BehandlingHåndter
-
-interface BehandlingHåndter {
+interface PersonHåndter {
     fun håndter(hendelse: StartHendelse)
+}
 
+interface BehandlingHåndter : PersonHåndter {
     fun håndter(hendelse: OpplysningSvarHendelse)
 
     fun håndter(hendelse: AvbrytBehandlingHendelse)

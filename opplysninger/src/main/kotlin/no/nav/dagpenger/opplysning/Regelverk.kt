@@ -98,4 +98,8 @@ data class Rettighetsperiode(
     val fraOgMed: LocalDate,
     val tilOgMed: LocalDate,
     val harRett: Boolean,
-)
+) {
+    fun gjelder(dato: LocalDate): Boolean {
+        TODO("Not yet implemented")
+    }
+}
