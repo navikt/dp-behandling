@@ -46,7 +46,7 @@ class RettighetsperiodePlugin(
                         KravPåDagpenger.harLøpendeRett,
                         periode.verdi,
                         gyldighetsperiode,
-                        Utledning("Rettighetsperiode", egne.somListe()),
+                        Utledning("Rettighetsperiode", utfall),
                     ),
                 )
             }
