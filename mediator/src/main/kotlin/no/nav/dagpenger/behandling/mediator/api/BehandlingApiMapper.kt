@@ -275,7 +275,7 @@ private fun Regelsett.tilRegelsettDTO(
         status = status,
         relevantForVedtak = erRelevant,
         opplysningIder = produkter.map { opplysning -> opplysning.id },
-        opplysningTypeIder = produkter.map { opplysning -> opplysning.opplysningstype.id.uuid },
+        opplysningTypeIder = produkter.map { opplysning -> opplysning.opplysningstype.id.uuid }.distinct(),
     )
 }
 
