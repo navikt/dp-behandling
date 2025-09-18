@@ -128,6 +128,7 @@ import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
@@ -525,6 +526,7 @@ internal val redigerbareOpplysninger =
                 if (unleash.isEnabled(Feature.REDIGERING_AV_REGISTRERT_ARBEIDSSØKER.navn)) {
                     add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
                     add(Dagpengegrunnlag.grunnlag)
+                    add(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
                 }
             }
 
