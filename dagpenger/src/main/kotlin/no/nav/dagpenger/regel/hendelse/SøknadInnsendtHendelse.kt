@@ -1,8 +1,6 @@
 package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
-import no.nav.dagpenger.behandling.konfigurasjon.Feature
-import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
@@ -37,30 +35,26 @@ class SøknadInnsendtHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): Behandling {
         val basertPå =
-            if (unleash.isEnabled(Feature.KJEDING_AV_BEHANDLING.navn)) {
-                forrigeBehandling?.let { forrigeBehandling ->
-                    val erSammeType = forrigeBehandling.behandler.erSammeType(this)
-                    val rettighetsperioder = forrigeBehandling.vedtakopplysninger.rettighetsperioder
+            forrigeBehandling?.let { forrigeBehandling ->
+                val erSammeType = forrigeBehandling.behandler.erSammeType(this)
+                val rettighetsperioder = forrigeBehandling.vedtakopplysninger.rettighetsperioder
 
-                    // Gamle behandlinger mangler rettighetsperioder
-                    // Da skal vi ikke kjede
-                    if (rettighetsperioder.isEmpty()) {
-                        return@let null
-                    }
-
-                    // TODO: VI MÅ IKKE KJEDE OSS PÅ GAMLE SAKER
-
-                    // Forrige behandling var avslag
-                    val varAvslag = rettighetsperioder.size == 1 && !rettighetsperioder.single().harRett
-
-                    if (erSammeType && varAvslag) {
-                        return@let null
-                    }
-
-                    forrigeBehandling
+                // Gamle behandlinger mangler rettighetsperioder
+                // Da skal vi ikke kjede
+                if (rettighetsperioder.isEmpty()) {
+                    return@let null
                 }
-            } else {
-                null
+
+                // TODO: VI MÅ IKKE KJEDE OSS PÅ GAMLE SAKER
+
+                // Forrige behandling var avslag
+                val varAvslag = rettighetsperioder.size == 1 && !rettighetsperioder.single().harRett
+
+                if (erSammeType && varAvslag) {
+                    return@let null
+                }
+
+                forrigeBehandling
             }
 
         return Behandling(

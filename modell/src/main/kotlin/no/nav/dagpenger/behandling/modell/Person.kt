@@ -57,6 +57,12 @@ class Person(
     }
 
     override fun ferdig(event: BehandlingFerdig) {
+        // Unngår å opprette rettighetshistorikk ved avslag
+        // Da vet vi hvilke saker vi "eier" i ny løsning
+        // TODO: Skal fjernes når vi skal eie avslag også (her venter vi på automatiske brev ved avslag)
+        val erAvslag = rettighethistorikk().isEmpty() && event.rettighetsperioder.all { !it.harRett }
+        if (erAvslag) return
+
         event.rettighetsperioder.forEach {
             rettighetstatus.put(
                 it.fraOgMed,

@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.modell
 
+import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.hjelpere.juli
 import no.nav.dagpenger.behandling.hjelpere.juni
@@ -81,6 +82,26 @@ class PersonTest {
         person.harRettighet(1.juli) shouldBe true
         person.harRettighet(10.juli) shouldBe true
         person.harRettighet(11.juli) shouldBe false
+    }
+
+    @Test
+    fun `rettighetsperioder ved avslag`() {
+        val person = Person(Ident(testIdent))
+        person.harRettighet(1.juni) shouldBe false
+
+        // Innvilg ny periode
+        person.ferdig(
+            BehandlingFerdig(
+                behandlingResultat(
+                    1.juni,
+                    Rettighetsperiode(1.mai, 31.mai, false),
+                    Rettighetsperiode(1.juni, LocalDate.MAX, false),
+                ),
+            ),
+        )
+
+        person.harRettighet(1.juni) shouldBe false
+        person.rettighethistorikk().shouldBeEmpty()
     }
 
     private fun behandlingResultat(

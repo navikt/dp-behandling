@@ -7,27 +7,10 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juni
-import no.nav.dagpenger.behandling.konfigurasjon.Feature
-import no.nav.dagpenger.behandling.konfigurasjon.skruAvFeatures
-import no.nav.dagpenger.behandling.konfigurasjon.skruPåFeature
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 // Tester ulike scenarier for kjeding av behandlinger
 class KjedescenarioTest {
-    @BeforeEach
-    fun setup() {
-        // Forutsetter at unleash er skrudd på for kjeding av behandlinger
-        skruPåFeature(Feature.KJEDING_AV_BEHANDLING)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        // Nullstill unleash for å unngå at kjeding påvirker andre tester
-        skruAvFeatures()
-    }
-
     @Test
     fun `flere søknader på eksisterende kjede skal opprettes i parallell`() {
         /*

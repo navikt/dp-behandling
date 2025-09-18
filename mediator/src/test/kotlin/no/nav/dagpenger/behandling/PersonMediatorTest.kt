@@ -14,6 +14,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.maps.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -230,7 +231,10 @@ internal class PersonMediatorTest {
                     .first()
                     .aktivAvklaringer.size shouldBe 0
 
-                it.rettighethistorikk().shouldNotBeEmpty()
+                // TODO: Vi tar ikke vare på historikken på rettigheter ved avslag
+                // it.rettighethistorikk().shouldNotBeEmpty()
+                it.rettighethistorikk().shouldBeEmpty()
+
                 it.harRettighet(søknadsdato) shouldBe false
             }
         }

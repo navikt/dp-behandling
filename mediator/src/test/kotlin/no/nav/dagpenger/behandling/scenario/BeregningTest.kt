@@ -6,30 +6,13 @@ import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
-import no.nav.dagpenger.behandling.konfigurasjon.Feature
-import no.nav.dagpenger.behandling.konfigurasjon.skruAvFeatures
-import no.nav.dagpenger.behandling.konfigurasjon.skruPåFeature
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.beregning.Beregning
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class BeregningTest {
-    @BeforeEach
-    fun setup() {
-        // Forutsetter at unleash er skrudd på for kjeding av behandlinger
-        skruPåFeature(Feature.KJEDING_AV_BEHANDLING)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        // Nullstill unleash for å unngå at kjeding påvirker andre tester
-        skruAvFeatures()
-    }
-
     @Test
     fun `vi kan beregne meldekort og endre rettighetsperiode i samme behandling`() {
         SimulertDagpengerSystem.Companion

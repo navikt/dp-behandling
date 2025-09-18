@@ -42,6 +42,6 @@ fun skruAvFeatures() {
 enum class Feature(
     val navn: String,
 ) {
-    KJEDING_AV_BEHANDLING("dp-behandling.kjeding"),
+    // Vi bruker denne til å kunne innvilge langt tilbake i tid
     REDIGERING_AV_REGISTRERT_ARBEIDSSØKER("dp-behandling.redigering-arbeidssoker"),
 }
