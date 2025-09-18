@@ -57,10 +57,19 @@ class Person(
     }
 
     override fun ferdig(event: BehandlingFerdig) {
-        rettighetstatus.put(
-            event.virkningsdato,
-            Rettighetstatus(event.virkningsdato, event.rettighetsperioder.last().harRett, event.behandlingId),
-        )
+        event.rettighetsperioder.forEach {
+            rettighetstatus.put(
+                it.fraOgMed,
+                Rettighetstatus(it.fraOgMed, it.harRett, event.behandlingId),
+            )
+
+            if (!it.tilOgMed.isEqual(LocalDate.MAX) && it.harRett) {
+                rettighetstatus.put(
+                    it.tilOgMed.plusDays(1),
+                    Rettighetstatus(it.tilOgMed.plusDays(1), false, event.behandlingId),
+                )
+            }
+        }
     }
 
     override fun håndter(hendelse: StartHendelse) {
