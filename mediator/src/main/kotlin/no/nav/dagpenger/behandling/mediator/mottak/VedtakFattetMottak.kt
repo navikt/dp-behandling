@@ -23,7 +23,7 @@ class VedtakFattetMottak(
         River(rapidsConnection)
             .apply {
                 precondition {
-                    it.requireValue("@event_name", "vedtak_fattet")
+                    it.requireAny("@event_name", listOf("vedtak_fattet", "behandling_avbrutt"))
                     it.requireValue("behandletHendelse.type", "Meldekort")
                 }
                 validate { it.requireKey("behandlingId", "behandletHendelse") }
@@ -38,9 +38,8 @@ class VedtakFattetMottak(
     ) {
         withLoggingContext(
             "behandlingId" to packet["behandlingId"].asText(),
-            "event_name" to "vedtak_fattet",
         ) {
-            logger.info { "Mottok vedtak_fattet melding" }
+            logger.info { "Markerer melderkortet som ferdig behandlet" }
             val meldekortId = packet["behandletHendelse"]["id"].asText()
             meldekortRepository.markerSomFerdig(MeldekortId(meldekortId))
         }
