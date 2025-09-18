@@ -41,6 +41,8 @@ class LesbarOpplysningerMedLogg(
             }
         }
 
+    override fun erOverstyrt(opplysningstype: Opplysningstype<*>) = TODO("Not yet implemented")
+
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) = TODO("Not yet implemented")
 
     override fun <T : Comparable<T>> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = TODO("Not yet implemented")

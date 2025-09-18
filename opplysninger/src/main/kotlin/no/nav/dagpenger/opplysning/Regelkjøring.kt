@@ -144,10 +144,10 @@ class Regelkjøring(
         opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
 
         val nødvendigeRegler = avhengighetsgraf.finnAlleProdusenter(ønsketResultat, opplysningerPåPrøvingsdato)
-        val plan = nødvendigeRegler.filter { it.skalKjøre(opplysningerPåPrøvingsdato) }
+        val skalKjøres = nødvendigeRegler.filter { it.skalKjøre(opplysningerPåPrøvingsdato) }
 
-        val (ekstern, intern) = plan.partition { it is Ekstern<*> }
-        this@Regelkjøring.plan = intern.toMutableSet()
+        val (ekstern, intern) = skalKjøres.partition { it is Ekstern<*> }
+        plan = intern.toMutableSet()
         trenger = ekstern.toSet()
     }
 

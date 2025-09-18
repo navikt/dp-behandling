@@ -14,23 +14,23 @@ Dato søker når maks alder
 Prøvingsdato
 Siste mulige dag bruker kan oppfylle alderskrav
 Oppfyller kravet til alder
-Lovpålagt rapporteringsfrist for A-ordningen
-Maks lengde på opptjeningsperiode
+Kravet til reell arbeidssøker er vurdert
+Har rett til ordinære dagpenger uten arbeidsforhold
 Grunnbeløp
 Antall G for krav til 12 mnd arbeidsinntekt
 Antall G for krav til 36 mnd arbeidsinntekt
-Har rett til ordinære dagpenger uten arbeidsforhold
-Kravet til reell arbeidssøker er vurdert
-Arbeidsgivers rapporteringsfrist
-Inntektskrav for siste 12 måneder
-Inntektskrav for siste 36 måneder
+Maks lengde på opptjeningsperiode
+Lovpålagt rapporteringsfrist for A-ordningen
 Det er godkjent at bruker kun søker deltidsarbeid
 Det er godkjent at bruker kun søker arbeid lokalt
 Har helsemessige begrensninger og kan ikke ta alle typer arbeid
-Minimum vanlig arbeidstid
 Ordinære dagpenger
-Siste avsluttende kalendermåned
+Inntektskrav for siste 12 måneder
+Inntektskrav for siste 36 måneder
+Minimum vanlig arbeidstid
+Arbeidsgivers rapporteringsfrist
 Rettighetstype
+Siste avsluttende kalendermåned
 Første måned av opptjeningsperiode
 Registrert som arbeidssøker
 Oppfyller kravet til å være registrert som arbeidssøker

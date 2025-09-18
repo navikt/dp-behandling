@@ -18,8 +18,7 @@ class Opplysninger private constructor(
     private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
     private val erstattet: MutableSet<UUID> get() = alleOpplysninger.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
-    private val basertPåOpplysninger: List<Opplysning<*>> =
-        basertPå?.let { it.basertPåOpplysninger + it.egne } ?: emptyList()
+    private val basertPåOpplysninger: List<Opplysning<*>> = basertPå?.let { it.basertPåOpplysninger + it.egne } ?: emptyList()
 
     private val alleOpplysninger = CachedList { (basertPåOpplysninger + egne).utenErstattet() }
 
@@ -67,6 +66,11 @@ class Opplysninger private constructor(
 
     override fun <T : Comparable<T>> finnAlle(opplysningstype: Opplysningstype<T>) =
         alleOpplysninger.filter { it.er(opplysningstype) }.filterIsInstance<Opplysning<T>>()
+
+    override fun erOverstyrt(opplysningstype: Opplysningstype<*>): Boolean {
+        val opplysning = finnNullableOpplysning(opplysningstype) ?: return false
+        return opplysning.utledetAv == null
+    }
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
         val forDato = alleOpplysninger.gyldigeFor(gjelderFor)
@@ -126,23 +130,21 @@ class Opplysninger private constructor(
 
     private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> {
         val bearbeidet =
-            this
-                .groupBy { it.opplysningstype }
-                .mapValues { (_, perioder) ->
-                    perioder
-                        // Finn den siste for hver opplysning som har lik gyldighetsperiode
-                        .distinctByLast<Opplysning<*>, Gyldighetsperiode> { it.gyldighetsperiode }
-                        // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
-                        .zipWithNext()
-                        .mapNotNull { (venstre, høyre) ->
-                            if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
-                            if (venstre.gyldighetsperiode.fraOgMed.isEqual(høyre.gyldighetsperiode.fraOgMed)) return@mapNotNull null
-                            venstre.lagForkortet(høyre)
-                        }
-                        // Legg til den siste som ikke blir med i zipWithNext
-                        .plus(perioder.last())
-                        .toMutableList()
-                }
+            this.groupBy { it.opplysningstype }.mapValues { (_, perioder) ->
+                perioder
+                    // Finn den siste for hver opplysning som har lik gyldighetsperiode
+                    .distinctByLast<Opplysning<*>, Gyldighetsperiode> { it.gyldighetsperiode }
+                    // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
+                    .zipWithNext()
+                    .mapNotNull { (venstre, høyre) ->
+                        if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
+                        if (venstre.gyldighetsperiode.fraOgMed.isEqual(høyre.gyldighetsperiode.fraOgMed)) return@mapNotNull null
+                        venstre.lagForkortet(høyre)
+                    }
+                    // Legg til den siste som ikke blir med i zipWithNext
+                    .plus(perioder.last())
+                    .toMutableList()
+            }
 
         // Sorter opplysningene i samme rekkefølge som de var i før bearbeiding
         return this.mapNotNull { opplysning ->

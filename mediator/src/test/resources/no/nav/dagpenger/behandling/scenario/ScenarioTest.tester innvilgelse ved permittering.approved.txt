@@ -8,26 +8,24 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
-- ØnsketArbeidstid
 - RegistrertSomArbeidssøker
-- Ordinær
 - Permittert
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+- ØnsketArbeidstid
+- Ordinær
+- Inntekt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
 Laget avklaring om HarOppgittPermittering
 Laget avklaring om BeregnetArbeidstid
 Behov:
-- BostedslandErNorge
-- Barnetillegg
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -35,7 +33,9 @@ Behov:
 - Foreldrepenger
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
+- BostedslandErNorge
 - TarUtdanningEllerOpplæring
+- Barnetillegg
 Laget avklaring om BarnMåGodkjennes
 Laget avklaring om SjekkPrøvingsdato
 Behov:

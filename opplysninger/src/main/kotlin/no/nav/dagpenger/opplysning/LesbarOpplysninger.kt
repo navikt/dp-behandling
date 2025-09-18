@@ -32,6 +32,8 @@ interface LesbarOpplysninger {
 
     fun somListe(filter: Filter = Filter.Alle): List<Opplysning<*>>
 
+    fun erOverstyrt(opplysningstype: Opplysningstype<*>): Boolean
+
     companion object {
         fun Collection<Opplysning<*>>.somOpplysninger() = Opplysninger.med(this)
     }

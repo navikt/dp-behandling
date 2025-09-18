@@ -40,20 +40,25 @@ internal class Avhengighetsgraf(
         opplysninger: LesbarOpplysninger,
     ): Set<Regel<*>> {
         val besøkt = mutableSetOf<Opplysningstype<*>>()
+        val resultat = mutableSetOf<Regel<*>>()
+        val queue = ArrayDeque<Opplysningstype<*>>()
 
-        fun dfs(opplysning: Opplysningstype<*>) {
-            if (!besøkt.add(opplysning)) return // allerede besøkt
+        queue.addAll(ønsket)
+
+        while (queue.isNotEmpty()) {
+            val opplysning = queue.removeFirst()
+            if (!besøkt.add(opplysning)) continue // allerede besøkt
 
             // Ikke drill ned i overstyrte opplysninger
-            if (opplysning.erOverstyrt(opplysninger)) return
+            if (opplysninger.erOverstyrt(opplysning)) continue
 
-            val produsent = produsenter[opplysning] ?: return
-            produsent.avhengerAv.forEach { dfs(it) }
+            val produsent = produsenter[opplysning] ?: continue
+            resultat.add(produsent)
+
+            queue.addAll(produsent.avhengerAv)
         }
 
-        ønsket.forEach { dfs(it) }
-
-        return besøkt.mapNotNull { produsenter[it] }.toSet()
+        return resultat
     }
 
     /**
@@ -71,10 +76,4 @@ internal class Avhengighetsgraf(
             }
         }
     }
-}
-
-private fun Opplysningstype<*>.erOverstyrt(opplysninger: LesbarOpplysninger): Boolean {
-    if (opplysninger.mangler(this)) return false
-    if (opplysninger.finnOpplysning(this).utledetAv == null) return true
-    return false
 }
