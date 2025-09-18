@@ -7,14 +7,7 @@ class TomRegel<T : Comparable<T>> internal constructor(
     produserer: Opplysningstype<T>,
     avhengigheter: List<Opplysningstype<*>>,
 ) : Regel<T>(produserer, avhengigheter) {
-    override fun lagPlan(
-        opplysninger: LesbarOpplysninger,
-        plan: MutableSet<Regel<*>>,
-        produsenter: Map<Opplysningstype<*>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        return
-    }
+    override fun skalKjøre(opplysninger: LesbarOpplysninger) = false
 
     override fun kjør(opplysninger: LesbarOpplysninger): T = throw IllegalStateException("Kan ikke kjøres")
 

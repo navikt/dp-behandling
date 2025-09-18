@@ -17,6 +17,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -102,6 +103,32 @@ class PersonTest {
 
         person.harRettighet(1.juni) shouldBe false
         person.rettighethistorikk().shouldBeEmpty()
+    }
+
+    @Test
+    fun `rettighetsperioder vsdklgjadfgjiasjdfgkled avslag`() {
+        val person = Person(Ident(testIdent))
+        person.harRettighet(1.juni) shouldBe false
+
+        // Innvilg ny periode
+        person.ferdig(
+            BehandlingFerdig(
+                behandlingResultat(
+                    1.juni,
+                    Rettighetsperiode(1.mai, 31.mai, false),
+                    Rettighetsperiode(1.juni, LocalDate.MAX, true),
+                ),
+            ),
+        )
+
+        val statuser = person.rettighetstatus
+        val mp = Periode(28.mai, 10.juni)
+        val potensielleDager =
+            mp.associateWith { dag ->
+                runCatching { statuser.get(dag).utfall }.getOrElse { false }
+            }
+
+        println(potensielleDager)
     }
 
     private fun behandlingResultat(
