@@ -446,7 +446,7 @@ private fun Opplysningstype<*>.kanOppfriskes(): Boolean =
 // TODO: Denne bor nok et annet sted - men bare for å vise at det er mulig å ha en slik funksjon
 internal val redigerbareOpplysninger =
     object : Redigerbar {
-        private val redigerbare =
+        private val redigerbare get() =
             buildSet {
                 addAll(
                     listOf(
