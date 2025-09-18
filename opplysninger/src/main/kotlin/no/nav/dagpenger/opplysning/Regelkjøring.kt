@@ -5,7 +5,6 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
-import java.util.concurrent.atomic.AtomicInteger
 
 // Regelverksdato: Datoen regelverket gjelder fra. Som hovedregel tidspunktet søknaden ble fremmet.
 
@@ -14,8 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger
 // Virkningsdato: Dato som *behandlingen* finner til slutt
 
 typealias Informasjonsbehov = Map<Opplysningstype<*>, Set<Opplysning<*>>>
-
-val Regler = AtomicInteger()
 
 class Regelkjøring(
     private val regelverksdato: LocalDate,
@@ -156,7 +153,6 @@ class Regelkjøring(
 
     private fun kjørRegelPlan() {
         while (plan.size > 0) {
-            Regler.incrementAndGet()
             kjør(plan.first())
         }
     }
