@@ -121,7 +121,7 @@ class PersonRepositoryPostgres(
                     """
                     INSERT INTO rettighetstatus (ident, gjelder_fra, virkningsdato, har_rettighet, behandling_id)
                     VALUES (:ident, :gjelderFra, :virkningsdato, :harRettighet, :behandlingId)
-                    ON CONFLICT (behandling_id) DO NOTHING 
+                    ON CONFLICT (behandling_id) DO UPDATE SET virkningsdato = :virkningsdato, har_rettighet = :harRettighet
                     """.trimIndent(),
                     mapOf(
                         "ident" to person.ident.identifikator(),
