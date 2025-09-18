@@ -126,6 +126,11 @@ class Faktum<T : Comparable<T>>(
             tilOgMed.gyldighetsperiode.fraOgMed
                 .takeUnless { it.isEqual(LocalDate.MIN) }
                 ?.minusDays(1) ?: LocalDate.MIN
+        require(gyldighetsperiode.fraOgMed.isBefore(forrigeFom)) {
+            """Kan ikke forkorte gyldighetsperiode fra ${gyldighetsperiode.fraOgMed} til $forrigeFom.
+                |Gjelder opplysningstype: ${opplysningstype.navn}, id: $id
+            """.trimMargin()
+        }
         return Faktum(
             id,
             opplysningstype,
