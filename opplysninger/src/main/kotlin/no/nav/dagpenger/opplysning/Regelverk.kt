@@ -99,7 +99,5 @@ data class Rettighetsperiode(
     val tilOgMed: LocalDate,
     val harRett: Boolean,
 ) {
-    fun gjelder(dato: LocalDate): Boolean {
-        TODO("Not yet implemented")
-    }
+    fun gjelder(dato: LocalDate) = dato in fraOgMed..tilOgMed
 }

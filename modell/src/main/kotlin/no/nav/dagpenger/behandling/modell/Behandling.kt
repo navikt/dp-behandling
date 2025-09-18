@@ -985,8 +985,9 @@ class Behandling private constructor(
         get() =
             Resultat(
                 behandlingId = behandlingId,
+                behandling = this,
                 basertPåBehandling = basertPåBehandlinger(),
-                rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()),
+                rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()).toSet(),
                 virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
@@ -1061,8 +1062,9 @@ class Behandling private constructor(
 
     interface VedtakOpplysninger {
         val behandlingId: UUID
+        val behandling: Behandling
         val basertPåBehandling: UUID?
-        val rettighetsperioder: List<Rettighetsperiode>
+        val rettighetsperioder: Set<Rettighetsperiode>
         val virkningsdato: LocalDate
         val behandlingAv: StartHendelse
         val opplysninger: LesbarOpplysninger
@@ -1077,8 +1079,9 @@ class Behandling private constructor(
 
     data class Resultat(
         override val behandlingId: UUID,
+        override val behandling: Behandling,
         override val basertPåBehandling: UUID?,
-        override val rettighetsperioder: List<Rettighetsperiode>,
+        override val rettighetsperioder: Set<Rettighetsperiode>,
         override val virkningsdato: LocalDate,
         override val behandlingAv: StartHendelse,
         override val opplysninger: LesbarOpplysninger,
