@@ -35,11 +35,17 @@ internal class Avhengighetsgraf(
         return nødvendigeOpplysninger
     }
 
-    fun finnAlleProdusenter(ønsket: List<Opplysningstype<*>>): Set<Regel<*>> {
+    fun finnAlleProdusenter(
+        ønsket: List<Opplysningstype<*>>,
+        opplysninger: LesbarOpplysninger,
+    ): Set<Regel<*>> {
         val besøkt = mutableSetOf<Opplysningstype<*>>()
 
         fun dfs(opplysning: Opplysningstype<*>) {
-            if (!besøkt.add(opplysning)) return // already visited → avoid cycles
+            if (!besøkt.add(opplysning)) return // allerede besøkt
+
+            // Ikke drill ned i overstyrte opplysninger
+            if (opplysning.erOverstyrt(opplysninger)) return
 
             val produsent = produsenter[opplysning] ?: return
             produsent.avhengerAv.forEach { dfs(it) }
@@ -65,4 +71,10 @@ internal class Avhengighetsgraf(
             }
         }
     }
+}
+
+private fun Opplysningstype<*>.erOverstyrt(opplysninger: LesbarOpplysninger): Boolean {
+    if (opplysninger.mangler(this)) return false
+    if (opplysninger.finnOpplysning(this).utledetAv == null) return true
+    return false
 }
