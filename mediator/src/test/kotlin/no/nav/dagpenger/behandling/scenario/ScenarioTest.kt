@@ -7,12 +7,22 @@ import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Comp
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.opplysning.Regler
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Opphold
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
 class ScenarioTest {
+    companion object {
+        @AfterAll
+        @JvmStatic
+        fun tearDown() {
+            println(Regler.get())
+        }
+    }
+
     @Test
     fun `tester avslag ved for høy alder`() {
         nyttScenario {

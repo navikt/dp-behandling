@@ -8,7 +8,6 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 abstract class Regel<T : Comparable<T>> internal constructor(
     internal val produserer: Opplysningstype<T>,
@@ -21,54 +20,34 @@ abstract class Regel<T : Comparable<T>> internal constructor(
         }
     }
 
-    internal open fun lagPlan(
-        opplysninger: LesbarOpplysninger,
-        plan: MutableSet<Regel<*>>,
-        produsenter: Map<Opplysningstype<*>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        if (besøkt.contains(this)) return else besøkt.add(this)
-
-        if (opplysninger.har(produserer)) {
-            val produkt = opplysninger.finnOpplysning(produserer)
-            if (produkt.utledetAv == null) {
-                // Opplysningen er ikke utledet av noe ELLER overstyrt av saksbehandler
-                return
-            }
-
-            // Sjekk om regelen har fått nye avhengigheter
-            val regelForProdukt = produsenter[produkt.opplysningstype]
-            if (harRegelNyeAvhengigheter(regelForProdukt, produkt.utledetAv) || opplysninger.erErstattet(produkt.utledetAv.opplysninger)) {
-                // Om en avhengighet mangler, må denne regelen kjøres på nytt
-                if (regelForProdukt?.avhengerAv?.any { opplysninger.mangler(it) } == true) {
-                    regelForProdukt.avhengerAv.map { avhengighet ->
-                        val avhengigRegel = produsenter[avhengighet]
-                        avhengigRegel?.lagPlan(opplysninger, plan, produsenter, besøkt)
-                    }
-                } else {
-                    // Om alle avhengigheter er tilstede, må denne regelen kjøres på nytt
-                    plan.add(this)
-                }
-            }
-        } else {
-            val avhengigheter = opplysninger.finnFlere(avhengerAv)
-
-            if (avhengigheter.size == avhengerAv.size) {
-                plan.add(this)
-            } else {
-                avhengerAv.forEach { avhengighet ->
-                    val produsent = produsenter[avhengighet] ?: throw IllegalStateException("Fant ikke produsent for $avhengighet")
-                    produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
-                }
-            }
+    internal open fun skalKjøre(opplysninger: LesbarOpplysninger): Boolean {
+        if (opplysninger.mangler(produserer)) {
+            // Mangler produkt, må kjøre regelen
+            return avhengerAv.none { opplysninger.mangler(it) }
         }
-    }
 
-    private fun utledetAvErEndret(
-        sistEndret: LocalDateTime,
-        utledetAv: Utledning,
-    ) = utledetAv.opplysninger.any {
-        it.opprettet.isAfter(sistEndret)
+        if (avhengerAv.isEmpty()) {
+            // Har produkt og ingen avhengigheter, trenger ikke kjøre på nytt
+            return false
+        }
+
+        val produkt = opplysninger.finnOpplysning(produserer)
+        if (produkt.utledetAv == null) {
+            // Opplysningen er ikke utledet av noe ELLER overstyrt av saksbehandler
+            return false
+        }
+
+        if (harRegelNyeAvhengigheter(this, produkt.utledetAv)) {
+            // Om reglene har endret seg må vi kjøre på nytt
+            return true
+        }
+
+        if (opplysninger.erErstattet(produkt.utledetAv.opplysninger)) {
+            // Om noen av avhengighetene er endret må vi kjøre på nytt
+            return true
+        }
+
+        return false
     }
 
     private fun harRegelNyeAvhengigheter(

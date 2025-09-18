@@ -6,7 +6,7 @@ internal class Avhengighetsgraf(
     regler: Set<Regel<*>>,
 ) {
     // Mapper hver regel sin output-type til den tilhørende regelen for rask oppslag
-    private val reglerEtterOutput = regler.associateBy { it.produserer }
+    private val produsenter = regler.associateBy { it.produserer }
 
     /**
      * Finner alle mulige opplysninger som blir brukt for å produsere ønsket resultat.
@@ -22,17 +22,32 @@ internal class Avhengighetsgraf(
         nødvendigeOpplysninger.addAll(ønsketResultat)
 
         // Identifiser eksisterende opplysninger som ikke produseres av noen regel
-        val opplysningerUtenRegel = opplysninger.somListe().map { it.opplysningstype }.filter { it !in reglerEtterOutput }
+        val opplysningerUtenRegel = opplysninger.somListe().map { it.opplysningstype }.filter { it !in produsenter }
         nødvendigeOpplysninger.addAll(opplysningerUtenRegel)
 
         // Traverser fra ønskede outputs og legg til avhengigheter
         for (ønsket in ønsketResultat) {
-            val regel = reglerEtterOutput[ønsket] ?: throw IllegalStateException("Fant ikke regel for $ønsket")
+            val regel = produsenter[ønsket] ?: throw IllegalStateException("Fant ikke regel for $ønsket")
             nødvendigeOpplysninger.add(regel.produserer)
             leggTilAvhengigheter(regel, nødvendigeOpplysninger)
         }
 
         return nødvendigeOpplysninger
+    }
+
+    fun finnAlleProdusenter(ønsket: List<Opplysningstype<*>>): Set<Regel<*>> {
+        val besøkt = mutableSetOf<Opplysningstype<*>>()
+
+        fun dfs(opplysning: Opplysningstype<*>) {
+            if (!besøkt.add(opplysning)) return // already visited → avoid cycles
+
+            val produsent = produsenter[opplysning] ?: return
+            produsent.avhengerAv.forEach { dfs(it) }
+        }
+
+        ønsket.forEach { dfs(it) }
+
+        return besøkt.mapNotNull { produsenter[it] }.toSet()
     }
 
     /**
@@ -43,7 +58,7 @@ internal class Avhengighetsgraf(
         nødvendigeOpplysninger: MutableSet<Opplysningstype<*>>,
     ) {
         for (avhengighet in regel.avhengerAv) {
-            val avhengigRegel = reglerEtterOutput[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
+            val avhengigRegel = produsenter[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
 
             if (nødvendigeOpplysninger.add(avhengigRegel.produserer)) {
                 leggTilAvhengigheter(avhengigRegel, nødvendigeOpplysninger)

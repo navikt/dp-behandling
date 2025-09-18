@@ -8,23 +8,19 @@ import java.time.LocalDate
 class DagensDato internal constructor(
     produserer: Opplysningstype<LocalDate>,
 ) : Regel<LocalDate>(produserer) {
-    override fun lagPlan(
-        opplysninger: LesbarOpplysninger,
-        plan: MutableSet<Regel<*>>,
-        produsenter: Map<Opplysningstype<out Comparable<*>>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
+    override fun skalKjøre(opplysninger: LesbarOpplysninger): Boolean {
         val dagensDato = LocalDate.now()
         if (opplysninger.mangler(produserer)) {
-            plan.add(this)
-            return
+            return true
         }
 
         // Sjekk om dagens dato har endret seg siden sist
         val dag = opplysninger.finnOpplysning(produserer).verdi
         if (dagensDato.isEqual(dag)) {
-            plan.add(this)
+            return true
         }
+
+        return false
     }
 
     override fun kjør(opplysninger: LesbarOpplysninger): LocalDate = LocalDate.now()

@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
+import java.util.concurrent.atomic.AtomicInteger
 
 // Regelverksdato: Datoen regelverket gjelder fra. Som hovedregel tidspunktet søknaden ble fremmet.
 
@@ -13,6 +14,8 @@ import java.time.LocalDate
 // Virkningsdato: Dato som *behandlingen* finner til slutt
 
 typealias Informasjonsbehov = Map<Opplysningstype<*>, Set<Opplysning<*>>>
+
+val Regler = AtomicInteger()
 
 class Regelkjøring(
     private val regelverksdato: LocalDate,
@@ -142,24 +145,18 @@ class Regelkjøring(
 
     private fun aktiverRegler(prøvingsdato: LocalDate) {
         opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
-        val produksjonsplan = mutableSetOf<Regel<*>>()
-        val produsenter = gjeldendeRegler.associateBy { it.produserer }
-        val besøkt = mutableSetOf<Regel<*>>()
 
-        ønsketResultat.forEach { opplysningstype ->
-            val produsent =
-                produsenter[opplysningstype]
-                    ?: throw IllegalArgumentException("Fant ikke regel som produserer $opplysningstype")
-            produsent.lagPlan(opplysningerPåPrøvingsdato, produksjonsplan, produsenter, besøkt)
-        }
+        val toomy = avhengighetsgraf.finnAlleProdusenter(ønsketResultat)
+        val lolert = toomy.filter { it.skalKjøre(opplysningerPåPrøvingsdato) }
 
-        val (ekstern, intern) = produksjonsplan.partition { it is Ekstern<*> }
+        val (ekstern, intern) = lolert.partition { it is Ekstern<*> }
         plan = intern.toMutableSet()
         trenger = ekstern.toSet()
     }
 
     private fun kjørRegelPlan() {
         while (plan.size > 0) {
+            Regler.incrementAndGet()
             kjør(plan.first())
         }
     }
