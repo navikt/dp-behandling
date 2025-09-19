@@ -700,8 +700,6 @@ components:
         - behandletHendelse
         - automatisk
         - ident
-        - vilkår
-        - fastsettelser
         - opplysninger
         - rettighetsperioder
       properties:
@@ -712,18 +710,12 @@ components:
           description: Hvilken hendelse som utløste behandlingen
           $ref: '#/components/schemas/Hendelse'
         automatisk:
+          description: Om behandlingen har blitt behandlet automatisk uten en saksbehandler
           type: boolean
         ident:
           $ref: '#/components/schemas/Personident'
-        vilkår:
-          type: array
-          items:
-            $ref: '#/components/schemas/Vurderingsresultat'
-        fastsettelser:
-          type: array
-          items:
-            $ref: '#/components/schemas/Vurderingsresultat'
         opplysninger:
+          description: Alle opplysninger som har vært til stede under behandlingen, også historiske
           type: array
           items:
             $ref: '#/components/schemas/Opplysninger'
@@ -749,6 +741,9 @@ components:
         hjemmel:
           description: Hvilken hjemmel er regelsettet basert på
           $ref: '#/components/schemas/Hjemmel'
+        type:
+          type: string
+          enum: [ "Vilkår", "Fastsettelse" ]
         perioder:
           type: array
           items:
@@ -1643,18 +1638,22 @@ components:
           format: date
 
     Rettighetsperiode:
+      description: En periode hvor brukeren har fått vurdert sin rett på dagpenger og utfallet av vurderingen
       type: object
       required:
         - fraOgMed
         - harRett
       properties:
         fraOgMed:
+          description: Fra og med dato for rettighetsperioden
           type: string
           format: date
         tilOgMed:
+          description: Til og med dato for rettighetsperioden
           type: string
           format: date
         harRett:
+          description: Om brukeren har rett på dagpenger i denne perioden
           type: boolean
 
     Utbetaling:

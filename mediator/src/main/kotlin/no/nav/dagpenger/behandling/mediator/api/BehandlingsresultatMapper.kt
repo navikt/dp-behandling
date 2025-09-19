@@ -41,7 +41,6 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
@@ -64,16 +63,6 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
             ident = ident,
             rettighetsperioder = rettighetsperioder(),
             automatisk = automatiskBehandlet,
-            vilkår =
-                behandlingAv.forretningsprosess.regelverk
-                    .regelsettAvType(RegelsettType.Vilkår)
-                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
-                    .sortedBy { it.hjemmel.paragraf.toInt() },
-            fastsettelser =
-                behandlingAv.forretningsprosess.regelverk
-                    .regelsettAvType(RegelsettType.Fastsettelse)
-                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
-                    .sortedBy { it.hjemmel.paragraf.toInt() },
             behandletHendelse =
                 HendelseDTO(
                     id = behandlingAv.eksternId.id.toString(),
