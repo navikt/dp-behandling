@@ -63,7 +63,7 @@ class Person(
         val erAvslag = rettighethistorikk().isEmpty() && event.rettighetsperioder.all { !it.harRett }
         if (erAvslag) return
 
-        event.rettighetsperioder.forEach {
+        event.rettighetsperioder.filter { it.endret }.forEach {
             rettighetstatus.put(
                 it.fraOgMed,
                 Rettighetstatus(it.fraOgMed, it.harRett, event.behandlingId),
