@@ -36,7 +36,7 @@ class PersonTest {
             BehandlingFerdig(
                 behandlingResultat(
                     1.juni,
-                    Rettighetsperiode(1.juni, 10.juni, true),
+                    Rettighetsperiode(1.juni, 10.juni, true, true),
                 ),
             ),
         )
@@ -50,8 +50,8 @@ class PersonTest {
             BehandlingFerdig(
                 behandlingResultat(
                     11.juni,
-                    Rettighetsperiode(1.juni, 10.juni, true),
-                    Rettighetsperiode(11.juni, LocalDate.MAX, false),
+                    Rettighetsperiode(1.juni, 10.juni, true, true),
+                    Rettighetsperiode(11.juni, LocalDate.MAX, false, true),
                 ),
             ),
         )
@@ -66,10 +66,10 @@ class PersonTest {
             BehandlingFerdig(
                 behandlingResultat(
                     11.juni,
-                    Rettighetsperiode(1.juni, 10.juni, true),
-                    Rettighetsperiode(11.juni, 15.juni, false),
-                    Rettighetsperiode(1.juli, 10.juli, true),
-                    Rettighetsperiode(11.juli, LocalDate.MAX, false),
+                    Rettighetsperiode(1.juni, 10.juni, true, true),
+                    Rettighetsperiode(11.juni, 15.juni, false, true),
+                    Rettighetsperiode(1.juli, 10.juli, true, true),
+                    Rettighetsperiode(11.juli, LocalDate.MAX, false, true),
                 ),
             ),
         )
@@ -94,8 +94,8 @@ class PersonTest {
             BehandlingFerdig(
                 behandlingResultat(
                     1.juni,
-                    Rettighetsperiode(1.mai, 31.mai, false),
-                    Rettighetsperiode(1.juni, LocalDate.MAX, false),
+                    Rettighetsperiode(1.mai, 31.mai, false, true),
+                    Rettighetsperiode(1.juni, LocalDate.MAX, false, true),
                 ),
             ),
         )

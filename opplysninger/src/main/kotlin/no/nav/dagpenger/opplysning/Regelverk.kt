@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning
 import no.nav.dagpenger.dag.DAG
 import no.nav.dagpenger.dag.Edge
 import no.nav.dagpenger.dag.Node
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import java.time.LocalDate
 
 data class Utfall(
@@ -57,20 +58,21 @@ class Regelverk(
     fun rettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode> {
         if (rettighetsperiodetype == null) return emptyList()
 
-        return opplysninger.finnAlle(rettighetsperiodetype).map {
+        val egne = opplysninger.somListe(Egne)
+        return opplysninger.finnAlle(rettighetsperiodetype).map { periode ->
             Rettighetsperiode(
-                fraOgMed = it.gyldighetsperiode.fraOgMed,
-                tilOgMed = it.gyldighetsperiode.tilOgMed,
-                harRett = it.verdi,
+                fraOgMed = periode.gyldighetsperiode.fraOgMed,
+                tilOgMed = periode.gyldighetsperiode.tilOgMed,
+                harRett = periode.verdi,
+                endret = egne.contains(periode),
             )
         }
     }
 
     val vilkårsopplysninger by lazy {
         regelsett
-            .filter { regelsett ->
-                regelsett.type == RegelsettType.Vilkår
-            }.flatMap { it.utfall }
+            .filter { regelsett -> regelsett.type == RegelsettType.Vilkår }
+            .flatMap { it.utfall }
     }
 
     // Bruker Breadth-First Search (BFS) til å traversere regelsettene
@@ -98,4 +100,5 @@ data class Rettighetsperiode(
     val fraOgMed: LocalDate,
     val tilOgMed: LocalDate,
     val harRett: Boolean,
+    val endret: Boolean,
 )

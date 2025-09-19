@@ -30,6 +30,7 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgr
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
+import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
@@ -71,7 +72,10 @@ internal class ApplicationBuilder(
             ),
         )
 
-    private val hendelseMediator = HendelseMediator(personRepository, MeldekortRepositoryPostgres())
+    private val meldekortRepositoryPostgres = MeldekortRepositoryPostgres()
+    private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepositoryPostgres)
+
+    private val hendelseMediator = HendelseMediator(personRepository, meldekortRepositoryPostgres, observatører = listOf(ventendeMeldekort))
 
     private val postgresMeldingRepository = PostgresMeldingRepository()
 
@@ -113,12 +117,12 @@ internal class ApplicationBuilder(
             SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
 
             // Vedtak mottak
-            VedtakFattetMottak(rapidsConnection, MeldekortRepositoryPostgres())
+            VedtakFattetMottak(rapidsConnection, meldekortRepositoryPostgres)
 
             BehandleMeldekort(
                 MeldekortBehandlingskø(
                     personRepository,
-                    MeldekortRepositoryPostgres(),
+                    meldekortRepositoryPostgres,
                     rapidsConnection,
                 ),
             ).start()
@@ -134,7 +138,7 @@ internal class ApplicationBuilder(
                 hendelseMediator = hendelseMediator,
                 meldingRepository = postgresMeldingRepository,
                 opplysningstyper = opplysningstyper,
-                meldekortRepository = MeldekortRepositoryPostgres(),
+                meldekortRepository = meldekortRepositoryPostgres,
                 apiRepositoryPostgres = apiRepositoryPostgres,
             )
 

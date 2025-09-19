@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.jobber
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import kotlin.concurrent.fixedRateTimer
 import kotlin.time.Duration.Companion.minutes
@@ -10,6 +11,7 @@ internal class BehandleMeldekort(
 ) {
     private val logger = KotlinLogging.logger {}
 
+    @WithSpan
     fun start() {
         fixedRateTimer(
             name = "Behandle meldekort",

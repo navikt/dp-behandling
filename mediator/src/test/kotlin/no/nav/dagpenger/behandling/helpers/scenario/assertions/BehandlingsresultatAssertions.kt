@@ -24,6 +24,7 @@ internal data class Rettighetsperiode(
     val fraOgMed: LocalDate,
     val tilOgMed: LocalDate? = null,
     val harRett: Boolean,
+    val endret: Boolean,
 )
 
 internal data class Opplysningsperiode(

@@ -10,6 +10,7 @@ import no.nav.dagpenger.inntekt.v1.Inntekt
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.uuid.UUIDv7
@@ -93,8 +94,12 @@ internal class Mennesket(
     }
 
     fun sendInnMeldekort(nummer: Int) {
+        sendInnMeldekort(meldesyklus.periode(nummer))
+    }
+
+    fun sendInnMeldekort(periode: Periode) {
         val meldekortId = UUIDv7.ny()
-        val message = Meldingskatalog.sendMeldekort(ident, meldekortId, meldesyklus.periode(nummer))
+        val message = Meldingskatalog.sendMeldekort(ident, meldekortId, periode)
         rapid.sendTestMessage(message)
     }
 

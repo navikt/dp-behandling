@@ -92,6 +92,7 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
             fraOgMed = it.fraOgMed,
             tilOgMed = it.tilOgMed.tilApiDato(),
             harRett = it.harRett,
+            endret = it.endret,
         )
     }
 }

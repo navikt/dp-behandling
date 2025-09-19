@@ -1655,6 +1655,9 @@ components:
         harRett:
           description: Om brukeren har rett på dagpenger i denne perioden
           type: boolean
+        endret:
+          description: Om perioden er endret i denne behandlingen
+          type: boolean
 
     Utbetaling:
       type: object

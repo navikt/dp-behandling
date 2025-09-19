@@ -946,7 +946,7 @@ internal class PersonMediatorTest {
                 MeldekortBehandlingskø(
                     personRepository,
                     meldekortRepository = meldekortRepository,
-                    rapidsConnection = rapid,
+                    rapid = rapid,
                 )
             registrerOpplysningstyper()
             val testPerson =
@@ -1055,7 +1055,7 @@ internal class PersonMediatorTest {
                 MeldekortBehandlingskø(
                     personRepository,
                     meldekortRepository = meldekortRepository,
-                    rapidsConnection = rapid,
+                    rapid = rapid,
                 )
             registrerOpplysningstyper()
             val testPerson =

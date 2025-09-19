@@ -26,7 +26,7 @@ internal class BeregnMeldekortMottak(
     init {
         River(rapidsConnection)
             .apply {
-                validate { it.requireValue("@event_name", "beregn_meldekort") }
+                precondition { it.requireValue("@event_name", "beregn_meldekort") }
                 validate { it.requireKey("meldekortId", "ident") }
             }.register(this)
     }

@@ -2,6 +2,10 @@ package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.FailedMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
 import io.ktor.server.application.Application
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
@@ -13,6 +17,7 @@ import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
+import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
@@ -23,6 +28,7 @@ import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostg
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -48,12 +54,14 @@ internal class SimulertDagpengerSystem(
             ),
         )
     private val meldekortRepository = MeldekortRepositoryPostgres()
+    private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
     private val hendelseMediator =
         HendelseMediator(
             personRepository = personRepository,
             meldekortRepository = meldekortRepository,
             behovMediator = BehovMediator(),
             aktivitetsloggMediator = mockk(relaxed = true),
+            listOf(ventendeMeldekort),
         )
 
     private val postgresMeldingRepository = PostgresMeldingRepository()
@@ -133,16 +141,41 @@ internal class SimulertDagpengerSystem(
         personRepository.lagre(Person(ident.tilPersonIdentfikator()))
     }
 
-    fun meldekortBatch(avklar: Boolean = false) {
-        meldekortRepository.hentMeldekortkø().behandlingsklare.forEach {
-            rapid.sendTestMessage(Meldingskatalog.beregnMeldekort(person.ident, it.meldekort.id))
+    class TestLol(
+        private val rapid: TestRapid,
+    ) : MessageContext {
+        override fun publish(message: String) {
+            rapid.sendTestMessage(message)
+        }
 
-            if (avklar) {
+        override fun publish(
+            key: String,
+            message: String,
+        ) {
+            rapid.sendTestMessage(message, key)
+        }
+
+        override fun publish(messages: List<OutgoingMessage>): Pair<List<SentMessage>, List<FailedMessage>> {
+            TODO("Not yet implemented")
+        }
+
+        override fun rapidName(): String {
+            TODO("Not yet implemented")
+        }
+    }
+
+    val meldekortkø = MeldekortBehandlingskø(personRepository, meldekortRepository, TestLol(rapid))
+
+    fun meldekortBatch(avklar: Boolean = false) {
+        val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()
+
+        if (avklar) {
+            påbegynteMeldekort.forEach { eksternMeldekortId ->
                 saksbehandler.lukkAlleAvklaringer()
                 saksbehandler.godkjenn()
 
                 // Marker som ferdig (vi klarer ikke å fange det i VedtakFattetMottak)
-                meldekortRepository.markerSomFerdig(it.meldekort.eksternMeldekortId)
+                meldekortRepository.markerSomFerdig(eksternMeldekortId)
             }
         }
     }

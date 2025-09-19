@@ -8,6 +8,8 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortkø
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortstatus
+import no.nav.dagpenger.behandling.modell.BehandlingObservatør
+import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
@@ -51,6 +53,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         FROM meldekort
                         WHERE behandling_ferdig IS NULL
                         AND korrigert_av_meldekort_id IS NULL
+                        AND satt_på_vent IS NULL
                         ORDER BY ident, fom, løpenummer DESC;
                         """.trimIndent(),
                     ).map { row ->
@@ -115,6 +118,43 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         mapOf(
                             "meldekortId" to meldekortId.id,
                             "ferdig" to LocalDateTime.now(),
+                        ),
+                    ).asUpdate,
+                )
+            }
+        }
+    }
+
+    override fun settPåVent(meldekortId: MeldekortId) {
+        sessionOf(dataSource).use { session ->
+            session.transaction { tx ->
+                tx.run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        UPDATE meldekort SET satt_på_vent = :sattPaaVent WHERE meldekort_id = :meldekortId
+                        """.trimIndent(),
+                        mapOf(
+                            "meldekortId" to meldekortId.id,
+                            "sattPaaVent" to LocalDateTime.now(),
+                        ),
+                    ).asUpdate,
+                )
+            }
+        }
+    }
+
+    override fun sluttMedDerreVentegreieneNåDa(ident: String) {
+        sessionOf(dataSource).use { session ->
+            session.transaction { tx ->
+                tx.run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        UPDATE meldekort SET satt_på_vent = NULL WHERE ident = :ident AND satt_på_vent IS NOT NULL
+                        """.trimIndent(),
+                        mapOf(
+                            "ident" to ident,
                         ),
                     ).asUpdate,
                 )
@@ -274,4 +314,15 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 )
             }.asList,
         )
+}
+
+class VentendeMeldekortDings(
+    private val meldekortRepository: MeldekortRepository,
+) : PersonObservatør {
+    override fun ferdig(event: BehandlingObservatør.BehandlingFerdig) {
+        if (event.rettighetsperioder.filter { it.endret }.none { it.harRett }) return
+
+        // Om det finnes noen rettighetsperioder som har rett, så kan vi prøve å behandle meldekort på nytt
+        meldekortRepository.sluttMedDerreVentegreieneNåDa(event.ident!!)
+    }
 }

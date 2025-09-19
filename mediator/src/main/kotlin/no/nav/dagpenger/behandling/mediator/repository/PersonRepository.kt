@@ -13,7 +13,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.jvm.java
 
 interface AvklaringRepository {
     @WithSpan
@@ -114,6 +113,10 @@ interface MeldekortRepository {
     fun behandlingStartet(meldekortId: MeldekortId)
 
     fun markerSomFerdig(meldekortId: MeldekortId)
+
+    fun settPåVent(meldekortId: MeldekortId)
+
+    fun sluttMedDerreVentegreieneNåDa(ident: String)
 
     data class Meldekortkø(
         val behandlingsklare: List<Meldekortstatus>,
