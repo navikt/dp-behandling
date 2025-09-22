@@ -22,18 +22,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 enum class Søknadstype {
-    Ny,
+    NySøknad,
     Gjenopptak,
-    ;
-
-    companion object {
-        fun fraSøknad(type: String) =
-            when (type.lowercase()) {
-                "Gjenopptak" -> Gjenopptak
-                "NySøknad" -> Ny
-                else -> throw IllegalArgumentException("Ukjent søknadstype: $type")
-            }
-    }
 }
 
 class SøknadInnsendtHendelse(

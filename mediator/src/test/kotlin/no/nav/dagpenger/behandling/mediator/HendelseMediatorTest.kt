@@ -32,7 +32,7 @@ class HendelseMediatorTest {
             )
         val søknadId = UUIDv7.ny()
         val gjelderDato = LocalDate.now()
-        val hendelse = SøknadInnsendtHendelse(UUIDv7.ny(), "ident", søknadId, gjelderDato, 1, LocalDateTime.now(), Søknadstype.Ny)
+        val hendelse = SøknadInnsendtHendelse(UUIDv7.ny(), "ident", søknadId, gjelderDato, 1, LocalDateTime.now(), Søknadstype.NySøknad)
         val observer = TestObserver()
         hendelse.registrer(observer)
         hendelse.kontekst(hendelse)

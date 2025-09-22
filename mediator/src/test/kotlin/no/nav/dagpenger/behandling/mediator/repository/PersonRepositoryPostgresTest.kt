@@ -39,7 +39,7 @@ class PersonRepositoryPostgresTest {
             gjelderDato = LocalDate.now(),
             fagsakId = 1,
             opprettet = LocalDateTime.now(),
-            Søknadstype.Ny,
+            Søknadstype.NySøknad,
         )
 
     @Test
