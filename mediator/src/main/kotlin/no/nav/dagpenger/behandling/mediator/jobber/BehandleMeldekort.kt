@@ -9,7 +9,9 @@ import kotlin.time.Duration.Companion.minutes
 internal class BehandleMeldekort(
     private val meldekortBehandlingskø: MeldekortBehandlingskø,
 ) {
-    private val logger = KotlinLogging.logger {}
+    private companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 
     @WithSpan
     fun start() {
@@ -20,11 +22,8 @@ internal class BehandleMeldekort(
             period = 1.minutes.inWholeMilliseconds,
             action = {
                 try {
-                    if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp") {
-                        meldekortBehandlingskø.sendMeldekortTilBehandling()
-                    } else {
-                        logger.info { "Behandle meldekort kjører ikke i prod" }
-                    }
+                    logger.info { "Starter behandling av meldekortkø" }
+                    meldekortBehandlingskø.sendMeldekortTilBehandling()
                 } catch (e: Exception) {
                     logger.error(e) { "Behandle meldekort feilet" }
                 }

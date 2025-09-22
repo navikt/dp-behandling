@@ -33,7 +33,7 @@ class BehandlingRepositoryPostgresTest {
             gjelderDato = LocalDate.now(),
             fagsakId = 1,
             opprettet = LocalDateTime.now(),
-            Søknadstype.Ny,
+            Søknadstype.NySøknad,
         )
     private val prøvingsdatoOpplysning = Faktum(prøvingsdato, LocalDate.now())
     private val tidligereOpplysning =

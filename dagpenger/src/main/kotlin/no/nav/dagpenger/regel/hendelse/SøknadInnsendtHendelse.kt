@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 enum class Søknadstype {
-    Ny,
+    NySøknad,
     Gjenopptak,
 }
 

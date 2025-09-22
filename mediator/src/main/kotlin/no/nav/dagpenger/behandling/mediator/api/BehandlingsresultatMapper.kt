@@ -17,7 +17,7 @@ import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTOStatusDTO
+import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
@@ -92,7 +92,7 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
             fraOgMed = it.fraOgMed,
             tilOgMed = it.tilOgMed.tilApiDato(),
             harRett = it.harRett,
-            endret = it.endret,
+            opprinnelse = it.endret.tilOpprinnelseDTO(),
         )
     }
 }
@@ -142,15 +142,18 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>
     )
 }
 
+private fun Boolean.tilOpprinnelseDTO() =
+    when (this) {
+        true -> OpprinnelseDTO.NY
+        false -> OpprinnelseDTO.ARVET
+    }
+
 private fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
     OpplysningsperiodeDTO(
         id = this.id,
         opprettet = opprettet,
-        status =
-            when (id in egneId) {
-                true -> OpplysningsperiodeDTOStatusDTO.NY
-                false -> OpplysningsperiodeDTOStatusDTO.ARVET
-            },
+        status = (id in egneId).tilOpprinnelseDTO(),
+        opprinnelse = (id in egneId).tilOpprinnelseDTO(),
         gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
         gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
         verdi =
