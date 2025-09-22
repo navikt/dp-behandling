@@ -77,7 +77,7 @@ class MeldekortBehandlingskø(
                                 }
                             }
                         }
-                    } while (kø.behandlingsklare.isNotEmpty())
+                    } while (kø.behandlingsklare.isNotEmpty() && skalKjøre)
                 }
             }
         }
