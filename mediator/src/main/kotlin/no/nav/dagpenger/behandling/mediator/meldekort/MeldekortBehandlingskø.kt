@@ -20,10 +20,9 @@ class MeldekortBehandlingskø(
     companion object {
         private const val LÅSE_NØKKEL = 98769876
         private val logger = KotlinLogging.logger {}
-        private val skalKjøre = System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp"
     }
 
-    fun sendMeldekortTilBehandling(): List<MeldekortId> {
+    fun sendMeldekortTilBehandling(skalKjøre: Boolean = true): List<MeldekortId> {
         val begynteMeldekort = mutableListOf<MeldekortId>()
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
@@ -78,7 +77,7 @@ class MeldekortBehandlingskø(
                                 }
                             }
                         }
-                    } while (kø.behandlingsklare.isNotEmpty())
+                    } while (kø.behandlingsklare.isNotEmpty() && skalKjøre)
                 }
             }
         }
