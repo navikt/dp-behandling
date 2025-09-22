@@ -1075,9 +1075,10 @@ components:
           type: string
           format: date-time
         status:
-          description: Om opplysningen ble opprettet i denne behandlingen eller arvet fra tidligere behandlinger
-          type: string
-          enum: [ "Ny", "Arvet" ]
+          deprecated: true
+          $ref: '#/components/schemas/Opprinnelse'
+        opprinnelse:
+          $ref: '#/components/schemas/Opprinnelse'
         gyldigFraOgMed:
           type: string
           format: date
@@ -1094,6 +1095,11 @@ components:
           $ref: '#/components/schemas/Opplysningskilde'
         utledetAv:
           $ref: '#/components/schemas/Utledning'
+
+    Opprinnelse:
+      description: Om opplysningen ble opprettet i denne behandlingen eller arvet fra tidligere behandlinger
+      type: string
+      enum: [ "Ny", "Arvet" ]
 
     Opplysningsverdi:
       description: |
@@ -1655,9 +1661,8 @@ components:
         harRett:
           description: Om brukeren har rett på dagpenger i denne perioden
           type: boolean
-        endret:
-          description: Om perioden er endret i denne behandlingen
-          type: boolean
+        opprinnelse:
+          $ref: '#/components/schemas/Opprinnelse'
 
     Utbetaling:
       type: object

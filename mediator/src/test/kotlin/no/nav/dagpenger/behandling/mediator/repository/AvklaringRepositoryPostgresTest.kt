@@ -119,7 +119,7 @@ class AvklaringRepositoryPostgresTest {
                         LocalDate.now(),
                         1,
                         LocalDateTime.now(),
-                        Søknadstype.Ny,
+                        Søknadstype.NySøknad,
                     ),
                 gjeldendeOpplysninger =
                     Opplysninger.med(

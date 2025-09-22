@@ -31,7 +31,7 @@ dependencies {
     implementation(libs.bundles.ktor.server)
     implementation("io.ktor:ktor-server-core-jvm:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-swagger:${libs.versions.ktor.get()}")
-    implementation("com.github.navikt.tbd-libs:naisful-app:2025.09.15-16.10-ac41dc5c")
+    implementation("com.github.navikt.tbd-libs:naisful-app:2025.09.19-13.31-61342e73")
 
     implementation("com.fasterxml.jackson.module:jackson-module-afterburner:2.20.0")
 
@@ -42,7 +42,7 @@ dependencies {
     testImplementation(libs.mock.oauth2.server)
     testImplementation(libs.bundles.postgres.test)
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
-    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:2025.09.15-16.10-ac41dc5c")
+    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:2025.09.19-13.31-61342e73")
     testImplementation("com.approvaltests:approvaltests:22.3.3")
 }
 
