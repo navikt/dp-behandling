@@ -23,7 +23,7 @@ internal class BehandleMeldekort(
             action = {
                 try {
                     logger.info { "Starter behandling av meldekortkø" }
-                    meldekortBehandlingskø.sendMeldekortTilBehandling(System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp")
+                    meldekortBehandlingskø.sendMeldekortTilBehandling()
                 } catch (e: Exception) {
                     logger.error(e) { "Behandle meldekort feilet" }
                 }

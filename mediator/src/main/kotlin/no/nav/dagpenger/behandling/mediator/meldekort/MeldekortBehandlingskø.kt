@@ -22,7 +22,7 @@ class MeldekortBehandlingskø(
         private val logger = KotlinLogging.logger {}
     }
 
-    fun sendMeldekortTilBehandling(skalKjøre: Boolean = true): List<MeldekortId> {
+    fun sendMeldekortTilBehandling(): List<MeldekortId> {
         val begynteMeldekort = mutableListOf<MeldekortId>()
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
@@ -50,22 +50,20 @@ class MeldekortBehandlingskø(
                                 val harRettighet = potensielleDager.any { it.value }
                                 if (harRettighet) {
                                     logger.info { "Publiserer beregn meldekort" }
-                                    if (skalKjøre) {
-                                        rapid.publish(
-                                            meldekort.ident,
-                                            JsonMessage
-                                                .newMessage(
-                                                    "beregn_meldekort",
-                                                    mapOf(
-                                                        "meldekortId" to meldekort.id,
-                                                        "ident" to meldekort.ident,
-                                                    ),
-                                                ).toJson(),
-                                        )
+                                    rapid.publish(
+                                        meldekort.ident,
+                                        JsonMessage
+                                            .newMessage(
+                                                "beregn_meldekort",
+                                                mapOf(
+                                                    "meldekortId" to meldekort.id,
+                                                    "ident" to meldekort.ident,
+                                                ),
+                                            ).toJson(),
+                                    )
 
-                                        meldekortRepository.behandlingStartet(meldekort.eksternMeldekortId)
-                                        begynteMeldekort.add(meldekort.eksternMeldekortId)
-                                    }
+                                    meldekortRepository.behandlingStartet(meldekort.eksternMeldekortId)
+                                    begynteMeldekort.add(meldekort.eksternMeldekortId)
                                 } else {
                                     logger.info {
                                         """
@@ -77,7 +75,7 @@ class MeldekortBehandlingskø(
                                 }
                             }
                         }
-                    } while (kø.behandlingsklare.isNotEmpty() && skalKjøre)
+                    } while (kø.behandlingsklare.isNotEmpty())
                 }
             }
         }
