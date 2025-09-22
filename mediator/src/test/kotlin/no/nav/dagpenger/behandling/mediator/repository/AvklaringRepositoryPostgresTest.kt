@@ -20,6 +20,7 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -110,7 +111,16 @@ class AvklaringRepositoryPostgresTest {
         private fun behandling(vararg avklaring: Avklaring) =
             Behandling.rehydrer(
                 behandlingId = UUIDv7.ny(),
-                behandler = SøknadInnsendtHendelse(UUIDv7.ny(), "123", UUIDv7.ny(), LocalDate.now(), 1, LocalDateTime.now()),
+                behandler =
+                    SøknadInnsendtHendelse(
+                        UUIDv7.ny(),
+                        "123",
+                        UUIDv7.ny(),
+                        LocalDate.now(),
+                        1,
+                        LocalDateTime.now(),
+                        Søknadstype.Ny,
+                    ),
                 gjeldendeOpplysninger =
                     Opplysninger.med(
                         Faktum(prøvingsdato, LocalDate.now()),

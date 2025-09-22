@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -32,6 +33,7 @@ class BehandlingRepositoryPostgresTest {
             gjelderDato = LocalDate.now(),
             fagsakId = 1,
             opprettet = LocalDateTime.now(),
+            Søknadstype.Ny,
         )
     private val prøvingsdatoOpplysning = Faktum(prøvingsdato, LocalDate.now())
     private val tidligereOpplysning =

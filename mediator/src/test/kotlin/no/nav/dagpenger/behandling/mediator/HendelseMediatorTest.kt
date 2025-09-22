@@ -10,6 +10,7 @@ import no.nav.dagpenger.aktivitetslogg.AktivitetsloggObserver
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -31,7 +32,7 @@ class HendelseMediatorTest {
             )
         val søknadId = UUIDv7.ny()
         val gjelderDato = LocalDate.now()
-        val hendelse = SøknadInnsendtHendelse(UUIDv7.ny(), "ident", søknadId, gjelderDato, 1, LocalDateTime.now())
+        val hendelse = SøknadInnsendtHendelse(UUIDv7.ny(), "ident", søknadId, gjelderDato, 1, LocalDateTime.now(), Søknadstype.Ny)
         val observer = TestObserver()
         hendelse.registrer(observer)
         hendelse.kontekst(hendelse)

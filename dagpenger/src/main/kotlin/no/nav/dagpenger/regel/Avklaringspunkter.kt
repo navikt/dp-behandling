@@ -108,6 +108,13 @@ object Avklaringspunkter {
                 """.trimIndent(),
         )
 
+    val SøktGjenopptak =
+        Avklaringkode(
+            kode = "SøktGjenopptak",
+            tittel = "Bruker har søkt om gjenopptak",
+            beskrivelse = "Personen har søkt om gjenopptak. Saker som skal gjenopptas må håndteres i Arena.",
+        )
+
     val MuligGjenopptak =
         Avklaringkode(
             kode = "MuligGjenopptak",

@@ -16,6 +16,7 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.Søknadstype
 
 internal class SøknadInnsendtMottak(
     rapidsConnection: RapidsConnection,
@@ -34,7 +35,7 @@ internal class SøknadInnsendtMottak(
                     )
                 }
                 validate { it.interestedIn("@id", "@opprettet") }
-                validate { it.interestedIn("journalpostId") }
+                validate { it.interestedIn("journalpostId", "type") }
             }.register(this)
     }
 
@@ -73,6 +74,8 @@ internal class SøknadInnsendtMessage(
 ) : KafkaMelding(packet) {
     override val ident get() = packet["ident"].asText()
     private val søknadId = packet["søknadId"].asUUID()
+    private val søknadstype = packet["type"].textValue()?.let { Søknadstype.valueOf(it) } ?: Søknadstype.Ny
+
     private val hendelse: SøknadInnsendtHendelse
         get() {
             return SøknadInnsendtHendelse(
@@ -82,6 +85,7 @@ internal class SøknadInnsendtMessage(
                 gjelderDato = packet["innsendt"].asLocalDateTime().toLocalDate(),
                 fagsakId = packet["fagsakId"].asInt(),
                 opprettet,
+                søknadstype,
             )
         }
 

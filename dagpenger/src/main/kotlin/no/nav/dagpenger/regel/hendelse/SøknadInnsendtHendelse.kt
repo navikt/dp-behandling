@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
+import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.Søknadsprosess
@@ -20,6 +21,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
+enum class Søknadstype {
+    Ny,
+    Gjenopptak,
+}
+
 class SøknadInnsendtHendelse(
     meldingsreferanseId: UUID,
     ident: String,
@@ -27,6 +33,7 @@ class SøknadInnsendtHendelse(
     gjelderDato: LocalDate,
     val fagsakId: Int,
     opprettet: LocalDateTime,
+    val søknadstype: Søknadstype,
 ) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
     override val forretningsprosess = Søknadsprosess()
 
@@ -86,6 +93,9 @@ class SøknadInnsendtHendelse(
                 buildList {
                     if (basertPå != null) {
                         add(Avklaring(GjenopptakBehandling))
+                    }
+                    if (søknadstype == Søknadstype.Gjenopptak) {
+                        add(Avklaring(SøktGjenopptak))
                     }
                 },
         )

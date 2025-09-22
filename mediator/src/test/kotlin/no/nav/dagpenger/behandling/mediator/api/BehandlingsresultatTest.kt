@@ -19,6 +19,7 @@ import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.Disabled
@@ -206,6 +207,7 @@ class BehandlingsresultatTest {
                     gjelderDato = LocalDate.now(),
                     fagsakId = 1,
                     opprettet = LocalDateTime.now(),
+                    Søknadstype.Ny,
                 ),
             opplysninger = vurderinger.toList().somOpplysninger(),
             automatiskBehandlet = false,

@@ -25,7 +25,7 @@ internal class PostgresMeldingRepositoryTest {
             """.trimMargin()
         val jsonMessage =
             JsonMessage(originalMessage, MessageProblems(originalMessage), mockk(relaxed = true)).also {
-                it.interestedIn("@id", "ident", "søknadId")
+                it.interestedIn("@id", "ident", "søknadId", "type")
             }
         val søknadInnsendtMessage = SøknadInnsendtMessage(jsonMessage)
 

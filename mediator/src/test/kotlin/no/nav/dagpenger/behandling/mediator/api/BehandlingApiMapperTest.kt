@@ -33,6 +33,7 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -47,6 +48,7 @@ class BehandlingApiMapperTest {
             gjelderDato = LocalDate.now(),
             fagsakId = 1,
             opprettet = LocalDateTime.now(),
+            Søknadstype.Ny,
         )
     private val avklaringer =
         listOf(

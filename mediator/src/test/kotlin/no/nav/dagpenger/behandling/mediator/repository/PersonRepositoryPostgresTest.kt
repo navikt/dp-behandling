@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -38,6 +39,7 @@ class PersonRepositoryPostgresTest {
             gjelderDato = LocalDate.now(),
             fagsakId = 1,
             opprettet = LocalDateTime.now(),
+            Søknadstype.Ny,
         )
 
     @Test
