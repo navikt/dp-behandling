@@ -24,8 +24,8 @@ class InnsendingFerdigstiltMottakTest {
     private val søknadId by lazy { UUID.randomUUID() }
 
     @Test
-    fun `tar imot innsending og republiserer som behandlingsklar`() {
-        rapid.sendTestMessage(innsendingJSON)
+    fun `tar imot søknad om ny og republiserer som behandlingsklar`() {
+        rapid.sendTestMessage(innsendingJSON())
         rapid.inspektør.size shouldBe 1
         rapid.inspektør.key(0) shouldBe ident
         with(rapid.inspektør.message(0)) {
@@ -33,6 +33,7 @@ class InnsendingFerdigstiltMottakTest {
             this["fagsakId"].asInt() shouldBe 123
             this["journalpostId"].asInt() shouldBe 123
             this["søknadId"].asUUID() shouldBe søknadId
+            this["type"].asText() shouldBe "NySøknad"
         }
 
         every {
@@ -44,12 +45,41 @@ class InnsendingFerdigstiltMottakTest {
         }
     }
 
+    @Test
+    fun `tar imot søknad om gjenopptak og republiserer som behandlingsklar`() {
+        rapid.sendTestMessage(innsendingJSON("Gjenopptak"))
+        rapid.inspektør.size shouldBe 1
+        rapid.inspektør.key(0) shouldBe ident
+
+        with(rapid.inspektør.message(0)) {
+            this["ident"].asText() shouldBe ident
+            this["fagsakId"].asInt() shouldBe 123
+            this["journalpostId"].asInt() shouldBe 123
+            this["søknadId"].asUUID() shouldBe søknadId
+            this["type"].asText() shouldBe "Gjenopptak"
+        }
+
+        every {
+            messageMediator.behandle(
+                any<StartHendelse>(),
+                any<SøknadInnsendtMessage>(),
+                any<MessageContext>(),
+            )
+        }
+    }
+
+    @Test
+    fun `tar ikke imot innsendinger vi ikke vet om`() {
+        rapid.sendTestMessage(innsendingJSON("Utdanning"))
+        rapid.inspektør.size shouldBe 0
+    }
+
     @Language("JSON")
-    val innsendingJSON =
+    fun innsendingJSON(type: String = "NySøknad") =
         """
         {
           "@event_name": "innsending_ferdigstilt",
-          "type": "NySøknad",
+          "type": "$type",
           "fødselsnummer": "$ident",
           "fagsakId": "123",
           "søknadsData": {

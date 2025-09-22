@@ -19,7 +19,7 @@ internal class InnsendingFerdigstiltMottak(
         River(rapidsConnection)
             .apply {
                 precondition { it.requireValue("@event_name", "innsending_ferdigstilt") }
-                precondition { it.requireValue("type", "NySøknad") }
+                precondition { it.requireAny("type", listOf("NySøknad", "Gjenopptak")) }
                 validate { it.requireKey("fødselsnummer") }
                 validate { it.requireKey("fagsakId") }
                 validate {
@@ -64,6 +64,7 @@ class InnsendingFerdigstiltMessage(
             if (it == 0) logger.warn { "Søknad mottatt uten fagsakId" }
         }
     private val journalpostId = packet["journalpostId"].asInt()
+    private val type = packet["type"].asText()
 
     private val melding =
         JsonMessage.newMessage(
@@ -74,6 +75,7 @@ class InnsendingFerdigstiltMessage(
                 "fagsakId" to fagsakId,
                 "innsendt" to opprettet,
                 "journalpostId" to journalpostId,
+                "type" to type,
             ),
         )
 

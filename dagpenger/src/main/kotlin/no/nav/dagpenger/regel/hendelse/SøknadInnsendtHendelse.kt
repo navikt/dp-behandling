@@ -45,8 +45,6 @@ class SøknadInnsendtHendelse(
                     return@let null
                 }
 
-                // TODO: VI MÅ IKKE KJEDE OSS PÅ GAMLE SAKER
-
                 // Forrige behandling var avslag
                 val varAvslag = rettighetsperioder.size == 1 && !rettighetsperioder.single().harRett
 
