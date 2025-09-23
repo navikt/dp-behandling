@@ -16,10 +16,6 @@ internal object SlettFjernetOpplysninger {
             period = 10.minutes.inWholeMilliseconds,
             action = {
                 try {
-                    if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp") {
-                        logger.info { "Slett opplysninger jobben kjører ikke i dev-gcp" }
-                        return@fixedRateTimer
-                    }
                     vaktmesterRepository.slettOpplysninger(antallBehandlinger = 1000)
                 } catch (e: Exception) {
                     logger.error(e) { "Slett opplysninger jobben feilet" }
