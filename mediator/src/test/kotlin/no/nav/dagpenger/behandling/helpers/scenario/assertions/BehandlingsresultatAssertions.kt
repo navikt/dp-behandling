@@ -11,6 +11,7 @@ import java.util.UUID
 internal class BehandlingsresultatAssertions(
     private val klump: JsonNode,
 ) {
+    val basertPå: UUID? get() = klump["basertPå"]?.asUUID()
     val rettighetsperioder: List<Rettighetsperiode> = objectMapper.treeToValue(klump["rettighetsperioder"])
 
     fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysningsperiode> {
@@ -36,7 +37,7 @@ internal data class Opplysningsperiode(
 ) {
     data class Opplysningsverdi(
         val datatype: String,
-        val verdi: String,
+        val verdi: Any,
     )
 
     enum class Periodestatus {

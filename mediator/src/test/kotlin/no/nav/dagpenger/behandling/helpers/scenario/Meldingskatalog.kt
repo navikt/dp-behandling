@@ -2,7 +2,6 @@ package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.OpplysningsTyper.søknadId
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -38,40 +37,45 @@ internal object Meldingskatalog {
             ),
         ).toJson()
 
-    fun sendMeldekort(
+    fun meldekortInnsendt(
         ident: String,
         meldekortId: UUID,
         meldeperiode: Periode,
-    ) = JsonMessage
-        .newMessage(
-            "meldekort_innsendt",
-            mapOf(
-                "id" to meldekortId,
-                "ident" to ident,
-                "periode" to
-                    mapOf(
-                        "fraOgMed" to meldeperiode.fraOgMed,
-                        "tilOgMed" to meldeperiode.tilOgMed,
-                    ),
-                "dager" to
-                    meldeperiode.map { meldedag ->
+        korrigeringAv: UUID? = null,
+        arbeidstimer: List<Int> = emptyList(),
+    ): String =
+        JsonMessage
+            .newMessage(
+                "meldekort_innsendt",
+                mapOf(
+                    "id" to meldekortId,
+                    "ident" to ident,
+                    "periode" to
                         mapOf(
-                            "dato" to meldedag,
-                            "meldt" to true,
-                            "aktiviteter" to
-                                listOf(
-                                    mapOf("type" to "Arbeid", "timer" to "PT0H"),
-                                ),
-                        )
-                    },
-                "kilde" to
-                    mapOf(
-                        "rolle" to "Søker",
-                        "ident" to ident,
-                    ),
-                "innsendtTidspunkt" to LocalDateTime.now(),
-            ),
-        ).toJson()
+                            "fraOgMed" to meldeperiode.fraOgMed,
+                            "tilOgMed" to meldeperiode.tilOgMed,
+                        ),
+                    "korrigeringAv" to "$korrigeringAv",
+                    "dager" to
+                        meldeperiode.mapIndexed { index, meldedag ->
+                            val timer = arbeidstimer.getOrElse(index) { 0 }
+                            mapOf(
+                                "dato" to meldedag,
+                                "meldt" to true,
+                                "aktiviteter" to
+                                    listOf(
+                                        mapOf("type" to "Arbeid", "timer" to "PT${timer}H"),
+                                    ),
+                            )
+                        },
+                    "kilde" to
+                        mapOf(
+                            "rolle" to "Søker",
+                            "ident" to ident,
+                        ),
+                    "innsendtTidspunkt" to LocalDateTime.now(),
+                ),
+            ).toJson()
 
     fun beregnMeldekort(
         ident: String,

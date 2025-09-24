@@ -93,14 +93,21 @@ internal class Mennesket(
         )
     }
 
-    fun sendInnMeldekort(nummer: Int) {
-        sendInnMeldekort(meldesyklus.periode(nummer))
-    }
+    fun sendInnMeldekort(
+        nummer: Int,
+        korrigeringAv: UUID? = null,
+        timer: List<Int> = emptyList(),
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, timer)
 
-    fun sendInnMeldekort(periode: Periode) {
+    fun sendInnMeldekort(
+        periode: Periode,
+        korrigeringAv: UUID? = null,
+        timer: List<Int> = emptyList(),
+    ): UUID {
         val meldekortId = UUIDv7.ny()
-        val message = Meldingskatalog.sendMeldekort(ident, meldekortId, periode)
+        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, timer)
         rapid.sendTestMessage(message)
+        return meldekortId
     }
 
     val avklaringer: List<Avklaring>

@@ -63,6 +63,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
             ident = ident,
             rettighetsperioder = rettighetsperioder(),
             automatisk = automatiskBehandlet,
+            basertPå = basertPåBehandling,
             behandletHendelse =
                 HendelseDTO(
                     id = behandlingAv.eksternId.id.toString(),

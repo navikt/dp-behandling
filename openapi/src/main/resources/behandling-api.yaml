@@ -709,6 +709,10 @@ components:
         behandletHendelse:
           description: Hvilken hendelse som utløste behandlingen
           $ref: '#/components/schemas/Hendelse'
+        basertPå:
+          description: Hvilken behandling denne behandlingen er basert på, hvis noen
+          type: string
+          format: uuid
         automatisk:
           description: Om behandlingen har blitt behandlet automatisk uten en saksbehandler
           type: boolean
