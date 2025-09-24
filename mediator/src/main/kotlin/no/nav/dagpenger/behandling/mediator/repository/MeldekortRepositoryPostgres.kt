@@ -42,7 +42,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun hentMeldekortkø(): Meldekortkø {
+    override fun hentMeldekortkø(grensedato: LocalDate): Meldekortkø {
         val meldekort =
             sessionOf(dataSource).use { session ->
                 session.run(
@@ -54,9 +54,11 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         WHERE behandling_ferdig IS NULL
                         AND korrigert_av_meldekort_id IS NULL
                         AND satt_på_vent IS NULL
+                        AND tom < :grensedato
                         ORDER BY ident, fom, løpenummer DESC
                         LIMIT 1000;
                         """.trimIndent(),
+                        mapOf("grensedato" to grensedato),
                     ).map { row ->
                         Meldekortstatus(
                             row.meldekort(session),

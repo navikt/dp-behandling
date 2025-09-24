@@ -11,6 +11,7 @@ import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.opplysning.TemporalCollection
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -106,7 +107,7 @@ interface PersonRepository : BehandlingRepository {
 interface MeldekortRepository {
     fun lagre(meldekort: Meldekort)
 
-    fun hentMeldekortkø(): Meldekortkø
+    fun hentMeldekortkø(grensedato: LocalDate = LocalDate.now()): Meldekortkø
 
     fun hent(meldekortId: UUID): Meldekort?
 

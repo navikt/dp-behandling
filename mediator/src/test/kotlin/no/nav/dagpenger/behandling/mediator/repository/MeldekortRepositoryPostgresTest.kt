@@ -219,6 +219,20 @@ class MeldekortRepositoryPostgresTest {
         }
     }
 
+    @Test
+    fun `plukker ikke meldekort som er sendt inn før meldedag`() {
+        withMigratedDb {
+            val repo = MeldekortRepositoryPostgres()
+            val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
+
+            val person1 = repo.generatorFor("111111111", 1.januar(2018), meldingGenerator)
+            person1.lagMeldekort(5)
+
+            repo.hentMeldekortkø(14.januar(2018)).behandlingsklare shouldHaveSize 0
+            repo.hentMeldekortkø(15.januar(2018)).behandlingsklare shouldHaveSize 1
+        }
+    }
+
     private fun List<MeldekortRepository.Meldekortstatus>.forPerson(person1: Meldekortgenerator): Meldekort {
         withClue("Forventer at det bare er 1 behandlingsklart meldekort per person") {
             filter { it.meldekort.ident == person1.ident } shouldHaveSize 1

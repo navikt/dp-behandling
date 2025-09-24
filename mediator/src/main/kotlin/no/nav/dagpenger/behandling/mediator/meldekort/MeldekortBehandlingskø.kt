@@ -39,9 +39,7 @@ class MeldekortBehandlingskø(
                             val meldekortPeriode = meldekort.periode()
                             val rettighetstatus = personRepositoryPostgres.rettighetstatusFor(meldekort.ident.tilPersonIdentfikator())
 
-                            withLoggingContext(
-                                "meldekortId" to meldekort.id.toString(),
-                            ) {
+                            withLoggingContext("meldekortId" to meldekort.id.toString()) {
                                 val potensielleDager =
                                     meldekortPeriode.associateWith { dag ->
                                         runCatching { rettighetstatus.get(dag).utfall }.getOrElse { false }
