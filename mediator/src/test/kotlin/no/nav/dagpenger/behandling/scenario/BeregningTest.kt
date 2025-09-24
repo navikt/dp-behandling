@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
@@ -225,6 +226,45 @@ class BeregningTest {
         }
     }
 
+    @Test
+    fun `vi sperrer behandling av meldekort når de korrigerer en periode for langt bak i tid`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            vedtak { utfall shouldBe true }
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            val meldekortId = person.sendInnMeldekort(2)
+            person.sendInnMeldekort(3)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+            meldekortBatch(true)
+            meldekortBatch(true)
+
+            // Send inn korrigering av forrige meldekort
+            person.sendInnMeldekort(2, korrigeringAv = meldekortId, timer = List(14) { 7 })
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch()
+
+            person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
+
+            // Avklaringen kan ikke lukkes av saksbehandler
+            shouldThrow<IllegalArgumentException> {
+                saksbehandler.lukkAlleAvklaringer()
+            }
+        }
+    }
+
     @Disabled("Dette eksploderer fullstendig på grunn av utenErstattet() i Opplysninger")
     @Test
     fun `vi kan reberegne meldekort når de korrigeres (tidligere periode)`() {
@@ -279,6 +319,8 @@ class BeregningTest {
 
             // Systemet kjører beregningsbatchen
             meldekortBatch()
+
+            person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
 
             // Vi lager et forslag om reberegning av forrige periode
             behandlingsresultatForslag {

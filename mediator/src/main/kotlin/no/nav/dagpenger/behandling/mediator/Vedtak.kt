@@ -37,6 +37,7 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.FulleYtelser
+import no.nav.dagpenger.regel.KravPåDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.Opphold
@@ -171,16 +172,26 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
 private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
     val meldeperioder = finnAlle(Beregning.meldeperiode)
 
-    return finnAlle(Beregning.utbetaling).map { dag ->
-        val sats = finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi
-        val periode: Opplysning<*> = meldeperioder.first { it.gyldighetsperiode.overlapp(dag.gyldighetsperiode) }
+    val løpendeRett = finnAlle(KravPåDagpenger.harLøpendeRett)
+    val satser = finnAlle(dagsatsEtterSamordningMedBarnetillegg)
+    val dager = finnAlle(Beregning.utbetaling).associateBy { it.gyldighetsperiode.fraOgMed }
 
-        UtbetalingDTO(
-            meldeperiode = periode.verdi.hashCode().toString(),
-            dato = dag.gyldighetsperiode.fraOgMed,
-            sats = sats.verdien.toInt(),
-            utbetaling = dag.verdi,
-        )
+    return meldeperioder.flatMap { periode ->
+        periode.verdi.mapNotNull { dato ->
+            if (løpendeRett.none { it.gyldighetsperiode.inneholder(dato) }) {
+                // Har ikke løpende rett i denne perioden, så ingen utbetaling
+                return@mapNotNull null
+            }
+
+            val dag = dager[dato] ?: throw IllegalStateException("Mangler utbetaling for dag $dato")
+            val sats = satser.first { it.gyldighetsperiode.inneholder(dato) }.verdi
+            UtbetalingDTO(
+                periode.verdi.hashCode().toString(),
+                dato = dato,
+                sats = sats.verdien.toInt(),
+                utbetaling = dag.verdi,
+            )
+        }
     }
 }
 

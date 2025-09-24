@@ -71,6 +71,34 @@ class BeregnMeldekortHendelse(
                                 ),
                             ),
                         )
+
+                        val sisteBeregnedeDato =
+                            forrigeBehandling
+                                .opplysninger
+                                .finnAlle(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)
+                                .lastOrNull()
+                        val harBeregnetPeriodenEtterDenne =
+                            sisteBeregnedeDato
+                                ?.gyldighetsperiode
+                                ?.tilOgMed
+                                ?.isAfter(meldekort.tom) == true
+
+                        if (harBeregnetPeriodenEtterDenne) {
+                            logger.error {
+                                "Vi har allerede beregnet en periode etter denne meldeperioden! Dette blir en omgjøring bak i tid."
+                            }
+                            add(
+                                Avklaring(
+                                    Avklaringkode(
+                                        kode = "KorrigeringUtbetaltPeriode",
+                                        tittel = "Beregning av meldekort som korrigerer tidligere periode",
+                                        beskrivelse = "Behandlingen er korrigering av et tidligere meldekort og kan ikke behandles",
+                                        kanAvbrytes = false,
+                                        kanKvitteres = false,
+                                    ),
+                                ),
+                            )
+                        }
                     } else {
                         add(
                             Avklaring(
