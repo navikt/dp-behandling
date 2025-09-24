@@ -34,7 +34,7 @@ object Beregning {
     val utbetalingForPeriode = Opplysningstype.heltall(utbetalingForPeriodeId, "Penger som skal utbetales for perioden")
 
     val forbrukt = Opplysningstype.heltall(forbrukteDagerId, "Antall dager som er forbrukt")
-    val gjenstående = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår")
+    val gjenståendePeriode = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår")
 
     val oppfyllerKravTilTaptArbeidstidIPerioden =
         Opplysningstype.boolsk(
@@ -63,7 +63,7 @@ object Beregning {
             regel(terskel) { tomRegel }
 
             regel(forbrukt) { tomRegel }
-            regel(gjenstående) { tomRegel }
+            regel(gjenståendePeriode) { tomRegel }
 
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
@@ -75,7 +75,7 @@ object Beregning {
                 forbruk,
                 forbrukt,
                 forbruktEgenandel,
-                gjenstående,
+                gjenståendePeriode,
                 gjenståendeEgenandel,
                 meldt,
                 oppfyllerKravTilTaptArbeidstidIPerioden,

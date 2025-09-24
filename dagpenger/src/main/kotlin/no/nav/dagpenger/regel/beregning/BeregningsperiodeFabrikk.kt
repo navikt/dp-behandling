@@ -48,15 +48,18 @@ class BeregningsperiodeFabrikk(
         return Beregningsperiode(gjenståendeEgenandel, periode, stønadsdagerIgjen)
     }
 
-    private fun hentGjenståendeEgenandel() =
-        opplysninger
-            .finnOpplysning(Egenandel.egenandel)
-            .verdi -
-            opplysninger
-                .somListe()
-                .filter { it.er(forbruktEgenandel) }
-                .sumOf { it.verdi as Int }
-                .let { Beløp(it) }
+    private fun hentGjenståendeEgenandel(): Beløp {
+        val harGjenstående = opplysninger.har(Beregning.gjenståendeEgenandel)
+        if (harGjenstående) {
+            return opplysninger.finnOpplysning(Beregning.gjenståendeEgenandel).verdi
+        }
+
+        // Fall tilbake på å regne ut gjenstående egenandel
+        val innvilgetEgenandel = opplysninger.finnOpplysning(Egenandel.egenandel).verdi
+        val forbruktEgenandel = opplysninger.finnAlle(forbruktEgenandel)
+        val totalForbruktEgenandel = Beløp(forbruktEgenandel.sumOf { it.verdi })
+        return innvilgetEgenandel - totalForbruktEgenandel
+    }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }

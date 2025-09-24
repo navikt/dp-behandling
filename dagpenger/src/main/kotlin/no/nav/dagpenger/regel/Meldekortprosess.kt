@@ -13,7 +13,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.forbrukt
-import no.nav.dagpenger.regel.beregning.Beregning.gjenstående
+import no.nav.dagpenger.regel.beregning.Beregning.gjenståendePeriode
 import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
@@ -105,7 +105,7 @@ class Kvotetelling : ProsessPlugin {
             // TODO: Dette må vi bygge inn ett annet sted.
             require(gjenståendeDager >= 0) { "Gjenstående dager kan ikke være negativt. Har $gjenståendeDager dager igjen" }
 
-            opplysninger.leggTil(Faktum(gjenstående, gjenståendeDager, it.gyldighetsperiode))
+            opplysninger.leggTil(Faktum(gjenståendePeriode, gjenståendeDager, it.gyldighetsperiode))
         }
     }
 }
