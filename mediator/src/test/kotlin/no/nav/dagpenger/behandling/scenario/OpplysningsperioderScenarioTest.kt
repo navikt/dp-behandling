@@ -23,7 +23,7 @@ class OpplysningsperioderScenarioTest {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder[0].gyldigFraOgMed shouldBe null
                 perioder[0].gyldigTilOgMed shouldBe null
-                perioder[0].verdi.verdi shouldBe "true"
+                perioder[0].verdi.verdi shouldBe true
             }
 
             // Endring av verdi med samme gyldighetsperiode
@@ -35,7 +35,7 @@ class OpplysningsperioderScenarioTest {
                 perioder shouldHaveSize 1
                 perioder[0].gyldigFraOgMed shouldBe null
                 perioder[0].gyldigTilOgMed shouldBe null
-                perioder[0].verdi.verdi shouldBe "false" // Endret til false
+                perioder[0].verdi.verdi shouldBe false // Endret til false
             }
         }
     }
@@ -53,7 +53,7 @@ class OpplysningsperioderScenarioTest {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder[0].gyldigFraOgMed shouldBe null
                 perioder[0].gyldigTilOgMed shouldBe null
-                perioder[0].verdi.verdi shouldBe "true"
+                perioder[0].verdi.verdi shouldBe true
 
                 opprinneligId = perioder[0].id
             }
@@ -67,7 +67,7 @@ class OpplysningsperioderScenarioTest {
                 perioder shouldHaveSize 1
                 perioder[0].gyldigFraOgMed shouldBe null
                 perioder[0].gyldigTilOgMed shouldBe null
-                perioder[0].verdi.verdi shouldBe "true" // Fortsatt true
+                perioder[0].verdi.verdi shouldBe true // Fortsatt true
 
                 // TODO: Vi må bestemme om vi vil ha en id som er den samme
                 // perioder[0].id shouldBe opprinneligId

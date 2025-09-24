@@ -201,8 +201,8 @@ class BeregningTest {
         }
     }
 
-    @Test
     @Disabled("Dette eksploderer fullstendig på grunn av utenErstattet() i Opplysninger")
+    @Test
     fun `vi kan reberegne meldekort når de korrigeres (tidligere periode)`() {
         nyttScenario {
             inntektSiste12Mnd = 500000

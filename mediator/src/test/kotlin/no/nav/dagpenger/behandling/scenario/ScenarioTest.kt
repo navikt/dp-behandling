@@ -131,8 +131,8 @@ class ScenarioTest {
                     this[1].status shouldBe Periodestatus.Ny
                 }
                 with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
-                    this[0].verdi.verdi shouldBe "true"
-                    this[1].verdi.verdi shouldBe "false"
+                    this[0].verdi.verdi shouldBe true
+                    this[1].verdi.verdi shouldBe false
                 }
             }
 
@@ -147,9 +147,9 @@ class ScenarioTest {
 
             behandlingsresultat {
                 with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
-                    this[0].verdi.verdi shouldBe "true"
-                    this[1].verdi.verdi shouldBe "false"
-                    this[2].verdi.verdi shouldBe "true"
+                    this[0].verdi.verdi shouldBe true
+                    this[1].verdi.verdi shouldBe false
+                    this[2].verdi.verdi shouldBe true
                 }
 
                 rettighetsperioder shouldHaveSize 3
