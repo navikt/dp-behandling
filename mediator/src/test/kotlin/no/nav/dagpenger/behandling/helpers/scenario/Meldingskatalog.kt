@@ -47,34 +47,40 @@ internal object Meldingskatalog {
         JsonMessage
             .newMessage(
                 "meldekort_innsendt",
-                mapOf(
-                    "id" to meldekortId,
-                    "ident" to ident,
-                    "periode" to
-                        mapOf(
-                            "fraOgMed" to meldeperiode.fraOgMed,
-                            "tilOgMed" to meldeperiode.tilOgMed,
-                        ),
-                    "korrigeringAv" to "$korrigeringAv",
-                    "dager" to
-                        meldeperiode.mapIndexed { index, meldedag ->
-                            val timer = arbeidstimer.getOrElse(index) { 0 }
-                            mapOf(
-                                "dato" to meldedag,
-                                "meldt" to true,
-                                "aktiviteter" to
-                                    listOf(
-                                        mapOf("type" to "Arbeid", "timer" to "PT${timer}H"),
-                                    ),
-                            )
-                        },
-                    "kilde" to
-                        mapOf(
-                            "rolle" to "Søker",
+                buildMap {
+                    putAll(
+                        listOf(
+                            "id" to meldekortId,
                             "ident" to ident,
+                            "periode" to
+                                mapOf(
+                                    "fraOgMed" to meldeperiode.fraOgMed,
+                                    "tilOgMed" to meldeperiode.tilOgMed,
+                                ),
+                            "dager" to
+                                meldeperiode.mapIndexed { index, meldedag ->
+                                    val timer = arbeidstimer.getOrElse(index) { 0 }
+                                    mapOf(
+                                        "dato" to meldedag,
+                                        "meldt" to true,
+                                        "aktiviteter" to
+                                            listOf(
+                                                mapOf("type" to "Arbeid", "timer" to "PT${timer}H"),
+                                            ),
+                                    )
+                                },
+                            "kilde" to
+                                mapOf(
+                                    "rolle" to "Søker",
+                                    "ident" to ident,
+                                ),
+                            "innsendtTidspunkt" to LocalDateTime.now(),
                         ),
-                    "innsendtTidspunkt" to LocalDateTime.now(),
-                ),
+                    )
+                    if (korrigeringAv != null) {
+                        put("korrigeringAv", "$korrigeringAv")
+                    }
+                },
             ).toJson()
 
     fun beregnMeldekort(

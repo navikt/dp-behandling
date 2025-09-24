@@ -59,17 +59,31 @@ class BeregnMeldekortHendelse(
                     ),
                 ),
             avklaringer =
-                listOf(
-                    // TODO: Lag en avklaring om meldekortet er korrigering
-                    Avklaring(
-                        Avklaringkode(
-                            kode = "MeldekortBehandling",
-                            tittel = "Beregning av meldekort",
-                            beskrivelse = "Behandlingen er opprettet av meldekort og kan ikke automatisk behandles",
-                            kanAvbrytes = false,
-                        ),
-                    ),
-                ),
+                buildList {
+                    if (meldekort.korrigeringAv != null) {
+                        add(
+                            Avklaring(
+                                Avklaringkode(
+                                    kode = "KorrigertMeldekortBehandling",
+                                    tittel = "Beregning av korrigert meldekort",
+                                    beskrivelse = "Behandlingen er korrigering av et tidligere meldekort og kan ikke automatisk behandles",
+                                    kanAvbrytes = false,
+                                ),
+                            ),
+                        )
+                    } else {
+                        add(
+                            Avklaring(
+                                Avklaringkode(
+                                    kode = "MeldekortBehandling",
+                                    tittel = "Beregning av meldekort",
+                                    beskrivelse = "Behandlingen er opprettet av meldekort og kan ikke automatisk behandles",
+                                    kanAvbrytes = false,
+                                ),
+                            ),
+                        )
+                    }
+                },
         ).apply {
             val meldekortOpplysninger = meldekort.dager.tilOpplysninger(kilde)
             meldekortOpplysninger.forEach { this.opplysninger.leggTil(it) }

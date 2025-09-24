@@ -109,7 +109,7 @@ internal class MeldekortInnsendtMessage(
                             rolle = packet["kilde"]["rolle"].asText(),
                             ident = packet["kilde"]["ident"].asText(),
                         ),
-                    korrigeringAv = packet["korrigeringAv"].takeIf { !it.isMissingOrNull() }?.asText()?.let { MeldekortId(it) },
+                    korrigeringAv = packet["korrigeringAv"].takeUnless { it.isMissingOrNull() }?.asText()?.let { MeldekortId(it) },
                     meldingsreferanseId = meldingsreferanseId,
                     dager =
                         packet["dager"].map { dag ->

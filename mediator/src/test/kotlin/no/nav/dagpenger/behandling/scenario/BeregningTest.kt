@@ -151,6 +151,9 @@ class BeregningTest {
             // Systemet kjører beregningsbatchen
             meldekortBatch(true)
 
+            // Verifiser at vi lager en avklaring om meldekort (så de ikke går automatisk i testfasen)
+            person.avklaringer.first().kode shouldBe "MeldekortBehandling"
+
             behandlingsresultat {
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 14
@@ -175,6 +178,9 @@ class BeregningTest {
 
             // Systemet kjører beregningsbatchen
             meldekortBatch()
+
+            // Verifiser at vi lager en avklaring om korrigert meldekort
+            person.avklaringer.first().kode shouldBe "KorrigertMeldekortBehandling"
 
             // Vi lager et forslag om reberegning av forrige periode
             behandlingsresultatForslag {
