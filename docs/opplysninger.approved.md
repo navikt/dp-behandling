@@ -251,3 +251,5 @@ Dette er opplysninger som blir brukt av regelverket.
 |01992934-66e4-7606-bdd3-c6c9dd420ffd|Antall dager som er forbrukt|Antall dager som er forbrukt|Heltall|int|
 |01992956-e349-76b1-8f68-c9d481df3a32|Antall dager som gjenstår|Antall dager som gjenstår|Heltall|int|
 |01994cfd-9a27-762e-81fa-61f550467c95|Penger som skal utbetales for perioden|Penger som skal utbetales for perioden|Heltall|int|
+|01997b70-6e6e-702a-a296-18ae5fb9621d|Oppfyller kravet til tapt arbeidstid i perioden|Oppfyller kravet til tapt arbeidstid i perioden|Boolsk|boolean|
+|01997b70-a12c-7622-bff8-82a20687e640|Gjenstående egenandel|Gjenstående egenandel|Penger|Beløp|

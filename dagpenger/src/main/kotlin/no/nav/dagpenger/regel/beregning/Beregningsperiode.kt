@@ -17,6 +17,8 @@ data class Beregningresultat(
     val utbetaling: Int,
     val forbruktEgenandel: Int,
     val forbruksdager: List<Forbruksdag>,
+    val gjenståendeEgenandel: Beløp,
+    val oppfyllerKravTilTaptArbeidstid: Boolean,
 ) {
     data class Forbruksdag(
         val dag: Dag,
@@ -71,7 +73,7 @@ class Beregningsperiode private constructor(
 
     private fun beregnUtbetaling(): Beregningresultat {
         if (!oppfyllerKravTilTaptArbeidstid) {
-            return Beregningresultat(0, 0, emptyList())
+            return Beregningresultat(0, 0, emptyList(), gjenståendeEgenandel, false)
         }
 
         val dagerGruppertPåSats = arbeidsdager.groupBy { it.sats }
@@ -116,10 +118,13 @@ class Beregningsperiode private constructor(
                     }
                 }.sortedBy { it.dag.dato }
 
+        val forbruktEgenandel = Beløp(bøtter.sumOf { it.egenandel.verdien })
         return Beregningresultat(
             utbetaling = bøtter.sumOf { it.utbetalt.verdien }.intValueExact(),
-            forbruktEgenandel = bøtter.sumOf { it.egenandel.heleKroner.toInt() },
+            forbruktEgenandel = forbruktEgenandel.heleKroner.toInt(),
             forbruksdager = forbruksdager,
+            gjenståendeEgenandel = gjenståendeEgenandel - forbruktEgenandel,
+            oppfyllerKravTilTaptArbeidstid = true,
         )
     }
 

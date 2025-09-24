@@ -325,6 +325,9 @@ object OpplysningsTyper {
     val harLøpendeRettId = Opplysningstype.Id(UUID.fromString("01990a09-0eab-7957-b88f-14484a50e194"), Boolsk)
     val forbrukteDagerId = Opplysningstype.Id(UUID.fromString("01992934-66e4-7606-bdd3-c6c9dd420ffd"), Heltall)
     val gjenståendeDagerId = Opplysningstype.Id(UUID.fromString("01992956-e349-76b1-8f68-c9d481df3a32"), Heltall)
+
+    val taptArbeidIPeriodenId = Opplysningstype.Id(UUID.fromString("01997b70-6e6e-702a-a296-18ae5fb9621d"), Boolsk)
+    val gjenståendeEgenandelId = Opplysningstype.Id(UUID.fromString("01997b70-a12c-7622-bff8-82a20687e640"), Penger)
 }
 
 /**

@@ -60,20 +60,14 @@ class Meldekortprosess :
                 .lagBeregningsperiode()
                 .resultat
 
+        val gyldighetsperiode = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed)
+        opplysninger.leggTil(Faktum(Beregning.forbruktEgenandel, resultat.forbruktEgenandel, gyldighetsperiode))
+        opplysninger.leggTil(Faktum(Beregning.utbetalingForPeriode, resultat.utbetaling, gyldighetsperiode))
+        opplysninger.leggTil(Faktum(Beregning.gjenståendeEgenandel, resultat.gjenståendeEgenandel, gyldighetsperiode))
         opplysninger.leggTil(
-            Faktum(
-                Beregning.forbruktEgenandel,
-                resultat.forbruktEgenandel,
-                Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed),
-            ),
+            Faktum(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden, resultat.oppfyllerKravTilTaptArbeidstid, gyldighetsperiode),
         )
-        opplysninger.leggTil(
-            Faktum(
-                Beregning.utbetalingForPeriode,
-                resultat.utbetaling,
-                Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed),
-            ),
-        )
+
         val forbruksdager = resultat.forbruksdager
         meldeperiode
             .forEach { dato ->

@@ -171,6 +171,19 @@ class BeregningTest {
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     first().verdi.verdi shouldBe 5036
                 }
+
+                with(opplysninger(Beregning.gjenståendeEgenandel)) {
+                    this shouldHaveSize 1
+                    first().verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.forbruktEgenandel)) {
+                    this shouldHaveSize 1
+                    first().verdi.verdi shouldBe 3777
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 1
+                    first().verdi.verdi shouldBe true
+                }
             }
 
             // Send inn korrigering av forrige meldekort
@@ -202,6 +215,11 @@ class BeregningTest {
 
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     first().verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 1
+                    // Jobber 7 timer hver dag og vil være over terskel
+                    first().verdi.verdi shouldBe false
                 }
             }
         }
