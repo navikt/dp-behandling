@@ -2,9 +2,11 @@ package no.nav.dagpenger.regel.fastsetting
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.tekst
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
-import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.egenVerdi
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
@@ -17,28 +19,28 @@ import java.time.LocalDate
 
 object Søknadstidspunkt {
     // § 3A-1.Søknadstidspunkt https://lovdata.no/forskrift/1998-09-16-890/§3a-1
-    val søknadsdato = Opplysningstype.Companion.dato(OpplysningsTyper.søknadsdatoId, "Søknadsdato", behovId = Behov.Søknadsdato)
+    val søknadsdato = dato(OpplysningsTyper.søknadsdatoId, "Søknadsdato", behovId = Behov.Søknadsdato)
     val ønsketdato =
-        Opplysningstype.Companion.dato(
+        dato(
             OpplysningsTyper.ønskerDagpengerFraDatoId,
             "Ønsker dagpenger fra dato",
             behovId = Behov.ØnskerDagpengerFraDato,
         )
 
     val søknadstidspunkt =
-        Opplysningstype.Companion.dato(
+        dato(
             OpplysningsTyper.søknadstidspunktId,
             "Søknadstidspunkt",
             synlig = Opplysningstype.Companion.aldriSynlig,
         )
     val prøvingsdato =
-        Opplysningstype.Companion.dato(
+        dato(
             OpplysningsTyper.prøvingsdatoId,
             "Prøvingsdato",
             behovId = Behov.Prøvingsdato,
-            gyldighetsperiode = GyldighetsperiodeStrategi.Companion.egenVerdi,
+            gyldighetsperiode = egenVerdi,
         )
-    val søknadIdOpplysningstype = Opplysningstype.Companion.tekst(OpplysningsTyper.søknadId, "søknadId")
+    val søknadIdOpplysningstype = tekst(OpplysningsTyper.søknadId, "søknadId")
 
     val regelsett =
         fastsettelse(

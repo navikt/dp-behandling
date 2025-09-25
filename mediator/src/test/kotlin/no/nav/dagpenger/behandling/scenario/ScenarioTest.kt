@@ -3,8 +3,6 @@ package no.nav.dagpenger.behandling.scenario
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format
 import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
@@ -24,8 +22,10 @@ import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.behandling.scenario.ScenarioTest.Formatter.lagBrev
+import no.nav.dagpenger.behandling.september
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
+import no.nav.dagpenger.regel.HarFramsattKrav.harFramsattKrav
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
@@ -211,6 +211,26 @@ class ScenarioTest {
 
             val opplysning = saksbehandler.fjernOpplysning(fødselsdato)
             person.behandling.harOpplysning(opplysning.id) shouldBe false
+        }
+    }
+
+    @Test
+    fun ` Skal ha fremsatt krav på dagpenger `() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(27.september(2025))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                with(opplysninger(harFramsattKrav)) {
+                    this shouldHaveSize 1
+                    this[0].verdi.verdi shouldBe true
+                }
+            }
         }
     }
 

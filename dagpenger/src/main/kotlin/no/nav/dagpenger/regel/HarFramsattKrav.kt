@@ -7,7 +7,7 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 
 object HarFramsattKrav {
-    val harFramsattKrav = Opplysningstype.boolsk(OpplysningsTyper.harSøktId, "Har framsatt krav om dagpenger")
+    val harFramsattKrav = Opplysningstype.boolsk(OpplysningsTyper.harFramsattKravId, "Har framsatt krav om dagpenger")
 
     private val gjelderFra = 26.september(2025)
     val regelsett =

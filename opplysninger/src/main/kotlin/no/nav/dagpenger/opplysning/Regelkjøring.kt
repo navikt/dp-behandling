@@ -67,7 +67,7 @@ class Regelkjøring(
     private val observatører: MutableSet<RegelkjøringObserver> = mutableSetOf()
 
     // Setter opp hvilke regler som skal gjelde
-    private val gjeldendeRegler
+    private val gjeldendeRegler: Set<Regel<*>>
         get() =
             forretningsprosess
                 .regelsett()
@@ -80,7 +80,10 @@ class Regelkjøring(
     private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
 
     // Hvilke opplysninger som skal produseres. Må hentes på nytt hver gang, siden det kan endres etterhvert som nye regler kommer til
-    private val ønsketResultat get() = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
+    private val ønsketResultat: List<Opplysningstype<*>> get() =
+        forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato).filter {
+            it in gjeldendeRegler.map { regel -> regel.produserer }
+        }
 
     // Set som brukes til å lage planen, og spore hva som blir gjort
     private var plan: MutableSet<Regel<*>> = mutableSetOf()
