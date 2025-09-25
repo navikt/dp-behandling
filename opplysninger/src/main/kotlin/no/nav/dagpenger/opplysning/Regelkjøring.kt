@@ -67,7 +67,13 @@ class Regelkjøring(
     private val observatører: MutableSet<RegelkjøringObserver> = mutableSetOf()
 
     // Setter opp hvilke regler som skal gjelde
-    private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
+    private val gjeldendeRegler
+        get() =
+            forretningsprosess
+                .regelsett()
+                .mapNotNull { runCatching { it.regler(regelverksdato) }.getOrNull() }
+                .flatten()
+                .toSet()
     private val avhengighetsgraf = Avhengighetsgraf(gjeldendeRegler)
 
     // Setter opp hvilke opplysninger som skal brukes når reglene evalurerer om de skal kjøre

@@ -37,6 +37,7 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.FulleYtelser
+import no.nav.dagpenger.regel.HarFramsattKrav
 import no.nav.dagpenger.regel.KravPåDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
@@ -331,6 +332,7 @@ internal val opplysningTilVilkårMap =
         PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri to
             VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_PERMITTERING_I_FISKEINDUSTRIEN,
         Samordning.utfallEtterSamordning to VilkaarNavnDTO.UTFALL_ETTER_SAMORDNING,
+        HarFramsattKrav.harFramsattKrav to VilkaarNavnDTO.HAR_FRAMSATT_KRAV_OM_DAGPENGER,
     )
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")

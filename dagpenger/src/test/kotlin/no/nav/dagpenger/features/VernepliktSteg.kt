@@ -8,8 +8,8 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 
 class VernepliktSteg : No {
     private val fraDato = 23.mai(2024)

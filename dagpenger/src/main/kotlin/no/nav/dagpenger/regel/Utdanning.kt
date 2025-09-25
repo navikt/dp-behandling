@@ -24,7 +24,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetPåUnntakForUtdann
 import no.nav.dagpenger.regel.OpplysningsTyper.svartJaPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.svartNeiPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.tarUtdanningEllerOpplæringId
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Utdanning {
     private val hvisTarUtdanning: (LesbarOpplysninger) -> Boolean = { it.erSann(tarUtdanning) }

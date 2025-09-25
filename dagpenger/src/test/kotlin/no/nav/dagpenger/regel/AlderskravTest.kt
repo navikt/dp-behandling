@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadsdato
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 

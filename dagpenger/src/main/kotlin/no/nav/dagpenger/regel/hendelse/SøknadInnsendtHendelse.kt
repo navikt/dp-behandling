@@ -16,7 +16,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.Søknadsprosess
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadIdOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID

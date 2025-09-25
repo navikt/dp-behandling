@@ -110,7 +110,6 @@ import no.nav.dagpenger.regel.Samordning.uføre
 import no.nav.dagpenger.regel.Samordning.uføreDagsats
 import no.nav.dagpenger.regel.StreikOgLockout.deltarIStreikOgLockout
 import no.nav.dagpenger.regel.StreikOgLockout.sammeBedriftOgPåvirket
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.arbeidstidsreduksjonIkkeBruktTidligere
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
@@ -132,6 +131,7 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 

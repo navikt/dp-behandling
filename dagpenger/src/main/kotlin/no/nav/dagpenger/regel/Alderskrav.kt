@@ -17,9 +17,9 @@ import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteDagIMånedId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteMånedId
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadsdato
 
 object Alderskrav {
     val fødselsdato = dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)

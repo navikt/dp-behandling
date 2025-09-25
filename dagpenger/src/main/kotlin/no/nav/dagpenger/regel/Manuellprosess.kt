@@ -22,13 +22,13 @@ import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.PermitteringFiskKon
 import no.nav.dagpenger.regel.ReellArbeidssøker.ReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.IkkeRegistrertSomArbeidsøkerKontroll
 import no.nav.dagpenger.regel.Samordning.SkalSamordnes
-import no.nav.dagpenger.regel.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstidKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKontroll
 import no.nav.dagpenger.regel.fastsetting.NyttGrunnbeløpForGrunnlag
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
 import java.time.LocalDate
 
 class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {

@@ -12,11 +12,11 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Rettighetstype
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

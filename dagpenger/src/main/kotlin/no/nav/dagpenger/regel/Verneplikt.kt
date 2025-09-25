@@ -11,7 +11,7 @@ import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.OpplysningsTyper.avtjentVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilVernepliktId
 import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 
 object Verneplikt {

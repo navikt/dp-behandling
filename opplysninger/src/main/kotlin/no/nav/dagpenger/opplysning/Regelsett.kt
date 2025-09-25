@@ -40,7 +40,7 @@ class Regelsett internal constructor(
     }
 
     // Returnerer regler som er gyldige for en gitt dato
-    fun regler(forDato: LocalDate = LocalDate.MIN) = regler.map { it.value.get(forDato) }.toList()
+    fun regler(forDato: LocalDate = LocalDate.MIN) = regler.mapNotNull { runCatching { it.value.get(forDato) }.getOrNull() }.toList()
 
     override fun toString() = "Regelsett(navn=$navn, type=$type)"
 }

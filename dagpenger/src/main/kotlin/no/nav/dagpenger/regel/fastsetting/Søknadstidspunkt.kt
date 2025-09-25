@@ -1,33 +1,44 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.regel.fastsetting
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
-import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.egenVerdi
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
-import no.nav.dagpenger.regel.Behov.Prøvingsdato
-import no.nav.dagpenger.regel.Behov.Søknadsdato
-import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
-import no.nav.dagpenger.regel.OpplysningsTyper.prøvingsdatoId
-import no.nav.dagpenger.regel.OpplysningsTyper.søknadId
-import no.nav.dagpenger.regel.OpplysningsTyper.søknadsdatoId
-import no.nav.dagpenger.regel.OpplysningsTyper.søknadstidspunktId
-import no.nav.dagpenger.regel.OpplysningsTyper.ønskerDagpengerFraDatoId
+import no.nav.dagpenger.regel.Avklaringspunkter
+import no.nav.dagpenger.regel.Behov
+import no.nav.dagpenger.regel.OpplysningsTyper
+import no.nav.dagpenger.regel.forskriftTilFolketrygden
+import no.nav.dagpenger.regel.kravPåDagpenger
 import java.time.LocalDate
 
 object Søknadstidspunkt {
     // § 3A-1.Søknadstidspunkt https://lovdata.no/forskrift/1998-09-16-890/§3a-1
-    val søknadsdato = Opplysningstype.dato(søknadsdatoId, "Søknadsdato", behovId = Søknadsdato)
-    val ønsketdato = Opplysningstype.dato(ønskerDagpengerFraDatoId, "Ønsker dagpenger fra dato", behovId = ØnskerDagpengerFraDato)
+    val søknadsdato = Opplysningstype.Companion.dato(OpplysningsTyper.søknadsdatoId, "Søknadsdato", behovId = Behov.Søknadsdato)
+    val ønsketdato =
+        Opplysningstype.Companion.dato(
+            OpplysningsTyper.ønskerDagpengerFraDatoId,
+            "Ønsker dagpenger fra dato",
+            behovId = Behov.ØnskerDagpengerFraDato,
+        )
 
-    val søknadstidspunkt = Opplysningstype.dato(søknadstidspunktId, "Søknadstidspunkt", synlig = aldriSynlig)
-
-    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato, gyldighetsperiode = egenVerdi)
-    val søknadIdOpplysningstype = Opplysningstype.tekst(søknadId, "søknadId")
+    val søknadstidspunkt =
+        Opplysningstype.Companion.dato(
+            OpplysningsTyper.søknadstidspunktId,
+            "Søknadstidspunkt",
+            synlig = Opplysningstype.Companion.aldriSynlig,
+        )
+    val prøvingsdato =
+        Opplysningstype.Companion.dato(
+            OpplysningsTyper.prøvingsdatoId,
+            "Prøvingsdato",
+            behovId = Behov.Prøvingsdato,
+            gyldighetsperiode = GyldighetsperiodeStrategi.Companion.egenVerdi,
+        )
+    val søknadIdOpplysningstype = Opplysningstype.Companion.tekst(OpplysningsTyper.søknadId, "søknadId")
 
     val regelsett =
         fastsettelse(

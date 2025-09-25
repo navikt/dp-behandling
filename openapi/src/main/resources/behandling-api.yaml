@@ -1895,6 +1895,7 @@ components:
         - Registrert som arbeidssøker på søknadstidspunktet
         - Tap av arbeidstid er minst terskel
         - Utfall etter samordning
+        - Har framsatt krav om dagpenger
 
   securitySchemes:
     azureAd:

@@ -36,7 +36,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.villigTilMinimumArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønsketArbeidstidId
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Samordning.uføre
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadIdOpplysningstype
 
 object ReellArbeidssøker {
     // c.	å ta arbeid uavhengig av om det er på heltid eller deltid,

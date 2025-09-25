@@ -15,7 +15,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.godkjentÅrsakPermitteringFraFisk
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilProsentvisTapAvArbeidstidFiskepermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFiskeindustriId
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.prøvingsdato
 
 object PermitteringFraFiskeindustrien {
     val godkjentÅrsakPermitteringFraFiskindustri =

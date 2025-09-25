@@ -20,7 +20,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetTilOppholdId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerMedlemskapId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppholdINorgeId
 import no.nav.dagpenger.regel.OpplysningsTyper.UnntakForOppholdId
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Opphold {
     val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge", behovId = BostedslandErNorge, formål = Bruker)
