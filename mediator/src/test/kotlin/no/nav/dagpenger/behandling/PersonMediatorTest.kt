@@ -55,6 +55,7 @@ import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
 import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.Barnetillegg
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
@@ -1021,7 +1022,7 @@ internal class PersonMediatorTest {
                 val forbrukt = 30
                 opplysninger()
                     .somListe()
-                    .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
+                    .filter { it.er(Beregning.utbetaling) && it.verdi as Beløp > Beløp(0) } shouldHaveSize forbrukt
                 opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe forbrukt
             }
 
@@ -1036,7 +1037,7 @@ internal class PersonMediatorTest {
             with(personRepository.hent(testPerson.ident.tilPersonIdentfikator())!!.aktivBehandling) {
                 // Det er egentlig 20 dager, men vi har en korrigering som gir 10 ekstra dager
                 val forbrukt = 20
-                opplysninger().somListe().filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize forbrukt
+                opplysninger().somListe().filter { it.er(Beregning.utbetaling) && it.verdi as Beløp > Beløp(0) } shouldHaveSize forbrukt
 
                 opplysninger
                     .somListe()
@@ -1089,7 +1090,7 @@ internal class PersonMediatorTest {
                 opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size shouldBe antallDagerMedUtbetaling
                 opplysninger()
                     .somListe()
-                    .filter { it.er(Beregning.utbetaling) && it.verdi as Int > 0 } shouldHaveSize antallDagerMedUtbetaling
+                    .filter { it.er(Beregning.utbetaling) && it.verdi as Beløp > Beløp(0) } shouldHaveSize antallDagerMedUtbetaling
             }
         }
     }

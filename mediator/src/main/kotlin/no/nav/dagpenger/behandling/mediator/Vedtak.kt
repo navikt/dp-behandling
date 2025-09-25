@@ -189,7 +189,7 @@ private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
                 periode.verdi.hashCode().toString(),
                 dato = dato,
                 sats = sats.verdien.toInt(),
-                utbetaling = dag.verdi,
+                utbetaling = dag.verdi.heleKroner.toInt(),
             )
         }
     }

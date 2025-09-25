@@ -9,20 +9,20 @@ data class Bøtte(
     val egenandel: Beløp,
     val utbetalt: Beløp,
     val reminder: Beløp = Beløp(utbetalt.verdien % arbeidsdager.size.toBigDecimal()),
-    val dagsbeløp: Int = ((utbetalt - reminder) / arbeidsdager.size).heleKroner.toInt(),
-    val beløpSisteDag: Int = dagsbeløp + reminder.heleKroner.toInt(),
+    val dagsbeløp: Beløp = ((utbetalt - reminder) / Beløp(arbeidsdager.size.toBigDecimal())),
+    val beløpSisteDag: Beløp = dagsbeløp + reminder,
 )
 
 data class Beregningresultat(
-    val utbetaling: Int,
-    val forbruktEgenandel: Int,
+    val utbetaling: Beløp,
+    val forbruktEgenandel: Beløp,
     val forbruksdager: List<Forbruksdag>,
     val gjenståendeEgenandel: Beløp,
     val oppfyllerKravTilTaptArbeidstid: Boolean,
 ) {
     data class Forbruksdag(
         val dag: Dag,
-        val tilUtbetaling: Int,
+        val tilUtbetaling: Beløp,
     )
 }
 
@@ -73,7 +73,7 @@ class Beregningsperiode private constructor(
 
     private fun beregnUtbetaling(): Beregningresultat {
         if (!oppfyllerKravTilTaptArbeidstid) {
-            return Beregningresultat(0, 0, emptyList(), gjenståendeEgenandel, false)
+            return Beregningresultat(Beløp(0), Beløp(0), emptyList(), gjenståendeEgenandel, false)
         }
 
         val dagerGruppertPåSats = arbeidsdager.groupBy { it.sats }
@@ -120,8 +120,8 @@ class Beregningsperiode private constructor(
 
         val forbruktEgenandel = Beløp(bøtter.sumOf { it.egenandel.verdien })
         return Beregningresultat(
-            utbetaling = bøtter.sumOf { it.utbetalt.verdien }.intValueExact(),
-            forbruktEgenandel = forbruktEgenandel.heleKroner.toInt(),
+            utbetaling = Beløp(bøtter.sumOf { it.utbetalt.verdien }),
+            forbruktEgenandel = forbruktEgenandel,
             forbruksdager = forbruksdager,
             gjenståendeEgenandel = gjenståendeEgenandel - forbruktEgenandel,
             oppfyllerKravTilTaptArbeidstid = true,

@@ -57,7 +57,7 @@ class BeregningsperiodeFabrikk(
         // Fall tilbake på å regne ut gjenstående egenandel
         val innvilgetEgenandel = opplysninger.finnOpplysning(Egenandel.egenandel).verdi
         val forbruktEgenandel = opplysninger.finnAlle(forbruktEgenandel)
-        val totalForbruktEgenandel = Beløp(forbruktEgenandel.sumOf { it.verdi })
+        val totalForbruktEgenandel = forbruktEgenandel.map { it.verdi }.fold(Beløp(0)) { acc, beløp -> acc + beløp }
         return innvilgetEgenandel - totalForbruktEgenandel
     }
 

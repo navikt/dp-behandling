@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
@@ -75,7 +76,7 @@ class Meldekortprosess :
                 val gyldighetsperiode = Gyldighetsperiode(dato, dato)
 
                 opplysninger.leggTil(Faktum(forbruk, forbruksdag != null, gyldighetsperiode))
-                opplysninger.leggTil(Faktum(utbetaling, forbruksdag?.tilUtbetaling ?: 0, gyldighetsperiode))
+                opplysninger.leggTil(Faktum(utbetaling, forbruksdag?.tilUtbetaling ?: Beløp(0), gyldighetsperiode))
             }
     }
 

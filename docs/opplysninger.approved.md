@@ -239,17 +239,17 @@ Dette er opplysninger som blir brukt av regelverket.
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Ingen egenandel|Penger|Beløp|
 |01956ab8-126c-7636-803e-a5d87eda2015|Har meldt seg via meldekort|Har meldt seg via meldekort|Boolsk|boolean|
 |01956abd-2871-7517-a332-b462c0c31292|Meldeperiode|Meldeperiode|PeriodeDataType|Periode|
-|01957069-d7d5-7f7c-b359-c00686fbf1f7|Penger som skal utbetales|Penger som skal utbetales|Heltall|int|
+|01957069-d7d5-7f7c-b359-c00686fbf1f7|Penger som skal utbetales|Penger som skal utbetales|Penger|Beløp|
 |0196ab10-0cff-7301-99d6-65be50a50201|Bostedsland er Norge|BostedslandErNorge|Boolsk|boolean|
 |0196afaf-afbd-7079-b2cf-3669ad9d86aa|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Boolsk|boolean|
 |0196afbf-e32d-775a-ad10-f476e26dcb6f|Uførebeløp som skal samordnes|Uførebeløp som skal samordnes|Penger|Beløp|
 |0196afc0-6807-7fa3-83e4-cf7f621f3a7e|Sum hvis Uføre ikke skal samordnes|Sum hvis Uføre ikke skal samordnes|Penger|Beløp|
 |0196b4a7-23b5-7b2c-aa95-e4167d900de8|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Boolsk|boolean|
-|01973a27-d8b3-7ffd-a81a-a3826963b079|Forbrukt egenandel|Forbrukt egenandel|Heltall|int|
+|01973a27-d8b3-7ffd-a81a-a3826963b079|Forbrukt egenandel|Forbrukt egenandel|Penger|Beløp|
 |01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Skal kravet til verneplikt vurderes|Boolsk|boolean|
 |01990a09-0eab-7957-b88f-14484a50e194|Har løpende rett på dagpenger|Har løpende rett på dagpenger|Boolsk|boolean|
 |01992934-66e4-7606-bdd3-c6c9dd420ffd|Antall dager som er forbrukt|Antall dager som er forbrukt|Heltall|int|
 |01992956-e349-76b1-8f68-c9d481df3a32|Antall dager som gjenstår|Antall dager som gjenstår|Heltall|int|
-|01994cfd-9a27-762e-81fa-61f550467c95|Penger som skal utbetales for perioden|Penger som skal utbetales for perioden|Heltall|int|
+|01994cfd-9a27-762e-81fa-61f550467c95|Penger som skal utbetales for perioden|Penger som skal utbetales for perioden|Penger|Beløp|
 |01997b70-6e6e-702a-a296-18ae5fb9621d|Oppfyller kravet til tapt arbeidstid i perioden|Oppfyller kravet til tapt arbeidstid i perioden|Boolsk|boolean|
 |01997b70-a12c-7622-bff8-82a20687e640|Gjenstående egenandel|Gjenstående egenandel|Penger|Beløp|

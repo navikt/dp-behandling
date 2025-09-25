@@ -51,23 +51,31 @@ internal fun Application.simuleringApi() {
                     val meldekortprosess = Meldekortprosess()
                     meldekortprosess.start(opplysninger)
                     meldekortprosess.ferdig(opplysninger)
-                    val forbruktEgenandel = opplysninger.finnAlle(forbruktEgenandel).sumOf { it.verdi }
+                    val forbruktEgenandel =
+                        opplysninger
+                            .finnAlle(forbruktEgenandel)
+                            .map { it.verdi }
+                            .fold(Beløp(0)) { acc, beløp -> acc + beløp }
                     val forbruksdager = opplysninger.finnAlle(Beregning.forbruk)
                     val dagsats = opplysninger.finnOpplysning(dagsatsEtterSamordningMedBarnetillegg).verdi.verdien
                     val fva = opplysninger.finnOpplysning(fastsattVanligArbeidstid).verdi
 
                     val beregning =
                         BeregningDTO(
-                            forbruktEgenandel = forbruktEgenandel,
+                            forbruktEgenandel = forbruktEgenandel.verdien,
                             forbruktKvote = forbruksdager.count { it.verdi },
-                            utbetalt = opplysninger.finnOpplysning(Beregning.utbetalingForPeriode).verdi,
+                            utbetalt =
+                                opplysninger
+                                    .finnOpplysning(Beregning.utbetalingForPeriode)
+                                    .verdi.heleKroner
+                                    .toInt(),
                             dager =
                                 forbruksdager.map { dag ->
                                     with(opplysninger.forDato(dag.gyldighetsperiode.fraOgMed)) {
                                         BeregningDagDTO(
                                             dato = dag.gyldighetsperiode.fraOgMed,
                                             dagsats = dagsats.toInt(),
-                                            utbetalt = finnOpplysning(Beregning.utbetaling).verdi,
+                                            utbetalt = finnOpplysning(Beregning.utbetaling).verdi.heleKroner.toInt(),
                                             fastsattVanligArbeidstid = fva,
                                             timerArbeidet =
                                                 if (har(Beregning.arbeidstimer)) {

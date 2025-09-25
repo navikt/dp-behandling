@@ -172,8 +172,7 @@ components:
         - utbetalt
       properties:
         forbruktEgenandel:
-          type: integer
-          format: int32
+          type: number
         forbruktKvote:
           type: integer
           format: int32

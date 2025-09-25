@@ -27,11 +27,11 @@ object Beregning {
     val forbruk = Opplysningstype.boolsk(forbrukId, "Dag som fører til forbruk av dagpengeperiode")
     val meldt = Opplysningstype.boolsk(meldtId, "Har meldt seg via meldekort")
 
-    val forbruktEgenandel = Opplysningstype.heltall(forbruktEgenandelId, "Forbrukt egenandel")
+    val forbruktEgenandel = Opplysningstype.beløp(forbruktEgenandelId, "Forbrukt egenandel")
     val gjenståendeEgenandel = Opplysningstype.beløp(gjenståendeEgenandelId, "Gjenstående egenandel")
 
-    val utbetaling = Opplysningstype.heltall(utbetalingId, "Penger som skal utbetales")
-    val utbetalingForPeriode = Opplysningstype.heltall(utbetalingForPeriodeId, "Penger som skal utbetales for perioden")
+    val utbetaling = Opplysningstype.beløp(utbetalingId, "Penger som skal utbetales")
+    val utbetalingForPeriode = Opplysningstype.beløp(utbetalingForPeriodeId, "Penger som skal utbetales for perioden")
 
     val forbrukt = Opplysningstype.heltall(forbrukteDagerId, "Antall dager som er forbrukt")
     val gjenståendePeriode = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår")
