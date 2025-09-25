@@ -7,8 +7,10 @@ import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Comp
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.behandling.september
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.Behov
+import no.nav.dagpenger.regel.HarFramsattKrav.harFramsattKrav
 import no.nav.dagpenger.regel.Opphold
 import org.junit.jupiter.api.Test
 
@@ -183,6 +185,26 @@ class ScenarioTest {
 
             val opplysning = saksbehandler.fjernOpplysning(fødselsdato)
             person.behandling.harOpplysning(opplysning.id) shouldBe false
+        }
+    }
+
+    @Test
+    fun ` Skal ha fremsatt krav på dagpenger `() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(27.september(2025))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                with(opplysninger(harFramsattKrav)) {
+                    this shouldHaveSize 1
+                    this[0].verdi.verdi shouldBe true
+                }
+            }
         }
     }
 }
