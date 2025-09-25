@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.Opphold
-import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.LocalDate

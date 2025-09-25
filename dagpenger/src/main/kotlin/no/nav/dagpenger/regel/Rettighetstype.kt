@@ -26,8 +26,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
 import no.nav.dagpenger.regel.OpplysningsTyper.SkalVernepliktVurderesId
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.Verneplikt.avtjentVerneplikt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Rettighetstype {
     val erPermittert = boolsk(PermittertId, "Bruker er permittert", Bruker, behovId = Permittert)

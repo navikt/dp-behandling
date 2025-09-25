@@ -14,7 +14,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.EgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.TreGangerDagsatsId
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
 

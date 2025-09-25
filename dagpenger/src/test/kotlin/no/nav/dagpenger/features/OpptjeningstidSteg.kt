@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.Opptjeningstid
-import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 import java.time.LocalDate
 
 class OpptjeningstidSteg : No {

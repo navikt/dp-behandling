@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.FulleYtelser
-import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 
 class FulleYtelserSteg : No {
     private val fraDato = 23.mai(2024)

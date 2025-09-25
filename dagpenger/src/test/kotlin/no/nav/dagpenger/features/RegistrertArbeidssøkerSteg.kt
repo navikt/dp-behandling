@@ -11,7 +11,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.registrertArbeidssøker
-import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 import org.junit.jupiter.api.Assertions.assertTrue
 
 class RegistrertArbeidssøkerSteg : No {

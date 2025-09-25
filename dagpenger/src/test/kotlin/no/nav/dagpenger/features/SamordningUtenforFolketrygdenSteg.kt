@@ -12,7 +12,6 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.andreYtelser
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.nedreGrenseForSamordning
@@ -20,6 +19,7 @@ import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.samordnet
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.samordnetUkessatsUtenBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.sumAvYtelserUtenforFolketrygden
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 
 class SamordningUtenforFolketrygdenSteg : No {
     private val fraDato = 10.mai(2022)

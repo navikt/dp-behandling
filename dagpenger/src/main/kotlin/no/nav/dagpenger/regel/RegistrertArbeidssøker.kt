@@ -11,7 +11,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.IkkeRegistrertSomArbeidsøker
 import no.nav.dagpenger.regel.Behov.RegistrertSomArbeidssøker
 import no.nav.dagpenger.regel.OpplysningsTyper.OppyllerKravTilRegistrertArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.RegistrertSomArbeidssøkerId
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.prøvingsdato
 
 object RegistrertArbeidssøker {
     // Registrert som arbeidssøker

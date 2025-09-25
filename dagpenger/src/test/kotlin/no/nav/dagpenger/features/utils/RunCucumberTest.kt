@@ -1,7 +1,7 @@
 package no.nav.dagpenger.features.utils
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 import org.junit.platform.suite.api.IncludeEngines
 import org.junit.platform.suite.api.SelectClasspathResource
 import org.junit.platform.suite.api.Suite

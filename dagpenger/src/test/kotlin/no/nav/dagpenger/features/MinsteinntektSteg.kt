@@ -18,9 +18,9 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.OpplysningsTyper.MinsteinntektEllerVernepliktId
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 
 private val minsteinntektEllerVerneplikt = boolsk(MinsteinntektEllerVernepliktId, "Oppfyller kravet til minsteinntekt eller verneplikt")
 

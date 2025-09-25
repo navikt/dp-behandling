@@ -9,13 +9,13 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsUtenBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.ukessats
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.prøvingsdato
 
 class DagpengensStørrelseSteg : No {
     private val fraDato = 10.mai(2024)

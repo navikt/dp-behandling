@@ -9,8 +9,8 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.StreikOgLockout
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt.prøvingsdato
 
 class StreikOgLockoutSteg : No {
     private val fraDato = 23.mai(2024)

@@ -12,6 +12,7 @@ import no.nav.dagpenger.regel.fastsetting.Egenandel
 import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.fastsetting.PermitteringFraFiskeindustrienFastsetting
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 
@@ -25,6 +26,7 @@ val RegelverkDagpenger =
         Dagpengeperiode.regelsett,
         Egenandel.regelsett,
         FulleYtelser.regelsett,
+        HarFramsattKrav.regelsett,
         KravPåDagpenger.regelsett,
         Meldeplikt.regelsett,
         Minsteinntekt.regelsett,

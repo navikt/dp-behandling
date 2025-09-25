@@ -10,8 +10,8 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.Rettighetstype
-import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
+import no.nav.dagpenger.regel.fastsetting.Søknadstidspunkt
 
 class PermitteringFiskeindustriSteg : No {
     private val fraDato = 23.mai(2024)

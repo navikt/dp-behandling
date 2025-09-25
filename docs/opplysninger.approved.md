@@ -253,3 +253,4 @@ Dette er opplysninger som blir brukt av regelverket.
 |01994cfd-9a27-762e-81fa-61f550467c95|Penger som skal utbetales for perioden|Penger som skal utbetales for perioden|Penger|Beløp|
 |01997b70-6e6e-702a-a296-18ae5fb9621d|Oppfyller kravet til tapt arbeidstid i perioden|Oppfyller kravet til tapt arbeidstid i perioden|Boolsk|boolean|
 |01997b70-a12c-7622-bff8-82a20687e640|Gjenstående egenandel|Gjenstående egenandel|Penger|Beløp|
+|0199805d-7912-7621-a8bf-71e1eeabc137|Har framsatt krav om dagpenger|Har framsatt krav om dagpenger|Boolsk|boolean|
