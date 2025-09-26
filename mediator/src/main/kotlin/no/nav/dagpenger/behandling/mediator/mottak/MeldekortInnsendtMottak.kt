@@ -86,7 +86,7 @@ internal class MeldekortInnsendtMessage(
         context: MessageContext,
     ) {
         withLoggingContext(hendelse.kontekstMap()) {
-            logger.info { "Behandler meldekort: ${hendelse.meldekort.eksternMeldekortId}" }
+            logger.info { "Mottok meldekort: ${hendelse.meldekort.eksternMeldekortId}" }
             mediator.behandle(hendelse, this, context)
         }
     }
