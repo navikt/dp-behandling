@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling.mediator
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
@@ -87,16 +88,15 @@ internal class HendelseMediator(
         hentPersonOgHåndter(personidentifikator, hendelse, context, handler)
     }
 
-    private fun lagreMeldekort(
-        hendelse: MeldekortInnsendtHendelse,
-        context: MessageContext,
-    ) {
+    private fun lagreMeldekort(hendelse: MeldekortInnsendtHendelse) {
         val personidentifikator = Ident(hendelse.ident())
-        val person = personRepository.hent(personidentifikator)
-        if (person != null) {
-            meldekortRepository.lagre(hendelse.meldekort)
-        } else {
-            logger.warn { "Vi kjenner ikke personen" }
+        withLoggingContext(hendelse.kontekstMap()) {
+            val person = personRepository.hent(personidentifikator)
+            if (person != null) {
+                meldekortRepository.lagre(hendelse.meldekort)
+            } else {
+                logger.warn { "Personen har ikke behandling(er) i dp-sak. Har ikke grunnlag til å behandle dette meldekortet." }
+            }
         }
     }
 
@@ -219,7 +219,7 @@ internal class HendelseMediator(
         hendelse: MeldekortInnsendtHendelse,
         context: MessageContext,
     ) {
-        lagreMeldekort(hendelse, context)
+        lagreMeldekort(hendelse)
     }
 
     override fun behandle(

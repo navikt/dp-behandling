@@ -10,7 +10,13 @@ class MeldekortInnsendtHendelse(
     meldingsreferanseId: UUID,
     val meldekort: Meldekort,
     opprettet: LocalDateTime,
-) : PersonHendelse(meldingsreferanseId, meldekort.ident, opprettet)
+) : PersonHendelse(meldingsreferanseId, meldekort.ident, opprettet) {
+    override fun kontekstMap(): Map<String, String> =
+        mapOf(
+            "eksternMeldekortId" to meldekort.eksternMeldekortId.toString(),
+            "meldekortId" to meldekort.id.toString(),
+        )
+}
 
 data class Meldekort(
     val id: UUID,
