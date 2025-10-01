@@ -923,28 +923,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningTypeId'
-        tidslinjer:
+        perioder:
           type: array
+          description: Vi vet ikke helt hvordan dette skal se ut enda.
           items:
-            $ref: '#/components/schemas/Tidslinje'
+            $ref: '#/components/schemas/VilkaarPeriode'
 
-
-
-    Tidslinje:
+    VilkaarPeriode:
       type: object
       required:
         - status
-        - fraOgMed
-
       properties:
         status:
           $ref: '#/components/schemas/Status'
-        fraOgMed:
+        gyldigFraOgMed:
           type: string
           format: date
-        tilOgMed:
+        gyldigTilOgMed:
           type: string
           format: date
+
     Status:
       type: string
       enum: [ "Oppfylt", "HarAvklaring", "IkkeOppfylt", "Info", "IkkeRelevant" ]

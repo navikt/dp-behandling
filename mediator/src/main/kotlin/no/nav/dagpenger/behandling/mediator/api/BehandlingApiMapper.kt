@@ -32,9 +32,9 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.api.models.StatusDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
-import no.nav.dagpenger.behandling.api.models.TidslinjeDTO
 import no.nav.dagpenger.behandling.api.models.TidslinjehendelseDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
+import no.nav.dagpenger.behandling.api.models.VilkaarPeriodeDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
 import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -257,9 +257,9 @@ private fun Regelsett.tilRegelsettDTO(
 
     val tidslinjer =
         opplysningMedUtfall.map { opplysning ->
-            TidslinjeDTO(
-                fraOgMed = opplysning.gyldighetsperiode.fraOgMed,
-                tilOgMed = opplysning.gyldighetsperiode.tilOgMed,
+            VilkaarPeriodeDTO(
+                gyldigFraOgMed = opplysning.gyldighetsperiode.fraOgMed.tilApiDato(),
+                gyldigTilOgMed = opplysning.gyldighetsperiode.tilOgMed.tilApiDato(),
                 status = if (opplysning.verdi) StatusDTO.OPPFYLT else StatusDTO.IKKE_OPPFYLT,
             )
         }
@@ -287,7 +287,7 @@ private fun Regelsett.tilRegelsettDTO(
             ),
         avklaringer = egneAvklaringer.map { it.tilAvklaringDTO() },
         status = status,
-        tidslinjer = tidslinjer,
+        perioder = tidslinjer,
         relevantForVedtak = erRelevant,
         opplysningIder = produkter.map { opplysning -> opplysning.id },
         opplysningTypeIder = produserer.map { it.id.uuid },
