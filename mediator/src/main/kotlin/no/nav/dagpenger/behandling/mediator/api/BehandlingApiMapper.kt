@@ -255,17 +255,24 @@ private fun Regelsett.tilRegelsettDTO(
     val opplysningMedUtfall =
         opplysninger.filter { utfall.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
 
-    val tidslinjer =
+    var status = tilStatus(opplysningMedUtfall)
+    val erRelevant = påvirkerResultat(lesbarOpplysninger)
+    val perioder =
         opplysningMedUtfall.map { opplysning ->
             VilkaarPeriodeDTO(
                 gyldigFraOgMed = opplysning.gyldighetsperiode.fraOgMed.tilApiDato(),
                 gyldigTilOgMed = opplysning.gyldighetsperiode.tilOgMed.tilApiDato(),
-                status = if (opplysning.verdi) StatusDTO.OPPFYLT else StatusDTO.IKKE_OPPFYLT,
+                status =
+                    when (erRelevant) {
+                        false -> StatusDTO.IKKE_RELEVANT
+                        true ->
+                            when (opplysning.verdi) {
+                                true -> StatusDTO.OPPFYLT
+                                false -> StatusDTO.IKKE_OPPFYLT
+                            }
+                    },
             )
         }
-
-    var status = tilStatus(opplysningMedUtfall)
-    val erRelevant = påvirkerResultat(lesbarOpplysninger)
 
     if (!erRelevant) {
         status = StatusDTO.IKKE_RELEVANT
@@ -287,7 +294,7 @@ private fun Regelsett.tilRegelsettDTO(
             ),
         avklaringer = egneAvklaringer.map { it.tilAvklaringDTO() },
         status = status,
-        perioder = tidslinjer,
+        perioder = perioder,
         relevantForVedtak = erRelevant,
         opplysningIder = produkter.map { opplysning -> opplysning.id },
         opplysningTypeIder = produserer.map { it.id.uuid },
