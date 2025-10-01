@@ -18,7 +18,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7

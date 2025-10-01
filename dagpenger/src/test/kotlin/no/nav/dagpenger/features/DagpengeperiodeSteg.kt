@@ -13,8 +13,9 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt
+import no.nav.dagpenger.regel.Virkningstidspunkt
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
@@ -31,6 +32,7 @@ class DagpengeperiodeSteg : No {
             Opptjeningstid.regelsett,
             Rettighetstype.regelsett,
             Søknadstidspunkt.regelsett,
+            Virkningstidspunkt.regelsett,
             Verneplikt.regelsett,
             VernepliktFastsetting.regelsett,
         )

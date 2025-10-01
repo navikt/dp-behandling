@@ -41,6 +41,7 @@ val RegelverkDagpenger =
         Samordning.regelsett,
         StreikOgLockout.regelsett,
         Søknadstidspunkt.regelsett,
+        Virkningstidspunkt.regelsett,
         TapAvArbeidsinntektOgArbeidstid.regelsett,
         Utdanning.regelsett,
         Utestengning.regelsett,

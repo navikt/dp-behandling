@@ -9,11 +9,12 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Virkningstidspunkt
 import java.time.LocalDate
 
 class OpptjeningstidSteg : No {
     private val forDato = 10.mai(2022)
-    private val regelsett = listOf(Opptjeningstid.regelsett, Søknadstidspunkt.regelsett)
+    private val regelsett = listOf(Opptjeningstid.regelsett, Søknadstidspunkt.regelsett, Virkningstidspunkt.regelsett)
     private val opplysninger = Opplysninger()
 
     init {

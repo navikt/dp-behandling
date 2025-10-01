@@ -17,7 +17,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFis
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.erPermitteringenFraFiskeindustriMidlertidig
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 
 object PermitteringFraFiskeindustrien {
     val godkjentÅrsakPermitteringFraFiskindustri =

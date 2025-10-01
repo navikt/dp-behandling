@@ -81,7 +81,7 @@ class Meldekortprosess :
     }
 
     private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): LocalDate =
-        opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
+        opplysninger.finnOpplysning(Virkningstidspunkt.prøvingsdato).verdi
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi
 }

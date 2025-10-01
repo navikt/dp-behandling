@@ -21,8 +21,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktFastsattVanligArbeidsti
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.VernepliktPeriodeId
 import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst

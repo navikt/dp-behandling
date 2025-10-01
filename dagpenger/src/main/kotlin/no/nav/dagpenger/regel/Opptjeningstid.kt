@@ -10,7 +10,7 @@ import no.nav.dagpenger.regel.Behov.SisteAvsluttendeKalenderMåned
 import no.nav.dagpenger.regel.OpplysningsTyper.ArbeidsgiversRapporteringsfristId
 import no.nav.dagpenger.regel.OpplysningsTyper.PliktigRapporteringsfristId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteAvsluttendeKalenderMånedId
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import java.time.LocalDate
 
 /**

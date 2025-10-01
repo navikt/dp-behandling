@@ -14,8 +14,8 @@ import no.nav.dagpenger.regel.Minsteinntekt.inntekt12
 import no.nav.dagpenger.regel.Minsteinntekt.inntekt36
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag12mnd

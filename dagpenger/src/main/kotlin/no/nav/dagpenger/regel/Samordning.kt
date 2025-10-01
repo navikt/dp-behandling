@@ -46,8 +46,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.uføreDagsatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.uføreId
 import no.nav.dagpenger.regel.OpplysningsTyper.utfallEtterSamordningId
 import no.nav.dagpenger.regel.Samordning.skalSamordnes
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterNittiProsent
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.harBarnetillegg
 

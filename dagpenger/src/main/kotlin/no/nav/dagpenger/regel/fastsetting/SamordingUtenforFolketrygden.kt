@@ -41,7 +41,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.skalSamordnesMedYtelserUtenforFol
 import no.nav.dagpenger.regel.OpplysningsTyper.sumYtelserUtenforFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelVedSamordningId
 import no.nav.dagpenger.regel.Samordning.samordnetDagsats
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
 import no.nav.dagpenger.regel.folketrygden

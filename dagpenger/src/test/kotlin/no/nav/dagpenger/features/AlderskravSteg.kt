@@ -10,12 +10,13 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Virkningstidspunkt
 import org.junit.jupiter.api.Assertions
 import java.time.LocalDate
 
 class AlderskravSteg : No {
     private val fraDato = 10.mai(2022)
-    private val regelsett = listOf(Alderskrav.regelsett, Søknadstidspunkt.regelsett)
+    private val regelsett = listOf(Alderskrav.regelsett, Søknadstidspunkt.regelsett, Virkningstidspunkt.regelsett)
     private val opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 

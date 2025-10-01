@@ -5,7 +5,7 @@ import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.regel.OpplysningsTyper.permitteringFraFiskeindustriPeriodeId
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.folketrygden
 
 object PermitteringFraFiskeindustrienFastsetting {

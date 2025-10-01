@@ -12,6 +12,7 @@ import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
+import no.nav.dagpenger.regel.Virkningstidspunkt
 
 class PermitteringFiskeindustriSteg : No {
     private val fraDato = 23.mai(2024)
@@ -20,6 +21,7 @@ class PermitteringFiskeindustriSteg : No {
             PermitteringFraFiskeindustrien.regelsett,
             Rettighetstype.regelsett,
             Søknadstidspunkt.regelsett,
+            Virkningstidspunkt.regelsett,
             Verneplikt.regelsett,
         )
     private val opplysninger = Opplysninger()

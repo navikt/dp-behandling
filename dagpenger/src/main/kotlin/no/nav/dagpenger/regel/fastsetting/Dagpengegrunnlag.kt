@@ -55,7 +55,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UavrundetGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode1Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode2Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode3Id
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagHvisVerneplikt

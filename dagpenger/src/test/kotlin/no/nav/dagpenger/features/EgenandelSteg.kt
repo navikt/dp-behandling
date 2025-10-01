@@ -12,7 +12,7 @@ import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.Egenandel
 

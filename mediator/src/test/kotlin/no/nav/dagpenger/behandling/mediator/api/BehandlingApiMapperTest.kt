@@ -32,6 +32,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
+import no.nav.dagpenger.regel.Virkningstidspunkt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
@@ -94,7 +95,7 @@ class BehandlingApiMapperTest {
             gjeldendeOpplysninger =
                 Opplysninger.med(
                     Faktum(
-                        Søknadstidspunkt.prøvingsdato,
+                        Virkningstidspunkt.prøvingsdato,
                         LocalDate
                             .now(),
                     ),
@@ -195,7 +196,7 @@ class BehandlingApiMapperTest {
 
         behandlingDto.utfall shouldBe false
 
-        behandlingDto.vilkår shouldHaveSize 16
+        behandlingDto.vilkår shouldHaveSize 17
         behandlingDto.vilkår.single { it.navn == "Alder" }.relevantForVedtak shouldBe true
     }
 

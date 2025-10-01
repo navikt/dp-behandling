@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn

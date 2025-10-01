@@ -36,8 +36,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.ordinærtKravTilTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.tapAvArbeidstidErMinstTerskelId
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktFastsattVanligArbeidstid

@@ -12,10 +12,11 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Virkningstidspunkt
 import org.junit.jupiter.api.Assertions.assertTrue
 
 class RegistrertArbeidssøkerSteg : No {
-    private val regelsett = listOf(RegistrertArbeidssøker.regelsett, Søknadstidspunkt.regelsett)
+    private val regelsett = listOf(RegistrertArbeidssøker.regelsett, Søknadstidspunkt.regelsett, Virkningstidspunkt.regelsett)
     private val opplysninger: Opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 

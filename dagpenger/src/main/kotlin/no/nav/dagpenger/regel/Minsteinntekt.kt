@@ -44,9 +44,9 @@ import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor12MndId
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor36MndId
 import no.nav.dagpenger.regel.Opptjeningstid.justertRapporteringsfrist
 import no.nav.dagpenger.regel.Opptjeningstid.sisteAvsluttendendeKalenderMåned
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadstidspunkt
+import no.nav.dagpenger.regel.Virkningstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import java.time.LocalDate
 
