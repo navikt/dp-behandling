@@ -10,6 +10,7 @@ import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -33,9 +34,17 @@ interface BegrunnelseRepository {
     )
 }
 
+interface UtbetalingStatusRepository {
+    @WithSpan
+    fun lagreUtbetalingStatus(utbetalingStatus: UtbetalingStatus)
+
+    fun hentUtbetalingStatus(behandlingId: UUID): UtbetalingStatus.Status
+}
+
 interface BehandlingRepository :
     AvklaringRepository,
-    BegrunnelseRepository {
+    BegrunnelseRepository,
+    UtbetalingStatusRepository {
     @WithSpan
     fun hentBehandling(
         @SpanAttribute

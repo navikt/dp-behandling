@@ -35,6 +35,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 
 internal class HendelseMediator(
@@ -304,6 +305,19 @@ internal class HendelseMediator(
     }
 
     override fun behandle(
+        hendelse: UtbetalingStatus,
+        context: MessageContext,
+    ) {
+        lagreUtbetalingStatus(hendelse)
+    }
+
+    private fun lagreUtbetalingStatus(hendelse: UtbetalingStatus) {
+        val behandling = personRepository.hentBehandling(hendelse.behandlingId)
+        require(behandling != null) { "Behandling must not be null" }
+        personRepository.lagreUtbetalingStatus(hendelse)
+    }
+
+    override fun behandle(
         hendelse: FlyttBehandlingHendelse,
         context: MessageContext,
     ) {
@@ -404,6 +418,11 @@ internal interface IHendelseMediator {
 
     fun behandle(
         hendelse: FlyttBehandlingHendelse,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: UtbetalingStatus,
         context: MessageContext,
     )
 }

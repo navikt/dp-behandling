@@ -8,6 +8,7 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
+import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.util.UUID
 
@@ -76,6 +77,14 @@ class InMemoryPersonRepository :
         opplysningId: UUID,
         begrunnelse: String,
     ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun lagreUtbetalingStatus(utbetalingStatus: UtbetalingStatus) {
+        TODO("Not yet implemented")
+    }
+
+    override fun hentUtbetalingStatus(behandlingId: UUID): UtbetalingStatus.Status {
         TODO("Not yet implemented")
     }
 }

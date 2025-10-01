@@ -35,6 +35,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.ReturnerTilSaksbehandlerMessa
 import no.nav.dagpenger.behandling.mediator.mottak.SendtTilKontrollMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMottak
+import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMessage
+import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMottak
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
@@ -49,6 +51,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import java.util.UUID
@@ -76,6 +79,7 @@ internal class MessageMediator(
         PåminnelseMottak(rapidsConnection, this)
         RekjørBehandlingMottak(rapidsConnection, this)
         SøknadInnsendtMottak(rapidsConnection, this)
+        UtbetalingStatusMottak(rapidsConnection, this)
     }
 
     private companion object {
@@ -214,8 +218,17 @@ internal class MessageMediator(
     ) {
         behandle(hendelse, message) {
             hendelseMediator.behandle(it, context)
-
             apiRepositoryPostgres.behovLøst(hendelse.behandlingId, hendelse.behovId)
+        }
+    }
+
+    override fun behandle(
+        hendelse: UtbetalingStatus,
+        message: UtbetalingStatusMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
         }
     }
 
@@ -320,6 +333,12 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: FjernOpplysningHendelse,
         message: FjernOpplysningMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: UtbetalingStatus,
+        message: UtbetalingStatusMessage,
         context: MessageContext,
     )
 }

@@ -10,6 +10,7 @@ import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
+import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
 import no.nav.dagpenger.opplysning.Saksbehandler
@@ -277,6 +278,49 @@ internal class BehandlingRepositoryPostgres(
                 ) ?: throw IllegalArgumentException("Fant ikke kilde for opplysning $opplysningId")
 
             kildeRepository.lagreBegrunnelse(kildeId, begrunnelse)
+        }
+    }
+
+    override fun lagreUtbetalingStatus(utbetalingStatus: UtbetalingStatus) {
+        sessionOf(dataSource).use { session ->
+            session.transaction {
+                it.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        INSERT INTO utbetaling_status (behandling_id, status, meldekort_id, endret) 
+                        VALUES (:behandling_id, :status, :meldekort_id, :endret)
+                        ON CONFLICT (behandling_id, meldekort_id) DO UPDATE SET status = :status, endret = :endret
+                        """.trimIndent(),
+                        mapOf(
+                            "behandling_id" to utbetalingStatus.behandlingId,
+                            "status" to utbetalingStatus.status.name,
+                            "meldekort_id" to utbetalingStatus.eksternMeldekortId.id,
+                            "endret" to utbetalingStatus.opprettet,
+                        ),
+                    ).asUpdate,
+                )
+            }
+        }
+    }
+
+    override fun hentUtbetalingStatus(behandlingId: UUID): UtbetalingStatus.Status {
+        sessionOf(dataSource).use { session ->
+            return session
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT status 
+                        FROM utbetaling_status 
+                        WHERE behandling_id = :behandling_id
+                        """.trimIndent(),
+                        mapOf(
+                            "behandling_id" to behandlingId,
+                        ),
+                    ).map { it.string("status") }.asSingle,
+                )?.let { UtbetalingStatus.Status.valueOf(it) }
+                ?: throw IllegalArgumentException("Fant ikke utbetalingstatus for behandling $behandlingId")
         }
     }
 }

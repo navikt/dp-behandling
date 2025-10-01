@@ -51,6 +51,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
@@ -95,6 +96,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
+import java.util.UUID
 
 internal class PersonMediatorTest {
     private val rapid = TestRapid()
@@ -102,12 +104,14 @@ internal class PersonMediatorTest {
     private val opplysningerRepository =
         OpplysningerRepositoryPostgres()
 
+    private val behandlingRepository =
+        BehandlingRepositoryPostgres(
+            opplysningerRepository,
+            AvklaringRepositoryPostgres(AvklaringKafkaObservatør(rapid)),
+        )
     private val personRepository =
         PersonRepositoryPostgres(
-            BehandlingRepositoryPostgres(
-                opplysningerRepository,
-                AvklaringRepositoryPostgres(AvklaringKafkaObservatør(rapid)),
-            ),
+            behandlingRepository,
         )
 
     private val meldekortRepository =
@@ -965,7 +969,8 @@ internal class PersonMediatorTest {
             saksbehandler.beslutt()
 
             // Meldekort 1 leses inn
-            testPerson.sendMeldekort(7.juni(2021), 1).also {
+            val meldekortId = 1L
+            testPerson.sendMeldekort(7.juni(2021), meldekortId).also {
                 meldekortBehandlingskø.sendMeldekortTilBehandling()
                 rapid.harHendelse("beregn_meldekort") {
                     rapid.sendTestMessage(medRåData().toPrettyString())
@@ -973,6 +978,9 @@ internal class PersonMediatorTest {
             }
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
+            // Meldekort 1 utbetales
+            saksbehandler.utbetalt(meldekortId.toString())
+            behandlingRepository.hentUtbetalingStatus(UUID.fromString(testPerson.behandlingId)) shouldBe UtbetalingStatus.Status.UTFØRT
 
             rapid.harHendelse("vedtak_fattet") {
                 rapid.sendTestMessage(medRåData().toPrettyString())
@@ -1304,6 +1312,22 @@ internal class PersonMediatorTest {
                     opprettet = LocalDateTime.now(),
                 ),
                 rapid,
+            )
+        }
+
+        fun utbetalt(meldekortId: String) {
+            rapid.sendTestMessage(
+                //language=JSON
+                """
+                {
+                  "@event_name": "utbetaling_utført",
+                  "behandlingId": "${testPerson.behandlingId}",
+                  "ident": "${testPerson.ident}",
+                  "sakId": "${UUIDv7.ny()}",
+                  "meldekortId": "$meldekortId",
+                  "status": "MOTTATT"
+                }
+                """.trimIndent(),
             )
         }
 
