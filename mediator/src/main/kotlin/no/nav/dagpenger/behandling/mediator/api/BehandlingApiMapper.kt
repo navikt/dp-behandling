@@ -28,10 +28,11 @@ import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.RegelsettDTO
-import no.nav.dagpenger.behandling.api.models.RegelsettDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
+import no.nav.dagpenger.behandling.api.models.StatusDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
+import no.nav.dagpenger.behandling.api.models.TidslinjeDTO
 import no.nav.dagpenger.behandling.api.models.TidslinjehendelseDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
@@ -253,15 +254,25 @@ private fun Regelsett.tilRegelsettDTO(
 
     val opplysningMedUtfall =
         opplysninger.filter { utfall.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
+
+    val tidslinjer =
+        opplysningMedUtfall.map { opplysning ->
+            TidslinjeDTO(
+                fraOgMed = opplysning.gyldighetsperiode.fraOgMed,
+                tilOgMed = opplysning.gyldighetsperiode.tilOgMed,
+                status = if (opplysning.verdi) StatusDTO.OPPFYLT else StatusDTO.IKKE_OPPFYLT,
+            )
+        }
+
     var status = tilStatus(opplysningMedUtfall)
     val erRelevant = påvirkerResultat(lesbarOpplysninger)
 
     if (!erRelevant) {
-        status = RegelsettDTOStatusDTO.IKKE_RELEVANT
+        status = StatusDTO.IKKE_RELEVANT
     }
 
     if (egneAvklaringer.any { it.måAvklares() }) {
-        status = RegelsettDTOStatusDTO.HAR_AVKLARING
+        status = StatusDTO.HAR_AVKLARING
     }
 
     return RegelsettDTO(
@@ -276,19 +287,20 @@ private fun Regelsett.tilRegelsettDTO(
             ),
         avklaringer = egneAvklaringer.map { it.tilAvklaringDTO() },
         status = status,
+        tidslinjer = tidslinjer,
         relevantForVedtak = erRelevant,
         opplysningIder = produkter.map { opplysning -> opplysning.id },
         opplysningTypeIder = produserer.map { it.id.uuid },
     )
 }
 
-private fun tilStatus(utfall: List<Opplysning<Boolean>>): RegelsettDTOStatusDTO {
-    if (utfall.isEmpty()) return RegelsettDTOStatusDTO.INFO
+private fun tilStatus(utfall: List<Opplysning<Boolean>>): StatusDTO {
+    if (utfall.isEmpty()) return StatusDTO.INFO
 
     return if (utfall.last().verdi) {
-        RegelsettDTOStatusDTO.OPPFYLT
+        StatusDTO.OPPFYLT
     } else {
-        RegelsettDTOStatusDTO.IKKE_OPPFYLT
+        StatusDTO.IKKE_OPPFYLT
     }
 }
 

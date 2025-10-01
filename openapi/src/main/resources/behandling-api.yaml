@@ -909,8 +909,7 @@ components:
           type: boolean
           deprecated: true
         status:
-          type: string
-          enum: [ "Oppfylt", "HarAvklaring", "IkkeOppfylt", "Info", "IkkeRelevant" ]
+          $ref: '#/components/schemas/Status'
         avklaringer:
           type: array
           description: Hvilke avklaringer som skal vises i dette regelsettet
@@ -924,6 +923,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningTypeId'
+        tidslinjer:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tidslinje'
+
+
+
+    Tidslinje:
+      type: object
+      required:
+        - status
+        - fraOgMed
+
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          type: string
+          format: date
+    Status:
+      type: string
+      enum: [ "Oppfylt", "HarAvklaring", "IkkeOppfylt", "Info", "IkkeRelevant" ]
 
     Hjemmel:
       type: object
