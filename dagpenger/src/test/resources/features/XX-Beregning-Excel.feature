@@ -193,7 +193,6 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
     Og det forbrukes 10 dager
 
 
-
   Scenario: 7b - Bruker får innvilget dagpenger med ordinær egenandel tilsvarende 3 dagsatser, fra første dag i meldeperioden. (med sats som ikke er delelig på 10)
     Gitt at mottaker har vedtak med
       | Opplysning | verdi | fraOgMed   | tilOgMed |
@@ -304,7 +303,6 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
   OBS: Ved forlenget ventetid, skal det ikke gis ordinær ventetid.
 
 
-
   @wip
   Scenario: 13a - Det gjenstår 6 dager med sanksjon.
   Bruker jobber 12 timer i helg og 2 timer mandag før sanksjonen er ferdig avtjent.
@@ -321,3 +319,36 @@ Egenskap: Beregning av meldekort - scenarioer fra Excel
   Scenario: 14  - Det gjenstår 6 dager med sanksjon.
   Bruker har 1 fraværsdag i uke 1.
   Bruker jobber i helg før sanksjonen er ferdig avtjent.
+
+
+  @wip
+  Scenario: 36a
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 10.01.2020 |          |
+      | Sats       | 800   | 10.01.2020 |          |
+      | Sats       | 400   | 17.01.2020 |          |
+      | FVA        | 40    | 10.01.2020 |          |
+      | FVA        | 20    | 17.01.2020 |          |
+      | Egenandel  | 0     | 10.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag |              | 0     |
+      | Onsdag  |              | 0     |
+      | Torsdag | Syk          | 0     |
+      | Fredag  | Syk          | 0     |
+      | Lørdag  |              | 0     |
+      | Søndag  |              | 0     |
+      | Mandag  | Arbeidstimer | 5     |
+      | Tirsdag | Arbeidstimer | 5     |
+      | Onsdag  | Arbeidstimer | 1     |
+      | Torsdag |              | 0     |
+      | Fredag  |              | 0     |
+      | Lørdag  |              | 0     |
+      | Søndag  |              | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 2800,0 kroner
+    Og det forbrukes 0 i egenandel
+    Og det forbrukes 6 dager
