@@ -769,6 +769,7 @@ components:
         - fastsettelser
         - tilstand
         - opplysninger
+        - avklaringer
       properties:
         behandlingId:
           type: string
@@ -794,6 +795,10 @@ components:
           type: boolean
         ident:
           $ref: '#/components/schemas/Personident'
+        avklaringer:
+          type: array
+          items:
+            $ref: '#/components/schemas/Avklaring'
         vilkår:
           type: array
           items:
