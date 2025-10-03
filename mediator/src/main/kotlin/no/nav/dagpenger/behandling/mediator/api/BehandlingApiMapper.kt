@@ -271,6 +271,7 @@ private fun Regelsett.tilRegelsettDTO(
                                 false -> StatusDTO.IKKE_OPPFYLT
                             }
                     },
+                opplysningsTypeId = emptyList(),
             )
         }
 

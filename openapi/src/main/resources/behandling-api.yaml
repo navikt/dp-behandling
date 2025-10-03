@@ -119,6 +119,35 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
+  /behandling/v2/{behandlingId}:
+    parameters:
+      - name: behandlingId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Behandlingens id
+    get:
+      summary: Hent en spesifikk behandling
+      security:
+        - azureAd: [ ]
+      tags:
+        - Behandling
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BehandlingsresultatV2'
+          description: OK
+        default:
+          description: Feil ved henting av behandling
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
   /behandling/{behandlingId}/vurderinger:
     parameters:
       - name: behandlingId
@@ -728,6 +757,58 @@ components:
           items:
             $ref: '#/components/schemas/Rettighetsperiode'
 
+    BehandlingsresultatV2:
+      type: object
+      required:
+        - behandlingId
+        - behandletHendelse
+        - automatisk
+        - ident
+        - kreverTotrinnskontroll
+        - vilkår
+        - fastsettelser
+        - tilstand
+        - opplysninger
+      properties:
+        behandlingId:
+          type: string
+          format: uuid
+        hendelser:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tidslinjehendelse'
+        behandletHendelse:
+          description: Hvilken hendelse som utløste behandlingen
+          $ref: '#/components/schemas/Hendelse'
+        kreverTotrinnskontroll:
+          type: boolean
+        basertPå:
+          description: Hvilken behandling denne behandlingen er basert på, hvis noen
+          type: string
+          format: uuid
+        tilstand:
+          type: string
+          enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
+        automatisk:
+          description: Om behandlingen har blitt behandlet automatisk uten en saksbehandler
+          type: boolean
+        ident:
+          $ref: '#/components/schemas/Personident'
+        vilkår:
+          type: array
+          items:
+            $ref: '#/components/schemas/VurderingsresultatV2'
+        fastsettelser:
+          type: array
+          items:
+            $ref: '#/components/schemas/VurderingsresultatV2'
+        opplysninger:
+          description: Alle opplysninger som har vært til stede under behandlingen, også historiske
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningergruppeV2'
+
+
     Personident:
       type: string
       pattern: '^[0-9]{11}$'
@@ -764,6 +845,57 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningTypeId'
+
+    VurderingsresultatV2:
+      type: object
+      required:
+        - navn
+        - hjemmel
+        - opplysninger
+      properties:
+        navn:
+          description: Kort navn som beskriver regelsettet
+          type: string
+        hjemmel:
+          description: Hvilken hjemmel er regelsettet basert på
+          $ref: '#/components/schemas/Hjemmel'
+        type:
+          type: string
+          enum: [ "Vilkår", "Fastsettelse" ]
+        perioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/VilkaarPeriode'
+
+    OpplysningergruppeV2:
+      type: object
+      required:
+        - opplysningTypeId
+        - navn
+        - datatype
+        - synlig
+        - formål
+        - perioder
+      properties:
+        opplysningTypeId:
+          $ref: '#/components/schemas/OpplysningTypeId'
+        navn:
+          type: string
+        datatype:
+          $ref: '#/components/schemas/DataType'
+        synlig:
+          type: boolean
+        redigerbar:
+          type: boolean
+        redigertAvSaksbehandler:
+          type: boolean
+        formål:
+          $ref: '#/components/schemas/Formål'
+        perioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/Opplysningsperiode'
+
 
     BehandlingOpplysninger:
       type: object
@@ -933,6 +1065,7 @@ components:
       type: object
       required:
         - status
+        - opplysningsTypeId
       properties:
         status:
           $ref: '#/components/schemas/Status'
@@ -942,6 +1075,10 @@ components:
         gyldigTilOgMed:
           type: string
           format: date
+        opplysningsTypeId:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningTypeId'
 
     Status:
       type: string
