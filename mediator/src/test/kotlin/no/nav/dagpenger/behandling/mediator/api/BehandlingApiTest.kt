@@ -23,6 +23,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.escapeIfNeeded
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingsresultatV2DTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
@@ -174,6 +175,39 @@ internal class BehandlingApiTest {
             }
 
             behandlingDto.avklaringer shouldHaveSize 6
+            auditlogg.aktivitet shouldContainExactly listOf("les")
+        }
+    }
+
+    @Test
+    fun `hent behandling v2 gitt behandlingId`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+
+            val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/v2/${person.behandlingId}")
+            response.status shouldBe HttpStatusCode.OK
+            response.bodyAsText().shouldNotBeEmpty()
+
+            val behandlingDto = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingsresultatV2DTO::class.java) }
+            behandlingDto.behandlingId shouldBe person.behandlingId
+            behandlingDto.vilkår.shouldNotBeEmpty()
+            behandlingDto.avklaringer.shouldNotBeEmpty()
+
+            with(behandlingDto.behandletHendelse) {
+                shouldNotBeNull()
+                type shouldBe HendelseDTOTypeDTO.SØKNAD
+            }
+            with(behandlingDto.vilkår.single { it.navn == "Minsteinntekt" }) {
+                this.perioder.shouldNotBeEmpty()
+            }
+            with(behandlingDto.fastsettelser.single { it.navn == "Dagpengegrunnlag" }) {
+                this.perioder.shouldNotBeEmpty()
+            }
+
+            behandlingDto.opplysninger.shouldNotBeEmpty()
+
+            behandlingDto.avklaringer shouldHaveSize 9
             auditlogg.aktivitet shouldContainExactly listOf("les")
         }
     }

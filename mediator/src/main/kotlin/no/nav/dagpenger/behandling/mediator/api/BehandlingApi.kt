@@ -197,6 +197,12 @@ internal fun Application.behandlingApi(
 
                     call.respond(HttpStatusCode.OK, person.behandlinger().map { it.tilBehandlingDTO() })
                 }
+                get("v2/{behandlingId}") {
+                    val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                    auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
+                    call.respond(HttpStatusCode.OK, behandling.tilBehandlingsresultatV2DTO())
+                }
 
                 route("{behandlingId}") {
                     get {

@@ -55,6 +55,12 @@ class Regelverk(
             .filter { it.skalKjøres(opplysninger) }
             .filter { it.påvirkerResultat(opplysninger) }
 
+    fun relevanteFastsettelser(opplysninger: LesbarOpplysninger): List<Regelsett> =
+        regelsett
+            .filter { it.type == RegelsettType.Fastsettelse }
+            .filter { it.skalKjøres(opplysninger) }
+            .filter { it.påvirkerResultat(opplysninger) }
+
     fun rettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode> {
         if (rettighetsperiodetype == null) return emptyList()
 

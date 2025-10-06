@@ -767,6 +767,7 @@ components:
         - kreverTotrinnskontroll
         - vilkår
         - fastsettelser
+        - rettighetsperioder
         - tilstand
         - opplysninger
         - avklaringer
@@ -811,8 +812,11 @@ components:
           description: Alle opplysninger som har vært til stede under behandlingen, også historiske
           type: array
           items:
-            $ref: '#/components/schemas/OpplysningergruppeV2'
-
+            $ref: '#/components/schemas/OpplysningsgruppeV2'
+        rettighetsperioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rettighetsperiode'
 
     Personident:
       type: string
@@ -872,7 +876,7 @@ components:
           items:
             $ref: '#/components/schemas/VilkaarPeriode'
 
-    OpplysningergruppeV2:
+    OpplysningsgruppeV2:
       type: object
       required:
         - opplysningTypeId
