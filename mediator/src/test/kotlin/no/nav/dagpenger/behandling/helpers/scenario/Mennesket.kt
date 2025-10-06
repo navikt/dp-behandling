@@ -162,7 +162,11 @@ internal class Mennesket(
                         "verdi" to
                             listOf<Map<String, Any>>(
                                 mapOf(
-                                    "fødselsdato" to 1.januar(2000),
+                                    "fødselsdato" to 2.januar(2000),
+                                    "kvalifiserer" to true,
+                                ),
+                                mapOf(
+                                    "fødselsdato" to 1.januar(2010),
                                     "kvalifiserer" to true,
                                 ),
                             ),

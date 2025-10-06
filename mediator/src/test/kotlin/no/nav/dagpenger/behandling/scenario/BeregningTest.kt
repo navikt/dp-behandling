@@ -3,8 +3,10 @@ package no.nav.dagpenger.behandling.scenario
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.behandling.desember
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode
+import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.mai
@@ -13,6 +15,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -129,6 +132,36 @@ class BeregningTest {
             // Systemet kjører beregningsbatchen
             meldekortBatch(true)
             meldekortBatch(true)
+        }
+    }
+
+    @Test
+    fun `meldekort blir beregnet med ny sats når barn blir over 18`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.desember(2017))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort før vedtak
+            person.sendInnMeldekort(Periode(1.januar(2018), 14.januar(2018)))
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(avklar = true)
+
+            behandlingsresultat {
+                with(opplysninger(DagpengenesStørrelse.antallBarn)) {
+                    this shouldHaveSize 2
+                }
+                with(opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)) {
+                    this shouldHaveSize 2
+                    this.first().verdi.verdi shouldBe 5036
+                    this.last().verdi.verdi shouldBe 5036
+                }
+            }
         }
     }
 

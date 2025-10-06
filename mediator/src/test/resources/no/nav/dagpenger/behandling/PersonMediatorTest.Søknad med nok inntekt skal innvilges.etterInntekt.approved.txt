@@ -52,6 +52,7 @@ Antall G som gis som grunnlag ved verneplikt
 Grunnlag for verneplikt hvis kravet ikke er oppfylt
 Faktor for utregning av dagsats etter dagpengegrunnlaget
 Barnetilleggets størrelse i kroner per dag for hvert barn
+Aldersgrense for barnetillegg
 90% av grunnlag for dagpenger
 Antall arbeidsdager per år
 Pleiepenger dagsats

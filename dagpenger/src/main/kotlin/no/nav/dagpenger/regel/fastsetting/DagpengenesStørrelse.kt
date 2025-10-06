@@ -12,7 +12,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.addisjon
-import no.nav.dagpenger.opplysning.regel.antallAv
+import no.nav.dagpenger.opplysning.regel.antallBarn
 import no.nav.dagpenger.opplysning.regel.avrund
 import no.nav.dagpenger.opplysning.regel.divisjon
 import no.nav.dagpenger.opplysning.regel.erUlik
@@ -20,11 +20,13 @@ import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.minstAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Avklaringspunkter.BarnMåGodkjennes
 import no.nav.dagpenger.regel.Behov.Barnetillegg
+import no.nav.dagpenger.regel.OpplysningsTyper.AldersgrenseBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallArbeidsdagerPerÅrId
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallBarnSomGirRettTilBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.ArbeidsdagerPerUkeId
@@ -57,8 +59,9 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 object DagpengenesStørrelse {
+    internal val aldersgrenseBarnetillegg = Opplysningstype.heltall(AldersgrenseBarnetilleggId, "Aldersgrense for barnetillegg", Register)
     val barn = Opplysningstype.barn(BarnId, "Barn", Register, behovId = Barnetillegg)
-    internal val antallBarn = heltall(AntallBarnSomGirRettTilBarnetilleggId, "Antall barn som gir rett til barnetillegg")
+    val antallBarn = heltall(AntallBarnSomGirRettTilBarnetilleggId, "Antall barn som gir rett til barnetillegg")
     internal val barnetilleggetsStørrelse =
         beløp(BarnetilleggetsStørrelsePerDagId, "Barnetilleggets størrelse i kroner per dag for hvert barn", synlig = aldriSynlig)
 
@@ -112,8 +115,11 @@ object DagpengenesStørrelse {
         ) {
             skalVurderes { kravPåDagpenger(it) }
 
+            regel(aldersgrenseBarnetillegg) { somUtgangspunkt(18) }
             regel(barn) { innhentMed(søknadIdOpplysningstype) }
-            regel(antallBarn) { antallAv(barn) { kvalifiserer } }
+            regel(antallBarn) {
+                antallBarn(barn, prøvingsdato, aldersgrenseBarnetillegg) { dato, aldersgrense -> girBarnetillegg(dato, aldersgrense) }
+            }
 
             // Regn ut dagsats uten barnetillegg, før samordning
             regel(dekningsgrad) { oppslag(prøvingsdato) { DagpengensStørrelseFaktor.forDato(it) } }

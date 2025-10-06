@@ -24,6 +24,11 @@ data class Barn(
 ) : Comparable<Barn> {
     override fun compareTo(other: Barn): Int = this.fødselsdato.compareTo(other.fødselsdato)
 
+    fun girBarnetillegg(
+        dato: LocalDate,
+        aldersgrense: Int,
+    ) = kvalifiserer && dato.isBefore(fødselsdato.plusYears(aldersgrense.toLong()))
+
     override fun toString() =
         """Barn(fødselsdato=$fødselsdato, fornavnOgMellomnavn=$fornavnOgMellomnavn, 
             |etternavn=$etternavn, statsborgerskap=$statsborgerskap, kvalifiserer=$kvalifiserer)

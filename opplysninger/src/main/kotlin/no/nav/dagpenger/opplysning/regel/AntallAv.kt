@@ -2,8 +2,6 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.verdier.Barn
-import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.ComparableListe
 
 class AntallAv<T : Comparable<T>>(
@@ -23,10 +21,3 @@ fun <T : Comparable<T>> Opplysningstype<Int>.antallAv(
     opplysningstype: Opplysningstype<ComparableListe<T>>,
     filter: T.() -> Boolean,
 ) = AntallAv(this, opplysningstype, filter)
-
-@Suppress("UNCHECKED_CAST")
-@JvmName("antallAvBarn")
-fun Opplysningstype<Int>.antallAv(
-    opplysningstype: Opplysningstype<BarnListe>,
-    filter: Barn.() -> Boolean,
-) = AntallAv(this, opplysningstype as Opplysningstype<ComparableListe<Barn>>, filter)

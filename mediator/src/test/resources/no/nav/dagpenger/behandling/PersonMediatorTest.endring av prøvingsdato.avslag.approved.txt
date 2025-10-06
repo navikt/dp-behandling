@@ -76,7 +76,7 @@ Antall G som gis som grunnlag ved verneplikt
 Grunnlag for verneplikt hvis kravet ikke er oppfylt
 Faktor for utregning av dagsats etter dagpengegrunnlaget
 Barnetilleggets størrelse i kroner per dag for hvert barn
-Antall barn som gir rett til barnetillegg
+Aldersgrense for barnetillegg
 90% av grunnlag for dagpenger
 Antall arbeidsdager per år
 Sykepenger dagsats
@@ -116,7 +116,7 @@ Oppfyller kravet til medlemskap
 Oppjustert inntekt
 6 ganger grunnbeløp
 Grunnlag for gis ved verneplikt
-Sum av barnetillegg
+Antall barn som gir rett til barnetillegg
 Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår
 Brukeren er ikke påvirket av streik eller lock-out
 Samordnet fastsatt arbeidstid
@@ -129,8 +129,8 @@ Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
 Grunnlag for verneplikt hvis kravet er oppfylt
+Sum av barnetillegg
 Uførebeløp som skal samordnes
-Har barnetillegg
 Medlem har reduserte ytelser fra folketrygden (Samordning)
 Oppfyller kravet på unntak for utdanning eller opplæring
 Inntekt etter avkortning og oppjustering siste 12 måneder
@@ -138,6 +138,7 @@ Avkortet inntektperiode 1
 Avkortet inntektperiode 2
 Avkortet inntektperiode 3
 Sum andre ytelser
+Har barnetillegg
 Oppfyller krav til utdanning eller opplæring
 Inntekt siste 36 måneder
 Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder

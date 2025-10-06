@@ -15,8 +15,13 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.forbrukt
 import no.nav.dagpenger.regel.beregning.Beregning.gjenståendePeriode
+import no.nav.dagpenger.regel.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.aldersgrenseBarnetillegg
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import java.time.LocalDate
 
@@ -26,14 +31,13 @@ class Meldekortprosess :
     init {
         registrer(this)
         registrer(Kvotetelling())
+        registrer(BarnOver18())
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
         val innvilgelsesdato = innvilgelsesdato(opplysninger)
         val meldeperiode = meldeperiode(opplysninger)
         val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
-
-        // TODO: Vi trenger også en smartere måte å finne stansdato
 
         return Regelkjøring(
             regelverksdato = innvilgelsesdato,
@@ -84,6 +88,29 @@ class Meldekortprosess :
         opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi
+}
+
+// Vurderer om vi må justere antall barn som gir barnetillegg i meldeperioden
+class BarnOver18 : ProsessPlugin {
+    override fun start(opplysninger: Opplysninger) {
+        val meldeperiode = opplysninger.kunEgne.finnOpplysning(meldeperiode)
+        val aldersgrense = finnAldersgrense(opplysninger)
+        val barn = opplysninger.finnOpplysning(DagpengenesStørrelse.barn)
+
+        val utgangspunkt = opplysninger.finnOpplysning(antallBarn).run { (gyldighetsperiode.fraOgMed to verdi) }
+        val barnetilleggPerDag =
+            listOf(utgangspunkt) + meldeperiode.verdi.map { dato -> dato to barn.verdi.count { it.girBarnetillegg(dato, aldersgrense) } }
+
+        barnetilleggPerDag
+            .zipWithNext()
+            .filter { (venstre, høyre) -> venstre.second != høyre.second }
+            .forEach { (_, høyre) ->
+                opplysninger.leggTil(Faktum(antallBarn, høyre.second, Gyldighetsperiode(fraOgMed = høyre.first)))
+            }
+    }
+
+    // Hvis vi ikke finner aldersgrense, setter vi den til 18 år som er standard
+    private fun finnAldersgrense(opplysninger: Opplysninger) = opplysninger.finnAlle(aldersgrenseBarnetillegg).firstOrNull()?.verdi ?: 18
 }
 
 class Kvotetelling : ProsessPlugin {
