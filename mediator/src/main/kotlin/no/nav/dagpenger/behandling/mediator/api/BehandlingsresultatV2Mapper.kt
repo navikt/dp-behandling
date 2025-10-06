@@ -154,9 +154,16 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>
 
     val typerSomFinnes = produkter.map { it.opplysningstype }.toSet()
 
-    val utfall =
+    val opplysningMedUtfall =
         opplysninger
-            .filter { it.opplysningstype in typerSomFinnes }
+            .filter { utfall.contains(it.opplysningstype) }
+            .filterIsInstance<Opplysning<Boolean>>()
+
+    val opplysninger =
+        opplysningMedUtfall.ifEmpty {
+            opplysninger
+                .filter { it.opplysningstype in typerSomFinnes }
+        }
 
     val erRelevant = påvirkerResultat(opplysninger.somOpplysninger())
 
@@ -176,7 +183,7 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>
                 RegelsettType.Fastsettelse -> VurderingsresultatV2DTOTypeDTO.FASTSETTELSE
             },
         perioder =
-            utfall.map { opplysning ->
+            opplysninger.map { opplysning ->
                 VilkaarPeriodeDTO(
                     gyldigFraOgMed = opplysning.gyldighetsperiode.fraOgMed.tilApiDato(),
                     gyldigTilOgMed = opplysning.gyldighetsperiode.tilOgMed.tilApiDato(),
