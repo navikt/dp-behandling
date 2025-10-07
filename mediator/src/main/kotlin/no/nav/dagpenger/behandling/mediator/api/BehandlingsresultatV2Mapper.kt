@@ -100,11 +100,11 @@ internal fun Behandling.tilBehandlingsresultatV2DTO(): BehandlingsresultatV2DTO 
             avklaringer = this.avklaringer().map { it.tilAvklaringDTO() },
             vilkår =
                 vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
-                    .relevanteVilkår(opplysninger)
+                    .relevanteVilkår(vedtakopplysninger.opplysninger)
                     .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) },
             fastsettelser =
                 vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
-                    .relevanteFastsettelser(opplysninger)
+                    .relevanteFastsettelser(vedtakopplysninger.opplysninger)
                     .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) },
             rettighetsperioder = vedtakopplysninger.rettighetsperioder(),
             opplysninger =
@@ -143,9 +143,9 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
     }
 }
 
-private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>): VurderingsresultatV2DTO? {
+private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning<*>>): VurderingsresultatV2DTO? {
     val produkter: Set<Opplysning<*>> =
-        opplysninger
+        alleOpplysninger
             .filter { opplysning -> opplysning.opplysningstype in produserer }
             .sortedBy { produserer.indexOf(it.opplysningstype) }
             .toSet()
@@ -155,17 +155,17 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>
     val typerSomFinnes = produkter.map { it.opplysningstype }.toSet()
 
     val opplysningMedUtfall =
-        opplysninger
+        alleOpplysninger
             .filter { utfall.contains(it.opplysningstype) }
             .filterIsInstance<Opplysning<Boolean>>()
 
-    val opplysninger =
+    val opplysningerSomFinnes =
         opplysningMedUtfall.ifEmpty {
-            opplysninger
+            alleOpplysninger
                 .filter { it.opplysningstype in typerSomFinnes }
         }
 
-    val erRelevant = påvirkerResultat(opplysninger.somOpplysninger())
+    val erRelevant = påvirkerResultat(alleOpplysninger.somOpplysninger())
 
     return VurderingsresultatV2DTO(
         navn = hjemmel.kortnavn,
@@ -183,7 +183,7 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>
                 RegelsettType.Fastsettelse -> VurderingsresultatV2DTOTypeDTO.FASTSETTELSE
             },
         perioder =
-            opplysninger.map { opplysning ->
+            opplysningerSomFinnes.map { opplysning ->
                 VilkaarPeriodeDTO(
                     gyldigFraOgMed = opplysning.gyldighetsperiode.fraOgMed.tilApiDato(),
                     gyldigTilOgMed = opplysning.gyldighetsperiode.tilOgMed.tilApiDato(),
