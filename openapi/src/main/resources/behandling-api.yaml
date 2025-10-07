@@ -860,7 +860,7 @@ components:
       required:
         - navn
         - hjemmel
-        - opplysninger
+        - perioder
       properties:
         navn:
           description: Kort navn som beskriver regelsettet
