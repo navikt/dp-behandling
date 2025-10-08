@@ -24,10 +24,8 @@ import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
-import no.nav.dagpenger.behandling.api.models.StatusDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
-import no.nav.dagpenger.behandling.api.models.VilkaarPeriodeDTO
 import no.nav.dagpenger.behandling.api.models.VurderingsresultatV2DTO
 import no.nav.dagpenger.behandling.api.models.VurderingsresultatV2DTOTypeDTO
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -40,7 +38,6 @@ import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningsformål
@@ -59,7 +56,6 @@ import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.collections.map
 
 internal fun Behandling.tilBehandlingsresultatV2DTO(): BehandlingsresultatV2DTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -152,21 +148,6 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
 
     if (produkter.isEmpty()) return null
 
-    val typerSomFinnes = produkter.map { it.opplysningstype }.toSet()
-
-    val opplysningMedUtfall =
-        alleOpplysninger
-            .filter { utfall.contains(it.opplysningstype) }
-            .filterIsInstance<Opplysning<Boolean>>()
-
-    val opplysningerSomFinnes =
-        opplysningMedUtfall.ifEmpty {
-            alleOpplysninger
-                .filter { it.opplysningstype in typerSomFinnes }
-        }
-
-    val erRelevant = påvirkerResultat(alleOpplysninger.somOpplysninger())
-
     return VurderingsresultatV2DTO(
         navn = hjemmel.kortnavn,
         hjemmel =
@@ -182,28 +163,8 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
                 RegelsettType.Vilkår -> VurderingsresultatV2DTOTypeDTO.VILKÅR
                 RegelsettType.Fastsettelse -> VurderingsresultatV2DTOTypeDTO.FASTSETTELSE
             },
-        perioder =
-            opplysningerSomFinnes.map { opplysning ->
-                VilkaarPeriodeDTO(
-                    gyldigFraOgMed = opplysning.gyldighetsperiode.fraOgMed.tilApiDato(),
-                    gyldigTilOgMed = opplysning.gyldighetsperiode.tilOgMed.tilApiDato(),
-                    status =
-                        when (erRelevant) {
-                            false -> StatusDTO.IKKE_RELEVANT
-                            true ->
-                                // UGH - Veldig hackete - trenger en bedre måte å skille vilkår og fastsettelser på
-                                if (opplysning.opplysningstype.datatype != Boolsk) {
-                                    StatusDTO.INFO
-                                } else {
-                                    when ((opplysning.verdi as Boolean)) {
-                                        true -> StatusDTO.OPPFYLT
-                                        false -> StatusDTO.IKKE_OPPFYLT
-                                    }
-                                }
-                        },
-                    opplysningsTypeId = listOf(opplysning.opplysningstype.id.uuid),
-                )
-            },
+        utfall = utfall.lastOrNull()?.id?.uuid,
+        opplysninger = produkter.map { it.id },
     )
 }
 

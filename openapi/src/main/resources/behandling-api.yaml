@@ -860,7 +860,8 @@ components:
       required:
         - navn
         - hjemmel
-        - perioder
+        - type
+        - opplysninger
       properties:
         navn:
           description: Kort navn som beskriver regelsettet
@@ -871,10 +872,12 @@ components:
         type:
           type: string
           enum: [ "Vilkår", "Fastsettelse" ]
-        perioder:
+        utfall:
+          $ref: '#/components/schemas/OpplysningTypeId'
+        opplysninger:
           type: array
           items:
-            $ref: '#/components/schemas/VilkaarPeriode'
+            $ref: '#/components/schemas/OpplysningTypeId'
 
     OpplysningsgruppeV2:
       type: object

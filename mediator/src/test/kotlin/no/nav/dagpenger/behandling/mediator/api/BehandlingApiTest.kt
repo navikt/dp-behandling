@@ -199,10 +199,10 @@ internal class BehandlingApiTest {
                 type shouldBe HendelseDTOTypeDTO.SØKNAD
             }
             with(behandlingDto.vilkår.single { it.navn == "Minsteinntekt" }) {
-                this.perioder.shouldNotBeEmpty()
+                this.opplysninger.shouldNotBeEmpty()
             }
             with(behandlingDto.fastsettelser.single { it.navn == "Dagpengegrunnlag" }) {
-                this.perioder.shouldNotBeEmpty()
+                this.opplysninger.shouldNotBeEmpty()
             }
 
             behandlingDto.opplysninger.shouldNotBeEmpty()
