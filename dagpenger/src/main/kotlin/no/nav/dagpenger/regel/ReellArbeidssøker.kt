@@ -34,13 +34,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.VilligTilEthvertArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.minimumVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.villigTilMinimumArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønsketArbeidstidId
-import no.nav.dagpenger.regel.ReellArbeidssøker.erArbeidsfør
-import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentArbeidsufør
-import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentDeltidssøker
-import no.nav.dagpenger.regel.ReellArbeidssøker.godkjentLokalArbeidssøker
-import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeDeltid
-import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
-import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Samordning.uføre
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
@@ -50,7 +43,7 @@ object ReellArbeidssøker {
     val kanJobbeDeltid = boolsk(KanJobbeDeltidId, beskrivelse = "Kan jobbe heltid og deltid", Bruker, behovId = KanJobbeDeltid)
     val godkjentDeltidssøker =
         boolsk(GodkjentDeltidssøkerId, "Det er godkjent at bruker kun søker deltidsarbeid", synlig = {
-            it.erSann(kanJobbeDeltid) == false
+            it.har(kanJobbeDeltid) && it.finnAlle(kanJobbeDeltid).any { it.verdi == false }
         })
     val oppfyllerKravTilArbeidssøker =
         boolsk(OppfyllerKravTilArbeidssøkerId, "Oppfyller kravet til heltid- og deltidsarbeid", synlig = aldriSynlig)
