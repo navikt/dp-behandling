@@ -872,7 +872,7 @@ components:
         type:
           type: string
           enum: [ "Vilkår", "Fastsettelse" ]
-        utfall:
+        opplysningTypeId:
           $ref: '#/components/schemas/OpplysningTypeId'
         opplysninger:
           type: array

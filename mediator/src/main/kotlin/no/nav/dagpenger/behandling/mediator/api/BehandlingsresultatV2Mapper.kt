@@ -163,7 +163,8 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
                 RegelsettType.Vilkår -> VurderingsresultatV2DTOTypeDTO.VILKÅR
                 RegelsettType.Fastsettelse -> VurderingsresultatV2DTOTypeDTO.FASTSETTELSE
             },
-        utfall = utfall.lastOrNull()?.id?.uuid,
+        // Litt rart navn. Dette er opplysningstypene som utgjør "utfallet" av et regelsett.
+        opplysningTypeId = utfall.lastOrNull()?.id?.uuid,
         opplysninger = produkter.map { it.id },
     )
 }
