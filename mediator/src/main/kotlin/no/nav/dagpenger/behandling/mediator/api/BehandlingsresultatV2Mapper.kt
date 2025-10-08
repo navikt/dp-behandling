@@ -140,11 +140,9 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
 }
 
 private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning<*>>): VurderingsresultatV2DTO? {
-    val produkter: Set<Opplysning<*>> =
-        alleOpplysninger
-            .filter { opplysning -> opplysning.opplysningstype in produserer }
-            .sortedBy { produserer.indexOf(it.opplysningstype) }
-            .toCollection(LinkedHashSet())
+    // Vi ønsker kun å ta med produkter som faktisk har vært produsert i løpet av behandlingsskjeden
+    val typer = alleOpplysninger.map { it.opplysningstype }.toSet()
+    val produkter = produserer.filter { it in typer }
 
     if (produkter.isEmpty()) return null
 
@@ -165,7 +163,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
             },
         // Litt rart navn. Dette er opplysningstypene som utgjør "utfallet" av et regelsett.
         opplysningTypeId = utfall.lastOrNull()?.id?.uuid,
-        opplysninger = produkter.map { it.id },
+        opplysninger = produkter.map { it.id.uuid },
     )
 }
 
