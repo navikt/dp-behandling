@@ -144,7 +144,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
         alleOpplysninger
             .filter { opplysning -> opplysning.opplysningstype in produserer }
             .sortedBy { produserer.indexOf(it.opplysningstype) }
-            .toSet()
+            .toCollection(LinkedHashSet())
 
     if (produkter.isEmpty()) return null
 
