@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
+import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
@@ -107,6 +108,21 @@ class BeregnMeldekortHendelse(
                                     tittel = "Beregning av meldekort",
                                     beskrivelse = "Behandlingen er opprettet av meldekort og kan ikke automatisk behandles",
                                     kanAvbrytes = false,
+                                ),
+                            ),
+                        )
+                    }
+
+                    val aktiviteter = meldekort.dager.flatMap { it.aktiviteter }
+                    if (aktiviteter.any { aktivitet -> aktivitet.type == AktivitetType.Utdanning }) {
+                        add(
+                            Avklaring(
+                                Avklaringkode(
+                                    kode = "MeldekortMedUtdanning",
+                                    tittel = "Meldekort med utdanning",
+                                    beskrivelse = "Bruker har krysset av for utdanning på meldekortet. Må vurderes manuelt.",
+                                    kanAvbrytes = false,
+                                    kanKvitteres = true,
                                 ),
                             ),
                         )
