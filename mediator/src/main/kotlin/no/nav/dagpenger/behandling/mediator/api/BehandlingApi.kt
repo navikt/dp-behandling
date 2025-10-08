@@ -518,7 +518,9 @@ internal fun Application.behandlingApi(
                                 )
                             }
 
-                            val erTilOgMedFørFraOgMed = nyOpplysningDTO.gyldigTilOgMed?.isBefore(nyOpplysningDTO.gyldigFraOgMed) == true
+                            val erTilOgMedFørFraOgMed =
+                                nyOpplysningDTO.gyldigFraOgMed != null &&
+                                    nyOpplysningDTO.gyldigTilOgMed?.isBefore(nyOpplysningDTO.gyldigFraOgMed) == true
                             if (erTilOgMedFørFraOgMed) {
                                 throw BadRequestException(
                                     """
