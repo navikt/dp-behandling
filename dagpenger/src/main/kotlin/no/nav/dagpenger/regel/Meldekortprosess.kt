@@ -33,8 +33,6 @@ class Meldekortprosess :
         val meldeperiode = meldeperiode(opplysninger)
         val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
 
-        // TODO: Vi trenger også en smartere måte å finne stansdato
-
         return Regelkjøring(
             regelverksdato = innvilgelsesdato,
             prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = meldeperiode.tilOgMed),
