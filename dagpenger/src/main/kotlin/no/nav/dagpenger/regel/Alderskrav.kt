@@ -12,7 +12,6 @@ import no.nav.dagpenger.opplysning.regel.dato.leggTilÅr
 import no.nav.dagpenger.opplysning.regel.dato.sisteDagIMåned
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
-import no.nav.dagpenger.regel.Alderskrav.sisteDagIMåned
 import no.nav.dagpenger.regel.OpplysningsTyper.AldersgrenseId
 import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId

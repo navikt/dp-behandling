@@ -14,8 +14,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.erPermitteringenFraFiskeindustriM
 import no.nav.dagpenger.regel.OpplysningsTyper.godkjentÅrsakPermitteringFraFiskindustriId
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilProsentvisTapAvArbeidstidFiskepermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFiskeindustriId
-import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.erPermitteringenFraFiskeindustriMidlertidig
-import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 

@@ -21,8 +21,9 @@ class FastsettelseRegelsettBuilder internal constructor(
             ønsketResultat = ønsketResultat,
             regler = regler,
             avklaringer = avklaringer,
-            utfall = emptyList(),
+            utfall = null,
             skalKjøres = skalKjøres,
             påvirkerResultat = relevant,
+            betingelser = emptyList(),
         )
 }

@@ -131,8 +131,8 @@ Inntektperiode 2
 Inntektperiode 3
 Grunnlag for verneplikt hvis kravet er oppfylt
 Uførebeløp som skal samordnes
-Har barnetillegg
 Medlem har reduserte ytelser fra folketrygden (Samordning)
+Har barnetillegg
 Oppfyller kravet på unntak for utdanning eller opplæring
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1

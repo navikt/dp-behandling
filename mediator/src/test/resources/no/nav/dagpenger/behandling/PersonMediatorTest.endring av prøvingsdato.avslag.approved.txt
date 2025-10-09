@@ -130,8 +130,8 @@ Inntektperiode 2
 Inntektperiode 3
 Grunnlag for verneplikt hvis kravet er oppfylt
 Uførebeløp som skal samordnes
-Har barnetillegg
 Medlem har reduserte ytelser fra folketrygden (Samordning)
+Har barnetillegg
 Oppfyller kravet på unntak for utdanning eller opplæring
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
@@ -157,7 +157,7 @@ Oppfyller vilkåret om tap av arbeidstid
 Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget
 Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid
 Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
-Samordnet dagsats er større enn 0
 Samordnet dagsats uten barnetillegg
+Samordnet dagsats er større enn 0
 Utfall etter samordning
 Har løpende rett på dagpenger

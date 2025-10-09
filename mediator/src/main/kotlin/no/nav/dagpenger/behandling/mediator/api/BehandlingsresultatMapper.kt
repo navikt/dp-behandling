@@ -109,7 +109,7 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: List<Opplysning<*>>
 
     val typerSomFinnes = produkter.map { it.opplysningstype }.toSet()
 
-    val utfall1: List<Opplysningstype<*>> = typerSomFinnes.filter { it in utfall }
+    val utfall1: List<Opplysningstype<*>> = typerSomFinnes.filter { it in betingelser }
     val ønsket: List<Opplysningstype<*>> = typerSomFinnes.filter { it in ønsketInformasjon }
 
     val utfall =

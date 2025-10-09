@@ -147,7 +147,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
         val generelleAvklaringer = avklaringer.filterNot { it.kode in spesifikkeAvklaringskoder }
 
         val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysninger)
-        val utfall = relevanteVilkår.flatMap { it.utfall }.all { opplysninger.oppfyller(it) }
+        val utfall = relevanteVilkår.flatMap { it.betingelser }.all { opplysninger.oppfyller(it) }
 
         BehandlingDTO(
             behandlingId = this.behandlingId,
@@ -253,7 +253,7 @@ private fun Regelsett.tilRegelsettDTO(
     val egneAvklaringer = avklaringer.filter { it.kode in this.avklaringer }
 
     val opplysningMedUtfall =
-        opplysninger.filter { utfall.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
+        opplysninger.filter { betingelser.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
 
     var status = tilStatus(opplysningMedUtfall)
     val erRelevant = påvirkerResultat(lesbarOpplysninger)

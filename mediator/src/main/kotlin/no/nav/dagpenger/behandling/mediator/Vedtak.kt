@@ -110,7 +110,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
     val vilkår: List<VilkaarDTO> =
         relevanteVilkår
             .flatMap { regelsett ->
-                regelsett.utfall
+                regelsett.betingelser
                     .map {
                         it to regelsett.hjemmel
                     }

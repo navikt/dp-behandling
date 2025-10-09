@@ -46,10 +46,10 @@ object Opphold {
             regel(oppholdINorge) { erSann(bostedsland) }
             regel(unntakForOpphold) { somUtgangspunkt(false) }
 
-            utfall(oppfyllerKravetTilOpphold) { enAv(oppholdINorge, unntakForOpphold) }
+            betingelse(oppfyllerKravetTilOpphold) { enAv(oppholdINorge, unntakForOpphold) }
 
             regel(medlemFolketrygden) { somUtgangspunkt(true) }
-            utfall(oppfyllerMedlemskap) { erSann(medlemFolketrygden) }
+            betingelse(oppfyllerMedlemskap) { erSann(medlemFolketrygden) }
 
             utfall(oppfyllerKravet) { alle(oppfyllerKravetTilOpphold, oppfyllerMedlemskap) }
 
