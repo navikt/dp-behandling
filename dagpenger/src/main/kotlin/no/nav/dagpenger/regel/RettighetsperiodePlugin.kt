@@ -23,7 +23,7 @@ class RettighetsperiodePlugin(
         val vilkår =
             regelverk
                 .relevanteVilkår(opplysninger)
-                .flatMap { it.utfall }
+                .mapNotNull { it.utfall }
 
         val utfall =
             egne

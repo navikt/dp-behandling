@@ -55,5 +55,5 @@ fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysnin
 fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
     RegelverkDagpenger
         .relevanteVilkår(opplysninger)
-        .flatMap { it.utfall }
+        .flatMap { it.betingelser }
         .all { opplysninger.erSann(it) }

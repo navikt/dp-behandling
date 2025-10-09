@@ -29,7 +29,7 @@ class MinsteinntektSteg : No {
     private val regelsett =
         RegelverkDagpenger.regelsettFor(minsteinntekt) + RegelverkDagpenger.regelsettFor(oppfyllerKravetTilVerneplikt) +
             vilkår(tomHjemmel("foo")) {
-                regel(minsteinntektEllerVerneplikt) { enAv(minsteinntekt, oppfyllerKravetTilVerneplikt) }
+                utfall(minsteinntektEllerVerneplikt) { enAv(minsteinntekt, oppfyllerKravetTilVerneplikt) }
             }
     private val opplysninger: Opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring

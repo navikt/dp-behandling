@@ -151,8 +151,8 @@ Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlage
 Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget
 Sykepenger dagsats
 Sum andre ytelser
-Samordnet dagsats er større enn 0
 Samordnet dagsats uten barnetillegg
+Samordnet dagsats er større enn 0
 Utfall etter samordning
 Sykepenger etter lovens kapittel 8
 Omsorgspenger etter lovens kapittel 9

@@ -128,7 +128,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(kravPåLønn) { innhentMed(søknadIdOpplysningstype) }
-            utfall(kravTilTapAvArbeidsinntekt) { ikke(kravPåLønn) }
+            betingelse(kravTilTapAvArbeidsinntekt) { ikke(kravPåLønn) }
 
             regel(ordinærtKravTilTaptArbeidstid) { oppslag(prøvingsdato) { 50.0 } }
 
@@ -157,7 +157,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             regel(nyArbeidstid) { somUtgangspunkt(0.0) }
             regel(maksimalVanligArbeidstid) { oppslag(prøvingsdato) { 40.0 } }
 
-            utfall(kravTilTaptArbeidstid) { prosentTerskel(nyArbeidstid, fastsattVanligArbeidstid, kravTilArbeidstidsreduksjon) }
+            betingelse(kravTilTaptArbeidstid) { prosentTerskel(nyArbeidstid, fastsattVanligArbeidstid, kravTilArbeidstidsreduksjon) }
 
             regel(beregningsregel) { enAv(beregningsregel6mnd, beregningsregel12mnd, beregningsregel36mnd) }
 

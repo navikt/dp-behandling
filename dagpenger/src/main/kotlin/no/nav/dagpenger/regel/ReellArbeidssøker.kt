@@ -104,10 +104,10 @@ object ReellArbeidssøker {
 
             regel(villigTilEthvertArbeid) { innhentMed(søknadIdOpplysningstype) }
 
-            utfall(oppfyllerKravTilArbeidssøker) { enAv(kanJobbeDeltid, godkjentDeltidssøker) }
-            utfall(oppfyllerKravTilMobilitet) { enAv(kanJobbeHvorSomHelst, godkjentLokalArbeidssøker) }
-            utfall(oppfyllerKravTilArbeidsfør) { enAv(erArbeidsfør, godkjentArbeidsufør) }
-            utfall(oppfyllerKravetTilEthvertArbeid) { enAv(villigTilEthvertArbeid) }
+            betingelse(oppfyllerKravTilArbeidssøker) { enAv(kanJobbeDeltid, godkjentDeltidssøker) }
+            betingelse(oppfyllerKravTilMobilitet) { enAv(kanJobbeHvorSomHelst, godkjentLokalArbeidssøker) }
+            betingelse(oppfyllerKravTilArbeidsfør) { enAv(erArbeidsfør, godkjentArbeidsufør) }
+            betingelse(oppfyllerKravetTilEthvertArbeid) { enAv(villigTilEthvertArbeid) }
 
             utfall(kravTilArbeidssøker) {
                 alle(

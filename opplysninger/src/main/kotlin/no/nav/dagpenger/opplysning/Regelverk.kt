@@ -78,7 +78,7 @@ class Regelverk(
     val vilkårsopplysninger by lazy {
         regelsett
             .filter { regelsett -> regelsett.type == RegelsettType.Vilkår }
-            .flatMap { it.utfall }
+            .flatMap { it.betingelser }
     }
 
     // Bruker Breadth-First Search (BFS) til å traversere regelsettene
