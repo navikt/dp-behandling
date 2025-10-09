@@ -1,7 +1,6 @@
 package no.nav.dagpenger.opplysning
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
@@ -110,18 +109,6 @@ class Regelkjøring(
         // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
         val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
         opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
-
-        val opplysningerSomPåvirkerResultatet: List<Opplysningstype<*>> =
-            forretningsprosess.regelsett().filter { it.påvirkerResultat(opplysningerPåPrøvingsdato) }.flatMap { it.produserer }
-
-        // Sett erRelevant på opplysninger om de er relevante for resultatet
-        opplysninger
-            .somListe(Egne)
-            .partition { it.opplysningstype in opplysningerSomPåvirkerResultatet }
-            .also { (relevante, irrelevante) ->
-                relevante.forEach { it.erRelevant(true) }
-                irrelevante.forEach { it.erRelevant(false) }
-            }
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
