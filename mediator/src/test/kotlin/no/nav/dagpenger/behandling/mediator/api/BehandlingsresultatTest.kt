@@ -191,7 +191,7 @@ class BehandlingsresultatTest {
             this,
             vurdering,
             tilOgMed?.let { Gyldighetsperiode(fraOgMed, tilOgMed) } ?: Gyldighetsperiode(fraOgMed),
-        ).also { it.erRelevant(erRelevant) }
+        )
 
     private fun resultat(vararg vurderinger: Opplysning<*>): Behandling.Resultat =
         Behandling.Resultat(
