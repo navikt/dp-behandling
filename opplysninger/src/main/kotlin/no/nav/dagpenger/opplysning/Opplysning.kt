@@ -22,7 +22,6 @@ sealed class Opplysning<T : Comparable<T>>(
     val utledetAv: Utledning?,
     val kilde: Kilde?,
     val opprettet: LocalDateTime,
-    private var _erRelevant: Boolean = true,
     private var _erstatter: Opplysning<T>? = null,
     private var _skalLagres: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
@@ -33,13 +32,6 @@ sealed class Opplysning<T : Comparable<T>>(
     val skalLagres get() = _skalLagres
 
     val erstatter get() = _erstatter
-
-    val erRelevant get() = _erRelevant
-
-    fun erRelevant(relevant: Boolean) {
-        _erRelevant = relevant
-        _skalLagres = true
-    }
 
     val kanRedigeres: (Redigerbar) -> Boolean
         get() = { redigerbar ->
@@ -74,7 +66,7 @@ class Hypotese<T : Comparable<T>>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
-) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, true, erstatter, _skalLagres = skalLagres) {
+) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter, _skalLagres = skalLagres) {
     constructor(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
@@ -102,7 +94,7 @@ class Faktum<T : Comparable<T>>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
-) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, true, erstatter, _skalLagres = skalLagres) {
+) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter, _skalLagres = skalLagres) {
     constructor(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
