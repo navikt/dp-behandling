@@ -1257,13 +1257,11 @@ components:
         gyldigFraOgMed:
           type: string
           format: date
-          nullable: true
-          description: Om opplysningen er gyldig fra en bestemt dato. Er den null, er den gyldig fra tidens morgen.
+          description: Om opplysningen er gyldig fra en bestemt dato. Mangler feltet, er den gyldig fra tidens morgen.
         gyldigTilOgMed:
           type: string
           format: date
-          nullable: true
-          description: Om opplysningen er gyldig fra en bestemt dato. Er den null, er den gyldig til evig tid.
+          description: Om opplysningen er gyldig fra en bestemt dato. Mangler feltet, er den gyldig til evig tid.
         verdi:
           $ref: '#/components/schemas/Opplysningsverdi'
         kilde:
