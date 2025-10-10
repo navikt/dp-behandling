@@ -44,7 +44,7 @@ object Opphold {
 
             regel(bostedsland) { innhentMed(søknadIdOpplysningstype) }
             regel(oppholdINorge) { erSann(bostedsland) }
-            regel(unntakForOpphold) { somUtgangspunkt(false) }
+            regel(unntakForOpphold) { somUtgangspunkt(false, oppholdINorge) }
 
             betingelse(oppfyllerKravetTilOpphold) { enAv(oppholdINorge, unntakForOpphold) }
 

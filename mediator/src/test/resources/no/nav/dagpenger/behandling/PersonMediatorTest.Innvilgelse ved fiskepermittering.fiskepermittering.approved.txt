@@ -27,9 +27,6 @@ Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 måneder
 Inntektskrav for siste 36 måneder
 Oppfyller kravet til permittering i fiskeindustrien
-Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søker arbeid lokalt
-Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
 Ordinære dagpenger
 Siste avsluttende kalendermåned
@@ -46,7 +43,6 @@ Arbeidsinntekt er over kravet for siste 12 måneder
 Arbeidsinntekt er over kravet for siste 36 måneder
 Oppfyller kravet til minsteinntekt
 Oppfyller vilkåret om å ikke motta andre fulle ytelser
-Oppfyller unntak for opphold i Norge
 Bruker er medlem av folketrygden
 Grunnbeløp for grunnlag
 Tellende inntekt
@@ -125,16 +121,20 @@ Kan jobbe heltid og deltid
 Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
-Oppfyller kravet til heltid- og deltidsarbeid
-Oppfyller kravet til mobilitet
-Oppfyller kravet til å være arbeidsfør
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søker arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Oppfyller kravet til å ta ethvert arbeid
 Villig til å jobbe minimum arbeidstid
 Fastsatt arbeidstid per uke før tap
-Reell arbeidssøker
+Oppfyller kravet til heltid- og deltidsarbeid
+Oppfyller kravet til mobilitet
+Oppfyller kravet til å være arbeidsfør
 Oppfyller vilkåret om tap av arbeidstid
+Reell arbeidssøker
 Bostedsland er Norge
 Bruker oppholder seg i Norge
+Oppfyller unntak for opphold i Norge
 Oppfyller kravet til opphold i Norge eller unntak
 Kravet til opphold i Norge er oppfylt
 Brukeren er under utdanning eller opplæring

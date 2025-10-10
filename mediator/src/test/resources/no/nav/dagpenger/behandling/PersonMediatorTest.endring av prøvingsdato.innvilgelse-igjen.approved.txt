@@ -14,9 +14,6 @@ Dato søker når maks alder
 Siste mulige dag bruker kan oppfylle alderskrav
 Har rett til ordinære dagpenger uten arbeidsforhold
 Kravet til reell arbeidssøker er vurdert
-Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søker arbeid lokalt
-Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
 Ordinære dagpenger
 Rettighetstype
@@ -27,11 +24,14 @@ Kan jobbe heltid og deltid
 Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søker arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
+Oppfyller kravet til å ta ethvert arbeid
+Villig til å jobbe minimum arbeidstid
 Oppfyller kravet til heltid- og deltidsarbeid
 Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
-Oppfyller kravet til å ta ethvert arbeid
-Villig til å jobbe minimum arbeidstid
 Reell arbeidssøker
 Prøvingsdato
 Oppfyller kravet til alder
@@ -67,7 +67,6 @@ Arbeidsinntekt er over kravet for siste 36 måneder
 Oppfyller kravet til minsteinntekt
 Oppfyller vilkåret om å ikke motta andre fulle ytelser
 Bruker oppholder seg i Norge
-Oppfyller unntak for opphold i Norge
 Bruker er medlem av folketrygden
 Grunnbeløp for grunnlag
 Tellende inntekt
@@ -112,7 +111,7 @@ Deltar i høyere utdanning
 Deltar på kurs mv
 Har svart nei på spørsmål om utdanning eller opplæring
 Bruker er utestengt fra dagpenger
-Oppfyller kravet til opphold i Norge eller unntak
+Oppfyller unntak for opphold i Norge
 Oppfyller kravet til medlemskap
 Oppjustert inntekt
 6 ganger grunnbeløp
@@ -125,7 +124,7 @@ Krav til prosentvis tap av arbeidstid
 Beregningsregel: Tapt arbeidstid
 Godkjent unntak for utdanning eller opplæring?
 Oppfyller krav til ikke utestengt
-Kravet til opphold i Norge er oppfylt
+Oppfyller kravet til opphold i Norge eller unntak
 Inntektperiode 1
 Inntektperiode 2
 Inntektperiode 3
@@ -134,6 +133,7 @@ Uførebeløp som skal samordnes
 Medlem har reduserte ytelser fra folketrygden (Samordning)
 Har barnetillegg
 Oppfyller kravet på unntak for utdanning eller opplæring
+Kravet til opphold i Norge er oppfylt
 Inntekt etter avkortning og oppjustering siste 12 måneder
 Avkortet inntektperiode 1
 Avkortet inntektperiode 2

@@ -94,13 +94,13 @@ object ReellArbeidssøker {
             regel(villigTilMinimumArbeidstid) { størreEnnEllerLik(ønsketArbeidstid, minimumVanligArbeidstid) }
 
             regel(kanJobbeDeltid) { innhentMed(søknadIdOpplysningstype) }
-            regel(godkjentDeltidssøker) { somUtgangspunkt(false) }
+            regel(godkjentDeltidssøker) { somUtgangspunkt(false, kanJobbeDeltid) }
 
             regel(kanJobbeHvorSomHelst) { innhentMed(søknadIdOpplysningstype) }
-            regel(godkjentLokalArbeidssøker) { somUtgangspunkt(false) }
+            regel(godkjentLokalArbeidssøker) { somUtgangspunkt(false, kanJobbeHvorSomHelst) }
 
             regel(erArbeidsfør) { innhentMed(søknadIdOpplysningstype) }
-            regel(godkjentArbeidsufør) { somUtgangspunkt(false) }
+            regel(godkjentArbeidsufør) { somUtgangspunkt(false, erArbeidsfør) }
 
             regel(villigTilEthvertArbeid) { innhentMed(søknadIdOpplysningstype) }
 

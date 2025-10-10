@@ -24,9 +24,6 @@ Kravet til reell arbeidssøker er vurdert
 Arbeidsgivers rapporteringsfrist
 Inntektskrav for siste 12 måneder
 Inntektskrav for siste 36 måneder
-Det er godkjent at bruker kun søker deltidsarbeid
-Det er godkjent at bruker kun søker arbeid lokalt
-Har helsemessige begrensninger og kan ikke ta alle typer arbeid
 Minimum vanlig arbeidstid
 Ordinære dagpenger
 Siste avsluttende kalendermåned
@@ -48,10 +45,13 @@ Kan jobbe heltid og deltid
 Kan jobbe i hele Norge
 Kan ta alle typer arbeid
 Villig til å bytte yrke
+Det er godkjent at bruker kun søker deltidsarbeid
+Det er godkjent at bruker kun søker arbeid lokalt
+Har helsemessige begrensninger og kan ikke ta alle typer arbeid
+Oppfyller kravet til å ta ethvert arbeid
+Villig til å jobbe minimum arbeidstid
 Oppfyller kravet til heltid- og deltidsarbeid
 Oppfyller kravet til mobilitet
 Oppfyller kravet til å være arbeidsfør
-Oppfyller kravet til å ta ethvert arbeid
-Villig til å jobbe minimum arbeidstid
 Reell arbeidssøker
 Har løpende rett på dagpenger
