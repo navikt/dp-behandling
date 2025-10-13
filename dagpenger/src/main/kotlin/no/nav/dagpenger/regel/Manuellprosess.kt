@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
@@ -66,13 +67,8 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
             BostedslandKontroll,
         )
 
-    private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
-
-    private fun alder(opplysninger: LesbarOpplysninger): Boolean =
-        opplysninger.har(Alderskrav.kravTilAlder) &&
-            opplysninger.finnOpplysning(Alderskrav.kravTilAlder).verdi
-
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = minsteinntekt(opplysninger) && alder(opplysninger)
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
+        opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = prøvingsdato(opplysninger)
 

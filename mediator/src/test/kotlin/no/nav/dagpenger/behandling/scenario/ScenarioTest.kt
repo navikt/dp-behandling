@@ -7,9 +7,11 @@ import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Comp
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
-import no.nav.dagpenger.regel.Behov
+import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import org.junit.jupiter.api.Test
 
 class ScenarioTest {
@@ -110,8 +112,8 @@ class ScenarioTest {
 
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
-            behovsløsere.løsningFor(Behov.OppholdINorge, false, 22.juli(2018))
-            behovsløsere.løsningFor("Har løpende rett på dagpenger", false, 22.juli(2018))
+            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, false, "Har ikke krav", Gyldighetsperiode(22.juli(2018)))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -138,8 +140,8 @@ class ScenarioTest {
 
             // Gjenoppta
             person.opprettBehandling(23.august(2018))
-            behovsløsere.løsningFor(Behov.OppholdINorge, true, 23.august(2018))
-            behovsløsere.løsningFor("Har løpende rett på dagpenger", true, 23.august(2018))
+            saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(23.august(2018)))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()

@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.beregning.Beregning
@@ -43,7 +44,8 @@ class Meldekortprosess :
 
     override fun kontrollpunkter() = emptyList<Kontrollpunkt>()
 
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = false
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
+        opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = meldeperiode(opplysninger).tilOgMed
 
