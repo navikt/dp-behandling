@@ -61,7 +61,7 @@ class BeregnMeldekortHendelse(
                 ),
             avklaringer =
                 buildList {
-                    if (meldekort.korrigeringAv != null) {
+                    if (meldekort.originalMeldekortId != null) {
                         add(
                             Avklaring(
                                 Avklaringkode(

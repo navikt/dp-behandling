@@ -20,7 +20,7 @@ class MeldekortTest {
                 kilde = MeldekortKilde("Rolle", "Ident"),
                 dager = emptyList(),
                 innsendtTidspunkt = LocalDateTime.now(),
-                korrigeringAv = null,
+                originalMeldekortId = null,
             )
         val meldekort2 =
             Meldekort(
@@ -33,7 +33,7 @@ class MeldekortTest {
                 kilde = MeldekortKilde("Rolle", "Ident"),
                 dager = emptyList(),
                 innsendtTidspunkt = LocalDateTime.now(),
-                korrigeringAv = null,
+                originalMeldekortId = null,
             )
 
         val liste = listOf(meldekort2, meldekort1)

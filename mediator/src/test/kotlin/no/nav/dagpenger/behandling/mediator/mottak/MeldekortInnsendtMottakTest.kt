@@ -41,7 +41,7 @@ class MeldekortInnsendtMottakTest {
         hendelse.isCaptured shouldBe true
         val meldekort = hendelse.captured.meldekort
         meldekort.ident shouldBe "12345123451"
-        meldekort.korrigeringAv shouldBe null
+        meldekort.originalMeldekortId shouldBe null
         meldekort.fom shouldBe LocalDate.of(2025, 1, 20)
         meldekort.tom shouldBe LocalDate.of(2025, 2, 2)
         meldekort.dager.size shouldBe 14
@@ -77,7 +77,7 @@ class MeldekortInnsendtMottakTest {
         meldekort.ident shouldBe "12345123451"
         meldekort.fom shouldBe LocalDate.of(2025, 1, 20)
         meldekort.tom shouldBe LocalDate.of(2025, 2, 2)
-        meldekort.korrigeringAv shouldBe MeldekortId("1000")
+        meldekort.originalMeldekortId shouldBe MeldekortId("1000")
         meldekort.dager.size shouldBe 14
         meldekort.dager
             .first()
@@ -116,7 +116,7 @@ class MeldekortInnsendtMottakTest {
           "@event_name": "$eventNavn",
           "ident": "12345123451",
           "innsendtTidspunkt": "2025-02-02T00:00:00",
-          "korrigeringAv": $korrigeringAv,
+          "originalMeldekortId": $korrigeringAv,
           "id": 1000,
             "periode": { 
                 "fraOgMed": "2025-01-20",

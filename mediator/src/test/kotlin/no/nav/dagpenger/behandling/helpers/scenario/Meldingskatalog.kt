@@ -78,7 +78,7 @@ internal object Meldingskatalog {
                         ),
                     )
                     if (korrigeringAv != null) {
-                        put("korrigeringAv", "$korrigeringAv")
+                        put("originalMeldekortId", "$korrigeringAv")
                     }
                 },
             ).toJson()

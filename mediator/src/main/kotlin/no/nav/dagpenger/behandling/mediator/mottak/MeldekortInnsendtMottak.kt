@@ -37,7 +37,7 @@ internal class MeldekortInnsendtMottak(
                 validate { it.requireKey("ident") }
                 validate { it.requireKey("id") }
                 validate { it.requireKey("periode", "kilde", "dager", "innsendtTidspunkt") }
-                validate { it.interestedIn("korrigeringAv") }
+                validate { it.interestedIn("originalMeldekortId") }
             }.register(this)
     }
 
@@ -109,7 +109,11 @@ internal class MeldekortInnsendtMessage(
                             rolle = packet["kilde"]["rolle"].asText(),
                             ident = packet["kilde"]["ident"].asText(),
                         ),
-                    korrigeringAv = packet["korrigeringAv"].takeUnless { it.isMissingOrNull() }?.asText()?.let { MeldekortId(it) },
+                    originalMeldekortId =
+                        packet["originalMeldekortId"]
+                            .takeUnless { it.isMissingOrNull() }
+                            ?.asText()
+                            ?.let { MeldekortId(it) },
                     meldingsreferanseId = meldingsreferanseId,
                     dager =
                         packet["dager"].map { dag ->
