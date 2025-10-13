@@ -56,6 +56,7 @@ class MeldekortBehandlingskø(
                                                 mapOf(
                                                     "meldekortId" to meldekort.id,
                                                     "ident" to meldekort.ident,
+                                                    "eksternMeldekortId" to meldekort.eksternMeldekortId,
                                                 ),
                                             ).toJson(),
                                     )
