@@ -28,7 +28,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             session.transaction { tx ->
                 tx.lagreMeldekort(meldekort)
 
-                meldekort.originalMeldekortId?.let { korrigertMeldekortId ->
+                meldekort.korrigeringAv?.let { korrigertMeldekortId ->
                     tx.markerSomKorrigert(
                         korrigertAvMeldekortId = meldekort.eksternMeldekortId,
                         originaltMeldekortId = korrigertMeldekortId,
@@ -180,7 +180,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 ),
             dager = session.hentDager(MeldekortId(string("meldekort_id"))),
             innsendtTidspunkt = localDateTime("innsendt_tidspunkt"),
-            originalMeldekortId = stringOrNull("korrigert_meldekort_id")?.let { MeldekortId(it) },
+            korrigeringAv = stringOrNull("korrigert_meldekort_id")?.let { MeldekortId(it) },
         )
 
     private fun TransactionalSession.markerSomKorrigert(
@@ -216,7 +216,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     "ident" to meldekort.ident,
                     "fom" to meldekort.fom,
                     "tom" to meldekort.tom,
-                    "korrigertMeldekortId" to meldekort.originalMeldekortId?.id,
+                    "korrigertMeldekortId" to meldekort.korrigeringAv?.id,
                     "kildeIdent" to meldekort.kilde.ident,
                     "kildeRolle" to meldekort.kilde.rolle,
                     "innsendtTidspunkt" to meldekort.innsendtTidspunkt,

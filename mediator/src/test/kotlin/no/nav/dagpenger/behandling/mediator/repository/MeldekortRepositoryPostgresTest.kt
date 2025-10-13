@@ -69,7 +69,7 @@ class MeldekortRepositoryPostgresTest {
                     kilde = MeldekortKilde("Bruker", ident),
                     dager = dager,
                     innsendtTidspunkt = LocalDateTime.now(),
-                    originalMeldekortId = null,
+                    korrigeringAv = null,
                 )
             val meldekortInnsendtHendelse =
                 MeldekortInnsendtHendelse(
@@ -89,7 +89,7 @@ class MeldekortRepositoryPostgresTest {
                             id = UUIDv7.ny(),
                             meldingsreferanseId = meldingsreferanseId2,
                             eksternMeldekortId = MeldekortId("2"),
-                            originalMeldekortId = meldekort.eksternMeldekortId,
+                            korrigeringAv = meldekort.eksternMeldekortId,
                         ),
                 )
 

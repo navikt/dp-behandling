@@ -109,7 +109,7 @@ internal class MeldekortInnsendtMessage(
                             rolle = packet["kilde"]["rolle"].asText(),
                             ident = packet["kilde"]["ident"].asText(),
                         ),
-                    originalMeldekortId =
+                    korrigeringAv =
                         packet["originalMeldekortId"]
                             .takeUnless { it.isMissingOrNull() }
                             ?.asText()

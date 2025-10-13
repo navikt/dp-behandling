@@ -237,7 +237,7 @@ class TestPerson(
                         )
                     },
                 innsendtTidspunkt = 14.juni(2021).atStartOfDay(),
-                originalMeldekortId = korrigeringAv?.let { MeldekortId(it.toString()) },
+                korrigeringAv = korrigeringAv?.let { MeldekortId(it.toString()) },
             )
         sessionOf(dataSource).use { session ->
             session.run(

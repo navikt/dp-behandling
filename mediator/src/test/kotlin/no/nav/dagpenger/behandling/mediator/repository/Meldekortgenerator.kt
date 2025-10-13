@@ -35,7 +35,7 @@ class Meldekortgenerator private constructor(
                             id = UUIDv7.ny(),
                             meldingsreferanseId = UUIDv7.ny(),
                             eksternMeldekortId = MeldekortId(eksternMeldekortId.next().toString()),
-                            originalMeldekortId = meldekort.eksternMeldekortId,
+                            korrigeringAv = meldekort.eksternMeldekortId,
                             dager = block(),
                         )
                 lagreHendelseOmMeldekort(korrigertMeldekort)
@@ -76,7 +76,7 @@ class Meldekortgenerator private constructor(
                 kilde = MeldekortKilde("Bruker", ident),
                 dager = listOf(),
                 innsendtTidspunkt = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
-                originalMeldekortId = null,
+                korrigeringAv = null,
             ).also {
                 this.innsendteMeldekort.add(it)
             }
