@@ -131,11 +131,18 @@ class Regelkjøring(
         opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
 
         val nødvendigeRegler = avhengighetsgraf.finnAlleProdusenter(ønsketResultat, opplysningerPåPrøvingsdato)
-        val plan = nødvendigeRegler.filter { it.skalKjøre(opplysningerPåPrøvingsdato) }
+        val plan = skalKjøres(nødvendigeRegler)
 
         val (ekstern, intern) = plan.partition { it is Ekstern<*> }
         this@Regelkjøring.plan = intern.toMutableSet()
         trenger = ekstern.toSet()
+    }
+
+    private fun skalKjøres(nødvendigeRegler: Set<Regel<*>>): List<Regel<*>> {
+        val skalKjøres = nødvendigeRegler.filter { it.skalKjøre(opplysningerPåPrøvingsdato) }
+        val planlagteTyper = skalKjøres.map { it.produserer }.toSet()
+        // Kjør først regler som ikke er avhengig av andre regler i planen
+        return skalKjøres.filter { regel -> regel.avhengerAv.none { it in planlagteTyper } }
     }
 
     private fun kjørRegelPlan() {
