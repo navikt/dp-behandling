@@ -115,8 +115,8 @@ class PersonTest {
             BehandlingFerdig(
                 behandlingResultat(
                     1.juni,
-                    Rettighetsperiode(1.mai, 31.mai, false),
-                    Rettighetsperiode(1.juni, LocalDate.MAX, true),
+                    Rettighetsperiode(1.mai, 31.mai, false, true),
+                    Rettighetsperiode(1.juni, LocalDate.MAX, true, true),
                 ),
             ),
         )
