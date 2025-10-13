@@ -116,7 +116,7 @@ class MeldekortInnsendtMottakTest {
           "@event_name": "$eventNavn",
           "ident": "12345123451",
           "innsendtTidspunkt": "2025-02-02T00:00:00",
-          "korrigeringAv": $korrigeringAv,
+          "originalMeldekortId": $korrigeringAv,
           "id": 1000,
             "periode": { 
                 "fraOgMed": "2025-01-20",
