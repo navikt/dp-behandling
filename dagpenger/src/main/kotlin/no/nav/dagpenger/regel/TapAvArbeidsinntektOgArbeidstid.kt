@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -173,7 +174,8 @@ object TapAvArbeidsinntektOgArbeidstid {
 
     val beregnetArbeidstidKontroll =
         Kontrollpunkt(sjekker = BeregnetArbeidstid) { opplysninger ->
-            opplysninger.har(beregnetArbeidstid)
+            opplysninger.har(beregnetArbeidstid) &&
+                opplysninger.finnOpplysning(beregnetArbeidstid).kilde !is Saksbehandlerkilde
         }
 
     val TapArbeidstidBeregningsregelKontroll =
