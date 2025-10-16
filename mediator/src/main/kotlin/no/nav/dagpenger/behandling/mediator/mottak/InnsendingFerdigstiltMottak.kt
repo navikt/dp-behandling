@@ -21,7 +21,7 @@ internal class InnsendingFerdigstiltMottak(
                 precondition { it.requireValue("@event_name", "innsending_ferdigstilt") }
                 precondition { it.requireAny("type", listOf("NySøknad", "Gjenopptak")) }
                 validate { it.requireKey("fødselsnummer") }
-                validate { it.requireKey("fagsakId") }
+                validate { it.interestedIn("fagsakId") }
                 validate {
                     it.require("søknadsData") { data ->
                         data["søknad_uuid"].asUUID()
