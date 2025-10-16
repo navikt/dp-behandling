@@ -31,4 +31,15 @@ abstract class StartHendelse(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): Behandling
+
+    fun somHendelse() =
+        Hendelse(
+            meldingsreferanseId = meldingsreferanseId,
+            type = type,
+            ident = ident,
+            eksternId = eksternId,
+            skjedde = skjedde,
+            opprettet = opprettet,
+            forretningsprosess = forretningsprosess,
+        )
 }

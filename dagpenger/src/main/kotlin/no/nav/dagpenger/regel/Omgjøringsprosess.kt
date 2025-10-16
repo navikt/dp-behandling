@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import java.time.LocalDate
 
-class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
+class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(
             virkningsdato(opplysninger),

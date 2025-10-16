@@ -4,7 +4,6 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
-import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
@@ -32,16 +31,7 @@ class OpprettBehandlingHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ) = Behandling(
         basertPå = forrigeBehandling,
-        behandler =
-            Hendelse(
-                meldingsreferanseId = meldingsreferanseId,
-                type = type,
-                ident = ident,
-                eksternId = eksternId,
-                skjedde = skjedde,
-                opprettet = opprettet,
-                forretningsprosess = forretningsprosess,
-            ),
+        behandler = this.somHendelse(),
         opplysninger =
             listOf(
                 Faktum(
