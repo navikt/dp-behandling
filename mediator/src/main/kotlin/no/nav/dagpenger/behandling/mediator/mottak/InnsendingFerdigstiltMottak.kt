@@ -61,7 +61,7 @@ class InnsendingFerdigstiltMessage(
     private val søknadId = packet["søknadsData"]["søknad_uuid"].asUUID()
     private val fagsakId =
         packet["fagsakId"].asInt(0).also {
-            if (it == 0) logger.warn { "Søknad mottatt uten fagsakId" }
+            if (it == 0) logger.warn { "Søknad ($type) mottatt uten fagsakId" }
         }
     private val journalpostId = packet["journalpostId"].asInt()
     private val type = packet["type"].asText()
