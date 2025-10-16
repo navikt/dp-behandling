@@ -22,6 +22,11 @@ class LesbarOpplysningerMedLogg(
             oppslag.add(this)
         }
 
+    override fun <T : Comparable<T>> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>? =
+        opplysninger.finnNullableOpplysning(opplysningstype)?.apply {
+            oppslag.add(this)
+        }
+
     override fun finnOpplysning(opplysningId: UUID) =
         opplysninger.finnOpplysning(opplysningId).apply {
             oppslag.add(this)

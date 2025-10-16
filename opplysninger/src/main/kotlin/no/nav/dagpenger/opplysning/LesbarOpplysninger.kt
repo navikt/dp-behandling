@@ -10,6 +10,8 @@ interface LesbarOpplysninger {
 
     fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>
 
+    fun <T : Comparable<T>> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>?
+
     fun har(opplysningstype: Opplysningstype<*>): Boolean
 
     fun mangler(opplysningstype: Opplysningstype<*>): Boolean = !har(opplysningstype)

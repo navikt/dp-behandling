@@ -141,7 +141,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
                     },
             ),
-        fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnOpplysning(fagsakIdOpplysningstype).verdi.toString(),
+        fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnNullableOpplysning(fagsakIdOpplysningstype)?.verdi?.toString() ?: "0",
         automatisk = automatiskBehandlet,
         ident = ident.identifikator(),
         vedtakstidspunkt = LocalDateTime.now(),

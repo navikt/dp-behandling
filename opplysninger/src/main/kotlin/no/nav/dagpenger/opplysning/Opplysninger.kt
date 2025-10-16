@@ -53,6 +53,9 @@ class Opplysninger private constructor(
     override fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T> =
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
 
+    override fun <T : Comparable<T>> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
+        finnNullableOpplysning(opplysningstype, Gyldighetsperiode())
+
     override fun finnOpplysning(opplysningId: UUID) =
         alleOpplysninger.lastOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
