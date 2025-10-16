@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.egenVerdi
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
@@ -51,6 +52,7 @@ object Søknadstidspunkt {
 
     val SjekkPrøvingsdato =
         Kontrollpunkt(Avklaringspunkter.SjekkPrøvingsdato) {
-            it.har(prøvingsdato) && kravPåDagpenger(it)
+            it.har(prøvingsdato) && kravPåDagpenger(it) &&
+                it.finnOpplysning(prøvingsdato).kilde !is Saksbehandlerkilde
         }
 }
