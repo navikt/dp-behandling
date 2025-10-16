@@ -77,7 +77,7 @@ class SøknadInnsendtHendelse(
                 ),
             opplysninger =
                 buildList {
-                    if (basertPå == null) {
+                    if (basertPå == null && fagsakId != 0) {
                         add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)))
                     }
                     add(Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = Systemkilde(meldingsreferanseId, opprettet)))

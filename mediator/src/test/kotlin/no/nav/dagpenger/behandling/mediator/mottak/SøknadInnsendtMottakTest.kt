@@ -14,9 +14,9 @@ class SøknadInnsendtMottakTest {
     private val søknadInnsendtMottak = SøknadInnsendtMottak(testRapid, messageMediator)
 
     @Test
-    fun `skal skippe søknad med fagsakId 0`() {
+    fun `skal inkludere søknad med fagsakId 0`() {
         testRapid.sendTestMessage(søknadInnsendMelding(0))
-        verify(exactly = 0) {
+        verify(exactly = 1) {
             messageMediator.behandle(
                 any(),
                 any() as SøknadInnsendtMessage,
