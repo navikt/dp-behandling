@@ -60,6 +60,10 @@ object Opphold {
 
     val BostedslandKontroll =
         Kontrollpunkt(Bostedsland) {
+            if (it.har(unntakForOpphold) && it.finnOpplysning(unntakForOpphold).verdi) {
+                // Om unntak allerede er gitt er det ikke nødvendig med en avklaring
+                return@Kontrollpunkt false
+            }
             it.har(bostedsland) && !it.finnOpplysning(bostedsland).verdi
         }
 }

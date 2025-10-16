@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
@@ -49,6 +50,12 @@ object Permittering {
 
     val PermitteringKontroll =
         Kontrollpunkt(HarOppgittPermittering) {
+            if (it.har(godkjentPermitteringsårsak) &&
+                it.finnOpplysning(godkjentPermitteringsårsak).kilde is Saksbehandlerkilde
+            ) {
+                // Om unntak allerede er gitt er det ikke nødvendig med en avklaring
+                return@Kontrollpunkt false
+            }
             it.har(erPermittert) && it.finnOpplysning(erPermittert).verdi
         }
 }
