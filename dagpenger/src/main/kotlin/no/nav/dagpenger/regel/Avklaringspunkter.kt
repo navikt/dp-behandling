@@ -115,6 +115,15 @@ object Avklaringspunkter {
             beskrivelse = "Personen har søkt om gjenopptak. Saker som skal gjenopptas må håndteres i Arena.",
         )
 
+    val GjenopptakKanIkkeSkrivesTilbake =
+        Avklaringkode(
+            kode = "GjenopptakKanIkkeSkrivesTilbake",
+            tittel = "Bruker har søkt om gjenopptak, men saken kan ikke skrives tilbake til Arena",
+            beskrivelse = "Personen har søkt om gjenopptak, men har blitt vurdert til å være søknad om ny. Dissse sakene kan ikke skrives tilbake til Arena.",
+            kanKvitteres = false,
+            kanAvbrytes = false,
+        )
+
     val MuligGjenopptak =
         Avklaringkode(
             kode = "MuligGjenopptak",

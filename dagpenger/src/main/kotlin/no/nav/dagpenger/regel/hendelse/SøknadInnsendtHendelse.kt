@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
+import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakKanIkkeSkrivesTilbake
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
@@ -96,6 +97,9 @@ class SøknadInnsendtHendelse(
                     }
                     if (søknadstype == Søknadstype.Gjenopptak) {
                         add(Avklaring(SøktGjenopptak))
+                    }
+                    if (basertPå == null && fagsakId == 0) {
+                        add(Avklaring(GjenopptakKanIkkeSkrivesTilbake))
                     }
                 },
         )
