@@ -51,7 +51,7 @@ internal class VaktmesterPostgresRepo {
                                         val params = kandidat.opplysninger.map { mapOf("id" to it) }
 
                                         // Slett erstatninger
-                                        statements.add(slettErstatter(params))
+                                        // statements.add(slettErstatter(params))
 
                                         // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
                                         statements.add(slettOpplysningUtledetAv(params))
@@ -60,10 +60,10 @@ internal class VaktmesterPostgresRepo {
                                         statements.add(slettOpplysningUtledning(params))
 
                                         // Slett verdien av opplysningen
-                                        statements.add(slettOpplysningVerdi(params))
+                                        // statements.add(slettOpplysningVerdi(params))
 
                                         // Fjern opplysningen fra opplysninger-settet
-                                        statements.add(slettOpplysningLink(params))
+                                        // statements.add(slettOpplysningLink(params))
 
                                         // Slett opplysningen
                                         statements.add(slettOpplysning(params))
@@ -107,9 +107,8 @@ internal class VaktmesterPostgresRepo {
                     """
                     SELECT f.opplysninger_id, b.behandling_id
                     FROM (
-                        SELECT DISTINCT op.opplysninger_id
-                        FROM opplysninger_opplysning op
-                        JOIN opplysning o ON o.id = op.opplysning_id
+                        SELECT DISTINCT o.opplysninger_id
+                        FROM opplysning o 
                         WHERE o.fjernet = TRUE
                     ) f
                     LEFT JOIN behandling_opplysninger b ON b.opplysninger_id = f.opplysninger_id
@@ -142,8 +141,7 @@ internal class VaktmesterPostgresRepo {
                                 """
                                 SELECT o.id
                                 FROM opplysning o 
-                                JOIN opplysninger_opplysning op ON o.id = op.opplysning_id
-                                WHERE fjernet = TRUE AND op.opplysninger_id = :opplysninger_id
+                                WHERE fjernet = TRUE AND o.opplysninger_id = :opplysninger_id
                                 ORDER BY o.opprettet DESC;
                                 """.trimIndent(),
                                 mapOf("opplysninger_id" to kandidat.opplysningerId),

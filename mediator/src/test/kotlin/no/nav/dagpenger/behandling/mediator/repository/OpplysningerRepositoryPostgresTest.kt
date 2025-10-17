@@ -24,6 +24,7 @@ import no.nav.dagpenger.behandling.TestOpplysningstyper.tekst
 import no.nav.dagpenger.behandling.TestOpplysningstyper.utledetOpplysningstype
 import no.nav.dagpenger.behandling.april
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder
 import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Boolsk
@@ -38,6 +39,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.opplysning.Utledning
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -582,6 +584,44 @@ class OpplysningerRepositoryPostgresTest {
             repo.lagreOpplysninger(opplysninger2)
 
             vaktmesterRepo.slettOpplysninger(antallBehandlinger = 10).size shouldBe 6
+        }
+    }
+
+    @Test
+    @Disabled("Fungerer ikke etter repository er refaktorert")
+    fun `migrering reduserer normalisering`() {
+        withMigratedDb("76") {
+            val repo = opplysningerRepository()
+            val beløp = Faktum(beløpA, Beløp("NOK 100.00"))
+            val fakta =
+                listOf(
+                    Faktum(boolsk, true),
+                    Faktum(desimal, 0.2),
+                    beløp,
+                    Faktum(beløpB, Beløp("NOK 100.00"), utledetAv = Utledning("regel", listOf(beløp), "versjon 1")),
+                )
+            val opplysninger = Opplysninger.med(fakta)
+            repo.lagreOpplysninger(opplysninger)
+
+            fun verifiserTilstand() {
+                repo.hentOpplysninger(opplysninger.id).also { opplysninger ->
+                    fakta.forEach {
+                        opplysninger.finnOpplysning(it.opplysningstype).verdi shouldBe it.verdi
+                    }
+
+                    opplysninger.finnOpplysning(beløpB).utledetAv?.regel shouldBe "regel"
+                }
+
+                // Opplysninger med tilfeldig UUID gir uansett et sett opplysninger som er tomt
+                repo.hentOpplysninger(UUIDv7.ny()).somListe().shouldBeEmpty()
+            }
+
+            verifiserTilstand()
+
+            // Kjør migrering uten link-tabellen opplysninger_opplysning
+            PostgresDataSourceBuilder.runMigrationTo("77")
+
+            verifiserTilstand()
         }
     }
 }
