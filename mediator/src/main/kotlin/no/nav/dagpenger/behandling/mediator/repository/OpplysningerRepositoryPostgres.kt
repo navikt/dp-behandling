@@ -89,23 +89,6 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         )
 
         val somListe: List<Opplysning<*>> = opplysninger.somListe(LesbarOpplysninger.Filter.Egne)
-        /* // TODO: Denne kontrollen er ikke tiltenkt å kjøre for alltid :) Den bør fjernes når vi er sikre på at data er bra
-        val overlappende: Map<Opplysningstype<out Comparable<*>>, Boolean> =
-            somListe
-                .groupBy { opplysning -> opplysning.opplysningstype }
-                .mapValues { (_, opplysning) -> opplysning.map { it.gyldighetsperiode } }
-                .mapValues { (_, gyldighetsperioder) -> gyldighetsperioder.overlappendePerioder() }
-                .filter { it.value }
-
-        if (overlappende.isNotEmpty()) {
-            throw IllegalStateException(
-                """Opplysninger med id=${opplysninger.id} har overlappende gyldighetsperioder. ${
-                    overlappende.filter {
-                        it.value
-                    }.keys
-                }""",
-            )
-        }*/
 
         OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(
             somListe.filter { it.skalLagres },
@@ -291,9 +274,6 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             kildeRespository.lagreKilder(opplysninger.mapNotNull { it.kilde }, session)
             batchOpplysninger(opplysninger).run(session)
             batchFjernet(fjernet).run(session)
-            lagreErstatter(opplysninger).run(session)
-            batchVerdi(opplysninger).run(session)
-            batchOpplysningLink(opplysninger).run(session)
             lagreUtledetAv(opplysninger)
         }
 
@@ -344,37 +324,36 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             )
 
         @WithSpan
-        private fun batchOpplysningLink(opplysninger: List<Opplysning<*>>) =
-            BatchStatement(
-                //language=PostgreSQL
-                """
-                INSERT INTO opplysninger_opplysning (opplysninger_id, opplysning_id) 
-                VALUES (:opplysningerId, :opplysningId)
-                ON CONFLICT DO NOTHING
-                """.trimIndent(),
-                opplysninger.map {
-                    mapOf(
-                        "opplysningerId" to opplysningerId,
-                        "opplysningId" to it.id,
-                    )
-                },
-            )
-
-        @WithSpan
-        private fun batchOpplysninger(opplysninger: List<Opplysning<*>>) =
-            BatchStatement(
-                //language=PostgreSQL
-                """
-                WITH ins AS (
-                    SELECT opplysningstype_id FROM opplysningstype WHERE uuid = :typeUuid AND datatype = :datatype 
+        private fun batchOpplysninger(opplysninger: List<Opplysning<*>>): BatchStatement {
+            val defaultVerdi =
+                mapOf(
+                    "verdi_heltall" to null,
+                    "verdi_desimaltall" to null,
+                    "verdi_dato" to null,
+                    "verdi_boolsk" to null,
+                    "verdi_string" to null,
                 )
-                INSERT INTO opplysning (id, status, opplysningstype_id, kilde_id, gyldig_fom, gyldig_tom, opprettet)
-                VALUES (:id, :status, (SELECT opplysningstype_id FROM ins), :kilde_id, :fom::timestamp, :tom::timestamp, :opprettet)
-                ON CONFLICT(id) DO NOTHING
+            return BatchStatement(
+                //language=PostgreSQL
+                """
+                WITH ins AS (SELECT opplysningstype_id FROM opplysningstype WHERE uuid = :typeUuid AND datatype = :datatype)
+                INSERT
+                INTO opplysning (opplysninger_id, id, status, opplysningstype_id, kilde_id, gyldig_fom, gyldig_tom, opprettet, datatype,
+                                 verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string, verdi_jsonb, erstatter_id)
+                VALUES (:opplysningerId, :id, :status, (SELECT opplysningstype_id FROM ins), :kilde_id, :fom::timestamp,
+                        :tom::timestamp, :opprettet, :datatype, :verdi_heltall, :verdi_desimaltall, :verdi_dato, :verdi_boolsk,
+                        :verdi_string, :verdi_jsonb, :erstatter_id)
+                ON CONFLICT(id) DO UPDATE SET erstatter_id=:erstatter_id
                 """.trimIndent(),
                 opplysninger.map { opplysning ->
                     val gyldighetsperiode: Gyldighetsperiode = opplysning.gyldighetsperiode
+
+                    val datatype = opplysning.opplysningstype.datatype
+                    val (kolonne, data) = verdiKolonne(datatype, opplysning.verdi)
+                    val verdi = defaultVerdi + mapOf(kolonne to data)
+
                     mapOf(
+                        "opplysningerId" to opplysningerId,
                         "id" to opplysning.id,
                         "status" to opplysning.javaClass.simpleName,
                         "typeUuid" to opplysning.opplysningstype.id.uuid,
@@ -383,9 +362,14 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         "fom" to gyldighetsperiode.fraOgMed.takeUnless { it.isEqual(LocalDate.MIN) },
                         "tom" to gyldighetsperiode.tilOgMed.takeUnless { it.isEqual(LocalDate.MAX) },
                         "opprettet" to opplysning.opprettet,
-                    )
+                        "kolonne" to kolonne,
+                        "opplysning_id" to opplysning.id,
+                        "datatype" to datatype.navn(),
+                        "erstatter_id" to opplysning.erstatter?.id,
+                    ) + verdi
                 },
             )
+        }
 
         @WithSpan
         private fun batchFjernet(fjernet: Set<Opplysning<*>>) =
@@ -398,54 +382,6 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     mapOf("id" to opplysning.id)
                 },
             )
-
-        @WithSpan
-        private fun lagreErstatter(opplysninger: List<Opplysning<*>>) =
-            BatchStatement(
-                //language=PostgreSQL
-                """
-                INSERT INTO opplysning_erstatter (opplysning_id, erstatter_id) 
-                VALUES (:opplysning_id, :erstatter_id)
-                ON CONFLICT DO NOTHING
-                """.trimIndent(),
-                opplysninger.mapNotNull { opplysning ->
-                    if (opplysning.erstatter == null) return@mapNotNull null
-                    mapOf(
-                        "opplysning_id" to opplysning.id,
-                        "erstatter_id" to opplysning.erstatter!!.id,
-                    )
-                },
-            )
-
-        @WithSpan
-        private fun batchVerdi(opplysninger: List<Opplysning<*>>): BatchStatement {
-            val defaultVerdi =
-                mapOf(
-                    "verdi_heltall" to null,
-                    "verdi_desimaltall" to null,
-                    "verdi_dato" to null,
-                    "verdi_boolsk" to null,
-                    "verdi_string" to null,
-                )
-            return BatchStatement(
-                //language=PostgreSQL
-                """
-                INSERT INTO opplysning_verdi (opplysning_id, datatype, verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string, verdi_jsonb) 
-                VALUES (:opplysning_id, :datatype, :verdi_heltall, :verdi_desimaltall, :verdi_dato, :verdi_boolsk, :verdi_string, :verdi_jsonb)
-                ON CONFLICT DO NOTHING
-                """.trimIndent(),
-                opplysninger.map {
-                    val datatype = it.opplysningstype.datatype
-                    val (kolonne, data) = verdiKolonne(datatype, it.verdi)
-                    val verdi = defaultVerdi + mapOf(kolonne to data)
-                    mapOf(
-                        "kolonne" to kolonne,
-                        "opplysning_id" to it.id,
-                        "datatype" to datatype.navn(),
-                    ) + verdi
-                },
-            )
-        }
 
         private fun verdiKolonne(
             datatype: Datatype<*>,
