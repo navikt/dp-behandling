@@ -30,5 +30,5 @@ abstract class StartHendelse(
     abstract fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling
+    ): Behandling?
 }

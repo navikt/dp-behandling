@@ -12,7 +12,6 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
-import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakKanIkkeSkrivesTilbake
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
@@ -41,7 +40,7 @@ class SøknadInnsendtHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling {
+    ): Behandling? {
         val basertPå =
             forrigeBehandling?.let { forrigeBehandling ->
                 val erSammeType = forrigeBehandling.behandler.erSammeType(this)
@@ -63,6 +62,10 @@ class SøknadInnsendtHendelse(
                 forrigeBehandling
             }
 
+        if (basertPå == null && fagsakId == 0) {
+            return null
+        }
+
         return Behandling(
             basertPå = basertPå,
             behandler =
@@ -77,7 +80,7 @@ class SøknadInnsendtHendelse(
                 ),
             opplysninger =
                 buildList {
-                    if (basertPå == null && fagsakId != 0) {
+                    if (basertPå == null) {
                         add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)))
                     }
                     add(Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = Systemkilde(meldingsreferanseId, opprettet)))
@@ -97,9 +100,6 @@ class SøknadInnsendtHendelse(
                     }
                     if (søknadstype == Søknadstype.Gjenopptak) {
                         add(Avklaring(SøktGjenopptak))
-                    }
-                    if (basertPå == null && fagsakId == 0) {
-                        add(Avklaring(GjenopptakKanIkkeSkrivesTilbake))
                     }
                 },
         )

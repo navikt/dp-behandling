@@ -52,6 +52,25 @@ internal class Mennesket(
         )
     }
 
+    fun søkGjenopptak(
+        dato: LocalDate = LocalDate.now(),
+        ønskerFraDato: LocalDate = dato,
+    ) {
+        this.søknadsdato = dato
+        this.ønskerFraDato = ønskerFraDato
+        this.meldesyklus = Meldesyklus(søknadsdato)
+
+        rapid.sendTestMessage(
+            Meldingskatalog.søknadInnsendt(
+                ident = ident,
+                innsendt = søknadsdato.atStartOfDay(),
+                fagsakId = 0,
+                søknadId = søknader.ny(),
+            ),
+            ident,
+        )
+    }
+
     fun løsningFor(behov: List<String>): Map<String, Any> {
         val behovSomLøses = løsninger.filterKeys { it in behov }
         require(behovSomLøses.size == behov.toSet().size) { "Fant ikke løsning for alle behov: $behov" }

@@ -226,4 +226,35 @@ class KjedescenarioTest {
             person.behandling.basertPåBehandling shouldBe behandling1
         }
     }
+
+    @Test
+    fun `søker gjenopptak uten rettighetsperiode`() {
+        nyttScenario { }.test {
+            person.søkGjenopptak(21.juni(2018))
+
+            // Disse skal bare avvises i døra
+            rapidInspektør.size shouldBe 0
+        }
+    }
+
+    @Test
+    fun `søker gjenopptak med eksisterende rettighetsperiode`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val behandlingIdInnvilgelse = person.behandlingId
+            person.søkGjenopptak(21.juni(2018))
+
+            behandlingsresultatForslag {
+                basertPå shouldBe behandlingIdInnvilgelse
+            }
+        }
+    }
 }
