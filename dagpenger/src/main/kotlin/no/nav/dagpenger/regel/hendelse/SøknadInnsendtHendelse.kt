@@ -97,9 +97,10 @@ class SøknadInnsendtHendelse(
                 buildList {
                     if (basertPå != null) {
                         add(Avklaring(GjenopptakBehandling))
-                    }
-                    if (søknadstype == Søknadstype.Gjenopptak) {
-                        add(Avklaring(SøktGjenopptak))
+                    } else {
+                        if (søknadstype == Søknadstype.Gjenopptak) {
+                            add(Avklaring(SøktGjenopptak))
+                        }
                     }
                 },
         )
