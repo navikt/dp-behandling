@@ -1,13 +1,13 @@
 ALTER TABLE opplysning
-    ADD COLUMN opplysninger_id   uuid NULL DEFAULT NULL,
-    ADD COLUMN datatype          TEXT,
-    ADD COLUMN verdi_heltall     INTEGER,
-    ADD COLUMN verdi_desimaltall NUMERIC,
-    ADD COLUMN verdi_dato        DATE,
-    ADD COLUMN verdi_boolsk      BOOLEAN,
-    ADD COLUMN verdi_string      TEXT,
-    ADD COLUMN verdi_jsonb       jsonb,
-    ADD COLUMN erstatter_id      uuid NULL REFERENCES opplysning
+    ADD COLUMN IF NOT EXISTS opplysninger_id   uuid NULL DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS datatype          TEXT,
+    ADD COLUMN IF NOT EXISTS verdi_heltall     INTEGER,
+    ADD COLUMN IF NOT EXISTS verdi_desimaltall NUMERIC,
+    ADD COLUMN IF NOT EXISTS verdi_dato        DATE,
+    ADD COLUMN IF NOT EXISTS verdi_boolsk      BOOLEAN,
+    ADD COLUMN IF NOT EXISTS verdi_string      TEXT,
+    ADD COLUMN IF NOT EXISTS verdi_jsonb       jsonb,
+    ADD COLUMN IF NOT EXISTS erstatter_id      uuid NULL REFERENCES opplysning
 ;
 
 -- Fyll inn med opplysninger_id for eksisterende rader fra opplysninger_opplysning
@@ -23,7 +23,8 @@ SET datatype          = ov.datatype,
     verdi_desimaltall = ov.verdi_desimaltall,
     verdi_dato        = ov.verdi_dato,
     verdi_boolsk      = ov.verdi_boolsk,
-    verdi_string      = ov.verdi_string
+    verdi_string      = ov.verdi_string,
+    verdi_jsonb       = ov.verdi_jsonb
 FROM opplysning_verdi ov
 WHERE o.id = ov.opplysning_id;
 
@@ -39,12 +40,13 @@ ALTER TABLE opplysning
 
 -- Lag en foreign key constraint for å sikre referanseintegritet
 ALTER TABLE opplysning
+    DROP CONSTRAINT IF EXISTS fk_opplysning_opplysninger,
     ADD CONSTRAINT fk_opplysning_opplysninger
         FOREIGN KEY (opplysninger_id)
             REFERENCES opplysninger (opplysninger_id);
 
 -- Lag indeks for bedre ytelse på foreign key
-CREATE INDEX idx_opplysning_opplysninger_id ON opplysning (opplysninger_id);
+CREATE INDEX IF NOT EXISTS idx_opplysning_opplysninger_id ON opplysning (opplysninger_id);
 
 -- Oppdater viewet til å ikke joine
 DROP VIEW opplysningstabell;
