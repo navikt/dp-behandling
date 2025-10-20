@@ -113,19 +113,8 @@ internal class ApplicationBuilder(
             // Logger bare oppgaver enn så lenge. Bør inn i HendelseMediator
             ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres())
 
-            // Start jobb som sletter fjernet opplysninger
-            SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
-
             // Vedtak mottak
             VedtakFattetMottak(rapidsConnection, meldekortRepositoryPostgres)
-
-            BehandleMeldekort(
-                MeldekortBehandlingskø(
-                    personRepository,
-                    meldekortRepositoryPostgres,
-                    rapidsConnection,
-                ),
-            ).start()
 
             avklaringRepository.registerObserver(
                 AvklaringKafkaObservatør(
@@ -163,6 +152,18 @@ internal class ApplicationBuilder(
         runMigration()
         registrerRegelverk(opplysningRepository, opplysningstyper)
         logger.info { "Starter opp dp-behandling" }
+
+        // Start jobb som sletter fjernet opplysninger
+        SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
+
+        // Start meldekortbehandling
+        BehandleMeldekort(
+            MeldekortBehandlingskø(
+                personRepository,
+                meldekortRepositoryPostgres,
+                rapidsConnection,
+            ),
+        ).start()
     }
 }
 
