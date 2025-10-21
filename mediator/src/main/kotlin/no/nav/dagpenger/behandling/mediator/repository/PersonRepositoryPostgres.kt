@@ -76,7 +76,7 @@ class PersonRepositoryPostgres(
                     """.trimIndent(),
                     mapOf("ident" to ident.identifikator()),
                 ).map { row ->
-                    val gjelderFra = row.localDateTime("gjelder_fra")
+                    val gjelderFra = row.localDate("gjelder_fra")
                     val virkningsdato = row.localDate("virkningsdato")
                     val utfall = row.boolean("har_rettighet")
                     val behandlingId = row.uuid("behandling_id")
@@ -114,7 +114,7 @@ class PersonRepositoryPostgres(
                 mapOf("ident" to person.ident.identifikator()),
             ).asUpdate,
         )
-        person.rettighethistorikk().forEach { gjelderFra, rettighetstatus ->
+        person.rettighethistorikk().forEach { (gjelderFra, rettighetstatus) ->
             tx.run(
                 queryOf(
                     //language=PostgreSQL
