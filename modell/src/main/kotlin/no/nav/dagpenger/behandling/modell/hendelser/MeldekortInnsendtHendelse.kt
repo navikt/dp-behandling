@@ -13,7 +13,7 @@ class MeldekortInnsendtHendelse(
 ) : PersonHendelse(meldingsreferanseId, meldekort.ident, opprettet) {
     override fun kontekstMap(): Map<String, String> =
         mapOf(
-            "eksternMeldekortId" to meldekort.eksternMeldekortId.toString(),
+            "eksternMeldekortId" to meldekort.eksternMeldekortId.id,
             "meldekortId" to meldekort.id.toString(),
         )
 }
