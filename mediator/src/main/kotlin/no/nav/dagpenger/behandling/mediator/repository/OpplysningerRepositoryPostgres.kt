@@ -219,8 +219,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
             val gyldighetsperiode =
                 Gyldighetsperiode(
-                    localDateOrNull("gyldig_fom") ?: LocalDate.MIN,
-                    localDateOrNull("gyldig_tom") ?: LocalDate.MAX,
+                    fraOgMed = localDateOrNull("gyldig_fom") ?: LocalDate.MIN,
+                    tilOgMed = localDateOrNull("gyldig_tom") ?: LocalDate.MAX,
                 )
             val status = this.string("status")
             val verdi = datatype.verdi(this)

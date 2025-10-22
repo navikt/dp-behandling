@@ -1,10 +1,13 @@
 package no.nav.dagpenger.opplysning
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.Gyldighetsperiode.Companion.overlappendePerioder
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskA
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskB
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 internal class GyldighetsperiodeTest {
     @Test
@@ -14,6 +17,13 @@ internal class GyldighetsperiodeTest {
         gyldighetsperiode.contains(1.januar) shouldBe true
         gyldighetsperiode.contains(5.januar) shouldBe true
         gyldighetsperiode.contains(10.januar) shouldBe true
+    }
+
+    @Test
+    fun `kan lage gyldige perioder `() {
+        shouldThrow<IllegalArgumentException> { Gyldighetsperiode(LocalDate.MAX, LocalDate.MIN) }
+        shouldThrow<IllegalArgumentException> { Gyldighetsperiode(2.januar(2024), 1.januar(2024)) }
+        shouldNotThrowAny { Gyldighetsperiode(1.januar(2024), 2.januar(2024)) }
     }
 
     @Test
