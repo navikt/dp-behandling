@@ -1,0 +1,1 @@
+CREATE INDEX idx_opplysning_erstatter_id ON opplysning (erstatter_id) WHERE erstatter_id IS NOT NULL;

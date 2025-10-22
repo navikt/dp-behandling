@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskA
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.desimaltall
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.foreldrevilkår
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.undervilkår1
@@ -84,6 +85,22 @@ class OpplysningerTest {
         opplysninger2.leggTil(Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(15.januar)))
 
         opplysninger2.somListe() shouldHaveSize 2
+    }
+
+    @Test
+    fun `🍌☎ 🐍🍄🍄`() {
+        val opplysninger = Opplysninger()
+
+        opplysninger.leggTil(Faktum(boolskA, true, Gyldighetsperiode()))
+        opplysninger.somListe() shouldHaveSize 1
+        opplysninger.leggTil(Faktum(boolskA, false, Gyldighetsperiode(2.oktober)))
+        opplysninger.somListe() shouldHaveSize 1
+        opplysninger.leggTil(Faktum(boolskA, false, Gyldighetsperiode(1.oktober, 2.oktober)))
+        opplysninger.somListe() shouldHaveSize 1
+        opplysninger.leggTil(Faktum(boolskA, true, Gyldighetsperiode()))
+
+        opplysninger.somListe() shouldHaveSize 1
+        opplysninger.fjernet() shouldHaveSize 3
     }
 
     @Test
