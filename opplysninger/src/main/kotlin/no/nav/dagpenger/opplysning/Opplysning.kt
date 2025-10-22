@@ -22,6 +22,7 @@ sealed class Opplysning<T : Comparable<T>>(
     val utledetAv: Utledning?,
     val kilde: Kilde?,
     val opprettet: LocalDateTime,
+    var utdatert: Boolean = false,
     private var _erstatter: Opplysning<T>? = null,
     private var _skalLagres: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
@@ -66,7 +67,7 @@ class Hypotese<T : Comparable<T>>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
-) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter, _skalLagres = skalLagres) {
+) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, false, erstatter, _skalLagres = skalLagres) {
     constructor(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
@@ -94,7 +95,7 @@ class Faktum<T : Comparable<T>>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
-) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter, _skalLagres = skalLagres) {
+) : Opplysning<T>(id, opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, false, erstatter, _skalLagres = skalLagres) {
     constructor(
         opplysningstype: Opplysningstype<T>,
         verdi: T,

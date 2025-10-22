@@ -35,8 +35,15 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 return
             }
 
-            // Sjekk om regelen har fått nye avhengigheter
             val regelForProdukt = produsenter[produkt.opplysningstype]
+            if (produkt.utledetAv.opplysninger.any { it.utdatert }) {
+                produkt.utledetAv.opplysninger.filter { it.utdatert }.forEach { noeUtdatert ->
+                    val regelForNoeGammelt = produsenter[noeUtdatert.opplysningstype]
+                    regelForNoeGammelt?.lagPlan(opplysninger, plan, produsenter, besøkt)
+                }
+            }
+
+            // Sjekk om regelen har fått nye avhengigheter
             if (harRegelNyeAvhengigheter(regelForProdukt, produkt.utledetAv) || opplysninger.erErstattet(produkt.utledetAv.opplysninger)) {
                 // Om en avhengighet mangler, må denne regelen kjøres på nytt
                 if (regelForProdukt?.avhengerAv?.any { opplysninger.mangler(it) } == true) {
@@ -46,6 +53,9 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                     }
                 } else {
                     // Om alle avhengigheter er tilstede, må denne regelen kjøres på nytt
+                    val erstattede = opplysninger.erstattede(produkt.utledetAv.opplysninger)
+                    val utdaterte = produkt.utledetAv.opplysninger.filter { it.utdatert }
+                    if (erstattede.size != utdaterte.size) return
                     plan.add(this)
                 }
             }
