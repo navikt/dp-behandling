@@ -8,7 +8,6 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 abstract class Regel<T : Comparable<T>> internal constructor(
     internal val produserer: Opplysningstype<T>,
@@ -62,13 +61,6 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 }
             }
         }
-    }
-
-    private fun utledetAvErEndret(
-        sistEndret: LocalDateTime,
-        utledetAv: Utledning,
-    ) = utledetAv.opplysninger.any {
-        it.opprettet.isAfter(sistEndret)
     }
 
     private fun harRegelNyeAvhengigheter(
