@@ -67,6 +67,26 @@ class RedigeringTest {
                         this[1].verdi.verdi shouldBe 977
                     }
                 }
+                saksbehandler.lukkAlleAvklaringer()
+                saksbehandler.godkjenn()
+                saksbehandler.beslutt()
+
+                saksbehandler.lagBehandling(10.juli(2018))
+                saksbehandler.endreOpplysning(
+                    grunnlag,
+                    verdi = Beløp(300000),
+                    begrunnelse = "Høres bedre ut",
+                    gyldighetsperiode = Gyldighetsperiode(10.juli(2018)),
+                )
+
+                behandlingsresultatForslag {
+                    with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
+                        this shouldHaveSize 3
+                        this[0].verdi.verdi shouldBe 1259
+                        this[1].verdi.verdi shouldBe 977
+                        this[2].verdi.verdi shouldBe 737
+                    }
+                }
             }
     }
 }

@@ -32,8 +32,6 @@ interface LesbarOpplysninger {
 
     fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean
 
-    fun erstattede(opplysninger: List<Opplysning<*>>): List<Opplysning<*>>
-
     fun somListe(filter: Filter = Filter.Alle): List<Opplysning<*>>
 
     companion object {

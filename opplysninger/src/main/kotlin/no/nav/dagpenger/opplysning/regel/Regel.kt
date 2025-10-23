@@ -35,29 +35,44 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 return
             }
 
-            val regelForProdukt = produsenter[produkt.opplysningstype]
-            if (produkt.utledetAv.opplysninger.any { it.utdatert }) {
-                produkt.utledetAv.opplysninger.filter { it.utdatert }.forEach { noeUtdatert ->
-                    val regelForNoeGammelt = produsenter[noeUtdatert.opplysningstype]
-                    regelForNoeGammelt?.lagPlan(opplysninger, plan, produsenter, besøkt)
+            val (erErstattet, ikkeErstattet) = produkt.utledetAv.opplysninger.partition { opplysninger.erErstattet(listOf(it)) }
+
+            // Sjekk om produktet er basert på utdatert informasjon
+            val utdaterteOpplysninger = ikkeErstattet.filter { it.erUtdatert }
+            if (utdaterteOpplysninger.isNotEmpty()) {
+                // Minst en av opplysningene som regelen er avhengig av er utdatert, regelen skal kjøres på nytt
+                utdaterteOpplysninger.forEach { utdatert ->
+                    val produsent =
+                        produsenter[utdatert.opplysningstype]
+                            ?: throw IllegalStateException("Fant ikke produsent for $utdatert")
+                    produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
                 }
+                return
+            }
+
+            // Sjekk om produktet er basert på erstattet informasjon
+            if (erErstattet.isNotEmpty()) {
+                // Minst en avhengighet er erstattet, må de regelen skal kjøres på nytt
+                plan.add(this)
+                return
             }
 
             // Sjekk om regelen har fått nye avhengigheter
-            if (harRegelNyeAvhengigheter(regelForProdukt, produkt.utledetAv) || opplysninger.erErstattet(produkt.utledetAv.opplysninger)) {
-                // Om en avhengighet mangler, må denne regelen kjøres på nytt
-                if (regelForProdukt?.avhengerAv?.any { opplysninger.mangler(it) } == true) {
-                    regelForProdukt.avhengerAv.map { avhengighet ->
+            if (harRegelNyeAvhengigheter(produkt.utledetAv)) {
+                val mangler = avhengerAv.filter { opplysninger.mangler(it) }
+                if (mangler.isNotEmpty()) {
+                    mangler.forEach { avhengighet ->
+                        // Om en avhengighet mangler, må de regelene kjøres på nytt
                         val avhengigRegel = produsenter[avhengighet]
                         avhengigRegel?.lagPlan(opplysninger, plan, produsenter, besøkt)
                     }
-                } else {
-                    // Om alle avhengigheter er tilstede, må denne regelen kjøres på nytt
-                    val erstattede = opplysninger.erstattede(produkt.utledetAv.opplysninger)
-                    val utdaterte = produkt.utledetAv.opplysninger.filter { it.utdatert }
-                    if (erstattede.size != utdaterte.size) return
-                    plan.add(this)
+                    // Manger vi noen avhengigheter, så kan vi ikke kjøre denne regelen på nytt enda
+                    return
                 }
+
+                // Om alle avhengigheter er tilstede, skal denne regelen kjøres på nytt
+                plan.add(this)
+                return
             }
         } else {
             val avhengigheter = opplysninger.finnFlere(avhengerAv)
@@ -73,13 +88,8 @@ abstract class Regel<T : Comparable<T>> internal constructor(
         }
     }
 
-    private fun harRegelNyeAvhengigheter(
-        regelForProdukt: Regel<*>?,
-        utledetAv: Utledning,
-    ) = regelForProdukt?.avhengerAv?.toSet() !=
-        utledetAv.opplysninger
-            .map { it.opplysningstype }
-            .toSet()
+    private fun harRegelNyeAvhengigheter(utledetAv: Utledning) =
+        avhengerAv.toSet() != utledetAv.opplysninger.map { it.opplysningstype }.toSet()
 
     abstract override fun toString(): String
 

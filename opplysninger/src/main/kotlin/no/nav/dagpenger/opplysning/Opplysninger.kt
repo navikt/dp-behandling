@@ -16,7 +16,7 @@ class Opplysninger private constructor(
 
     private val egne: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
     private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
-    val erstattet: MutableSet<UUID> get() = alleOpplysninger.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
+    private val erstattet: MutableSet<UUID> get() = alleOpplysninger.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
     private val basertPåOpplysninger: List<Opplysning<*>> =
         basertPå?.let { it.basertPåOpplysninger + it.egne } ?: emptyList()
@@ -26,39 +26,40 @@ class Opplysninger private constructor(
     override val kunEgne get() = Opplysninger(id = id, opplysninger = egne)
 
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
-        val altSomKommerFørOss = finnNullableOpplysninger(opplysning.opplysningstype, opplysning.gyldighetsperiode)
+        val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
-        altSomKommerFørOss.forEach { eksisterende ->
+        if (eksisterende != null) {
             if (egne.contains(eksisterende)) {
                 // Erstatt hele opplysningen
                 fjern(eksisterende)
 
-                // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
-                eksisterende.erstatter?.let { opplysning.erstatter(it) }
+                eksisterende.erstatter?.let {
+                    // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
+                    opplysning.erstatter(it)
+
+                    // Marker alle opplysninger som er utledet av den erstattede som utdaterte
+                    markerUtledningerSomUtdatert(it)
+                }
             }
 
             if (basertPåOpplysninger.contains(eksisterende)) {
                 opplysning.erstatter(eksisterende)
+                markerUtledningerSomUtdatert(eksisterende)
             }
-
-            alleErUtdaterte(eksisterende)
         }
 
         egne.add(opplysning)
         alleOpplysninger.refresh()
     }
 
-    private fun alleErUtdaterte(eksisterende: Opplysning<*>) {
-        val graf = OpplysningGraf((basertPåOpplysninger + egne).toList())
+    private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
+        val graf = OpplysningGraf(alleOpplysninger)
         val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
 
-        eksisterende.utdatert = true
-        avhengigheter.forEach { it.utdatert = true }
+        avhengigheter.forEach { it.erUtdatert = true }
     }
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
-
-    override fun erstattede(opplysninger: List<Opplysning<*>>) = opplysninger.filter { it.id in erstattet }
 
     internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
 
@@ -137,18 +138,6 @@ class Opplysninger private constructor(
                 .filterIsInstance<Opplysning<T>>()
 
         return opplysninger.lastOrNull()
-    }
-
-    private fun <T : Comparable<T>> finnNullableOpplysninger(
-        opplysningstype: Opplysningstype<T>,
-        gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
-    ): List<Opplysning<T>> {
-        val opplysninger =
-            (basertPåOpplysninger + egne)
-                .filter { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) }
-                .filterIsInstance<Opplysning<T>>()
-
-        return opplysninger
     }
 
     private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> {

@@ -54,10 +54,6 @@ class LesbarOpplysningerMedLogg(
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = TODO("Not yet implemented")
 
-    override fun erstattede(opplysninger: List<Opplysning<*>>): List<Opplysning<*>> {
-        TODO("Not yet implemented")
-    }
-
     override val kunEgne: Opplysninger get() = TODO("Not yet implemented")
 
     override fun somListe(filter: LesbarOpplysninger.Filter) = TODO("Not yet implemented")
