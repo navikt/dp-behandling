@@ -385,33 +385,6 @@ paths:
           type: string
           format: uuid
         description: Opplysningens id
-    put:
-      deprecated: true
-      summary: Overskriv en opplysning
-      operationId: oppdaterOpplysning
-      security:
-        - azureAd: [ ]
-      tags:
-        - Behandling
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OppdaterOpplysning'
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Kvittering'
-          description: OK
-        default:
-          description: Feil ved redigering av opplysninger
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/HttpProblem'
     delete:
       summary: Fjern en opplysning
       operationId: fjernOpplysning

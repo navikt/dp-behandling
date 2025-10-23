@@ -379,65 +379,6 @@ internal fun Application.behandlingApi(
                         call.respond(HttpStatusCode.Created)
                     }
 
-                    put("opplysning/{opplysningId}") {
-                        val behandlingId = call.behandlingId
-                        val opplysningId = call.opplysningId
-                        withLoggingContext(
-                            "behandlingId" to behandlingId.toString(),
-                        ) {
-                            val nyOpplysning = call.receive<OppdaterOpplysningDTO>()
-                            val behandling = hentBehandling(personRepository, behandlingId)
-
-                            logger.warn {
-                                """PUT /opplysning/{opplysningId} er deprecated og vil fjernes. 
-                                    |Bruk POST /opplysning/ med opplysningId i body
-                                """.trimMargin()
-                            }
-
-                            if (behandling.harTilstand(Redigert)) {
-                                throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
-                            }
-
-                            val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
-                            if (!redigerbareOpplysninger.kanRedigere(opplysning.opplysningstype)) {
-                                throw BadRequestException("Opplysningstype ${opplysning.opplysningstype} kan ikke redigeres")
-                            }
-
-                            logger.info {
-                                """
-                                Mottok en endring i behandlingId=$behandlingId, 
-                                behovId=${opplysning.opplysningstype.behovId},
-                                datatype=${opplysning.opplysningstype.datatype},
-                                gyldigFraOgMed=${nyOpplysning.gyldigFraOgMed},
-                                gyldigTilOgMed=${nyOpplysning.gyldigTilOgMed}
-                                """.trimIndent()
-                            }
-
-                            val svar =
-                                OpplysningsSvar(
-                                    behandlingId,
-                                    opplysning.opplysningstype.behovId,
-                                    behandling.behandler.ident,
-                                    HttpVerdiMapper(nyOpplysning).map(opplysning.opplysningstype.datatype),
-                                    call.saksbehandlerId(),
-                                    nyOpplysning.begrunnelse,
-                                    nyOpplysning.gyldigFraOgMed,
-                                    nyOpplysning.gyldigTilOgMed,
-                                )
-
-                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
-                                logger.info { "Starter en endring i behandling" }
-                                messageContext(behandling.behandler.ident).publish(svar.toJson())
-                                auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
-                                logger.info { "Venter på endring i behandling" }
-                            }
-
-                            logger.info { "Svarer med at opplysning er oppdatert" }
-
-                            call.respond(HttpStatusCode.OK, KvitteringDTO(behandlingId))
-                        }
-                    }
-
                     delete("opplysning/{opplysningId}") {
                         val behandlingId = call.behandlingId
                         val opplysningId = call.opplysningId
