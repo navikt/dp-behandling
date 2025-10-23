@@ -76,6 +76,7 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -476,6 +477,12 @@ internal fun Application.behandlingApi(
 
                             if (!redigerbareOpplysninger.kanRedigere(opplysningstype)) {
                                 throw BadRequestException("Opplysningstype $opplysningstype kan ikke redigeres")
+                            }
+
+                            if (behandling.basertPå != null && opplysningstype.er(prøvingsdato)) {
+                                throw BadRequestException(
+                                    "Kan ikke endre prøvingsdato på en behandling som er basert på en tidligere behandling",
+                                )
                             }
 
                             logger.info {
