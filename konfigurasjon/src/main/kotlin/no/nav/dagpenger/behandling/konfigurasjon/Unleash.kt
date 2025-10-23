@@ -44,4 +44,5 @@ enum class Feature(
 ) {
     // Vi bruker denne til å kunne innvilge langt tilbake i tid
     REDIGERING_AV_REGISTRERT_ARBEIDSSØKER("dp-behandling.redigering-arbeidssoker"),
+    REDIGERING_AV_BEREGNING("dp-behandling.redigering-beregning"),
 }

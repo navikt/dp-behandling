@@ -127,6 +127,7 @@ import no.nav.dagpenger.regel.Utdanning.opplæringForInnvandrere
 import no.nav.dagpenger.regel.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -547,6 +548,16 @@ internal val redigerbareOpplysninger =
                     add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
                     add(Dagpengegrunnlag.grunnlag)
                     add(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
+                }
+
+                // MANUELL overstyring av beregning
+                if (unleash.isEnabled(Feature.REDIGERING_AV_BEREGNING.navn)) {
+                    add(Beregning.arbeidsdag)
+                    add(Beregning.forbruk)
+                    add(Beregning.forbruktEgenandel)
+                    add(Beregning.gjenståendeEgenandel)
+                    add(Beregning.gjenståendePeriode)
+                    add(Beregning.utbetaling)
                 }
             }
 
