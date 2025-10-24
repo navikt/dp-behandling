@@ -450,6 +450,8 @@ paths:
           format: uuid
         description: Behandlingens id
     get:
+      security:
+        - azureAd: [ ]
       description: Hent avklaringer for en behandling
       operationId: hentAvklaringer
       tags:
@@ -481,6 +483,8 @@ paths:
           format: uuid
         description: Avklaringens id
     put:
+      security:
+        - azureAd: [ ]
       description: Kvittér ut en avklaring
       operationId: kvitterAvklaring
       tags:
