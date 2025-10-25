@@ -34,11 +34,15 @@ class Opplysninger private constructor(
                 fjern(eksisterende)
 
                 // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
-                eksisterende.erstatter?.let { opplysning.erstatter(it) }
+                eksisterende.erstatter?.let {
+                    opplysning.erstatter(it)
+                    markerUtdatert(eksisterende)
+                }
             }
 
             if (basertPåOpplysninger.contains(eksisterende)) {
                 opplysning.erstatter(eksisterende)
+                markerUtdatert(eksisterende)
             }
         }
 
@@ -46,7 +50,7 @@ class Opplysninger private constructor(
         alleOpplysninger.refresh()
     }
 
-    override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
+    override fun erErstattet(opplysning: Opplysning<*>) = opplysning.id in erstattet
 
     internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
 
@@ -110,6 +114,14 @@ class Opplysninger private constructor(
         val graf = OpplysningGraf(egne.toList())
         val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
         avhengigheter.forEach { avhengighet -> fjern(avhengighet, false) }
+    }
+
+    private fun markerUtdatert(fra: Opplysning<*>) {
+        val utledninger = alleOpplysninger.filter { it.utledetAv?.opplysninger?.contains(fra) ?: false }
+        if (utledninger.isEmpty()) return
+
+        fra.erUtdatert = true
+        utledninger.forEach { markerUtdatert(it) }
     }
 
     private fun <T : Comparable<T>> finnNullableOpplysning(

@@ -130,11 +130,11 @@ class Regelkjøring(
     private fun aktiverRegler(prøvingsdato: LocalDate) {
         opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
 
-        val nødvendigeRegler = avhengighetsgraf.finnAlleProdusenter(ønsketResultat, opplysningerPåPrøvingsdato)
-        val plan = skalKjøres(nødvendigeRegler)
+        val kandidater = avhengighetsgraf.finnAlleProdusenter(ønsketResultat, opplysningerPåPrøvingsdato)
+        val skalKjøres = skalKjøres(kandidater)
 
-        val (ekstern, intern) = plan.partition { it is Ekstern<*> }
-        this@Regelkjøring.plan = intern.toMutableSet()
+        val (ekstern, intern) = skalKjøres.partition { it is Ekstern<*> }
+        plan = intern.toMutableSet()
         trenger = ekstern.toSet()
     }
 

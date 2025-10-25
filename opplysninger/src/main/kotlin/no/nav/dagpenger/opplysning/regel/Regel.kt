@@ -37,13 +37,21 @@ abstract class Regel<T : Comparable<T>> internal constructor(
             return false
         }
 
-        if (harRegelNyeAvhengigheter(this, produkt.utledetAv)) {
-            // Om reglene har endret seg må vi kjøre på nytt
+        // Del opplysningene opp i de som er erstattet og de som ikke er det
+        val (erErstattet, ikkeErstattet) = produkt.utledetAv.opplysninger.partition { opplysninger.erErstattet(it) }
+
+        if (ikkeErstattet.any { it.erUtdatert }) {
+            // Om vi har gamle opplysninger som er utdaterte må de kjøres før oss
+            return false
+        }
+
+        if (erErstattet.isNotEmpty()) {
+            // Om noen av avhengighetene er endret må vi kjøre på nytt
             return true
         }
 
-        if (opplysninger.erErstattet(produkt.utledetAv.opplysninger)) {
-            // Om noen av avhengighetene er endret må vi kjøre på nytt
+        if (harRegelNyeAvhengigheter(this, produkt.utledetAv)) {
+            // Om reglene har endret seg må vi kjøre på nytt
             return true
         }
 

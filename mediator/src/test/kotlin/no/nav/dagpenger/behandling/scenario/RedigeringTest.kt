@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem
@@ -9,10 +10,8 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-@Disabled
 class RedigeringTest {
     @Test
     fun `vi kan endre grunnlag og få ny sats`() {
@@ -30,17 +29,11 @@ class RedigeringTest {
                 vedtak { utfall shouldBe true }
                 behandlingsresultat {
                     with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this[0].verdi.verdi shouldBe "1259"
+                        this[0].verdi.verdi shouldBe 1259
                     }
                 }
 
                 saksbehandler.lagBehandling(1.juli(2018))
-                /*saksbehandler.endreOpplysning(
-                    grunnlag,
-                    verdi = Beløp(200000),
-                    begrunnelse = "Høres bedre ut",
-                    gyldighetsperiode = Gyldighetsperiode(21.juni(2018), 30.juni(2018)),
-                )*/
                 saksbehandler.endreOpplysning(
                     grunnlag,
                     verdi = Beløp(300000),
@@ -48,11 +41,50 @@ class RedigeringTest {
                     gyldighetsperiode = Gyldighetsperiode(1.juli(2018)),
                 )
 
-                behandlingsresultat {
+                behandlingsresultatForslag {
                     with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this[0].verdi.verdi shouldBe "1259"
-                        this[1].verdi.verdi shouldNotBe "1259"
-                        this[1].verdi.verdi shouldBe "1254339"
+                        this[0].verdi.verdi shouldBe 1259
+
+                        this shouldHaveSize 2
+                        this[1].verdi.verdi shouldNotBe 1259
+                        this[1].verdi.verdi shouldBe 737
+                    }
+                }
+
+                saksbehandler.endreOpplysning(
+                    grunnlag,
+                    verdi = Beløp(400000),
+                    begrunnelse = "Høres bedre ut",
+                    gyldighetsperiode = Gyldighetsperiode(1.juli(2018)),
+                )
+
+                behandlingsresultatForslag {
+                    with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
+                        this[0].verdi.verdi shouldBe 1259
+
+                        this shouldHaveSize 2
+                        this[1].verdi.verdi shouldNotBe 1259
+                        this[1].verdi.verdi shouldBe 977
+                    }
+                }
+                saksbehandler.lukkAlleAvklaringer()
+                saksbehandler.godkjenn()
+                saksbehandler.beslutt()
+
+                saksbehandler.lagBehandling(10.juli(2018))
+                saksbehandler.endreOpplysning(
+                    grunnlag,
+                    verdi = Beløp(300000),
+                    begrunnelse = "Høres bedre ut",
+                    gyldighetsperiode = Gyldighetsperiode(10.juli(2018)),
+                )
+
+                behandlingsresultatForslag {
+                    with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
+                        this shouldHaveSize 3
+                        this[0].verdi.verdi shouldBe 1259
+                        this[1].verdi.verdi shouldBe 977
+                        this[2].verdi.verdi shouldBe 737
                     }
                 }
             }

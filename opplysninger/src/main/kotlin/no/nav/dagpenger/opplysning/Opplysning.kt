@@ -25,6 +25,7 @@ sealed class Opplysning<T : Comparable<T>>(
     private var _erstatter: Opplysning<T>? = null,
     private var _skalLagres: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
+    var erUtdatert: Boolean = false
     private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID }
 
     abstract fun bekreft(): Faktum<T>
