@@ -29,3 +29,9 @@ fun Opplysningstype<Boolean>.størreEnnEllerLik(
     er: Opplysningstype<Double>,
     størreEnn: Opplysningstype<Double>,
 ) = StørreEnnEllerLik(this, er, størreEnn)
+
+@JvmName("størreEnnheltall")
+fun Opplysningstype<Boolean>.størreEnnEllerLik(
+    er: Opplysningstype<Int>,
+    størreEnn: Opplysningstype<Int>,
+) = StørreEnnEllerLik(this, er, størreEnn)

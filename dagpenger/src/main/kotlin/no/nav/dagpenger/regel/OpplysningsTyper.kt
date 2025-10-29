@@ -328,6 +328,12 @@ object OpplysningsTyper {
 
     val taptArbeidIPeriodenId = Opplysningstype.Id(UUID.fromString("01997b70-6e6e-702a-a296-18ae5fb9621d"), Boolsk)
     val gjenståendeEgenandelId = Opplysningstype.Id(UUID.fromString("01997b70-a12c-7622-bff8-82a20687e640"), Penger)
+
+    // Gjenopptak
+    val skalGjenopptasId = Opplysningstype.Id(UUID.fromString("019a2fda-4ad6-7711-89ec-38dec1b86293"), Boolsk)
+    val antallDagerForbruktId = Opplysningstype.Id(UUID.fromString("019a2ff0-1674-716f-91dd-a454cbff8b19"), Heltall)
+    val sisteforbruksdagId = Opplysningstype.Id(UUID.fromString("019a2feb-305b-77f0-bfa9-7facc0c5480c"), Dato)
+    val sisteDatoForKravTilGjenopptakId = Opplysningstype.Id(UUID.fromString("019a3001-3cfe-7eae-857b-355c070ce2ec"), Dato)
 }
 
 /**
