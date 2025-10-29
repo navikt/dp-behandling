@@ -40,7 +40,10 @@ abstract class RegelsettBuilderBase(
     private fun leggTil(
         gjelderFra: LocalDate,
         regel: Regel<*>,
-    ) = regler.computeIfAbsent(regel.produserer) { TemporalCollection() }.put(gjelderFra, regel)
+    ) {
+        regel.regelsettnavn = hjemmel.kortnavn
+        regler.computeIfAbsent(regel.produserer) { TemporalCollection() }.put(gjelderFra, regel)
+    }
 
     abstract fun build(): Regelsett
 }

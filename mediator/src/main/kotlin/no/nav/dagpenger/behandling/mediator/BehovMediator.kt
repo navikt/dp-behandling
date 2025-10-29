@@ -56,6 +56,10 @@ class BehovMediator {
                             }
 
                         put("@utledetAv", behovMap.entries.associate { (behovNavn, detaljer) -> behovNavn to detaljer["@utledetAv"] })
+                        put(
+                            "@utledetAvRegelsett",
+                            behovMap.entries.associate { (behovNavn, detaljer) -> behovNavn to detaljer["@utledetAvRegelsett"] },
+                        )
                     }.let {
                         JsonMessage
                             .newNeed(behovMap.keys, it + erFinal(behovMap.size))

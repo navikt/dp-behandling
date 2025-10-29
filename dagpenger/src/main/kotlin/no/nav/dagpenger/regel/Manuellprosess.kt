@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
@@ -66,6 +67,8 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
             PermitteringFiskKontroll,
             BostedslandKontroll,
         )
+
+    override fun låsteRegelsett(): List<Regelsett> = listOf(Minsteinntekt.regelsett, Opptjeningstid.regelsett)
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
         opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }

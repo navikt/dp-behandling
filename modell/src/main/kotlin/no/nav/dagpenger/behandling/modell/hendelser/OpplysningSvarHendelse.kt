@@ -39,6 +39,7 @@ data class OpplysningSvar<T : Comparable<T>>(
     val kilde: Kilde,
     val gyldighetsperiode: Gyldighetsperiode? = null,
     private val utledetAv: List<UUID> = emptyList(),
+    private val utledetAvRegelsett: String?,
 ) {
     enum class Tilstand {
         Hypotese,
@@ -47,11 +48,12 @@ data class OpplysningSvar<T : Comparable<T>>(
 
     fun leggTil(opplysninger: Opplysninger): Opplysning<T> {
         val basertPå = utledetAv.map { opplysninger.finnOpplysning(it) }
+        val utledetAvRegelsett = utledetAvRegelsett
         val utledning =
             if (basertPå.isEmpty()) {
                 null
             } else {
-                Utledning("innhentMed", basertPå)
+                Utledning("innhentMed", basertPå, regelsettnavn = utledetAvRegelsett)
             }
         val gyldighetsperiode = gyldighetsperiode ?: opplysningstype.gyldighetsperiode(verdi, basertPå)
 

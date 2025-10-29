@@ -11,7 +11,12 @@ import java.time.LocalDate
 
 // Virkningsdato: Dato som *behandlingen* finner til slutt
 
-typealias Informasjonsbehov = Map<Opplysningstype<*>, Set<Opplysning<*>>>
+data class Opplysningsbehov(
+    val opplysningtype: Opplysningstype<*>,
+    val utledetAvRegelsettNavn: String?,
+)
+
+typealias Informasjonsbehov = Map<Opplysningsbehov, Set<Opplysning<*>>>
 
 class Regelkjøring(
     private val regelverksdato: LocalDate,
@@ -112,7 +117,7 @@ class Regelkjøring(
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
-            mangler = trenger(),
+            mangler = trenger().map { it.opplysningtype }.toSet(),
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
         ).also { rapport ->
@@ -170,8 +175,8 @@ class Regelkjøring(
         }
     }
 
-    private fun trenger(): Set<Opplysningstype<*>> {
-        val eksterneOpplysninger = trenger.map { it.produserer }.toSet()
+    private fun trenger(): Set<Opplysningsbehov> {
+        val eksterneOpplysninger = trenger.map { Opplysningsbehov(it.produserer, it.regelsettnavn) }.toSet()
         return eksterneOpplysninger
     }
 
@@ -179,7 +184,7 @@ class Regelkjøring(
         trenger()
             .associateWith {
                 // Finn regel som produserer opplysningstype og hent ut avhengigheter
-                gjeldendeRegler.find { regel -> regel.produserer(it) }?.avhengerAv ?: emptyList()
+                gjeldendeRegler.find { regel -> regel.produserer(it.opplysningtype) }?.avhengerAv ?: emptyList()
             }.filter { (_, avhengigheter) ->
                 // Finn bare opplysninger hvor alle avhengigheter er tilfredsstilt
                 avhengigheter.all { opplysningerPåPrøvingsdato.har(it) }

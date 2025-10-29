@@ -30,6 +30,8 @@ abstract class Forretningsprosess(
     fun kjørUnderveis(opplysninger: Opplysninger) = plugins.forEach { it.underveis(opplysninger) }
 
     fun kjørFerdig(opplysninger: Opplysninger) = plugins.forEach { it.ferdig(opplysninger) }
+
+    open fun låsteRegelsett() = emptyList<Regelsett>()
 }
 
 interface ProsessPlugin {

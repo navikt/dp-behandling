@@ -77,8 +77,13 @@ class Behandling private constructor(
     }
 
     private val observatører = mutableListOf<BehandlingObservatør>()
-    private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
+    private val tidligereOpplysninger =
+        basertPå?.opplysninger?.also { opplysninger ->
+            behandler.forretningsprosess.låsteRegelsett().forEach {
+                opplysninger.låsOpplysningerFraRegelsett(it)
+            }
+        }
 
     val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 

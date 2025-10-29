@@ -29,6 +29,11 @@ class Opplysninger private constructor(
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende != null) {
+            // Hvis eksisterende opplysning er låst, ikke erstatt den
+            if (eksisterende.erLåst) {
+                return
+            }
+
             if (egne.contains(eksisterende)) {
                 // Erstatt hele opplysningen
                 fjern(eksisterende)
@@ -56,7 +61,11 @@ class Opplysninger private constructor(
         val graf = OpplysningGraf(alleOpplysninger)
         val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
 
-        avhengigheter.forEach { it.erUtdatert = true }
+        avhengigheter.forEach {
+            if (!it.erLåst) {
+                it.erUtdatert = true
+            }
+        }
     }
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
@@ -108,11 +117,42 @@ class Opplysninger private constructor(
 
     fun fjern(opplysningId: UUID) = fjern(kunEgne.finnOpplysning(opplysningId))
 
+    fun låsOpplysning(opplysningId: UUID) {
+        finnOpplysning(opplysningId).lås()
+        låsOpplysningOgAvledede(opplysningId)
+    }
+
+    fun låsOpplysningerFraRegelsett(regelsettnavn: String) {
+        alleOpplysninger
+            .filter { it.utledetAv?.regelsettnavn == regelsettnavn }
+            .forEach { it.lås() }
+    }
+
+    fun låsOpplysningerFraRegelsett(regelsett: Regelsett) {
+        låsOpplysningerFraRegelsett(regelsett.navn)
+    }
+
+    fun låsOpplysningOgAvledede(opplysningId: UUID) {
+        val opplysning = finnOpplysning(opplysningId)
+        opplysning.lås()
+
+        val graf = OpplysningGraf(alleOpplysninger)
+        val avledede = graf.hentAlleUtledetAv(opplysning)
+        avledede.forEach { it.lås() }
+    }
+
+    fun låsOpp(opplysningId: UUID) {
+        finnOpplysning(opplysningId).låsOpp()
+    }
+
     private fun fjern(
         opplysning: Opplysning<*>,
         skalOppfriske: Boolean = true,
     ) {
         // Fjern alle opplysninger som er utledet av opplysningen som fjernes
+        if (opplysning.erLåst) {
+            return
+        }
         fjernAvhengigheter(opplysning)
 
         if (egne.remove(opplysning)) {

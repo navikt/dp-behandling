@@ -67,7 +67,17 @@ Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=false
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Behandling endret tilstand til: Redigert
+Behov:
+- RegistrertSomArbeidssøker
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=false
 Behandling endret tilstand til: Redigert

@@ -36,8 +36,8 @@ abstract class PersonHendelse(
     fun lagBehov(informasjonsbehov: Informasjonsbehov) =
         informasjonsbehov.onEach { (behov, avhengigheter) ->
             behov(
-                type = OpplysningBehov(behov.behovId),
-                melding = "Trenger en opplysning (${behov.behovId})",
+                type = OpplysningBehov(behov.opplysningtype.behovId),
+                melding = "Trenger en opplysning (${behov.opplysningtype.behovId})",
                 detaljer =
                     avhengigheter.associate { avhengighet ->
                         val verdi =
@@ -46,7 +46,12 @@ abstract class PersonHendelse(
                                 else -> avhengighet.verdi
                             }
                         avhengighet.opplysningstype.behovId to verdi
-                    } + this.kontekstMap() + mapOf("@utledetAv" to avhengigheter.map { it.id }),
+                    } + this.kontekstMap() + mapOf("@utledetAv" to avhengigheter.map { it.id }) +
+                        buildMap {
+                            if (behov.utledetAvRegelsettNavn != null) {
+                                put("@utledetAvRegelsett", behov.utledetAvRegelsettNavn.toString())
+                            }
+                        },
             )
         }
 }

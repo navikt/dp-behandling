@@ -21,6 +21,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -115,6 +116,7 @@ internal class TestSaksbehandler2(
                         verdi = verdi,
                         tilstand = OpplysningSvar.Tilstand.Faktum,
                         gyldighetsperiode = gyldighetsperiode,
+                        utledetAvRegelsett = RegelverkDagpenger.regelsett.firstOrNull { it.produserer == opplysningstype }?.navn,
                         kilde =
                             Saksbehandlerkilde(
                                 meldingsreferanseId = meldingsreferanseId,

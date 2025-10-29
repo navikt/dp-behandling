@@ -10,8 +10,10 @@ data class Utledning(
     val regel: String,
     val opplysninger: List<Opplysning<*>>,
     val versjon: String? = System.getenv("NAIS_APP_IMAGE"),
+    val regelsettnavn: String? = null,
 ) {
-    internal constructor(regel: Regel<*>, opplysninger: List<Opplysning<*>>) : this(regel::class.java.simpleName, opplysninger)
+    internal constructor(regel: Regel<*>, opplysninger: List<Opplysning<*>>, regelsettnavn: String? = null) :
+        this(regel::class.java.simpleName, opplysninger, regelsettnavn = regelsettnavn)
 }
 
 sealed class Opplysning<T : Comparable<T>>(
@@ -25,6 +27,7 @@ sealed class Opplysning<T : Comparable<T>>(
     var erUtdatert: Boolean = false,
     private var _erstatter: Opplysning<T>? = null,
     private var _skalLagres: Boolean = false,
+    var erLåst: Boolean = false,
 ) : Klassifiserbart by opplysningstype {
     private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID }
 
@@ -50,6 +53,14 @@ sealed class Opplysning<T : Comparable<T>>(
         _erstatter = erstattet
     }
 
+    fun lås() {
+        erLåst = true
+    }
+
+    fun låsOpp() {
+        erLåst = false
+    }
+
     companion object {
         fun Collection<Opplysning<*>>.gyldigeFor(dato: LocalDate) = filter { it.gyldighetsperiode.inneholder(dato) }
     }
@@ -67,6 +78,7 @@ class Hypotese<T : Comparable<T>>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
+    erLåst: Boolean = false,
 ) : Opplysning<T>(
         id,
         opplysningstype,
@@ -78,6 +90,7 @@ class Hypotese<T : Comparable<T>>(
         false,
         erstatter,
         _skalLagres = skalLagres,
+        erLåst = erLåst,
     ) {
     constructor(
         opplysningstype: Opplysningstype<T>,
@@ -106,6 +119,7 @@ class Faktum<T : Comparable<T>>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
+    erLåst: Boolean = false,
 ) : Opplysning<T>(
         id,
         opplysningstype,
@@ -117,6 +131,7 @@ class Faktum<T : Comparable<T>>(
         false,
         erstatter,
         _skalLagres = skalLagres,
+        erLåst = erLåst,
     ) {
     constructor(
         opplysningstype: Opplysningstype<T>,
@@ -155,6 +170,7 @@ class Faktum<T : Comparable<T>>(
             kilde,
             opprettet,
             erstatter,
+            erLåst = erLåst,
         ).apply {
             erUtdatert = tilOgMed.erUtdatert
         }

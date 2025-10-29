@@ -29,6 +29,7 @@ import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import org.junit.jupiter.api.Test
 import java.time.format.DateTimeFormatter
 
@@ -164,9 +165,11 @@ class ScenarioTest {
 
             // Gjenoppta
             person.opprettBehandling(23.august(2018))
+            saksbehandler.endreOpplysning(prøvingsdato, 23.august(2018), "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
             saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(23.august(2018)))
 
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()

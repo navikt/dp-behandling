@@ -14,6 +14,8 @@ abstract class Regel<T : Comparable<T>> internal constructor(
     // todo: Bør dette være et Set? Vi er ikke avhengig av rekkefølge
     internal val avhengerAv: List<Opplysningstype<*>> = emptyList(),
 ) {
+    internal var regelsettnavn: String? = null
+
     init {
         require(avhengerAv.none { it == produserer }) {
             "Regel ${this::class.java.simpleName} kan ikke produsere samme opplysning ${produserer.navn} den er avhengig av"
@@ -30,6 +32,12 @@ abstract class Regel<T : Comparable<T>> internal constructor(
 
         if (opplysninger.har(produserer)) {
             val produkt = opplysninger.finnOpplysning(produserer)
+
+            if (produkt.erLåst) {
+                // Opplysningen er låst og skal ikke utledes på nytt
+                return
+            }
+
             if (produkt.utledetAv == null) {
                 // Opplysningen er ikke utledet av noe ELLER overstyrt av saksbehandler
                 return
@@ -108,7 +116,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
 
         val produkt = kjør(opplysninger)
         val erAlleFaktum = basertPå.all { it is Faktum<*> }
-        val utledetAv = Utledning(this, basertPå)
+        val utledetAv = Utledning(this, basertPå, regelsettnavn)
         val gyldighetsperiode = produserer.gyldighetsperiode(produkt, basertPå)
 
         return when (erAlleFaktum) {

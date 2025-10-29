@@ -19,6 +19,7 @@ class OpplysningSvarBygger<T : Comparable<T>>(
     private val tilstand: OpplysningSvar.Tilstand,
     private val gyldighetsperiode: Gyldighetsperiode?,
     private val utledetAv: List<UUID>,
+    private val utledetAvRegelsett: String?,
 ) {
     fun opplysningSvar() =
         OpplysningSvar(
@@ -28,6 +29,7 @@ class OpplysningSvarBygger<T : Comparable<T>>(
             kilde = kilde,
             gyldighetsperiode = gyldighetsperiode,
             utledetAv = utledetAv,
+            utledetAvRegelsett = utledetAvRegelsett,
         )
 
     interface VerdiMapper {
