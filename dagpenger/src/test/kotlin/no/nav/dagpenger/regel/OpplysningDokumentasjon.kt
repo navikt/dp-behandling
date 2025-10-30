@@ -128,8 +128,8 @@ class OpplysningDokumentasjon {
                 .groupBy({ it.first }, { it.second })
 
         avklaringer.sortedBy { it.kode }.forEach {
-            markdown.appendLine("## ${it.kode}")
-            markdown.appendLine("${it.tittel}\n")
+            markdown.appendLine("## ${it.tittel}")
+            markdown.appendLine("**Kode:** `${it.kode}`\n")
 
             if (regelsett[it] != null) {
                 markdown.appendLine("### Tilknyttet regelsett")
