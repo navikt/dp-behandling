@@ -139,7 +139,7 @@ class OpplysningDokumentasjon {
             if (regelsett[it] != null) {
                 markdown.appendLine("### Tilknyttet regelsett")
                 regelsett[it]?.forEach { bruktAv ->
-                    markdown.appendLine("- [${bruktAv.hjemmel}](./opplysninger.approved.md#${tilMarkdownURL(bruktAv.hjemmel.toString())}")
+                    markdown.appendLine("- [${bruktAv.hjemmel}](./opplysninger.approved.md#${tilMarkdownURL(bruktAv.hjemmel.toString())})")
                 }
             }
 
