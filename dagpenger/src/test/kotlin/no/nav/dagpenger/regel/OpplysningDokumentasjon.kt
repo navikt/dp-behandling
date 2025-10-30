@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel
 
 import com.spun.util.persistence.Loader
+import no.nav.dagpenger.opplysning.Avklaringkode.Companion.avklaringer
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
@@ -99,6 +100,61 @@ class OpplysningDokumentasjon {
 
         skriv("behov", markdown)
     }
+
+    @Test
+    fun `dokumenterer avklaringer`() {
+        val markdown = StringBuilder()
+        markdown.appendLine("# Avklaringer")
+
+        // language="Markdown"
+        markdown.appendLine(
+            """Avklaringer opprettes hvor regelmotoren er usikker på enten fakta eller riktig vei videre.
+                |
+            """.trimMargin(),
+        )
+        // language="Markdown"
+        markdown.appendLine(
+            """Avklaringer opprettes av "kontrollpunkt" som gjør en vurdering av opplysninger og ser om det avklaringen er nødvendig.
+                |
+                |Endringer i opplysninger vil automatisk lukke avklaringen om kontrollpunktet sier den ikke lengre er nødvendig.
+                |Tilsvarende vil avklaringen åpnes opp igjen om opplysningene endres.
+                |
+            """.trimMargin(),
+        )
+
+        val regelsett =
+            RegelverkDagpenger.regelsett
+                .flatMap { regel -> regel.avklaringer.map { it to regel } }
+                .groupBy({ it.first }, { it.second })
+
+        avklaringer.sortedBy { it.kode }.forEach {
+            markdown.appendLine("## ${it.kode}")
+            markdown.appendLine("${it.tittel}\n")
+
+            if (regelsett[it] != null) {
+                markdown.appendLine("### Tilknyttet regelsett")
+                regelsett[it]?.forEach { bruktAv ->
+                    markdown.appendLine("- ${bruktAv.hjemmel}")
+                }
+            }
+
+            if (it.beskrivelse.isNotEmpty()) {
+                markdown.appendLine("### Beskrivelse")
+                markdown.appendLine("${newlineToBr(it.beskrivelse)}\n")
+            }
+
+            if (!it.kanKvitteres) markdown.appendLine("❌ Kan ikke kvitteres\n")
+            if (!it.kanAvbrytes) markdown.appendLine("❌ Kan ikke avbrytes\n")
+
+            markdown.appendLine("---")
+        }
+
+        skriv("avklaringer", markdown.toString())
+    }
+
+    private fun newlineToBr(tekst: String) = tekst.replace("\n", "<br>")
+
+    private fun boolskSymbol(value: Boolean) = if (value) "✅" else "❌"
 
     private companion object {
         val path = "${Paths.get("").toAbsolutePath().toString().substringBeforeLast("/")}/docs/"

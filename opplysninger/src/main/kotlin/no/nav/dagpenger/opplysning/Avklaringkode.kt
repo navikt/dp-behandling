@@ -9,6 +9,10 @@ data class Avklaringkode(
     // Om systemet kan automatisk avbryte avklaringen
     val kanAvbrytes: Boolean = true,
 ) {
+    init {
+        avklaringer.add(this)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Avklaringkode) return false
@@ -16,4 +20,8 @@ data class Avklaringkode(
     }
 
     override fun hashCode() = kode.hashCode()
+
+    companion object {
+        val avklaringer = mutableSetOf<Avklaringkode>()
+    }
 }
