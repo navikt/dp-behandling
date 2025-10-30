@@ -44,7 +44,7 @@ class OpplysningDokumentasjon {
                 markdown.appendLine("#### Avklaringer")
 
                 regelsett.avklaringer.forEach {
-                    markdown.appendLine("- ${it.kode} - ${it.tittel}")
+                    markdown.appendLine("- ${it.kode} - [${it.tittel}](./avklaringer.approved.md#${tilMarkdownURL(it.tittel)})")
                 }
             }
 
@@ -53,7 +53,7 @@ class OpplysningDokumentasjon {
 
                 markdown.appendLine("#### Avhenger på data fra")
                 andreRegeverk.forEach { (avhengighet, _) ->
-                    markdown.appendLine("- ${avhengighet.hjemmel}")
+                    markdown.appendLine("- [${avhengighet.hjemmel}](#${tilMarkdownURL(avhengighet.hjemmel.toString())})")
                 }
             }
 
@@ -139,7 +139,7 @@ class OpplysningDokumentasjon {
             if (regelsett[it] != null) {
                 markdown.appendLine("### Tilknyttet regelsett")
                 regelsett[it]?.forEach { bruktAv ->
-                    markdown.appendLine("- ${bruktAv.hjemmel}")
+                    markdown.appendLine("- [${bruktAv.hjemmel}](./opplysninger.approved.md#${tilMarkdownURL(bruktAv.hjemmel.toString())}")
                 }
             }
 
@@ -152,9 +152,14 @@ class OpplysningDokumentasjon {
         skriv("avklaringer", markdown.toString())
     }
 
-    private fun newlineToBr(tekst: String) = tekst.replace("\n", "<br>")
+    private fun tilMarkdownURL(tekst: String) =
+        tekst
+            .lowercase()
+            .replace("§", "")
+            .replace(".", "")
+            .replace(" ", "-")
 
-    private fun boolskSymbol(value: Boolean) = if (value) "✅" else "❌"
+    private fun newlineToBr(tekst: String) = tekst.replace("\n", "<br>")
 
     private companion object {
         val path = "${Paths.get("").toAbsolutePath().toString().substringBeforeLast("/")}/docs/"

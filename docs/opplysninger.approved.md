@@ -35,8 +35,8 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 0-0. Rettighetstype
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
-- § 4-19. Dagpenger etter avtjent verneplikt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -52,7 +52,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
 #### Avklaringer
-- VirkningstidspunktForLangtFramItid - Virkningstidspunkt ligger for langt fram i tid
+- VirkningstidspunktForLangtFramItid - [Virkningstidspunkt ligger for langt fram i tid](./avklaringer.approved.md#virkningstidspunkt-ligger-for-langt-fram-i-tid)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -64,9 +64,9 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-2. Opphold i Norge
 *Type:* Vilkår
 #### Avklaringer
-- Bostedsland - Bruker har oppgitt bostedsland som ikke er Norge
+- Bostedsland - [Bruker har oppgitt bostedsland som ikke er Norge](./avklaringer.approved.md#bruker-har-oppgitt-bostedsland-som-ikke-er-norge)
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -80,7 +80,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 1-2. Frist for levering av opplysninger
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -90,14 +90,14 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-3. Tap av arbeidsinntekt og arbeidstid
 *Type:* Vilkår
 #### Avklaringer
-- TapAvArbeidsinntektOgArbeidstid - Velg kun en beregningsregel for tap av arbeidsinntekt og arbeidstid
-- BeregnetArbeidstid - Sjekk om beregnet arbeidstid er korrekt
+- TapAvArbeidsinntektOgArbeidstid - [Velg kun en beregningsregel for tap av arbeidsinntekt og arbeidstid](./avklaringer.approved.md#velg-kun-en-beregningsregel-for-tap-av-arbeidsinntekt-og-arbeidstid)
+- BeregnetArbeidstid - [Sjekk om beregnet arbeidstid er korrekt](./avklaringer.approved.md#sjekk-om-beregnet-arbeidstid-er-korrekt)
 #### Avhenger på data fra
-- § 0-0. Rettighetstype
-- § 3-1. Søknadstidspunkt
-- § 4-3. Fastsettelse av arbeidstid
-- § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
-- § 4-19. Dagpenger etter avtjent verneplikt
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-3. Fastsettelse av arbeidstid](#-4-3-fastsettelse-av-arbeidstid)
+- [§ 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien](#-6-7-permittering-i-fiskeforedlingsindustrien,-sjømatindustrien-og-fiskeoljeindustrien)
+- [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -119,9 +119,9 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-3. Fastsettelse av arbeidstid
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- § 4-3. Tap av arbeidsinntekt og arbeidstid
-- § 4-5. Reelle arbeidssøkere
-- § 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon
+- [§ 4-3. Tap av arbeidsinntekt og arbeidstid](#-4-3-tap-av-arbeidsinntekt-og-arbeidstid)
+- [§ 4-5. Reelle arbeidssøkere](#-4-5-reelle-arbeidssøkere)
+- [§ 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon](#-4-25-samordning-med-reduserte-ytelser-fra-folketrygden,-eller-redusert-avtalefestet-pensjon)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -129,11 +129,11 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-4. Krav til minsteinntekt
 *Type:* Vilkår
 #### Avklaringer
-- SvangerskapsrelaterteSykepenger - Sjekk om søker har fått sykepenger på grunn av svangerskap som skal med i minsteinntekt
-- InntektNesteKalendermåned - Sjekk om inntekt for neste måned er relevant
+- SvangerskapsrelaterteSykepenger - [Sjekk om søker har fått sykepenger på grunn av svangerskap som skal med i minsteinntekt](./avklaringer.approved.md#sjekk-om-søker-har-fått-sykepenger-på-grunn-av-svangerskap-som-skal-med-i-minsteinntekt)
+- InntektNesteKalendermåned - [Sjekk om inntekt for neste måned er relevant](./avklaringer.approved.md#sjekk-om-inntekt-for-neste-måned-er-relevant)
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
-- § 1-2. Frist for levering av opplysninger
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 1-2. Frist for levering av opplysninger](#-1-2-frist-for-levering-av-opplysninger)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -154,10 +154,10 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-5. Reelle arbeidssøkere
 *Type:* Vilkår
 #### Avklaringer
-- ReellArbeidssøkerUnntak - Sjekk om søker oppfyller unntak til å være reell arbeidssøker
-- IkkeRegistrertSomArbeidsøker - Søker er ikke registrert som arbeidssøker
+- ReellArbeidssøkerUnntak - [Sjekk om søker oppfyller unntak til å være reell arbeidssøker](./avklaringer.approved.md#sjekk-om-søker-oppfyller-unntak-til-å-være-reell-arbeidssøker)
+- IkkeRegistrertSomArbeidsøker - [Søker er ikke registrert som arbeidssøker](./avklaringer.approved.md#søker-er-ikke-registrert-som-arbeidssøker)
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -179,7 +179,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-5. Reelle arbeidssøkere - registrert som arbeidssøker
 *Type:* Vilkår
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -188,7 +188,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v
 *Type:* Vilkår
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -207,9 +207,9 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-7. Dagpenger til permitterte
 *Type:* Vilkår
 #### Avklaringer
-- HarOppgittPermittering - Sjekk om bruker skal ha dagpenger som permittert
+- HarOppgittPermittering - [Sjekk om bruker skal ha dagpenger som permittert](./avklaringer.approved.md#sjekk-om-bruker-skal-ha-dagpenger-som-permittert)
 #### Avhenger på data fra
-- § 0-0. Rettighetstype
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -219,7 +219,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-7. Dagpenger til permitterte
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -227,10 +227,10 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Vilkår
 #### Avklaringer
-- HarOppgittPermitteringFiskeindustri - Sjekk om bruker skal ha dagpenger som permittert fra fiskeindustrien
+- HarOppgittPermitteringFiskeindustri - [Sjekk om bruker skal ha dagpenger som permittert fra fiskeindustrien](./avklaringer.approved.md#sjekk-om-bruker-skal-ha-dagpenger-som-permittert-fra-fiskeindustrien)
 #### Avhenger på data fra
-- § 0-0. Rettighetstype
-- § 3-1. Søknadstidspunkt
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -241,7 +241,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -254,9 +254,9 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-9. Egenandel
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- § 0-0. Rettighetstype
-- § 3-1. Søknadstidspunkt
-- § 4-12. Dagpengenes størrelse
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-12. Dagpengenes størrelse](#-4-12-dagpengenes-størrelse)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -267,11 +267,11 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-11. Dagpengegrunnlag
 *Type:* Fastsettelse
 #### Avklaringer
-- NyttGrunnbeløpForGrunnlag - Grunnbeløpet for dagpengegrunnlag kan være utdatert
+- NyttGrunnbeløpForGrunnlag - [Grunnbeløpet for dagpengegrunnlag kan være utdatert](./avklaringer.approved.md#grunnbeløpet-for-dagpengegrunnlag-kan-være-utdatert)
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
-- § 4-4. Krav til minsteinntekt
-- § 4-19. Dagpenger etter avtjent verneplikt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-4. Krav til minsteinntekt](#-4-4-krav-til-minsteinntekt)
+- [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -306,11 +306,11 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-12. Dagpengenes størrelse
 *Type:* Fastsettelse
 #### Avklaringer
-- BarnMåGodkjennes - Sjekk hvilke barn som skal gi barnetillegg
+- BarnMåGodkjennes - [Sjekk hvilke barn som skal gi barnetillegg](./avklaringer.approved.md#sjekk-hvilke-barn-som-skal-gi-barnetillegg)
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
-- § 4-11. Dagpengegrunnlag
-- § 4-26. Samordning med ytelser utenfor folketrygden
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
+- [§ 4-26. Samordning med ytelser utenfor folketrygden](#-4-26-samordning-med-ytelser-utenfor-folketrygden)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -339,9 +339,9 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-15. Antall stønadsuker (stønadsperiode)
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
-- § 4-4. Krav til minsteinntekt
-- § 4-11. Dagpengegrunnlag
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-4. Krav til minsteinntekt](#-4-4-krav-til-minsteinntekt)
+- [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -364,9 +364,9 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer
-- Verneplikt - Sjekk om søker oppfyller vilkåret til dagpenger ved avtjent verneplikt
+- Verneplikt - [Sjekk om søker oppfyller vilkåret til dagpenger ved avtjent verneplikt](./avklaringer.approved.md#sjekk-om-søker-oppfyller-vilkåret-til-dagpenger-ved-avtjent-verneplikt)
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -375,9 +375,9 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- § 0-0. Rettighetstype
-- § 3-1. Søknadstidspunkt
-- § 4-11. Dagpengegrunnlag
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -399,7 +399,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-23. Bortfall på grunn av alder
 *Type:* Vilkår
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -411,7 +411,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-24. Medlem som har fulle ytelser etter folketrygdloven eller avtalefestet pensjon
 *Type:* Vilkår
 #### Avklaringer
-- FulleYtelser - Sjekk om søker har andre fulle ytelser
+- FulleYtelser - [Sjekk om søker har andre fulle ytelser](./avklaringer.approved.md#sjekk-om-søker-har-andre-fulle-ytelser)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -419,11 +419,11 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon
 *Type:* Vilkår
 #### Avklaringer
-- Samordning - Sjekk om det er andre ytelser fra folketrygden som skal samordnes
+- Samordning - [Sjekk om det er andre ytelser fra folketrygden som skal samordnes](./avklaringer.approved.md#sjekk-om-det-er-andre-ytelser-fra-folketrygden-som-skal-samordnes)
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
-- § 4-3. Tap av arbeidsinntekt og arbeidstid
-- § 4-12. Dagpengenes størrelse
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-3. Tap av arbeidsinntekt og arbeidstid](#-4-3-tap-av-arbeidsinntekt-og-arbeidstid)
+- [§ 4-12. Dagpengenes størrelse](#-4-12-dagpengenes-størrelse)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
@@ -454,12 +454,12 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-26. Samordning med ytelser utenfor folketrygden
 *Type:* Fastsettelse
 #### Avklaringer
-- YtelserUtenforFolketrygden - Sjekk om det er ytelser utenfor folketrygden som skal samordnes
+- YtelserUtenforFolketrygden - [Sjekk om det er ytelser utenfor folketrygden som skal samordnes](./avklaringer.approved.md#sjekk-om-det-er-ytelser-utenfor-folketrygden-som-skal-samordnes)
 #### Avhenger på data fra
-- § 3-1. Søknadstidspunkt
-- § 4-11. Dagpengegrunnlag
-- § 4-12. Dagpengenes størrelse
-- § 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
+- [§ 4-12. Dagpengenes størrelse](#-4-12-dagpengenes-størrelse)
+- [§ 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon](#-4-25-samordning-med-reduserte-ytelser-fra-folketrygden,-eller-redusert-avtalefestet-pensjon)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
