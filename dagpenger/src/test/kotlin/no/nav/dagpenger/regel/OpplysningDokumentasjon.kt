@@ -131,16 +131,16 @@ class OpplysningDokumentasjon {
             markdown.appendLine("## ${it.tittel}")
             markdown.appendLine("**Kode:** `${it.kode}`\n")
 
+            if (it.beskrivelse.isNotEmpty()) {
+                markdown.appendLine("### Beskrivelse")
+                markdown.appendLine("${newlineToBr(it.beskrivelse)}\n")
+            }
+
             if (regelsett[it] != null) {
                 markdown.appendLine("### Tilknyttet regelsett")
                 regelsett[it]?.forEach { bruktAv ->
                     markdown.appendLine("- ${bruktAv.hjemmel}")
                 }
-            }
-
-            if (it.beskrivelse.isNotEmpty()) {
-                markdown.appendLine("### Beskrivelse")
-                markdown.appendLine("${newlineToBr(it.beskrivelse)}\n")
             }
 
             if (!it.kanKvitteres) markdown.appendLine("❌ Kan ikke kvitteres\n")
