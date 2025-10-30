@@ -12,9 +12,14 @@ class OpplysningstyperDokumentasjon {
     val opplysninger = RegelverkDagpenger.produserer + fagsakIdOpplysningstype
 
     @Test
-    fun `henter ut hvilken hvilke opplysninger som brukes`() {
+    fun `opplysninger gruppert etter regelsett`() {
+        val regelverk =
+            RegelverkDagpenger.regelsett.sortedBy { it.hjemmel.paragraf }.associateWith {
+                it.produserer
+            }
         val markdown =
-            """
+            StringBuilder(
+                """
             ># Dokumentasjon av opplysninger
             >
             >Dette er opplysninger som blir brukt av regelverket. 
@@ -24,17 +29,49 @@ class OpplysningstyperDokumentasjon {
             > For nye opplysningtyper, generer en ny UUID og legg til.
             > 
             > Generering av UUID kan gjøres med UUIDv7.ny() i Kotlin
-            >
-            >|UUID|Beskrivelse|Behov|Logisk datatype|Datatype|
-            >|--|---|---|---|---|
-            ${
-                opplysninger.sortedBy { it.id.uuid }.joinToString("\n") {
-                    ">|${it.id.uuid}|${it.navn}|${it.behovId}|${it.datatype}|${it.datatype.klasse.simpleName}|"
+            >""".trimMargin(">"),
+            )
+
+        markdown.appendLine("## Regelsett")
+        regelverk.forEach { (regelsett, opplysninger) ->
+            markdown.appendLine("### ${regelsett.hjemmel}")
+            markdown.appendLine("*Type:* ${regelsett.type}")
+
+            if (regelsett.avklaringer.isNotEmpty()) {
+                markdown.appendLine("#### Avklaringer")
+
+                regelsett.avklaringer.forEach {
+                    markdown.appendLine("- ${it.kode} - ${it.tittel}")
                 }
             }
-            """.trimMargin(">")
 
-        skriv(markdown)
+            if (regelsett.avhengerAv.isNotEmpty()) {
+                val andreRegeverk = regelverk.filter { (_, produserer) -> produserer.any { it in regelsett.avhengerAv } }
+
+                markdown.appendLine("#### Avhenger på data fra")
+                andreRegeverk.forEach { (avhengighet, _) ->
+                    markdown.appendLine("- ${avhengighet.hjemmel}")
+                }
+            }
+
+            markdown.appendLine(
+                """
+                >#### Opplysninger
+                >|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
+                >|---|---|---|---|---|
+                """.trimMargin(">"),
+            )
+
+            opplysninger.sortedBy { it.id.uuid }.forEach {
+                val behovId = if (it.navn == it.behovId) "" else it.behovId
+
+                markdown.appendLine(
+                    "|${it.id.uuid}|${it.navn}|${it.datatype}|${it.datatype.klasse.simpleName}|$behovId|",
+                )
+            }
+        }
+
+        skriv(markdown.toString())
     }
 
     private companion object {
