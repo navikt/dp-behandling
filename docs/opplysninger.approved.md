@@ -56,11 +56,11 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
-|0194881f-91d1-7df2-ba1d-4533f37fcc73|Søknadsdato|Dato|LocalDate||
+|0194881f-91d1-7df2-ba1d-4533f37fcc73|Søknadsdato|Dato|LocalDate|Søknadsdato|
 |0194881f-91d1-7df2-ba1d-4533f37fcc74|Ønsker dagpenger fra dato|Dato|LocalDate|ØnskerDagpengerFraDato|
 |0194881f-91d1-7df2-ba1d-4533f37fcc75|Søknadstidspunkt|Dato|LocalDate||
 |0194881f-91d1-7df2-ba1d-4533f37fcc76|Prøvingsdato|Dato|LocalDate||
-|0194881f-91d1-7df2-ba1d-4533f37fcc77|søknadId|Tekst|String||
+|0194881f-91d1-7df2-ba1d-4533f37fcc77|søknadId|Tekst|String|søknadId|
 ### § 4-2. Opphold i Norge
 *Type:* Vilkår
 #### Avklaringer
@@ -70,7 +70,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
-|0194881f-9443-72b4-8b30-5f6cdb24d549|Bruker oppholder seg i Norge|Boolsk|boolean|OppholdINorge|
+|0194881f-9443-72b4-8b30-5f6cdb24d549|Bruker oppholder seg i Norge|Boolsk|boolean||
 |0194881f-9443-72b4-8b30-5f6cdb24d54a|Oppfyller unntak for opphold i Norge|Boolsk|boolean||
 |0194881f-9443-72b4-8b30-5f6cdb24d54b|Oppfyller kravet til opphold i Norge eller unntak|Boolsk|boolean||
 |0194881f-9443-72b4-8b30-5f6cdb24d54c|Bruker er medlem av folketrygden|Boolsk|boolean||
@@ -86,7 +86,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|
 |0194881f-9414-7823-8d29-0e25b7feb7ce|Lovpålagt rapporteringsfrist for A-ordningen|Dato|LocalDate||
 |0194881f-9414-7823-8d29-0e25b7feb7cf|Arbeidsgivers rapporteringsfrist|Dato|LocalDate||
-|0194881f-9414-7823-8d29-0e25b7feb7d0|Siste avsluttende kalendermåned|Dato|LocalDate|SisteAvsluttendeKalenderMåned|
+|0194881f-9414-7823-8d29-0e25b7feb7d0|Siste avsluttende kalendermåned|Dato|LocalDate||
 ### § 4-3. Tap av arbeidsinntekt og arbeidstid
 *Type:* Vilkår
 #### Avklaringer
@@ -139,13 +139,13 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|
 |0194881f-9413-77ce-92ec-d29700f0423f|Antall G for krav til 12 mnd arbeidsinntekt|Desimaltall|double||
 |0194881f-9413-77ce-92ec-d29700f04240|Antall G for krav til 36 mnd arbeidsinntekt|Desimaltall|double||
-|0194881f-9413-77ce-92ec-d29700f04241|Arbeidsinntekt siste 12 måneder|Penger|Beløp|InntektSiste12Mnd|
-|0194881f-9413-77ce-92ec-d29700f04242|Arbeidsinntekt siste 36 måneder|Penger|Beløp|InntektSiste36Mnd|
+|0194881f-9413-77ce-92ec-d29700f04241|Arbeidsinntekt siste 12 måneder|Penger|Beløp||
+|0194881f-9413-77ce-92ec-d29700f04242|Arbeidsinntekt siste 36 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04243|Grunnbeløp|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04244|Inntektsopplysninger|InntektDataType|Inntekt|Inntekt|
 |0194881f-9413-77ce-92ec-d29700f04245|Brutto arbeidsinntekt|InntektDataType|Inntekt||
 |0194881f-9413-77ce-92ec-d29700f04246|Maks lengde på opptjeningsperiode|Heltall|int||
-|0194881f-9413-77ce-92ec-d29700f04247|Første måned av opptjeningsperiode|Dato|LocalDate|OpptjeningsperiodeFraOgMed|
+|0194881f-9413-77ce-92ec-d29700f04247|Første måned av opptjeningsperiode|Dato|LocalDate||
 |0194881f-9413-77ce-92ec-d29700f04248|Inntektskrav for siste 12 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04249|Inntektskrav for siste 36 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f0424a|Arbeidsinntekt er over kravet for siste 12 måneder|Boolsk|boolean||
@@ -403,7 +403,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
-|0194881f-940b-76ff-acf5-ba7bcb367233|Fødselsdato|Dato|LocalDate||
+|0194881f-940b-76ff-acf5-ba7bcb367233|Fødselsdato|Dato|LocalDate|Fødselsdato|
 |0194881f-940b-76ff-acf5-ba7bcb367234|Aldersgrense|Heltall|int||
 |0194881f-940b-76ff-acf5-ba7bcb367235|Dato søker når maks alder|Dato|LocalDate||
 |0194881f-940b-76ff-acf5-ba7bcb367236|Siste mulige dag bruker kan oppfylle alderskrav|Dato|LocalDate||
@@ -431,7 +431,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9433-70e9-a85b-c246150c45ce|Pleiepenger etter lovens kapittel 9|Boolsk|boolean|Pleiepenger|
 |0194881f-9433-70e9-a85b-c246150c45cf|Omsorgspenger etter lovens kapittel 9|Boolsk|boolean|Omsorgspenger|
 |0194881f-9433-70e9-a85b-c246150c45d0|Opplæringspenger etter lovens kapittel 9|Boolsk|boolean|Opplæringspenger|
-|0194881f-9433-70e9-a85b-c246150c45d1|Uføretrygd etter lovens kapittel 12|Boolsk|boolean|Uføre|
+|0194881f-9433-70e9-a85b-c246150c45d1|Uføretrygd etter lovens kapittel 12|Boolsk|boolean||
 |0194881f-9433-70e9-a85b-c246150c45d2|Foreldrepenger etter lovens kapittel 14|Boolsk|boolean|Foreldrepenger|
 |0194881f-9433-70e9-a85b-c246150c45d3|Svangerskapspenger etter lovens kapittel 14|Boolsk|boolean|Svangerskapspenger|
 |0194881f-9433-70e9-a85b-c246150c45d4|Sykepenger dagsats|Penger|Beløp||

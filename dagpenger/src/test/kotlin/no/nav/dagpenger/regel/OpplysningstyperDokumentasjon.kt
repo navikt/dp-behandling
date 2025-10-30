@@ -17,6 +17,8 @@ class OpplysningstyperDokumentasjon {
             RegelverkDagpenger.regelsett.sortedBy { it.hjemmel.paragraf }.associateWith {
                 it.produserer
             }
+
+        val behov = RegelverkDagpenger.regelsett.flatMap { it.behov }
         val markdown =
             StringBuilder(
                 """
@@ -63,7 +65,7 @@ class OpplysningstyperDokumentasjon {
             )
 
             opplysninger.sortedBy { it.id.uuid }.forEach {
-                val behovId = if (it.navn == it.behovId) "" else it.behovId
+                val behovId = if (it in behov) it.behovId else ""
 
                 markdown.appendLine(
                     "|${it.id.uuid}|${it.navn}|${it.datatype}|${it.datatype.klasse.simpleName}|$behovId|",
