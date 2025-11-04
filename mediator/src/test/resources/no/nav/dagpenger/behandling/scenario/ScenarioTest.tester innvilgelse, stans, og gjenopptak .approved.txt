@@ -62,9 +62,48 @@ Forslag til vedtak med utfall=false
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
 Har fattet vedtak med utfall=false
-Laget avklaring om ManuellBehandling
+Laget avklaring om GjenopptakBehandling
+Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
+Behov:
+- Søknadsdato
+- ØnskerDagpengerFraDato
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+- RegistrertSomArbeidssøker
+- Ordinær
+- Permittert
+- Lønnsgaranti
+- PermittertFiskeforedling
+- Verneplikt
+- Inntekt
+- Barnetillegg
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
+Laget avklaring om BarnMåGodkjennes
+Laget avklaring om EØSArbeid
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om InntektNesteKalendermåned
+Laget avklaring om JobbetUtenforNorge
+Laget avklaring om MuligGjenopptak
+Behov:
+- RegistrertSomArbeidssøker
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=false
 Behandling endret tilstand til: Redigert

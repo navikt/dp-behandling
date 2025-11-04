@@ -2,11 +2,15 @@ package no.nav.dagpenger.behandling.scenario
 
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus.Arvet
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.regel.Minsteinntekt
+import no.nav.dagpenger.regel.Opphold
 import org.junit.jupiter.api.Test
 
 // Tester ulike scenarier for kjeding av behandlinger
@@ -210,20 +214,46 @@ class KjedescenarioTest {
         nyttScenario {
             inntektSiste12Mnd = 500000
         }.test {
-            person.søkDagpenger(21.juni(2015))
+            person.søkDagpenger(11.juni(2015))
 
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+
+                with(opplysninger(Minsteinntekt.minsteinntekt)) {
+                    this shouldHaveSize 1
+                    single().gyldigFraOgMed shouldBe 11.juni(2015)
+                }
+            }
+
             val behandling1 = person.behandlingId
 
             // Søker på nytt etter innvilgelse, blir kjedet på forrige behandling
-            person.søkDagpenger(21.juni(2015))
+            person.søkGjenopptak(21.juni(2015))
 
-            // Ny behandling har blitt kjedet på forrige behandling
-            person.behandling.basertPåBehandling shouldBe behandling1
+            // Opplysninger fra søknaden hentes inn på nytt
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                // Ny behandling har blitt kjedet på forrige behandling
+                basertPå shouldBe behandling1
+
+                // Vi gjenbruker vurderingen av minsteinntekt fra forrige behandling
+                with(opplysninger(Minsteinntekt.minsteinntekt)) {
+                    this shouldHaveSize 1
+                    single().gyldigFraOgMed shouldBe 21.juni(2015)
+                    single().verdi.verdi shouldBe true
+                    single().status shouldBe Arvet
+                }
+
+                with(opplysninger(Opphold.oppfyllerKravet)) {
+                    this shouldHaveSize 2
+                }
+            }
         }
     }
 

@@ -11,10 +11,12 @@ class HvisSannMedResultat<T : Comparable<T>>(
 ) : Regel<T>(produserer, listOf(sjekk, hvisSann, hvisUsann)) {
     override fun kjør(opplysninger: LesbarOpplysninger): T {
         val sjekk = opplysninger.finnOpplysning(sjekk).verdi
-        val hvisSann = opplysninger.finnOpplysning(hvisSann).verdi
-        val hvisUsann = opplysninger.finnOpplysning(hvisUsann).verdi
 
-        return if (sjekk) hvisSann else hvisUsann
+        return if (sjekk) {
+            opplysninger.finnOpplysning(hvisSann).verdi
+        } else {
+            opplysninger.finnOpplysning(hvisUsann).verdi
+        }
     }
 
     override fun toString() = "Hvis $sjekk er sann, returner $hvisSann, ellers returner $hvisUsann"

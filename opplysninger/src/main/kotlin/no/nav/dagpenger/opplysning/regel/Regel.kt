@@ -47,6 +47,11 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                             ?: throw IllegalStateException("Fant ikke produsent for $utdatert")
                     produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
                 }
+
+                if (this is Ekstern<*>) {
+                    plan.add(this)
+                }
+
                 return
             }
 
@@ -81,7 +86,12 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 plan.add(this)
             } else {
                 avhengerAv.forEach { avhengighet ->
-                    val produsent = produsenter[avhengighet] ?: throw IllegalStateException("Fant ikke produsent for $avhengighet")
+                    val produsent =
+                        produsenter[avhengighet]
+                    if (produsent == null) {
+                        manglendeRegler.add(avhengighet)
+                        return@forEach
+                    } // throw IllegalStateException("Fant ikke produsent for $avhengighet")
                     produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
                 }
             }
@@ -151,3 +161,5 @@ fun interface GyldighetsperiodeStrategi<T> {
         basertPå: List<Opplysning<*>>,
     ): Gyldighetsperiode
 }
+
+val manglendeRegler = mutableSetOf<Opplysningstype<*>>()

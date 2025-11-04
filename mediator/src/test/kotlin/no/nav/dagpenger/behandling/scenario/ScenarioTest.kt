@@ -81,8 +81,9 @@ class ScenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak {
-                utfall shouldBe true
+            behandlingsresultat {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
             }
         }
     }
@@ -163,7 +164,9 @@ class ScenarioTest {
             }
 
             // Gjenoppta
-            person.opprettBehandling(23.august(2018))
+            person.søkGjenopptak(23.august(2018))
+            behovsløsere.løsTilForslag()
+
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
             saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(23.august(2018)))
 

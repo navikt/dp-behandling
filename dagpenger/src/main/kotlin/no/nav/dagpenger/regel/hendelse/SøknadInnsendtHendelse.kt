@@ -35,7 +35,7 @@ class SøknadInnsendtHendelse(
     opprettet: LocalDateTime,
     val søknadstype: Søknadstype,
 ) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
-    override val forretningsprosess = Søknadsprosess()
+    override val forretningsprosess = Søknadsprosess(søknadstype == Søknadstype.Gjenopptak)
 
     override fun behandling(
         forrigeBehandling: Behandling?,
@@ -83,15 +83,6 @@ class SøknadInnsendtHendelse(
                     if (basertPå == null) {
                         add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)))
                     }
-                    add(Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = Systemkilde(meldingsreferanseId, opprettet)))
-                    add(
-                        Faktum(
-                            hendelseTypeOpplysningstype,
-                            type,
-                            gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
-                            kilde = Systemkilde(meldingsreferanseId, opprettet),
-                        ),
-                    )
                 },
             avklaringer =
                 buildList {
@@ -103,7 +94,24 @@ class SøknadInnsendtHendelse(
                         }
                     }
                 },
-        )
+        ).also {
+            it.opplysninger.leggTil(
+                Faktum(
+                    søknadIdOpplysningstype,
+                    eksternId.id.toString(),
+                    kilde = Systemkilde(meldingsreferanseId, opprettet),
+                    gyldighetsperiode = Gyldighetsperiode(skjedde),
+                ),
+            )
+            it.opplysninger.leggTil(
+                Faktum(
+                    hendelseTypeOpplysningstype,
+                    type,
+                    gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
+                    kilde = Systemkilde(meldingsreferanseId, opprettet),
+                ),
+            )
+        }
     }
 
     companion object {

@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
@@ -33,10 +34,19 @@ import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
-class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
+class Søknadsprosess(
+    val erGjenopptak: Boolean = false,
+) : Forretningsprosess(RegelverkDagpenger) {
     init {
         registrer(RettighetsperiodePlugin(regelverk))
     }
+
+    override fun regelsett(): List<Regelsett> =
+        if (erGjenopptak) {
+            super.regelsett().minus(Minsteinntekt.regelsett)
+        } else {
+            super.regelsett()
+        }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(
@@ -94,9 +104,9 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         { forDato(prøvingsdato(this)) }
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.har(Søknadstidspunkt.prøvingsdato)) {
+        if (opplysninger.kunEgne.har(Søknadstidspunkt.prøvingsdato)) {
             opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
-        } else if (opplysninger.har(hendelseTypeOpplysningstype)) {
+        } else if (opplysninger.kunEgne.har(hendelseTypeOpplysningstype)) {
             opplysninger.finnOpplysning(hendelseTypeOpplysningstype).gyldighetsperiode.fraOgMed
         } else {
             throw IllegalStateException("Mangler både prøvingsdato og hendelsedato. Må ha en dato å ta utgangspunkt i for behandlingen.")

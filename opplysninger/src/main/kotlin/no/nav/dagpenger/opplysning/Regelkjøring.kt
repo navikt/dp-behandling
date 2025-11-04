@@ -108,7 +108,7 @@ class Regelkjøring(
 
         // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
         val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
-        opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
+        // opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
@@ -131,6 +131,13 @@ class Regelkjøring(
         opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = gjeldendeRegler.associateBy { it.produserer }
+        val (yesMen, noMen) =
+            forretningsprosess.regelverk.regelsett
+                .partition { it.skalKjøres(opplysningerPåPrøvingsdato) }
+        val produenter =
+            yesMen
+                .flatMap { it.regler(regelverksdato) }
+                .associateBy { it.produserer }
         val besøkt = mutableSetOf<Regel<*>>()
 
         ønsketResultat.forEach { opplysningstype ->

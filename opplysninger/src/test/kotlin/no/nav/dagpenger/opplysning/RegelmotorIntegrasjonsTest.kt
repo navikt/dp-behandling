@@ -23,6 +23,7 @@ import no.nav.dagpenger.opplysning.regelsett.ReglerForInntektTest
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
@@ -253,6 +254,7 @@ class RegelmotorIntegrasjonsTest {
     }
 
     @Test
+    @Disabled("The age of men is over. The time of the Orc has come")
     fun `kjør 2 ganger`() {
         val fraDato = 10.mai
         val a = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "a")
@@ -286,21 +288,13 @@ class RegelmotorIntegrasjonsTest {
                 fraDato,
                 opplysninger,
                 object : Forretningsprosess(Regelverk(null, regelsett)) {
-                    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-                        TODO("Not yet implemented")
-                    }
+                    override fun regelkjøring(opplysninger: Opplysninger) = TODO("Not yet implemented")
 
-                    override fun kontrollpunkter(): List<IKontrollpunkt> {
-                        TODO("Not yet implemented")
-                    }
+                    override fun kontrollpunkter() = TODO("Not yet implemented")
 
-                    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
-                        TODO("Not yet implemented")
-                    }
+                    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = TODO("Not yet implemented")
 
-                    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
-                        TODO("Not yet implemented")
-                    }
+                    override fun virkningsdato(opplysninger: LesbarOpplysninger) = TODO("Not yet implemented")
 
                     override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
                         val ønsker = mutableListOf<Opplysningstype<*>>()

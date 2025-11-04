@@ -21,7 +21,7 @@ abstract class Forretningsprosess(
 
     open fun rettighetsperioder(opplysninger: LesbarOpplysninger) = regelverk.rettighetsperioder(opplysninger)
 
-    fun regelsett() = regelverk.regelsett
+    open fun regelsett() = regelverk.regelsett
 
     fun registrer(handler: ProsessPlugin) = plugins.add(handler)
 

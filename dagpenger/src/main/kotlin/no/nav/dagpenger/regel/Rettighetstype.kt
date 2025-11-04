@@ -25,7 +25,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
 import no.nav.dagpenger.regel.OpplysningsTyper.SkalVernepliktVurderesId
-import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.Verneplikt.avtjentVerneplikt
 
