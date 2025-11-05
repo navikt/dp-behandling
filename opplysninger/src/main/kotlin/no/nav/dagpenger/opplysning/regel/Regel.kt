@@ -43,8 +43,9 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 // Minst en av opplysningene som regelen er avhengig av er utdatert, regelen skal kjøres på nytt
                 utdaterteOpplysninger.forEach { utdatert ->
                     val produsent =
-                        produsenter[utdatert.opplysningstype]
-                            ?: throw IllegalStateException("Fant ikke produsent for $utdatert")
+                        produsenter[utdatert.opplysningstype] ?: return
+                    // ?: throw IllegalStateException("Fant ikke produsent for $utdatert")
+
                     produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
                 }
 
@@ -114,7 +115,6 @@ abstract class Regel<T : Comparable<T>> internal constructor(
         }
 
         val basertPå = opplysninger.finnFlere(avhengerAv)
-        requireAlleAvhengigheter(basertPå)
 
         val produkt = kjør(opplysninger)
         val erAlleFaktum = basertPå.all { it is Faktum<*> }
@@ -126,18 +126,6 @@ abstract class Regel<T : Comparable<T>> internal constructor(
             false -> Hypotese(opplysningstype = produserer, verdi = produkt, utledetAv = utledetAv, gyldighetsperiode = gyldighetsperiode)
         }
     }
-
-    private fun requireAlleAvhengigheter(basertPå: List<Opplysning<*>>) =
-        require(basertPå.size == avhengerAv.size) {
-            val manglerAvhengigheter = avhengerAv.toSet() - basertPå.map { it.opplysningstype }.toSet()
-            """
-            Prøver å kjøre ${this::class.simpleName}($produserer), men mangler avhengigheter.
-            Det er mismatch mellom lagPlan() og lagProdukt().
-            - Avhengigheter vi mangler: ${manglerAvhengigheter.joinToString { it.behovId }}
-            - Avhengigheter vi trenger: ${avhengerAv.joinToString { it.behovId }}
-            - Avhengigheter vi fant: ${basertPå.joinToString { it.opplysningstype.behovId }}
-            """.trimIndent()
-        }
 }
 
 fun interface GyldighetsperiodeStrategi<T> {

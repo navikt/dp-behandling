@@ -55,7 +55,9 @@ object VernepliktFastsetting {
         fastsettelse(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Dagpenger ved verneplikt"),
         ) {
-            skalVurderes { kravPåDagpenger(it) } // && it.erSann(skalVernepliktVurderes) }
+            skalVurderes { kravPåDagpenger(it) }
+            // TODO: VI burde ikke kjøre regelsettet uten at det er verneplikt
+            // && it.erSann(skalVernepliktVurderes) }
 
             regel(antallG) { oppslag(prøvingsdato) { 3.0 } }
             regel(vernepliktGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, antallG) }

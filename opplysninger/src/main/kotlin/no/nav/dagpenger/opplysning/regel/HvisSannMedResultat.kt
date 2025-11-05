@@ -9,6 +9,36 @@ class HvisSannMedResultat<T : Comparable<T>>(
     private val hvisSann: Opplysningstype<T>,
     private val hvisUsann: Opplysningstype<T>,
 ) : Regel<T>(produserer, listOf(sjekk, hvisSann, hvisUsann)) {
+    override fun lagPlan(
+        opplysninger: LesbarOpplysninger,
+        plan: MutableSet<Regel<*>>,
+        produsenter: Map<Opplysningstype<*>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ) {
+        besøkt.add(this)
+        if (opplysninger.har(produserer)) return
+        if (opplysninger.mangler(sjekk)) {
+            produsenter[sjekk]!!.lagPlan(opplysninger, plan, produsenter, besøkt)
+            return
+        }
+
+        val sjekk = opplysninger.finnOpplysning(sjekk).verdi
+
+        if (sjekk) {
+            if (opplysninger.mangler(hvisSann)) {
+                produsenter[hvisSann]!!.lagPlan(opplysninger, plan, produsenter, besøkt)
+            } else {
+                plan.add(this)
+            }
+        } else {
+            if (opplysninger.mangler(hvisUsann)) {
+                produsenter[hvisUsann]!!.lagPlan(opplysninger, plan, produsenter, besøkt)
+            } else {
+                plan.add(this)
+            }
+        }
+    }
+
     override fun kjør(opplysninger: LesbarOpplysninger): T {
         val sjekk = opplysninger.finnOpplysning(sjekk).verdi
 

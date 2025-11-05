@@ -24,7 +24,6 @@ Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
 Laget avklaring om HarOppgittPermittering
-Laget avklaring om BeregnetArbeidstid
 Behov:
 - BostedslandErNorge
 - BarnetilleggV2
@@ -36,9 +35,11 @@ Behov:
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Laget avklaring om BarnMåGodkjennes
 Laget avklaring om SjekkPrøvingsdato
+Laget avklaring om BeregnetArbeidstid
 Behov:
+- Barnetillegg
 - OppgittAndreYtelserUtenforNav
+Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=true

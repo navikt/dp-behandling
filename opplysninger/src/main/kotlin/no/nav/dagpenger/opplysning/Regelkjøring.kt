@@ -68,7 +68,6 @@ class Regelkjøring(
 
     // Setter opp hvilke regler som skal gjelde
     private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
-    private val avhengighetsgraf = Avhengighetsgraf(gjeldendeRegler)
 
     // Setter opp hvilke opplysninger som skal brukes når reglene evalurerer om de skal kjøre
     private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
@@ -106,10 +105,6 @@ class Regelkjøring(
             aktiverRegler(prøvingsdato)
         }
 
-        // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
-        val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
-        // opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
-
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
             mangler = trenger(),
@@ -130,12 +125,10 @@ class Regelkjøring(
     private fun aktiverRegler(prøvingsdato: LocalDate) {
         opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
         val produksjonsplan = mutableSetOf<Regel<*>>()
-        val produsenter = gjeldendeRegler.associateBy { it.produserer }
-        val (yesMen, noMen) =
+        // TODO: Dette er gris
+        val produsenter =
             forretningsprosess.regelverk.regelsett
-                .partition { it.skalKjøres(opplysningerPåPrøvingsdato) }
-        val produenter =
-            yesMen
+                .filter { it.skalKjøres(opplysningerPåPrøvingsdato) }
                 .flatMap { it.regler(regelverksdato) }
                 .associateBy { it.produserer }
         val besøkt = mutableSetOf<Regel<*>>()

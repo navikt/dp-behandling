@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -11,6 +12,7 @@ import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiod
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import org.junit.jupiter.api.Test
 
 // Tester ulike scenarier for kjeding av behandlinger
@@ -228,6 +230,10 @@ class KjedescenarioTest {
                     this shouldHaveSize 1
                     single().gyldigFraOgMed shouldBe 11.juni(2015)
                 }
+
+                shouldThrow<NoSuchElementException> {
+                    opplysninger(PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri)
+                }
             }
 
             val behandling1 = person.behandlingId
@@ -245,13 +251,17 @@ class KjedescenarioTest {
                 // Vi gjenbruker vurderingen av minsteinntekt fra forrige behandling
                 with(opplysninger(Minsteinntekt.minsteinntekt)) {
                     this shouldHaveSize 1
-                    single().gyldigFraOgMed shouldBe 21.juni(2015)
+                    single().gyldigFraOgMed shouldBe 11.juni(2015)
                     single().verdi.verdi shouldBe true
                     single().status shouldBe Arvet
                 }
 
                 with(opplysninger(Opphold.oppfyllerKravet)) {
                     this shouldHaveSize 2
+                }
+
+                shouldThrow<NoSuchElementException> {
+                    opplysninger(PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri)
                 }
             }
         }
@@ -280,7 +290,8 @@ class KjedescenarioTest {
             saksbehandler.beslutt()
 
             val behandlingIdInnvilgelse = person.behandlingId
-            person.søkGjenopptak(21.juni(2018))
+            person.søkGjenopptak(22.juni(2018))
+            behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
                 basertPå shouldBe behandlingIdInnvilgelse

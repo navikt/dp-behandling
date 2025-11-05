@@ -169,7 +169,12 @@ object TapAvArbeidsinntektOgArbeidstid {
             avklaring(TapAvArbeidstidBeregningsregel)
             avklaring(BeregnetArbeidstid)
 
-            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat {
+                oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)
+
+                // TODO: Skikkelig juks for å bare ta med regelsettet på riktig tidspunkts
+                it.har(fastsattVanligArbeidstid)
+            }
         }
 
     val beregnetArbeidstidKontroll =
