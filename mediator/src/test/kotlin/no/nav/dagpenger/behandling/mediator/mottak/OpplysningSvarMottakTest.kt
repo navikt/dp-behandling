@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.dagpenger.behandling.TestOpplysningstyper.barn
 import no.nav.dagpenger.behandling.TestOpplysningstyper.boolsk
 import no.nav.dagpenger.behandling.TestOpplysningstyper.inntektA
 import no.nav.dagpenger.behandling.mediator.MessageMediator
@@ -34,7 +35,7 @@ class OpplysningSvarMottakTest {
     private val opplysningMock = mockk<Opplysninger>(relaxed = true)
 
     init {
-        OpplysningSvarMottak(rapid, messageMediator, setOf(boolsk, inntektA))
+        OpplysningSvarMottak(rapid, messageMediator, setOf(boolsk, inntektA, barn))
     }
 
     @BeforeEach
@@ -174,6 +175,40 @@ class OpplysningSvarMottakTest {
     }
 
     @Test
+    fun `kan svare på barn`() {
+        rapid.sendTestMessage(
+            løsningMedMetadata(
+                null,
+                gyldigTilOgMed,
+                opplysningstype = barn.behovId,
+                verdi =
+                    mapOf(
+                        "søknadbarnId" to "null",
+                        "barn" to
+                            listOf(
+                                mapOf(
+                                    "fødselsdato" to "2020-01-01",
+                                    "fornavnOgMellomnavn" to "Ola",
+                                    "etternavn" to "Nordmann",
+                                    "statsborgerskap" to "Norge",
+                                    "kvalifiserer" to true,
+                                ),
+                            ),
+                    ),
+            ).toJson(),
+        )
+
+        val hendelse = slot<OpplysningSvarHendelse>()
+        verify {
+            messageMediator.behandle(capture(hendelse), any(), any())
+        }
+
+        hendelse.isCaptured shouldBe true
+        hendelse.captured.behandlingId shouldBe behandlingId
+        hendelse.captured.opplysninger shouldHaveSize 1
+    }
+
+    @Test
     fun `leser inn kilde og begrunnelse til opplysningen`() {
         rapid.sendTestMessage(
             løsningMedMetadata(
@@ -266,6 +301,7 @@ class OpplysningSvarMottakTest {
         utledetAv: List<UUID> = emptyList(),
         opplysningstype: String = "boolsk",
         kilde: String? = null,
+        verdi: Any = true,
     ): JsonMessage =
         JsonMessage.newNeed(
             listOf(opplysningstype),
@@ -276,7 +312,7 @@ class OpplysningSvarMottakTest {
                     mapOf<String, Any>(
                         opplysningstype to
                             buildMap {
-                                put("verdi", true)
+                                put("verdi", verdi)
                                 gyldigFraOgMed?.let { put("gyldigFraOgMed", it.toString()) }
                                 gyldigTilOgMed?.let { put("gyldigTilOgMed", it.toString()) }
 
