@@ -60,7 +60,7 @@ fun barnMapper(
             )
         BarnetilleggV2 -> {
             BarnListe(
-                søknadbarnId = verdi["søknadbarnId"]?.asText()?.let { UUID.fromString(it) },
+                søknadbarnId = verdi["søknadbarnId"]?.asText()?.takeIf { it.isNotBlank() }?.let { UUID.fromString(it) },
                 barn =
                     verdi["barn"].map {
                         Barn(
