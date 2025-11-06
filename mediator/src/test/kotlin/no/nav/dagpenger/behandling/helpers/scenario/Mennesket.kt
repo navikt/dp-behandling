@@ -176,14 +176,18 @@ internal class Mennesket(
                 Behov.Verneplikt to false,
                 BostedslandErNorge to true,
                 Behov.TarUtdanningEllerOpplæring to false,
-                Behov.Barnetillegg to
+                Behov.BarnetilleggV2 to
                     mapOf(
                         "verdi" to
-                            listOf<Map<String, Any>>(
-                                mapOf(
-                                    "fødselsdato" to 1.januar(2000),
-                                    "kvalifiserer" to true,
-                                ),
+                            mapOf(
+                                "søknadbarnId" to UUIDv7.ny(),
+                                "barn" to
+                                    listOf(
+                                        mapOf(
+                                            "fødselsdato" to 1.januar(2000),
+                                            "kvalifiserer" to true,
+                                        ),
+                                    ),
                             ),
                     ),
                 "Beregnet vanlig arbeidstid per uke før tap" to 40,

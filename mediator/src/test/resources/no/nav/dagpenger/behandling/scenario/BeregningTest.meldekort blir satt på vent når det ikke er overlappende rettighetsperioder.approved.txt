@@ -26,7 +26,7 @@ Laget avklaring om JobbetUtenforNorge
 Laget avklaring om BeregnetArbeidstid
 Behov:
 - BostedslandErNorge
-- Barnetillegg
+- BarnetilleggV2
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger

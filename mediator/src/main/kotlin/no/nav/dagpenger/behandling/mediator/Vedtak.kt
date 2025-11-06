@@ -222,7 +222,7 @@ private fun vedtakFastsattDTO(
                             .verdi.verdien
                             .toInt(),
                     barn =
-                        opplysninger.finnOpplysning(barn).verdi.map {
+                        opplysninger.finnOpplysning(barn).verdi.barn.map {
                             BarnDTO(it.fødselsdato, it.kvalifiserer)
                         },
                 ),

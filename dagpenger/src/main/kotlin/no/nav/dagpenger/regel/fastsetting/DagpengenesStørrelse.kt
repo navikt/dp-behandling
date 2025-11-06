@@ -25,6 +25,7 @@ import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Avklaringspunkter.BarnMåGodkjennes
 import no.nav.dagpenger.regel.Behov.Barnetillegg
+import no.nav.dagpenger.regel.Behov.BarnetilleggV2
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallArbeidsdagerPerÅrId
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallBarnSomGirRettTilBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.ArbeidsdagerPerUkeId
@@ -57,7 +58,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 object DagpengenesStørrelse {
-    val barn = Opplysningstype.barn(BarnId, "Barn", Register, behovId = Barnetillegg)
+    val barn = Opplysningstype.barn(BarnId, "Barn", Register, behovId = BarnetilleggV2, utgåtteBehovId = setOf(Barnetillegg))
     internal val antallBarn = heltall(AntallBarnSomGirRettTilBarnetilleggId, "Antall barn som gir rett til barnetillegg")
     internal val barnetilleggetsStørrelse =
         beløp(BarnetilleggetsStørrelsePerDagId, "Barnetilleggets størrelse i kroner per dag for hvert barn", synlig = aldriSynlig)
@@ -163,7 +164,12 @@ object DagpengenesStørrelse {
 
     val BarnetilleggKontroll =
         Kontrollpunkt(BarnMåGodkjennes) {
-            it.har(barn) && it.finnOpplysning(barn).verdi.isNotEmpty()
+            it.har(barn) &&
+                it
+                    .finnOpplysning(barn)
+                    .verdi
+                    .barn
+                    .isNotEmpty()
         }
 }
 

@@ -36,6 +36,7 @@ class Opplysningstype<T : Comparable<T>>(
     val synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
     private val gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
     val enhet: Enhet<T, *>? = null,
+    val utgåtteBehovId: Set<String> = emptySet(),
 ) : Klassifiserbart {
     val datatype = id.datatype
 
@@ -65,7 +66,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<Periode> = som(id, beskrivelse, formål, synlig, behovId)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<Periode> = som(id, beskrivelse, formål, synlig, behovId, utgåtteBehovId = utgåtteBehovId)
 
         fun heltall(
             id: Id<Int>,
@@ -73,7 +75,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<Int> = som(id, beskrivelse, formål, synlig, behovId)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<Int> = som(id, beskrivelse, formål, synlig, behovId, utgåtteBehovId = utgåtteBehovId)
 
         fun boolsk(
             id: Id<Boolean>,
@@ -82,7 +85,8 @@ class Opplysningstype<T : Comparable<T>>(
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
             gyldighetsperiode: GyldighetsperiodeStrategi<Boolean> = GyldighetsperiodeStrategi.minsteMulige(),
-        ): Opplysningstype<Boolean> = som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<Boolean> = som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, utgåtteBehovId = utgåtteBehovId)
 
         fun dato(
             id: Id<LocalDate>,
@@ -91,7 +95,8 @@ class Opplysningstype<T : Comparable<T>>(
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
             gyldighetsperiode: GyldighetsperiodeStrategi<LocalDate> = GyldighetsperiodeStrategi.minsteMulige(),
-        ): Opplysningstype<LocalDate> = som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<LocalDate> = som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, utgåtteBehovId = utgåtteBehovId)
 
         fun ulid(
             id: Id<Ulid>,
@@ -99,7 +104,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<Ulid> = som(id, beskrivelse, formål, synlig, behovId)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<Ulid> = som(id, beskrivelse, formål, synlig, behovId, utgåtteBehovId = utgåtteBehovId)
 
         fun inntekt(
             id: Id<Inntekt>,
@@ -107,7 +113,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<Inntekt> = som(id, beskrivelse, formål, synlig, behovId)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<Inntekt> = som(id, beskrivelse, formål, synlig, behovId, utgåtteBehovId = utgåtteBehovId)
 
         fun desimaltall(
             id: Id<Double>,
@@ -116,7 +123,8 @@ class Opplysningstype<T : Comparable<T>>(
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
             enhet: Enhet<Double, *>? = null,
-        ): Opplysningstype<Double> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<Double> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
 
         fun tekst(
             id: Id<String>,
@@ -124,7 +132,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<String> = som(id, beskrivelse, formål, synlig, behovId)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<String> = som(id, beskrivelse, formål, synlig, behovId, utgåtteBehovId = utgåtteBehovId)
 
         fun beløp(
             id: Id<Beløp>,
@@ -132,7 +141,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<Beløp> = som(id, beskrivelse, formål, synlig, behovId)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<Beløp> = som(id, beskrivelse, formål, synlig, behovId, utgåtteBehovId = utgåtteBehovId)
 
         fun barn(
             id: Id<BarnListe>,
@@ -140,7 +150,8 @@ class Opplysningstype<T : Comparable<T>>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
-        ): Opplysningstype<BarnListe> = som(id, beskrivelse, formål, synlig, behovId)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<BarnListe> = som(id, beskrivelse, formål, synlig, behovId, utgåtteBehovId = utgåtteBehovId)
 
         fun <T : Comparable<T>> som(
             id: Id<T>,
@@ -150,7 +161,8 @@ class Opplysningstype<T : Comparable<T>>(
             behovId: String = beskrivelse,
             gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet<T, *>? = null,
-        ): Opplysningstype<T> = Opplysningstype(id, beskrivelse, behovId, formål, synlig, gyldighetsperiodeStrategi, enhet)
+            utgåtteBehovId: Set<String> = emptySet(),
+        ): Opplysningstype<T> = Opplysningstype(id, beskrivelse, behovId, formål, synlig, gyldighetsperiodeStrategi, enhet, utgåtteBehovId)
     }
 
     override infix fun er(type: Opplysningstype<*>): Boolean = id == type.id

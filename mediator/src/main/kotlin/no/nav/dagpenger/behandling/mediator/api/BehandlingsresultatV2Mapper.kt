@@ -187,7 +187,7 @@ private fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
             when (this.opplysningstype.datatype) {
                 BarnDatatype ->
                     BarnelisteDTO(
-                        (this.verdi as BarnListe).map {
+                        (this.verdi as BarnListe).barn.map {
                             BarnVerdiDTO(
                                 it.fødselsdato,
                                 it.fornavnOgMellomnavn,

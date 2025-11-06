@@ -10,7 +10,10 @@ import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
+import no.nav.dagpenger.regel.Behov.Barnetillegg
+import no.nav.dagpenger.regel.Behov.BarnetilleggV2
 import java.util.UUID
+import kotlin.text.get
 
 class OpplysningSvarBygger<T : Comparable<T>>(
     private val type: Opplysningstype<T>,
@@ -35,18 +38,40 @@ class OpplysningSvarBygger<T : Comparable<T>>(
     }
 }
 
-fun barnMapper(verdi: String): BarnListe = barnMapper(objectMapper.readTree(verdi))
+fun barnMapper(verdi: String): BarnListe = barnMapper(BarnetilleggV2, objectMapper.readTree(verdi))
 
-fun barnMapper(verdi: JsonNode): BarnListe =
-    BarnListe(
-        barn =
-            verdi.map {
-                Barn(
-                    fødselsdato = it["fødselsdato"].asLocalDate(),
-                    fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asText(),
-                    etternavn = it["etternavn"]?.asText(),
-                    statsborgerskap = it["statsborgerskap"]?.asText(),
-                    kvalifiserer = it["kvalifiserer"].asBoolean(),
-                )
-            },
-    )
+fun barnMapper(
+    typeNavn: String,
+    verdi: JsonNode,
+): BarnListe =
+    when (typeNavn) {
+        Barnetillegg ->
+            BarnListe(
+                barn =
+                    verdi.map {
+                        Barn(
+                            fødselsdato = it["fødselsdato"].asLocalDate(),
+                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asText(),
+                            etternavn = it["etternavn"]?.asText(),
+                            statsborgerskap = it["statsborgerskap"]?.asText(),
+                            kvalifiserer = it["kvalifiserer"].asBoolean(),
+                        )
+                    },
+            )
+        BarnetilleggV2 -> {
+            BarnListe(
+                søknadbarnId = verdi["søknadbarnId"].asUUID(),
+                barn =
+                    verdi["barn"].map {
+                        Barn(
+                            fødselsdato = it["fødselsdato"].asLocalDate(),
+                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asText(),
+                            etternavn = it["etternavn"]?.asText(),
+                            statsborgerskap = it["statsborgerskap"]?.asText(),
+                            kvalifiserer = it["kvalifiserer"].asBoolean(),
+                        )
+                    },
+            )
+        }
+        else -> throw IllegalArgumentException("Ukjent typeNavn for barnMapper: $typeNavn")
+    }

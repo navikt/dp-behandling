@@ -31,6 +31,7 @@ object Behov {
     val ØnsketArbeidstid by StringConstant()
 
     val Barnetillegg by StringConstant()
+    val BarnetilleggV2 by StringConstant()
 
     val Sykepenger by StringConstant()
     val Pleiepenger by StringConstant()

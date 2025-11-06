@@ -362,7 +362,7 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
             when (this.opplysningstype.datatype) {
                 BarnDatatype ->
                     BarnelisteDTO(
-                        (this.verdi as BarnListe).map {
+                        (this.verdi as BarnListe).barn.map {
                             BarnVerdiDTO(
                                 it.fødselsdato,
                                 it.fornavnOgMellomnavn,

@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 class AntallAvTest {
     private val barnetype = Opplysningstype.barn(Opplysningstype.Id(UUIDv7.ny(), BarnDatatype), "Barn")
@@ -28,15 +29,16 @@ class AntallAvTest {
     @Test
     fun `teller antall barn som kvalifiser`() {
         val opplysninger = Opplysninger()
-        val list =
+        val barnListe =
             BarnListe(
+                søknadbarnId = UUID.randomUUID(),
                 listOf(
                     Barn(fødselsdato = 1.januar(2020), kvalifiserer = true),
                     Barn(fødselsdato = 1.februar(2020), kvalifiserer = false),
                     Barn(fødselsdato = 1.mars(2020), kvalifiserer = false),
                 ),
             )
-        opplysninger.leggTil(Faktum(barnetype, list))
+        opplysninger.leggTil(Faktum(barnetype, barnListe))
 
         val regelkjøring = Regelkjøring(1.januar(2020), opplysninger, regelsett)
         regelkjøring.evaluer()
@@ -45,7 +47,8 @@ class AntallAvTest {
 
         val nyListe =
             BarnListe(
-                list + Barn(fødselsdato = 1.januar(2020), kvalifiserer = true),
+                søknadbarnId = UUID.randomUUID(),
+                barn = listOf(Barn(fødselsdato = 1.januar(2020), kvalifiserer = true)) + barnListe.barn,
             )
 
         // Legg til nytt barn

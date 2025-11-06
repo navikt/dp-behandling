@@ -161,6 +161,7 @@ class BehandlingApiMapperTest {
                         opplysningstype = TestOpplysningstyper.barn,
                         verdi =
                             BarnListe(
+                                UUIDv7.ny(),
                                 listOf(
                                     Barn(
                                         fornavnOgMellomnavn = "Navn",

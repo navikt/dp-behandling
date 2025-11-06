@@ -17,6 +17,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
+import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
 import no.nav.dagpenger.regel.Behov.Barnetillegg
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
@@ -349,6 +350,20 @@ class TestPerson(
                                     "fødselsdato" to 1.januar(2000),
                                     "kvalifiserer" to true,
                                 ),
+                            ),
+                    ),
+                Behov.BarnetilleggV2 to
+                    mapOf(
+                        "verdi" to
+                            mapOf(
+                                "søknadbarnId" to UUIDv7.ny(),
+                                "barn" to
+                                    listOf(
+                                        mapOf(
+                                            "fødselsdato" to 1.januar(2000),
+                                            "kvalifiserer" to true,
+                                        ),
+                                    ),
                             ),
                     ),
                 "Beregnet vanlig arbeidstid per uke før tap" to 40,

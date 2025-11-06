@@ -54,7 +54,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         fun Session.hentOpplysninger(opplysningerId: UUID) =
             OpplysningRepository(opplysningerId, this).hentOpplysninger().let { Opplysninger.rehydrer(opplysningerId, it) }
 
-        private val serdeBarn = objectMapper.serde<List<Barn>>()
+        private val serdeBarn = objectMapper.serde<BarnListe>()
+
+        // Legacy serde for å kunne lese gamle verdier lagret med gammel struktur
+        private val legazySerdeBarn = objectMapper.serde<List<Barn>>()
         private val serdeInntekt = objectMapper.serde<InntektV1>()
         private val serdePeriode = objectMapper.serde<Periode>()
     }
@@ -262,7 +265,11 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 ULID -> Ulid(row.string("verdi_string"))
                 Penger -> Beløp(row.string("verdi_string"))
                 Tekst -> row.string("verdi_string")
-                BarnDatatype -> BarnListe(serdeBarn.fromJson(row.string("verdi_jsonb")))
+                BarnDatatype -> {
+                    val barneJsonNode = objectMapper.readTree(row.binaryStream("verdi_jsonb"))
+                    runCatching { serdeBarn.fromJson(barneJsonNode) }.getOrElse { legazySerdeBarn.fromJson(barneJsonNode) }
+                }
+
                 InntektDataType -> Inntekt(row.binaryStream("verdi_jsonb").use { serdeInntekt.fromJson(it) })
                 PeriodeDataType -> serdePeriode.fromJson(row.string("verdi_jsonb"))
             } as T

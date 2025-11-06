@@ -314,7 +314,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
 |---|---|---|---|---|
-|0194881f-9428-74d5-b160-f63a4c61a23b|Barn|BarnDatatype|BarnListe|Barnetillegg|
+|0194881f-9428-74d5-b160-f63a4c61a23b|Barn|BarnDatatype|BarnListe|BarnetilleggV2|
 |0194881f-9428-74d5-b160-f63a4c61a23c|Antall barn som gir rett til barnetillegg|Heltall|int||
 |0194881f-9428-74d5-b160-f63a4c61a23d|Barnetilleggets størrelse i kroner per dag for hvert barn|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a23e|Faktor for utregning av dagsats etter dagpengegrunnlaget|Desimaltall|double||

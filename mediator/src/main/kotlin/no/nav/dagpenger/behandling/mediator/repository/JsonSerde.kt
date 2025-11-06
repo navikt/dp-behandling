@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectReader
 import com.fasterxml.jackson.databind.ObjectWriter
@@ -15,6 +16,8 @@ class JsonSerde<T>(
     fun toJson(value: T): String = writer.writeValueAsString(value)
 
     fun fromJson(json: String): T = reader.readValue(json)
+
+    fun fromJson(json: JsonNode): T = reader.readValue(json)
 
     fun fromJson(json: InputStream): T = reader.readValue(json)
 

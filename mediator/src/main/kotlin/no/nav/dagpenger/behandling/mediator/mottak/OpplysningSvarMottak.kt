@@ -141,12 +141,12 @@ internal class OpplysningSvarMessage(
                 logger.info { "Tok i mot opplysning av $typeNavn" }
 
                 val opplysningstype =
-                    runCatching { opplysningstyper.single { it.behovId == typeNavn } }.getOrElse {
+                    runCatching { opplysningstyper.single { it.behovId == typeNavn || typeNavn in it.utgåtteBehovId } }.getOrElse {
                         throw IllegalArgumentException("Ukjent opplysningstype: $typeNavn")
                     }
 
                 val svar =
-                    lagSvar(løsning).also {
+                    lagSvar(typeNavn, løsning).also {
                         logger.info {
                             "Løsning for opplysning $typeNavn med svartype: ${it::class.simpleName}. Svar=${it.gyldighetsperiode}"
                         }
@@ -177,7 +177,7 @@ internal class OpplysningSvarMessage(
                 val opplysningSvarBygger =
                     OpplysningSvarBygger(
                         opplysningstype,
-                        JsonMapper(svar.verdi),
+                        JsonMapper(typeNavn, svar.verdi),
                         kilde,
                         svar.tilstand,
                         svar.gyldighetsperiode,
@@ -211,12 +211,18 @@ internal class OpplysningSvarMessage(
     private companion object {
         private val svarStrategier = listOf(KomplekstSvar, EnkeltSvar)
 
-        fun lagSvar(jsonNode: JsonNode): Svar = svarStrategier.firstNotNullOf { it.svar(jsonNode) }
+        fun lagSvar(
+            typeNavn: String,
+            jsonNode: JsonNode,
+        ): Svar = svarStrategier.firstNotNullOf { it.svar(typeNavn, jsonNode) }
     }
 }
 
 private fun interface SvarStrategi {
-    fun svar(svar: JsonNode): Svar?
+    fun svar(
+        typeNavn: String,
+        svar: JsonNode,
+    ): Svar?
 
     data class Svar(
         val verdi: JsonNode,
@@ -239,7 +245,10 @@ private fun interface SvarStrategi {
 }
 
 private object KomplekstSvar : SvarStrategi {
-    override fun svar(svar: JsonNode): Svar? {
+    override fun svar(
+        typeNavn: String,
+        svar: JsonNode,
+    ): Svar? {
         if (!svar.isObject) return null
         return Svar(
             svar["verdi"],
@@ -251,7 +260,10 @@ private object KomplekstSvar : SvarStrategi {
 }
 
 private object EnkeltSvar : SvarStrategi {
-    override fun svar(svar: JsonNode): Svar? {
+    override fun svar(
+        typeNavn: String,
+        svar: JsonNode,
+    ): Svar? {
         if (svar.isObject) return null
         return Svar(svar, Tilstand.Faktum)
     }
@@ -259,6 +271,7 @@ private object EnkeltSvar : SvarStrategi {
 
 @Suppress("UNCHECKED_CAST")
 private class JsonMapper(
+    private val typeNavn: String,
     private val verdi: JsonNode,
 ) : OpplysningSvarBygger.VerdiMapper {
     override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
@@ -269,7 +282,7 @@ private class JsonMapper(
             Boolsk -> verdi.asBoolean() as T
             ULID -> Ulid(verdi.asText()) as T
             Penger -> Beløp(verdi.asText().toBigDecimal()) as T
-            BarnDatatype -> barnMapper(verdi) as T
+            BarnDatatype -> barnMapper(typeNavn, verdi) as T
             InntektDataType ->
                 Inntekt(
                     objectMapper.convertValue(verdi, no.nav.dagpenger.inntekt.v1.Inntekt::class.java),

@@ -76,6 +76,7 @@ class OpplysningerRepositoryPostgresTest {
                 Faktum(
                     barn,
                     BarnListe(
+                        UUIDv7.ny(),
                         listOf(
                             Barn(
                                 fødselsdato = 1.april(2010),

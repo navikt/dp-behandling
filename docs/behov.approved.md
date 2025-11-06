@@ -2,10 +2,10 @@
 
 Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De publiseres som behov på rapiden.
 
-|Behov|Beskrivelse|Logisk datatype|Datatype|
-|---|---|---|---|
+|Behov|Beskrivelse|Logisk datatype|Datatype|Utgåtte behov | 
+|---|---|---|---|---|
 |AndreØkonomiskeYtelser | Har krav på lønn fra arbeidsgiver | Boolsk|boolean|
-|Barnetillegg | Barn | BarnDatatype|BarnListe|
+|BarnetilleggV2 | Barn | BarnDatatype|BarnListe|Barnetillegg
 |BostedslandErNorge | Bostedsland er Norge | Boolsk|boolean|
 |Foreldrepenger | Foreldrepenger etter lovens kapittel 14 | Boolsk|boolean|
 |Fødselsdato | Fødselsdato | Dato|LocalDate|

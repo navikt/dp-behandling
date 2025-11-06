@@ -18,6 +18,7 @@ import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.ukessats
+import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 
 class SamordningSteg : No {
@@ -60,7 +61,16 @@ class SamordningSteg : No {
                     )
                 }
 
-            opplysninger.leggTil(Faktum(DagpengenesStørrelse.barn, BarnListe(barn))).also { regelkjøring.evaluer() }
+            opplysninger
+                .leggTil(
+                    Faktum(
+                        DagpengenesStørrelse.barn,
+                        BarnListe(
+                            UUIDv7.ny(),
+                            barn = barn,
+                        ),
+                    ),
+                ).also { regelkjøring.evaluer() }
         }
 
         Gitt("søker har redusert sykepenger {boolsk}") { sykepenger: Boolean ->

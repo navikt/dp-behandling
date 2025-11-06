@@ -58,7 +58,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
-import no.nav.dagpenger.regel.Behov.Barnetillegg
+import no.nav.dagpenger.regel.Behov.BarnetilleggV2
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.regel.Behov.Foreldrepenger
 import no.nav.dagpenger.regel.Behov.HelseTilAlleTyperJobb
@@ -782,7 +782,7 @@ internal class PersonMediatorTest {
             )
 
             // Innhenter barn på nytt
-            rapid.harBehov("Barnetillegg")
+            rapid.harBehov("BarnetilleggV2")
         }
 
     @Test
@@ -865,7 +865,7 @@ internal class PersonMediatorTest {
                 Opplæringspenger,
                 Pleiepenger,
                 BostedslandErNorge,
-                Barnetillegg,
+                BarnetilleggV2,
                 TarUtdanningEllerOpplæring,
                 AndreØkonomiskeYtelser,
             )
@@ -906,7 +906,7 @@ internal class PersonMediatorTest {
                 AndreØkonomiskeYtelser,
                 Inntekt,
                 BostedslandErNorge,
-                Barnetillegg,
+                BarnetilleggV2,
                 TarUtdanningEllerOpplæring,
             )
 
@@ -1220,8 +1220,8 @@ internal class PersonMediatorTest {
         /**
          * Henter inn barn som kan gi barnetillegg
          */
-        rapid.harBehov(Barnetillegg)
-        testPerson.løsBehov(Barnetillegg)
+        rapid.harBehov(BarnetilleggV2)
+        testPerson.løsBehov(BarnetilleggV2)
 
         /**
          * Innhente informasjon om andre ytelser

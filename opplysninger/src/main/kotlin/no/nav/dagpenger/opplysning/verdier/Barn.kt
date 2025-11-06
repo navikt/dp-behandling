@@ -1,18 +1,15 @@
 package no.nav.dagpenger.opplysning.verdier
 
 import java.time.LocalDate
+import java.util.UUID
 
-class BarnListe(
-    barn: List<Barn>,
-) : ComparableListe<Barn>(barn) {
-    override fun toString(): String = if (isEmpty()) "Ingen barn" else this.joinToString()
-}
+data class BarnListe(
+    val søknadbarnId: UUID? = null,
+    val barn: List<Barn>,
+) : Comparable<BarnListe> {
+    override fun toString(): String = if (barn.isEmpty()) "Ingen barn" else this.barn.joinToString()
 
-abstract class ComparableListe<T : Comparable<T>>(
-    private val liste: List<T>,
-) : Comparable<ComparableListe<T>>,
-    List<T> by liste {
-    override fun compareTo(other: ComparableListe<T>): Int = 0
+    override fun compareTo(other: BarnListe) = 0
 }
 
 data class Barn(

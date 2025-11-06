@@ -89,11 +89,13 @@ class OpplysningDokumentasjon {
             >
             >Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De publiseres som behov på rapiden.
             >
-            >|Behov|Beskrivelse|Logisk datatype|Datatype|
-            >|---|---|---|---|
+            >|Behov|Beskrivelse|Logisk datatype|Datatype|Utgåtte behov | 
+            >|---|---|---|---|---|
             ${
                 behov.sortedBy { it.behovId }.joinToString("\n") {
-                    ">|${it.behovId} | ${it.navn} | ${it.datatype}|${it.datatype.klasse.simpleName}|"
+                    ">|${it.behovId} | ${it.navn} | ${it.datatype}|${it.datatype.klasse.simpleName}|${it.utgåtteBehovId.joinToString {
+                        it
+                    }}"
                 }
             }
             """.trimMargin(">")
