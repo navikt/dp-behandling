@@ -25,7 +25,6 @@ Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
 Behov:
 - BostedslandErNorge
-- BarnetilleggV2
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -37,7 +36,7 @@ Behov:
 Laget avklaring om SjekkPrøvingsdato
 Laget avklaring om BeregnetArbeidstid
 Behov:
-- Barnetillegg
+- BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
@@ -54,7 +53,7 @@ Behandling endret tilstand til: UnderBehandling
 Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
-- Barnetillegg
+- BarnetilleggV2
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst

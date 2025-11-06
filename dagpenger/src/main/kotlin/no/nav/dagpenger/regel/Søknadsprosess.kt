@@ -41,12 +41,7 @@ class Søknadsprosess(
         registrer(RettighetsperiodePlugin(regelverk))
     }
 
-    override fun regelsett(): List<Regelsett> =
-        if (erGjenopptak) {
-            super.regelsett().minus(Minsteinntekt.regelsett)
-        } else {
-            super.regelsett()
-        }
+    override fun regelsett(): List<Regelsett> = super.regelsett()
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(

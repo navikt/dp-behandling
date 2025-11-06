@@ -21,19 +21,19 @@ class OpplysningsperioderScenarioTest {
 
             behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
-                perioder[0].gyldigFraOgMed shouldBe null
+                perioder[0].gyldigFraOgMed shouldBe 21.juni(2018)
                 perioder[0].gyldigTilOgMed shouldBe null
                 perioder[0].verdi.verdi shouldBe true
             }
 
             // Endring av verdi med samme gyldighetsperiode
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode())
+            saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode(21.juni(2018)))
 
             // Assert at vi har endret verdi
             behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder shouldHaveSize 1
-                perioder[0].gyldigFraOgMed shouldBe null
+                perioder[0].gyldigFraOgMed shouldBe 21.juni(2018)
                 perioder[0].gyldigTilOgMed shouldBe null
                 perioder[0].verdi.verdi shouldBe false // Endret til false
             }
@@ -51,7 +51,7 @@ class OpplysningsperioderScenarioTest {
             var opprinneligId: UUID? = null
             behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
-                perioder[0].gyldigFraOgMed shouldBe null
+                perioder[0].gyldigFraOgMed shouldBe 21.juni(2018)
                 perioder[0].gyldigTilOgMed shouldBe null
                 perioder[0].verdi.verdi shouldBe true
 
@@ -65,7 +65,7 @@ class OpplysningsperioderScenarioTest {
             behandlingsresultatForslag {
                 val perioder = opplysninger(Opphold.oppholdINorge)
                 perioder shouldHaveSize 1
-                perioder[0].gyldigFraOgMed shouldBe null
+                perioder[0].gyldigFraOgMed shouldBe 21.juni(2018)
                 perioder[0].gyldigTilOgMed shouldBe null
                 perioder[0].verdi.verdi shouldBe true // Fortsatt true
 

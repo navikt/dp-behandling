@@ -22,20 +22,13 @@ class HvisSannMedResultat<T : Comparable<T>>(
             return
         }
 
-        val sjekk = opplysninger.finnOpplysning(sjekk).verdi
+        val sjekkVerdi = opplysninger.finnOpplysning(sjekk).verdi
+        val neste = if (sjekkVerdi) hvisSann else hvisUsann
 
-        if (sjekk) {
-            if (opplysninger.mangler(hvisSann)) {
-                produsenter[hvisSann]!!.lagPlan(opplysninger, plan, produsenter, besøkt)
-            } else {
-                plan.add(this)
-            }
+        if (opplysninger.mangler(neste)) {
+            produsenter[neste]!!.lagPlan(opplysninger, plan, produsenter, besøkt)
         } else {
-            if (opplysninger.mangler(hvisUsann)) {
-                produsenter[hvisUsann]!!.lagPlan(opplysninger, plan, produsenter, besøkt)
-            } else {
-                plan.add(this)
-            }
+            plan.add(this)
         }
     }
 

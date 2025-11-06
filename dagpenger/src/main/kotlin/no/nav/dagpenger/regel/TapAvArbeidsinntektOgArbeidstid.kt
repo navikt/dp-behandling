@@ -170,10 +170,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             avklaring(BeregnetArbeidstid)
 
             påvirkerResultat {
-                oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)
-
-                // TODO: Skikkelig juks for å bare ta med regelsettet på riktig tidspunkts
-                it.har(fastsattVanligArbeidstid)
+                it.har(kravTilTapAvArbeidsinntektOgArbeidstid)
             }
         }
 

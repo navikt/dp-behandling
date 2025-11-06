@@ -125,12 +125,7 @@ class Regelkjøring(
     private fun aktiverRegler(prøvingsdato: LocalDate) {
         opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
         val produksjonsplan = mutableSetOf<Regel<*>>()
-        // TODO: Dette er gris
-        val produsenter =
-            forretningsprosess.regelverk.regelsett
-                .filter { it.skalKjøres(opplysningerPåPrøvingsdato) }
-                .flatMap { it.regler(regelverksdato) }
-                .associateBy { it.produserer }
+        val produsenter = forretningsprosess.produsenter(regelverksdato, opplysningerPåPrøvingsdato)
         val besøkt = mutableSetOf<Regel<*>>()
 
         ønsketResultat.forEach { opplysningstype ->
@@ -207,6 +202,11 @@ class Regelkjøring(
         override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
             TODO("Not yet implemented")
         }
+
+        override fun produsenter(
+            regelverksdato: LocalDate,
+            opplysningerPåPrøvingsdato: LesbarOpplysninger,
+        ) = regelsett.flatMap { it.regler(regelverksdato) }.associateBy { it.produserer }
 
         override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = opplysningstypes
     }

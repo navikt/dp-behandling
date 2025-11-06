@@ -29,15 +29,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 class TapAvArbeidSteg : No {
     private val fraDato = 10.mai(2022)
     private val regelsett = RegelverkDagpenger.regelsettFor(kravTilTaptArbeidstid) + Rettighetstype.regelsett
-//        listOf(
-//            Rettighetstype.regelsett,
-//            TapAvArbeidsinntektOgArbeidstid.regelsett,
-//            Søknadstidspunkt.regelsett,
-//            PermittertFraFiskeindustrien.regelsett,
-//            VernepliktFastsetting.regelsett,
-//            Verneplikt.regelsett,
-//        ) // + RegelverkDagpenger.regelsettFor(kravTilTaptArbeidstid)
-
     private val opplysninger = Opplysninger()
 
     private lateinit var regelkjøring: Regelkjøring
@@ -48,7 +39,6 @@ class TapAvArbeidSteg : No {
     }
 
     init {
-
         Gitt("at søknadsdatossssss er {string}") { søknadsdato: String ->
             opplysninger.leggTil(Faktum(Søknadstidspunkt.søknadsdato, søknadsdato.somLocalDate()))
             opplysninger.leggTil(Faktum(Søknadstidspunkt.ønsketdato, søknadsdato.somLocalDate()))

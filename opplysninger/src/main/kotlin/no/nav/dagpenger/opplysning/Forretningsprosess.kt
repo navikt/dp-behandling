@@ -30,6 +30,14 @@ abstract class Forretningsprosess(
     fun kjørUnderveis(opplysninger: Opplysninger) = plugins.forEach { it.underveis(opplysninger) }
 
     fun kjørFerdig(opplysninger: Opplysninger) = plugins.forEach { it.ferdig(opplysninger) }
+
+    open fun produsenter(
+        regelverksdato: LocalDate,
+        opplysningerPåPrøvingsdato: LesbarOpplysninger,
+    ) = regelverk.regelsett
+        .filter { it.skalKjøres(opplysningerPåPrøvingsdato) }
+        .flatMap { it.regler(regelverksdato) }
+        .associateBy { it.produserer }
 }
 
 interface ProsessPlugin {
