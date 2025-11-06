@@ -8,6 +8,8 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
+import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.legazySerdeBarn
+import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.serdeBarn
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
@@ -267,7 +269,11 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 Tekst -> row.string("verdi_string")
                 BarnDatatype -> {
                     val barneJsonNode = objectMapper.readTree(row.binaryStream("verdi_jsonb"))
-                    runCatching { serdeBarn.fromJson(barneJsonNode) }.getOrElse { legazySerdeBarn.fromJson(barneJsonNode) }
+                    runCatching {
+                        serdeBarn.fromJson(
+                            barneJsonNode,
+                        )
+                    }.getOrElse { BarnListe(barn = legazySerdeBarn.fromJson(barneJsonNode)) }
                 }
 
                 InntektDataType -> Inntekt(row.binaryStream("verdi_jsonb").use { serdeInntekt.fromJson(it) })

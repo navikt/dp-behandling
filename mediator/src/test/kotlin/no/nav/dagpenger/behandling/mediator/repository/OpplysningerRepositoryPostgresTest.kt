@@ -7,6 +7,8 @@ import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import kotliquery.queryOf
+import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.TestOpplysningstyper.barn
 import no.nav.dagpenger.behandling.TestOpplysningstyper.baseOpplysningstype
 import no.nav.dagpenger.behandling.TestOpplysningstyper.beløpA
@@ -25,8 +27,11 @@ import no.nav.dagpenger.behandling.TestOpplysningstyper.utledetOpplysningstype
 import no.nav.dagpenger.behandling.april
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.behandling.september
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -399,6 +404,69 @@ class OpplysningerRepositoryPostgresTest {
             fraDb
                 .finnOpplysning(inntektA)
                 .verdi.verdi.inntektsListe shouldBe inntektFaktum.verdi.verdi.inntektsListe
+        }
+    }
+
+    @Test
+    fun `Kan hente BarnListe av gammel versjon for bakoverkompatibilitet`() {
+        withMigratedDb {
+            val repo = opplysningerRepository()
+            val barn =
+                Faktum(
+                    barn,
+                    BarnListe(
+                        UUIDv7.ny(),
+                        emptyList(),
+                    ),
+                )
+
+            val opplysninger = Opplysninger.med(barn)
+            repo.lagreOpplysninger(opplysninger)
+
+            // Jukser litt å legger det gamle formatet rett i databasen for å simulere en gammel lagret opplysning (uten søknadsbarnId)
+            sessionOf(dataSource).use { session ->
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                            UPDATE opplysning SET verdi_jsonb = 
+                            '[
+                              {
+                                "etternavn": "KONJUNKSJON",
+                                "fødselsdato": "2012-07-14",
+                                "kvalifiserer": false,
+                                "statsborgerskap": "NOR",
+                                "fornavnOgMellomnavn": "HALV"
+                              },
+                              {
+                                "etternavn": "BAND",
+                                "fødselsdato": "2019-09-21",
+                                "kvalifiserer": false,
+                                "statsborgerskap": "NOR",
+                                "fornavnOgMellomnavn": "STRIDLYNT"
+                              }
+                            ]'::jsonb
+                        WHERE id = :id;
+                        
+                        """.trimIndent(),
+                        mapOf("id" to barn.id),
+                    ).asUpdate,
+                )
+            }
+
+            val fraDb = repo.hentOpplysninger(opplysninger.id)
+            val barnListe = fraDb.finnOpplysning(barn.opplysningstype).verdi
+            barnListe.barn.size shouldBe 2
+            barnListe.barn[0].fornavnOgMellomnavn shouldBe "HALV"
+            barnListe.barn[0].etternavn shouldBe "KONJUNKSJON"
+            barnListe.barn[0].fødselsdato shouldBe 14.juli(2012)
+            barnListe.barn[0].statsborgerskap shouldBe "NOR"
+            barnListe.barn[0].kvalifiserer shouldBe false
+            barnListe.barn[1].fornavnOgMellomnavn shouldBe "STRIDLYNT"
+            barnListe.barn[1].etternavn shouldBe "BAND"
+            barnListe.barn[1].fødselsdato shouldBe 21.september(2019)
+            barnListe.barn[1].statsborgerskap shouldBe "NOR"
+            barnListe.barn[1].kvalifiserer shouldBe false
         }
     }
 
