@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.egenVerdi
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
-import no.nav.dagpenger.opplysning.regel.innhentes
+import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.regel.Behov.Prøvingsdato
 import no.nav.dagpenger.regel.Behov.Søknadsdato
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
@@ -34,7 +34,7 @@ object Søknadstidspunkt {
         fastsettelse(
             forskriftTilFolketrygden.hjemmel(3, 1, "Søknadstidspunkt", "Søknadstidspunkt"),
         ) {
-            regel(søknadIdOpplysningstype) { innhentes }
+            regel(søknadIdOpplysningstype) { tomRegel }
             regel(søknadsdato) { innhentMed(søknadIdOpplysningstype) }
             regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }

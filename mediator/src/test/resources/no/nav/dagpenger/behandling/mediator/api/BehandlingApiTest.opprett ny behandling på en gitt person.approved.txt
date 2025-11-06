@@ -2,5 +2,4 @@ Laget avklaring om ManuellBehandling
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- søknadId
 - Fødselsdato

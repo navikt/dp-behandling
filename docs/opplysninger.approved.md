@@ -60,7 +60,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-91d1-7df2-ba1d-4533f37fcc74|Ønsker dagpenger fra dato|Dato|LocalDate|ØnskerDagpengerFraDato|
 |0194881f-91d1-7df2-ba1d-4533f37fcc75|Søknadstidspunkt|Dato|LocalDate||
 |0194881f-91d1-7df2-ba1d-4533f37fcc76|Prøvingsdato|Dato|LocalDate||
-|0194881f-91d1-7df2-ba1d-4533f37fcc77|søknadId|Tekst|String|søknadId|
+|0194881f-91d1-7df2-ba1d-4533f37fcc77|søknadId|Tekst|String||
 ### § 4-2. Opphold i Norge
 *Type:* Vilkår
 #### Avklaringer
