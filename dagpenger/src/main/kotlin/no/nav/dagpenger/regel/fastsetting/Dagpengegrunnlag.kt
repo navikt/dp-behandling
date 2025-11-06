@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.regel.avrund
 import no.nav.dagpenger.opplysning.regel.brukt
 import no.nav.dagpenger.opplysning.regel.divisjon
 import no.nav.dagpenger.opplysning.regel.enAv
+import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.høyesteAv
 import no.nav.dagpenger.opplysning.regel.inntekt.SummerPeriode
 import no.nav.dagpenger.opplysning.regel.inntekt.filtrerRelevanteInntekter
@@ -35,6 +36,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.BruktBeregningsregelId
 import no.nav.dagpenger.regel.OpplysningsTyper.FaktorForMaksimaltMuligGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.GjennomsnittligArbeidsinntektSiste36MånederId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnbeløpForGrunnlagId
+import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagForVernepliktErGunstigstId
+import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagHvisVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagSiste12MndId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagVedOrdinæreDagpengerId
@@ -55,10 +58,10 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UavrundetGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode1Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode2Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode3Id
+import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagHvisVerneplikt
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktGrunnlag
 import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
 import java.time.LocalDate
@@ -123,12 +126,21 @@ object Dagpengegrunnlag {
     val uavkortet12mnd = Opplysningstype.beløp(UavkortetGrunnlagSiste12MndId, "Uavkortet grunnlag siste 12 mnd", Legacy, aldriSynlig)
     val uavkortet36mnd = Opplysningstype.beløp(UavkortetGrunnlagSiste36MndId, "Uavkortet grunnlag siste 36 mnd", Legacy, aldriSynlig)
 
+    internal val grunnlagHvisVerneplikt =
+        Opplysningstype.beløp(GrunnlagHvisVernepliktId, "Grunnlag for verneplikt hvis kravet er oppfylt", synlig = aldriSynlig)
+    val grunnlagForVernepliktErGunstigst =
+        Opplysningstype.boolsk(
+            GrunnlagForVernepliktErGunstigstId,
+            "Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget",
+            synlig = synligOmVerneplikt,
+        )
+
     val regelsett =
         fastsettelse(
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
         ) {
             skalVurderes {
-                kravPåDagpenger(it) &&
+                (kravPåDagpenger(it) || it.erSann(skalVernepliktVurderes)) &&
                     // TODO: Må være ekte vurdering av om grunnlag skal fastsettes
                     !it.har(grunnlag)
             }
@@ -191,6 +203,10 @@ object Dagpengegrunnlag {
             // Fastsett avrundet grunnlag
             regel(dagpengegrunnlag) { avrund(uavrundetGrunnlag) }
 
+            // Sjekk om verneplikt må vurderes om der gunstigst
+            regel(grunnlagHvisVerneplikt) { hvisSannMedResultat(skalVernepliktVurderes, vernepliktGrunnlag, dagpengegrunnlag) }
+            regel(grunnlagForVernepliktErGunstigst) { størreEnn(grunnlagHvisVerneplikt, dagpengegrunnlag) }
+
             // Velg høyeste grunnlag av ordinært grunnlag og verneplikt
             regel(grunnlag) { høyesteAv(dagpengegrunnlag, grunnlagHvisVerneplikt) }
 
@@ -213,6 +229,7 @@ object Dagpengegrunnlag {
                 utbetaltArbeidsinntektPeriode1,
                 utbetaltArbeidsinntektPeriode2,
                 utbetaltArbeidsinntektPeriode3,
+                grunnlagForVernepliktErGunstigst,
             )
 
             avklaring(Avklaringspunkter.GrunnbeløpForGrunnlagEndret)

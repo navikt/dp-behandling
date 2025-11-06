@@ -97,6 +97,7 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-3. Fastsettelse av arbeidstid](#-4-3-fastsettelse-av-arbeidstid)
 - [§ 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien](#-6-7-permittering-i-fiskeforedlingsindustrien,-sjømatindustrien-og-fiskeoljeindustrien)
+- [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 - [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
@@ -269,6 +270,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avklaringer
 - NyttGrunnbeløpForGrunnlag - [Grunnbeløpet for dagpengegrunnlag kan være utdatert](./avklaringer.approved.md#grunnbeløpet-for-dagpengegrunnlag-kan-være-utdatert)
 #### Avhenger på data fra
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-4. Krav til minsteinntekt](#-4-4-krav-til-minsteinntekt)
 - [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
@@ -303,6 +305,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9410-7481-b263-4606fdd10cbd|Dagpengegrunnlag|Penger|Beløp||
 |0194881f-9410-7481-b263-4606fdd10cbe|Uavkortet grunnlag siste 12 mnd|Penger|Beløp||
 |0194881f-9410-7481-b263-4606fdd10cbf|Uavkortet grunnlag siste 36 mnd|Penger|Beløp||
+|0194881f-9421-766c-9dc6-41fe6c9a1e03|Grunnlag for verneplikt hvis kravet er oppfylt|Penger|Beløp||
+|0194881f-9421-766c-9dc6-41fe6c9a1e05|Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget|Boolsk|boolean||
 ### § 4-12. Dagpengenes størrelse
 *Type:* Fastsettelse
 #### Avklaringer
@@ -375,7 +379,6 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 #### Opplysninger
@@ -385,9 +388,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9421-766c-9dc6-41fe6c9a1e00|Grunnlag for gis ved verneplikt|Penger|Beløp||
 |0194881f-9421-766c-9dc6-41fe6c9a1e01|Periode som gis ved verneplikt|Heltall|int||
 |0194881f-9421-766c-9dc6-41fe6c9a1e02|Fastsatt vanlig arbeidstid for verneplikt|Desimaltall|double||
-|0194881f-9421-766c-9dc6-41fe6c9a1e03|Grunnlag for verneplikt hvis kravet er oppfylt|Penger|Beløp||
-|0194881f-9421-766c-9dc6-41fe6c9a1e04|Grunnlag for verneplikt hvis kravet ikke er oppfylt|Penger|Beløp||
-|0194881f-9421-766c-9dc6-41fe6c9a1e05|Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget|Boolsk|boolean||
 ### § 4-22. Bortfall ved streik og lock-out
 *Type:* Vilkår
 #### Opplysninger

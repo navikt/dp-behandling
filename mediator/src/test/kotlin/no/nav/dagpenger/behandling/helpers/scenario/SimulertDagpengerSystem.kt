@@ -125,6 +125,7 @@ internal class SimulertDagpengerSystem(
         var inntektSiste12Mnd: Int = 50000,
         var permittering: Boolean = false,
         val ordinær: Boolean = !permittering,
+        var verneplikt: Boolean = false,
     ) {
         fun test(block: SimulertDagpengerSystem.() -> Unit) {
             Postgres.withMigratedDb {

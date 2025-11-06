@@ -16,7 +16,8 @@ internal class BehandlingsresultatAssertions(
     val opplysninger: JsonNode = klump["opplysninger"]
 
     fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysningsperiode> {
-        val opplysninger = klump["opplysninger"].single { it["opplysningTypeId"].asUUID() == opplysningstype.id.uuid }
+        val opplysninger =
+            klump["opplysninger"].singleOrNull { it["opplysningTypeId"].asUUID() == opplysningstype.id.uuid } ?: return emptyList()
 
         return objectMapper.treeToValue(opplysninger["perioder"])
     }

@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.scenario
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -231,9 +230,7 @@ class KjedescenarioTest {
                     single().gyldigFraOgMed shouldBe 11.juni(2015)
                 }
 
-                shouldThrow<NoSuchElementException> {
-                    opplysninger(PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri)
-                }
+                opplysninger(PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri) shouldHaveSize 0
             }
 
             val behandling1 = person.behandlingId
@@ -260,9 +257,7 @@ class KjedescenarioTest {
                     this shouldHaveSize 2
                 }
 
-                shouldThrow<NoSuchElementException> {
-                    opplysninger(PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri)
-                }
+                opplysninger(PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri).shouldBeEmpty()
             }
         }
     }

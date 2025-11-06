@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.finn
 
 class HvisSannMedResultat<T : Comparable<T>>(
     produserer: Opplysningstype<T>,
@@ -18,7 +19,7 @@ class HvisSannMedResultat<T : Comparable<T>>(
         besøkt.add(this)
         if (opplysninger.har(produserer)) return
         if (opplysninger.mangler(sjekk)) {
-            produsenter[sjekk]!!.lagPlan(opplysninger, plan, produsenter, besøkt)
+            produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter, besøkt)
             return
         }
 
@@ -26,7 +27,7 @@ class HvisSannMedResultat<T : Comparable<T>>(
         val neste = if (sjekkVerdi) hvisSann else hvisUsann
 
         if (opplysninger.mangler(neste)) {
-            produsenter[neste]!!.lagPlan(opplysninger, plan, produsenter, besøkt)
+            produsenter.finn(neste).lagPlan(opplysninger, plan, produsenter, besøkt)
         } else {
             plan.add(this)
         }

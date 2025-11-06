@@ -173,7 +173,7 @@ internal class Mennesket(
                 Behov.Lønnsgaranti to false,
                 Behov.PermittertFiskeforedling to false,
                 // Verneplikt
-                Behov.Verneplikt to false,
+                Behov.Verneplikt to scenario.verneplikt,
                 BostedslandErNorge to true,
                 Behov.TarUtdanningEllerOpplæring to false,
                 Behov.BarnetilleggV2 to

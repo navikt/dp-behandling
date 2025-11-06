@@ -7,15 +7,11 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
 import io.kotest.assertions.withClue
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.comparables.shouldBeGreaterThan
-import io.kotest.matchers.maps.shouldBeEmpty
-import io.kotest.matchers.maps.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -53,7 +49,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Avklaringkode
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -79,7 +74,6 @@ import no.nav.dagpenger.regel.Behov.SisteAvsluttendeKalenderMåned
 import no.nav.dagpenger.regel.Behov.Svangerskapspenger
 import no.nav.dagpenger.regel.Behov.Sykepenger
 import no.nav.dagpenger.regel.Behov.TarUtdanningEllerOpplæring
-import no.nav.dagpenger.regel.Behov.Verneplikt
 import no.nav.dagpenger.regel.Behov.VilligTilÅBytteYrke
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
 import no.nav.dagpenger.regel.Behov.ØnsketArbeidstid
@@ -99,7 +93,7 @@ import java.time.LocalDateTime
 import java.time.Period
 import java.util.UUID
 
-@Disabled("The age of men is over. The time of the Orc has come")
+@Disabled("Rekkefølgen er for kilen")
 internal class PersonMediatorTest {
     private val rapid = TestRapid()
     private val ident = "11109233444"
@@ -189,280 +183,6 @@ internal class PersonMediatorTest {
             sakRepository.finnBehandling(123).shouldNotBeNull()
         }
     }
-
-    @Test
-    @Disabled("BREKKER AV HARDKODA BEHOV")
-    fun `søknad med for høy alder skal automatisk avslås`() =
-        withMigratedDb {
-            registrerOpplysningstyper()
-            val søknadsdato = 6.mai(2021)
-            val testPerson =
-                TestPerson(
-                    ident,
-                    rapid,
-                    søknadsdato = søknadsdato,
-                    alder = 76,
-                )
-            løsbehandlingFramTilAlder(testPerson)
-
-            personRepository.hent(ident.tilPersonIdentfikator()).also {
-                it.shouldNotBeNull()
-                it
-                    .behandlinger()
-                    .first()
-                    .aktivAvklaringer.size shouldBe 1
-            }
-
-            testPerson.markerAvklaringerIkkeRelevant(åpneAvklaringer())
-
-            rapid.harHendelse("vedtak_fattet") {
-                medMeldingsInnhold("fastsatt") {
-                    medBoolsk("utfall") shouldBe false
-                }
-                medNode("vilkår").size() shouldBe 2
-            }
-
-            godkjennOpplysninger("avslag")
-
-            vedtakJson()
-
-            personRepository.hent(ident.tilPersonIdentfikator()).also {
-                it.shouldNotBeNull()
-                it.behandlinger().size shouldBe 1
-                it
-                    .behandlinger()
-                    .first()
-                    .opplysninger
-                    .somListe(Egne) shouldHaveSize 15
-                it
-                    .behandlinger()
-                    .first()
-                    .aktivAvklaringer.size shouldBe 0
-
-                // TODO: Vi tar ikke vare på historikken på rettigheter ved avslag
-                // it.rettighethistorikk().shouldNotBeEmpty()
-                it.rettighethistorikk().shouldBeEmpty()
-
-                it.harRettighet(søknadsdato) shouldBe false
-            }
-        }
-
-    @Test
-    fun `søknad med for lite inntekt skal automatisk avslås`() =
-        withMigratedDb {
-            registrerOpplysningstyper()
-            val testPerson =
-                TestPerson(
-                    ident,
-                    rapid,
-                    søknadsdato = 6.mai(2021),
-                )
-            løsBehandlingFramTilMinsteinntekt(testPerson)
-
-            personRepository.hent(ident.tilPersonIdentfikator()).also {
-                it.shouldNotBeNull()
-                it.behandlinger().size shouldBe 1
-                it.aktivBehandling.aktivAvklaringer.shouldHaveSize(7)
-            }
-
-            godkjennOpplysninger("avslag")
-            testPerson.markerAvklaringerIkkeRelevant(åpneAvklaringer())
-
-            val person =
-                personRepository.hent(ident.tilPersonIdentfikator()).also {
-                    it.shouldNotBeNull()
-                    it.aktivBehandling.aktivAvklaringer.shouldBeEmpty()
-                }
-
-            rapid.harHendelse("vedtak_fattet") {
-                medMeldingsInnhold("fastsatt") {
-                    medBoolsk("utfall") shouldBe false
-                }
-                medNode("fagsakId").asInt() shouldBe 123
-                medMeldingsInnhold("behandletHendelse") {
-                    medTekst("id") shouldBe testPerson.søknadId.toString()
-                    medTekst("type") shouldBe "Søknad"
-                    medTekst("datatype") shouldBe "UUID"
-                }
-                medTekst("ident") shouldBe ident
-                medBoolsk("automatisk") shouldBe true
-                shouldNotBeNull {
-                    medDato("virkningsdato")
-                }
-                shouldNotBeNull {
-                    medTimestamp("vedtakstidspunkt")
-                }
-                medTekst("behandlingId") shouldBe person!!.aktivBehandling.behandlingId.toString()
-                medVilkår("Oppfyller kravet til alder") {
-                    erOppfylt()
-                }
-                medVilkår("Oppfyller kravet til minsteinntekt") {
-                    erIkkeOppfylt()
-                }
-                medVilkår("Krav til arbeidssøker") {
-                    erOppfylt()
-                }
-                /*
-                TODO: Vi trenger ikke denne, men Arena og melding trenger den
-                medVilkår("Registrert som arbeidssøker på søknadstidspunktet") {
-                    erOppfylt()
-                }
-                medVilkår("Rettighetstype") {
-                    erOppfylt()
-                }*/
-            }
-
-            rapid.inspektør.size shouldBe 27
-
-            testObservatør.tilstandsendringer.size shouldBe 3
-
-            repeat(rapid.inspektør.size) {
-                withClue("Melding nr $it skal ha nøkkel. Meldingsinnhold: ${rapid.inspektør.message(it)}") {
-                    rapid.inspektør.key(it) shouldBe ident
-                }
-            }
-            vedtakJson()
-        }
-
-    @Test
-    fun `Innvilgelse ved permittering`() {
-        withMigratedDb {
-            registrerOpplysningstyper()
-            val testPerson =
-                TestPerson(
-                    ident,
-                    rapid,
-                    søknadsdato = 6.mai(2021),
-                    InntektSiste12Mnd = 500000,
-                    permittering = true,
-                    ordinær = false,
-                )
-            løsBehandlingFramTilInnvilgelse(testPerson)
-            rapid.harHendelse("forslag_til_vedtak") {
-                medFastsettelser {
-                    oppfylt
-                    periode("Permitteringsperiode") shouldBe 26
-                }
-            }
-
-            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            rapid.harHendelse("vedtak_fattet") {
-                medBoolsk("automatisk") shouldBe false
-                medFastsettelser {
-                    oppfylt
-                    periode("Permitteringsperiode") shouldBe 26
-                }
-            }
-            godkjennOpplysninger("permittering")
-            vedtakJson()
-        }
-    }
-
-    @Test
-    fun `Innvilgelse ved fiskepermittering`() {
-        withMigratedDb {
-            registrerOpplysningstyper()
-            val testPerson =
-                TestPerson(
-                    ident,
-                    rapid,
-                    søknadsdato = 6.mai(2021),
-                    InntektSiste12Mnd = 500000,
-                    fiskepermittering = true,
-                    ordinær = false,
-                )
-            løsBehandlingFramTilInnvilgelse(testPerson)
-
-            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            rapid.harHendelse("vedtak_fattet") {
-                medBoolsk("automatisk") shouldBe false
-                medFastsettelser {
-                    oppfylt
-                    periode("FiskePermitteringsperiode") shouldBe 52
-                }
-            }
-            godkjennOpplysninger("fiskepermittering")
-            vedtakJson()
-        }
-    }
-
-    @Test
-    @Disabled("Brekker på grunn av endring i behov")
-    fun `Søknad med nok inntekt skal innvilges`() =
-        withMigratedDb {
-            registrerOpplysningstyper()
-            val søknadsdato = 6.mai(2021)
-            val testPerson =
-                TestPerson(
-                    ident,
-                    rapid,
-                    søknadsdato = søknadsdato,
-                    InntektSiste12Mnd = 500000,
-                )
-            val saksbehandler = TestSaksbehandler(testPerson, hendelseMediator, personRepository, rapid)
-            løsBehandlingFramTilInnvilgelse(testPerson)
-
-            godkjennOpplysninger("etterInntekt")
-
-            rapid.harHendelse("forslag_til_vedtak") {
-                medFastsettelser {
-                    oppfylt
-                }
-            }
-
-            rapid.inspektør.size shouldBe 26
-
-            rapid.harHendelse("forslag_til_vedtak") {
-                medFastsettelser {
-                    oppfylt
-                }
-            }
-
-            personRepository.hent(ident.tilPersonIdentfikator()).also {
-                it.shouldNotBeNull()
-                it.behandlinger().first().kreverTotrinnskontroll() shouldBe true
-            }
-
-            // Saksbehandler lukker alle avklaringer
-            saksbehandler.lukkAlleAvklaringer()
-
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            rapid.harHendelse("vedtak_fattet") {
-                medBoolsk("automatisk") shouldBe false
-                medFastsettelser {
-                    oppfylt
-                    withClue("Grunnlag bør større enn 0") { grunnlag shouldBeGreaterThan 0 }
-                    vanligArbeidstidPerUke shouldBe 37.5
-                    sats shouldBeGreaterThan 0
-                    samordning.shouldNotBeEmpty()
-                    samordning.first()["type"].asText() shouldBe "Sykepenger dagsats"
-                }
-                medNode("vilkår").shouldHaveSize(18)
-                medNode("behandletAv")
-                    .map {
-                        it["behandler"]["ident"].asText()
-                    }.shouldContainExactlyInAnyOrder("NAV987987", "NAV123123")
-            }
-
-            vedtakJson()
-
-            personRepository.hent(ident.tilPersonIdentfikator()).also {
-                it.shouldNotBeNull()
-                it.harRettighet(søknadsdato.minusDays(1)) shouldBe false
-                it.harRettighet(søknadsdato) shouldBe true
-                it.harRettighet(søknadsdato.plusDays(1)) shouldBe true
-            }
-        }
 
     @Test
     fun `Søknad med som oppfyller kravet til verneplikt skal innvilges`() =
@@ -665,37 +385,6 @@ internal class PersonMediatorTest {
 
             rapid.inspektør.size shouldBe 6
         }
-
-    /*@Test
-    fun `søker før ny rapporteringsfrist, men ønsker etter`() =
-        withMigratedDb {
-            registrerOpplysningstyper()
-            val testPerson =
-                TestPerson(
-                    ident,
-                    rapid,
-                    søknadsdato = 5.juni(2024),
-                    innsendt = 5.juni(2024).atTime(12, 0),
-                    ønskerFraDato = 10.juni(2024),
-                    arbeidssøkerregistreringsdato = 10.juni(2024),
-                )
-            løsBehandlingFramTilMinsteinntekt(testPerson)
-
-            rapid.harHendelse("forslag_til_vedtak")
-
-            åpneAvklaringer().values.shouldContainExactlyInAnyOrder(
-                listOf(
-                    "EØSArbeid",
-                    "HattLukkedeSakerSiste8Uker",
-                    "InntektNesteKalendermåned",
-                    "JobbetUtenforNorge",
-                    "MuligGjenopptak",
-                    "SvangerskapsrelaterteSykepenger",
-                    "ØnskerEtterRapporteringsfrist",
-                    "HarTilleggsopplysninger",
-                ),
-            )
-        }*/
 
     @Test
     fun `søker før ny rapporteringsfrist, men ønsker etter`() =
@@ -1062,7 +751,6 @@ internal class PersonMediatorTest {
     }
 
     @Test
-    @Disabled("BREKKER AV HARDKODA BEHOV")
     fun `Innvilgelse og forbruk av siste del av stønadsperioden i meldekort`() {
         withMigratedDb {
             val meldekortBehandlingskø =
@@ -1193,8 +881,9 @@ internal class PersonMediatorTest {
         /**
          * Sjekker om mulig verneplikt
          */
-        rapid.harBehov(Verneplikt)
-        testPerson.løsBehov(Verneplikt)
+        println("()")
+        // rapid.harBehov(Verneplikt)
+        // testPerson.løsBehov(Verneplikt)
 
         if (behandlingslengde == Behandlingslengde.AvbruddInntekt) {
             return

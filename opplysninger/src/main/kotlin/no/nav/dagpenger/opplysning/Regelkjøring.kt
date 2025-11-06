@@ -13,6 +13,8 @@ import java.time.LocalDate
 
 typealias Informasjonsbehov = Map<Opplysningstype<*>, Set<Opplysning<*>>>
 
+typealias Regelkart = Map<Opplysningstype<*>, Regel<*>>
+
 class Regelkjøring(
     private val regelverksdato: LocalDate,
     private val prøvingsperiode: Periode,
@@ -254,3 +256,6 @@ interface RegelkjøringObserver {
         aktiveOpplysninger: LesbarOpplysninger,
     )
 }
+
+fun Regelkart.finn(opplysningstype: Opplysningstype<*>) =
+    get(opplysningstype) ?: throw IllegalStateException("Fant ikke produsent for $opplysningstype")

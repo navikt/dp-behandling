@@ -8,7 +8,6 @@ import no.nav.dagpenger.opplysning.dag.DatatreBygger
 import no.nav.dagpenger.opplysning.dag.RegeltreBygger
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
-import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regelsett.Alderskrav
@@ -23,7 +22,6 @@ import no.nav.dagpenger.opplysning.regelsett.ReglerForInntektTest
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
@@ -251,96 +249,6 @@ class RegelmotorIntegrasjonsTest {
         opplysninger.leggTil(Faktum(d, false)).also { regelkjøring.evaluer() }
 
         opplysninger.finnOpplysning(c).verdi shouldBe true
-    }
-
-    @Test
-    @Disabled("The age of men is over. The time of the Orc has come")
-    fun `kjør 2 ganger`() {
-        val fraDato = 10.mai
-        val a = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "a")
-        val b = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "b")
-        val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "c")
-        val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "d")
-        val e = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "e")
-        val f = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "f")
-        val g = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "g")
-        val h = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "h")
-        val i = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "i")
-
-        val regelsett =
-            vilkår("test av regelsett") {
-                regel(e) { innhentes }
-                regel(f) { innhentes }
-                regel(g) { innhentes }
-                regel(h) { innhentes }
-                regel(d) { alle(g, h) }
-                regel(c) { enAv(f) }
-                regel(b) { enAv(e) }
-                regel(a) { alle(b, c, d) }
-            }
-
-        val regelDAG = RegeltreBygger(regelsett).dag()
-        val mermaidDiagram = MermaidPrinter(regelDAG).toPrint()
-        println(mermaidDiagram)
-        val opplysninger = Opplysninger()
-        val regelkjøring =
-            Regelkjøring(
-                fraDato,
-                opplysninger,
-                object : Forretningsprosess(Regelverk(null, regelsett)) {
-                    override fun regelkjøring(opplysninger: Opplysninger) = TODO("Not yet implemented")
-
-                    override fun kontrollpunkter() = TODO("Not yet implemented")
-
-                    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = TODO("Not yet implemented")
-
-                    override fun virkningsdato(opplysninger: LesbarOpplysninger) = TODO("Not yet implemented")
-
-                    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
-                        val ønsker = mutableListOf<Opplysningstype<*>>()
-                        ønsker.add(d)
-                        if (opplysninger.mangler(d)) return ønsker
-                        if (opplysninger.finnOpplysning(d).verdi) {
-                            ønsker.add(a)
-                        }
-                        return ønsker
-                    }
-                },
-            ) { prøvingsdato ->
-                forDato(prøvingsdato)
-            }
-
-        opplysninger.leggTil(Faktum(e, true))
-        opplysninger.leggTil(Faktum(f, true))
-        opplysninger.leggTil(Faktum(g, true))
-        opplysninger.leggTil(Faktum(h, true))
-        opplysninger.leggTil(Faktum(i, true)) // "fast" opplysning
-
-        regelkjøring.evaluer().mangler.shouldBeEmpty()
-
-        // Sjekk at A blir produsert
-        opplysninger.har(a) shouldBe true
-        opplysninger.finnOpplysning(a).verdi shouldBe true
-
-        // Endre verdi av G
-        opplysninger.leggTil(Faktum(g, false))
-
-        regelkjøring.evaluer().mangler.shouldBeEmpty()
-
-        // D har blitt oppdatert på grunn av endring i G
-        opplysninger.har(d) shouldBe true
-        opplysninger.finnOpplysning(d).verdi shouldBe false
-
-        // Fordi at D er falsk, så A skal ikke ha blitt utledet på grunn av ønsketResultat
-        opplysninger.har(a) shouldBe false
-
-        // Denne skal aldri forsvinne (emulerer opplysninger uten regel)
-        opplysninger.har(i) shouldBe true
-
-        opplysninger.har(b) shouldBe false
-        opplysninger.har(c) shouldBe false
-        opplysninger.har(e) shouldBe false
-        opplysninger.har(f) shouldBe false
     }
 }
 
