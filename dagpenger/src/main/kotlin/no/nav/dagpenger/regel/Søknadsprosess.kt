@@ -5,7 +5,6 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.regel.Alderskrav.HattLukkedeSakerSiste8UkerKontroll
 import no.nav.dagpenger.regel.Alderskrav.MuligGjenopptakKontroll
 import no.nav.dagpenger.regel.Alderskrav.TilleggsopplysningsKontroll
@@ -34,14 +33,10 @@ import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
-class Søknadsprosess(
-    val erGjenopptak: Boolean = false,
-) : Forretningsprosess(RegelverkDagpenger) {
+class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     init {
         registrer(RettighetsperiodePlugin(regelverk))
     }
-
-    override fun regelsett(): List<Regelsett> = super.regelsett()
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(

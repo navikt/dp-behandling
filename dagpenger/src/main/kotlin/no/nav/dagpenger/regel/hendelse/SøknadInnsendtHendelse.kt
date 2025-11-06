@@ -35,7 +35,7 @@ class SøknadInnsendtHendelse(
     opprettet: LocalDateTime,
     val søknadstype: Søknadstype,
 ) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
-    override val forretningsprosess = Søknadsprosess(søknadstype == Søknadstype.Gjenopptak)
+    override val forretningsprosess = Søknadsprosess()
 
     override fun behandling(
         forrigeBehandling: Behandling?,
