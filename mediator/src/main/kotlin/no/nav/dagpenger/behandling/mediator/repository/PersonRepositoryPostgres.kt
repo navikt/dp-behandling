@@ -72,7 +72,7 @@ class PersonRepositoryPostgres(
                 queryOf(
                     //language=PostgreSQL
                     """
-                    SELECT * FROM rettighetstatus WHERE ident = :ident
+                    SELECT * FROM rettighetstatus WHERE ident = :ident ORDER BY opprettet
                     """.trimIndent(),
                     mapOf("ident" to ident.identifikator()),
                 ).map { row ->
