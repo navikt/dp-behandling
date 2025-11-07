@@ -77,6 +77,7 @@ import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -483,6 +484,18 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException(
                                     "Kan ikke endre prøvingsdato på en behandling som er basert på en tidligere behandling",
                                 )
+                            }
+
+                            // TODO: Midlertidlig sperre for å unngå at prøvingsdato settes før søknadId sin gyldighetsperiode
+                            if (opplysningstype.er(prøvingsdato)) {
+                                val søknadId = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
+                                if (søknadId != null) {
+                                    val nyPrøvingsdato = LocalDate.parse(nyOpplysningDTO.verdi)
+
+                                    if (nyPrøvingsdato.isBefore(søknadId.gyldighetsperiode.fraOgMed)) {
+                                        throw BadRequestException("Prøvingsdato kan ikke settes før søknadsdato")
+                                    }
+                                }
                             }
 
                             logger.info {
