@@ -7,6 +7,7 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
+import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
 import no.nav.dagpenger.behandling.mediator.mottak.FjernOpplysningMessage
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
@@ -102,6 +103,7 @@ internal class PostgresMeldingRepository : MeldingRepository {
             is OpprettBehandlingMessage -> MeldingTypeDTO.OPPRETT_BEHANDLING
             is SøknadInnsendtMessage -> MeldingTypeDTO.SØKNAD_INNSENDT
             is UtbetalingStatusMessage -> MeldingTypeDTO.UTBETALING_STATUS
+            is BehandlingStårFastMessage -> MeldingTypeDTO.BEHANDLING_STÅR_FAST
             else ->
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
@@ -125,4 +127,5 @@ private enum class MeldingTypeDTO {
     OPPRETT_BEHANDLING,
     FJERN_OPPLYSNING,
     UTBETALING_STATUS,
+    BEHANDLING_STÅR_FAST,
 }
