@@ -175,7 +175,37 @@ class OpplysningSvarMottakTest {
     }
 
     @Test
-    fun `kan svare på barn`() {
+    fun `kan svare på barntillegg v1`() {
+        rapid.sendTestMessage(
+            løsningMedMetadata(
+                null,
+                gyldigTilOgMed,
+                opplysningstype = barn.utgåtteBehovId.first(),
+                verdi =
+                    listOf(
+                        mapOf(
+                            "fødselsdato" to "2020-01-01",
+                            "fornavnOgMellomnavn" to "Ola",
+                            "etternavn" to "Nordmann",
+                            "statsborgerskap" to "Norge",
+                            "kvalifiserer" to true,
+                        ),
+                    ),
+            ).toJson(),
+        )
+
+        val hendelse = slot<OpplysningSvarHendelse>()
+        verify {
+            messageMediator.behandle(capture(hendelse), any(), any())
+        }
+
+        hendelse.isCaptured shouldBe true
+        hendelse.captured.behandlingId shouldBe behandlingId
+        hendelse.captured.opplysninger shouldHaveSize 1
+    }
+
+    @Test
+    fun `kan svare på barntillegg v2`() {
         rapid.sendTestMessage(
             løsningMedMetadata(
                 null,
@@ -183,7 +213,7 @@ class OpplysningSvarMottakTest {
                 opplysningstype = barn.behovId,
                 verdi =
                     mapOf(
-                        "søknadbarnId" to "null",
+                        "søknadbarnId" to "${UUIDv7.ny()}",
                         "barn" to
                             listOf(
                                 mapOf(

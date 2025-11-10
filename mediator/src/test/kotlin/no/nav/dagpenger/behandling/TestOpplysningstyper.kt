@@ -36,7 +36,13 @@ internal object TestOpplysningstyper {
         )
     val inntektA = Opplysningstype.inntekt(Opplysningstype.Id(UUIDv7.ny(), InntektDataType), "Inntekt")
     val tekst = Opplysningstype.tekst(Opplysningstype.Id(UUIDv7.ny(), Tekst), "Tekst")
-    val barn = Opplysningstype.barn(Opplysningstype.Id(UUIDv7.ny(), BarnDatatype), "Barn", behovId = "BarnetilleggV2")
+    val barn =
+        Opplysningstype.barn(
+            Opplysningstype.Id(UUIDv7.ny(), BarnDatatype),
+            "Barn",
+            behovId = "BarnetilleggV2",
+            utgåtteBehovId = setOf("Barnetillegg"),
+        )
     val periode = Opplysningstype.periode(Opplysningstype.Id(UUIDv7.ny(), PeriodeDataType), "Periode")
 
     val beløpA = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpA")
