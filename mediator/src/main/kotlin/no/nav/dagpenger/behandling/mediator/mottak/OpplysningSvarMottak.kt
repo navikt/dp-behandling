@@ -69,7 +69,7 @@ internal class OpplysningSvarMottak(
             }.register(this)
     }
 
-    private val skipBehovId = listOf("aa023204-d698-4ab8-8671-86bd6b2e29e4")
+    private val skipBehovId = listOf("4ff5110c-167d-45db-a5ec-cedcf4a2e286")
     private val skipBehandlingsId = listOf("019a068f-2b26-7e4f-862e-38782d469e27")
 
     @WithSpan
