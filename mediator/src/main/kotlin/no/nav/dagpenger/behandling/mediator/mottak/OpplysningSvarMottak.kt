@@ -148,7 +148,8 @@ internal class OpplysningSvarMessage(
                 val svar =
                     lagSvar(typeNavn, løsning).also {
                         logger.info {
-                            "Løsning for opplysning $typeNavn med svartype: ${it::class.simpleName}. Gyldighetsperiode=${it.gyldighetsperiode}"
+                            "Løsning for opplysning $typeNavn med svartype: ${it::class.simpleName}. " +
+                                "Gyldighetsperiode=${it.gyldighetsperiode}"
                         }
                     }
                 val kilde =
