@@ -361,18 +361,21 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
         verdien =
             when (this.opplysningstype.datatype) {
                 BarnDatatype ->
-                    BarnelisteDTO(
-                        (this.verdi as BarnListe).barn.map {
-                            BarnVerdiDTO(
-                                it.fødselsdato,
-                                it.fornavnOgMellomnavn,
-                                it.etternavn,
-                                it.statsborgerskap,
-                                it.kvalifiserer,
-                            )
-                        },
-                    )
-
+                    with(this.verdi as BarnListe) {
+                        BarnelisteDTO(
+                            søknadBarnId = søknadbarnId,
+                            verdi =
+                                barn.map {
+                                    BarnVerdiDTO(
+                                        it.fødselsdato,
+                                        it.fornavnOgMellomnavn,
+                                        it.etternavn,
+                                        it.statsborgerskap,
+                                        it.kvalifiserer,
+                                    )
+                                },
+                        )
+                    }
                 Boolsk -> BoolskVerdiDTO(this.verdi as Boolean)
                 Dato -> DatoVerdiDTO(this.verdi as LocalDate)
                 Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double)

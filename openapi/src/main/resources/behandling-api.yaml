@@ -1381,6 +1381,9 @@ components:
     Barneliste:
       type: object
       properties:
+        søknadBarnId:
+          type: string
+          format: uuid
         verdi:
           type: array
           items:
