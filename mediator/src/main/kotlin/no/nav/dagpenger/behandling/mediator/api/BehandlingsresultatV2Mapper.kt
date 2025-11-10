@@ -96,12 +96,12 @@ internal fun Behandling.tilBehandlingsresultatV2DTO(): BehandlingsresultatV2DTO 
             avklaringer = this.avklaringer().map { it.tilAvklaringDTO() },
             vilkår =
                 vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
-                    .relevanteVilkår(vedtakopplysninger.opplysninger)
+                    .regelsettAvType(RegelsettType.Vilkår)
                     .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             fastsettelser =
                 vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
-                    .relevanteFastsettelser(vedtakopplysninger.opplysninger)
+                    .regelsettAvType(RegelsettType.Fastsettelse)
                     .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             rettighetsperioder = vedtakopplysninger.rettighetsperioder(),
@@ -146,7 +146,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
     val typer = alleOpplysninger.map { it.opplysningstype }.toSet()
     val produkter = produserer.filter { it in typer }
 
-    if (produkter.isEmpty()) return null
+    // if (produkter.isEmpty()) return null
 
     return VurderingsresultatV2DTO(
         navn = hjemmel.kortnavn,
