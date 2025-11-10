@@ -146,8 +146,6 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
     val typer = alleOpplysninger.map { it.opplysningstype }.toSet()
     val produkter = produserer.filter { it in typer }
 
-    // if (produkter.isEmpty()) return null
-
     return VurderingsresultatV2DTO(
         navn = hjemmel.kortnavn,
         hjemmel =
