@@ -70,7 +70,7 @@ internal class OpplysningSvarMottak(
     }
 
     private val skipBehovId = listOf("4ff5110c-167d-45db-a5ec-cedcf4a2e286")
-    private val skipBehandlingsId = listOf("019a068f-2b26-7e4f-862e-38782d469e27")
+    private val skipBehandlingsId = listOf("019a6d89-8060-7a2e-8e49-79f72952fb1a")
 
     @WithSpan
     override fun onPacket(
