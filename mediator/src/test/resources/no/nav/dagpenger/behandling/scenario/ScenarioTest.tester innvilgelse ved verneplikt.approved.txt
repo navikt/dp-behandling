@@ -37,7 +37,7 @@ Behov:
 Laget avklaring om SjekkPrøvingsdato
 Laget avklaring om BeregnetArbeidstid
 Behov:
-- Barnetillegg
+- BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
