@@ -97,11 +97,13 @@ internal fun Behandling.tilBehandlingsresultatV2DTO(): BehandlingsresultatV2DTO 
             vilkår =
                 vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
                     .relevanteVilkår(vedtakopplysninger.opplysninger)
-                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) },
+                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .sortedBy { it.hjemmel.paragraf.toInt() },
             fastsettelser =
                 vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
                     .relevanteFastsettelser(vedtakopplysninger.opplysninger)
-                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) },
+                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .sortedBy { it.hjemmel.paragraf.toInt() },
             rettighetsperioder = vedtakopplysninger.rettighetsperioder(),
             opplysninger =
                 opplysninger().somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
