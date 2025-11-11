@@ -60,16 +60,17 @@ class OpplysningDokumentasjon {
             markdown.appendLine(
                 """
                 >#### Opplysninger
-                >|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-                >|---|---|---|---|---|
+                >|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+                >|---|---|---|---|---|---|
                 """.trimMargin(">"),
             )
 
             opplysninger.sortedBy { it.id.uuid }.forEach {
                 val behovId = if (it in behov) it.behovId else ""
+                val enhet = if (it.enhet != null) " ${it.enhet}" else ""
 
                 markdown.appendLine(
-                    "|${it.id.uuid}|${it.navn}|${it.datatype}|${it.datatype.klasse.simpleName}|$behovId|",
+                    "|${it.id.uuid}|${it.navn}|${it.datatype}|${it.datatype.klasse.simpleName}|$behovId|$enhet",
                 )
             }
         }

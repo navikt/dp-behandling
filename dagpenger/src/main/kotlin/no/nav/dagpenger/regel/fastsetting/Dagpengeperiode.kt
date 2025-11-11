@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.regel.høyesteAv
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallStønadsukerId
 import no.nav.dagpenger.regel.OpplysningsTyper.DagerIUkaId
@@ -37,12 +38,12 @@ import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 
 object Dagpengeperiode {
-    private val dagerIUka = heltall(DagerIUkaId, "Antall dager som skal regnes med i hver uke", synlig = aldriSynlig)
+    private val dagerIUka = heltall(DagerIUkaId, "Antall dager som skal regnes med i hver uke", synlig = aldriSynlig, enhet = Enhet.Dager)
 
-    private val kortPeriode = heltall(KortPeriodeId, "Kort dagpengeperiode", synlig = aldriSynlig)
-    private val langPeriode = heltall(LangPeriodeId, "Lang dagpengeperiode", synlig = aldriSynlig)
-    private val terskelFaktor12 = desimaltall(TerskelFaktor12Id, "Terskelfaktor for 12 måneder", synlig = aldriSynlig)
-    private val terskelFaktor36 = desimaltall(TerskelFaktor36Id, "Terskelfaktor for 36 måneder", synlig = aldriSynlig)
+    private val kortPeriode = heltall(KortPeriodeId, "Kort dagpengeperiode", synlig = aldriSynlig, enhet = Enhet.Uker)
+    private val langPeriode = heltall(LangPeriodeId, "Lang dagpengeperiode", synlig = aldriSynlig, enhet = Enhet.Uker)
+    private val terskelFaktor12 = desimaltall(TerskelFaktor12Id, "Terskelfaktor for 12 måneder", synlig = aldriSynlig, enhet = Enhet.G)
+    private val terskelFaktor36 = desimaltall(TerskelFaktor36Id, "Terskelfaktor for 36 måneder", synlig = aldriSynlig, enhet = Enhet.G)
 
     // Denne er ikke lenger i bruk, men må være igjen for å fortsette å være skjult i saksbehandlingsløsningen
     private val divisor = desimaltall(DivisiorId, "Divisior", synlig = aldriSynlig)

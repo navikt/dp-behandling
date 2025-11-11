@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.prosentTerskel
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Avklaringspunkter.BeregnetArbeidstid
 import no.nav.dagpenger.regel.Avklaringspunkter.TapAvArbeidstidBeregningsregel
 import no.nav.dagpenger.regel.Behov.AndreØkonomiskeYtelser
@@ -60,6 +61,7 @@ object TapAvArbeidsinntektOgArbeidstid {
         desimaltall(
             kravTilProsentvisTapAvArbeidstidId,
             "Krav til prosentvis tap av arbeidstid",
+            enhet = Enhet.Prosent,
         )
 
     val arbeidstidsreduksjonIkkeBruktTidligere =
@@ -73,6 +75,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             ordinærtKravTilTaptArbeidstidId,
             "Ordinært krav til prosentvis tap av arbeidstid",
             synlig = aldriSynlig,
+            enhet = Enhet.Prosent,
         )
 
     private val beregningsregel =
@@ -102,15 +105,17 @@ object TapAvArbeidsinntektOgArbeidstid {
         desimaltall(
             beregnetVanligArbeidstidPerUkeFørTapId,
             "Beregnet vanlig arbeidstid per uke før tap",
+            enhet = Enhet.Timer,
         )
     val maksimalVanligArbeidstid =
         desimaltall(
             maksimalVanligArbeidstidId,
             "Maksimal vanlig arbeidstid",
             synlig = aldriSynlig,
+            enhet = Enhet.Timer,
         )
 
-    val nyArbeidstid = desimaltall(nyArbeidstidPerUkeId, "Ny arbeidstid per uke")
+    val nyArbeidstid = desimaltall(nyArbeidstidPerUkeId, "Ny arbeidstid per uke", enhet = Enhet.Timer)
 
     internal val ordinærEllerVernepliktArbeidstid =
         desimaltall(
