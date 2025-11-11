@@ -26,6 +26,7 @@ object Søknadstidspunkt {
 
     val søknadstidspunkt = Opplysningstype.dato(søknadstidspunktId, "Søknadstidspunkt", synlig = aldriSynlig)
 
+    // TODO: Fjern synlighet på denne når den nye visninga tar over i prod
     val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato, gyldighetsperiode = egenVerdi)
     val søknadIdOpplysningstype = Opplysningstype.tekst(søknadId, "søknadId")
 
