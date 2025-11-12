@@ -70,6 +70,7 @@ class Regelkjøring(
 
     // Setter opp hvilke regler som skal gjelde
     private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
+    private val avhengighetsgraf = Avhengighetsgraf(gjeldendeRegler)
 
     // Setter opp hvilke opplysninger som skal brukes når reglene evalurerer om de skal kjøre
     private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
@@ -107,6 +108,10 @@ class Regelkjøring(
             aktiverRegler(prøvingsdato)
         }
 
+        // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
+        val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
+        opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
+
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
             mangler = trenger(),
@@ -130,12 +135,12 @@ class Regelkjøring(
         val produsenter = forretningsprosess.produsenter(regelverksdato, opplysningerPåPrøvingsdato)
         val besøkt = mutableSetOf<Regel<*>>()
 
-        ønsketResultat.forEach { opplysningstype ->
-            val produsent =
-                produsenter[opplysningstype]
-                    ?: throw IllegalArgumentException("Fant ikke regel som produserer $opplysningstype")
-            produsent.lagPlan(opplysningerPåPrøvingsdato, produksjonsplan, produsenter, besøkt)
-        }
+        // Kjør de reglene som skal kjøres
+        ønsketResultat
+            .mapNotNull { produsenter[it] }
+            .forEach { produsent ->
+                produsent.lagPlan(opplysningerPåPrøvingsdato, produksjonsplan, produsenter, besøkt)
+            }
 
         val (ekstern, intern) = produksjonsplan.partition { it is Ekstern<*> }
         plan = intern.toMutableSet()

@@ -92,12 +92,34 @@ Behov:
 - Fødselsdato
 Behov:
 - Inntekt
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+- RegistrertSomArbeidssøker
+- Ordinær
+- Permittert
+- Lønnsgaranti
+- PermittertFiskeforedling
+- Verneplikt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
+Behov:
+- BostedslandErNorge
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
 Laget avklaring om SjekkPrøvingsdato
 Laget avklaring om BeregnetArbeidstid
 Behov:
+- BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Behandling endret tilstand til: ForslagTilVedtak
 Forslag til vedtak med utfall=true

@@ -17,6 +17,7 @@ abstract class RegelsettBuilderBase(
     protected val regler: MutableMap<Opplysningstype<*>, TemporalCollection<Regel<*>>> = mutableMapOf()
     protected val avklaringer: MutableSet<Avklaringkode> = mutableSetOf()
     protected var skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
+    protected var skalRevurderes: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
     protected var relevant: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
 
     fun avklaring(avklaringkode: Avklaringkode) {
@@ -25,6 +26,10 @@ abstract class RegelsettBuilderBase(
 
     fun skalVurderes(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
         skalKjøres = block
+    }
+
+    fun skalRevurderes(block: (opplysninger: LesbarOpplysninger) -> Boolean) {
+        skalRevurderes = block
     }
 
     fun påvirkerResultat(block: (opplysninger: LesbarOpplysninger) -> Boolean) {

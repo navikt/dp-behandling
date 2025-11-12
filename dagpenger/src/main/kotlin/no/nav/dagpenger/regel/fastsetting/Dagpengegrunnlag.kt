@@ -139,10 +139,10 @@ object Dagpengegrunnlag {
         fastsettelse(
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
         ) {
-            skalVurderes {
-                (kravPåDagpenger(it) || it.erSann(skalVernepliktVurderes)) &&
-                    // TODO: Må være ekte vurdering av om grunnlag skal fastsettes
-                    !it.har(grunnlag)
+            skalVurderes { (kravPåDagpenger(it) || it.erSann(skalVernepliktVurderes)) }
+            skalRevurderes {
+                // TODO: Må være ekte vurdering av om grunnlag skal fastsettes
+                !it.har(grunnlag)
             }
 
             regel(antallÅrI36Måneder) { somUtgangspunkt(3.0) }

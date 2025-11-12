@@ -36,6 +36,7 @@ abstract class Forretningsprosess(
         opplysningerPåPrøvingsdato: LesbarOpplysninger,
     ) = regelverk.regelsett
         .filter { it.skalKjøres(opplysningerPåPrøvingsdato) }
+        .filter { it.skalRevurderes(opplysningerPåPrøvingsdato) }
         .flatMap { it.regler(regelverksdato) }
         .associateBy { it.produserer }
 }

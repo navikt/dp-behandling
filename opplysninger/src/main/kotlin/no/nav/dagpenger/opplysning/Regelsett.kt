@@ -17,6 +17,7 @@ class Regelsett internal constructor(
     val avklaringer: Set<Avklaringkode>,
     val utfall: Opplysningstype<Boolean>?,
     val skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean,
+    val skalRevurderes: (opplysning: LesbarOpplysninger) -> Boolean,
     val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
     val betingelser: List<Opplysningstype<Boolean>>,
 ) {

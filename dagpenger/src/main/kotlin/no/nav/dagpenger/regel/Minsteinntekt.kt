@@ -28,6 +28,7 @@ import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Behov.Inntekt
 import no.nav.dagpenger.regel.Behov.OpptjeningsperiodeFraOgMed
 import no.nav.dagpenger.regel.GrenseverdierForMinsteArbeidsinntekt.finnTerskel
+import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.OpplysningsTyper.BruttoArbeidsinntektId
 import no.nav.dagpenger.regel.OpplysningsTyper.FørsteMånedAvOpptjeningsperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnbeløpId
@@ -75,7 +76,8 @@ object Minsteinntekt {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
-            skalVurderes { it.oppfyller(kravTilAlder) && !it.har(minsteinntekt) }
+            skalVurderes { it.oppfyller(kravTilAlder) }
+            skalRevurderes { !it.har(minsteinntekt) }
 
             regel(maksPeriodeLengde) { oppslag(prøvingsdato) { 36 } }
             regel(førsteMånedAvOpptjeningsperiode) { trekkFraMånedTilFørste(sisteAvsluttendendeKalenderMåned, maksPeriodeLengde) }

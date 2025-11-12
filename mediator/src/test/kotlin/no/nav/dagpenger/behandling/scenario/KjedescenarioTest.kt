@@ -199,8 +199,6 @@ class KjedescenarioTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
-            val behandling1 = person.behandlingId
-
             // Søker på nytt etter avslag, får ny kjede
             person.søkDagpenger(21.juni(2015))
             behovsløsere.løsTilForslag()

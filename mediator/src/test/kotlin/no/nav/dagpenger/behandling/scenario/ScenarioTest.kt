@@ -31,6 +31,7 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.ReellArbeidssøker
+import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -86,6 +87,32 @@ class ScenarioTest {
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker).single().verdi.verdi shouldBe true
 
                 opplysninger shouldHaveSize 58
+            }
+        }
+    }
+
+    @Test
+    fun `tester avslag ved for lite inntekt uten å vurdere reell arbeidssøker`() {
+        nyttScenario {
+            inntektSiste12Mnd = 50000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(erReellArbeidssøkerVurdert, false)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe false
+                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
+
+                opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe true
+                opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
+                opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
+
+                opplysninger shouldHaveSize 43
             }
         }
     }
