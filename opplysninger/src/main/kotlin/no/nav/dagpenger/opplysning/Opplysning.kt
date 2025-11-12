@@ -128,13 +128,7 @@ class Faktum<T : Comparable<T>>(
         erstatter: Opplysning<T>? = null,
     ) : this(UUIDv7.ny(), opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter)
 
-    init {
-        opplysningstype.enhet?.valider(verdi)
-    }
-
     override fun bekreft() = this
-
-    fun somEnhet() = opplysningstype.enhet?.somEnhet(verdi)
 
     override fun lagForkortet(tilOgMed: Opplysning<*>): Opplysning<T> {
         val forrigeFom =

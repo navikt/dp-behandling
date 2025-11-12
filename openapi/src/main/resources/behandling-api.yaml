@@ -1229,6 +1229,8 @@ components:
         status:
           deprecated: true
           $ref: '#/components/schemas/Opprinnelse'
+        enhet:
+          $ref: '#/components/schemas/Enhet'
         opprinnelse:
           $ref: '#/components/schemas/Opprinnelse'
         gyldigFraOgMed:
@@ -1250,6 +1252,11 @@ components:
       description: Om opplysningen ble opprettet i denne behandlingen eller arvet fra tidligere behandlinger
       type: string
       enum: [ "Ny", "Arvet" ]
+
+    Enhet:
+      type: string
+      enum: [ "timer", "prosent", "G", "dager", "uker"]
+      description: Enhet for opplysningen, f.eks. timer, prosent, dager, etc.
 
     Opplysningsverdi:
       description: |

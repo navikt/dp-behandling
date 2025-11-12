@@ -1,7 +1,6 @@
 package no.nav.dagpenger.opplysning
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
-import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.dato1
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.dato2
@@ -9,6 +8,7 @@ import no.nav.dagpenger.opplysning.TestOpplysningstyper.desimaltall
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.desimaltallSomTimer
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.ulid
 import no.nav.dagpenger.opplysning.verdier.Ulid
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -24,13 +24,9 @@ class OpplysningTest {
     }
 
     @Test
-    fun `Opplysningstype med enhet som validerer`() {
+    fun `Opplysningstype med enhet `() {
         val opplysning = Faktum(desimaltallSomTimer, 2.0)
-        opplysning.somEnhet() shouldBe Timer(2.0)
-
-        shouldThrowAny { Faktum(desimaltallSomTimer, 2.1) }
-        shouldThrowAny { Faktum(desimaltallSomTimer, -1.0) }
-        shouldNotThrowAny { Faktum(desimaltallSomTimer, 2.5) }
+        opplysning.opplysningstype.enhet shouldBe Enhet.Timer
     }
 
     @Test

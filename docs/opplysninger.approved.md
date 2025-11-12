@@ -11,26 +11,26 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 0-0. Meldekortberegning
 *Type:* Fastsettelse
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |01948ea0-36e8-72cc-aa4f-16bc446ed3bd|Arbeidsdag|Boolsk|boolean||
-|01948ea0-e25c-7c47-8429-a05045d80eca|Arbeidstimer på en arbeidsdag|Desimaltall|double||
+|01948ea0-e25c-7c47-8429-a05045d80eca|Arbeidstimer på en arbeidsdag|Desimaltall|double|| Timer
 |01948ea0-ffdc-7964-ab55-52a7e35e1020|Dag som fører til forbruk av dagpengeperiode|Boolsk|boolean||
 |01948ea2-22f3-7da8-9547-90d0c64e74e0|Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger|Desimaltall|double||
 |01956ab8-126c-7636-803e-a5d87eda2015|Har meldt seg via meldekort|Boolsk|boolean||
 |01956abd-2871-7517-a332-b462c0c31292|Meldeperiode|PeriodeDataType|Periode||
 |01957069-d7d5-7f7c-b359-c00686fbf1f7|Penger som skal utbetales|Penger|Beløp||
 |01973a27-d8b3-7ffd-a81a-a3826963b079|Forbrukt egenandel|Penger|Beløp||
-|01992934-66e4-7606-bdd3-c6c9dd420ffd|Antall dager som er forbrukt|Heltall|int||
-|01992956-e349-76b1-8f68-c9d481df3a32|Antall dager som gjenstår|Heltall|int||
+|01992934-66e4-7606-bdd3-c6c9dd420ffd|Antall dager som er forbrukt|Heltall|int|| Dager
+|01992956-e349-76b1-8f68-c9d481df3a32|Antall dager som gjenstår|Heltall|int|| Dager
 |01994cfd-9a27-762e-81fa-61f550467c95|Penger som skal utbetales for perioden|Penger|Beløp||
 |01997b70-6e6e-702a-a296-18ae5fb9621d|Oppfyller kravet til tapt arbeidstid i perioden|Boolsk|boolean||
 |01997b70-a12c-7622-bff8-82a20687e640|Gjenstående egenandel|Penger|Beløp||
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |01990a09-0eab-7957-b88f-14484a50e194|Har løpende rett på dagpenger|Boolsk|boolean||
 ### § 0-0. Rettighetstype
 *Type:* Fastsettelse
@@ -38,8 +38,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9444-7a73-a458-0af81c034d85|Har rett til ordinære dagpenger gjennom arbeidsforhold|Boolsk|boolean|Ordinær|
 |0194881f-9444-7a73-a458-0af81c034d86|Bruker er permittert|Boolsk|boolean|Permittert|
 |0194881f-9444-7a73-a458-0af81c034d87|Forskutterte lønnsgarantimidler i form av dagpenger|Boolsk|boolean|Lønnsgaranti|
@@ -54,8 +54,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avklaringer
 - VirkningstidspunktForLangtFramItid - [Virkningstidspunkt ligger for langt fram i tid](./avklaringer.approved.md#virkningstidspunkt-ligger-for-langt-fram-i-tid)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-91d1-7df2-ba1d-4533f37fcc73|Søknadsdato|Dato|LocalDate|Søknadsdato|
 |0194881f-91d1-7df2-ba1d-4533f37fcc74|Ønsker dagpenger fra dato|Dato|LocalDate|ØnskerDagpengerFraDato|
 |0194881f-91d1-7df2-ba1d-4533f37fcc75|Søknadstidspunkt|Dato|LocalDate||
@@ -68,8 +68,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9443-72b4-8b30-5f6cdb24d549|Bruker oppholder seg i Norge|Boolsk|boolean||
 |0194881f-9443-72b4-8b30-5f6cdb24d54a|Oppfyller unntak for opphold i Norge|Boolsk|boolean||
 |0194881f-9443-72b4-8b30-5f6cdb24d54b|Oppfyller kravet til opphold i Norge eller unntak|Boolsk|boolean||
@@ -82,8 +82,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9414-7823-8d29-0e25b7feb7ce|Lovpålagt rapporteringsfrist for A-ordningen|Dato|LocalDate||
 |0194881f-9414-7823-8d29-0e25b7feb7cf|Arbeidsgivers rapporteringsfrist|Dato|LocalDate||
 |0194881f-9414-7823-8d29-0e25b7feb7d0|Siste avsluttende kalendermåned|Dato|LocalDate||
@@ -100,22 +100,22 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 - [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9435-72a8-b1ce-9575cbc2a75e|Har krav på lønn fra arbeidsgiver|Boolsk|boolean|AndreØkonomiskeYtelser|
 |0194881f-9435-72a8-b1ce-9575cbc2a761|Oppfyller vilkåret til tap av arbeidsinntekt|Boolsk|boolean||
-|0194881f-9435-72a8-b1ce-9575cbc2a762|Krav til prosentvis tap av arbeidstid|Desimaltall|double||
+|0194881f-9435-72a8-b1ce-9575cbc2a762|Krav til prosentvis tap av arbeidstid|Desimaltall|double|| Prosent
 |0194881f-9435-72a8-b1ce-9575cbc2a763|Beregningsregel: Tapt arbeidstid|Boolsk|boolean||
 |0194881f-9435-72a8-b1ce-9575cbc2a764|Beregningsregel: Arbeidstid siste 6 måneder|Boolsk|boolean||
 |0194881f-9435-72a8-b1ce-9575cbc2a765|Beregningsregel: Arbeidstid siste 12 måneder|Boolsk|boolean||
 |0194881f-9435-72a8-b1ce-9575cbc2a766|Beregningsregel: Arbeidstid siste 36 måneder|Boolsk|boolean||
-|0194881f-9435-72a8-b1ce-9575cbc2a767|Beregnet vanlig arbeidstid per uke før tap|Desimaltall|double||
-|0194881f-9435-72a8-b1ce-9575cbc2a768|Maksimal vanlig arbeidstid|Desimaltall|double||
-|0194881f-9435-72a8-b1ce-9575cbc2a76b|Ny arbeidstid per uke|Desimaltall|double||
+|0194881f-9435-72a8-b1ce-9575cbc2a767|Beregnet vanlig arbeidstid per uke før tap|Desimaltall|double|| Timer
+|0194881f-9435-72a8-b1ce-9575cbc2a768|Maksimal vanlig arbeidstid|Desimaltall|double|| Timer
+|0194881f-9435-72a8-b1ce-9575cbc2a76b|Ny arbeidstid per uke|Desimaltall|double|| Timer
 |0194881f-9435-72a8-b1ce-9575cbc2a76c|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Desimaltall|double||
 |0194881f-9435-72a8-b1ce-9575cbc2a76e|Oppfyller vilkåret om tap av arbeidstid|Boolsk|boolean||
 |0194881f-9435-72a8-b1ce-9575cbc2a76f|Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid|Boolsk|boolean||
-|019522d6-846d-7173-a892-67f10016d8d2|Ordinært krav til prosentvis tap av arbeidstid|Desimaltall|double||
+|019522d6-846d-7173-a892-67f10016d8d2|Ordinært krav til prosentvis tap av arbeidstid|Desimaltall|double|| Prosent
 |0196b4a7-23b5-7b2c-aa95-e4167d900de8|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Boolsk|boolean||
 ### § 4-3. Fastsettelse av arbeidstid
 *Type:* Fastsettelse
@@ -124,8 +124,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 4-5. Reelle arbeidssøkere](#-4-5-reelle-arbeidssøkere)
 - [§ 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon](#-4-25-samordning-med-reduserte-ytelser-fra-folketrygden,-eller-redusert-avtalefestet-pensjon)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9435-72a8-b1ce-9575cbc2a76a|Fastsatt arbeidstid per uke før tap|Desimaltall|double||
 ### § 4-4. Krav til minsteinntekt
 *Type:* Vilkår
@@ -136,8 +136,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 1-2. Frist for levering av opplysninger](#-1-2-frist-for-levering-av-opplysninger)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9413-77ce-92ec-d29700f0423f|Antall G for krav til 12 mnd arbeidsinntekt|Desimaltall|double||
 |0194881f-9413-77ce-92ec-d29700f04240|Antall G for krav til 36 mnd arbeidsinntekt|Desimaltall|double||
 |0194881f-9413-77ce-92ec-d29700f04241|Arbeidsinntekt siste 12 måneder|Penger|Beløp||
@@ -160,8 +160,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9435-72a8-b1ce-9575cbc2a75f|Ønsket arbeidstid|Desimaltall|double|ØnsketArbeidstid|
 |0194881f-9435-72a8-b1ce-9575cbc2a769|Minimum vanlig arbeidstid|Desimaltall|double||
 |0194881f-9435-72a8-b1ce-9575cbc2a76d|Villig til å jobbe minimum arbeidstid|Boolsk|boolean||
@@ -182,8 +182,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9442-707b-a6ee-e96c06877be0|Registrert som arbeidssøker|Boolsk|boolean|RegistrertSomArbeidssøker|
 |0194881f-9442-707b-a6ee-e96c06877be1|Oppfyller kravet til å være registrert som arbeidssøker|Boolsk|boolean||
 ### § 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v
@@ -191,8 +191,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9445-734c-a7ee-045edf29b522|Brukeren er under utdanning eller opplæring|Boolsk|boolean|TarUtdanningEllerOpplæring|
 |0194881f-9445-734c-a7ee-045edf29b523|Godkjent unntak for utdanning eller opplæring?|Boolsk|boolean||
 |0194881f-9445-734c-a7ee-045edf29b524|Har svart ja på spørsmål om utdanning eller opplæring|Boolsk|boolean||
@@ -212,8 +212,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194d105-bd54-7b2b-9dc6-6e6664951894|Årsaken til permitteringen er godkjent|Boolsk|boolean||
 |0194d111-db2f-7395-bcfb-959f245fd2a6|Oppfyller kravet til permittering|Boolsk|boolean||
 |0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean||
@@ -222,8 +222,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Heltall|int||
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Vilkår
@@ -233,8 +233,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |019522b0-c722-76d4-8d7f-78f556c51f72|Oppfyller kravet til permittering i fiskeindustrien|Boolsk|boolean||
 |019522b8-0f1b-7536-8691-fd824bca86de|Årsaken til permitteringen fra fiskeindustrien er godkjent|Boolsk|boolean||
 |019522b8-494f-7012-898c-d202e3b90061|Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean||
@@ -244,14 +244,14 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0195235a-599b-7b27-97a8-bc6142066a87|Periode som gis ved permittering fra fiskeindustrien|Heltall|int||
 ### § 4-8. Meldeplikt og møteplikt
 *Type:* Vilkår
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 ### § 4-9. Egenandel
 *Type:* Fastsettelse
 #### Avhenger på data fra
@@ -259,8 +259,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-12. Dagpengenes størrelse](#-4-12-dagpengenes-størrelse)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-943f-78d9-b874-00a4944c54ef|Egenandel|Penger|Beløp||
 |0194881f-943f-78d9-b874-00a4944c54f0|Antall dagsats for egenandel|Desimaltall|double||
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Penger|Beløp||
@@ -275,8 +275,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 4-4. Krav til minsteinntekt](#-4-4-krav-til-minsteinntekt)
 - [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-940f-7af9-9387-052e028b29ec|Oppjustert inntekt|InntektDataType|Inntekt||
 |0194881f-940f-7af9-9387-052e028b29ed|Tellende inntekt|InntektDataType|Inntekt||
 |0194881f-940f-7af9-9387-052e028b29ee|Grunnbeløp for grunnlag|Penger|Beløp||
@@ -316,8 +316,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 - [§ 4-26. Samordning med ytelser utenfor folketrygden](#-4-26-samordning-med-ytelser-utenfor-folketrygden)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9428-74d5-b160-f63a4c61a23b|Barn|BarnDatatype|BarnListe|BarnetilleggV2|
 |0194881f-9428-74d5-b160-f63a4c61a23c|Antall barn som gir rett til barnetillegg|Heltall|int||
 |0194881f-9428-74d5-b160-f63a4c61a23d|Barnetilleggets størrelse i kroner per dag for hvert barn|Penger|Beløp||
@@ -347,15 +347,15 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 4-4. Krav til minsteinntekt](#-4-4-krav-til-minsteinntekt)
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
-|0194881f-943d-77a7-969c-147999f15449|Antall dager som skal regnes med i hver uke|Heltall|int||
-|0194881f-943d-77a7-969c-147999f1544a|Kort dagpengeperiode|Heltall|int||
-|0194881f-943d-77a7-969c-147999f1544b|Lang dagpengeperiode|Heltall|int||
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
+|0194881f-943d-77a7-969c-147999f15449|Antall dager som skal regnes med i hver uke|Heltall|int|| Dager
+|0194881f-943d-77a7-969c-147999f1544a|Kort dagpengeperiode|Heltall|int|| Uker
+|0194881f-943d-77a7-969c-147999f1544b|Lang dagpengeperiode|Heltall|int|| Uker
 |0194881f-943d-77a7-969c-147999f1544c|Terskel for 12 måneder|Penger|Beløp||
 |0194881f-943d-77a7-969c-147999f1544d|Terskel for 36 måneder|Penger|Beløp||
-|0194881f-943d-77a7-969c-147999f1544f|Terskelfaktor for 12 måneder|Desimaltall|double||
-|0194881f-943d-77a7-969c-147999f15450|Terskelfaktor for 36 måneder|Desimaltall|double||
+|0194881f-943d-77a7-969c-147999f1544f|Terskelfaktor for 12 måneder|Desimaltall|double|| G
+|0194881f-943d-77a7-969c-147999f15450|Terskelfaktor for 36 måneder|Desimaltall|double|| G
 |0194881f-943d-77a7-969c-147999f15451|Snittinntekt siste 36 måneder|Penger|Beløp||
 |0194881f-943d-77a7-969c-147999f15452|Stønadsuker ved siste 12 måneder|Heltall|int||
 |0194881f-943d-77a7-969c-147999f15453|Stønadsuker ved siste 36 måneder|Heltall|int||
@@ -372,8 +372,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |01948d3c-4bea-7802-9d18-5342a5e2be99|Avtjent verneplikt|Boolsk|boolean|Verneplikt|
 |01948d43-e218-76f1-b29b-7e604241d98a|Oppfyller kravet til verneplikt|Boolsk|boolean||
 ### § 4-19. Dagpenger etter avtjent verneplikt
@@ -382,8 +382,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9421-766c-9dc6-41fe6c9a1dff|Antall G som gis som grunnlag ved verneplikt|Desimaltall|double||
 |0194881f-9421-766c-9dc6-41fe6c9a1e00|Grunnlag for gis ved verneplikt|Penger|Beløp||
 |0194881f-9421-766c-9dc6-41fe6c9a1e01|Periode som gis ved verneplikt|Heltall|int||
@@ -391,8 +391,8 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-22. Bortfall ved streik og lock-out
 *Type:* Vilkår
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-91df-746a-a8ac-4a6b2b30685d|Brukeren deltar i streik eller er omfattet av lock-out|Boolsk|boolean||
 |0194881f-91df-746a-a8ac-4a6b2b30685e|Brukeren er ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet|Boolsk|boolean||
 |0194881f-91df-746a-a8ac-4a6b2b30685f|Brukeren er ikke påvirket av streik eller lock-out|Boolsk|boolean||
@@ -401,8 +401,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-940b-76ff-acf5-ba7bcb367233|Fødselsdato|Dato|LocalDate|Fødselsdato|
 |0194881f-940b-76ff-acf5-ba7bcb367234|Aldersgrense|Heltall|int||
 |0194881f-940b-76ff-acf5-ba7bcb367235|Dato søker når maks alder|Dato|LocalDate||
@@ -413,8 +413,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avklaringer
 - FulleYtelser - [Sjekk om søker har andre fulle ytelser](./avklaringer.approved.md#sjekk-om-søker-har-andre-fulle-ytelser)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-943f-78d9-b874-00a4944c54f1|Oppfyller vilkåret om å ikke motta andre fulle ytelser|Boolsk|boolean||
 ### § 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon
 *Type:* Vilkår
@@ -425,8 +425,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 4-3. Tap av arbeidsinntekt og arbeidstid](#-4-3-tap-av-arbeidsinntekt-og-arbeidstid)
 - [§ 4-12. Dagpengenes størrelse](#-4-12-dagpengenes-størrelse)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9433-70e9-a85b-c246150c45cd|Sykepenger etter lovens kapittel 8|Boolsk|boolean|Sykepenger|
 |0194881f-9433-70e9-a85b-c246150c45ce|Pleiepenger etter lovens kapittel 9|Boolsk|boolean|Pleiepenger|
 |0194881f-9433-70e9-a85b-c246150c45cf|Omsorgspenger etter lovens kapittel 9|Boolsk|boolean|Omsorgspenger|
@@ -461,8 +461,8 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 4-12. Dagpengenes størrelse](#-4-12-dagpengenes-størrelse)
 - [§ 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon](#-4-25-samordning-med-reduserte-ytelser-fra-folketrygden,-eller-redusert-avtalefestet-pensjon)
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-942e-7cb0-aa59-05ea449d88e0|Oppgitt andre ytelser utenfor NAV i søknaden|Boolsk|boolean|OppgittAndreYtelserUtenforNav|
 |0194881f-942e-7cb0-aa59-05ea449d88e1|Mottar pensjon fra en offentlig tjenestepensjonsordning|Boolsk|boolean||
 |0194881f-942e-7cb0-aa59-05ea449d88e2|Mottar redusert uførepensjon fra offentlig pensjonsordning|Boolsk|boolean||
@@ -488,7 +488,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-28. Utestengning
 *Type:* Vilkår
 #### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|
-|---|---|---|---|---|
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
 |0194881f-9447-7e36-a569-3e9f42bff9f6|Bruker er utestengt fra dagpenger|Boolsk|boolean||
 |0194881f-9447-7e36-a569-3e9f42bff9f7|Oppfyller krav til ikke utestengt|Boolsk|boolean||
