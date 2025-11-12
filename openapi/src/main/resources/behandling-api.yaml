@@ -1229,8 +1229,6 @@ components:
         status:
           deprecated: true
           $ref: '#/components/schemas/Opprinnelse'
-        enhet:
-          $ref: '#/components/schemas/Enhet'
         opprinnelse:
           $ref: '#/components/schemas/Opprinnelse'
         gyldigFraOgMed:
@@ -1330,6 +1328,8 @@ components:
           format: int32
         datatype:
           $ref: '#/components/schemas/DataType'
+        enhet:
+          $ref: '#/components/schemas/Enhet'
       required:
         - verdi
         - datatype
@@ -1353,6 +1353,8 @@ components:
           format: double
         datatype:
           $ref: '#/components/schemas/DataType'
+        enhet:
+          $ref: '#/components/schemas/Enhet'
       required:
         - verdi
         - datatype

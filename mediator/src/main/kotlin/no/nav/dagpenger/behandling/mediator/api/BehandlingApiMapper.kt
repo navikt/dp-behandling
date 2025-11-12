@@ -378,8 +378,8 @@ internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): O
                     }
                 Boolsk -> BoolskVerdiDTO(this.verdi as Boolean)
                 Dato -> DatoVerdiDTO(this.verdi as LocalDate)
-                Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double)
-                Heltall -> HeltallVerdiDTO(this.verdi as Int)
+                Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double, this.opplysningstype.tilEnhetDTO())
+                Heltall -> HeltallVerdiDTO(this.verdi as Int, this.opplysningstype.tilEnhetDTO())
                 InntektDataType -> TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId)
                 Penger ->
                     PengeVerdiDTO(
