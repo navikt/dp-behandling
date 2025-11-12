@@ -4,6 +4,8 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import no.nav.dagpenger.behandling.api.models.BarnVerdiDTO
 import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingTilstandDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
@@ -19,10 +21,13 @@ import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
+import no.nav.dagpenger.behandling.api.models.RedigerbareOpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
+import no.nav.dagpenger.behandling.api.models.RegelsettTypeDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
+import no.nav.dagpenger.behandling.api.models.VurderingsresultatV2DTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -53,12 +58,12 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
 import java.util.UUID
 
-internal fun Behandling.tilBehandlingsresultatV2DTO(): BehandlingsresultatV2DTO =
+internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val opplysningSet = opplysninger.somListe()
         val egneId = opplysninger.somListe(Egne).map { it.id }
 
-        BehandlingsresultatV2DTO(
+        BehandlingDTO(
             behandlingId = behandlingId,
             ident = behandler.ident,
             automatisk = vedtakopplysninger.automatiskBehandlet,
@@ -80,15 +85,15 @@ internal fun Behandling.tilBehandlingsresultatV2DTO(): BehandlingsresultatV2DTO 
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
             tilstand =
                 when (this.tilstand().first) {
-                    Behandling.TilstandType.UnderOpprettelse -> BehandlingsresultatV2DTOTilstandDTO.UNDER_OPPRETTELSE
-                    Behandling.TilstandType.UnderBehandling -> BehandlingsresultatV2DTOTilstandDTO.UNDER_BEHANDLING
-                    Behandling.TilstandType.ForslagTilVedtak -> BehandlingsresultatV2DTOTilstandDTO.FORSLAG_TIL_VEDTAK
-                    Behandling.TilstandType.Låst -> BehandlingsresultatV2DTOTilstandDTO.LÅST
-                    Behandling.TilstandType.Avbrutt -> BehandlingsresultatV2DTOTilstandDTO.AVBRUTT
-                    Behandling.TilstandType.Ferdig -> BehandlingsresultatV2DTOTilstandDTO.FERDIG
-                    Behandling.TilstandType.Redigert -> BehandlingsresultatV2DTOTilstandDTO.REDIGERT
-                    Behandling.TilstandType.TilGodkjenning -> BehandlingsresultatV2DTOTilstandDTO.TIL_GODKJENNING
-                    Behandling.TilstandType.TilBeslutning -> BehandlingsresultatV2DTOTilstandDTO.TIL_BESLUTNING
+                    Behandling.TilstandType.UnderOpprettelse -> BehandlingTilstandDTO.UNDER_OPPRETTELSE
+                    Behandling.TilstandType.UnderBehandling -> BehandlingTilstandDTO.UNDER_BEHANDLING
+                    Behandling.TilstandType.ForslagTilVedtak -> BehandlingTilstandDTO.FORSLAG_TIL_VEDTAK
+                    Behandling.TilstandType.Låst -> BehandlingTilstandDTO.LÅST
+                    Behandling.TilstandType.Avbrutt -> BehandlingTilstandDTO.AVBRUTT
+                    Behandling.TilstandType.Ferdig -> BehandlingTilstandDTO.FERDIG
+                    Behandling.TilstandType.Redigert -> BehandlingTilstandDTO.REDIGERT
+                    Behandling.TilstandType.TilGodkjenning -> BehandlingTilstandDTO.TIL_GODKJENNING
+                    Behandling.TilstandType.TilBeslutning -> BehandlingTilstandDTO.TIL_BESLUTNING
                 },
             avklaringer = this.avklaringer().map { it.tilAvklaringDTO() },
             vilkår =
@@ -104,7 +109,7 @@ internal fun Behandling.tilBehandlingsresultatV2DTO(): BehandlingsresultatV2DTO 
             rettighetsperioder = vedtakopplysninger.rettighetsperioder(),
             opplysninger =
                 opplysninger().somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
-                    OpplysningsgruppeV2DTO(
+                    RedigerbareOpplysningerDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
                         perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
@@ -138,7 +143,7 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
     }
 }
 
-private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning<*>>): VurderingsresultatV2DTO? {
+private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning<*>>): VurderingsresultatV2DTO {
     // Vi ønsker kun å ta med produkter som faktisk har vært produsert i løpet av behandlingsskjeden
     val typer = alleOpplysninger.map { it.opplysningstype }.toSet()
     val produkter = produserer.filter { it in typer }
@@ -157,8 +162,8 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
         relevantForResultat = påvirkerResultat(alleOpplysninger.somOpplysninger()),
         type =
             when (type) {
-                RegelsettType.Vilkår -> VurderingsresultatV2DTOTypeDTO.VILKÅR
-                RegelsettType.Fastsettelse -> VurderingsresultatV2DTOTypeDTO.FASTSETTELSE
+                RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
+                RegelsettType.Fastsettelse -> RegelsettTypeDTO.FASTSETTELSE
             },
         // Litt rart navn. Dette er opplysningstypene som utgjør "utfallet" av et regelsett.
         opplysningTypeId = utfall?.id?.uuid,
@@ -172,7 +177,7 @@ private fun Boolean.tilOpprinnelseDTO() =
         false -> OpprinnelseDTO.ARVET
     }
 
-private fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
+internal fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
     OpplysningsperiodeDTO(
         id = this.id,
         opprettet = opprettet,

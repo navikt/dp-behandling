@@ -10,7 +10,7 @@ data class Avklaringkode(
     val kanAvbrytes: Boolean = true,
 ) {
     init {
-        avklaringer.add(this)
+        alleAvklaringer.add(this)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -22,6 +22,6 @@ data class Avklaringkode(
     override fun hashCode() = kode.hashCode()
 
     companion object {
-        val avklaringer = mutableSetOf<Avklaringkode>()
+        val alleAvklaringer = mutableSetOf<Avklaringkode>()
     }
 }

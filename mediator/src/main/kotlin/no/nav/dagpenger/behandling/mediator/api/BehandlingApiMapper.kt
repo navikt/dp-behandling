@@ -4,72 +4,29 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.api.models.AvklaringDTO
 import no.nav.dagpenger.behandling.api.models.AvklaringDTOStatusDTO
-import no.nav.dagpenger.behandling.api.models.BarnVerdiDTO
-import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
-import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO
-import no.nav.dagpenger.behandling.api.models.BehandlingDTO
-import no.nav.dagpenger.behandling.api.models.BehandlingDTOTilstandDTO
-import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
-import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
-import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
-import no.nav.dagpenger.behandling.api.models.FormålDTO
-import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
-import no.nav.dagpenger.behandling.api.models.HjemmelDTO
-import no.nav.dagpenger.behandling.api.models.LovkildeDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningDTOStatusDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningsgruppeDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
-import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
-import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
-import no.nav.dagpenger.behandling.api.models.RegelDTO
-import no.nav.dagpenger.behandling.api.models.RegelsettDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
-import no.nav.dagpenger.behandling.api.models.StatusDTO
-import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
-import no.nav.dagpenger.behandling.api.models.TidslinjehendelseDTO
-import no.nav.dagpenger.behandling.api.models.UtledningDTO
-import no.nav.dagpenger.behandling.api.models.VilkaarPeriodeDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
 import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
-import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
-import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Heltall
-import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.InntektDataType
-import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.Opplysningsformål
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Redigerbar
-import no.nav.dagpenger.opplysning.Regelsett
-import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
-import no.nav.dagpenger.opplysning.verdier.BarnListe
-import no.nav.dagpenger.opplysning.verdier.Beløp
-import no.nav.dagpenger.opplysning.verdier.Inntekt
-import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
-import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
@@ -86,7 +43,6 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
-import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
@@ -130,190 +86,20 @@ import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
-
-internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
-    withLoggingContext("behandlingId" to this.behandlingId.toString()) {
-        val opplysninger = opplysninger()
-        val somListe = opplysninger.somListe()
-        val avklaringer = avklaringer().toSet()
-        val spesifikkeAvklaringskoder =
-            behandler.forretningsprosess.regelverk.regelsett
-                .asSequence()
-                .flatMap { it.avklaringer }
-                .toSet()
-        val generelleAvklaringer = avklaringer.filterNot { it.kode in spesifikkeAvklaringskoder }
-
-        val relevanteVilkår: List<Regelsett> = RegelverkDagpenger.relevanteVilkår(opplysninger)
-        val utfall = relevanteVilkår.flatMap { it.betingelser }.all { opplysninger.oppfyller(it) }
-
-        BehandlingDTO(
-            behandlingId = this.behandlingId,
-            tidslinje =
-                opplysninger().finnAlle(hendelseTypeOpplysningstype).map {
-                    TidslinjehendelseDTO(
-                        dato = it.gyldighetsperiode.fraOgMed,
-                        hendelse = it.verdi,
-                    )
-                },
-            utfall = utfall,
-            tilstand =
-                when (this.tilstand().first) {
-                    Behandling.TilstandType.UnderOpprettelse -> BehandlingDTOTilstandDTO.UNDER_OPPRETTELSE
-                    Behandling.TilstandType.UnderBehandling -> BehandlingDTOTilstandDTO.UNDER_BEHANDLING
-                    Behandling.TilstandType.ForslagTilVedtak -> BehandlingDTOTilstandDTO.FORSLAG_TIL_VEDTAK
-                    Behandling.TilstandType.Låst -> BehandlingDTOTilstandDTO.LÅST
-                    Behandling.TilstandType.Avbrutt -> BehandlingDTOTilstandDTO.AVBRUTT
-                    Behandling.TilstandType.Ferdig -> BehandlingDTOTilstandDTO.FERDIG
-                    Behandling.TilstandType.Redigert -> BehandlingDTOTilstandDTO.REDIGERT
-                    Behandling.TilstandType.TilGodkjenning -> BehandlingDTOTilstandDTO.TIL_GODKJENNING
-                    Behandling.TilstandType.TilBeslutning -> BehandlingDTOTilstandDTO.TIL_BESLUTNING
-                },
-            vilkår =
-                behandler.forretningsprosess.regelverk
-                    .regelsettAvType(RegelsettType.Vilkår)
-                    .map { it.tilRegelsettDTO(somListe, avklaringer, opplysninger) }
-                    .sortedBy { it.hjemmel.paragraf.toInt() },
-            fastsettelser =
-                behandler.forretningsprosess.regelverk
-                    .regelsettAvType(RegelsettType.Fastsettelse)
-                    .map { it.tilRegelsettDTO(somListe, avklaringer, opplysninger) }
-                    .sortedBy { it.hjemmel.paragraf.toInt() },
-            behandletHendelse =
-                HendelseDTO(
-                    id =
-                        this.behandler.eksternId.id
-                            .toString(),
-                    datatype = this.behandler.eksternId.datatype,
-                    type =
-                        when (this.behandler.eksternId) {
-                            is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
-                            is SøknadId -> HendelseDTOTypeDTO.SØKNAD
-                            is ManuellId -> HendelseDTOTypeDTO.MANUELL
-                        },
-                    skjedde = behandler.skjedde,
-                ),
-            kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
-            avklaringer = generelleAvklaringer.map { it.tilAvklaringDTO() },
-            opplysninger = somListe.map { it.tilOpplysningDTO(opplysninger) },
-            opplysningsgrupper =
-                opplysninger().somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
-                    OpplysningsgruppeDTO(
-                        opplysningTypeId = type.id.uuid,
-                        navn = type.navn,
-                        datatype = type.datatype.tilDataTypeDTO(),
-                        synlig = type.synlig(opplysninger()),
-                        opplysninger =
-                            opplysninger
-                                .sortedBy { it.gyldighetsperiode.fraOgMed }
-                                .map { opplysning -> opplysning.tilOpplysningDTO(opplysninger()) },
-                        redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
-                        redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
-                        formål = type.tilFormålDTO(),
-                        kanOppfriskes = type.kanOppfriskes(),
-                    )
-                },
-        )
-    }
 
 internal fun Behandling.tilSaksbehandlersVurderinger() =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
-        val avklaringer = avklaringer().filter { it.løstAvSaksbehandler() }.toSet()
         val endredeOpplysninger = opplysninger().somListe().filter { it.kilde is Saksbehandlerkilde }
-
-        val regelsett = behandler.forretningsprosess.regelverk.regelsett
-
-        // Ta med kun regelsett som har endrede opplysninger
-        val endredRegelsett =
-            regelsett.filter { regelsett ->
-                regelsett.produserer.any { opplysningstype ->
-                    endredeOpplysninger.any { it.opplysningstype == opplysningstype }
-                }
-            }
+        val egneId = opplysninger.somListe(Egne).map { it.id }
 
         SaksbehandlersVurderingerDTO(
             behandlingId = behandlingId,
-            regelsett = endredRegelsett.map { it.tilRegelsettDTO(endredeOpplysninger, avklaringer, opplysninger()) },
-            avklaringer = avklaringer.map { it.tilAvklaringDTO() },
-            opplysninger = endredeOpplysninger.map { it.tilOpplysningDTO(opplysninger()) },
+            opplysninger = endredeOpplysninger.map { it.tilOpplysningsperiodeDTO(egneId) },
         )
     }
-
-private fun Regelsett.tilRegelsettDTO(
-    opplysninger: List<Opplysning<*>>,
-    avklaringer: Set<Avklaring>,
-    lesbarOpplysninger: LesbarOpplysninger,
-): RegelsettDTO {
-    val produkter =
-        opplysninger
-            .filter { opplysning -> opplysning.opplysningstype in produserer }
-            .sortedBy { produserer.indexOf(it.opplysningstype) }
-
-    val egneAvklaringer = avklaringer.filter { it.kode in this.avklaringer }
-
-    val opplysningMedUtfall =
-        opplysninger.filter { betingelser.contains(it.opplysningstype) }.filterIsInstance<Opplysning<Boolean>>()
-
-    var status = tilStatus(opplysningMedUtfall)
-    val erRelevant = påvirkerResultat(lesbarOpplysninger)
-    val perioder =
-        opplysningMedUtfall.map { opplysning ->
-            VilkaarPeriodeDTO(
-                gyldigFraOgMed = opplysning.gyldighetsperiode.fraOgMed.tilApiDato(),
-                gyldigTilOgMed = opplysning.gyldighetsperiode.tilOgMed.tilApiDato(),
-                status =
-                    when (erRelevant) {
-                        false -> StatusDTO.IKKE_RELEVANT
-                        true ->
-                            when (opplysning.verdi) {
-                                true -> StatusDTO.OPPFYLT
-                                false -> StatusDTO.IKKE_OPPFYLT
-                            }
-                    },
-                opplysningsTypeId = listOf(opplysning.opplysningstype.id.uuid),
-            )
-        }
-
-    if (!erRelevant) {
-        status = StatusDTO.IKKE_RELEVANT
-    }
-
-    if (egneAvklaringer.any { it.måAvklares() }) {
-        status = StatusDTO.HAR_AVKLARING
-    }
-
-    return RegelsettDTO(
-        navn = hjemmel.kortnavn,
-        hjemmel =
-            HjemmelDTO(
-                kilde = LovkildeDTO(hjemmel.kilde.navn, hjemmel.kilde.kortnavn),
-                kapittel = hjemmel.kapittel.toString(),
-                paragraf = hjemmel.paragraf.toString(),
-                tittel = hjemmel.toString(),
-                url = hjemmel.url,
-            ),
-        avklaringer = egneAvklaringer.map { it.tilAvklaringDTO() },
-        status = status,
-        perioder = perioder,
-        relevantForVedtak = erRelevant,
-        opplysningIder = produkter.map { opplysning -> opplysning.id },
-        opplysningTypeIder = produserer.map { it.id.uuid },
-    )
-}
-
-private fun tilStatus(utfall: List<Opplysning<Boolean>>): StatusDTO {
-    if (utfall.isEmpty()) return StatusDTO.INFO
-
-    return if (utfall.last().verdi) {
-        StatusDTO.OPPFYLT
-    } else {
-        StatusDTO.IKKE_OPPFYLT
-    }
-}
 
 internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
     val sisteEndring = this.endringer.last()
@@ -344,103 +130,6 @@ internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
     )
 }
 
-internal fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): OpplysningDTO =
-    OpplysningDTO(
-        id = this.id,
-        opplysningTypeId = this.opplysningstype.id.uuid,
-        navn = this.opplysningstype.navn,
-        verdi =
-            when (this.opplysningstype.datatype) {
-                // todo: Frontenden burde vite om det er penger og håndtere det med valuta
-                Penger -> (this.verdi as Beløp).uavrundet.toString()
-                else -> this.verdi.toString()
-            },
-        status =
-            when (this) {
-                is Faktum -> OpplysningDTOStatusDTO.FAKTUM
-                is Hypotese -> OpplysningDTOStatusDTO.HYPOTESE
-            },
-        verdien =
-            when (this.opplysningstype.datatype) {
-                BarnDatatype ->
-                    with(this.verdi as BarnListe) {
-                        BarnelisteDTO(
-                            søknadBarnId = søknadbarnId,
-                            verdi =
-                                barn.map {
-                                    BarnVerdiDTO(
-                                        it.fødselsdato,
-                                        it.fornavnOgMellomnavn,
-                                        it.etternavn,
-                                        it.statsborgerskap,
-                                        it.kvalifiserer,
-                                    )
-                                },
-                        )
-                    }
-                Boolsk -> BoolskVerdiDTO(this.verdi as Boolean)
-                Dato -> DatoVerdiDTO(this.verdi as LocalDate)
-                Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double, this.opplysningstype.tilEnhetDTO())
-                Heltall -> HeltallVerdiDTO(this.verdi as Int, this.opplysningstype.tilEnhetDTO())
-                InntektDataType -> TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId)
-                Penger ->
-                    PengeVerdiDTO(
-                        verdi = (this.verdi as Beløp).verdien,
-                    )
-
-                PeriodeDataType ->
-                    (this.verdi as Periode).let {
-                        PeriodeVerdiDTO(it.fraOgMed, it.tilOgMed)
-                    }
-
-                Tekst, ULID -> TekstVerdiDTO(this.verdi.toString())
-            },
-        gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
-        gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
-        datatype = this.opplysningstype.datatype.tilDataTypeDTO(),
-        kilde =
-            this.kilde?.let {
-                val registrert = it.registrert
-                when (it) {
-                    is Saksbehandlerkilde ->
-                        OpplysningskildeDTO(
-                            OpplysningskildeDTOTypeDTO.SAKSBEHANDLER,
-                            ident = it.saksbehandler.ident,
-                            begrunnelse = it.begrunnelse?.let { BegrunnelseDTO(it.verdi, it.sistEndret) },
-                            registrert = registrert,
-                        )
-
-                    is Systemkilde ->
-                        OpplysningskildeDTO(
-                            OpplysningskildeDTOTypeDTO.SYSTEM,
-                            meldingId = it.meldingsreferanseId,
-                            registrert = registrert,
-                        )
-                }
-            },
-        utledetAv =
-            utledetAv?.let { utledning ->
-                UtledningDTO(
-                    regel = RegelDTO(navn = utledning.regel),
-                    opplysninger = utledning.opplysninger.map { it.id },
-                    // Tom med vilje, sannsynligvis ikke nyttig behandlingskontekst
-                    versjon = null,
-                )
-            },
-        redigerbar = this.kanRedigeres(redigerbareOpplysninger),
-        kanOppfriskes = this.opplysningstype.kanOppfriskes(),
-        synlig = this.opplysningstype.synlig(opplysninger),
-        formål = opplysningstype.tilFormålDTO(),
-    )
-
-private fun Opplysningstype<*>.tilFormålDTO(): FormålDTO =
-    when (formål) {
-        Opplysningsformål.Legacy -> FormålDTO.LEGACY
-        Opplysningsformål.Bruker -> FormålDTO.BRUKER
-        Opplysningsformål.Register -> FormålDTO.REGISTER
-        Opplysningsformål.Regel -> FormålDTO.REGEL
-    }
-
 fun Datatype<*>.tilDataTypeDTO() =
     when (this) {
         Boolsk -> DataTypeDTO.BOOLSK
@@ -461,13 +150,6 @@ internal fun LocalDate.tilApiDato(): LocalDate? =
         this.isEqual(LocalDate.MAX) -> null
         else -> this
     }
-
-private fun Opplysningstype<*>.kanOppfriskes(): Boolean =
-    this in
-        setOf(
-            inntektFraSkatt,
-            grunnbeløpForDagpengeGrunnlag,
-        )
 
 // TODO: Denne bor nok et annet sted - men bare for å vise at det er mulig å ha en slik funksjon
 internal val redigerbareOpplysninger =

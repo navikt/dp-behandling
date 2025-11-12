@@ -3,16 +3,33 @@ package no.nav.dagpenger.behandling.mediator
 import com.fasterxml.jackson.module.kotlin.convertValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.behandling.api.models.BarnDTO
+import no.nav.dagpenger.behandling.api.models.BarnVerdiDTO
+import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
+import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTORolleDTO
+import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
+import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
+import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
+import no.nav.dagpenger.behandling.api.models.FormålDTO
+import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.KvoteDTO
 import no.nav.dagpenger.behandling.api.models.KvoteDTOTypeDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningDTOStatusDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
+import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeDTO
+import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
+import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SamordningDTO
+import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
+import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTOFastsattDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTOFastsattVanligArbeidstidDTO
@@ -22,23 +39,44 @@ import no.nav.dagpenger.behandling.api.models.VedtakDTOSatsDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.VilkaarNavnDTO
+import no.nav.dagpenger.behandling.mediator.api.redigerbareOpplysninger
 import no.nav.dagpenger.behandling.mediator.api.tilApiDato
-import no.nav.dagpenger.behandling.mediator.api.tilOpplysningDTO
+import no.nav.dagpenger.behandling.mediator.api.tilDataTypeDTO
+import no.nav.dagpenger.behandling.mediator.api.tilEnhetDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.opplysning.BarnDatatype
+import no.nav.dagpenger.opplysning.Boolsk
+import no.nav.dagpenger.opplysning.Dato
+import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Heltall
+import no.nav.dagpenger.opplysning.Hypotese
+import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.Systemkilde
+import no.nav.dagpenger.opplysning.Tekst
+import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.Inntekt
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.FulleYtelser
 import no.nav.dagpenger.regel.KravPåDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt
+import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Permittering
@@ -56,6 +94,7 @@ import no.nav.dagpenger.regel.Utestengning
 import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
+import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
@@ -67,7 +106,10 @@ import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeids
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
+import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.collections.contains
+import kotlin.collections.map
 
 private fun LesbarOpplysninger.samordninger(): List<SamordningDTO> {
     val ytelser: List<Opplysning<Beløp>> =
@@ -169,6 +211,110 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
         opplysninger = opplysningerSomGjelderPåPrøvingsdato.somListe().map { it.tilOpplysningDTO(opplysningerSomGjelderPåPrøvingsdato) },
     )
 }
+
+private fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): OpplysningDTO =
+    OpplysningDTO(
+        id = this.id,
+        opplysningTypeId = this.opplysningstype.id.uuid,
+        navn = this.opplysningstype.navn,
+        verdi =
+            when (this.opplysningstype.datatype) {
+                // todo: Frontenden burde vite om det er penger og håndtere det med valuta
+                Penger -> (this.verdi as Beløp).uavrundet.toString()
+                else -> this.verdi.toString()
+            },
+        status =
+            when (this) {
+                is Faktum -> OpplysningDTOStatusDTO.FAKTUM
+                is Hypotese -> OpplysningDTOStatusDTO.HYPOTESE
+            },
+        verdien =
+            when (this.opplysningstype.datatype) {
+                BarnDatatype ->
+                    with(this.verdi as BarnListe) {
+                        BarnelisteDTO(
+                            søknadBarnId = søknadbarnId,
+                            verdi =
+                                barn.map {
+                                    BarnVerdiDTO(
+                                        it.fødselsdato,
+                                        it.fornavnOgMellomnavn,
+                                        it.etternavn,
+                                        it.statsborgerskap,
+                                        it.kvalifiserer,
+                                    )
+                                },
+                        )
+                    }
+                Boolsk -> BoolskVerdiDTO(this.verdi as Boolean)
+                Dato -> DatoVerdiDTO(this.verdi as LocalDate)
+                Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double, this.opplysningstype.tilEnhetDTO())
+                Heltall -> HeltallVerdiDTO(this.verdi as Int, this.opplysningstype.tilEnhetDTO())
+                InntektDataType -> TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId)
+                Penger ->
+                    PengeVerdiDTO(
+                        verdi = (this.verdi as Beløp).verdien,
+                    )
+
+                PeriodeDataType ->
+                    (this.verdi as Periode).let {
+                        PeriodeVerdiDTO(it.fraOgMed, it.tilOgMed)
+                    }
+
+                Tekst, ULID -> TekstVerdiDTO(this.verdi.toString())
+            },
+        gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
+        gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
+        datatype = this.opplysningstype.datatype.tilDataTypeDTO(),
+        kilde =
+            this.kilde?.let {
+                val registrert = it.registrert
+                when (it) {
+                    is Saksbehandlerkilde ->
+                        OpplysningskildeDTO(
+                            OpplysningskildeDTOTypeDTO.SAKSBEHANDLER,
+                            ident = it.saksbehandler.ident,
+                            begrunnelse = it.begrunnelse?.let { BegrunnelseDTO(it.verdi, it.sistEndret) },
+                            registrert = registrert,
+                        )
+
+                    is Systemkilde ->
+                        OpplysningskildeDTO(
+                            OpplysningskildeDTOTypeDTO.SYSTEM,
+                            meldingId = it.meldingsreferanseId,
+                            registrert = registrert,
+                        )
+                }
+            },
+        utledetAv =
+            utledetAv?.let { utledning ->
+                UtledningDTO(
+                    regel = RegelDTO(navn = utledning.regel),
+                    opplysninger = utledning.opplysninger.map { it.id },
+                    // Tom med vilje, sannsynligvis ikke nyttig behandlingskontekst
+                    versjon = null,
+                )
+            },
+        redigerbar = this.kanRedigeres(redigerbareOpplysninger),
+        kanOppfriskes = this.opplysningstype.kanOppfriskes(),
+        synlig = this.opplysningstype.synlig(opplysninger),
+        formål = opplysningstype.tilFormålDTO(),
+    )
+
+private fun Opplysningstype<*>.tilFormålDTO(): FormålDTO =
+    when (formål) {
+        Opplysningsformål.Legacy -> FormålDTO.LEGACY
+        Opplysningsformål.Bruker -> FormålDTO.BRUKER
+        Opplysningsformål.Register -> FormålDTO.REGISTER
+        Opplysningsformål.Regel -> FormålDTO.REGEL
+    }
+
+private fun Opplysningstype<*>.kanOppfriskes(): Boolean =
+    this in
+        setOf(
+            inntektFraSkatt,
+            grunnbeløpForDagpengeGrunnlag,
+        )
 
 private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
     val meldeperioder = finnAlle(Beregning.meldeperiode)

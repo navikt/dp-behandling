@@ -1,7 +1,7 @@
 package no.nav.dagpenger.regel
 
 import com.spun.util.persistence.Loader
-import no.nav.dagpenger.opplysning.Avklaringkode.Companion.avklaringer
+import no.nav.dagpenger.opplysning.Avklaringkode.Companion.alleAvklaringer
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
@@ -130,7 +130,7 @@ class OpplysningDokumentasjon {
                 .flatMap { regel -> regel.avklaringer.map { it to regel } }
                 .groupBy({ it.first }, { it.second })
 
-        avklaringer.sortedBy { it.kode }.forEach {
+        alleAvklaringer.sortedBy { it.kode }.forEach {
             markdown.appendLine("## ${it.tittel}")
             markdown.appendLine("**Kode:** `${it.kode}`\n")
 

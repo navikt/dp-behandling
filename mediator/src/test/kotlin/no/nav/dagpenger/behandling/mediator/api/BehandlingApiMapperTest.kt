@@ -1,18 +1,20 @@
 package no.nav.dagpenger.behandling.mediator.api
 
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldNotBeEmpty
 import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper
 import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
+import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
+import no.nav.dagpenger.behandling.api.models.RedigerbareOpplysningerDTO
 import no.nav.dagpenger.behandling.april
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -194,10 +196,10 @@ class BehandlingApiMapperTest {
     fun `inneholder utfall og vilkår`() {
         val behandlingDto = behandling.tilBehandlingDTO()
 
-        behandlingDto.utfall shouldBe false
+        behandlingDto.rettighetsperioder.shouldBeEmpty()
 
         behandlingDto.vilkår shouldHaveSize 16
-        behandlingDto.vilkår.single { it.navn == "Alder" }.relevantForVedtak shouldBe true
+        behandlingDto.vilkår.single { it.navn == "Alder" }.relevantForResultat shouldBe true
     }
 
     @Test
@@ -207,33 +209,29 @@ class BehandlingApiMapperTest {
         with(behandlingDto.opplysninger) {
             with(opplysning(TestOpplysningstyper.beløpA.navn)) {
                 shouldNotBeNull()
-                verdi shouldBe "1000"
-                val pengeVerdi: PengeVerdiDTO = verdien.shouldBeInstanceOf()
+                val pengeVerdi = verdi.shouldBeInstanceOf<PengeVerdiDTO>()
                 pengeVerdi.verdi shouldBe 1000.toBigDecimal()
-                pengeVerdi.datatype shouldBe no.nav.dagpenger.behandling.api.models.DataTypeDTO.PENGER
+                pengeVerdi.datatype shouldBe DataTypeDTO.PENGER
             }
             with(opplysning(TestOpplysningstyper.boolsk.navn)) {
                 shouldNotBeNull()
-                verdi shouldBe "true"
-                val boolsk: BoolskVerdiDTO = verdien.shouldBeInstanceOf()
+                val boolsk = verdi.shouldBeInstanceOf<BoolskVerdiDTO>()
                 boolsk.verdi shouldBe true
-                boolsk.datatype shouldBe no.nav.dagpenger.behandling.api.models.DataTypeDTO.BOOLSK
+                boolsk.datatype shouldBe DataTypeDTO.BOOLSK
             }
             with(opplysning(TestOpplysningstyper.periode.navn)) {
                 shouldNotBeNull()
-                verdi shouldBe "Periode(start=2025-04-16, endInclusive=2025-04-25)"
-                val boolsk: PeriodeVerdiDTO = verdien.shouldBeInstanceOf()
+                val boolsk = verdi.shouldBeInstanceOf<PeriodeVerdiDTO>()
                 boolsk.fom shouldBe 16.april(2025)
                 boolsk.tom shouldBe 25.april(2025)
-                boolsk.datatype shouldBe no.nav.dagpenger.behandling.api.models.DataTypeDTO.PERIODE
+                boolsk.datatype shouldBe DataTypeDTO.PERIODE
             }
             with(opplysning(TestOpplysningstyper.barn.navn)) {
                 shouldNotBeNull()
-                verdi.shouldNotBeEmpty()
-                val barn: BarnelisteDTO = verdien.shouldBeInstanceOf()
+                val barn = verdi.shouldBeInstanceOf<BarnelisteDTO>()
                 barn.verdi.shouldHaveSize(1)
                 with(barn.verdi.first()) {
-                    fødselsdato shouldBe java.time.LocalDate.now()
+                    fødselsdato shouldBe LocalDate.now()
                     fornavnOgMellomnavn shouldBe "Navn"
                     etternavn shouldBe "Navnesen"
                     statsborgerskap shouldBe "NOR"
@@ -242,20 +240,19 @@ class BehandlingApiMapperTest {
             }
             with(opplysning(TestOpplysningstyper.heltall.navn)) {
                 shouldNotBeNull()
-                verdi shouldBe "3"
-                val boolsk: HeltallVerdiDTO = verdien.shouldBeInstanceOf()
+                val boolsk = verdi.shouldBeInstanceOf<HeltallVerdiDTO>()
                 boolsk.verdi shouldBe 3
-                boolsk.datatype shouldBe no.nav.dagpenger.behandling.api.models.DataTypeDTO.HELTALL
+                boolsk.datatype shouldBe DataTypeDTO.HELTALL
             }
             with(opplysning(Minsteinntekt.inntekt12.navn)) {
                 shouldNotBeNull()
-                verdi shouldBe "3000.034"
-                val pengeVerdi: PengeVerdiDTO = verdien.shouldBeInstanceOf()
+                val pengeVerdi = verdi.shouldBeInstanceOf<PengeVerdiDTO>()
                 pengeVerdi.verdi shouldBe 3000.034.toBigDecimal()
-                pengeVerdi.datatype shouldBe no.nav.dagpenger.behandling.api.models.DataTypeDTO.PENGER
+                pengeVerdi.datatype shouldBe DataTypeDTO.PENGER
             }
         }
     }
 
-    private fun List<OpplysningDTO>.opplysning(navn: String) = find { it.navn == navn }
+    private fun List<RedigerbareOpplysningerDTO>.opplysning(navn: String): OpplysningsperiodeDTO? =
+        find { it.navn == navn }?.perioder?.single()
 }

@@ -176,6 +176,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/vurderinger/{opplysningId}:
     parameters:
       - name: behandlingId
@@ -648,94 +649,9 @@ components:
         begrunnelse:
           type: string
 
-    Behandling:
-      type: object
-      required:
-        - behandlingId
-        - perioder
-        - tilstand
-        - kreverTotrinnskontroll
-        - vilkår
-        - fastsettelser
-        - avklaringer
-        - opplysninger
-        - opplysningsgrupper
-      properties:
-        behandlingId:
-          type: string
-          format: uuid
-        tidslinje:
-          type: array
-          items:
-            $ref: '#/components/schemas/Tidslinjehendelse'
-        tilstand:
-          type: string
-          enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
-        behandletHendelse:
-          description: Hvilken hendelse som utløste behandlingen
-          $ref: '#/components/schemas/Hendelse'
-        kreverTotrinnskontroll:
-          type: boolean
-        utfall:
-          type: boolean
-        vilkår:
-          type: array
-          items:
-            $ref: '#/components/schemas/Regelsett'
-        fastsettelser:
-          type: array
-          items:
-            $ref: '#/components/schemas/Regelsett'
-        avklaringer:
-          type: array
-          items:
-            $ref: '#/components/schemas/Avklaring'
-        opplysninger:
-          type: array
-          items:
-            $ref: '#/components/schemas/Opplysning'
-        opplysningsgrupper:
-          type: array
-          items:
-            $ref: '#/components/schemas/Opplysningsgruppe'
-
-
     Personident:
       type: string
       pattern: '^[0-9]{11}$'
-
-    Vurderingsresultat:
-      type: object
-      required:
-        - navn
-        - hjemmel
-        - opplysningTypeIder
-      properties:
-        navn:
-          description: Kort navn som beskriver regelsettet
-          type: string
-        hjemmel:
-          description: Hvilken hjemmel er regelsettet basert på
-          $ref: '#/components/schemas/Hjemmel'
-        type:
-          type: string
-          enum: [ "Vilkår", "Fastsettelse" ]
-        perioder:
-          type: array
-          items:
-            $ref: '#/components/schemas/Rettighetsperiode'
-        utfall:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpplysningTypeId'
-        ønsketResultat:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpplysningTypeId'
-        opplysninger:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpplysningTypeId'
 
     Behandlingskonvolutt:
       type: object
@@ -779,7 +695,12 @@ components:
               items:
                 $ref: '#/components/schemas/Opplysninger'
 
-    BehandlingV2:
+    Behandling:
+      $ref: '#/components/schemas/BehandlingsresultatV2'
+
+    # TODO: Dette blir Behandling
+    BehandlingsresultatV2:
+      deprecated: true
       allOf:
         - $ref: '#/components/schemas/Behandlingskonvolutt'
         - type: object
@@ -789,12 +710,12 @@ components:
             - avklaringer
             - vilkår
             - fastsettelser
+            - opplysninger
           properties:
             kreverTotrinnskontroll:
               type: boolean
             tilstand:
-              type: string
-              enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
+              $ref: '#/components/schemas/BehandlingTilstand'
             avklaringer:
               type: array
               items:
@@ -802,18 +723,31 @@ components:
             vilkår:
               type: array
               items:
-                $ref: '#/components/schemas/RegelsettV2'
+                $ref: '#/components/schemas/Regelsett'
             fastsettelser:
               type: array
               items:
-                $ref: '#/components/schemas/RegelsettV2'
+                $ref: '#/components/schemas/Regelsett'
             opplysninger:
               description: Alle opplysninger som har vært til stede under behandlingen, også historiske
               type: array
               items:
-                $ref: '#/components/schemas/OpplysningerSaksbehandling'
+                $ref: '#/components/schemas/RedigerbareOpplysninger'
 
-    RegelsettV2:
+    BehandlingTilstand:
+      type: string
+      enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
+
+    Regelsett:
+      $ref: '#/components/schemas/VurderingsresultatV2'
+
+    RegelsettType:
+      type: string
+      enum: [ "Vilkår", "Fastsettelse" ]
+
+    # TODO: Bytt navn til Regelsett
+    VurderingsresultatV2:
+      deprecated: true
       type: object
       required:
         - id
@@ -836,8 +770,7 @@ components:
           description: Om innholdet i regelsettet påvirker resultatet av behandlingen
           type: boolean
         type:
-          type: string
-          enum: [ "Vilkår", "Fastsettelse" ]
+          $ref: '#/components/schemas/RegelsettType'
         opplysningTypeId:
           $ref: '#/components/schemas/OpplysningTypeId'
         opplysninger:
@@ -845,7 +778,7 @@ components:
           items:
             $ref: '#/components/schemas/OpplysningTypeId'
 
-    OpplysningerSaksbehandling:
+    RedigerbareOpplysninger:
       allOf:
         - $ref: '#/components/schemas/Opplysninger'
         - type: object
@@ -864,65 +797,19 @@ components:
             formål:
               $ref: '#/components/schemas/Formål'
 
-    BehandlingOpplysninger:
-      type: object
-      required:
-        - behandlingId
-        - opplysning
-        - tilstand
-        - kreverTotrinnskontroll
-        - aktiveAvklaringer
-        - avklaringer
-        - opplysningsgrupper
-      properties:
-        behandlingId:
-          type: string
-          format: uuid
-        tilstand:
-          type: string
-          enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
-        opplysning:
-          type: array
-          items:
-            $ref: '#/components/schemas/Opplysning'
-        kreverTotrinnskontroll:
-          type: boolean
-        aktiveAvklaringer:
-          type: array
-          items:
-            $ref: '#/components/schemas/Avklaring'
-        avklaringer:
-          type: array
-          items:
-            $ref: '#/components/schemas/Avklaring'
-        opplysningsgrupper:
-          type: array
-          items:
-            $ref: '#/components/schemas/Opplysningsgruppe'
-
     SaksbehandlersVurderinger:
       type: object
       required:
         - behandlingId
-        - regelsett
-        - avklaringer
         - opplysninger
       properties:
         behandlingId:
           type: string
           format: uuid
-        regelsett:
-          type: array
-          items:
-            $ref: '#/components/schemas/Regelsett'
-        avklaringer:
-          type: array
-          items:
-            $ref: '#/components/schemas/Avklaring'
         opplysninger:
           type: array
           items:
-            $ref: '#/components/schemas/Opplysning'
+            $ref: '#/components/schemas/Opplysningsperiode'
 
     Avklaring:
       type: object
@@ -987,69 +874,6 @@ components:
 
     AvklaringKode:
       type: string
-
-    Regelsett:
-      type: object
-      required:
-        - navn
-        - hjemmel
-        - status
-        - avklaringer
-        - opplysningIder
-        - opplysningTypeIder
-      properties:
-        navn:
-          description: Kort navn som beskriver regelsettet
-          type: string
-        hjemmel:
-          description: Hvilken hjemmel er regelsettet basert på
-          $ref: '#/components/schemas/Hjemmel'
-        relevantForVedtak:
-          type: boolean
-          deprecated: true
-        status:
-          $ref: '#/components/schemas/Status'
-        avklaringer:
-          type: array
-          description: Hvilke avklaringer som skal vises i dette regelsettet
-          items:
-            $ref: '#/components/schemas/Avklaring'
-        opplysningIder:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpplysningsId'
-        opplysningTypeIder:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpplysningTypeId'
-        perioder:
-          type: array
-          description: Vi vet ikke helt hvordan dette skal se ut enda.
-          items:
-            $ref: '#/components/schemas/VilkaarPeriode'
-
-    VilkaarPeriode:
-      type: object
-      required:
-        - status
-        - opplysningsTypeId
-      properties:
-        status:
-          $ref: '#/components/schemas/Status'
-        gyldigFraOgMed:
-          type: string
-          format: date
-        gyldigTilOgMed:
-          type: string
-          format: date
-        opplysningsTypeId:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpplysningTypeId'
-
-    Status:
-      type: string
-      enum: [ "Oppfylt", "HarAvklaring", "IkkeOppfylt", "Info", "IkkeRelevant" ]
 
     Hjemmel:
       type: object
@@ -1233,7 +1057,7 @@ components:
 
     Enhet:
       type: string
-      enum: [ "timer", "prosent", "G", "dager", "uker", "måneder", "år" ]
+      enum: [ "timer", "prosent", "G", "dager", "uker" , "måneder", "år" ]
       description: Enhet for opplysningen, f.eks. timer, prosent, dager, etc.
 
     Opplysningsverdi:
