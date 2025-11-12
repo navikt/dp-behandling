@@ -16,6 +16,8 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
+import java.util.UUID
+import kotlin.uuid.Uuid
 
 internal class AvbrytBehandlingMottak(
     rapidsConnection: RapidsConnection,
@@ -46,6 +48,9 @@ internal class AvbrytBehandlingMottak(
         withLoggingContext(
             "behandlingId" to behandlingId.toString(),
         ) {
+            if (behandlingId == UUID.fromString("019938f9-23cf-7abe-b3de-797c59c5df0f")) {
+                logger.info { "Skipper 'avbryt_behandling' for behandling" }
+            }
             logger.info { "Avbryter behandlingen" }
             val message = AvbrytBehandlingMessage(packet)
             message.behandle(messageMediator, context)
