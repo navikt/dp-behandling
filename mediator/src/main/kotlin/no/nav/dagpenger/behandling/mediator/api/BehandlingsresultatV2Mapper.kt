@@ -147,6 +147,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
     val produkter = produserer.filter { it in typer }
 
     return VurderingsresultatV2DTO(
+        id = hjemmel.hashCode().toString(),
         navn = hjemmel.kortnavn,
         hjemmel =
             HjemmelDTO(

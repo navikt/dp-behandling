@@ -835,11 +835,15 @@ components:
     VurderingsresultatV2:
       type: object
       required:
+        - id
         - navn
         - hjemmel
         - type
         - opplysninger
       properties:
+        id:
+          description: Unik identifikator for dette regelsettet
+          type: string
         navn:
           description: Kort navn som beskriver regelsettet
           type: string
