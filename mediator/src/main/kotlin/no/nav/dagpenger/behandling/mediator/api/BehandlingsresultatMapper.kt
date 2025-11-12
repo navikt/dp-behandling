@@ -80,6 +80,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                     OpplysningerDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
+                        enhet = type.tilEnhetDTO(),
                         perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
                     )
                 },
@@ -157,7 +158,6 @@ private fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
         opprinnelse = (id in egneId).tilOpprinnelseDTO(),
         gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
         gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
-        enhet = this.opplysningstype.tilEnhetDTO(),
         verdi =
             when (this.opplysningstype.datatype) {
                 BarnDatatype ->
