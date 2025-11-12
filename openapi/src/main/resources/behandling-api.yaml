@@ -838,6 +838,7 @@ components:
         - id
         - navn
         - hjemmel
+        - relevantForResultat
         - type
         - opplysninger
       properties:
@@ -850,6 +851,9 @@ components:
         hjemmel:
           description: Hvilken hjemmel er regelsettet basert på
           $ref: '#/components/schemas/Hjemmel'
+        relevantForResultat:
+          description: Om innholdet i regelsettet påvirker resultatet av behandlingen
+          type: boolean
         type:
           type: string
           enum: [ "Vilkår", "Fastsettelse" ]

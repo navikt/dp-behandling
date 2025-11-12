@@ -38,6 +38,7 @@ import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningsformål
@@ -157,6 +158,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
                 tittel = hjemmel.toString(),
                 url = hjemmel.url,
             ),
+        relevantForResultat = påvirkerResultat(alleOpplysninger.somOpplysninger()),
         type =
             when (type) {
                 RegelsettType.Vilkår -> VurderingsresultatV2DTOTypeDTO.VILKÅR
