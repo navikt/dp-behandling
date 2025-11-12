@@ -47,7 +47,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9444-7a73-a458-0af81c034d89|Har rett til ordinære dagpenger uten arbeidsforhold|Boolsk|boolean||
 |0194881f-9444-7a73-a458-0af81c034d8a|Ordinære dagpenger|Boolsk|boolean||
 |0194881f-9444-7a73-a458-0af81c034d8b|Rettighetstype|Boolsk|boolean||
-|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kravet til reell arbeidssøker er vurdert|Boolsk|boolean||
+|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kravet til reell arbeidssøker er relevant|Boolsk|boolean||
 |01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Boolsk|boolean||
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
