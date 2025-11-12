@@ -202,7 +202,7 @@ internal fun Application.behandlingApi(
                     val behandling = hentBehandling(personRepository, call.behandlingId)
 
                     auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
-                    call.respond(HttpStatusCode.OK, behandling.tilBehandlingsresultatV2DTO())
+                    call.respond(HttpStatusCode.OK, behandling.tilBehandlingV2DTO())
                 }
 
                 route("{behandlingId}") {

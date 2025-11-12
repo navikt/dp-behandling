@@ -23,7 +23,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.escapeIfNeeded
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
-import no.nav.dagpenger.behandling.api.models.BehandlingsresultatV2DTO
+import no.nav.dagpenger.behandling.api.models.BehandlingV2DTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.EnhetDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
@@ -46,6 +46,7 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import kotlin.jvm.java
 
 internal class BehandlingApiTest {
     @Test
@@ -191,7 +192,7 @@ internal class BehandlingApiTest {
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
 
-            val behandlingDto = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingsresultatV2DTO::class.java) }
+            val behandlingDto = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingV2DTO::class.java) }
             behandlingDto.behandlingId shouldBe person.behandlingId
             behandlingDto.vilkår.shouldNotBeEmpty()
             behandlingDto.avklaringer.shouldNotBeEmpty()

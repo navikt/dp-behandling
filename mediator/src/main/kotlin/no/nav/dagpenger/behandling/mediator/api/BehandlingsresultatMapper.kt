@@ -81,6 +81,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                     OpplysningerDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
+                        datatype = type.datatype.tilDataTypeDTO(),
                         perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
                     )
                 },

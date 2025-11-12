@@ -200,6 +200,31 @@ class ScenarioTest {
     }
 
     @Test
+    fun `tester innvilgelse ved permittering fiskeforedling med mange enkeltstående perioder`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            permittering = true
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(21.juni(2018), 22.juni(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(23.juni(2018), 26.juni(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, true, "Båten suser", Gyldighetsperiode(27.juni(2018), 29.juni(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(30.juni(2018), 2.juli(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, true, "Båten suser", Gyldighetsperiode(3.juli(2018), 3.juli(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(4.juli(2018), 5.juli(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, true, "Båten suser", Gyldighetsperiode(6.juli(2018), 6.juli(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(7.juni(2018)))
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 7
+            }
+        }
+    }
+
+    @Test
     fun `tester innvilgelse, stans, og gjenopptak `() {
         nyttScenario {
             inntektSiste12Mnd = 500000

@@ -699,101 +699,6 @@ components:
           items:
             $ref: '#/components/schemas/Opplysningsgruppe'
 
-    Behandlingsresultat:
-      type: object
-      required:
-        - behandlingId
-        - behandletHendelse
-        - automatisk
-        - ident
-        - opplysninger
-        - rettighetsperioder
-      properties:
-        behandlingId:
-          type: string
-          format: uuid
-        behandletHendelse:
-          description: Hvilken hendelse som utløste behandlingen
-          $ref: '#/components/schemas/Hendelse'
-        basertPå:
-          description: Hvilken behandling denne behandlingen er basert på, hvis noen
-          type: string
-          format: uuid
-        automatisk:
-          description: Om behandlingen har blitt behandlet automatisk uten en saksbehandler
-          type: boolean
-        ident:
-          $ref: '#/components/schemas/Personident'
-        opplysninger:
-          description: Alle opplysninger som har vært til stede under behandlingen, også historiske
-          type: array
-          items:
-            $ref: '#/components/schemas/Opplysninger'
-        rettighetsperioder:
-          type: array
-          items:
-            $ref: '#/components/schemas/Rettighetsperiode'
-
-    BehandlingsresultatV2:
-      type: object
-      required:
-        - behandlingId
-        - behandletHendelse
-        - automatisk
-        - ident
-        - kreverTotrinnskontroll
-        - vilkår
-        - fastsettelser
-        - rettighetsperioder
-        - tilstand
-        - opplysninger
-        - avklaringer
-      properties:
-        behandlingId:
-          type: string
-          format: uuid
-        hendelser:
-          type: array
-          items:
-            $ref: '#/components/schemas/Tidslinjehendelse'
-        behandletHendelse:
-          description: Hvilken hendelse som utløste behandlingen
-          $ref: '#/components/schemas/Hendelse'
-        kreverTotrinnskontroll:
-          type: boolean
-        basertPå:
-          description: Hvilken behandling denne behandlingen er basert på, hvis noen
-          type: string
-          format: uuid
-        tilstand:
-          type: string
-          enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
-        automatisk:
-          description: Om behandlingen har blitt behandlet automatisk uten en saksbehandler
-          type: boolean
-        ident:
-          $ref: '#/components/schemas/Personident'
-        avklaringer:
-          type: array
-          items:
-            $ref: '#/components/schemas/Avklaring'
-        vilkår:
-          type: array
-          items:
-            $ref: '#/components/schemas/VurderingsresultatV2'
-        fastsettelser:
-          type: array
-          items:
-            $ref: '#/components/schemas/VurderingsresultatV2'
-        opplysninger:
-          description: Alle opplysninger som har vært til stede under behandlingen, også historiske
-          type: array
-          items:
-            $ref: '#/components/schemas/OpplysningsgruppeV2'
-        rettighetsperioder:
-          type: array
-          items:
-            $ref: '#/components/schemas/Rettighetsperiode'
 
     Personident:
       type: string
@@ -832,7 +737,83 @@ components:
           items:
             $ref: '#/components/schemas/OpplysningTypeId'
 
-    VurderingsresultatV2:
+    Behandlingskonvolutt:
+      type: object
+      required:
+        - behandlingId
+        - behandletHendelse
+        - automatisk
+        - ident
+        - rettighetsperioder
+      properties:
+        behandlingId:
+          type: string
+          format: uuid
+        behandletHendelse:
+          description: Hvilken hendelse som utløste behandlingen
+          $ref: '#/components/schemas/Hendelse'
+        basertPå:
+          description: Hvilken behandling denne behandlingen er basert på, hvis noen
+          type: string
+          format: uuid
+        automatisk:
+          description: Om behandlingen har blitt behandlet automatisk uten en saksbehandler
+          type: boolean
+        ident:
+          $ref: '#/components/schemas/Personident'
+        rettighetsperioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rettighetsperiode'
+
+    Behandlingsresultat:
+      allOf:
+        - $ref: '#/components/schemas/Behandlingskonvolutt'
+        - type: object
+          required:
+            - opplysninger
+          properties:
+            opplysninger:
+              description: Alle opplysninger som har vært til stede under behandlingen, også historiske
+              type: array
+              items:
+                $ref: '#/components/schemas/Opplysninger'
+
+    BehandlingV2:
+      allOf:
+        - $ref: '#/components/schemas/Behandlingskonvolutt'
+        - type: object
+          required:
+            - kreverTotrinnskontroll
+            - tilstand
+            - avklaringer
+            - vilkår
+            - fastsettelser
+          properties:
+            kreverTotrinnskontroll:
+              type: boolean
+            tilstand:
+              type: string
+              enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
+            avklaringer:
+              type: array
+              items:
+                $ref: '#/components/schemas/Avklaring'
+            vilkår:
+              type: array
+              items:
+                $ref: '#/components/schemas/RegelsettV2'
+            fastsettelser:
+              type: array
+              items:
+                $ref: '#/components/schemas/RegelsettV2'
+            opplysninger:
+              description: Alle opplysninger som har vært til stede under behandlingen, også historiske
+              type: array
+              items:
+                $ref: '#/components/schemas/OpplysningerSaksbehandling'
+
+    RegelsettV2:
       type: object
       required:
         - id
@@ -864,35 +845,24 @@ components:
           items:
             $ref: '#/components/schemas/OpplysningTypeId'
 
-    OpplysningsgruppeV2:
-      type: object
-      required:
-        - opplysningTypeId
-        - navn
-        - datatype
-        - synlig
-        - formål
-        - perioder
-      properties:
-        opplysningTypeId:
-          $ref: '#/components/schemas/OpplysningTypeId'
-        navn:
-          type: string
-        datatype:
-          $ref: '#/components/schemas/DataType'
-        synlig:
-          type: boolean
-        redigerbar:
-          type: boolean
-        redigertAvSaksbehandler:
-          type: boolean
-        formål:
-          $ref: '#/components/schemas/Formål'
-        perioder:
-          type: array
-          items:
-            $ref: '#/components/schemas/Opplysningsperiode'
-
+    OpplysningerSaksbehandling:
+      allOf:
+        - $ref: '#/components/schemas/Opplysninger'
+        - type: object
+          required:
+            - synlig
+            - redigerbar
+            - redigertAvSaksbehandler
+            - formål
+          properties:
+            synlig:
+              type: boolean
+            redigerbar:
+              type: boolean
+            redigertAvSaksbehandler:
+              type: boolean
+            formål:
+              $ref: '#/components/schemas/Formål'
 
     BehandlingOpplysninger:
       type: object
@@ -1146,9 +1116,57 @@ components:
           items:
             $ref: '#/components/schemas/Opplysning'
 
-    Formål:
-      type: string
-      enum: [ "Legacy", "Bruker", "Register", "Regel" ]
+    Opplysninger:
+      type: object
+      required:
+        - opplysningTypeId
+        - navn
+        - datatype
+        - opplysninger
+      properties:
+        opplysningTypeId:
+          $ref: '#/components/schemas/OpplysningTypeId'
+        navn:
+          type: string
+        datatype:
+          $ref: '#/components/schemas/DataType'
+        perioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/Opplysningsperiode'
+
+    Opplysningsperiode:
+      type: object
+      required:
+        - id
+        - opprettet
+        - status
+        - verdi
+      properties:
+        id:
+          $ref: '#/components/schemas/OpplysningsId'
+        opprettet:
+          type: string
+          format: date-time
+        status:
+          deprecated: true
+          $ref: '#/components/schemas/Opprinnelse'
+        opprinnelse:
+          $ref: '#/components/schemas/Opprinnelse'
+        gyldigFraOgMed:
+          type: string
+          format: date
+          description: Om opplysningen er gyldig fra en bestemt dato. Mangler feltet, er den gyldig fra tidens morgen.
+        gyldigTilOgMed:
+          type: string
+          format: date
+          description: Om opplysningen er gyldig fra en bestemt dato. Mangler feltet, er den gyldig til evig tid.
+        verdi:
+          $ref: '#/components/schemas/Opplysningsverdi'
+        kilde:
+          $ref: '#/components/schemas/Opplysningskilde'
+        utledetAv:
+          $ref: '#/components/schemas/Utledning'
 
     Opplysning:
       type: object
@@ -1204,55 +1222,9 @@ components:
         formål:
           $ref: '#/components/schemas/Formål'
 
-    Opplysninger:
-      type: object
-      required:
-        - opplysningTypeId
-        - navn
-        - datatype
-        - opplysninger
-      properties:
-        opplysningTypeId:
-          $ref: '#/components/schemas/OpplysningTypeId'
-        navn:
-          type: string
-        perioder:
-          type: array
-          items:
-            $ref: '#/components/schemas/Opplysningsperiode'
-
-    Opplysningsperiode:
-      type: object
-      required:
-        - id
-        - opprettet
-        - status
-        - verdi
-      properties:
-        id:
-          $ref: '#/components/schemas/OpplysningsId'
-        opprettet:
-          type: string
-          format: date-time
-        status:
-          deprecated: true
-          $ref: '#/components/schemas/Opprinnelse'
-        opprinnelse:
-          $ref: '#/components/schemas/Opprinnelse'
-        gyldigFraOgMed:
-          type: string
-          format: date
-          description: Om opplysningen er gyldig fra en bestemt dato. Mangler feltet, er den gyldig fra tidens morgen.
-        gyldigTilOgMed:
-          type: string
-          format: date
-          description: Om opplysningen er gyldig fra en bestemt dato. Mangler feltet, er den gyldig til evig tid.
-        verdi:
-          $ref: '#/components/schemas/Opplysningsverdi'
-        kilde:
-          $ref: '#/components/schemas/Opplysningskilde'
-        utledetAv:
-          $ref: '#/components/schemas/Utledning'
+    Formål:
+      type: string
+      enum: [ "Legacy", "Bruker", "Register", "Regel" ]
 
     Opprinnelse:
       description: Om opplysningen ble opprettet i denne behandlingen eller arvet fra tidligere behandlinger
@@ -1393,7 +1365,6 @@ components:
         - fom
         - tom
         - datatype
-
 
     Barneliste:
       type: object

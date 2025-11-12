@@ -4,8 +4,6 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import no.nav.dagpenger.behandling.api.models.BarnVerdiDTO
 import no.nav.dagpenger.behandling.api.models.BarnelisteDTO
 import no.nav.dagpenger.behandling.api.models.BegrunnelseDTO
-import no.nav.dagpenger.behandling.api.models.BehandlingsresultatV2DTO
-import no.nav.dagpenger.behandling.api.models.BehandlingsresultatV2DTOTilstandDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
@@ -15,7 +13,6 @@ import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.HjemmelDTO
 import no.nav.dagpenger.behandling.api.models.LovkildeDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningsgruppeV2DTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTO
@@ -26,8 +23,6 @@ import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
-import no.nav.dagpenger.behandling.api.models.VurderingsresultatV2DTO
-import no.nav.dagpenger.behandling.api.models.VurderingsresultatV2DTOTypeDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
