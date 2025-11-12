@@ -17,7 +17,6 @@ import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import java.util.UUID
-import kotlin.uuid.Uuid
 
 internal class AvbrytBehandlingMottak(
     rapidsConnection: RapidsConnection,
