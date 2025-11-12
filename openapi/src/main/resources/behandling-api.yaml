@@ -878,8 +878,6 @@ components:
           type: boolean
         redigertAvSaksbehandler:
           type: boolean
-        enhet:
-          $ref: '#/components/schemas/Enhet'
         formål:
           $ref: '#/components/schemas/Formål'
         perioder:
@@ -1203,13 +1201,13 @@ components:
       required:
         - opplysningTypeId
         - navn
+        - datatype
+        - opplysninger
       properties:
         opplysningTypeId:
           $ref: '#/components/schemas/OpplysningTypeId'
         navn:
           type: string
-        enhet:
-          $ref: '#/components/schemas/Enhet'
         perioder:
           type: array
           items:
@@ -1231,6 +1229,8 @@ components:
         status:
           deprecated: true
           $ref: '#/components/schemas/Opprinnelse'
+        enhet:
+          $ref: '#/components/schemas/Enhet'
         opprinnelse:
           $ref: '#/components/schemas/Opprinnelse'
         gyldigFraOgMed:
