@@ -43,7 +43,7 @@ object Rettighetstype {
     val erReellArbeidssøkerVurdert: Opplysningstype<Boolean> =
         boolsk(
             ErReellArbeidssøkerVurdertId,
-            "Kravet til reell arbeidssøker er vurdert",
+            "Kravet til reell arbeidssøker er relevant",
             synlig = { !kravPåDagpenger(it) || !it.erSann(erReellArbeidssøkerVurdert) },
         )
 
