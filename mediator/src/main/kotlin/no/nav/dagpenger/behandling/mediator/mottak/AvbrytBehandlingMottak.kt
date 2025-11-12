@@ -49,6 +49,7 @@ internal class AvbrytBehandlingMottak(
         ) {
             if (behandlingId == UUID.fromString("019938f9-23cf-7abe-b3de-797c59c5df0f")) {
                 logger.info { "Skipper 'avbryt_behandling' for behandling" }
+                return@withLoggingContext
             }
             logger.info { "Avbryter behandlingen" }
             val message = AvbrytBehandlingMessage(packet)
