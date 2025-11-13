@@ -24,6 +24,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.escapeIfNeeded
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatV2DTO
+import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
+import no.nav.dagpenger.behandling.api.models.EnhetDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
@@ -206,6 +208,11 @@ internal class BehandlingApiTest {
             }
 
             behandlingDto.opplysninger.shouldNotBeEmpty()
+
+            with(behandlingDto.opplysninger.find { it.opplysningTypeId == TapAvArbeidsinntektOgArbeidstid.nyArbeidstid.id.uuid }) {
+                this.shouldNotBeNull()
+                this.perioder.first().verdi shouldBe DesimaltallVerdiDTO(verdi = 0.0, enhet = EnhetDTO.TIMER)
+            }
 
             behandlingDto.avklaringer shouldHaveSize 9
             auditlogg.aktivitet shouldContainExactly listOf("les")
