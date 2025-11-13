@@ -122,7 +122,7 @@ object Dagpengegrunnlag {
         Opplysningstype.boolsk(HarAvkortetGrunnlagetIPeriode3Id, "Har avkortet grunnlaget i periode 3", synlig = aldriSynlig)
     val harAvkortet = Opplysningstype.boolsk(HarAvkortetGrunnlagId, "Har avkortet grunnlag")
 
-    internal val bruktBeregningsregel = Opplysningstype.tekst(BruktBeregningsregelId, "Brukt beregningsregel")
+    val bruktBeregningsregel = Opplysningstype.tekst(BruktBeregningsregelId, "Brukt beregningsregel")
     val uavrundetGrunnlag = Opplysningstype.beløp(UavrundetGrunnlagId, "Uavrundet grunnlag", synlig = aldriSynlig)
     val dagpengegrunnlag = Opplysningstype.beløp(GrunnlagVedOrdinæreDagpengerId, "Grunnlag ved ordinære dagpenger")
     val grunnlag = Opplysningstype.beløp(GrunnlagId, "Dagpengegrunnlag")
@@ -145,7 +145,8 @@ object Dagpengegrunnlag {
             skalVurderes { (kravPåDagpenger(it) || it.erSann(skalVernepliktVurderes)) }
             skalRevurderes {
                 // TODO: Må være ekte vurdering av om grunnlag skal fastsettes
-                !it.har(grunnlag)
+                // TODO: bruktBeregningsregel er en hack for å få kjørt på nytt når utfall har endret seg
+                !it.har(grunnlag) || it.mangler(bruktBeregningsregel)
             }
 
             regel(antallÅrI36Måneder) { somUtgangspunkt(3.0) }

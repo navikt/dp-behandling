@@ -31,7 +31,9 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.ReellArbeidssøker
+import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
+import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -126,6 +128,11 @@ class ScenarioTest {
 
             behovsløsere.løsTilForslag()
 
+            saksbehandler.endreOpplysning(kanJobbeHvorSomHelst, false)
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(kanJobbeHvorSomHelst, true)
+            behovsløsere.løsTilForslag()
+
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -137,6 +144,8 @@ class ScenarioTest {
 
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
                 opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1259
+
+                opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
             }
         }
     }
