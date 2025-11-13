@@ -281,7 +281,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-940f-7af9-9387-052e028b29ed|Tellende inntekt|InntektDataType|Inntekt||
 |0194881f-940f-7af9-9387-052e028b29ee|Grunnbeløp for grunnlag|Penger|Beløp||
 |0194881f-9410-7481-b263-4606fdd10ca7|Faktor for maksimalt mulig grunnlag|Desimaltall|double||
-|0194881f-9410-7481-b263-4606fdd10ca8|6 ganger grunnbeløp|Penger|Beløp||
+|0194881f-9410-7481-b263-4606fdd10ca8|6 ganger grunnbeløp|Penger|Beløp|| G
 |0194881f-9410-7481-b263-4606fdd10ca9|Antall år i 36 måneder|Desimaltall|double|| År
 |0194881f-9410-7481-b263-4606fdd10caa|Inntekt etter avkortning og oppjustering siste 12 måneder|Penger|Beløp||
 |0194881f-9410-7481-b263-4606fdd10cab|Inntekt siste 36 måneder|Penger|Beløp||

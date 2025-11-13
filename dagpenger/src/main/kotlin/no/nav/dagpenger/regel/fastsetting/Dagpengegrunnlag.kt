@@ -75,7 +75,8 @@ object Dagpengegrunnlag {
     val grunnbeløpForDagpengeGrunnlag = Opplysningstype.beløp(GrunnbeløpForGrunnlagId, "Grunnbeløp for grunnlag")
     private val faktorForMaksgrense =
         Opplysningstype.som(FaktorForMaksimaltMuligGrunnlagId, "Faktor for maksimalt mulig grunnlag", synlig = aldriSynlig)
-    private val maksgrenseForGrunnlag = Opplysningstype.beløp(SeksGangerGrunnbeløpId, "6 ganger grunnbeløp", synlig = aldriSynlig)
+    private val maksgrenseForGrunnlag =
+        Opplysningstype.beløp(SeksGangerGrunnbeløpId, "6 ganger grunnbeløp", synlig = aldriSynlig, enhet = Enhet.G)
 
     val antallÅrI36Måneder =
         Opplysningstype.desimaltall(AntallÅrI36MånederId, "Antall år i 36 måneder", synlig = aldriSynlig, enhet = Enhet.År)
