@@ -18,6 +18,47 @@ import org.junit.jupiter.api.Test
 
 class BeregningTest {
     @Test
+    fun `beregning av et meldekort`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+            }
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+
+            behandlingsresultatForslag {
+                rettighetsperioder.single().harRett shouldBe true
+
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    // Første dag i meldekort
+                    this.first().gyldigFraOgMed shouldBe 18.juni(2018)
+
+                    // Første forbruksdag
+                    this.first { it.verdi.verdi == true }.gyldigFraOgMed shouldBe 21.juni(2018)
+
+                    // Siste dag i meldekort
+                    this.last().gyldigFraOgMed shouldBe 1.juli(2018)
+                }
+            }
+        }
+    }
+
+    @Test
     fun `vi kan beregne meldekort og endre rettighetsperiode i samme behandling`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
