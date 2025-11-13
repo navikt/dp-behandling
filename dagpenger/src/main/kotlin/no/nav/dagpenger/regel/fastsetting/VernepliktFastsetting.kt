@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallGVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagForVernepliktErGunstigstId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagHvisVernepliktId
@@ -29,7 +30,7 @@ internal val synligOmVerneplikt: Opplysningssjekk = {
 object VernepliktFastsetting {
     private val antallG = desimaltall(AntallGVernepliktId, "Antall G som gis som grunnlag ved verneplikt", synlig = aldriSynlig)
     internal val vernepliktGrunnlag = beløp(VernepliktGrunnlagId, "Grunnlag for gis ved verneplikt", synlig = synligOmVerneplikt)
-    val vernepliktPeriode = heltall(VernepliktPeriodeId, "Periode som gis ved verneplikt", synlig = synligOmVerneplikt)
+    val vernepliktPeriode = heltall(VernepliktPeriodeId, "Periode som gis ved verneplikt", synlig = synligOmVerneplikt, enhet = Enhet.Uker)
     internal val vernepliktFastsattVanligArbeidstid =
         desimaltall(VernepliktFastsattVanligArbeidstidId, "Fastsatt vanlig arbeidstid for verneplikt", synlig = synligOmVerneplikt)
     internal val grunnlagHvisVerneplikt =

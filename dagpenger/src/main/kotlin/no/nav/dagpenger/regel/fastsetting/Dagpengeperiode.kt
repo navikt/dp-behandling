@@ -56,19 +56,24 @@ object Dagpengeperiode {
     private val inntektSiste12 = Minsteinntekt.inntekt12
     private val inntektSiste36 = Minsteinntekt.inntekt36
 
-    private val stønadsuker12 = heltall(Stønadsuker12Id, "Stønadsuker ved siste 12 måneder", synlig = aldriSynlig)
-    private val stønadsuker36 = heltall(Stønadsuker36Id, "Stønadsuker ved siste 36 måneder", synlig = aldriSynlig)
+    private val stønadsuker12 = heltall(Stønadsuker12Id, "Stønadsuker ved siste 12 måneder", synlig = aldriSynlig, enhet = Enhet.Uker)
+    private val stønadsuker36 = heltall(Stønadsuker36Id, "Stønadsuker ved siste 36 måneder", synlig = aldriSynlig, enhet = Enhet.Uker)
 
     private val overterskel12 = boolsk(Overterskel12Id, "Over terskel for 12 måneder", synlig = aldriSynlig)
     private val overterskel36 = boolsk(Overterskel36Id, "Over terskel for 36 måneder", synlig = aldriSynlig)
 
-    private val antallStønadsuker = heltall(AntallStønadsukerId, "Antall stønadsuker", synlig = aldriSynlig)
-    val antallStønadsdager = heltall(GjenståendeStønadsdagerId, "Antall stønadsdager", synlig = aldriSynlig)
+    private val antallStønadsuker = heltall(AntallStønadsukerId, "Antall stønadsuker", synlig = aldriSynlig, enhet = Enhet.Uker)
+    val antallStønadsdager = heltall(GjenståendeStønadsdagerId, "Antall stønadsdager", synlig = aldriSynlig, enhet = Enhet.Dager)
 
     private val ingenOrdinærPeriode =
-        heltall(IngenOrdinærPeriodeId, "Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt", synlig = aldriSynlig)
+        heltall(
+            IngenOrdinærPeriodeId,
+            "Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt",
+            synlig = aldriSynlig,
+            enhet = Enhet.Uker,
+        )
 
-    val ordinærPeriode = heltall(OrdinærPeriodeId, "Antall stønadsuker (stønadsperiode)")
+    val ordinærPeriode = heltall(OrdinærPeriodeId, "Antall stønadsuker (stønadsperiode)", enhet = Enhet.Uker)
 
     val regelsett =
         fastsettelse(

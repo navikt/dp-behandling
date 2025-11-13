@@ -11,5 +11,7 @@ fun Opplysningstype<*>.tilEnhetDTO() =
         Enhet.Timer -> EnhetDTO.TIMER
         Enhet.Dager -> EnhetDTO.DAGER
         Enhet.Uker -> EnhetDTO.UKER
+        Enhet.År -> EnhetDTO.ÅR
+        Enhet.Måneder -> EnhetDTO.MÅNEDER
         null -> null
     }

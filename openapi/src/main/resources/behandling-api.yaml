@@ -1261,7 +1261,7 @@ components:
 
     Enhet:
       type: string
-      enum: [ "timer", "prosent", "G", "dager", "uker"]
+      enum: [ "timer", "prosent", "G", "dager", "uker", "måneder", "år" ]
       description: Enhet for opplysningen, f.eks. timer, prosent, dager, etc.
 
     Opplysningsverdi:

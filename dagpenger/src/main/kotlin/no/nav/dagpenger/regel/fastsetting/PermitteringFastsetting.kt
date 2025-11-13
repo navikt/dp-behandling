@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.fastsetting
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.permitteringsperiodeId
 import no.nav.dagpenger.regel.Permittering.oppfyllerKravetTilPermittering
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
@@ -10,7 +11,9 @@ import no.nav.dagpenger.regel.folketrygden
 
 object PermitteringFastsetting {
     val permitteringsperiode =
-        heltall(permitteringsperiodeId, "Periode som gis ved permittering", synlig = { it.erSann(oppfyllerKravetTilPermittering) })
+        heltall(permitteringsperiodeId, "Periode som gis ved permittering", synlig = {
+            it.erSann(oppfyllerKravetTilPermittering)
+        }, enhet = Enhet.Uker)
 
     val regelsett =
         fastsettelse(

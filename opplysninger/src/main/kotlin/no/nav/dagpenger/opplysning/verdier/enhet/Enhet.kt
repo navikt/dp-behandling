@@ -6,4 +6,6 @@ enum class Enhet {
     Timer,
     Dager,
     Uker,
+    År,
+    Måneder,
 }

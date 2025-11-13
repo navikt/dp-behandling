@@ -24,6 +24,7 @@ import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Behov.Inntekt
 import no.nav.dagpenger.regel.Behov.OpptjeningsperiodeFraOgMed
@@ -63,7 +64,8 @@ object Minsteinntekt {
     val inntektFraSkatt = inntekt(InntektsopplysningerId, beskrivelse = "Inntektsopplysninger", Register, behovId = Inntekt)
     private val tellendeInntekt = inntekt(BruttoArbeidsinntektId, "Brutto arbeidsinntekt", synlig = aldriSynlig)
 
-    private val maksPeriodeLengde = heltall(MaksPeriodeLengdeId, "Maks lengde på opptjeningsperiode", synlig = aldriSynlig)
+    private val maksPeriodeLengde =
+        heltall(MaksPeriodeLengdeId, "Maks lengde på opptjeningsperiode", synlig = aldriSynlig, enhet = Enhet.Måneder)
     private val førsteMånedAvOpptjeningsperiode =
         dato(FørsteMånedAvOpptjeningsperiodeId, beskrivelse = "Første måned av opptjeningsperiode", behovId = OpptjeningsperiodeFraOgMed)
 

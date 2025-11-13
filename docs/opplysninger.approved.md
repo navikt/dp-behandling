@@ -145,7 +145,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9413-77ce-92ec-d29700f04243|Grunnbeløp|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04244|Inntektsopplysninger|InntektDataType|Inntekt|Inntekt|
 |0194881f-9413-77ce-92ec-d29700f04245|Brutto arbeidsinntekt|InntektDataType|Inntekt||
-|0194881f-9413-77ce-92ec-d29700f04246|Maks lengde på opptjeningsperiode|Heltall|int||
+|0194881f-9413-77ce-92ec-d29700f04246|Maks lengde på opptjeningsperiode|Heltall|int|| Måneder
 |0194881f-9413-77ce-92ec-d29700f04247|Første måned av opptjeningsperiode|Dato|LocalDate||
 |0194881f-9413-77ce-92ec-d29700f04248|Inntektskrav for siste 12 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04249|Inntektskrav for siste 36 måneder|Penger|Beløp||
@@ -224,7 +224,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
-|0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Heltall|int||
+|0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Heltall|int|| Uker
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Vilkår
 #### Avklaringer
@@ -246,7 +246,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
-|0195235a-599b-7b27-97a8-bc6142066a87|Periode som gis ved permittering fra fiskeindustrien|Heltall|int||
+|0195235a-599b-7b27-97a8-bc6142066a87|Periode som gis ved permittering fra fiskeindustrien|Heltall|int|| Uker
 ### § 4-8. Meldeplikt og møteplikt
 *Type:* Vilkår
 #### Opplysninger
@@ -330,9 +330,9 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a244|Sum av barnetillegg|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a245|Dagsats med barnetillegg før samordning|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a246|90% av grunnlag for dagpenger|Desimaltall|double||
-|0194881f-9428-74d5-b160-f63a4c61a247|Antall arbeidsdager per år|Heltall|int||
+|0194881f-9428-74d5-b160-f63a4c61a247|Antall arbeidsdager per år|Heltall|int|| Dager
 |0194881f-9428-74d5-b160-f63a4c61a248|Maksimalt mulig grunnlag avgrenset til 90% av dagpengegrunnlaget|Penger|Beløp||
-|0194881f-9428-74d5-b160-f63a4c61a249|Antall arbeidsdager per uke|Heltall|int||
+|0194881f-9428-74d5-b160-f63a4c61a249|Antall arbeidsdager per uke|Heltall|int|| Dager
 |0194881f-9428-74d5-b160-f63a4c61a24a|Maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a24b|Avrundet maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a24c|Har barnetillegg|Boolsk|boolean||
@@ -357,14 +357,14 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943d-77a7-969c-147999f1544f|Terskelfaktor for 12 måneder|Desimaltall|double|| G
 |0194881f-943d-77a7-969c-147999f15450|Terskelfaktor for 36 måneder|Desimaltall|double|| G
 |0194881f-943d-77a7-969c-147999f15451|Snittinntekt siste 36 måneder|Penger|Beløp||
-|0194881f-943d-77a7-969c-147999f15452|Stønadsuker ved siste 12 måneder|Heltall|int||
-|0194881f-943d-77a7-969c-147999f15453|Stønadsuker ved siste 36 måneder|Heltall|int||
+|0194881f-943d-77a7-969c-147999f15452|Stønadsuker ved siste 12 måneder|Heltall|int|| Uker
+|0194881f-943d-77a7-969c-147999f15453|Stønadsuker ved siste 36 måneder|Heltall|int|| Uker
 |0194881f-943d-77a7-969c-147999f15454|Over terskel for 12 måneder|Boolsk|boolean||
 |0194881f-943d-77a7-969c-147999f15455|Over terskel for 36 måneder|Boolsk|boolean||
-|0194881f-943d-77a7-969c-147999f15456|Antall stønadsuker|Heltall|int||
-|0194881f-943d-77a7-969c-147999f15457|Antall stønadsdager|Heltall|int||
-|0194881f-943d-77a7-969c-147999f15458|Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt|Heltall|int||
-|0194881f-943d-77a7-969c-147999f15459|Antall stønadsuker (stønadsperiode)|Heltall|int||
+|0194881f-943d-77a7-969c-147999f15456|Antall stønadsuker|Heltall|int|| Uker
+|0194881f-943d-77a7-969c-147999f15457|Antall stønadsdager|Heltall|int|| Dager
+|0194881f-943d-77a7-969c-147999f15458|Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt|Heltall|int|| Uker
+|0194881f-943d-77a7-969c-147999f15459|Antall stønadsuker (stønadsperiode)|Heltall|int|| Uker
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer
@@ -386,7 +386,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|---|
 |0194881f-9421-766c-9dc6-41fe6c9a1dff|Antall G som gis som grunnlag ved verneplikt|Desimaltall|double||
 |0194881f-9421-766c-9dc6-41fe6c9a1e00|Grunnlag for gis ved verneplikt|Penger|Beløp||
-|0194881f-9421-766c-9dc6-41fe6c9a1e01|Periode som gis ved verneplikt|Heltall|int||
+|0194881f-9421-766c-9dc6-41fe6c9a1e01|Periode som gis ved verneplikt|Heltall|int|| Uker
 |0194881f-9421-766c-9dc6-41fe6c9a1e02|Fastsatt vanlig arbeidstid for verneplikt|Desimaltall|double||
 ### § 4-22. Bortfall ved streik og lock-out
 *Type:* Vilkår
@@ -404,7 +404,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
 |0194881f-940b-76ff-acf5-ba7bcb367233|Fødselsdato|Dato|LocalDate|Fødselsdato|
-|0194881f-940b-76ff-acf5-ba7bcb367234|Aldersgrense|Heltall|int||
+|0194881f-940b-76ff-acf5-ba7bcb367234|Aldersgrense|Heltall|int|| År
 |0194881f-940b-76ff-acf5-ba7bcb367235|Dato søker når maks alder|Dato|LocalDate||
 |0194881f-940b-76ff-acf5-ba7bcb367236|Siste mulige dag bruker kan oppfylle alderskrav|Dato|LocalDate||
 |0194881f-940b-76ff-acf5-ba7bcb367237|Oppfyller kravet til alder|Boolsk|boolean||

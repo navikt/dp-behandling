@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.regel.dato.leggTilÅr
 import no.nav.dagpenger.opplysning.regel.dato.sisteDagIMåned
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.AldersgrenseId
 import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
@@ -24,7 +25,7 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
 object Alderskrav {
     val fødselsdato = dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)
 
-    private val aldersgrense = heltall(AldersgrenseId, "Aldersgrense", synlig = aldriSynlig)
+    private val aldersgrense = heltall(AldersgrenseId, "Aldersgrense", synlig = aldriSynlig, enhet = Enhet.År)
     private val sisteMåned = dato(SisteMånedId, "Dato søker når maks alder", synlig = aldriSynlig)
     private val sisteDagIMåned = dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav")
 

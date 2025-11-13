@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.antallDagerForbruktId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDatoForKravTilGjenopptakId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteforbruksdagId
@@ -16,7 +17,7 @@ object Gjenopptak {
     val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Skal gjenopptas?")
 
     private val antallUker =
-        Opplysningstype.heltall(antallDagerForbruktId, "Kravet til antall uker før gjenopptak")
+        Opplysningstype.heltall(antallDagerForbruktId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker)
 
     private val gjennoptaksdato = Søknadstidspunkt.prøvingsdato
     private val sisteDatoForKravTilGjenopptak =

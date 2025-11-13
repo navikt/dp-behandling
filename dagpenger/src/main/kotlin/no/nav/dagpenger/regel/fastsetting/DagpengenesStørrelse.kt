@@ -23,6 +23,7 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Avklaringspunkter.BarnMåGodkjennes
 import no.nav.dagpenger.regel.Behov.Barnetillegg
 import no.nav.dagpenger.regel.Behov.BarnetilleggV2
@@ -92,10 +93,11 @@ object DagpengenesStørrelse {
     private val avrundetDagsatsMedBarnetillegg =
         beløp(DagsatsMedBarnetilleggId, "Dagsats med barnetillegg før samordning", synlig = aldriSynlig)
     private val nittiProsent = desimaltall(NittiProsentId, "90% av grunnlag for dagpenger", synlig = aldriSynlig)
-    private val antallArbeidsdagerPerÅr = heltall(AntallArbeidsdagerPerÅrId, "Antall arbeidsdager per år", synlig = aldriSynlig)
+    private val antallArbeidsdagerPerÅr =
+        heltall(AntallArbeidsdagerPerÅrId, "Antall arbeidsdager per år", synlig = aldriSynlig, enhet = Enhet.Dager)
     private val maksGrunnlag =
         beløp(MaksGrunnlagId, "Maksimalt mulig grunnlag avgrenset til 90% av dagpengegrunnlaget", synlig = aldriSynlig)
-    val arbeidsdagerPerUke = heltall(ArbeidsdagerPerUkeId, "Antall arbeidsdager per uke", synlig = aldriSynlig)
+    val arbeidsdagerPerUke = heltall(ArbeidsdagerPerUkeId, "Antall arbeidsdager per uke", synlig = aldriSynlig, enhet = Enhet.Dager)
     private val maksSats =
         beløp(MaksSatsId, "Maksimal mulig dagsats avgrenset til 90% av dagpengegrunnlaget", synlig = aldriSynlig)
     private val avrundetMaksSats =
