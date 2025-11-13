@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Avklaringspunkter.IkkeRegistrertSomArbeidsøker
 import no.nav.dagpenger.regel.Avklaringspunkter.ReellArbeidssøkerUnntak
@@ -81,9 +82,15 @@ object ReellArbeidssøker {
             behovId = ØnsketArbeidstid,
             synlig = { it.erSann(kanJobbeDeltid) == false },
         )
-    val minimumVanligArbeidstid = desimaltall(minimumVanligArbeidstidId, "Minimum vanlig arbeidstid", synlig = { it.erSann(uføre) })
+    val minimumVanligArbeidstid =
+        desimaltall(minimumVanligArbeidstidId, "Minimum vanlig arbeidstid", synlig = { it.erSann(uføre) }, enhet = Enhet.Timer)
     private val villigTilMinimumArbeidstid =
-        boolsk(villigTilMinimumArbeidstidId, "Villig til å jobbe minimum arbeidstid", synlig = { it.erSann(kanJobbeDeltid) == false })
+        boolsk(
+            villigTilMinimumArbeidstidId,
+            "Villig til å jobbe minimum arbeidstid",
+            synlig = { it.erSann(kanJobbeDeltid) == false },
+            enhet = Enhet.Timer,
+        )
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {

@@ -70,7 +70,12 @@ object DagpengenesStørrelse {
      * 3. == antall barn * barnetillegg
      */
     private val dekningsgrad =
-        desimaltall(BarnetillegDekningsgradId, "Faktor for utregning av dagsats etter dagpengegrunnlaget", synlig = aldriSynlig)
+        desimaltall(
+            BarnetillegDekningsgradId,
+            "Faktor for utregning av dagsats etter dagpengegrunnlaget",
+            synlig = aldriSynlig,
+            enhet = Enhet.G,
+        )
     val dagsatsUtenBarnetillegg =
         beløp(DagsatsUtenBarnetilleggFørSamordningId, "Dagsats uten barnetillegg før samordning", synlig = aldriSynlig)
     val ukesatsMedBarnetillegg =

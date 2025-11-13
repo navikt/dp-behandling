@@ -14,6 +14,7 @@ import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Behov.Foreldrepenger
 import no.nav.dagpenger.regel.Behov.Omsorgspenger
 import no.nav.dagpenger.regel.Behov.Opplæringspenger
@@ -144,9 +145,15 @@ object Samordning {
             antallTimerArbeidstidenSkalSamordnesMotId,
             "Antall timer arbeidstiden skal samordnes mot",
             synlig = visesHvisSamordning,
+            enhet = Enhet.Timer,
         )
     val samordnetBeregnetArbeidstid =
-        Opplysningstype.desimaltall(samordnetFastsattArbeidstidId, "Samordnet fastsatt arbeidstid", synlig = visesHvisSamordning)
+        Opplysningstype.desimaltall(
+            samordnetFastsattArbeidstidId,
+            "Samordnet fastsatt arbeidstid",
+            synlig = visesHvisSamordning,
+            enhet = Enhet.Timer,
+        )
     val utfallEtterSamordning =
         Opplysningstype.boolsk(
             utfallEtterSamordningId,

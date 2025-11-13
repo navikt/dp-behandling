@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Avklaringspunkter.YtelserUtenforFolketrygden
 import no.nav.dagpenger.regel.Behov.OppgittAndreYtelserUtenforNav
@@ -104,6 +105,7 @@ object SamordingUtenforFolketrygden {
             id = terskelVedSamordningId,
             beskrivelse = "Hvor mange prosent av G skal brukes som terskel ved samordning",
             synlig = aldriSynlig,
+            enhet = Enhet.Prosent,
         )
     val nedreGrenseForSamordning =
         Opplysningstype.beløp(

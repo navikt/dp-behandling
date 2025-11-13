@@ -54,9 +54,9 @@ import java.time.LocalDate
 
 object Minsteinntekt {
     private val `12mndTerskelFaktor` =
-        desimaltall(TerskelFaktor12MndId, "Antall G for krav til 12 mnd arbeidsinntekt", synlig = aldriSynlig)
+        desimaltall(TerskelFaktor12MndId, "Antall G for krav til 12 mnd arbeidsinntekt", synlig = aldriSynlig, enhet = Enhet.G)
     private val `36mndTerskelFaktor` =
-        desimaltall(TerskelFaktor36MndId, "Antall G for krav til 36 mnd arbeidsinntekt", synlig = aldriSynlig)
+        desimaltall(TerskelFaktor36MndId, "Antall G for krav til 36 mnd arbeidsinntekt", synlig = aldriSynlig, enhet = Enhet.G)
     val inntekt12 = beløp(InntektSiste12MndId, "Arbeidsinntekt siste 12 måneder", behovId = "InntektSiste12Mnd")
     val inntekt36 = beløp(InntektSiste36MndId, "Arbeidsinntekt siste 36 måneder", behovId = "InntektSiste36Mnd")
     val grunnbeløp = beløp(GrunnbeløpId, "Grunnbeløp")

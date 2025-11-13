@@ -44,7 +44,8 @@ object Beregning {
         )
 
     // TODO: Er dette noe annet enn krav til tap?
-    val terskel = Opplysningstype.desimaltall(terskelId, "Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger")
+    val terskel =
+        Opplysningstype.desimaltall(terskelId, "Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger", enhet = Enhet.Prosent)
 
     val regelsett =
         fastsettelse(tomHjemmel("Meldekortberegning")) {

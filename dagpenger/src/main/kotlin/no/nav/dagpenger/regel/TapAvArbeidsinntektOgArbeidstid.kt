@@ -122,6 +122,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             fastsattVanligArbeidstidEtterOrdinærEllerVernepliktId,
             "Fastsatt vanlig arbeidstid etter ordinær eller verneplikt",
             synlig = aldriSynlig,
+            enhet = Enhet.Timer,
         )
     val kravTilTaptArbeidstid = boolsk(tapAvArbeidstidErMinstTerskelId, "Oppfyller vilkåret om tap av arbeidstid")
     val kravTilTapAvArbeidsinntektOgArbeidstid =

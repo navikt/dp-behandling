@@ -28,11 +28,17 @@ internal val synligOmVerneplikt: Opplysningssjekk = {
 }
 
 object VernepliktFastsetting {
-    private val antallG = desimaltall(AntallGVernepliktId, "Antall G som gis som grunnlag ved verneplikt", synlig = aldriSynlig)
+    private val antallG =
+        desimaltall(AntallGVernepliktId, "Antall G som gis som grunnlag ved verneplikt", synlig = aldriSynlig, enhet = Enhet.G)
     internal val vernepliktGrunnlag = beløp(VernepliktGrunnlagId, "Grunnlag for gis ved verneplikt", synlig = synligOmVerneplikt)
     val vernepliktPeriode = heltall(VernepliktPeriodeId, "Periode som gis ved verneplikt", synlig = synligOmVerneplikt, enhet = Enhet.Uker)
     internal val vernepliktFastsattVanligArbeidstid =
-        desimaltall(VernepliktFastsattVanligArbeidstidId, "Fastsatt vanlig arbeidstid for verneplikt", synlig = synligOmVerneplikt)
+        desimaltall(
+            VernepliktFastsattVanligArbeidstidId,
+            "Fastsatt vanlig arbeidstid for verneplikt",
+            synlig = synligOmVerneplikt,
+            enhet = Enhet.Timer,
+        )
     internal val grunnlagHvisVerneplikt =
         beløp(GrunnlagHvisVernepliktId, "Grunnlag for verneplikt hvis kravet er oppfylt", synlig = aldriSynlig)
 

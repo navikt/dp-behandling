@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Avklaringspunkter.HarOppgittPermitteringFiskeindustri
 import no.nav.dagpenger.regel.OpplysningsTyper.erPermitteringenFraFiskeindustriMidlertidigId
@@ -42,6 +43,7 @@ object PermitteringFraFiskeindustrien {
         desimaltall(
             kravTilProsentvisTapAvArbeidstidFiskepermitteringId,
             "Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien",
+            enhet = Enhet.Prosent,
         )
 
     val regelsett =

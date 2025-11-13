@@ -25,6 +25,7 @@ import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
@@ -76,7 +77,8 @@ object Dagpengegrunnlag {
         Opplysningstype.som(FaktorForMaksimaltMuligGrunnlagId, "Faktor for maksimalt mulig grunnlag", synlig = aldriSynlig)
     private val maksgrenseForGrunnlag = Opplysningstype.beløp(SeksGangerGrunnbeløpId, "6 ganger grunnbeløp", synlig = aldriSynlig)
 
-    val antallÅrI36Måneder = Opplysningstype.desimaltall(AntallÅrI36MånederId, "Antall år i 36 måneder", synlig = aldriSynlig)
+    val antallÅrI36Måneder =
+        Opplysningstype.desimaltall(AntallÅrI36MånederId, "Antall år i 36 måneder", synlig = aldriSynlig, enhet = Enhet.År)
 
     internal val grunnlag12mnd = Opplysningstype.beløp(GrunnlagSiste12MndId, "Inntekt etter avkortning og oppjustering siste 12 måneder")
     private val beløpSiste36 = Opplysningstype.beløp(InntektSiste36MånederId, "Inntekt siste 36 måneder", synlig = aldriSynlig)

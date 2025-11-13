@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.AntallDagsatsForEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.EgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenEgenandelId
@@ -23,7 +24,8 @@ object Egenandel {
     private val treGangerDagsats = beløp(TreGangerDagsatsId, "Tre ganger dagsats", synlig = aldriSynlig)
     private val ingenEgenandel = beløp(IngenEgenandelId, "Ingen egenandel", synlig = aldriSynlig)
     private val sats = DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-    private val antallDagsatsIEgenandel = desimaltall(AntallDagsatsForEgenandelId, "Antall dagsats for egenandel", synlig = aldriSynlig)
+    private val antallDagsatsIEgenandel =
+        desimaltall(AntallDagsatsForEgenandelId, "Antall dagsats for egenandel", synlig = aldriSynlig, enhet = Enhet.Dager)
 
     val regelsett =
         fastsettelse(

@@ -16,7 +16,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01948ea0-36e8-72cc-aa4f-16bc446ed3bd|Arbeidsdag|Boolsk|boolean||
 |01948ea0-e25c-7c47-8429-a05045d80eca|Arbeidstimer på en arbeidsdag|Desimaltall|double|| Timer
 |01948ea0-ffdc-7964-ab55-52a7e35e1020|Dag som fører til forbruk av dagpengeperiode|Boolsk|boolean||
-|01948ea2-22f3-7da8-9547-90d0c64e74e0|Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger|Desimaltall|double||
+|01948ea2-22f3-7da8-9547-90d0c64e74e0|Terskel for hvor mye arbeid som kan utføres samtidig med dagpenger|Desimaltall|double|| Prosent
 |01956ab8-126c-7636-803e-a5d87eda2015|Har meldt seg via meldekort|Boolsk|boolean||
 |01956abd-2871-7517-a332-b462c0c31292|Meldeperiode|PeriodeDataType|Periode||
 |01957069-d7d5-7f7c-b359-c00686fbf1f7|Penger som skal utbetales|Penger|Beløp||
@@ -112,7 +112,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9435-72a8-b1ce-9575cbc2a767|Beregnet vanlig arbeidstid per uke før tap|Desimaltall|double|| Timer
 |0194881f-9435-72a8-b1ce-9575cbc2a768|Maksimal vanlig arbeidstid|Desimaltall|double|| Timer
 |0194881f-9435-72a8-b1ce-9575cbc2a76b|Ny arbeidstid per uke|Desimaltall|double|| Timer
-|0194881f-9435-72a8-b1ce-9575cbc2a76c|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Desimaltall|double||
+|0194881f-9435-72a8-b1ce-9575cbc2a76c|Fastsatt vanlig arbeidstid etter ordinær eller verneplikt|Desimaltall|double|| Timer
 |0194881f-9435-72a8-b1ce-9575cbc2a76e|Oppfyller vilkåret om tap av arbeidstid|Boolsk|boolean||
 |0194881f-9435-72a8-b1ce-9575cbc2a76f|Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid|Boolsk|boolean||
 |019522d6-846d-7173-a892-67f10016d8d2|Ordinært krav til prosentvis tap av arbeidstid|Desimaltall|double|| Prosent
@@ -126,7 +126,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
-|0194881f-9435-72a8-b1ce-9575cbc2a76a|Fastsatt arbeidstid per uke før tap|Desimaltall|double||
+|0194881f-9435-72a8-b1ce-9575cbc2a76a|Fastsatt arbeidstid per uke før tap|Desimaltall|double|| Timer
 ### § 4-4. Krav til minsteinntekt
 *Type:* Vilkår
 #### Avklaringer
@@ -138,8 +138,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
-|0194881f-9413-77ce-92ec-d29700f0423f|Antall G for krav til 12 mnd arbeidsinntekt|Desimaltall|double||
-|0194881f-9413-77ce-92ec-d29700f04240|Antall G for krav til 36 mnd arbeidsinntekt|Desimaltall|double||
+|0194881f-9413-77ce-92ec-d29700f0423f|Antall G for krav til 12 mnd arbeidsinntekt|Desimaltall|double|| G
+|0194881f-9413-77ce-92ec-d29700f04240|Antall G for krav til 36 mnd arbeidsinntekt|Desimaltall|double|| G
 |0194881f-9413-77ce-92ec-d29700f04241|Arbeidsinntekt siste 12 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04242|Arbeidsinntekt siste 36 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04243|Grunnbeløp|Penger|Beløp||
@@ -163,8 +163,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
 |0194881f-9435-72a8-b1ce-9575cbc2a75f|Ønsket arbeidstid|Desimaltall|double|ØnsketArbeidstid|
-|0194881f-9435-72a8-b1ce-9575cbc2a769|Minimum vanlig arbeidstid|Desimaltall|double||
-|0194881f-9435-72a8-b1ce-9575cbc2a76d|Villig til å jobbe minimum arbeidstid|Boolsk|boolean||
+|0194881f-9435-72a8-b1ce-9575cbc2a769|Minimum vanlig arbeidstid|Desimaltall|double|| Timer
+|0194881f-9435-72a8-b1ce-9575cbc2a76d|Villig til å jobbe minimum arbeidstid|Boolsk|boolean|| Timer
 |0194881f-9441-7d1b-a06a-6727543a141e|Kan jobbe heltid og deltid|Boolsk|boolean|KanJobbeDeltid|
 |0194881f-9441-7d1b-a06a-6727543a141f|Det er godkjent at bruker kun søker deltidsarbeid|Boolsk|boolean||
 |0194881f-9442-707b-a6ee-e96c06877bd8|Oppfyller kravet til heltid- og deltidsarbeid|Boolsk|boolean||
@@ -238,7 +238,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019522b0-c722-76d4-8d7f-78f556c51f72|Oppfyller kravet til permittering i fiskeindustrien|Boolsk|boolean||
 |019522b8-0f1b-7536-8691-fd824bca86de|Årsaken til permitteringen fra fiskeindustrien er godkjent|Boolsk|boolean||
 |019522b8-494f-7012-898c-d202e3b90061|Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean||
-|019522d2-9bb1-7960-b1e2-a959566e2428|Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien|Desimaltall|double||
+|019522d2-9bb1-7960-b1e2-a959566e2428|Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien|Desimaltall|double|| Prosent
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Fastsettelse
 #### Avhenger på data fra
@@ -262,7 +262,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
 |0194881f-943f-78d9-b874-00a4944c54ef|Egenandel|Penger|Beløp||
-|0194881f-943f-78d9-b874-00a4944c54f0|Antall dagsats for egenandel|Desimaltall|double||
+|0194881f-943f-78d9-b874-00a4944c54f0|Antall dagsats for egenandel|Desimaltall|double|| Dager
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Penger|Beløp||
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Penger|Beløp||
 ### § 4-11. Dagpengegrunnlag
@@ -282,7 +282,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-940f-7af9-9387-052e028b29ee|Grunnbeløp for grunnlag|Penger|Beløp||
 |0194881f-9410-7481-b263-4606fdd10ca7|Faktor for maksimalt mulig grunnlag|Desimaltall|double||
 |0194881f-9410-7481-b263-4606fdd10ca8|6 ganger grunnbeløp|Penger|Beløp||
-|0194881f-9410-7481-b263-4606fdd10ca9|Antall år i 36 måneder|Desimaltall|double||
+|0194881f-9410-7481-b263-4606fdd10ca9|Antall år i 36 måneder|Desimaltall|double|| År
 |0194881f-9410-7481-b263-4606fdd10caa|Inntekt etter avkortning og oppjustering siste 12 måneder|Penger|Beløp||
 |0194881f-9410-7481-b263-4606fdd10cab|Inntekt siste 36 måneder|Penger|Beløp||
 |0194881f-9410-7481-b263-4606fdd10cac|Gjennomsnittlig inntekt etter avkortning og oppjustering siste 36 måneder|Penger|Beløp||
@@ -321,7 +321,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a23b|Barn|BarnDatatype|BarnListe|BarnetilleggV2|
 |0194881f-9428-74d5-b160-f63a4c61a23c|Antall barn som gir rett til barnetillegg|Heltall|int||
 |0194881f-9428-74d5-b160-f63a4c61a23d|Barnetilleggets størrelse i kroner per dag for hvert barn|Penger|Beløp||
-|0194881f-9428-74d5-b160-f63a4c61a23e|Faktor for utregning av dagsats etter dagpengegrunnlaget|Desimaltall|double||
+|0194881f-9428-74d5-b160-f63a4c61a23e|Faktor for utregning av dagsats etter dagpengegrunnlaget|Desimaltall|double|| G
 |0194881f-9428-74d5-b160-f63a4c61a23f|Dagsats uten barnetillegg før samordning|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a240|Avrundet ukessats med barnetillegg før samordning|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a241|Dagsats uten barnetillegg før samordning|Penger|Beløp||
@@ -384,10 +384,10 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
-|0194881f-9421-766c-9dc6-41fe6c9a1dff|Antall G som gis som grunnlag ved verneplikt|Desimaltall|double||
+|0194881f-9421-766c-9dc6-41fe6c9a1dff|Antall G som gis som grunnlag ved verneplikt|Desimaltall|double|| G
 |0194881f-9421-766c-9dc6-41fe6c9a1e00|Grunnlag for gis ved verneplikt|Penger|Beløp||
 |0194881f-9421-766c-9dc6-41fe6c9a1e01|Periode som gis ved verneplikt|Heltall|int|| Uker
-|0194881f-9421-766c-9dc6-41fe6c9a1e02|Fastsatt vanlig arbeidstid for verneplikt|Desimaltall|double||
+|0194881f-9421-766c-9dc6-41fe6c9a1e02|Fastsatt vanlig arbeidstid for verneplikt|Desimaltall|double|| Timer
 ### § 4-22. Bortfall ved streik og lock-out
 *Type:* Vilkår
 #### Opplysninger
@@ -445,8 +445,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9434-79e8-a64d-1a23cc5d86ea|Medlem har reduserte ytelser fra folketrygden (Samordning)|Boolsk|boolean||
 |0194881f-9434-79e8-a64d-1a23cc5d86eb|Samordnet dagsats uten barnetillegg|Penger|Beløp||
 |0194881f-9434-79e8-a64d-1a23cc5d86ec|Samordnet dagsats er større enn 0|Boolsk|boolean||
-|0194881f-9434-79e8-a64d-1a23cc5d86ed|Antall timer arbeidstiden skal samordnes mot|Desimaltall|double||
-|0194881f-9434-79e8-a64d-1a23cc5d86ee|Samordnet fastsatt arbeidstid|Desimaltall|double||
+|0194881f-9434-79e8-a64d-1a23cc5d86ed|Antall timer arbeidstiden skal samordnes mot|Desimaltall|double|| Timer
+|0194881f-9434-79e8-a64d-1a23cc5d86ee|Samordnet fastsatt arbeidstid|Desimaltall|double|| Timer
 |0194881f-9434-79e8-a64d-1a23cc5d86ef|Utfall etter samordning|Boolsk|boolean||
 |0196afaf-afbd-7079-b2cf-3669ad9d86aa|Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår|Boolsk|boolean||
 |0196afbf-e32d-775a-ad10-f476e26dcb6f|Uførebeløp som skal samordnes|Penger|Beløp||
@@ -476,7 +476,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-942f-7bde-ab16-68ffd19e9a27|Ventelønn beløp|Penger|Beløp||
 |0194881f-942f-7bde-ab16-68ffd19e9a28|Etterlønn beløp|Penger|Beløp||
 |0194881f-942f-7bde-ab16-68ffd19e9a29|Garantilott fra Garantikassen for fiskere beløp|Penger|Beløp||
-|0194881f-942f-7bde-ab16-68ffd19e9a2b|Hvor mange prosent av G skal brukes som terskel ved samordning|Desimaltall|double||
+|0194881f-942f-7bde-ab16-68ffd19e9a2b|Hvor mange prosent av G skal brukes som terskel ved samordning|Desimaltall|double|| Prosent
 |0194881f-942f-7bde-ab16-68ffd19e9a2c|Beløp tilsvarende nedre terskel av G|Penger|Beløp||
 |0194881f-942f-7bde-ab16-68ffd19e9a2d|Skal samordnes med ytelser utenfor folketrygden|Boolsk|boolean||
 |0194881f-942f-7bde-ab16-68ffd19e9a2e|Sum av ytelser utenfor folketrygden|Penger|Beløp||
