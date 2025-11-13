@@ -111,6 +111,7 @@ import no.nav.dagpenger.regel.Samordning.uføreDagsats
 import no.nav.dagpenger.regel.StreikOgLockout.deltarIStreikOgLockout
 import no.nav.dagpenger.regel.StreikOgLockout.sammeBedriftOgPåvirket
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.arbeidstidsreduksjonIkkeBruktTidligere
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
@@ -551,6 +552,7 @@ internal val redigerbareOpplysninger =
                     add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
                     add(Dagpengegrunnlag.grunnlag)
                     add(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
+                    add(søknadIdOpplysningstype)
                 }
 
                 // MANUELL overstyring av beregning
