@@ -9,6 +9,7 @@ import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
+import no.nav.dagpenger.regel.beregning.Beregning.trekkVedForsenMelding
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -64,7 +65,16 @@ class BeregningsperiodeFabrikk(
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
 
-        return meldeperiode.filter { meldekortDag -> perioderMedRett.any { it.inneholder(meldekortDag) } }
+        val skalTrekkes = opplysninger.finnOpplysning(trekkVedForsenMelding).verdi
+        val dagerMedRett =
+            meldeperiode
+                .filter { meldekortDag -> perioderMedRett.any { it.inneholder(meldekortDag) } }
+
+        return if (skalTrekkes) {
+            dagerMedRett.filter { meldekortDag -> opplysninger.forDato(meldekortDag).erSann(Beregning.meldt) }
+        } else {
+            dagerMedRett
+        }
     }
 
     private fun opprettPeriode(dager: List<LocalDate>): Set<Dag> =
@@ -73,7 +83,11 @@ class BeregningsperiodeFabrikk(
                 val gjeldendeOpplysninger = opplysninger.forDato(dato)
                 when (dato.dagstype) {
                     Hverdag -> opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
-                    Helg -> Helgedag(dato, Timer(gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi))
+                    Helg ->
+                        Helgedag(
+                            dato = dato,
+                            timerArbeidet = Timer(gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi),
+                        )
                 }
             }.toSortedSet()
 

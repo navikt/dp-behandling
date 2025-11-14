@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
 import no.nav.dagpenger.regel.OpplysningsTyper.taptArbeidIPeriodenId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelId
+import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingForPeriodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
 
@@ -36,6 +37,8 @@ object Beregning {
 
     val forbrukt = Opplysningstype.heltall(forbrukteDagerId, "Antall dager som er forbrukt", enhet = Enhet.Dager)
     val gjenståendePeriode = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår", enhet = Enhet.Dager)
+
+    val trekkVedForsenMelding = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Skal det trekkes ved for sen melding")
 
     val oppfyllerKravTilTaptArbeidstidIPerioden =
         Opplysningstype.boolsk(
@@ -69,6 +72,7 @@ object Beregning {
 
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
+            regel(trekkVedForsenMelding) { tomRegel }
 
             ønsketResultat(
                 meldeperiode,
@@ -84,6 +88,7 @@ object Beregning {
                 terskel,
                 utbetaling,
                 utbetalingForPeriode,
+                trekkVedForsenMelding,
             )
         }
 }

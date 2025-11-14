@@ -12,7 +12,6 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
@@ -41,24 +40,21 @@ class BeregnMeldekortHendelse(
         val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
         logger.info { "Baserer meldekortberegning på: ${forrigeBehandling.behandlingId}" }
 
+        val opplysninger =
+            listOf(
+                Faktum(
+                    hendelseTypeOpplysningstype,
+                    type,
+                    Gyldighetsperiode.kun(skjedde),
+                    kilde = Systemkilde(meldingsreferanseId, opprettet),
+                ),
+            ) +
+                meldekort.tilOpplysninger(kilde)
+
         return Behandling(
             basertPå = forrigeBehandling,
             behandler = this,
-            opplysninger =
-                listOf(
-                    Faktum(
-                        hendelseTypeOpplysningstype,
-                        type,
-                        Gyldighetsperiode.kun(skjedde),
-                        kilde = Systemkilde(meldingsreferanseId, opprettet),
-                    ),
-                    Faktum(
-                        Beregning.meldeperiode,
-                        Periode(meldekort.fom, meldekort.tom),
-                        Gyldighetsperiode(meldekort.fom, meldekort.tom),
-                        kilde = kilde,
-                    ),
-                ),
+            opplysninger = opplysninger,
             avklaringer =
                 buildList {
                     if (meldekort.korrigeringAv != null) {
@@ -129,8 +125,7 @@ class BeregnMeldekortHendelse(
                     }
                 },
         ).apply {
-            val meldekortOpplysninger = meldekort.dager.tilOpplysninger(kilde)
-            meldekortOpplysninger.forEach { this.opplysninger.leggTil(it) }
+            opplysninger.forEach { this.opplysninger.leggTil(it) }
         }
     }
 
