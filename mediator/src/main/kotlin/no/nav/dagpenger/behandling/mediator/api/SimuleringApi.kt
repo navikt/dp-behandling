@@ -11,7 +11,10 @@ import io.ktor.server.routing.routing
 import no.nav.dagpenger.behandling.db.logger
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningDTO
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningDagDTO
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningRequestDTO
@@ -38,6 +41,7 @@ import no.nav.dagpenger.regel.hendelse.tilOpplysninger
 import no.nav.dagpenger.uuid.UUIDv7
 import java.net.URI
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.time.Duration
 
 internal fun Application.simuleringApi() {
@@ -116,6 +120,7 @@ internal fun Application.simuleringApi() {
 
 private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysninger {
     val opplysninger = mutableListOf<Opplysning<*>>()
+
     val stønadsperiodeFom = beregningRequestDTO.stønadsperiode.fom
     val meldekortFom = beregningRequestDTO.meldekortFom ?: stønadsperiodeFom
     val antDager = beregningRequestDTO.antallMeldekortdager?.toLong() ?: 14
@@ -163,7 +168,21 @@ private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysnin
                 )
             }
 
-    val meldkortOpplysning = meldekortdager.tilOpplysninger(Systemkilde(UUIDv7.ny(), LocalDate.now().atStartOfDay()))
+    val meldekort =
+        Meldekort(
+            id = UUIDv7.ny(),
+            ident = "00000000000",
+            meldingsreferanseId = UUIDv7.ny(),
+            eksternMeldekortId = MeldekortId("simulering-${UUIDv7.ny()}"),
+            fom = meldekortFom,
+            tom = meldekortTom,
+            dager = meldekortdager,
+            kilde = MeldekortKilde("SIMULERING", "00000000000"),
+            innsendtTidspunkt = LocalDateTime.now(),
+            korrigeringAv = null,
+        )
+
+    val meldkortOpplysning = meldekort.tilOpplysninger(Systemkilde(UUIDv7.ny(), LocalDate.now().atStartOfDay()))
     opplysninger.addAll(meldkortOpplysning)
     return opplysninger.somOpplysninger()
 }
