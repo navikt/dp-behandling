@@ -21,7 +21,7 @@ fun Meldekort.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
     opplysninger.add(
         Faktum(
             Beregning.trekkVedForsenMelding,
-            (antall > 8),
+            (antall >= 8),
             Gyldighetsperiode(this.fom, this.tom),
             kilde = kilde,
         ),
