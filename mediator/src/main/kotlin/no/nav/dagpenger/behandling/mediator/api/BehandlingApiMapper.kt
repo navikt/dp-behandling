@@ -195,6 +195,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                             is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                             is ManuellId -> HendelseDTOTypeDTO.MANUELL
                         },
+                    skjedde = behandler.skjedde,
                 ),
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
             avklaringer = generelleAvklaringer.map { it.tilAvklaringDTO() },

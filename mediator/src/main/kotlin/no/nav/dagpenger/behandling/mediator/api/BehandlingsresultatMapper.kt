@@ -74,6 +74,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                             is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                             is ManuellId -> HendelseDTOTypeDTO.MANUELL
                         },
+                    skjedde = behandlingAv.skjedde,
                 ),
             opplysninger =
                 opplysningSet.groupBy { it.opplysningstype }.map { (type, opplysninger) ->

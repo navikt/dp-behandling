@@ -1881,6 +1881,7 @@ components:
         - datatype
         - id
         - type
+        - skjedde
       properties:
         datatype:
           type: string
@@ -1889,6 +1890,10 @@ components:
         type:
           type: string
           enum: [ "Søknad", "Meldekort" ,"Manuell" ]
+        skjedde:
+          type: string
+          format: date
+          description: Når hendelsen skjedde på utsiden av vårt system
 
     VilkaarNavn:
       type: string

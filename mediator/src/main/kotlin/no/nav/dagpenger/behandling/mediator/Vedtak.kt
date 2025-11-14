@@ -140,6 +140,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
                     },
+                skjedde = behandlingAv.skjedde,
             ),
         fagsakId = opplysningerSomGjelderPåPrøvingsdato.finnNullableOpplysning(fagsakIdOpplysningstype)?.verdi?.toString() ?: "0",
         automatisk = automatiskBehandlet,

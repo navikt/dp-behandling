@@ -80,6 +80,7 @@ internal fun Behandling.tilBehandlingsresultatV2DTO(): BehandlingsresultatV2DTO 
                             is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                             is ManuellId -> HendelseDTOTypeDTO.MANUELL
                         },
+                    skjedde = behandler.skjedde,
                 ),
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
             tilstand =

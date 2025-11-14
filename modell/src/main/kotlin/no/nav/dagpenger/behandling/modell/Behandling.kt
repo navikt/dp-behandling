@@ -1010,7 +1010,7 @@ class Behandling private constructor(
             BehandlingOpprettet(
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
-                hendelse = behandler.eksternId,
+                hendelse = behandler,
             )
 
         observatører.forEach { it.opprettet(event) }
@@ -1102,7 +1102,7 @@ interface BehandlingObservatør {
     data class BehandlingOpprettet(
         val behandlingId: UUID,
         val basertPåBehandlinger: UUID?,
-        val hendelse: EksternId<*>,
+        val hendelse: StartHendelse,
     ) : PersonEvent()
 
     sealed class VedtakEvent(

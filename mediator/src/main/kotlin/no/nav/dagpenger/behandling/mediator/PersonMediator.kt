@@ -79,14 +79,15 @@ internal class PersonMediator : PersonObservatør {
                     "basertPåBehandlinger" to listOf(basertPåBehandlinger.toString()),
                     "behandletHendelse" to
                         mapOf(
-                            "id" to hendelse.id,
-                            "datatype" to hendelse.datatype,
+                            "id" to hendelse.eksternId.id,
+                            "datatype" to hendelse.eksternId.datatype,
                             "type" to
-                                when (hendelse) {
+                                when (hendelse.eksternId) {
                                     is MeldekortId -> "Meldekort"
                                     is SøknadId -> "Søknad"
                                     is ManuellId -> "Manuell"
                                 },
+                            "skjedde" to hendelse.skjedde,
                         ),
                 ) +
                     listOfNotNull(
