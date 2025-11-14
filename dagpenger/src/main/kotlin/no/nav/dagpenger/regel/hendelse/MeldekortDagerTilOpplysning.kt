@@ -7,7 +7,6 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.tilTimer
@@ -26,19 +25,10 @@ fun Meldekort.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
             kilde = kilde,
         ),
     )
-
-    opplysninger.add(
-        Faktum(
-            Beregning.meldeperiode,
-            Periode(this.fom, this.tom),
-            Gyldighetsperiode(this.fom, this.tom),
-            kilde = kilde,
-        ),
-    )
     return opplysninger.toList()
 }
 
-fun List<Dag>.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
+private fun List<Dag>.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
     val opplysninger = mutableListOf<Opplysning<*>>()
     this.forEach { dag ->
         val gyldighetsperiode = Gyldighetsperiode(dag.dato, dag.dato)
