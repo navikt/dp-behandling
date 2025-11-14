@@ -2,14 +2,41 @@ package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.tilTimer
 import no.nav.dagpenger.regel.beregning.Beregning
+
+fun Meldekort.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
+    val opplysninger = mutableListOf<Opplysning<*>>()
+    opplysninger.addAll(dager.tilOpplysninger(kilde))
+
+    val antall = opplysninger.filter { it.opplysningstype == Beregning.meldt }.count { !(it.verdi as Boolean) }
+    opplysninger.add(
+        Faktum(
+            Beregning.trekkVedForsenMelding,
+            (antall > 8),
+            Gyldighetsperiode(this.fom, this.tom),
+            kilde = kilde,
+        ),
+    )
+
+    opplysninger.add(
+        Faktum(
+            Beregning.meldeperiode,
+            Periode(this.fom, this.tom),
+            Gyldighetsperiode(this.fom, this.tom),
+            kilde = kilde,
+        ),
+    )
+    return opplysninger.toList()
+}
 
 fun List<Dag>.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
     val opplysninger = mutableListOf<Opplysning<*>>()
@@ -25,10 +52,12 @@ fun List<Dag>.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
                 opplysninger.add(Faktum(Beregning.arbeidsdag, false, gyldighetsperiode, kilde = kilde))
                 opplysninger.add(Faktum(Beregning.arbeidstimer, 0.0, gyldighetsperiode, kilde = kilde))
             }
+
             arbeidEllerUtdanning -> {
                 opplysninger.add(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde))
                 opplysninger.add(Faktum(Beregning.arbeidstimer, timer.timer, gyldighetsperiode, kilde = kilde))
             }
+
             else -> {
                 opplysninger.add(Faktum(Beregning.arbeidsdag, true, gyldighetsperiode, kilde = kilde))
                 opplysninger.add(Faktum(Beregning.arbeidstimer, 0.0, gyldighetsperiode, kilde = kilde))
@@ -37,5 +66,6 @@ fun List<Dag>.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
 
         opplysninger.add(Faktum(Beregning.meldt, dag.meldt, gyldighetsperiode, kilde = kilde))
     }
+
     return opplysninger.toList()
 }

@@ -8,7 +8,10 @@ import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Fravær
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Syk
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType.Utdanning
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
+import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
@@ -28,6 +31,7 @@ import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeids
 import no.nav.dagpenger.regel.hendelse.tilOpplysninger
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.time.DurationUnit
@@ -154,11 +158,21 @@ class BeregningSteg : No {
     ): List<Opplysning<*>> {
         require(dager.size == 14) { "Må ha nøyaktig 14 dager" }
         require(fraOgMed.dayOfWeek.value == 1) { "Må starte på en mandag" }
-        val opplysninger =
+
+        val meldekortDager =
             dager
                 .mapIndexed { i, dag ->
 
                     val timer = dag["verdi"]?.toDouble() ?: 0.0
+                    val meldt =
+                        dag["meldt"]?.let {
+                            when (it) {
+                                "Nei" -> false
+                                "Ja" -> true
+                                else -> throw IllegalArgumentException("Ugyldig verdi for meldt: $it")
+                            }
+                        } ?: true
+
                     val muligeAktiviteter = dag["type"]?.split(",")?.map { it.trim() } ?: emptyList()
                     val aktiviteter =
                         muligeAktiviteter
@@ -193,11 +207,25 @@ class BeregningSteg : No {
                             }
                     Dag(
                         dato = fraOgMed.plusDays(i.toLong()),
-                        meldt = true,
+                        meldt = meldt,
                         aktiviteter = aktiviteter,
                     )
-                }.tilOpplysninger(Systemkilde(UUIDv7.ny(), LocalDate.now().atStartOfDay()))
-        return opplysninger
+                }
+
+        val meldekort =
+            Meldekort(
+                id = UUIDv7.ny(),
+                meldingsreferanseId = UUIDv7.ny(),
+                ident = "01010101010",
+                eksternMeldekortId = MeldekortId("MELDEKORT-12345"),
+                fom = fraOgMed,
+                tom = fraOgMed.plusDays(14),
+                kilde = MeldekortKilde(rolle = "Søker", ident = "01010101010"),
+                dager = meldekortDager,
+                innsendtTidspunkt = LocalDateTime.now(),
+                korrigeringAv = null,
+            )
+        return meldekort.tilOpplysninger(Systemkilde(meldekort.meldingsreferanseId, LocalDateTime.now()))
     }
 
     private val opplysningFactories: Map<String, (Map<String, String>, Gyldighetsperiode) -> List<Opplysning<*>>> =

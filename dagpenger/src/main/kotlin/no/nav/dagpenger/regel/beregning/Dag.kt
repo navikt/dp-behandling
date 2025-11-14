@@ -21,9 +21,6 @@ class Arbeidsdag(
     override val timerArbeidet: Timer,
     val terskel: BigDecimal,
 ) : Dag {
-    var dagsbeløp: Beløp = Beløp(0.0)
-        internal set
-
     constructor(dato: LocalDate, sats: Beløp, fva: Timer, timerArbeidet: Timer, terskel: Double) :
         this(dato, sats, fva, timerArbeidet, BigDecimal.valueOf(terskel))
 }
