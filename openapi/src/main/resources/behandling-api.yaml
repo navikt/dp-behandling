@@ -91,6 +91,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}:
     parameters:
       - name: behandlingId
@@ -120,34 +121,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
-  /behandling/v2/{behandlingId}:
-    parameters:
-      - name: behandlingId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-        description: Behandlingens id
-    get:
-      summary: Hent en spesifikk behandling
-      security:
-        - azureAd: [ ]
-      tags:
-        - Behandling
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BehandlingsresultatV2'
-          description: OK
-        default:
-          description: Feil ved henting av behandling
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/HttpProblem'
   /behandling/{behandlingId}/vurderinger:
     parameters:
       - name: behandlingId
@@ -215,6 +188,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/avbryt:
     parameters:
       - name: behandlingId
@@ -246,6 +220,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/godkjenn:
     parameters:
       - name: behandlingId
@@ -277,6 +252,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/beslutt:
     parameters:
       - name: behandlingId
@@ -308,6 +284,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/send-tilbake:
     parameters:
       - name: behandlingId
@@ -339,6 +316,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/rekjor:
     parameters:
       - name: behandlingId
@@ -370,6 +348,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/opplysning/{opplysningId}:
     parameters:
       - name: behandlingId
@@ -406,6 +385,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/opplysning/:
     parameters:
       - name: behandlingId
@@ -441,6 +421,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/avklaring:
     parameters:
       - name: behandlingId
@@ -467,6 +448,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Avklaring'
           description: OK
+
   /behandling/{behandlingId}/avklaring/{avklaringId}:
     parameters:
       - name: behandlingId
@@ -512,6 +494,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/vedtak:
     parameters:
       - name: behandlingId
@@ -696,11 +679,6 @@ components:
                 $ref: '#/components/schemas/Opplysninger'
 
     Behandling:
-      $ref: '#/components/schemas/BehandlingsresultatV2'
-
-    # TODO: Dette blir Behandling
-    BehandlingsresultatV2:
-      deprecated: true
       allOf:
         - $ref: '#/components/schemas/Behandlingskonvolutt'
         - type: object
@@ -738,16 +716,11 @@ components:
       type: string
       enum: [ "UnderOpprettelse", "UnderBehandling", "Redigert", "ForslagTilVedtak", "Låst", "Avbrutt", "Ferdig", "TilGodkjenning", "TilBeslutning" ]
 
-    Regelsett:
-      $ref: '#/components/schemas/VurderingsresultatV2'
-
     RegelsettType:
       type: string
       enum: [ "Vilkår", "Fastsettelse" ]
 
-    # TODO: Bytt navn til Regelsett
-    VurderingsresultatV2:
-      deprecated: true
+    Regelsett:
       type: object
       required:
         - id

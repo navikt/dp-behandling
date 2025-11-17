@@ -23,11 +23,11 @@ import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.RedigerbareOpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
+import no.nav.dagpenger.behandling.api.models.RegelsettDTO
 import no.nav.dagpenger.behandling.api.models.RegelsettTypeDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
-import no.nav.dagpenger.behandling.api.models.VurderingsresultatV2DTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -143,12 +143,12 @@ private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighetsp
     }
 }
 
-private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning<*>>): VurderingsresultatV2DTO {
+private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning<*>>): RegelsettDTO {
     // Vi ønsker kun å ta med produkter som faktisk har vært produsert i løpet av behandlingsskjeden
     val typer = alleOpplysninger.map { it.opplysningstype }.toSet()
     val produkter = produserer.filter { it in typer }
 
-    return VurderingsresultatV2DTO(
+    return RegelsettDTO(
         id = hjemmel.hashCode().toString(),
         navn = hjemmel.kortnavn,
         hjemmel =
