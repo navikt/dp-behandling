@@ -34,7 +34,6 @@ import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.NyOpplysningDTO
-import no.nav.dagpenger.behandling.api.models.OppdaterOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
@@ -513,7 +512,7 @@ internal fun Application.behandlingApi(
                                     behandlingId,
                                     opplysningstype.behovId,
                                     behandling.behandler.ident,
-                                    HttpVerdiMapper2(nyOpplysningDTO).map(opplysningstype.datatype),
+                                    HttpVerdiMapper(nyOpplysningDTO).map(opplysningstype.datatype),
                                     call.saksbehandlerId(),
                                     nyOpplysningDTO.begrunnelse,
                                     nyOpplysningDTO.gyldigFraOgMed,
@@ -632,24 +631,7 @@ private val OtelTraceIdPlugin =
     }
 
 @Suppress("UNCHECKED_CAST")
-// Deprecated, fjernes når frontend bruker opplysnignstype ID til å redigere opplysning
 private class HttpVerdiMapper(
-    private val oppdaterOpplysningRequestDTO: OppdaterOpplysningDTO,
-) : VerdiMapper {
-    override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
-        when (datatype) {
-            Heltall -> oppdaterOpplysningRequestDTO.verdi.toInt() as T
-            Boolsk -> oppdaterOpplysningRequestDTO.verdi.toBoolean() as T
-            Desimaltall -> oppdaterOpplysningRequestDTO.verdi.toDouble() as T
-            Penger -> oppdaterOpplysningRequestDTO.verdi.toDouble() as T
-            Dato -> oppdaterOpplysningRequestDTO.verdi.let { LocalDate.parse(it) } as T
-            BarnDatatype -> barnMapper(oppdaterOpplysningRequestDTO.verdi) as T
-            else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
-        }
-}
-
-@Suppress("UNCHECKED_CAST")
-private class HttpVerdiMapper2(
     private val nyOpplysning: NyOpplysningDTO,
 ) : VerdiMapper {
     override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
@@ -660,6 +642,7 @@ private class HttpVerdiMapper2(
             Penger -> nyOpplysning.verdi.toDouble() as T
             Dato -> nyOpplysning.verdi.let { LocalDate.parse(it) } as T
             BarnDatatype -> barnMapper(nyOpplysning.verdi) as T
+            Tekst -> nyOpplysning.verdi as T
             else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
         }
 }
