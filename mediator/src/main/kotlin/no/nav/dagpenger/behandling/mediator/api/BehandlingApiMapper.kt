@@ -5,6 +5,7 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.api.models.AvklaringDTO
 import no.nav.dagpenger.behandling.api.models.AvklaringDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
@@ -97,7 +98,15 @@ internal fun Behandling.tilSaksbehandlersVurderinger() =
 
         SaksbehandlersVurderingerDTO(
             behandlingId = behandlingId,
-            opplysninger = endredeOpplysninger.map { it.tilOpplysningsperiodeDTO(egneId) },
+            opplysninger =
+                endredeOpplysninger.groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                    OpplysningerDTO(
+                        opplysningTypeId = type.id.uuid,
+                        navn = type.navn,
+                        datatype = type.datatype.tilDataTypeDTO(),
+                        perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
+                    )
+                },
         )
     }
 
@@ -154,100 +163,101 @@ internal fun LocalDate.tilApiDato(): LocalDate? =
 // TODO: Denne bor nok et annet sted - men bare for å vise at det er mulig å ha en slik funksjon
 internal val redigerbareOpplysninger =
     object : Redigerbar {
-        private val redigerbare get() =
-            buildSet {
-                addAll(
-                    listOf(
-                        harLøpendeRett,
-                        prøvingsdato,
-                        // 4-2 Opphold
-                        oppholdINorge,
-                        unntakForOpphold,
-                        medlemFolketrygden,
-                        // 4-3
-                        kravPåLønn,
-                        beregningsregel6mnd,
-                        beregningsregel12mnd,
-                        beregningsregel36mnd,
-                        beregnetArbeidstid,
-                        nyArbeidstid,
-                        // 4-5
-                        ønsketArbeidstid,
-                        minimumVanligArbeidstid,
-                        kanJobbeDeltid,
-                        kanJobbeHvorSomHelst,
-                        erArbeidsfør,
-                        villigTilEthvertArbeid,
-                        godkjentDeltidssøker,
-                        godkjentLokalArbeidssøker,
-                        godkjentArbeidsufør,
-                        erReellArbeidssøkerVurdert,
-                        // 4-6 Utdanning
-                        tarUtdanning,
-                        deltakelseIArbeidsmarkedstiltak,
-                        opplæringForInnvandrere,
-                        grunnskoleopplæring,
-                        høyereYrkesfagligUtdanning,
-                        høyereUtdanning,
-                        deltakelsePåKurs,
-                        // 4-7 Permittering
-                        erPermittert,
-                        godkjentPermitteringsårsak,
-                        erPermitteringenMidlertidig,
-                        permitteringFiskeforedling,
-                        erPermitteringenFraFiskeindustriMidlertidig,
-                        godkjentÅrsakPermitteringFraFiskindustri,
-                        // 4-19 Verneplikt
-                        oppfyllerKravetTilVerneplikt,
-                        skalVernepliktVurderes,
-                        // 4-22 Streik og lockout
-                        deltarIStreikOgLockout,
-                        sammeBedriftOgPåvirket,
-                        // 4-24 Fulle ytelser
-                        ikkeFulleYtelser,
-                        // 4-25 Samordning
-                        samordnetArbeidstid,
-                        sykepenger,
-                        pleiepenger,
-                        omsorgspenger,
-                        opplæringspenger,
-                        uføre,
-                        foreldrepenger,
-                        svangerskapspenger,
-                        sykepengerDagsats,
-                        pleiepengerDagsats,
-                        omsorgspengerDagsats,
-                        opplæringspengerDagsats,
-                        uføreDagsats,
-                        skalUføreSamordnes,
-                        foreldrepengerDagsats,
-                        svangerskapspengerDagsats,
-                        // 4-28 Utestenging
-                        utestengt,
-                        // 4-12 Redigering av barne opplysninger
-                        barn,
-                        arbeidstidsreduksjonIkkeBruktTidligere,
-                    ),
-                )
+        private val redigerbare
+            get() =
+                buildSet {
+                    addAll(
+                        listOf(
+                            harLøpendeRett,
+                            prøvingsdato,
+                            // 4-2 Opphold
+                            oppholdINorge,
+                            unntakForOpphold,
+                            medlemFolketrygden,
+                            // 4-3
+                            kravPåLønn,
+                            beregningsregel6mnd,
+                            beregningsregel12mnd,
+                            beregningsregel36mnd,
+                            beregnetArbeidstid,
+                            nyArbeidstid,
+                            // 4-5
+                            ønsketArbeidstid,
+                            minimumVanligArbeidstid,
+                            kanJobbeDeltid,
+                            kanJobbeHvorSomHelst,
+                            erArbeidsfør,
+                            villigTilEthvertArbeid,
+                            godkjentDeltidssøker,
+                            godkjentLokalArbeidssøker,
+                            godkjentArbeidsufør,
+                            erReellArbeidssøkerVurdert,
+                            // 4-6 Utdanning
+                            tarUtdanning,
+                            deltakelseIArbeidsmarkedstiltak,
+                            opplæringForInnvandrere,
+                            grunnskoleopplæring,
+                            høyereYrkesfagligUtdanning,
+                            høyereUtdanning,
+                            deltakelsePåKurs,
+                            // 4-7 Permittering
+                            erPermittert,
+                            godkjentPermitteringsårsak,
+                            erPermitteringenMidlertidig,
+                            permitteringFiskeforedling,
+                            erPermitteringenFraFiskeindustriMidlertidig,
+                            godkjentÅrsakPermitteringFraFiskindustri,
+                            // 4-19 Verneplikt
+                            oppfyllerKravetTilVerneplikt,
+                            skalVernepliktVurderes,
+                            // 4-22 Streik og lockout
+                            deltarIStreikOgLockout,
+                            sammeBedriftOgPåvirket,
+                            // 4-24 Fulle ytelser
+                            ikkeFulleYtelser,
+                            // 4-25 Samordning
+                            samordnetArbeidstid,
+                            sykepenger,
+                            pleiepenger,
+                            omsorgspenger,
+                            opplæringspenger,
+                            uføre,
+                            foreldrepenger,
+                            svangerskapspenger,
+                            sykepengerDagsats,
+                            pleiepengerDagsats,
+                            omsorgspengerDagsats,
+                            opplæringspengerDagsats,
+                            uføreDagsats,
+                            skalUføreSamordnes,
+                            foreldrepengerDagsats,
+                            svangerskapspengerDagsats,
+                            // 4-28 Utestenging
+                            utestengt,
+                            // 4-12 Redigering av barne opplysninger
+                            barn,
+                            arbeidstidsreduksjonIkkeBruktTidligere,
+                        ),
+                    )
 
-                // 4-5 Registrert arbeidssøker
-                if (unleash.isEnabled(Feature.REDIGERING_AV_REGISTRERT_ARBEIDSSØKER.navn)) {
-                    add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
-                    add(Dagpengegrunnlag.grunnlag)
-                    add(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
-                    add(søknadIdOpplysningstype)
-                }
+                    // 4-5 Registrert arbeidssøker
+                    if (unleash.isEnabled(Feature.REDIGERING_AV_REGISTRERT_ARBEIDSSØKER.navn)) {
+                        add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
+                        add(Dagpengegrunnlag.grunnlag)
+                        add(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
+                        add(søknadIdOpplysningstype)
+                    }
 
-                // MANUELL overstyring av beregning
-                if (unleash.isEnabled(Feature.REDIGERING_AV_BEREGNING.navn)) {
-                    add(Beregning.arbeidsdag)
-                    add(Beregning.forbruk)
-                    add(Beregning.forbruktEgenandel)
-                    add(Beregning.gjenståendeEgenandel)
-                    add(Beregning.gjenståendePeriode)
-                    add(Beregning.utbetaling)
+                    // MANUELL overstyring av beregning
+                    if (unleash.isEnabled(Feature.REDIGERING_AV_BEREGNING.navn)) {
+                        add(Beregning.arbeidsdag)
+                        add(Beregning.forbruk)
+                        add(Beregning.forbruktEgenandel)
+                        add(Beregning.gjenståendeEgenandel)
+                        add(Beregning.gjenståendePeriode)
+                        add(Beregning.utbetaling)
+                    }
                 }
-            }
 
         override fun kanRedigere(opplysningstype: Opplysningstype<*>): Boolean = redigerbare.contains(opplysningstype)
     }

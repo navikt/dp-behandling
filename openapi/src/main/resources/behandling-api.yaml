@@ -809,7 +809,7 @@ components:
         opplysninger:
           type: array
           items:
-            $ref: '#/components/schemas/Opplysningsperiode'
+            $ref: '#/components/schemas/Opplysninger'
 
     Avklaring:
       type: object

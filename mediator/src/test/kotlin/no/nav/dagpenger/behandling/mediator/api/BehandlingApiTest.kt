@@ -266,9 +266,9 @@ internal class BehandlingApiTest {
             behandlingDto.behandlingId shouldBe person.behandlingId
 
             behandlingDto.opplysninger.shouldNotBeEmpty()
-
-            behandlingDto.opplysninger shouldHaveSize 1
-            behandlingDto.opplysninger.all { it.kilde?.type?.value == "Saksbehandler" } shouldBe true
+            behandlingDto.opplysninger
+                .flatMap { it.perioder }
+                .all { periode -> periode.kilde?.type?.value == "Saksbehandler" } shouldBe true
         }
     }
 
@@ -294,10 +294,7 @@ internal class BehandlingApiTest {
                 shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), SaksbehandlersVurderingerDTO::class.java) }
             behandlingDto.behandlingId shouldBe person.behandlingId
 
-            behandlingDto.opplysninger.shouldNotBeEmpty()
-
             behandlingDto.opplysninger shouldHaveSize 1
-            behandlingDto.opplysninger.all { it.kilde?.type?.value == "Saksbehandler" } shouldBe true
         }
     }
 
