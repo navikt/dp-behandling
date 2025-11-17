@@ -22,9 +22,9 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.escapeIfNeeded
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.EnhetDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
