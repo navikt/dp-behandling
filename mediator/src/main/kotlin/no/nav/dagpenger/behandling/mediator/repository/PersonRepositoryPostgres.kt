@@ -80,7 +80,8 @@ class PersonRepositoryPostgres(
                     val virkningsdato = row.localDate("virkningsdato")
                     val utfall = row.boolean("har_rettighet")
                     val behandlingId = row.uuid("behandling_id")
-                    Pair(gjelderFra, Rettighetstatus(virkningsdato, utfall, behandlingId))
+                    val behandlingskjedeId = row.uuid("behandlingskjede_id")
+                    Pair(gjelderFra, Rettighetstatus(virkningsdato, utfall, behandlingId, behandlingskjedeId))
                 }.asList,
             ).let {
                 TemporalCollection<Rettighetstatus>().apply {
@@ -114,14 +115,20 @@ class PersonRepositoryPostgres(
                 mapOf("ident" to person.ident.identifikator()),
             ).asUpdate,
         )
+        tx.run(
+            queryOf(
+                //language=PostgreSQL
+                "DELETE FROM rettighetstatus WHERE ident = :ident",
+                mapOf("ident" to person.ident.identifikator()),
+            ).asUpdate,
+        )
         person.rettighethistorikk().forEach { (gjelderFra, rettighetstatus) ->
             tx.run(
                 queryOf(
                     //language=PostgreSQL
                     """
-                    INSERT INTO rettighetstatus (ident, gjelder_fra, virkningsdato, har_rettighet, behandling_id)
-                    VALUES (:ident, :gjelderFra, :virkningsdato, :harRettighet, :behandlingId)
-                    ON CONFLICT (behandling_id) DO UPDATE SET gjelder_fra = :gjelderFra, virkningsdato = :virkningsdato, har_rettighet = :harRettighet
+                    INSERT INTO rettighetstatus (ident, gjelder_fra, virkningsdato, har_rettighet, behandling_id, behandlingskjede_id)
+                    VALUES (:ident, :gjelderFra, :virkningsdato, :harRettighet, :behandlingId, :behandlingskjedeId)
                     """.trimIndent(),
                     mapOf(
                         "ident" to person.ident.identifikator(),
@@ -129,6 +136,7 @@ class PersonRepositoryPostgres(
                         "virkningsdato" to rettighetstatus.virkningsdato,
                         "behandlingId" to rettighetstatus.behandlingId,
                         "harRettighet" to rettighetstatus.utfall,
+                        "behandlingskjedeId" to rettighetstatus.behandlingskjedeId,
                     ),
                 ).asUpdate,
             )

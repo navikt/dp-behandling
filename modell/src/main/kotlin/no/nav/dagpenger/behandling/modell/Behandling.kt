@@ -76,6 +76,8 @@ class Behandling private constructor(
         }
     }
 
+    val behandlingskjedeId: UUID = basertPå?.behandlingskjedeId ?: behandlingId
+
     private val observatører = mutableListOf<BehandlingObservatør>()
     private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
@@ -996,6 +998,7 @@ class Behandling private constructor(
             Resultat(
                 behandlingId = behandlingId,
                 basertPåBehandling = basertPåBehandlinger(),
+                behandlingskjedeId = behandlingskjedeId,
                 rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()),
                 virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,
@@ -1072,6 +1075,7 @@ class Behandling private constructor(
     interface VedtakOpplysninger {
         val behandlingId: UUID
         val basertPåBehandling: UUID?
+        val behandlingskjedeId: UUID
         val rettighetsperioder: List<Rettighetsperiode>
         val virkningsdato: LocalDate
         val behandlingAv: StartHendelse
@@ -1088,6 +1092,7 @@ class Behandling private constructor(
     data class Resultat(
         override val behandlingId: UUID,
         override val basertPåBehandling: UUID?,
+        override val behandlingskjedeId: UUID,
         override val rettighetsperioder: List<Rettighetsperiode>,
         override val virkningsdato: LocalDate,
         override val behandlingAv: StartHendelse,

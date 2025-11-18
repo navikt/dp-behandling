@@ -12,9 +12,9 @@ import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.util.UUID
 
 class MeldekortBehandlingskøTest {
     private val rapid = TestRapid()
@@ -54,9 +54,15 @@ class MeldekortBehandlingskøTest {
             personRepository.rettighetstatusFor(ident.tilPersonIdentfikator())
         } returns
             TemporalCollection<Rettighetstatus>().apply {
+                val behandlingId = UUIDv7.ny()
                 put(
                     innvilget,
-                    Rettighetstatus(virkningsdato = innvilget, utfall = true, behandlingId = UUID.randomUUID()),
+                    Rettighetstatus(
+                        virkningsdato = innvilget,
+                        utfall = true,
+                        behandlingId = behandlingId,
+                        behandlingskjedeId = behandlingId,
+                    ),
                 )
             }
     }

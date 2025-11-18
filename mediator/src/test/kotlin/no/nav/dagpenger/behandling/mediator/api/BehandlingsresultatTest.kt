@@ -197,6 +197,7 @@ class BehandlingsresultatTest {
         Behandling.Resultat(
             behandlingId = behandlingId,
             basertPåBehandling = null,
+            behandlingskjedeId = behandlingId,
             rettighetsperioder = listOf(Rettighetsperiode(MIN, MAX, true, true)),
             virkningsdato = LocalDate.now(),
             behandlingAv =

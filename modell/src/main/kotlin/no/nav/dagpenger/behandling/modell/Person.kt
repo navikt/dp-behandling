@@ -32,6 +32,7 @@ data class Rettighetstatus(
     val virkningsdato: LocalDate,
     val utfall: Boolean,
     val behandlingId: UUID,
+    val behandlingskjedeId: UUID,
 )
 
 class Person(
@@ -66,13 +67,13 @@ class Person(
         event.rettighetsperioder.filter { it.endret }.forEach {
             rettighetstatus.put(
                 it.fraOgMed,
-                Rettighetstatus(it.fraOgMed, it.harRett, event.behandlingId),
+                Rettighetstatus(it.fraOgMed, it.harRett, event.behandlingId, event.behandlingskjedeId),
             )
 
             if (!it.tilOgMed.isEqual(LocalDate.MAX) && it.harRett) {
                 rettighetstatus.put(
                     it.tilOgMed.plusDays(1),
-                    Rettighetstatus(it.tilOgMed.plusDays(1), false, event.behandlingId),
+                    Rettighetstatus(it.tilOgMed.plusDays(1), false, event.behandlingId, event.behandlingskjedeId),
                 )
             }
         }

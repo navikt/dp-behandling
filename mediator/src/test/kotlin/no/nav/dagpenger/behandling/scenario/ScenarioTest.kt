@@ -32,6 +32,7 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
+import no.nav.dagpenger.regel.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -141,6 +142,45 @@ class ScenarioTest {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder.single().harRett shouldBe true
                 rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
+
+                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
+                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1259
+
+                opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
+            }
+        }
+    }
+
+    @Test
+    fun `tester innvilgelse med kjent til og med dato`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                oppyllerKravTilRegistrertArbeidssøker,
+                true,
+                gyldighetsperiode = Gyldighetsperiode(21.juni(2018), 27.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                oppyllerKravTilRegistrertArbeidssøker,
+                false,
+                gyldighetsperiode = Gyldighetsperiode(28.juni(2018)),
+            )
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 28.juni(2018)
 
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
                 opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1259
