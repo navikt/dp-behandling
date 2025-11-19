@@ -4,6 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
+import com.github.navikt.tbd_libs.rapids_and_rivers.asOptionalLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers.isMissingOrNull
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
@@ -37,7 +38,7 @@ internal class MeldekortInnsendtMottak(
                 validate { it.requireKey("ident") }
                 validate { it.requireKey("id") }
                 validate { it.requireKey("periode", "kilde", "dager", "innsendtTidspunkt") }
-                validate { it.interestedIn("originalMeldekortId") }
+                validate { it.interestedIn("originalMeldekortId", "meldedato") }
             }.register(this)
     }
 
@@ -92,6 +93,7 @@ internal class MeldekortInnsendtMessage(
     }
 
     private val meldingsreferanseId = packet["@id"].asUUID()
+    val innsendtTidspunkt = packet["innsendtTidspunkt"].asLocalDateTime()
     private val hendelse: MeldekortInnsendtHendelse =
         MeldekortInnsendtHendelse(
             opprettet = packet["@opprettet"].asLocalDateTime(),
@@ -99,9 +101,9 @@ internal class MeldekortInnsendtMessage(
             meldekort =
                 Meldekort(
                     id = UUIDv7.ny(),
+                    meldingsreferanseId = meldingsreferanseId,
                     ident = packet["ident"].asText(),
                     eksternMeldekortId = MeldekortId(packet["id"].asText()),
-                    innsendtTidspunkt = packet["innsendtTidspunkt"].asLocalDateTime(),
                     fom = packet["periode"]["fraOgMed"].asLocalDate(),
                     tom = packet["periode"]["tilOgMed"].asLocalDate(),
                     kilde =
@@ -109,12 +111,6 @@ internal class MeldekortInnsendtMessage(
                             rolle = packet["kilde"]["rolle"].asText(),
                             ident = packet["kilde"]["ident"].asText(),
                         ),
-                    korrigeringAv =
-                        packet["originalMeldekortId"]
-                            .takeUnless { it.isMissingOrNull() }
-                            ?.asText()
-                            ?.let { MeldekortId(it) },
-                    meldingsreferanseId = meldingsreferanseId,
                     dager =
                         packet["dager"].map { dag ->
                             Dag(
@@ -144,6 +140,13 @@ internal class MeldekortInnsendtMessage(
                                     },
                             )
                         },
+                    innsendtTidspunkt = innsendtTidspunkt,
+                    korrigeringAv =
+                        packet["originalMeldekortId"]
+                            .takeUnless { it.isMissingOrNull() }
+                            ?.asText()
+                            ?.let { MeldekortId(it) },
+                    meldedato = packet["meldedato"].asOptionalLocalDate() ?: innsendtTidspunkt.toLocalDate(),
                 ),
         )
 

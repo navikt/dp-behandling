@@ -314,6 +314,7 @@ object OpplysningsTyper {
     val forbruktEgenandelId = Opplysningstype.Id(UUID.fromString("01973a27-d8b3-7ffd-a81a-a3826963b079"), Penger)
     val utbetalingId = Opplysningstype.Id(UUID.fromString("01957069-d7d5-7f7c-b359-c00686fbf1f7"), Penger)
     val utbetalingForPeriodeId = Opplysningstype.Id(UUID.fromString("01994cfd-9a27-762e-81fa-61f550467c95"), Penger)
+    val meldedatoId = Opplysningstype.Id(UUID.fromString("019a9b47-2442-7533-bc71-a71a4600c49a"), Dato)
 
     // Hendelser
     val HendelseTypeId = Opplysningstype.Id(UUID.fromString("01958ef2-e237-77c4-89e1-de91256e2e4a"), Tekst)

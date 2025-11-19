@@ -220,12 +220,13 @@ class TestPerson(
         korrigeringAv: Long? = null,
     ): UUID {
         val meldekortId = UUIDv7.ny()
+        val innsendtTidspunkt = 14.juni(2021).atStartOfDay()
         val meldekort =
             Meldekort(
                 id = meldekortId,
-                eksternMeldekortId = MeldekortId(løpenummer.toString()),
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = ident,
+                eksternMeldekortId = MeldekortId(løpenummer.toString()),
                 fom = start,
                 tom = start.plusDays(13),
                 kilde = MeldekortKilde("Bruker", ident),
@@ -237,8 +238,9 @@ class TestPerson(
                             aktiviteter = listOf(MeldekortAktivitet(type = AktivitetType.Arbeid, timer = arbeidstimerPerDag.hours)),
                         )
                     },
-                innsendtTidspunkt = 14.juni(2021).atStartOfDay(),
+                innsendtTidspunkt = innsendtTidspunkt,
                 korrigeringAv = korrigeringAv?.let { MeldekortId(it.toString()) },
+                meldedato = innsendtTidspunkt.toLocalDate(),
             )
         sessionOf(dataSource).use { session ->
             session.run(
