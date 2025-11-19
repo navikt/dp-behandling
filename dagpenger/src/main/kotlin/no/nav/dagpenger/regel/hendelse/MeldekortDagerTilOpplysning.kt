@@ -11,16 +11,18 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.tilTimer
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.beregning.TerskelTrekkForSenMelding
 
 fun Meldekort.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
     val opplysninger = mutableListOf<Opplysning<*>>()
     opplysninger.addAll(dager.tilOpplysninger(kilde))
-
+    opplysninger.add(Faktum(Beregning.meldedato, meldedato, Gyldighetsperiode(this.fom, this.tom), kilde = kilde))
+    val antallDagerUtenMeldtKrav = TerskelTrekkForSenMelding.forDato(this.fom)
     val antall = opplysninger.filter { it.opplysningstype == Beregning.meldt }.count { !(it.verdi as Boolean) }
     opplysninger.add(
         Faktum(
             Beregning.trekkVedForsenMelding,
-            (antall >= 8),
+            (antall >= antallDagerUtenMeldtKrav),
             Gyldighetsperiode(this.fom, this.tom),
             kilde = kilde,
         ),

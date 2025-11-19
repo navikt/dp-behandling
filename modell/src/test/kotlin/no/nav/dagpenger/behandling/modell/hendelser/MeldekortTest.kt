@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.modell.hendelser
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.hjelpere.januar
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -21,6 +22,7 @@ class MeldekortTest {
                 dager = emptyList(),
                 innsendtTidspunkt = LocalDateTime.now(),
                 korrigeringAv = null,
+                meldedato = LocalDate.now(),
             )
         val meldekort2 =
             Meldekort(
@@ -34,6 +36,7 @@ class MeldekortTest {
                 dager = emptyList(),
                 innsendtTidspunkt = LocalDateTime.now(),
                 korrigeringAv = null,
+                meldedato = LocalDate.now(),
             )
 
         val liste = listOf(meldekort2, meldekort1)

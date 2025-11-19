@@ -212,6 +212,7 @@ class BeregningSteg : No {
                     )
                 }
 
+        val innsendtTidspunkt = LocalDateTime.now()
         val meldekort =
             Meldekort(
                 id = UUIDv7.ny(),
@@ -222,10 +223,11 @@ class BeregningSteg : No {
                 tom = fraOgMed.plusDays(14),
                 kilde = MeldekortKilde(rolle = "Søker", ident = "01010101010"),
                 dager = meldekortDager,
-                innsendtTidspunkt = LocalDateTime.now(),
+                innsendtTidspunkt = innsendtTidspunkt,
                 korrigeringAv = null,
+                meldedato = innsendtTidspunkt.toLocalDate(),
             )
-        return meldekort.tilOpplysninger(Systemkilde(meldekort.meldingsreferanseId, LocalDateTime.now()))
+        return meldekort.tilOpplysninger(Systemkilde(meldekort.meldingsreferanseId, innsendtTidspunkt))
     }
 
     private val opplysningFactories: Map<String, (Map<String, String>, Gyldighetsperiode) -> List<Opplysning<*>>> =

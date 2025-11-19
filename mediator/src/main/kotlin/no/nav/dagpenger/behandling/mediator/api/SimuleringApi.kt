@@ -171,15 +171,16 @@ private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysnin
     val meldekort =
         Meldekort(
             id = UUIDv7.ny(),
-            ident = "00000000000",
             meldingsreferanseId = UUIDv7.ny(),
+            ident = "00000000000",
             eksternMeldekortId = MeldekortId("simulering-${UUIDv7.ny()}"),
             fom = meldekortFom,
             tom = meldekortTom,
-            dager = meldekortdager,
             kilde = MeldekortKilde("SIMULERING", "00000000000"),
+            dager = meldekortdager,
             innsendtTidspunkt = LocalDateTime.now(),
             korrigeringAv = null,
+            meldedato = LocalDate.now(),
         )
 
     val meldkortOpplysning = meldekort.tilOpplysninger(Systemkilde(UUIDv7.ny(), LocalDate.now().atStartOfDay()))

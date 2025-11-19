@@ -181,6 +181,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             dager = session.hentDager(MeldekortId(string("meldekort_id"))),
             innsendtTidspunkt = localDateTime("innsendt_tidspunkt"),
             korrigeringAv = stringOrNull("korrigert_meldekort_id")?.let { MeldekortId(it) },
+            meldedato = localDate("meldedato"),
         )
 
     private fun TransactionalSession.markerSomKorrigert(
@@ -206,8 +207,8 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             queryOf(
                 //language=PostgreSQL
                 """
-                INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle)
-                VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle)
+                INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, meldedato)
+                VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle, :meldedato)
                 """.trimIndent(),
                 mapOf(
                     "id" to meldekort.id,
@@ -220,6 +221,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     "kildeIdent" to meldekort.kilde.ident,
                     "kildeRolle" to meldekort.kilde.rolle,
                     "innsendtTidspunkt" to meldekort.innsendtTidspunkt,
+                    "meldedato" to meldekort.meldedato,
                 ),
             ).asUpdate,
         )
