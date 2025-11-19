@@ -132,6 +132,9 @@ object ReellArbeidssøker {
             avklaring(IkkeRegistrertSomArbeidsøker)
 
             påvirkerResultat {
+                if (!it.erSann(erReellArbeidssøkerVurdert) && !oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)) {
+                    return@påvirkerResultat false
+                }
                 it.erSann(kravTilAlder) || oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)
             }
         }

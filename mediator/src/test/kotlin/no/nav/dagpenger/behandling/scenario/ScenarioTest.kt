@@ -34,6 +34,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
+import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
@@ -373,6 +374,34 @@ class ScenarioTest {
 
             val opplysning = saksbehandler.fjernOpplysning(fødselsdato)
             person.behandling.harOpplysning(opplysning.id) shouldBe false
+        }
+    }
+
+    @Test
+    fun `tester avslag ved for lite inntekt, ikke reell arbeidssøker, og prøvingsdato flyttes til søknadsdato`() {
+        nyttScenario {
+            inntektSiste12Mnd = 50000
+        }.test {
+            person.søkDagpenger(21.juni(2018), 25.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(erReellArbeidssøkerVurdert, false, "Kan ikke vurdere reell arbeidssøker")
+            saksbehandler.endreOpplysning(prøvingsdato, 21.juni(2018), "Avslag skal være fra søknadsdato", Gyldighetsperiode(21.juni(2018)))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe false
+                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
+
+                opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe true
+                opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
+
+                opplysninger shouldHaveSize 43
+            }
         }
     }
 
