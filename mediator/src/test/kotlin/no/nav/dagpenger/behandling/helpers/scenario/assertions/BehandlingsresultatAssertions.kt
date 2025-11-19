@@ -12,8 +12,10 @@ internal class BehandlingsresultatAssertions(
     val klump: JsonNode,
 ) {
     val basertPå: UUID? get() = klump["basertPå"]?.asUUID()
+    val behandlingskjedeId: UUID get() = klump["behandlingskjedeId"].asUUID()
     val rettighetsperioder: List<Rettighetsperiode> = objectMapper.treeToValue(klump["rettighetsperioder"])
     val opplysninger: JsonNode = klump["opplysninger"]
+    val utbetalinger: JsonNode = klump["utbetalinger"]
 
     fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysningsperiode> {
         val opplysninger =

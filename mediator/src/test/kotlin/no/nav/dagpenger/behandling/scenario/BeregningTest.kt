@@ -54,6 +54,9 @@ class BeregningTest {
                     // Siste dag i meldekort
                     this.last().gyldigFraOgMed shouldBe 1.juli(2018)
                 }
+
+                // Første forbruksdag er 21, så 11 dager i perioden gir utbetaling
+                utbetalinger shouldHaveSize 11
             }
         }
     }

@@ -68,6 +68,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             ident = behandler.ident,
             automatisk = vedtakopplysninger.automatiskBehandlet,
             basertPå = vedtakopplysninger.basertPåBehandling,
+            behandlingskjedeId = behandlingskjedeId,
             behandletHendelse =
                 HendelseDTO(
                     id =

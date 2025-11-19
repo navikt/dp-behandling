@@ -641,6 +641,7 @@ components:
       required:
         - behandlingId
         - behandletHendelse
+        - behandlingskjedeId
         - automatisk
         - ident
         - rettighetsperioder
@@ -651,6 +652,10 @@ components:
         behandletHendelse:
           description: Hvilken hendelse som utløste behandlingen
           $ref: '#/components/schemas/Hendelse'
+        behandlingskjedeId:
+          description: Hvilken behandlingskjede denne behandlingen tilhører. Dette tilsvarer en sammenhengende rettighetsperiode eller sak om du vil.
+          type: string
+          format: uuid
         basertPå:
           description: Hvilken behandling denne behandlingen er basert på, hvis noen
           type: string
@@ -671,12 +676,24 @@ components:
         - type: object
           required:
             - opplysninger
+            - utbetalinger
+            - behandletAv
           properties:
             opplysninger:
               description: Alle opplysninger som har vært til stede under behandlingen, også historiske
               type: array
               items:
                 $ref: '#/components/schemas/Opplysninger'
+            utbetalinger:
+              description: Alle utbetalinger som er beregnet i behandlingskjeden
+              type: array
+              items:
+                $ref: '#/components/schemas/Utbetaling'
+            behandletAv:
+              description: Hvilke saksbehandlere har vært involvert i behandlingen
+              type: array
+              items:
+                $ref: '#/components/schemas/BehandletAv'
 
     Behandling:
       allOf:

@@ -1,12 +1,16 @@
 package no.nav.dagpenger.behandling.mediator.api
 
 import io.github.oshai.kotlinlogging.withLoggingContext
+import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
+import no.nav.dagpenger.behandling.api.models.BehandletAvDTORolleDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
+import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
+import no.nav.dagpenger.behandling.mediator.utbetalinger
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -24,6 +28,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
             rettighetsperioder = rettighetsperioder(),
             automatisk = automatiskBehandlet,
             basertPå = basertPåBehandling,
+            behandlingskjedeId = behandlingskjedeId,
             behandletHendelse =
                 HendelseDTO(
                     id = behandlingAv.eksternId.id.toString(),
@@ -45,6 +50,22 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                         perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
                     )
                 },
+            utbetalinger = opplysninger.utbetalinger(),
+            behandletAv =
+                listOfNotNull(
+                    godkjentAv.takeIf { it.erUtført }?.let {
+                        BehandletAvDTO(
+                            BehandletAvDTORolleDTO.SAKSBEHANDLER,
+                            SaksbehandlerDTO(it.utførtAv.ident),
+                        )
+                    },
+                    besluttetAv.takeIf { it.erUtført }?.let {
+                        BehandletAvDTO(
+                            BehandletAvDTORolleDTO.BESLUTTER,
+                            SaksbehandlerDTO(it.utførtAv.ident),
+                        )
+                    },
+                ),
         )
     }
 

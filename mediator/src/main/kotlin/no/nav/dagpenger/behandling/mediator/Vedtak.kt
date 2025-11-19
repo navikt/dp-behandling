@@ -316,7 +316,7 @@ private fun Opplysningstype<*>.kanOppfriskes(): Boolean =
             grunnbeløpForDagpengeGrunnlag,
         )
 
-private fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
+internal fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
     val meldeperioder = finnAlle(Beregning.meldeperiode)
 
     val løpendeRett = finnAlle(KravPåDagpenger.harLøpendeRett)
