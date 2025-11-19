@@ -278,8 +278,9 @@ class ScenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            val innvilgelse = person.behandlingId
+            val innvilgelseBehandlingId = person.behandlingId
             behandlingsresultat {
+                førteTil shouldBe "Innvilgelse"
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
@@ -299,6 +300,7 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
+                førteTil shouldBe "Stans"
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
@@ -333,7 +335,8 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                behandlingskjedeId shouldBe innvilgelse
+                behandlingskjedeId shouldBe innvilgelseBehandlingId
+                førteTil shouldBe "Gjenopptak"
 
                 with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
                     this[0].verdi.verdi shouldBe true

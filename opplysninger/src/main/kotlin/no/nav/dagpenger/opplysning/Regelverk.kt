@@ -6,11 +6,6 @@ import no.nav.dagpenger.dag.Node
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import java.time.LocalDate
 
-data class Utfall(
-    val virkningsdato: LocalDate,
-    val utfall: Boolean,
-)
-
 class Regelverk(
     val rettighetsperiodetype: Opplysningstype<Boolean>? = null,
     vararg regelsett: Regelsett,

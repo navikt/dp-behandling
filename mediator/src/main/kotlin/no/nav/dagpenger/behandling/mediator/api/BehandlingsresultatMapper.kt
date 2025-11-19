@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.api
 
 import io.github.oshai.kotlinlogging.withLoggingContext
+import no.nav.dagpenger.behandling.api.models.AvgjørelseDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTORolleDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
@@ -16,6 +17,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
+import no.nav.dagpenger.opplysning.Rettighetsperiode
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -66,8 +68,27 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                         )
                     },
                 ),
+            førteTil = avgjørelse(),
         )
     }
+
+private fun Behandling.VedtakOpplysninger.avgjørelse(): AvgjørelseDTO {
+    val (nye, arvede) = rettighetsperioder.partition { it.endret }
+
+    return when {
+        // Ingen endring
+        nye.isEmpty() -> AvgjørelseDTO.ENDRING
+        // Ny kjede
+        arvede.isEmpty() -> if (nye.harRett()) AvgjørelseDTO.INNVILGELSE else AvgjørelseDTO.AVSLAG
+        // Bygger videre på en kjede
+        arvede.sisteHarRett() && !nye.harRett() -> AvgjørelseDTO.STANS
+        else -> AvgjørelseDTO.GJENOPPTAK
+    }
+}
+
+private fun List<Rettighetsperiode>.harRett() = any { it.harRett }
+
+private fun List<Rettighetsperiode>.sisteHarRett() = last().harRett
 
 private fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<RettighetsperiodeDTO> {
     val perioder = behandlingAv.forretningsprosess.regelverk.rettighetsperioder(opplysninger)

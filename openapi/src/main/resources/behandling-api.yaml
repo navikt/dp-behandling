@@ -678,6 +678,7 @@ components:
             - opplysninger
             - utbetalinger
             - behandletAv
+            - førteTil
           properties:
             opplysninger:
               description: Alle opplysninger som har vært til stede under behandlingen, også historiske
@@ -694,6 +695,9 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/BehandletAv'
+            førteTil:
+              $ref: '#/components/schemas/Avgjørelse'
+              description: Hvilken avgjørelse behandlingen førte til
 
     Behandling:
       allOf:
@@ -728,6 +732,15 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/RedigerbareOpplysninger'
+
+    Avgjørelse:
+      type: string
+      enum:
+        - Innvilgelse
+        - Avslag
+        - Stans
+        - Gjenopptak
+        - Endring
 
     BehandlingTilstand:
       type: string

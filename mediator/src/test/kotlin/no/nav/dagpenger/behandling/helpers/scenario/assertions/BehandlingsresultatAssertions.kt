@@ -16,6 +16,7 @@ internal class BehandlingsresultatAssertions(
     val rettighetsperioder: List<Rettighetsperiode> = objectMapper.treeToValue(klump["rettighetsperioder"])
     val opplysninger: JsonNode = klump["opplysninger"]
     val utbetalinger: JsonNode = klump["utbetalinger"]
+    val førteTil: String = klump["førteTil"].asText()
 
     fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysningsperiode> {
         val opplysninger =
