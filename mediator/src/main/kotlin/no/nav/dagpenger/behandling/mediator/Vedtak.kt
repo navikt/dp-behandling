@@ -330,6 +330,10 @@ internal fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
                 return@mapNotNull null
             }
 
+            logger.info {
+                "Vi spør på dato $dato og satser ${satser.joinToString { "${it.verdi} i periode ${it.gyldighetsperiode}" }}"
+            }
+
             val dag = dager[dato] ?: throw IllegalStateException("Mangler utbetaling for dag $dato")
             val sats = satser.first { it.gyldighetsperiode.inneholder(dato) }.verdi
             UtbetalingDTO(
