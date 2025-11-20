@@ -42,7 +42,7 @@ object Beregning {
     val gjenståendePeriode = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår", enhet = Enhet.Dager)
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
-    val trekkVedForsenMelding = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Skal det trekkes ved for sen melding")
+    val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
 
     val oppfyllerKravTilTaptArbeidstidIPerioden =
         Opplysningstype.boolsk(
@@ -76,7 +76,7 @@ object Beregning {
 
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
-            regel(trekkVedForsenMelding) { tomRegel }
+            regel(meldtITide) { tomRegel }
             regel(meldedato) { tomRegel }
 
             ønsketResultat(
@@ -94,7 +94,7 @@ object Beregning {
                 terskel,
                 utbetaling,
                 utbetalingForPeriode,
-                trekkVedForsenMelding,
+                meldtITide,
             )
         }
 }

@@ -9,7 +9,7 @@ import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
-import no.nav.dagpenger.regel.beregning.Beregning.trekkVedForsenMelding
+import no.nav.dagpenger.regel.beregning.Beregning.meldtITide
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -65,15 +65,15 @@ class BeregningsperiodeFabrikk(
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
 
-        val skalTrekkes = opplysninger.finnOpplysning(trekkVedForsenMelding).verdi
+        val meldtITide = opplysninger.finnOpplysning(meldtITide).verdi
         val dagerMedRett =
             meldeperiode
                 .filter { meldekortDag -> perioderMedRett.any { it.inneholder(meldekortDag) } }
 
-        return if (skalTrekkes) {
-            dagerMedRett.filter { meldekortDag -> opplysninger.forDato(meldekortDag).erSann(Beregning.meldt) }
-        } else {
+        return if (meldtITide) {
             dagerMedRett
+        } else {
+            dagerMedRett.filter { meldekortDag -> opplysninger.forDato(meldekortDag).erSann(Beregning.meldt) }
         }
     }
 
