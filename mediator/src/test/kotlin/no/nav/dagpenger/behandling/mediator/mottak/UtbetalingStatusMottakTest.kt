@@ -31,7 +31,7 @@ class UtbetalingStatusMottakTest {
         val hendelse = slot.captured
         hendelse.behandlingId shouldBe UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851")
         hendelse.ident() shouldBe "12345678901"
-        hendelse.eksternMeldekortId.id shouldBe "654321"
+        hendelse.behandletHendelseId shouldBe "654321"
     }
 
     private fun utbetalingStatusEvent(string: String) =
@@ -41,7 +41,7 @@ class UtbetalingStatusMottakTest {
           "@event_name": "$string",
           "behandlingId": "d290f1ee-6c54-4b01-90e6-d701748f0851",
           "sakId": "${UUID.randomUUID()}",
-          "meldekortId": "654321",
+          "behandletHendelseId": "654321",
           "ident": "12345678901",
           "status": "MOTTATT"
         }

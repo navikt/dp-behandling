@@ -1,0 +1,2 @@
+ALTER TABLE utbetaling_status RENAME COLUMN meldekort_id TO behandlet_hendelse_id;
+ALTER TABLE utbetaling_status DROP CONSTRAINT utbetaling_status_meldekort_id_fkey;

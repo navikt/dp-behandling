@@ -7,7 +7,7 @@ class UtbetalingStatus(
     meldingsreferanseId: UUID,
     ident: String,
     val status: Status,
-    val eksternMeldekortId: MeldekortId,
+    val behandletHendelseId: String,
     override val behandlingId: UUID,
     opprettet: LocalDateTime,
 ) : PersonHendelse(meldingsreferanseId, ident, opprettet),

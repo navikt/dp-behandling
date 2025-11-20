@@ -288,14 +288,14 @@ internal class BehandlingRepositoryPostgres(
                     queryOf(
                         //language=PostgreSQL
                         """
-                        INSERT INTO utbetaling_status (behandling_id, status, meldekort_id, endret) 
-                        VALUES (:behandling_id, :status, :meldekort_id, :endret)
+                        INSERT INTO utbetaling_status (behandling_id, status, behandlet_hendelse_id, endret) 
+                        VALUES (:behandling_id, :status, :behandlet_hendelse_id, :endret)
                         ON CONFLICT (behandling_id, meldekort_id) DO UPDATE SET status = :status, endret = :endret
                         """.trimIndent(),
                         mapOf(
                             "behandling_id" to utbetalingStatus.behandlingId,
                             "status" to utbetalingStatus.status.name,
-                            "meldekort_id" to utbetalingStatus.eksternMeldekortId.id,
+                            "behandlet_hendelse_id" to utbetalingStatus.behandletHendelseId,
                             "endret" to utbetalingStatus.opprettet,
                         ),
                     ).asUpdate,

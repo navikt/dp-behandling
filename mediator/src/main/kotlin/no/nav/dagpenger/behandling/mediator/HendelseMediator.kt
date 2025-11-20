@@ -313,7 +313,7 @@ internal class HendelseMediator(
 
     private fun lagreUtbetalingStatus(hendelse: UtbetalingStatus) {
         val behandling = personRepository.hentBehandling(hendelse.behandlingId)
-        require(behandling != null) { "Behandling must not be null" }
+        require(behandling != null) { "Fant ikke behandling med ${hendelse.behandlingId}" }
         personRepository.lagreUtbetalingStatus(hendelse)
     }
 

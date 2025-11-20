@@ -23,6 +23,7 @@ class VedtakFattetMottak(
         River(rapidsConnection)
             .apply {
                 precondition {
+                    // TODO: Lytte på behandlingsresultat i stedenfor vedtak_fattet
                     it.requireAny("@event_name", listOf("vedtak_fattet", "behandling_avbrutt"))
                     it.requireValue("behandletHendelse.type", "Meldekort")
                 }

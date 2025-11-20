@@ -12,7 +12,6 @@ import io.opentelemetry.api.trace.Span
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 
 internal class UtbetalingStatusMottak(
@@ -37,7 +36,7 @@ internal class UtbetalingStatusMottak(
                     )
                 }
                 validate { packet ->
-                    packet.requireKey("ident", "behandlingId", "sakId", "meldekortId", "status")
+                    packet.requireKey("ident", "behandlingId", "sakId", "behandletHendelseId", "status")
                     packet.interestedIn("@id", "@opprettet")
                 }
             }.register(this)
@@ -57,7 +56,7 @@ internal class UtbetalingStatusMottak(
                 setAttribute("app.behandlingId", behandlingId.toString())
             }
             val message = UtbetalingStatusMessage(packet)
-            logger.info { "Mottok hendelse utbetalingstatus for behandlingen - status $packet " }
+            logger.info { "Mottok hendelse utbetalingstatus for behandlingen - status ${packet["status"].asText()} " }
 
             message.behandle(messageMediator, context)
         }
@@ -86,7 +85,7 @@ internal class UtbetalingStatusMessage(
                     },
                 behandlingId = behandlingId,
                 opprettet = opprettet,
-                eksternMeldekortId = MeldekortId(packet["meldekortId"].asText()),
+                behandletHendelseId = packet["behandletHendelseId"].asText(),
             )
 
     override val ident = packet["ident"].asText()
