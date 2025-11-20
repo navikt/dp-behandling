@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.helpers.scenario.assertions
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
+import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -13,7 +14,7 @@ internal class BehandlingsresultatAssertions(
 ) {
     val basertPå: UUID? get() = klump["basertPå"]?.asUUID()
     val behandlingskjedeId: UUID get() = klump["behandlingskjedeId"].asUUID()
-    val rettighetsperioder: List<Rettighetsperiode> = objectMapper.treeToValue(klump["rettighetsperioder"])
+    val rettighetsperioder: List<RettighetsperiodeDTO> = objectMapper.treeToValue(klump["rettighetsperioder"])
     val opplysninger: JsonNode = klump["opplysninger"]
     val utbetalinger: JsonNode = klump["utbetalinger"]
     val førteTil: String = klump["førteTil"].asText()
@@ -25,13 +26,6 @@ internal class BehandlingsresultatAssertions(
         return objectMapper.treeToValue(opplysninger["perioder"])
     }
 }
-
-internal data class Rettighetsperiode(
-    val fraOgMed: LocalDate,
-    val tilOgMed: LocalDate? = null,
-    val harRett: Boolean,
-    val endret: Boolean,
-)
 
 internal data class Opplysningsperiode(
     val id: UUID,

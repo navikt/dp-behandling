@@ -710,6 +710,7 @@ components:
             - vilkår
             - fastsettelser
             - opplysninger
+            - forslagOm
           properties:
             kreverTotrinnskontroll:
               type: boolean
@@ -732,6 +733,9 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/RedigerbareOpplysninger'
+            forslagOm:
+              $ref: '#/components/schemas/Avgjørelse'
+              description: Hvilken avgjørelse behandlingen foreslår
 
     Avgjørelse:
       type: string

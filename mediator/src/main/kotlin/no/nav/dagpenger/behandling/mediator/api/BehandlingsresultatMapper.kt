@@ -68,12 +68,12 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                         )
                     },
                 ),
-            førteTil = avgjørelse(),
+            førteTil = this.rettighetsperioder.avgjørelse(),
         )
     }
 
-private fun Behandling.VedtakOpplysninger.avgjørelse(): AvgjørelseDTO {
-    val (nye, arvede) = rettighetsperioder.partition { it.endret }
+fun List<Rettighetsperiode>.avgjørelse(): AvgjørelseDTO {
+    val (nye, arvede) = this.partition { it.endret }
 
     return when {
         // Ingen endring

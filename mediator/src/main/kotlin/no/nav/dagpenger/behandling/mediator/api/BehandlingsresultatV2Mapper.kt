@@ -121,6 +121,10 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         formål = type.tilFormålDTO(),
                     )
                 },
+            forslagOm =
+                behandler.forretningsprosess
+                    .rettighetsperioder(opplysninger)
+                    .avgjørelse(),
         )
     }
 
