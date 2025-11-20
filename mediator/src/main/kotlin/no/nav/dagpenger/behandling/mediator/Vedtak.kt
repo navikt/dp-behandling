@@ -325,19 +325,15 @@ internal fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
 
     return meldeperioder.flatMap { periode ->
         periode.verdi.mapNotNull { dato ->
-            if (løpendeRett.none { it.gyldighetsperiode.inneholder(dato) }) {
+            if (løpendeRett.filter { it.verdi }.none { it.gyldighetsperiode.inneholder(dato) }) {
                 // Har ikke løpende rett i denne perioden, så ingen utbetaling
                 return@mapNotNull null
-            }
-
-            logger.info {
-                "Vi spør på dato $dato og satser ${satser.joinToString { "${it.verdi} i periode ${it.gyldighetsperiode}" }}"
             }
 
             val dag = dager[dato] ?: throw IllegalStateException("Mangler utbetaling for dag $dato")
             val sats = satser.first { it.gyldighetsperiode.inneholder(dato) }.verdi
             UtbetalingDTO(
-                periode.verdi.hashCode().toString(),
+                meldeperiode = periode.verdi.hashCode().toString(),
                 dato = dato,
                 sats = sats.verdien.toInt(),
                 utbetaling = dag.verdi.heleKroner.toInt(),
