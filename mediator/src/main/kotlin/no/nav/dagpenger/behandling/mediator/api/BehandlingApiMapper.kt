@@ -5,7 +5,11 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.api.models.AvklaringDTO
 import no.nav.dagpenger.behandling.api.models.AvklaringDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.HjemmelDTO
+import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
+import no.nav.dagpenger.behandling.api.models.RegelsettMetaDTO
+import no.nav.dagpenger.behandling.api.models.RegelsettTypeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
@@ -23,6 +27,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Redigerbar
+import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
@@ -123,7 +128,28 @@ internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
         (saksbehandlerEndring?.avklartAv as Saksbehandlerkilde?)
             ?.let { SaksbehandlerDTO(it.saksbehandler.ident) }
 
-    val påvirkerRegelsett = regelsettId.filter { (_, avklaringer) -> avklaringer.contains(this.kode) }.map { it.key.navn }
+    val påvirkerRegelsett =
+        regelsettId.filter { (_, avklaringer) -> avklaringer.contains(this.kode) }.map { (regelsett, _) ->
+            val hjemmel = regelsett.hjemmel
+
+            RegelsettMetaDTO(
+                id = hjemmel.hashCode().toString(),
+                navn = hjemmel.kortnavn,
+                hjemmel =
+                    HjemmelDTO(
+                        kilde = LovkildeDTO(hjemmel.kilde.navn, hjemmel.kilde.kortnavn),
+                        kapittel = hjemmel.kapittel.toString(),
+                        paragraf = hjemmel.paragraf.toString(),
+                        tittel = hjemmel.toString(),
+                        url = hjemmel.url,
+                    ),
+                type =
+                    when (regelsett.type) {
+                        RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
+                        RegelsettType.Fastsettelse -> RegelsettTypeDTO.FASTSETTELSE
+                    },
+            )
+        }
 
     return AvklaringDTO(
         id = this.id,

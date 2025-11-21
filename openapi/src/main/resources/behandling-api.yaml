@@ -754,15 +754,13 @@ components:
       type: string
       enum: [ "Vilkår", "Fastsettelse" ]
 
-    Regelsett:
+    RegelsettMeta:
       type: object
       required:
         - id
         - navn
         - hjemmel
-        - relevantForResultat
         - type
-        - opplysninger
       properties:
         id:
           description: Unik identifikator for dette regelsettet
@@ -773,17 +771,26 @@ components:
         hjemmel:
           description: Hvilken hjemmel er regelsettet basert på
           $ref: '#/components/schemas/Hjemmel'
-        relevantForResultat:
-          description: Om innholdet i regelsettet påvirker resultatet av behandlingen
-          type: boolean
         type:
           $ref: '#/components/schemas/RegelsettType'
-        opplysningTypeId:
-          $ref: '#/components/schemas/OpplysningTypeId'
-        opplysninger:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpplysningTypeId'
+
+    Regelsett:
+      allOf:
+        - $ref: '#/components/schemas/RegelsettMeta'
+        - type: object
+          required:
+            - relevantForResultat
+            - opplysninger
+          properties:
+            relevantForResultat:
+              description: Om innholdet i regelsettet påvirker resultatet av behandlingen
+              type: boolean
+            opplysningTypeId:
+              $ref: '#/components/schemas/OpplysningTypeId'
+            opplysninger:
+              type: array
+              items:
+                $ref: '#/components/schemas/OpplysningTypeId'
 
     RedigerbareOpplysninger:
       allOf:
@@ -858,8 +865,7 @@ components:
           description: Hvilke regelsett avklaringen påvirker
           type: array
           items:
-            description: Unik identifikator for regelsettet
-            type: string
+            $ref: '#/components/schemas/RegelsettMeta'
 
     Opplysningstype:
       type: object
