@@ -829,6 +829,7 @@ components:
         - status
         - maskinelt
         - sistEndret
+        - regelsett
       properties:
         id:
           type: string
@@ -853,6 +854,12 @@ components:
           format: date-time
         avklartAv:
           $ref: '#/components/schemas/Saksbehandler'
+        regelsett:
+          description: Hvilke regelsett avklaringen påvirker
+          type: array
+          items:
+            description: Unik identifikator for regelsettet
+            type: string
 
     Opplysningstype:
       type: object

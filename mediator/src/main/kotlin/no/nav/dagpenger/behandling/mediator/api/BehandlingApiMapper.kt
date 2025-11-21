@@ -44,6 +44,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
@@ -110,6 +111,8 @@ internal fun Behandling.tilSaksbehandlersVurderinger() =
         )
     }
 
+private val regelsettId = RegelverkDagpenger.regelsett.associateWith { it.avklaringer }
+
 internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
     val sisteEndring = this.endringer.last()
     val saksbehandlerEndring =
@@ -119,6 +122,8 @@ internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
     val saksbehandler =
         (saksbehandlerEndring?.avklartAv as Saksbehandlerkilde?)
             ?.let { SaksbehandlerDTO(it.saksbehandler.ident) }
+
+    val påvirkerRegelsett = regelsettId.filter { (_, avklaringer) -> avklaringer.contains(this.kode) }.map { it.key.navn }
 
     return AvklaringDTO(
         id = this.id,
@@ -136,6 +141,7 @@ internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
         begrunnelse = saksbehandlerEndring?.begrunnelse,
         avklartAv = saksbehandler,
         sistEndret = sisteEndring.endret,
+        regelsett = påvirkerRegelsett,
     )
 }
 
