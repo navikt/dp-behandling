@@ -138,8 +138,13 @@ internal class BehandlingRepositoryPostgres(
         tilOgMed: LocalDate,
         block: (Behandling) -> Unit,
     ) = sessionOf(dataSource).use { session ->
-        session.forEach(queryOf("SELECT behandlingId FROM behandling")) {
-            val hentBehandling = session.hentBehandling(it.uuid("behandlingId"))!!
+        session.forEach(
+            queryOf(
+                // language="PostgreSQL"
+                "SELECT behandling_id FROM behandling",
+            ),
+        ) {
+            val hentBehandling = session.hentBehandling(it.uuid("behandling_id"))!!
             block(hentBehandling)
         }
     }
