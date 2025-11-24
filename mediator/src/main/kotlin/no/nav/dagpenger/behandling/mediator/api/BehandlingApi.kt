@@ -87,6 +87,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.time.measureTime
 
 private val logger = KotlinLogging.logger { }
 
@@ -585,7 +586,7 @@ internal fun Application.behandlingApi(
             route("dataprodukt") {
                 post("behandling") {
                     val fraOgMed = LocalDate.parse(call.queryParameters.getOrFail("fraOgMed"))
-                    val tilOgMed = call.queryParameters["fraOgMed"]?.let { LocalDate.parse(it) } ?: LocalDate.now()
+                    val tilOgMed = call.queryParameters["tilOgMed"]?.let { LocalDate.parse(it) } ?: LocalDate.now()
                     val datalastId = UUIDv7.ny()
 
                     withLoggingContext(
@@ -594,18 +595,21 @@ internal fun Application.behandlingApi(
                         "tilOgMed" to tilOgMed.toString(),
                     ) {
                         var behandlinger = 0
-                        personRepository
-                            .finnBehandlinger(Ferdig, fraOgMed, tilOgMed) { behandling ->
-                                logger.info { "Forberederer publsering av data for behandling=${behandling.behandlingId}" }
+                        val tidBrukt =
+                            measureTime {
+                                personRepository
+                                    .finnBehandlinger(Ferdig, fraOgMed, tilOgMed) { behandling ->
+                                        logger.info { "Forberederer publsering av data for behandling=${behandling.behandlingId}" }
 
-                                val ident = behandling.behandler.ident
-                                val behandlingsresultat = behandling.vedtakopplysninger.tilBehandlingsresultatDTO(ident)
-                                messageContext(ident)
-                                    .publish(JsonMessage.newMessage("behandling_datalast", toMap(behandlingsresultat)).toJson())
+                                        val ident = behandling.behandler.ident
+                                        val behandlingsresultat = behandling.vedtakopplysninger.tilBehandlingsresultatDTO(ident)
+                                        messageContext(ident)
+                                            .publish(JsonMessage.newMessage("behandling_datalast", toMap(behandlingsresultat)).toJson())
 
-                                logger.info { "Publiserte behandling data for behandling=${behandling.behandlingId}" }
+                                        logger.info { "Publiserte behandling data for behandling=${behandling.behandlingId}" }
 
-                                behandlinger++
+                                        behandlinger++
+                                    }
                             }
 
                         call.respond(
@@ -614,6 +618,7 @@ internal fun Application.behandlingApi(
                                 fraOgMed = fraOgMed,
                                 tilOgMed = tilOgMed,
                                 behandlinger = behandlinger,
+                                tidBrukt = tidBrukt.toString(),
                             ),
                         )
                     }

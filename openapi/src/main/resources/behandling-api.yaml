@@ -608,6 +608,8 @@ components:
           format: date
         behandlinger:
           type: integer
+        tidBrukt:
+          type: string
 
     Rekjoring:
       type: object
