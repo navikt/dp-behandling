@@ -595,6 +595,8 @@ internal fun Application.behandlingApi(
                         var behandlinger = 0
                         personRepository
                             .finnBehandlinger(fraOgMed, tilOgMed) { behandling ->
+                                logger.info { "Forberederer publsering av data for behandling=${behandling.behandlingId}" }
+
                                 val ident = behandling.behandler.ident
                                 val behandlingsresultat = behandling.vedtakopplysninger.tilBehandlingsresultatDTO(ident)
                                 messageContext(ident)
