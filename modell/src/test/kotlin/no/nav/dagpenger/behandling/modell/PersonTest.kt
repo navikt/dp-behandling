@@ -122,6 +122,8 @@ class PersonTest {
             automatiskBehandlet = true,
             godkjentAv = Arbeidssteg(Arbeidssteg.Oppgave.Godkjent),
             besluttetAv = Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
+            opprettet = virkningsdato.atTime(13, 37, 1),
+            sistEndret = virkningsdato.atTime(13, 37, 49),
         )
     }
 

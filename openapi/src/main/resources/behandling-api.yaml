@@ -645,6 +645,8 @@ components:
         - automatisk
         - ident
         - rettighetsperioder
+        - opprettet
+        - sistEndret
       properties:
         behandlingId:
           type: string
@@ -669,6 +671,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Rettighetsperiode'
+        opprettet:
+          type: string
+          format: date-time
+        sistEndret:
+          type: string
+          format: date-time
 
     Behandlingsresultat:
       allOf:

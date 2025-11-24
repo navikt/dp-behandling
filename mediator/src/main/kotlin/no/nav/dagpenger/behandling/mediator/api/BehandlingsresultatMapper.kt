@@ -68,7 +68,9 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                         )
                     },
                 ),
-            førteTil = this.rettighetsperioder.avgjørelse(),
+            førteTil = rettighetsperioder.avgjørelse(),
+            opprettet = opprettet,
+            sistEndret = sistEndret,
         )
     }
 

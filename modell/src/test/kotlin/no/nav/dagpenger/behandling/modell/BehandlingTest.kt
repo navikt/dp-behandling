@@ -105,6 +105,7 @@ internal class BehandlingTest {
                             ),
                         ),
                     basertPå = forrigeBehandling,
+                    opprettet = LocalDateTime.now(),
                     tilstand = Ferdig,
                     sistEndretTilstand = LocalDateTime.now(),
                     avklaringer = emptyList(),

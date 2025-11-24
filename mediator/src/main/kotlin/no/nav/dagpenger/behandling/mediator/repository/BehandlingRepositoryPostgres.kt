@@ -84,6 +84,7 @@ internal class BehandlingRepositoryPostgres(
                         ),
                     gjeldendeOpplysninger = this.hentOpplysninger(row.uuid("opplysninger_id")),
                     basertPå = basertPåBehandling,
+                    opprettet = row.localDateTime("opprettet"),
                     tilstand = Behandling.TilstandType.valueOf(row.string("tilstand")),
                     sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
                     avklaringer = hentAvklaringer(behandlingId),

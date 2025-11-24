@@ -184,11 +184,9 @@ class BehandlingApiMapperTest {
                             ),
                     ),
                 ),
-            basertPå = null,
+            opprettet = LocalDateTime.now(),
             tilstand = Behandling.TilstandType.TilGodkjenning,
-            sistEndretTilstand =
-                LocalDateTime
-                    .now(),
+            sistEndretTilstand = LocalDateTime.now(),
             avklaringer = avklaringer,
         )
 

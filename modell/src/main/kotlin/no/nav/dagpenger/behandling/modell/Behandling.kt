@@ -50,6 +50,7 @@ class Behandling private constructor(
     val behandler: StartHendelse,
     gjeldendeOpplysninger: Opplysninger,
     val basertPå: Behandling? = null,
+    var opprettet: LocalDateTime,
     val godkjent: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Godkjent),
     val besluttet: Arbeidssteg = Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
     private var tilstand: BehandlingTilstand,
@@ -66,6 +67,7 @@ class Behandling private constructor(
         behandler = behandler,
         gjeldendeOpplysninger = opplysninger.somOpplysninger(),
         basertPå = basertPå,
+        opprettet = LocalDateTime.now(),
         tilstand = UnderOpprettelse(LocalDateTime.now()),
         avklaringer = avklaringer,
     )
@@ -110,6 +112,7 @@ class Behandling private constructor(
             behandler: StartHendelse,
             gjeldendeOpplysninger: Opplysninger,
             basertPå: Behandling? = null,
+            opprettet: LocalDateTime,
             tilstand: TilstandType,
             sistEndretTilstand: LocalDateTime,
             avklaringer: List<Avklaring>,
@@ -120,10 +123,11 @@ class Behandling private constructor(
             behandler = behandler,
             gjeldendeOpplysninger = gjeldendeOpplysninger,
             basertPå = basertPå,
-            tilstand = fraType(tilstand, sistEndretTilstand),
-            avklaringer = avklaringer,
+            opprettet = opprettet,
             godkjent = godkjent,
             besluttet = besluttet,
+            tilstand = fraType(tilstand, sistEndretTilstand),
+            avklaringer = avklaringer,
         )
 
         fun List<Behandling>.finn(behandlingId: UUID) =
@@ -1006,6 +1010,8 @@ class Behandling private constructor(
                 automatiskBehandlet = erAutomatiskBehandlet(),
                 godkjentAv = godkjent,
                 besluttetAv = besluttet,
+                opprettet = tilstand.opprettet,
+                sistEndret = sistEndret,
             )
 
     private fun emitOpprettet() {
@@ -1083,6 +1089,8 @@ class Behandling private constructor(
         val automatiskBehandlet: Boolean
         val godkjentAv: Arbeidssteg
         val besluttetAv: Arbeidssteg
+        val opprettet: LocalDateTime
+        val sistEndret: LocalDateTime
 
         fun relevanteVilkår() = behandlingAv.forretningsprosess.regelverk.relevanteVilkår(opplysningerPåVirkningsdato())
 
@@ -1100,6 +1108,8 @@ class Behandling private constructor(
         override val automatiskBehandlet: Boolean,
         override val godkjentAv: Arbeidssteg,
         override val besluttetAv: Arbeidssteg,
+        override val opprettet: LocalDateTime,
+        override val sistEndret: LocalDateTime,
     ) : VedtakOpplysninger
 }
 

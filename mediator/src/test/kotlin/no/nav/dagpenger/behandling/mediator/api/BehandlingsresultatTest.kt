@@ -214,6 +214,8 @@ class BehandlingsresultatTest {
             automatiskBehandlet = false,
             godkjentAv = mockk(),
             besluttetAv = mockk(),
+            opprettet = LocalDateTime.now(),
+            sistEndret = LocalDateTime.now(),
         )
 
     private fun godkjennJSON(klump: BehandlingsresultatDTO) {
