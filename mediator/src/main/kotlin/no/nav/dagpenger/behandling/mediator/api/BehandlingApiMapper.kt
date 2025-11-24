@@ -4,8 +4,6 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingTilstandDTO
 import no.nav.dagpenger.behandling.api.models.FormålDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.HjemmelDTO
 import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
@@ -16,9 +14,6 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
 import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
-import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
@@ -91,59 +86,37 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
+import java.time.LocalDateTime
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val opplysningSet = opplysninger.somListe()
         val egneId = opplysninger.somListe(Egne).map { it.id }
+        val behandlingsresultat = vedtakopplysninger
 
         BehandlingDTO(
             behandlingId = behandlingId,
             ident = behandler.ident,
-            automatisk = vedtakopplysninger.automatiskBehandlet,
-            basertPå = vedtakopplysninger.basertPåBehandling,
+            automatisk = behandlingsresultat.automatiskBehandlet,
+            basertPå = behandlingsresultat.basertPåBehandling,
             behandlingskjedeId = behandlingskjedeId,
-            behandletHendelse =
-                HendelseDTO(
-                    id =
-                        vedtakopplysninger.behandlingAv.eksternId.id
-                            .toString(),
-                    datatype = vedtakopplysninger.behandlingAv.eksternId.datatype,
-                    type =
-                        when (vedtakopplysninger.behandlingAv.eksternId) {
-                            is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
-                            is SøknadId -> HendelseDTOTypeDTO.SØKNAD
-                            is ManuellId -> HendelseDTOTypeDTO.MANUELL
-                        },
-                    skjedde = behandler.skjedde,
-                ),
+            behandletHendelse = behandler.tilHendelseDTO(),
+            rettighetsperioder = behandlingsresultat.rettighetsperioder(),
             kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
-            tilstand =
-                when (this.tilstand().first) {
-                    Behandling.TilstandType.UnderOpprettelse -> BehandlingTilstandDTO.UNDER_OPPRETTELSE
-                    Behandling.TilstandType.UnderBehandling -> BehandlingTilstandDTO.UNDER_BEHANDLING
-                    Behandling.TilstandType.ForslagTilVedtak -> BehandlingTilstandDTO.FORSLAG_TIL_VEDTAK
-                    Behandling.TilstandType.Låst -> BehandlingTilstandDTO.LÅST
-                    Behandling.TilstandType.Avbrutt -> BehandlingTilstandDTO.AVBRUTT
-                    Behandling.TilstandType.Ferdig -> BehandlingTilstandDTO.FERDIG
-                    Behandling.TilstandType.Redigert -> BehandlingTilstandDTO.REDIGERT
-                    Behandling.TilstandType.TilGodkjenning -> BehandlingTilstandDTO.TIL_GODKJENNING
-                    Behandling.TilstandType.TilBeslutning -> BehandlingTilstandDTO.TIL_BESLUTNING
-                },
+            tilstand = tilstand().tilTilstandDTO(),
             avklaringer = this.avklaringer().map { it.tilAvklaringDTO() },
             vilkår =
-                vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
+                behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
-                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .map { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             fastsettelser =
-                vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
+                behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
-                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .map { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
-            rettighetsperioder = vedtakopplysninger.rettighetsperioder(),
             opplysninger =
-                opplysninger().somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                opplysningSet.somOpplysningperiode({ type, opplysninger ->
                     RedigerbareOpplysningerDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
@@ -154,14 +127,24 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
                         formål = type.tilFormålDTO(),
                     )
-                },
+                }),
+            forslagOm = vedtakopplysninger.rettighetsperioder.avgjørelse(),
             opprettet = opprettet,
             sistEndret = sistEndret,
-            forslagOm =
-                behandler.forretningsprosess
-                    .rettighetsperioder(opplysninger)
-                    .avgjørelse(),
         )
+    }
+
+private fun Pair<Behandling.TilstandType, LocalDateTime>.tilTilstandDTO() =
+    when (first) {
+        Behandling.TilstandType.UnderOpprettelse -> BehandlingTilstandDTO.UNDER_OPPRETTELSE
+        Behandling.TilstandType.UnderBehandling -> BehandlingTilstandDTO.UNDER_BEHANDLING
+        Behandling.TilstandType.ForslagTilVedtak -> BehandlingTilstandDTO.FORSLAG_TIL_VEDTAK
+        Behandling.TilstandType.Låst -> BehandlingTilstandDTO.LÅST
+        Behandling.TilstandType.Avbrutt -> BehandlingTilstandDTO.AVBRUTT
+        Behandling.TilstandType.Ferdig -> BehandlingTilstandDTO.FERDIG
+        Behandling.TilstandType.Redigert -> BehandlingTilstandDTO.REDIGERT
+        Behandling.TilstandType.TilGodkjenning -> BehandlingTilstandDTO.TIL_GODKJENNING
+        Behandling.TilstandType.TilBeslutning -> BehandlingTilstandDTO.TIL_BESLUTNING
     }
 
 internal fun Behandling.tilSaksbehandlersVurderinger() =

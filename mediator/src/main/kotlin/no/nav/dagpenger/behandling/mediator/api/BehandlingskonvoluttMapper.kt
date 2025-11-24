@@ -12,6 +12,8 @@ import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.HjemmelDTO
 import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
@@ -29,6 +31,10 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
@@ -37,6 +43,7 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.RegelsettType
@@ -52,6 +59,11 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import java.time.LocalDate
 import java.util.UUID
+
+internal fun <T> Collection<Opplysning<*>>.somOpplysningperiode(block: (Opplysningstype<*>, Collection<Opplysning<*>>) -> T): List<T> =
+    groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+        block(type, opplysninger)
+    }
 
 internal fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
     OpplysningsperiodeDTO(
@@ -71,6 +83,19 @@ internal fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
                     versjon = utledning.versjon,
                 )
             },
+    )
+
+internal fun StartHendelse.tilHendelseDTO(): HendelseDTO =
+    HendelseDTO(
+        id = eksternId.id.toString(),
+        datatype = eksternId.datatype,
+        type =
+            when (eksternId) {
+                is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
+                is SøknadId -> HendelseDTOTypeDTO.SØKNAD
+                is ManuellId -> HendelseDTOTypeDTO.MANUELL
+            },
+        skjedde = skjedde,
     )
 
 internal fun Opplysning<*>.tilOpplysningskildeDTO(): OpplysningskildeDTO? =
