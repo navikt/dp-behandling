@@ -69,6 +69,7 @@ interface BehandlingRepository :
 
     @WithSpan
     fun finnBehandlinger(
+        tilstand: Behandling.TilstandType,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         block: (Behandling) -> Unit,

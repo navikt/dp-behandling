@@ -53,6 +53,7 @@ import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.mediator.toMap
+import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Redigert
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
@@ -594,7 +595,7 @@ internal fun Application.behandlingApi(
                     ) {
                         var behandlinger = 0
                         personRepository
-                            .finnBehandlinger(fraOgMed, tilOgMed) { behandling ->
+                            .finnBehandlinger(Ferdig, fraOgMed, tilOgMed) { behandling ->
                                 logger.info { "Forberederer publsering av data for behandling=${behandling.behandlingId}" }
 
                                 val ident = behandling.behandler.ident

@@ -45,6 +45,7 @@ class InMemoryPersonRepository :
     }
 
     override fun finnBehandlinger(
+        tilstand: Behandling.TilstandType,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         block: (Behandling) -> Unit,

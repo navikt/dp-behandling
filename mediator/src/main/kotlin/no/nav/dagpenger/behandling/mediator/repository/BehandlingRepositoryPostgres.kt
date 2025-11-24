@@ -134,6 +134,7 @@ internal class BehandlingRepositoryPostgres(
     ) = lagre(behandling, unitOfWork as PostgresUnitOfWork)
 
     override fun finnBehandlinger(
+        tilstand: Behandling.TilstandType,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         block: (Behandling) -> Unit,
@@ -141,7 +142,12 @@ internal class BehandlingRepositoryPostgres(
         session.forEach(
             queryOf(
                 // language="PostgreSQL"
-                "SELECT behandling_id FROM behandling",
+                "SELECT behandling_id FROM behandling WHERE tilstand = :tilstand AND sist_endret_tilstand BETWEEN :fraOgMed AND :tilOgMed",
+                mapOf(
+                    "tilstand" to tilstand.name,
+                    "fraOgMed" to fraOgMed.atStartOfDay(),
+                    "tilOgMed" to tilOgMed.plusDays(1).atStartOfDay(),
+                ),
             ),
         ) {
             val hentBehandling = session.hentBehandling(it.uuid("behandling_id"))!!
