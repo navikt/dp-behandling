@@ -14,6 +14,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
 import no.nav.dagpenger.opplysning.Saksbehandler
+import java.time.LocalDate
 import java.util.UUID
 
 internal class BehandlingRepositoryPostgres(
@@ -131,6 +132,17 @@ internal class BehandlingRepositoryPostgres(
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
     ) = lagre(behandling, unitOfWork as PostgresUnitOfWork)
+
+    override fun finnBehandlinger(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        block: (Behandling) -> Unit,
+    ) = sessionOf(dataSource).use { session ->
+        session.forEach(queryOf("SELECT behandlingId FROM behandling")) {
+            val hentBehandling = session.hentBehandling(it.uuid("behandlingId"))!!
+            block(hentBehandling)
+        }
+    }
 
     private fun lagre(
         behandling: Behandling,

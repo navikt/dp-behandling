@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.api
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -24,11 +25,13 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.ktor.server.util.getOrFail
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.opentelemetry.api.trace.Span
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
 import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.DatalastKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
@@ -49,6 +52,7 @@ import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
+import no.nav.dagpenger.behandling.mediator.toMap
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Redigert
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
@@ -573,6 +577,42 @@ internal fun Application.behandlingApi(
 
                             call.respond(HttpStatusCode.NoContent)
                         }
+                    }
+                }
+            }
+
+            route("dataprodukt") {
+                post("behandling") {
+                    val fraOgMed = LocalDate.parse(call.queryParameters.getOrFail("fraOgMed"))
+                    val tilOgMed = call.queryParameters["fraOgMed"]?.let { LocalDate.parse(it) } ?: LocalDate.now()
+                    val datalastId = UUIDv7.ny()
+
+                    withLoggingContext(
+                        "datalastId" to datalastId.toString(),
+                        "fraOgMed" to fraOgMed.toString(),
+                        "tilOgMed" to tilOgMed.toString(),
+                    ) {
+                        var behandlinger = 0
+                        personRepository
+                            .finnBehandlinger(fraOgMed, tilOgMed) { behandling ->
+                                val ident = behandling.behandler.ident
+                                val behandlingsresultat = behandling.vedtakopplysninger.tilBehandlingsresultatDTO(ident)
+                                messageContext(ident)
+                                    .publish(JsonMessage.newMessage("behandling_datalast", toMap(behandlingsresultat)).toJson())
+
+                                logger.info { "Publiserte behandling data for behandling=${behandling.behandlingId}" }
+
+                                behandlinger++
+                            }
+
+                        call.respond(
+                            DatalastKvitteringDTO(
+                                id = datalastId,
+                                fraOgMed = fraOgMed,
+                                tilOgMed = tilOgMed,
+                                behandlinger = behandlinger,
+                            ),
+                        )
                     }
                 }
             }

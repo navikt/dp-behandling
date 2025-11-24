@@ -66,6 +66,13 @@ interface BehandlingRepository :
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
     )
+
+    @WithSpan
+    fun finnBehandlinger(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        block: (Behandling) -> Unit,
+    )
 }
 
 interface PersonRepository : BehandlingRepository {

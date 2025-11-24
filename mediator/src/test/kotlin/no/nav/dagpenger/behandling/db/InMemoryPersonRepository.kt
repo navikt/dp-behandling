@@ -10,6 +10,7 @@ import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.TemporalCollection
+import java.time.LocalDate
 import java.util.UUID
 
 class InMemoryPersonRepository :
@@ -39,6 +40,14 @@ class InMemoryPersonRepository :
     override fun lagre(
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun finnBehandlinger(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        block: (Behandling) -> Unit,
     ) {
         TODO("Not yet implemented")
     }

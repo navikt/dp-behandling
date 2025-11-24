@@ -21,6 +21,8 @@ tags:
     description: Operasjoner på avklaringer.
   - name: Vedtak
     description: Drodling rundt hvordan vi tror vedtak, eller resultat på behandlinger, skal se ut.
+  - name: Dataprodukt
+    description: Operasjoner for produksjon av data til dataprodukter.
 
 paths:
   /opplysningstyper:
@@ -550,8 +552,63 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
+  /dataprodukt/behandling:
+    parameters:
+      - name: fraOgMed
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: tilOgMed
+        in: query
+        schema:
+          type: string
+          format: date
+          default: Dagens dato
+    post:
+      description: Produserer behandlingsresultater for alle behandlinger i en gitt periode
+      security:
+        - azureAd: [ ]
+      tags:
+        - Dataprodukt
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatalastKvittering'
+        default:
+          description: Feil ved produksjon av dataprodukt
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
 components:
   schemas:
+    DatalastKvittering:
+      type: object
+      required:
+        - id
+        - fraOgMed
+        - tilOgMed
+        - behandlinger
+      properties:
+        id:
+          type: string
+          format: uuid
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          type: string
+          format: date
+        behandlinger:
+          type: integer
+
     Rekjoring:
       type: object
       required:
