@@ -1,36 +1,33 @@
 package no.nav.dagpenger.behandling.mediator.api
 
 import io.github.oshai.kotlinlogging.withLoggingContext
-import no.nav.dagpenger.avklaring.Avklaring
-import no.nav.dagpenger.behandling.api.models.AvklaringDTO
-import no.nav.dagpenger.behandling.api.models.AvklaringDTOStatusDTO
-import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingTilstandDTO
+import no.nav.dagpenger.behandling.api.models.FormålDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTO
+import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.HjemmelDTO
 import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
-import no.nav.dagpenger.behandling.api.models.RegelsettMetaDTO
+import no.nav.dagpenger.behandling.api.models.RedigerbareOpplysningerDTO
+import no.nav.dagpenger.behandling.api.models.RegelsettDTO
 import no.nav.dagpenger.behandling.api.models.RegelsettTypeDTO
-import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
 import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.opplysning.BarnDatatype
-import no.nav.dagpenger.opplysning.Boolsk
-import no.nav.dagpenger.opplysning.Datatype
-import no.nav.dagpenger.opplysning.Dato
-import no.nav.dagpenger.opplysning.Desimaltall
-import no.nav.dagpenger.opplysning.Heltall
-import no.nav.dagpenger.opplysning.InntektDataType
+import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
+import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
+import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Penger
-import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Redigerbar
+import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.opplysning.Tekst
-import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
@@ -49,7 +46,6 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.ReellArbeidssøker.minimumVanligArbeidstid
 import no.nav.dagpenger.regel.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.ReellArbeidssøker.ønsketArbeidstid
-import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
@@ -95,7 +91,78 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
-import java.time.LocalDate
+
+internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
+    withLoggingContext("behandlingId" to this.behandlingId.toString()) {
+        val opplysningSet = opplysninger.somListe()
+        val egneId = opplysninger.somListe(Egne).map { it.id }
+
+        BehandlingDTO(
+            behandlingId = behandlingId,
+            ident = behandler.ident,
+            automatisk = vedtakopplysninger.automatiskBehandlet,
+            basertPå = vedtakopplysninger.basertPåBehandling,
+            behandlingskjedeId = behandlingskjedeId,
+            behandletHendelse =
+                HendelseDTO(
+                    id =
+                        vedtakopplysninger.behandlingAv.eksternId.id
+                            .toString(),
+                    datatype = vedtakopplysninger.behandlingAv.eksternId.datatype,
+                    type =
+                        when (vedtakopplysninger.behandlingAv.eksternId) {
+                            is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
+                            is SøknadId -> HendelseDTOTypeDTO.SØKNAD
+                            is ManuellId -> HendelseDTOTypeDTO.MANUELL
+                        },
+                    skjedde = behandler.skjedde,
+                ),
+            kreverTotrinnskontroll = this.kreverTotrinnskontroll(),
+            tilstand =
+                when (this.tilstand().first) {
+                    Behandling.TilstandType.UnderOpprettelse -> BehandlingTilstandDTO.UNDER_OPPRETTELSE
+                    Behandling.TilstandType.UnderBehandling -> BehandlingTilstandDTO.UNDER_BEHANDLING
+                    Behandling.TilstandType.ForslagTilVedtak -> BehandlingTilstandDTO.FORSLAG_TIL_VEDTAK
+                    Behandling.TilstandType.Låst -> BehandlingTilstandDTO.LÅST
+                    Behandling.TilstandType.Avbrutt -> BehandlingTilstandDTO.AVBRUTT
+                    Behandling.TilstandType.Ferdig -> BehandlingTilstandDTO.FERDIG
+                    Behandling.TilstandType.Redigert -> BehandlingTilstandDTO.REDIGERT
+                    Behandling.TilstandType.TilGodkjenning -> BehandlingTilstandDTO.TIL_GODKJENNING
+                    Behandling.TilstandType.TilBeslutning -> BehandlingTilstandDTO.TIL_BESLUTNING
+                },
+            avklaringer = this.avklaringer().map { it.tilAvklaringDTO() },
+            vilkår =
+                vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
+                    .regelsettAvType(RegelsettType.Vilkår)
+                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .sortedBy { it.hjemmel.paragraf.toInt() },
+            fastsettelser =
+                vedtakopplysninger.behandlingAv.forretningsprosess.regelverk
+                    .regelsettAvType(RegelsettType.Fastsettelse)
+                    .mapNotNull { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .sortedBy { it.hjemmel.paragraf.toInt() },
+            rettighetsperioder = vedtakopplysninger.rettighetsperioder(),
+            opplysninger =
+                opplysninger().somListe().groupBy { it.opplysningstype }.map { (type, opplysninger) ->
+                    RedigerbareOpplysningerDTO(
+                        opplysningTypeId = type.id.uuid,
+                        navn = type.navn,
+                        perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
+                        datatype = type.datatype.tilDataTypeDTO(),
+                        synlig = type.synlig(this.opplysninger),
+                        redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
+                        redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
+                        formål = type.tilFormålDTO(),
+                    )
+                },
+            opprettet = opprettet,
+            sistEndret = sistEndret,
+            forslagOm =
+                behandler.forretningsprosess
+                    .rettighetsperioder(opplysninger)
+                    .avgjørelse(),
+        )
+    }
 
 internal fun Behandling.tilSaksbehandlersVurderinger() =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -116,80 +183,40 @@ internal fun Behandling.tilSaksbehandlersVurderinger() =
         )
     }
 
-private val regelsettId = RegelverkDagpenger.regelsett.associateWith { it.avklaringer }
+private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning<*>>): RegelsettDTO {
+    // Vi ønsker kun å ta med produkter som faktisk har vært produsert i løpet av behandlingsskjeden
+    val typer = alleOpplysninger.map { it.opplysningstype }.toSet()
+    val produkter = produserer.filter { it in typer }
 
-internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
-    val sisteEndring = this.endringer.last()
-    val saksbehandlerEndring =
-        sisteEndring.takeIf {
-            it is Avklaring.Endring.Avklart && it.avklartAv is Saksbehandlerkilde
-        } as Avklaring.Endring.Avklart?
-    val saksbehandler =
-        (saksbehandlerEndring?.avklartAv as Saksbehandlerkilde?)
-            ?.let { SaksbehandlerDTO(it.saksbehandler.ident) }
-
-    val påvirkerRegelsett =
-        regelsettId.filter { (_, avklaringer) -> avklaringer.contains(this.kode) }.map { (regelsett, _) ->
-            val hjemmel = regelsett.hjemmel
-
-            RegelsettMetaDTO(
-                id = hjemmel.hashCode().toString(),
-                navn = hjemmel.kortnavn,
-                hjemmel =
-                    HjemmelDTO(
-                        kilde = LovkildeDTO(hjemmel.kilde.navn, hjemmel.kilde.kortnavn),
-                        kapittel = hjemmel.kapittel.toString(),
-                        paragraf = hjemmel.paragraf.toString(),
-                        tittel = hjemmel.toString(),
-                        url = hjemmel.url,
-                    ),
-                type =
-                    when (regelsett.type) {
-                        RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
-                        RegelsettType.Fastsettelse -> RegelsettTypeDTO.FASTSETTELSE
-                    },
-            )
-        }
-
-    return AvklaringDTO(
-        id = this.id,
-        kode = this.kode.kode,
-        tittel = this.kode.tittel,
-        beskrivelse = this.kode.beskrivelse,
-        kanKvitteres = kanKvitteres,
-        status =
-            when (sisteEndring) {
-                is Avklaring.Endring.Avbrutt -> AvklaringDTOStatusDTO.AVBRUTT
-                is Avklaring.Endring.Avklart -> AvklaringDTOStatusDTO.AVKLART
-                is Avklaring.Endring.UnderBehandling -> AvklaringDTOStatusDTO.ÅPEN
+    return RegelsettDTO(
+        id = hjemmel.hashCode().toString(),
+        navn = hjemmel.kortnavn,
+        hjemmel =
+            HjemmelDTO(
+                kilde = LovkildeDTO(hjemmel.kilde.navn, hjemmel.kilde.kortnavn),
+                kapittel = hjemmel.kapittel.toString(),
+                paragraf = hjemmel.paragraf.toString(),
+                tittel = hjemmel.toString(),
+                url = hjemmel.url,
+            ),
+        relevantForResultat = påvirkerResultat(alleOpplysninger.somOpplysninger()),
+        type =
+            when (type) {
+                RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
+                RegelsettType.Fastsettelse -> RegelsettTypeDTO.FASTSETTELSE
             },
-        maskinelt = sisteEndring !is Avklaring.Endring.UnderBehandling && saksbehandler == null,
-        begrunnelse = saksbehandlerEndring?.begrunnelse,
-        avklartAv = saksbehandler,
-        sistEndret = sisteEndring.endret,
-        regelsett = påvirkerRegelsett,
+        // Litt rart navn. Dette er opplysningstypene som utgjør "utfallet" av et regelsett.
+        opplysningTypeId = utfall?.id?.uuid,
+        opplysninger = produkter.map { it.id.uuid },
     )
 }
 
-fun Datatype<*>.tilDataTypeDTO() =
-    when (this) {
-        Boolsk -> DataTypeDTO.BOOLSK
-        Dato -> DataTypeDTO.DATO
-        Desimaltall -> DataTypeDTO.DESIMALTALL
-        Heltall -> DataTypeDTO.HELTALL
-        ULID -> DataTypeDTO.ULID
-        Penger -> DataTypeDTO.PENGER
-        InntektDataType -> DataTypeDTO.INNTEKT
-        BarnDatatype -> DataTypeDTO.BARN
-        Tekst -> DataTypeDTO.TEKST
-        PeriodeDataType -> DataTypeDTO.PERIODE
-    }
-
-internal fun LocalDate.tilApiDato(): LocalDate? =
-    when {
-        this.isEqual(LocalDate.MIN) -> null
-        this.isEqual(LocalDate.MAX) -> null
-        else -> this
+private fun Opplysningstype<*>.tilFormålDTO(): FormålDTO =
+    when (formål) {
+        Opplysningsformål.Legacy -> FormålDTO.LEGACY
+        Opplysningsformål.Bruker -> FormålDTO.BRUKER
+        Opplysningsformål.Register -> FormålDTO.REGISTER
+        Opplysningsformål.Regel -> FormålDTO.REGEL
     }
 
 // TODO: Denne bor nok et annet sted - men bare for å vise at det er mulig å ha en slik funksjon
