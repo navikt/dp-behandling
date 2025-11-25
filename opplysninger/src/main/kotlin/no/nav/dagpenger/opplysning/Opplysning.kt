@@ -136,7 +136,9 @@ class Faktum<T : Comparable<T>>(
         val nyTom =
             if (forrigeFom.isEqual(LocalDate.MIN)) {
                 throw IllegalArgumentException(
-                    "Kan ikke håndtere at forrigeFom er LocalDate.MIN. Forrige=${framTil.gyldighetsperiode}, framTil=${framTil.gyldighetsperiode}",
+                    """Kan ikke håndtere at forrigeFom er LocalDate.MIN. 
+                        |Forrige=${framTil.gyldighetsperiode}, framTil=${framTil.gyldighetsperiode}
+                    """.trimMargin(),
                 )
             } else {
                 forrigeFom.minusDays(1)
