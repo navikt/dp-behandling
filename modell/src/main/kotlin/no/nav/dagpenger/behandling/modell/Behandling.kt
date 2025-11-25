@@ -1010,7 +1010,7 @@ class Behandling private constructor(
                 automatiskBehandlet = erAutomatiskBehandlet(),
                 godkjentAv = godkjent,
                 besluttetAv = besluttet,
-                opprettet = tilstand.opprettet,
+                opprettet = opprettet,
                 sistEndret = sistEndret,
             )
 
