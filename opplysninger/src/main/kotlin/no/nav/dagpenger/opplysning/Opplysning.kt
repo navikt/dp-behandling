@@ -54,7 +54,7 @@ sealed class Opplysning<T : Comparable<T>>(
         fun Collection<Opplysning<*>>.gyldigeFor(dato: LocalDate) = filter { it.gyldighetsperiode.inneholder(dato) }
     }
 
-    abstract fun lagForkortet(tilOgMed: Opplysning<*>): Opplysning<T>
+    abstract fun lagForkortet(framTil: Opplysning<*>): Opplysning<T>
 }
 
 class Hypotese<T : Comparable<T>>(
@@ -91,7 +91,7 @@ class Hypotese<T : Comparable<T>>(
 
     override fun bekreft() = Faktum(id, super.opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet)
 
-    override fun lagForkortet(tilOgMed: Opplysning<*>): Opplysning<T> {
+    override fun lagForkortet(framTil: Opplysning<*>): Opplysning<T> {
         TODO("Not yet implemented")
     }
 }
@@ -130,27 +130,28 @@ class Faktum<T : Comparable<T>>(
 
     override fun bekreft() = this
 
-    override fun lagForkortet(tilOgMed: Opplysning<*>): Opplysning<T> {
-        val forrigeFom =
-            tilOgMed.gyldighetsperiode.fraOgMed
-                .takeUnless { it.isEqual(LocalDate.MIN) }
-                ?.minusDays(1) ?: LocalDate.MIN
-        /*require(gyldighetsperiode.fraOgMed.isBefore(forrigeFom)) {
-            """Kan ikke forkorte gyldighetsperiode fra ${gyldighetsperiode.fraOgMed} til $forrigeFom.
-                |Gjelder opplysningstype: ${opplysningstype.navn}, id: $id
-            """.trimMargin()
-        }*/
+    override fun lagForkortet(framTil: Opplysning<*>): Opplysning<T> {
+        val forrigeFom = framTil.gyldighetsperiode.fraOgMed
+
+        val nyTom =
+            if (forrigeFom.isEqual(LocalDate.MIN)) {
+                throw IllegalArgumentException(
+                    "Kan ikke håndtere at forrigeFom er LocalDate.MIN. Forrige=${framTil.gyldighetsperiode}, framTil=${framTil.gyldighetsperiode}",
+                )
+            } else {
+                forrigeFom.minusDays(1)
+            }
         return Faktum(
             id,
             opplysningstype,
             verdi,
-            Gyldighetsperiode(fraOgMed = gyldighetsperiode.fraOgMed, tilOgMed = forrigeFom),
+            Gyldighetsperiode(fraOgMed = gyldighetsperiode.fraOgMed, tilOgMed = nyTom),
             utledetAv,
             kilde,
             opprettet,
             erstatter,
         ).apply {
-            erUtdatert = tilOgMed.erUtdatert
+            erUtdatert = framTil.erUtdatert
         }
     }
 }
