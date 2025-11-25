@@ -9,9 +9,12 @@ data class Gyldighetsperiode(
 ) : ClosedRange<LocalDate> by range {
     constructor(fom: LocalDate) : this(fom, LocalDate.MAX)
 
-    /* init {
-        require(fraOgMed.isEqual(tilOgMed) || fraOgMed.isBefore(tilOgMed)) { "tilOgMed=$tilOgMed kan ikke være før fraOgMed=$fraOgMed" }
-    } */
+    init {
+        require(fraOgMed.isEqual(tilOgMed) || fraOgMed.isBefore(tilOgMed)) { "fraOgMed=$fraOgMed må være før tilOgMed=$tilOgMed" }
+        require(tilOgMed.isEqual(LocalDate.MAX) || tilOgMed.year < 200000) {
+            "Hvis tilOgMed ikke er MAX må den ikke være tusenvis av år inn i framtiden"
+        }
+    }
 
     fun inneholder(dato: LocalDate) = dato in range
 

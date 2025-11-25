@@ -257,10 +257,10 @@ class ScenarioTest {
             saksbehandler.endreOpplysning(harLøpendeRett, true, "Båten suser", Gyldighetsperiode(3.juli(2018), 3.juli(2018)))
             saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(4.juli(2018), 5.juli(2018)))
             saksbehandler.endreOpplysning(harLøpendeRett, true, "Båten suser", Gyldighetsperiode(6.juli(2018), 6.juli(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(7.juni(2018)))
+            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(7.juli(2018)))
 
             behandlingsresultatForslag {
-                rettighetsperioder shouldHaveSize 7
+                rettighetsperioder shouldHaveSize 8
             }
         }
     }

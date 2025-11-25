@@ -142,7 +142,13 @@ internal class BehandlingRepositoryPostgres(
         session.forEach(
             queryOf(
                 // language="PostgreSQL"
-                "SELECT behandling_id FROM behandling WHERE tilstand = :tilstand AND sist_endret_tilstand BETWEEN :fraOgMed AND :tilOgMed",
+                """
+                SELECT behandling_id
+                FROM behandling
+                WHERE tilstand = :tilstand
+                  AND sist_endret_tilstand BETWEEN :fraOgMed AND :tilOgMed
+                ORDER BY behandling_id
+                """.trimIndent(),
                 mapOf(
                     "tilstand" to tilstand.name,
                     "fraOgMed" to fraOgMed.atStartOfDay(),
