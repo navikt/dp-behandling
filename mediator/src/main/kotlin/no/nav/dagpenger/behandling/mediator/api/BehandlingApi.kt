@@ -190,7 +190,6 @@ internal fun Application.behandlingApi(
                     )
                 }
             }
-
             route("behandling") {
                 post {
                     val identForespørsel = call.receive<IdentForesporselDTO>()
@@ -582,7 +581,8 @@ internal fun Application.behandlingApi(
                     }
                 }
             }
-
+        }
+        authenticate("admin") {
             route("dataprodukt") {
                 post("behandling") {
                     val fraOgMed = LocalDate.parse(call.queryParameters.getOrFail("fraOgMed"))

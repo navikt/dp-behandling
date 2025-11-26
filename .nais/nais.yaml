@@ -49,6 +49,8 @@ spec:
       value: "{{azure.maskintilgang.navn}}"
     - name: KAFKA_EXTRA_TOPIC
       value: "{{kafka.extra_topic}}"
+    - name: GRUPPER_ADMIN
+      value: "{{azure.grupper.admin}}"
   envFrom:
     - secret: dp-behandling-unleash-api-token
   {{#if ingresses}}
@@ -69,6 +71,7 @@ spec:
         groups:
           - id: "{{azure.grupper.saksbehandler}}"
           - id: "{{azure.grupper.beslutter}}"
+          - id: "{{azure.grupper.admin}}"
   observability:
     logging:
       destinations:
@@ -111,6 +114,7 @@ spec:
         - application: dp-melding-om-vedtak
         - application: dp-meldekort-testdata
         - application: dp-soknad-orkestrator
+        - application: dp-behandling-admin
         {{#if wonderwalled}}
         - application: wonderwalled-idporten
           namespace: nais

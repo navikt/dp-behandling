@@ -484,6 +484,7 @@ internal class BehandlingApiTest {
     private fun medSikretBehandlingApi(block: suspend SimulertDagpengerSystem.(TestContext) -> Unit) {
         System.setProperty("Grupper.saksbehandler", "dagpenger-saksbehandler")
         System.setProperty("Grupper.beslutter", "dagpenger-beslutter")
+        System.setProperty("Grupper.admin", "enkel-admin")
         System.setProperty("Maskintilgang.navn", "test-app")
         nyttScenario {
             inntektSiste12Mnd = 350000
@@ -493,6 +494,7 @@ internal class BehandlingApiTest {
         System.clearProperty("Grupper.saksbehandler")
         System.clearProperty("Grupper.beslutter")
         System.clearProperty("Maskintilgang.navn")
+        System.clearProperty("Grupper.admin")
     }
 
     private companion object {

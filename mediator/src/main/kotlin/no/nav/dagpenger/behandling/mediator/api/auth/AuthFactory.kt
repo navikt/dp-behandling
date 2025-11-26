@@ -16,6 +16,7 @@ import io.ktor.server.auth.jwt.JWTAuthenticationProvider
 import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.api.auth.validering.autoriser
+import no.nav.dagpenger.behandling.mediator.api.auth.validering.autoriserAdminTilgang
 import java.net.URI
 import java.net.URL
 import java.util.concurrent.TimeUnit
@@ -49,6 +50,12 @@ object AuthFactory {
         realm = Configuration.APP_NAME
         verifiserTokenFormatOgSignatur()
         autoriser()
+    }
+
+    fun JWTAuthenticationProvider.Config.adminTilgang() {
+        realm = Configuration.APP_NAME
+        verifiserTokenFormatOgSignatur()
+        autoriserAdminTilgang()
     }
 
     private fun JWTAuthenticationProvider.Config.verifiserTokenFormatOgSignatur() {
