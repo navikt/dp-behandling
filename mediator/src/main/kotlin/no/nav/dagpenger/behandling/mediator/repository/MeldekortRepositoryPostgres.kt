@@ -209,6 +209,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 """
                 INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, meldedato)
                 VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle, :meldedato)
+                ON CONFLICT (meldekort_id) DO NOTHING
                 """.trimIndent(),
                 mapOf(
                     "id" to meldekort.id,
