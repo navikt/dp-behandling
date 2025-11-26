@@ -567,6 +567,12 @@ paths:
           type: string
           format: date
           default: Dagens dato
+      - name: dryRun
+        in: query
+        schema:
+          type: boolean
+          default: false
+        description: Om dataproduktet skal produseres som en dry-run uten publisering til destinasjon
     post:
       description: Produserer behandlingsresultater for alle behandlinger i en gitt periode
       security:
