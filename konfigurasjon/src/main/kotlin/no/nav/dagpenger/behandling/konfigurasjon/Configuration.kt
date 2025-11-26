@@ -26,6 +26,7 @@ object Configuration {
     object Grupper : PropertyGroup() {
         val saksbehandler by stringType
         val beslutter by stringType
+        val admin by stringType
     }
 
     object Maskintilgang : PropertyGroup() {
