@@ -165,6 +165,22 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
+    override fun harMeldekort(eksternMeldekortId: MeldekortId): Boolean =
+        sessionOf(dataSource).use { session ->
+            session
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT 1 FROM meldekort WHERE meldekort_id = :meldekortId
+                        """.trimIndent(),
+                        mapOf(
+                            "meldekortId" to eksternMeldekortId.id,
+                        ),
+                    ).map { true }.asSingle,
+                ) == true
+        }
+
     private fun Row.meldekort(session: Session): Meldekort =
         Meldekort(
             id = uuid("id"),

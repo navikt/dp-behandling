@@ -100,6 +100,9 @@ class MeldekortRepositoryPostgresTest {
             meldekortRepository.lagre(meldekortInnsendtHendelse.meldekort)
             meldekortRepository.lagre(meldekortKorrigertInnsendtHendelse.meldekort)
 
+            meldekortRepository.harMeldekort(meldekortInnsendtHendelse.meldekort.eksternMeldekortId) shouldBe true
+            meldekortRepository.harMeldekort(MeldekortId("123123")) shouldBe false
+
             val rehydrertMeldekort = meldekortRepository.hent(meldekortInnsendtHendelse.meldekort.id)
             rehydrertMeldekort.shouldNotBeNull()
             rehydrertMeldekort.copy(innsendtTidspunkt = rehydrertMeldekort.innsendtTidspunkt.truncateToSeconds()) shouldBeEqual

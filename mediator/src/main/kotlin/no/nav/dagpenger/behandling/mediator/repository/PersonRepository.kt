@@ -136,6 +136,8 @@ interface MeldekortRepository {
 
     fun sluttMedDerreVentegreieneNåDa(ident: String)
 
+    fun harMeldekort(eksternMeldekortId: no.nav.dagpenger.behandling.modell.hendelser.MeldekortId): Boolean
+
     data class Meldekortkø(
         val behandlingsklare: List<Meldekortstatus>,
         val underBehandling: List<Meldekortstatus>,
