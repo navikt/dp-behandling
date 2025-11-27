@@ -11,7 +11,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 
-class VedtakFattetMottak(
+class MarkerMeldekortSomBehandletMottak(
     rapidsConnection: RapidsConnection,
     private val meldekortRepository: MeldekortRepository,
 ) : River.PacketListener {
@@ -24,7 +24,7 @@ class VedtakFattetMottak(
             .apply {
                 precondition {
                     // TODO: Lytte på behandlingsresultat i stedenfor vedtak_fattet
-                    it.requireAny("@event_name", listOf("vedtak_fattet", "behandling_avbrutt"))
+                    it.requireAny("@event_name", listOf("behandlingsresultat", "behandling_avbrutt"))
                     it.requireValue("behandletHendelse.type", "Meldekort")
                 }
                 validate { it.requireKey("behandlingId", "behandletHendelse") }

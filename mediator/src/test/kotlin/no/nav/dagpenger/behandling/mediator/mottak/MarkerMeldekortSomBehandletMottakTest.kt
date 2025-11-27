@@ -7,12 +7,12 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import org.junit.jupiter.api.Test
 
-class VedtakFattetMottakTest {
+class MarkerMeldekortSomBehandletMottakTest {
     private val rapid = TestRapid()
     private val meldekortRepository = mockk<MeldekortRepository>(relaxed = true)
 
     init {
-        VedtakFattetMottak(rapid, meldekortRepository)
+        MarkerMeldekortSomBehandletMottak(rapid, meldekortRepository)
     }
 
     @Test
@@ -21,7 +21,7 @@ class VedtakFattetMottakTest {
             // language=JSON
             """
             {
-                "@event_name": "vedtak_fattet",
+                "@event_name": "behandlingsresultat",
                 "behandlingId": "12345678-1234-1234-1234-123456789012",
                 "behandletHendelse": {
                     "type": "Meldekort",
