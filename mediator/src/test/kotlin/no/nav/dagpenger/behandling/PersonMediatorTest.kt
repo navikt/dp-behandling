@@ -25,8 +25,8 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
+import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
@@ -113,7 +113,7 @@ internal class PersonMediatorTest {
     private val meldekortRepository =
         MeldekortRepositoryPostgres()
 
-    private val vedtakFattetMottak = VedtakFattetMottak(rapid, meldekortRepository)
+    private val markerMeldekortSomBehandletMottak = MarkerMeldekortSomBehandletMottak(rapid, meldekortRepository)
 
     private val testObservatør = TestObservatør()
 

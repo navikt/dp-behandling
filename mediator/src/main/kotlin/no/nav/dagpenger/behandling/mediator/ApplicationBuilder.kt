@@ -20,8 +20,8 @@ import no.nav.dagpenger.behandling.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
+import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
@@ -114,7 +114,7 @@ internal class ApplicationBuilder(
             ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres())
 
             // Vedtak mottak
-            VedtakFattetMottak(rapidsConnection, meldekortRepositoryPostgres)
+            MarkerMeldekortSomBehandletMottak(rapidsConnection, meldekortRepositoryPostgres)
 
             avklaringRepository.registerObserver(
                 AvklaringKafkaObservatør(

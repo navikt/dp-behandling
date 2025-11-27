@@ -19,7 +19,7 @@ import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
-import no.nav.dagpenger.behandling.mediator.mottak.VedtakFattetMottak
+import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
@@ -70,7 +70,7 @@ internal class SimulertDagpengerSystem(
     val auditlogg = TestAuditlogg()
 
     init {
-        VedtakFattetMottak(rapid, meldekortRepository)
+        MarkerMeldekortSomBehandletMottak(rapid, meldekortRepository)
         MessageMediator(
             rapidsConnection = rapid,
             hendelseMediator = hendelseMediator,
