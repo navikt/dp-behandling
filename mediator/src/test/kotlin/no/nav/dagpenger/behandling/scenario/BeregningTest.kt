@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.scenario
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
@@ -9,10 +10,12 @@ import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -391,6 +394,46 @@ class BeregningTest {
                     // Siste dag i meldekort
                     this.last().gyldigFraOgMed shouldBe 1.juli(2018)
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `vi kan håndtere endring av barnetillegg og sats midt i meldekort`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch()
+
+            // Verifiser gammel sats
+            behandlingsresultatForslag {
+                val satsPerDag = utbetalinger.map { it["sats"].asInt() }
+                satsPerDag.shouldContainExactly(762, 762, 762, 762, 762, 762, 762, 762, 762, 762, 762)
+            }
+
+            // Endre barnetillegg midt i meldekortbehandlingen
+            saksbehandler.endreOpplysning(
+                DagpengenesStørrelse.barnetilleggetsStørrelse,
+                Beløp(380.0),
+                "",
+                Gyldighetsperiode(25.juni(2018)),
+            )
+
+            // Verifiser at vi får ny og høyere sats fra og med 25. juni
+            behandlingsresultatForslag {
+                val satsPerDag = utbetalinger.map { it["sats"].asInt() }
+                satsPerDag.shouldContainExactly(762, 762, 762, 762, 1074, 1074, 1074, 1074, 1074, 1074, 1074)
             }
         }
     }
