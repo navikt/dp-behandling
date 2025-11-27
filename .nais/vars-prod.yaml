@@ -12,6 +12,6 @@ azure:
   grupper:
     saksbehandler: "2e9c63d8-322e-4c1f-b500-a0abb812761c" # 0000-GA-Dagpenger-Saksbehandler
     beslutter: "70d54cad-53a3-4788-bbe3-565096f01da7" # 0000-GA-Dagpenger-Beslutter
-    admin: "c6975b8-979f-425d-9c51-2a4c14b82b8b"      # dp-behandling-admin
+    admin: "ec6975b8-979f-425d-9c51-2a4c14b82b8b"      # dp-behandling-admin
   maskintilgang:
     navn: "prod-gcp:teamdagpenger:dp-melding-om-vedtak"

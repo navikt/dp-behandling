@@ -1,0 +1,56 @@
+Laget avklaring om HarTilleggsopplysninger
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behov:
+- Søknadsdato
+- ØnskerDagpengerFraDato
+- Fødselsdato
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
+Behov:
+- Inntekt
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+- RegistrertSomArbeidssøker
+- Ordinær
+- Permittert
+- Lønnsgaranti
+- PermittertFiskeforedling
+- Verneplikt
+Laget avklaring om EØSArbeid
+Laget avklaring om InntektNesteKalendermåned
+Laget avklaring om JobbetUtenforNorge
+Behov:
+- BostedslandErNorge
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
+Laget avklaring om SjekkPrøvingsdato
+Laget avklaring om BeregnetArbeidstid
+Behov:
+- BarnetilleggV2
+- OppgittAndreYtelserUtenforNav
+Laget avklaring om BarnMåGodkjennes
+Behandling endret tilstand til: ForslagTilVedtak
+Forslag til vedtak med utfall=true
+Behandling endret tilstand til: TilGodkjenning
+Forslag til vedtak med utfall=true
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig
+Har fattet vedtak med utfall=true
+Laget avklaring om MeldekortBehandling
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: ForslagTilVedtak
+Forslag til vedtak med utfall=true
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Forslag til vedtak med utfall=true

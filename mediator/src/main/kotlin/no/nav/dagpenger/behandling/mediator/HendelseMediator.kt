@@ -92,6 +92,15 @@ internal class HendelseMediator(
     private fun lagreMeldekort(hendelse: MeldekortInnsendtHendelse) {
         val personidentifikator = Ident(hendelse.ident())
         withLoggingContext(hendelse.kontekstMap()) {
+            // Duplikatkontroll fordi RAMP sender oss samme meldekort flere ganger
+            if (meldekortRepository.harMeldekort(hendelse.meldekort.eksternMeldekortId)) {
+                logger.warn {
+                    """Meldekort med eksternMeldekortId=${hendelse.meldekort.eksternMeldekortId} er 
+                    |allerede lagret. Hopper over lagring.
+                    """.trimMargin()
+                }
+                return
+            }
             val person = personRepository.hent(personidentifikator)
             if (person != null) {
                 meldekortRepository.lagre(hendelse.meldekort)

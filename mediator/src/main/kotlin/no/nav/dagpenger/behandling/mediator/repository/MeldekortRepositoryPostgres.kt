@@ -165,6 +165,22 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
+    override fun harMeldekort(eksternMeldekortId: MeldekortId): Boolean =
+        sessionOf(dataSource).use { session ->
+            session
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT 1 FROM meldekort WHERE meldekort_id = :meldekortId
+                        """.trimIndent(),
+                        mapOf(
+                            "meldekortId" to eksternMeldekortId.id,
+                        ),
+                    ).map { true }.asSingle,
+                ) == true
+        }
+
     private fun Row.meldekort(session: Session): Meldekort =
         Meldekort(
             id = uuid("id"),
@@ -209,6 +225,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 """
                 INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, meldedato)
                 VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle, :meldedato)
+                ON CONFLICT (meldekort_id) DO NOTHING
                 """.trimIndent(),
                 mapOf(
                     "id" to meldekort.id,
