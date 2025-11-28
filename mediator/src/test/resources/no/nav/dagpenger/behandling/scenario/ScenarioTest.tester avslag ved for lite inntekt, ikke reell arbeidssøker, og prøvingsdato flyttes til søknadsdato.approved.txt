@@ -24,17 +24,13 @@ Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
 Laget avklaring om MuligGjenopptak
 Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=false
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=false
 Behandling endret tilstand til: Redigert
 Behov:
 - Inntekt
 - RegistrertSomArbeidssøker
 Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=false
 Behandling endret tilstand til: TilGodkjenning
-Forslag til vedtak med utfall=false
 Behandling endret tilstand til: Ferdig
 Har fattet vedtak med utfall=false

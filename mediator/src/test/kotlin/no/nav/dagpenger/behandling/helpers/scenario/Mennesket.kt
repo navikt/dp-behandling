@@ -2,7 +2,7 @@ package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
-import no.nav.dagpenger.behandling.api.models.VedtakDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.objectMapper
@@ -90,13 +90,13 @@ internal class Mennesket(
 
     val behandling get() = behandling(behandlingId)
 
-    fun behandling(behandlingId: UUID): VedtakDTO {
+    fun behandling(behandlingId: UUID): BehandlingsresultatDTO {
         for (offset in rapid.inspektør.size - 1 downTo 0) {
             val message = rapid.inspektør.message(offset)
-            if (message["@event_name"].asText() == "forslag_til_vedtak" &&
+            if (message["@event_name"].asText() == "forslag_til_behandlingsresultat" &&
                 message["behandlingId"].asUUID() == behandlingId
             ) {
-                return objectMapper.convertValue(message, VedtakDTO::class.java)
+                return objectMapper.convertValue(message, BehandlingsresultatDTO::class.java)
             }
         }
         throw NoSuchElementException("Fant ingen behandling med UUID=$behandlingId")

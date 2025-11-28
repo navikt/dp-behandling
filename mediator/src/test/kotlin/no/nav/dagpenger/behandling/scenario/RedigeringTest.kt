@@ -26,7 +26,7 @@ class RedigeringTest {
                 saksbehandler.godkjenn()
                 saksbehandler.beslutt()
 
-                vedtak { utfall shouldBe true }
+                behandlingsresultat { utfall shouldBe true }
                 behandlingsresultat {
                     with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
                         this[0].verdi.verdi shouldBe 1259

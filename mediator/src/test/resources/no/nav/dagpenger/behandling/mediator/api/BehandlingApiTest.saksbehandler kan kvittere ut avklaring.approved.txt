@@ -40,4 +40,3 @@ Behov:
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=true

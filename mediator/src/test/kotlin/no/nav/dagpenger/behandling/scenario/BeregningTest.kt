@@ -76,7 +76,7 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak { utfall shouldBe true }
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
 
             // Send inn meldekort
             person.sendInnMeldekort(1)
@@ -168,7 +168,7 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak { utfall shouldBe true }
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
 
             // Send inn meldekort
             person.sendInnMeldekort(Periode(25.juni(2018), 8.juli(2018)))
@@ -191,7 +191,7 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak { utfall shouldBe true }
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
 
             // Send inn meldekort
             val meldekortId = person.sendInnMeldekort(1)
@@ -285,7 +285,7 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak { utfall shouldBe true }
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
 
             // Send inn meldekort
             person.sendInnMeldekort(1)
@@ -325,7 +325,7 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak { utfall shouldBe true }
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
 
             // Send inn meldekort
             person.sendInnMeldekort(1)

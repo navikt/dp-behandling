@@ -35,18 +35,16 @@ internal class PersonMediator : PersonObservatør {
 
     override fun forslagTilVedtak(event: BehandlingForslagTilVedtak) {
         val ident = requireNotNull(event.ident) { "Mangler ident i ForslagTilVedtak" }
-        runCatching {
-            meldinger.add(ident to event.tilBehandlingsresultat("forslag_til_behandlingsresultat", ident))
-        }.onFailure { logger.warn(it) { "Klarte ikke å lage klump" } }
-        meldinger.add(ident to event.toJsonMessage())
+        meldinger.add(ident to event.tilBehandlingsresultat("forslag_til_behandlingsresultat", ident))
     }
 
     override fun ferdig(event: BehandlingFerdig) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
-        runCatching {
-            meldinger.add(ident to event.tilBehandlingsresultat("behandlingsresultat", ident))
-        }.onFailure { logger.warn(it) { "Klarte ikke å lage klump" } }
-        meldinger.add(ident to event.tilVedtakFattetMelding())
+        meldinger.add(ident to event.tilBehandlingsresultat("behandlingsresultat", ident))
+
+        if (event.rettighetsperioder.size == 1 && event.rettighetsperioder.single().harRett == false) {
+            meldinger.add(ident to event.tilVedtakFattetMelding())
+        }
     }
 
     override fun avbrutt(event: BehandlingAvbrutt) {
@@ -108,12 +106,6 @@ internal class PersonMediator : PersonObservatør {
                     "tidBrukt" to tidBrukt.toString(),
                 ),
             )
-
-    private fun BehandlingForslagTilVedtak.toJsonMessage(): JsonMessage {
-        val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
-        val vedtak = this.lagVedtakDTO(ident)
-        return JsonMessage.newMessage("forslag_til_vedtak", toMap(vedtak))
-    }
 
     private fun BehandlingFerdig.tilVedtakFattetMelding(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })

@@ -22,13 +22,13 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.escapeIfNeeded
 import no.nav.dagpenger.behandling.api.models.BehandlingDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.EnhetDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
-import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
@@ -218,14 +218,18 @@ internal class BehandlingApiTest {
     }
 
     @Test
-    fun `hent vedtak gitt behandlingId - autentisert som saksbehandler`() {
+    fun `hent behandlingsresultat gitt behandlingId - autentisert som saksbehandler`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger()
             behovsløsere.løsTilForslag()
-            val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/${person.behandlingId}/vedtak")
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Get,
+                    endepunkt = "/behandling/${person.behandlingId}/behandlingsresultat",
+                )
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
-            val vedtakDTO = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), VedtakDTO::class.java) }
+            val vedtakDTO = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingsresultatDTO::class.java) }
             vedtakDTO.behandlingId shouldBe person.behandlingId
         }
     }
@@ -238,12 +242,12 @@ internal class BehandlingApiTest {
             val response =
                 testContext.autentisert(
                     httpMethod = HttpMethod.Get,
-                    endepunkt = "/behandling/${person.behandlingId}/vedtak",
+                    endepunkt = "/behandling/${person.behandlingId}/behandlingsresultat",
                     token = maskinToken("test-app"),
                 )
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
-            val vedtakDTO = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), VedtakDTO::class.java) }
+            val vedtakDTO = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingsresultatDTO::class.java) }
             vedtakDTO.behandlingId shouldBe person.behandlingId
         }
     }
@@ -426,11 +430,11 @@ internal class BehandlingApiTest {
                 ).associate { (opplysning, verdi) ->
                     verdi to person.behandling(behandlingId).opplysninger.single { it.navn == opplysning.navn }
                 }
-            opplysninger.forEach { (opplysning: Any, type: OpplysningDTO) ->
+            opplysninger.forEach { (opplysning: Any, type: OpplysningerDTO) ->
                 testContext
                     .autentisert(
                         httpMethod = HttpMethod.Put,
-                        endepunkt = "/behandling/$behandlingId/opplysning/${type.id}",
+                        endepunkt = "/behandling/$behandlingId/opplysning/${type.perioder.last().id}",
                         // language=JSON
                         body = """{"begrunnelse":"tekst", "verdi": $opplysning }""",
                     ).status shouldBe HttpStatusCode.OK

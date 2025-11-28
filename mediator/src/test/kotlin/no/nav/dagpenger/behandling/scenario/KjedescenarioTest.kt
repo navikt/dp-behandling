@@ -1,7 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -36,9 +35,7 @@ class KjedescenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak {
-                utfall shouldBe true
-            }
+            behandlingsresultat { utfall shouldBe true }
 
             val sisteFerdige = person.behandlingId
 
@@ -46,8 +43,7 @@ class KjedescenarioTest {
             repeat(3) {
                 person.søkDagpenger(21.august(2018))
                 behovsløsere.løsTilForslag()
-                person.behandling.basertPåBehandlinger.shouldContainExactly(sisteFerdige)
-                person.behandling.basertPåBehandling shouldBe sisteFerdige
+                person.behandling.basertPå shouldBe sisteFerdige
             }
         }
     }
@@ -69,16 +65,13 @@ class KjedescenarioTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
-            vedtak {
-                utfall shouldBe false
-            }
+            behandlingsresultat { utfall shouldBe false }
 
             // Personen søker tre ganger før forrige søknad er behandlet
             repeat(3) {
                 person.søkDagpenger(21.august(2018))
                 behovsløsere.løsTilForslag()
-                person.behandling.basertPåBehandlinger.shouldBeEmpty()
-                person.behandling.basertPåBehandling.shouldBeNull()
+                person.behandling.basertPå.shouldBeNull()
             }
         }
     }
@@ -101,17 +94,14 @@ class KjedescenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak {
-                utfall shouldBe true
-            }
+            behandlingsresultat { utfall shouldBe true }
 
             val sisteFerdige = person.behandlingId
 
             // Søknad behandles som gjenopptak på forrige behandling
             person.søkDagpenger(21.august(2020))
             behovsløsere.løsTilForslag()
-            person.behandling.basertPåBehandlinger.shouldContainExactly(sisteFerdige)
-            person.behandling.basertPåBehandling shouldBe sisteFerdige
+            person.behandling.basertPå shouldBe sisteFerdige
 
             // Søknad kan ikke gjenoppta fordi forrige periode er for lenge siden
             // Saksbehandler må manuelt flytte behandlingen til en ny kjede
@@ -119,7 +109,7 @@ class KjedescenarioTest {
 
             // Ny kjede fører til manglende opplysninger som må innhentes på nytt
             behovsløsere.løsTilForslag()
-            person.behandling.basertPåBehandling.shouldBeNull()
+            person.behandling.basertPå.shouldBeNull()
         }
     }
 
@@ -136,9 +126,7 @@ class KjedescenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak {
-                utfall shouldBe true
-            }
+            behandlingsresultat { utfall shouldBe true }
             val behandling1 = person.behandlingId
 
             // Behandling 2
@@ -149,15 +137,13 @@ class KjedescenarioTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            vedtak {
-                utfall shouldBe true
-            }
+            behandlingsresultat { utfall shouldBe true }
             val behandling2 = person.behandlingId
 
             // Behandling 3 blir nå kjedet på behandling 2, men skal flyttes til behandling 1
             person.søkDagpenger(21.august(2020))
             behovsløsere.løsTilForslag()
-            person.behandling.basertPåBehandling shouldBe behandling2
+            person.behandling.basertPå shouldBe behandling2
 
             // Saksbehandler flytter behandling 3 til behandling 1, og hopper over behandling 2
             saksbehandler.flyttBehandlingTilNyKjede(
@@ -167,7 +153,7 @@ class KjedescenarioTest {
 
             // Ny kjede fører til manglende opplysninger som må innhentes på nytt
             // behovsløsere.løsTilForslag()
-            person.behandling.basertPåBehandling shouldBe behandling1
+            person.behandling.basertPå shouldBe behandling1
         }
     }
 
@@ -184,7 +170,7 @@ class KjedescenarioTest {
             behovsløsere.løsTilForslag()
 
             // Ny behandling har ikke blitt kjedet på forrige behandling
-            person.behandling.basertPåBehandling.shouldBeNull()
+            person.behandling.basertPå.shouldBeNull()
         }
     }
 
@@ -204,7 +190,7 @@ class KjedescenarioTest {
             behovsløsere.løsTilForslag()
 
             // Ny behandling har ikke blitt kjedet på forrige behandling
-            person.behandling.basertPåBehandling.shouldBeNull()
+            person.behandling.basertPå.shouldBeNull()
         }
     }
 

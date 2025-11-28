@@ -40,6 +40,7 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
+import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import org.junit.jupiter.api.Test
@@ -81,6 +82,9 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
+
+            // En etterslenger for å verifisere at vi sender ut vedtak_fattet for avslag
+            rapidInspektør.message(16)["@event_name"].asText() shouldBe "vedtak_fattet"
 
             behandlingsresultat {
                 rettighetsperioder.single().harRett shouldBe false
@@ -204,11 +208,11 @@ class ScenarioTest {
 
             behovsløsere.løsTilForslag()
 
-            forslag {
+            behandlingsresultatForslag {
                 utfall shouldBe true
 
-                medFastsettelser {
-                    periode("Permitteringsperiode") shouldBe 26
+                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
+                    this.single().verdi.verdi shouldBe 26
                 }
             }
         }
@@ -376,7 +380,7 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             val opplysning = saksbehandler.fjernOpplysning(fødselsdato)
-            person.behandling.harOpplysning(opplysning.id) shouldBe false
+            person.behandling.harOpplysning(opplysning.perioder.last().id) shouldBe false
         }
     }
 

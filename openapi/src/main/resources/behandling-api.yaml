@@ -497,34 +497,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
-  /behandling/{behandlingId}/vedtak:
-    parameters:
-      - name: behandlingId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      description: Viser et vedtak / resultat av en behandling
-      security:
-        - azureAd: [ ]
-      tags:
-        - Vedtak
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Vedtak'
-        default:
-          description: Feil ved uthenting av vedtak
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/HttpProblem'
-
   /behandling/{behandlingId}/behandlingsresultat:
     parameters:
       - name: behandlingId

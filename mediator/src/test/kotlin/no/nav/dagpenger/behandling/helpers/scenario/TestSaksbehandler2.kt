@@ -3,7 +3,7 @@ package no.nav.dagpenger.behandling.helpers.scenario
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.matchers.nulls.shouldNotBeNull
 import no.nav.dagpenger.avklaring.Avklaring
-import no.nav.dagpenger.behandling.api.models.OpplysningDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
@@ -133,7 +133,7 @@ internal class TestSaksbehandler2(
         return kildeId
     }
 
-    fun fjernOpplysning(opplysningstype: Opplysningstype<*>): OpplysningDTO {
+    fun fjernOpplysning(opplysningstype: Opplysningstype<*>): OpplysningerDTO {
         val opplysningSomSkalFjernes = testPerson.behandling.opplysninger.last { it.opplysningTypeId == opplysningstype.id.uuid }
 
         hendelseMediator.behandle(
@@ -141,7 +141,7 @@ internal class TestSaksbehandler2(
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = testPerson.ident,
                 behandlingId = testPerson.behandlingId,
-                opplysningId = opplysningSomSkalFjernes.id,
+                opplysningId = opplysningSomSkalFjernes.perioder.last().id,
                 behovId = opplysningstype.behovId,
                 opprettet = LocalDateTime.now(),
             ),

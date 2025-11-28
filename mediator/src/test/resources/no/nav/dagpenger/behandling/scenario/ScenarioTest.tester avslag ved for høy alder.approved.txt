@@ -8,8 +8,6 @@ Behov:
 Behov:
 - RegistrertSomArbeidssøker
 Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=false
 Behandling endret tilstand til: TilGodkjenning
-Forslag til vedtak med utfall=false
 Behandling endret tilstand til: Ferdig
 Har fattet vedtak med utfall=false

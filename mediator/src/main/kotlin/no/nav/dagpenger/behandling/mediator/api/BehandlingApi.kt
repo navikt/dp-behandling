@@ -48,7 +48,6 @@ import no.nav.dagpenger.behandling.mediator.api.melding.FjernOpplysning
 import no.nav.dagpenger.behandling.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.barnMapper
-import no.nav.dagpenger.behandling.mediator.lagVedtakDTO
 import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
@@ -217,23 +216,6 @@ internal fun Application.behandlingApi(
                         auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
 
                         call.respond(HttpStatusCode.OK, behandling.tilBehandlingDTO())
-                    }
-
-                    get("vedtak") {
-                        val behandling = hentBehandling(personRepository, call.behandlingId)
-
-                        call.saksbehandlerIdOrNull()?.let {
-                            auditlogg.les("Så en behandling", behandling.behandler.ident, it)
-                        }
-
-                        val vedtakOpplysninger = behandling.vedtakopplysninger
-
-                        call.respond(
-                            HttpStatusCode.OK,
-                            vedtakOpplysninger.lagVedtakDTO(
-                                behandling.behandler.ident.tilPersonIdentfikator(),
-                            ),
-                        )
                     }
 
                     get("behandlingsresultat") {

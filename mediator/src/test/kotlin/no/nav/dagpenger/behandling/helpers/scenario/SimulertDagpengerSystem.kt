@@ -8,10 +8,9 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
 import io.ktor.server.application.Application
 import io.mockk.mockk
-import no.nav.dagpenger.behandling.api.models.VedtakDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.db.Postgres
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
-import no.nav.dagpenger.behandling.helpers.scenario.assertions.ForslagAssertions
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
@@ -98,14 +97,6 @@ internal class SimulertDagpengerSystem(
 
     val rapidInspektør get() = rapid.inspektør
 
-    fun forslag(block: ForslagAssertions.() -> Unit) {
-        ForslagAssertions(behovsløsere.sisteForslag()).block()
-    }
-
-    fun vedtak(block: ForslagAssertions.() -> Unit) {
-        ForslagAssertions(behovsløsere.sisteVedtak()).block()
-    }
-
     fun behandlingsresultatForslag(block: BehandlingsresultatAssertions.() -> Unit) {
         BehandlingsresultatAssertions(behovsløsere.sisteBehandlingsresultatForslag()).block()
     }
@@ -114,7 +105,7 @@ internal class SimulertDagpengerSystem(
         BehandlingsresultatAssertions(behovsløsere.sisteBehandlingsresultat()).block()
     }
 
-    fun VedtakDTO.harOpplysning(opplysningId: UUID): Boolean {
+    fun BehandlingsresultatDTO.harOpplysning(opplysningId: UUID): Boolean {
         val behandling = personRepository.hentBehandling(person.behandlingId)
         return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
     }

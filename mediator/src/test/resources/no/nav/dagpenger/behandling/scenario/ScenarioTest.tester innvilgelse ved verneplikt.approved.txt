@@ -41,9 +41,6 @@ Behov:
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
-Forslag til vedtak med utfall=true
 Behandling endret tilstand til: TilGodkjenning
-Forslag til vedtak med utfall=true
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
-Har fattet vedtak med utfall=true

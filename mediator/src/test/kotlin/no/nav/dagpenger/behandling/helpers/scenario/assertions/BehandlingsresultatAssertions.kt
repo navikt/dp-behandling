@@ -19,6 +19,8 @@ internal class BehandlingsresultatAssertions(
     val utbetalinger: JsonNode = klump["utbetalinger"]
     val førteTil: String = klump["førteTil"].asText()
 
+    val utfall = rettighetsperioder.last().harRett
+
     fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysningsperiode> {
         val opplysninger =
             klump["opplysninger"].singleOrNull { it["opplysningTypeId"].asUUID() == opplysningstype.id.uuid } ?: return emptyList()
