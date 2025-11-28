@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.TidslinjeBygger
+import java.time.LocalDate
 
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
@@ -40,6 +41,7 @@ class RettighetsperiodePlugin(
                 alleVilkårOppfylt
             }.forEach { periode ->
                 val gyldighetsperiode = Gyldighetsperiode(periode.fraOgMed, periode.tilOgMed)
+                require(!periode.fraOgMed.isEqual(LocalDate.MIN)) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
 
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
             }
