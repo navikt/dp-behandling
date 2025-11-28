@@ -10,6 +10,7 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryObserver.NyAvklaringHendelse
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Saksbehandler
@@ -229,7 +230,7 @@ internal class AvklaringRepositoryPostgres private constructor(
     }
 
     private companion object {
-        val endringSerde = JsonSerde.mapper.serde<List<RawEndringJson>>()
+        val endringSerde = objectMapper.serde<List<RawEndringJson>>()
     }
 }
 

@@ -14,9 +14,9 @@ dependencies {
     implementation(project(path = ":uuid-v7"))
 
     implementation(libs.bundles.jackson)
-    implementation("com.fasterxml.jackson.module:jackson-module-blackbird:${libs.versions.jackson.get()}")
 
     implementation(libs.bundles.postgres)
+    implementation("com.fasterxml.jackson.module:jackson-module-blackbird:${libs.versions.jackson.get()}")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
 
@@ -32,8 +32,6 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-swagger:${libs.versions.ktor.get()}")
     implementation("com.github.navikt.tbd-libs:naisful-app:2025.11.04-10.54-c831038e")
-
-    implementation("com.fasterxml.jackson.module:jackson-module-afterburner:2.20.0")
 
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
 
