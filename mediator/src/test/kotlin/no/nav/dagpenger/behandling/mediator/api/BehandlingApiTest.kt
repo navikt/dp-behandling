@@ -150,6 +150,25 @@ internal class BehandlingApiTest {
     }
 
     @Test
+    fun `henter person sin rettighetsstatus`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Post,
+                    endepunkt = "/person/rettighetsstatus",
+                    body = """{"ident":"${person.ident}"}""",
+                )
+            response.status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    @Test
     fun `hent behandling gitt behandlingId`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger()

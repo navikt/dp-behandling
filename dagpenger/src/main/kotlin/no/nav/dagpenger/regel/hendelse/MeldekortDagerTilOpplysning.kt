@@ -17,6 +17,7 @@ fun Meldekort.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
     val opplysninger = mutableListOf<Opplysning<*>>()
     opplysninger.addAll(dager.tilOpplysninger(kilde))
     opplysninger.add(Faktum(Beregning.meldedato, meldedato, Gyldighetsperiode(this.fom, this.tom), kilde = kilde))
+
     val terskelForAntallDagerEnIkkeKanVæreMeldt = TerskelTrekkForSenMelding.forDato(this.fom)
     val antallIkkeMeldtDager = opplysninger.filter { it.opplysningstype == Beregning.meldt }.count { !(it.verdi as Boolean) }
     opplysninger.add(

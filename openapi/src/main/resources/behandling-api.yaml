@@ -39,6 +39,34 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Opplysningstype'
+
+  /person/rettighetsstatus:
+    post:
+      description: Rettighetsstatus på bruker
+      security:
+        - azureAd: [ ]
+      tags:
+        - Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentForesporsel'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rettighetsstatus'
+        default:
+          description: Feil ved oppretting av behandling
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
   /person/behandling:
     post:
       description: Opprett ny behandling for en person
@@ -567,27 +595,7 @@ paths:
 
 components:
   schemas:
-    DatalastKvittering:
-      type: object
-      required:
-        - id
-        - fraOgMed
-        - tilOgMed
-        - behandlinger
-      properties:
-        id:
-          type: string
-          format: uuid
-        fraOgMed:
-          type: string
-          format: date
-        tilOgMed:
-          type: string
-          format: date
-        behandlinger:
-          type: integer
-        tidBrukt:
-          type: string
+
 
     Rekjoring:
       type: object
@@ -673,6 +681,10 @@ components:
       type: string
       pattern: '^[0-9]{11}$'
 
+    BehandlingId:
+      type: string
+      format: uuid
+
     Behandlingskonvolutt:
       type: object
       required:
@@ -686,19 +698,16 @@ components:
         - sistEndret
       properties:
         behandlingId:
-          type: string
-          format: uuid
+          $ref: '#/components/schemas/BehandlingId'
         behandletHendelse:
           description: Hvilken hendelse som utløste behandlingen
           $ref: '#/components/schemas/Hendelse'
         behandlingskjedeId:
+          $ref: '#/components/schemas/BehandlingId'
           description: Hvilken behandlingskjede denne behandlingen tilhører. Dette tilsvarer en sammenhengende rettighetsperiode eller sak om du vil.
-          type: string
-          format: uuid
         basertPå:
+          $ref: '#/components/schemas/BehandlingId'
           description: Hvilken behandling denne behandlingen er basert på, hvis noen
-          type: string
-          format: uuid
         automatisk:
           description: Om behandlingen har blitt behandlet automatisk uten en saksbehandler
           type: boolean
@@ -1754,6 +1763,59 @@ components:
           type: string
           format: date
           description: Når hendelsen skjedde på utsiden av vårt system
+
+    DatalastKvittering:
+      type: object
+      required:
+        - id
+        - fraOgMed
+        - tilOgMed
+        - behandlinger
+      properties:
+        id:
+          type: string
+          format: uuid
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          type: string
+          format: date
+        behandlinger:
+          type: integer
+        tidBrukt:
+          type: string
+
+    Person:
+      type: object
+      required:
+        - rettighetsstatus
+      properties:
+        rettighetsstatus:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rettighetsperiode'
+
+    Rettighetsstatus:
+      description: En periode hvor brukeren har fått vurdert sin rett på dagpenger og utfallet av vurderingen
+      type: object
+      required:
+        - virkningsdato
+        - harRett
+        - behandlingId
+        - behandlingskjedeId
+      properties:
+        virkningsdato:
+          description: Fra og med dato denne status har effekt
+          type: string
+          format: date
+        harRett:
+          description: Om brukeren har rett på dagpenger
+          type: boolean
+        behandlingId:
+          $ref: '#/components/schemas/BehandlingId'
+        behandlingskjedeId:
+          $ref: '#/components/schemas/BehandlingId'
 
     VilkaarNavn:
       type: string

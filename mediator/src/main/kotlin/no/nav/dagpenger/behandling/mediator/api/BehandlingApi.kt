@@ -39,6 +39,7 @@ import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.NyOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
+import no.nav.dagpenger.behandling.api.models.RettighetsstatusDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
 import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
@@ -149,6 +150,26 @@ internal fun Application.behandlingApi(
         }
 
         authenticate("azureAd") {
+            route("person/rettighetsstatus") {
+                post {
+                    val identForespørsel = call.receive<IdentForesporselDTO>()
+                    val person =
+                        personRepository.hent(identForespørsel.ident.tilPersonIdentfikator())
+                            ?: throw NotFoundException("Person ikke funnet")
+
+                    val rettighetsstatus =
+                        person.rettighethistorikk().map { (_, rettighet) ->
+                            RettighetsstatusDTO(
+                                virkningsdato = rettighet.virkningsdato,
+                                harRett = rettighet.utfall,
+                                behandlingId = rettighet.behandlingId,
+                                behandlingskjedeId = rettighet.behandlingskjedeId,
+                            )
+                        }
+
+                    call.respond(rettighetsstatus)
+                }
+            }
             route("person/behandling") {
                 post {
                     val nyBehandlingDto = call.receive<NyBehandlingDTO>()
