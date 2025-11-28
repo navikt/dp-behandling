@@ -59,7 +59,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Rettighetsstatus'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rettighetsstatus'
         default:
           description: Feil ved oppretting av behandling
           content:
