@@ -4,7 +4,7 @@ kafka:
 
 gcp:
   sql:
-    tier: db-custom-2-32768
+    tier: db-custom-2-13312
     retainedBackups: 21
 
 azure:
