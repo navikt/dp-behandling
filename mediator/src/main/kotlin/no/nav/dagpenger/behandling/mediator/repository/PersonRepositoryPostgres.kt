@@ -3,9 +3,9 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
+import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
@@ -28,7 +28,7 @@ class PersonRepositoryPostgres(
             val timer = hentPersonTimer.startTimer()
             session
                 .run(
-                    tracedQueryOf(
+                    queryOf(
                         //language=PostgreSQL
                         """
                         SELECT * FROM person WHERE ident = :ident FOR UPDATE
@@ -49,7 +49,7 @@ class PersonRepositoryPostgres(
 
     private fun Session.behandlingerFor(ident: Ident) =
         this.run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 """
                 SELECT * FROM person_behandling WHERE ident IN (:ident) ORDER BY behandling_id 
@@ -69,7 +69,7 @@ class PersonRepositoryPostgres(
     private fun Session.rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         this
             .run(
-                tracedQueryOf(
+                queryOf(
                     //language=PostgreSQL
                     """
                     SELECT * FROM rettighetstatus WHERE ident = :ident ORDER BY opprettet
@@ -107,7 +107,7 @@ class PersonRepositoryPostgres(
         unitOfWork: PostgresUnitOfWork,
     ) = unitOfWork.inTransaction { tx ->
         tx.run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 """
                 INSERT INTO person (ident) VALUES (:ident) ON CONFLICT DO NOTHING
@@ -116,7 +116,7 @@ class PersonRepositoryPostgres(
             ).asUpdate,
         )
         tx.run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 "DELETE FROM rettighetstatus WHERE ident = :ident",
                 mapOf("ident" to person.ident.identifikator()),
@@ -124,7 +124,7 @@ class PersonRepositoryPostgres(
         )
         person.rettighethistorikk().forEach { (gjelderFra, rettighetstatus) ->
             tx.run(
-                tracedQueryOf(
+                queryOf(
                     //language=PostgreSQL
                     """
                     INSERT INTO rettighetstatus (ident, gjelder_fra, virkningsdato, har_rettighet, behandling_id, behandlingskjede_id)
@@ -145,7 +145,7 @@ class PersonRepositoryPostgres(
             behandlingRepository.lagre(behandling, unitOfWork)
 
             tx.run(
-                tracedQueryOf(
+                queryOf(
                     //language=PostgreSQL
                     """
                     INSERT INTO person_behandling (ident, behandling_id)

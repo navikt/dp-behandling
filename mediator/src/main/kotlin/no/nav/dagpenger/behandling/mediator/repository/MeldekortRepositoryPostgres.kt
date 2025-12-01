@@ -3,9 +3,9 @@ package no.nav.dagpenger.behandling.mediator.repository
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
+import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortkø
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortstatus
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør
@@ -46,7 +46,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         val meldekort =
             sessionOf(dataSource).use { session ->
                 session.run(
-                    tracedQueryOf(
+                    queryOf(
                         //language=PostgreSQL
                         """
                         SELECT DISTINCT ON (ident) *
@@ -76,7 +76,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
     override fun hent(meldekortId: UUID) =
         sessionOf(dataSource).use { session ->
             session.run(
-                tracedQueryOf(
+                queryOf(
                     //language=PostgreSQL
                     """
                     SELECT * FROM meldekort WHERE id = :meldekortId
@@ -94,7 +94,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
-                    tracedQueryOf(
+                    queryOf(
                         // language=PostgreSQL
                         """
                         UPDATE meldekort SET behandling_startet = :startet WHERE meldekort_id= :meldekortId
@@ -113,7 +113,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
-                    tracedQueryOf(
+                    queryOf(
                         // language=PostgreSQL
                         """
                         UPDATE meldekort SET behandling_ferdig = :ferdig WHERE meldekort_id = :meldekortId
@@ -132,7 +132,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
-                    tracedQueryOf(
+                    queryOf(
                         // language=PostgreSQL
                         """
                         UPDATE meldekort SET satt_på_vent = :sattPaaVent WHERE meldekort_id = :meldekortId
@@ -151,7 +151,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.run(
-                    tracedQueryOf(
+                    queryOf(
                         // language=PostgreSQL
                         """
                         UPDATE meldekort SET satt_på_vent = NULL WHERE ident = :ident AND satt_på_vent IS NOT NULL
@@ -169,7 +169,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         sessionOf(dataSource).use { session ->
             session
                 .run(
-                    tracedQueryOf(
+                    queryOf(
                         //language=PostgreSQL
                         """
                         SELECT 1 FROM meldekort WHERE meldekort_id = :meldekortId
@@ -205,7 +205,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         originaltMeldekortId: MeldekortId,
     ) {
         run(
-            tracedQueryOf(
+            queryOf(
                 // language=PostgreSQL
                 """
                 UPDATE meldekort SET korrigert_av_meldekort_id = :korrigertAvMeldekortId WHERE meldekort_id = :originaltMeldekortId
@@ -220,7 +220,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
 
     private fun TransactionalSession.lagreMeldekort(meldekort: Meldekort) {
         run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 """
                 INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, meldedato)
@@ -249,7 +249,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         dag: Dag,
     ) {
         run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 """
                 INSERT INTO meldekort_dag (meldekort_id, meldt, dato) 
@@ -274,7 +274,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         aktivitet: MeldekortAktivitet,
     ) {
         run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 """
                 INSERT INTO meldekort_aktivitet (meldekort_id, dato, type, timer) 
@@ -298,7 +298,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
 
     private fun Session.hentDager(meldkortId: MeldekortId): List<Dag> =
         run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 """
                 SELECT * FROM meldekort_dag WHERE meldekort_id = :meldekortId
@@ -320,7 +320,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         localDate: LocalDate,
     ): List<MeldekortAktivitet> =
         run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 """
                 SELECT dato, type, EXTRACT(EPOCH FROM timer) AS timer FROM meldekort_aktivitet WHERE meldekort_id = :meldekortId AND dato = :dato

@@ -4,9 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -82,7 +82,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         unitOfWork: PostgresUnitOfWork,
     ) = unitOfWork.inTransaction { tx ->
         tx.run(
-            tracedQueryOf(
+            queryOf(
                 //language=PostgreSQL
                 """
                 INSERT INTO opplysninger (opplysninger_id) VALUES (:opplysningerId) ON CONFLICT DO NOTHING
@@ -129,7 +129,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             val rader: MutableSet<OpplysningRad<*>> =
                 session
                     .run(
-                        tracedQueryOf(
+                        queryOf(
                             //language=PostgreSQL
                             "SELECT * FROM opplysningstabell WHERE opplysninger_id = :id ORDER BY id",
                             mapOf("id" to opplysningerId),
@@ -179,7 +179,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
         private fun hentOpplysning(id: UUID) =
             session.run(
-                tracedQueryOf(
+                queryOf(
                     //language=PostgreSQL
                     "SELECT * FROM opplysningstabell WHERE id = :id LIMIT 1",
                     mapOf("id" to id),

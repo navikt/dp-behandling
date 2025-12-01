@@ -1,12 +1,12 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaring.Endring.Avbrutt
 import no.nav.dagpenger.avklaring.Avklaring.Endring.Avklart
 import no.nav.dagpenger.avklaring.Avklaring.Endring.UnderBehandling
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryObserver.NyAvklaringHendelse
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -33,7 +33,7 @@ internal class AvklaringRepositoryPostgres private constructor(
         sessionOf(dataSource).use { session ->
             val avklaringer =
                 session.run(
-                    tracedQueryOf(
+                    queryOf(
                         // language=PostgreSQL
                         """
                         SELECT a.id                                               AS avklaring_id,

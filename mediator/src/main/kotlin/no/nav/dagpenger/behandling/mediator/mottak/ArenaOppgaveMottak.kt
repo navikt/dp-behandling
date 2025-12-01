@@ -10,9 +10,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepository.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.regel.OpplysningsTyper
@@ -151,7 +151,7 @@ internal class SakRepositoryPostgres : SakRepository {
     override fun finnBehandling(fagsakId: Int): Behandling? =
         sessionOf(dataSource).use {
             it.run(
-                tracedQueryOf(
+                queryOf(
                     //language=PostgreSQL
                     """
                     SELECT bo.behandling_id, pb.ident, b.tilstand

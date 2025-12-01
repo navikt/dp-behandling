@@ -3,9 +3,6 @@ package no.nav.dagpenger.behandling.db
 import ch.qos.logback.core.util.OptionHelper.getEnv
 import ch.qos.logback.core.util.OptionHelper.getSystemProperty
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.http.encodeURLParameter
-import io.opentelemetry.api.trace.Span
-import kotliquery.Query
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 import org.flywaydb.core.internal.configuration.ConfigUtils
@@ -78,52 +75,3 @@ private fun String.ensurePrefix(prefix: String) =
     } else {
         prefix + this.substringAfter("//")
     }
-
-fun withSqlCommenter(
-    sql: String,
-    metadata: Map<String, String?>,
-): String {
-    require(!sql.contains(";")) { "SQL kan ikke inneholde semikolon når SQL commenter brukes." }
-    val filtered = metadata.filter { it.value?.isNotBlank() == true }
-
-    val encoded =
-        filtered
-            .mapKeys { (k, v) ->
-                val encoded = k.encodeURLParameter()
-                val escaped = encoded.replace("'", "\'")
-                escaped
-            }.mapValues { (_, v) ->
-                val encoded = v?.encodeURLParameter()
-                val escaped = encoded?.replace("'", "\'")
-                val final = "'$escaped'"
-                final
-            }.entries
-            .sortedBy { it.key }
-            .joinToString(",") { (k, v) ->
-                "$k=$v"
-            }
-    return "$sql /*$encoded*/"
-}
-
-private fun tracedQuery(sql: String): String {
-    val span = Span.current()
-    val traceId = span.spanContext.traceId
-    val spanId = span.spanContext.spanId
-    return withSqlCommenter(
-        sql,
-        mapOf(
-            "trace_id" to traceId,
-            "span_id" to spanId,
-        ),
-    )
-}
-
-fun tracedQueryOf(
-    statement: String,
-    paramMap: Map<String, Any?>,
-): Query = Query(tracedQuery(statement), paramMap = paramMap)
-
-fun tracedQueryOf(
-    statement: String,
-    vararg params: Any?,
-): Query = Query(tracedQuery(statement), params = params.toList())

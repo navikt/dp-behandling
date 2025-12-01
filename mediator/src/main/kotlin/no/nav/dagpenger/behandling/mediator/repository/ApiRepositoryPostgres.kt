@@ -3,9 +3,9 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
 import no.nav.dagpenger.behandling.mediator.melding.Melding
 import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
@@ -53,7 +53,7 @@ internal class ApiRepositoryPostgres(
         logger.info { "Markerer behov som løst for behandlingId=$behandlingId, behov=${behov.joinToString()}" }
         sessionOf(dataSource).use { session ->
             session.transaction {
-                tracedQueryOf(
+                queryOf(
                     // language=PostgreSQL
                     """
                     DELETE
@@ -77,7 +77,7 @@ internal class ApiRepositoryPostgres(
         logger.info { "Oppretter behov som uløst for behandlingId=$behandlingId, behov=$behov" }
         sessionOf(dataSource).use { session ->
             session.run {
-                tracedQueryOf(
+                queryOf(
                     // language=PostgreSQL
                     """
                     INSERT INTO behandling_aktive_behov (behandling_id, behov, status, opprettet)
@@ -100,7 +100,7 @@ internal class ApiRepositoryPostgres(
             // If Kafka fails to produce, update the active change row to mark as failed.
             sessionOf(dataSource).use { session ->
                 session.run {
-                    tracedQueryOf(
+                    queryOf(
                         // language=PostgreSQL
                         """
                         UPDATE behandling_aktive_behov
@@ -165,7 +165,7 @@ internal class ApiRepositoryPostgres(
         behov: String,
     ) = sessionOf(dataSource).use { session ->
         session.run(
-            tracedQueryOf(
+            queryOf(
                 // language=PostgreSQL
                 """
                 SELECT status
@@ -181,7 +181,7 @@ internal class ApiRepositoryPostgres(
         sessionOf(dataSource).use { session ->
             session
                 .run(
-                    tracedQueryOf(
+                    queryOf(
                         // language=PostgreSQL
                         """
                         SELECT sist_endret_tilstand 
@@ -199,7 +199,7 @@ internal class ApiRepositoryPostgres(
     ) = sessionOf(dataSource).use { session ->
         session
             .run(
-                tracedQueryOf(
+                queryOf(
                     // language=PostgreSQL
                     """
                     SELECT tilstand, sist_endret_tilstand

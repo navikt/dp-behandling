@@ -2,9 +2,9 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
+import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
@@ -26,7 +26,7 @@ internal class KildeRepository {
     ): Map<UUID, Kilde> =
         session
             .run(
-                tracedQueryOf(
+                queryOf(
                     //language=PostgreSQL
                     """
                     SELECT 
@@ -157,7 +157,7 @@ internal class KildeRepository {
         sessionOf(dataSource)
             .use { session ->
                 session.run(
-                    tracedQueryOf(
+                    queryOf(
                         //language=PostgreSQL
                         """
                         UPDATE kilde_saksbehandler 
