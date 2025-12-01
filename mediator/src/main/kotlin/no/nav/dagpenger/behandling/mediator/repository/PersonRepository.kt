@@ -102,6 +102,7 @@ interface PersonRepository : BehandlingRepository {
         return person
     }
 
+    @WithSpan
     fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus>
 
     private fun medSpan(

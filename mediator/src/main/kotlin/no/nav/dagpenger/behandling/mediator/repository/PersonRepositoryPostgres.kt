@@ -47,6 +47,10 @@ class PersonRepositoryPostgres(
                 }
         }
 
+    @WithSpan
+    override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
+        sessionOf(dataSource).use { session -> session.rettighetstatusFor(ident) }
+
     private fun Session.behandlingerFor(ident: Ident) =
         this.run(
             queryOf(
@@ -59,12 +63,6 @@ class PersonRepositoryPostgres(
                 behandlingRepository.hentBehandling(row.uuid("behandling_id"))
             }.asList,
         )
-
-    override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
-        sessionOf(dataSource)
-            .use { session ->
-                session.rettighetstatusFor(ident)
-            }
 
     private fun Session.rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         this

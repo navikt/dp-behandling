@@ -153,12 +153,17 @@ internal fun Application.behandlingApi(
             route("person/rettighetsstatus") {
                 post {
                     val identForespørsel = call.receive<IdentForesporselDTO>()
-                    val person =
-                        personRepository.hent(identForespørsel.ident.tilPersonIdentfikator())
-                            ?: throw NotFoundException("Person ikke funnet")
+                    val ident = identForespørsel.ident.tilPersonIdentfikator()
+
+                    val rettighetstatusForPerson = personRepository.rettighetstatusFor(ident).contents()
+
+                    if (rettighetstatusForPerson.isEmpty()) {
+                        call.respond(HttpStatusCode.NotFound, "Ingen rettighetsstatus funnet for person")
+                        return@post
+                    }
 
                     val rettighetsstatus =
-                        person.rettighethistorikk().map { (_, rettighet) ->
+                        rettighetstatusForPerson.map { (_, rettighet) ->
                             RettighetsstatusDTO(
                                 virkningsdato = rettighet.virkningsdato,
                                 harRett = rettighet.utfall,
