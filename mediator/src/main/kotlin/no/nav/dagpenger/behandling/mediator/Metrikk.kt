@@ -75,4 +75,11 @@ internal object Metrikk {
             .help("Tid det tar å utføre en sletting i behandlingen, i sekunder")
             .labelNames("opplysningstype")
             .register()
+
+    val aktivitetsloggTimer: Histogram =
+        Histogram
+            .builder()
+            .name("behandling_publiser_aktivitetslogg_sekunder")
+            .help("Tid brukt på å hente person med behandlinger")
+            .register()
 }

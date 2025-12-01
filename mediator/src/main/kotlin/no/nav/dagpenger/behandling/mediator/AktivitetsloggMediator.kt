@@ -6,6 +6,7 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggEventMapper
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse
+import no.nav.dagpenger.behandling.mediator.Metrikk.aktivitetsloggTimer
 
 internal class AktivitetsloggMediator {
     private val aktivitetsloggEventMapper = AktivitetsloggEventMapper()
@@ -15,15 +16,21 @@ internal class AktivitetsloggMediator {
         context: MessageContext,
         hendelse: AktivitetsloggHendelse,
     ) {
-        Span.current().addEvent("Publiserer aktivitetslogg")
-        aktivitetsloggEventMapper.håndter(hendelse) { aktivitetLoggMelding ->
-            context.publish(
-                JsonMessage
-                    .newMessage(
-                        aktivitetLoggMelding.eventNavn,
-                        aktivitetLoggMelding.innhold,
-                    ).toJson(),
-            )
+        Span.current().apply {
+            addEvent("Publiserer aktivitetslogg")
+            setAttribute("hendelseType", hendelse::class.simpleName ?: "Ukjent")
+            setAttribute("antallAktiviteter", hendelse.aktivitetsteller().toLong())
+        }
+        aktivitetsloggTimer.time {
+            aktivitetsloggEventMapper.håndter(hendelse) { aktivitetLoggMelding ->
+                context.publish(
+                    JsonMessage
+                        .newMessage(
+                            aktivitetLoggMelding.eventNavn,
+                            aktivitetLoggMelding.innhold,
+                        ).toJson(),
+                )
+            }
         }
     }
 }
