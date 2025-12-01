@@ -93,7 +93,7 @@ private fun withSqlCommenter(
                 "$k=$safeValue"
             }
 
-    return "/*$encoded*/ $sql"
+    return "$sql /*$encoded*/"
 }
 
 private fun tracedQuery(sql: String): String {
