@@ -142,7 +142,7 @@ internal class VaktmesterPostgresRepo {
                                 SELECT o.id
                                 FROM opplysning o 
                                 WHERE fjernet = TRUE AND o.opplysninger_id = :opplysninger_id
-                                ORDER BY o.opprettet DESC;
+                                ORDER BY o.opprettet DESC
                                 """.trimIndent(),
                                 mapOf("opplysninger_id" to kandidat.opplysningerId),
                             ).map { row ->

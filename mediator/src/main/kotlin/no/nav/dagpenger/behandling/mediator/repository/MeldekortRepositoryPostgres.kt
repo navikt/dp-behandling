@@ -56,7 +56,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         AND satt_på_vent IS NULL
                         AND tom < :grensedato
                         ORDER BY ident, fom, løpenummer DESC
-                        LIMIT 1000;
+                        LIMIT 1000
                         """.trimIndent(),
                         mapOf("grensedato" to grensedato),
                     ).map { row ->
