@@ -2,9 +2,9 @@ package no.nav.dagpenger.behandling.mediator.melding
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.TransactionalSession
-import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
@@ -32,7 +32,7 @@ internal class PostgresMeldingRepository : MeldingRepository {
         sessionOf(dataSource).use { session ->
             session.transaction { transactionalSession: TransactionalSession ->
                 transactionalSession.run(
-                    queryOf(
+                    tracedQueryOf(
                         //language=PostgreSQL
                         statement =
                             """
@@ -62,7 +62,7 @@ internal class PostgresMeldingRepository : MeldingRepository {
     override fun markerSomBehandlet(meldingId: UUID) =
         sessionOf(dataSource).use { session ->
             session.run(
-                queryOf(
+                tracedQueryOf(
                     //language=PostgreSQL
                     statement =
                         """
@@ -79,7 +79,7 @@ internal class PostgresMeldingRepository : MeldingRepository {
     override fun erBehandlet(meldingId: UUID): Boolean =
         sessionOf(dataSource).use { session ->
             session.run(
-                queryOf(
+                tracedQueryOf(
                     //language=PostgreSQL
                     statement =
                         """

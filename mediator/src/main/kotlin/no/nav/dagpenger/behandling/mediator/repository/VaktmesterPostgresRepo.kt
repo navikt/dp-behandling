@@ -4,10 +4,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
-import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.db.medLås
+import no.nav.dagpenger.behandling.db.tracedQueryOf
 import java.util.UUID
 
 internal class VaktmesterPostgresRepo {
@@ -102,7 +102,7 @@ internal class VaktmesterPostgresRepo {
     private fun Session.hentOpplysningerIder(antall: Int): List<Kandidat> {
         val opplysningerIder =
             this.run(
-                queryOf(
+                tracedQueryOf(
                     //language=PostgreSQL
                     """
                     SELECT f.opplysninger_id, b.behandling_id
@@ -136,7 +136,7 @@ internal class VaktmesterPostgresRepo {
                 .map { kandidat ->
                     val opplysninger =
                         this.run(
-                            queryOf(
+                            tracedQueryOf(
                                 //language=PostgreSQL
                                 """
                                 SELECT o.id

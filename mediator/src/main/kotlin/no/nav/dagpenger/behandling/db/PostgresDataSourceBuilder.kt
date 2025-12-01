@@ -3,9 +3,13 @@ package no.nav.dagpenger.behandling.db
 import ch.qos.logback.core.util.OptionHelper.getEnv
 import ch.qos.logback.core.util.OptionHelper.getSystemProperty
 import com.zaxxer.hikari.HikariDataSource
+import io.opentelemetry.api.trace.Span
+import kotliquery.Query
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 import org.flywaydb.core.internal.configuration.ConfigUtils
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -75,3 +79,42 @@ private fun String.ensurePrefix(prefix: String) =
     } else {
         prefix + this.substringAfter("//")
     }
+
+private fun withSqlCommenter(
+    sql: String,
+    metadata: Map<String, String?>,
+): String {
+    val filtered = metadata.filter { it.value?.isNotBlank() == true }
+    val encoded =
+        filtered
+            .entries
+            .joinToString(",") { (k, v) ->
+                val safeValue = URLEncoder.encode(v, StandardCharsets.UTF_8.toString())
+                "$k=$safeValue"
+            }
+
+    return "/*$encoded*/ $sql"
+}
+
+private fun tracedQuery(sql: String): String {
+    val span = Span.current()
+    val traceId = span.spanContext.traceId
+    val spanId = span.spanContext.spanId
+    return withSqlCommenter(
+        sql,
+        mapOf(
+            "trace_id" to traceId,
+            "span_id" to spanId,
+        ),
+    )
+}
+
+fun tracedQueryOf(
+    statement: String,
+    paramMap: Map<String, Any?>,
+): Query = Query(tracedQuery(statement), paramMap = paramMap)
+
+fun tracedQueryOf(
+    statement: String,
+    vararg params: Any?,
+): Query = Query(statement, params = params.toList())

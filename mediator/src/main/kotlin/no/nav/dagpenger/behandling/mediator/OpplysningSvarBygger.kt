@@ -13,7 +13,6 @@ import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.regel.Behov.Barnetillegg
 import no.nav.dagpenger.regel.Behov.BarnetilleggV2
 import java.util.UUID
-import kotlin.text.get
 
 class OpplysningSvarBygger<T : Comparable<T>>(
     private val type: Opplysningstype<T>,

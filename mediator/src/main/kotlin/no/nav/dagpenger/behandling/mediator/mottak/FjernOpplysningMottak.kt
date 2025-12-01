@@ -18,7 +18,6 @@ import no.nav.dagpenger.opplysning.OpplysningIkkeFunnetException
 import no.nav.dagpenger.opplysning.Opplysningstype
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.String
 
 internal class FjernOpplysningMottak(
     rapidsConnection: RapidsConnection,

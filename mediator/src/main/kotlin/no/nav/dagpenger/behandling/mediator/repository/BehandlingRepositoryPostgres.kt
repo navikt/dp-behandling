@@ -1,9 +1,9 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import kotliquery.Session
-import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.db.tracedQueryOf
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
@@ -36,7 +36,7 @@ internal class BehandlingRepositoryPostgres(
     ) {
         sessionOf(dataSource).use { session ->
             session.run(
-                queryOf(
+                tracedQueryOf(
                     //language=PostgreSQL
                     "UPDATE behandling SET basert_på_behandling_id=:basertPaa WHERE behandling_id=:behandlingId",
                     mapOf(
@@ -50,7 +50,7 @@ internal class BehandlingRepositoryPostgres(
 
     private fun Session.hentBehandling(behandlingId: UUID): Behandling? =
         this.run(
-            queryOf(
+            tracedQueryOf(
                 // language=PostgreSQL
                 """
                 SELECT *  
@@ -100,7 +100,7 @@ internal class BehandlingRepositoryPostgres(
         oppgave: Arbeidssteg.Oppgave,
     ): Arbeidssteg =
         this.run(
-            queryOf(
+            tracedQueryOf(
                 //language=PostgreSQL
                 """
                 SELECT * 
@@ -140,7 +140,7 @@ internal class BehandlingRepositoryPostgres(
         block: (Behandling) -> Unit,
     ) = sessionOf(dataSource).use { session ->
         session.forEach(
-            queryOf(
+            tracedQueryOf(
                 // language="PostgreSQL"
                 """
                 SELECT behandling_id
@@ -167,7 +167,7 @@ internal class BehandlingRepositoryPostgres(
     ) {
         unitOfWork.inTransaction { tx ->
             tx.run(
-                queryOf(
+                tracedQueryOf(
                     // language=PostgreSQL
                     """
                         INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
@@ -185,7 +185,7 @@ internal class BehandlingRepositoryPostgres(
                 ).asUpdate,
             )
             tx.run(
-                queryOf(
+                tracedQueryOf(
                     // language=PostgreSQL
                     """
                     INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand, basert_på_behandling_id)
@@ -203,7 +203,7 @@ internal class BehandlingRepositoryPostgres(
                 ).asUpdate,
             )
             tx.run(
-                queryOf(
+                tracedQueryOf(
                     //language=PostgreSQL
                     """
                     INSERT INTO behandling_tilstand (behandling_id, tilstand, endret)
@@ -218,7 +218,7 @@ internal class BehandlingRepositoryPostgres(
                 ).asUpdate,
             )
             tx.run(
-                queryOf(
+                tracedQueryOf(
                     // language=PostgreSQL
                     """
                     INSERT INTO behandler_hendelse_behandling (behandling_id, melding_id) 
@@ -238,7 +238,7 @@ internal class BehandlingRepositoryPostgres(
             opplysningRepository.lagreOpplysninger(behandling.opplysninger() as Opplysninger, unitOfWork)
 
             tx.run(
-                queryOf(
+                tracedQueryOf(
                     // language=PostgreSQL
                     """
                     INSERT INTO behandling_opplysninger (opplysninger_id, behandling_id) 
@@ -262,14 +262,14 @@ internal class BehandlingRepositoryPostgres(
         run(
             when (arbeidssteg.tilstandType) {
                 Arbeidssteg.TilstandType.IkkeUtført ->
-                    queryOf(
+                    tracedQueryOf(
                         //language=PostgreSQL
                         """DELETE FROM behandling_arbeidssteg WHERE behandling_id = :behandling_id AND oppgave = :oppgave""",
                         mapOf("behandling_id" to behandlingId, "oppgave" to arbeidssteg.oppgave.name),
                     ).asUpdate
 
                 Arbeidssteg.TilstandType.Utført ->
-                    queryOf(
+                    tracedQueryOf(
                         // language=PostgreSQL
                         """
                         INSERT INTO behandling_arbeidssteg(behandling_id, oppgave, tilstand, utført_av, utført) 
@@ -294,7 +294,7 @@ internal class BehandlingRepositoryPostgres(
         sessionOf(dataSource).use {
             val kildeId =
                 it.run(
-                    queryOf(
+                    tracedQueryOf(
                         //language=PostgreSQL
                         """
                         SELECT o.kilde_id
@@ -315,7 +315,7 @@ internal class BehandlingRepositoryPostgres(
         sessionOf(dataSource).use { session ->
             session.transaction {
                 it.run(
-                    queryOf(
+                    tracedQueryOf(
                         //language=PostgreSQL
                         """
                         INSERT INTO utbetaling_status (behandling_id, status, behandlet_hendelse_id, endret) 
@@ -338,7 +338,7 @@ internal class BehandlingRepositoryPostgres(
         sessionOf(dataSource).use { session ->
             return session
                 .run(
-                    queryOf(
+                    tracedQueryOf(
                         //language=PostgreSQL
                         """
                         SELECT status 
