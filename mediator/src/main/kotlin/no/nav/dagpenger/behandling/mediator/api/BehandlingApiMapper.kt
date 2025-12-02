@@ -291,14 +291,14 @@ internal val redigerbareOpplysninger =
                     }
 
                     // MANUELL overstyring av beregning
-                    if (unleash.isEnabled(Feature.REDIGERING_AV_BEREGNING.navn)) {
-                        add(Beregning.arbeidsdag)
-                        add(Beregning.forbruk)
-                        add(Beregning.forbruktEgenandel)
-                        add(Beregning.gjenståendeEgenandel)
-                        add(Beregning.gjenståendePeriode)
-                        add(Beregning.utbetaling)
-                    }
+                    // if (unleash.isEnabled(Feature.REDIGERING_AV_BEREGNING.navn)) {
+                    add(Beregning.arbeidsdag)
+                    add(Beregning.forbruk)
+                    add(Beregning.forbruktEgenandel)
+                    add(Beregning.gjenståendeEgenandel)
+                    add(Beregning.gjenståendePeriode)
+                    add(Beregning.utbetaling)
+                    // }
                 }
 
         override fun kanRedigere(opplysningstype: Opplysningstype<*>): Boolean = redigerbare.contains(opplysningstype)
