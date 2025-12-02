@@ -81,8 +81,8 @@ class Person(
 
     override fun håndter(hendelse: StartHendelse) {
         if (behandlinger.any { it.behandler.eksternId == hendelse.eksternId }) {
-            hendelse.varsel("Søknad med eksternId ${hendelse.eksternId} er allerede mottatt")
-            return
+            hendelse.varsel("StartHendelse med eksternId ${hendelse.eksternId} er allerede mottatt")
+            // return
         }
 
         // Oppskrift for å opprette en behandling
