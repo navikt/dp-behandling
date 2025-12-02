@@ -20,6 +20,7 @@ val unleash: Unleash =
                 .instanceId(runCatching { InetAddress.getLocalHost().hostName }.getOrElse { "ukjent" })
                 .unleashAPI(properties[Key("UNLEASH_SERVER_API_URL", stringType)] + "/api/")
                 .apiKey(properties[Key("UNLEASH_SERVER_API_TOKEN", stringType)])
+                .synchronousFetchOnInitialisation(true)
                 .environment(
                     when (System.getenv("NAIS_CLUSTER_NAME").orEmpty()) {
                         "prod-gcp" -> "production"
