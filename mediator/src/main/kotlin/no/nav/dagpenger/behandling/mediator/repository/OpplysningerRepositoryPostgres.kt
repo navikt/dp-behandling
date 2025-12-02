@@ -131,7 +131,21 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     .run(
                         queryOf(
                             //language=PostgreSQL
-                            "SELECT * FROM opplysningstabell WHERE opplysninger_id = :id ORDER BY id",
+                            """
+                            WITH RECURSIVE alle_id AS (SELECT id
+                                                       FROM opplysningstabell
+                                                       WHERE opplysninger_id = :id
+
+                                                       UNION
+
+                                                       SELECT ov.id
+                                                       FROM alle_id a
+                                                                JOIN opplysning_utledet_av oua ON oua.opplysning_id = a.id
+                                                                JOIN opplysning ov ON ov.id = oua.utledet_av)
+                            SELECT *
+                            FROM opplysningstabell
+                            WHERE id IN (SELECT DISTINCT id FROM alle_id);
+                            """.trimIndent(),
                             mapOf("id" to opplysningerId),
                         ).map { row ->
                             val datatype = Datatype.fromString(row.string("datatype"))
@@ -147,19 +161,6 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     val opplysning = hentOpplysning(uuid)!!
                     rader.add(opplysning)
                     opplysning.erstatter?.let { erstatter.add(it) }
-                }
-            }
-
-            // Hent utledetAv-opplysninger fra tidligere opplysninger
-            val utledetAv = ArrayDeque(rader.mapNotNull { it.utledetAv?.opplysninger }.flatten().distinct())
-            while (utledetAv.isNotEmpty()) {
-                val uuid = utledetAv.removeFirst()
-                if (rader.none { it.id == uuid }) {
-                    val opplysning =
-                        hentOpplysning(uuid)
-                            ?: throw IllegalStateException("Opplysning (id=$uuid) som har vært brukt som utledning finnes ikke")
-                    rader.add(opplysning)
-                    opplysning.utledetAv?.opplysninger?.let { utledetAv.addAll(it) }
                 }
             }
 
