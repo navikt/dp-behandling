@@ -1019,6 +1019,7 @@ class Behandling private constructor(
             BehandlingOpprettet(
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
+                behandlingskjedeId = behandlingskjedeId,
                 hendelse = behandler,
             )
 
@@ -1117,6 +1118,7 @@ interface BehandlingObservatør {
     data class BehandlingOpprettet(
         val behandlingId: UUID,
         val basertPåBehandlinger: UUID?,
+        val behandlingskjedeId: UUID,
         val hendelse: StartHendelse,
     ) : PersonEvent()
 

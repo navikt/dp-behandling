@@ -75,6 +75,7 @@ internal class PersonMediator : PersonObservatør {
                     "ident" to requireNotNull(ident) { "Mangler ident i BehandlingOpprettet" },
                     "behandlingId" to behandlingId.toString(),
                     "basertPåBehandlinger" to listOf(basertPåBehandlinger.toString()),
+                    "behandlingskjedeId" to behandlingskjedeId.toString(),
                     "behandletHendelse" to
                         mapOf(
                             "id" to hendelse.eksternId.id,
