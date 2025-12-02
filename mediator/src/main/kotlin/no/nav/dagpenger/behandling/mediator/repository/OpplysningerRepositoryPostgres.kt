@@ -144,7 +144,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                                                                 JOIN opplysning ov ON ov.id = oua.utledet_av)
                             SELECT *
                             FROM opplysningstabell
-                            WHERE id IN (SELECT DISTINCT id FROM alle_id);
+                            WHERE id IN (SELECT DISTINCT id FROM alle_id)
+                            ORDER BY id
                             """.trimIndent(),
                             mapOf("id" to opplysningerId),
                         ).map { row ->
