@@ -20,6 +20,7 @@ import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import java.time.LocalDate
+import java.util.Random
 
 class Meldekortprosess :
     Forretningsprosess(RegelverkDagpenger),
@@ -90,7 +91,11 @@ class Kvotetelling : ProsessPlugin {
     override fun ferdig(opplysninger: Opplysninger) {
         val innvilgetStønadsdager = opplysninger.finnOpplysning(antallStønadsdager).verdi
 
-        val dager = opplysninger.kunEgne.finnAlle(forbruk)
+        val dager =
+            opplysninger.kunEgne
+                .finnAlle(forbruk)
+                .sortedBy { it.gyldighetsperiode.fraOgMed }
+
         var utgangspunkt =
             opplysninger
                 .finnAlle(forbrukt)

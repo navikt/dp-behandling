@@ -60,6 +60,8 @@ class BeregningTest {
 
                 // Første forbruksdag er 21, så 11 dager i perioden gir utbetaling
                 utbetalinger shouldHaveSize 11
+
+                opplysninger(Beregning.forbrukt).map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
             }
         }
     }
