@@ -15,7 +15,7 @@ import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 
 object RegistrertArbeidssøker {
     // Registrert som arbeidssøker
-    internal val registrertArbeidssøker =
+    val registrertArbeidssøker =
         boolsk(
             RegistrertSomArbeidssøkerId,
             beskrivelse = "Registrert som arbeidssøker",

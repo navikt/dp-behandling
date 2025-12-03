@@ -83,8 +83,6 @@ import no.nav.dagpenger.regel.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import java.time.LocalDateTime
 
@@ -283,10 +281,11 @@ internal val redigerbareOpplysninger =
                     )
 
                     // 4-5 Registrert arbeidssøker
+                    add(RegistrertArbeidssøker.registrertArbeidssøker)
+                    add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
+
+                    // Redigering for å kunne tilbakedatere søknader i dev
                     if (unleash.isEnabled(Feature.REDIGERING_AV_REGISTRERT_ARBEIDSSØKER.navn)) {
-                        add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
-                        add(Dagpengegrunnlag.grunnlag)
-                        add(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
                         add(søknadIdOpplysningstype)
                     }
 
