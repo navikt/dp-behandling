@@ -68,6 +68,9 @@ class Meldekortprosess :
         opplysninger.leggTil(
             Faktum(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden, resultat.oppfyllerKravTilTaptArbeidstid, gyldighetsperiode),
         )
+        opplysninger.leggTil(Faktum(Beregning.sumFva, resultat.sumFva.timer, gyldighetsperiode))
+        opplysninger.leggTil(Faktum(Beregning.sumArbeidstimer, resultat.sumArbeidstimer.timer, gyldighetsperiode))
+        opplysninger.leggTil(Faktum(Beregning.prosentfaktor, resultat.prosentfaktor, gyldighetsperiode))
 
         val forbruksdager = resultat.forbruksdager
         meldeperiode

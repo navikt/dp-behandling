@@ -28,6 +28,9 @@ Dette er opplysninger som blir brukt av regelverket.
 |01997b70-a12c-7622-bff8-82a20687e640|Gjenstående egenandel|Penger|Beløp||
 |019a81bf-50e1-7f1d-b23b-f30265b16042|Har meldt seg i tide|Boolsk|boolean||
 |019a9b47-2442-7533-bc71-a71a4600c49a|Meldedato|Dato|LocalDate||
+|019ae986-43bb-7529-af23-9b3d309501eb|Sum av fastsatt vanlig arbeidstid|Desimaltall|double|| Timer
+|019ae986-81bf-7b29-9458-446e6dbaedae|Sum av arbeidede timer|Desimaltall|double|| Timer
+|019ae986-a128-72f0-9868-032bc8a57b21|Prosentfaktor|Desimaltall|double||
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger

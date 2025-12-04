@@ -19,6 +19,9 @@ data class Beregningresultat(
     val forbruksdager: List<Forbruksdag>,
     val gjenståendeEgenandel: Beløp,
     val oppfyllerKravTilTaptArbeidstid: Boolean,
+    val sumFva: Timer,
+    val sumArbeidstimer: Timer,
+    val prosentfaktor: Double,
 ) {
     data class Forbruksdag(
         val dag: Dag,
@@ -73,7 +76,16 @@ class Beregningsperiode private constructor(
 
     private fun beregnUtbetaling(): Beregningresultat {
         if (!oppfyllerKravTilTaptArbeidstid) {
-            return Beregningresultat(Beløp(0), Beløp(0), emptyList(), gjenståendeEgenandel, false)
+            return Beregningresultat(
+                utbetaling = Beløp(verdi = 0),
+                forbruktEgenandel = Beløp(0),
+                forbruksdager = emptyList(),
+                gjenståendeEgenandel = gjenståendeEgenandel,
+                oppfyllerKravTilTaptArbeidstid = false,
+                sumFva = sumFva,
+                sumArbeidstimer = timerArbeidet,
+                prosentfaktor = prosentfaktor.timer,
+            )
         }
 
         val dagerGruppertPåSats = arbeidsdager.groupBy { it.sats }
@@ -122,6 +134,9 @@ class Beregningsperiode private constructor(
         return Beregningresultat(
             utbetaling = Beløp(bøtter.sumOf { it.utbetalt.verdien }),
             forbruktEgenandel = forbruktEgenandel,
+            sumFva = sumFva,
+            sumArbeidstimer = timerArbeidet,
+            prosentfaktor = prosentfaktor.timer,
             forbruksdager = forbruksdager,
             gjenståendeEgenandel = gjenståendeEgenandel - forbruktEgenandel,
             oppfyllerKravTilTaptArbeidstid = true,
