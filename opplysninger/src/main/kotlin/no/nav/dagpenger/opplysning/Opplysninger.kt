@@ -145,10 +145,11 @@ class Opplysninger private constructor(
             this
                 .groupBy { it.opplysningstype }
                 .mapValues { (_, perioder) ->
-                    perioder
-                        // Finn den siste for hver opplysning som har lik gyldighetsperiode
-                        .distinctByLast<Opplysning<*>, Gyldighetsperiode> { it.gyldighetsperiode }
-                        // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
+                    // Finn den siste for hver opplysning som har lik gyldighetsperiode
+                    val unikePerioder = perioder.distinctByLast { it.gyldighetsperiode }
+
+                    // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
+                    unikePerioder
                         .zipWithNext()
                         .mapNotNull { (venstre, høyre) ->
                             if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
@@ -156,7 +157,7 @@ class Opplysninger private constructor(
                             venstre.lagForkortet(høyre)
                         }
                         // Legg til den siste som ikke blir med i zipWithNext
-                        .plus(perioder.last())
+                        .plus(unikePerioder.last())
                         .toMutableList()
                 }
 

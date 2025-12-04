@@ -20,7 +20,6 @@ import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import java.time.LocalDate
-import java.util.Random
 
 class Meldekortprosess :
     Forretningsprosess(RegelverkDagpenger),

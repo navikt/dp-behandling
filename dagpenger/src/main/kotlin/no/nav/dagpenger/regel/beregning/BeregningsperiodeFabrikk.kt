@@ -30,13 +30,13 @@ class BeregningsperiodeFabrikk(
     private val logger = KotlinLogging.logger { }
 
     fun lagBeregningsperiode(): Beregningsperiode {
-        val gjenståendeEgenandel = hentGjenståendeEgenandel()
         val dager = hentMeldekortDagerMedRett()
         logger.info { "Meldekort dager med rett: ${dager.joinToString("\n") { it.toString() }}" }
         val periode = opprettPeriode(dager)
         val stønadsdagerIgjen =
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
                 opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
+        val gjenståendeEgenandel = hentGjenståendeEgenandel(dager.first())
 
         logger.info {
             """
@@ -49,7 +49,7 @@ class BeregningsperiodeFabrikk(
         return Beregningsperiode(gjenståendeEgenandel, periode, stønadsdagerIgjen)
     }
 
-    private fun hentGjenståendeEgenandel(): Beløp {
+    private fun hentGjenståendeEgenandel(førsteDag: LocalDate): Beløp {
         val harGjenstående = opplysninger.har(Beregning.gjenståendeEgenandel)
         if (harGjenstående) {
             return opplysninger.finnOpplysning(Beregning.gjenståendeEgenandel).verdi
@@ -64,7 +64,6 @@ class BeregningsperiodeFabrikk(
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
-
         val meldtITide = opplysninger.finnOpplysning(meldtITide).verdi
         val dagerMedRett =
             meldeperiode
