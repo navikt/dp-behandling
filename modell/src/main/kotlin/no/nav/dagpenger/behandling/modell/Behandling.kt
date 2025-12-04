@@ -766,6 +766,10 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: PersonHendelse,
         ) {
+            if (!behandling.harRettighetsperioder()) {
+                hendelse.logiskFeil("Kan ikke ferdigstille en behandling uten rettighetsperioder")
+            }
+
             behandling.emitFerdig()
         }
 
@@ -813,6 +817,11 @@ class Behandling private constructor(
             hendelse: GodkjennBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
+
+            if (!behandling.harRettighetsperioder()) {
+                hendelse.logiskFeil("Kan ikke godkjenne en behandling uten rettighetsperioder")
+            }
+
             behandling.godkjent.utførtAv(hendelse.godkjentAv)
             if (!behandling.forretningsprosess.kreverTotrinnskontroll(behandling.opplysninger)) {
                 hendelse.info("Ble godkjent, men krever ikke totrinnskontroll")
@@ -903,6 +912,11 @@ class Behandling private constructor(
             hendelse: BesluttBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
+
+            if (!behandling.harRettighetsperioder()) {
+                hendelse.logiskFeil("Kan ikke beslutte en behandling uten rettighetsperioder")
+            }
+
             if (behandling.godkjent.erUtførtAv(hendelse.besluttetAv)) {
                 throw IllegalArgumentException("Beslutter kan ikke være samme som saksbehandler")
             }
@@ -969,6 +983,11 @@ class Behandling private constructor(
         }
 
         return tilstand(Ferdig(), hendelse)
+    }
+
+    private fun harRettighetsperioder(): Boolean {
+        val perioder = forretningsprosess.regelverk.rettighetsperioder(opplysninger())
+        return perioder.isNotEmpty()
     }
 
     private fun erAutomatiskBehandlet(): Boolean {

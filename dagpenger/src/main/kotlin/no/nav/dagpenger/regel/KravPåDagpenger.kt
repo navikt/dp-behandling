@@ -2,7 +2,7 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
-import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.regel.OpplysningsTyper.harLøpendeRettId
 
 object KravPåDagpenger {
@@ -12,7 +12,7 @@ object KravPåDagpenger {
         vilkår(
             folketrygden.hjemmel(0, 0, "Krav på dagpenger", "Krav på dagpenger"),
         ) {
-            regel(harLøpendeRett) { somUtgangspunkt(false) }
+            regel(harLøpendeRett) { tomRegel }
 
             ønsketResultat(harLøpendeRett)
         }
