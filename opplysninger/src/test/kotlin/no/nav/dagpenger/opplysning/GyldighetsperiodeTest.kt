@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.opplysning.Gyldighetsperiode.Companion.overlappendePerioder
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskA
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskB
@@ -11,6 +12,26 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 internal class GyldighetsperiodeTest {
+    @Test
+    fun `likhet test`() {
+        val periode1 = Gyldighetsperiode(1.januar, 3.januar)
+        val periode2 = Gyldighetsperiode(1.januar, 3.januar)
+        val periode3 = Gyldighetsperiode(2.januar, 4.januar)
+
+        periode1 shouldBe periode2
+        periode2 shouldBe periode1
+        periode3 shouldNotBe periode2
+        periode3 shouldNotBe periode1
+
+        periode1.hashCode() shouldBe periode1.hashCode()
+        periode1.hashCode() shouldBe periode2.hashCode()
+        periode3.hashCode() shouldNotBe periode2.hashCode()
+        periode3.hashCode() shouldNotBe periode1.hashCode()
+
+        val perioder = listOf(periode1, periode2, periode3)
+        perioder.distinct().size shouldBe 2
+    }
+
     @Test
     fun `kan lage gyldighetsperiode`() {
         val gyldighetsperiode = Gyldighetsperiode(1.januar, 10.januar)
