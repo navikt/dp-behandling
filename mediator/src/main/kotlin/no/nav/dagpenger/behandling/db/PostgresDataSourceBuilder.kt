@@ -2,7 +2,12 @@ package no.nav.dagpenger.behandling.db
 
 import ch.qos.logback.core.util.OptionHelper.getEnv
 import ch.qos.logback.core.util.OptionHelper.getSystemProperty
+import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.micrometer.core.instrument.Clock
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.prometheus.metrics.model.registry.PrometheusRegistry
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 import org.flywaydb.core.internal.configuration.ConfigUtils
@@ -17,8 +22,8 @@ internal object PostgresDataSourceBuilder {
 
     private fun getOrThrow(key: String): String = getEnv(key) ?: getSystemProperty(key)
 
-    val dataSource by lazy {
-        HikariDataSource().apply {
+    private val hikariConfig by lazy {
+        HikariConfig().apply {
             jdbcUrl = getOrThrow(DB_URL_KEY).ensurePrefix("jdbc:postgresql://").stripCredentials()
             username = getOrThrow(DB_USERNAME_KEY)
             password = getOrThrow(DB_PASSWORD_KEY)
@@ -33,8 +38,16 @@ internal object PostgresDataSourceBuilder {
             // Default 30 minutter
             maxLifetime = 30.minutes.inWholeMilliseconds
             leakDetectionThreshold = 10.seconds.inWholeMilliseconds
+            metricRegistry =
+                PrometheusMeterRegistry(
+                    PrometheusConfig.DEFAULT,
+                    PrometheusRegistry.defaultRegistry,
+                    Clock.SYSTEM,
+                )
         }
     }
+
+    val dataSource by lazy { HikariDataSource(hikariConfig) }
 
     private fun flyWayBuilder() = Flyway.configure().validateMigrationNaming(true).connectRetries(10)
 

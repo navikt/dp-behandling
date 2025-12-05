@@ -4,11 +4,13 @@ import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.server.application.ApplicationStopped
 import io.micrometer.core.instrument.Clock
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
@@ -97,6 +99,11 @@ internal class ApplicationBuilder(
                         preStopHook = preStopHook::handlePreStopRequest,
                         statusPagesConfig = { statusPagesConfig() },
                     ) {
+                        monitor.subscribe(ApplicationStopped) {
+                            logger.info { "Forsøker å lukke datasource..." }
+                            dataSource.close()
+                            logger.info { "Lukket datasource" }
+                        }
                         behandlingApi(
                             personRepository = personRepository,
                             hendelseMediator = hendelseMediator,
