@@ -87,6 +87,7 @@ internal class InnsendingFerdigstiltMottakTest {
         if (fagsakId != null) put("fagsakId", fagsakId)
         put("fødselsnummer", ident)
         put("søknadsData", mapOf("søknad_uuid" to søknadId))
+        put("datoRegistrert", "2024-06-01T12:00:00")
         put("journalpostId", "123")
     }.let { JsonMessage.newMessage("innsending_ferdigstilt", it).toJson() }
 }

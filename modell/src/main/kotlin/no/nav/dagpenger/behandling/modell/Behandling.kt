@@ -496,8 +496,6 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Alle opplysninger mottatt, lager forslag til vedtak")
 
-            behandling.forretningsprosess.kjørFerdig(behandling.opplysninger)
-
             behandling.emitForslagTilVedtak()
         }
 
@@ -766,6 +764,10 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: PersonHendelse,
         ) {
+            if (!behandling.harRettighetsperioder()) {
+                throw IllegalStateException("Kan ikke ferdigstille en behandling uten rettighetsperioder")
+            }
+
             behandling.emitFerdig()
         }
 
@@ -803,8 +805,6 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Har et nytt forslag til vedtak som må godkjennes")
 
-            behandling.forretningsprosess.kjørFerdig(behandling.opplysninger)
-
             behandling.emitForslagTilVedtak()
         }
 
@@ -813,6 +813,11 @@ class Behandling private constructor(
             hendelse: GodkjennBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
+
+            if (!behandling.harRettighetsperioder()) {
+                throw IllegalStateException("Kan ikke godkjenne en behandling uten rettighetsperioder")
+            }
+
             behandling.godkjent.utførtAv(hendelse.godkjentAv)
             if (!behandling.forretningsprosess.kreverTotrinnskontroll(behandling.opplysninger)) {
                 hendelse.info("Ble godkjent, men krever ikke totrinnskontroll")
@@ -903,6 +908,11 @@ class Behandling private constructor(
             hendelse: BesluttBehandlingHendelse,
         ) {
             hendelse.kontekst(this)
+
+            if (!behandling.harRettighetsperioder()) {
+                throw IllegalStateException("Kan ikke beslutte en behandling uten rettighetsperioder")
+            }
+
             if (behandling.godkjent.erUtførtAv(hendelse.besluttetAv)) {
                 throw IllegalArgumentException("Beslutter kan ikke være samme som saksbehandler")
             }
@@ -950,6 +960,7 @@ class Behandling private constructor(
         forretningsprosess.kjørUnderveis(opplysninger)
 
         if (rapport.erFerdig()) {
+            forretningsprosess.kjørFerdig(opplysninger)
             avgjørNesteTilstand(hendelse)
         }
     }
@@ -969,6 +980,11 @@ class Behandling private constructor(
         }
 
         return tilstand(Ferdig(), hendelse)
+    }
+
+    private fun harRettighetsperioder(): Boolean {
+        val perioder = forretningsprosess.regelverk.rettighetsperioder(opplysninger())
+        return perioder.isNotEmpty()
     }
 
     private fun erAutomatiskBehandlet(): Boolean {

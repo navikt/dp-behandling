@@ -20,7 +20,7 @@ internal class InnsendingFerdigstiltMottak(
             .apply {
                 precondition { it.requireValue("@event_name", "innsending_ferdigstilt") }
                 precondition { it.requireAny("type", listOf("NySøknad", "Gjenopptak")) }
-                validate { it.requireKey("fødselsnummer") }
+                validate { it.requireKey("fødselsnummer", "datoRegistrert") }
                 validate { it.interestedIn("fagsakId") }
                 validate {
                     it.require("søknadsData") { data ->
@@ -57,7 +57,7 @@ class InnsendingFerdigstiltMessage(
     packet: JsonMessage,
 ) {
     private val ident = packet["fødselsnummer"].asText()
-    private val opprettet = packet["@opprettet"].asLocalDateTime()
+    private val innsendt = packet["datoRegistrert"].asLocalDateTime()
     private val søknadId = packet["søknadsData"]["søknad_uuid"].asUUID()
     private val type = packet["type"].asText()
     private val fagsakId =
@@ -73,7 +73,7 @@ class InnsendingFerdigstiltMessage(
                 "ident" to ident,
                 "søknadId" to søknadId,
                 "fagsakId" to fagsakId,
-                "innsendt" to opprettet,
+                "innsendt" to innsendt,
                 "journalpostId" to journalpostId,
                 "type" to type,
             ),

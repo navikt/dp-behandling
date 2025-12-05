@@ -308,6 +308,9 @@ object OpplysningsTyper {
     val arbeidsdagId = Opplysningstype.Id(UUID.fromString("01948ea0-36e8-72cc-aa4f-16bc446ed3bd"), Boolsk)
     val arbeidstimerId = Opplysningstype.Id(UUID.fromString("01948ea0-e25c-7c47-8429-a05045d80eca"), Desimaltall)
     val forbrukId = Opplysningstype.Id(UUID.fromString("01948ea0-ffdc-7964-ab55-52a7e35e1020"), Boolsk)
+    val sumFvaId = Opplysningstype.Id(UUID.fromString("019ae986-43bb-7529-af23-9b3d309501eb"), Desimaltall)
+    val sumArbeidstimerId = Opplysningstype.Id(UUID.fromString("019ae986-81bf-7b29-9458-446e6dbaedae"), Desimaltall)
+    val prosentfaktorId = Opplysningstype.Id(UUID.fromString("019ae986-a128-72f0-9868-32bc8a57b21"), Desimaltall)
 
     val terskelId = Opplysningstype.Id(UUID.fromString("01948ea2-22f3-7da8-9547-90d0c64e74e0"), Desimaltall)
     val meldtId = Opplysningstype.Id(UUID.fromString("01956ab8-126c-7636-803e-a5d87eda2015"), Boolsk)

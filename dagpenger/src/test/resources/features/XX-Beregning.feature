@@ -595,3 +595,32 @@ Egenskap: Beregning av meldekort
     Og utbetales 10800 kroner
     Og det forbrukes 9 dager
 
+
+  Scenario: Test av ekte scenario
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 19.11.2025 |          |
+      | Sats       | 682   | 19.11.2025 |          |
+      | FVA        | 31    | 19.11.2025 |          |
+      | Egenandel  | 2046  | 19.11.2025|          |
+    Når meldekort for periode som begynner fra og med 17.11.2025 mottas med
+      | Dag     | type                    | verdi |
+      | Mandag  | Arbeidstimer            | 0     |
+      | Tirsdag | Arbeidstimer            | 4     |
+      | Onsdag  | Arbeidstimer            | 0     |
+      | Torsdag | Arbeidstimer            | 0     |
+      | Fredag  | Arbeidstimer            | 3     |
+      | Lørdag  | Arbeidstimer            | 0     |
+      | Søndag  | Arbeidstimer            | 0     |
+      | Mandag  | Arbeidstimer            | 0     |
+      | Tirsdag | Arbeidstimer            | 0     |
+      | Onsdag  | Arbeidstimer            | 0     |
+      | Torsdag | Arbeidstimer            | 0     |
+      | Fredag  | Arbeidstimer            | 3     |
+      | Lørdag  | Arbeidstimer            | 0     |
+      | Søndag  | Arbeidstimer            | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 2750 kroner
+    Og det forbrukes 8 dager
+

@@ -76,7 +76,7 @@ internal class ArenaOppgaveMottak(
             sikkerlogg.info { "Fant behandling for sakId=$sakId, pakke=${packet.toJson()}" }
 
             if (behandling.tilstand in tilstanderSomKanIgnoreres) {
-                logger.info { "Behandling ${behandling.behandlingId} er allerede i tilstand ${behandling.tilstand}, ignorerer oppgave" }
+                logger.info { "Behandling ${behandling.behandlingId} er allerede i tilstand ${behandling.tilstand}, ignorerer oppgave." }
                 return
             }
 
@@ -84,21 +84,12 @@ internal class ArenaOppgaveMottak(
             val endretAv = packet["after.ENDRET_AV"].asText()
 
             if (endretAv == "ARBLINJE") {
-                logger.info { "Oppgaven er ikke tildelt en saksbehandler enda, ignorerer" }
+                logger.info { "Oppgaven er ikke tildelt en saksbehandler enda, ignorerer." }
                 return
             }
 
-            if (packet["after.USERNAME"].asText().length != 4) {
-                logger.info { "Oppgaven er ikke tildelt en benk. Nå burde den blitt avbrutt." }
-            } else {
-                if (packet["before.USERNAME"].asText() != packet["after.USERNAME"].asText()) {
-                    logger.info { "Oppgaven har endret benk. Dette burde vært fanget opp og avbrutt" }
-                    return
-                }
-            }
-
-            if (packet["before.USERNAME"].asText() == packet["after.USERNAME"].asText()) {
-                logger.info { "Oppgaven må endre benk før vi avbryter" }
+            if (packet["after.USERNAME"].asText().length == 4) {
+                logger.info { "Oppgaven er tildelt en benk. Skal ikke avbrytes." }
                 return
             }
 

@@ -17,6 +17,9 @@ import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldedatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
+import no.nav.dagpenger.regel.OpplysningsTyper.prosentfaktorId
+import no.nav.dagpenger.regel.OpplysningsTyper.sumArbeidstimerId
+import no.nav.dagpenger.regel.OpplysningsTyper.sumFvaId
 import no.nav.dagpenger.regel.OpplysningsTyper.taptArbeidIPeriodenId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
@@ -43,6 +46,16 @@ object Beregning {
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
     val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
+
+    val sumFva = Opplysningstype.desimaltall(sumFvaId, "Sum av fastsatt vanlig arbeidstid", enhet = Enhet.Timer, synlig = aldriSynlig)
+    val sumArbeidstimer =
+        Opplysningstype.desimaltall(
+            sumArbeidstimerId,
+            "Sum av arbeidede timer",
+            enhet = Enhet.Timer,
+            synlig = aldriSynlig,
+        )
+    val prosentfaktor = Opplysningstype.desimaltall(prosentfaktorId, "Prosentfaktor", synlig = aldriSynlig)
 
     val oppfyllerKravTilTaptArbeidstidIPerioden =
         Opplysningstype.boolsk(
@@ -79,22 +92,29 @@ object Beregning {
             regel(meldtITide) { tomRegel }
             regel(meldedato) { tomRegel }
 
+            regel(sumFva) { tomRegel }
+            regel(sumArbeidstimer) { tomRegel }
+            regel(prosentfaktor) { tomRegel }
+
             ønsketResultat(
-                meldeperiode,
                 arbeidsdag,
                 arbeidstimer,
                 forbruk,
                 forbrukt,
                 forbruktEgenandel,
-                gjenståendePeriode,
                 gjenståendeEgenandel,
-                meldt,
+                gjenståendePeriode,
                 meldedato,
+                meldeperiode,
+                meldt,
+                meldtITide,
                 oppfyllerKravTilTaptArbeidstidIPerioden,
+                prosentfaktor,
+                sumArbeidstimer,
+                sumFva,
                 terskel,
                 utbetaling,
                 utbetalingForPeriode,
-                meldtITide,
             )
         }
 }

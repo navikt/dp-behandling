@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.scenario
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -61,7 +62,67 @@ class BeregningTest {
                 // Første forbruksdag er 21, så 11 dager i perioden gir utbetaling
                 utbetalinger shouldHaveSize 11
 
-                opplysninger(Beregning.forbrukt).map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
+
+                with(opplysninger(Beregning.forbrukt)) {
+                    none { it.status == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
+                    map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
+                    map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
+                        "2018-06-18",
+                        "2018-06-19",
+                        "2018-06-20",
+                        "2018-06-21",
+                        "2018-06-22",
+                        "2018-06-23",
+                        "2018-06-24",
+                        "2018-06-25",
+                        "2018-06-26",
+                        "2018-06-27",
+                        "2018-06-28",
+                        "2018-06-29",
+                        "2018-06-30",
+                        "2018-07-01",
+                    )
+                }
+            }
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch()
+
+            saksbehandler.endreOpplysning(
+                Beregning.gjenståendeEgenandel,
+                Beløp(2000.0),
+                "",
+                Gyldighetsperiode(18.juni(2018), 1.juli(2018)),
+            )
+
+            behandlingsresultatForslag {
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 6813
+
+                with(opplysninger(Beregning.forbrukt)) {
+                    forAll { it.status shouldBe Opplysningsperiode.Periodestatus.Ny }
+
+                    map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
+                    map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
+                        "2018-06-18",
+                        "2018-06-19",
+                        "2018-06-20",
+                        "2018-06-21",
+                        "2018-06-22",
+                        "2018-06-23",
+                        "2018-06-24",
+                        "2018-06-25",
+                        "2018-06-26",
+                        "2018-06-27",
+                        "2018-06-28",
+                        "2018-06-29",
+                        "2018-06-30",
+                        "2018-07-01",
+                    )
+                }
             }
         }
     }
