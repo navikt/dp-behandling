@@ -767,7 +767,7 @@ class Behandling private constructor(
             hendelse: PersonHendelse,
         ) {
             if (!behandling.harRettighetsperioder()) {
-                hendelse.logiskFeil("Kan ikke ferdigstille en behandling uten rettighetsperioder")
+                throw IllegalStateException("Kan ikke ferdigstille en behandling uten rettighetsperioder")
             }
 
             behandling.emitFerdig()
@@ -819,7 +819,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
 
             if (!behandling.harRettighetsperioder()) {
-                hendelse.logiskFeil("Kan ikke godkjenne en behandling uten rettighetsperioder")
+                throw IllegalStateException("Kan ikke godkjenne en behandling uten rettighetsperioder")
             }
 
             behandling.godkjent.utførtAv(hendelse.godkjentAv)
@@ -914,7 +914,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
 
             if (!behandling.harRettighetsperioder()) {
-                hendelse.logiskFeil("Kan ikke beslutte en behandling uten rettighetsperioder")
+                throw IllegalStateException("Kan ikke beslutte en behandling uten rettighetsperioder")
             }
 
             if (behandling.godkjent.erUtførtAv(hendelse.besluttetAv)) {
