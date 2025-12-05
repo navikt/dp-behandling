@@ -33,8 +33,6 @@ class RettighetsperiodePlugin(
                 .filter { it.opplysningstype in vilkår }
                 .filterIsInstance<Opplysning<Boolean>>()
 
-        logger.warn { "RettighetsperiodePlugin beregner rettighetsperiode basert på vilkår: $vilkår og $utfall" }
-
         return TidslinjeBygger(utfall)
             .lagPeriode { påDato ->
                 val harVurdertAlle = påDato.map { it.opplysningstype }.containsAll(vilkår)
@@ -50,5 +48,3 @@ class RettighetsperiodePlugin(
             }
     }
 }
-
-private val logger = KotlinLogging.logger {}

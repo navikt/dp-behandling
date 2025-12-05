@@ -496,8 +496,6 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Alle opplysninger mottatt, lager forslag til vedtak")
 
-            behandling.forretningsprosess.kjørFerdig(behandling.opplysninger)
-
             behandling.emitForslagTilVedtak()
         }
 
@@ -807,8 +805,6 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Har et nytt forslag til vedtak som må godkjennes")
 
-            behandling.forretningsprosess.kjørFerdig(behandling.opplysninger)
-
             behandling.emitForslagTilVedtak()
         }
 
@@ -964,6 +960,7 @@ class Behandling private constructor(
         forretningsprosess.kjørUnderveis(opplysninger)
 
         if (rapport.erFerdig()) {
+            forretningsprosess.kjørFerdig(opplysninger)
             avgjørNesteTilstand(hendelse)
         }
     }
