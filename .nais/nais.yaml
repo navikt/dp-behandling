@@ -18,7 +18,7 @@ spec:
     initialDelay: 10
     failureThreshold: 6
     periodSeconds: 5
-    timeout: 1
+    timeout: 5
   liveness:
     path: /isalive
     failureThreshold: 6
