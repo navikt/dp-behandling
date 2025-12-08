@@ -96,12 +96,10 @@ class Kvotetelling : ProsessPlugin {
         val dager =
             opplysninger.kunEgne
                 .finnAlle(forbruk)
-                .sortedBy { it.gyldighetsperiode.fraOgMed }
 
         var utgangspunkt =
             opplysninger
                 .finnAlle(forbrukt)
-                .sortedBy { it.gyldighetsperiode.fraOgMed }
                 .lastOrNull {
                     it.gyldighetsperiode.fraOgMed.isBefore(dager.first().gyldighetsperiode.fraOgMed)
                 }?.verdi ?: 0
