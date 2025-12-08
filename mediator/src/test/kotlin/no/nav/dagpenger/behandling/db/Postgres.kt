@@ -2,11 +2,11 @@ package no.nav.dagpenger.behandling.db
 
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.internal.configuration.ConfigUtils
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 internal object Postgres {
     val instance by lazy {
-        PostgreSQLContainer<Nothing>("postgres:18.0").apply {
+        PostgreSQLContainer("postgres:18.0").apply {
             withReuse(true)
             start()
         }

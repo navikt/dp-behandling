@@ -41,9 +41,7 @@ object GrenseverdierForMinsteArbeidsinntekt {
             // https://lovdata.no/lov/1997-02-28-19/§4-4
         )
 
-    fun finnTerskel(virkningsdato: LocalDate): Faktor {
-        return terskler.first { virkningsdato in it }.faktor
-    }
+    fun finnTerskel(virkningsdato: LocalDate): Faktor = terskler.first { virkningsdato in it }.faktor
 
     private class MinstearbeidsinntektTerskel(
         fom: LocalDate,

@@ -1,6 +1,8 @@
 package no.nav.dagpenger.opplysning.verdier
 
-data class Ulid(val verdi: String) : Comparable<Ulid> {
+data class Ulid(
+    val verdi: String,
+) : Comparable<Ulid> {
     init {
         require(verdi.length == 26) { "ULID krever en 26 tegn lang streng." }
     }

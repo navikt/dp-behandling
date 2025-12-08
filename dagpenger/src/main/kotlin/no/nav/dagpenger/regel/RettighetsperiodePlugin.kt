@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning

@@ -28,15 +28,14 @@ class FørsteArbeidsdag internal constructor(
 
     override fun toString() = "Finn første virkedag etter $dato"
 
-    private tailrec fun finnFørsteArbeidsdag(dato: LocalDate): LocalDate {
-        return if (dato.arbeidsdag()) {
+    private tailrec fun finnFørsteArbeidsdag(dato: LocalDate): LocalDate =
+        if (dato.arbeidsdag()) {
             dato
         } else {
             finnFørsteArbeidsdag(
                 dato.plusDays(1),
             )
         }
-    }
 
     private fun LocalDate.arbeidsdag(): Boolean =
         NorwegianDateUtil.isWorkingDay(Date.from(this.atStartOfDay(ZoneId.systemDefault()).toInstant()))

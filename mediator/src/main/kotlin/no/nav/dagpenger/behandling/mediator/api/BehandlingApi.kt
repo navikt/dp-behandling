@@ -183,11 +183,21 @@ internal fun Application.behandlingApi(
 
                     val hendelseId =
                         when (nyBehandlingDto.hendelse?.type) {
-                            HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
-                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id)
-                            HendelseDTOTypeDTO.MANUELL,
-                            null,
-                            -> ManuellId(UUIDv7.ny())
+                            HendelseDTOTypeDTO.SØKNAD -> {
+                                SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
+                            }
+
+                            HendelseDTOTypeDTO.MELDEKORT -> {
+                                MeldekortId(nyBehandlingDto.hendelse!!.id)
+                            }
+
+                            HendelseDTOTypeDTO.MANUELL -> {
+                                ManuellId(UUID.fromString(nyBehandlingDto.hendelse?.id) ?: UUIDv7.ny())
+                            }
+
+                            null -> {
+                                ManuellId(UUIDv7.ny())
+                            }
                         }
 
                     val melding = ApiMelding(nyBehandlingDto.ident)
@@ -377,7 +387,10 @@ internal fun Application.behandlingApi(
 
                         when (rekjøring.opplysninger?.isEmpty()) {
                             // Hvis ingen opplysninger er endret kan vi kjøre synkront
-                            null, true -> hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
+                            null, true -> {
+                                hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
+                            }
+
                             // Hvis opplysninger er endret må vi vente på at behovene løses
                             false -> {
                                 val behandling = hentBehandling(personRepository, call.behandlingId)
