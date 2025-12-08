@@ -174,9 +174,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     it.copy(kilde = kilde)
                 }
 
-            val brutto = raderMedKilde
-            val raderFraTidligereOpplysninger = brutto.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
-            return brutto.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
+            val raderFraTidligereOpplysninger = raderMedKilde.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
+            return raderMedKilde.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
         }
 
         private fun hentOpplysning(id: UUID) =
@@ -254,19 +253,38 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         @Suppress("UNCHECKED_CAST")
         private fun <T : Comparable<T>> Datatype<T>.verdi(row: Row): T =
             when (this) {
-                Boolsk -> row.boolean("verdi_boolsk")
-                Dato ->
+                Boolsk -> {
+                    row.boolean("verdi_boolsk")
+                }
+
+                Dato -> {
                     when (row.string("verdi_dato")) {
                         "-infinity" -> LocalDate.MIN
                         "infinity" -> LocalDate.MAX
                         else -> row.localDate("verdi_dato")
                     }
+                }
 
-                Desimaltall -> row.double("verdi_desimaltall")
-                Heltall -> row.int("verdi_heltall")
-                ULID -> Ulid(row.string("verdi_string"))
-                Penger -> Beløp(row.string("verdi_string"))
-                Tekst -> row.string("verdi_string")
+                Desimaltall -> {
+                    row.double("verdi_desimaltall")
+                }
+
+                Heltall -> {
+                    row.int("verdi_heltall")
+                }
+
+                ULID -> {
+                    Ulid(row.string("verdi_string"))
+                }
+
+                Penger -> {
+                    Beløp(row.string("verdi_string"))
+                }
+
+                Tekst -> {
+                    row.string("verdi_string")
+                }
+
                 BarnDatatype -> {
                     val barneJsonNode = objectMapper.readTree(row.binaryStream("verdi_jsonb"))
                     runCatching {
@@ -276,8 +294,13 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     }.getOrElse { BarnListe(barn = legazySerdeBarn.fromJson(barneJsonNode)) }
                 }
 
-                InntektDataType -> Inntekt(row.binaryStream("verdi_jsonb").use { serdeInntekt.fromJson(it) })
-                PeriodeDataType -> serdePeriode.fromJson(row.string("verdi_jsonb"))
+                InntektDataType -> {
+                    Inntekt(row.binaryStream("verdi_jsonb").use { serdeInntekt.fromJson(it) })
+                }
+
+                PeriodeDataType -> {
+                    serdePeriode.fromJson(row.string("verdi_jsonb"))
+                }
             } as T
 
         fun lagreOpplysninger(
@@ -400,14 +423,35 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             datatype: Datatype<*>,
             verdi: Any,
         ) = when (datatype) {
-            Boolsk -> Pair("verdi_boolsk", verdi)
-            Dato -> Pair("verdi_dato", tilPostgresqlTimestamp(verdi as LocalDate))
-            Desimaltall -> Pair("verdi_desimaltall", verdi)
-            Heltall -> Pair("verdi_heltall", verdi)
-            ULID -> Pair("verdi_string", (verdi as Ulid).verdi)
-            Penger -> Pair("verdi_string", (verdi as Beløp).toString())
-            Tekst -> Pair("verdi_string", verdi)
-            BarnDatatype ->
+            Boolsk -> {
+                Pair("verdi_boolsk", verdi)
+            }
+
+            Dato -> {
+                Pair("verdi_dato", tilPostgresqlTimestamp(verdi as LocalDate))
+            }
+
+            Desimaltall -> {
+                Pair("verdi_desimaltall", verdi)
+            }
+
+            Heltall -> {
+                Pair("verdi_heltall", verdi)
+            }
+
+            ULID -> {
+                Pair("verdi_string", (verdi as Ulid).verdi)
+            }
+
+            Penger -> {
+                Pair("verdi_string", (verdi as Beløp).toString())
+            }
+
+            Tekst -> {
+                Pair("verdi_string", verdi)
+            }
+
+            BarnDatatype -> {
                 Pair(
                     "verdi_jsonb",
                     (verdi as BarnListe).let {
@@ -417,8 +461,9 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         }
                     },
                 )
+            }
 
-            InntektDataType ->
+            InntektDataType -> {
                 Pair(
                     "verdi_jsonb",
                     (verdi as Inntekt).verdi.let {
@@ -428,8 +473,9 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         }
                     },
                 )
+            }
 
-            PeriodeDataType ->
+            PeriodeDataType -> {
                 Pair(
                     "verdi_jsonb",
                     (verdi as Periode).let {
@@ -439,23 +485,28 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         }
                     },
                 )
+            }
         }
 
         private fun tilPostgresqlTimestamp(verdi: LocalDate) =
             when {
-                verdi.isEqual(LocalDate.MIN) ->
+                verdi.isEqual(LocalDate.MIN) -> {
                     PGobject().apply {
                         type = "timestamp"
                         value = "-infinity"
                     }
+                }
 
-                verdi.isEqual(LocalDate.MAX) ->
+                verdi.isEqual(LocalDate.MAX) -> {
                     PGobject().apply {
                         type = "timestamp"
                         value = "infinity"
                     }
+                }
 
-                else -> verdi
+                else -> {
+                    verdi
+                }
             }
     }
 }
@@ -491,7 +542,7 @@ private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> 
         // Create the Opplysning instance
         val opplysning =
             when (status) {
-                "Hypotese" ->
+                "Hypotese" -> {
                     Hypotese(
                         id = id,
                         opplysningstype = opplysningstype,
@@ -502,8 +553,9 @@ private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> 
                         opprettet = opprettet,
                         skalLagres = false,
                     )
+                }
 
-                "Faktum" ->
+                "Faktum" -> {
                     Faktum(
                         id = id,
                         opplysningstype = opplysningstype,
@@ -514,8 +566,11 @@ private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> 
                         opprettet = opprettet,
                         skalLagres = false,
                     )
+                }
 
-                else -> throw IllegalStateException("Ukjent opplysningstype")
+                else -> {
+                    throw IllegalStateException("Ukjent opplysningstype")
+                }
             }
 
         // Add the Opplysning instance to the map and return it
@@ -525,10 +580,10 @@ private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> 
 
     // Convert all OpplysningRad instances to Opplysning instances
     val alleOpplysninger = this.map { it.toOpplysning() }
-    this.forEach {
-        it.finnErstatter()
-    }
-    return alleOpplysninger
+    this.forEach { it.finnErstatter() }
+
+    // Rekkefølgen er viktig, så vi sorterer på id for å få en konsistent rekkefølge
+    return alleOpplysninger.sortedBy { it.id }
 }
 
 private data class UtledningRad(
