@@ -582,8 +582,7 @@ private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> 
     val alleOpplysninger = this.map { it.toOpplysning() }
     this.forEach { it.finnErstatter() }
 
-    // Rekkefølgen er viktig, så vi sorterer på id for å få en konsistent rekkefølge
-    return alleOpplysninger.sortedBy { it.id }
+    return alleOpplysninger
 }
 
 private data class UtledningRad(

@@ -14,7 +14,8 @@ class Opplysninger private constructor(
     constructor() : this(UUIDv7.ny(), emptyList(), null)
     private constructor(id: UUID, opplysninger: List<Opplysning<*>>) : this(id, opplysninger, null)
 
-    private val egne: MutableList<Opplysning<*>> = initielleOpplysninger.toMutableList()
+    // Rekkefølgen er viktig, så vi sorterer på id for å få en konsistent rekkefølge
+    private val egne: MutableList<Opplysning<*>> = initielleOpplysninger.sortedBy { it.id }.toMutableList()
     private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
     private val erstattet: MutableSet<UUID> get() = alleOpplysninger.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 

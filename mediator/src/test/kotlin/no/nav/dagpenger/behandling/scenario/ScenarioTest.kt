@@ -396,7 +396,12 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             saksbehandler.endreOpplysning(erReellArbeidssøkerVurdert, false, "Kan ikke vurdere reell arbeidssøker")
-            saksbehandler.endreOpplysning(prøvingsdato, 21.juni(2018), "Avslag skal være fra søknadsdato", Gyldighetsperiode(21.juni(2018)))
+            saksbehandler.endreOpplysning(
+                prøvingsdato,
+                21.juni(2018),
+                "Avslag skal være fra søknadsdato",
+                Gyldighetsperiode(21.juni(2018)),
+            )
             behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
@@ -432,26 +437,48 @@ class ScenarioTest {
 
         fun verdiSomTekst(verdi: OpplysningsverdiDTO): String {
             return when (verdi) {
-                is BarnelisteDTO ->
+                is BarnelisteDTO -> {
                     verdi.verdi.forEach { verdi ->
                         val fødselsdato = d(verdi.fødselsdato)
                         val navn = verdi.fornavnOgMellomnavn ?: ("Ukjent navn" + (verdi.etternavn?.let { " $it" } ?: ""))
                         return "Barn: $navn, født $fødselsdato"
                     }
+                }
 
-                is BoolskVerdiDTO ->
+                is BoolskVerdiDTO -> {
                     when (verdi.verdi) {
                         true -> "Ja"
                         false -> "Nei"
                     }
+                }
 
-                is DatoVerdiDTO -> d(verdi.verdi) ?: "-"
-                is DesimaltallVerdiDTO -> verdi.verdi.toString()
-                is HeltallVerdiDTO -> verdi.verdi.toString()
-                is PengeVerdiDTO -> verdi.verdi.toString() + " kr"
-                is PeriodeVerdiDTO -> periodetekst(verdi.fom, verdi.tom)
-                is TekstVerdiDTO -> verdi.verdi
-                is UlidVerdiDTO -> verdi.verdi
+                is DatoVerdiDTO -> {
+                    d(verdi.verdi) ?: "-"
+                }
+
+                is DesimaltallVerdiDTO -> {
+                    verdi.verdi.toString()
+                }
+
+                is HeltallVerdiDTO -> {
+                    verdi.verdi.toString()
+                }
+
+                is PengeVerdiDTO -> {
+                    verdi.verdi.toString() + " kr"
+                }
+
+                is PeriodeVerdiDTO -> {
+                    periodetekst(verdi.fom, verdi.tom)
+                }
+
+                is TekstVerdiDTO -> {
+                    verdi.verdi
+                }
+
+                is UlidVerdiDTO -> {
+                    verdi.verdi
+                }
             } as String
         }
 

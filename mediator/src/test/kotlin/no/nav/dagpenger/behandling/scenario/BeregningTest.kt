@@ -2,8 +2,11 @@ package no.nav.dagpenger.behandling.scenario
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.inspectors.forAll
+import io.kotest.matchers.collections.shouldBeMonotonicallyIncreasing
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode
@@ -122,6 +125,48 @@ class BeregningTest {
                         "2018-06-30",
                         "2018-07-01",
                     )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `beregning av flere meldekort etter hverandre`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+            }
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            person.sendInnMeldekort(2)
+            person.sendInnMeldekort(3)
+            person.sendInnMeldekort(4)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+            meldekortBatch(true)
+            meldekortBatch(true)
+            meldekortBatch(true)
+
+            behandlingsresultat {
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 42806
+
+                with(opplysninger(Beregning.forbrukt)) {
+                    val forbruksdager = map { it.verdi.verdi as Int }
+                    forbruksdager.shouldBeMonotonicallyIncreasing()
+
+                    forbruksdager.shouldStartWith(0)
+                    forbruksdager.shouldEndWith(37)
                 }
             }
         }
