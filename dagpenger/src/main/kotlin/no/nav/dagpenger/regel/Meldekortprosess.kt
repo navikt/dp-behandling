@@ -101,6 +101,7 @@ class Kvotetelling : ProsessPlugin {
         var utgangspunkt =
             opplysninger
                 .finnAlle(forbrukt)
+                .sortedBy { it.gyldighetsperiode.fraOgMed }
                 .lastOrNull {
                     it.gyldighetsperiode.fraOgMed.isBefore(dager.first().gyldighetsperiode.fraOgMed)
                 }?.verdi ?: 0
