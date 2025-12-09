@@ -147,7 +147,7 @@ class Opplysninger private constructor(
                 .groupBy { it.opplysningstype }
                 .mapValues { (_, perioder) ->
                     // Finn den siste for hver opplysning som har lik gyldighetsperiode
-                    val unikePerioder = perioder.distinctByLast { it.gyldighetsperiode }
+                    val unikePerioder = perioder.sortedBy { it.id }.distinctByLast { it.gyldighetsperiode }
 
                     // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
                     unikePerioder
@@ -159,7 +159,6 @@ class Opplysninger private constructor(
                         }
                         // Legg til den siste som ikke blir med i zipWithNext
                         .plus(unikePerioder.last())
-                        .sortedBy { it.id }
                         .toMutableList()
                 }
 
