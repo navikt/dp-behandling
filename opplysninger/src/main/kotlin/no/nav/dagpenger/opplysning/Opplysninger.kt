@@ -159,6 +159,7 @@ class Opplysninger private constructor(
                         }
                         // Legg til den siste som ikke blir med i zipWithNext
                         .plus(unikePerioder.last())
+                        .sortedBy { it.id }
                         .toMutableList()
                 }
 
