@@ -109,10 +109,10 @@ class Kvotetelling : ProsessPlugin {
         var utgangspunkt =
             opplysninger
                 .finnAlle(forbrukt)
-                .also {
+                .also { alle ->
                     logger.info {
-                        "Hentet ut antall dager som er forbrukt: ${dager.size} dager: ${
-                            dager.joinToString {
+                        "Hentet ut antall dager som er forbrukt: ${alle.size} dager: ${
+                            alle.joinToString {
                                 "${it.id} - ${it.gyldighetsperiode.fraOgMed} - ${it.verdi}"
                             }
                         }"
