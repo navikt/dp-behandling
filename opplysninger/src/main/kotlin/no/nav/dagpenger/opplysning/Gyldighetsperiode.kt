@@ -21,6 +21,9 @@ data class Gyldighetsperiode(
     fun overlapp(gyldighetsperiode: Gyldighetsperiode) =
         this.contains(gyldighetsperiode.fraOgMed) || gyldighetsperiode.contains(this.fraOgMed)
 
+    fun erMyeStørreOgKulereEnn(gyldighetsperiode: Gyldighetsperiode) =
+        this.fraOgMed <= gyldighetsperiode.fraOgMed && this.tilOgMed >= gyldighetsperiode.tilOgMed
+
     override fun toString(): String =
         when {
             fraOgMed.isEqual(LocalDate.MIN) && tilOgMed.isEqual(LocalDate.MAX) -> "gyldig for alltid"

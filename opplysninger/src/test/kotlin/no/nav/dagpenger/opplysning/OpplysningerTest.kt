@@ -104,6 +104,18 @@ class OpplysningerTest {
     }
 
     @Test
+    fun `kan sjekke om en gyldighetsperiode spenner over en hel annen periode`() {
+        Gyldighetsperiode(1.januar, 30.januar)
+            .erMyeStørreOgKulereEnn(Gyldighetsperiode(10.januar, 15.januar)) shouldBe true
+
+        Gyldighetsperiode(1.januar)
+            .erMyeStørreOgKulereEnn(Gyldighetsperiode(10.januar, 15.januar)) shouldBe true
+
+        Gyldighetsperiode(1.januar)
+            .erMyeStørreOgKulereEnn(Gyldighetsperiode(10.januar)) shouldBe true
+    }
+
+    @Test
     fun `kan ikke slette opplysninger i basert på opplysninger`() {
         val opplysninger1 = Opplysninger()
 

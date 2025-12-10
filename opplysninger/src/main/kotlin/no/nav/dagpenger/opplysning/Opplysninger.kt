@@ -154,6 +154,7 @@ class Opplysninger private constructor(
                     unikePerioder
                         .zipWithNext()
                         .mapNotNull { (venstre, høyre) ->
+                            if (høyre.gyldighetsperiode.erMyeStørreOgKulereEnn(venstre.gyldighetsperiode)) return@mapNotNull høyre
                             if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
                             if (venstre.gyldighetsperiode.fraOgMed.isEqual(høyre.gyldighetsperiode.fraOgMed)) return@mapNotNull null
                             logger.info {

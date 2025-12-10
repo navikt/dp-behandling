@@ -419,6 +419,42 @@ class ScenarioTest {
         }
     }
 
+    @Test
+    fun `erstatter kort periode med lang periode`() {
+        // Tester lagForkortet i Opplysnigner
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                oppholdINorge,
+                true,
+                "Norge i en periode",
+                Gyldighetsperiode(21.juni(2018), 28.juni(2018)),
+            )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            saksbehandler.lagBehandling(18.juni(2018))
+            saksbehandler.endreOpplysning(
+                oppholdINorge,
+                true,
+                "Norge for alltid",
+                Gyldighetsperiode(18.juni(2018)),
+            )
+
+            behandlingsresultatForslag {
+                with(opplysninger(oppholdINorge)) {
+                    this.single().gyldigFraOgMed shouldBe 18.juni(2018)
+                    this.single().gyldigTilOgMed shouldBe null
+                }
+            }
+        }
+    }
+
     object Formatter {
         private val outFmt = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
