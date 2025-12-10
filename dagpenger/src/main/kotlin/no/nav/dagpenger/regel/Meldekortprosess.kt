@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
@@ -94,30 +93,12 @@ class Kvotetelling : ProsessPlugin {
     override fun ferdig(opplysninger: Opplysninger) {
         val innvilgetStønadsdager = opplysninger.finnOpplysning(antallStønadsdager).verdi
 
-        val dager =
-            opplysninger.kunEgne
-                .finnAlle(forbruk)
-
-        logger.info {
-            "Hentet ut dager som fører til forbruk for kvotetelling: ${dager.size} dager: ${
-                dager.joinToString {
-                    "${it.id} - ${it.gyldighetsperiode.fraOgMed} - ${it.verdi}"
-                }
-            }"
-        }
+        val dager = opplysninger.kunEgne.finnAlle(forbruk)
 
         var utgangspunkt =
             opplysninger
                 .finnAlle(forbrukt)
-                .also { alle ->
-                    logger.info {
-                        "Hentet ut antall dager som er forbrukt: ${alle.size} dager: ${
-                            alle.joinToString {
-                                "${it.id} - ${it.gyldighetsperiode.fraOgMed} - ${it.verdi}"
-                            }
-                        }"
-                    }
-                }.lastOrNull {
+                .lastOrNull {
                     it.gyldighetsperiode.fraOgMed.isBefore(dager.first().gyldighetsperiode.fraOgMed)
                 }?.verdi ?: 0
 
@@ -133,5 +114,3 @@ class Kvotetelling : ProsessPlugin {
         }
     }
 }
-
-private val logger = KotlinLogging.logger { }
