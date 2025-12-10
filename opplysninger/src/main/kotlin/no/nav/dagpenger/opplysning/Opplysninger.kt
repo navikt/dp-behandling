@@ -192,10 +192,12 @@ class DuplikateOpplysningerException(
     exception: Exception? = null,
 ) : RuntimeException(message, exception)
 
-private inline fun <T, K> Iterable<T>.distinctByLast(selector: (T) -> K): List<T> {
+internal inline fun <T, K> Iterable<T>.distinctByLast(selector: (T) -> K): List<T> {
     val map = LinkedHashMap<K, T>()
     for (element in this) {
-        map[selector(element)] = element // overskriver hvis nøkkelen finnes fra før
+        val key = selector(element)
+        map.remove(key) // Fjern først for å oppdatere posisjon
+        map[key] = element
     }
     return map.values.toList()
 }

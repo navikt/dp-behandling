@@ -145,6 +145,13 @@ class OpplysningerTest {
         }
     }
 
+    @Test
+    fun `rekkefølge og styr`() {
+        val list = listOf("A1", "B1", "A2", "A3")
+        val result = list.distinctByLast { it[0] } // selector returnerer første bokstav
+        result shouldContainInOrder listOf("B1", "A3")
+    }
+
     //language=Mermaid
     val blurp =
         """
