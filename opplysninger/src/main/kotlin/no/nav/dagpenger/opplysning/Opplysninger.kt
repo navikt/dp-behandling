@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
 import no.nav.dagpenger.uuid.UUIDv7
@@ -155,6 +156,13 @@ class Opplysninger private constructor(
                         .mapNotNull { (venstre, høyre) ->
                             if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
                             if (venstre.gyldighetsperiode.fraOgMed.isEqual(høyre.gyldighetsperiode.fraOgMed)) return@mapNotNull null
+                            logger.info {
+                                """
+                                |Kant-i-kant overlapper opplysning ${venstre.id} og ${høyre.id} for type ${venstre.opplysningstype.navn}. Lager forkortet opplysning.
+                                |Venstre: ${venstre.gyldighetsperiode}
+                                |Høyre: ${høyre.gyldighetsperiode}
+                                """.trimMargin()
+                            }
                             venstre.lagForkortet(høyre)
                         }
                         // Legg til den siste som ikke blir med i zipWithNext
@@ -169,6 +177,8 @@ class Opplysninger private constructor(
     }
 
     companion object {
+        private val logger = KotlinLogging.logger {}
+
         fun med(opplysninger: Collection<Opplysning<*>>) = Opplysninger(UUIDv7.ny(), opplysninger.toList())
 
         fun med(vararg opplysning: Opplysning<*>) = Opplysninger(UUIDv7.ny(), opplysning.toList())
