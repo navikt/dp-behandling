@@ -17,10 +17,12 @@ import no.nav.dagpenger.behandling.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UlidVerdiDTO
 import no.nav.dagpenger.behandling.august
+import no.nav.dagpenger.behandling.desember
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.behandling.november
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.behandling.scenario.ScenarioTest.Formatter.lagBrev
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -33,6 +35,7 @@ import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
+import no.nav.dagpenger.regel.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
@@ -425,31 +428,36 @@ class ScenarioTest {
         nyttScenario {
             inntektSiste12Mnd = 500000
         }.test {
-            person.søkDagpenger(21.juni(2018))
+            person.søkDagpenger(27.november(2018))
 
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(
-                oppholdINorge,
-                true,
-                "Norge i en periode",
-                Gyldighetsperiode(21.juni(2018), 28.juni(2018)),
-            )
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            saksbehandler.lagBehandling(18.juni(2018))
+            saksbehandler.lagBehandling(27.november(2018))
             saksbehandler.endreOpplysning(
-                oppholdINorge,
+                registrertArbeidssøker,
+                false,
+                "Norge for alltid",
+                Gyldighetsperiode(2.desember(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                registrertArbeidssøker,
                 true,
                 "Norge for alltid",
-                Gyldighetsperiode(18.juni(2018)),
+                Gyldighetsperiode(11.desember(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                registrertArbeidssøker,
+                true,
+                "Norge for alltid",
+                Gyldighetsperiode(27.november(2018)),
             )
 
             behandlingsresultatForslag {
-                with(opplysninger(oppholdINorge)) {
-                    this.single().gyldigFraOgMed shouldBe 18.juni(2018)
-                    this.single().gyldigTilOgMed shouldBe null
+                with(opplysninger(registrertArbeidssøker)) {
+                    this.map { it.gyldigFraOgMed }.shouldHaveSize(1)
                 }
             }
         }
