@@ -155,6 +155,7 @@ class Opplysninger private constructor(
                         .zipWithNext()
                         .mapNotNull { (venstre, høyre) ->
                             if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
+                            if (høyre.gyldighetsperiode.likEllerStørre(venstre.gyldighetsperiode)) return@mapNotNull høyre
                             if (venstre.gyldighetsperiode.fraOgMed.isEqual(høyre.gyldighetsperiode.fraOgMed)) return@mapNotNull null
                             logger.info {
                                 """

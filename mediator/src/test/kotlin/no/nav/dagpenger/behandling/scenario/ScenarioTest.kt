@@ -21,6 +21,7 @@ import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Comp
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.behandling.november
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.behandling.scenario.ScenarioTest.Formatter.lagBrev
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -35,6 +36,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
@@ -415,6 +417,40 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
 
                 opplysninger shouldHaveSize 43
+            }
+        }
+    }
+
+    @Test
+    fun `perioder som legges til i samme behandling og er større en eksisterende erstatter de som ligger der`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(27.november(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            saksbehandler.lagBehandling(27.november(2018))
+            saksbehandler.endreOpplysning(
+                oppfyllerKravetTilVerneplikt,
+                false,
+                "False for alltid",
+                Gyldighetsperiode(),
+            )
+            saksbehandler.endreOpplysning(
+                oppfyllerKravetTilVerneplikt,
+                true,
+                "False for alltid",
+                Gyldighetsperiode(),
+            )
+
+            behandlingsresultatForslag {
+                with(opplysninger(oppfyllerKravetTilVerneplikt)) {
+                    this.map { it.gyldigFraOgMed }.shouldHaveSize(1)
+                }
             }
         }
     }
