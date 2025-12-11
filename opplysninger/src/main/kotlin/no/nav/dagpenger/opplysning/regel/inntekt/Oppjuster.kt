@@ -39,6 +39,7 @@ class Oppjuster(
                 inntektsId = inntekt.verdi.inntektsId,
                 inntektsListe = oppjusterteinntekter,
                 sisteAvsluttendeKalenderMåned = inntekt.verdi.sisteAvsluttendeKalenderMåned,
+                hentetTidspunkt = inntekt.verdi.hentetTidspunkt,
             )
         return Inntekt(oppjustertInntekt)
     }

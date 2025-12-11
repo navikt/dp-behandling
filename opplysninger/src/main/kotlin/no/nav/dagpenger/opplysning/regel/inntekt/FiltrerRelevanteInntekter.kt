@@ -31,6 +31,7 @@ class FiltrerRelevanteInntekter(
                 inntektsId = inntekt.verdi.inntektsId,
                 inntektsListe = relevanteInntekter,
                 sisteAvsluttendeKalenderMåned = inntekt.verdi.sisteAvsluttendeKalenderMåned,
+                hentetTidspunkt = inntekt.verdi.hentetTidspunkt,
             ),
         )
     }

@@ -150,7 +150,7 @@ internal class OpplysningSvarMessage(
                     lagSvar(typeNavn, løsning).also {
                         logger.info {
                             "Løsning for opplysning $typeNavn med svartype: ${it::class.simpleName}. " +
-                                    "Gyldighetsperiode=${it.gyldighetsperiode}"
+                                "Gyldighetsperiode=${it.gyldighetsperiode}"
                         }
                     }
                 val kilde =
@@ -278,19 +278,46 @@ private class JsonMapper(
 ) : OpplysningSvarBygger.VerdiMapper {
     override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
         when (datatype) {
-            Dato -> verdi.asLocalDate() as T
-            Heltall -> verdi.asInt() as T
-            Desimaltall -> verdi.asDouble() as T
-            Boolsk -> verdi.asBoolean() as T
-            ULID -> Ulid(verdi.asText()) as T
-            Penger -> Beløp(verdi.asText().toBigDecimal()) as T
-            BarnDatatype -> barnMapper(typeNavn, verdi) as T
-            InntektDataType ->
+            Dato -> {
+                verdi.asLocalDate() as T
+            }
+
+            Heltall -> {
+                verdi.asInt() as T
+            }
+
+            Desimaltall -> {
+                verdi.asDouble() as T
+            }
+
+            Boolsk -> {
+                verdi.asBoolean() as T
+            }
+
+            ULID -> {
+                Ulid(verdi.asText()) as T
+            }
+
+            Penger -> {
+                Beløp(verdi.asText().toBigDecimal()) as T
+            }
+
+            BarnDatatype -> {
+                barnMapper(typeNavn, verdi) as T
+            }
+
+            InntektDataType -> {
                 Inntekt(
                     objectMapper.convertValue(verdi, no.nav.dagpenger.inntekt.v1.Inntekt::class.java),
                 ) as T
+            }
 
-            Tekst -> verdi.asText() as T
-            PeriodeDataType -> TODO()
+            Tekst -> {
+                verdi.asText() as T
+            }
+
+            PeriodeDataType -> {
+                TODO()
+            }
         }
 }
