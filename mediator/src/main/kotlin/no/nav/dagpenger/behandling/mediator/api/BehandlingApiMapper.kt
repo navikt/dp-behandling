@@ -14,7 +14,6 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
 import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningsformål
@@ -181,7 +180,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
                 tittel = hjemmel.toString(),
                 url = hjemmel.url,
             ),
-        relevantForResultat = påvirkerResultat(alleOpplysninger.somOpplysninger()),
+        relevantForResultat = produkter.isNotEmpty(),
         type =
             when (type) {
                 RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
