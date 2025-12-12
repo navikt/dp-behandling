@@ -57,6 +57,14 @@ class RettighetsperiodePlugin(
                 require(!periode.fraOgMed.isEqual(LocalDate.MIN)) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
 
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
+            }.also {
+                // Automatisk setter prøvingsdato til første mulige innvilgelse
+                egne.finnAlle(KravPåDagpenger.harLøpendeRett).firstOrNull { it.verdi }?.let {
+                    val gjeldende = opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato)
+                    if (gjeldende.verdi.isEqual(it.gyldighetsperiode.fraOgMed)) return@let
+
+                    opplysninger.leggTil(Faktum(Søknadstidspunkt.prøvingsdato, it.gyldighetsperiode.fraOgMed))
+                }
             }
     }
 }
