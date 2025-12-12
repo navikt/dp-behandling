@@ -18,6 +18,9 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+Behov:
+- Inntekt
+- RegistrertSomArbeidssøker
 Laget avklaring om EØSArbeid
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om InntektNesteKalendermåned

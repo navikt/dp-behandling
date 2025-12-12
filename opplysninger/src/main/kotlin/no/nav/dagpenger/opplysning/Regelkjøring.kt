@@ -110,7 +110,10 @@ class Regelkjøring(
 
         // Fjern opplysninger som ikke brukes for å produsere ønsket resultat
         val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
-        opplysninger.fjernHvis { it.opplysningstype !in brukteOpplysninger }
+        opplysninger.fjernHvis {
+            it.opplysningstype !in brukteOpplysninger &&
+                (it.gyldighetsperiode.fraOgMed.isEqual(prøvingsdato) || it.gyldighetsperiode.fraOgMed.isAfter(prøvingsdato))
+        }
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,

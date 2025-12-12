@@ -30,7 +30,6 @@ import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.BarnetilleggKontroll
 import no.nav.dagpenger.regel.fastsetting.NyttGrunnbeløpForGrunnlag
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUtenforFolketrygdenKontroll
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
 class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
@@ -94,11 +93,8 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         { forDato(prøvingsdato(this)) }
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        if (opplysninger.kunEgne.har(Søknadstidspunkt.prøvingsdato)) {
-            opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
-        } else if (opplysninger.kunEgne.har(hendelseTypeOpplysningstype)) {
-            opplysninger.finnOpplysning(hendelseTypeOpplysningstype).gyldighetsperiode.fraOgMed
-        } else {
-            throw IllegalStateException("Mangler både prøvingsdato og hendelsedato. Må ha en dato å ta utgangspunkt i for behandlingen.")
-        }
+        opplysninger.kunEgne
+            .somListe()
+            .last { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+            .gyldighetsperiode.fraOgMed
 }

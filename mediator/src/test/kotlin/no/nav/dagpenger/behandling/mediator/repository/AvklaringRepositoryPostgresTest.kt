@@ -14,6 +14,7 @@ import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -123,7 +124,7 @@ class AvklaringRepositoryPostgresTest {
                     ),
                 gjeldendeOpplysninger =
                     Opplysninger.med(
-                        Faktum(prøvingsdato, LocalDate.now()),
+                        Faktum(prøvingsdato, LocalDate.now(), Gyldighetsperiode(LocalDate.now())),
                         Faktum(kravTilAlder, false),
                     ),
                 opprettet = LocalDateTime.now(),

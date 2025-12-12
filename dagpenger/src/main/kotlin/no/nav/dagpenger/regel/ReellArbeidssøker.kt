@@ -97,7 +97,7 @@ object ReellArbeidssøker {
             skalVurderes { it.oppfyller(kravTilAlder) && it.erSann(erReellArbeidssøkerVurdert) }
 
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
-            regel(minimumVanligArbeidstid) { somUtgangspunkt(18.75) }
+            regel(minimumVanligArbeidstid) { somUtgangspunkt(18.75, søknadIdOpplysningstype) }
             regel(villigTilMinimumArbeidstid) { størreEnnEllerLik(ønsketArbeidstid, minimumVanligArbeidstid) }
 
             regel(kanJobbeDeltid) { innhentMed(søknadIdOpplysningstype) }
