@@ -63,7 +63,13 @@ class RettighetsperiodePlugin(
                     val gjeldende = opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato)
                     if (gjeldende.verdi.isEqual(it.gyldighetsperiode.fraOgMed)) return@let
 
-                    opplysninger.leggTil(Faktum(Søknadstidspunkt.prøvingsdato, it.gyldighetsperiode.fraOgMed))
+                    opplysninger.leggTil(
+                        Faktum(
+                            Søknadstidspunkt.prøvingsdato,
+                            it.gyldighetsperiode.fraOgMed,
+                            Gyldighetsperiode(it.gyldighetsperiode.fraOgMed),
+                        ),
+                    )
                 }
             }
     }
