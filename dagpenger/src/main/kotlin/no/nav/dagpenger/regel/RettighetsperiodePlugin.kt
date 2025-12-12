@@ -40,7 +40,10 @@ class RettighetsperiodePlugin(
             """.trimMargin()
         }
 
-        opplysninger.fjernHvis { it.er(KravPåDagpenger.harLøpendeRett) && egne.inneholder(it) }
+        // Fjern gamle perioder før vi legger til nye
+        egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
+            opplysninger.fjern(it.id)
+        }
 
         return TidslinjeBygger(utfall)
             .lagPeriode { påDato ->
