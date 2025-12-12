@@ -3,10 +3,13 @@ package no.nav.dagpenger.features
 import io.cucumber.java8.No
 import no.nav.dagpenger.features.utils.somLocalDate
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 
@@ -20,6 +23,9 @@ class ReellArbeidssøkerSteg : No {
             regelkjøring = Regelkjøring(søknadsdato.somLocalDate(), opplysninger, *regelsett.toTypedArray())
             opplysninger.leggTil(Faktum(Søknadstidspunkt.søknadsdato, søknadsdato.somLocalDate()))
             opplysninger.leggTil(Faktum(Søknadstidspunkt.ønsketdato, søknadsdato.somLocalDate()))
+
+            // Vi må ha en søknadId for å kunne utlede minimum arbeidstid
+            opplysninger.leggTil(Faktum(søknadIdOpplysningstype, UUIDv7.ny().toString(), Gyldighetsperiode(søknadsdato.somLocalDate())))
             regelkjøring.evaluer()
         }
         Gitt("ønsker arbeidstid på {float} timer") { timer: Float ->
