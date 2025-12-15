@@ -960,7 +960,9 @@ class Behandling private constructor(
         forretningsprosess.kjørUnderveis(opplysninger)
 
         if (rapport.erFerdig()) {
+            val siste = opplysninger.somListe().last()
             forretningsprosess.kjørFerdig(opplysninger)
+            if (opplysninger.somListe().last().verdi != siste.verdi) return kjørRegler(hendelse)
             avgjørNesteTilstand(hendelse)
         }
     }
