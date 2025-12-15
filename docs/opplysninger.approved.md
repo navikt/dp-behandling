@@ -57,7 +57,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
 #### Avklaringer
-- VirkningstidspunktForLangtFramItid - [Virkningstidspunkt ligger for langt fram i tid](./avklaringer.approved.md#virkningstidspunkt-ligger-for-langt-fram-i-tid)
+- VirkningstidspunktForLangtFramItid - [Prøvingsdato ligger for langt fram i tid](./avklaringer.approved.md#prøvingsdato-ligger-for-langt-fram-i-tid)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
@@ -69,7 +69,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-2. Opphold i Norge
 *Type:* Vilkår
 #### Avklaringer
-- Bostedsland - [Bruker har oppgitt bostedsland som ikke er Norge](./avklaringer.approved.md#bruker-har-oppgitt-bostedsland-som-ikke-er-norge)
+- Bostedsland - [Bostedsland er ikke Norge](./avklaringer.approved.md#bostedsland-er-ikke-norge)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
@@ -95,8 +95,8 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-3. Tap av arbeidsinntekt og arbeidstid
 *Type:* Vilkår
 #### Avklaringer
-- TapAvArbeidsinntektOgArbeidstid - [Velg kun en beregningsregel for tap av arbeidsinntekt og arbeidstid](./avklaringer.approved.md#velg-kun-en-beregningsregel-for-tap-av-arbeidsinntekt-og-arbeidstid)
-- BeregnetArbeidstid - [Sjekk om beregnet arbeidstid er korrekt](./avklaringer.approved.md#sjekk-om-beregnet-arbeidstid-er-korrekt)
+- TapAvArbeidsinntektOgArbeidstid - [Du må velge kun én beregningsregel for tap av arbeidsinntekt og arbeidstid](./avklaringer.approved.md#du-må-velge-kun-én-beregningsregel-for-tap-av-arbeidsinntekt-og-arbeidstid)
+- BeregnetArbeidstid - [Arbeidstid](./avklaringer.approved.md#arbeidstid)
 #### Avhenger på data fra
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
@@ -135,8 +135,8 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-4. Krav til minsteinntekt
 *Type:* Vilkår
 #### Avklaringer
-- SvangerskapsrelaterteSykepenger - [Sjekk om søker har fått sykepenger på grunn av svangerskap som skal med i minsteinntekt](./avklaringer.approved.md#sjekk-om-søker-har-fått-sykepenger-på-grunn-av-svangerskap-som-skal-med-i-minsteinntekt)
-- InntektNesteKalendermåned - [Sjekk om inntekt for neste måned er relevant](./avklaringer.approved.md#sjekk-om-inntekt-for-neste-måned-er-relevant)
+- SvangerskapsrelaterteSykepenger - [Svangerskapsrelaterte sykepenger](./avklaringer.approved.md#svangerskapsrelaterte-sykepenger)
+- InntektNesteKalendermåned - [Inntekt neste måned](./avklaringer.approved.md#inntekt-neste-måned)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 1-2. Frist for levering av opplysninger](#-1-2-frist-for-levering-av-opplysninger)
@@ -160,8 +160,8 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-5. Reelle arbeidssøkere
 *Type:* Vilkår
 #### Avklaringer
-- ReellArbeidssøkerUnntak - [Sjekk om søker oppfyller unntak til å være reell arbeidssøker](./avklaringer.approved.md#sjekk-om-søker-oppfyller-unntak-til-å-være-reell-arbeidssøker)
-- IkkeRegistrertSomArbeidsøker - [Søker er ikke registrert som arbeidssøker](./avklaringer.approved.md#søker-er-ikke-registrert-som-arbeidssøker)
+- ReellArbeidssøkerUnntak - [Unntak til å være reell arbeidssøker](./avklaringer.approved.md#unntak-til-å-være-reell-arbeidssøker)
+- IkkeRegistrertSomArbeidsøker - [Ikke registrert som arbeidssøker](./avklaringer.approved.md#ikke-registrert-som-arbeidssøker)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
@@ -213,7 +213,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-7. Dagpenger til permitterte
 *Type:* Vilkår
 #### Avklaringer
-- HarOppgittPermittering - [Sjekk om bruker skal ha dagpenger som permittert](./avklaringer.approved.md#sjekk-om-bruker-skal-ha-dagpenger-som-permittert)
+- HarOppgittPermittering - [Permittering](./avklaringer.approved.md#permittering)
 #### Avhenger på data fra
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 #### Opplysninger
@@ -233,7 +233,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Vilkår
 #### Avklaringer
-- HarOppgittPermitteringFiskeindustri - [Sjekk om bruker skal ha dagpenger som permittert fra fiskeindustrien](./avklaringer.approved.md#sjekk-om-bruker-skal-ha-dagpenger-som-permittert-fra-fiskeindustrien)
+- HarOppgittPermitteringFiskeindustri - [Permittering fiskeindustri](./avklaringer.approved.md#permittering-fiskeindustri)
 #### Avhenger på data fra
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
@@ -273,7 +273,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-11. Dagpengegrunnlag
 *Type:* Fastsettelse
 #### Avklaringer
-- NyttGrunnbeløpForGrunnlag - [Grunnbeløpet for dagpengegrunnlag kan være utdatert](./avklaringer.approved.md#grunnbeløpet-for-dagpengegrunnlag-kan-være-utdatert)
+- NyttGrunnbeløpForGrunnlag - [Grunnbeløpet for dagpengegrunnlag](./avklaringer.approved.md#grunnbeløpet-for-dagpengegrunnlag)
 #### Avhenger på data fra
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
@@ -315,7 +315,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-12. Dagpengenes størrelse
 *Type:* Fastsettelse
 #### Avklaringer
-- BarnMåGodkjennes - [Sjekk hvilke barn som skal gi barnetillegg](./avklaringer.approved.md#sjekk-hvilke-barn-som-skal-gi-barnetillegg)
+- BarnMåGodkjennes - [Barnetillegg](./avklaringer.approved.md#barnetillegg)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
@@ -373,7 +373,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer
-- Verneplikt - [Sjekk om søker oppfyller vilkåret til dagpenger ved avtjent verneplikt](./avklaringer.approved.md#sjekk-om-søker-oppfyller-vilkåret-til-dagpenger-ved-avtjent-verneplikt)
+- Verneplikt - [Verneplikt](./avklaringer.approved.md#verneplikt)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
@@ -416,7 +416,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-24. Medlem som har fulle ytelser etter folketrygdloven eller avtalefestet pensjon
 *Type:* Vilkår
 #### Avklaringer
-- FulleYtelser - [Sjekk om søker har andre fulle ytelser](./avklaringer.approved.md#sjekk-om-søker-har-andre-fulle-ytelser)
+- FulleYtelser - [Andre fulle ytelser etter folketrygdloven](./avklaringer.approved.md#andre-fulle-ytelser-etter-folketrygdloven)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
@@ -424,7 +424,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-25. Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon
 *Type:* Vilkår
 #### Avklaringer
-- Samordning - [Sjekk om det er andre ytelser fra folketrygden som skal samordnes](./avklaringer.approved.md#sjekk-om-det-er-andre-ytelser-fra-folketrygden-som-skal-samordnes)
+- Samordning - [Samordning](./avklaringer.approved.md#samordning)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-3. Tap av arbeidsinntekt og arbeidstid](#-4-3-tap-av-arbeidsinntekt-og-arbeidstid)
@@ -459,7 +459,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-26. Samordning med ytelser utenfor folketrygden
 *Type:* Fastsettelse
 #### Avklaringer
-- YtelserUtenforFolketrygden - [Sjekk om det er ytelser utenfor folketrygden som skal samordnes](./avklaringer.approved.md#sjekk-om-det-er-ytelser-utenfor-folketrygden-som-skal-samordnes)
+- YtelserUtenforFolketrygden - [Ytelser utenfor folketrygden](./avklaringer.approved.md#ytelser-utenfor-folketrygden)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
