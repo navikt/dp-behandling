@@ -14,7 +14,7 @@ import java.time.LocalDate
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
 ) : ProsessPlugin {
-    override fun regelkjøringFerdig(opplysninger: Opplysninger) {
+    override fun etterRegelkjøring(opplysninger: Opplysninger) {
         val egne = opplysninger.kunEgne
 
         // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk
@@ -57,22 +57,10 @@ class RettighetsperiodePlugin(
                 require(!periode.fraOgMed.isEqual(LocalDate.MIN)) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
 
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
-            }.also {
-                // Automatisk setter prøvingsdato til første mulige innvilgelse
-                egne.finnAlle(KravPåDagpenger.harLøpendeRett).firstOrNull { it.verdi }?.let {
-                    val gjeldende = opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato)
-                    if (gjeldende.verdi.isEqual(it.gyldighetsperiode.fraOgMed)) return@let
-
-                    opplysninger.leggTil(
-                        Faktum(
-                            Søknadstidspunkt.prøvingsdato,
-                            it.gyldighetsperiode.fraOgMed,
-                            Gyldighetsperiode(it.gyldighetsperiode.fraOgMed),
-                        ),
-                    )
-                }
             }
     }
-}
 
-private val logger = KotlinLogging.logger {}
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+}

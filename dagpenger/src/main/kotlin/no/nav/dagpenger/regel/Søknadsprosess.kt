@@ -35,6 +35,7 @@ import java.time.LocalDate
 class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     init {
         registrer(RettighetsperiodePlugin(regelverk))
+        registrer(PrøvingsdatoPlugin())
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =

@@ -37,7 +37,7 @@ class RettighetsperiodePluginTest {
             }
 
         // Lag perioder av løpende rett
-        plugin.regelkjøringFerdig(opplysninger)
+        plugin.etterRegelkjøring(opplysninger)
 
         val perioder = opplysninger.finnAlle(harLøpendeRett)
 
@@ -57,7 +57,7 @@ class RettighetsperiodePluginTest {
             }
 
         // Lag perioder av løpende rett
-        plugin.regelkjøringFerdig(opplysninger)
+        plugin.etterRegelkjøring(opplysninger)
 
         val perioder = opplysninger.finnAlle(harLøpendeRett)
 
@@ -81,7 +81,7 @@ class RettighetsperiodePluginTest {
             }
 
         // Lag perioder av løpende rett
-        plugin.regelkjøringFerdig(opplysninger)
+        plugin.etterRegelkjøring(opplysninger)
 
         val perioder = opplysninger.finnAlle(harLøpendeRett)
 
