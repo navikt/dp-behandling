@@ -14,7 +14,7 @@ import java.time.LocalDate
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
 ) : ProsessPlugin {
-    override fun underveis(opplysninger: Opplysninger) {
+    override fun ferdig(opplysninger: Opplysninger) {
         val egne = opplysninger.kunEgne
 
         // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk
@@ -42,9 +42,10 @@ class RettighetsperiodePlugin(
 
         // Fjern gamle perioder før vi legger til nye
         egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
-            opplysninger.fjern(it.id)
+            // opplysninger.fjern(it.id)
         }
 
+        val eksisterende = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
         return TidslinjeBygger(utfall)
             .lagPeriode { påDato ->
                 val harVurdertAlle = påDato.map { it.opplysningstype }.containsAll(vilkår)
@@ -55,6 +56,8 @@ class RettighetsperiodePlugin(
             }.forEach { periode ->
                 val gyldighetsperiode = Gyldighetsperiode(periode.fraOgMed, periode.tilOgMed)
                 require(!periode.fraOgMed.isEqual(LocalDate.MIN)) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
+
+                if (eksisterende.any { it.gyldighetsperiode == gyldighetsperiode }) return@forEach
 
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
             }
