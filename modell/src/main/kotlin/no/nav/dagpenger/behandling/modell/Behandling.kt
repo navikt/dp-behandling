@@ -973,7 +973,10 @@ class Behandling private constructor(
             }
 
             val antallOpplysningerEtter = opplysninger.antallEgne()
-            harPluginEndringer = antallOpplysningerEtter > antallOpplysningerFør && rapport.erFerdig()
+            harPluginEndringer =
+                antallOpplysningerEtter > antallOpplysningerFør &&
+                rapport.erFerdig() &&
+                rapport.informasjonsbehov.isNotEmpty()
 
             if (harPluginEndringer) {
                 iterasjon++
