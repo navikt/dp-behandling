@@ -976,7 +976,7 @@ class Behandling private constructor(
             harPluginEndringer =
                 antallOpplysningerEtter > antallOpplysningerFør &&
                 rapport.erFerdig() &&
-                rapport.informasjonsbehov.isNotEmpty()
+                rapport.informasjonsbehov.isEmpty()
 
             if (harPluginEndringer) {
                 iterasjon++
