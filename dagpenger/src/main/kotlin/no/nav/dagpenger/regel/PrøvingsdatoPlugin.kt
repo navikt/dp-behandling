@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 
 class PrøvingsdatoPlugin : ProsessPlugin {
-    override fun ferdig(opplysninger: Opplysninger) {
+    override fun underveis(opplysninger: Opplysninger) {
         val egne = opplysninger.kunEgne
 
         // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk

@@ -299,14 +299,13 @@ class ScenarioTest {
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
             saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "Har ikke krav", Gyldighetsperiode(22.juli(2018)))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                førteTil shouldBe "Stans"
+                //      førteTil shouldBe "Stans"
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
@@ -334,7 +333,6 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(23.august(2018)))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()

@@ -14,8 +14,10 @@ import java.time.LocalDate
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
 ) : ProsessPlugin {
-    override fun ferdig(opplysninger: Opplysninger) {
-        val egne = opplysninger.kunEgne
+    override fun prioritet(): Int = 1
+
+    override fun underveis(opplysninger: Opplysninger) {
+        val egne = opplysninger
 
         // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk
         val harPerioder = egne.har(KravPåDagpenger.harLøpendeRett)
@@ -38,11 +40,6 @@ class RettighetsperiodePlugin(
                 |vilkår(${vilkår.size}): $vilkår 
                 |utfall(${utfall.size}): $utfall
             """.trimMargin()
-        }
-
-        // Fjern gamle perioder før vi legger til nye
-        egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
-            opplysninger.fjern(it.id)
         }
 
         val eksisterende = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)

@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.modell
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.avklaring.Avklaring
@@ -36,6 +37,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.regel.Regel
@@ -107,6 +109,8 @@ class Behandling private constructor(
     fun kreverTotrinnskontroll() = forretningsprosess.kreverTotrinnskontroll(opplysninger)
 
     companion object {
+        private val logger = KotlinLogging.logger {}
+
         fun rehydrer(
             behandlingId: UUID,
             behandler: StartHendelse,
@@ -949,18 +953,45 @@ class Behandling private constructor(
 
     // Kjører alle regler, logger hvilke regler som er kjørt , sender ut behov, og avgjør neste tilstand
     private fun kjørRegler(hendelse: PersonHendelse) {
-        val rapport = regelkjøring.evaluer()
+        var rapport: Regelkjøringsrapport
+        var harPluginEndringer: Boolean
+        var iterasjon = 0
+        val maksIterasjoner = 10
 
-        rapport.kjørteRegler.forEach { regel: Regel<*> ->
-            hendelse.info(regel.toString())
-        }
+        do {
+            val antallOpplysningerFør = opplysninger.antallEgne()
+            rapport = regelkjøring.evaluer()
+
+            rapport.kjørteRegler.forEach { regel: Regel<*> ->
+                hendelse.info(regel.toString())
+            }
+
+            forretningsprosess.kjørUnderveis(opplysninger)
+
+            if (rapport.erFerdig()) {
+                forretningsprosess.kjørFerdig(opplysninger)
+            }
+
+            val antallOpplysningerEtter = opplysninger.antallEgne()
+            harPluginEndringer = antallOpplysningerEtter > antallOpplysningerFør && rapport.erFerdig()
+
+            if (harPluginEndringer) {
+                iterasjon++
+                logger.info {
+                    "Plugins la til ${antallOpplysningerEtter - antallOpplysningerFør} nye opplysninger, " +
+                        "kjører regelkjøring på nytt (iterasjon $iterasjon)"
+                }
+
+                require(iterasjon < maksIterasjoner) {
+                    "Regelkjøring har kjørt $maksIterasjoner ganger uten å bli ferdig. " +
+                        "Dette tyder på en evig loop i plugin-systemet."
+                }
+            }
+        } while (harPluginEndringer)
 
         hendelse.lagBehov(rapport.informasjonsbehov)
 
-        forretningsprosess.kjørUnderveis(opplysninger)
-
         if (rapport.erFerdig()) {
-            forretningsprosess.kjørFerdig(opplysninger)
             avgjørNesteTilstand(hendelse)
         }
     }

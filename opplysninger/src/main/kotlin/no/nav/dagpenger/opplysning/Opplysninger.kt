@@ -27,6 +27,8 @@ class Opplysninger private constructor(
 
     override val kunEgne get() = Opplysninger(id = id, opplysninger = egne)
 
+    fun antallEgne() = egne.size
+
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 

@@ -27,7 +27,7 @@ abstract class Forretningsprosess(
 
     fun kjørStart(opplysninger: Opplysninger) = plugins.forEach { it.start(opplysninger) }
 
-    fun kjørUnderveis(opplysninger: Opplysninger) = plugins.forEach { it.underveis(opplysninger) }
+    fun kjørUnderveis(opplysninger: Opplysninger) = plugins.sortedBy { it.prioritet() }.forEach { it.underveis(opplysninger) }
 
     fun kjørFerdig(opplysninger: Opplysninger) = plugins.forEach { it.ferdig(opplysninger) }
 
@@ -42,6 +42,8 @@ abstract class Forretningsprosess(
 }
 
 interface ProsessPlugin {
+    fun prioritet(): Int = 100
+
     fun start(opplysninger: Opplysninger) {}
 
     fun underveis(opplysninger: Opplysninger) {}
