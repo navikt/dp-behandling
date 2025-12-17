@@ -1,5 +1,5 @@
 ALTER TABLE meldekort
-    ADD COLUMN kan_sendes_fra DATE;
+    ADD COLUMN kan_sendes_fra DATE null;
 
 update meldekort m
 set kan_sendes_fra = to_date(md.kan_sendes_fra, 'YYYY-MM-DD')
@@ -11,6 +11,3 @@ from (
      ) md
 where md.ident = m.ident
   and md.id = m.meldekort_id;
-
-ALTER TABLE meldekort
-    ALTER COLUMN kan_sendes_fra SET NOT NULL;
