@@ -16,6 +16,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortAktivitet
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortKilde
+import no.nav.dagpenger.dato.finnFørsteArbeidsdag
 import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -42,7 +43,9 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         }
     }
 
-    override fun hentMeldekortkø(grensedato: LocalDate): Meldekortkø {
+    override fun hentMeldekortkø(kjøringsdato: LocalDate): Meldekortkø {
+        val førsteVirkedag = finnFørsteArbeidsdag(kjøringsdato)
+
         val meldekort =
             sessionOf(dataSource).use { session ->
                 session.run(
@@ -52,13 +55,21 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         SELECT DISTINCT ON (ident) *
                         FROM meldekort
                         WHERE behandling_ferdig IS NULL
-                        AND korrigert_av_meldekort_id IS NULL
-                        AND satt_på_vent IS NULL
-                        AND tom < :grensedato
+                          AND korrigert_av_meldekort_id IS NULL
+                          AND satt_på_vent IS NULL
+                          AND CASE
+                                  -- Meldekortet er innsendt etter tilOgMed (altså forsinket) - da skal det behandles umiddelbart
+                                  WHEN meldedato > tom THEN TRUE 
+                                  -- Meldekortet er innsendt i meldeperioden, men kan ikke behandles før første virkedag er lik eller etter kjøringsdato
+                                  ELSE meldedato <= :forsteVirkedag AND :forsteVirkedag <= :kjoringsdato 
+                            END IS TRUE
                         ORDER BY ident, fom, løpenummer DESC
                         LIMIT 1000
                         """.trimIndent(),
-                        mapOf("grensedato" to grensedato),
+                        mapOf(
+                            "forsteVirkedag" to førsteVirkedag,
+                            "kjoringsdato" to kjøringsdato,
+                        ),
                     ).map { row ->
                         Meldekortstatus(
                             row.meldekort(session),

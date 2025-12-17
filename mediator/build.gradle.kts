@@ -12,6 +12,7 @@ dependencies {
     implementation(project(path = ":opplysninger"))
     implementation(project(path = ":avklaring"))
     implementation(project(path = ":uuid-v7"))
+    implementation(project(path = ":dato"))
 
     implementation(libs.bundles.jackson)
 

@@ -233,8 +233,15 @@ class MeldekortRepositoryPostgresTest {
             val person1 = repo.generatorFor("111111111", 1.januar(2018), meldingGenerator)
             person1.lagMeldekort(5)
 
+            repo.hentMeldekortkø(11.januar(2018)).behandlingsklare shouldHaveSize 0
+            repo.hentMeldekortkø(12.januar(2018)).behandlingsklare shouldHaveSize 0
+            repo.hentMeldekortkø(13.januar(2018)).behandlingsklare shouldHaveSize 0
             repo.hentMeldekortkø(14.januar(2018)).behandlingsklare shouldHaveSize 0
             repo.hentMeldekortkø(15.januar(2018)).behandlingsklare shouldHaveSize 1
+            with(repo.hentMeldekortkø(15.januar(2018)).behandlingsklare.first()) {
+                meldekort.fom shouldBe 1.januar(2018)
+                meldekort.tom shouldBe 14.januar(2018)
+            }
         }
     }
 

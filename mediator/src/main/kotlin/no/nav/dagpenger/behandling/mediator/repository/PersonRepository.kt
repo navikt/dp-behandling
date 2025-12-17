@@ -125,7 +125,7 @@ interface PersonRepository : BehandlingRepository {
 interface MeldekortRepository {
     fun lagre(meldekort: Meldekort)
 
-    fun hentMeldekortkø(grensedato: LocalDate = LocalDate.now()): Meldekortkø
+    fun hentMeldekortkø(kjøringsdato: LocalDate = LocalDate.now()): Meldekortkø
 
     fun hent(meldekortId: UUID): Meldekort?
 

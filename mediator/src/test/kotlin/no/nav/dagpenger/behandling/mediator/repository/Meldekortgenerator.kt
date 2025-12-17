@@ -77,7 +77,7 @@ class Meldekortgenerator private constructor(
                 dager = listOf(),
                 innsendtTidspunkt = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
                 korrigeringAv = null,
-                meldedato = LocalDate.now(),
+                meldedato = periode.endInclusive.minusDays(1),
                 kanSendesFra = periode.endInclusive.minusDays(1),
             ).also {
                 this.innsendteMeldekort.add(it)
