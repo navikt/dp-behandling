@@ -84,6 +84,7 @@ import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
 import java.time.LocalDateTime
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
@@ -277,6 +278,7 @@ internal val redigerbareOpplysninger =
                             // 4-12 Redigering av barne opplysninger
                             barn,
                             arbeidstidsreduksjonIkkeBruktTidligere,
+                            barnetilleggetsStørrelse,
                         ),
                     )
 
