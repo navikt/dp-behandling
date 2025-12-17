@@ -30,6 +30,7 @@ data class Meldekort(
     val innsendtTidspunkt: LocalDateTime,
     val korrigeringAv: MeldekortId?,
     val meldedato: LocalDate,
+    val kanSendesFra: LocalDate,
 ) : Comparable<Meldekort> {
     fun periode() = Periode(fom, tom)
 

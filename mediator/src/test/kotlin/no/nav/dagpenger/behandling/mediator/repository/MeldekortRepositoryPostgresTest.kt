@@ -71,6 +71,7 @@ class MeldekortRepositoryPostgresTest {
                     innsendtTidspunkt = LocalDateTime.now(),
                     korrigeringAv = null,
                     meldedato = LocalDate.now(),
+                    kanSendesFra = start.plusDays(13),
                 )
             val meldekortInnsendtHendelse =
                 MeldekortInnsendtHendelse(

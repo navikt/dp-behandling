@@ -181,6 +181,7 @@ private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysnin
             innsendtTidspunkt = LocalDateTime.now(),
             korrigeringAv = null,
             meldedato = LocalDate.now(),
+            kanSendesFra = meldekortTom.minusDays(1),
         )
 
     val meldkortOpplysning = meldekort.tilOpplysninger(Systemkilde(UUIDv7.ny(), LocalDate.now().atStartOfDay()))

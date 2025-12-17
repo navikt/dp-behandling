@@ -38,7 +38,7 @@ internal class MeldekortInnsendtMottak(
                 validate { it.requireKey("ident") }
                 validate { it.requireKey("id") }
                 validate { it.requireKey("periode", "kilde", "dager", "innsendtTidspunkt") }
-                validate { it.interestedIn("originalMeldekortId", "meldedato") }
+                validate { it.interestedIn("originalMeldekortId", "meldedato", "kanSendesFra") }
             }.register(this)
     }
 
@@ -123,9 +123,13 @@ internal class MeldekortInnsendtMessage(
                                             type =
                                                 when (it["type"].asText()) {
                                                     "Arbeid" -> AktivitetType.Arbeid
+
                                                     "Syk" -> AktivitetType.Syk
+
                                                     "Utdanning" -> AktivitetType.Utdanning
+
                                                     "Fravaer" -> AktivitetType.Fravær
+
                                                     else -> throw IllegalArgumentException(
                                                         "Ukjent aktivitetstype '${it["type"].asText()}'",
                                                     )
@@ -147,6 +151,7 @@ internal class MeldekortInnsendtMessage(
                             ?.asText()
                             ?.let { MeldekortId(it) },
                     meldedato = packet["meldedato"].asOptionalLocalDate() ?: innsendtTidspunkt.toLocalDate(),
+                    kanSendesFra = packet["kanSendesFra"].asOptionalLocalDate() ?: packet["periode"]["tilOgMed"].asLocalDate().minusDays(1),
                 ),
         )
 

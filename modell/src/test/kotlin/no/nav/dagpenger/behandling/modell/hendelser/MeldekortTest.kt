@@ -23,6 +23,7 @@ class MeldekortTest {
                 innsendtTidspunkt = LocalDateTime.now(),
                 korrigeringAv = null,
                 meldedato = LocalDate.now(),
+                kanSendesFra = 13.januar(2025),
             )
         val meldekort2 =
             Meldekort(
@@ -37,6 +38,7 @@ class MeldekortTest {
                 innsendtTidspunkt = LocalDateTime.now(),
                 korrigeringAv = null,
                 meldedato = LocalDate.now(),
+                kanSendesFra = 29.januar(2025),
             )
 
         val liste = listOf(meldekort2, meldekort1)

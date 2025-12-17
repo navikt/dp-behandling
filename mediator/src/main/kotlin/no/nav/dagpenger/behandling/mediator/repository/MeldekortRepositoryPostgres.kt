@@ -198,6 +198,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             innsendtTidspunkt = localDateTime("innsendt_tidspunkt"),
             korrigeringAv = stringOrNull("korrigert_meldekort_id")?.let { MeldekortId(it) },
             meldedato = localDate("meldedato"),
+            kanSendesFra = localDate("kan_sendes_fra"),
         )
 
     private fun TransactionalSession.markerSomKorrigert(
@@ -223,8 +224,8 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             queryOf(
                 //language=PostgreSQL
                 """
-                INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, meldedato)
-                VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle, :meldedato)
+                INSERT INTO meldekort (id, ident, meldekort_id, meldingsreferanse_id, korrigert_meldekort_id, innsendt_tidspunkt, fom, tom, kilde_ident, kilde_rolle, meldedato, kan_sendes_fra)
+                VALUES (:id, :ident, :meldekortId, :meldingReferanseId, :korrigertMeldekortId,  :innsendtTidspunkt, :fom, :tom, :kildeIdent, :kildeRolle, :meldedato, :kanSendesFra)
                 ON CONFLICT (meldekort_id) DO NOTHING
                 """.trimIndent(),
                 mapOf(
@@ -239,6 +240,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     "kildeRolle" to meldekort.kilde.rolle,
                     "innsendtTidspunkt" to meldekort.innsendtTidspunkt,
                     "meldedato" to meldekort.meldedato,
+                    "kanSendesFra" to meldekort.kanSendesFra,
                 ),
             ).asUpdate,
         )

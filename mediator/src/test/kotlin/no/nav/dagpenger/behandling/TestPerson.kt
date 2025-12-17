@@ -241,6 +241,7 @@ class TestPerson(
                 innsendtTidspunkt = innsendtTidspunkt,
                 korrigeringAv = korrigeringAv?.let { MeldekortId(it.toString()) },
                 meldedato = innsendtTidspunkt.toLocalDate(),
+                kanSendesFra = innsendtTidspunkt.toLocalDate().plusDays(12),
             )
         sessionOf(dataSource).use { session ->
             session.run(

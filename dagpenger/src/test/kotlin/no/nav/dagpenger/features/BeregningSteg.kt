@@ -178,31 +178,37 @@ class BeregningSteg : No {
                         muligeAktiviteter
                             .mapNotNull { aktivitet ->
                                 when (aktivitet) {
-                                    "Arbeidstimer" ->
+                                    "Arbeidstimer" -> {
                                         MeldekortAktivitet(
                                             type = Arbeid,
                                             timer = timer.toDuration(DurationUnit.HOURS),
                                         )
+                                    }
 
-                                    "Fravær" ->
+                                    "Fravær" -> {
                                         MeldekortAktivitet(
                                             type = Fravær,
                                             timer = null,
                                         )
+                                    }
 
-                                    "Sykdom" ->
+                                    "Sykdom" -> {
                                         MeldekortAktivitet(
                                             type = Syk,
                                             timer = null,
                                         )
+                                    }
 
-                                    "Utdanning" ->
+                                    "Utdanning" -> {
                                         MeldekortAktivitet(
                                             type = Utdanning,
                                             timer = timer.toDuration(DurationUnit.HOURS),
                                         )
+                                    }
 
-                                    else -> null
+                                    else -> {
+                                        null
+                                    }
                                 }
                             }
                     Dag(
@@ -226,6 +232,7 @@ class BeregningSteg : No {
                 innsendtTidspunkt = innsendtTidspunkt,
                 korrigeringAv = null,
                 meldedato = innsendtTidspunkt.toLocalDate(),
+                kanSendesFra = fraOgMed.plusDays(13),
             )
         return meldekort.tilOpplysninger(Systemkilde(meldekort.meldingsreferanseId, innsendtTidspunkt))
     }
