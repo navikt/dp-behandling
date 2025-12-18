@@ -9,7 +9,7 @@ spec:
   image: "{{ image }}"
   port: 8080
   strategy:
-    type: RollingUpdate # Bruk kun Recreate når vi deployer store/ukompatible migreringer
+    type: Recreate # Bruk kun Recreate når vi deployer store/ukompatible migreringer
     rollingUpdate:
       maxSurge: 100%
       maxUnavailable: 99%
@@ -32,8 +32,8 @@ spec:
     # path: /metrics
     path: /internal/prometrics
   replicas:
-    min: 2
-    max: 2
+    min: 1
+    max: 1
   resources:
     limits:
       memory: 640Mi
