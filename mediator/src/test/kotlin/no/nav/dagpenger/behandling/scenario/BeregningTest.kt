@@ -95,13 +95,6 @@ class BeregningTest {
             // Systemet kjører beregningsbatchen
             meldekortBatch()
 
-            saksbehandler.endreOpplysning(
-                Beregning.gjenståendeEgenandel,
-                Beløp(2000.0),
-                "",
-                Gyldighetsperiode(18.juni(2018), 1.juli(2018)),
-            )
-
             behandlingsresultatForslag {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
 

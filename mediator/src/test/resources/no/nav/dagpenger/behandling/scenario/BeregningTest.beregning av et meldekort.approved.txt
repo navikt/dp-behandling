@@ -53,5 +53,3 @@ Laget avklaring om MeldekortBehandling
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
