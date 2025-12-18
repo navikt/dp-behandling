@@ -1,13 +1,17 @@
 ALTER TABLE meldekort
-    ADD COLUMN kan_sendes_fra DATE null;
+    ADD COLUMN kan_sendes_fra DATE NULL;
 
-update meldekort m
-set kan_sendes_fra = to_date(md.kan_sendes_fra, 'YYYY-MM-DD')
-from (
-         select distinct on (ident, data ->> 'id') ident, data ->> 'id' as id, data ->> 'kanSendesFra' as kan_sendes_fra
-         from melding
-         where melding_type = 'MELDEKORT_INNSENDT'
-         order by ident, data ->> 'id', lest_dato desc
-     ) md
-where md.ident = m.ident
-  and md.id = m.meldekort_id;
+UPDATE meldekort m
+SET kan_sendes_fra = date_subtract(m.tom, '1 days');
+
+UPDATE meldekort m
+SET kan_sendes_fra = TO_DATE(md.kan_sendes_fra, 'YYYY-MM-DD')
+FROM (SELECT DISTINCT ON (ident, data ->> 'id') ident, data ->> 'id' AS id, data ->> 'kanSendesFra' AS kan_sendes_fra
+      FROM melding
+      WHERE melding_type = 'MELDEKORT_INNSENDT'
+      ORDER BY ident, data ->> 'id', lest_dato DESC) md
+WHERE md.ident = m.ident
+  AND md.id = m.meldekort_id;
+
+ALTER TABLE meldekort
+    ALTER COLUMN kan_sendes_fra SET NOT NULL;
