@@ -60,8 +60,8 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                           AND CASE
                                   -- Meldekortet er innsendt etter tilOgMed (altså forsinket) - da skal det behandles umiddelbart
                                   WHEN meldedato > tom THEN TRUE 
-                                  -- Meldekortet er innsendt i meldeperioden, men kan ikke behandles før første virkedag er lik eller etter kjøringsdato
-                                  ELSE meldedato <= :forsteVirkedag AND :forsteVirkedag <= :kjoringsdato 
+                                  -- Første virkedag etter innsending har inntruffet (eller er i dag)
+                                  ELSE meldedato <= :kjoringsdato AND :forsteVirkedag <= :kjoringsdato 
                             END IS TRUE
                         ORDER BY ident, fom, løpenummer DESC
                         LIMIT 1000
