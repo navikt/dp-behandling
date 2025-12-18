@@ -103,7 +103,7 @@ class BeregningTest {
             )
 
             behandlingsresultatForslag {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 6813
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
                     forAll { it.status shouldBe Opplysningsperiode.Periodestatus.Ny }
@@ -527,7 +527,9 @@ class BeregningTest {
             // Verifiser gammel sats
             behandlingsresultatForslag {
                 val satsPerDag = utbetalinger.map { it["sats"].asInt() }
+                val utbetalingPerDag = utbetalinger.map { it["utbetaling"].asInt() }
                 satsPerDag.shouldContainExactly(762, 762, 762, 762, 762, 762, 762, 762, 762, 762, 762)
+                utbetalingPerDag.shouldContainExactly(435, 435, 0, 0, 435, 435, 435, 435, 438, 0, 0)
             }
 
             // Endre barnetillegg midt i meldekortbehandlingen
@@ -541,7 +543,9 @@ class BeregningTest {
             // Verifiser at vi får ny og høyere sats fra og med 25. juni
             behandlingsresultatForslag {
                 val satsPerDag = utbetalinger.map { it["sats"].asInt() }
+                val utbetalingPerDag = utbetalinger.map { it["utbetaling"].asInt() }
                 satsPerDag.shouldContainExactly(762, 762, 762, 762, 1074, 1074, 1074, 1074, 1074, 1074, 1074)
+                utbetalingPerDag.shouldContainExactly(509, 510, 0, 0, 717, 717, 717, 717, 721, 0, 0)
             }
         }
     }

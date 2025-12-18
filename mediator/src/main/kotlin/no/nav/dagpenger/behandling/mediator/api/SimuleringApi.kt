@@ -53,8 +53,8 @@ internal fun Application.simuleringApi() {
                 val opplysninger = simuleringsdata(beregningRequestDTO)
                 try {
                     val meldekortprosess = Meldekortprosess()
-                    meldekortprosess.start(opplysninger)
-                    meldekortprosess.ferdig(opplysninger)
+                    meldekortprosess.underOpprettelse(opplysninger)
+                    meldekortprosess.regelkjøringFerdig(opplysninger)
                     val forbruktEgenandel =
                         opplysninger
                             .finnAlle(forbruktEgenandel)

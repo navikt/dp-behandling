@@ -8,7 +8,6 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
-import no.nav.dagpenger.regel.beregning.Beregning.forbruktEgenandel
 import no.nav.dagpenger.regel.beregning.Beregning.meldtITide
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
@@ -50,16 +49,13 @@ class BeregningsperiodeFabrikk(
     }
 
     private fun hentGjenståendeEgenandel(førsteDag: LocalDate): Beløp {
-        val harGjenstående = opplysninger.har(Beregning.gjenståendeEgenandel)
-        if (harGjenstående) {
-            return opplysninger.finnOpplysning(Beregning.gjenståendeEgenandel).verdi
-        }
-
-        // Fall tilbake på å regne ut gjenstående egenandel
         val innvilgetEgenandel = opplysninger.finnOpplysning(Egenandel.egenandel).verdi
-        val forbruktEgenandel = opplysninger.finnAlle(forbruktEgenandel)
-        val totalForbruktEgenandel = forbruktEgenandel.map { it.verdi }.fold(Beløp(0)) { acc, beløp -> acc + beløp }
-        return innvilgetEgenandel - totalForbruktEgenandel
+
+        // Finn siste registrerte gjenstående egenandel før denne meldeperioden, ellers bruk innvilget egenandel
+        return opplysninger
+            .finnAlle(Beregning.gjenståendeEgenandel)
+            .lastOrNull { it.gyldighetsperiode.tilOgMed.isBefore(førsteDag) }
+            ?.verdi ?: innvilgetEgenandel
     }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
@@ -81,12 +77,16 @@ class BeregningsperiodeFabrikk(
             .map { dato ->
                 val gjeldendeOpplysninger = opplysninger.forDato(dato)
                 when (dato.dagstype) {
-                    Hverdag -> opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
-                    Helg ->
+                    Hverdag -> {
+                        opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
+                    }
+
+                    Helg -> {
                         Helgedag(
                             dato = dato,
                             timerArbeidet = Timer(gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi),
                         )
+                    }
                 }
             }.toSortedSet()
 
@@ -98,10 +98,7 @@ class BeregningsperiodeFabrikk(
         return if (erArbeidsdag) {
             Arbeidsdag(
                 dato = dato,
-                sats =
-                    opplysninger
-                        .finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
-                        .verdi,
+                sats = opplysninger.finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg).verdi,
                 fva = Timer(opplysninger.finnOpplysning(Vanligarbeidstid.fastsattVanligArbeidstid).verdi / 5),
                 timerArbeidet = Timer(opplysninger.finnOpplysning(Beregning.arbeidstimer).verdi),
                 terskel = opplysninger.finnOpplysning(TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon).verdi,

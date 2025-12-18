@@ -54,7 +54,7 @@ class Meldekortprosess :
             it.ønsketInformasjon
         }
 
-    override fun start(opplysninger: Opplysninger) {
+    override fun regelkjøringFerdig(opplysninger: Opplysninger) {
         val meldeperiode = meldeperiode(opplysninger)
         val resultat =
             BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
@@ -90,7 +90,7 @@ class Meldekortprosess :
 }
 
 class Kvotetelling : ProsessPlugin {
-    override fun ferdig(opplysninger: Opplysninger) {
+    override fun regelkjøringFerdig(opplysninger: Opplysninger) {
         val innvilgetStønadsdager = opplysninger.finnOpplysning(antallStønadsdager).verdi
 
         val dager = opplysninger.kunEgne.finnAlle(forbruk)

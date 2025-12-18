@@ -427,7 +427,7 @@ class Behandling private constructor(
             hendelse.info("Mottatt ${hendelse.type} og startet behandling")
             behandling.emitOpprettet()
 
-            behandling.forretningsprosess.kjørStart(behandling.opplysninger)
+            behandling.forretningsprosess.kjørUnderOpprettelse(behandling.opplysninger)
 
             behandling.tilstand(UnderBehandling(), hendelse)
         }
@@ -615,9 +615,6 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             hendelse.info("Endret tilstand til redigert")
-
-            // TODO: Denne må vi tenke litt på plassering og rekkefølge
-            behandling.forretningsprosess.kjørStart(behandling.opplysninger)
 
             // Kjør regelkjøring for alle opplysninger
             behandling.kjørRegler(hendelse)
@@ -957,10 +954,10 @@ class Behandling private constructor(
 
         hendelse.lagBehov(rapport.informasjonsbehov)
 
-        forretningsprosess.kjørUnderveis(opplysninger)
+        forretningsprosess.kjørEtterRegelkjøring(opplysninger)
 
         if (rapport.erFerdig()) {
-            forretningsprosess.kjørFerdig(opplysninger)
+            forretningsprosess.kjørRegelkjøringFerdig(opplysninger)
             avgjørNesteTilstand(hendelse)
         }
     }

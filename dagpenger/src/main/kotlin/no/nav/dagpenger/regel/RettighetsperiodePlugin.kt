@@ -14,7 +14,7 @@ import java.time.LocalDate
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
 ) : ProsessPlugin {
-    override fun ferdig(opplysninger: Opplysninger) {
+    override fun regelkjøringFerdig(opplysninger: Opplysninger) {
         val egne = opplysninger.kunEgne
 
         // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk
