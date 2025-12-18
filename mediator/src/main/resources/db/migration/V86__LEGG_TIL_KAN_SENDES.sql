@@ -1,5 +1,5 @@
 ALTER TABLE meldekort
-    ADD COLUMN kan_sendes_fra DATE NULL;
+    ADD COLUMN IF NOT EXISTS kan_sendes_fra DATE NULL;
 
 UPDATE meldekort m
 SET kan_sendes_fra = date_subtract(m.tom, '1 days');
