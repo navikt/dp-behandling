@@ -32,6 +32,9 @@ internal class Mennesket(
     private lateinit var søknadsdato: LocalDate
     private lateinit var ønskerFraDato: LocalDate
     private lateinit var meldesyklus: Meldesyklus
+    lateinit var arbeidssøkerregistreringsdato: LocalDate
+
+    val sisteSøknadId get() = søknader.lastOrNull()
 
     fun søkDagpenger(
         dato: LocalDate = LocalDate.now(),
@@ -40,6 +43,7 @@ internal class Mennesket(
         this.søknadsdato = dato
         this.ønskerFraDato = ønskerFraDato
         this.meldesyklus = Meldesyklus(søknadsdato)
+        arbeidssøkerregistreringsdato = dato
 
         rapid.sendTestMessage(
             Meldingskatalog.søknadInnsendt(
@@ -162,11 +166,15 @@ internal class Mennesket(
                 Behov.VilligTilÅBytteYrke to true,
                 // Arbeidssøkerregistrering
                 Behov.RegistrertSomArbeidssøker to
-                    mapOf(
-                        "verdi" to true,
-                        // "gyldigFraOgMed" to arbeidssøkerregistreringsdato,
-                        // "gyldigTilOgMed" to arbeidssøkerregistreringsdato,
-                    ),
+                    listOfNotNull(
+                        "verdi" to arbeidssøkerregistreringsdato.isEqual(søknadsdato),
+                        "gyldigFraOgMed" to arbeidssøkerregistreringsdato,
+                        if (!arbeidssøkerregistreringsdato.isEqual(søknadsdato)) {
+                            "gyldigTilOgMed" to arbeidssøkerregistreringsdato
+                        } else {
+                            null
+                        },
+                    ).toMap(),
                 // Rettighetsype
                 Behov.Ordinær to scenario.ordinær,
                 Behov.Permittert to scenario.permittering,
