@@ -29,8 +29,7 @@ spec:
     periodSeconds: 10
   prometheus:
     enabled: true
-    # path: /metrics
-    path: /internal/prometrics
+    path: /metrics
   replicas:
     min: 2
     max: 2

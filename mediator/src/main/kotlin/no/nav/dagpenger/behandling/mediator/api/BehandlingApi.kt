@@ -106,17 +106,6 @@ internal fun Application.behandlingApi(
     routing {
         swaggerUI(path = "openapi", swaggerFile = "behandling-api.yaml")
 
-        get("/internal/prometrics") {
-            if (meterRegistry == null) call.respond("")
-
-            call.request.acceptItems().firstOrNull()?.let {
-                val contentType = ContentType.parse(it.value)
-                val metrics = meterRegistry!!.scrape(it.value)
-
-                call.respondText(metrics, contentType)
-            } ?: call.respond(HttpStatusCode.NotAcceptable, "Supported types: application/openmetrics-text and text/plain")
-        }
-
         get("/") { call.respond(HttpStatusCode.OK) }
         get("/features") {
             call.respond(
