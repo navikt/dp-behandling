@@ -177,6 +177,10 @@ class Opplysninger private constructor(
         }
     }
 
+    fun inneholder(opplysning: Opplysning<*>): Boolean = alleOpplysninger.contains(opplysning)
+
+    fun erArvet(opplysning: Opplysning<*>): Boolean = basertPåOpplysninger.contains(opplysning)
+
     companion object {
         private val logger = KotlinLogging.logger {}
 

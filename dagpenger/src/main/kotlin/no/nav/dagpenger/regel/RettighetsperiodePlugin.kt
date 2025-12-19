@@ -35,10 +35,12 @@ class RettighetsperiodePlugin(
 
         logger.info {
             """RettighetsperiodePlugin beregner rettighetsperiode basert på i
-                |vilkår(${vilkår.size}): $vilkår 
-                |utfall(${utfall.size}): $utfall
+            |vilkår(${vilkår.size}): $vilkår 
+            |utfall(${utfall.size}): $utfall
             """.trimMargin()
         }
+
+        opplysninger.fjernHvis { it.er(KravPåDagpenger.harLøpendeRett) && egne.inneholder(it) }
 
         return TidslinjeBygger(utfall)
             .lagPeriode { påDato ->

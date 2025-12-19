@@ -33,9 +33,11 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
+import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -450,6 +452,66 @@ class ScenarioTest {
             behandlingsresultatForslag {
                 with(opplysninger(oppfyllerKravetTilVerneplikt)) {
                     this.map { it.gyldigFraOgMed }.shouldHaveSize(1)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `greier vi gjør for å lage vedtak bak i tid`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(27.november(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                søknadIdOpplysningstype,
+                person.sisteSøknadId!!.toString(),
+                "Søkte for lenge siden",
+                Gyldighetsperiode(1.juni(2018)),
+            )
+
+            behandlingsresultatForslag {
+                with(rettighetsperioder) {
+                    size shouldBe 1
+                    single().fraOgMed shouldBe 27.november(2018)
+                    single().tilOgMed shouldBe null
+                    single().harRett shouldBe true
+                }
+            }
+
+            person.arbeidssøkerregistreringsdato = 1.juni(2018)
+            saksbehandler.endreOpplysning(
+                prøvingsdato,
+                1.juni(2018),
+                "Søkte for lenge siden",
+            )
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                with(rettighetsperioder) {
+                    size shouldBe 1
+                    this[0].fraOgMed shouldBe 1.juni(2018)
+                    this[0].tilOgMed shouldBe 1.juni(2018)
+                    this[0].harRett shouldBe false
+                }
+            }
+
+            saksbehandler.endreOpplysning(
+                RegistrertArbeidssøker.registrertArbeidssøker,
+                true,
+                "Søkte for lenge siden",
+                Gyldighetsperiode(1.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                with(rettighetsperioder) {
+                    size shouldBe 1
+                    single().fraOgMed shouldBe 1.juni(2018)
+                    single().tilOgMed shouldBe null
+                    single().harRett shouldBe true
                 }
             }
         }
