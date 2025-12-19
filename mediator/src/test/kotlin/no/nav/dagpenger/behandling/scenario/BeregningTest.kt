@@ -68,7 +68,7 @@ class BeregningTest {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
-                    none { it.status == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
+                    none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
                     map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                     map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
                         "2018-06-18",
@@ -99,7 +99,7 @@ class BeregningTest {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
-                    forAll { it.status shouldBe Opplysningsperiode.Periodestatus.Ny }
+                    forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
 
                     map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                     map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
@@ -210,7 +210,7 @@ class BeregningTest {
                     this shouldHaveSize 28
 
                     // Første dag i ny meldeperiode
-                    this.first { it.status != Opplysningsperiode.Periodestatus.Arvet }.gyldigFraOgMed shouldBe 2.juli(2018)
+                    this.first { it.opprinnelse != Opplysningsperiode.Periodestatus.Arvet }.gyldigFraOgMed shouldBe 2.juli(2018)
 
                     // Siste dag i ny meldeperiode
                     this.last().gyldigFraOgMed shouldBe 15.juli(2018)
@@ -238,7 +238,7 @@ class BeregningTest {
                     this shouldHaveSize 28
 
                     // Første dag i ny meldeperiode
-                    this.first { it.status != Opplysningsperiode.Periodestatus.Arvet }.gyldigFraOgMed shouldBe 2.juli(2018)
+                    this.first { it.opprinnelse != Opplysningsperiode.Periodestatus.Arvet }.gyldigFraOgMed shouldBe 2.juli(2018)
 
                     // Siste dag i ny meldeperiode
                     this.last().gyldigFraOgMed shouldBe 15.juli(2018)
@@ -350,7 +350,7 @@ class BeregningTest {
                     this shouldHaveSize 14
 
                     // Ingen opplysninger om forbruk skal være arvet
-                    this.none { it.status == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
+                    this.none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
 
                     // Første dag i ny meldeperiode
                     this.first().gyldigFraOgMed shouldBe 18.juni(2018)
@@ -484,7 +484,7 @@ class BeregningTest {
                     this shouldHaveSize 42
 
                     // Ingen opplysninger om forbruk skal være arvet
-                    this.none { it.status == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
+                    this.none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
 
                     // Første dag i ny meldeperiode
                     this.first().gyldigFraOgMed shouldBe 18.juni(2018)

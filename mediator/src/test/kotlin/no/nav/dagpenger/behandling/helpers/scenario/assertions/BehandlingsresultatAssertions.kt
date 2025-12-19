@@ -34,7 +34,7 @@ internal data class Opplysningsperiode(
     val gyldigFraOgMed: LocalDate? = null,
     val gyldigTilOgMed: LocalDate? = null,
     val verdi: Opplysningsverdi,
-    val status: Periodestatus,
+    val opprinnelse: Periodestatus,
 ) {
     data class Opplysningsverdi(
         val datatype: String,

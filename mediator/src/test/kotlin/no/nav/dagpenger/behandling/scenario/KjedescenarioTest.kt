@@ -234,7 +234,7 @@ class KjedescenarioTest {
                     this shouldHaveSize 1
                     single().gyldigFraOgMed shouldBe 11.juni(2015)
                     single().verdi.verdi shouldBe true
-                    single().status shouldBe Arvet
+                    single().opprinnelse shouldBe Arvet
                 }
 
                 with(opplysninger(Opphold.oppfyllerKravet)) {

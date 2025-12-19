@@ -69,7 +69,6 @@ internal fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
     OpplysningsperiodeDTO(
         id = this.id,
         opprettet = opprettet,
-        status = (id in egneId).tilOpprinnelseDTO(),
         opprinnelse = (id in egneId).tilOpprinnelseDTO(),
         gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
         gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
@@ -102,26 +101,28 @@ internal fun Opplysning<*>.tilOpplysningskildeDTO(): OpplysningskildeDTO? =
     this.kilde?.let {
         val registrert = it.registrert
         when (it) {
-            is Saksbehandlerkilde ->
+            is Saksbehandlerkilde -> {
                 OpplysningskildeDTO(
                     OpplysningskildeDTOTypeDTO.SAKSBEHANDLER,
                     ident = it.saksbehandler.ident,
                     begrunnelse = it.begrunnelse?.let { BegrunnelseDTO(it.verdi, it.sistEndret) },
                     registrert = registrert,
                 )
+            }
 
-            is Systemkilde ->
+            is Systemkilde -> {
                 OpplysningskildeDTO(
                     OpplysningskildeDTOTypeDTO.SYSTEM,
                     meldingId = it.meldingsreferanseId,
                     registrert = registrert,
                 )
+            }
         }
     }
 
 internal fun Opplysning<*>.tilOpplysningsverdiDTO(): OpplysningsverdiDTO =
     when (this.opplysningstype.datatype) {
-        BarnDatatype ->
+        BarnDatatype -> {
             with(this.verdi as BarnListe) {
                 BarnelisteDTO(
                     søknadBarnId = søknadbarnId,
@@ -137,23 +138,43 @@ internal fun Opplysning<*>.tilOpplysningsverdiDTO(): OpplysningsverdiDTO =
                         },
                 )
             }
+        }
 
-        Boolsk -> BoolskVerdiDTO(this.verdi as Boolean)
-        Dato -> DatoVerdiDTO(this.verdi as LocalDate)
-        Desimaltall -> DesimaltallVerdiDTO(this.verdi as Double, this.opplysningstype.tilEnhetDTO())
-        Heltall -> HeltallVerdiDTO(this.verdi as Int, this.opplysningstype.tilEnhetDTO())
-        InntektDataType -> TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId)
-        Penger ->
+        Boolsk -> {
+            BoolskVerdiDTO(this.verdi as Boolean)
+        }
+
+        Dato -> {
+            DatoVerdiDTO(this.verdi as LocalDate)
+        }
+
+        Desimaltall -> {
+            DesimaltallVerdiDTO(this.verdi as Double, this.opplysningstype.tilEnhetDTO())
+        }
+
+        Heltall -> {
+            HeltallVerdiDTO(this.verdi as Int, this.opplysningstype.tilEnhetDTO())
+        }
+
+        InntektDataType -> {
+            TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId)
+        }
+
+        Penger -> {
             PengeVerdiDTO(
                 verdi = (this.verdi as Beløp).verdien,
             )
+        }
 
-        PeriodeDataType ->
+        PeriodeDataType -> {
             (this.verdi as Periode).let {
                 PeriodeVerdiDTO(it.fraOgMed, it.tilOgMed)
             }
+        }
 
-        Tekst, ULID -> TekstVerdiDTO(this.verdi.toString())
+        Tekst, ULID -> {
+            TekstVerdiDTO(this.verdi.toString())
+        }
     }
 
 internal fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<RettighetsperiodeDTO> {
@@ -187,10 +208,13 @@ internal fun List<Rettighetsperiode>.avgjørelse(): AvgjørelseDTO {
     return when {
         // Ingen endring
         nye.isEmpty() -> AvgjørelseDTO.ENDRING
+
         // Ny kjede
         arvede.isEmpty() -> if (nye.harRett()) AvgjørelseDTO.INNVILGELSE else AvgjørelseDTO.AVSLAG
+
         // Bygger videre på en kjede
         arvede.sisteHarRett() && !nye.harRett() -> AvgjørelseDTO.STANS
+
         else -> AvgjørelseDTO.GJENOPPTAK
     }
 }

@@ -320,8 +320,8 @@ class ScenarioTest {
 
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 2
-                    this[0].status shouldBe Periodestatus.Arvet
-                    this[1].status shouldBe Periodestatus.Ny
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Ny
                 }
                 with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
                     this[0].verdi.verdi shouldBe true
@@ -366,9 +366,9 @@ class ScenarioTest {
 
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 3
-                    this[0].status shouldBe Periodestatus.Arvet
-                    this[1].status shouldBe Periodestatus.Arvet
-                    this[2].status shouldBe Periodestatus.Ny
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Arvet
+                    this[2].opprinnelse shouldBe Periodestatus.Ny
                 }
             }
         }
@@ -525,8 +525,8 @@ class ScenarioTest {
             val nyeOpplysninger =
                 data.opplysninger
                     .mapNotNull { opp ->
-                        val nyePerioder = opp.perioder?.filter { it.status == OpprinnelseDTO.NY }
-                        if (nyePerioder?.isEmpty() == true) {
+                        val nyePerioder = opp.perioder.filter { it.opprinnelse == OpprinnelseDTO.NY }
+                        if (nyePerioder.isEmpty()) {
                             null
                         } else {
                             opp.navn to nyePerioder
