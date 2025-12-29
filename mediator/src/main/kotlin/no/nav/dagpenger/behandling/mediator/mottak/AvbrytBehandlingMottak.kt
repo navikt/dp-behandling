@@ -47,7 +47,7 @@ internal class AvbrytBehandlingMottak(
         withLoggingContext(
             "behandlingId" to behandlingId.toString(),
         ) {
-            if (behandlingId == UUID.fromString("019938f9-23cf-7abe-b3de-797c59c5df0f")) {
+            if (behandlingId == UUID.fromString("019ae408-4c48-7794-a140-e5c1f6b01d10")) {
                 logger.info { "Skipper 'avbryt_behandling' for behandling" }
                 return@withLoggingContext
             }
