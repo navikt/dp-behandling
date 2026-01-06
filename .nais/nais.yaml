@@ -114,6 +114,7 @@ spec:
         - application: dp-meldekort-testdata
         - application: dp-soknad-orkestrator
         - application: dp-behandling-admin
+        - application: dp-inntekt-api
         {{#if wonderwalled}}
         - application: wonderwalled-idporten
           namespace: nais
