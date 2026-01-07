@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 
 class PrøvingsdatoPlugin : ProsessPlugin {
-    override fun ferdig(kontekst: Prosesskontekst) {
+    override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 

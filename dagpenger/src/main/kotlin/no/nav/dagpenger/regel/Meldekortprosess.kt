@@ -55,8 +55,8 @@ class Meldekortprosess :
             it.ønsketInformasjon
         }
 
-    // TODO: var start
-    override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
+    // TODO: var underOpprettelse, var blitt regelkjøringFerdig i main
+    override fun underOpprettelse(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
         val meldeperiode = meldeperiode(opplysninger)
         val resultat =
