@@ -45,12 +45,20 @@ Behov:
 - Inntekt
 - RegistrertSomArbeidssøker
 Behov:
+- Inntekt
+- RegistrertSomArbeidssøker
+Behov:
+- BostedslandErNorge
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
 - Foreldrepenger
 - Svangerskapspenger
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
+Behov:
+- BarnetilleggV2
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
