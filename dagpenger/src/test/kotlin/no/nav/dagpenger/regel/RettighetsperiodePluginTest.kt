@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
@@ -37,7 +38,7 @@ class RettighetsperiodePluginTest {
             }
 
         // Lag perioder av løpende rett
-        plugin.regelkjøringFerdig(opplysninger)
+        plugin.regelkjøringFerdig(Prosesskontekst(opplysninger))
 
         val perioder = opplysninger.finnAlle(harLøpendeRett)
 
@@ -57,7 +58,7 @@ class RettighetsperiodePluginTest {
             }
 
         // Lag perioder av løpende rett
-        plugin.regelkjøringFerdig(opplysninger)
+        plugin.regelkjøringFerdig(Prosesskontekst(opplysninger))
 
         val perioder = opplysninger.finnAlle(harLøpendeRett)
 
@@ -81,7 +82,7 @@ class RettighetsperiodePluginTest {
             }
 
         // Lag perioder av løpende rett
-        plugin.regelkjøringFerdig(opplysninger)
+        plugin.regelkjøringFerdig(Prosesskontekst(opplysninger))
 
         val perioder = opplysninger.finnAlle(harLøpendeRett)
 

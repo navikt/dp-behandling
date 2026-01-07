@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.ProsessPlugin
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -54,7 +55,9 @@ class Meldekortprosess :
             it.ønsketInformasjon
         }
 
-    override fun regelkjøringFerdig(opplysninger: Opplysninger) {
+    // TODO: var start
+    override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
+        val opplysninger = kontekst.opplysninger
         val meldeperiode = meldeperiode(opplysninger)
         val resultat =
             BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
@@ -90,7 +93,8 @@ class Meldekortprosess :
 }
 
 class Kvotetelling : ProsessPlugin {
-    override fun regelkjøringFerdig(opplysninger: Opplysninger) {
+    override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
+        val opplysninger = kontekst.opplysninger
         val innvilgetStønadsdager = opplysninger.finnOpplysning(antallStønadsdager).verdi
 
         val dager = opplysninger.kunEgne.finnAlle(forbruk)

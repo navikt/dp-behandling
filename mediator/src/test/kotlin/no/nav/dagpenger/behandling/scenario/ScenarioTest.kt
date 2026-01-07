@@ -517,6 +517,38 @@ class ScenarioTest {
         }
     }
 
+    @Test
+    fun `automatisk flytting av prøvingsdato`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2021))
+
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                opplysninger(prøvingsdato).single().verdi.verdi shouldBe 21.juni(2021).toString()
+            }
+
+            saksbehandler.endreOpplysning(
+                ReellArbeidssøker.kravTilArbeidssøker,
+                true,
+                "Flyttet prøvingsdato automatisk",
+                Gyldighetsperiode(25.juni(2021)),
+            )
+
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                opplysninger(prøvingsdato).single().verdi.verdi shouldBe 25.juni(2021).toString()
+            }
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+        }
+    }
+
     object Formatter {
         private val outFmt = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 

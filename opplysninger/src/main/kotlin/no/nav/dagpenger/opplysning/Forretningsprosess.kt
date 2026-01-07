@@ -25,11 +25,11 @@ abstract class Forretningsprosess(
 
     fun registrer(handler: ProsessPlugin) = plugins.add(handler)
 
-    fun kjørUnderOpprettelse(opplysninger: Opplysninger) = plugins.forEach { it.underOpprettelse(opplysninger) }
+    fun kjørUnderOpprettelse(kontekst: Prosesskontekst) = plugins.forEach { it.underOpprettelse(kontekst) }
 
-    fun kjørEtterRegelkjøring(opplysninger: Opplysninger) = plugins.forEach { it.etterRegelkjøring(opplysninger) }
+    fun kjørEtterRegelkjøring(kontekst: Prosesskontekst) = plugins.forEach { it.etterRegelkjøring(kontekst) }
 
-    fun kjørRegelkjøringFerdig(opplysninger: Opplysninger) = plugins.forEach { it.regelkjøringFerdig(opplysninger) }
+    fun kjørRegelkjøringFerdig(kontekst: Prosesskontekst) = plugins.forEach { it.regelkjøringFerdig(kontekst) }
 
     open fun produsenter(
         regelverksdato: LocalDate,
@@ -42,11 +42,22 @@ abstract class Forretningsprosess(
 }
 
 interface ProsessPlugin {
-    fun underOpprettelse(opplysninger: Opplysninger) {}
+    fun underOpprettelse(kontekst: Prosesskontekst) {}
 
-    fun etterRegelkjøring(opplysninger: Opplysninger) {}
+    fun etterRegelkjøring(kontekst: Prosesskontekst) {}
 
-    fun regelkjøringFerdig(opplysninger: Opplysninger) {}
+    fun regelkjøringFerdig(kontekst: Prosesskontekst) {}
+}
+
+data class Prosesskontekst(
+    val opplysninger: Opplysninger,
+) {
+    var kreverRekjøring: Boolean = false
+        private set
+
+    fun beOmRekjøring() {
+        kreverRekjøring = true
+    }
 }
 
 class Prosessregister {
