@@ -24,6 +24,7 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
@@ -53,8 +54,8 @@ internal fun Application.simuleringApi() {
                 val opplysninger = simuleringsdata(beregningRequestDTO)
                 try {
                     val meldekortprosess = Meldekortprosess()
-                    meldekortprosess.start(opplysninger)
-                    meldekortprosess.ferdig(opplysninger)
+                    meldekortprosess.start(Prosesskontekst(opplysninger))
+                    meldekortprosess.ferdig(Prosesskontekst(opplysninger))
                     val forbruktEgenandel =
                         opplysninger
                             .finnAlle(forbruktEgenandel)

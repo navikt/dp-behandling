@@ -4,8 +4,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.ProsessPlugin
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.TidslinjeBygger
@@ -14,7 +14,8 @@ import java.time.LocalDate
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
 ) : ProsessPlugin {
-    override fun ferdig(opplysninger: Opplysninger) {
+    override fun ferdig(kontekst: Prosesskontekst) {
+        val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 
         // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk

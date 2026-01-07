@@ -35,10 +35,10 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.Duration
 import java.time.LocalDate
@@ -136,6 +136,8 @@ class Behandling private constructor(
             } catch (e: IllegalArgumentException) {
                 throw IllegalArgumentException("Fant flere behandlinger med samme id, id=$behandlingId", e)
             }
+
+        private const val MAKS_ITERASJONER = 10
     }
 
     fun tilstand() = Pair(tilstand.type, tilstand.opprettet)
@@ -427,7 +429,7 @@ class Behandling private constructor(
             hendelse.info("Mottatt ${hendelse.type} og startet behandling")
             behandling.emitOpprettet()
 
-            behandling.forretningsprosess.kjørStart(behandling.opplysninger)
+            behandling.forretningsprosess.kjørStart(Prosesskontekst(behandling.opplysninger))
 
             behandling.tilstand(UnderBehandling(), hendelse)
         }
@@ -617,7 +619,7 @@ class Behandling private constructor(
             hendelse.info("Endret tilstand til redigert")
 
             // TODO: Denne må vi tenke litt på plassering og rekkefølge
-            behandling.forretningsprosess.kjørStart(behandling.opplysninger)
+            behandling.forretningsprosess.kjørStart(Prosesskontekst(behandling.opplysninger))
 
             // Kjør regelkjøring for alle opplysninger
             behandling.kjørRegler(hendelse)
@@ -948,19 +950,38 @@ class Behandling private constructor(
     }
 
     // Kjører alle regler, logger hvilke regler som er kjørt , sender ut behov, og avgjør neste tilstand
-    private fun kjørRegler(hendelse: PersonHendelse) {
-        val rapport = regelkjøring.evaluer()
-
-        rapport.kjørteRegler.forEach { regel: Regel<*> ->
-            hendelse.info(regel.toString())
+    private tailrec fun kjørRegler(
+        hendelse: PersonHendelse,
+        iterasjon: Int = 0,
+    ) {
+        if (iterasjon > MAKS_ITERASJONER) {
+            throw IllegalStateException("Fanget i uendelig løkke: Regler og plugins blir aldri enige.")
         }
 
+        // 1. Evaluerer regler
+        val rapport = regelkjøring.evaluer()
+
+        // Logger hva som skjedde (kan evt flyttes til egne funksjoner for ryddighet)
+        rapport.kjørteRegler.forEach { hendelse.info(it.toString()) }
         hendelse.lagBehov(rapport.informasjonsbehov)
 
-        forretningsprosess.kjørUnderveis(opplysninger)
+        // 2. Kjører plugins via Kontekst
+        val kontekst = Prosesskontekst(opplysninger)
+        forretningsprosess.kjørUnderveis(kontekst)
 
         if (rapport.erFerdig()) {
-            forretningsprosess.kjørFerdig(opplysninger)
+            forretningsprosess.kjørFerdig(kontekst)
+        }
+
+        // 3. Sjekker status - Det "magiske" punktet
+        if (kontekst.kreverRekjøring) {
+            hendelse.info("Plugin endret datagrunnlaget. Rekjører regler (Runde $iterasjon).")
+            // Her kaller vi funksjonen på nytt - kompilatoren optimaliserer dette til en loop
+            return kjørRegler(hendelse, iterasjon + 1)
+        }
+
+        // 4. Hvis vi kommer hit, er dataene stabile. Håndter ferdigstillelse.
+        if (rapport.erFerdig()) {
             avgjørNesteTilstand(hendelse)
         }
     }

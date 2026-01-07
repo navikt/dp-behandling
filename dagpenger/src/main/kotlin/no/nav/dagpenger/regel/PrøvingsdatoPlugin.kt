@@ -3,12 +3,13 @@ package no.nav.dagpenger.regel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.ProsessPlugin
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 
 class PrøvingsdatoPlugin : ProsessPlugin {
-    override fun ferdig(opplysninger: Opplysninger) {
+    override fun ferdig(kontekst: Prosesskontekst) {
+        val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 
         // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk
@@ -19,6 +20,7 @@ class PrøvingsdatoPlugin : ProsessPlugin {
         // Automatisk setter prøvingsdato til første mulige innvilgelse
         egne.finnAlle(KravPåDagpenger.harLøpendeRett).firstOrNull { it.verdi }?.let {
             val gjeldende = opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato)
+
             // Hvis prøvingsdato allerede er satt til riktig dato, gjør ingenting
             if (gjeldende.verdi.isEqual(it.gyldighetsperiode.fraOgMed)) return@let
 
@@ -29,6 +31,8 @@ class PrøvingsdatoPlugin : ProsessPlugin {
                     Gyldighetsperiode(it.gyldighetsperiode.fraOgMed),
                 ),
             )
+
+            kontekst.beOmRekjøring()
         }
     }
 
