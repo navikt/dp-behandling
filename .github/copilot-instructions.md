@@ -65,7 +65,7 @@ Legg til flere dokumentasjonsinstruksjoner her etter samme mal:
 ### Manuelt via GitHub Copilot CLI
 ```bash
 # Les instruksjonen og kjør
-gh copilot suggest -t shell "Følg instruksen i .github/copilot-instructions.md for 'Dokumenter BeregnMeldekortHendelse flyt'"
+ copilot -p "Følg instruksen i .github/copilot-instructions.md for 'Dokumenter BeregnMeldekortHendelse flyt'" --allow-tool 'write'
 ```
 
 ### Via GitHub Actions
