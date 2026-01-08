@@ -618,9 +618,6 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Endret tilstand til redigert")
 
-            // TODO: Denne må vi tenke litt på plassering og rekkefølge
-            behandling.forretningsprosess.kjørUnderOpprettelse(Prosesskontekst(behandling.opplysninger))
-
             // Kjør regelkjøring for alle opplysninger
             behandling.kjørRegler(hendelse)
         }

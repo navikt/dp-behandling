@@ -47,6 +47,7 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -391,6 +392,7 @@ class ScenarioTest {
     }
 
     @Test
+    @Disabled("Ikke mulig å sette prøvingsdato direkte, ønsker dato må manipuleres")
     fun `tester avslag ved for lite inntekt, ikke reell arbeidssøker, og prøvingsdato flyttes til søknadsdato`() {
         nyttScenario {
             inntektSiste12Mnd = 50000

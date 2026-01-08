@@ -72,5 +72,4 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:
 - BarnetilleggV2
-- OppgittAndreYtelserUtenforNav
 Behandling endret tilstand til: ForslagTilVedtak
