@@ -28,7 +28,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
 import java.time.LocalDate
 
 object Beregning {
-    val meldeperiode = Opplysningstype.periode(meldeperiodeId, "Meldeperiode", synlig = aldriSynlig)
+    val meldeperiode = Opplysningstype.periode(meldeperiodeId, "Meldeperiode")
     val arbeidsdag = Opplysningstype.boolsk(arbeidsdagId, "Arbeidsdag")
     val arbeidstimer = Opplysningstype.desimaltall(arbeidstimerId, "Arbeidstimer på en arbeidsdag", enhet = Enhet.Timer)
 
