@@ -29,7 +29,7 @@ class RettighetsperiodePlugin(
                 .mapNotNull { it.utfall }
 
         val utfall =
-            egne
+            opplysninger
                 .somListe()
                 .filter { it.opplysningstype in vilkår }
                 .filterIsInstance<Opplysning<Boolean>>()
