@@ -551,6 +551,22 @@ class ScenarioTest {
         }
     }
 
+    @Test
+    @Disabled("Arbeidssøkerregistrering må svare med riktig data")
+    fun `prøver ikke datoer før søknadstidspunkt`() {
+        nyttScenario {
+            // registreringsdato = 1.januar(2021)
+        }.test {
+            person.søkDagpenger(21.juni(2021))
+
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                opplysninger(prøvingsdato).single().verdi.verdi shouldBe 21.juni(2021).toString()
+            }
+        }
+    }
+
     object Formatter {
         private val outFmt = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 

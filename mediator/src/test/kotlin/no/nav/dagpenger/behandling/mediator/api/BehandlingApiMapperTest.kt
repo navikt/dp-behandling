@@ -35,6 +35,7 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
@@ -95,15 +96,9 @@ class BehandlingApiMapperTest {
             behandler = hendelse,
             gjeldendeOpplysninger =
                 Opplysninger.med(
-                    Faktum(
-                        Søknadstidspunkt.prøvingsdato,
-                        LocalDate
-                            .now(),
-                    ),
-                    Faktum(
-                        Verneplikt.avtjentVerneplikt,
-                        true,
-                    ),
+                    Faktum(hendelseTypeOpplysningstype, "Søknad"),
+                    Faktum(Søknadstidspunkt.prøvingsdato, LocalDate.now()),
+                    Faktum(Verneplikt.avtjentVerneplikt, true),
                     Faktum(
                         kravTilAlder,
                         true,
@@ -116,20 +111,16 @@ class BehandlingApiMapperTest {
                     ),
                     Faktum(
                         opplysningstype = Søknadstidspunkt.søknadsdato,
-                        verdi =
-                            LocalDate
-                                .now(),
+                        verdi = LocalDate.now(),
                         kilde =
                             Saksbehandlerkilde(
-                                UUIDv7
-                                    .ny(),
+                                UUIDv7.ny(),
                                 Saksbehandler("Z123456"),
                             ),
                     ),
                     Faktum(
                         opplysningstype = Minsteinntekt.inntekt12,
-                        verdi =
-                            Beløp(3000.034.toBigDecimal()),
+                        verdi = Beløp(3000.034.toBigDecimal()),
                     ),
                     Faktum(
                         opplysningstype = TestOpplysningstyper.heltall,

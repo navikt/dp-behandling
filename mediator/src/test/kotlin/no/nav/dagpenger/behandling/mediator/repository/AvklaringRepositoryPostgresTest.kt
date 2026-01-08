@@ -21,6 +21,7 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
@@ -124,6 +125,7 @@ class AvklaringRepositoryPostgresTest {
                     ),
                 gjeldendeOpplysninger =
                     Opplysninger.med(
+                        Faktum(hendelseTypeOpplysningstype, "Søknad"),
                         Faktum(prøvingsdato, LocalDate.now(), Gyldighetsperiode(LocalDate.now())),
                         Faktum(kravTilAlder, false),
                     ),

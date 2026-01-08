@@ -93,9 +93,24 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
         { forDato(prøvingsdato(this)) }
 
-    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        opplysninger.kunEgne
-            .somListe()
-            .last { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
-            .gyldighetsperiode.fraOgMed
+    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate {
+        // TODO: Dette bør helst flyttes til validering av input på opplysninger
+        val søknadsdato =
+            opplysninger.kunEgne
+                .finnNullableOpplysning(Søknadstidspunkt.søknadIdOpplysningstype)
+                ?.gyldighetsperiode
+                ?.fraOgMed
+
+        val sisteFraOgMed =
+            opplysninger.kunEgne
+                .somListe()
+                .last { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+                .gyldighetsperiode.fraOgMed
+
+        if (søknadsdato == null) {
+            return sisteFraOgMed
+        }
+
+        return maxOf(søknadsdato, sisteFraOgMed)
+    }
 }
