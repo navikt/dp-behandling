@@ -32,6 +32,10 @@ import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.YtelserUt
 import java.time.LocalDate
 
 class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
+    init {
+        registrer(RettighetsperiodePlugin(regelverk))
+    }
+
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
         Regelkjøring(
             virkningsdato(opplysninger),
