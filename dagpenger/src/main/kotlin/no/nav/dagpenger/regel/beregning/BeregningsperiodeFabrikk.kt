@@ -35,7 +35,7 @@ class BeregningsperiodeFabrikk(
         val stønadsdagerIgjen =
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
                 opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
-        val gjenståendeEgenandel = hentGjenståendeEgenandel(dager.first())
+        val gjenståendeEgenandel = hentGjenståendeEgenandel(meldeperiode.fraOgMed)
 
         logger.info {
             """
