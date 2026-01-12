@@ -62,7 +62,7 @@ object DagpengenesStørrelse {
     val barn = Opplysningstype.barn(BarnId, "Barn", Register, behovId = BarnetilleggV2, utgåtteBehovId = setOf(Barnetillegg))
     internal val antallBarn = heltall(AntallBarnSomGirRettTilBarnetilleggId, "Antall barn som gir rett til barnetillegg")
     val barnetilleggetsStørrelse =
-        beløp(BarnetilleggetsStørrelsePerDagId, "Barnetilleggets størrelse i kroner per dag for hvert barn", synlig = aldriSynlig)
+        beløp(BarnetilleggetsStørrelsePerDagId, "Barnetilleggets størrelse i kroner per dag for hvert barn")
 
     /**
      * 1. Hente barn fra søknad
