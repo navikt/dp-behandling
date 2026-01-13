@@ -154,6 +154,9 @@ class BeregningTest {
             behandlingsresultat {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 42806
 
+                // Bare de siste 14 dagene skal markeres som ny for de tilhører siste meldeperiode
+                utbetalinger.count { it["opprinnelse"].asText() == "Ny" } shouldBe 14
+
                 with(opplysninger(Beregning.forbrukt)) {
                     val forbruksdager = map { it.verdi.verdi as Int }
                     forbruksdager.shouldBeMonotonicallyIncreasing()

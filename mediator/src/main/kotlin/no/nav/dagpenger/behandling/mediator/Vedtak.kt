@@ -11,7 +11,6 @@ import no.nav.dagpenger.behandling.api.models.OpplysningDTOStatusDTO
 import no.nav.dagpenger.behandling.api.models.PeriodeDTO
 import no.nav.dagpenger.behandling.api.models.RegelDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
-import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTO
 import no.nav.dagpenger.behandling.api.models.VedtakDTOFastsattDTO
@@ -25,6 +24,7 @@ import no.nav.dagpenger.behandling.mediator.api.tilApiDato
 import no.nav.dagpenger.behandling.mediator.api.tilDataTypeDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningskildeDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningsverdiDTO
+import no.nav.dagpenger.behandling.mediator.api.utbetalinger
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
@@ -34,6 +34,7 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -42,7 +43,6 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.FulleYtelser
-import no.nav.dagpenger.regel.KravPåDagpenger
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold
@@ -57,9 +57,7 @@ import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.Utdanning
 import no.nav.dagpenger.regel.Utestengning
 import no.nav.dagpenger.regel.Verneplikt
-import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import java.time.LocalDateTime
@@ -88,6 +86,8 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                     }
             }
     val fastsatt = vedtakFastsattDTO(opplysningerSomGjelderPåPrøvingsdato)
+    val egneId = opplysninger.somListe(Egne).map { it.id }
+
     return VedtakDTO(
         behandlingId = behandlingId,
         basertPåBehandlinger = listOfNotNull(basertPåBehandling),
@@ -127,7 +127,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
         vilkår = vilkår,
         fastsatt = fastsatt,
         gjenstående = VedtakDTOGjenståendeDTO(),
-        utbetalinger = opplysninger.utbetalinger(),
+        utbetalinger = opplysninger.utbetalinger(egneId),
         opplysninger = opplysningerSomGjelderPåPrøvingsdato.somListe().map { it.tilOpplysningDTO(opplysningerSomGjelderPåPrøvingsdato) },
     )
 }
@@ -141,6 +141,7 @@ private fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): Op
             when (this.opplysningstype.datatype) {
                 // todo: Frontenden burde vite om det er penger og håndtere det med valuta
                 Penger -> (this.verdi as Beløp).uavrundet.toString()
+
                 else -> this.verdi.toString()
             },
         status =
@@ -182,32 +183,6 @@ private fun Opplysningstype<*>.kanOppfriskes(): Boolean =
             inntektFraSkatt,
             grunnbeløpForDagpengeGrunnlag,
         )
-
-internal fun LesbarOpplysninger.utbetalinger(): List<UtbetalingDTO> {
-    val meldeperioder = finnAlle(Beregning.meldeperiode)
-
-    val løpendeRett = finnAlle(KravPåDagpenger.harLøpendeRett)
-    val satser = finnAlle(dagsatsEtterSamordningMedBarnetillegg)
-    val dager = finnAlle(Beregning.utbetaling).associateBy { it.gyldighetsperiode.fraOgMed }
-
-    return meldeperioder.flatMap { periode ->
-        periode.verdi.mapNotNull { dato ->
-            if (løpendeRett.filter { it.verdi }.none { it.gyldighetsperiode.inneholder(dato) }) {
-                // Har ikke løpende rett i denne perioden, så ingen utbetaling
-                return@mapNotNull null
-            }
-
-            val dag = dager[dato] ?: throw IllegalStateException("Mangler utbetaling for dag $dato")
-            val sats = satser.first { it.gyldighetsperiode.inneholder(dato) }.verdi
-            UtbetalingDTO(
-                meldeperiode = periode.verdi.hashCode().toString(),
-                dato = dato,
-                sats = sats.verdien.toInt(),
-                utbetaling = dag.verdi.heleKroner.toInt(),
-            )
-        }
-    }
-}
 
 private fun vedtakFastsattDTO(opplysninger: LesbarOpplysninger) =
     VedtakDTOFastsattDTO(

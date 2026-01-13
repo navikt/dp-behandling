@@ -1719,6 +1719,8 @@ components:
           type: integer
         utbetaling:
           type: integer
+        opprinnelse:
+          $ref: '#/components/schemas/Opprinnelse'
 
     BehandletAv:
       type: object

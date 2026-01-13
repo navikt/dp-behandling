@@ -189,7 +189,7 @@ internal fun Behandling.VedtakOpplysninger.rettighetsperioder(): List<Rettighets
     }
 }
 
-private fun Boolean.tilOpprinnelseDTO() =
+internal fun Boolean.tilOpprinnelseDTO() =
     when (this) {
         true -> OpprinnelseDTO.NY
         false -> OpprinnelseDTO.ARVET
