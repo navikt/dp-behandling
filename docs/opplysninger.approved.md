@@ -252,6 +252,15 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
 |0195235a-599b-7b27-97a8-bc6142066a87|Periode som gis ved permittering fra fiskeindustrien|Heltall|int|| Uker
+### § 21-7. Uriktige opplysninger m.m. - følger for ytelser fra trygden
+*Type:* Vilkår
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
+|019bc5f8-5c56-7f36-bff1-b10c8165764d|Mot bedre vitende gir uriktige opplysninger|Boolsk|boolean||
+|019bc5f8-8af4-73c7-8b15-6feecd7810d2|Holder tilbake opplysninger som er viktige for rettigheter eller plikter etter denne loven|Boolsk|boolean||
+|019bc5f8-c377-740f-9df6-3c743b5144b1|Uten rimelig grunn unnlater å etterkomme pålegg som er gitt med hjemmel i denne loven|Boolsk|boolean||
+|019bc5f8-fdf3-7240-afaf-52c0486eddc5||Boolsk|boolean||
 ### § 4-8. Meldeplikt og møteplikt
 *Type:* Vilkår
 #### Opplysninger

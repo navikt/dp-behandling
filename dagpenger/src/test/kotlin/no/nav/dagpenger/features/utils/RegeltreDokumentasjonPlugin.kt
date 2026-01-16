@@ -24,6 +24,7 @@ import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.StreikOgLockout
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.Uriktigeopplysninger
 import no.nav.dagpenger.regel.Utdanning
 import no.nav.dagpenger.regel.Utestengning
 import no.nav.dagpenger.regel.Verneplikt
@@ -70,6 +71,7 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-registrert-arbeidssøker" to RegistrertArbeidssøker.regelsett,
             "@regel-permittering-fiskeindustrien" to PermitteringFraFiskeindustrien.regelsett,
             "@regel-permitteringFiskeindustrien-fastsetting" to PermitteringFraFiskeindustrienFastsetting.regelsett,
+            "@regel-uriktig-eller-mangelfulle-opplysninger" to Uriktigeopplysninger.regelsett,
         )
     val regelsett = regler[test]
     requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }

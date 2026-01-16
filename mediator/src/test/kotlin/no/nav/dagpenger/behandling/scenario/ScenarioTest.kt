@@ -72,7 +72,7 @@ class ScenarioTest {
                 opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe false
                 opplysninger(Minsteinntekt.minsteinntekt).shouldBeEmpty()
 
-                opplysninger shouldHaveSize 15
+                opplysninger shouldHaveSize 19
             }
         }
     }
@@ -99,7 +99,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker).single().verdi.verdi shouldBe true
 
-                opplysninger shouldHaveSize 58
+                opplysninger shouldHaveSize 62
             }
         }
     }
@@ -125,7 +125,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
 
-                opplysninger shouldHaveSize 43
+                opplysninger shouldHaveSize 47
             }
         }
     }
@@ -365,7 +365,7 @@ class ScenarioTest {
                 rettighetsperioder[2].harRett shouldBe true
                 rettighetsperioder[2].fraOgMed shouldBe 23.august(2018)
 
-                opplysninger shouldHaveSize 212
+                opplysninger shouldHaveSize 216
 
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 3

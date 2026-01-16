@@ -1843,6 +1843,7 @@ components:
         - Registrert som arbeidssøker på søknadstidspunktet
         - Tap av arbeidstid er minst terskel
         - Utfall etter samordning
+        - Oppfyller kravet til ikke gi mangelfull informasjon
 
   securitySchemes:
     azureAd:

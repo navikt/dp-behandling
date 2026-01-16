@@ -339,6 +339,19 @@ object OpplysningsTyper {
     val antallDagerForbruktId = Opplysningstype.Id(UUID.fromString("019a2ff0-1674-716f-91dd-a454cbff8b19"), Heltall)
     val sisteforbruksdagId = Opplysningstype.Id(UUID.fromString("019a2feb-305b-77f0-bfa9-7facc0c5480c"), Dato)
     val sisteDatoForKravTilGjenopptakId = Opplysningstype.Id(UUID.fromString("019a3001-3cfe-7eae-857b-355c070ce2ec"), Dato)
+
+    // Uriktige Opplysninger
+    val harAvgittUriktigeOpplysningerId = Opplysningstype.Id(UUID.fromString("019bc5f8-5c56-7f36-bff1-b10c8165764d"), Boolsk)
+    val holderTilbakeInfoId = Opplysningstype.Id(UUID.fromString("019bc5f8-8af4-73c7-8b15-6feecd7810d2"), Boolsk)
+    val `unnlaterÅEtterkommePåleggId` = Opplysningstype.Id(UUID.fromString("019bc5f8-c377-740f-9df6-3c743b5144b1"), Boolsk)
+    val oppfyllerVilkårManglendeEllerUriktigeOpplysningerId =
+        Opplysningstype.Id(
+            UUID.fromString("019bc5f8-fdf3-7240-afaf-52c0486eddc5"),
+            Boolsk,
+        )
+
+//    019bc5f9-3040-77cc-9b16-5b919bd4ccd9
+//    019bc5f9-69d0-7c07-9fb4-68b8657a662b
 }
 
 /**

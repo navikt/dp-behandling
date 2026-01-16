@@ -72,6 +72,9 @@ import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel36m
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
+import no.nav.dagpenger.regel.Uriktigeopplysninger.holderTilbake
+import no.nav.dagpenger.regel.Uriktigeopplysninger.`unnlateråEtterkommePålegg`
+import no.nav.dagpenger.regel.Uriktigeopplysninger.uriktigeOpplysninger
 import no.nav.dagpenger.regel.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.Utdanning.deltakelsePåKurs
 import no.nav.dagpenger.regel.Utdanning.grunnskoleopplæring
@@ -278,6 +281,10 @@ internal val redigerbareOpplysninger =
                             barn,
                             arbeidstidsreduksjonIkkeBruktTidligere,
                             barnetilleggetsStørrelse,
+                            // 21-7 Uriktige opplysninger
+                            uriktigeOpplysninger,
+                            holderTilbake,
+                            `unnlateråEtterkommePålegg`,
                         ),
                     )
 
