@@ -284,7 +284,7 @@ internal val redigerbareOpplysninger =
                             // 21-7 Uriktige opplysninger
                             uriktigeOpplysninger,
                             holderTilbake,
-                            `unnlateråEtterkommePålegg`,
+                            unnlateråEtterkommePålegg,
                         ),
                     )
 
