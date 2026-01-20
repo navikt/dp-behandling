@@ -85,7 +85,7 @@ object Beregning {
             regel(terskel) { tomRegel }
 
             regel(forbrukt) { tomRegel }
-            regel(`gjenståendeDager`) { tomRegel }
+            regel(gjenståendeDager) { tomRegel }
 
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
@@ -103,7 +103,7 @@ object Beregning {
                 forbrukt,
                 forbruktEgenandel,
                 gjenståendeEgenandel,
-                `gjenståendeDager`,
+                gjenståendeDager,
                 meldedato,
                 meldeperiode,
                 meldt,
