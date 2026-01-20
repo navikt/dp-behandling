@@ -257,7 +257,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
-|019bc5f8-5c56-7f36-bff1-b10c8165764d|Mot bedre vitende gir uriktige opplysninger|Boolsk|boolean||
+|019bc5f8-5c56-7f36-bff1-b10c8165764d|Mot bedre vitende har gitt uriktige opplysninger|Boolsk|boolean||
 |019bc5f8-8af4-73c7-8b15-6feecd7810d2|Holder tilbake opplysninger som er viktige for rettigheter eller plikter etter denne loven|Boolsk|boolean||
 |019bc5f8-c377-740f-9df6-3c743b5144b1|Uten rimelig grunn unnlater å etterkomme pålegg som er gitt med hjemmel i denne loven|Boolsk|boolean||
 |019bc5f8-fdf3-7240-afaf-52c0486eddc5|Har gitt fullstendige og riktige opplysninger|Boolsk|boolean||

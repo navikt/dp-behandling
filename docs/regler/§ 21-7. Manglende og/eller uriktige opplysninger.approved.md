@@ -4,7 +4,7 @@
 
 ```mermaid
 graph RL
-  A["Har gitt fullstendige og riktige opplysninger"] -->|"IngenAv"| B["Mot bedre vitende gir uriktige opplysninger"]
+  A["Har gitt fullstendige og riktige opplysninger"] -->|"IngenAv"| B["Mot bedre vitende har gitt uriktige opplysninger"]
   A["Har gitt fullstendige og riktige opplysninger"] -->|"IngenAv"| C["Holder tilbake opplysninger som er viktige for rettigheter eller plikter etter denne loven"]
   A["Har gitt fullstendige og riktige opplysninger"] -->|"IngenAv"| D["Uten rimelig grunn unnlater å etterkomme pålegg som er gitt med hjemmel i denne loven"]
 ```

@@ -297,7 +297,7 @@ graph RL
   GY["Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid"] -->|"Alle"| GR["Oppfyller vilkåret om tap av arbeidstid"]
   GY["Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid"] -->|"Alle"| GU["Beregningsregel: Tapt arbeidstid"]
   GY["Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid"] -->|"Alle"| GZ["Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode"]
-  HA["Har gitt fullstendige og riktige opplysninger"] -->|"IngenAv"| HB["Mot bedre vitende gir uriktige opplysninger"]
+  HA["Har gitt fullstendige og riktige opplysninger"] -->|"IngenAv"| HB["Mot bedre vitende har gitt uriktige opplysninger"]
   HA["Har gitt fullstendige og riktige opplysninger"] -->|"IngenAv"| HC["Holder tilbake opplysninger som er viktige for rettigheter eller plikter etter denne loven"]
   HA["Har gitt fullstendige og riktige opplysninger"] -->|"IngenAv"| HD["Uten rimelig grunn unnlater å etterkomme pålegg som er gitt med hjemmel i denne loven"]
   HE["Brukeren er under utdanning eller opplæring"] -->|"Ekstern"| AO["søknadId"]
