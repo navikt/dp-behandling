@@ -10,7 +10,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerVilkårManglendeEllerUri
 import no.nav.dagpenger.regel.OpplysningsTyper.`unnlaterÅEtterkommePåleggId`
 
 object Uriktigeopplysninger {
-    val uriktigeOpplysninger = boolsk(harAvgittUriktigeOpplysningerId, "Mot bedre vitende gir uriktige opplysninger")
+    val uriktigeOpplysninger = boolsk(harAvgittUriktigeOpplysningerId, "Mot bedre vitende har gitt uriktige opplysninger")
     val holderTilbake =
         boolsk(holderTilbakeInfoId, "Holder tilbake opplysninger som er viktige for rettigheter eller plikter etter denne loven")
     val unnlateråEtterkommePålegg =
