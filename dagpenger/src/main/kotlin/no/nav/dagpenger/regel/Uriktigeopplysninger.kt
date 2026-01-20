@@ -16,7 +16,8 @@ object Uriktigeopplysninger {
     val unnlateråEtterkommePålegg =
         boolsk(`unnlaterÅEtterkommePåleggId`, "Uten rimelig grunn unnlater å etterkomme pålegg som er gitt med hjemmel i denne loven")
 
-    val oppfyllerVilkårManglendeEllerUriktigeOpplysninger = boolsk(oppfyllerVilkårManglendeEllerUriktigeOpplysningerId, "")
+    val oppfyllerVilkårManglendeEllerUriktigeOpplysninger =
+        boolsk(oppfyllerVilkårManglendeEllerUriktigeOpplysningerId, "Har gitt fullstendige og riktige opplysninger")
 
     val regelsett =
         vilkår(
