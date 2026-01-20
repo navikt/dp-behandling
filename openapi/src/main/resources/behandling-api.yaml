@@ -629,6 +629,7 @@ components:
         hendelse:
           $ref: '#/components/schemas/Hendelse'
         prøvingsdato:
+          deprecated: true
           type: string
           format: date
         begrunnelse:

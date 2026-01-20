@@ -169,21 +169,10 @@ internal fun Application.behandlingApi(
 
                     val hendelseId =
                         when (nyBehandlingDto.hendelse?.type) {
-                            HendelseDTOTypeDTO.SØKNAD -> {
-                                SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
-                            }
-
-                            HendelseDTOTypeDTO.MELDEKORT -> {
-                                MeldekortId(nyBehandlingDto.hendelse!!.id)
-                            }
-
-                            HendelseDTOTypeDTO.MANUELL -> {
-                                ManuellId(UUID.fromString(nyBehandlingDto.hendelse?.id) ?: UUIDv7.ny())
-                            }
-
-                            null -> {
-                                ManuellId(UUIDv7.ny())
-                            }
+                            HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
+                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id)
+                            HendelseDTOTypeDTO.MANUELL -> ManuellId(UUID.fromString(nyBehandlingDto.hendelse?.id) ?: UUIDv7.ny())
+                            null -> ManuellId(UUIDv7.ny())
                         }
 
                     val melding = ApiMelding(nyBehandlingDto.ident)
@@ -192,10 +181,11 @@ internal fun Application.behandlingApi(
                             meldingsreferanseId = melding.id,
                             ident = nyBehandlingDto.ident,
                             eksternId = hendelseId,
-                            gjelderDato = nyBehandlingDto.prøvingsdato ?: LocalDate.now(),
+                            gjelderDato = nyBehandlingDto.hendelse?.skjedde ?: LocalDate.now(),
                             begrunnelse = nyBehandlingDto.begrunnelse,
                             opprettet = LocalDateTime.now(),
                         )
+
                     apiRepositoryPostgres.behandle(melding) {
                         hendelse.info("Oppretter behandling manuelt", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
                         hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
