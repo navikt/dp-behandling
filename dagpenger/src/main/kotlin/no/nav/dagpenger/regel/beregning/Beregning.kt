@@ -42,7 +42,7 @@ object Beregning {
     val utbetalingForPeriode = Opplysningstype.beløp(utbetalingForPeriodeId, "Penger som skal utbetales for perioden")
 
     val forbrukt = Opplysningstype.heltall(forbrukteDagerId, "Antall dager som er forbrukt", enhet = Enhet.Dager)
-    val gjenståendePeriode = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår", enhet = Enhet.Dager)
+    val gjenståendeDager = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår", enhet = Enhet.Dager)
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
     val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
@@ -85,7 +85,7 @@ object Beregning {
             regel(terskel) { tomRegel }
 
             regel(forbrukt) { tomRegel }
-            regel(gjenståendePeriode) { tomRegel }
+            regel(`gjenståendeDager`) { tomRegel }
 
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
@@ -103,7 +103,7 @@ object Beregning {
                 forbrukt,
                 forbruktEgenandel,
                 gjenståendeEgenandel,
-                gjenståendePeriode,
+                `gjenståendeDager`,
                 meldedato,
                 meldeperiode,
                 meldt,

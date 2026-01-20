@@ -302,7 +302,7 @@ internal val redigerbareOpplysninger =
                         add(Beregning.forbruk)
                         add(Beregning.forbruktEgenandel)
                         add(Beregning.gjenståendeEgenandel)
-                        add(Beregning.gjenståendePeriode)
+                        add(Beregning.gjenståendeDager)
                         add(Beregning.utbetaling)
                     }
                 }
