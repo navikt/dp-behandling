@@ -30,8 +30,9 @@ class Meldekortprosess :
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        val innvilgelsesdato = innvilgelsesdato(opplysninger)
         val meldeperiode = meldeperiode(opplysninger)
+        val prøvingsdatoer = opplysninger.finnAlle(Søknadstidspunkt.prøvingsdato).map { it.verdi }
+        val innvilgelsesdato = prøvingsdatoer.maxBy { dato -> dato <= meldeperiode.tilOgMed }
         val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
 
         return Regelkjøring(

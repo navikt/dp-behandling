@@ -59,20 +59,22 @@ internal class Mennesket(
     fun søkGjenopptak(
         dato: LocalDate = LocalDate.now(),
         ønskerFraDato: LocalDate = dato,
-    ) {
+    ): UUID {
         this.søknadsdato = dato
         this.ønskerFraDato = ønskerFraDato
         this.meldesyklus = Meldesyklus(søknadsdato)
 
+        val nySøknadId = søknader.ny()
         rapid.sendTestMessage(
             Meldingskatalog.søknadInnsendt(
                 ident = ident,
                 innsendt = søknadsdato.atStartOfDay(),
                 fagsakId = 0,
-                søknadId = søknader.ny(),
+                søknadId = nySøknadId,
             ),
             ident,
         )
+        return nySøknadId
     }
 
     fun løsningFor(behov: List<String>): Map<String, Any> {

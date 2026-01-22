@@ -6,6 +6,7 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
+import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
@@ -46,12 +47,19 @@ internal class TestSaksbehandler2(
         )
     }
 
-    fun godkjenn() {
+    fun godkjenn(eksternHendelseId: UUID? = null) {
+        val behandlingId =
+            if (eksternHendelseId != null) {
+                finnBehandlingBasertEllerSiste(eksternHendelseId).behandlingId
+            } else {
+                testPerson.behandlingId
+            }
+
         hendelseMediator.behandle(
             GodkjennBehandlingHendelse(
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = testPerson.ident,
-                behandlingId = testPerson.behandlingId,
+                behandlingId = behandlingId,
                 godkjentAv = Saksbehandler("NAV123123"),
                 opprettet = LocalDateTime.now(),
             ),
@@ -75,8 +83,8 @@ internal class TestSaksbehandler2(
         rapid.sendTestMessage(Meldingskatalog.opprettBehandling(testPerson.ident, gjelder), testPerson.ident)
     }
 
-    fun lukkAlleAvklaringer() {
-        val behandling = personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.last()
+    fun lukkAlleAvklaringer(eksternHendelseId: UUID? = null) {
+        val behandling = finnBehandlingBasertEllerSiste(eksternHendelseId)
         behandling.shouldNotBeNull()
         val avklaringer: List<Avklaring> = behandling.aktiveAvklaringer()
 
@@ -94,6 +102,22 @@ internal class TestSaksbehandler2(
                 rapid,
             )
         }
+    }
+
+    private fun finnBehandlingBasertEllerSiste(eksternHendelseId: UUID?): Behandling {
+        val behandling =
+            if (eksternHendelseId != null) {
+                personRepository
+                    .hent(testPerson.ident.tilPersonIdentfikator())
+                    ?.behandlinger()
+                    ?.find {
+                        it.behandler.eksternId.id
+                            .toString() == eksternHendelseId.toString()
+                    }
+            } else {
+                personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.last()
+            }
+        return behandling.shouldNotBeNull()
     }
 
     fun <T : Comparable<T>> endreOpplysning(

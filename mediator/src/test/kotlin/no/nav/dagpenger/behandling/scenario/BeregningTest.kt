@@ -8,6 +8,9 @@ import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.shouldBe
+import kotliquery.queryOf
+import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode
 import no.nav.dagpenger.behandling.juli
@@ -18,6 +21,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import org.junit.jupiter.api.Disabled
@@ -412,6 +416,81 @@ class BeregningTest {
             // Avklaringen kan ikke lukkes av saksbehandler
             shouldThrow<IllegalArgumentException> {
                 saksbehandler.lukkAlleAvklaringer()
+            }
+        }
+    }
+
+    @Test
+    fun `beregning av flere meldekort der det også kommer en gjenopptak i mellom`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+            }
+
+            // Opprett stans
+            person.opprettBehandling(5.juli(2018))
+            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(5.juli(2018)))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+            behandlingsresultat {
+                rettighetsperioder.size shouldBe 2
+            }
+
+            // Send inn meldekort nr 1
+            person.sendInnMeldekort(1)
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+            val meldekortId = person.sendInnMeldekort(2)
+            // Send inn meldekort nr 2, men uten at den godkjennes enda
+            meldekortBatch(false)
+
+            // Gjenopptak mens vi venter på behandling av meldekort
+            person.søkGjenopptak(20.juli(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Godkjenn meldekortene etter gjenopptak
+            saksbehandler.lukkAlleAvklaringer(
+                eksternHendelseId = meldekortId,
+            )
+            saksbehandler.godkjenn(
+                eksternHendelseId = meldekortId,
+            )
+
+            behandlingsresultat {
+                utbetalinger shouldHaveSize 14
+            }
+
+            sessionOf(dataSource).use { session ->
+                session.run(
+                    queryOf(
+                        // language=SQL
+                        """
+                        UPDATE meldekort SET behandling_startet = NULL, behandling_ferdig = NULL WHERE meldekort_id = :meldekortId;
+                        """.trimIndent(),
+                        mapOf(
+                            "meldekortId" to meldekortId.toString(),
+                        ),
+                    ).asUpdate,
+                )
+            }
+
+            meldekortBatch(true)
+
+            behandlingsresultat {
+                utbetalinger shouldHaveSize 14
             }
         }
     }

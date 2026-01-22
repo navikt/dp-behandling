@@ -36,7 +36,7 @@ internal class Behovsløsere(
             objectMapper.writeValueAsString(løsningsobjekt)
         }
 
-    private fun aktiveBehov(): List<String> {
+    fun aktiveBehov(): List<String> {
         val nyeOffsets = lastOffset..<rapid.inspektør.size
         val nyeMeldinger = nyeOffsets.map { offset -> rapid.inspektør.message(offset) }
         val nyeBehov = nyeMeldinger.filter { it["@event_name"].asText() == "behov" }
