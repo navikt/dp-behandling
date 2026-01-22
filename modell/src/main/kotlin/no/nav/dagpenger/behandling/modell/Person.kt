@@ -93,6 +93,7 @@ class Person(
                     """
                     Oppretter behandling med behandlingId=${behandling.behandlingId} for 
                     hendelse ${hendelse.type} av ${hendelse.eksternId.id}
+                    basert på behandlingId=${behandling.basertPå?.behandlingId}
                     """.trimIndent()
                 }
                 behandlinger.add(behandling)

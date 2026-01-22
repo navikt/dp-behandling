@@ -261,14 +261,15 @@ internal class BehandlingRepositoryPostgres(
     ) {
         run(
             when (arbeidssteg.tilstandType) {
-                Arbeidssteg.TilstandType.IkkeUtført ->
+                Arbeidssteg.TilstandType.IkkeUtført -> {
                     queryOf(
                         //language=PostgreSQL
                         """DELETE FROM behandling_arbeidssteg WHERE behandling_id = :behandling_id AND oppgave = :oppgave""",
                         mapOf("behandling_id" to behandlingId, "oppgave" to arbeidssteg.oppgave.name),
                     ).asUpdate
+                }
 
-                Arbeidssteg.TilstandType.Utført ->
+                Arbeidssteg.TilstandType.Utført -> {
                     queryOf(
                         // language=PostgreSQL
                         """
@@ -283,6 +284,7 @@ internal class BehandlingRepositoryPostgres(
                             "utfort" to arbeidssteg.utført,
                         ),
                     ).asUpdate
+                }
             },
         )
     }
