@@ -147,28 +147,57 @@ class Opplysninger private constructor(
             this
                 .groupBy { it.opplysningstype }
                 .mapValues { (_, perioder) ->
-                    // Finn den siste for hver opplysning som har lik gyldighetsperiode
-                    val unikePerioder = perioder.sortedBy { it.id }.distinctByLast { it.gyldighetsperiode }
+                    var resultat = emptyList<Opplysning<*>>()
+                    // eldste først
+                    val sortert = perioder.sortedBy { it.id }
 
-                    // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
-                    unikePerioder
-                        .zipWithNext()
-                        .mapNotNull { (venstre, høyre) ->
-                            if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
-                            if (høyre.gyldighetsperiode.likEllerStørre(venstre.gyldighetsperiode)) return@mapNotNull høyre
-                            if (venstre.gyldighetsperiode.fraOgMed.isEqual(høyre.gyldighetsperiode.fraOgMed)) return@mapNotNull null
-                            logger.info {
-                                """
-                                |Kant-i-kant overlapper opplysning ${venstre.id} og ${høyre.id} for type ${venstre.opplysningstype.navn}. Lager forkortet opplysning.
-                                |Venstre: ${venstre.gyldighetsperiode}
-                                |Høyre: ${høyre.gyldighetsperiode}
-                                """.trimMargin()
-                            }
-                            venstre.lagForkortet(høyre)
-                        }
-                        // Legg til den siste som ikke blir med i zipWithNext
-                        .plus(unikePerioder.last())
-                        .toMutableList()
+                    sortert.forEach { nyereOpplysning ->
+                        val justertResultat =
+                            resultat
+                                .mapNotNull { eldreOpplysning ->
+                                    when {
+                                        // trimmer ingenting
+                                        eldreOpplysning.gyldighetsperiode.overlapperIkke(
+                                            nyereOpplysning.gyldighetsperiode,
+                                        ) -> eldreOpplysning
+
+                                        // trimmer i midten, men vi forholder oss bare til perioden i forkant
+                                        nyereOpplysning.gyldighetsperiode.erInni(eldreOpplysning.gyldighetsperiode) -> {
+                                            logger.info {
+                                                """
+                                        |Kant-i-kant overlapper opplysning ${eldreOpplysning.id} og ${nyereOpplysning.id} for type ${eldreOpplysning.opplysningstype.navn}. Lager forkortet opplysning.
+                                        |Venstre: ${eldreOpplysning.gyldighetsperiode}
+                                        |Høyre: ${nyereOpplysning.gyldighetsperiode}
+                                                """.trimMargin()
+                                            }
+                                            eldreOpplysning.lagForkortet(nyereOpplysning)
+                                        }
+
+                                        // trimmer i starten
+                                        nyereOpplysning.gyldighetsperiode.overlapperMedSnute(eldreOpplysning.gyldighetsperiode) ->
+                                            error(
+                                                "egentlig ikke støttet: eldreOpplysning skal endre fraOgMed-datoen sin til etter nyereOpplysning sin tilOgMed-dato!",
+                                            )
+
+                                        // trimmer i slutten
+                                        nyereOpplysning.gyldighetsperiode.overlapperMedHale(eldreOpplysning.gyldighetsperiode) -> {
+                                            logger.info {
+                                                """
+                                        |Kant-i-kant overlapper opplysning ${eldreOpplysning.id} og ${nyereOpplysning.id} for type ${eldreOpplysning.opplysningstype.navn}. Lager forkortet opplysning.
+                                        |Venstre: ${eldreOpplysning.gyldighetsperiode}
+                                        |Høyre: ${nyereOpplysning.gyldighetsperiode}
+                                                """.trimMargin()
+                                            }
+                                            eldreOpplysning.lagForkortet(nyereOpplysning)
+                                        }
+
+                                        // nyereOpplysning trimmer bort hele eldreOpplysning
+                                        else -> null
+                                    }
+                                }.plusElement(nyereOpplysning)
+                        resultat = justertResultat
+                    }
+                    resultat.toMutableList()
                 }
 
         // Sorter opplysningene i samme rekkefølge som de var i før bearbeiding

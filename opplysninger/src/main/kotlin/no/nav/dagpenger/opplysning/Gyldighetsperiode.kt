@@ -24,6 +24,14 @@ data class Gyldighetsperiode(
     fun likEllerStørre(gyldighetsperiode: Gyldighetsperiode) =
         this.fraOgMed <= gyldighetsperiode.fraOgMed && this.tilOgMed >= gyldighetsperiode.tilOgMed
 
+    fun overlapperIkke(annen: Gyldighetsperiode) = !this.overlapp(annen)
+
+    fun erInni(annen: Gyldighetsperiode) = this.start > annen.start && this.endInclusive < annen.endInclusive
+
+    fun overlapperMedHale(annen: Gyldighetsperiode) = this.start > annen.start && this.endInclusive >= annen.endInclusive
+
+    fun overlapperMedSnute(annen: Gyldighetsperiode) = this.start <= annen.start && this.endInclusive < annen.endInclusive
+
     override fun toString(): String =
         when {
             fraOgMed.isEqual(LocalDate.MIN) && tilOgMed.isEqual(LocalDate.MAX) -> "gyldig for alltid"
