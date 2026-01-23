@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
+import no.nav.dagpenger.opplysning.Opplysninger.Companion.logger
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.util.UUID
@@ -147,28 +148,44 @@ class Opplysninger private constructor(
             this
                 .groupBy { it.opplysningstype }
                 .mapValues { (_, perioder) ->
-                    // Finn den siste for hver opplysning som har lik gyldighetsperiode
-                    val unikePerioder = perioder.sortedBy { it.id }.distinctByLast { it.gyldighetsperiode }
+                    val sortert = perioder.sortedBy { it.gyldighetsperiode.fraOgMed }
+                    val resultat = mutableListOf<Opplysning<*>>()
 
-                    // Legg opplysninger som overlapper kant-i-kant hvor siste vinner
-                    unikePerioder
-                        .zipWithNext()
-                        .mapNotNull { (venstre, høyre) ->
-                            if (!venstre.gyldighetsperiode.overlapp(høyre.gyldighetsperiode)) return@mapNotNull venstre
-                            if (høyre.gyldighetsperiode.likEllerStørre(venstre.gyldighetsperiode)) return@mapNotNull høyre
-                            if (venstre.gyldighetsperiode.fraOgMed.isEqual(høyre.gyldighetsperiode.fraOgMed)) return@mapNotNull null
-                            logger.info {
-                                """
-                                |Kant-i-kant overlapper opplysning ${venstre.id} og ${høyre.id} for type ${venstre.opplysningstype.navn}. Lager forkortet opplysning.
-                                |Venstre: ${venstre.gyldighetsperiode}
-                                |Høyre: ${høyre.gyldighetsperiode}
-                                """.trimMargin()
+                    sortert.forEach { utfordrer ->
+                        val forrige = resultat.lastOrNull()
+
+                        when {
+                            // finner ingenting fra før
+                            forrige == null -> resultat.add(utfordrer)
+                            // Ingen overlapp
+                            forrige.gyldighetsperiode.endInclusive < utfordrer.gyldighetsperiode.fraOgMed -> {
+                                // Ingen overlapp, legger til utfordrer
+                                resultat.add(utfordrer)
                             }
-                            venstre.lagForkortet(høyre)
+                            // det er overlapp, men forrige er nyest
+                            forrige.id > utfordrer.id -> {}
+                            // utfordrer er nyest, og overskriver hele forrige
+                            forrige.gyldighetsperiode.fraOgMed == utfordrer.gyldighetsperiode.fraOgMed -> {
+                                // overskriver forrige med utfordrer
+                                resultat[resultat.lastIndex] = utfordrer
+                            }
+                            else -> {
+                                val forkortet = forrige.lagForkortet(utfordrer)
+                                logger.info {
+                                    """
+                                        |Kant-i-kant overlapper opplysning ${forrige.id} og ${utfordrer.id} for type ${forrige.opplysningstype.navn}. Lager forkortet opplysning.
+                                        |Venstre: ${forrige.gyldighetsperiode}
+                                        |Høyre: ${utfordrer.gyldighetsperiode}
+                                        |Forkortet: ${forkortet.gyldighetsperiode}
+                                    """.trimMargin()
+                                }
+                                // overskriver forrige til å gjelde frem til utfordrer, og legger til utfordrer
+                                resultat[resultat.lastIndex] = forkortet
+                                resultat.add(utfordrer)
+                            }
                         }
-                        // Legg til den siste som ikke blir med i zipWithNext
-                        .plus(unikePerioder.last())
-                        .toMutableList()
+                    }
+                    resultat
                 }
 
         // Sorter opplysningene i samme rekkefølge som de var i før bearbeiding

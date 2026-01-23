@@ -447,7 +447,7 @@ class ScenarioTest {
             saksbehandler.endreOpplysning(
                 oppfyllerKravetTilVerneplikt,
                 true,
-                "False for alltid",
+                "True for alltid",
                 Gyldighetsperiode(),
             )
 
