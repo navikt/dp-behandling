@@ -147,62 +147,50 @@ class Opplysninger private constructor(
             this
                 .groupBy { it.opplysningstype }
                 .mapValues { (_, perioder) ->
-                    var resultat = emptyList<Opplysning<*>>()
-                    // eldste først
-                    val sortert = perioder.sortedBy { it.id }
+                    val resultat = mutableListOf<Opplysning<*>>()
+                    // nyeste først
+                    val sortert = perioder.sortedByDescending { it.id }
 
-                    sortert.forEach { nyereOpplysning ->
-                        val justertResultat =
-                            resultat
-                                .mapNotNull { eldreOpplysning ->
-                                    when {
-                                        // trimmer ingenting
-                                        eldreOpplysning.gyldighetsperiode.overlapperIkke(
-                                            nyereOpplysning.gyldighetsperiode,
-                                        ) -> {
-                                            eldreOpplysning
-                                        }
+                    sortert.forEach { utfordrer ->
+//                        if (resultat.any { alleredeIListen ->
+//                                utfordrer.gyldighetsperiode.erInni(alleredeIListen.gyldighetsperiode)
+//                            }
+//                        ) {
+//                            return@forEach
+//                        }
+//                        if (resultat.any { alleredeIListen ->
+//                                utfordrer.gyldighetsperiode.overlapperMedHale(alleredeIListen.gyldighetsperiode)
+//                            }
+//                        ) {
+//                            return@forEach
+//                        }
+                        val hansOlav =
+                            resultat.firstOrNull { alleredeIListen ->
+                                utfordrer.gyldighetsperiode.overlapp(alleredeIListen.gyldighetsperiode)
+                            }
+                        when {
+                            hansOlav == null -> {
+                                resultat.add(utfordrer)
+                            }
 
-                                        // trimmer i midten, men vi forholder oss bare til perioden i forkant
-                                        nyereOpplysning.gyldighetsperiode.erInni(eldreOpplysning.gyldighetsperiode) -> {
-                                            logger.info {
-                                                """
-                                        |Kant-i-kant overlapper opplysning ${eldreOpplysning.id} og ${nyereOpplysning.id} for type ${eldreOpplysning.opplysningstype.navn}. Lager forkortet opplysning.
-                                        |Venstre: ${eldreOpplysning.gyldighetsperiode}
-                                        |Høyre: ${nyereOpplysning.gyldighetsperiode}
-                                                """.trimMargin()
-                                            }
-                                            eldreOpplysning.lagForkortet(nyereOpplysning)
-                                        }
+                            utfordrer.gyldighetsperiode.erInni(hansOlav.gyldighetsperiode) -> {}
 
-                                        // trimmer i starten
-                                        nyereOpplysning.gyldighetsperiode.overlapperMedSnute(eldreOpplysning.gyldighetsperiode) -> {
-                                            // eldreOpplysning skal endre fraOgMed-datoen sin til etter nyereOpplysning sin tilOgMed-dato,
-                                            // men vi har valgt å ikke gjøre dette
-                                            null
-                                        }
+                            utfordrer.gyldighetsperiode.overlapperMedHale(hansOlav.gyldighetsperiode) -> {}
 
-                                        // trimmer i slutten
-                                        nyereOpplysning.gyldighetsperiode.overlapperMedHale(eldreOpplysning.gyldighetsperiode) -> {
-                                            logger.info {
-                                                """
-                                        |Kant-i-kant overlapper opplysning ${eldreOpplysning.id} og ${nyereOpplysning.id} for type ${eldreOpplysning.opplysningstype.navn}. Lager forkortet opplysning.
-                                        |Venstre: ${eldreOpplysning.gyldighetsperiode}
-                                        |Høyre: ${nyereOpplysning.gyldighetsperiode}
-                                                """.trimMargin()
-                                            }
-                                            eldreOpplysning.lagForkortet(nyereOpplysning)
-                                        }
-
-                                        // nyereOpplysning trimmer bort hele eldreOpplysning
-                                        else -> {
-                                            null
-                                        }
-                                    }
-                                }.plusElement(nyereOpplysning)
-                        resultat = justertResultat
+                            else -> {
+                                logger.info {
+                                    """
+                                        |Kant-i-kant overlapper opplysning ${utfordrer.id} og ${hansOlav.id} for type ${utfordrer.opplysningstype.navn}. Lager forkortet opplysning.
+                                        |Venstre: ${utfordrer.gyldighetsperiode}
+                                        |Høyre: ${hansOlav.gyldighetsperiode}
+                                    """.trimMargin()
+                                }
+                                val forkortet = hansOlav.lagForkortet(utfordrer)
+                                resultat.add(forkortet)
+                            }
+                        }
                     }
-                    resultat.toMutableList()
+                    resultat.reversed().toMutableList()
                 }
 
         // Sorter opplysningene i samme rekkefølge som de var i før bearbeiding
