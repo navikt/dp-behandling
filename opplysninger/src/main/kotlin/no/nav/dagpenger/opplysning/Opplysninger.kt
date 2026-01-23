@@ -159,7 +159,9 @@ class Opplysninger private constructor(
                                         // trimmer ingenting
                                         eldreOpplysning.gyldighetsperiode.overlapperIkke(
                                             nyereOpplysning.gyldighetsperiode,
-                                        ) -> eldreOpplysning
+                                        ) -> {
+                                            eldreOpplysning
+                                        }
 
                                         // trimmer i midten, men vi forholder oss bare til perioden i forkant
                                         nyereOpplysning.gyldighetsperiode.erInni(eldreOpplysning.gyldighetsperiode) -> {
@@ -174,10 +176,11 @@ class Opplysninger private constructor(
                                         }
 
                                         // trimmer i starten
-                                        nyereOpplysning.gyldighetsperiode.overlapperMedSnute(eldreOpplysning.gyldighetsperiode) ->
-                                            error(
-                                                "egentlig ikke støttet: eldreOpplysning skal endre fraOgMed-datoen sin til etter nyereOpplysning sin tilOgMed-dato!",
-                                            )
+                                        nyereOpplysning.gyldighetsperiode.overlapperMedSnute(eldreOpplysning.gyldighetsperiode) -> {
+                                            // eldreOpplysning skal endre fraOgMed-datoen sin til etter nyereOpplysning sin tilOgMed-dato,
+                                            // men vi har valgt å ikke gjøre dette
+                                            null
+                                        }
 
                                         // trimmer i slutten
                                         nyereOpplysning.gyldighetsperiode.overlapperMedHale(eldreOpplysning.gyldighetsperiode) -> {
@@ -192,7 +195,9 @@ class Opplysninger private constructor(
                                         }
 
                                         // nyereOpplysning trimmer bort hele eldreOpplysning
-                                        else -> null
+                                        else -> {
+                                            null
+                                        }
                                     }
                                 }.plusElement(nyereOpplysning)
                         resultat = justertResultat
