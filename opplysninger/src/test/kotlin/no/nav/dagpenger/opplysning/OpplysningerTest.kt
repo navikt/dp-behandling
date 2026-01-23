@@ -152,6 +152,116 @@ class OpplysningerTest {
         result shouldContainInOrder listOf("B1", "A3")
     }
 
+    @Test
+    fun `håndterer overlappende perioder hvor nyeste opplysning har tidligere fraOgMed enn eldste`() {
+        // Dette scenarioet reproduserer feilen fra stacktracen prod:
+        // - Opplysning med nyere ID (senere opprettet) har fraOgMed=2025-12-29
+        // - Opplysning med eldre ID har gyldighetsperiode som slutter 2025-12-11
+        // - Når sortert etter ID kommer nyeste først, men logisk sett skal den med tidligste fraOgMed behandles først
+
+        /*
+
+            En opplysning har denne historikken:
+            01.12.2025	28.12.2025 --	Ja
+            29.12.2025	05.01.2026 --	Nei
+            06.01.2026	--	Ja
+            Så legger vi til en opplysning som endrer den første perioden til å starte tidligere:
+            Og endrer perioden til: 04.12.2025	28.12.2025	-- Nei.
+
+         */
+        val opplysninger1 = Opplysninger()
+
+        val første =
+            Faktum(
+                boolskA,
+                true,
+                Gyldighetsperiode(
+                    fraOgMed = 1 desember 2025,
+                    tilOgMed = LocalDate.MAX,
+                ),
+            )
+        opplysninger1.leggTil(første)
+
+        val opplysninger2 = Opplysninger.basertPå(opplysninger1)
+
+        val endring1 =
+            Faktum(
+                boolskA,
+                true,
+                Gyldighetsperiode(
+                    fraOgMed = 1 desember 2025,
+                    tilOgMed = 28 desember 2025,
+                ),
+            )
+        val endring2 =
+            Faktum(
+                boolskA,
+                false,
+                Gyldighetsperiode(
+                    fraOgMed = 29 desember 2025,
+                    tilOgMed = LocalDate.MAX,
+                ),
+            )
+
+        opplysninger2.leggTil(endring1)
+        opplysninger2.leggTil(endring2)
+
+        val opplysninger3 = Opplysninger.basertPå(opplysninger2)
+        // Annen opplysning: starter 29. desember (senere dato, men skal ha nyere ID)
+        // Dette simulerer at en nyere opplysning legges til som faktisk gjelder en senere periode
+        val endring3 =
+            Faktum(
+                boolskA,
+                false,
+                Gyldighetsperiode(
+                    fraOgMed = 29 desember 2025,
+                    tilOgMed = 5 januar 2026,
+                ),
+            )
+
+        val endring4 =
+            Faktum(
+                boolskA,
+                true,
+                Gyldighetsperiode(
+                    fraOgMed = 6 januar 2026,
+                    tilOgMed = LocalDate.MAX,
+                ),
+            )
+        opplysninger3.leggTil(endring3)
+        opplysninger3.leggTil(endring4)
+
+        // Før fiksen ville dette krasje med:
+        // java.lang.IllegalArgumentException: fraOgMed=2025-12-29 må være før tilOgMed=2025-12-11
+        // fordi lagForkortet fikk opplysningene i feil rekkefølge (sortert etter ID)
+
+        val endring5 =
+            Faktum(
+                boolskA,
+                false,
+                Gyldighetsperiode(
+                    fraOgMed = 4 desember 2025,
+                    tilOgMed = 28 desember 2025,
+                ),
+            )
+        opplysninger3.leggTil(endring5)
+
+        // Etter fiksen skal dette fungere - vi får to separate perioder
+        val resultat = opplysninger3.somListe()
+        resultat shouldHaveSize 4
+
+        // Verifiser at periodene er korrekte
+        val sortert = resultat.sortedBy { it.gyldighetsperiode.fraOgMed }
+        sortert[0].gyldighetsperiode.fraOgMed shouldBe 1.desember(2025)
+        sortert[0].gyldighetsperiode.tilOgMed shouldBe 3.desember(2025)
+        sortert[1].gyldighetsperiode.fraOgMed shouldBe 4.desember(2025)
+        sortert[1].gyldighetsperiode.tilOgMed shouldBe 28.desember(2025)
+        sortert[2].gyldighetsperiode.fraOgMed shouldBe 29.desember(2025)
+        sortert[2].gyldighetsperiode.tilOgMed shouldBe 5.januar(2026)
+        sortert[3].gyldighetsperiode.fraOgMed shouldBe 6.januar(2026)
+        sortert[3].gyldighetsperiode.tilOgMed shouldBe LocalDate.MAX
+    }
+
     //language=Mermaid
     val blurp =
         """
