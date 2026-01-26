@@ -5,9 +5,11 @@ import java.time.LocalDate
 data class Gyldighetsperiode(
     val fraOgMed: LocalDate = LocalDate.MIN,
     val tilOgMed: LocalDate = LocalDate.MAX,
-    private val range: ClosedRange<LocalDate> = fraOgMed..tilOgMed,
-) : ClosedRange<LocalDate> by range {
+) : ClosedRange<LocalDate> {
     constructor(fom: LocalDate) : this(fom, LocalDate.MAX)
+
+    override val start = fraOgMed
+    override val endInclusive = tilOgMed
 
     init {
         require(fraOgMed.isEqual(tilOgMed) || fraOgMed.isBefore(tilOgMed)) { "fraOgMed=$fraOgMed må være før tilOgMed=$tilOgMed" }
@@ -16,7 +18,7 @@ data class Gyldighetsperiode(
         }
     }
 
-    fun inneholder(dato: LocalDate) = dato in range
+    fun inneholder(dato: LocalDate) = dato in this
 
     fun overlapp(gyldighetsperiode: Gyldighetsperiode) =
         this.contains(gyldighetsperiode.fraOgMed) || gyldighetsperiode.contains(this.fraOgMed)
