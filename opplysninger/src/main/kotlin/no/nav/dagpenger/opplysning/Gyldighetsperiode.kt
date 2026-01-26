@@ -12,8 +12,8 @@ data class Gyldighetsperiode(
     override val endInclusive = tilOgMed
 
     init {
-        require(fraOgMed.isEqual(tilOgMed) || fraOgMed.isBefore(tilOgMed)) { "fraOgMed=$fraOgMed må være før tilOgMed=$tilOgMed" }
-        require(tilOgMed.isEqual(LocalDate.MAX) || tilOgMed.year < 200000) {
+        require(fraOgMed <= tilOgMed) { "fraOgMed=$fraOgMed må være før tilOgMed=$tilOgMed" }
+        require(tilOgMed == LocalDate.MAX || tilOgMed.year < 200_000) {
             "Hvis tilOgMed ikke er MAX må den ikke være tusenvis av år inn i framtiden"
         }
     }
