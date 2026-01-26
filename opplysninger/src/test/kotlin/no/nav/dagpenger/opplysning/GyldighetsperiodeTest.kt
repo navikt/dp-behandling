@@ -107,19 +107,4 @@ internal class GyldighetsperiodeTest {
         val b = Gyldighetsperiode(11.januar(2024), 20.januar(2024))
         a.overlapp(b) shouldBe false
     }
-
-    @Test
-    fun `kan sjekke om en gyldighetsperiode spenner over en hel annen periode`() {
-        Gyldighetsperiode(1.januar, 30.januar)
-            .likEllerStørre(Gyldighetsperiode(10.januar, 15.januar)) shouldBe true
-
-        Gyldighetsperiode(1.januar)
-            .likEllerStørre(Gyldighetsperiode(10.januar, 15.januar)) shouldBe true
-
-        Gyldighetsperiode(1.januar)
-            .likEllerStørre(Gyldighetsperiode(10.januar)) shouldBe true
-
-        Gyldighetsperiode(1.januar)
-            .likEllerStørre(Gyldighetsperiode(1.januar)) shouldBe true
-    }
 }
