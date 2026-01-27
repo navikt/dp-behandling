@@ -157,6 +157,16 @@ object Avklaringspunkter {
                 """.trimIndent(),
         )
 
+    val InntektManueltRedigert =
+        Avklaringkode(
+            kode = "InntektManueltRedigert",
+            tittel = "Manuelt redigert inntekt",
+            beskrivelse =
+                """
+                Inntekten er manuelt redigert. Du må begrunne årsaken.
+                """.trimIndent(),
+        )
+
     val SvangerskapsrelaterteSykepenger =
         Avklaringkode(
             kode = "SvangerskapsrelaterteSykepenger",

@@ -13,6 +13,7 @@ import no.nav.dagpenger.regel.FulleYtelser.FulleYtelserKontrollpunkt
 import no.nav.dagpenger.regel.Minsteinntekt.EØSArbeidKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.InntektNesteKalendermånedKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.JobbetUtenforNorgeKontroll
+import no.nav.dagpenger.regel.Minsteinntekt.ManueltRedigertKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.PrøverEtterRapporteringsfristKontroll
 import no.nav.dagpenger.regel.Minsteinntekt.SvangerskapsrelaterteSykepengerKontroll
 import no.nav.dagpenger.regel.Opphold.BostedslandKontroll
@@ -55,6 +56,7 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
             HattLukkedeSakerSiste8UkerKontroll,
             IkkeRegistrertSomArbeidsøkerKontroll,
             InntektNesteKalendermånedKontroll,
+            ManueltRedigertKontroll,
             JobbetUtenforNorgeKontroll,
             ManglerReellArbeidssøkerKontroll,
             MuligGjenopptakKontroll,
