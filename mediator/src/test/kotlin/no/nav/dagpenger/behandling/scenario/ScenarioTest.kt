@@ -308,8 +308,7 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                // TODO: Denne bør bli innvilgelse
-                // førteTil shouldBe "Stans"
+                førteTil shouldBe "Stans"
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
