@@ -24,6 +24,7 @@ import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Behov.Inntekt
@@ -152,6 +153,15 @@ object Minsteinntekt {
 
     val InntektNesteKalendermånedKontroll =
         Kontrollpunkt(Avklaringspunkter.InntektNesteKalendermåned) { it.har(inntektFraSkatt) }
+
+    val ManueltRedigertKontroll =
+        Kontrollpunkt(Avklaringspunkter.InntektManueltRedigert) {
+            if (it.mangler(inntektFraSkatt)) return@Kontrollpunkt false
+
+            val inntekt = it.finnOpplysning(inntektFraSkatt).verdi.verdi
+
+            inntekt.manueltRedigert == true
+        }
 
     val PrøverEtterRapporteringsfristKontroll =
         Kontrollpunkt(Avklaringspunkter.PrøvingsdatoEtterRapporteringsfrist) {

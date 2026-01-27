@@ -104,6 +104,13 @@ Søker er ikke registrert som arbeidssøker på søknadstidspunktet.
 ### Tilknyttet regelsett
 - [§ 4-5. Reelle arbeidssøkere](./opplysninger.approved.md#-4-5-reelle-arbeidssøkere)
 ---
+## Manuelt redigert inntekt
+**Kode:** `InntektManueltRedigert`
+
+### Beskrivelse
+Inntekten er manuelt redigert. Du må begrunne årsaken.
+
+---
 ## Inntekt neste måned
 **Kode:** `InntektNesteKalendermåned`
 
