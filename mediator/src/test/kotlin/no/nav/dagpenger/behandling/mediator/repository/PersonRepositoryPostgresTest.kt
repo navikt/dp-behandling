@@ -3,14 +3,13 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.dagpenger.behandling.TestOpplysningstyper.heltall
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Heltall
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
@@ -51,7 +50,7 @@ class PersonRepositoryPostgresTest {
     fun `lagre setter inn person og deres behandlinger i databasen`() =
         e2eTest {
             val ident = Ident(fnr)
-            val opplysning = Faktum(Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Heltall"), 5)
+            val opplysning = Faktum(heltall, 5)
             val behandling = Behandling(søknadInnsendtHendelse, listOf(opplysning))
             val person = Person(ident, listOf(behandling))
 
