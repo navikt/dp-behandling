@@ -27,6 +27,7 @@ class HendelseMediatorTest {
             HendelseMediator(
                 personRepository = mockk(),
                 meldekortRepository = mockk(),
+                postgres = mockk(),
                 behovMediator = mockk(),
                 aktivitetsloggMediator = mockk(),
             )

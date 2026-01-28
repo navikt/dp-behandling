@@ -19,32 +19,12 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
+import javax.sql.DataSource
 
 class PersonRepositoryPostgresTest {
-    private val fnr = "12345678901"
-    private val søknadId = UUIDv7.ny()
-    private val personRepositoryPostgres
-        get() =
-            PersonRepositoryPostgres(
-                BehandlingRepositoryPostgres(
-                    opplysningerRepository(),
-                    mockk(relaxed = true),
-                ),
-            )
-    private val søknadInnsendtHendelse =
-        SøknadInnsendtHendelse(
-            meldingsreferanseId = søknadId,
-            ident = fnr,
-            søknadId = søknadId,
-            gjelderDato = LocalDate.now(),
-            fagsakId = 1,
-            opprettet = LocalDateTime.now(),
-            Søknadstype.NySøknad,
-        )
-
     @Test
     fun `hent returnerer person når personen finnes i databasen`() =
-        withMigratedDb {
+        e2eTest {
             val ident = Ident(fnr)
             val expectedPerson =
                 Person(ident, emptyList()).also {
@@ -59,7 +39,7 @@ class PersonRepositoryPostgresTest {
 
     @Test
     fun `hent returnerer null når personen ikke finnes i databasen`() =
-        withMigratedDb {
+        e2eTest {
             val ident = Ident(fnr)
 
             val actualPerson = personRepositoryPostgres.hent(ident)
@@ -69,7 +49,7 @@ class PersonRepositoryPostgresTest {
 
     @Test
     fun `lagre setter inn person og deres behandlinger i databasen`() =
-        withMigratedDb {
+        e2eTest {
             val ident = Ident(fnr)
             val opplysning = Faktum(Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Heltall"), 5)
             val behandling = Behandling(søknadInnsendtHendelse, listOf(opplysning))
@@ -95,7 +75,7 @@ class PersonRepositoryPostgresTest {
 
     @Test
     fun `lagre setter ikke inn person i databasen når personen allerede finnes`() =
-        withMigratedDb {
+        e2eTest {
             val ident = Ident(fnr)
             val behandling = Behandling(søknadInnsendtHendelse, emptyList())
             val person = Person(ident, listOf(behandling))
@@ -103,4 +83,43 @@ class PersonRepositoryPostgresTest {
             personRepositoryPostgres.lagre(person)
             personRepositoryPostgres.lagre(person)
         }
+}
+
+private data class PersonRepositoryTestContext(
+    val personRepositoryPostgres: PersonRepositoryPostgres,
+    val dataSource: DataSource,
+) {
+    val fnr = "12345678901"
+    val søknadId = UUIDv7.ny()
+
+    val søknadInnsendtHendelse =
+        SøknadInnsendtHendelse(
+            meldingsreferanseId = søknadId,
+            ident = fnr,
+            søknadId = søknadId,
+            gjelderDato = LocalDate.now(),
+            fagsakId = 1,
+            opprettet = LocalDateTime.now(),
+            Søknadstype.NySøknad,
+        )
+}
+
+private fun e2eTest(block: PersonRepositoryTestContext.() -> Unit) {
+    withMigratedDb {
+        val opplysningerRepository = opplysningerRepository(dataSource)
+        val behandlingRepositoryPostgres =
+            BehandlingRepositoryPostgres(
+                opplysningerRepository,
+                mockk(relaxed = true),
+                dataSource,
+            )
+        val personRepositoryPostgres =
+            PersonRepositoryPostgres(
+                behandlingRepositoryPostgres,
+                dataSource,
+            )
+
+        val testContext = PersonRepositoryTestContext(personRepositoryPostgres, dataSource)
+        block(testContext)
+    }
 }

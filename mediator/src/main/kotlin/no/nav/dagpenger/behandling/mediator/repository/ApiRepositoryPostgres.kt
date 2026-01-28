@@ -5,7 +5,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
 import no.nav.dagpenger.behandling.mediator.melding.Melding
 import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
@@ -16,6 +15,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeoutException
+import javax.sql.DataSource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -34,6 +34,7 @@ internal class ApiMelding(
 
 internal class ApiRepositoryPostgres(
     private val meldingRepository: MeldingRepository,
+    private val dataSource: DataSource,
     private val timout: Duration = 15.seconds,
     private val pollIntervalMs: Duration = 50.milliseconds,
 ) {

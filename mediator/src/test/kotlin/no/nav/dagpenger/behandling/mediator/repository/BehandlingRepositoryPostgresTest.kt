@@ -70,8 +70,9 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `lagre og hent behandling fra postgres`() {
         withMigratedDb {
-            val avklaringRepository = AvklaringRepositoryPostgres()
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository)
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
+            val behandlingRepositoryPostgres =
+                BehandlingRepositoryPostgres(opplysningerRepository(dataSource), avklaringRepository, dataSource)
 
             behandlingRepositoryPostgres.lagre(basertPåBehandling)
             behandlingRepositoryPostgres.lagre(behandling)

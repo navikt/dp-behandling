@@ -6,7 +6,6 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaring.Endring.Avbrutt
 import no.nav.dagpenger.avklaring.Avklaring.Endring.Avklart
 import no.nav.dagpenger.avklaring.Avklaring.Endring.UnderBehandling
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryObserver.NyAvklaringHendelse
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -18,12 +17,14 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDateTime
 import java.util.UUID
+import javax.sql.DataSource
 
 internal class AvklaringRepositoryPostgres private constructor(
+    private val dataSource: DataSource,
     private val observatører: MutableList<AvklaringRepositoryObserver> = mutableListOf(),
-    private val kildeRepository: KildeRepository = KildeRepository(),
+    private val kildeRepository: KildeRepository = KildeRepository(dataSource),
 ) : AvklaringRepository {
-    constructor(vararg observatører: AvklaringRepositoryObserver) : this(observatører.toMutableList())
+    constructor(dataSource: DataSource, vararg observatører: AvklaringRepositoryObserver) : this(dataSource, observatører.toMutableList())
 
     fun registerObserver(observer: AvklaringRepositoryObserver) {
         observatører.add(observer)

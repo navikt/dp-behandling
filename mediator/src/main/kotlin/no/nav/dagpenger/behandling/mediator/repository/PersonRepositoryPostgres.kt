@@ -5,7 +5,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
@@ -13,9 +12,11 @@ import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
+import javax.sql.DataSource
 
 class PersonRepositoryPostgres(
     private val behandlingRepository: BehandlingRepository,
+    private val dataSource: DataSource,
 ) : PersonRepository,
     BehandlingRepository by behandlingRepository {
     private companion object {
@@ -89,7 +90,7 @@ class PersonRepositoryPostgres(
 
     override fun lagre(person: Person) {
         lagrePersonMetrikk.time {
-            val unitOfWork = PostgresUnitOfWork.transaction()
+            val unitOfWork = PostgresUnitOfWork.transaction(dataSource)
             lagre(person, unitOfWork)
             unitOfWork.commit()
         }

@@ -4,15 +4,17 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import java.util.UUID
+import javax.sql.DataSource
 
-internal class KildeRepository {
+internal class KildeRepository(
+    private val dataSource: DataSource,
+) {
     @WithSpan
     fun hentKilde(uuid: UUID): Kilde? = hentKilder(listOf(uuid))[uuid]
 

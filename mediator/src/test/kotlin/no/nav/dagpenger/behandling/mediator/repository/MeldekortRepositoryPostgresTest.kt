@@ -7,8 +7,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.db.DBTestContext
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.mediator.repository.Meldekortgenerator.Companion.generatorFor
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
@@ -30,7 +30,7 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun `lagre og hente meldekort`() {
         withMigratedDb {
-            val meldekortRepository = MeldekortRepositoryPostgres()
+            val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
             val ident = "12345678910"
             val start = LocalDate.now()
             val dager =
@@ -125,7 +125,7 @@ class MeldekortRepositoryPostgresTest {
 
     private fun LocalDateTime.truncateToSeconds() = this.truncatedTo(ChronoUnit.SECONDS)
 
-    private fun lagreHendelseOmMeldekort(
+    private fun DBTestContext.lagreHendelseOmMeldekort(
         ident: String,
         meldekortInnsendtHendelse: MeldekortInnsendtHendelse,
     ) {
@@ -172,14 +172,14 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun hentUbehandledeMeldekort() {
         withMigratedDb {
-            val repo = MeldekortRepositoryPostgres()
+            val repo = MeldekortRepositoryPostgres(dataSource)
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
 
             val person1 = repo.generatorFor("111111111", 1.januar(2024), meldingGenerator)
             val person2 = repo.generatorFor("222222222", 1.januar(2024), meldingGenerator)
 
-            person1.lagMeldekort(10)
-            person2.lagMeldekort(10)
+            person1.lagMeldekort(dataSource, 10)
+            person2.lagMeldekort(dataSource, 10)
 
             // Behandler de 3 første meldekortene for person 2
             person2.markerFerdig(1)
@@ -187,7 +187,7 @@ class MeldekortRepositoryPostgresTest {
             person2.markerFerdig(3)
 
             // Person 2 korrigerer meldekort 4 før vi har behandlet det
-            person2.lagKorrigering(4) {
+            person2.lagKorrigering(dataSource, 4) {
                 listOf()
             }
 
@@ -227,11 +227,11 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun `plukker ikke meldekort som er sendt inn før meldedag`() {
         withMigratedDb {
-            val repo = MeldekortRepositoryPostgres()
+            val repo = MeldekortRepositoryPostgres(dataSource)
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
 
             val person1 = repo.generatorFor("111111111", 1.januar(2018), meldingGenerator)
-            person1.lagMeldekort(5)
+            person1.lagMeldekort(dataSource, 5)
 
             repo.hentMeldekortkø(11.januar(2018)).behandlingsklare shouldHaveSize 0
             repo.hentMeldekortkø(12.januar(2018)).behandlingsklare shouldHaveSize 0

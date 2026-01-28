@@ -5,17 +5,18 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.db.medLås
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import javax.sql.DataSource
 
 class MeldekortBehandlingskø(
     private val personRepositoryPostgres: PersonRepository,
     private val meldekortRepository: MeldekortRepository,
     private val rapid: MessageContext,
+    private val dataSource: DataSource,
 ) {
     companion object {
         private const val LÅSE_NØKKEL = 98769876

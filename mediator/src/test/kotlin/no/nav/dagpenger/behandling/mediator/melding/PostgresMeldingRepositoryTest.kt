@@ -30,7 +30,7 @@ internal class PostgresMeldingRepositoryTest {
         val søknadInnsendtMessage = SøknadInnsendtMessage(jsonMessage)
 
         Postgres.withMigratedDb {
-            val postgresHendelseRepository = PostgresMeldingRepository()
+            val postgresHendelseRepository = PostgresMeldingRepository(dataSource)
             postgresHendelseRepository.lagreMelding(
                 melding = søknadInnsendtMessage,
                 ident = søknadInnsendtMessage.ident,

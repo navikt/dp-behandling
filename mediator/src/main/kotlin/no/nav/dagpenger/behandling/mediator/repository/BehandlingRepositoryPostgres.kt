@@ -3,7 +3,6 @@ package no.nav.dagpenger.behandling.mediator.repository
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
@@ -16,11 +15,13 @@ import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretnin
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.time.LocalDate
 import java.util.UUID
+import javax.sql.DataSource
 
 internal class BehandlingRepositoryPostgres(
     private val opplysningRepository: OpplysningerRepository,
     private val avklaringRepository: AvklaringRepository,
-    private val kildeRepository: KildeRepository = KildeRepository(),
+    private val dataSource: DataSource,
+    private val kildeRepository: KildeRepository = KildeRepository(dataSource),
 ) : BehandlingRepository,
     AvklaringRepository by avklaringRepository {
     override fun hentBehandling(behandlingId: UUID): Behandling? =
@@ -83,7 +84,7 @@ internal class BehandlingRepositoryPostgres(
                             forretningsprosess = RegistrertForretningsprosess.opprett(row.string("forretningsprosess")),
                             opprettet = row.localDateTime("opprettet"),
                         ),
-                    gjeldendeOpplysninger = this.hentOpplysninger(row.uuid("opplysninger_id")),
+                    gjeldendeOpplysninger = this.hentOpplysninger(row.uuid("opplysninger_id"), kildeRepository),
                     basertPå = basertPåBehandling,
                     opprettet = row.localDateTime("opprettet"),
                     tilstand = Behandling.TilstandType.valueOf(row.string("tilstand")),
@@ -123,7 +124,7 @@ internal class BehandlingRepositoryPostgres(
         ) ?: Arbeidssteg(oppgave)
 
     override fun lagre(behandling: Behandling) {
-        val unitOfWork = PostgresUnitOfWork.transaction()
+        val unitOfWork = PostgresUnitOfWork.transaction(dataSource)
         lagre(behandling, unitOfWork)
         unitOfWork.commit()
     }

@@ -6,7 +6,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -41,18 +40,23 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import javax.sql.DataSource
 import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
-class OpplysningerRepositoryPostgres : OpplysningerRepository {
+internal class OpplysningerRepositoryPostgres(
+    private val dataSource: DataSource,
+    private val kildeRepository: KildeRepository = KildeRepository(dataSource),
+) : OpplysningerRepository {
     internal companion object {
         private val opplysningstyper by lazy {
             Opplysningstype.definerteTyper.associateBy { it.id }
         }
         private val logger = KotlinLogging.logger { }
-        private val kildeRepository = KildeRepository()
 
-        fun Session.hentOpplysninger(opplysningerId: UUID) =
-            OpplysningRepository(opplysningerId, this).hentOpplysninger().let { Opplysninger.rehydrer(opplysningerId, it) }
+        fun Session.hentOpplysninger(
+            opplysningerId: UUID,
+            kildeRepository: KildeRepository,
+        ) = OpplysningRepository(opplysningerId, this, kildeRepository).hentOpplysninger().let { Opplysninger.rehydrer(opplysningerId, it) }
 
         private val serdeBarn = objectMapper.serde<BarnListe>()
 
@@ -64,10 +68,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
     override fun hentOpplysninger(opplysningerId: UUID) =
         sessionOf(dataSource)
-            .use { session -> return@use session.hentOpplysninger(opplysningerId) }
+            .use { session -> return@use session.hentOpplysninger(opplysningerId, kildeRepository) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
-        val unitOfWork = PostgresUnitOfWork.transaction()
+        val unitOfWork = PostgresUnitOfWork.transaction(dataSource)
         lagreOpplysninger(opplysninger, unitOfWork)
         unitOfWork.commit()
     }
@@ -93,7 +97,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
         val somListe: List<Opplysning<*>> = opplysninger.somListe(LesbarOpplysninger.Filter.Egne)
 
-        OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(
+        OpplysningRepository(opplysninger.id, tx, kildeRepository).lagreOpplysninger(
             somListe.filter { it.skalLagres },
             opplysninger.fjernet(),
         )
@@ -123,7 +127,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
     private class OpplysningRepository(
         private val opplysningerId: UUID,
         private val session: Session,
-        private val kildeRespository: KildeRepository = kildeRepository,
+        private val kildeRespository: KildeRepository,
     ) {
         fun hentOpplysninger(): List<Opplysning<*>> {
             val rader: MutableSet<OpplysningRad<*>> =

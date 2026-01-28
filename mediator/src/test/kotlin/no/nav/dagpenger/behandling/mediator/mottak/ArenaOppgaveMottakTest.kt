@@ -13,16 +13,9 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 class ArenaOppgaveMottakTest {
-    private val sakRepository = spyk(SakRepositoryPostgres())
-
-    private val rapid =
-        TestRapid().apply {
-            ArenaOppgaveMottak(this, sakRepository)
-        }
-
     @Test
     fun `Sender ikke avbryt-melding når vi ikke har noen behandling i saken`() {
-        withMigratedDb {
+        e2eTest {
             every {
                 sakRepository.finnBehandling(15102351)
             } returns null
@@ -35,7 +28,7 @@ class ArenaOppgaveMottakTest {
 
     @Test
     fun `Sender ikke avbryt-melding når vi behandlingen er ferdig`() {
-        withMigratedDb {
+        e2eTest {
             val behandlingId = UUID.randomUUID()
             every {
                 sakRepository.finnBehandling(15102351)
@@ -49,7 +42,7 @@ class ArenaOppgaveMottakTest {
 
     @Test
     fun `Sender ikke avbryt-melding for oppgaver som ikke tildeles saksbehandler`() {
-        withMigratedDb {
+        e2eTest {
             val behandlingId = UUID.randomUUID()
             every {
                 sakRepository.finnBehandling(15102351)
@@ -63,7 +56,7 @@ class ArenaOppgaveMottakTest {
 
     @Test
     fun `Sender avbryt-melding for oppgaver som tildeles saksbehandler`() {
-        withMigratedDb {
+        e2eTest {
             val behandlingId = UUID.randomUUID()
             every {
                 sakRepository.finnBehandling(15102351)
@@ -146,4 +139,22 @@ class ArenaOppgaveMottakTest {
         }
       ]
     }"""
+}
+
+private data class E2ETextContext(
+    val sakRepository: SakRepositoryPostgres,
+    val rapid: TestRapid,
+)
+
+private fun e2eTest(block: E2ETextContext.() -> Unit) {
+    withMigratedDb {
+        val sakRepository = spyk(SakRepositoryPostgres(dataSource))
+        val rapid =
+            TestRapid().apply {
+                ArenaOppgaveMottak(this, sakRepository)
+            }
+
+        val testContext = E2ETextContext(sakRepository, rapid)
+        block(testContext)
+    }
 }

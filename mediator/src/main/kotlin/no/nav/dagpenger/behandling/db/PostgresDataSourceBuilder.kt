@@ -47,7 +47,7 @@ internal object PostgresDataSourceBuilder {
         }
     }
 
-    val dataSource by lazy { HikariDataSource(hikariConfig) }
+    val dataSource1 by lazy { HikariDataSource(hikariConfig) }
 
     private fun flyWayBuilder() = Flyway.configure().validateMigrationNaming(true).connectRetries(10)
 
@@ -57,13 +57,13 @@ internal object PostgresDataSourceBuilder {
         flyWayBuilder
             .cleanDisabled(
                 getOrThrow(ConfigUtils.CLEAN_DISABLED).toBooleanStrict(),
-            ).dataSource(dataSource)
+            ).dataSource(dataSource1)
             .load()
             .clean()
 
     internal fun runMigration(initSql: String? = null): Int =
         flyWayBuilder
-            .dataSource(dataSource)
+            .dataSource(dataSource1)
             .initSql(initSql)
             .load()
             .migrate()
@@ -72,7 +72,7 @@ internal object PostgresDataSourceBuilder {
 
     internal fun runMigrationTo(target: String): Int =
         flyWayBuilder()
-            .dataSource(dataSource)
+            .dataSource(dataSource1)
             .target(target)
             .load()
             .migrate()

@@ -3,6 +3,11 @@ package no.nav.dagpenger.behandling.db
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.internal.configuration.ConfigUtils
 import org.testcontainers.postgresql.PostgreSQLContainer
+import javax.sql.DataSource
+
+data class DBTestContext(
+    val dataSource: DataSource,
+)
 
 internal object Postgres {
     val instance by lazy {
@@ -12,27 +17,27 @@ internal object Postgres {
         }
     }
 
-    fun withMigratedDb(block: () -> Unit) {
+    fun withMigratedDb(block: DBTestContext.() -> Unit) {
         withCleanDb {
             PostgresDataSourceBuilder.runMigration()
-            block()
+            block(this)
         }
     }
 
     fun withMigratedDb(
         target: String,
-        block: () -> Unit,
+        block: DBTestContext.() -> Unit,
     ) {
         withCleanDb {
             PostgresDataSourceBuilder.runMigrationTo(target)
-            block()
+            block(this)
         }
     }
 
     fun withMigratedDb(): HikariDataSource {
         setup()
         PostgresDataSourceBuilder.runMigration()
-        return PostgresDataSourceBuilder.dataSource
+        return PostgresDataSourceBuilder.dataSource1
     }
 
     fun setup() {
@@ -49,12 +54,13 @@ internal object Postgres {
         System.clearProperty(ConfigUtils.CLEAN_DISABLED)
     }
 
-    fun withCleanDb(block: () -> Unit) {
+    fun withCleanDb(block: DBTestContext.() -> Unit) {
         setup()
         PostgresDataSourceBuilder
             .clean()
             .run {
-                block()
+                val testContext = DBTestContext(PostgresDataSourceBuilder.dataSource1)
+                block(testContext)
             }.also {
                 tearDown()
             }

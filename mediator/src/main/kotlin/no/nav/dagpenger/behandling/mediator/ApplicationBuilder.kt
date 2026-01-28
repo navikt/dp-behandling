@@ -10,7 +10,7 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
@@ -33,6 +33,7 @@ import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPos
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
+import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
@@ -63,25 +64,35 @@ internal class ApplicationBuilder(
     // TODO: Last alle regler ved startup. Dette må inn i ett register.
     private val opplysningstyper: Set<Opplysningstype<*>> = RegelverkDagpenger.produserer
 
-    private val avklaringRepository = AvklaringRepositoryPostgres()
-    private val opplysningRepository = OpplysningerRepositoryPostgres()
+    private val dataSource = PostgresDataSourceBuilder.dataSource1
+
+    private val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
+    private val opplysningRepository = OpplysningerRepositoryPostgres(dataSource)
 
     private val personRepository =
         PersonRepositoryPostgres(
             BehandlingRepositoryPostgres(
                 opplysningRepository,
                 avklaringRepository,
+                dataSource,
             ),
+            dataSource,
         )
 
-    private val meldekortRepositoryPostgres = MeldekortRepositoryPostgres()
+    private val meldekortRepositoryPostgres = MeldekortRepositoryPostgres(dataSource)
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepositoryPostgres)
 
-    private val hendelseMediator = HendelseMediator(personRepository, meldekortRepositoryPostgres, observatører = listOf(ventendeMeldekort))
+    private val hendelseMediator =
+        HendelseMediator(
+            personRepository,
+            meldekortRepositoryPostgres,
+            UtboksLagerPostgres(dataSource),
+            observatører = listOf(ventendeMeldekort),
+        )
 
-    private val postgresMeldingRepository = PostgresMeldingRepository()
+    private val postgresMeldingRepository = PostgresMeldingRepository(dataSource)
 
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, dataSource)
 
     private val rapidsConnection: RapidsConnection =
         RapidApplication.create(
@@ -118,7 +129,7 @@ internal class ApplicationBuilder(
             },
         ) { engine, rapidsConnection: KafkaRapid ->
             // Logger bare oppgaver enn så lenge. Bør inn i HendelseMediator
-            ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres())
+            ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres(dataSource))
 
             // Vedtak mottak
             MarkerMeldekortSomBehandletMottak(rapidsConnection, meldekortRepositoryPostgres)
@@ -161,7 +172,7 @@ internal class ApplicationBuilder(
         logger.info { "Starter opp dp-behandling" }
 
         // Start jobb som sletter fjernet opplysninger
-        SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
+        SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo(dataSource))
 
         // Start meldekortbehandling
         BehandleMeldekort(
@@ -169,12 +180,13 @@ internal class ApplicationBuilder(
                 personRepository,
                 meldekortRepositoryPostgres,
                 rapidsConnection,
+                dataSource,
             ),
         ).start()
     }
 }
 
-fun registrerRegelverk(
+internal fun registrerRegelverk(
     opplysningRepository: OpplysningerRepositoryPostgres,
     opplysningstyper: Set<Opplysningstype<*>>,
 ) {

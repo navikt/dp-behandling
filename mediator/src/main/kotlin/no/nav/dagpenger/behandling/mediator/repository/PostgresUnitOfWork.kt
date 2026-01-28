@@ -3,7 +3,7 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.Session
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import javax.sql.DataSource
 
 class PostgresUnitOfWork private constructor(
     private val session: Session,
@@ -11,7 +11,7 @@ class PostgresUnitOfWork private constructor(
     private val transactionTimer = DbMetrics.transactionDuration.startTimer()
 
     companion object {
-        fun transaction() =
+        fun transaction(dataSource: DataSource) =
             PostgresUnitOfWork(sessionOf(dataSource)).apply {
                 session.connection.begin()
                 DbMetrics.activeTransactions.inc()

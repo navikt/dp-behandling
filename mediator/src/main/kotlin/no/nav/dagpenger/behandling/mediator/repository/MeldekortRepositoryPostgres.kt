@@ -5,7 +5,6 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortkø
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortstatus
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør
@@ -21,9 +20,12 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import javax.sql.DataSource
 import kotlin.time.Duration.Companion.seconds
 
-class MeldekortRepositoryPostgres : MeldekortRepository {
+class MeldekortRepositoryPostgres(
+    private val dataSource: DataSource,
+) : MeldekortRepository {
     override fun lagre(meldekort: Meldekort) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->

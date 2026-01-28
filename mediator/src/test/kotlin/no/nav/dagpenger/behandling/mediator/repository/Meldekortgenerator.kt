@@ -2,7 +2,6 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -13,6 +12,7 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import javax.sql.DataSource
 
 class Meldekortgenerator private constructor(
     private val repository: MeldekortRepository,
@@ -24,6 +24,7 @@ class Meldekortgenerator private constructor(
     private val innsendteMeldekort = mutableListOf<Meldekort>()
 
     fun lagKorrigering(
+        dataSource: DataSource,
         i: Int,
         block: () -> List<Dag>,
     ): Boolean =
@@ -38,13 +39,16 @@ class Meldekortgenerator private constructor(
                             korrigeringAv = meldekort.eksternMeldekortId,
                             dager = block(),
                         )
-                lagreHendelseOmMeldekort(korrigertMeldekort)
+                lagreHendelseOmMeldekort(dataSource, korrigertMeldekort)
                 innsendteMeldekort.add(korrigertMeldekort)
             }
 
-    fun lagMeldekort(antall: Int = 1) {
+    fun lagMeldekort(
+        dataSource: DataSource,
+        antall: Int = 1,
+    ) {
         repeat(antall) {
-            lagreHendelseOmMeldekort(meldekort())
+            lagreHendelseOmMeldekort(dataSource, meldekort())
         }
     }
 
@@ -86,14 +90,17 @@ class Meldekortgenerator private constructor(
         return meldekort
     }
 
-    private fun lagreHendelseOmMeldekort(meldekort: Meldekort) {
+    private fun lagreHendelseOmMeldekort(
+        dataSource: DataSource,
+        meldekort: Meldekort,
+    ) {
         val meldekortInnsendtHendelse =
             MeldekortInnsendtHendelse(
                 opprettet = LocalDateTime.now(),
                 meldingsreferanseId = meldekort.meldingsreferanseId,
                 meldekort = meldekort,
             )
-        sessionOf(PostgresDataSourceBuilder.dataSource).use { session ->
+        sessionOf(dataSource).use { session ->
             session.run(
                 queryOf(
                     //language=PostgreSQL

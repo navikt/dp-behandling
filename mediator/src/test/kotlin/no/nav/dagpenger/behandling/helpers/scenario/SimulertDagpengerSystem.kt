@@ -28,15 +28,18 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgr
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
+import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import org.approvaltests.Approvals
 import java.util.UUID
+import javax.sql.DataSource
 import kotlin.random.Random
 
 internal class SimulertDagpengerSystem(
+    val dataSource: DataSource,
     oppsett: ScenarioOptions,
 ) {
     companion object {
@@ -44,28 +47,31 @@ internal class SimulertDagpengerSystem(
     }
 
     private val rapid = TestRapid()
-    private val opplysningerRepository = OpplysningerRepositoryPostgres()
+    private val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource)
     private val personRepository =
         PersonRepositoryPostgres(
             BehandlingRepositoryPostgres(
                 opplysningerRepository,
-                AvklaringRepositoryPostgres(AvklaringKafkaObservatør(rapid)),
+                AvklaringRepositoryPostgres(dataSource, AvklaringKafkaObservatør(rapid)),
+                dataSource,
             ),
+            dataSource,
         )
-    private val meldekortRepository = MeldekortRepositoryPostgres()
+    private val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
     private val hendelseMediator =
         HendelseMediator(
             personRepository = personRepository,
             meldekortRepository = meldekortRepository,
+            postgres = UtboksLagerPostgres(dataSource),
             behovMediator = BehovMediator(),
             aktivitetsloggMediator = mockk(relaxed = true),
             listOf(ventendeMeldekort),
         )
 
-    private val postgresMeldingRepository = PostgresMeldingRepository()
+    private val postgresMeldingRepository = PostgresMeldingRepository(dataSource)
 
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, dataSource)
     val auditlogg = TestAuditlogg()
 
     init {
@@ -120,7 +126,7 @@ internal class SimulertDagpengerSystem(
     ) {
         fun test(block: SimulertDagpengerSystem.() -> Unit) {
             Postgres.withMigratedDb {
-                val test = SimulertDagpengerSystem(this)
+                val test = SimulertDagpengerSystem(dataSource, this@ScenarioOptions)
                 test.opprettPerson(ident)
                 test.block()
 
@@ -156,7 +162,7 @@ internal class SimulertDagpengerSystem(
         }
     }
 
-    val meldekortkø = MeldekortBehandlingskø(personRepository, meldekortRepository, TestLol(rapid))
+    val meldekortkø = MeldekortBehandlingskø(personRepository, meldekortRepository, TestLol(rapid), dataSource)
 
     fun meldekortBatch(avklar: Boolean = false) {
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()

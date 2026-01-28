@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
@@ -19,8 +18,11 @@ import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMessage
 import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import org.postgresql.util.PGobject
 import java.util.UUID
+import javax.sql.DataSource
 
-internal class PostgresMeldingRepository : MeldingRepository {
+internal class PostgresMeldingRepository(
+    private val dataSource: DataSource,
+) : MeldingRepository {
     override fun lagreMelding(
         melding: Melding,
         ident: String,

@@ -15,22 +15,19 @@ import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import javax.sql.DataSource
 
 class MeldekortBehandlingskøTest {
-    private val rapid = TestRapid()
-    private val personRepository = mockk<PersonRepository>()
-    private val meldekortRepository = MeldekortRepositoryPostgres()
-
     private val ident = "12345678901"
 
     @Test
     fun `tester kø`() {
-        withMigratedDb {
-            val meldekort = MeldekortBehandlingskø(personRepository, meldekortRepository, rapid)
+        e2eTest {
+            val meldekort = MeldekortBehandlingskø(personRepository, meldekortRepository, rapid, dataSource)
             lagPerson(1.januar(2024))
 
             val person = meldekortRepository.generatorFor(ident, 1.januar(2024))
-            person.lagMeldekort(2)
+            person.lagMeldekort(dataSource, 2)
 
             // Første meldekort behandles
             meldekort.sendMeldekortTilBehandling()
@@ -49,7 +46,7 @@ class MeldekortBehandlingskøTest {
         }
     }
 
-    private fun lagPerson(innvilget: LocalDate) {
+    private fun E2ETextContext.lagPerson(innvilget: LocalDate) {
         every {
             personRepository.rettighetstatusFor(ident.tilPersonIdentfikator())
         } returns
@@ -65,5 +62,23 @@ class MeldekortBehandlingskøTest {
                     ),
                 )
             }
+    }
+}
+
+private data class E2ETextContext(
+    val personRepository: PersonRepository,
+    val meldekortRepository: MeldekortRepositoryPostgres,
+    val rapid: TestRapid,
+    val dataSource: DataSource,
+)
+
+private fun e2eTest(block: E2ETextContext.() -> Unit) {
+    withMigratedDb {
+        val rapid = TestRapid()
+        val personRepository = mockk<PersonRepository>()
+        val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
+
+        val testContext = E2ETextContext(personRepository, meldekortRepository, rapid, dataSource)
+        block(testContext)
     }
 }

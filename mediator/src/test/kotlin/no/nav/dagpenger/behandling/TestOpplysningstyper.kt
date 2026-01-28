@@ -16,6 +16,7 @@ import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.uuid.UUIDv7
 import java.util.UUID
+import javax.sql.DataSource
 import kotlin.reflect.full.memberProperties
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -48,8 +49,8 @@ internal object TestOpplysningstyper {
     val beløpA = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpA")
     val beløpB = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpB")
 
-    fun opplysningerRepository(): OpplysningerRepositoryPostgres =
-        OpplysningerRepositoryPostgres().apply {
+    fun opplysningerRepository(dataSource: DataSource): OpplysningerRepositoryPostgres =
+        OpplysningerRepositoryPostgres(dataSource).apply {
             lagreOpplysningstyper(definerteTyper)
         }
 

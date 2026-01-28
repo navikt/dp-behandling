@@ -10,7 +10,6 @@ import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode
 import no.nav.dagpenger.behandling.juli

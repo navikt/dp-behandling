@@ -27,7 +27,6 @@ import no.nav.dagpenger.behandling.TestOpplysningstyper.utledetOpplysningstype
 import no.nav.dagpenger.behandling.april
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.behandling.objectMapper
@@ -68,7 +67,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `lagrer enkle opplysninger`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val heltallFaktum = Faktum(heltall, 10)
             val kildeA = Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("foo"))
             val boolskFaktum = Faktum(boolsk, true, kilde = kildeA)
@@ -117,7 +116,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `lagre opplysningens gyldighetsperiode`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val gyldighetsperiode1 = Gyldighetsperiode(LocalDate.now(), LocalDate.now().plusDays(14))
             val faktum1 = Faktum(heltall, 10, gyldighetsperiode1)
             val opplysninger = Opplysninger.med(faktum1)
@@ -133,7 +132,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `lagrer grenseverdier for dato opplysninger`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val kilde = Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("foo"))
             val maksDatoFaktum = Faktum(maksdato, LocalDate.MAX, kilde = kilde)
             val minDatoFaktum = Faktum(mindato, LocalDate.MIN, kilde = kilde)
@@ -153,7 +152,7 @@ class OpplysningerRepositoryPostgresTest {
     @Disabled("Modellen støtter ikke å bruke opplysninger med samme navn og ulik type")
     fun `lagrer opplysninger med samme navn og ulik type`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val opplysningstype = Opplysningstype.ulid(Opplysningstype.Id(UUIDv7.ny(), ULID), "Ulid")
             val opplysningstype1 = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Ulid")
 
@@ -175,7 +174,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `lagrer opplysninger med utledning`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
 
             val baseOpplysning = Faktum(baseOpplysningstype, LocalDate.now())
 
@@ -216,7 +215,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `Klarer å lagre store mengder opplysninger effektivt`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val fakta =
                 (1..50000).map {
                     val fomTom = LocalDate.now().minusDays(it.toLong())
@@ -235,7 +234,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `skriver over erstattet opplysning i samme Opplysninger`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val opplysning = Faktum(heltall, 10)
             val opplysningErstattet = Faktum(heltall, 20)
             val opplysninger = Opplysninger.med(opplysning)
@@ -256,7 +255,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `kan erstatte opplysning i tidligere Opplysninger`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
 
             // Lag opplysninger med opprinnelig opplysning
             val opplysning = Faktum(heltall, 10)
@@ -299,7 +298,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `lagrer opplysninger med utledning fra tidligere opplysninger`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
 
             val baseOpplysning = Faktum(baseOpplysningstype, LocalDate.now())
 
@@ -354,7 +353,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `lagrer penger som BigDecimal med riktig presisjon`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
 
             val verdi = "10.00000000000000000006"
             val verdi1 = BigDecimal(verdi)
@@ -383,7 +382,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `kan lagre inntekt`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val inntektV1: no.nav.dagpenger.inntekt.v1.Inntekt =
                 objectMapper.readValue(
                     this.javaClass.getResourceAsStream("/test-data/inntekt.json"),
@@ -410,7 +409,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `Kan hente BarnListe av gammel versjon for bakoverkompatibilitet`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val barn =
                 Faktum(
                     barn,
@@ -473,8 +472,8 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `kan fjerne opplysninger`() {
         withMigratedDb {
-            val repo = opplysningerRepository()
-            val vaktmesterRepo = VaktmesterPostgresRepo()
+            val repo = opplysningerRepository(dataSource)
+            val vaktmesterRepo = VaktmesterPostgresRepo(dataSource)
             val heltallFaktum = Faktum(heltall, 10)
             val heltallFaktum2 = Faktum(heltall, 20)
             val opplysninger = Opplysninger.med(heltallFaktum)
@@ -491,8 +490,8 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `ikke slette mer enn vi skal fra tidligere opplysninger `() {
         withMigratedDb {
-            val repo = opplysningerRepository()
-            val vaktmesterRepo = VaktmesterPostgresRepo()
+            val repo = opplysningerRepository(dataSource)
+            val vaktmesterRepo = VaktmesterPostgresRepo(dataSource)
 
             // Gammel behandling
             val opprinneligDato = LocalDate.now()
@@ -555,8 +554,8 @@ class OpplysningerRepositoryPostgresTest {
             val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
             val e = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "E")
             val f = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "F")
-            val repo = opplysningerRepository()
-            val vaktmesterRepo = VaktmesterPostgresRepo()
+            val repo = opplysningerRepository(dataSource)
+            val vaktmesterRepo = VaktmesterPostgresRepo(dataSource)
 
             val regelsett1 =
                 vilkår("vilkår en") {
@@ -601,14 +600,14 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `Sletter flere sett med opplysninger`() {
         withMigratedDb {
-            val vaktmesterRepo = VaktmesterPostgresRepo()
+            val vaktmesterRepo = VaktmesterPostgresRepo(dataSource)
 
             val a = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "A")
             val b = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "B")
             val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
             val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
 
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
 
             val regelsett =
                 vilkår("vilkår") {
@@ -660,7 +659,7 @@ class OpplysningerRepositoryPostgresTest {
     @Disabled("Fungerer ikke etter repository er refaktorert")
     fun `migrering reduserer normalisering`() {
         withMigratedDb("76") {
-            val repo = opplysningerRepository()
+            val repo = opplysningerRepository(dataSource)
             val beløp = Faktum(beløpA, Beløp("NOK 100.00"))
             val fakta =
                 listOf(

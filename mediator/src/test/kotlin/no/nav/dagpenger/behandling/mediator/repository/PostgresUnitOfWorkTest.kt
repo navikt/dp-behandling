@@ -10,7 +10,7 @@ class PostgresUnitOfWorkTest {
         withMigratedDb {
             repeat(100) {
                 runCatching {
-                    val unitOfWork = PostgresUnitOfWork.transaction()
+                    val unitOfWork = PostgresUnitOfWork.transaction(dataSource)
                     unitOfWork.inTransaction { session ->
                         session.run(queryOf("SELECT 1lasdf!").map { it.int(1) }.asSingle)
                     }

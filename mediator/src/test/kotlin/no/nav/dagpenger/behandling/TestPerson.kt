@@ -8,7 +8,6 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
@@ -49,9 +48,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.UUID
+import javax.sql.DataSource
 import kotlin.time.Duration.Companion.hours
 
 class TestPerson(
+    private val dataSource: DataSource,
     internal val ident: String,
     private val rapid: TestRapid,
     internal val søknadsdato: LocalDate = 5.mai(2021),
@@ -70,7 +71,7 @@ class TestPerson(
     val inntektId = "01HQTE3GBWCSVYH6S436DYFREN"
     internal val søknadId = "4afce924-6cb4-4ab4-a92b-fe91e24f31bf"
     internal val behandlingId by lazy { rapid.inspektør.field(1, "behandlingId").asText() }
-    private val meldekortRepository = MeldekortRepositoryPostgres()
+    private val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
 
     fun sendSøknad() = rapid.sendTestMessage(søknadInnsendt(), ident)
 
