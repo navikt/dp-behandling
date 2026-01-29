@@ -1832,6 +1832,7 @@ components:
         - Oppfyller kravet til alder
         - Oppfyller kravet til framsatt søknad
         - Oppfyller kravet til heltid- og deltidsarbeid
+        - Oppfyller kravet til ikke gi mangelfull informasjon
         - Oppfyller kravet til medlemskap
         - Oppfyller kravet til minsteinntekt
         - Oppfyller kravet til mobilitet
@@ -1845,7 +1846,6 @@ components:
         - Registrert som arbeidssøker på søknadstidspunktet
         - Tap av arbeidstid er minst terskel
         - Utfall etter samordning
-        - Oppfyller kravet til ikke gi mangelfull informasjon
 
   securitySchemes:
     azureAd:
