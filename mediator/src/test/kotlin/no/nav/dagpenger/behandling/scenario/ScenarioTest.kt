@@ -377,6 +377,109 @@ class ScenarioTest {
     }
 
     @Test
+    fun `tester innvilgelse, stans, og avslag på gjenopptak skal føre til avslag`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val innvilgelseBehandlingId = person.behandlingId
+            behandlingsresultat {
+                førteTil shouldBe "Innvilgelse"
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                opplysninger(oppholdINorge) shouldHaveSize 1
+
+                lagBrev(klump.toString()).also { println(it) }
+            }
+
+            // Opprett stans
+            person.opprettBehandling(22.juli(2018))
+            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe "Stans"
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
+
+                lagBrev(klump.toString()).also {
+                    println(it)
+                }
+
+                with(opplysninger(oppholdINorge)) {
+                    this shouldHaveSize 2
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Ny
+                }
+                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
+                    this[0].verdi.verdi shouldBe true
+                    this[1].verdi.verdi shouldBe false
+                }
+            }
+
+            // Gjenoppta
+            person.søkGjenopptak(23.august(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                oppholdINorge,
+                false,
+                "Sa han var tilbake fra utlandet, men det var han ikke",
+                Gyldighetsperiode(23.august(2018)),
+            )
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                behandlingskjedeId shouldBe innvilgelseBehandlingId
+                førteTil shouldBe "Avslag"
+
+                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
+                    this[0].verdi.verdi shouldBe true
+                    this[1].verdi.verdi shouldBe false
+                    this[2].verdi.verdi shouldBe false
+                }
+
+                lagBrev(klump.toString()).also { println(it) }
+
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
+
+                opplysninger shouldHaveSize 216
+
+                with(opplysninger(oppholdINorge)) {
+                    this shouldHaveSize 3
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Arvet
+                    this[2].opprinnelse shouldBe Periodestatus.Ny
+                }
+            }
+        }
+    }
+
+    @Test
     fun `Fjerning og redigering av opplysninger`() {
         nyttScenario {
             inntektSiste12Mnd = 500000

@@ -206,15 +206,19 @@ internal fun List<Rettighetsperiode>.avgjørelse(): AvgjørelseDTO {
     val (nye, arvede) = this.partition { it.endret }
 
     return when {
-        // Ingen endring
-        nye.isEmpty() -> AvgjørelseDTO.ENDRING
-
-        // Ny kjede
+        // Ny kjede (og guard på at arvede ikke er tom)
         arvede.isEmpty() -> if (nye.harRett()) AvgjørelseDTO.INNVILGELSE else AvgjørelseDTO.AVSLAG
 
-        // Bygger videre på en kjede
+        // Ingen endring (fra innvilget til innvilget)
+        arvede.sisteHarRett() && nye.isEmpty() -> AvgjørelseDTO.ENDRING
+
+        // Stanset løpende rett til avslag gir avslag (fra avslag til avslag)
+        !arvede.sisteHarRett() && !nye.harRett() -> AvgjørelseDTO.AVSLAG
+
+        // Går fra innvilget til avslag
         arvede.sisteHarRett() && !nye.harRett() -> AvgjørelseDTO.STANS
 
+        // Går fra avslag til innvilget
         else -> AvgjørelseDTO.GJENOPPTAK
     }
 }
