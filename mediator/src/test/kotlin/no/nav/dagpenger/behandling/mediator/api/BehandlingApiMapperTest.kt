@@ -187,7 +187,7 @@ class BehandlingApiMapperTest {
 
         behandlingDto.rettighetsperioder.shouldBeEmpty()
 
-        behandlingDto.vilkår shouldHaveSize 17
+        behandlingDto.vilkår shouldHaveSize 18
         behandlingDto.vilkår.single { it.navn == "Alder" }.relevantForResultat shouldBe true
     }
 
