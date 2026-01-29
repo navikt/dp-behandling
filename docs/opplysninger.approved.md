@@ -354,6 +354,14 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a24e|Ukessats med barnetillegg etter samordning|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a24f|Dagsats med barnetillegg etter samordning og 90 % regel|Penger|Beløp||
 |0194881f-9428-74d5-b160-f63a4c61a250|Har samordnet|Boolsk|boolean||
+### § 22-13. Frister for framsetting av krav, virkningstidspunkt og etterbetaling
+*Type:* Vilkår
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
+|019c091e-e7aa-7e15-b339-b6276276ebf2|Har satt frem skriftlig søknad|Boolsk|boolean||
+|019c0920-8b11-729a-866d-9f271f03ef2e|Ønsker dagpenger ved framsatt søknad|Boolsk|boolean||
+|019c092a-7759-700a-9f7d-f4415b91e8db|Oppfyller kravet til framsatt søknad|Boolsk|boolean||
 ### § 4-15. Antall stønadsuker (stønadsperiode)
 *Type:* Fastsettelse
 #### Avhenger på data fra

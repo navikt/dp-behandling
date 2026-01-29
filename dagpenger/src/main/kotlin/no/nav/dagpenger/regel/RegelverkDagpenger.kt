@@ -40,6 +40,7 @@ val RegelverkDagpenger =
         SamordingUtenforFolketrygden.regelsett,
         Samordning.regelsett,
         StreikOgLockout.regelsett,
+        Søknad.regelsett,
         Søknadstidspunkt.regelsett,
         TapAvArbeidsinntektOgArbeidstid.regelsett,
         Uriktigeopplysninger.regelsett,

@@ -52,6 +52,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.StreikOgLockout
+import no.nav.dagpenger.regel.Søknad
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.Uriktigeopplysninger
@@ -243,6 +244,7 @@ internal val opplysningTilVilkårMap =
         Samordning.utfallEtterSamordning to VilkaarNavnDTO.UTFALL_ETTER_SAMORDNING,
         Uriktigeopplysninger.oppfyllerVilkårManglendeEllerUriktigeOpplysninger to
             VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_IKKE_GI_MANGELFULL_INFORMASJON,
+        Søknad.oppfyllerKravetTilSøknad to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_FRAMSATT_SØKNAD,
     )
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")
