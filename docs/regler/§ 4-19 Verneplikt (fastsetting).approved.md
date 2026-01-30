@@ -5,8 +5,8 @@
 ```mermaid
 graph RL
   A["Antall G som gis som grunnlag ved verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
-  C["Grunnlag for gis ved verneplikt"] -->|"Multiplikasjon"| D["Grunnbeløp for grunnlag"]
-  C["Grunnlag for gis ved verneplikt"] -->|"Multiplikasjon"| A["Antall G som gis som grunnlag ved verneplikt"]
+  C["Grunnlag som gis ved verneplikt"] -->|"Multiplikasjon"| D["Grunnbeløp for grunnlag"]
+  C["Grunnlag som gis ved verneplikt"] -->|"Multiplikasjon"| A["Antall G som gis som grunnlag ved verneplikt"]
   E["Periode som gis ved verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
   F["Fastsatt vanlig arbeidstid for verneplikt"] -->|"Oppslag"| B["Prøvingsdato"]
 ```
