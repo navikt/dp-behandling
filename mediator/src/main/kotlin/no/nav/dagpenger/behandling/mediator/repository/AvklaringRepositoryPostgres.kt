@@ -29,14 +29,19 @@ internal class AvklaringRepositoryPostgres private constructor(
         observatører.add(observer)
     }
 
-    override fun hentAvklaringer(behandlingId: UUID) =
-        sessionOf(dataSource).use { session ->
+    override fun hentAvklaringer(behandlingId: UUID) = hentAvklaringer(setOf(behandlingId))[behandlingId] ?: emptyList()
+
+    override fun hentAvklaringer(behandlingIder: Set<UUID>): Map<UUID, List<Avklaring>> {
+        if (behandlingIder.isEmpty()) return emptyMap()
+
+        return sessionOf(dataSource).use { session ->
             val avklaringer =
                 session.run(
                     queryOf(
                         // language=PostgreSQL
                         """
-                        SELECT a.id                                               AS avklaring_id,
+                        SELECT a.behandling_id,
+                               a.id                                               AS avklaring_id,
                                a.kode,
                                a.tittel,
                                a.beskrivelse,
@@ -56,23 +61,30 @@ internal class AvklaringRepositoryPostgres private constructor(
 
                         FROM avklaring a
                                  LEFT JOIN avklaring_endring ae ON a.id = ae.avklaring_id
-                        WHERE a.behandling_id = :behandling_id
-                        GROUP BY a.id
+                        WHERE a.behandling_id = ANY(:behandling_ider)
+                        GROUP BY a.behandling_id, a.id
                         """.trimIndent(),
                         mapOf(
-                            "behandling_id" to behandlingId,
+                            "behandling_ider" to
+                                session.connection.underlying.createArrayOf(
+                                    "uuid",
+                                    behandlingIder.toTypedArray(),
+                                ),
                         ),
                     ).map { row ->
                         val endringerJson = endringSerde.fromJson(row.stringOrNull("endringer") ?: "[]")
-                        Triple(
-                            row.uuid("avklaring_id"),
-                            endringerJson,
-                            Avklaringkode(
-                                kode = row.string("kode"),
-                                tittel = row.string("tittel"),
-                                beskrivelse = row.string("beskrivelse"),
-                                kanKvitteres = row.boolean("kan_kvitteres"),
-                                kanAvbrytes = row.boolean("kan_avbrytes"),
+                        Pair(
+                            row.uuid("behandling_id"),
+                            Triple(
+                                row.uuid("avklaring_id"),
+                                endringerJson,
+                                Avklaringkode(
+                                    kode = row.string("kode"),
+                                    tittel = row.string("tittel"),
+                                    beskrivelse = row.string("beskrivelse"),
+                                    kanKvitteres = row.boolean("kan_kvitteres"),
+                                    kanAvbrytes = row.boolean("kan_avbrytes"),
+                                ),
                             ),
                         )
                     }.asList,
@@ -80,20 +92,26 @@ internal class AvklaringRepositoryPostgres private constructor(
 
             val alleKildeIder =
                 avklaringer
-                    .flatMap { (_, endringerJson, _) ->
-                        endringerJson.mapNotNull { it.kilde_id }
+                    .flatMap { (_, triple) ->
+                        triple.second.mapNotNull { it.kilde_id }
                     }.distinct()
 
             val kilder = kildeRepository.hentKilder(alleKildeIder, session)
 
-            avklaringer.map { (avklaringId, endringerJson, kode) ->
-                Avklaring.rehydrer(
-                    id = avklaringId,
-                    kode = kode,
-                    historikk = endringerJson.map { it.somHistorikk(kilder) }.toMutableList(),
-                )
-            }
+            // Grupper avklaringer per behandling
+            avklaringer
+                .groupBy({ it.first }, { it.second })
+                .mapValues { (_, avklaringerForBehandling) ->
+                    avklaringerForBehandling.map { (avklaringId, endringerJson, kode) ->
+                        Avklaring.rehydrer(
+                            id = avklaringId,
+                            kode = kode,
+                            historikk = endringerJson.map { it.somHistorikk(kilder) }.toMutableList(),
+                        )
+                    }
+                }
         }
+    }
 
     override fun lagreAvklaringer(
         behandling: Behandling,

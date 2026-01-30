@@ -167,7 +167,9 @@ internal fun Application.behandlingApi(
                     val ident = nyBehandlingDto.ident
                     val id = nyBehandlingDto.id ?: UUIDv7.ny()
                     val skjedde = nyBehandlingDto.skjedde ?: LocalDate.now()
-                    personRepository.hent(ident.tilPersonIdentfikator()) ?: throw NotFoundException("Person ikke funnet")
+                    if (!personRepository.harIdent(ident.tilPersonIdentfikator())) {
+                        throw NotFoundException("Person ikke funnet")
+                    }
 
                     val melding = ApiMelding(nyBehandlingDto.ident)
                     val hendelse =

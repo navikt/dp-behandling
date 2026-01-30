@@ -26,6 +26,11 @@ class InMemoryPersonRepository :
                 it.behandlinger()
             }.find { it.behandlingId == behandlingId }
 
+    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> =
+        persondb.values
+            .flatMap { it.behandlinger() }
+            .filter { it.behandlingId in behandlingIder }
+
     override fun flyttBehandling(
         behandlingId: UUID,
         nyBasertPåId: UUID?,
@@ -57,6 +62,8 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
+    override fun harIdent(ident: Ident) = persondb[ident] != null
+
     override fun lagreAvklaringer(
         behandling: Behandling,
         unitOfWork: UnitOfWork<*>,
@@ -65,6 +72,10 @@ class InMemoryPersonRepository :
     }
 
     override fun hentAvklaringer(behandlingId: UUID): List<Avklaring> {
+        TODO("Not yet implemented")
+    }
+
+    override fun hentAvklaringer(behandlingIder: Set<UUID>): Map<UUID, List<Avklaring>> {
         TODO("Not yet implemented")
     }
 

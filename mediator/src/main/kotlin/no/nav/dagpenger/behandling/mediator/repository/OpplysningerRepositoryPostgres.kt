@@ -52,7 +52,17 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         private val kildeRepository = KildeRepository()
 
         fun Session.hentOpplysninger(opplysningerId: UUID) =
-            OpplysningRepository(opplysningerId, this).hentOpplysninger().let { Opplysninger.rehydrer(opplysningerId, it) }
+            hentOpplysninger(setOf(opplysningerId))
+                .values
+                .singleOrNull()
+                ?: Opplysninger.rehydrer(opplysningerId, emptyList())
+
+        fun Session.hentOpplysninger(opplysningerIder: Set<UUID>) =
+            OpplysningRepository(this)
+                .hentOpplysninger(opplysningerIder)
+                .mapValues { (opplysningerId, opplysninger) ->
+                    Opplysninger.rehydrer(opplysningerId, opplysninger)
+                }
 
         private val serdeBarn = objectMapper.serde<BarnListe>()
 
@@ -93,7 +103,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
         val somListe: List<Opplysning<*>> = opplysninger.somListe(LesbarOpplysninger.Filter.Egne)
 
-        OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(
+        OpplysningRepository(tx).lagreOpplysninger(
+            opplysninger.id,
             somListe.filter { it.skalLagres },
             opplysninger.fjernet(),
         )
@@ -121,49 +132,45 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         }
 
     private class OpplysningRepository(
-        private val opplysningerId: UUID,
         private val session: Session,
         private val kildeRespository: KildeRepository = kildeRepository,
     ) {
-        fun hentOpplysninger(): List<Opplysning<*>> {
-            val rader: MutableSet<OpplysningRad<*>> =
+        fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<*>>> {
+            val rader: Set<OpplysningRad<*>> =
                 session
                     .run(
                         queryOf(
                             //language=PostgreSQL
                             """
-                            WITH RECURSIVE alle_id AS (SELECT id
-                                                       FROM opplysningstabell
-                                                       WHERE opplysninger_id = :id
-
-                                                       UNION
-
-                                                       SELECT ov.id
-                                                       FROM alle_id a
-                                                                JOIN opplysning_utledet_av oua ON oua.opplysning_id = a.id
-                                                                JOIN opplysning ov ON ov.id = oua.utledet_av)
-                            SELECT *
-                            FROM opplysningstabell
-                            WHERE id IN (SELECT DISTINCT id FROM alle_id)
-                            ORDER BY id
+                            with recursive 
+                                opplysningskjede as (
+                                    -- ankeropplysninger
+                                    select id, utledet_av_id, erstatter_id
+                                    from opplysningstabell
+                                    where opplysninger_id = ANY(:opplysninger_ider)
+                                    
+                                    union
+                                    -- rekursive opplysninger
+                                    select o.id, o.utledet_av_id, o.erstatter_id
+                                    from opplysningstabell o
+                                    join opplysningskjede ok on o.id = any(ok.utledet_av_id) or o.id = ok.erstatter_id
+                                )
+                            select o.*
+                            from opplysningstabell o where o.id in (select id from opplysningskjede)
+                            order by o.id
                             """.trimIndent(),
-                            mapOf("id" to opplysningerId),
+                            mapOf(
+                                "opplysninger_ider" to
+                                    session.connection.underlying.createArrayOf(
+                                        "uuid",
+                                        opplysningerIder.toTypedArray(),
+                                    ),
+                            ),
                         ).map { row ->
                             val datatype = Datatype.fromString(row.string("datatype"))
                             row.somOpplysningRad(datatype)
                         }.asList,
-                    ).toMutableSet()
-
-            // Hent alle opplysninger fra tidligere opplysninger som erstattes av opplysninger i denne
-            val erstatter = ArrayDeque(rader.mapNotNull { it.erstatter })
-            while (erstatter.isNotEmpty()) {
-                val uuid = erstatter.removeFirst()
-                if (rader.none { it.id == uuid }) {
-                    val opplysning = hentOpplysning(uuid)!!
-                    rader.add(opplysning)
-                    opplysning.erstatter?.let { erstatter.add(it) }
-                }
-            }
+                    ).toSet()
 
             // Hent inn kilde for alle opplysninger vi trenger
             val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId }, session)
@@ -174,21 +181,17 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     it.copy(kilde = kilde)
                 }
 
-            val raderFraTidligereOpplysninger = raderMedKilde.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
-            return raderMedKilde.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
+            // reverse-lookup map for å finne opplysningerId for hver opplysning
+            val opplysningerIdForOpplysning =
+                raderMedKilde
+                    // bevarer bare opplysninger vi faktisk ønsker oss
+                    .filter { it.opplysingerId in opplysningerIder }
+                    .associate { it.id to it.opplysingerId }
+            return raderMedKilde
+                .somOpplysninger()
+                .filter { it.id in opplysningerIdForOpplysning }
+                .groupBy { opplysningerIdForOpplysning.getValue(it.id) }
         }
-
-        private fun hentOpplysning(id: UUID) =
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    "SELECT * FROM opplysningstabell WHERE id = :id LIMIT 1",
-                    mapOf("id" to id),
-                ).map { row ->
-                    val datatype = Datatype.fromString(row.string("datatype"))
-                    row.somOpplysningRad(datatype)
-                }.asSingle,
-            )
 
         private fun <T : Comparable<T>> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
             val opplysingerId = uuid("opplysninger_id")
@@ -304,11 +307,12 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             } as T
 
         fun lagreOpplysninger(
+            opplysningerId: UUID,
             opplysninger: List<Opplysning<*>>,
             fjernet: Set<Opplysning<*>>,
         ) {
             kildeRespository.lagreKilder(opplysninger.mapNotNull { it.kilde }, session)
-            batchOpplysninger(opplysninger).run(session)
+            batchOpplysninger(opplysningerId, opplysninger).run(session)
             batchFjernet(fjernet).run(session)
             lagreUtledetAv(opplysninger)
         }
@@ -360,7 +364,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             )
 
         @WithSpan
-        private fun batchOpplysninger(opplysninger: List<Opplysning<*>>): BatchStatement {
+        private fun batchOpplysninger(
+            opplysningerId: UUID,
+            opplysninger: List<Opplysning<*>>,
+        ): BatchStatement {
             val defaultVerdi =
                 mapOf(
                     "verdi_heltall" to null,

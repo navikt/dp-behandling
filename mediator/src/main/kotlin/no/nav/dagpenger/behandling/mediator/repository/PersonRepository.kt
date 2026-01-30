@@ -25,6 +25,9 @@ interface AvklaringRepository {
 
     @WithSpan
     fun hentAvklaringer(behandlingId: UUID): List<Avklaring>
+
+    @WithSpan
+    fun hentAvklaringer(behandlingIder: Set<UUID>): Map<UUID, List<Avklaring>>
 }
 
 interface BegrunnelseRepository {
@@ -50,6 +53,9 @@ interface BehandlingRepository :
         @SpanAttribute
         behandlingId: UUID,
     ): Behandling?
+
+    @WithSpan
+    fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling>
 
     @WithSpan
     fun flyttBehandling(
@@ -104,6 +110,9 @@ interface PersonRepository : BehandlingRepository {
 
     @WithSpan
     fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus>
+
+    @WithSpan
+    fun harIdent(ident: Ident): Boolean
 
     private fun medSpan(
         string: String,

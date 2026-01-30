@@ -30,6 +30,13 @@ internal class BehandlingRepositoryPostgres(
             }
         }
 
+    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
+        if (behandlingIder.isEmpty()) return emptyList()
+        return sessionOf(dataSource).use { session ->
+            session.hentBehandlinger(behandlingIder)
+        }
+    }
+
     override fun flyttBehandling(
         behandlingId: UUID,
         nyBasertPåId: UUID?,
@@ -48,79 +55,167 @@ internal class BehandlingRepositoryPostgres(
         }
     }
 
-    private fun Session.hentBehandling(behandlingId: UUID): Behandling? =
-        this.run(
-            queryOf(
-                // language=PostgreSQL
-                """
-                SELECT *  
-                FROM behandling 
-                LEFT JOIN behandler_hendelse_behandling ON behandling.behandling_id = behandler_hendelse_behandling.behandling_id
-                LEFT JOIN behandler_hendelse ON behandler_hendelse.melding_id = behandler_hendelse_behandling.melding_id
-                LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
-                WHERE behandling.behandling_id = :id 
-                """.trimIndent(),
-                mapOf(
-                    "id" to behandlingId,
-                ),
-            ).map { row ->
-                val basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id")
-                val basertPåBehandling = basertPåBehandlingId?.let { id -> this.hentBehandling(id) }
+    private fun Session.hentBehandling(behandlingId: UUID): Behandling? = hentBehandlinger(listOf(behandlingId)).singleOrNull()
 
-                Behandling.rehydrer(
-                    behandlingId = row.uuid("behandling_id"),
-                    behandler =
-                        Hendelse(
-                            meldingsreferanseId = row.uuid("melding_id"),
-                            type = row.string("hendelse_type"),
-                            ident = row.string("ident"),
-                            eksternId =
-                                EksternId.fromString(
-                                    row.string("ekstern_id_type"),
-                                    row.string("ekstern_id"),
-                                ),
-                            skjedde = row.localDate("skjedde"),
-                            forretningsprosess = RegistrertForretningsprosess.opprett(row.string("forretningsprosess")),
-                            opprettet = row.localDateTime("opprettet"),
-                        ),
-                    gjeldendeOpplysninger = this.hentOpplysninger(row.uuid("opplysninger_id")),
-                    basertPå = basertPåBehandling,
-                    opprettet = row.localDateTime("opprettet"),
-                    tilstand = Behandling.TilstandType.valueOf(row.string("tilstand")),
-                    sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
-                    avklaringer = hentAvklaringer(behandlingId),
-                    godkjent = this.hentArbeidssteg(behandlingId, Arbeidssteg.Oppgave.Godkjent),
-                    besluttet = this.hentArbeidssteg(behandlingId, Arbeidssteg.Oppgave.Besluttet),
-                )
-            }.asSingle,
+    private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
+        if (behandlingIder.isEmpty()) return emptyList()
+
+        // Finn basertPå-relasjoner for disse IDene
+        val alleBehandlingIder =
+            this
+                .run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        with recursive behandlingkjede as (
+                            -- ankerbehandlinger
+                            select behandling_id, basert_på_behandling_id
+                            from behandling
+                            where behandling_id = ANY(:ider)
+                            
+                            union
+                            -- rekursive behandlinger
+                            select r.behandling_id, r.basert_på_behandling_id
+                            from behandling r
+                            join behandlingkjede bk on bk.basert_på_behandling_id = r.behandling_id
+                        )
+                        
+                        select behandling_id, basert_på_behandling_id 
+                        from behandlingkjede
+                        """.trimIndent(),
+                        mapOf("ider" to behandlingIder.toTypedArray()),
+                    ).map { row -> row.uuidOrNull("behandling_id") }.asList,
+                ).toSet()
+
+        // Hent arbeidssteg for alle behandlinger i én spørring
+        val arbeidsstegMap = mutableMapOf<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>()
+        this
+            .run(
+                queryOf(
+                    // language=PostgreSQL
+                    """
+                    SELECT * FROM behandling_arbeidssteg WHERE behandling_id = ANY(:ider)
+                    """.trimIndent(),
+                    mapOf("ider" to alleBehandlingIder.toTypedArray()),
+                ).map { row ->
+                    val behandlingId = row.uuid("behandling_id")
+                    val oppgave = Arbeidssteg.Oppgave.valueOf(row.string("oppgave"))
+                    val arbeidssteg =
+                        Arbeidssteg.rehydrer(
+                            Arbeidssteg.TilstandType.valueOf(row.string("tilstand")),
+                            oppgave,
+                            row.stringOrNull("utført_av")?.let { Saksbehandler(it) },
+                            row.localDateTimeOrNull("utført"),
+                        )
+                    arbeidsstegMap[behandlingId to oppgave] = arbeidssteg
+                }.asList,
+            )
+
+        // Hent avklaringer for alle behandlinger i én spørring
+        val avklaringerMap = hentAvklaringer(alleBehandlingIder)
+
+        // Hent alle behandlinger i én spørring
+        data class BehandlingRad(
+            val behandlingId: UUID,
+            val meldingId: UUID,
+            val hendelseType: String,
+            val ident: String,
+            val eksternIdType: String,
+            val eksternId: String,
+            val skjedde: java.time.LocalDate,
+            val forretningsprosess: String,
+            val opprettet: java.time.LocalDateTime,
+            val opplysningerId: UUID,
+            val tilstand: String,
+            val sistEndretTilstand: java.time.LocalDateTime,
+            val basertPåBehandlingId: UUID?,
         )
 
-    private fun Session.hentArbeidssteg(
-        behandlingId: UUID,
-        oppgave: Arbeidssteg.Oppgave,
-    ): Arbeidssteg =
-        this.run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                SELECT * 
-                FROM behandling_arbeidssteg 
-                WHERE behandling_id = :behandling_id
-                AND oppgave = :oppgave
-                """.trimIndent(),
-                mapOf(
-                    "behandling_id" to behandlingId,
-                    "oppgave" to oppgave.name,
-                ),
-            ).map { row ->
-                Arbeidssteg.rehydrer(
-                    Arbeidssteg.TilstandType.valueOf(row.string("tilstand")),
-                    Arbeidssteg.Oppgave.valueOf(row.string("oppgave")),
-                    row.stringOrNull("utført_av")?.let { Saksbehandler(it) },
-                    row.localDateTimeOrNull("utført"),
+        val behandlingRader =
+            this
+                .run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        SELECT *  
+                        FROM behandling 
+                        LEFT JOIN behandler_hendelse_behandling ON behandling.behandling_id = behandler_hendelse_behandling.behandling_id
+                        LEFT JOIN behandler_hendelse ON behandler_hendelse.melding_id = behandler_hendelse_behandling.melding_id
+                        LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
+                        WHERE behandling.behandling_id = ANY(:ider) 
+                        ORDER BY behandling.behandling_id
+                        """.trimIndent(),
+                        mapOf("ider" to alleBehandlingIder.toTypedArray()),
+                    ).map { row ->
+                        BehandlingRad(
+                            behandlingId = row.uuid("behandling_id"),
+                            meldingId = row.uuid("melding_id"),
+                            hendelseType = row.string("hendelse_type"),
+                            ident = row.string("ident"),
+                            eksternIdType = row.string("ekstern_id_type"),
+                            eksternId = row.string("ekstern_id"),
+                            skjedde = row.localDate("skjedde"),
+                            forretningsprosess = row.string("forretningsprosess"),
+                            opprettet = row.localDateTime("opprettet"),
+                            opplysningerId = row.uuid("opplysninger_id"),
+                            tilstand = row.string("tilstand"),
+                            sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
+                            basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
+                        )
+                    }.asList,
                 )
-            }.asSingle,
-        ) ?: Arbeidssteg(oppgave)
+
+        val opplysningerMap =
+            this
+                .hentOpplysninger(
+                    behandlingRader
+                        .map { it.opplysningerId }
+                        .toSet(),
+                )
+
+        // Bygg behandlinger med korrekte basertPå-referanser
+        // bruker linkedMapOf eksplisitt for å bevare innsettingsrekkefølgen, slik at basertPå alltid kommer før behandlinger som baserer seg på den
+        val behandlingerMap = linkedMapOf<UUID, Behandling>()
+        behandlingRader.forEach { rad ->
+            check(rad.behandlingId !in behandlingerMap) { "skal ikke finnes fra før" }
+            val basertPå = rad.basertPåBehandlingId?.let { behandlingerMap.getValue(it) }
+            Behandling
+                .rehydrer(
+                    behandlingId = rad.behandlingId,
+                    behandler =
+                        Hendelse(
+                            meldingsreferanseId = rad.meldingId,
+                            type = rad.hendelseType,
+                            ident = rad.ident,
+                            eksternId = EksternId.fromString(rad.eksternIdType, rad.eksternId),
+                            skjedde = rad.skjedde,
+                            forretningsprosess = RegistrertForretningsprosess.opprett(rad.forretningsprosess),
+                            opprettet = rad.opprettet,
+                        ),
+                    gjeldendeOpplysninger = opplysningerMap.getValue(rad.opplysningerId),
+                    basertPå = basertPå,
+                    opprettet = rad.opprettet,
+                    tilstand = Behandling.TilstandType.valueOf(rad.tilstand),
+                    sistEndretTilstand = rad.sistEndretTilstand,
+                    avklaringer = avklaringerMap[rad.behandlingId] ?: emptyList(),
+                    godkjent =
+                        arbeidsstegMap[rad.behandlingId to Arbeidssteg.Oppgave.Godkjent] ?: Arbeidssteg(
+                            Arbeidssteg.Oppgave.Godkjent,
+                        ),
+                    besluttet =
+                        arbeidsstegMap[rad.behandlingId to Arbeidssteg.Oppgave.Besluttet]
+                            ?: Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
+                ).also {
+                    behandlingerMap[it.behandlingId] = it
+                }
+        }
+
+        // returnerer bare behandlinger som ble forespurt, i rekkefølge
+        return behandlingerMap
+            .filter { (behandlingId, _) -> behandlingId in behandlingIder }
+            .values
+            .toList()
+    }
 
     override fun lagre(behandling: Behandling) {
         val unitOfWork = PostgresUnitOfWork.transaction()
