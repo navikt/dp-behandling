@@ -30,6 +30,13 @@ internal class BehandlingRepositoryPostgres(
             }
         }
 
+    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
+        if (behandlingIder.isEmpty()) return emptyList()
+        return sessionOf(dataSource).use { session ->
+            session.hentBehandlinger(behandlingIder)
+        }
+    }
+
     override fun flyttBehandling(
         behandlingId: UUID,
         nyBasertPåId: UUID?,
@@ -94,6 +101,159 @@ internal class BehandlingRepositoryPostgres(
                 )
             }.asSingle,
         )
+
+    private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
+        if (behandlingIder.isEmpty()) return emptyList()
+
+        // First, collect all behandling IDs including basertPå relationships
+        val alleBehandlingIder = mutableSetOf<UUID>()
+        val queue = ArrayDeque(behandlingIder)
+        val basertPåMap = mutableMapOf<UUID, UUID?>()
+
+        while (queue.isNotEmpty()) {
+            val batch = queue.toList()
+            queue.clear()
+
+            val nyeIder = batch.filter { it !in alleBehandlingIder }
+            if (nyeIder.isEmpty()) continue
+
+            alleBehandlingIder.addAll(nyeIder)
+
+            // Find basertPå relationships for these IDs
+            this
+                .run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        SELECT behandling_id, basert_på_behandling_id 
+                        FROM behandling 
+                        WHERE behandling_id = ANY(:ider)
+                        """.trimIndent(),
+                        mapOf("ider" to nyeIder.toTypedArray()),
+                    ).map { row ->
+                        val id = row.uuid("behandling_id")
+                        val basertPå = row.uuidOrNull("basert_på_behandling_id")
+                        basertPåMap[id] = basertPå
+                        basertPå
+                    }.asList,
+                ).filter { it !in alleBehandlingIder }
+                .let { queue.addAll(it) }
+        }
+
+        // Batch load arbeidssteg for all behandlinger
+        val arbeidsstegMap = mutableMapOf<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>()
+        this.run(
+            queryOf(
+                // language=PostgreSQL
+                """
+                SELECT * FROM behandling_arbeidssteg WHERE behandling_id = ANY(:ider)
+                """.trimIndent(),
+                mapOf("ider" to alleBehandlingIder.toTypedArray()),
+            ).map { row ->
+                val behandlingId = row.uuid("behandling_id")
+                val oppgave = Arbeidssteg.Oppgave.valueOf(row.string("oppgave"))
+                val arbeidssteg =
+                    Arbeidssteg.rehydrer(
+                        Arbeidssteg.TilstandType.valueOf(row.string("tilstand")),
+                        oppgave,
+                        row.stringOrNull("utført_av")?.let { Saksbehandler(it) },
+                        row.localDateTimeOrNull("utført"),
+                    )
+                arbeidsstegMap[behandlingId to oppgave] = arbeidssteg
+            }.asList,
+        )
+
+        // Batch load avklaringer for all behandlinger
+        val avklaringerMap = alleBehandlingIder.associateWith { hentAvklaringer(it) }
+
+        // Load all behandlinger in one query
+        data class BehandlingRad(
+            val behandlingId: UUID,
+            val meldingId: UUID,
+            val hendelseType: String,
+            val ident: String,
+            val eksternIdType: String,
+            val eksternId: String,
+            val skjedde: java.time.LocalDate,
+            val forretningsprosess: String,
+            val opprettet: java.time.LocalDateTime,
+            val opplysningerId: UUID,
+            val tilstand: String,
+            val sistEndretTilstand: java.time.LocalDateTime,
+            val basertPåBehandlingId: UUID?,
+        )
+
+        val behandlingRader =
+            this
+                .run(
+                    queryOf(
+                        // language=PostgreSQL
+                        """
+                        SELECT *  
+                        FROM behandling 
+                        LEFT JOIN behandler_hendelse_behandling ON behandling.behandling_id = behandler_hendelse_behandling.behandling_id
+                        LEFT JOIN behandler_hendelse ON behandler_hendelse.melding_id = behandler_hendelse_behandling.melding_id
+                        LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
+                        WHERE behandling.behandling_id = ANY(:ider) 
+                        """.trimIndent(),
+                        mapOf("ider" to alleBehandlingIder.toTypedArray()),
+                    ).map { row ->
+                        BehandlingRad(
+                            behandlingId = row.uuid("behandling_id"),
+                            meldingId = row.uuid("melding_id"),
+                            hendelseType = row.string("hendelse_type"),
+                            ident = row.string("ident"),
+                            eksternIdType = row.string("ekstern_id_type"),
+                            eksternId = row.string("ekstern_id"),
+                            skjedde = row.localDate("skjedde"),
+                            forretningsprosess = row.string("forretningsprosess"),
+                            opprettet = row.localDateTime("opprettet"),
+                            opplysningerId = row.uuid("opplysninger_id"),
+                            tilstand = row.string("tilstand"),
+                            sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
+                            basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
+                        )
+                    }.asList,
+                ).associateBy { it.behandlingId }
+
+        // Build behandlinger with correct basertPå references
+        val behandlingerMap = mutableMapOf<UUID, Behandling>()
+
+        fun buildBehandling(id: UUID): Behandling? {
+            behandlingerMap[id]?.let { return it }
+            val rad = behandlingRader[id] ?: return null
+
+            val basertPå = rad.basertPåBehandlingId?.let { buildBehandling(it) }
+
+            val behandling =
+                Behandling.rehydrer(
+                    behandlingId = rad.behandlingId,
+                    behandler =
+                        Hendelse(
+                            meldingsreferanseId = rad.meldingId,
+                            type = rad.hendelseType,
+                            ident = rad.ident,
+                            eksternId = EksternId.fromString(rad.eksternIdType, rad.eksternId),
+                            skjedde = rad.skjedde,
+                            forretningsprosess = RegistrertForretningsprosess.opprett(rad.forretningsprosess),
+                            opprettet = rad.opprettet,
+                        ),
+                    gjeldendeOpplysninger = this.hentOpplysninger(rad.opplysningerId),
+                    basertPå = basertPå,
+                    opprettet = rad.opprettet,
+                    tilstand = Behandling.TilstandType.valueOf(rad.tilstand),
+                    sistEndretTilstand = rad.sistEndretTilstand,
+                    avklaringer = avklaringerMap[id] ?: emptyList(),
+                    godkjent = arbeidsstegMap[id to Arbeidssteg.Oppgave.Godkjent] ?: Arbeidssteg(Arbeidssteg.Oppgave.Godkjent),
+                    besluttet = arbeidsstegMap[id to Arbeidssteg.Oppgave.Besluttet] ?: Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
+                )
+            behandlingerMap[id] = behandling
+            return behandling
+        }
+
+        // Build only the originally requested behandlinger
+        return behandlingIder.mapNotNull { buildBehandling(it) }
+    }
 
     private fun Session.hentArbeidssteg(
         behandlingId: UUID,

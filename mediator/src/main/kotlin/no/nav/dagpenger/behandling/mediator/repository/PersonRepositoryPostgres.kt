@@ -9,6 +9,7 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
+import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -51,18 +52,21 @@ class PersonRepositoryPostgres(
     override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         sessionOf(dataSource).use { session -> session.rettighetstatusFor(ident) }
 
-    private fun Session.behandlingerFor(ident: Ident) =
-        this.run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                SELECT * FROM person_behandling WHERE ident IN (:ident) ORDER BY behandling_id 
-                """.trimIndent(),
-                mapOf("ident" to ident.alleIdentifikatorer().first()),
-            ).map { row ->
-                behandlingRepository.hentBehandling(row.uuid("behandling_id"))
-            }.asList,
-        )
+    private fun Session.behandlingerFor(ident: Ident): List<Behandling> {
+        val behandlingIder =
+            this.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT behandling_id FROM person_behandling WHERE ident IN (:ident) ORDER BY behandling_id 
+                    """.trimIndent(),
+                    mapOf("ident" to ident.alleIdentifikatorer().first()),
+                ).map { row ->
+                    row.uuid("behandling_id")
+                }.asList,
+            )
+        return behandlingRepository.hentBehandlinger(behandlingIder)
+    }
 
     private fun Session.rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         this
