@@ -76,6 +76,11 @@ graph TD
     end
 ```
 
+## Oversikt over hendelser som er involvert i en behandling
+
+Se [Hendelser i en behandling](./kafka-events-catalog.md)
+
+
 ## Innhenting av opplysninger
 
 [Komplett liste med behov](./behov.approved.md)

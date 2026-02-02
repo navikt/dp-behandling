@@ -26,7 +26,7 @@ flowchart TB
         dpRapportering -->|meldekort_innsendt_test| dpBehandling
         dpManuell -->|AvklaringIkkeRelevant| dpBehandling
         dpMellom -->|utbetaling_mottatt<br/>utbetaling_sendt<br/>utbetaling_feilet<br/>utbetaling_utført| dpBehandling
-        Arena -->|CDC hendelser| dpBehandling
+        Arena -->|CDC oppgave hendelser| dpBehandling
         Behovlosere -->|behov med @løsning| dpBehandling
         API1 -->|opprett_behandling<br/>godkjenn_behandling<br/>avbryt_behandling<br/>rekjør_behandling<br/>oppgave_sendt_til_kontroll<br/>oppgave_returnert_til_saksbehandling| dpBehandling
     end
@@ -553,10 +553,10 @@ Låser opp behandling når beslutter returnerer til saksbehandler.
 
 ---
 
-### 18. Arena CDC hendelser (Change Data Capture)
+### 18. Arena CDC oppgave hendelser (Change Data Capture)
 
 **Type:** Database-endringer fra Arena  
-**Topic:** Sannsynligvis Arena CDC topic  
+**Topic:** `teamarenanais.aapen-arena-dagpengeoppgavelogget-v1`
 **Struktur:**
 ```json
 {
@@ -973,7 +973,7 @@ AktivitetsloggMediator mapper aktivitetslogg til Kafka-events. Innhold og strukt
 
 ### Topic(er):
 - Primært: **teamdagpenger rapid** (Rapids & Rivers topic)
-- Arena CDC: Separat topic for Arena database changes
+- Arena CDC: Separat topic for Arena database changes (`teamarenanais.aapen-arena-dagpengeoppgavelogget-v1`)
 
 ### Arkitektur:
 dp-behandling følger Rapids & Rivers mønsteret og fungerer som:
