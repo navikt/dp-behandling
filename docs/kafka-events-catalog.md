@@ -42,10 +42,10 @@ flowchart TB
         dpManuell2[dp-manuell-behandling]
         Behovlosere2[Diverse behovløsere]
         
-        dpBehandling -->|behandling_opprettet<br/>behandling_endret_tilstand<br/>forslag_til_behandlingsresultat<br/>behandlingsresultat<br/>behandling_avbrutt| dpSaksbehandling
-        dpBehandling -->|behandling_opprettet<br/>behandling_endret_tilstand<br/>forslag_til_behandlingsresultat<br/>behandlingsresultat<br/>behandling_avbrutt<br/>utbetaling_*| dpDoh
-        dpBehandling -->|behandlingsresultat| dpDatadeling
-        dpBehandling -->|vedtak_fattet| dpArenaSink
+        dpBehandling -->|🔑 behandling_opprettet<br/>behandling_endret_tilstand<br/>🔑 forslag_til_behandlingsresultat<br/>🔑 behandlingsresultat<br/>🔑 behandling_avbrutt| dpSaksbehandling
+        dpBehandling -->|🔑 behandling_opprettet<br/>behandling_endret_tilstand<br/>🔑 forslag_til_behandlingsresultat<br/>🔑 behandlingsresultat<br/>🔑 behandling_avbrutt<br/>utbetaling_*| dpDoh
+        dpBehandling -->|🔑 behandlingsresultat| dpDatadeling
+        dpBehandling -->|⚠️ vedtak_fattet| dpArenaSink
         dpBehandling -->|NyAvklaring| dpManuell2
         dpBehandling -->|behov @opplysningsbehov| Behovlosere2
     end
@@ -606,9 +606,10 @@ dp-behandling mottar `innsending_ferdigstilt`, transformerer og republiserer som
 
 ---
 
-### 2. `behandling_opprettet`
+### 2. `behandling_opprettet` 🔑
 
 **Type:** Hendelse om opprettet behandling  
+**⚡ Pivoterende hendelse** - Sentral hendelse som andre systemer reagerer på  
 **Topic:** teamdagpenger rapid  
 **Struktur:**
 ```json
@@ -668,9 +669,10 @@ Publiseres hver gang behandlingen endrer tilstand (f.eks. fra UnderBehandling ti
 
 ---
 
-### 4. `forslag_til_behandlingsresultat`
+### 4. `forslag_til_behandlingsresultat` 🔑
 
 **Type:** Behandlingsforslag klar  
+**⚡ Pivoterende hendelse** - Sentral hendelse som andre systemer reagerer på  
 **Topic:** teamdagpenger rapid  
 **Struktur:**
 ```json
@@ -698,9 +700,10 @@ Publiseres når regelmotor har beregnet et forslag til vedtak som må vurderes a
 
 ---
 
-### 5. `behandlingsresultat`
+### 5. `behandlingsresultat` 🔑
 
 **Type:** Endelig behandlingsresultat  
+**⚡ Pivoterende hendelse** - Sentral hendelse som andre systemer reagerer på  
 **Topic:** teamdagpenger rapid  
 **Struktur:**
 ```json
@@ -729,9 +732,10 @@ Publiseres når behandling er ferdig (vedtak fattet). Inneholder komplett behand
 
 ---
 
-### 6. `behandling_avbrutt`
+### 6. `behandling_avbrutt` 🔑
 
 **Type:** Avbrutt behandling  
+**⚡ Pivoterende hendelse** - Sentral hendelse som andre systemer reagerer på  
 **Topic:** teamdagpenger rapid  
 **Struktur:**
 ```json
@@ -760,9 +764,10 @@ Publiseres når en behandling avbrytes (f.eks. ved Arena-oppgaveendring).
 
 ---
 
-### 7. `vedtak_fattet`
+### 7. `vedtak_fattet` ⚠️ DEPREKERT
 
 **Type:** Vedtak er fattet (kun ved avslag)  
+**⚠️ Deprekert** - Denne hendelsen er utfaset og skal ikke brukes av nye konsumenter  
 **Topic:** teamdagpenger rapid  
 **Struktur:**
 ```json
@@ -935,6 +940,13 @@ AktivitetsloggMediator mapper aktivitetslogg til Kafka-events. Innhold og strukt
 ---
 
 ## Oppsummering
+
+### Pivoterende hendelser 🔑
+Disse er de viktigste hendelsene som andre systemer reagerer på:
+- **`behandling_opprettet`** - Signaliserer at en ny behandling er startet
+- **`behandling_avbrutt`** - Signaliserer at en behandling er avbrutt
+- **`forslag_til_behandlingsresultat`** - Signaliserer at det foreligger et forslag klart for vurdering
+- **`behandlingsresultat`** - Signaliserer at behandlingen er ferdig med endelig vedtak
 
 ### Eventer dp-behandling konsumerer:
 1. `innsending_ferdigstilt` - fra dp-mottak
