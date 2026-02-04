@@ -104,7 +104,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
-                        is OmgjøringId -> HendelseDTOTypeDTO.MANUELL
+                        is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
                     },
                 skjedde = behandlingAv.skjedde,
             ),
