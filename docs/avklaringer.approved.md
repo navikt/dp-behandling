@@ -150,6 +150,15 @@ Prøvingsdatoen er 1. mai eller senere. Grunnbeløpet for inneværende år var i
 ### Tilknyttet regelsett
 - [§ 4-11. Dagpengegrunnlag](./opplysninger.approved.md#-4-11-dagpengegrunnlag)
 ---
+## Omgjøring av tidligere vedtak
+**Kode:** `Omgjøring`
+
+### Beskrivelse
+Behandlingen er en omgjøring av tidligere vedtak. <br>Alle meldeperioder blir beregnet på nytt basert på oppdaterte opplysninger.
+
+❌ Kan ikke avbrytes
+
+---
 ## Prøvingsdato er etter rapporteringsfrist
 **Kode:** `PrøvingsdatoEtterRapporteringsfrist`
 

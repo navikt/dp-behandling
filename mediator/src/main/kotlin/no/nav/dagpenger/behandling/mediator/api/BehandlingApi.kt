@@ -61,6 +61,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
@@ -79,6 +80,7 @@ import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -172,19 +174,34 @@ internal fun Application.behandlingApi(
                             HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
                             HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id)
                             HendelseDTOTypeDTO.MANUELL -> ManuellId(UUID.fromString(nyBehandlingDto.hendelse?.id) ?: UUIDv7.ny())
+                            HendelseDTOTypeDTO.OMGJØRING -> OmgjøringId(UUID.fromString(nyBehandlingDto.hendelse?.id) ?: UUIDv7.ny())
                             null -> ManuellId(UUIDv7.ny())
                         }
 
                     val melding = ApiMelding(nyBehandlingDto.ident)
                     val hendelse =
-                        OpprettBehandlingHendelse(
-                            meldingsreferanseId = melding.id,
-                            ident = nyBehandlingDto.ident,
-                            eksternId = hendelseId,
-                            gjelderDato = nyBehandlingDto.hendelse?.skjedde ?: LocalDate.now(),
-                            begrunnelse = nyBehandlingDto.begrunnelse,
-                            opprettet = LocalDateTime.now(),
-                        )
+                        when (hendelseId) {
+                            is OmgjøringId -> {
+                                OmgjøringHendelse(
+                                    meldingsreferanseId = melding.id,
+                                    ident = nyBehandlingDto.ident,
+                                    eksternId = hendelseId,
+                                    gjelderDato = nyBehandlingDto.hendelse?.skjedde ?: LocalDate.now(),
+                                    opprettet = LocalDateTime.now(),
+                                )
+                            }
+
+                            else -> {
+                                OpprettBehandlingHendelse(
+                                    meldingsreferanseId = melding.id,
+                                    ident = nyBehandlingDto.ident,
+                                    eksternId = hendelseId,
+                                    gjelderDato = nyBehandlingDto.hendelse?.skjedde ?: LocalDate.now(),
+                                    begrunnelse = nyBehandlingDto.begrunnelse,
+                                    opprettet = LocalDateTime.now(),
+                                )
+                            }
+                        }
 
                     apiRepositoryPostgres.behandle(melding) {
                         hendelse.info("Oppretter behandling manuelt", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)

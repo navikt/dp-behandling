@@ -94,4 +94,16 @@ internal object Meldingskatalog {
                 "ident" to ident,
             ),
         ).toJson()
+
+    fun omgjørBehandling(
+        ident: String,
+        gjelderDato: LocalDate,
+    ) = JsonMessage
+        .newMessage(
+            "omgjør_behandling",
+            mapOf(
+                "ident" to ident,
+                "gjelderDato" to gjelderDato,
+            ),
+        ).toJson()
 }

@@ -29,6 +29,7 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Faktum
@@ -103,6 +104,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
+                        is OmgjøringId -> HendelseDTOTypeDTO.MANUELL
                     },
                 skjedde = behandlingAv.skjedde,
             ),
