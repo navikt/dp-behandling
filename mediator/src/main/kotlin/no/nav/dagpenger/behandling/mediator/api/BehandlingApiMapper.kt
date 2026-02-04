@@ -85,6 +85,7 @@ import no.nav.dagpenger.regel.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.Utestengning.utestengt
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
 import java.time.LocalDateTime
@@ -279,6 +280,7 @@ internal val redigerbareOpplysninger =
                             utestengt,
                             // 4-12 Redigering av barne opplysninger
                             barn,
+                            antallBarn,
                             arbeidstidsreduksjonIkkeBruktTidligere,
                             barnetilleggetsStørrelse,
                             // 21-7 Uriktige opplysninger
