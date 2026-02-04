@@ -94,7 +94,7 @@ internal fun StartHendelse.tilHendelseDTO(): HendelseDTO =
                 is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                 is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                 is ManuellId -> HendelseDTOTypeDTO.MANUELL
-                is OmgjøringId -> HendelseDTOTypeDTO.MANUELL
+                is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
             },
         skjedde = skjedde,
     )
