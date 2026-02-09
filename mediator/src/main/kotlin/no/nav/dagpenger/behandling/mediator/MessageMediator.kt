@@ -22,6 +22,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.InnsendingFerdigstiltMottak
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMottak
+import no.nav.dagpenger.behandling.mediator.mottak.OmgjøringMessage
+import no.nav.dagpenger.behandling.mediator.mottak.OmgjøringMottak
 import no.nav.dagpenger.behandling.mediator.mottak.OppgaveReturnertTilSaksbehandler
 import no.nav.dagpenger.behandling.mediator.mottak.OppgaveSendtTilKontroll
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
@@ -53,6 +55,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import java.util.UUID
 
@@ -72,6 +75,7 @@ internal class MessageMediator(
         GodkjennBehandlingMottak(rapidsConnection, this)
         InnsendingFerdigstiltMottak(rapidsConnection)
         MeldekortInnsendtMottak(rapidsConnection, this)
+        OmgjøringMottak(rapidsConnection, this)
         OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
         OppgaveSendtTilKontroll(rapidsConnection, this)
         OpplysningSvarMottak(rapidsConnection, this, opplysningstyper)
@@ -212,6 +216,16 @@ internal class MessageMediator(
     }
 
     override fun behandle(
+        hendelse: OmgjøringHendelse,
+        message: OmgjøringMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
+    override fun behandle(
         hendelse: FjernOpplysningHendelse,
         message: FjernOpplysningMessage,
         context: MessageContext,
@@ -327,6 +341,12 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: OpprettBehandlingHendelse,
         message: OpprettBehandlingMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: OmgjøringHendelse,
+        message: OmgjøringMessage,
         context: MessageContext,
     )
 

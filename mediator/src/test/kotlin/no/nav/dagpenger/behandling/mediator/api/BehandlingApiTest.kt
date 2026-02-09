@@ -41,6 +41,8 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.uuid.UUIDv7
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -128,6 +130,48 @@ internal class BehandlingApiTest {
 
             person.avklaringer.shouldNotBeEmpty()
             person.avklaringer.first().kode shouldBe "ManuellBehandling"
+        }
+    }
+
+    @Test
+    fun `opprett omgjøring på en gitt person`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.behandlingId.shouldNotBeNull()
+            person.avklaringer.shouldNotBeEmpty()
+
+            @Language("JSON")
+            val request =
+                """
+                {
+                  "ident": "${person.ident}",
+                  "hendelse": {
+                    "type": "Omgjøring",
+                    "datatype": "UUID",
+                    "id": "${UUIDv7.ny()}",
+                    "skjedde": "${LocalDate.now()}"
+                  }
+                }
+                """.trimIndent()
+            val response =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body = request,
+                )
+            response.status shouldBe HttpStatusCode.OK
+            response.bodyAsText().shouldNotBeEmpty()
+
+            person.behandlingId.shouldNotBeNull()
+
+            person.behandling.behandletHendelse.type shouldBe HendelseDTOTypeDTO.OMGJØRING
+
+            person.avklaringer shouldHaveSize 10
+            person.avklaringer.any { it.kode == "Omgjøring" } shouldBe true
         }
     }
 

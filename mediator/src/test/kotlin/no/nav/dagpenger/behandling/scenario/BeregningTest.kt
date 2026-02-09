@@ -8,6 +8,7 @@ import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
@@ -24,6 +25,7 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -622,6 +624,61 @@ class BeregningTest {
                 val utbetalingPerDag = utbetalinger.map { it["utbetaling"].asInt() }
                 satsPerDag.shouldContainExactly(762, 762, 762, 762, 1074, 1074, 1074, 1074, 1074, 1074, 1074)
                 utbetalingPerDag.shouldContainExactly(509, 510, 0, 0, 717, 717, 717, 717, 721, 0, 0)
+            }
+        }
+    }
+
+    @Test
+    fun `omgjøring av behandling beregner alle meldeperioder på nytt med nytt grunnlag`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            // Søk og innvilg dagpenger
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat { rettighetsperioder.single().harRett shouldBe true }
+
+            // Send inn og behandle meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(true)
+
+            // Verifiser opprinnelig utbetaling
+            behandlingsresultat {
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    first().verdi.verdi shouldBe 5036
+                }
+                with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
+                    this[0].verdi.verdi shouldBe 1259
+                }
+            }
+
+            // Utfør omgjøring
+            saksbehandler.omgjørBehandling(21.juni(2018))
+            saksbehandler.endreOpplysning(
+                DagpengenesStørrelse.dagsatsUtenBarnetillegg,
+                Beløp(1000000000.0),
+                "Mere Penger!",
+                Gyldighetsperiode(21.juni(2018)),
+            )
+
+            // Verifiser at omgjøringsbehandlingen har avklaring
+            person.avklaringer.first().kode shouldBe "Omgjøring"
+
+            // Verifiser at behandlingen har beregnet utbetaling for perioden
+            behandlingsresultatForslag {
+                with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
+                    this shouldHaveSize 1
+                    this[0].verdi.verdi shouldBe 1791
+                }
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    // Utbetalingen skal fortsatt være beregnet (med samme verdi siden grunnlaget er likt)
+                    single().verdi.verdi shouldNotBe 5036
+                    single().verdi.verdi shouldBe 8760
+                }
             }
         }
     }

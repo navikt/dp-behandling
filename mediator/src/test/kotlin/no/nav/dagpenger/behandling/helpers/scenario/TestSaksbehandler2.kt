@@ -195,4 +195,8 @@ internal class TestSaksbehandler2(
             rapid,
         )
     }
+
+    fun omgjørBehandling(gjelderDato: LocalDate) {
+        rapid.sendTestMessage(Meldingskatalog.omgjørBehandling(testPerson.ident, gjelderDato))
+    }
 }

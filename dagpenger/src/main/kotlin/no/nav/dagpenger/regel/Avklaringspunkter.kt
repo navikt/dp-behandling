@@ -278,4 +278,16 @@ object Avklaringspunkter {
                 Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
                 """.trimIndent(),
         )
+
+    val OmgjøringBehandling =
+        Avklaringkode(
+            kode = "Omgjøring",
+            tittel = "Omgjøring av tidligere vedtak",
+            beskrivelse =
+                """
+                Behandlingen er en omgjøring av tidligere vedtak. 
+                Alle meldeperioder blir beregnet på nytt basert på oppdaterte opplysninger.
+                """.trimIndent(),
+            kanAvbrytes = false,
+        )
 }

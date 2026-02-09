@@ -1760,7 +1760,7 @@ components:
           type: string
         type:
           type: string
-          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring"]
+          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring" ]
         skjedde:
           type: string
           format: date
