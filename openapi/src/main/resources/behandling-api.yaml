@@ -71,7 +71,8 @@ paths:
 
   /person/behandling:
     post:
-      description: Opprett ny behandling for en person
+      deprecated: true
+      description: Opprett ny behandling for en person (deprecated - bruk /person/behandling/hendelse eller /person/behandling/manuell)
       security:
         - azureAd: [ ]
       tags:
@@ -82,6 +83,60 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/NyBehandling'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Behandling'
+        default:
+          description: Feil ved oppretting av behandling
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /person/behandling/hendelse:
+    post:
+      description: Opprett ny behandling for en person basert på en hendelse
+      security:
+        - azureAd: [ ]
+      tags:
+        - Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NyBehandlingFraHendelse'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Behandling'
+        default:
+          description: Feil ved oppretting av behandling
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /person/behandling/manuell:
+    post:
+      description: Opprett ny manuell behandling for en person
+      security:
+        - azureAd: [ ]
+      tags:
+        - Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NyManuellBehandling'
       responses:
         200:
           description: OK
@@ -627,16 +682,10 @@ components:
         behandlingstype:
           type: string
           enum:
-            - Omgjøring
+            - Revurdering
             - Manuell
         ident:
           $ref: '#/components/schemas/Personident'
-        hendelse:
-          $ref: '#/components/schemas/Hendelse'
-        prøvingsdato:
-          deprecated: true
-          type: string
-          format: date
         begrunnelse:
           type: string
 

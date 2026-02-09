@@ -29,10 +29,10 @@ import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
 import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.DatalastKvitteringDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
+import no.nav.dagpenger.behandling.api.models.NyBehandlingDTOBehandlingstypeDTO
 import no.nav.dagpenger.behandling.api.models.NyOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
@@ -60,11 +60,9 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
@@ -167,33 +165,17 @@ internal fun Application.behandlingApi(
                 post {
                     val nyBehandlingDto = call.receive<NyBehandlingDTO>()
                     val ident = nyBehandlingDto.ident
-                    val person = personRepository.hent(ident.tilPersonIdentfikator()) ?: throw NotFoundException("Person ikke funnet")
-
-                    require(nyBehandlingDto.hendelse != null || nyBehandlingDto.behandlingstype != null) {
-                        "Må oppgi enten hendelse eller behandlingstype for å opprette en behandling"
-                    }
-                    require(nyBehandlingDto.hendelse != null && nyBehandlingDto.behandlingstype != null) {
-                        "Kan ikke oppgi både hendelse og behandlingstype for å opprette en behandling"
-                    }
-
-                    val hendelseId =
-                        when (nyBehandlingDto.hendelse?.type) {
-                            HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
-                            HendelseDTOTypeDTO.MELDEKORT -> MeldekortId(nyBehandlingDto.hendelse!!.id)
-                            HendelseDTOTypeDTO.MANUELL -> ManuellId(UUID.fromString(nyBehandlingDto.hendelse?.id) ?: UUIDv7.ny())
-                            HendelseDTOTypeDTO.OMGJØRING -> OmgjøringId(UUID.fromString(nyBehandlingDto.hendelse?.id) ?: UUIDv7.ny())
-                            null -> ManuellId(UUIDv7.ny())
-                        }
+                    personRepository.hent(ident.tilPersonIdentfikator()) ?: throw NotFoundException("Person ikke funnet")
 
                     val melding = ApiMelding(nyBehandlingDto.ident)
                     val hendelse =
-                        when (hendelseId) {
-                            is OmgjøringId -> {
+                        when (nyBehandlingDto.behandlingstype) {
+                            NyBehandlingDTOBehandlingstypeDTO.REVURDERING -> {
                                 OmgjøringHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
-                                    eksternId = hendelseId,
-                                    gjelderDato = nyBehandlingDto.hendelse?.skjedde ?: LocalDate.now(),
+                                    eksternId = OmgjøringId(UUIDv7.ny()),
+                                    gjelderDato = LocalDate.now(),
                                     opprettet = LocalDateTime.now(),
                                 )
                             }
@@ -202,8 +184,8 @@ internal fun Application.behandlingApi(
                                 OpprettBehandlingHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
-                                    eksternId = hendelseId,
-                                    gjelderDato = nyBehandlingDto.hendelse?.skjedde ?: LocalDate.now(),
+                                    eksternId = ManuellId(UUIDv7.ny()),
+                                    gjelderDato = LocalDate.now(),
                                     begrunnelse = nyBehandlingDto.begrunnelse,
                                     opprettet = LocalDateTime.now(),
                                 )
@@ -211,7 +193,12 @@ internal fun Application.behandlingApi(
                         }
 
                     apiRepositoryPostgres.behandle(melding) {
-                        hendelse.info("Oppretter behandling manuelt", nyBehandlingDto.ident, call.saksbehandlerId(), AuditOperasjon.CREATE)
+                        hendelse.info(
+                            "Oppretter behandling manuelt (type: ${nyBehandlingDto.behandlingstype})",
+                            nyBehandlingDto.ident,
+                            call.saksbehandlerId(),
+                            AuditOperasjon.CREATE,
+                        )
                         hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
                     }
 

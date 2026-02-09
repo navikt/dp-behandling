@@ -41,7 +41,6 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.uuid.UUIDv7
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -150,12 +149,7 @@ internal class BehandlingApiTest {
                 """
                 {
                   "ident": "${person.ident}",
-                  "hendelse": {
-                    "type": "Omgjøring",
-                    "datatype": "UUID",
-                    "id": "${UUIDv7.ny()}",
-                    "skjedde": "${LocalDate.now()}"
-                  }
+                  "behandlingstype" : "Revurdering"
                 }
                 """.trimIndent()
             val response =
