@@ -169,6 +169,13 @@ internal fun Application.behandlingApi(
                     val ident = nyBehandlingDto.ident
                     val person = personRepository.hent(ident.tilPersonIdentfikator()) ?: throw NotFoundException("Person ikke funnet")
 
+                    require(nyBehandlingDto.hendelse != null || nyBehandlingDto.behandlingstype != null) {
+                        "Må oppgi enten hendelse eller behandlingstype for å opprette en behandling"
+                    }
+                    require(nyBehandlingDto.hendelse != null && nyBehandlingDto.behandlingstype != null) {
+                        "Kan ikke oppgi både hendelse og behandlingstype for å opprette en behandling"
+                    }
+
                     val hendelseId =
                         when (nyBehandlingDto.hendelse?.type) {
                             HendelseDTOTypeDTO.SØKNAD -> SøknadId(UUID.fromString(nyBehandlingDto.hendelse!!.id))
