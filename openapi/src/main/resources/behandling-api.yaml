@@ -71,8 +71,7 @@ paths:
 
   /person/behandling:
     post:
-      deprecated: true
-      description: Opprett ny behandling for en person (deprecated - bruk /person/behandling/hendelse eller /person/behandling/manuell)
+      description: Opprett ny behandling for en person
       security:
         - azureAd: [ ]
       tags:
@@ -97,59 +96,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
-  /person/behandling/hendelse:
-    post:
-      description: Opprett ny behandling for en person basert på en hendelse
-      security:
-        - azureAd: [ ]
-      tags:
-        - Person
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NyBehandlingFraHendelse'
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Behandling'
-        default:
-          description: Feil ved oppretting av behandling
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/HttpProblem'
-
-  /person/behandling/manuell:
-    post:
-      description: Opprett ny manuell behandling for en person
-      security:
-        - azureAd: [ ]
-      tags:
-        - Person
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NyManuellBehandling'
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Behandling'
-        default:
-          description: Feil ved oppretting av behandling
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/HttpProblem'
   /behandling:
     post:
       description: Hent alle behandlinger for en gitt person
