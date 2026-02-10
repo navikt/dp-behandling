@@ -58,7 +58,8 @@ class RettighetsperiodePlugin(
                 val gyldighetsperiode = Gyldighetsperiode(periode.fraOgMed, periode.tilOgMed)
                 require(!periode.fraOgMed.isEqual(LocalDate.MIN)) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
 
-                // Ikke legg til perioder som overlapper med eksisterende perioder med samme verdi
+                // Ikke legg til perioder som har lik fra- og med eksisterende perioder med samme verdi
+                // Denne unngår at vi legger til en forkortet rettighetsperiode men lener oss på "uterstatning" logikk i opplysninger.
                 if (eksisterende.any {
                         it.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && it.verdi == periode.verdi
                     }
