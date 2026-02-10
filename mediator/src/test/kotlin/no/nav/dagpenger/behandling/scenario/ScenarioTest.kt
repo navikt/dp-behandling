@@ -316,10 +316,6 @@ class ScenarioTest {
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
 
-                lagBrev(klump.toString()).also {
-                    println(it)
-                }
-
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 2
                     this[0].opprinnelse shouldBe Periodestatus.Arvet

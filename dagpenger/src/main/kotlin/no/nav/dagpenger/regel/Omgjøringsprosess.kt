@@ -18,6 +18,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     private val kvotetelling = Kvotetelling()
 
     init {
+        registrer(RettighetsperiodePlugin(this.regelverk))
         registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, kvotetelling))
     }
 
@@ -57,7 +58,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
         }
 
     private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): LocalDate =
-        opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
+        opplysninger.finnAlle(Søknadstidspunkt.prøvingsdato).minOf { it.gyldighetsperiode.fraOgMed }
 }
 
 /**

@@ -59,7 +59,12 @@ class RettighetsperiodePlugin(
                 require(!periode.fraOgMed.isEqual(LocalDate.MIN)) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
 
                 // Ikke legg til perioder som overlapper med eksisterende perioder med samme verdi
-                if (eksisterende.any { it.gyldighetsperiode.overlapp(gyldighetsperiode) && it.verdi == periode.verdi }) return@forEach
+                if (eksisterende.any {
+                        it.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && it.verdi == periode.verdi
+                    }
+                ) {
+                    return@forEach
+                }
 
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
             }

@@ -62,7 +62,7 @@ internal class Mennesket(
     ): UUID {
         this.søknadsdato = dato
         this.ønskerFraDato = ønskerFraDato
-        this.meldesyklus = Meldesyklus(søknadsdato)
+        // this.meldesyklus = Meldesyklus(søknadsdato)
 
         val nySøknadId = søknader.ny()
         rapid.sendTestMessage(
