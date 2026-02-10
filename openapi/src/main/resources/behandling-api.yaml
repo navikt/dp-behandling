@@ -626,14 +626,17 @@ components:
         - ident
       properties:
         behandlingstype:
-          type: string
-          enum:
-            - Revurdering
-            - Manuell
+          $ref: '#/components/schemas/Behandlingstype'
         ident:
           $ref: '#/components/schemas/Personident'
         begrunnelse:
           type: string
+
+    Behandlingstype:
+        type: string
+        enum:
+            - Revurdering
+            - Manuell
 
     NyOpplysning:
       type: object

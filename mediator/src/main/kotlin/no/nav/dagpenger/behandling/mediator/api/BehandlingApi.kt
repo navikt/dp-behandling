@@ -27,12 +27,12 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.opentelemetry.api.trace.Span
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
 import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
+import no.nav.dagpenger.behandling.api.models.BehandlingstypeDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.DatalastKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
-import no.nav.dagpenger.behandling.api.models.NyBehandlingDTOBehandlingstypeDTO
 import no.nav.dagpenger.behandling.api.models.NyOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
@@ -170,7 +170,7 @@ internal fun Application.behandlingApi(
                     val melding = ApiMelding(nyBehandlingDto.ident)
                     val hendelse =
                         when (nyBehandlingDto.behandlingstype) {
-                            NyBehandlingDTOBehandlingstypeDTO.REVURDERING -> {
+                            BehandlingstypeDTO.REVURDERING -> {
                                 OmgjøringHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
