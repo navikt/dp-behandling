@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.regel.PeriodeOverskrivingsStrategi.Companion.OVERSKRIV_ALLTID
 import no.nav.dagpenger.regel.beregning.Beregning
 import java.time.LocalDate
 
@@ -17,7 +18,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     private val kvotetelling = Kvotetelling()
 
     init {
-        registrer(RettighetsperiodePlugin(this.regelverk))
+        registrer(RettighetsperiodePlugin(this.regelverk, OVERSKRIV_ALLTID))
         registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, kvotetelling))
     }
 

@@ -12,8 +12,25 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.TidslinjeBygger
 import java.time.LocalDate
 
+fun interface PeriodeOverskrivingsStrategi {
+    fun skalIkkeLeggesTil(
+        eksisterende: List<Opplysning<Boolean>>,
+        gyldighetsperiode: Gyldighetsperiode,
+        periode: PeriodisertVerdi<Boolean>,
+    ): Boolean
+
+    companion object {
+        val BEHOLD_EKSISTERENDE =
+            PeriodeOverskrivingsStrategi { eksisterende, gyldighetsperiode, periode ->
+                eksisterende.any { it.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && it.verdi == periode.verdi }
+            }
+        val OVERSKRIV_ALLTID = PeriodeOverskrivingsStrategi { _, _, _ -> false }
+    }
+}
+
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
+    private val overskrivingsStrategi: PeriodeOverskrivingsStrategi = PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
 ) : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
@@ -61,7 +78,7 @@ class RettighetsperiodePlugin(
 
                 // Ikke legg til perioder som har lik fra- og med eksisterende perioder med samme verdi
                 // Denne unngår at vi legger til en forkortet rettighetsperiode men lener oss på "uterstatning" logikk i opplysninger.
-                if (eksisterende.any { overlapperStartOgSammeVerdi(it, gyldighetsperiode, periode) }) {
+                if (overskrivingsStrategi.skalIkkeLeggesTil(eksisterende, gyldighetsperiode, periode)) {
                     return@forEach
                 }
 
