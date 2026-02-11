@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.PeriodisertVerdi
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
@@ -11,8 +12,25 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.TidslinjeBygger
 import java.time.LocalDate
 
+fun interface PeriodeOverskrivingsStrategi {
+    fun skalIkkeLeggesTil(
+        eksisterende: List<Opplysning<Boolean>>,
+        gyldighetsperiode: Gyldighetsperiode,
+        periode: PeriodisertVerdi<Boolean>,
+    ): Boolean
+
+    companion object {
+        val BEHOLD_EKSISTERENDE =
+            PeriodeOverskrivingsStrategi { eksisterende, gyldighetsperiode, periode ->
+                eksisterende.any { it.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && it.verdi == periode.verdi }
+            }
+        val OVERSKRIV_ALLTID = PeriodeOverskrivingsStrategi { _, _, _ -> false }
+    }
+}
+
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
+    private val overskrivingsStrategi: PeriodeOverskrivingsStrategi = PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
 ) : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
@@ -60,16 +78,19 @@ class RettighetsperiodePlugin(
 
                 // Ikke legg til perioder som har lik fra- og med eksisterende perioder med samme verdi
                 // Denne unngår at vi legger til en forkortet rettighetsperiode men lener oss på "uterstatning" logikk i opplysninger.
-                if (eksisterende.any {
-                        it.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && it.verdi == periode.verdi
-                    }
-                ) {
+                if (overskrivingsStrategi.skalIkkeLeggesTil(eksisterende, gyldighetsperiode, periode)) {
                     return@forEach
                 }
 
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
             }
     }
+
+    private fun overlapperStartOgSammeVerdi(
+        opplysning: Opplysning<Boolean>,
+        gyldighetsperiode: Gyldighetsperiode,
+        periode: PeriodisertVerdi<Boolean>,
+    ): Boolean = opplysning.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && opplysning.verdi == periode.verdi
 
     companion object {
         private val logger = KotlinLogging.logger {}

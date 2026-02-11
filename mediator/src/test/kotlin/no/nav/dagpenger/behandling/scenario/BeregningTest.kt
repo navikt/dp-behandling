@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldStartWith
+import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
@@ -215,6 +216,7 @@ class BeregningTest {
             behandlingsresultatForslag {
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 28
+                    this.count { it.verdi.verdi == true } shouldBe 17
 
                     // Første dag i ny meldeperiode
                     this.first { it.opprinnelse != Opplysningsperiode.Periodestatus.Arvet }.gyldigFraOgMed shouldBe 2.juli(2018)
@@ -243,6 +245,8 @@ class BeregningTest {
 
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 28
+                    this.count { it.verdi.verdi == true } shouldBeLessThan 17
+                    this.count { it.verdi.verdi == true } shouldBe 12 // Dagene på slutten er ikke forbruksdager lengre
 
                     // Første dag i ny meldeperiode
                     this.first { it.opprinnelse != Opplysningsperiode.Periodestatus.Arvet }.gyldigFraOgMed shouldBe 2.juli(2018)

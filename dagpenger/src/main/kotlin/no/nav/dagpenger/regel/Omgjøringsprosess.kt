@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.PeriodeOverskrivingsStrategi.Companion.OVERSKRIV_ALLTID
 import no.nav.dagpenger.regel.beregning.Beregning
 import java.time.LocalDate
 
@@ -18,25 +18,23 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     private val kvotetelling = Kvotetelling()
 
     init {
-        registrer(RettighetsperiodePlugin(this.regelverk))
+        registrer(RettighetsperiodePlugin(this.regelverk, OVERSKRIV_ALLTID))
         registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, kvotetelling))
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        val innvilgelsesdato = innvilgelsesdato(opplysninger)
+        val førsteDagMedRett = innvilgelsesdato(opplysninger)
         val meldeperioder = opplysninger.finnAlle(Beregning.meldeperiode)
 
-        // Bruk siste meldeperiode for regelkjøring
+        // Finn den siste beregnede meldeperioden for å sette sluttdato for regelkjøringen
         val sisteMeldeperiode =
-            meldeperioder.maxByOrNull { it.verdi.tilOgMed }?.verdi
-                // TODO: LAg en fornuftig default som baserer seg på rettighetsperioder
-                ?: Periode(innvilgelsesdato, innvilgelsesdato)
-
-        val førsteDagMedRett = maxOf(innvilgelsesdato, sisteMeldeperiode.fraOgMed)
+            meldeperioder.maxByOrNull { it.verdi.tilOgMed }?.verdi?.tilOgMed
+                // Mangler det meldeperioder prøver vi bare vilkår på nytt for innvilgelsesdatoen
+                ?: førsteDagMedRett
 
         return Regelkjøring(
-            regelverksdato = innvilgelsesdato,
-            prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = sisteMeldeperiode.tilOgMed),
+            regelverksdato = førsteDagMedRett,
+            prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = sisteMeldeperiode),
             opplysninger = opplysninger,
             forretningsprosess = this,
         )
