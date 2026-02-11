@@ -64,7 +64,7 @@ class RettighetsperiodePlugin(
                         it.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && it.verdi == periode.verdi
                     }
                 ) {
-                    return@forEach
+                    // return@forEach
                 }
 
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))

@@ -156,22 +156,28 @@ class Opplysninger private constructor(
 
                         when {
                             // finner ingenting fra før
-                            forrige == null -> resultat.add(utfordrer)
+                            forrige == null -> {
+                                resultat.add(utfordrer)
+                            }
+
                             // Ingen overlapp
                             forrige.gyldighetsperiode.endInclusive < utfordrer.gyldighetsperiode.fraOgMed -> {
                                 // Ingen overlapp, legger til utfordrer
                                 resultat.add(utfordrer)
                             }
+
                             // det er overlapp, men forrige er nyest
                             forrige.id > utfordrer.id -> {}
+
                             // utfordrer er nyest, og overskriver hele forrige
                             forrige.gyldighetsperiode.fraOgMed == utfordrer.gyldighetsperiode.fraOgMed -> {
                                 // overskriver forrige med utfordrer
                                 resultat[resultat.lastIndex] = utfordrer
                             }
+
                             else -> {
                                 val forkortet = forrige.lagForkortet(utfordrer)
-                                logger.info {
+                                logger.debug {
                                     """
                                         |Kant-i-kant overlapper opplysning ${forrige.id} og ${utfordrer.id} for type ${forrige.opplysningstype.navn}. Lager forkortet opplysning.
                                         |Venstre: ${forrige.gyldighetsperiode}
