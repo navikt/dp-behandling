@@ -196,6 +196,14 @@ class OmgjøringScenarioTester {
             behandlingsresultat {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27991
 
+                rettighetsperioder shouldHaveSize 3
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].tilOgMed shouldBe 24.januar(2018)
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 25.januar(2018)
+                rettighetsperioder[2].harRett shouldBe true
+                rettighetsperioder[2].fraOgMed shouldBe 14.februar(2018)
+
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 42 // Meldekort 1, 2, og 4 blir beregnet.
                     this.count { it.verdi.verdi == true } shouldBe 26
@@ -204,8 +212,13 @@ class OmgjøringScenarioTester {
 
             // Omgjøring
             saksbehandler.omgjørBehandling(19.februar(2018))
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "Oppholder seg ikke i Norge", Gyldighetsperiode(14.februar(2018)))
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(19.februar(2018)))
+            saksbehandler.endreOpplysning(
+                Opphold.oppholdINorge,
+                false,
+                "Oppholder seg ikke i Norge",
+                Gyldighetsperiode(14.februar(2018), 18.februar(2018)),
+            )
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -215,6 +228,7 @@ class OmgjøringScenarioTester {
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 25.januar(2018)
                 rettighetsperioder[1].tilOgMed shouldBe 18.februar(2018)
                 rettighetsperioder[2].harRett shouldBe true
                 rettighetsperioder[2].fraOgMed shouldBe 19.februar(2018)

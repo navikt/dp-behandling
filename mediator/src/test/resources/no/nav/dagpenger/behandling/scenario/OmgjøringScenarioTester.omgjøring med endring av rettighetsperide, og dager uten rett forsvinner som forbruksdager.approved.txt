@@ -90,18 +90,6 @@ Behov:
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
-Behov:
-- RegistrertSomArbeidssøker
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
-Behov:
-- RegistrertSomArbeidssøker
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
@@ -115,12 +103,10 @@ Behandling endret tilstand til: Ferdig
 Laget avklaring om Omgjøring
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behov:
-- RegistrertSomArbeidssøker
-Behov:
-- RegistrertSomArbeidssøker
-Behov:
-- RegistrertSomArbeidssøker
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
