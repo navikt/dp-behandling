@@ -8,6 +8,12 @@ Egenskap: § 4-12. Dagpengenes størrelse
     Så skal dagpengens uavrundet størrelse uten barnetillegg være "590.7144"
     Så skal dagpengens størrelse være "591"
 
+  Scenario: Dagpengegrunnlag og søker har ikke barn
+    Gitt at dagpengegrunnlag er "425625"
+    Og at søker har ikke barn
+    Så skal dagpengens uavrundet størrelse uten barnetillegg være "1021.5"
+    Så skal dagpengens størrelse være "1022"
+
   Scenario: Dagpengegrunnlag og søker har 2 barn
     Gitt at dagpengegrunnlag er "246131"
     Og at søker har 2 barn
