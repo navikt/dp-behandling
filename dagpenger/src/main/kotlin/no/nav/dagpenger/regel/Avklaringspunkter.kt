@@ -224,6 +224,13 @@ object Avklaringspunkter {
             beskrivelse = "Søker har oppgitt permittering i søknaden. Vurder om søker er permittert og har rett til dagpenger som permittert.",
         )
 
+    val HarSvartPåOmgjøringUtenKlage =
+        Avklaringkode(
+            kode = "HarSvartPåOmgjøringUtenKlage",
+            tittel = "Omgjøring uten klage",
+            beskrivelse = "Saksbehandler må svare på hvorfor vedtaket omgjøres uten at det har vært klage på tidligere vedtak. Sjekk at det er lagt inn en begrunnelse for omgjøringen.",
+        )
+
     val HarTilleggsopplysninger =
         Avklaringkode(
             kode = "HarTilleggsopplysninger",
