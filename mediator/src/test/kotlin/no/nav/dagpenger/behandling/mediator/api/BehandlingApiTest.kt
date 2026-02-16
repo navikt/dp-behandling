@@ -41,6 +41,7 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.uuid.UUIDv7
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -120,12 +121,25 @@ internal class BehandlingApiTest {
 
             person.behandlingId.shouldNotBeNull()
             person.avklaringer.shouldNotBeEmpty()
-
-            val response = testContext.autentisert(endepunkt = "/person/behandling", body = """{"ident":"${person.ident}"}""")
+            val skjeddeDato = LocalDate.now()
+            val hendelseId = UUIDv7.ny()
+            // language=JSON
+            val body =
+                """{
+                  "ident": "${person.ident}",
+                  "behandlingstype": "Manuell",
+                  "id": "$hendelseId",
+                  "skjedde": "$skjeddeDato",
+                  "begrunnelse": "Automatisk opprettet av test"
+            }"""
+            val response = testContext.autentisert(endepunkt = "/person/behandling", body = body)
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
 
             person.behandlingId.shouldNotBeNull()
+            person.behandling.behandletHendelse.type shouldBe HendelseDTOTypeDTO.MANUELL
+            person.behandling.behandletHendelse.id shouldBe hendelseId.toString()
+            person.behandling.behandletHendelse.skjedde shouldBe skjeddeDato
 
             person.avklaringer.shouldNotBeEmpty()
             person.avklaringer.first().kode shouldBe "ManuellBehandling"

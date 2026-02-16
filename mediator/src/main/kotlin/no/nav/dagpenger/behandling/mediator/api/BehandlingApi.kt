@@ -165,6 +165,8 @@ internal fun Application.behandlingApi(
                 post {
                     val nyBehandlingDto = call.receive<NyBehandlingDTO>()
                     val ident = nyBehandlingDto.ident
+                    val id = nyBehandlingDto.id ?: UUIDv7.ny()
+                    val skjedde = nyBehandlingDto.skjedde ?: LocalDate.now()
                     personRepository.hent(ident.tilPersonIdentfikator()) ?: throw NotFoundException("Person ikke funnet")
 
                     val melding = ApiMelding(nyBehandlingDto.ident)
@@ -174,8 +176,8 @@ internal fun Application.behandlingApi(
                                 OmgjøringHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
-                                    eksternId = OmgjøringId(UUIDv7.ny()),
-                                    gjelderDato = LocalDate.now(),
+                                    eksternId = OmgjøringId(id),
+                                    gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
                                 )
                             }
@@ -184,8 +186,8 @@ internal fun Application.behandlingApi(
                                 OpprettBehandlingHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
-                                    eksternId = ManuellId(UUIDv7.ny()),
-                                    gjelderDato = LocalDate.now(),
+                                    eksternId = ManuellId(id),
+                                    gjelderDato = skjedde,
                                     begrunnelse = nyBehandlingDto.begrunnelse,
                                     opprettet = LocalDateTime.now(),
                                 )

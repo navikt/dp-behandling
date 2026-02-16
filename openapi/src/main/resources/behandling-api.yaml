@@ -631,6 +631,14 @@ components:
           $ref: '#/components/schemas/Personident'
         begrunnelse:
           type: string
+        id:
+          type: string
+          format: uuid
+          description: Valgfritt id for hendelsen, hvis ikke genereres det en uuid
+        skjedde:
+          type: string
+          format: date
+          description: Når hendelsen skjedde, hvis ikke settes det til nåværende tidspunkt
 
     Behandlingstype:
         type: string
