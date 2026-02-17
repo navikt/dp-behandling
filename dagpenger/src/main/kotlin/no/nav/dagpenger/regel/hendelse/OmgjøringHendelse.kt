@@ -50,16 +50,17 @@ class OmgjøringHendelse(
                     opprettet = opprettet,
                     forretningsprosess = forretningsprosess,
                 ),
-            opplysninger =
-                listOf(
-                    Faktum(
-                        hendelseTypeOpplysningstype,
-                        type,
-                        Gyldighetsperiode.kun(skjedde),
-                        kilde = kilde,
-                    ),
-                ),
+            opplysninger = emptyList(),
             avklaringer = emptyList(),
-        )
+        ).also {
+            it.opplysninger.leggTil(
+                Faktum(
+                    hendelseTypeOpplysningstype,
+                    type,
+                    gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
+                    kilde = kilde,
+                ),
+            )
+        }
     }
 }

@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.scenario
 
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -65,8 +64,6 @@ class OmgjøringScenarioTester {
                 OmgjøringUtenKlage.ansesUgyldigVedtak,
                 true,
             )
-
-            person.avklaringer.shouldBeEmpty()
 
             // Verifiser at behandlingen har beregnet utbetaling for perioden
             behandlingsresultatForslag {
@@ -134,6 +131,10 @@ class OmgjøringScenarioTester {
             // Omgjøring
             saksbehandler.omgjørBehandling(1.august(2018))
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(1.august(2018)))
+            saksbehandler.endreOpplysning(
+                OmgjøringUtenKlage.ansesUgyldigVedtak,
+                true,
+            )
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -227,6 +228,10 @@ class OmgjøringScenarioTester {
                 false,
                 "Oppholder seg ikke i Norge",
                 Gyldighetsperiode(14.februar(2018), 18.februar(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                OmgjøringUtenKlage.ansesUgyldigVedtak,
+                true,
             )
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()

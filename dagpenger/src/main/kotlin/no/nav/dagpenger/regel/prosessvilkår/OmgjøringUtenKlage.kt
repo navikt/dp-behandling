@@ -49,6 +49,11 @@ object OmgjøringUtenKlage {
 
     val OmgjøringUtenKlageKontroll =
         Kontrollpunkt(Avklaringspunkter.HarSvartPåOmgjøringUtenKlage) {
+
+            if (!it.har(kanOmgjøresUtenKlage)) {
+                return@Kontrollpunkt false
+            }
+
             if (it.erSann(kanOmgjøresUtenKlage)) {
                 return@Kontrollpunkt false
             }

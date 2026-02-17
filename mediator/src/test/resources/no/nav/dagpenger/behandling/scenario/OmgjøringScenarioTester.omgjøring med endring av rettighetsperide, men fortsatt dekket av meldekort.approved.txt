@@ -112,8 +112,11 @@ Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Ferdig
+Laget avklaring om HarSvartPåOmgjøringUtenKlage
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
+Behov:
+- RegistrertSomArbeidssøker
 Behov:
 - RegistrertSomArbeidssøker
 Behov:
