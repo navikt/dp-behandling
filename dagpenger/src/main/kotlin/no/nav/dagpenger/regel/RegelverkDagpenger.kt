@@ -14,6 +14,8 @@ import no.nav.dagpenger.regel.fastsetting.PermitteringFraFiskeindustrienFastsett
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
+import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.prosessvilkår.Uriktigeopplysninger
 
 val RegelverkDagpenger =
     Regelverk(
@@ -30,6 +32,7 @@ val RegelverkDagpenger =
         Minsteinntekt.regelsett,
         Opphold.regelsett,
         Opptjeningstid.regelsett,
+        OmgjøringUtenKlage.regelsett,
         Permittering.regelsett,
         PermitteringFastsetting.regelsett,
         PermitteringFraFiskeindustrien.regelsett,

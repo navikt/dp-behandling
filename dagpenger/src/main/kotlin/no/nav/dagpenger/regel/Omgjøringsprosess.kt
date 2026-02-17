@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel
 
-import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -11,6 +10,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.PeriodeOverskrivingsStrategi.Companion.OVERSKRIV_ALLTID
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage.OmgjøringUtenKlageKontroll
 import java.time.LocalDate
 
 class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
@@ -40,7 +40,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
         )
     }
 
-    override fun kontrollpunkter() = emptyList<Kontrollpunkt>()
+    override fun kontrollpunkter() = listOf(OmgjøringUtenKlageKontroll)
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
         opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }

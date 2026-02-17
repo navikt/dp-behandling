@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -16,6 +17,7 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
 import org.junit.jupiter.api.Test
 
 class OmgjøringScenarioTester {
@@ -57,7 +59,14 @@ class OmgjøringScenarioTester {
             )
 
             // Verifiser at omgjøringsbehandlingen har avklaring
-            person.avklaringer.first().kode shouldBe "Omgjøring"
+            person.avklaringer.first().kode shouldBe "HarSvartPåOmgjøringUtenKlage"
+
+            saksbehandler.endreOpplysning(
+                OmgjøringUtenKlage.ansesUgyldigVedtak,
+                true,
+            )
+
+            person.avklaringer.shouldBeEmpty()
 
             // Verifiser at behandlingen har beregnet utbetaling for perioden
             behandlingsresultatForslag {

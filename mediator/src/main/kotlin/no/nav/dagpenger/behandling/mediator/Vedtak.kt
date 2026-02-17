@@ -56,13 +56,13 @@ import no.nav.dagpenger.regel.StreikOgLockout
 import no.nav.dagpenger.regel.Søknad
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
-import no.nav.dagpenger.regel.Uriktigeopplysninger
 import no.nav.dagpenger.regel.Utdanning
 import no.nav.dagpenger.regel.Utestengning
 import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
+import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger
 import java.time.LocalDateTime
 
 fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {

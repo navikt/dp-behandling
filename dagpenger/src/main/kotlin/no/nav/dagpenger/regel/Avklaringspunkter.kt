@@ -229,6 +229,7 @@ object Avklaringspunkter {
             kode = "HarSvartPåOmgjøringUtenKlage",
             tittel = "Omgjøring uten klage",
             beskrivelse = "Saksbehandler må svare på hvorfor vedtaket omgjøres uten at det har vært klage på tidligere vedtak. Sjekk at det er lagt inn en begrunnelse for omgjøringen.",
+            kanKvitteres = false,
         )
 
     val HarTilleggsopplysninger =
@@ -284,17 +285,5 @@ object Avklaringspunkter {
                 """
                 Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
                 """.trimIndent(),
-        )
-
-    val OmgjøringBehandling =
-        Avklaringkode(
-            kode = "Omgjøring",
-            tittel = "Omgjøring av tidligere vedtak",
-            beskrivelse =
-                """
-                Behandlingen er en omgjøring av tidligere vedtak. 
-                Alle meldeperioder blir beregnet på nytt basert på oppdaterte opplysninger.
-                """.trimIndent(),
-            kanAvbrytes = false,
         )
 }
