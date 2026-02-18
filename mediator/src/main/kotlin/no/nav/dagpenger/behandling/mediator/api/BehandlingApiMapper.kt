@@ -85,6 +85,9 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
+import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage.ansesUgyldigVedtak
+import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage.endringIkkeTilSkade
+import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage.ikkeUnderretning
 import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.holderTilbake
 import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.`unnlateråEtterkommePålegg`
 import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.uriktigeOpplysninger
@@ -287,6 +290,10 @@ internal val redigerbareOpplysninger =
                             uriktigeOpplysninger,
                             holderTilbake,
                             unnlateråEtterkommePålegg,
+                            // Forvaltningsloven kapittel 6 - paragraf 35
+                            endringIkkeTilSkade,
+                            ikkeUnderretning,
+                            ansesUgyldigVedtak,
                         ),
                     )
 
