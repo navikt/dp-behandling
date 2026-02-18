@@ -16,6 +16,7 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
 import org.junit.jupiter.api.Test
 
 class OmgjøringScenarioTester {
@@ -57,7 +58,12 @@ class OmgjøringScenarioTester {
             )
 
             // Verifiser at omgjøringsbehandlingen har avklaring
-            person.avklaringer.first().kode shouldBe "Omgjøring"
+            person.avklaringer.first().kode shouldBe "HarSvartPåOmgjøringUtenKlage"
+
+            saksbehandler.endreOpplysning(
+                OmgjøringUtenKlage.ansesUgyldigVedtak,
+                true,
+            )
 
             // Verifiser at behandlingen har beregnet utbetaling for perioden
             behandlingsresultatForslag {
@@ -125,6 +131,10 @@ class OmgjøringScenarioTester {
             // Omgjøring
             saksbehandler.omgjørBehandling(1.august(2018))
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(1.august(2018)))
+            saksbehandler.endreOpplysning(
+                OmgjøringUtenKlage.ansesUgyldigVedtak,
+                true,
+            )
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -218,6 +228,10 @@ class OmgjøringScenarioTester {
                 false,
                 "Oppholder seg ikke i Norge",
                 Gyldighetsperiode(14.februar(2018), 18.februar(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                OmgjøringUtenKlage.ansesUgyldigVedtak,
+                true,
             )
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()

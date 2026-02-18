@@ -179,7 +179,7 @@ internal class BehandlingApiTest {
             person.behandling.behandletHendelse.type shouldBe HendelseDTOTypeDTO.OMGJØRING
 
             person.avklaringer shouldHaveSize 10
-            person.avklaringer.any { it.kode == "Omgjøring" } shouldBe true
+            person.avklaringer.any { it.kode == "HarSvartPåOmgjøringUtenKlage" } shouldBe true
         }
     }
 

@@ -1,23 +1,34 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.regel.prosessvilkår
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
-import no.nav.dagpenger.regel.OpplysningsTyper.harAvgittUriktigeOpplysningerId
-import no.nav.dagpenger.regel.OpplysningsTyper.holderTilbakeInfoId
-import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerVilkårManglendeEllerUriktigeOpplysningerId
-import no.nav.dagpenger.regel.OpplysningsTyper.`unnlaterÅEtterkommePåleggId`
+import no.nav.dagpenger.regel.OpplysningsTyper
+import no.nav.dagpenger.regel.folketrygden
 
 object Uriktigeopplysninger {
-    val uriktigeOpplysninger = boolsk(harAvgittUriktigeOpplysningerId, "Mot bedre vitende har gitt uriktige opplysninger")
+    val uriktigeOpplysninger =
+        boolsk(
+            OpplysningsTyper.harAvgittUriktigeOpplysningerId,
+            "Mot bedre vitende har gitt uriktige opplysninger",
+        )
     val holderTilbake =
-        boolsk(holderTilbakeInfoId, "Holder tilbake opplysninger som er viktige for rettigheter eller plikter etter denne loven")
+        boolsk(
+            OpplysningsTyper.holderTilbakeInfoId,
+            "Holder tilbake opplysninger som er viktige for rettigheter eller plikter etter denne loven",
+        )
     val unnlateråEtterkommePålegg =
-        boolsk(`unnlaterÅEtterkommePåleggId`, "Uten rimelig grunn unnlater å etterkomme pålegg som er gitt med hjemmel i denne loven")
+        boolsk(
+            OpplysningsTyper.`unnlaterÅEtterkommePåleggId`,
+            "Uten rimelig grunn unnlater å etterkomme pålegg som er gitt med hjemmel i denne loven",
+        )
 
     val oppfyllerVilkårManglendeEllerUriktigeOpplysninger =
-        boolsk(oppfyllerVilkårManglendeEllerUriktigeOpplysningerId, "Har gitt fullstendige og riktige opplysninger")
+        boolsk(
+            OpplysningsTyper.`oppfyllerVilkårManglendeEllerUriktigeOpplysningerId`,
+            "Har gitt fullstendige og riktige opplysninger",
+        )
 
     val regelsett =
         vilkår(

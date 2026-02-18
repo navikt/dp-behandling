@@ -24,7 +24,6 @@ import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Samordning
 import no.nav.dagpenger.regel.StreikOgLockout
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
-import no.nav.dagpenger.regel.Uriktigeopplysninger
 import no.nav.dagpenger.regel.Utdanning
 import no.nav.dagpenger.regel.Utestengning
 import no.nav.dagpenger.regel.Verneplikt
@@ -36,6 +35,8 @@ import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.fastsetting.PermitteringFraFiskeindustrienFastsetting
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
+import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
 import org.approvaltests.namer.NamerWrapper
@@ -72,6 +73,7 @@ fun dokumentasjon(scenario: Scenario) {
             "@regel-permittering-fiskeindustrien" to PermitteringFraFiskeindustrien.regelsett,
             "@regel-permitteringFiskeindustrien-fastsetting" to PermitteringFraFiskeindustrienFastsetting.regelsett,
             "@regel-uriktig-eller-mangelfulle-opplysninger" to Uriktigeopplysninger.regelsett,
+            "@regel-omgjøring-uten-klage" to OmgjøringUtenKlage.regelsett,
         )
     val regelsett = regler[test]
     requireNotNull(regelsett) { "Fant ikke regelsett for $test, det må mappes manuelt i RegeltreDokumentasjonPlugin" }

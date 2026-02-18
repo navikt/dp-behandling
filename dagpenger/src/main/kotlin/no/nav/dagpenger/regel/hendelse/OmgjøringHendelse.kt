@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.hendelse
 
-import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
@@ -10,7 +9,6 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.regel.Avklaringspunkter.OmgjøringBehandling
 import no.nav.dagpenger.regel.Omgjøringsprosess
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
@@ -52,16 +50,17 @@ class OmgjøringHendelse(
                     opprettet = opprettet,
                     forretningsprosess = forretningsprosess,
                 ),
-            opplysninger =
-                listOf(
-                    Faktum(
-                        hendelseTypeOpplysningstype,
-                        type,
-                        Gyldighetsperiode.kun(skjedde),
-                        kilde = kilde,
-                    ),
+            opplysninger = emptyList(),
+            avklaringer = emptyList(),
+        ).also {
+            it.opplysninger.leggTil(
+                Faktum(
+                    hendelseTypeOpplysningstype,
+                    type,
+                    gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
+                    kilde = kilde,
                 ),
-            avklaringer = listOf(Avklaring(OmgjøringBehandling)),
-        )
+            )
+        }
     }
 }

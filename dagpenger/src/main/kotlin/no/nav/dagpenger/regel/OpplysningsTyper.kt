@@ -353,6 +353,11 @@ object OpplysningsTyper {
             Boolsk,
         )
 
+    // Omgjøring Uten klage
+    val endringIkkeTilSkadeId = Opplysningstype.Id(UUID.fromString("019c5673-ae11-7a8a-ae77-170f6ac20944"), Boolsk)
+    val ikkeUnderretningId = Opplysningstype.Id(UUID.fromString("019c5676-5c44-73d4-bc65-aee9d9257aa1"), Boolsk)
+    val ansesUgyldigVedtakId = Opplysningstype.Id(UUID.fromString("019c5676-7c80-7217-a232-15318ff258c5"), Boolsk)
+    val kanOmgjøresUtenKlageId = Opplysningstype.Id(UUID.fromString("019c5676-a923-7e31-83b9-0e77e5a3cdcb"), Boolsk)
 //    019bc5f9-3040-77cc-9b16-5b919bd4ccd9
 //    019bc5f9-69d0-7c07-9fb4-68b8657a662b
 }

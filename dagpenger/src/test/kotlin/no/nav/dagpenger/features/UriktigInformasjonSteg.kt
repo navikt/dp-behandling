@@ -7,7 +7,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.regel.Uriktigeopplysninger
+import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger
 import org.junit.jupiter.api.Assertions.assertTrue
 
 class UriktigInformasjonSteg : No {

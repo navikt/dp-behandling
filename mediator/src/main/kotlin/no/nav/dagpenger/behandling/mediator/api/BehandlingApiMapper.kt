@@ -72,9 +72,6 @@ import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel36m
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
-import no.nav.dagpenger.regel.Uriktigeopplysninger.holderTilbake
-import no.nav.dagpenger.regel.Uriktigeopplysninger.`unnlateråEtterkommePålegg`
-import no.nav.dagpenger.regel.Uriktigeopplysninger.uriktigeOpplysninger
 import no.nav.dagpenger.regel.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.Utdanning.deltakelsePåKurs
 import no.nav.dagpenger.regel.Utdanning.grunnskoleopplæring
@@ -88,6 +85,9 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
+import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.holderTilbake
+import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.`unnlateråEtterkommePålegg`
+import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.uriktigeOpplysninger
 import java.time.LocalDateTime
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =

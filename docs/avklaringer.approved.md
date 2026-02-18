@@ -81,6 +81,17 @@ Søker har oppgitt permittering fra fiskeindustri i søknaden. <br>Vurder om sø
 ### Tilknyttet regelsett
 - [§ 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien](./opplysninger.approved.md#-6-7-permittering-i-fiskeforedlingsindustrien,-sjømatindustrien-og-fiskeoljeindustrien)
 ---
+## Omgjøring uten klage
+**Kode:** `HarSvartPåOmgjøringUtenKlage`
+
+### Beskrivelse
+Saksbehandler må svare på hvorfor vedtaket omgjøres uten at det har vært klage på tidligere vedtak. Sjekk at det er lagt inn en begrunnelse for omgjøringen.
+
+### Tilknyttet regelsett
+- [§ 6-35. Omgjøring av vedtak uten klage](./opplysninger.approved.md#-6-35-omgjøring-av-vedtak-uten-klage)
+❌ Kan ikke kvitteres
+
+---
 ## Tilleggsopplysninger
 **Kode:** `HarTilleggsopplysninger`
 
@@ -149,15 +160,6 @@ Prøvingsdatoen er 1. mai eller senere. Grunnbeløpet for inneværende år var i
 
 ### Tilknyttet regelsett
 - [§ 4-11. Dagpengegrunnlag](./opplysninger.approved.md#-4-11-dagpengegrunnlag)
----
-## Omgjøring av tidligere vedtak
-**Kode:** `Omgjøring`
-
-### Beskrivelse
-Behandlingen er en omgjøring av tidligere vedtak. <br>Alle meldeperioder blir beregnet på nytt basert på oppdaterte opplysninger.
-
-❌ Kan ikke avbrytes
-
 ---
 ## Prøvingsdato er etter rapporteringsfrist
 **Kode:** `PrøvingsdatoEtterRapporteringsfrist`

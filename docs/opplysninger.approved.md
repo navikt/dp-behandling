@@ -514,3 +514,14 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|---|
 |0194881f-9447-7e36-a569-3e9f42bff9f6|Bruker er utestengt fra dagpenger|Boolsk|boolean||
 |0194881f-9447-7e36-a569-3e9f42bff9f7|Oppfyller krav til ikke utestengt|Boolsk|boolean||
+### § 6-35. Omgjøring av vedtak uten klage
+*Type:* Fastsettelse
+#### Avklaringer
+- HarSvartPåOmgjøringUtenKlage - [Omgjøring uten klage](./avklaringer.approved.md#omgjøring-uten-klage)
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
+|019c5673-ae11-7a8a-ae77-170f6ac20944|Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser|Boolsk|boolean||
+|019c5676-5c44-73d4-bc65-aee9d9257aa1|Underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort|Boolsk|boolean||
+|019c5676-7c80-7217-a232-15318ff258c5|Vedtaket må anses ugyldig|Boolsk|boolean||
+|019c5676-a923-7e31-83b9-0e77e5a3cdcb|Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget|Boolsk|boolean||
