@@ -157,12 +157,20 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             // Hent alle opplysninger fra tidligere opplysninger som erstattes av opplysninger i denne
             val erstatter = ArrayDeque(rader.mapNotNull { it.erstatter })
             while (erstatter.isNotEmpty()) {
-                val uuid = erstatter.removeFirst()
-                if (rader.none { it.id == uuid }) {
-                    val opplysning = hentOpplysning(uuid)!!
-                    rader.add(opplysning)
-                    opplysning.erstatter?.let { erstatter.add(it) }
+                // Samle opp alle UUIDs som må hentes og som ikke allerede finnes
+                val uuidsToFetch = mutableSetOf<UUID>()
+                while (erstatter.isNotEmpty()) {
+                    val uuid = erstatter.removeFirst()
+                    if (rader.none { it.id == uuid } && uuid !in uuidsToFetch) {
+                        uuidsToFetch.add(uuid)
+                    }
                 }
+                if (uuidsToFetch.isEmpty()) break
+
+                // Batch-hent alle manglende opplysninger
+                val hentet = hentOpplysninger(uuidsToFetch)
+                rader.addAll(hentet)
+                hentet.mapNotNull { it.erstatter }.forEach { erstatter.add(it) }
             }
 
             // Hent inn kilde for alle opplysninger vi trenger
@@ -178,17 +186,19 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             return raderMedKilde.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
         }
 
-        private fun hentOpplysning(id: UUID) =
-            session.run(
+        private fun hentOpplysninger(ids: Set<UUID>): List<OpplysningRad<*>> {
+            if (ids.isEmpty()) return emptyList()
+            return session.run(
                 queryOf(
                     //language=PostgreSQL
-                    "SELECT * FROM opplysningstabell WHERE id = :id LIMIT 1",
-                    mapOf("id" to id),
+                    "SELECT * FROM opplysningstabell WHERE id = ANY(:ids)",
+                    mapOf("ids" to session.connection.underlying.createArrayOf("uuid", ids.toTypedArray())),
                 ).map { row ->
                     val datatype = Datatype.fromString(row.string("datatype"))
                     row.somOpplysningRad(datatype)
-                }.asSingle,
+                }.asList,
             )
+        }
 
         private fun <T : Comparable<T>> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
             val opplysingerId = uuid("opplysninger_id")
