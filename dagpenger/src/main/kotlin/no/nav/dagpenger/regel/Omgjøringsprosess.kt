@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.PeriodeOverskrivingsStrategi.Companion.OVERSKRIV_ALLTID
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage.OmgjøringUtenKlageKontroll
 import java.time.LocalDate
 
@@ -32,9 +33,12 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
                 // Mangler det meldeperioder prøver vi bare vilkår på nytt for innvilgelsesdatoen
                 ?: førsteDagMedRett
 
+        val sistehendelseDato = opplysninger.finnAlle(hendelseTypeOpplysningstype).maxOf { it.gyldighetsperiode.tilOgMed }
+        val regelkjøringSluttDato = maxOf(sisteMeldeperiode, sistehendelseDato)
+
         return Regelkjøring(
             regelverksdato = førsteDagMedRett,
-            prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = sisteMeldeperiode),
+            prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = regelkjøringSluttDato),
             opplysninger = opplysninger,
             forretningsprosess = this,
         )
