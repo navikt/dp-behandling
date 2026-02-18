@@ -21,6 +21,11 @@ enum class Opplysningsformål {
     Regel,
 }
 
+enum class OpplysningstypeKategori {
+    Prosess,
+    Materiell,
+}
+
 class Opplysningstype<T : Comparable<T>>(
     val id: Id<T>,
     val navn: String,
@@ -30,6 +35,8 @@ class Opplysningstype<T : Comparable<T>>(
     private val gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
     val enhet: Enhet? = null,
     val utgåtteBehovId: Set<String> = emptySet(),
+    /** Om opplysninger av denne typen skal arves til neste behandling i kjeden. Default true. */
+    val opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
 ) : Klassifiserbart {
     val datatype = id.datatype
 
@@ -82,8 +89,19 @@ class Opplysningstype<T : Comparable<T>>(
             gyldighetsperiode: GyldighetsperiodeStrategi<Boolean> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
+            opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
         ): Opplysningstype<Boolean> =
-            som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                gyldighetsperiode,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                opplysningstypeKategori = opplysningstypeKategori,
+            )
 
         fun dato(
             id: Id<LocalDate>,
@@ -166,7 +184,19 @@ class Opplysningstype<T : Comparable<T>>(
             gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<T> = Opplysningstype(id, beskrivelse, behovId, formål, synlig, gyldighetsperiodeStrategi, enhet, utgåtteBehovId)
+            opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+        ): Opplysningstype<T> =
+            Opplysningstype(
+                id,
+                beskrivelse,
+                behovId,
+                formål,
+                synlig,
+                gyldighetsperiodeStrategi,
+                enhet,
+                utgåtteBehovId,
+                opplysningstypeKategori,
+            )
     }
 
     override infix fun er(type: Opplysningstype<*>): Boolean = id == type.id

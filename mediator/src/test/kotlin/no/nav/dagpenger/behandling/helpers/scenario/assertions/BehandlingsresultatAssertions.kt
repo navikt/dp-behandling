@@ -18,6 +18,7 @@ internal class BehandlingsresultatAssertions(
     val opplysninger: JsonNode = klump["opplysninger"]
     val utbetalinger: JsonNode = klump["utbetalinger"]
     val førteTil: String = klump["førteTil"].asText()
+    val behandletHendelse: JsonNode = klump["behandletHendelse"]
 
     val utfall = rettighetsperioder.last().harRett
 

@@ -2,7 +2,8 @@ package no.nav.dagpenger.regel.prosessvilkår
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
-import no.nav.dagpenger.opplysning.dsl.fastsettelse
+import no.nav.dagpenger.opplysning.OpplysningstypeKategori
+import no.nav.dagpenger.opplysning.dsl.prosess
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter
@@ -15,23 +16,30 @@ object OmgjøringUtenKlage {
         boolsk(
             OpplysningsTyper.endringIkkeTilSkadeId,
             "Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser",
+            opplysningstypeKategori = OpplysningstypeKategori.Prosess,
         )
     val ikkeUnderretning =
         boolsk(
             OpplysningsTyper.ikkeUnderretningId,
             "Underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort",
+            opplysningstypeKategori = OpplysningstypeKategori.Prosess,
         )
     val ansesUgyldigVedtak =
-        boolsk(OpplysningsTyper.ansesUgyldigVedtakId, "Vedtaket må anses ugyldig")
+        boolsk(
+            OpplysningsTyper.ansesUgyldigVedtakId,
+            "Vedtaket må anses ugyldig",
+            opplysningstypeKategori = OpplysningstypeKategori.Prosess,
+        )
 
     val kanOmgjøresUtenKlage =
         boolsk(
             OpplysningsTyper.kanOmgjøresUtenKlageId,
             "Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget",
+            opplysningstypeKategori = OpplysningstypeKategori.Prosess,
         )
 
     val regelsett =
-        fastsettelse(forvaltningsloven.hjemmel(6, 35, "Omgjøring av vedtak uten klage", "Omgjøring uten klage")) {
+        prosess(forvaltningsloven.hjemmel(6, 35, "Omgjøring av vedtak uten klage", "Omgjøring uten klage")) {
             skalVurderes { opplysninger ->
                 opplysninger.har(hendelseTypeOpplysningstype) &&
                     opplysninger.finnOpplysning(hendelseTypeOpplysningstype).verdi == "OmgjøringHendelse"

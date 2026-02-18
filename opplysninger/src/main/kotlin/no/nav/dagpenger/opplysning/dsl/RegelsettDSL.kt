@@ -26,3 +26,16 @@ fun fastsettelse(
     builder.block()
     return builder.build()
 }
+
+/**
+ * Oppretter et prosess-regelsett.
+ * Opplysninger produsert av prosess-regelsett arves IKKE til neste behandling i kjeden.
+ */
+fun prosess(
+    hjemmel: Hjemmel,
+    block: ProsessRegelsettBuilder.() -> Unit,
+): Regelsett {
+    val builder = ProsessRegelsettBuilder(hjemmel)
+    builder.block()
+    return builder.build()
+}

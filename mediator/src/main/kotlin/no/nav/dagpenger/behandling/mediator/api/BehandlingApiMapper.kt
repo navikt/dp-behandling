@@ -192,6 +192,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
             when (type) {
                 RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
                 RegelsettType.Fastsettelse -> RegelsettTypeDTO.FASTSETTELSE
+                RegelsettType.Prosess -> RegelsettTypeDTO.FASTSETTELSE
             },
         // Litt rart navn. Dette er opplysningstypene som utgjør "utfallet" av et regelsett.
         opplysningTypeId = utfall?.id?.uuid,

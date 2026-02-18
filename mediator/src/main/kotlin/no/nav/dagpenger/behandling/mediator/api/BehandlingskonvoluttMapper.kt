@@ -260,6 +260,7 @@ internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
                     when (regelsett.type) {
                         RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
                         RegelsettType.Fastsettelse -> RegelsettTypeDTO.FASTSETTELSE
+                        RegelsettType.Prosess -> RegelsettTypeDTO.FASTSETTELSE
                     },
             )
         }

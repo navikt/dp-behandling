@@ -7,6 +7,9 @@ import java.time.LocalDate
 enum class RegelsettType {
     Vilkår,
     Fastsettelse,
+
+    /** Prosess-regelsett produserer opplysninger som ikke arves til neste behandling i kjeden */
+    Prosess,
 }
 
 class Regelsett internal constructor(

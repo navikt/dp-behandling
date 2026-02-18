@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.scenario
 
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -142,6 +143,19 @@ class OmgjøringScenarioTester {
 
             behandlingsresultat {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27698
+                rettighetsperioder shouldHaveSize 3
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[2].harRett shouldBe true
+            }
+
+            person.sendInnMeldekort(5)
+            meldekortBatch(true)
+
+            behandlingsresultat {
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeGreaterThan 27698
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 40288
+                behandletHendelse["type"].asText() shouldBe "Meldekort"
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[1].harRett shouldBe false
