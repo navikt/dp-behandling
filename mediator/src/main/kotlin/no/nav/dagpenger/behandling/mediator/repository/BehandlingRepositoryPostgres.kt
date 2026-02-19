@@ -105,63 +105,56 @@ internal class BehandlingRepositoryPostgres(
     private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
         if (behandlingIder.isEmpty()) return emptyList()
 
-        // Samle alle behandling-IDer inkludert basertPå-relasjoner
-        val alleBehandlingIder = mutableSetOf<UUID>()
-        val kø = ArrayDeque(behandlingIder)
-        val basertPåMap = mutableMapOf<UUID, UUID?>()
-
-        while (kø.isNotEmpty()) {
-            val sats = kø.toList()
-            kø.clear()
-
-            val nyeIder = sats.filter { it !in alleBehandlingIder }
-            if (nyeIder.isEmpty()) continue
-
-            alleBehandlingIder.addAll(nyeIder)
-
-            // Finn basertPå-relasjoner for disse IDene
+        // Finn basertPå-relasjoner for disse IDene
+        val alleBehandlingIder =
             this
                 .run(
                     queryOf(
                         // language=PostgreSQL
                         """
-                        SELECT behandling_id, basert_på_behandling_id 
-                        FROM behandling 
-                        WHERE behandling_id = ANY(:ider)
+                        with recursive behandlingkjede as (
+                            -- ankerbehandlinger
+                            select behandling_id, basert_på_behandling_id
+                            from behandling
+                            where behandling_id = ANY(:ider)
+                            
+                            union all
+                            -- rekursive behandlinger
+                            select r.behandling_id, r.basert_på_behandling_id
+                            from behandling r
+                            join behandlingkjede bk on bk.basert_på_behandling_id = r.behandling_id
+                        )
+                        
+                        select behandling_id, basert_på_behandling_id 
+                        from behandlingkjede
                         """.trimIndent(),
-                        mapOf("ider" to nyeIder.toTypedArray()),
-                    ).map { row ->
-                        val id = row.uuid("behandling_id")
-                        val basertPå = row.uuidOrNull("basert_på_behandling_id")
-                        basertPåMap[id] = basertPå
-                        basertPå
-                    }.asList,
-                ).filter { it !in alleBehandlingIder }
-                .let { kø.addAll(it) }
-        }
+                        mapOf("ider" to behandlingIder.toTypedArray()),
+                    ).map { row -> row.uuidOrNull("behandling_id") }.asList,
+                ).toSet()
 
         // Hent arbeidssteg for alle behandlinger i én spørring
         val arbeidsstegMap = mutableMapOf<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>()
-        this.run(
-            queryOf(
-                // language=PostgreSQL
-                """
-                SELECT * FROM behandling_arbeidssteg WHERE behandling_id = ANY(:ider)
-                """.trimIndent(),
-                mapOf("ider" to alleBehandlingIder.toTypedArray()),
-            ).map { row ->
-                val behandlingId = row.uuid("behandling_id")
-                val oppgave = Arbeidssteg.Oppgave.valueOf(row.string("oppgave"))
-                val arbeidssteg =
-                    Arbeidssteg.rehydrer(
-                        Arbeidssteg.TilstandType.valueOf(row.string("tilstand")),
-                        oppgave,
-                        row.stringOrNull("utført_av")?.let { Saksbehandler(it) },
-                        row.localDateTimeOrNull("utført"),
-                    )
-                arbeidsstegMap[behandlingId to oppgave] = arbeidssteg
-            }.asList,
-        )
+        this
+            .run(
+                queryOf(
+                    // language=PostgreSQL
+                    """
+                    SELECT * FROM behandling_arbeidssteg WHERE behandling_id = ANY(:ider)
+                    """.trimIndent(),
+                    mapOf("ider" to alleBehandlingIder.toTypedArray()),
+                ).map { row ->
+                    val behandlingId = row.uuid("behandling_id")
+                    val oppgave = Arbeidssteg.Oppgave.valueOf(row.string("oppgave"))
+                    val arbeidssteg =
+                        Arbeidssteg.rehydrer(
+                            Arbeidssteg.TilstandType.valueOf(row.string("tilstand")),
+                            oppgave,
+                            row.stringOrNull("utført_av")?.let { Saksbehandler(it) },
+                            row.localDateTimeOrNull("utført"),
+                        )
+                    arbeidsstegMap[behandlingId to oppgave] = arbeidssteg
+                }.asList,
+            )
 
         // Hent avklaringer for alle behandlinger i én spørring
         val avklaringerMap = hentAvklaringer(alleBehandlingIder)
