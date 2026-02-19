@@ -73,7 +73,7 @@ class PersonRepositoryPostgres(
                 queryOf(
                     //language=PostgreSQL
                     """
-                    SELECT behandling_id FROM person_behandling WHERE ident IN (:ident) ORDER BY behandling_id 
+                    SELECT behandling_id FROM person_behandling WHERE ident IN (:ident) 
                     """.trimIndent(),
                     mapOf("ident" to ident.alleIdentifikatorer().first()),
                 ).map { row ->
