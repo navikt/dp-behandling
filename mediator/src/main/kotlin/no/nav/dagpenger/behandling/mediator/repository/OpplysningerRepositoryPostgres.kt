@@ -126,25 +126,39 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         private val kildeRespository: KildeRepository = kildeRepository,
     ) {
         fun hentOpplysninger(): List<Opplysning<*>> {
-            val rader: MutableSet<OpplysningRad<*>> =
+            val rader: Set<OpplysningRad<*>> =
                 session
                     .run(
                         queryOf(
                             //language=PostgreSQL
                             """
-                            WITH RECURSIVE alle_id AS (SELECT id
-                                                       FROM opplysningstabell
-                                                       WHERE opplysninger_id = :id
-
-                                                       UNION
-
-                                                       SELECT ov.id
-                                                       FROM alle_id a
-                                                                JOIN opplysning_utledet_av oua ON oua.opplysning_id = a.id
-                                                                JOIN opplysning ov ON ov.id = oua.utledet_av)
+                            WITH RECURSIVE 
+                                alle_id AS (
+                                    SELECT id
+                                    FROM opplysningstabell
+                                    WHERE opplysninger_id = :id
+                                    
+                                    UNION
+                                    
+                                    SELECT ov.id
+                                    FROM alle_id a
+                                    JOIN opplysning_utledet_av oua ON oua.opplysning_id = a.id
+                                    JOIN opplysning ov ON ov.id = oua.utledet_av
+                                ),
+                                opplysningskjede as (
+                                    -- ankeropplysninger
+                                    select *
+                                    from opplysningstabell 
+                                    where id in (select id from alle_id)
+                                    
+                                    union
+                                    -- rekursive opplysninger
+                                    select o.*
+                                    from opplysningstabell o
+                                    join opplysningskjede ok on ok.erstatter_id = o.id
+                                )
                             SELECT *
-                            FROM opplysningstabell
-                            WHERE id IN (SELECT DISTINCT id FROM alle_id)
+                            FROM opplysningskjede
                             ORDER BY id
                             """.trimIndent(),
                             mapOf("id" to opplysningerId),
@@ -152,26 +166,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                             val datatype = Datatype.fromString(row.string("datatype"))
                             row.somOpplysningRad(datatype)
                         }.asList,
-                    ).toMutableSet()
-
-            // Hent alle opplysninger fra tidligere opplysninger som erstattes av opplysninger i denne
-            val erstatter = ArrayDeque(rader.mapNotNull { it.erstatter })
-            while (erstatter.isNotEmpty()) {
-                // Samle opp alle IDer som må hentes og som ikke allerede finnes
-                val manglende = mutableSetOf<UUID>()
-                while (erstatter.isNotEmpty()) {
-                    val uuid = erstatter.removeFirst()
-                    if (rader.none { it.id == uuid } && uuid !in manglende) {
-                        manglende.add(uuid)
-                    }
-                }
-                if (manglende.isEmpty()) break
-
-                // Hent alle manglende opplysninger i én spørring
-                val hentet = hentOpplysninger(manglende)
-                rader.addAll(hentet)
-                hentet.mapNotNull { it.erstatter }.forEach { erstatter.add(it) }
-            }
+                    ).toSet()
 
             // Hent inn kilde for alle opplysninger vi trenger
             val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId }, session)
@@ -184,20 +179,6 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
             val raderFraTidligereOpplysninger = raderMedKilde.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
             return raderMedKilde.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
-        }
-
-        private fun hentOpplysninger(ids: Set<UUID>): List<OpplysningRad<*>> {
-            if (ids.isEmpty()) return emptyList()
-            return session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    "SELECT * FROM opplysningstabell WHERE id = ANY(:ids)",
-                    mapOf("ids" to session.connection.underlying.createArrayOf("uuid", ids.toTypedArray())),
-                ).map { row ->
-                    val datatype = Datatype.fromString(row.string("datatype"))
-                    row.somOpplysningRad(datatype)
-                }.asList,
-            )
         }
 
         private fun <T : Comparable<T>> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
