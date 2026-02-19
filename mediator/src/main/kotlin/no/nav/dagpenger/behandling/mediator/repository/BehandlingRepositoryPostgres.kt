@@ -55,52 +55,7 @@ internal class BehandlingRepositoryPostgres(
         }
     }
 
-    private fun Session.hentBehandling(behandlingId: UUID): Behandling? =
-        this.run(
-            queryOf(
-                // language=PostgreSQL
-                """
-                SELECT *  
-                FROM behandling 
-                LEFT JOIN behandler_hendelse_behandling ON behandling.behandling_id = behandler_hendelse_behandling.behandling_id
-                LEFT JOIN behandler_hendelse ON behandler_hendelse.melding_id = behandler_hendelse_behandling.melding_id
-                LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
-                WHERE behandling.behandling_id = :id 
-                """.trimIndent(),
-                mapOf(
-                    "id" to behandlingId,
-                ),
-            ).map { row ->
-                val basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id")
-                val basertPåBehandling = basertPåBehandlingId?.let { id -> this.hentBehandling(id) }
-
-                Behandling.rehydrer(
-                    behandlingId = row.uuid("behandling_id"),
-                    behandler =
-                        Hendelse(
-                            meldingsreferanseId = row.uuid("melding_id"),
-                            type = row.string("hendelse_type"),
-                            ident = row.string("ident"),
-                            eksternId =
-                                EksternId.fromString(
-                                    row.string("ekstern_id_type"),
-                                    row.string("ekstern_id"),
-                                ),
-                            skjedde = row.localDate("skjedde"),
-                            forretningsprosess = RegistrertForretningsprosess.opprett(row.string("forretningsprosess")),
-                            opprettet = row.localDateTime("opprettet"),
-                        ),
-                    gjeldendeOpplysninger = this.hentOpplysninger(row.uuid("opplysninger_id")),
-                    basertPå = basertPåBehandling,
-                    opprettet = row.localDateTime("opprettet"),
-                    tilstand = Behandling.TilstandType.valueOf(row.string("tilstand")),
-                    sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
-                    avklaringer = hentAvklaringer(behandlingId),
-                    godkjent = this.hentArbeidssteg(behandlingId, Arbeidssteg.Oppgave.Godkjent),
-                    besluttet = this.hentArbeidssteg(behandlingId, Arbeidssteg.Oppgave.Besluttet),
-                )
-            }.asSingle,
-        )
+    private fun Session.hentBehandling(behandlingId: UUID): Behandling? = hentBehandlinger(listOf(behandlingId)).singleOrNull()
 
     private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
         if (behandlingIder.isEmpty()) return emptyList()
@@ -257,33 +212,6 @@ internal class BehandlingRepositoryPostgres(
         // Build only the originally requested behandlinger
         return behandlingIder.mapNotNull { byggBehandling(it, opplysningerMap) }
     }
-
-    private fun Session.hentArbeidssteg(
-        behandlingId: UUID,
-        oppgave: Arbeidssteg.Oppgave,
-    ): Arbeidssteg =
-        this.run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                SELECT * 
-                FROM behandling_arbeidssteg 
-                WHERE behandling_id = :behandling_id
-                AND oppgave = :oppgave
-                """.trimIndent(),
-                mapOf(
-                    "behandling_id" to behandlingId,
-                    "oppgave" to oppgave.name,
-                ),
-            ).map { row ->
-                Arbeidssteg.rehydrer(
-                    Arbeidssteg.TilstandType.valueOf(row.string("tilstand")),
-                    Arbeidssteg.Oppgave.valueOf(row.string("oppgave")),
-                    row.stringOrNull("utført_av")?.let { Saksbehandler(it) },
-                    row.localDateTimeOrNull("utført"),
-                )
-            }.asSingle,
-        ) ?: Arbeidssteg(oppgave)
 
     override fun lagre(behandling: Behandling) {
         val unitOfWork = PostgresUnitOfWork.transaction()
