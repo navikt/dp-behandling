@@ -146,8 +146,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                                     join opplysningskjede ok on o.id = any(ok.utledet_av_id) or o.id = ok.erstatter_id
                                 )
                             select o.*
-                            from opplysningstabell o
-                            join opplysningskjede ok on o.id = ok.id
+                            from opplysningstabell o where o.id in (select id from opplysningskjede)
                             order by o.id
                             """.trimIndent(),
                             mapOf("id" to opplysningerId),
