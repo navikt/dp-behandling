@@ -105,7 +105,8 @@ class Person(
             }
 
         if (behandling == null) {
-            hendelse.varsel("Behandlingskjden ønsker ikke å behandle hendelse ${hendelse.type}")
+            hendelse.varsel("Behandlingskjeden ønsker ikke å behandle hendelse ${hendelse.type}")
+            logger.warn { "Behandlingskjeden ønsker ikke å behandle hendelse ${hendelse.type} med id ${hendelse.eksternId.id} " }
             return
         }
 
