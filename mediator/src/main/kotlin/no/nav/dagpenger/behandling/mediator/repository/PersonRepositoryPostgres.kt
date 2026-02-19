@@ -52,6 +52,21 @@ class PersonRepositoryPostgres(
     override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         sessionOf(dataSource).use { session -> session.rettighetstatusFor(ident) }
 
+    @WithSpan
+    override fun harIdent(ident: Ident): Boolean =
+        sessionOf(dataSource).use { session ->
+            session
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT 1 FROM person WHERE ident = :ident
+                        """.trimIndent(),
+                        mapOf("ident" to ident.identifikator()),
+                    ).map { row -> row.intOrNull(1) ?: 0 }.asSingle,
+                ) == 1
+        }
+
     private fun Session.behandlingerFor(ident: Ident): List<Behandling> {
         val behandlingIder =
             this.run(

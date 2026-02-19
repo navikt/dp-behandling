@@ -108,6 +108,9 @@ interface PersonRepository : BehandlingRepository {
     @WithSpan
     fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus>
 
+    @WithSpan
+    fun harIdent(ident: Ident): Boolean
+
     private fun medSpan(
         string: String,
         block: () -> Unit,

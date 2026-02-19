@@ -105,21 +105,21 @@ internal class BehandlingRepositoryPostgres(
     private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
         if (behandlingIder.isEmpty()) return emptyList()
 
-        // First, collect all behandling IDs including basertPå relationships
+        // Samle alle behandling-IDer inkludert basertPå-relasjoner
         val alleBehandlingIder = mutableSetOf<UUID>()
-        val queue = ArrayDeque(behandlingIder)
+        val kø = ArrayDeque(behandlingIder)
         val basertPåMap = mutableMapOf<UUID, UUID?>()
 
-        while (queue.isNotEmpty()) {
-            val batch = queue.toList()
-            queue.clear()
+        while (kø.isNotEmpty()) {
+            val sats = kø.toList()
+            kø.clear()
 
-            val nyeIder = batch.filter { it !in alleBehandlingIder }
+            val nyeIder = sats.filter { it !in alleBehandlingIder }
             if (nyeIder.isEmpty()) continue
 
             alleBehandlingIder.addAll(nyeIder)
 
-            // Find basertPå relationships for these IDs
+            // Finn basertPå-relasjoner for disse IDene
             this
                 .run(
                     queryOf(
@@ -137,10 +137,10 @@ internal class BehandlingRepositoryPostgres(
                         basertPå
                     }.asList,
                 ).filter { it !in alleBehandlingIder }
-                .let { queue.addAll(it) }
+                .let { kø.addAll(it) }
         }
 
-        // Batch load arbeidssteg for all behandlinger
+        // Hent arbeidssteg for alle behandlinger i én spørring
         val arbeidsstegMap = mutableMapOf<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>()
         this.run(
             queryOf(
@@ -163,10 +163,10 @@ internal class BehandlingRepositoryPostgres(
             }.asList,
         )
 
-        // Batch load avklaringer for all behandlinger
+        // Hent avklaringer for alle behandlinger
         val avklaringerMap = alleBehandlingIder.associateWith { hentAvklaringer(it) }
 
-        // Load all behandlinger in one query
+        // Hent alle behandlinger i én spørring
         data class BehandlingRad(
             val behandlingId: UUID,
             val meldingId: UUID,
@@ -216,14 +216,14 @@ internal class BehandlingRepositoryPostgres(
                     }.asList,
                 ).associateBy { it.behandlingId }
 
-        // Build behandlinger with correct basertPå references
+        // Bygg behandlinger med korrekte basertPå-referanser
         val behandlingerMap = mutableMapOf<UUID, Behandling>()
 
-        fun buildBehandling(id: UUID): Behandling? {
+        fun byggBehandling(id: UUID): Behandling? {
             behandlingerMap[id]?.let { return it }
             val rad = behandlingRader[id] ?: return null
 
-            val basertPå = rad.basertPåBehandlingId?.let { buildBehandling(it) }
+            val basertPå = rad.basertPåBehandlingId?.let { byggBehandling(it) }
 
             val behandling =
                 Behandling.rehydrer(
@@ -252,7 +252,7 @@ internal class BehandlingRepositoryPostgres(
         }
 
         // Build only the originally requested behandlinger
-        return behandlingIder.mapNotNull { buildBehandling(it) }
+        return behandlingIder.mapNotNull { byggBehandling(it) }
     }
 
     private fun Session.hentArbeidssteg(

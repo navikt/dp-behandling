@@ -157,18 +157,18 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             // Hent alle opplysninger fra tidligere opplysninger som erstattes av opplysninger i denne
             val erstatter = ArrayDeque(rader.mapNotNull { it.erstatter })
             while (erstatter.isNotEmpty()) {
-                // Samle opp alle UUIDs som må hentes og som ikke allerede finnes
-                val uuidsToFetch = mutableSetOf<UUID>()
+                // Samle opp alle IDer som må hentes og som ikke allerede finnes
+                val manglende = mutableSetOf<UUID>()
                 while (erstatter.isNotEmpty()) {
                     val uuid = erstatter.removeFirst()
-                    if (rader.none { it.id == uuid } && uuid !in uuidsToFetch) {
-                        uuidsToFetch.add(uuid)
+                    if (rader.none { it.id == uuid } && uuid !in manglende) {
+                        manglende.add(uuid)
                     }
                 }
-                if (uuidsToFetch.isEmpty()) break
+                if (manglende.isEmpty()) break
 
-                // Batch-hent alle manglende opplysninger
-                val hentet = hentOpplysninger(uuidsToFetch)
+                // Hent alle manglende opplysninger i én spørring
+                val hentet = hentOpplysninger(manglende)
                 rader.addAll(hentet)
                 hentet.mapNotNull { it.erstatter }.forEach { erstatter.add(it) }
             }
