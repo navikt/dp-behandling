@@ -132,34 +132,23 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                         queryOf(
                             //language=PostgreSQL
                             """
-                            WITH RECURSIVE 
-                                alle_id AS (
-                                    SELECT id
-                                    FROM opplysningstabell
-                                    WHERE opplysninger_id = :id
-                                    
-                                    UNION
-                                    
-                                    SELECT ov.id
-                                    FROM alle_id a
-                                    JOIN opplysning_utledet_av oua ON oua.opplysning_id = a.id
-                                    JOIN opplysning ov ON ov.id = oua.utledet_av
-                                ),
+                            with recursive 
                                 opplysningskjede as (
                                     -- ankeropplysninger
-                                    select *
-                                    from opplysningstabell 
-                                    where id in (select id from alle_id)
+                                    select id, utledet_av_id, erstatter_id
+                                    from opplysningstabell
+                                    where opplysninger_id = :id
                                     
                                     union
                                     -- rekursive opplysninger
-                                    select o.*
+                                    select o.id, o.utledet_av_id, o.erstatter_id
                                     from opplysningstabell o
-                                    join opplysningskjede ok on ok.erstatter_id = o.id
+                                    join opplysningskjede ok on o.id = any(ok.utledet_av_id) or o.id = ok.erstatter_id
                                 )
-                            SELECT *
-                            FROM opplysningskjede
-                            ORDER BY id
+                            select o.*
+                            from opplysningstabell o
+                            join opplysningskjede ok on o.id = ok.id
+                            order by o.id
                             """.trimIndent(),
                             mapOf("id" to opplysningerId),
                         ).map { row ->
