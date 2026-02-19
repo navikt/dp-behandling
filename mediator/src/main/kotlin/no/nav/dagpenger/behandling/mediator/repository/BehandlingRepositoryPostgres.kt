@@ -212,11 +212,14 @@ internal class BehandlingRepositoryPostgres(
         // Bygg behandlinger med korrekte basertPå-referanser
         val behandlingerMap = mutableMapOf<UUID, Behandling>()
 
-        fun byggBehandling(id: UUID): Behandling? {
+        fun byggBehandling(
+            id: UUID,
+            opplysningerMap: Map<UUID, Opplysninger>,
+        ): Behandling? {
             behandlingerMap[id]?.let { return it }
             val rad = behandlingRader[id] ?: return null
 
-            val basertPå = rad.basertPåBehandlingId?.let { byggBehandling(it) }
+            val basertPå = rad.basertPåBehandlingId?.let { byggBehandling(it, opplysningerMap) }
 
             val behandling =
                 Behandling.rehydrer(
@@ -231,7 +234,7 @@ internal class BehandlingRepositoryPostgres(
                             forretningsprosess = RegistrertForretningsprosess.opprett(rad.forretningsprosess),
                             opprettet = rad.opprettet,
                         ),
-                    gjeldendeOpplysninger = this.hentOpplysninger(rad.opplysningerId),
+                    gjeldendeOpplysninger = opplysningerMap.getValue(rad.opplysningerId),
                     basertPå = basertPå,
                     opprettet = rad.opprettet,
                     tilstand = Behandling.TilstandType.valueOf(rad.tilstand),
@@ -244,8 +247,15 @@ internal class BehandlingRepositoryPostgres(
             return behandling
         }
 
+        val opplysningerMap =
+            this
+                .hentOpplysninger(
+                    behandlingRader
+                        .map { (_, value) -> value.opplysningerId }
+                        .toSet(),
+                )
         // Build only the originally requested behandlinger
-        return behandlingIder.mapNotNull { byggBehandling(it) }
+        return behandlingIder.mapNotNull { byggBehandling(it, opplysningerMap) }
     }
 
     private fun Session.hentArbeidssteg(

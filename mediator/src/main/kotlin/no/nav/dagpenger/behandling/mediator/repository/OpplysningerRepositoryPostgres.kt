@@ -52,7 +52,17 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         private val kildeRepository = KildeRepository()
 
         fun Session.hentOpplysninger(opplysningerId: UUID) =
-            OpplysningRepository(opplysningerId, this).hentOpplysninger().let { Opplysninger.rehydrer(opplysningerId, it) }
+            hentOpplysninger(setOf(opplysningerId))
+                .values
+                .singleOrNull()
+                ?: Opplysninger.rehydrer(opplysningerId, emptyList())
+
+        fun Session.hentOpplysninger(opplysningerIder: Set<UUID>) =
+            OpplysningRepository(this)
+                .hentOpplysninger(opplysningerIder)
+                .mapValues { (opplysningerId, opplysninger) ->
+                    Opplysninger.rehydrer(opplysningerId, opplysninger)
+                }
 
         private val serdeBarn = objectMapper.serde<BarnListe>()
 
@@ -93,7 +103,8 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
         val somListe: List<Opplysning<*>> = opplysninger.somListe(LesbarOpplysninger.Filter.Egne)
 
-        OpplysningRepository(opplysninger.id, tx).lagreOpplysninger(
+        OpplysningRepository(tx).lagreOpplysninger(
+            opplysninger.id,
             somListe.filter { it.skalLagres },
             opplysninger.fjernet(),
         )
@@ -121,11 +132,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         }
 
     private class OpplysningRepository(
-        private val opplysningerId: UUID,
         private val session: Session,
         private val kildeRespository: KildeRepository = kildeRepository,
     ) {
-        fun hentOpplysninger(): List<Opplysning<*>> {
+        fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<*>>> {
             val rader: Set<OpplysningRad<*>> =
                 session
                     .run(
@@ -137,7 +147,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                                     -- ankeropplysninger
                                     select id, utledet_av_id, erstatter_id
                                     from opplysningstabell
-                                    where opplysninger_id = :id
+                                    where opplysninger_id = ANY(:opplysninger_ider)
                                     
                                     union
                                     -- rekursive opplysninger
@@ -149,7 +159,13 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                             from opplysningstabell o where o.id in (select id from opplysningskjede)
                             order by o.id
                             """.trimIndent(),
-                            mapOf("id" to opplysningerId),
+                            mapOf(
+                                "opplysninger_ider" to
+                                    session.connection.underlying.createArrayOf(
+                                        "uuid",
+                                        opplysningerIder.toTypedArray(),
+                                    ),
+                            ),
                         ).map { row ->
                             val datatype = Datatype.fromString(row.string("datatype"))
                             row.somOpplysningRad(datatype)
@@ -165,8 +181,16 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     it.copy(kilde = kilde)
                 }
 
-            val raderFraTidligereOpplysninger = raderMedKilde.filterNot { it.opplysingerId == opplysningerId }.map { it.id }
-            return raderMedKilde.somOpplysninger().filterNot { it.id in raderFraTidligereOpplysninger }
+            // reverse-lookup map for å finne opplysningerId for hver opplysning
+            val opplysningerIdForOpplysning =
+                raderMedKilde
+                    // bevarer bare opplysninger vi faktisk ønsker oss
+                    .filter { it.opplysingerId in opplysningerIder }
+                    .associate { it.id to it.opplysingerId }
+            return raderMedKilde
+                .somOpplysninger()
+                .filter { it.id in opplysningerIdForOpplysning }
+                .groupBy { opplysningerIdForOpplysning.getValue(it.id) }
         }
 
         private fun <T : Comparable<T>> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
@@ -283,11 +307,12 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             } as T
 
         fun lagreOpplysninger(
+            opplysningerId: UUID,
             opplysninger: List<Opplysning<*>>,
             fjernet: Set<Opplysning<*>>,
         ) {
             kildeRespository.lagreKilder(opplysninger.mapNotNull { it.kilde }, session)
-            batchOpplysninger(opplysninger).run(session)
+            batchOpplysninger(opplysningerId, opplysninger).run(session)
             batchFjernet(fjernet).run(session)
             lagreUtledetAv(opplysninger)
         }
@@ -339,7 +364,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             )
 
         @WithSpan
-        private fun batchOpplysninger(opplysninger: List<Opplysning<*>>): BatchStatement {
+        private fun batchOpplysninger(
+            opplysningerId: UUID,
+            opplysninger: List<Opplysning<*>>,
+        ): BatchStatement {
             val defaultVerdi =
                 mapOf(
                     "verdi_heltall" to null,
