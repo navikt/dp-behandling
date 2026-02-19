@@ -118,7 +118,7 @@ internal class BehandlingRepositoryPostgres(
                             from behandling
                             where behandling_id = ANY(:ider)
                             
-                            union all
+                            union
                             -- rekursive behandlinger
                             select r.behandling_id, r.basert_på_behandling_id
                             from behandling r
