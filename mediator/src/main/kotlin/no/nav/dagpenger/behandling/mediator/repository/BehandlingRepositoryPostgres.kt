@@ -163,8 +163,8 @@ internal class BehandlingRepositoryPostgres(
             }.asList,
         )
 
-        // Hent avklaringer for alle behandlinger
-        val avklaringerMap = alleBehandlingIder.associateWith { hentAvklaringer(it) }
+        // Hent avklaringer for alle behandlinger i én spørring
+        val avklaringerMap = hentAvklaringer(alleBehandlingIder)
 
         // Hent alle behandlinger i én spørring
         data class BehandlingRad(

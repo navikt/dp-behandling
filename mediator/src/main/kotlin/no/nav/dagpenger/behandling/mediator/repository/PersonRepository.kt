@@ -25,6 +25,9 @@ interface AvklaringRepository {
 
     @WithSpan
     fun hentAvklaringer(behandlingId: UUID): List<Avklaring>
+
+    @WithSpan
+    fun hentAvklaringer(behandlingIder: Set<UUID>): Map<UUID, List<Avklaring>>
 }
 
 interface BegrunnelseRepository {

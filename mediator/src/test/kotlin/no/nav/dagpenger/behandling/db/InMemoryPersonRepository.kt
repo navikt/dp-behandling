@@ -75,6 +75,10 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
+    override fun hentAvklaringer(behandlingIder: Set<UUID>): Map<UUID, List<Avklaring>> {
+        TODO("Not yet implemented")
+    }
+
     override fun lagre(person: Person) {
         persondb[person.ident] = person
     }
