@@ -154,9 +154,11 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                                     select o.id, o.utledet_av_id, o.erstatter_id
                                     from opplysningstabell o
                                     join opplysningskjede ok on o.id = any(ok.utledet_av_id) or o.id = ok.erstatter_id
-                                )
+                                ),
+                                kjede_ids as (select distinct id from opplysningskjede)
                             select o.*
-                            from opplysningstabell o where o.id in (select id from opplysningskjede)
+                            from kjede_ids k
+                            join opplysningstabell o on o.id = k.id
                             order by o.id
                             """.trimIndent(),
                             mapOf(
