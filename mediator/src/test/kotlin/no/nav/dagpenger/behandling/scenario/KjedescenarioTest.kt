@@ -1,9 +1,11 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus.Arvet
@@ -12,6 +14,7 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 // Tester ulike scenarier for kjeding av behandlinger
 class KjedescenarioTest {
@@ -39,12 +42,30 @@ class KjedescenarioTest {
 
             val sisteFerdige = person.behandlingId
 
+            var førsteBehandling: UUID? = null
             // Personen søker tre ganger før forrige søknad er behandlet
             repeat(3) {
                 person.søkDagpenger(21.august(2018))
+                if (førsteBehandling == null) {
+                    førsteBehandling = person.behandlingId
+                }
                 behovsløsere.løsTilForslag()
+                saksbehandler.lukkAlleAvklaringer()
                 person.behandling.basertPå shouldBe sisteFerdige
             }
+
+            // Ferdigstill en av de parallelle behandlingene
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val exception =
+                shouldThrow<IllegalStateException> {
+                    val eksternId = UUID.fromString(person.behandling(førsteBehandling!!).behandletHendelse.id)
+                    // Kan ikke godkjenne når det finnes flere parallelle behandlinger
+                    saksbehandler.godkjenn(eksternId)
+                }
+
+            exception.message shouldContain "nyere åpen behandling"
         }
     }
 

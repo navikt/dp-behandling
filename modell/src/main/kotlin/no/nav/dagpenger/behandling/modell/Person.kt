@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.behandling.modell.Behandling.Companion.finn
+import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.behandling.modell.PersonObservatør.PersonEvent
@@ -119,7 +120,7 @@ class Person(
     // 4. Det finnes tidligere behandling, med rett på dagpenger = kjede
     private fun finnSisteFerdigeBehandling() =
         behandlinger.lastOrNull {
-            it.harTilstand(Behandling.TilstandType.Ferdig)
+            it.harTilstand(Ferdig)
         }
 
     override fun håndter(hendelse: AvklaringIkkeRelevantHendelse) {
@@ -184,12 +185,16 @@ class Person(
     override fun håndter(hendelse: GodkjennBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
         val behandling = behandlinger.finn(hendelse.behandlingId)
+        krevLineærBehandlingskjede(behandling)
+
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: BesluttBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
         val behandling = behandlinger.finn(hendelse.behandlingId)
+        krevLineærBehandlingskjede(behandling)
+
         behandling.håndter(hendelse)
     }
 
@@ -225,6 +230,18 @@ class Person(
         kontekst(this)
         kontekst(kontekst)
     }
+
+    private fun krevLineærBehandlingskjede(behandling: Behandling) {
+        if (!behandlinger.harParallelleBehandlinger(behandling)) return
+        throw IllegalStateException(
+            """Vedtaket kan ikke fattes fordi en nyere åpen behandling er blitt opprettet. Avbryt denne eldre behandlingen og gjør 
+            |endringene i siste opprettede behandling. Dersom endringene går tilbake i tid bør en revurderingsbehandling opprettes.
+            """.trimMargin(),
+        )
+    }
+
+    private fun List<Behandling>.harParallelleBehandlinger(behandling: Behandling): Boolean =
+        any { it.harTilstand(Ferdig) && it.basertPå?.behandlingId == behandling.basertPå?.behandlingId }
 
     override fun toSpesifikkKontekst(): SpesifikkKontekst = PersonKontekst(ident.identifikator())
 
