@@ -15,7 +15,6 @@ import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
-import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
@@ -31,7 +30,6 @@ class PersonRepositoryPostgres(
     override fun hent(ident: Ident) =
         sessionOf(dataSource).use { session ->
             val timer = TimeSource.Monotonic.markNow()
-            hentPersonTimer.time { }
             session
                 .run(
                     queryOf(

@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import io.prometheus.metrics.model.registry.PrometheusRegistry
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.modell.Behandling
