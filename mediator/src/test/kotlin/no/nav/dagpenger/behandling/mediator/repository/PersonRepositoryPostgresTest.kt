@@ -63,7 +63,10 @@ class PersonRepositoryPostgresTest {
             hentPersonTimer
                 .collect()
                 .dataPoints
-                .shouldForAll { it.sum shouldBeInOpenEndRange 0.0..<0.5 }
+                .shouldForAll {
+                    it.sum shouldBeInOpenEndRange 0.0..<0.5
+                    it.exemplars.size() shouldBe 0
+                }
         }
 
     @Test

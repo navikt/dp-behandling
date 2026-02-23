@@ -51,7 +51,7 @@ class PersonRepositoryPostgres(
                     val metrikk = hentPersonTimer.labelValues(antallBehandlinger)
                     val tidBrukt = timer.elapsedNow()
 
-                    if (tidBrukt.inWholeMilliseconds < 300) {
+                    if (tidBrukt.inWholeMilliseconds < 500) {
                         metrikk.observe(tidBrukt.toDouble(DurationUnit.SECONDS))
                     } else {
                         metrikk.observeWithExemplar(
