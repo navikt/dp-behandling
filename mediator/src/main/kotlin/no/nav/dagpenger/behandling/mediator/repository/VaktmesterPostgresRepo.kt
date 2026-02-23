@@ -1,9 +1,9 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import kotliquery.Session
+import kotliquery.Row
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
@@ -18,8 +18,6 @@ internal class VaktmesterPostgresRepo {
 
     @WithSpan
     fun slettOpplysninger(antallBehandlinger: Int = 1): List<UUID> {
-        var antallSlettet = 0
-
         val rapport =
             try {
                 logger.info { "Skal finne kandidater til sletting, med øvre grense på $antallBehandlinger" }
@@ -28,61 +26,9 @@ internal class VaktmesterPostgresRepo {
                     session.transaction { tx ->
                         logger.info { "Har startet transaksjon" }
                         tx.medLås(låsenøkkel) {
-                            logger.info { "Finner kandidater" }
-                            val kandidater = tx.hentOpplysningerSomErFjernet(antallBehandlinger)
-
-                            logger.info {
-                                "Fant ${kandidater.size} opplysningssett med ${
-                                    kandidater.sumOf {
-                                        it.opplysninger.size
-                                    }
-                                } opplysninger til sletting"
-                            }
-
-                            kandidater.forEach { kandidat ->
-                                withLoggingContext(
-                                    "behandlingId" to kandidat.behandlingId.toString(),
-                                    "opplysningerId" to kandidat.opplysningerId.toString(),
-                                ) {
-                                    try {
-                                        logger.info { "Skal slette ${kandidat.opplysninger.size} opplysninger" }
-
-                                        val statements = mutableListOf<BatchStatement>()
-                                        val params = kandidat.opplysninger.map { mapOf("id" to it) }
-
-                                        // Slett erstatninger
-                                        // statements.add(slettErstatter(params))
-
-                                        // Slett hvilke opplysninger som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledetAv(params))
-
-                                        // Slett hvilken regel som har vært brukt for å utlede opplysningen
-                                        statements.add(slettOpplysningUtledning(params))
-
-                                        // Slett verdien av opplysningen
-                                        // statements.add(slettOpplysningVerdi(params))
-
-                                        // Fjern opplysningen fra opplysninger-settet
-                                        // statements.add(slettOpplysningLink(params))
-
-                                        // Slett opplysningen
-                                        statements.add(slettOpplysning(params))
-
-                                        try {
-                                            statements.forEach { batch ->
-                                                batch.run(tx)
-                                            }
-                                        } catch (e: Exception) {
-                                            throw IllegalStateException("Kunne ikke slette ", e)
-                                        }
-                                        antallSlettet += kandidat.opplysninger.size
-                                    } catch (e: Exception) {
-                                        logger.error(e) { "Feil ved sletting av opplysninger" }
-                                    }
-                                }
-                            }
-                            logger.info { "Slettet $antallSlettet opplysninger" }
-                            kandidater
+                            tx
+                                .slettOpplysningerMerketForFjerning(antallBehandlinger)
+                                .also(::loggSletting)
                         }
                     }
                 }
@@ -90,137 +36,115 @@ internal class VaktmesterPostgresRepo {
                 logger.error(e) { "Feil ved sletting av opplysninger" }
                 null
             }
-        return rapport?.flatMap { it.opplysninger } ?: emptyList()
+        return rapport?.slettedeOpplysninger ?: emptyList()
     }
 
-    internal data class Kandidat(
-        val behandlingId: UUID?,
-        val opplysningerId: UUID,
-        val opplysninger: List<UUID> = emptyList(),
-    )
-
-    private fun Session.hentOpplysningerIder(antall: Int): List<Kandidat> {
-        val opplysningerIder =
-            this.run(
+    private fun TransactionalSession.slettOpplysningerMerketForFjerning(antallBehandlinger: Int): SlettingRapport =
+        this
+            .run(
                 queryOf(
                     //language=PostgreSQL
                     """
-                    SELECT f.opplysninger_id, b.behandling_id
-                    FROM (
-                        SELECT DISTINCT o.opplysninger_id
-                        FROM opplysning o 
-                        WHERE o.fjernet = TRUE
-                    ) f
-                    LEFT JOIN behandling_opplysninger b ON b.opplysninger_id = f.opplysninger_id
-                    ORDER BY f.opplysninger_id
-                    LIMIT ? 
-                    """.trimIndent(),
-                    antall,
-                ).map { row ->
-                    Kandidat(
-                        row.uuidOrNull("behandling_id"),
-                        row.uuid("opplysninger_id"),
+                    with opplysningssett_som_skal_slettes as (
+                        SELECT f.opplysninger_id, b.behandling_id
+                        FROM (
+                            SELECT DISTINCT o.opplysninger_id
+                            FROM opplysning o
+                            WHERE o.fjernet = TRUE
+                        ) f
+                        LEFT JOIN behandling_opplysninger b ON b.opplysninger_id = f.opplysninger_id
+                        ORDER BY f.opplysninger_id
+                        LIMIT :antall
+                    ),
+                    opplysninger_som_skal_slettes as (
+                        SELECT o.id
+                        FROM opplysning o
+                        WHERE fjernet = TRUE
+                        AND o.opplysninger_id in (select opplysninger_id from opplysningssett_som_skal_slettes)
+                        ORDER BY o.opprettet DESC
+                    ),
+                    slettet_utledet_av as (
+                        DELETE
+                        FROM opplysning_utledet_av oua
+                        USING opplysninger_som_skal_slettes oss
+                        WHERE oua.opplysning_id = oss.id OR oua.utledet_av = oss.id
+                        RETURNING oua.opplysning_id
+                    ),
+                    slettet_utledning as (
+                        DELETE FROM opplysning_utledning ou
+                        USING opplysninger_som_skal_slettes oss
+                        WHERE ou.opplysning_id = oss.id
+                        RETURNING ou.opplysning_id
+                    ),
+                    slettet_opplysning as (
+                        DELETE
+                        FROM opplysning o
+                        USING opplysninger_som_skal_slettes oss
+                        WHERE o.id = oss.id
+                        RETURNING o.id
                     )
-                }.asList,
-            )
+                    select
+                        (select count(1) from opplysningssett_som_skal_slettes) as antall_opplysningssett,
+                        (select count(1) from opplysninger_som_skal_slettes) as antall_opplysninger_som_skal_slettes,
+                        (select count(1) from slettet_utledet_av) as antall_slettet_utledet_av,
+                        (select count(1) from slettet_utledning) as antall_slettet_utledning,
+                        (select count(1) from slettet_opplysning) as antall_slettet_opplysninger,
+                        (SELECT STRING_AGG(behandling_id::text, ',') FROM opplysningssett_som_skal_slettes where behandling_id is not null) AS behandlinger,
+                        (SELECT STRING_AGG(id::text, ',') FROM slettet_opplysning) AS slettede_opplysninger
+                    """.trimIndent(),
+                    mapOf("antall" to antallBehandlinger),
+                ).map(::mapSlettingRapport).asList,
+            ).single()
 
-        logger.info { "Hentet ut ${opplysningerIder.size} kandidater for sletting" }
-        return opplysningerIder
-    }
+    private fun mapSlettingRapport(row: Row): SlettingRapport =
+        SlettingRapport(
+            antallOpplysningssett = row.int("antall_opplysningssett"),
+            antallOpplysningerSomSkalSlettes = row.int("antall_opplysninger_som_skal_slettes"),
+            antallSlettetUtledetAv = row.int("antall_slettet_utledet_av"),
+            antallSlettetUtledning = row.int("antall_slettet_utledning"),
+            antallSlettetOpplysninger = row.int("antall_slettet_opplysninger"),
+            behandlinger = row.splittTilUUID("behandlinger"),
+            slettedeOpplysninger = row.splittTilUUID("slettede_opplysninger"),
+        )
 
-    private fun Session.hentOpplysningerSomErFjernet(antall: Int): List<Kandidat> {
-        val kandidater = this.hentOpplysningerIder(antall)
+    private fun Row.splittTilUUID(kolonnenavn: String): List<UUID> =
+        this
+            .stringOrNull(kolonnenavn)
+            ?.split(',')
+            ?.map { UUID.fromString(it) }
+            ?: emptyList()
 
-        val kandidaterMedOpplysninger =
-            kandidater
-                .map { kandidat ->
-                    val opplysninger =
-                        this.run(
-                            queryOf(
-                                //language=PostgreSQL
-                                """
-                                SELECT o.id
-                                FROM opplysning o 
-                                WHERE fjernet = TRUE AND o.opplysninger_id = :opplysninger_id
-                                ORDER BY o.opprettet DESC
-                                """.trimIndent(),
-                                mapOf("opplysninger_id" to kandidat.opplysningerId),
-                            ).map { row ->
-                                row.uuid("id")
-                            }.asList,
-                        )
-                    kandidat.copy(opplysninger = opplysninger)
-                }
-
-        if (kandidaterMedOpplysninger.isNotEmpty()) {
+    private fun loggSletting(rapport: SlettingRapport) {
+        check(rapport.antallOpplysningerSomSkalSlettes == rapport.antallSlettetOpplysninger) {
+            "ulikt antall opplysninger som skulle slettes og faktisk slettede opplysninger, noe har gått galt"
+        }
+        logger.info { "Hentet ut ${rapport.antallOpplysningssett} kandidater for sletting" }
+        if (rapport.antallOpplysningssett > 0) {
             logger.info {
-                "Fant ${kandidater.size} opplysningsett for behandlinger ${
-                    kandidater.map {
-                        it.behandlingId
-                    }
+                "Fant ${rapport.antallOpplysningssett} opplysningsett for behandlinger ${
+                    rapport.behandlinger
                 } som inneholder ${
-                    kandidaterMedOpplysninger.sumOf {
-                        it.opplysninger.size
-                    }
+                    rapport.antallOpplysningerSomSkalSlettes
                 } opplysninger som er fjernet og som skal slettes"
             }
         } else {
             logger.info { "Fant ingen kandidater til sletting" }
         }
-        return kandidaterMedOpplysninger
+
+        logger.info {
+            "Slettet ${rapport.antallSlettetOpplysninger} opplysninger, " +
+                "${rapport.antallSlettetUtledetAv} utledet av og ${rapport.antallSlettetUtledning} utledninger, " +
+                "fordelt på ${rapport.behandlinger.size} behandler og ${rapport.antallOpplysningssett} opplysningssett"
+        }
     }
 
-    private fun slettErstatter(params: List<Map<String, UUID>>) =
-        BatchStatement(
-            //language=PostgreSQL
-            """
-            DELETE FROM opplysning_erstatter WHERE opplysning_id = :id
-            """.trimIndent(),
-            params,
-        )
-
-    private fun slettOpplysningVerdi(params: List<Map<String, UUID>>) =
-        BatchStatement(
-            //language=PostgreSQL
-            """
-            DELETE FROM opplysning_verdi WHERE opplysning_id = :id
-            """.trimIndent(),
-            params,
-        )
-
-    private fun slettOpplysningLink(params: List<Map<String, UUID>>) =
-        BatchStatement(
-            //language=PostgreSQL
-            """
-            DELETE FROM opplysninger_opplysning WHERE opplysning_id = :id
-            """.trimIndent(),
-            params,
-        )
-
-    private fun slettOpplysningUtledetAv(params: List<Map<String, UUID>>) =
-        BatchStatement(
-            //language=PostgreSQL
-            """
-            DELETE FROM opplysning_utledet_av WHERE opplysning_id = :id OR utledet_av = :id
-            """.trimIndent(),
-            params,
-        )
-
-    private fun slettOpplysningUtledning(params: List<Map<String, UUID>>) =
-        BatchStatement(
-            //language=PostgreSQL
-            """
-            DELETE FROM opplysning_utledning WHERE opplysning_id = :id
-            """.trimIndent(),
-            params,
-        )
-
-    private fun slettOpplysning(params: List<Map<String, UUID>>) =
-        BatchStatement(
-            //language=PostgreSQL
-            """
-            DELETE FROM opplysning WHERE id = :id
-            """.trimIndent(),
-            params,
-        )
+    private data class SlettingRapport(
+        val antallOpplysningssett: Int,
+        val antallOpplysningerSomSkalSlettes: Int,
+        val antallSlettetUtledetAv: Int,
+        val antallSlettetUtledning: Int,
+        val antallSlettetOpplysninger: Int,
+        val behandlinger: List<UUID>,
+        val slettedeOpplysninger: List<UUID>,
+    )
 }
