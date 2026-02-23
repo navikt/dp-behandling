@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ranges.shouldBeInOpenEndRange
 import io.kotest.matchers.shouldBe
@@ -62,8 +63,7 @@ class PersonRepositoryPostgresTest {
             hentPersonTimer
                 .collect()
                 .dataPoints
-                .single()
-                .sum shouldBeInOpenEndRange 0.0..<0.5
+                .shouldForAll { it.sum shouldBeInOpenEndRange 0.0..<0.5 }
         }
 
     @Test
