@@ -2,7 +2,6 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import kotliquery.Row
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
@@ -39,12 +38,14 @@ internal class VaktmesterPostgresRepo {
         return rapport?.slettedeOpplysninger ?: emptyList()
     }
 
-    private fun TransactionalSession.slettOpplysningerMerketForFjerning(antallBehandlinger: Int): SlettingRapport =
+    private fun TransactionalSession.slettOpplysningerMerketForFjerning(antallBehandlinger: Int): SlettingRapport {
+        logger.info { "Finner kandidater" }
         this
             .run(
                 queryOf(
                     //language=PostgreSQL
                     """
+                    CREATE TEMP TABLE opplysninger_til_sletting AS
                     with opplysningssett_som_skal_slettes as (
                         SELECT f.opplysninger_id, b.behandling_id
                         FROM (
@@ -55,64 +56,127 @@ internal class VaktmesterPostgresRepo {
                         LEFT JOIN behandling_opplysninger b ON b.opplysninger_id = f.opplysninger_id
                         ORDER BY f.opplysninger_id
                         LIMIT :antall
-                    ),
-                    opplysninger_som_skal_slettes as (
-                        SELECT o.id
-                        FROM opplysning o
-                        WHERE fjernet = TRUE
-                        AND o.opplysninger_id in (select opplysninger_id from opplysningssett_som_skal_slettes)
-                        ORDER BY o.opprettet DESC
-                    ),
-                    slettet_utledet_av as (
-                        DELETE
-                        FROM opplysning_utledet_av oua
-                        USING opplysninger_som_skal_slettes oss
-                        WHERE oua.opplysning_id = oss.id OR oua.utledet_av = oss.id
-                        RETURNING oua.opplysning_id
-                    ),
-                    slettet_utledning as (
-                        DELETE FROM opplysning_utledning ou
-                        USING opplysninger_som_skal_slettes oss
-                        WHERE ou.opplysning_id = oss.id
-                        RETURNING ou.opplysning_id
-                    ),
-                    slettet_opplysning as (
-                        DELETE
-                        FROM opplysning o
-                        USING opplysninger_som_skal_slettes oss
-                        WHERE o.id = oss.id
-                        RETURNING o.id
                     )
-                    select
-                        (select count(1) from opplysningssett_som_skal_slettes) as antall_opplysningssett,
-                        (select count(1) from opplysninger_som_skal_slettes) as antall_opplysninger_som_skal_slettes,
-                        (select count(1) from slettet_utledet_av) as antall_slettet_utledet_av,
-                        (select count(1) from slettet_utledning) as antall_slettet_utledning,
-                        (select count(1) from slettet_opplysning) as antall_slettet_opplysninger,
-                        (SELECT STRING_AGG(behandling_id::text, ',') FROM opplysningssett_som_skal_slettes where behandling_id is not null) AS behandlinger,
-                        (SELECT STRING_AGG(id::text, ',') FROM slettet_opplysning) AS slettede_opplysninger
+                    SELECT o.id, o.opplysninger_id, oss.behandling_id
+                    FROM opplysning o
+                    inner join opplysningssett_som_skal_slettes oss on o.opplysninger_id = oss.opplysninger_id
+                    WHERE fjernet = TRUE
+                    ORDER BY o.opprettet DESC
                     """.trimIndent(),
                     mapOf("antall" to antallBehandlinger),
-                ).map(::mapSlettingRapport).asList,
-            ).single()
+                ).asExecute,
+            )
 
-    private fun mapSlettingRapport(row: Row): SlettingRapport =
-        SlettingRapport(
-            antallOpplysningssett = row.int("antall_opplysningssett"),
-            antallOpplysningerSomSkalSlettes = row.int("antall_opplysninger_som_skal_slettes"),
-            antallSlettetUtledetAv = row.int("antall_slettet_utledet_av"),
-            antallSlettetUtledning = row.int("antall_slettet_utledning"),
-            antallSlettetOpplysninger = row.int("antall_slettet_opplysninger"),
-            behandlinger = row.splittTilUUID("behandlinger"),
-            slettedeOpplysninger = row.splittTilUUID("slettede_opplysninger"),
+        logger.info { "sletter fra opplysning_utledet_av" }
+        val antallSlettetUtledetAv =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        DELETE FROM opplysning_utledet_av oua
+                        USING opplysninger_til_sletting ots
+                        WHERE oua.opplysning_id = ots.id OR oua.utledet_av = ots.id
+                        """.trimIndent(),
+                    ).asUpdate,
+                )
+
+        logger.info { "sletter fra opplysning_utledning" }
+        val antallSlettetUtledningAv =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        DELETE FROM opplysning_utledning ou
+                        USING opplysninger_til_sletting ots
+                        WHERE ou.opplysning_id = ots.id
+                        """.trimIndent(),
+                    ).asUpdate,
+                )
+
+        logger.info { "sletter fra opplysning" }
+        val antallSlettetOpplysninger =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        DELETE FROM opplysning o
+                        USING opplysninger_til_sletting ots
+                        WHERE o.id = ots.id
+                        """.trimIndent(),
+                    ).asUpdate,
+                )
+
+        val antallOpplysningssett =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        select count(1) as antall from opplysninger_til_sletting group by opplysninger_id
+                        """.trimIndent(),
+                    ).map { row -> row.int("antall") }.asSingle,
+                )!!
+
+        val antallOpplysningerSomSkalSlettes =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        select count(1) as antall from opplysninger_til_sletting
+                        """.trimIndent(),
+                    ).map { row -> row.int("antall") }.asSingle,
+                )!!
+
+        val behandlinger =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT DISTINCT behandling_id
+                        FROM opplysninger_til_sletting
+                        WHERE behandling_id IS NOT NULL
+                        """.trimIndent(),
+                    ).map { row ->
+                        row.uuid("behandling_id")
+                    }.asList,
+                )
+
+        val opplysninger =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT id
+                        FROM opplysninger_til_sletting
+                        """.trimIndent(),
+                    ).map { row ->
+                        row.uuid("id")
+                    }.asList,
+                )
+
+        this.run(
+            queryOf(
+                //language=PostgreSQL
+                """drop table opplysninger_til_sletting""",
+            ).asExecute,
         )
 
-    private fun Row.splittTilUUID(kolonnenavn: String): List<UUID> =
-        this
-            .stringOrNull(kolonnenavn)
-            ?.split(',')
-            ?.map { UUID.fromString(it) }
-            ?: emptyList()
+        return SlettingRapport(
+            antallOpplysningssett = antallOpplysningssett,
+            antallOpplysningerSomSkalSlettes = antallOpplysningerSomSkalSlettes,
+            antallSlettetUtledetAv = antallSlettetUtledetAv,
+            antallSlettetUtledning = antallSlettetUtledningAv,
+            antallSlettetOpplysninger = antallSlettetOpplysninger,
+            behandlinger = behandlinger,
+            slettedeOpplysninger = opplysninger,
+        )
+    }
 
     private fun loggSletting(rapport: SlettingRapport) {
         check(rapport.antallOpplysningerSomSkalSlettes == rapport.antallSlettetOpplysninger) {
