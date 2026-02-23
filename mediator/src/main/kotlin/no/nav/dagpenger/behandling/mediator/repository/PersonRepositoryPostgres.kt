@@ -15,6 +15,7 @@ import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
+import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
@@ -50,12 +51,15 @@ class PersonRepositoryPostgres(
                 )?.also {
                     val antallBehandlinger = it.behandlinger().size.toString()
                     val metrikk = hentPersonTimer.labelValues(antallBehandlinger)
-                    val tidBrukt = timer.elapsedNow().toDouble(DurationUnit.NANOSECONDS)
+                    val tidBrukt = timer.elapsedNow()
 
-                    if (tidBrukt < 300.0) {
-                        metrikk.observe(tidBrukt)
+                    if (tidBrukt.inWholeMilliseconds < 300) {
+                        metrikk.observe(tidBrukt.toDouble(DurationUnit.NANOSECONDS))
                     } else {
-                        metrikk.observeWithExemplar(tidBrukt, Labels.of("antall_behandlinger", antallBehandlinger))
+                        metrikk.observeWithExemplar(
+                            tidBrukt.toDouble(DurationUnit.NANOSECONDS),
+                            Labels.of("antall_behandlinger", antallBehandlinger),
+                        )
                     }
                 }
         }
