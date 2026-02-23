@@ -20,6 +20,7 @@ internal object Metrikk {
             .builder()
             .name("behandling_hent_person_tid")
             .help("Tid brukt på å hente person med behandlinger")
+            .labelNames("antall_behandlinger")
             .register()
 
     val hentBehandlingTimer: Histogram =

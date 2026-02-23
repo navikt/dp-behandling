@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import io.prometheus.metrics.model.snapshots.Labels
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
@@ -14,6 +15,8 @@ import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
+import kotlin.time.DurationUnit
+import kotlin.time.TimeSource
 
 class PersonRepositoryPostgres(
     private val behandlingRepository: BehandlingRepository,
@@ -26,7 +29,7 @@ class PersonRepositoryPostgres(
     @WithSpan
     override fun hent(ident: Ident) =
         sessionOf(dataSource).use { session ->
-            val timer = hentPersonTimer.startTimer()
+            val timer = TimeSource.Monotonic.markNow()
             session
                 .run(
                     queryOf(
@@ -43,8 +46,16 @@ class PersonRepositoryPostgres(
                         Metrikk.registrerAntallBehandlinger(behandlinger.size)
                         Person(dbIdent, behandlinger, rettighetstatuser)
                     }.asSingle,
-                ).also {
-                    timer.observeDuration()
+                )?.also {
+                    val antallBehandlinger = it.behandlinger().size.toString()
+                    val metrikk = hentPersonTimer.labelValues(antallBehandlinger)
+                    val tidBrukt = timer.elapsedNow().toDouble(DurationUnit.MILLISECONDS)
+
+                    if (tidBrukt < 300.0) {
+                        metrikk.observe(tidBrukt)
+                    } else {
+                        metrikk.observeWithExemplar(tidBrukt, Labels.of("antall_behandlinger", antallBehandlinger))
+                    }
                 }
         }
 
