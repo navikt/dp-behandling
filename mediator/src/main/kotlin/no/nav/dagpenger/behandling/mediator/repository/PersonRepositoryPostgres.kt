@@ -30,6 +30,7 @@ class PersonRepositoryPostgres(
     override fun hent(ident: Ident) =
         sessionOf(dataSource).use { session ->
             val timer = TimeSource.Monotonic.markNow()
+            hentPersonTimer.time { }
             session
                 .run(
                     queryOf(
@@ -49,7 +50,7 @@ class PersonRepositoryPostgres(
                 )?.also {
                     val antallBehandlinger = it.behandlinger().size.toString()
                     val metrikk = hentPersonTimer.labelValues(antallBehandlinger)
-                    val tidBrukt = timer.elapsedNow().toDouble(DurationUnit.MILLISECONDS)
+                    val tidBrukt = timer.elapsedNow().toDouble(DurationUnit.NANOSECONDS)
 
                     if (tidBrukt < 300.0) {
                         metrikk.observe(tidBrukt)
