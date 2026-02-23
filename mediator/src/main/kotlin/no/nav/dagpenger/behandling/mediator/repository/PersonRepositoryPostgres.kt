@@ -54,10 +54,10 @@ class PersonRepositoryPostgres(
                     val tidBrukt = timer.elapsedNow()
 
                     if (tidBrukt.inWholeMilliseconds < 300) {
-                        metrikk.observe(tidBrukt.toDouble(DurationUnit.NANOSECONDS))
+                        metrikk.observe(tidBrukt.toDouble(DurationUnit.SECONDS))
                     } else {
                         metrikk.observeWithExemplar(
-                            tidBrukt.toDouble(DurationUnit.NANOSECONDS),
+                            tidBrukt.toDouble(DurationUnit.SECONDS),
                             Labels.of("antall_behandlinger", antallBehandlinger),
                         )
                     }
