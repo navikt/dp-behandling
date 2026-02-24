@@ -3,7 +3,6 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.doubles.shouldBeGreaterThan
-import io.kotest.matchers.ranges.shouldBeInOpenEndRange
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
