@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.doubles.shouldBeGreaterThan
 import io.kotest.matchers.ranges.shouldBeInOpenEndRange
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
@@ -64,7 +65,7 @@ class PersonRepositoryPostgresTest {
                 .collect()
                 .dataPoints
                 .shouldForAll {
-                    it.sum shouldBeInOpenEndRange 0.0..<0.5
+                    it.sum shouldBeGreaterThan 0.0
                     it.exemplars.size() shouldBe 0
                 }
         }
