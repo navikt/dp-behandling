@@ -118,7 +118,7 @@ internal class VaktmesterPostgresRepo {
                         select count(1) as antall from opplysninger_til_sletting group by opplysninger_id
                         """.trimIndent(),
                     ).map { row -> row.int("antall") }.asSingle,
-                )!!
+                ) ?: 0
 
         val antallOpplysningerSomSkalSlettes =
             this
@@ -129,7 +129,7 @@ internal class VaktmesterPostgresRepo {
                         select count(1) as antall from opplysninger_til_sletting
                         """.trimIndent(),
                     ).map { row -> row.int("antall") }.asSingle,
-                )!!
+                ) ?: 0
 
         val behandlinger =
             this
