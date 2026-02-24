@@ -70,6 +70,30 @@ class KjedescenarioTest {
     }
 
     @Test
+    fun `kan fatte parallell når det er avslag`() {
+        nyttScenario {
+            inntektSiste12Mnd = 50000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            // Personen søker tre ganger etter forrige søknad er behandlet
+            repeat(3) {
+                person.søkDagpenger(21.august(2018))
+                behovsløsere.løsTilForslag()
+                saksbehandler.lukkAlleAvklaringer()
+                person.behandling.basertPå.shouldBeNull()
+            }
+
+            // Ferdigstill en av de parallelle behandlingene
+            saksbehandler.godkjenn()
+        }
+    }
+
+    @Test
     fun `flere søknader skal ikke kjedes når siste behandling var avslag`() {
         /*
          * Når bruker har en behandlingskjede med vedtak om avslag, og søker på nytt

@@ -241,7 +241,7 @@ class Person(
     }
 
     private fun List<Behandling>.harParallelleBehandlinger(behandling: Behandling): Boolean =
-        any { it.harTilstand(Ferdig) && it.basertPå?.behandlingId == behandling.basertPå?.behandlingId }
+        any { it.harTilstand(Ferdig) && behandling.basertPå != null && it.basertPå?.behandlingId == behandling.basertPå.behandlingId }
 
     override fun toSpesifikkKontekst(): SpesifikkKontekst = PersonKontekst(ident.identifikator())
 
