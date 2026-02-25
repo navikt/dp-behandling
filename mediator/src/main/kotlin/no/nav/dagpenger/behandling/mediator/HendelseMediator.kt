@@ -335,9 +335,11 @@ internal class HendelseMediator(
             logger.error { "Ingen behandling funnet for id ${hendelse.behandlingId}" }
             return
         }
+
         if (behandling.kanRedigeres()) {
             personRepository.flyttBehandling(hendelse.behandlingId, hendelse.nyBasertPåId)
         }
+
         hentPersonOgHåndter(hendelse, context) { person ->
             person.håndter(hendelse)
         }

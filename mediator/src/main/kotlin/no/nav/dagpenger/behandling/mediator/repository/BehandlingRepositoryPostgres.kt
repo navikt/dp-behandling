@@ -45,7 +45,7 @@ internal class BehandlingRepositoryPostgres(
             session.run(
                 queryOf(
                     //language=PostgreSQL
-                    "UPDATE behandling SET basert_på_behandling_id=:basertPaa WHERE behandling_id=:behandlingId",
+                    "UPDATE behandling SET basert_på_behandling_id = :basertPaa WHERE behandling_id = :behandlingId",
                     mapOf(
                         "behandlingId" to behandlingId,
                         "basertPaa" to nyBasertPåId,
@@ -173,10 +173,24 @@ internal class BehandlingRepositoryPostgres(
                         .toSet(),
                 )
 
+        // Topologisk sortering slik at basertPå alltid prosesseres før behandlinger som avhenger av den.
+        // ORDER BY behandling_id er ikke tilstrekkelig etter en flytt-operasjon, der en eldre behandling
+        // kan peke på en nyere (høyere UUID) behandling.
+        val radByBehandlingId = behandlingRader.associateBy { it.behandlingId }
+        val topologiskSortert = mutableListOf<BehandlingRad>()
+        val besøkt = mutableSetOf<UUID>()
+
+        fun besøk(rad: BehandlingRad) {
+            if (rad.behandlingId in besøkt) return
+            besøkt.add(rad.behandlingId)
+            rad.basertPåBehandlingId?.let { radByBehandlingId[it]?.let { parent -> besøk(parent) } }
+            topologiskSortert.add(rad)
+        }
+        behandlingRader.forEach { besøk(it) }
+
         // Bygg behandlinger med korrekte basertPå-referanser
-        // bruker linkedMapOf eksplisitt for å bevare innsettingsrekkefølgen, slik at basertPå alltid kommer før behandlinger som baserer seg på den
         val behandlingerMap = linkedMapOf<UUID, Behandling>()
-        behandlingRader.forEach { rad ->
+        topologiskSortert.forEach { rad ->
             check(rad.behandlingId !in behandlingerMap) { "skal ikke finnes fra før" }
             val basertPå = rad.basertPåBehandlingId?.let { behandlingerMap.getValue(it) }
             Behandling

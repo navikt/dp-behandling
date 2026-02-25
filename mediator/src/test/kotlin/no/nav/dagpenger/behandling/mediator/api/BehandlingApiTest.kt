@@ -422,6 +422,37 @@ internal class BehandlingApiTest {
     }
 
     @Test
+    fun `flytt behandling til ny behandling`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+
+            val hengende = person.behandlingId
+
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Post,
+                    endepunkt = "/behandling/$hengende/flytt",
+                    body = """{"nyBasertPå":"${person.behandlingId}"}""",
+                )
+            response.status shouldBe HttpStatusCode.Accepted
+            response.bodyAsText().shouldBeEmpty()
+        }
+    }
+
+    @Test
     fun `test overgangene for behandling mellom saksbehandler og beslutter`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger()
