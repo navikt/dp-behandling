@@ -641,20 +641,60 @@ components:
           description: Når hendelsen skjedde, hvis ikke settes det til nåværende tidspunkt
 
     Behandlingstype:
-        type: string
-        enum:
-            - Revurdering
-            - Manuell
+      type: string
+      enum:
+        - Revurdering
+        - Manuell
 
     NyOpplysning:
+      oneOf:
+        - $ref: '#/components/schemas/NyOpplysningMedOpplysningstype'
+        - $ref: '#/components/schemas/NyOpplysningMedBehov'
+      discriminator:
+        propertyName: type
+        mapping:
+          opplysningstype: '#/components/schemas/NyOpplysningMedOpplysningstype'
+          behov: '#/components/schemas/NyOpplysningMedBehov'
+
+    NyOpplysningMedOpplysningstype:
       type: object
       required:
+        - type
         - opplysningstype
         - verdi
         - begrunnelse
       properties:
+        type:
+          type: string
+          enum:
+            - opplysningstype
         opplysningstype:
           $ref: '#/components/schemas/OpplysningTypeId'
+        verdi:
+          type: string
+        begrunnelse:
+          type: string
+        gyldigFraOgMed:
+          type: string
+          format: date
+        gyldigTilOgMed:
+          type: string
+          format: date
+
+    NyOpplysningMedBehov:
+      type: object
+      required:
+        - type
+        - behov
+        - verdi
+        - begrunnelse
+      properties:
+        type:
+          type: string
+          enum:
+            - behov
+        behov:
+          type: string
         verdi:
           type: string
         begrunnelse:
@@ -959,6 +999,9 @@ components:
     OpplysningTypeId:
       type: string
       format: uuid
+
+    OpplysningBehovId:
+      type: string
 
     AvklaringKode:
       type: string

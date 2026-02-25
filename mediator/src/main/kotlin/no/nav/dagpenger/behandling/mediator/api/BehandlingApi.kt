@@ -34,6 +34,8 @@ import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.NyOpplysningDTO
+import no.nav.dagpenger.behandling.api.models.NyOpplysningMedBehovDTO
+import no.nav.dagpenger.behandling.api.models.NyOpplysningMedOpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.RekjoringDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsstatusDTO
@@ -477,36 +479,34 @@ internal fun Application.behandlingApi(
                                 )
                             }
 
+                            val nyOpplysning = nyOpplysningDTO.løs(opplysningstyper)
+
                             val erTilOgMedFørFraOgMed =
-                                nyOpplysningDTO.gyldigFraOgMed != null &&
-                                    nyOpplysningDTO.gyldigTilOgMed?.isBefore(nyOpplysningDTO.gyldigFraOgMed) == true
+                                nyOpplysning.gyldigFraOgMed != null &&
+                                    nyOpplysning.gyldigTilOgMed?.isBefore(nyOpplysning.gyldigFraOgMed) == true
                             if (erTilOgMedFørFraOgMed) {
                                 throw BadRequestException(
                                     """
-                                        |Til og med dato "${nyOpplysningDTO.gyldigTilOgMed}" kan ikke være før fra og med dato "${nyOpplysningDTO.gyldigFraOgMed}"
+                                    |Til og med dato "${nyOpplysning.gyldigTilOgMed}" kan ikke være før fra og med dato "${nyOpplysning.gyldigFraOgMed}"
                                     """.trimMargin(),
                                 )
                             }
 
-                            val opplysningstype =
-                                opplysningstyper.singleOrNull { it.id.uuid == nyOpplysningDTO.opplysningstype }
-                                    ?: throw NotFoundException("Opplysningstype med id ${nyOpplysningDTO.opplysningstype} ikke funnet")
-
-                            if (!redigerbareOpplysninger.kanRedigere(opplysningstype)) {
-                                throw BadRequestException("Opplysningstype $opplysningstype kan ikke redigeres")
+                            if (!redigerbareOpplysninger.kanRedigere(nyOpplysning.opplysningstype)) {
+                                throw BadRequestException("Opplysningstype ${nyOpplysning.opplysningstype} kan ikke redigeres")
                             }
 
-                            if (behandling.basertPå != null && opplysningstype.er(prøvingsdato)) {
+                            if (behandling.basertPå != null && nyOpplysning.opplysningstype.er(prøvingsdato)) {
                                 throw BadRequestException(
                                     "Kan ikke endre prøvingsdato på en behandling som er basert på en tidligere behandling",
                                 )
                             }
 
                             // TODO: Midlertidlig sperre for å unngå at prøvingsdato settes før søknadId sin gyldighetsperiode
-                            if (opplysningstype.er(prøvingsdato)) {
+                            if (nyOpplysning.opplysningstype.er(prøvingsdato)) {
                                 val søknadId = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
                                 if (søknadId != null) {
-                                    val nyPrøvingsdato = LocalDate.parse(nyOpplysningDTO.verdi)
+                                    val nyPrøvingsdato = LocalDate.parse(nyOpplysning.verdi)
 
                                     if (nyPrøvingsdato.isBefore(søknadId.gyldighetsperiode.fraOgMed)) {
                                         throw BadRequestException("Prøvingsdato kan ikke settes før søknadsdato")
@@ -517,26 +517,26 @@ internal fun Application.behandlingApi(
                             logger.info {
                                 """
                                 Mottok en endring i behandlingId=$behandlingId, 
-                                behovId=${opplysningstype.behovId},
-                                datatype=${opplysningstype.datatype},
-                                gyldigFraOgMed=${nyOpplysningDTO.gyldigFraOgMed},
-                                gyldigTilOgMed=${nyOpplysningDTO.gyldigTilOgMed}
+                                behovId=${nyOpplysning.opplysningstype.behovId},
+                                datatype=${nyOpplysning.opplysningstype.datatype},
+                                gyldigFraOgMed=${nyOpplysning.gyldigFraOgMed},
+                                gyldigTilOgMed=${nyOpplysning.gyldigTilOgMed}
                                 """.trimIndent()
                             }
 
                             val svar =
                                 OpplysningsSvar(
                                     behandlingId,
-                                    opplysningstype.behovId,
+                                    nyOpplysning.opplysningstype.behovId,
                                     behandling.behandler.ident,
-                                    HttpVerdiMapper(nyOpplysningDTO).map(opplysningstype.datatype),
+                                    HttpVerdiMapper(nyOpplysning.verdi).map(nyOpplysning.opplysningstype.datatype),
                                     call.saksbehandlerId(),
-                                    nyOpplysningDTO.begrunnelse,
-                                    nyOpplysningDTO.gyldigFraOgMed,
-                                    nyOpplysningDTO.gyldigTilOgMed,
+                                    nyOpplysning.begrunnelse,
+                                    nyOpplysning.gyldigFraOgMed,
+                                    nyOpplysning.gyldigTilOgMed,
                                 )
 
-                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysningstype.behovId) {
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, nyOpplysning.opplysningstype.behovId) {
                                 logger.info { "Starter en endring i behandling" }
                                 messageContext(behandling.behandler.ident).publish(svar.toJson())
                                 auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
@@ -695,17 +695,50 @@ private val OtelTraceIdPlugin =
 
 @Suppress("UNCHECKED_CAST")
 private class HttpVerdiMapper(
-    private val nyOpplysning: NyOpplysningDTO,
+    private val verdi: String,
 ) : VerdiMapper {
     override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
         when (datatype) {
-            Heltall -> nyOpplysning.verdi.toInt() as T
-            Boolsk -> nyOpplysning.verdi.toBoolean() as T
-            Desimaltall -> nyOpplysning.verdi.toDouble() as T
-            Penger -> nyOpplysning.verdi.toDouble() as T
-            Dato -> nyOpplysning.verdi.let { LocalDate.parse(it) } as T
-            BarnDatatype -> barnMapper(nyOpplysning.verdi) as T
-            Tekst -> nyOpplysning.verdi as T
+            Heltall -> verdi.toInt() as T
+            Boolsk -> verdi.toBoolean() as T
+            Desimaltall -> verdi.toDouble() as T
+            Penger -> verdi.toDouble() as T
+            Dato -> verdi.let { LocalDate.parse(it) } as T
+            BarnDatatype -> barnMapper(verdi) as T
+            Tekst -> verdi as T
             else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
         }
 }
+
+private data class NyOpplysningKontekst(
+    val opplysningstype: Opplysningstype<*>,
+    val verdi: String,
+    val begrunnelse: String,
+    val gyldigFraOgMed: LocalDate?,
+    val gyldigTilOgMed: LocalDate?,
+)
+
+private fun NyOpplysningDTO.løs(opplysningstyper: Set<Opplysningstype<*>>): NyOpplysningKontekst =
+    when (this) {
+        is NyOpplysningMedOpplysningstypeDTO -> {
+            NyOpplysningKontekst(
+                opplysningstyper.singleOrNull { it.id.uuid == opplysningstype }
+                    ?: throw NotFoundException("Opplysningstype med id $opplysningstype ikke funnet"),
+                verdi,
+                begrunnelse,
+                gyldigFraOgMed,
+                gyldigTilOgMed,
+            )
+        }
+
+        is NyOpplysningMedBehovDTO -> {
+            NyOpplysningKontekst(
+                opplysningstyper.singleOrNull { it.behovId == behov }
+                    ?: throw NotFoundException("Opplysningstype med behov $behov ikke funnet"),
+                verdi,
+                begrunnelse,
+                gyldigFraOgMed,
+                gyldigTilOgMed,
+            )
+        }
+    }

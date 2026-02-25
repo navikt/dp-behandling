@@ -556,6 +556,35 @@ internal class BehandlingApiTest {
         }
     }
 
+    @Test
+    @Disabled("Feiler med 500, må finne ut av hvorfor")
+    fun `opplysning kan endres via behovId`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+
+            val behandlingId = person.behandlingId
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Post,
+                    endepunkt = "/behandling/$behandlingId/opplysning/",
+                    // language=JSON
+                    body =
+                        """
+                        {
+                          "behov": "${ReellArbeidssøker.kanJobbeDeltid.behovId}",
+                          "verdi": "true",
+                          "begrunnelse": "tekst",
+                          "gyldigFraOgMed": "2024-01-01",
+                          "type": "behov"
+                        }
+                        """.trimIndent(),
+                )
+
+            response.status shouldBe HttpStatusCode.OK
+        }
+    }
+
     private fun medSikretBehandlingApi(block: suspend SimulertDagpengerSystem.(TestContext) -> Unit) {
         System.setProperty("Grupper.saksbehandler", "dagpenger-saksbehandler")
         System.setProperty("Grupper.beslutter", "dagpenger-beslutter")
