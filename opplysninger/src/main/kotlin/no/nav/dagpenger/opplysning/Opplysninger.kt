@@ -22,13 +22,7 @@ class Opplysninger private constructor(
     private val erstattet: MutableSet<UUID> get() = alleOpplysninger.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
     private val basertPåOpplysninger: List<Opplysning<*>> =
-        basertPå?.let {
-            (it.basertPåOpplysninger + it.egne).filter { opplysning ->
-                opplysning.opplysningstype.opplysningstypeKategori ==
-                    OpplysningstypeKategori.Materiell
-            }
-        }
-            ?: emptyList()
+        basertPå?.let { (it.basertPåOpplysninger + it.egne).filter { opplysning -> opplysning.skalArves } } ?: emptyList()
 
     private val alleOpplysninger = CachedList { (basertPåOpplysninger + egne).utenErstattet() }
 
