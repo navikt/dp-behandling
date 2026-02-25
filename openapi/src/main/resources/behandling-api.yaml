@@ -154,6 +154,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
+  /behandling/{behandlingId}/flytt:
+    parameters:
+      - name: behandlingId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Behandlingens id
+    post:
+      summary: Flytt en behandling til en annen behandling
+      security:
+        - azureAd: [ ]
+      tags:
+        - Behandling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlyttBehandling'
+      responses:
+        201:
+          description: Accepted
+        default:
+          description: Feil ved henting av behandling
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
   /behandling/{behandlingId}/vurderinger:
     parameters:
       - name: behandlingId
@@ -641,10 +672,10 @@ components:
           description: Når hendelsen skjedde, hvis ikke settes det til nåværende tidspunkt
 
     Behandlingstype:
-        type: string
-        enum:
-            - Revurdering
-            - Manuell
+      type: string
+      enum:
+        - Revurdering
+        - Manuell
 
     NyOpplysning:
       type: object
@@ -1411,6 +1442,14 @@ components:
         behandlingId:
           type: string
           format: uuid
+
+    FlyttBehandling:
+      type: object
+      required:
+        - nyBasertPå
+      properties:
+        nyBasertPå:
+          $ref: '#/components/schemas/BehandlingId'
 
     Saksbehandlerbegrunnelse:
       type: object

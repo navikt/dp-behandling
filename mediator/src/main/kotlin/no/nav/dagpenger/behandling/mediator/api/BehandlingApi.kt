@@ -30,6 +30,7 @@ import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingstypeDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.DatalastKvitteringDTO
+import no.nav.dagpenger.behandling.api.models.FlyttBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
@@ -58,6 +59,7 @@ import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
@@ -395,6 +397,29 @@ internal fun Application.behandlingApi(
                         }
 
                         call.respond(HttpStatusCode.Created)
+                    }
+
+                    post("flytt") {
+                        val behandlingId = call.behandlingId
+                        val flytting = call.receive<FlyttBehandlingDTO>()
+                        val behandling = hentBehandling(personRepository, behandlingId)
+
+                        val hendelse =
+                            FlyttBehandlingHendelse(
+                                UUIDv7.ny(),
+                                behandling.behandler.ident,
+                                call.behandlingId,
+                                flytting.nyBasertPå,
+                                emptyList(),
+                                LocalDateTime.now(),
+                            ).apply {
+                                info("Flytter behandling", behandling.behandler.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+                            }
+
+                        logger.info { "Flytter behandling på nytt, nyBasertPå=${flytting.nyBasertPå}" }
+                        hendelseMediator.behandle(hendelse, messageContext(behandling.behandler.ident))
+
+                        call.respond(HttpStatusCode.Accepted)
                     }
 
                     delete("opplysning/{opplysningId}") {
