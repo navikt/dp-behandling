@@ -313,6 +313,7 @@ internal val redigerbareOpplysninger =
 
                     // MANUELL overstyring av beregning
                     if (unleash.isEnabled(Feature.REDIGERING_AV_BEREGNING.navn)) {
+                        add(Beregning.meldtITide)
                         add(Beregning.forbruk)
                         add(Beregning.forbruktEgenandel)
                         add(Beregning.gjenståendeEgenandel)
