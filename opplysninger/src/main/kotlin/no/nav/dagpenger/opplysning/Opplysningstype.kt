@@ -36,7 +36,7 @@ class Opplysningstype<T : Comparable<T>>(
     val enhet: Enhet? = null,
     val utgåtteBehovId: Set<String> = emptySet(),
     /** Om opplysninger av denne typen skal arves til neste behandling i kjeden. Default true. */
-    val opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+    internal val opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
 ) : Klassifiserbart {
     val datatype = id.datatype
 

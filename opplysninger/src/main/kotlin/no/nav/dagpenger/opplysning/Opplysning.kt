@@ -40,6 +40,8 @@ sealed class Opplysning<T : Comparable<T>>(
                 defaultRedigering.kanRedigere(opplysningstype)
         }
 
+    val skalArves get() = opplysningstype.opplysningstypeKategori == OpplysningstypeKategori.Materiell
+
     override fun equals(other: Any?) = other is Opplysning<*> && id == other.id
 
     override fun hashCode() = id.hashCode()
