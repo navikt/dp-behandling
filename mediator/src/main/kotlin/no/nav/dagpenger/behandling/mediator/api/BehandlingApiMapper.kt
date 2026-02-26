@@ -120,6 +120,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                     .regelsettAvType(RegelsettType.Fastsettelse)
                     .map { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() } +
+                    // TODO: Fjerne prosessregler fra fastsettelsesreglene når de er tatt i bruk (saksbehandlingsregler) i frontend
                     behandler.forretningsprosess.regelverk
                         .regelsettAvType(RegelsettType.Prosess)
                         .map { it.tilVurderingsresultatDTO(opplysningSet) }
@@ -137,6 +138,11 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         formål = type.tilFormålDTO(),
                     )
                 }),
+            saksbehandlingsregler =
+                behandler.forretningsprosess.regelverk
+                    .regelsettAvType(RegelsettType.Prosess)
+                    .map { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .sortedBy { it.hjemmel.paragraf.toInt() },
             forslagOm = vedtakopplysninger.rettighetsperioder.avgjørelse(),
             opprettet = opprettet,
             sistEndret = sistEndret,
@@ -196,7 +202,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
             when (type) {
                 RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
                 RegelsettType.Fastsettelse -> RegelsettTypeDTO.FASTSETTELSE
-                RegelsettType.Prosess -> RegelsettTypeDTO.FASTSETTELSE
+                RegelsettType.Prosess -> RegelsettTypeDTO.PROSESS
             },
         // Litt rart navn. Dette er opplysningstypene som utgjør "utfallet" av et regelsett.
         opplysningTypeId = utfall?.id?.uuid,
