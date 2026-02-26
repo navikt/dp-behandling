@@ -827,6 +827,11 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Regelsett'
+            saksbehandlingsregler:
+              type: array
+              description: Regler som er relevante for saksbehandlingen i den konkrete behandlingen.
+              items:
+                  $ref: '#/components/schemas/Regelsett'
             opplysninger:
               description: Alle opplysninger som har vært til stede under behandlingen, også historiske
               type: array
@@ -851,7 +856,7 @@ components:
 
     RegelsettType:
       type: string
-      enum: [ "Vilkår", "Fastsettelse" ]
+      enum: [ "Vilkår", "Fastsettelse", "Prosess" ]
 
     RegelsettMeta:
       type: object
