@@ -829,7 +829,7 @@ components:
                 $ref: '#/components/schemas/Regelsett'
             saksbehandlingsregler:
               type: array
-              description: Regler som er relevante for saksbehandlingen i den konkrete behandlingen.
+              description: Regler som ut ifra saksbehandlingskonteksten har vært relevante for den konkrete behandlingen
               items:
                   $ref: '#/components/schemas/Regelsett'
             opplysninger:
