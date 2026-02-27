@@ -30,18 +30,11 @@ class Opplysninger private constructor(
 
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
-
         val erLike: Boolean = eksisterende != null && eksisterende.erLik(opplysning)
-        if (erLike && egne.contains(eksisterende)) {
-            logger.debug { "erLik: Skipper ${opplysning.opplysningstype.navn} (egne)" }
-            return
-        }
-        if (erLike && basertPåOpplysninger.contains(eksisterende)) {
-            logger.debug { "erLik: Skipper ${opplysning.opplysningstype.navn} fra basertPå (erstatter arvet)" }
-            return
-        }
 
-        leggTilIntern(opplysning)
+        // For basertPå: erstatter-kjeden MÅ settes opp, men nedstrøms skal ikke
+        // markeres som utdatert når verdien er lik (ellers oppstår loop)
+        leggTilIntern(opplysning, markerUtdatert = !erLike)
     }
 
     private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
@@ -57,7 +50,10 @@ class Opplysninger private constructor(
     // leggTilUtledet (regelkjøring) må alltid erstatte for å oppdatere utledetAv-referanser.
     internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTilIntern(opplysning)
 
-    private fun <T : Comparable<T>> leggTilIntern(opplysning: Opplysning<T>) {
+    private fun <T : Comparable<T>> leggTilIntern(
+        opplysning: Opplysning<T>,
+        markerUtdatert: Boolean = true,
+    ) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende != null) {
@@ -70,13 +66,13 @@ class Opplysninger private constructor(
                     opplysning.erstatter(it)
 
                     // Marker alle opplysninger som er utledet av den erstattede som utdaterte
-                    markerUtledningerSomUtdatert(it)
+                    if (markerUtdatert) markerUtledningerSomUtdatert(it)
                 }
             }
 
             if (basertPåOpplysninger.contains(eksisterende)) {
                 opplysning.erstatter(eksisterende)
-                markerUtledningerSomUtdatert(eksisterende)
+                if (markerUtdatert) markerUtledningerSomUtdatert(eksisterende)
             }
         }
 
