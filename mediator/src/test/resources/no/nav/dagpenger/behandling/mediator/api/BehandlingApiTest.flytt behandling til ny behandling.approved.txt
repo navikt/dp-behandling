@@ -72,16 +72,6 @@ Behov:
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
-Behov:
-- RegistrertSomArbeidssøker
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Laget avklaring om GjenopptakBehandling
 Laget avklaring om HarTilleggsopplysninger
@@ -112,16 +102,6 @@ Behov:
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
-Behov:
-- RegistrertSomArbeidssøker
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
