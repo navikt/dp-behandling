@@ -48,6 +48,11 @@ sealed class Opplysning<T : Comparable<T>>(
 
     override fun toString() = "${javaClass.simpleName} om ${opplysningstype.navn} har verdi: $verdi som er $gyldighetsperiode"
 
+    fun erLik(annen: Opplysning<T>): Boolean =
+        this.opplysningstype == annen.opplysningstype &&
+            this.verdi == annen.verdi &&
+            this.gyldighetsperiode == annen.gyldighetsperiode
+
     fun erstatter(erstattet: Opplysning<T>) {
         _erstatter = erstattet
     }

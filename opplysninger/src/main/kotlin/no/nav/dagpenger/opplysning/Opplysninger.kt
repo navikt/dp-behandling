@@ -31,6 +31,35 @@ class Opplysninger private constructor(
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
+        val erLike: Boolean = eksisterende != null && eksisterende.erLik(opplysning)
+        if (erLike && egne.contains(eksisterende)) {
+            logger.debug { "erLik: Skipper ${opplysning.opplysningstype.navn} (egne)" }
+            return
+        }
+        if (erLike && basertPåOpplysninger.contains(eksisterende)) {
+            logger.debug { "erLik: Skipper ${opplysning.opplysningstype.navn} fra basertPå (erstatter arvet)" }
+            return
+        }
+
+        leggTilIntern(opplysning)
+    }
+
+    private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
+        val graf = OpplysningGraf(alleOpplysninger)
+        val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
+
+        avhengigheter.forEach { it.erUtdatert = true }
+    }
+
+    override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
+
+    // erLik-sjekk gjelder kun for leggTil (eksternt API).
+    // leggTilUtledet (regelkjøring) må alltid erstatte for å oppdatere utledetAv-referanser.
+    internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTilIntern(opplysning)
+
+    private fun <T : Comparable<T>> leggTilIntern(opplysning: Opplysning<T>) {
+        val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
+
         if (eksisterende != null) {
             if (egne.contains(eksisterende)) {
                 // Erstatt hele opplysningen
@@ -54,17 +83,6 @@ class Opplysninger private constructor(
         egne.add(opplysning)
         alleOpplysninger.refresh()
     }
-
-    private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
-        val graf = OpplysningGraf(alleOpplysninger)
-        val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
-
-        avhengigheter.forEach { it.erUtdatert = true }
-    }
-
-    override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
-
-    internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
 
     override fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T> =
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
