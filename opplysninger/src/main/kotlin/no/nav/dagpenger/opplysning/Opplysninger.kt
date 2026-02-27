@@ -32,8 +32,15 @@ class Opplysninger private constructor(
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
         val erLike: Boolean = eksisterende != null && eksisterende.erLik(opplysning)
 
-        // For basertPå: erstatter-kjeden MÅ settes opp, men nedstrøms skal ikke
-        // markeres som utdatert når verdien er lik (ellers oppstår loop)
+        // Lik opplysning som allerede er i egne og ingen andre er utledet av, trenger ikke legges til.
+        // Kan ikke skippe for basertPå – opplysningen må flyttes til egne (for kunEgne-tilgang).
+        if (erLike && egne.contains(eksisterende)) {
+            val graf = OpplysningGraf(alleOpplysninger)
+            if (graf.hentAlleUtledetAv(eksisterende!!).isEmpty()) return
+        }
+
+        // Erstatter-kjeden MÅ settes opp, men nedstrøms skal ikke markeres
+        // som utdatert når verdien er lik (ellers oppstår loop)
         leggTilIntern(opplysning, markerUtdatert = !erLike)
     }
 
