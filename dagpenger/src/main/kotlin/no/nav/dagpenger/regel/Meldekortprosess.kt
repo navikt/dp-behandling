@@ -59,7 +59,8 @@ class Kvotetelling : ProsessPlugin {
         val opplysninger = kontekst.opplysninger
         val innvilgetStønadsdager = opplysninger.finnOpplysning(antallStønadsdager).verdi
 
-        val dager = opplysninger.kunEgne.finnAlle(forbruk)
+        val dager = opplysninger.finnAlle(forbruk) // Re-kalkulerer alle dager
+        if (dager.isEmpty()) return // Ingen dager, ingen kvotetelling
 
         var utgangspunkt =
             opplysninger

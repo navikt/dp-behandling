@@ -8,6 +8,7 @@ class OpplysningGraf(
     // Bygg opp et omvendt indeks-kart: Hvilke opplysninger er utledet av hvilke
     private val utledetAvMap: Map<UUID, List<Opplysning<*>>> by lazy {
         opplysninger
+            .asSequence()
             .flatMap { opplysning ->
                 opplysning.utledetAv?.opplysninger?.map { it.id to opplysning } ?: emptyList()
             }.groupBy({ it.first }, { it.second })
