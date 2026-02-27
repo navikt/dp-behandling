@@ -34,9 +34,9 @@ class Opplysninger private constructor(
 
         // Lik opplysning som allerede er i egne og ingen andre er utledet av, trenger ikke legges til.
         // Kan ikke skippe for basertPå – opplysningen må flyttes til egne (for kunEgne-tilgang).
-        if (erLike && egne.contains(eksisterende)) {
+        if (erLike) {
             val graf = OpplysningGraf(alleOpplysninger)
-            if (graf.hentAlleUtledetAv(eksisterende!!).isEmpty()) return
+            if (graf.hentAlleUtledetAv(eksisterende).isEmpty()) return
         }
 
         // Erstatter-kjeden MÅ settes opp, men nedstrøms skal ikke markeres

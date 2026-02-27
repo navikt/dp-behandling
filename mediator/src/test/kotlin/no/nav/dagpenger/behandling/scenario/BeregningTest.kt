@@ -27,6 +27,7 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class BeregningTest {
     @Test
@@ -104,7 +105,7 @@ class BeregningTest {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
-                    forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
+                    forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Arvet }
 
                     map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                     map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
@@ -314,6 +315,8 @@ class BeregningTest {
             // Verifiser at vi lager en avklaring om meldekort (så de ikke går automatisk i testfasen)
             person.avklaringer.first().kode shouldBe "MeldekortBehandling"
 
+            val forbruksdatoer = mutableListOf<LocalDate>()
+            val ikkeForbruksdatoer = mutableListOf<LocalDate>()
             behandlingsresultat {
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 14
@@ -323,6 +326,9 @@ class BeregningTest {
 
                     // Første forbruksdag
                     this.first { it.verdi.verdi == true }.gyldigFraOgMed shouldBe 21.juni(2018)
+
+                    forbruksdatoer.addAll(this.filter { it.verdi.verdi == true }.mapNotNull { it.gyldigFraOgMed })
+                    ikkeForbruksdatoer.addAll(this.filter { it.verdi.verdi == false }.mapNotNull { it.gyldigFraOgMed })
 
                     // Siste dag i meldekort
                     this.last().gyldigFraOgMed shouldBe 1.juli(2018)
@@ -344,6 +350,9 @@ class BeregningTest {
                     this shouldHaveSize 1
                     first().verdi.verdi shouldBe true
                 }
+                with(opplysninger(Beregning.gjenståendeDager)) {
+                    this.last().verdi.verdi shouldBe 513
+                }
             }
 
             // Send inn korrigering av forrige meldekort
@@ -361,7 +370,12 @@ class BeregningTest {
                     this shouldHaveSize 14
 
                     // Ingen opplysninger om forbruk skal være arvet
-                    this.none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
+                    val (arvet, nye) = this.partition { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet }
+                    nye.size shouldBe 7
+                    arvet.size shouldBe 7
+
+                    forbruksdatoer shouldContainExactly nye.mapNotNull { it.gyldigFraOgMed }
+                    ikkeForbruksdatoer shouldContainExactly arvet.mapNotNull { it.gyldigFraOgMed }
 
                     // Første dag i ny meldeperiode
                     this.first().gyldigFraOgMed shouldBe 18.juni(2018)
@@ -380,6 +394,15 @@ class BeregningTest {
                     this shouldHaveSize 1
                     // Jobber 7 timer hver dag og vil være over terskel
                     first().verdi.verdi shouldBe false
+                }
+
+                with(opplysninger(Beregning.forbruktEgenandel)) {
+                    this shouldHaveSize 1
+                    first().verdi.verdi shouldBe 0
+                }
+
+                with(opplysninger(Beregning.gjenståendeDager)) {
+                    this.last().verdi.verdi shouldBe 520
                 }
             }
         }
@@ -500,7 +523,7 @@ class BeregningTest {
         }
     }
 
-    @Disabled("Dette eksploderer fullstendig på grunn av utenErstattet() i Opplysninger")
+    // @Disabled("Dette eksploderer fullstendig på grunn av utenErstattet() i Opplysninger")
     @Test
     fun `vi kan reberegne meldekort når de korrigeres (tidligere periode)`() {
         nyttScenario {
@@ -545,6 +568,9 @@ class BeregningTest {
                     this[1].verdi.verdi shouldBe 12590
                     this[2].verdi.verdi shouldBe 12590
                 }
+                with(opplysninger(Beregning.gjenståendeDager)) {
+                    this.last().verdi.verdi shouldBe 493
+                }
             }
 
             val sisteBehandlingId = person.behandlingId
@@ -571,16 +597,31 @@ class BeregningTest {
                     this shouldHaveSize 42
 
                     // Ingen opplysninger om forbruk skal være arvet
-                    this.none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
+
+                    val (arvet, nye) = this.partition { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet }
 
                     // Første dag i ny meldeperiode
                     this.first().gyldigFraOgMed shouldBe 18.juni(2018)
 
-                    // Nå er det jobbet over terskel og det skal ikke være noen forbruksdager
-                    this.none { it.verdi.verdi == true } shouldBe true
+                    // Nå er det jobbet over terskel og det skal ikke være noen forbruksdager for perioden som en jobbet.
+                    nye.filter { it.verdi.verdi == false }.size shouldBe 10
+                    arvet.size shouldBe 32
 
                     // Siste dag i meldekort
-                    this.last().gyldigFraOgMed shouldBe 1.juli(2018)
+                    this.last().gyldigFraOgMed shouldBe 29.juli(2018)
+                }
+
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 3
+                    // Jobber 7 timer hver dag og vil være over terskel
+                    this[0].verdi.verdi shouldBe true
+                    this[1].verdi.verdi shouldBe false
+                    this[1].opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny
+                    this[2].verdi.verdi shouldBe true
+                }
+
+                with(opplysninger(Beregning.gjenståendeDager)) {
+                    this.last().verdi.verdi shouldBe 503
                 }
             }
         }
