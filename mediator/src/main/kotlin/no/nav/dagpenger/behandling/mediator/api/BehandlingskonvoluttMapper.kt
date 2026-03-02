@@ -60,6 +60,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.io.encoding.Base64
 
 internal fun <T> Collection<Opplysning<*>>.somOpplysningperiode(block: (Opplysningstype<*>, Collection<Opplysning<*>>) -> T): List<T> =
     groupBy { it.opplysningstype }.map { (type, opplysninger) ->
@@ -246,7 +247,7 @@ internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
             val hjemmel = regelsett.hjemmel
 
             RegelsettMetaDTO(
-                id = hjemmel.hashCode().toString(),
+                id = Base64.UrlSafe.encode(hjemmel.hashCode().toString().encodeToByteArray()),
                 navn = hjemmel.kortnavn,
                 hjemmel =
                     HjemmelDTO(
