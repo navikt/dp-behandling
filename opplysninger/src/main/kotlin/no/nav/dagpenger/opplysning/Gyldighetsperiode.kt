@@ -5,7 +5,8 @@ import java.time.LocalDate
 data class Gyldighetsperiode(
     val fraOgMed: LocalDate = LocalDate.MIN,
     val tilOgMed: LocalDate = LocalDate.MAX,
-) : ClosedRange<LocalDate> {
+) : ClosedRange<LocalDate>,
+    Iterable<LocalDate> {
     constructor(fom: LocalDate) : this(fom, LocalDate.MAX)
 
     override val start = fraOgMed
@@ -30,6 +31,21 @@ data class Gyldighetsperiode(
             tilOgMed.isEqual(LocalDate.MAX) -> "gyldig fra $fraOgMed"
             else -> "gyldig fra $fraOgMed til $tilOgMed"
         }
+
+    override fun iterator(): Iterator<LocalDate> {
+        return object : Iterator<LocalDate> {
+            private var current = fraOgMed
+
+            override fun hasNext(): Boolean = !current.isAfter(tilOgMed)
+
+            override fun next(): LocalDate {
+                if (!hasNext()) throw NoSuchElementException()
+                val result = current
+                current = current.plusDays(1)
+                return result
+            }
+        }
+    }
 
     companion object {
         fun kun(dato: LocalDate) = Gyldighetsperiode(dato, dato)

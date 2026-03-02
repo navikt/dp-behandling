@@ -299,4 +299,66 @@ class OmgjøringScenarioTester {
             }
         }
     }
+
+    @Test
+    fun `omgjøring ved endring av meldt seg i tide for førstemeldeperiode`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            // Søk og innvilg dagpenger
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(true)
+            person.sendInnMeldekort(2)
+            meldekortBatch(true)
+
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.forbruktEgenandel)) {
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe 3777
+                    this[1].verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.gjenståendeEgenandel)) {
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe 0
+                    this[1].verdi.verdi shouldBe 0
+                }
+            }
+
+            // Omgjøring
+            saksbehandler.omgjørBehandling(19.august(2018))
+
+            behandlingsresultatForslag {
+                val nye = opplysninger.filter { nodes -> nodes["perioder"].any { it["opprinnelse"].asText() == "Ny" } }
+                nye.size shouldBe 5
+            }
+
+            Gyldighetsperiode(18.juni(2018), 1.juli(2018)).forEach {
+                saksbehandler.endreOpplysning(
+                    Beregning.arbeidstimer,
+                    7.0,
+                    "Endrer arbeidstimer for perioden",
+                    Gyldighetsperiode(it, it),
+                )
+            }
+
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.forbruktEgenandel)) {
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe 0
+                    this[1].verdi.verdi shouldBe 3777
+                }
+                with(opplysninger(Beregning.gjenståendeEgenandel)) {
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe 3777
+                    this[1].verdi.verdi shouldBe 0
+                }
+            }
+        }
+    }
 }

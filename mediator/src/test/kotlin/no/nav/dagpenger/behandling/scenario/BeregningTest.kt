@@ -670,4 +670,64 @@ class BeregningTest {
             }
         }
     }
+
+    @Test
+    fun `Re-beregn første meldeperoiode skal resette egenandel`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+
+            // Send inn meldekort
+            val meldekortId = person.sendInnMeldekort(1)
+            person.sendInnMeldekort(2)
+            person.sendInnMeldekort(3)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+            meldekortBatch(true)
+            meldekortBatch(true)
+
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.forbruktEgenandel)) {
+                    this shouldHaveSize 3
+                    this[0].verdi.verdi shouldBe 3777
+                    this[1].verdi.verdi shouldBe 0
+                    this[2].verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.gjenståendeEgenandel)) {
+                    this shouldHaveSize 3
+                    this[0].verdi.verdi shouldBe 0
+                    this[1].verdi.verdi shouldBe 0
+                    this[2].verdi.verdi shouldBe 0
+                }
+            }
+            // Send inn korrigering av forrige meldekort
+            person.sendInnMeldekort(1, korrigeringAv = meldekortId, timer = List(14) { 7 })
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch()
+
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.forbruktEgenandel)) {
+                    this shouldHaveSize 3
+                    this[0].verdi.verdi shouldBe 0
+                    this[1].verdi.verdi shouldBe 3777
+                    this[2].verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.gjenståendeEgenandel)) {
+                    this shouldHaveSize 3
+                    this[0].verdi.verdi shouldBe 3777
+                    this[1].verdi.verdi shouldBe 0
+                    this[2].verdi.verdi shouldBe 0
+                }
+            }
+        }
+    }
 }
