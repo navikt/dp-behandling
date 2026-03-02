@@ -92,7 +92,6 @@ import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.holderTilbak
 import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.`unnlateråEtterkommePålegg`
 import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.uriktigeOpplysninger
 import java.time.LocalDateTime
-import kotlin.io.encoding.Base64
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -188,7 +187,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
     val produkter = produserer.filter { it in typer }
 
     return RegelsettDTO(
-        id = Base64.UrlSafe.encode(hjemmel.hashCode().toString().encodeToByteArray()),
+        id = hjemmel.hashCode().toString(),
         navn = hjemmel.kortnavn,
         hjemmel =
             HjemmelDTO(
