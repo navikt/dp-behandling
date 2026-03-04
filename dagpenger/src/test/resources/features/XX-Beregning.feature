@@ -624,3 +624,43 @@ Egenskap: Beregning av meldekort
     Og utbetales 2750 kroner
     Og det forbrukes 8 dager
 
+  Scenario: test av ekte scenario med justering av barnetillegg
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 22.12.2025 |          |
+      | Sats       | 1516  | 22.12.2025 |          |
+      | Sats       | 1517  | 01.01.2026 |          |
+      | FVA        | 37.5  | 22.12.2025 |          |
+      | Egenandel  | 0     | 22.12.2025|          |
+    Når meldekort for periode som begynner fra og med 22.12.2025 mottas med
+      | Dag     | type                    | verdi |
+      | Mandag  | Arbeidstimer            | 8.5    |
+      | Tirsdag | Arbeidstimer            | 0     |
+      | Onsdag  | Arbeidstimer            | 0     |
+      | Torsdag | Arbeidstimer            | 0     |
+      | Fredag  | Arbeidstimer            | 0     |
+      | Lørdag  | Arbeidstimer            | 0     |
+      | Søndag  | Arbeidstimer            | 0     |
+      | Mandag  | Arbeidstimer            | 0     |
+      | Tirsdag | Arbeidstimer            | 0     |
+      | Onsdag  | Arbeidstimer            | 0     |
+      | Torsdag | Arbeidstimer            | 0     |
+      | Fredag  | Arbeidstimer            | 7.5   |
+      | Lørdag  | Arbeidstimer            | 6     |
+      | Søndag  | Arbeidstimer            | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 10714 kroner
+    Og utbetales 1071 kroner på dag 1
+    Og utbetales 1071 kroner på dag 2
+    Og utbetales 1071 kroner på dag 3
+    Og utbetales 1071 kroner på dag 4
+    Og utbetales 1071 kroner på dag 5
+    Og utbetales 1071 kroner på dag 6
+    Og utbetales 1071 kroner på dag 7
+    Og utbetales 1073 kroner på dag 8
+    Og utbetales 1072 kroner på dag 9
+    Og utbetales 1072 kroner på dag 10
+    Og det forbrukes 10 dager
+
+
