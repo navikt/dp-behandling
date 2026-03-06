@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Utledning
 import no.nav.dagpenger.opplysning.finn
 
 class HvisSannMedResultat<T : Comparable<T>>(
@@ -16,8 +17,25 @@ class HvisSannMedResultat<T : Comparable<T>>(
         produsenter: Map<Opplysningstype<*>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
-        besøkt.add(this)
-        if (opplysninger.har(produserer)) return
+        if (besøkt.contains(this)) return else besøkt.add(this)
+
+        val produkt = opplysninger.finnNullableOpplysning(produserer)
+        if (produkt != null && produkt.utledetAv != null) {
+            // Sjekk om produktet er basert på erstattet informasjon. Legg til planen for denne regelen hvis det er tilfelle, ellers er produktet fortsatt gyldig og regelen trenger ikke å kjøres på nytt
+            // denne henger sammen med sjekken for utdatert som lager plan for alle opplysninger som er utdatert, slik at de blir erstattet og denne regelen blir kjørt på nytt.
+            val (erstattet, ikkeErstattet) = produkt.utledetAv.opplysninger.partition { opplysninger.erErstattet(listOf(it)) }
+            if (erstattet.isNotEmpty()) {
+                plan.add(this)
+            }
+            // Sjekk om produktet er basert på utdaterte opplysninger. Lag plan for disse hvis det er tilfelle, ellers er produktet fortsatt gyldig og regelen trenger ikke å kjøres på nytt
+            val utdaterte = ikkeErstattet.filter { it.erUtdatert }
+            if (utdaterte.isNotEmpty()) {
+                utdaterte.forEach { produsenter[it.opplysningstype]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
+            }
+            // Produktet er fortsatt gyldig, ingen grunn til å kjøre regelen på nytt
+            return
+        }
+
         if (opplysninger.mangler(sjekk)) {
             produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter, besøkt)
             return
