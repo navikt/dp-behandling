@@ -146,7 +146,8 @@ object Dagpengegrunnlag {
             skalRevurderes {
                 // TODO: Må være ekte vurdering av om grunnlag skal fastsettes
                 // TODO: bruktBeregningsregel er en hack for å få kjørt på nytt når utfall har endret seg
-                !it.har(grunnlag) || it.mangler(bruktBeregningsregel)
+                // /!it.har(grunnlag) || it.mangler(bruktBeregningsregel)
+                it.kunEgne.har(inntektFraSkatt)
             }
 
             regel(antallÅrI36Måneder) { somUtgangspunkt(3.0) }

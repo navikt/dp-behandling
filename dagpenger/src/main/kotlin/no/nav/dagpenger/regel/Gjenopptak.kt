@@ -25,7 +25,7 @@ object Gjenopptak {
     private val antallUker =
         Opplysningstype.heltall(antallDagerForbruktId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker)
 
-    private val gjennoptaksdato = Søknadstidspunkt.prøvingsdato
+    private val gjenopptaksdato = Søknadstidspunkt.prøvingsdato
     private val sisteDatoForKravTilGjenopptak =
         Opplysningstype.dato(
             sisteDatoForKravTilGjenopptakId,
@@ -46,7 +46,7 @@ object Gjenopptak {
             regel(antallUker) { somUtgangspunkt(52) }
             regel(sisteForbruksdag) { sisteAv(forbruktedager) }
             regel(sisteDatoForKravTilGjenopptak) { leggTilUker(sisteForbruksdag, antallUker) }
-            utfall(skalGjenopptas) { førEllerLik(gjennoptaksdato, sisteDatoForKravTilGjenopptak) }
+            utfall(skalGjenopptas) { førEllerLik(gjenopptaksdato, sisteDatoForKravTilGjenopptak) }
         }
 
     val regelsettArbeidI12ukerEllerMer =
