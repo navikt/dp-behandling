@@ -32,6 +32,7 @@ object Egenandel {
             folketrygden.hjemmel(4, 9, "Egenandel", "Egenandel"),
         ) {
             skalVurderes { kravPåDagpenger(it) }
+            skalRevurderes { it.mangler(egenandel) }
 
             regel(antallDagsatsIEgenandel) { oppslag(prøvingsdato) { 3.0 } }
             regel(treGangerDagsats) { multiplikasjon(sats, antallDagsatsIEgenandel) }
