@@ -24,13 +24,11 @@ import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.verdier.Beløp
-import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Behov.Inntekt
 import no.nav.dagpenger.regel.Behov.OpptjeningsperiodeFraOgMed
 import no.nav.dagpenger.regel.GrenseverdierForMinsteArbeidsinntekt.finnTerskel
-import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.OpplysningsTyper.BruttoArbeidsinntektId
 import no.nav.dagpenger.regel.OpplysningsTyper.FørsteMånedAvOpptjeningsperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnbeløpId

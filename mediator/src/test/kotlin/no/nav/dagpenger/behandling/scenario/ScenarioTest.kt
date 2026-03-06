@@ -24,11 +24,16 @@ import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.november
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.behandling.scenario.ScenarioTest.Formatter.lagBrev
+import no.nav.dagpenger.inntekt.v1.InntektKlasse
+import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
+import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Minsteinntekt
+import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.ReellArbeidssøker
@@ -50,6 +55,7 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriod
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 class ScenarioTest {
@@ -367,6 +373,80 @@ class ScenarioTest {
                     this[0].opprinnelse shouldBe Periodestatus.Arvet
                     this[1].opprinnelse shouldBe Periodestatus.Arvet
                     this[2].opprinnelse shouldBe Periodestatus.Ny
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `tester å hente inn inntekt på nytt ved gjenopptak `() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Opprett stans
+            person.opprettBehandling(22.juli(2018))
+            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Gjenoppta
+            val gjenopptaksdato = 23.august(2018)
+            person.søkGjenopptak(gjenopptaksdato)
+            behovsløsere.løsTilForslag()
+
+            val inntekt =
+                no.nav.dagpenger.inntekt.v1.Inntekt(
+                    inntektsId = "01J677GHJRC2H08Q55DASFD0XX",
+                    inntektsListe =
+                        listOf(
+                            KlassifisertInntektMåned(
+                                årMåned = YearMonth.from(gjenopptaksdato.minusMonths(2)),
+                                klassifiserteInntekter =
+                                    listOf(
+                                        KlassifisertInntekt(beløp = 6000000.toBigDecimal(), inntektKlasse = InntektKlasse.ARBEIDSINNTEKT),
+                                    ),
+                                harAvvik = false,
+                            ),
+                        ),
+                    sisteAvsluttendeKalenderMåned = YearMonth.from(gjenopptaksdato.minusMonths(2)),
+                )
+
+            saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(gjenopptaksdato))
+
+            saksbehandler.endreOpplysning(inntektFraSkatt, Inntekt(inntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe "Gjenopptak"
+
+                with(opplysninger(dagpengegrunnlag)) {
+                    this shouldHaveSize 2
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Ny
+                }
+
+                with(opplysninger(grunnlag)) {
+                    this shouldHaveSize 2
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Ny
+                }
+
+                with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
+                    this shouldHaveSize 2
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Ny
                 }
             }
         }
