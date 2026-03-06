@@ -25,9 +25,6 @@ import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.november
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.behandling.scenario.ScenarioTest.Formatter.lagBrev
-import no.nav.dagpenger.inntekt.v1.InntektKlasse
-import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
-import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.Alderskrav
@@ -56,7 +53,6 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriod
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 class ScenarioTest {
@@ -367,7 +363,7 @@ class ScenarioTest {
                 rettighetsperioder[2].harRett shouldBe true
                 rettighetsperioder[2].fraOgMed shouldBe 23.august(2018)
 
-                opplysninger shouldHaveSize 219
+                opplysninger shouldHaveSize 220
 
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 3
@@ -402,28 +398,36 @@ class ScenarioTest {
             val gjenopptaksdato = 23.august(2018)
             person.søkGjenopptak(gjenopptaksdato)
             behovsløsere.løsTilForslag()
-
-            val inntekt =
-                no.nav.dagpenger.inntekt.v1.Inntekt(
-                    inntektsId = "01J677GHJRC2H08Q55DASFD0XX",
-                    inntektsListe =
-                        listOf(
-                            KlassifisertInntektMåned(
-                                årMåned = YearMonth.from(gjenopptaksdato.minusMonths(2)),
-                                klassifiserteInntekter =
-                                    listOf(
-                                        KlassifisertInntekt(beløp = 6000000.toBigDecimal(), inntektKlasse = InntektKlasse.ARBEIDSINNTEKT),
-                                    ),
-                                harAvvik = false,
-                            ),
-                        ),
-                    sisteAvsluttendeKalenderMåned = YearMonth.from(gjenopptaksdato.minusMonths(2)),
-                )
-
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(gjenopptaksdato))
             saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(gjenopptaksdato))
 
-            saksbehandler.endreOpplysning(inntektFraSkatt, Inntekt(inntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
+            // Legg inn en inntekt som gir et lavere grunnlag
+            val lavereInntekt = person.inntekt(300000, gjenopptaksdato.minusMonths(2))
+            saksbehandler.endreOpplysning(inntektFraSkatt, Inntekt(lavereInntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
+
+            behandlingsresultatForslag {
+                with(opplysninger(grunnlag)) {
+                    this shouldHaveSize 2
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[0].verdi.verdi shouldBe 517349
+
+                    // Den nye inntekten er ikke nok å bli valgt
+                    this[1].opprinnelse shouldBe Periodestatus.Ny
+                    this[1].verdi.verdi shouldBe this[0].verdi.verdi
+                }
+
+                with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
+                    this shouldHaveSize 2
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Ny
+
+                    // Sats endres heller ikke
+                    this[1].verdi.verdi shouldBe this[0].verdi.verdi
+                }
+            }
+
+            val høyereInntekt = person.inntekt(600000, gjenopptaksdato.minusMonths(2))
+            saksbehandler.endreOpplysning(inntektFraSkatt, Inntekt(høyereInntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -441,13 +445,18 @@ class ScenarioTest {
                 with(opplysninger(grunnlag)) {
                     this shouldHaveSize 2
                     this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[0].verdi.verdi shouldBe 517349
+
                     this[1].opprinnelse shouldBe Periodestatus.Ny
+                    this[1].verdi.verdi shouldBe 581298
                 }
 
                 with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
                     this shouldHaveSize 2
                     this[0].opprinnelse shouldBe Periodestatus.Arvet
                     this[1].opprinnelse shouldBe Periodestatus.Ny
+
+                    (this[1].verdi.verdi as Int) shouldBeGreaterThan (this[0].verdi.verdi as Int)
                 }
             }
         }
