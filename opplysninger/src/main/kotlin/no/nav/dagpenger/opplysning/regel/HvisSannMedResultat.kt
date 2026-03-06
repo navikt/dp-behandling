@@ -16,8 +16,14 @@ class HvisSannMedResultat<T : Comparable<T>>(
         produsenter: Map<Opplysningstype<*>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
-        besøkt.add(this)
-        if (opplysninger.har(produserer)) return
+        if (besøkt.contains(this)) return else besøkt.add(this)
+
+        if (opplysninger.har(produserer)) {
+            // Deleger til Regel sin logikk for endringer
+            besøkt.remove(this)
+            return super.lagPlan(opplysninger, plan, produsenter, besøkt)
+        }
+
         if (opplysninger.mangler(sjekk)) {
             produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter, besøkt)
             return

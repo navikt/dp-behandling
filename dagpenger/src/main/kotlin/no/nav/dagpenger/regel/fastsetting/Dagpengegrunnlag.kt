@@ -14,6 +14,7 @@ import no.nav.dagpenger.opplysning.regel.divisjon
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.høyesteAv
+import no.nav.dagpenger.opplysning.regel.høyesteAvHvisHøyere
 import no.nav.dagpenger.opplysning.regel.inntekt.SummerPeriode
 import no.nav.dagpenger.opplysning.regel.inntekt.filtrerRelevanteInntekter
 import no.nav.dagpenger.opplysning.regel.inntekt.oppjuster
@@ -213,7 +214,7 @@ object Dagpengegrunnlag {
             regel(grunnlagForVernepliktErGunstigst) { størreEnn(grunnlagHvisVerneplikt, dagpengegrunnlag) }
 
             // Velg høyeste grunnlag av ordinært grunnlag og verneplikt
-            regel(grunnlag) { høyesteAv(dagpengegrunnlag, grunnlagHvisVerneplikt) }
+            regel(grunnlag) { høyesteAvHvisHøyere(dagpengegrunnlag, grunnlagHvisVerneplikt) }
 
             // Fastsett om grunnlaget er avkortet
             regel(harAvkortetPeriode1) { størreEnn(inntektperiode1, maksgrenseForGrunnlag) }
