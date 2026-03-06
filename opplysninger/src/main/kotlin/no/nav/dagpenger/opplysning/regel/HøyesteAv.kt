@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
 
-class HøyesteAv<T : Comparable<T>>(
+open class HøyesteAv<T : Comparable<T>>(
     produserer: Opplysningstype<T>,
     vararg val opplysningstyper: Opplysningstype<T>,
 ) : Regel<T>(produserer, opplysningstyper.toList()) {

@@ -14,6 +14,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.uuid.UUIDv7
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
@@ -209,26 +210,35 @@ internal class Mennesket(
                 Behov.AndreØkonomiskeYtelser to false,
             )
 
-    private val inntektV1
-        get() =
-            Inntekt(
-                inntektsId = "01J677GHJRC2H08Q55DASFD0XX",
-                inntektsListe =
-                    listOf(
-                        KlassifisertInntektMåned(
-                            årMåned = YearMonth.from(søknadsdato.minusMonths(2)),
-                            klassifiserteInntekter =
-                                listOf(
-                                    KlassifisertInntekt(
-                                        beløp = inntektSiste12Mnd.toBigDecimal(),
-                                        inntektKlasse = InntektKlasse.ARBEIDSINNTEKT,
-                                    ),
+    private val inntektV1 get() = inntekt(inntektSiste12Mnd.toBigDecimal(), søknadsdato.minusMonths(2))
+
+    fun inntekt(
+        inntekt: Int,
+        fraOgMed: LocalDate,
+    ) = inntekt(inntekt.toBigDecimal(), fraOgMed)
+
+    fun inntekt(
+        inntekt: BigDecimal,
+        fraOgMed: LocalDate,
+    ): Inntekt =
+        Inntekt(
+            inntektsId = "01J677GHJRC2H08Q55DASFD0XX",
+            inntektsListe =
+                listOf(
+                    KlassifisertInntektMåned(
+                        årMåned = YearMonth.from(fraOgMed),
+                        klassifiserteInntekter =
+                            listOf(
+                                KlassifisertInntekt(
+                                    beløp = inntekt,
+                                    inntektKlasse = InntektKlasse.ARBEIDSINNTEKT,
                                 ),
-                            harAvvik = false,
-                        ),
+                            ),
+                        harAvvik = false,
                     ),
-                sisteAvsluttendeKalenderMåned = YearMonth.from(søknadsdato.minusMonths(2)),
-            )
+                ),
+            sisteAvsluttendeKalenderMåned = YearMonth.from(fraOgMed),
+        )
 
     private companion object {
         fun MutableList<UUID>.ny() = UUID.randomUUID().also { add(it) }
