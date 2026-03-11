@@ -1,6 +1,7 @@
-name: Opprett Mermaid Entity Relationship diagram av databasen
+name: Database diagram
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
     paths: [ "mediator/src/main/resources/db/migration/**" ]
