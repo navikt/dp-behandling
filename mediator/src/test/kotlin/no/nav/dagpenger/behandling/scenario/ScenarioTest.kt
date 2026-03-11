@@ -406,6 +406,7 @@ class ScenarioTest {
             saksbehandler.endreOpplysning(inntektFraSkatt, Inntekt(lavereInntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
 
             behandlingsresultatForslag {
+                with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
                 with(opplysninger(grunnlag)) {
                     this shouldHaveSize 2
                     this[0].opprinnelse shouldBe Periodestatus.Arvet
@@ -426,6 +427,7 @@ class ScenarioTest {
                 }
             }
 
+            // Legg inn en inntekt som gir et høyere grunnlag
             val høyereInntekt = person.inntekt(600000, gjenopptaksdato.minusMonths(2))
             saksbehandler.endreOpplysning(inntektFraSkatt, Inntekt(høyereInntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
 
@@ -436,6 +438,7 @@ class ScenarioTest {
             behandlingsresultat {
                 førteTil shouldBe "Gjenopptak"
 
+                with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
                 with(opplysninger(dagpengegrunnlag)) {
                     this shouldHaveSize 2
                     this[0].opprinnelse shouldBe Periodestatus.Arvet

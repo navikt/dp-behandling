@@ -41,15 +41,13 @@ object Gjenopptak {
         vilkår(
             folketrygden.hjemmel(4, 16, "Gjenopptak av løpende stønadsperiode", "Gjenopptak"),
         ) {
-            skalVurderes { opplysninger ->
-                opplysninger.har(hendelseTypeOpplysningstype) &&
+            skalVurderes { opplysninger -> opplysninger.har(hendelseTypeOpplysningstype) &&
                     opplysninger.finnOpplysning(hendelseTypeOpplysningstype).verdi == "SøknadInnsendtHendelse" &&
                     opplysninger.har(harLøpendeRett) &&
                     !opplysninger.finnAlle(harLøpendeRett).last().verdi &&
                     opplysninger.har(
                         forbruktedager,
-                    )
-            }
+                    ) }
 
             regel(antallUker) { somUtgangspunkt(52) }
             regel(sisteForbruksdag) { sisteAv(forbruktedager) }
