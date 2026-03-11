@@ -1,6 +1,6 @@
 kafka:
   pool: nav-dev
-  extra_topic: teamdagpenger.journalforing.v1,teamarenanais.aapen-arena-dagpengeoppgavelogget-v1-q1
+  extra_topic: teamdagpenger.journalforing.v1,teamarenanais.aapen-arena-dagpengeoppgavelogget-v1-q2
 
 ingresses:
   - https://dp-behandling.intern.dev.nav.no
