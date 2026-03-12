@@ -17,3 +17,4 @@ jobs:
       - uses: navikt/flyway2mermaid@v1
         with:
           migrations: mediator/src/main/resources/db/migration/
+          direction: LR
