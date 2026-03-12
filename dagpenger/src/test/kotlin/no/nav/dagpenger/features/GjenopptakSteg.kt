@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 class GjenopptakSteg : No {
     private val regelsett =
-        listOf(Gjenopptak.regelsett, Søknadstidspunkt.regelsett, Beregning.regelsett)
+        listOf(Gjenopptak.regelsett, Søknadstidspunkt.regelsett, Beregning.regelsett, Gjenopptak.regelsettArbeidI12ukerEllerMer)
     private val opplysninger: Opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 
@@ -28,9 +28,19 @@ class GjenopptakSteg : No {
             regelkjøring.evaluer()
         }
 
+        Gitt("har vært i {boolsk} etter siste forbruksdag") { arbeid12UkerEllerMer: Boolean ->
+            opplysninger.leggTil(Faktum(Gjenopptak.oppholdMedArbeidI12ukerEllerMer, arbeid12UkerEllerMer))
+            regelkjøring.evaluer()
+        }
+
         Så("skal gjenopptak være {boolsk}") { gjennoptak: Boolean ->
             val skalGjenoppta = opplysninger.finnOpplysning(Gjenopptak.skalGjenopptas)
             skalGjenoppta.verdi shouldBe gjennoptak
+        }
+
+        Så("skal reberegnes være {boolsk}") { reberegnes: Boolean ->
+            val skalReberegnes = opplysninger.finnOpplysning(Gjenopptak.oppholdMedArbeidI12ukerEllerMer)
+            skalReberegnes.verdi shouldBe reberegnes
         }
     }
 }
