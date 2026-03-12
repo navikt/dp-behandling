@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.antallDagerForbruktId
+import no.nav.dagpenger.regel.OpplysningsTyper.oppholdMedArbeidI12ukerEllerMerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDatoForKravTilGjenopptakId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteforbruksdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalGjenopptasId
@@ -15,6 +16,11 @@ import no.nav.dagpenger.regel.beregning.Beregning
 
 object Gjenopptak {
     val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Skal gjenopptas?")
+    val oppholdMedArbeidI12ukerEllerMer =
+        Opplysningstype.boolsk(
+            oppholdMedArbeidI12ukerEllerMerId,
+            "Har hatt opphold med arbeid i 12 uker eller mer",
+        )
 
     private val antallUker =
         Opplysningstype.heltall(antallDagerForbruktId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker)
@@ -41,5 +47,16 @@ object Gjenopptak {
             regel(sisteForbruksdag) { sisteAv(forbruktedager) }
             regel(sisteDatoForKravTilGjenopptak) { leggTilUker(sisteForbruksdag, antallUker) }
             utfall(skalGjenopptas) { førEllerLik(gjennoptaksdato, sisteDatoForKravTilGjenopptak) }
+        }
+
+    val regelsettArbeidI12ukerEllerMer =
+        vilkår(
+            folketrygden.hjemmel(4, 16, "Reberegning av grunnlag ved gjenopptak", "Gjenopptak reberegning"),
+        ) {
+            skalVurderes { opplysninger ->
+                opplysninger.erSann(skalGjenopptas)
+            }
+
+            utfall(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false) }
         }
 }
