@@ -26,7 +26,7 @@ class ProsessRegelsettBuilder internal constructor(
             regler = regler,
             avklaringer = avklaringer,
             utfall = null,
-            skalKjøres = skalKjøres,
+            skalKjøres = skalVurderes,
             skalRevurderes = skalRevurderes,
             påvirkerResultat = relevant,
             betingelser = emptyList(),

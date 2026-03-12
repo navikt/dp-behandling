@@ -89,6 +89,9 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
+|0194881f-9413-77ce-92ec-d29700f04244|Inntektsopplysninger|InntektDataType|Inntekt|Inntekt|
+|0194881f-9413-77ce-92ec-d29700f04246|Maks lengde på opptjeningsperiode|Heltall|int|| Måneder
+|0194881f-9413-77ce-92ec-d29700f04247|Første måned av opptjeningsperiode|Dato|LocalDate||
 |0194881f-9414-7823-8d29-0e25b7feb7ce|Lovpålagt rapporteringsfrist for A-ordningen|Dato|LocalDate||
 |0194881f-9414-7823-8d29-0e25b7feb7cf|Arbeidsgivers rapporteringsfrist|Dato|LocalDate||
 |0194881f-9414-7823-8d29-0e25b7feb7d0|Siste avsluttende kalendermåned|Dato|LocalDate||
@@ -148,10 +151,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9413-77ce-92ec-d29700f04241|Arbeidsinntekt siste 12 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04242|Arbeidsinntekt siste 36 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04243|Grunnbeløp|Penger|Beløp||
-|0194881f-9413-77ce-92ec-d29700f04244|Inntektsopplysninger|InntektDataType|Inntekt|Inntekt|
 |0194881f-9413-77ce-92ec-d29700f04245|Brutto arbeidsinntekt|InntektDataType|Inntekt||
-|0194881f-9413-77ce-92ec-d29700f04246|Maks lengde på opptjeningsperiode|Heltall|int|| Måneder
-|0194881f-9413-77ce-92ec-d29700f04247|Første måned av opptjeningsperiode|Dato|LocalDate||
 |0194881f-9413-77ce-92ec-d29700f04248|Inntektskrav for siste 12 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f04249|Inntektskrav for siste 36 måneder|Penger|Beløp||
 |0194881f-9413-77ce-92ec-d29700f0424a|Arbeidsinntekt er over kravet for siste 12 måneder|Boolsk|boolean||
@@ -286,7 +286,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Avhenger på data fra
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
-- [§ 4-4. Krav til minsteinntekt](#-4-4-krav-til-minsteinntekt)
+- [§ 1-2. Frist for levering av opplysninger](#-1-2-frist-for-levering-av-opplysninger)
 - [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|

@@ -7,12 +7,14 @@ import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
+import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.OpplysningsTyper.antallDagerForbruktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppholdMedArbeidI12ukerEllerMerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDatoForKravTilGjenopptakId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteforbruksdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalGjenopptasId
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 
 object Gjenopptak {
     val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Skal gjenopptas?")
@@ -40,13 +42,20 @@ object Gjenopptak {
             folketrygden.hjemmel(4, 16, "Gjenopptak av løpende stønadsperiode", "Gjenopptak"),
         ) {
             skalVurderes { opplysninger ->
-                opplysninger.har(forbruktedager)
+                opplysninger.har(hendelseTypeOpplysningstype) &&
+                    opplysninger.finnOpplysning(hendelseTypeOpplysningstype).verdi == "SøknadInnsendtHendelse" &&
+                    opplysninger.har(harLøpendeRett) &&
+                    !opplysninger.finnAlle(harLøpendeRett).last().verdi &&
+                    opplysninger.har(
+                        forbruktedager,
+                    )
             }
 
             regel(antallUker) { somUtgangspunkt(52) }
             regel(sisteForbruksdag) { sisteAv(forbruktedager) }
             regel(sisteDatoForKravTilGjenopptak) { leggTilUker(sisteForbruksdag, antallUker) }
             utfall(skalGjenopptas) { førEllerLik(gjenopptaksdato, sisteDatoForKravTilGjenopptak) }
+            påvirkerResultat { it.har(skalGjenopptas) }
         }
 
     val regelsettArbeidI12ukerEllerMer =

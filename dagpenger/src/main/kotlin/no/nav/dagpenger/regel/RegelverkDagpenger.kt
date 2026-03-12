@@ -27,6 +27,7 @@ val RegelverkDagpenger =
         Dagpengeperiode.regelsett,
         Egenandel.regelsett,
         FulleYtelser.regelsett,
+        Gjenopptak.regelsett,
         KravPåDagpenger.regelsett,
         Meldeplikt.regelsett,
         Minsteinntekt.regelsett,

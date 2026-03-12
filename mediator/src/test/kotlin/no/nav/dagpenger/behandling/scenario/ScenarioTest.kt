@@ -363,7 +363,7 @@ class ScenarioTest {
                 rettighetsperioder[2].harRett shouldBe true
                 rettighetsperioder[2].fraOgMed shouldBe 23.august(2018)
 
-                opplysninger shouldHaveSize 220
+                opplysninger shouldHaveSize 219
 
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 3
