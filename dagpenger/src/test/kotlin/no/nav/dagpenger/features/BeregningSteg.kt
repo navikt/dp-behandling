@@ -16,13 +16,15 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.MeldekortBeregningPlugin
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.terskel
-import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
@@ -67,36 +69,36 @@ class BeregningSteg : No {
             beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
         }
         Så("utbetales {double} kroner") { utbetaling: Double ->
-            beregning.resultat.utbetaling.verdien
+            beregning.utbetaling.verdien
                 .toDouble() shouldBe utbetaling
-            beregning.resultat.forbruksdager
+            beregning.forbruksdager
                 .map { it.tilUtbetaling }
                 .fold(Beløp(0)) { acc, beløp -> acc + beløp }
                 .verdien
                 .toDouble() shouldBe utbetaling
         }
         Så("det forbrukes {int} dager") { dager: Int ->
-            beregning.resultat.forbruksdager.size shouldBe dager
+            beregning.forbruksdager.size shouldBe dager
             // TODO: Bruk attpåklatten !
-            beregning.resultat.forbruksdager.forEach {
+            beregning.forbruksdager.forEach {
                 opplysninger.add(Faktum(forbruk, true, Gyldighetsperiode(it.dag.dato, it.dag.dato)))
             }
         }
         Så("utbetales {double} kroner på dag {int}") { utbetaling: Double, dag: Int ->
-            beregning.resultat.forbruksdager[dag - 1]
+            beregning.forbruksdager[dag - 1]
                 .tilUtbetaling
                 .verdien
                 .toDouble() shouldBe utbetaling
         }
         Så("utbetales {int} kroner etter avrunding på dag {int}") { utbetaling: Int, dag: Int ->
-            beregning.resultat.forbruksdager[dag - 1]
+            beregning.forbruksdager[dag - 1]
                 .tilUtbetaling.verdien
                 .toInt() shouldBe utbetaling
         }
 
         Så("utbetales {int} kroner etter avrunding på dag {int} til {int}") { utbetaling: Int, fraDagNr: Int, tilDagNr: Int ->
             (fraDagNr until tilDagNr).forEach { dag ->
-                beregning.resultat.forbruksdager[dag - 1]
+                beregning.forbruksdager[dag - 1]
                     .tilUtbetaling.verdien
                     .toInt() shouldBe utbetaling
             }
@@ -113,21 +115,23 @@ class BeregningSteg : No {
             opplysninger.add(Faktum(ordinærPeriode, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
         }
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
-            beregning.resultat.forbruktEgenandel.verdien
+            beregning.forbruktEgenandel.verdien
                 .toInt() shouldBe forbruktEgenandel
         }
 
         Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
             val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
-            val forbrukt = beregning.resultat.forbruktEgenandel
+            val forbrukt = beregning.forbruktEgenandel
 
             (egenandel.verdien - forbrukt.verdien).toInt() shouldBe gjenståendeEgenandel
         }
     }
 
     private val beregning by lazy {
-        val opplysninger = opplysninger.somOpplysninger()
-        BeregningsperiodeFabrikk(meldeperiodeFraOgMed, meldeperiodeTilOgMed, opplysninger).lagBeregningsperiode()
+        MeldekortBeregningPlugin().beregnForPeriode(
+            Prosesskontekst(opplysninger.somOpplysninger()),
+            Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed),
+        )
     }
 
     private fun lagVedtak(vedtakstabell: List<MutableMap<String, String>>): List<Opplysning<*>> =

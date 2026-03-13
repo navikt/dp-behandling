@@ -10,7 +10,9 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.utbetaling
+import no.nav.dagpenger.regel.beregning.Beregningresultat
 import no.nav.dagpenger.regel.beregning.BeregningsperiodeFabrikk
+import no.nav.dagpenger.regel.beregning.TerskelTrekkForSenMelding
 
 class MeldekortBeregningPlugin : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
@@ -22,8 +24,19 @@ class MeldekortBeregningPlugin : ProsessPlugin {
     fun beregnForPeriode(
         kontekst: Prosesskontekst,
         meldeperiode: Periode,
-    ) {
+    ): Beregningresultat {
         val opplysninger = kontekst.opplysninger
+
+        val terskelForAntallDagerEnIkkeKanVæreMeldt = TerskelTrekkForSenMelding.forDato(meldeperiode.fraOgMed)
+        val antallIkkeMeldtDager = opplysninger.finnAlle(Beregning.meldt).filterNot { it.verdi }.size
+        opplysninger.leggTil(
+            Faktum(
+                Beregning.meldtITide,
+                (antallIkkeMeldtDager < terskelForAntallDagerEnIkkeKanVæreMeldt),
+                Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed),
+            ),
+        )
+
         val resultat =
             BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
                 .lagBeregningsperiode()
@@ -49,6 +62,8 @@ class MeldekortBeregningPlugin : ProsessPlugin {
                 opplysninger.leggTil(Faktum(forbruk, forbruksdag != null, dagGyldighetsperiode))
                 opplysninger.leggTil(Faktum(utbetaling, forbruksdag?.tilUtbetaling ?: Beløp(0), dagGyldighetsperiode))
             }
+
+        return resultat
     }
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi

@@ -11,23 +11,11 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.tilTimer
 import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.beregning.TerskelTrekkForSenMelding
 
 fun Meldekort.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
     val opplysninger = mutableListOf<Opplysning<*>>()
     opplysninger.addAll(dager.tilOpplysninger(kilde))
     opplysninger.add(Faktum(Beregning.meldedato, meldedato, Gyldighetsperiode(this.fom, this.tom), kilde = kilde))
-
-    val terskelForAntallDagerEnIkkeKanVæreMeldt = TerskelTrekkForSenMelding.forDato(this.fom)
-    val antallIkkeMeldtDager = opplysninger.filter { it.opplysningstype == Beregning.meldt }.count { !(it.verdi as Boolean) }
-    opplysninger.add(
-        Faktum(
-            Beregning.meldtITide,
-            (antallIkkeMeldtDager < terskelForAntallDagerEnIkkeKanVæreMeldt),
-            Gyldighetsperiode(this.fom, this.tom),
-            kilde = kilde,
-        ),
-    )
     return opplysninger.toList()
 }
 
