@@ -99,7 +99,7 @@ class Regelkjøring(
     fun evaluer(): Regelkjøringsrapport =
         prøvingsperiode
             .map { evaluerDag(it) }
-            .reduce { total, regelkjøringsrapport -> total + regelkjøringsrapport }
+            .fold(Regelkjøringsrapport.tomRapport()) { total, regelkjøringsrapport -> total + regelkjøringsrapport }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         aktiverRegler(prøvingsdato)
@@ -255,6 +255,16 @@ data class Regelkjøringsrapport(
             informasjonsbehov = this.informasjonsbehov + other.informasjonsbehov,
             foreldreløse = this.foreldreløse + other.foreldreløse,
         )
+
+    companion object {
+        fun tomRapport(): Regelkjøringsrapport =
+            Regelkjøringsrapport(
+                kjørteRegler = emptySet(),
+                mangler = emptySet(),
+                informasjonsbehov = emptyMap(),
+                foreldreløse = emptySet(),
+            )
+    }
 }
 
 interface RegelkjøringObserver {
