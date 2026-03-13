@@ -54,6 +54,8 @@ object Opptjeningstid {
             regel(førsteMånedAvOpptjeningsperiode) { trekkFraMånedTilFørste(sisteAvsluttendendeKalenderMåned, maksPeriodeLengde) }
 
             regel(inntektFraSkatt) { innhentMed(prøvingsdato, sisteAvsluttendendeKalenderMåned, førsteMånedAvOpptjeningsperiode) }
+
+            ønsketResultat(inntektFraSkatt)
         }
 }
 

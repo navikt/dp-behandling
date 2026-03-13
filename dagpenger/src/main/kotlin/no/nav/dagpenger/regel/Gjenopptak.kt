@@ -47,13 +47,14 @@ object Gjenopptak {
                 // TODO: Sjekk at det faktisk skal gjenopptas
             }
 
-            regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(true) }
+            regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false) }
 
             regel(antallUker) { somUtgangspunkt(52) }
             regel(sisteForbruksdag) { sisteAv(forbruktedager) }
             regel(sisteDatoForKravTilGjenopptak) { leggTilUker(sisteForbruksdag, antallUker) }
             utfall(skalGjenopptas) { førEllerLik(gjenopptaksdato, sisteDatoForKravTilGjenopptak) }
 
+            ønsketResultat(oppholdMedArbeidI12ukerEllerMer)
             påvirkerResultat { it.har(skalGjenopptas) }
         }
 

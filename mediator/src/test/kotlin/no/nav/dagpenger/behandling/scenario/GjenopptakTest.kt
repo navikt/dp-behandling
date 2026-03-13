@@ -12,6 +12,7 @@ import no.nav.dagpenger.behandling.scenario.ScenarioTest.Formatter.lagBrev
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.Gjenopptak
+import no.nav.dagpenger.regel.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
@@ -84,14 +85,14 @@ class GjenopptakTest {
 
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
             saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(23.august(2018)))
-            /*saksbehandler.endreOpplysning(
+            saksbehandler.endreOpplysning(
                 oppholdMedArbeidI12ukerEllerMer,
                 true,
                 "Skal inntekte inntekt på nytt",
                 Gyldighetsperiode(23.august(2018)),
-            )*/
+            )
 
-            // behovsløsere.løsTilForslag()
+            behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
