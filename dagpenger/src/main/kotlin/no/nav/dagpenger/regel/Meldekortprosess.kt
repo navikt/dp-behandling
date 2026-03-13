@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -70,13 +71,14 @@ class Kvotetelling : ProsessPlugin {
 
         dager.forEach {
             if (it.verdi) utgangspunkt++
-            opplysninger.leggTil(Faktum(forbrukt, utgangspunkt, it.gyldighetsperiode))
+            val gyldighetsperiode = Gyldighetsperiode(it.gyldighetsperiode.fraOgMed)
+            opplysninger.leggTil(Faktum(forbrukt, utgangspunkt, gyldighetsperiode))
 
             val gjenståendeDager = innvilgetStønadsdager - utgangspunkt
             // TODO: Dette må vi bygge inn ett annet sted.
             require(gjenståendeDager >= 0) { "Gjenstående dager kan ikke være negativt. Har $gjenståendeDager dager igjen" }
 
-            opplysninger.leggTil(Faktum(Beregning.gjenståendeDager, gjenståendeDager, it.gyldighetsperiode))
+            opplysninger.leggTil(Faktum(Beregning.gjenståendeDager, gjenståendeDager, gyldighetsperiode))
         }
     }
 }

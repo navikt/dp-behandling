@@ -387,6 +387,18 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943d-77a7-969c-147999f15457|Antall stønadsdager|Heltall|int|| Dager
 |0194881f-943d-77a7-969c-147999f15458|Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt|Heltall|int|| Uker
 |0194881f-943d-77a7-969c-147999f15459|Antall stønadsuker (stønadsperiode)|Heltall|int|| Uker
+### § 4-16. Gjenopptak av løpende stønadsperiode
+*Type:* Vilkår
+#### Avhenger på data fra
+- [§ 0-0. Meldekortberegning](#-0-0-meldekortberegning)
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
+|---|---|---|---|---|---|
+|019a2fda-4ad6-7711-89ec-38dec1b86293|Skal gjenopptas?|Boolsk|boolean||
+|019a2feb-305b-77f0-bfa9-7facc0c5480c|Dagen for siste forbruksdag|Dato|LocalDate||
+|019a2ff0-1674-716f-91dd-a454cbff8b19|Kravet til antall uker før gjenopptak|Heltall|int|| Uker
+|019a3001-3cfe-7eae-857b-355c070ce2ec|Siste mulige dato for gjenopptak|Dato|LocalDate||
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer

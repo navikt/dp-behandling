@@ -7,7 +7,6 @@ import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.OpplysningsTyper.antallDagerForbruktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppholdMedArbeidI12ukerEllerMerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDatoForKravTilGjenopptakId
@@ -41,18 +40,20 @@ object Gjenopptak {
         vilkår(
             folketrygden.hjemmel(4, 16, "Gjenopptak av løpende stønadsperiode", "Gjenopptak"),
         ) {
-            skalVurderes { opplysninger -> opplysninger.har(hendelseTypeOpplysningstype) &&
+            skalVurderes { opplysninger ->
+                opplysninger.har(hendelseTypeOpplysningstype) &&
                     opplysninger.finnOpplysning(hendelseTypeOpplysningstype).verdi == "SøknadInnsendtHendelse" &&
-                    opplysninger.har(harLøpendeRett) &&
-                    !opplysninger.finnAlle(harLøpendeRett).last().verdi &&
-                    opplysninger.har(
-                        forbruktedager,
-                    ) }
+                    opplysninger.har(forbruktedager)
+                // TODO: Sjekk at det faktisk skal gjenopptas
+            }
+
+            regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(true) }
 
             regel(antallUker) { somUtgangspunkt(52) }
             regel(sisteForbruksdag) { sisteAv(forbruktedager) }
             regel(sisteDatoForKravTilGjenopptak) { leggTilUker(sisteForbruksdag, antallUker) }
             utfall(skalGjenopptas) { førEllerLik(gjenopptaksdato, sisteDatoForKravTilGjenopptak) }
+
             påvirkerResultat { it.har(skalGjenopptas) }
         }
 
@@ -60,10 +61,8 @@ object Gjenopptak {
         vilkår(
             folketrygden.hjemmel(4, 16, "Reberegning av grunnlag ved gjenopptak", "Gjenopptak reberegning"),
         ) {
-            skalVurderes { opplysninger ->
-                opplysninger.erSann(skalGjenopptas)
-            }
+            skalVurderes { it.erSann(skalGjenopptas) }
 
-            utfall(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false) }
+            utfall(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(true) }
         }
 }
