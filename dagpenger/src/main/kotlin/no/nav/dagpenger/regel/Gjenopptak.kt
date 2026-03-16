@@ -7,11 +7,12 @@ import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
-import no.nav.dagpenger.regel.OpplysningsTyper.antallDagerForbruktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppholdMedArbeidI12ukerEllerMerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDatoForKravTilGjenopptakId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteforbruksdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalGjenopptasId
+import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerNyttGrunnlagId
+import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerSidenSistForbrukId
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 
@@ -23,8 +24,11 @@ object Gjenopptak {
             "Har hatt opphold med arbeid i 12 uker eller mer",
         )
 
+    private val terskelUkerNyttGrunnlag =
+        Opplysningstype.heltall(terskelUkerNyttGrunnlagId, "Antall uker med arbeid for nytt grunnlag", enhet = Enhet.Uker)
+
     private val antallUker =
-        Opplysningstype.heltall(antallDagerForbruktId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker)
+        Opplysningstype.heltall(terskelUkerSidenSistForbrukId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker)
 
     private val gjenopptaksdato = Søknadstidspunkt.prøvingsdato
     private val sisteDatoForKravTilGjenopptak =
@@ -47,6 +51,7 @@ object Gjenopptak {
                 // TODO: Sjekk at det faktisk skal gjenopptas
             }
 
+            regel(terskelUkerNyttGrunnlag) { somUtgangspunkt(12) }
             regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false) }
 
             regel(antallUker) { somUtgangspunkt(52) }
@@ -56,14 +61,5 @@ object Gjenopptak {
 
             ønsketResultat(oppholdMedArbeidI12ukerEllerMer)
             påvirkerResultat { it.har(skalGjenopptas) }
-        }
-
-    val regelsettArbeidI12ukerEllerMer =
-        vilkår(
-            folketrygden.hjemmel(4, 16, "Reberegning av grunnlag ved gjenopptak", "Gjenopptak reberegning"),
-        ) {
-            skalVurderes { it.erSann(skalGjenopptas) }
-
-            utfall(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(true) }
         }
 }

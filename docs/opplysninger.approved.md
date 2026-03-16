@@ -399,6 +399,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019a2feb-305b-77f0-bfa9-7facc0c5480c|Dagen for siste forbruksdag|Dato|LocalDate||
 |019a2ff0-1674-716f-91dd-a454cbff8b19|Kravet til antall uker før gjenopptak|Heltall|int|| Uker
 |019a3001-3cfe-7eae-857b-355c070ce2ec|Siste mulige dato for gjenopptak|Dato|LocalDate||
+|019ce147-cbd3-78a9-8dba-0cc7d10df505|Har hatt opphold med arbeid i 12 uker eller mer|Boolsk|boolean||
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer

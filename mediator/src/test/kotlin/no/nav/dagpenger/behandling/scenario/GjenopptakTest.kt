@@ -327,7 +327,7 @@ class GjenopptakTest {
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
 
-                opplysninger shouldHaveSize 220
+                opplysninger shouldHaveSize 219
 
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 3

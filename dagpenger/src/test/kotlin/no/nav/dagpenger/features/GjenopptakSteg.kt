@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 class GjenopptakSteg : No {
     private val regelsett =
-        listOf(Gjenopptak.regelsett, Søknadstidspunkt.regelsett, Beregning.regelsett, Gjenopptak.regelsettArbeidI12ukerEllerMer)
+        listOf(Gjenopptak.regelsett, Søknadstidspunkt.regelsett, Beregning.regelsett)
     private val opplysninger: Opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 

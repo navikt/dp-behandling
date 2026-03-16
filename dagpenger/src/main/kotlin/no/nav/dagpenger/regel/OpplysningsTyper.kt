@@ -339,7 +339,8 @@ object OpplysningsTyper {
 
     // Gjenopptak
     val skalGjenopptasId = Opplysningstype.Id(UUID.fromString("019a2fda-4ad6-7711-89ec-38dec1b86293"), Boolsk)
-    val antallDagerForbruktId = Opplysningstype.Id(UUID.fromString("019a2ff0-1674-716f-91dd-a454cbff8b19"), Heltall)
+    val terskelUkerSidenSistForbrukId = Opplysningstype.Id(UUID.fromString("019a2ff0-1674-716f-91dd-a454cbff8b19"), Heltall)
+    val terskelUkerNyttGrunnlagId = Opplysningstype.Id(UUID.fromString("019cf5e9-6e7e-7988-9ae5-b91341d5cef0"), Heltall)
     val sisteforbruksdagId = Opplysningstype.Id(UUID.fromString("019a2feb-305b-77f0-bfa9-7facc0c5480c"), Dato)
     val sisteDatoForKravTilGjenopptakId = Opplysningstype.Id(UUID.fromString("019a3001-3cfe-7eae-857b-355c070ce2ec"), Dato)
     val oppholdMedArbeidI12ukerEllerMerId = Opplysningstype.Id(UUID.fromString("019ce147-cbd3-78a9-8dba-0cc7d10df505"), Boolsk)
