@@ -30,38 +30,6 @@ class Opplysninger private constructor(
 
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
-        val erLike: Boolean = eksisterende != null && eksisterende.erLik(opplysning)
-
-        // Lik opplysning som allerede er i egne og ingen andre er utledet av, trenger ikke legges til.
-        // Kan ikke skippe for basertPå – opplysningen må flyttes til egne (for kunEgne-tilgang).
-        if (erLike) {
-            val graf = OpplysningGraf(alleOpplysninger)
-            if (graf.hentAlleUtledetAv(eksisterende).isEmpty()) return
-        }
-
-        // Erstatter-kjeden MÅ settes opp, men nedstrøms skal ikke markeres
-        // som utdatert når verdien er lik (ellers oppstår loop)
-        leggTilIntern(opplysning, markerUtdatert = !erLike)
-    }
-
-    private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
-        val graf = OpplysningGraf(alleOpplysninger)
-        val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
-
-        avhengigheter.forEach { it.erUtdatert = true }
-    }
-
-    override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
-
-    // erLik-sjekk gjelder kun for leggTil (eksternt API).
-    // leggTilUtledet (regelkjøring) må alltid erstatte for å oppdatere utledetAv-referanser.
-    internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTilIntern(opplysning)
-
-    private fun <T : Comparable<T>> leggTilIntern(
-        opplysning: Opplysning<T>,
-        markerUtdatert: Boolean = true,
-    ) {
-        val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende != null) {
             if (egne.contains(eksisterende)) {
@@ -73,19 +41,28 @@ class Opplysninger private constructor(
                     opplysning.erstatter(it)
 
                     // Marker alle opplysninger som er utledet av den erstattede som utdaterte
-                    if (markerUtdatert) markerUtledningerSomUtdatert(it)
+                    markerUtledningerSomUtdatert(it)
                 }
             }
 
             if (basertPåOpplysninger.contains(eksisterende)) {
                 opplysning.erstatter(eksisterende)
-                if (markerUtdatert) markerUtledningerSomUtdatert(eksisterende)
+                markerUtledningerSomUtdatert(eksisterende)
             }
         }
 
         egne.add(opplysning)
         alleOpplysninger.refresh()
     }
+
+    private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
+        val graf = OpplysningGraf(alleOpplysninger)
+        val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
+
+        avhengigheter.forEach { it.erUtdatert = true }
+    }
+
+    override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
 
     override fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T> =
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")

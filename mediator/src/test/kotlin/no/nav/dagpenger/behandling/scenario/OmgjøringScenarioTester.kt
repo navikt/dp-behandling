@@ -274,33 +274,6 @@ class OmgjøringScenarioTester {
     }
 
     @Test
-    fun `omgjøring uten endringer skal føre til ingen endringer`() {
-        nyttScenario {
-            inntektSiste12Mnd = 500000
-        }.test {
-            // Søk og innvilg dagpenger
-            person.søkDagpenger(21.juni(2018))
-            behovsløsere.løsTilForslag()
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            person.sendInnMeldekort(3)
-            meldekortBatch(true)
-            person.sendInnMeldekort(4)
-            meldekortBatch(true)
-
-            // Omgjøring
-            saksbehandler.omgjørBehandling(19.august(2018))
-
-            behandlingsresultatForslag {
-                val nye = opplysninger.filter { nodes -> nodes["perioder"].any { it["opprinnelse"].asText() == "Ny" } }
-                nye.size shouldBe 5
-            }
-        }
-    }
-
-    @Test
     fun `omgjøring ved endring av meldt seg i tide for førstemeldeperiode`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -335,7 +308,7 @@ class OmgjøringScenarioTester {
 
             behandlingsresultatForslag {
                 val nye = opplysninger.filter { nodes -> nodes["perioder"].any { it["opprinnelse"].asText() == "Ny" } }
-                nye.size shouldBe 5
+                nye.size shouldBe 18
             }
 
             Gyldighetsperiode(18.juni(2018), 1.juli(2018)).forEach {

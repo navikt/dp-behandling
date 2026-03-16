@@ -74,7 +74,7 @@ class BeregningTest {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
-                    none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
+                    all { it.opprinnelse == Opplysningsperiode.Periodestatus.Ny } shouldBe true
                     map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                     map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
                         "2018-06-18",
@@ -105,7 +105,7 @@ class BeregningTest {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
-                    forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Arvet }
+                    forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
 
                     map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                     map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
@@ -369,13 +369,10 @@ class BeregningTest {
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 14
 
-                    // Ingen opplysninger om forbruk skal være arvet
-                    val (arvet, nye) = this.partition { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet }
-                    nye.size shouldBe 7
-                    arvet.size shouldBe 7
+                    val nye = this.filter { it.opprinnelse == Opplysningsperiode.Periodestatus.Ny }
+                    nye.size shouldBe 14
 
-                    forbruksdatoer shouldContainExactly nye.mapNotNull { it.gyldigFraOgMed }
-                    ikkeForbruksdatoer shouldContainExactly arvet.mapNotNull { it.gyldigFraOgMed }
+                    (forbruksdatoer + ikkeForbruksdatoer).sortedBy { it } shouldContainExactly nye.mapNotNull { it.gyldigFraOgMed }
 
                     // Første dag i ny meldeperiode
                     this.first().gyldigFraOgMed shouldBe 18.juni(2018)
@@ -523,7 +520,6 @@ class BeregningTest {
         }
     }
 
-    // @Disabled("Dette eksploderer fullstendig på grunn av utenErstattet() i Opplysninger")
     @Test
     fun `vi kan reberegne meldekort når de korrigeres (tidligere periode)`() {
         nyttScenario {
@@ -598,14 +594,13 @@ class BeregningTest {
 
                     // Ingen opplysninger om forbruk skal være arvet
 
-                    val (arvet, nye) = this.partition { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet }
+                    val nye = this.filter { it.opprinnelse == Opplysningsperiode.Periodestatus.Ny }
 
                     // Første dag i ny meldeperiode
                     this.first().gyldigFraOgMed shouldBe 18.juni(2018)
 
-                    // Nå er det jobbet over terskel og det skal ikke være noen forbruksdager for perioden som en jobbet.
-                    nye.filter { it.verdi.verdi == false }.size shouldBe 10
-                    arvet.size shouldBe 32
+                    // Revurderer alt.
+                    nye.filter { it.verdi.verdi == false }.size shouldBe 25
 
                     // Siste dag i meldekort
                     this.last().gyldigFraOgMed shouldBe 29.juli(2018)

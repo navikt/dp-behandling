@@ -161,7 +161,7 @@ class Regelkjøring(
             val opplysning = regel.lagProdukt(opplysningerPåPrøvingsdato)
             kjørteRegler.add(regel)
             plan.remove(regel)
-            opplysninger.leggTilUtledet(opplysning)
+            opplysninger.leggTil(opplysning)
         } catch (e: IllegalArgumentException) {
             logger.info {
                 """
