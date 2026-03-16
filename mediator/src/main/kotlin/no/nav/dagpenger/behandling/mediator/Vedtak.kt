@@ -44,6 +44,7 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.FulleYtelser
+import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold
@@ -247,6 +248,7 @@ internal val opplysningTilVilkårMap =
         Uriktigeopplysninger.oppfyllerVilkårManglendeEllerUriktigeOpplysninger to
             VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_IKKE_GI_MANGELFULL_INFORMASJON,
         Søknad.oppfyllerKravetTilSøknad to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_FRAMSATT_SØKNAD,
+        Gjenopptak.skalGjenopptas to VilkaarNavnDTO.OPPFYLLER_KRAVET_FOR_GJENOPPTAK_AV_STØNADSPERIODE,
     )
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")

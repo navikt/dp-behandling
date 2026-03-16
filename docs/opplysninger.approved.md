@@ -31,6 +31,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019ae986-43bb-7529-af23-9b3d309501eb|Sum av fastsatt vanlig arbeidstid|Desimaltall|double|| Timer
 |019ae986-81bf-7b29-9458-446e6dbaedae|Sum av arbeidede timer|Desimaltall|double|| Timer
 |019ae986-a128-72f0-9868-032bc8a57b21|Prosentfaktor|Desimaltall|double||
+|019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2|Antall dager som er forbrukt|Dato|LocalDate|| Dager
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger
@@ -395,11 +396,12 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
-|019a2fda-4ad6-7711-89ec-38dec1b86293|Skal gjenopptas?|Boolsk|boolean||
+|019a2fda-4ad6-7711-89ec-38dec1b86293|Oppfyller kravet for gjenopptak av stønadsperiode|Boolsk|boolean||
 |019a2feb-305b-77f0-bfa9-7facc0c5480c|Dagen for siste forbruksdag|Dato|LocalDate||
 |019a2ff0-1674-716f-91dd-a454cbff8b19|Kravet til antall uker før gjenopptak|Heltall|int|| Uker
 |019a3001-3cfe-7eae-857b-355c070ce2ec|Siste mulige dato for gjenopptak|Dato|LocalDate||
 |019ce147-cbd3-78a9-8dba-0cc7d10df505|Har hatt opphold med arbeid i 12 uker eller mer|Boolsk|boolean||
+|019cf5e9-6e7e-7988-9ae5-b91341d5cef0|Antall uker med arbeid for nytt grunnlag|Heltall|int|| Uker
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer

@@ -18,6 +18,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.meldedatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
 import no.nav.dagpenger.regel.OpplysningsTyper.prosentfaktorId
+import no.nav.dagpenger.regel.OpplysningsTyper.sisteDagMedForbrukId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumArbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumFvaId
 import no.nav.dagpenger.regel.OpplysningsTyper.taptArbeidIPeriodenId
@@ -43,6 +44,8 @@ object Beregning {
 
     val forbrukt = Opplysningstype.heltall(forbrukteDagerId, "Antall dager som er forbrukt", enhet = Enhet.Dager)
     val gjenståendeDager = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår", enhet = Enhet.Dager)
+
+    val sisteForbruksdag = Opplysningstype.dato(sisteDagMedForbrukId, "Antall dager som er forbrukt", enhet = Enhet.Dager)
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
     val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
@@ -86,6 +89,8 @@ object Beregning {
 
             regel(forbrukt) { tomRegel }
             regel(gjenståendeDager) { tomRegel }
+
+            regel(sisteForbruksdag) { tomRegel }
 
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }

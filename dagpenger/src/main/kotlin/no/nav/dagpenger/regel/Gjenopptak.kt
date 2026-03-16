@@ -17,13 +17,11 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 
 object Gjenopptak {
-    val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Skal gjenopptas?")
     val oppholdMedArbeidI12ukerEllerMer =
         Opplysningstype.boolsk(
             oppholdMedArbeidI12ukerEllerMerId,
             "Har hatt opphold med arbeid i 12 uker eller mer",
         )
-
     private val terskelUkerNyttGrunnlag =
         Opplysningstype.heltall(terskelUkerNyttGrunnlagId, "Antall uker med arbeid for nytt grunnlag", enhet = Enhet.Uker)
 
@@ -31,14 +29,17 @@ object Gjenopptak {
         Opplysningstype.heltall(terskelUkerSidenSistForbrukId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker)
 
     private val gjenopptaksdato = Søknadstidspunkt.prøvingsdato
+
     private val sisteDatoForKravTilGjenopptak =
         Opplysningstype.dato(
             sisteDatoForKravTilGjenopptakId,
             "Siste mulige dato for gjenopptak",
         )
+    private val forbruktedager = Beregning.sisteForbruksdag
 
-    private val forbruktedager = Beregning.forbrukt
     private val sisteForbruksdag = Opplysningstype.dato(sisteforbruksdagId, "Dagen for siste forbruksdag")
+
+    val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Oppfyller kravet for gjenopptak av stønadsperiode")
 
     val regelsett =
         vilkår(
@@ -48,14 +49,15 @@ object Gjenopptak {
                 opplysninger.har(hendelseTypeOpplysningstype) &&
                     opplysninger.finnOpplysning(hendelseTypeOpplysningstype).verdi == "SøknadInnsendtHendelse" &&
                     opplysninger.har(forbruktedager)
-                // TODO: Sjekk at det faktisk skal gjenopptas
+                // TODO: Sjekk at det faktisk skal gjenopptas. Har det vært stanset?
             }
 
             regel(terskelUkerNyttGrunnlag) { somUtgangspunkt(12) }
             regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false) }
 
             regel(antallUker) { somUtgangspunkt(52) }
-            regel(sisteForbruksdag) { sisteAv(forbruktedager) }
+            regel(sisteForbruksdag) { sisteAv(Beregning.sisteForbruksdag) }
+            // TODO: Finn første virkedag etter denne
             regel(sisteDatoForKravTilGjenopptak) { leggTilUker(sisteForbruksdag, antallUker) }
             utfall(skalGjenopptas) { førEllerLik(gjenopptaksdato, sisteDatoForKravTilGjenopptak) }
 

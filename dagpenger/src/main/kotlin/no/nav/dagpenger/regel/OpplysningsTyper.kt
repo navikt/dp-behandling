@@ -334,6 +334,8 @@ object OpplysningsTyper {
     val gjenståendeDagerId = Opplysningstype.Id(UUID.fromString("01992956-e349-76b1-8f68-c9d481df3a32"), Heltall)
     val trekkVedForsenMeldingId = Opplysningstype.Id(UUID.fromString("019a81bf-50e1-7f1d-b23b-f30265b16042"), Boolsk)
 
+    val sisteDagMedForbrukId = Opplysningstype.Id(UUID.fromString("019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2"), Dato)
+
     val taptArbeidIPeriodenId = Opplysningstype.Id(UUID.fromString("01997b70-6e6e-702a-a296-18ae5fb9621d"), Boolsk)
     val gjenståendeEgenandelId = Opplysningstype.Id(UUID.fromString("01997b70-a12c-7622-bff8-82a20687e640"), Penger)
 

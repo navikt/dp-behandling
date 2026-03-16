@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.forbrukt
+import no.nav.dagpenger.regel.beregning.Beregning.sisteForbruksdag
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import java.time.LocalDate
 
@@ -71,14 +72,27 @@ class Kvotetelling : ProsessPlugin {
 
         dager.forEach {
             if (it.verdi) utgangspunkt++
-            val gyldighetsperiode = Gyldighetsperiode(it.gyldighetsperiode.fraOgMed)
-            opplysninger.leggTil(Faktum(forbrukt, utgangspunkt, gyldighetsperiode))
+            opplysninger.leggTil(Faktum(forbrukt, utgangspunkt, it.gyldighetsperiode))
 
             val gjenståendeDager = innvilgetStønadsdager - utgangspunkt
             // TODO: Dette må vi bygge inn ett annet sted.
             require(gjenståendeDager >= 0) { "Gjenstående dager kan ikke være negativt. Har $gjenståendeDager dager igjen" }
 
-            opplysninger.leggTil(Faktum(Beregning.gjenståendeDager, gjenståendeDager, gyldighetsperiode))
+            opplysninger.leggTil(Faktum(Beregning.gjenståendeDager, gjenståendeDager, it.gyldighetsperiode))
+        }
+
+        // Lag en opplysning som sporer siste dag med forbruk
+        // Den må ha åpen sluttdato for å kunne brukes i gjenopptak
+        // Opplysning om forbruk per dag kan ikke ha åpen slutt, da overskrives de fordi alle er i "egne"
+        dager.lastOrNull { it.verdi }?.let {
+            val sisteForbruksdag = it.gyldighetsperiode.fraOgMed
+            opplysninger.leggTil(
+                Faktum(
+                    Beregning.sisteForbruksdag,
+                    sisteForbruksdag,
+                    Gyldighetsperiode(sisteForbruksdag),
+                ),
+            )
         }
     }
 }

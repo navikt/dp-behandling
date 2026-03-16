@@ -20,7 +20,7 @@ class GjenopptakSteg : No {
     init {
         Gitt("at søkeren har hatt en løpende stønadsperiode og har hatt minst en forbruksdag på {dato}") { sisteForbruksdag: LocalDate ->
             regelkjøring = Regelkjøring(sisteForbruksdag, opplysninger, *regelsett.toTypedArray())
-            opplysninger.leggTil(Faktum(Beregning.forbrukt, 1, gyldighetsperiode = Gyldighetsperiode(sisteForbruksdag, sisteForbruksdag)))
+            opplysninger.leggTil(Faktum(Beregning.sisteForbruksdag, sisteForbruksdag, Gyldighetsperiode(sisteForbruksdag)))
         }
 
         Gitt("søker etter gjenopptak på {dato}") { gjenopptaksDato: LocalDate ->
