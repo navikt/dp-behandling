@@ -26,23 +26,24 @@ class MeldekortBeregningPlugin : ProsessPlugin {
         meldeperiode: Periode,
     ): Beregningresultat {
         val opplysninger = kontekst.opplysninger
+        val gyldighetsperiode = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed)
 
         val terskelForAntallDagerEnIkkeKanVæreMeldt = TerskelTrekkForSenMelding.forDato(meldeperiode.fraOgMed)
-        val antallIkkeMeldtDager = opplysninger.finnAlle(Beregning.meldt).filterNot { it.verdi }.size
-        opplysninger.leggTil(
-            Faktum(
-                Beregning.meldtITide,
-                (antallIkkeMeldtDager < terskelForAntallDagerEnIkkeKanVæreMeldt),
-                Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed),
-            ),
-        )
+        val antallIkkeMeldtDager =
+            opplysninger
+                .finnAlle(Beregning.meldt)
+                .filter { it.gyldighetsperiode.overlapp(gyldighetsperiode) }
+                .filterNot { it.verdi }
+                .size
+        val erMeldtITide = antallIkkeMeldtDager < terskelForAntallDagerEnIkkeKanVæreMeldt
+
+        opplysninger.leggTil(Faktum(Beregning.meldtITide, erMeldtITide, gyldighetsperiode))
 
         val resultat =
             BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
                 .lagBeregningsperiode()
                 .resultat
 
-        val gyldighetsperiode = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed)
         opplysninger.leggTil(Faktum(Beregning.forbruktEgenandel, resultat.forbruktEgenandel, gyldighetsperiode))
         opplysninger.leggTil(Faktum(Beregning.utbetalingForPeriode, resultat.utbetaling, gyldighetsperiode))
         opplysninger.leggTil(Faktum(Beregning.gjenståendeEgenandel, resultat.gjenståendeEgenandel, gyldighetsperiode))
