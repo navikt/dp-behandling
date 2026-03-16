@@ -1,7 +1,9 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
@@ -15,6 +17,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerNyttGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerSidenSistForbrukId
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
+import java.time.LocalDate
 
 object Gjenopptak {
     val oppholdMedArbeidI12ukerEllerMer =
@@ -28,7 +31,7 @@ object Gjenopptak {
     private val antallUker =
         Opplysningstype.heltall(terskelUkerSidenSistForbrukId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker)
 
-    private val gjenopptaksdato = Søknadstidspunkt.prøvingsdato
+    val gjenopptaksdato = Søknadstidspunkt.prøvingsdato
 
     private val sisteDatoForKravTilGjenopptak =
         Opplysningstype.dato(
@@ -39,7 +42,21 @@ object Gjenopptak {
 
     private val sisteForbruksdag = Opplysningstype.dato(sisteforbruksdagId, "Dagen for siste forbruksdag")
 
-    val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Oppfyller kravet for gjenopptak av stønadsperiode")
+    val skalGjenopptas =
+        Opplysningstype.boolsk(
+            skalGjenopptasId,
+            "Oppfyller kravet for gjenopptak av stønadsperiode",
+            gyldighetsperiode =
+                GyldighetsperiodeStrategi { _, basertPå ->
+                    val fomDato =
+                        basertPå.find { it.opplysningstype == gjenopptaksdato }?.verdi
+                            ?: throw IllegalStateException("Fant ikke gjenopptaksdato i basertPå")
+                    require(fomDato is LocalDate) { "Gjenopptaksdato må være av typen LocalDate" }
+                    Gyldighetsperiode(
+                        fom = fomDato,
+                    )
+                },
+        )
 
     val regelsett =
         vilkår(
