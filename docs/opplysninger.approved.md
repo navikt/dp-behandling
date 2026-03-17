@@ -31,7 +31,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019ae986-43bb-7529-af23-9b3d309501eb|Sum av fastsatt vanlig arbeidstid|Desimaltall|double|| Timer
 |019ae986-81bf-7b29-9458-446e6dbaedae|Sum av arbeidede timer|Desimaltall|double|| Timer
 |019ae986-a128-72f0-9868-032bc8a57b21|Prosentfaktor|Desimaltall|double||
-|019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2|Antall dager som er forbrukt|Dato|LocalDate|| Dager
+|019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2|Siste forbruksdato|Dato|LocalDate||
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger

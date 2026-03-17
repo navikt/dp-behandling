@@ -129,7 +129,7 @@ graph RL
   CH["Egenandel"] -->|"HvisSannMedResultat"| CI["Permittert fra fiskeindustrien"]
   CH["Egenandel"] -->|"HvisSannMedResultat"| CJ["Ingen egenandel"]
   CH["Egenandel"] -->|"HvisSannMedResultat"| CG["Tre ganger dagsats"]
-  CK["Dagen for siste forbruksdag"] -->|"SisteAv"| CL["Antall dager som er forbrukt"]
+  CK["Dagen for siste forbruksdag"] -->|"SisteAv"| CL["Siste forbruksdato"]
   CM["Siste mulige dato for gjenopptak"] -->|"LeggTilUker"| CK["Dagen for siste forbruksdag"]
   CM["Siste mulige dato for gjenopptak"] -->|"LeggTilUker"| CN["Kravet til antall uker før gjenopptak"]
   CO["Oppfyller kravet for gjenopptak av stønadsperiode"] -->|"FørEllerLik"| F["Prøvingsdato"]
