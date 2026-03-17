@@ -45,7 +45,7 @@ object Beregning {
     val forbrukt = Opplysningstype.heltall(forbrukteDagerId, "Antall dager som er forbrukt", enhet = Enhet.Dager)
     val gjenståendeDager = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår", enhet = Enhet.Dager)
 
-    val sisteForbruksdag = Opplysningstype.dato(sisteDagMedForbrukId, "Antall dager som er forbrukt", enhet = Enhet.Dager)
+    val sisteForbruksdag = Opplysningstype.dato(sisteDagMedForbrukId, "Siste forbruksdato")
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
     val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
