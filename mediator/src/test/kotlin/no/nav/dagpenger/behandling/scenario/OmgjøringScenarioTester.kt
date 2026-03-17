@@ -132,7 +132,6 @@ class OmgjøringScenarioTester {
             // Omgjøring
             saksbehandler.omgjørBehandling(1.august(2018))
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(1.august(2018)))
-            // saksbehandler.endreOpplysning(Gjenopptak.skalGjenopptas, true, "Endrer gjenopptaksdato", Gyldighetsperiode(1.august(2018)))
             saksbehandler.endreOpplysning(
                 OmgjøringUtenKlage.ansesUgyldigVedtak,
                 true,
@@ -254,16 +253,13 @@ class OmgjøringScenarioTester {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 4
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 25.januar(2018)
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].tilOgMed shouldBe 13.februar(2018)
-                rettighetsperioder[2].harRett shouldBe false
-                rettighetsperioder[2].fraOgMed shouldBe 14.februar(2018)
-                rettighetsperioder[3].harRett shouldBe true
-                rettighetsperioder[3].fraOgMed shouldBe 19.februar(2018)
+                rettighetsperioder shouldHaveSize 3
+                rettighetsperioderSomTabell shouldBe
+                    listOf(
+                        Triple(true, 1.januar(2018), 24.januar(2018)),
+                        Triple(false, 25.januar(2018), 18.februar(2018)),
+                        Triple(true, 19.februar(2018), null),
+                    )
 
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 42

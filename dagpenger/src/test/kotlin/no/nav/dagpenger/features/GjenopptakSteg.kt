@@ -25,6 +25,7 @@ class GjenopptakSteg : No {
 
         Gitt("søker etter gjenopptak på {dato}") { gjenopptaksDato: LocalDate ->
             opplysninger.leggTil(Faktum(Søknadstidspunkt.prøvingsdato, gjenopptaksDato))
+            regelkjøring = Regelkjøring(gjenopptaksDato, opplysninger, *regelsett.toTypedArray())
             regelkjøring.evaluer()
         }
 

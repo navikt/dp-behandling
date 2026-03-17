@@ -68,7 +68,9 @@ object Gjenopptak {
                     opplysninger.har(forbruktedager)
                 // TODO: Sjekk at det faktisk skal gjenopptas. Har det vært stanset?
             }
-
+            skalRevurderes { opplysninger ->
+                opplysninger.mangler(skalGjenopptas)
+            }
             regel(terskelUkerNyttGrunnlag) { somUtgangspunkt(12) }
             regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false) }
 
