@@ -13,6 +13,7 @@ import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -142,6 +143,10 @@ class OmgjøringScenarioTester {
             saksbehandler.beslutt()
 
             behandlingsresultat {
+                with(opplysninger(Gjenopptak.skalGjenopptas)) {
+                    this shouldHaveSize 1
+                    this.single().gyldigFraOgMed shouldBe 1.august(2018)
+                }
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27698
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true

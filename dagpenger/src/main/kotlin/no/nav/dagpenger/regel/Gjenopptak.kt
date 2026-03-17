@@ -57,7 +57,6 @@ object Gjenopptak {
                     )
                 },
         )
-
     val regelsett =
         vilkår(
             folketrygden.hjemmel(4, 16, "Gjenopptak av løpende stønadsperiode", "Gjenopptak"),
@@ -68,9 +67,9 @@ object Gjenopptak {
                     opplysninger.har(forbruktedager)
                 // TODO: Sjekk at det faktisk skal gjenopptas. Har det vært stanset?
             }
-            skalRevurderes { opplysninger ->
-                opplysninger.mangler(skalGjenopptas)
-            }
+
+            // skalRevurderes { opplysninger -> opplysninger.mangler(skalGjenopptas) }
+
             regel(terskelUkerNyttGrunnlag) { somUtgangspunkt(12) }
             regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false) }
 

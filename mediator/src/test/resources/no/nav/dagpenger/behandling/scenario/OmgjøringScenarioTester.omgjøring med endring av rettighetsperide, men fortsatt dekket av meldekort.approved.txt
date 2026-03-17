@@ -119,6 +119,14 @@ Behov:
 - RegistrertSomArbeidssøker
 Behov:
 - RegistrertSomArbeidssøker
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+Behov:
+- RegistrertSomArbeidssøker
 Behov:
 - RegistrertSomArbeidssøker
 Behov:
