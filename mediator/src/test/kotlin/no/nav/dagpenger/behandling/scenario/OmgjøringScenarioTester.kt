@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.comparables.shouldBeLessThan
@@ -7,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.dato.februar
@@ -269,6 +271,139 @@ class OmgjøringScenarioTester {
                 }
 
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeLessThan 27991
+            }
+        }
+    }
+
+    @Test
+    fun `vi kan reberegne meldekort når de korrigeres (forrige periode)`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+
+            // Send inn meldekort
+            val meldekortId = person.sendInnMeldekort(1)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+
+            // Verifiser at vi lager en avklaring om meldekort (så de ikke går automatisk i testfasen)
+            person.avklaringer.first().kode shouldBe "MeldekortBehandling"
+
+            behandlingsresultat {
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    // Første dag i meldekort
+                    this.first().gyldigFraOgMed shouldBe 18.juni(2018)
+
+                    // Første forbruksdag
+                    this.first { it.verdi.verdi == true }.gyldigFraOgMed shouldBe 21.juni(2018)
+
+                    // Siste dag i meldekort
+                    this.last().gyldigFraOgMed shouldBe 1.juli(2018)
+                }
+
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    first().verdi.verdi shouldBe 5036
+                }
+
+                with(opplysninger(Beregning.gjenståendeEgenandel)) {
+                    this shouldHaveSize 1
+                    first().verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.forbruktEgenandel)) {
+                    this shouldHaveSize 1
+                    first().verdi.verdi shouldBe 3777
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 1
+                    first().verdi.verdi shouldBe true
+                }
+            }
+
+            // Send inn korrigering av forrige meldekort
+            person.sendInnMeldekort(1, korrigeringAv = meldekortId, timer = List(14) { 7 })
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch()
+
+            // Verifiser at vi lager en avklaring om korrigert meldekort
+            person.avklaringer.first().kode shouldBe "KorrigertMeldekortBehandling"
+
+            // Vi lager et forslag om reberegning av forrige periode
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    // Ingen opplysninger om forbruk skal være arvet
+                    this.none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
+
+                    // Første dag i ny meldeperiode
+                    this.first().gyldigFraOgMed shouldBe 18.juni(2018)
+
+                    // Nå er det jobbet over terskel og det skal ikke være noen forbruksdager
+                    this.none { it.verdi.verdi == true } shouldBe true
+
+                    // Siste dag i meldekort
+                    this.last().gyldigFraOgMed shouldBe 1.juli(2018)
+                }
+
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    first().verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 1
+                    // Jobber 7 timer hver dag og vil være over terskel
+                    first().verdi.verdi shouldBe false
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `vi sperrer behandling av meldekort når de korrigerer en periode for langt bak i tid`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            val meldekortId = person.sendInnMeldekort(2)
+            person.sendInnMeldekort(3)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+            meldekortBatch(true)
+            meldekortBatch(true)
+
+            // Send inn korrigering av forrige meldekort
+            person.sendInnMeldekort(2, korrigeringAv = meldekortId, timer = List(14) { 7 })
+
+            // Saksbehandler omgjør
+            saksbehandler.omgjørBehandling(2.august(2018))
+
+            person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
+
+            // Avklaringen kan ikke lukkes av saksbehandler
+            shouldThrow<IllegalArgumentException> {
+                saksbehandler.lukkAlleAvklaringer()
             }
         }
     }

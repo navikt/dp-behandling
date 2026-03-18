@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.hendelse
 
+import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
@@ -7,6 +8,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
@@ -41,6 +43,15 @@ class OmgjøringHendelse(
 
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
 
+        val beregnedeMeldekort =
+            buildList {
+                traverserBehandlingskjede(forrigeBehandling) {
+                    add(it.behandler.eksternId)
+                }
+            }.filterIsInstance<MeldekortId>()
+
+        val meldekortkorrigeringer = meldekortkorrigeringerSupplier(beregnedeMeldekort)
+
         return Behandling(
             basertPå = forrigeBehandling,
             behandler =
@@ -54,9 +65,23 @@ class OmgjøringHendelse(
                     forretningsprosess = forretningsprosess,
                 ),
             opplysninger = emptyList(),
-            avklaringer = emptyList(),
-        ).also {
-            it.opplysninger.leggTil(
+            avklaringer =
+                if (meldekortkorrigeringer.isEmpty()) {
+                    emptyList()
+                } else {
+                    listOf(
+                        Avklaring(
+                            Avklaringkode(
+                                kode = "KorrigertMeldekortBehandling",
+                                tittel = "Beregning av korrigert meldekort",
+                                beskrivelse = "Behandlingen er korrigering av et tidligere meldekort og kan ikke automatisk behandles",
+                                kanAvbrytes = false,
+                            ),
+                        ),
+                    )
+                },
+        ).also { nyBehandling ->
+            nyBehandling.opplysninger.leggTil(
                 Faktum(
                     hendelseTypeOpplysningstype,
                     type,
@@ -64,6 +89,19 @@ class OmgjøringHendelse(
                     kilde = kilde,
                 ),
             )
+            val meldekortOpplysninger = meldekortkorrigeringer.flatMap { it.tilOpplysninger(kilde) }
+            meldekortOpplysninger.forEach { nyBehandling.opplysninger.leggTil(it) }
         }
+    }
+}
+
+private fun traverserBehandlingskjede(
+    startbehandling: Behandling,
+    gjørNoe: (Behandling) -> Unit,
+) {
+    var pointer: Behandling? = startbehandling
+    while (pointer != null) {
+        gjørNoe(pointer)
+        pointer = pointer.basertPå
     }
 }

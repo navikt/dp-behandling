@@ -49,6 +49,22 @@ class MeldekortBehandlingskøTest {
         }
     }
 
+    @Test
+    fun `tester kø med korrigeringer`() {
+        withMigratedDb {
+            val meldekort = MeldekortBehandlingskø(personRepository, meldekortRepository, rapid)
+            lagPerson(1.januar(2024))
+
+            val person = meldekortRepository.generatorFor(ident, 1.januar(2024))
+            person.lagMeldekort(1)
+            person.lagKorrigering(1) { listOf() }
+
+            // begge meldekortene er korrigert
+            meldekort.sendMeldekortTilBehandling()
+            rapid.inspektør.size shouldBe 0
+        }
+    }
+
     private fun lagPerson(innvilget: LocalDate) {
         every {
             personRepository.rettighetstatusFor(ident.tilPersonIdentfikator())

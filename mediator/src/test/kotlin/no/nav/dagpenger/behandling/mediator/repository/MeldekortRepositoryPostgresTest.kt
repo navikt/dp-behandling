@@ -192,12 +192,12 @@ class MeldekortRepositoryPostgresTest {
             }
 
             // Korrigering av meldekort 4 er nå meldekort 11 i kjeden.
-            // Det skal behandles før meldekort 5.
-            // Meldekort 4 skal ikke behandles
+            // Meldekort 4 skal ikke behandles,
+            // derfor blir Meldekort 5 neste i køen
             with(repo.hentMeldekortkø().behandlingsklare) {
                 shouldHaveSize(2)
                 forPerson(person1) shouldBe person1.meldekort(1)
-                forPerson(person2) shouldBe person2.meldekort(11)
+                forPerson(person2) shouldBe person2.meldekort(5)
             }
 
             // Marker korrigeringen (meldekort 11) av meldekort 4 som ferdig

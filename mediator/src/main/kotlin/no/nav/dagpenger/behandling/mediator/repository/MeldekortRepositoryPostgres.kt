@@ -55,7 +55,8 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         SELECT DISTINCT ON (ident) *
                         FROM meldekort
                         WHERE behandling_ferdig IS NULL
-                          AND korrigert_av_meldekort_id IS NULL
+                          AND korrigert_av_meldekort_id IS NULL -- velger ikke meldekort som er korrigert av andre 
+                          AND korrigert_meldekort_id IS NULL    -- velger ikke meldekortet som korrigerer andre 
                           AND satt_på_vent IS NULL
                           AND CASE
                                   -- Meldekortet er innsendt etter tilOgMed (altså forsinket) - da skal det behandles umiddelbart
@@ -109,7 +110,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     """
                 SELECT m.* FROM meldekort m 
                 INNER JOIN meldekort erstatning ON m.korrigert_av_meldekort_id = erstatning.meldekort_id
-                WHERE m.meldekort_id = ANY(:originale) and m.behandling_startet is null
+                WHERE m.meldekort_id = ANY(:originale) and erstatning.behandling_startet is null
                 """,
                     mapOf("originale" to originale.map { it.id }.toTypedArray()),
                 ).map { row ->
