@@ -895,6 +895,25 @@ class Behandling private constructor(
             }
             behandling.tilstand(Redigert(), hendelse)
         }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: FlyttBehandlingHendelse,
+        ) {
+            hendelse.info("Flytter behandlingen ${behandling.behandlingId} til ${hendelse.nyBasertPåId ?: "ny kjede"}")
+
+            val egneOpplysninger = behandling.opplysninger.somListe()
+            behandling.opplysninger.fjernHvis { opplysning ->
+                val utledetAvOpplysninger = opplysning.utledetAv?.opplysninger ?: return@fjernHvis false
+                // Fjern opplysning hvis det finnes noen opplysninger i utledetAv er basert på opplysninger fra tidligere behandlinger
+                utledetAvOpplysninger.any { it !in egneOpplysninger }
+            }
+
+            // Legg til ekstra opplysninger som er nødvendige for å starte ny kjede
+            hendelse.leggTilOpplysninger(behandling.opplysninger)
+
+            behandling.tilstand(Redigert(), hendelse)
+        }
     }
 
     private class TilBeslutning(

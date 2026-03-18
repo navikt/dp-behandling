@@ -101,6 +101,7 @@ object Gjenopptak {
             utfall(skalGjenopptas) { alle(harForbrukt, harGjenstående, harSøktInnenFrist, skalGjenopptakVurderes) }
 
             ønsketResultat(terskelUkerNyttGrunnlag, oppholdMedArbeidI12ukerEllerMer)
+
             påvirkerResultat { it.har(skalGjenopptas) }
         }
 }
