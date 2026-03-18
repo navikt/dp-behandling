@@ -16,6 +16,7 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.beregning.Beregning.forbrukt
 import no.nav.dagpenger.regel.beregning.Beregning.sisteForbruksdag
+import no.nav.dagpenger.regel.beregning.Beregning.sisteGjenståendeDager
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import java.time.LocalDate
 
@@ -90,6 +91,13 @@ class Kvotetelling : ProsessPlugin {
                 Faktum(
                     Beregning.sisteForbruksdag,
                     sisteForbruksdag,
+                    Gyldighetsperiode(sisteForbruksdag),
+                ),
+            )
+            opplysninger.leggTil(
+                Faktum(
+                    Beregning.sisteGjenståendeDager,
+                    55,
                     Gyldighetsperiode(sisteForbruksdag),
                 ),
             )

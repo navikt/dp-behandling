@@ -10,6 +10,8 @@ Dette er opplysninger som blir brukt av regelverket.
 ## Regelsett
 ### § 0-0. Meldekortberegning
 *Type:* Fastsettelse
+#### Avhenger på data fra
+- [§ 4-15. Antall stønadsuker (stønadsperiode)](#-4-15-antall-stønadsuker-(stønadsperiode))
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
 |---|---|---|---|---|---|
@@ -32,6 +34,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019ae986-81bf-7b29-9458-446e6dbaedae|Sum av arbeidede timer|Desimaltall|double|| Timer
 |019ae986-a128-72f0-9868-032bc8a57b21|Prosentfaktor|Desimaltall|double||
 |019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2|Siste forbruksdato|Dato|LocalDate||
+|019d007f-8696-7409-bd51-f4fbfc4babb4|Siste antall dager som gjenstår|Heltall|int|| Dager
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger
@@ -55,6 +58,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9444-7a73-a458-0af81c034d8b|Rettighetstype|Boolsk|boolean||
 |0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kravet til reell arbeidssøker er relevant|Boolsk|boolean||
 |01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Boolsk|boolean||
+|019d0068-8037-7d91-bfff-de88f9e87fd3|Skal kravet til gjenopptak vurderes|Boolsk|boolean||
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
 #### Avklaringer
@@ -392,6 +396,7 @@ Dette er opplysninger som blir brukt av regelverket.
 *Type:* Vilkår
 #### Avhenger på data fra
 - [§ 0-0. Meldekortberegning](#-0-0-meldekortberegning)
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
@@ -402,6 +407,11 @@ Dette er opplysninger som blir brukt av regelverket.
 |019a3001-3cfe-7eae-857b-355c070ce2ec|Siste mulige dato for gjenopptak|Dato|LocalDate||
 |019ce147-cbd3-78a9-8dba-0cc7d10df505|Har hatt opphold med arbeid i 12 uker eller mer|Boolsk|boolean||
 |019cf5e9-6e7e-7988-9ae5-b91341d5cef0|Antall uker med arbeid for nytt grunnlag|Heltall|int|| Uker
+|019d0059-0e34-76a7-ab91-42925a1d03a3|Antall gjenstående dager for å kunne gjenoppta|Heltall|int|| Dager
+|019d0059-315e-71a0-a538-71e74a281a30|Har startet forbruk av stønadsperiode|Boolsk|boolean||
+|019d0059-6cde-7184-8383-736d18e3f9f7|Har periode igjen å gjenoppta|Boolsk|boolean||
+|019d0059-a863-7074-ac2d-5a7086a45e8d|Har søkt innen fristen for gjenopptak|Boolsk|boolean||
+|019d0062-e45b-70e3-92ec-dd29b5d6c9fb|Første virkedag i avbruddsperiode|Dato|LocalDate||
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer

@@ -18,7 +18,7 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.Opphold
-import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -144,9 +144,9 @@ class OmgjøringScenarioTester {
             // Omgjøring
             saksbehandler.omgjørBehandling(1.august(2018))
             saksbehandler.endreOpplysning(
-                Søknadstidspunkt.prøvingsdato,
-                1.august(2018),
-                "Endrer prøvingsdato til 1. august, som er første mulige dato for gjenopptak",
+                skalGjenopptakVurderes,
+                true,
+                "Endrer kravet om gjenopptak til 1. august, som er første mulige dato for gjenopptak",
                 Gyldighetsperiode(1.august(2018)),
             )
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(1.august(2018)))

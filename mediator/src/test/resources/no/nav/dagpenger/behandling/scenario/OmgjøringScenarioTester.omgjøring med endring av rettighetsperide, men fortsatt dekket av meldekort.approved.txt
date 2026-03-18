@@ -119,18 +119,19 @@ Behov:
 - RegistrertSomArbeidssøker
 Behov:
 - RegistrertSomArbeidssøker
+Behov:
+- RegistrertSomArbeidssøker
+Behov:
+- RegistrertSomArbeidssøker
+Behov:
+- RegistrertSomArbeidssøker
+Behov:
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
 - Foreldrepenger
 - Svangerskapspenger
-Behov:
-- RegistrertSomArbeidssøker
-Behov:
-- RegistrertSomArbeidssøker
-Behov:
-- RegistrertSomArbeidssøker
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig

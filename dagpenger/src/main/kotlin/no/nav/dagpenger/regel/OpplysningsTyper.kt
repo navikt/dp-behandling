@@ -152,6 +152,7 @@ object OpplysningsTyper {
     val KravTilArbeidssøkerId = Opplysningstype.Id(UUID.fromString("0194881f-9442-707b-a6ee-e96c06877be2"), Boolsk)
     val ErReellArbeidssøkerVurdertId = Opplysningstype.Id(UUID.fromString("0194ff86-a035-7eb0-9c60-21899f7cc0c1"), Boolsk)
     val SkalVernepliktVurderesId = Opplysningstype.Id(UUID.fromString("01980cf4-9010-7bcf-b578-ca5a825d64ef"), Boolsk)
+    val skalGjenopptakVurderesId = Opplysningstype.Id(UUID.fromString("019d0068-8037-7d91-bfff-de88f9e87fd3"), Boolsk)
     val OrdinærId = Opplysningstype.Id(UUID.fromString("0194881f-9444-7a73-a458-0af81c034d85"), Boolsk)
     val PermittertId = Opplysningstype.Id(UUID.fromString("0194881f-9444-7a73-a458-0af81c034d86"), Boolsk)
     val LønnsgarantiId = Opplysningstype.Id(UUID.fromString("0194881f-9444-7a73-a458-0af81c034d87"), Boolsk)
@@ -335,15 +336,21 @@ object OpplysningsTyper {
     val trekkVedForsenMeldingId = Opplysningstype.Id(UUID.fromString("019a81bf-50e1-7f1d-b23b-f30265b16042"), Boolsk)
 
     val sisteDagMedForbrukId = Opplysningstype.Id(UUID.fromString("019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2"), Dato)
+    val sisteGjenståendeDagerId = Opplysningstype.Id(UUID.fromString("019d007f-8696-7409-bd51-f4fbfc4babb4"), Heltall)
 
     val taptArbeidIPeriodenId = Opplysningstype.Id(UUID.fromString("01997b70-6e6e-702a-a296-18ae5fb9621d"), Boolsk)
     val gjenståendeEgenandelId = Opplysningstype.Id(UUID.fromString("01997b70-a12c-7622-bff8-82a20687e640"), Penger)
 
     // Gjenopptak
     val skalGjenopptasId = Opplysningstype.Id(UUID.fromString("019a2fda-4ad6-7711-89ec-38dec1b86293"), Boolsk)
+    val minimumGjenståendeDagerId = Opplysningstype.Id(UUID.fromString("019d0059-0e34-76a7-ab91-42925a1d03a3"), Heltall)
+    val harForbruktId = Opplysningstype.Id(UUID.fromString("019d0059-315e-71a0-a538-71e74a281a30"), Boolsk)
+    val harGjenståendeId = Opplysningstype.Id(UUID.fromString("019d0059-6cde-7184-8383-736d18e3f9f7"), Boolsk)
+    val harSøktInnenFristId = Opplysningstype.Id(UUID.fromString("019d0059-a863-7074-ac2d-5a7086a45e8d"), Boolsk)
     val terskelUkerSidenSistForbrukId = Opplysningstype.Id(UUID.fromString("019a2ff0-1674-716f-91dd-a454cbff8b19"), Heltall)
     val terskelUkerNyttGrunnlagId = Opplysningstype.Id(UUID.fromString("019cf5e9-6e7e-7988-9ae5-b91341d5cef0"), Heltall)
     val sisteforbruksdagId = Opplysningstype.Id(UUID.fromString("019a2feb-305b-77f0-bfa9-7facc0c5480c"), Dato)
+    val førsteAvbruddsdagId = Opplysningstype.Id(UUID.fromString("019d0062-e45b-70e3-92ec-dd29b5d6c9fb"), Dato)
     val sisteDatoForKravTilGjenopptakId = Opplysningstype.Id(UUID.fromString("019a3001-3cfe-7eae-857b-355c070ce2ec"), Dato)
     val oppholdMedArbeidI12ukerEllerMerId = Opplysningstype.Id(UUID.fromString("019ce147-cbd3-78a9-8dba-0cc7d10df505"), Boolsk)
 

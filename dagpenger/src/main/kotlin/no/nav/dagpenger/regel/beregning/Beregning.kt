@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
+import no.nav.dagpenger.opplysning.regel.høyesteAv
 import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
@@ -19,6 +20,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
 import no.nav.dagpenger.regel.OpplysningsTyper.prosentfaktorId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDagMedForbrukId
+import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendeDagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumArbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumFvaId
 import no.nav.dagpenger.regel.OpplysningsTyper.taptArbeidIPeriodenId
@@ -26,6 +28,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.terskelId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingForPeriodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
+import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
 import java.time.LocalDate
 
 object Beregning {
@@ -46,6 +49,7 @@ object Beregning {
     val gjenståendeDager = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår", enhet = Enhet.Dager)
 
     val sisteForbruksdag = Opplysningstype.dato(sisteDagMedForbrukId, "Siste forbruksdato")
+    val sisteGjenståendeDager = Opplysningstype.heltall(sisteGjenståendeDagerId, "Siste antall dager som gjenstår", enhet = Enhet.Dager)
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
     val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
@@ -91,6 +95,8 @@ object Beregning {
             regel(gjenståendeDager) { tomRegel }
 
             regel(sisteForbruksdag) { tomRegel }
+            // TODO: Lag en egen verdiAv()-regel?
+            regel(sisteGjenståendeDager) { høyesteAv(antallStønadsdager) }
 
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
