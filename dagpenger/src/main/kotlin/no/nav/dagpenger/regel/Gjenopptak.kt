@@ -78,7 +78,7 @@ object Gjenopptak {
             regel(sisteDatoForKravTilGjenopptak) { leggTilUker(sisteForbruksdag, antallUker) }
             utfall(skalGjenopptas) { førEllerLik(gjenopptaksdato, sisteDatoForKravTilGjenopptak) }
 
-            ønsketResultat(oppholdMedArbeidI12ukerEllerMer)
+            ønsketResultat(terskelUkerNyttGrunnlag, oppholdMedArbeidI12ukerEllerMer)
             påvirkerResultat { it.har(skalGjenopptas) }
         }
 }
