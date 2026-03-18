@@ -225,6 +225,48 @@ class MeldekortRepositoryPostgresTest {
     }
 
     @Test
+    fun hentKorrigeringer() {
+        withMigratedDb {
+            val repo = MeldekortRepositoryPostgres()
+            val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
+
+            val person1 = repo.generatorFor("111111111", 1.januar(2024), meldingGenerator)
+
+            person1.lagMeldekort(3)
+
+            // Behandler det første meldekortet for person 1
+            person1.markerFerdig(1)
+
+            // Person 1 korrigerer meldekort 2 og 3 før vi har behandlet det
+            person1.lagKorrigering(2) {
+                listOf()
+            }
+            person1.markerFerdig(2)
+
+            person1.lagKorrigering(3) {
+                listOf()
+            }
+
+            with(
+                repo.hentKorrigeringer(
+                    listOf(
+                        person1.meldekort(1).eksternMeldekortId,
+                        person1.meldekort(2).eksternMeldekortId,
+                        person1.meldekort(3).eksternMeldekortId,
+                    ),
+                ),
+            ) {
+                shouldHaveSize(1)
+                shouldBe(
+                    listOf(
+                        person1.meldekort(3),
+                    ),
+                )
+            }
+        }
+    }
+
+    @Test
     fun `plukker ikke meldekort som er sendt inn før meldedag`() {
         withMigratedDb {
             val repo = MeldekortRepositoryPostgres()

@@ -101,6 +101,23 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             )
         }
 
+    override fun hentKorrigeringer(originale: List<MeldekortId>): List<Meldekort> =
+        sessionOf(dataSource).use { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                SELECT m.* FROM meldekort m 
+                INNER JOIN meldekort erstatning ON m.korrigert_av_meldekort_id = erstatning.meldekort_id
+                WHERE m.meldekort_id = ANY(:originale) and m.behandling_startet is null
+                """,
+                    mapOf("originale" to originale.map { it.id }.toTypedArray()),
+                ).map { row ->
+                    row.meldekort(session)
+                }.asList,
+            )
+        }
+
     override fun behandlingStartet(meldekortId: MeldekortId) {
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->

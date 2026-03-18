@@ -138,6 +138,8 @@ interface MeldekortRepository {
 
     fun hent(meldekortId: UUID): Meldekort?
 
+    fun hentKorrigeringer(originale: List<MeldekortId>): List<Meldekort>
+
     fun behandlingStartet(meldekortId: MeldekortId)
 
     fun markerSomFerdig(meldekortId: MeldekortId)
