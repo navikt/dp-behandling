@@ -111,6 +111,7 @@ internal class ApplicationBuilder(
                             auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapid),
                             opplysningstyper = opplysningstyper,
                             apiRepositoryPostgres = apiRepositoryPostgres,
+                            meldekortRepository = meldekortRepositoryPostgres,
                             meterRegistry,
                         ) { ident: String -> ApiMessageContext(rapid, ident) }
                         simuleringApi()

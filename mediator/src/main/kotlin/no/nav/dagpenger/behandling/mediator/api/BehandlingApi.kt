@@ -49,6 +49,7 @@ import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.barnMapper
 import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.mediator.toMap
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
@@ -96,6 +97,7 @@ internal fun Application.behandlingApi(
     auditlogg: Auditlogg,
     opplysningstyper: Set<Opplysningstype<*>>,
     apiRepositoryPostgres: ApiRepositoryPostgres,
+    meldekortRepository: MeldekortRepository,
     meterRegistry: PrometheusMeterRegistry? = null,
     messageContext: (ident: String) -> MessageContext,
 ) {
@@ -183,6 +185,7 @@ internal fun Application.behandlingApi(
                                     eksternId = OmgjøringId(id),
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
+                                    meldekortkorrigeringerSupplier = meldekortRepository::hentKorrigeringer,
                                 )
                             }
 

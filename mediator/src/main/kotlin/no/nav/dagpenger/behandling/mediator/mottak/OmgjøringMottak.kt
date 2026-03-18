@@ -9,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.uuid.UUIDv7
@@ -16,6 +17,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 internal class OmgjøringMottak(
     rapidsConnection: RapidsConnection,
     private val hendelseMediator: IMessageMediator,
+    private val meldekortRepository: MeldekortRepository,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
@@ -34,13 +36,14 @@ internal class OmgjøringMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val message = OmgjøringMessage(packet)
+        val message = OmgjøringMessage(packet, meldekortRepository)
         message.behandle(hendelseMediator, context)
     }
 }
 
 internal class OmgjøringMessage(
     packet: JsonMessage,
+    meldekortRepository: MeldekortRepository,
 ) : KafkaMelding(packet) {
     override val ident: String = packet["ident"].asText()
     private val hendelse =
@@ -50,6 +53,7 @@ internal class OmgjøringMessage(
             eksternId = OmgjøringId(UUIDv7.ny()),
             gjelderDato = packet["gjelderDato"].asLocalDate(),
             opprettet = opprettet,
+            meldekortkorrigeringerSupplier = meldekortRepository::hentKorrigeringer,
         )
 
     override fun behandle(

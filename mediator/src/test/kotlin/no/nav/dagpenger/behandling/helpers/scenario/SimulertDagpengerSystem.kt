@@ -88,6 +88,7 @@ internal class SimulertDagpengerSystem(
             auditlogg,
             RegelverkDagpenger.produserer,
             apiRepositoryPostgres,
+            meldekortRepository,
         ) { rapid }
     }
 
