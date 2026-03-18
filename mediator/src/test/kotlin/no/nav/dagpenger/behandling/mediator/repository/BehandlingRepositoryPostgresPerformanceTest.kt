@@ -111,8 +111,8 @@ class BehandlingRepositoryPostgresPerformanceTest {
 
             // Verifiser at behandlingen ble hentet korrekt
             hentetBehandling.shouldNotBeNull()
-            hentetBehandling!!.behandlingId shouldBe sisteBehandling.behandlingId
-            hentetBehandling!!.opplysninger().somListe().size shouldBe antallOpplysningerPerBehandling
+            hentetBehandling.behandlingId shouldBe sisteBehandling.behandlingId
+            hentetBehandling.opplysninger().somListe().size shouldBe antallOpplysningerPerBehandling
 
             // Hent alle behandlinger for å måle gjennomsnittlig hentetid
             var totalHentTid = 0L
@@ -248,6 +248,7 @@ class BehandlingRepositoryPostgresPerformanceTest {
             Søknadstype.NySøknad,
         )
 
+    @Suppress("UNCHECKED_CAST")
     private fun leggTilOpplysninger(
         opplysninger: Opplysninger,
         behandlingNummer: Int,
@@ -268,42 +269,53 @@ class BehandlingRepositoryPostgresPerformanceTest {
 
             val faktum =
                 when (opplysningstype.datatype) {
-                    is Desimaltall ->
+                    is Desimaltall -> {
                         Faktum(
                             opplysningstype = opplysningstype as Opplysningstype<Double>,
                             verdi = (i * 1.5),
                             gyldighetsperiode = gyldighetsperiode,
                         )
-                    is Boolsk ->
+                    }
+
+                    is Boolsk -> {
                         Faktum(
                             opplysningstype = opplysningstype as Opplysningstype<Boolean>,
                             verdi = i % 2 == 0,
                             gyldighetsperiode = gyldighetsperiode,
                         )
-                    is Heltall ->
+                    }
+
+                    is Heltall -> {
                         Faktum(
                             opplysningstype = opplysningstype as Opplysningstype<Int>,
                             verdi = i,
                             gyldighetsperiode = gyldighetsperiode,
                         )
-                    is Dato ->
+                    }
+
+                    is Dato -> {
                         Faktum(
                             opplysningstype = opplysningstype as Opplysningstype<LocalDate>,
                             verdi = LocalDate.now().plusDays(i.toLong()),
                             gyldighetsperiode = gyldighetsperiode,
                         )
-                    is Tekst ->
+                    }
+
+                    is Tekst -> {
                         Faktum(
                             opplysningstype = opplysningstype as Opplysningstype<String>,
                             verdi = "verdi-$index",
                             gyldighetsperiode = gyldighetsperiode,
                         )
-                    else ->
+                    }
+
+                    else -> {
                         Faktum(
                             opplysningstype = opplysningstype as Opplysningstype<Double>,
                             verdi = (i * 1.0),
                             gyldighetsperiode = gyldighetsperiode,
                         )
+                    }
                 }
 
             opplysninger.leggTil(faktum)
@@ -313,31 +325,40 @@ class BehandlingRepositoryPostgresPerformanceTest {
     private fun genererOpplysningstyper(antall: Int): List<Opplysningstype<*>> =
         (0 until antall).map { i ->
             when (i % 5) {
-                0 ->
+                0 -> {
                     Opplysningstype.desimaltall(
                         Opplysningstype.Id(UUIDv7.ny(), Desimaltall),
                         "perf-opplysning-desimal-$i",
                     )
-                1 ->
+                }
+
+                1 -> {
                     Opplysningstype.boolsk(
                         Opplysningstype.Id(UUIDv7.ny(), Boolsk),
                         "perf-opplysning-bool-$i",
                     )
-                2 ->
+                }
+
+                2 -> {
                     Opplysningstype.heltall(
                         Opplysningstype.Id(UUIDv7.ny(), Heltall),
                         "perf-opplysning-heltall-$i",
                     )
-                3 ->
+                }
+
+                3 -> {
                     Opplysningstype.dato(
                         Opplysningstype.Id(UUIDv7.ny(), Dato),
                         "perf-opplysning-dato-$i",
                     )
-                else ->
+                }
+
+                else -> {
                     Opplysningstype.tekst(
                         Opplysningstype.Id(UUIDv7.ny(), Tekst),
                         "perf-opplysning-tekst-$i",
                     )
+                }
             }
         }
 }
