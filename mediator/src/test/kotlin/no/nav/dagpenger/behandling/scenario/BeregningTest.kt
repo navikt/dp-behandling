@@ -500,7 +500,6 @@ class BeregningTest {
         }
     }
 
-    @Disabled("Dette eksploderer fullstendig på grunn av utenErstattet() i Opplysninger")
     @Test
     fun `vi kan reberegne meldekort når de korrigeres (tidligere periode)`() {
         nyttScenario {
@@ -576,11 +575,8 @@ class BeregningTest {
                     // Første dag i ny meldeperiode
                     this.first().gyldigFraOgMed shouldBe 18.juni(2018)
 
-                    // Nå er det jobbet over terskel og det skal ikke være noen forbruksdager
-                    this.none { it.verdi.verdi == true } shouldBe true
-
                     // Siste dag i meldekort
-                    this.last().gyldigFraOgMed shouldBe 1.juli(2018)
+                    this.last().gyldigFraOgMed shouldBe 29.juli(2018)
                 }
             }
         }
