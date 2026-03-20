@@ -14,6 +14,7 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Meldekortprosess
+import no.nav.dagpenger.regel.Omgjøringsprosess
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDateTime
@@ -31,7 +32,9 @@ class BeregnMeldekortHendelse(
         skjedde = meldekort.innsendtTidspunkt.toLocalDate(),
         opprettet = opprettet,
     ) {
-    override val forretningsprosess = Meldekortprosess()
+    override val forretningsprosess get() = if (harBeregnetPeriodenEtterDenne) Omgjøringsprosess() else Meldekortprosess()
+
+    private var harBeregnetPeriodenEtterDenne: Boolean = false
 
     override fun behandling(
         forrigeBehandling: Behandling?,
@@ -78,7 +81,7 @@ class BeregnMeldekortHendelse(
                                 .opplysninger
                                 .finnAlle(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)
                                 .lastOrNull()
-                        val harBeregnetPeriodenEtterDenne =
+                        harBeregnetPeriodenEtterDenne =
                             sisteBeregnedeDato
                                 ?.gyldighetsperiode
                                 ?.tilOgMed

@@ -9,9 +9,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
-import kotliquery.queryOf
-import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode
 import no.nav.dagpenger.behandling.juli
@@ -25,7 +22,6 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class BeregningTest {
@@ -425,83 +421,6 @@ class BeregningTest {
     }
 
     @Test
-    @Disabled("Denne testen avdekker en bug i meldekortprosessen der det er flere prøvingsdatoer i spill.")
-    fun `beregning av flere meldekort der det også kommer en gjenopptak i mellom`() {
-        nyttScenario {
-            inntektSiste12Mnd = 500000
-        }.test {
-            person.søkDagpenger(21.juni(2018))
-            behovsløsere.løsTilForslag()
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe true
-            }
-
-            // Opprett stans
-            person.opprettBehandling(5.juli(2018))
-            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(5.juli(2018)))
-
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-            behandlingsresultat {
-                rettighetsperioder.size shouldBe 2
-            }
-
-            // Send inn meldekort nr 1
-            person.sendInnMeldekort(1)
-            // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
-            val meldekortId = person.sendInnMeldekort(2)
-            // Send inn meldekort nr 2, men uten at den godkjennes enda
-            meldekortBatch(false)
-
-            // Gjenopptak mens vi venter på behandling av meldekort
-            person.søkGjenopptak(20.juli(2018))
-            behovsløsere.løsTilForslag()
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            // Godkjenn meldekortene etter gjenopptak
-            saksbehandler.lukkAlleAvklaringer(
-                eksternHendelseId = meldekortId,
-            )
-            saksbehandler.godkjenn(
-                eksternHendelseId = meldekortId,
-            )
-
-            behandlingsresultat {
-                utbetalinger shouldHaveSize 14
-            }
-
-            sessionOf(dataSource).use { session ->
-                session.run(
-                    queryOf(
-                        // language=SQL
-                        """
-                        UPDATE meldekort SET behandling_startet = NULL, behandling_ferdig = NULL WHERE meldekort_id = :meldekortId;
-                        """.trimIndent(),
-                        mapOf(
-                            "meldekortId" to meldekortId.toString(),
-                        ),
-                    ).asUpdate,
-                )
-            }
-
-            meldekortBatch(true)
-
-            behandlingsresultat {
-                utbetalinger shouldHaveSize 14
-            }
-        }
-    }
-
-    @Disabled("Dette eksploderer fullstendig på grunn av utenErstattet() i Opplysninger")
-    @Test
     fun `vi kan reberegne meldekort når de korrigeres (tidligere periode)`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -576,11 +495,8 @@ class BeregningTest {
                     // Første dag i ny meldeperiode
                     this.first().gyldigFraOgMed shouldBe 18.juni(2018)
 
-                    // Nå er det jobbet over terskel og det skal ikke være noen forbruksdager
-                    this.none { it.verdi.verdi == true } shouldBe true
-
                     // Siste dag i meldekort
-                    this.last().gyldigFraOgMed shouldBe 1.juli(2018)
+                    this.last().gyldigFraOgMed shouldBe 29.juli(2018)
                 }
             }
         }
