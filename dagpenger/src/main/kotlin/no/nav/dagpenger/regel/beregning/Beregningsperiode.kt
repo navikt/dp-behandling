@@ -4,31 +4,6 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 
-data class Bøtte(
-    val arbeidsdager: List<Arbeidsdag>,
-    val egenandel: Beløp,
-    val utbetalt: Beløp,
-    val reminder: Beløp = Beløp(utbetalt.verdien % arbeidsdager.size.toBigDecimal()),
-    val dagsbeløp: Beløp = ((utbetalt - reminder) / Beløp(arbeidsdager.size.toBigDecimal())),
-    val beløpSisteDag: Beløp = dagsbeløp + reminder,
-)
-
-data class Beregningresultat(
-    val utbetaling: Beløp,
-    val forbruktEgenandel: Beløp,
-    val forbruksdager: List<Forbruksdag>,
-    val gjenståendeEgenandel: Beløp,
-    val oppfyllerKravTilTaptArbeidstid: Boolean,
-    val sumFva: Timer,
-    val sumArbeidstimer: Timer,
-    val prosentfaktor: Double,
-) {
-    data class Forbruksdag(
-        val dag: Dag,
-        val tilUtbetaling: Beløp,
-    )
-}
-
 class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Beløp,
     dager: Set<Dag>,
@@ -75,73 +50,65 @@ class Beregningsperiode private constructor(
     }
 
     private fun beregnUtbetaling(): Beregningresultat {
-        if (!oppfyllerKravTilTaptArbeidstid) {
-            return Beregningresultat(
-                utbetaling = Beløp(verdi = 0),
-                forbruktEgenandel = Beløp(0),
-                forbruksdager = emptyList(),
-                gjenståendeEgenandel = gjenståendeEgenandel,
-                oppfyllerKravTilTaptArbeidstid = false,
-                sumFva = sumFva,
-                sumArbeidstimer = timerArbeidet,
-                prosentfaktor = prosentfaktor.timer,
-            )
-        }
+        if (!oppfyllerKravTilTaptArbeidstid) return ingenUtbetaling()
 
-        val dagerGruppertPåSats = arbeidsdager.groupBy { it.sats }
-        val dagerGruppertPåSatsGradert =
-            dagerGruppertPåSats.map { (sats, dager) ->
-                ((sats * dager.size) * prosentfaktor) to dager
-            }
+        // Grupper arbeidsdager etter dagsats og beregn gradert brutto per gruppe
+        val satsgrupper =
+            arbeidsdager
+                .groupBy { it.sats }
+                .map { (sats, dager) ->
+                    val sum = sats * dager.size
+                    val gradert = sum * prosentfaktor
+                    SatsGruppe(dager, gradert)
+                }
 
-        val sumFørEgenAndelstrekk = Beløp(dagerGruppertPåSatsGradert.sumOf { it.first.verdien })
+        val totalBrutto = Beløp(satsgrupper.sumOf { it.bruttoBeløp.verdien })
 
-        val bøtter =
-            dagerGruppertPåSatsGradert.map { (bøtteSum, arbeidsdager) ->
-                val bøtteStørrelseIProsent =
-                    if (sumFørEgenAndelstrekk == Beløp(0.0)) {
-                        0.0.toBigDecimal()
-                    } else {
-                        (bøtteSum / sumFørEgenAndelstrekk).verdien
-                    }
-                val egenandel =
-                    minOf(
-                        sumFørEgenAndelstrekk,
-                        Beløp(gjenståendeEgenandel.verdien * bøtteStørrelseIProsent).avrundetBeløp,
-                    )
-                Bøtte(
-                    arbeidsdager = arbeidsdager,
-                    egenandel = egenandel,
-                    utbetalt = (bøtteSum - egenandel).avrundetBeløp,
-                )
-            }
-
+        // Fordel egenandel proporsjonalt og beregn utbetaling per dag
         val forbruksdager =
-            bøtter
-                .flatMap { bøtte ->
-                    bøtte.arbeidsdager.map { dag ->
-                        val tilUtbetaling =
-                            if (dag.dato.isEqual(bøtte.arbeidsdager.last().dato)) {
-                                bøtte.beløpSisteDag
-                            } else {
-                                bøtte.dagsbeløp
-                            }
-                        Beregningresultat.Forbruksdag(dag, tilUtbetaling)
-                    }
+            satsgrupper
+                .flatMap { gruppe ->
+                    val egenandelForPeriode = egenandelForPeriode(gruppe.bruttoBeløp, totalBrutto)
+                    val nettoBeløp = (gruppe.bruttoBeløp - egenandelForPeriode).avrundetBeløp
+                    gruppe.fordelPåDager(nettoBeløp)
                 }.sortedBy { it.dag.dato }
 
-        val forbruktEgenandel = Beløp(bøtter.sumOf { it.egenandel.verdien })
+        val forbruktEgenandel = Beløp(satsgrupper.sumOf { egenandelForPeriode(it.bruttoBeløp, totalBrutto).verdien })
+
         return Beregningresultat(
-            utbetaling = Beløp(bøtter.sumOf { it.utbetalt.verdien }),
+            utbetaling = Beløp(forbruksdager.sumOf { it.tilUtbetaling.verdien }),
             forbruktEgenandel = forbruktEgenandel,
-            sumFva = sumFva,
-            sumArbeidstimer = timerArbeidet,
-            prosentfaktor = prosentfaktor.timer,
             forbruksdager = forbruksdager,
             gjenståendeEgenandel = gjenståendeEgenandel - forbruktEgenandel,
             oppfyllerKravTilTaptArbeidstid = true,
+            sumFva = sumFva,
+            sumArbeidstimer = timerArbeidet,
+            prosentfaktor = prosentfaktor.timer,
         )
     }
+
+    /** Beregner gruppens proporsjonale andel av egenandelen basert på gruppens andel av total brutto. */
+    private fun egenandelForPeriode(
+        gruppeBrutto: Beløp,
+        totalBrutto: Beløp,
+    ): Beløp {
+        if (totalBrutto == Beløp(0.0)) return Beløp(0)
+        val andel = (gruppeBrutto / totalBrutto).verdien
+        // Sørg for at vi ikke trekker mer enn det som utbetales i perioden
+        return minOf(totalBrutto, Beløp(gjenståendeEgenandel.verdien * andel).avrundetBeløp)
+    }
+
+    private fun ingenUtbetaling() =
+        Beregningresultat(
+            utbetaling = Beløp(verdi = 0),
+            forbruktEgenandel = Beløp(0),
+            forbruksdager = emptyList(),
+            gjenståendeEgenandel = gjenståendeEgenandel,
+            oppfyllerKravTilTaptArbeidstid = false,
+            sumFva = sumFva,
+            sumArbeidstimer = timerArbeidet,
+            prosentfaktor = prosentfaktor.timer,
+        )
 
     internal fun interface Terskelstrategi {
         fun beregnTerskel(dager: Set<Arbeidsdag>): Double
@@ -150,5 +117,40 @@ class Beregningsperiode private constructor(
     companion object {
         private val snitterskel: Terskelstrategi =
             Terskelstrategi { it.sumOf { arbeidsdag -> arbeidsdag.terskel }.toDouble() / it.size }
+    }
+}
+
+data class Beregningresultat(
+    val utbetaling: Beløp,
+    val forbruktEgenandel: Beløp,
+    val forbruksdager: List<Forbruksdag>,
+    val gjenståendeEgenandel: Beløp,
+    val oppfyllerKravTilTaptArbeidstid: Boolean,
+    val sumFva: Timer,
+    val sumArbeidstimer: Timer,
+    val prosentfaktor: Double,
+) {
+    data class Forbruksdag(
+        val dag: Dag,
+        val tilUtbetaling: Beløp,
+    )
+}
+
+/** Arbeidsdager med lik dagsats, med beregnet brutto utbetaling (sats × antall dager × prosentfaktor). */
+private class SatsGruppe(
+    val arbeidsdager: List<Arbeidsdag>,
+    val bruttoBeløp: Beløp,
+) {
+    /** Fordeler et beløp jevnt på arbeidsdager, med eventuell øre-rest på siste dag. */
+    fun fordelPåDager(beløp: Beløp): List<Beregningresultat.Forbruksdag> {
+        if (arbeidsdager.isEmpty()) return emptyList()
+        val antall = arbeidsdager.size.toBigDecimal()
+        val rest = Beløp(beløp.verdien % antall)
+        val dagsbeløp = (beløp - rest) / Beløp(antall)
+        return arbeidsdager.mapIndexed { index, dag ->
+            val erSisteDag = index == arbeidsdager.lastIndex
+            val tilUtbetaling = if (erSisteDag) dagsbeløp + rest else dagsbeløp
+            Beregningresultat.Forbruksdag(dag, tilUtbetaling)
+        }
     }
 }
