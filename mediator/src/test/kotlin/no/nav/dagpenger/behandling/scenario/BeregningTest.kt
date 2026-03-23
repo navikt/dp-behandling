@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.scenario
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldBeMonotonicallyIncreasing
 import io.kotest.matchers.collections.shouldContainExactly
@@ -19,7 +18,6 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
-import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import org.junit.jupiter.api.Test
@@ -377,45 +375,6 @@ class BeregningTest {
                     // Jobber 7 timer hver dag og vil være over terskel
                     first().verdi.verdi shouldBe false
                 }
-            }
-        }
-    }
-
-    @Test
-    fun `vi sperrer behandling av meldekort når de korrigerer en periode for langt bak i tid`() {
-        nyttScenario {
-            inntektSiste12Mnd = 500000
-        }.test {
-            person.søkDagpenger(21.juni(2018))
-
-            behovsløsere.løsTilForslag()
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
-
-            // Send inn meldekort
-            person.sendInnMeldekort(1)
-            val meldekortId = person.sendInnMeldekort(2)
-            person.sendInnMeldekort(3)
-
-            // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
-            meldekortBatch(true)
-            meldekortBatch(true)
-
-            // Send inn korrigering av forrige meldekort
-            person.sendInnMeldekort(2, korrigeringAv = meldekortId, timer = List(14) { 7 })
-
-            // Systemet kjører beregningsbatchen
-            meldekortBatch()
-
-            person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
-
-            // Avklaringen kan ikke lukkes av saksbehandler
-            shouldThrow<IllegalArgumentException> {
-                saksbehandler.lukkAlleAvklaringer()
             }
         }
     }

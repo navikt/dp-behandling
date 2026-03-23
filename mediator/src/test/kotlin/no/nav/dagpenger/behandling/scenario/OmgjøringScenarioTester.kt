@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
@@ -292,6 +293,45 @@ class OmgjøringScenarioTester {
 
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeLessThan 27991
             }
+        }
+    }
+
+    @Test
+    fun `behandling av meldekort når de korrigerer en periode for langt bak i tid`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            val meldekortId = person.sendInnMeldekort(2)
+            person.sendInnMeldekort(3)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+            meldekortBatch(true)
+            meldekortBatch(true)
+
+            // Send inn korrigering av forrige meldekort
+            person.sendInnMeldekort(2, korrigeringAv = meldekortId, timer = List(14) { 7 })
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch()
+
+            person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
+
+            shouldNotThrow<IllegalArgumentException> {
+                saksbehandler.lukkAlleAvklaringer()
+            }
+            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
         }
     }
 }

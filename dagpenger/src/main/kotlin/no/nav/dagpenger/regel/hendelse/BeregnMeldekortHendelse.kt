@@ -96,9 +96,8 @@ class BeregnMeldekortHendelse(
                                     Avklaringkode(
                                         kode = "KorrigeringUtbetaltPeriode",
                                         tittel = "Beregning av meldekort som korrigerer tidligere periode",
-                                        beskrivelse = "Behandlingen er korrigering av et tidligere meldekort og kan ikke behandles",
+                                        beskrivelse = "Behandlingen er korrigering av et tidligere beregnet meldekort",
                                         kanAvbrytes = false,
-                                        kanKvitteres = false,
                                     ),
                                 ),
                             )
