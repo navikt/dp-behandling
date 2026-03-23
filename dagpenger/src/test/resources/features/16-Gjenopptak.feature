@@ -1,5 +1,5 @@
 #language: no
-
+@dokumentasjon @regel-gjenopptak
 Egenskap: § 4-16. Gjenopptak av løpende stønadsperiode som er avbrutt
 
   Scenariomal: Søker gjenopptak

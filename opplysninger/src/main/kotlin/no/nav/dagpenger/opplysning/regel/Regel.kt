@@ -142,6 +142,13 @@ fun interface GyldighetsperiodeStrategi<T> {
 
         @Suppress("UNCHECKED_CAST")
         fun <P> minsteMulige() = minsteMulige as GyldighetsperiodeStrategi<P>
+
+        fun <P> basertPå(opplysningstype: Opplysningstype<LocalDate>) =
+            GyldighetsperiodeStrategi<P> { _, basertPå ->
+                val dato = basertPå.single { it.opplysningstype == opplysningstype }.verdi
+                require(dato is LocalDate) { "Opplysningstype som skal brukes til å utlede gyldighetsperiode må være LocalDate" }
+                Gyldighetsperiode(dato)
+            }
     }
 
     fun gyldighetsperiode(

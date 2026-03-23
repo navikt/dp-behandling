@@ -1,11 +1,10 @@
 package no.nav.dagpenger.regel
 
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
-import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.basertPå
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
@@ -29,7 +28,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerSidenSistForbrukId
 import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.sisteGjenståendeDager
-import java.time.LocalDate
 
 object Gjenopptak {
     val oppholdMedArbeidI12ukerEllerMer =
@@ -58,16 +56,7 @@ object Gjenopptak {
         Opplysningstype.boolsk(
             harSøktInnenFristId,
             "Har søkt innen fristen for gjenopptak",
-            gyldighetsperiode =
-                GyldighetsperiodeStrategi { _, basertPå ->
-                    val fomDato =
-                        basertPå.find { it.opplysningstype == gjenopptaksdato }?.verdi
-                            ?: throw IllegalStateException("Fant ikke gjenopptaksdato i basertPå")
-                    require(fomDato is LocalDate) { "Gjenopptaksdato må være av typen LocalDate" }
-                    Gyldighetsperiode(
-                        fom = fomDato,
-                    )
-                },
+            gyldighetsperiode = basertPå(gjenopptaksdato),
         )
 
     val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Oppfyller kravet for gjenopptak av stønadsperiode")
