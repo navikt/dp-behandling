@@ -29,3 +29,9 @@ fun Opplysningstype<Boolean>.størreEnn(
     er: Opplysningstype<Beløp>,
     størreEnn: Opplysningstype<Beløp>,
 ) = StørreEnn(this, er, størreEnn)
+
+@JvmName("størreEnnInt")
+fun Opplysningstype<Boolean>.størreEnn(
+    er: Opplysningstype<Int>,
+    størreEnn: Opplysningstype<Int>,
+) = StørreEnn(this, er, størreEnn)

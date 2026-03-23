@@ -1,10 +1,13 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
+import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juli
@@ -13,7 +16,9 @@ import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -120,6 +125,13 @@ class OmgjøringScenarioTester {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
+            behandlingsresultat {
+                with(opplysninger(Gjenopptak.skalGjenopptas)) {
+                    this shouldHaveSize 1
+                    this.single().gyldigFraOgMed shouldBe 8.august(2018)
+                }
+            }
+
             person.sendInnMeldekort(3)
             meldekortBatch(true)
             person.sendInnMeldekort(4)
@@ -131,6 +143,12 @@ class OmgjøringScenarioTester {
 
             // Omgjøring
             saksbehandler.omgjørBehandling(1.august(2018))
+            saksbehandler.endreOpplysning(
+                skalGjenopptakVurderes,
+                true,
+                "Endrer kravet om gjenopptak til 1. august, som er første mulige dato for gjenopptak",
+                Gyldighetsperiode(1.august(2018)),
+            )
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(1.august(2018)))
             saksbehandler.endreOpplysning(
                 OmgjøringUtenKlage.ansesUgyldigVedtak,
@@ -142,6 +160,10 @@ class OmgjøringScenarioTester {
             saksbehandler.beslutt()
 
             behandlingsresultat {
+                with(opplysninger(Gjenopptak.skalGjenopptas)) {
+                    this shouldHaveSize 1
+                    this.single().gyldigFraOgMed shouldBe 1.august(2018)
+                }
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27698
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true
@@ -253,14 +275,14 @@ class OmgjøringScenarioTester {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 3
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 25.januar(2018)
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].tilOgMed shouldBe 18.februar(2018)
-                rettighetsperioder[2].harRett shouldBe true
-                rettighetsperioder[2].fraOgMed shouldBe 19.februar(2018)
+                rettighetsperioder shouldHaveSize 4
+                rettighetsperioder shouldContainExactly
+                    listOf(
+                        RettighetsperiodeDTO(1.januar(2018), 24.januar(2018), true, opprinnelse = OpprinnelseDTO.ARVET),
+                        RettighetsperiodeDTO(25.januar(2018), 13.februar(2018), false, opprinnelse = OpprinnelseDTO.ARVET),
+                        RettighetsperiodeDTO(14.februar(2018), 18.februar(2018), false, opprinnelse = OpprinnelseDTO.NY),
+                        RettighetsperiodeDTO(19.februar(2018), null, true, opprinnelse = OpprinnelseDTO.NY),
+                    )
 
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 42

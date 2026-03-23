@@ -8,6 +8,12 @@ graph RL
   C["Arbeidsgivers rapporteringsfrist"] -->|"FørsteArbeidsdag"| A["Lovpålagt rapporteringsfrist for A-ordningen"]
   D["Siste avsluttende kalendermåned"] -->|"SisteavsluttendeKalenderMåned"| B["Prøvingsdato"]
   D["Siste avsluttende kalendermåned"] -->|"SisteavsluttendeKalenderMåned"| C["Arbeidsgivers rapporteringsfrist"]
+  E["Maks lengde på opptjeningsperiode"] -->|"Oppslag"| B["Prøvingsdato"]
+  F["Første måned av opptjeningsperiode"] -->|"TrekkFraMåned"| D["Siste avsluttende kalendermåned"]
+  F["Første måned av opptjeningsperiode"] -->|"TrekkFraMåned"| E["Maks lengde på opptjeningsperiode"]
+  G["Inntektsopplysninger"] -->|"Ekstern"| B["Prøvingsdato"]
+  G["Inntektsopplysninger"] -->|"Ekstern"| D["Siste avsluttende kalendermåned"]
+  G["Inntektsopplysninger"] -->|"Ekstern"| F["Første måned av opptjeningsperiode"]
 ```
 
 ## Akseptansetester

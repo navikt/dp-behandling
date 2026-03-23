@@ -16,7 +16,7 @@ internal class Avhengighetsgraf(
      */
     fun nødvendigeOpplysninger(
         opplysninger: Opplysninger,
-        ønsketResultat: List<Opplysningstype<*>>,
+        ønsketResultat: Collection<Opplysningstype<*>>,
     ): Set<Opplysningstype<*>> {
         val nødvendigeOpplysninger = mutableSetOf<Opplysningstype<*>>()
         nødvendigeOpplysninger.addAll(ønsketResultat)

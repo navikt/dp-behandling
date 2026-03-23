@@ -76,7 +76,7 @@ class Regelkjøring(
     private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
 
     // Hvilke opplysninger som skal produseres. Må hentes på nytt hver gang, siden det kan endres etterhvert som nye regler kommer til
-    private val ønsketResultat get() = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
+    private val ønsketResultat get() = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato).toSet()
 
     // Set som brukes til å lage planen, og spore hva som blir gjort
     private var plan: MutableSet<Regel<*>> = mutableSetOf()
@@ -100,6 +100,14 @@ class Regelkjøring(
         prøvingsperiode
             .map { evaluerDag(it) }
             .reduce { total, regelkjøringsrapport -> total + regelkjøringsrapport }
+            .also {
+                logger.info {
+                    """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
+                    |Regler:
+                    |${it.kjørteRegler.joinToString("\n") { "- $it" }}
+                    """.trimMargin()
+                }
+            }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         aktiverRegler(prøvingsdato)
@@ -120,6 +128,7 @@ class Regelkjøring(
             mangler = trenger(),
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
+            prøvingsdato = listOf(prøvingsdato),
         ).also { rapport ->
             observatører.forEach { observer ->
                 val aktiveOpplysninger = opplysninger.kunEgne.forDato(prøvingsdato)
@@ -243,6 +252,7 @@ data class Regelkjøringsrapport(
     val mangler: Set<Opplysningstype<*>>,
     val informasjonsbehov: Informasjonsbehov,
     val foreldreløse: Set<Opplysning<*>>,
+    val prøvingsdato: List<LocalDate>,
 ) {
     fun manglerOpplysninger(): Boolean = mangler.isNotEmpty()
 
@@ -254,6 +264,7 @@ data class Regelkjøringsrapport(
             mangler = this.mangler + other.mangler,
             informasjonsbehov = this.informasjonsbehov + other.informasjonsbehov,
             foreldreløse = this.foreldreløse + other.foreldreløse,
+            prøvingsdato = this.prøvingsdato + other.prøvingsdato,
         )
 }
 

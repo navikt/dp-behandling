@@ -23,6 +23,7 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
+import no.nav.dagpenger.regel.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
@@ -44,6 +45,7 @@ import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
@@ -306,6 +308,9 @@ internal val redigerbareOpplysninger =
                             endringIkkeTilSkade,
                             ikkeUnderretning,
                             ansesUgyldigVedtak,
+                            // Gjenoppptak
+                            oppholdMedArbeidI12ukerEllerMer,
+                            skalGjenopptakVurderes,
                         ),
                     )
 

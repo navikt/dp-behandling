@@ -22,7 +22,7 @@ class SisteAvGyldighetsperiode internal constructor(
     private vararg val opplysningerTyper: Opplysningstype<*>,
 ) : Regel<LocalDate>(produserer, opplysningerTyper.toList()) {
     override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
-        val dager = opplysninger.finnFlere(opplysningerTyper.toList()).map { it.gyldighetsperiode.tilOgMed }
+        val dager = opplysninger.finnFlere(opplysningerTyper.toList()).map { it.gyldighetsperiode.fraOgMed }
         return dager.maxOrNull() ?: throw IllegalStateException("Ingen datoer funnet")
     }
 

@@ -19,7 +19,7 @@ class HvisSannMedResultat<T : Comparable<T>>(
         if (besøkt.contains(this)) return else besøkt.add(this)
 
         if (opplysninger.har(produserer)) {
-            // Deleger til Regel sin logikk for endringer av avhengigheter
+            // Deleger til Regel sin logikk for endringer
             besøkt.remove(this)
             return super.lagPlan(opplysninger, plan, produsenter, besøkt)
         }

@@ -51,7 +51,7 @@ class VilkårRegelsettBuilder internal constructor(
             regler = regler,
             avklaringer = avklaringer,
             utfall = utfall,
-            skalKjøres = skalKjøres,
+            skalKjøres = skalVurderes,
             skalRevurderes = skalRevurderes,
             påvirkerResultat = relevant,
             betingelser = vurderinger,

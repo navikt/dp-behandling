@@ -20,6 +20,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
 
     init {
         registrer(RettighetsperiodePlugin(this.regelverk, OVERSKRIV_ALLTID))
+        registrer(PrøvingsdatoPlugin())
         registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, kvotetelling))
     }
 

@@ -15,6 +15,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
+import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import java.time.LocalDate
@@ -66,6 +67,7 @@ class SøknadInnsendtHendelse(
             return null
         }
 
+        val kilde = Systemkilde(meldingsreferanseId, opprettet)
         return Behandling(
             basertPå = basertPå,
             behandler =
@@ -81,7 +83,7 @@ class SøknadInnsendtHendelse(
             opplysninger =
                 buildList {
                     if (basertPå == null) {
-                        add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = Systemkilde(meldingsreferanseId, opprettet)))
+                        add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = kilde))
                     }
                 },
             avklaringer =
@@ -96,21 +98,19 @@ class SøknadInnsendtHendelse(
                 },
         ).also {
             it.opplysninger.leggTil(
-                Faktum(
-                    søknadIdOpplysningstype,
-                    eksternId.id.toString(),
-                    kilde = Systemkilde(meldingsreferanseId, opprettet),
-                    gyldighetsperiode = Gyldighetsperiode(skjedde),
-                ),
+                Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = kilde, gyldighetsperiode = Gyldighetsperiode(skjedde)),
             )
             it.opplysninger.leggTil(
-                Faktum(
-                    hendelseTypeOpplysningstype,
-                    type,
-                    gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
-                    kilde = Systemkilde(meldingsreferanseId, opprettet),
-                ),
+                Faktum(hendelseTypeOpplysningstype, type, gyldighetsperiode = Gyldighetsperiode.kun(skjedde), kilde = kilde),
             )
+            if (basertPå
+                    ?.vedtakopplysninger
+                    ?.rettighetsperioder
+                    ?.lastOrNull()
+                    ?.harRett == false
+            ) {
+                it.opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
+            }
         }
     }
 

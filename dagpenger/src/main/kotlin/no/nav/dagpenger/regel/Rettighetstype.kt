@@ -25,6 +25,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
 import no.nav.dagpenger.regel.OpplysningsTyper.SkalVernepliktVurderesId
+import no.nav.dagpenger.regel.OpplysningsTyper.skalGjenopptakVurderesId
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.Verneplikt.avtjentVerneplikt
 
@@ -47,8 +48,9 @@ object Rettighetstype {
             synlig = { !kravPåDagpenger(it) || !it.erSann(erReellArbeidssøkerVurdert) },
         )
 
-    val skalVernepliktVurderes: Opplysningstype<Boolean> =
-        boolsk(SkalVernepliktVurderesId, "Skal kravet til verneplikt vurderes")
+    val skalVernepliktVurderes = boolsk(SkalVernepliktVurderesId, "Skal kravet til verneplikt vurderes")
+
+    val skalGjenopptakVurderes = boolsk(skalGjenopptakVurderesId, "Skal kravet til gjenopptak vurderes")
 
     private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
     private val ingenArbeid = boolsk(IngenArbeidId, "Har rett til ordinære dagpenger uten arbeidsforhold", synlig = aldriSynlig)
@@ -74,7 +76,9 @@ object Rettighetstype {
             regel(erReellArbeidssøkerVurdert) { somUtgangspunkt(true) }
             regel(skalVernepliktVurderes) { erSann(avtjentVerneplikt) }
 
-            ønsketResultat(rettighetstype, erReellArbeidssøkerVurdert, skalVernepliktVurderes)
+            regel(skalGjenopptakVurderes) { somUtgangspunkt(false) }
+
+            ønsketResultat(rettighetstype, erReellArbeidssøkerVurdert, skalVernepliktVurderes, skalGjenopptakVurderes)
         }
 
     val ManglerReellArbeidssøkerKontroll =
@@ -82,3 +86,7 @@ object Rettighetstype {
             kravPåDagpenger(opplysninger) && !opplysninger.erSann(erReellArbeidssøkerVurdert)
         }
 }
+
+val vowels = Regex("[aeiou]", RegexOption.IGNORE_CASE)
+
+fun disemvowel(str: String): String = str.replace(vowels, "")
