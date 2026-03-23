@@ -86,7 +86,3 @@ object Rettighetstype {
             kravPåDagpenger(opplysninger) && !opplysninger.erSann(erReellArbeidssøkerVurdert)
         }
 }
-
-val vowels = Regex("[aeiou]", RegexOption.IGNORE_CASE)
-
-fun disemvowel(str: String): String = str.replace(vowels, "")
