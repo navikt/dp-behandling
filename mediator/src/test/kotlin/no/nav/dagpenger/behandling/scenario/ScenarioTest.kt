@@ -104,7 +104,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
 
-                opplysninger shouldHaveSize 50
+                opplysninger shouldHaveSize 51
             }
         }
     }

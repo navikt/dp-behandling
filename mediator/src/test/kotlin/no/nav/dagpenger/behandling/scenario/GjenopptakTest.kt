@@ -8,7 +8,6 @@ import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Comp
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
-import no.nav.dagpenger.behandling.scenario.ScenarioTest.Formatter.lagBrev
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.Gjenopptak
