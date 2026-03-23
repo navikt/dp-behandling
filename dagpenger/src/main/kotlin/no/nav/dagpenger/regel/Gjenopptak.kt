@@ -30,33 +30,37 @@ import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.beregning.Beregning.sisteGjenståendeDager
 
 object Gjenopptak {
-    val oppholdMedArbeidI12ukerEllerMer =
-        Opplysningstype.boolsk(
-            oppholdMedArbeidI12ukerEllerMerId,
-            "Har hatt opphold med arbeid i 12 uker eller mer",
-        )
     private val terskelUkerNyttGrunnlag =
         heltall(terskelUkerNyttGrunnlagId, "Antall uker med arbeid for nytt grunnlag", enhet = Enhet.Uker, synlig = aldriSynlig)
-
     private val antallUker =
         heltall(terskelUkerSidenSistForbrukId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker, synlig = aldriSynlig)
+    private val minimumGjenståendeDager =
+        heltall(minimumGjenståendeDagerId, "Antall gjenstående dager for å kunne gjenoppta", enhet = Enhet.Dager, synlig = aldriSynlig)
 
     val gjenopptaksdato = Søknadstidspunkt.prøvingsdato
 
+    // Grensedatoer for gjenopptak
+    private val sisteForbruksdag = Opplysningstype.dato(sisteforbruksdagId, "Siste dag med forbruk")
     private val førsteAvbruddsdag = Opplysningstype.dato(førsteAvbruddsdagId, "Første virkedag i avbruddsperiode")
     private val sisteDatoForKravTilGjenopptak = Opplysningstype.dato(sisteDatoForKravTilGjenopptakId, "Siste mulige dato for gjenopptak")
 
-    private val sisteForbruksdag = Opplysningstype.dato(sisteforbruksdagId, "Siste dag med forbruk")
-
-    val minimumGjenståendeDager =
-        heltall(minimumGjenståendeDagerId, "Antall gjenstående dager for å kunne gjenoppta", enhet = Enhet.Dager, synlig = aldriSynlig)
+    // Er det noe å gjenoppta?
     val harForbrukt = Opplysningstype.boolsk(harForbruktId, "Har startet forbruk av stønadsperiode")
     val harGjenstående = Opplysningstype.boolsk(harGjenståendeId, "Har periode igjen å gjenoppta")
+
+    // Er det søkt innen fristen
     val harSøktInnenFrist =
         Opplysningstype.boolsk(
             harSøktInnenFristId,
             "Har søkt innen fristen for gjenopptak",
             gyldighetsperiode = basertPå(gjenopptaksdato),
+        )
+
+    // Skal grunnlaget fastsettes på nytt
+    val oppholdMedArbeidI12ukerEllerMer =
+        Opplysningstype.boolsk(
+            oppholdMedArbeidI12ukerEllerMerId,
+            "Har hatt opphold med arbeid i 12 uker eller mer",
         )
 
     val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Oppfyller kravet for gjenopptak av stønadsperiode")
