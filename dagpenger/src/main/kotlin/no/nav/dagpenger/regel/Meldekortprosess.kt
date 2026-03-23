@@ -94,10 +94,12 @@ class Kvotetelling : ProsessPlugin {
                     Gyldighetsperiode(sisteForbruksdag),
                 ),
             )
+
+            val sisteForbruk = opplysninger.finnAlle(Beregning.gjenståendeDager).last().verdi
             opplysninger.leggTil(
                 Faktum(
                     Beregning.sisteGjenståendeDager,
-                    55,
+                    sisteForbruk,
                     Gyldighetsperiode(sisteForbruksdag),
                 ),
             )
