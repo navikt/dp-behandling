@@ -45,6 +45,7 @@ import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.Samordning.foreldrepengerDagsats
@@ -309,6 +310,7 @@ internal val redigerbareOpplysninger =
                             ansesUgyldigVedtak,
                             // Gjenoppptak
                             oppholdMedArbeidI12ukerEllerMer,
+                            skalGjenopptakVurderes,
                         ),
                     )
 
