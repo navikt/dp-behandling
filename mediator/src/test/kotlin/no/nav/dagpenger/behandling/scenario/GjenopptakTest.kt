@@ -257,8 +257,6 @@ class GjenopptakTest {
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
 
                 opplysninger(oppholdINorge) shouldHaveSize 1
-
-                lagBrev(klump.toString()).also { println(it) }
             }
 
             // Opprett stans
@@ -277,10 +275,6 @@ class GjenopptakTest {
 
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
-
-                lagBrev(klump.toString()).also {
-                    println(it)
-                }
 
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 2
@@ -317,8 +311,6 @@ class GjenopptakTest {
                     this[1].verdi.verdi shouldBe false
                     this[2].verdi.verdi shouldBe false
                 }
-
-                lagBrev(klump.toString()).also { println(it) }
 
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
