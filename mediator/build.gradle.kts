@@ -1,7 +1,7 @@
 plugins {
     id("common")
     application
-    kotlin("plugin.serialization") version "2.3.0"
+    kotlin("plugin.serialization") version "2.3.20"
 }
 
 dependencies {
