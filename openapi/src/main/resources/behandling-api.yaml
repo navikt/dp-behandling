@@ -1450,10 +1450,9 @@ components:
 
     FlyttBehandling:
       type: object
-      required:
-        - nyBasertPå
       properties:
         nyBasertPå:
+          default: null
           $ref: '#/components/schemas/BehandlingId'
 
     Saksbehandlerbegrunnelse:
