@@ -40,11 +40,6 @@ internal class PåminnelseMottak(
     ) {
         val behandlingId = packet["behandlingId"].asUUID()
 
-        if (System.getenv()["NAIS_CLUSTER_NAME"] == "dev-gcp") {
-            logger.info { "Skipper alle påminnelser i dev" }
-            return
-        }
-
         withLoggingContext("behandlingId" to behandlingId.toString()) {
             Span.current().apply {
                 setAttribute("app.river", name())
