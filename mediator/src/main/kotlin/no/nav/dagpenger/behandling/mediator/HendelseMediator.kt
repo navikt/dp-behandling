@@ -8,6 +8,7 @@ import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerHendelse
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
@@ -133,6 +134,11 @@ internal class HendelseMediator(
                 }
             }
             ferdigstill(context, personMediator, hendelse)
+        } catch (aktivitetException: Aktivitetslogg.AktivitetException) {
+            sikkerlogg.error(
+                aktivitetException,
+            ) { "aktivitetslogg inneholder feil: ${aktivitetException.message} \n${hendelse.toLogString()}" }
+            error("Feil ved håndtering av ${hendelse.javaClass.simpleName}. Se sikkerlogg for detaljer.")
         } catch (e: Exception) {
             logger.error(e) { "Feil ved håndtering av ${hendelse.javaClass.simpleName}." }
             sikkerlogg.error(e) { "aktivitetslogg inneholder feil: ${e.message} \n${hendelse.toLogString()}" }
