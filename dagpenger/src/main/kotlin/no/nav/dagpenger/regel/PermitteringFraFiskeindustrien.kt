@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
-import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Avklaringspunkter.HarOppgittPermitteringFiskeindustri
 import no.nav.dagpenger.regel.OpplysningsTyper.erPermitteringenFraFiskeindustriMidlertidigId
 import no.nav.dagpenger.regel.OpplysningsTyper.godkjentÅrsakPermitteringFraFiskindustriId
@@ -55,7 +54,7 @@ object PermitteringFraFiskeindustrien {
                 kortnavn = "Permittering fiskeindustri",
             ),
         ) {
-            skalVurderes { it.erSann(kravTilAlder) && it.erSann(permitteringFiskeforedling) }
+            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) && it.erSann(permitteringFiskeforedling) }
 
             regel(godkjentÅrsakPermitteringFraFiskindustri) { somUtgangspunkt(true) }
             regel(erPermitteringenFraFiskeindustriMidlertidig) { somUtgangspunkt(true) }

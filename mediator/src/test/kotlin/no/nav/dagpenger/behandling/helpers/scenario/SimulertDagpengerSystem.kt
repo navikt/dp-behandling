@@ -116,7 +116,8 @@ internal class SimulertDagpengerSystem(
         var alder: Int = 33,
         var inntektSiste12Mnd: Int = 50000,
         var permittering: Boolean = false,
-        val ordinær: Boolean = !permittering,
+        var permittertfraFiskeforedling: Boolean = false,
+        val ordinær: Boolean = false,
         var verneplikt: Boolean = false,
     ) {
         fun test(block: SimulertDagpengerSystem.() -> Unit) {
@@ -179,16 +180,37 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
     for (offset in 0..<inspektør.size) {
         val melding = inspektør.message(offset)
         when (melding["@event_name"].asText()) {
-            "behov" -> meldinger.add("Behov:${melding["@behov"].joinToString("\n- ", "\n- ") { it.asText() }}")
-            "NyAvklaring" -> meldinger.add("Laget avklaring om ${melding["kode"].asText()}")
-            "behandling_opprettet" -> meldinger.add("Opprettet ny behandling")
-            "behandling_endret_tilstand" -> meldinger.add("Behandling endret tilstand til: ${melding["gjeldendeTilstand"].asText()}")
-            "forslag_til_vedtak" -> meldinger.add("Forslag til vedtak med utfall=${melding["fastsatt"]["utfall"].asBoolean()}")
-            "vedtak_fattet" -> meldinger.add("Har fattet vedtak med utfall=${melding["fastsatt"]["utfall"].asBoolean()}")
+            "behov" -> {
+                meldinger.add("Behov:${melding["@behov"].joinToString("\n- ", "\n- ") { it.asText() }}")
+            }
+
+            "NyAvklaring" -> {
+                meldinger.add("Laget avklaring om ${melding["kode"].asText()}")
+            }
+
+            "behandling_opprettet" -> {
+                meldinger.add("Opprettet ny behandling")
+            }
+
+            "behandling_endret_tilstand" -> {
+                meldinger.add("Behandling endret tilstand til: ${melding["gjeldendeTilstand"].asText()}")
+            }
+
+            "forslag_til_vedtak" -> {
+                meldinger.add("Forslag til vedtak med utfall=${melding["fastsatt"]["utfall"].asBoolean()}")
+            }
+
+            "vedtak_fattet" -> {
+                meldinger.add("Har fattet vedtak med utfall=${melding["fastsatt"]["utfall"].asBoolean()}")
+            }
+
             "forslag_til_behandlingsresultat" -> {}
+
             "behandlingsresultat" -> {}
 
-            else -> meldinger.add("melding: ${melding["@event_name"].asText()}")
+            else -> {
+                meldinger.add("melding: ${melding["@event_name"].asText()}")
+            }
         }
     }
     Approvals.verify(meldinger.joinToString("\n"))

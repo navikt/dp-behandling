@@ -16,6 +16,7 @@ import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
+import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
@@ -24,9 +25,11 @@ import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
+import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -249,6 +252,37 @@ class ScenarioTest {
 
             behandlingsresultatForslag {
                 rettighetsperioder shouldHaveSize 8
+            }
+        }
+    }
+
+    @Test
+    fun `innvilgelse der en er permittering fra fiskeforedling OG tillegg søker om dagpenger etter verneplikt`() {
+        nyttScenario {
+            inntektSiste12Mnd = 10
+            permittertfraFiskeforedling = true
+            verneplikt = true
+        }.test {
+            person.søkDagpenger(21.juni(2018), ønskerFraDato = 22.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].fraOgMed shouldBe 22.juni(2018)
+                rettighetsperioder[0].harRett shouldBe true
+                with(opplysninger(Rettighetstype.permitteringFiskeforedling)) {
+                    size shouldBe 1
+                    first().verdi.verdi shouldBe true
+                }
+                with(opplysninger(Dagpengeperiode.ordinærPeriode)) {
+                    size shouldBe 1
+                    first().verdi.verdi shouldBe 0
+                }
+                with(opplysninger(VernepliktFastsetting.vernepliktPeriode)) {
+                    size shouldBe 1
+                    first().verdi.verdi shouldBe 26
+                }
             }
         }
     }

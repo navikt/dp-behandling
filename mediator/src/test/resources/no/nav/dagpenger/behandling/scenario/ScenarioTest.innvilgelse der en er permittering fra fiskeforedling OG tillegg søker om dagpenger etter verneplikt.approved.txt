@@ -1,0 +1,64 @@
+Laget avklaring om HarTilleggsopplysninger
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behov:
+- Søknadsdato
+- ØnskerDagpengerFraDato
+- Fødselsdato
+Behov:
+- Inntekt
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+- RegistrertSomArbeidssøker
+- Ordinær
+- Permittert
+- Lønnsgaranti
+- PermittertFiskeforedling
+- Verneplikt
+Laget avklaring om HarOppgittPermitteringFiskeindustri
+Laget avklaring om Verneplikt
+Behov:
+- Inntekt
+- BostedslandErNorge
+- RegistrertSomArbeidssøker
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
+Behov:
+- Inntekt
+- RegistrertSomArbeidssøker
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+Laget avklaring om EØSArbeid
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om InntektNesteKalendermåned
+Laget avklaring om JobbetUtenforNorge
+Laget avklaring om MuligGjenopptak
+Laget avklaring om SjekkPrøvingsdato
+Laget avklaring om BeregnetArbeidstid
+Behov:
+- BarnetilleggV2
+- OppgittAndreYtelserUtenforNav
+Laget avklaring om BarnMåGodkjennes
+Behov:
+- Inntekt
+- RegistrertSomArbeidssøker
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+Behandling endret tilstand til: ForslagTilVedtak
