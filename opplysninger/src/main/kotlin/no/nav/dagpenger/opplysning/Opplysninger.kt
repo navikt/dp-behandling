@@ -26,7 +26,14 @@ class Opplysninger private constructor(
 
     private val alleOpplysninger = CachedList { (basertPåOpplysninger + egne).utenErstattet() }
 
+    private var alleOpplysningerMap = alleOpplysninger.groupBy { it.opplysningstype }
+
     override val kunEgne get() = Opplysninger(id = id, opplysninger = egne)
+
+    private fun refreshOpplysninger() {
+        alleOpplysninger.refresh()
+        alleOpplysningerMap = alleOpplysninger.groupBy { it.opplysningstype }
+    }
 
     fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
@@ -52,7 +59,7 @@ class Opplysninger private constructor(
         }
 
         egne.add(opplysning)
-        alleOpplysninger.refresh()
+        refreshOpplysninger()
     }
 
     private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
@@ -106,7 +113,7 @@ class Opplysninger private constructor(
     fun fjernHvis(block: (Opplysning<*>) -> Boolean) =
         egne.filter { block(it) }.forEach { fjern(it, false) }.also {
             // Oppdaterer alleOpplysninger etter at opplysninger er fjernet
-            alleOpplysninger.refresh()
+            refreshOpplysninger()
         }
 
     fun fjern(opplysningId: UUID) = fjern(kunEgne.finnOpplysning(opplysningId))
@@ -122,7 +129,7 @@ class Opplysninger private constructor(
             fjernet.add(opplysning)
         }
 
-        if (skalOppfriske) alleOpplysninger.refresh()
+        if (skalOppfriske) refreshOpplysninger()
     }
 
     private fun fjernAvhengigheter(eksisterende: Opplysning<*>) {
@@ -136,11 +143,11 @@ class Opplysninger private constructor(
         gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
     ): Opplysning<T>? {
         val opplysninger =
-            alleOpplysninger
-                .filter { it.er(opplysningstype) && it.gyldighetsperiode.overlapp(gyldighetsperiode) }
-                .filterIsInstance<Opplysning<T>>()
+            alleOpplysningerMap[opplysningstype]
+                ?.filterIsInstance<Opplysning<T>>()
+                ?.filter { it.gyldighetsperiode.overlapp(gyldighetsperiode) }
 
-        return opplysninger.lastOrNull()
+        return opplysninger?.lastOrNull()
     }
 
     private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> {
