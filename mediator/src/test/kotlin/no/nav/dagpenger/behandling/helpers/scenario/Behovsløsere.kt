@@ -16,7 +16,17 @@ internal class Behovsløsere(
     private val sisteMeldingErBehov get() = rapid.inspektør.field(rapid.inspektør.size - 1, "@event_name").asText() == "behov"
 
     fun løsTilForslag() {
+        var iterasjoner = 0
+        val maksIterasjoner = 50
         while (sisteMeldingErBehov) {
+            iterasjoner++
+            check(iterasjoner < maksIterasjoner) {
+                "Mulig uendelig behovsløkke etter $iterasjoner iterasjoner. Siste behov: ${aktiveBehov()}. Siste melding: \n ${
+                    rapid.inspektør.message(
+                        rapid.inspektør.size - 1,
+                    )
+                }"
+            }
             løsAktiveBehov()
         }
     }
