@@ -1,12 +1,13 @@
 ---
 name: security-champion-agent
-description: Expert on Nav security architecture, threat modeling, compliance, and holistic security practices
+description: Navs sikkerhetsarkitektur, trusselmodellering, compliance og sikkerhetspraksis
 tools:
   - execute
   - read
   - edit
   - search
   - web
+  - todo
   - ms-vscode.vscode-websearchforcopilot/websearch
   - io.github.navikt/github-mcp/get_file_contents
   - io.github.navikt/github-mcp/search_code

@@ -1,18 +1,20 @@
 ---
 name: kafka-agent
-description: Expert on Rapids & Rivers event-driven architecture, Kafka patterns, and event schema design
+description: Rapids & Rivers, eventdrevet arkitektur, Kafka-mønstre og schema-design
 tools:
   - execute
   - read
   - edit
   - search
   - web
+  - todo
   - ms-vscode.vscode-websearchforcopilot/websearch
   - io.github.navikt/github-mcp/get_file_contents
   - io.github.navikt/github-mcp/search_code
   - io.github.navikt/github-mcp/search_repositories
   - io.github.navikt/github-mcp/list_commits
   - io.github.navikt/github-mcp/issue_read
+  - io.github.navikt/github-mcp/list_issues
   - io.github.navikt/github-mcp/search_issues
   - io.github.navikt/github-mcp/pull_request_read
   - io.github.navikt/github-mcp/search_pull_requests
