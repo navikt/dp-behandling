@@ -1,6 +1,6 @@
 ---
 name: research-agent
-description: Expert at researching codebases, investigating issues, analyzing patterns, and gathering context before implementation
+description: Utforsker kodebaser, undersøker problemer og samler kontekst før implementering
 tools:
   - read
   - search
