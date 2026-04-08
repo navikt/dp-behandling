@@ -12,6 +12,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMottak
+import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssokerperiodeMessage
+import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssokerperiodeMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
@@ -55,6 +57,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssokerperiodeHendelse
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import java.util.UUID
@@ -70,6 +73,7 @@ internal class MessageMediator(
     init {
         AvbrytBehandlingMottak(rapidsConnection, this)
         AvklaringIkkeRelevantMottak(rapidsConnection, this)
+        AvsluttetArbeidssokerperiodeMottak(rapidsConnection, this)
         BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
         FjernOpplysningMottak(rapidsConnection, this, opplysningstyper)
         GodkjennBehandlingMottak(rapidsConnection, this)
@@ -103,6 +107,16 @@ internal class MessageMediator(
     override fun behandle(
         hendelse: AvbrytBehandlingHendelse,
         message: AvbrytBehandlingMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
+    override fun behandle(
+        hendelse: AvsluttetArbeidssokerperiodeHendelse,
+        message: AvsluttetArbeidssokerperiodeMessage,
         context: MessageContext,
     ) {
         behandle(hendelse, message) {
@@ -287,6 +301,12 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: AvbrytBehandlingHendelse,
         message: AvbrytBehandlingMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: AvsluttetArbeidssokerperiodeHendelse,
+        message: AvsluttetArbeidssokerperiodeMessage,
         context: MessageContext,
     )
 
