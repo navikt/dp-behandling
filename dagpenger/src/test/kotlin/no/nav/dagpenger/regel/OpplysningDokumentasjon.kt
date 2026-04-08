@@ -2,12 +2,16 @@ package no.nav.dagpenger.regel
 
 import com.spun.util.persistence.Loader
 import no.nav.dagpenger.opplysning.Avklaringkode.Companion.alleAvklaringer
+import no.nav.dagpenger.opplysning.regel.Ekstern
+import no.nav.dagpenger.opplysning.regel.TomRegel
+import no.nav.dagpenger.opplysning.regel.Utgangspunkt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
 import org.approvaltests.namer.NamerWrapper
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
+import java.time.LocalDate
 
 class OpplysningDokumentasjon {
     val opplysninger = RegelverkDagpenger.produserer + fagsakIdOpplysningstype
@@ -60,17 +64,31 @@ class OpplysningDokumentasjon {
             markdown.appendLine(
                 """
                 >#### Opplysninger
-                >|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|
-                >|---|---|---|---|---|---|
+                >|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+                >|---|---|---|---|---|---|---|
                 """.trimMargin(">"),
             )
 
             opplysninger.sortedBy { it.id.uuid }.forEach {
                 val behovId = if (it in behov) it.behovId else ""
                 val enhet = if (it.enhet != null) " ${it.enhet}" else ""
+                val regel = regelsett.regler(LocalDate.now()).single { regel -> regel.produserer(it) }
+
+                var regeltype =
+                    when (regel) {
+                        is Ekstern -> "Ekstern"
+
+                        is TomRegel,
+                        is Utgangspunkt,
+                        -> "Utgangspunkt"
+
+                        else -> "Intern"
+                    }
+
+                regeltype = if (regelsett.ønsketInformasjon.contains(it)) "Resultat" else regeltype
 
                 markdown.appendLine(
-                    "|${it.id.uuid}|${it.navn}|${it.datatype}|${it.datatype.klasse.simpleName}|$behovId|$enhet",
+                    "|${it.id.uuid}|${it.navn}|${it.datatype}|${it.datatype.klasse.simpleName}|$behovId|$enhet|$regeltype",
                 )
             }
         }
@@ -94,9 +112,11 @@ class OpplysningDokumentasjon {
             >|---|---|---|---|---|
             ${
                 behov.sortedBy { it.behovId }.joinToString("\n") {
-                    ">|${it.behovId} | ${it.navn} | ${it.datatype}|${it.datatype.klasse.simpleName}|${it.utgåtteBehovId.joinToString {
-                        it
-                    }}"
+                    ">|${it.behovId} | ${it.navn} | ${it.datatype}|${it.datatype.klasse.simpleName}|${
+                        it.utgåtteBehovId.joinToString {
+                            it
+                        }
+                    }"
                 }
             }
             """.trimMargin(">")
