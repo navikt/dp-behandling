@@ -152,6 +152,7 @@ private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysnin
     opplysninger.add(Faktum(ordinærPeriode, antUker))
     opplysninger.add(Faktum(antallStønadsdager, antUker * 5))
     opplysninger.add(Faktum(Beregning.meldeperiode, Periode(meldekortFom, meldekortTom)))
+    opplysninger.add(Faktum(Beregning.maksAntallPerioderMedIkkeTaptArbeidstid, 3))
 
     val meldekortdager =
         beregningRequestDTO.dager

@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.beregning
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.timer
 
 data class Bøtte(
     val arbeidsdager: List<Arbeidsdag>,
@@ -69,12 +70,24 @@ class Beregningsperiode private constructor(
         return arbeidsdager.subList(0, minOf(arbeidsdager.size, stønadsdagerIgjen)).toSortedSet()
     }
 
-    private fun beregnProsentfaktor(dager: Set<Dag>): Timer {
+    private fun beregnProsentfaktor(dager: Set<Dag>): Double {
         val timerArbeidet: Timer = dager.mapNotNull { it.timerArbeidet }.summer()
-        return (sumFva - timerArbeidet) / sumFva
+        return ((sumFva - timerArbeidet) / sumFva).timer
     }
 
     private fun beregnUtbetaling(): Beregningresultat {
+        if (arbeidsdager.isEmpty()) {
+            return Beregningresultat(
+                utbetaling = Beløp(verdi = 0),
+                forbruktEgenandel = Beløp(0),
+                forbruksdager = emptyList(),
+                gjenståendeEgenandel = gjenståendeEgenandel,
+                oppfyllerKravTilTaptArbeidstid = true,
+                sumFva = 0.0.timer,
+                sumArbeidstimer = 0.0.timer,
+                prosentfaktor = 0.0,
+            )
+        }
         if (!oppfyllerKravTilTaptArbeidstid) {
             return Beregningresultat(
                 utbetaling = Beløp(verdi = 0),
@@ -84,7 +97,7 @@ class Beregningsperiode private constructor(
                 oppfyllerKravTilTaptArbeidstid = false,
                 sumFva = sumFva,
                 sumArbeidstimer = timerArbeidet,
-                prosentfaktor = prosentfaktor.timer,
+                prosentfaktor = prosentfaktor,
             )
         }
 
@@ -136,7 +149,7 @@ class Beregningsperiode private constructor(
             forbruktEgenandel = forbruktEgenandel,
             sumFva = sumFva,
             sumArbeidstimer = timerArbeidet,
-            prosentfaktor = prosentfaktor.timer,
+            prosentfaktor = prosentfaktor,
             forbruksdager = forbruksdager,
             gjenståendeEgenandel = gjenståendeEgenandel - forbruktEgenandel,
             oppfyllerKravTilTaptArbeidstid = true,

@@ -21,6 +21,7 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import org.junit.jupiter.api.Test
+import kotlin.concurrent.timer
 
 class BeregningTest {
     @Test
@@ -501,6 +502,44 @@ class BeregningTest {
                 val utbetalingPerDag = utbetalinger.map { it["utbetaling"].asInt() }
                 satsPerDag.shouldContainExactly(762, 762, 762, 762, 1074, 1074, 1074, 1074, 1074, 1074, 1074)
                 utbetalingPerDag.shouldContainExactly(509, 510, 0, 0, 717, 717, 717, 717, 721, 0, 0)
+            }
+        }
+    }
+
+    @Test
+    fun ` jobbet for mye i påfølgende perioder fører til stans `() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(2, timer = List(14) { 7 })
+            meldekortBatch(true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(3, timer = List(14) { 7 })
+            meldekortBatch(true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(4, timer = List(14) { 7 })
+            meldekortBatch(true)
+
+            behandlingsresultatForslag {
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
             }
         }
     }

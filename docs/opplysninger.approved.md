@@ -35,6 +35,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019ae986-a128-72f0-9868-032bc8a57b21|Prosentfaktor|Desimaltall|double|||Resultat
 |019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2|Siste forbruksdato|Dato|LocalDate|||Utgangspunkt
 |019d007f-8696-7409-bd51-f4fbfc4babb4|Siste antall dager som gjenstår|Heltall|int|| Dager|Intern
+|019d7244-fa9a-71e6-89b3-a2acef856ef5|Maks antall perioder en kan ha påfølgende tap av arbeidstid|Heltall|int|||Resultat
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger

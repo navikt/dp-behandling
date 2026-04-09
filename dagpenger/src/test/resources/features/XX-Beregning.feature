@@ -603,23 +603,23 @@ Egenskap: Beregning av meldekort
       | Periode    | 52    | 19.11.2025 |          |
       | Sats       | 682   | 19.11.2025 |          |
       | FVA        | 31    | 19.11.2025 |          |
-      | Egenandel  | 2046  | 19.11.2025|          |
+      | Egenandel  | 2046  | 19.11.2025 |          |
     Når meldekort for periode som begynner fra og med 17.11.2025 mottas med
-      | Dag     | type                    | verdi |
-      | Mandag  | Arbeidstimer            | 0     |
-      | Tirsdag | Arbeidstimer            | 4     |
-      | Onsdag  | Arbeidstimer            | 0     |
-      | Torsdag | Arbeidstimer            | 0     |
-      | Fredag  | Arbeidstimer            | 3     |
-      | Lørdag  | Arbeidstimer            | 0     |
-      | Søndag  | Arbeidstimer            | 0     |
-      | Mandag  | Arbeidstimer            | 0     |
-      | Tirsdag | Arbeidstimer            | 0     |
-      | Onsdag  | Arbeidstimer            | 0     |
-      | Torsdag | Arbeidstimer            | 0     |
-      | Fredag  | Arbeidstimer            | 3     |
-      | Lørdag  | Arbeidstimer            | 0     |
-      | Søndag  | Arbeidstimer            | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 4     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 3     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 3     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 2750 kroner
     Og det forbrukes 8 dager
@@ -632,23 +632,23 @@ Egenskap: Beregning av meldekort
       | Sats       | 1516  | 22.12.2025 |          |
       | Sats       | 1517  | 01.01.2026 |          |
       | FVA        | 37.5  | 22.12.2025 |          |
-      | Egenandel  | 0     | 22.12.2025|          |
+      | Egenandel  | 0     | 22.12.2025 |          |
     Når meldekort for periode som begynner fra og med 22.12.2025 mottas med
-      | Dag     | type                    | verdi |
-      | Mandag  | Arbeidstimer            | 8.5    |
-      | Tirsdag | Arbeidstimer            | 0     |
-      | Onsdag  | Arbeidstimer            | 0     |
-      | Torsdag | Arbeidstimer            | 0     |
-      | Fredag  | Arbeidstimer            | 0     |
-      | Lørdag  | Arbeidstimer            | 0     |
-      | Søndag  | Arbeidstimer            | 0     |
-      | Mandag  | Arbeidstimer            | 0     |
-      | Tirsdag | Arbeidstimer            | 0     |
-      | Onsdag  | Arbeidstimer            | 0     |
-      | Torsdag | Arbeidstimer            | 0     |
-      | Fredag  | Arbeidstimer            | 7.5   |
-      | Lørdag  | Arbeidstimer            | 6     |
-      | Søndag  | Arbeidstimer            | 0     |
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 8.5   |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  | Arbeidstimer | 0     |
+      | Søndag  | Arbeidstimer | 0     |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 7.5   |
+      | Lørdag  | Arbeidstimer | 6     |
+      | Søndag  | Arbeidstimer | 0     |
     Så skal kravet til tapt arbeidstid være oppfylt
     Og utbetales 10714 kroner
     Og utbetales 1071 kroner på dag 1
@@ -662,5 +662,33 @@ Egenskap: Beregning av meldekort
     Og utbetales 1072 kroner på dag 9
     Og utbetales 1072 kroner på dag 10
     Og det forbrukes 10 dager
+
+  Scenario: Kombinerer aktiviteter på samme dag
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 01.01.2020 |          |
+      | Sats       | 1200  | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type   | verdi |
+      | Mandag  | Fravær | 0     |
+      | Tirsdag | Fravær | 0     |
+      | Onsdag  | Fravær | 0     |
+      | Torsdag | Fravær | 0     |
+      | Fredag  | Fravær | 0     |
+      | Lørdag  | Fravær | 0     |
+      | Søndag  | Fravær | 0     |
+      | Mandag  | Fravær | 0     |
+      | Tirsdag | Fravær | 0     |
+      | Onsdag  | Fravær | 0     |
+      | Torsdag | Fravær | 0     |
+      | Fredag  | Fravær | 0     |
+      | Lørdag  | Fravær | 0     |
+      | Søndag  | Fravær | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og utbetales 0 kroner
+    Og det forbrukes 0 dager
 
 

@@ -24,6 +24,8 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
     init {
         registrer(MeldekortBeregningPlugin())
         registrer(Kvotetelling())
+        registrer(RettighetsperiodePlugin(this.regelverk))
+        registrer(TaptArbeidstidStans())
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
