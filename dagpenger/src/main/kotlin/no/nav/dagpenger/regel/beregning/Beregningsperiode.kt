@@ -64,16 +64,17 @@ class Beregningsperiode private constructor(
 
         val totalBrutto = Beløp(satsgrupper.sumOf { it.bruttoBeløp.verdien })
 
-        // Fordel egenandel proporsjonalt og beregn utbetaling per dag
+        // Beregn egenandel per satsgruppe én gang og gjenbruk ved fordeling og summering
+        val grupperMedEgenandel = satsgrupper.map { it to egenandelForPeriode(it.bruttoBeløp, totalBrutto) }
+
         val forbruksdager =
-            satsgrupper
-                .flatMap { gruppe ->
-                    val egenandelForPeriode = egenandelForPeriode(gruppe.bruttoBeløp, totalBrutto)
-                    val nettoBeløp = (gruppe.bruttoBeløp - egenandelForPeriode).avrundetBeløp
-                    gruppe.fordelPåDager(nettoBeløp)
+            grupperMedEgenandel
+                .flatMap { (gruppe, egenandelForGruppe) ->
+                    val netto = (gruppe.bruttoBeløp - egenandelForGruppe).avrundetBeløp
+                    gruppe.fordelPåDager(netto)
                 }.sortedBy { it.dag.dato }
 
-        val forbruktEgenandel = Beløp(satsgrupper.sumOf { egenandelForPeriode(it.bruttoBeløp, totalBrutto).verdien })
+        val forbruktEgenandel = Beløp(grupperMedEgenandel.sumOf { (_, egenandel) -> egenandel.verdien })
 
         return Beregningresultat(
             utbetaling = Beløp(forbruksdager.sumOf { it.tilUtbetaling.verdien }),
@@ -162,8 +163,7 @@ private class SatsGruppe(
         val dagsbeløp = (beløp - rest) / Beløp(antall)
         return arbeidsdager.mapIndexed { index, dag ->
             val erSisteDag = index == arbeidsdager.lastIndex
-            val tilUtbetaling = if (erSisteDag) dagsbeløp + rest else dagsbeløp
-            Beregningresultat.Forbruksdag(dag, tilUtbetaling)
+            Beregningresultat.Forbruksdag(dag, if (erSisteDag) dagsbeløp + rest else dagsbeløp)
         }
     }
 }
