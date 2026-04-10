@@ -1,0 +1,2 @@
+UPDATE behandling SET tilstand = 'Avbrutt' WHERE behandling_id = '019d4a5f-f427-7b87-a314-81c065ccbadf' AND EXISTS (SELECT 1 FROM behandling WHERE behandling_id = '019d4a5f-f427-7b87-a314-81c065ccbadf');
+INSERT INTO behandling_tilstand (behandling_id, tilstand, endret) SELECT '019d4a5f-f427-7b87-a314-81c065ccbadf', 'Avbrutt', now() WHERE EXISTS (SELECT 1 FROM behandling WHERE behandling_id = '019d4a5f-f427-7b87-a314-81c065ccbadf');
