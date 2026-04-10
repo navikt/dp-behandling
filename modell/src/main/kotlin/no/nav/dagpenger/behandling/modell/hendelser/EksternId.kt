@@ -78,3 +78,14 @@ class OmgjøringId(
             "omgjøringId" to id.toString(),
         )
 }
+
+class AvsluttetArbeidssøkerperiodeId(
+    id: UUID,
+) : EksternId<UUID>(id) {
+    constructor(id: String) : this(UUID.fromString(id))
+
+    override fun kontekstMap() =
+        mapOf(
+            "avsluttetArbeidssøkerperiodeId" to id.toString(),
+        )
+}
