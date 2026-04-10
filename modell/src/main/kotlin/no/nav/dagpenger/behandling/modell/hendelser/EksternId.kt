@@ -79,7 +79,7 @@ class OmgjøringId(
         )
 }
 
-class AvsluttetArbeidssøkerperiodeId(
+class ArbeidssøkerperiodeId(
     id: UUID,
 ) : EksternId<UUID>(id) {
     constructor(id: String) : this(UUID.fromString(id))

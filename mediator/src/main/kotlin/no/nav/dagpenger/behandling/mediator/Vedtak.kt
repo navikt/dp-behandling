@@ -27,6 +27,7 @@ import no.nav.dagpenger.behandling.mediator.api.tilOpplysningsverdiDTO
 import no.nav.dagpenger.behandling.mediator.api.utbetalinger
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
@@ -106,6 +107,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
                         is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
+                        is ArbeidssøkerperiodeId -> TODO()
                     },
                 skjedde = behandlingAv.skjedde,
             ),

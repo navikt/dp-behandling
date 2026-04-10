@@ -7,6 +7,7 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
+import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
 import no.nav.dagpenger.behandling.mediator.mottak.FjernOpplysningMessage
@@ -93,23 +94,67 @@ internal class PostgresMeldingRepository : MeldingRepository {
 
     private fun meldingType(hendelseMessage: Melding): MeldingTypeDTO? =
         when (hendelseMessage) {
-            is ApiMelding -> MeldingTypeDTO.API
-            is AvbrytBehandlingMessage -> MeldingTypeDTO.AVBRYT_BEHANDLING
-            is AvklaringIkkeRelevantMessage -> MeldingTypeDTO.AVKLARING_IKKE_RELEVANT
-            is BeregnMeldekortMessage -> MeldingTypeDTO.BEREGN_MELDEKORT
-            is FjernOpplysningMessage -> MeldingTypeDTO.FJERN_OPPLYSNING
-            is GodkjennBehandlingMessage -> MeldingTypeDTO.MANUELL_BEHANDLING_AVKLART
-            is MeldekortInnsendtMessage -> MeldingTypeDTO.MELDEKORT_INNSENDT
-            is OmgjøringMessage -> MeldingTypeDTO.OMGJØRING
-            is OpplysningSvarMessage -> MeldingTypeDTO.OPPLYSNING_SVAR
-            is OpprettBehandlingMessage -> MeldingTypeDTO.OPPRETT_BEHANDLING
-            is SøknadInnsendtMessage -> MeldingTypeDTO.SØKNAD_INNSENDT
-            is UtbetalingStatusMessage -> MeldingTypeDTO.UTBETALING_STATUS
-            is BehandlingStårFastMessage -> MeldingTypeDTO.BEHANDLING_STÅR_FAST
-            else ->
+            is ApiMelding -> {
+                MeldingTypeDTO.API
+            }
+
+            is AvbrytBehandlingMessage -> {
+                MeldingTypeDTO.AVBRYT_BEHANDLING
+            }
+
+            is AvklaringIkkeRelevantMessage -> {
+                MeldingTypeDTO.AVKLARING_IKKE_RELEVANT
+            }
+
+            is BehandlingStårFastMessage -> {
+                MeldingTypeDTO.BEHANDLING_STÅR_FAST
+            }
+
+            is AvsluttetArbeidssøkerperiodeMessage -> {
+                MeldingTypeDTO.AVSLUTTET_ARBEIDSSØKERPERIODE
+            }
+
+            is BeregnMeldekortMessage -> {
+                MeldingTypeDTO.BEREGN_MELDEKORT
+            }
+
+            is FjernOpplysningMessage -> {
+                MeldingTypeDTO.FJERN_OPPLYSNING
+            }
+
+            is GodkjennBehandlingMessage -> {
+                MeldingTypeDTO.MANUELL_BEHANDLING_AVKLART
+            }
+
+            is MeldekortInnsendtMessage -> {
+                MeldingTypeDTO.MELDEKORT_INNSENDT
+            }
+
+            is OmgjøringMessage -> {
+                MeldingTypeDTO.OMGJØRING
+            }
+
+            is OpplysningSvarMessage -> {
+                MeldingTypeDTO.OPPLYSNING_SVAR
+            }
+
+            is OpprettBehandlingMessage -> {
+                MeldingTypeDTO.OPPRETT_BEHANDLING
+            }
+
+            is SøknadInnsendtMessage -> {
+                MeldingTypeDTO.SØKNAD_INNSENDT
+            }
+
+            is UtbetalingStatusMessage -> {
+                MeldingTypeDTO.UTBETALING_STATUS
+            }
+
+            else -> {
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
                 }
+            }
         }
 
     companion object {
@@ -118,17 +163,18 @@ internal class PostgresMeldingRepository : MeldingRepository {
 }
 
 private enum class MeldingTypeDTO {
+    API,
     AVBRYT_BEHANDLING,
     AVKLARING_IKKE_RELEVANT,
-    BEREGN_MELDEKORT,
-    MANUELL_BEHANDLING_AVKLART,
-    OPPLYSNING_SVAR,
-    SØKNAD_INNSENDT,
-    MELDEKORT_INNSENDT,
-    API,
-    OPPRETT_BEHANDLING,
-    FJERN_OPPLYSNING,
-    UTBETALING_STATUS,
+    AVSLUTTET_ARBEIDSSØKERPERIODE,
     BEHANDLING_STÅR_FAST,
+    BEREGN_MELDEKORT,
+    FJERN_OPPLYSNING,
+    MANUELL_BEHANDLING_AVKLART,
+    MELDEKORT_INNSENDT,
     OMGJØRING,
+    OPPLYSNING_SVAR,
+    OPPRETT_BEHANDLING,
+    SØKNAD_INNSENDT,
+    UTBETALING_STATUS,
 }

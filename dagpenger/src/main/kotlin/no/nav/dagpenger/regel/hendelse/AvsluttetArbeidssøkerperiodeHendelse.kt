@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
-import no.nav.dagpenger.behandling.modell.hendelser.AvsluttetArbeidssøkerperiodeId
+import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
@@ -14,13 +14,14 @@ import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Manuellprosess
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
 data class AvsluttetArbeidssøkerperiode(
-    val avsluttetArbeidssøkerperiodeId: AvsluttetArbeidssøkerperiodeId,
+    val arbeidssøkerperiodeId: ArbeidssøkerperiodeId,
     val fastsattMeldingsdag: LocalDate? = null,
     val avsluttetTidspunkt: LocalDateTime,
     val mottattTidspunkt: LocalDateTime = LocalDateTime.now(),
@@ -34,7 +35,7 @@ class AvsluttetArbeidssøkerperiodeHendelse(
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
-        eksternId = avsluttetArbeidssøkerperiode.avsluttetArbeidssøkerperiodeId,
+        eksternId = avsluttetArbeidssøkerperiode.arbeidssøkerperiodeId,
         skjedde = avsluttetArbeidssøkerperiode.mottattTidspunkt.toLocalDate(),
         opprettet = opprettet,
     ) {

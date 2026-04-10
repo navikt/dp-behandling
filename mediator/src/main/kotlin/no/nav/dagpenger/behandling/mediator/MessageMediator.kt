@@ -12,6 +12,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMottak
+import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssøkerperiodeMottak
+import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
@@ -55,6 +57,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import java.util.UUID
@@ -70,6 +73,7 @@ internal class MessageMediator(
     init {
         AvbrytBehandlingMottak(rapidsConnection, this)
         AvklaringIkkeRelevantMottak(rapidsConnection, this)
+        AvsluttetArbeidssøkerperiodeMottak(rapidsConnection, this)
         BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
         FjernOpplysningMottak(rapidsConnection, this, opplysningstyper)
         GodkjennBehandlingMottak(rapidsConnection, this)
@@ -246,6 +250,16 @@ internal class MessageMediator(
         }
     }
 
+    override fun behandle(
+        hendelse: AvsluttetArbeidssøkerperiodeHendelse,
+        message: AvsluttetArbeidssøkerperiodeMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
     private fun <HENDELSE : PersonHendelse> behandle(
         hendelse: HENDELSE,
         message: KafkaMelding,
@@ -359,6 +373,12 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: UtbetalingStatus,
         message: UtbetalingStatusMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: AvsluttetArbeidssøkerperiodeHendelse,
+        message: AvsluttetArbeidssøkerperiodeMessage,
         context: MessageContext,
     )
 }

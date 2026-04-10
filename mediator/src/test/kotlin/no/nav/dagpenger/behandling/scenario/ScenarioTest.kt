@@ -476,4 +476,35 @@ class ScenarioTest {
             }
         }
     }
+
+    @Test
+    fun `stanser fordi bruker blir avregistrert i ASR`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder.single().tilOgMed shouldBe null
+            }
+
+            person.avsluttArbeidssøkerperiode(
+                avsluttetTidspunkt = 4.juli(2018).atTime(11, 21),
+                fastsattMeldingsdag = 2.juli(2018),
+            )
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder.single().tilOgMed shouldBe 2.juli(2018)
+            }
+        }
+    }
 }

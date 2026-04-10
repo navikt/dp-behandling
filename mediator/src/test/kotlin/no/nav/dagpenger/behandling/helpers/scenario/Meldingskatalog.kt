@@ -106,4 +106,18 @@ internal object Meldingskatalog {
                 "gjelderDato" to gjelderDato,
             ),
         ).toJson()
+
+    fun avsluttArbeidssøkerperiode(
+        ident: String,
+        avsluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+        fastsattMeldingsdag: LocalDate? = null,
+    ) = JsonMessage
+        .newMessage(
+            "avsluttet_arbeidssokerperiode",
+            buildMap {
+                put("ident", ident)
+                put("avsluttetTidspunkt", avsluttetTidspunkt)
+                fastsattMeldingsdag?.let { put("fastsattMeldingsdag", it) }
+            },
+        ).toJson()
 }

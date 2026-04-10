@@ -61,7 +61,7 @@ class RettighetsperiodePlugin(
 
         // Fjern gamle perioder før vi legger til nye
         egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
-            opplysninger.fjern(it.id)
+            // opplysninger.fjern(it.id)
         }
 
         val eksisterende = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
