@@ -149,6 +149,7 @@ object OpplysningsTyper {
     val RegistrertSomArbeidssøkerId = Opplysningstype.Id(UUID.fromString("0194881f-9442-707b-a6ee-e96c06877be0"), Boolsk)
     val UnntakForArbeidssøkerId = Opplysningstype.Id(UUID.fromString("019874db-9555-70e6-a9c3-e3dd785d7118"), Boolsk)
     val OppyllerKravTilRegistrertArbeidssøkerId = Opplysningstype.Id(UUID.fromString("0194881f-9442-707b-a6ee-e96c06877be1"), Boolsk)
+    val OppfyllerMeldepliktId = Opplysningstype.Id(UUID.fromString("019d870c-6847-71fa-89d2-81a53d19cfcf"), Boolsk)
     val KravTilArbeidssøkerId = Opplysningstype.Id(UUID.fromString("0194881f-9442-707b-a6ee-e96c06877be2"), Boolsk)
     val ErReellArbeidssøkerVurdertId = Opplysningstype.Id(UUID.fromString("0194ff86-a035-7eb0-9c60-21899f7cc0c1"), Boolsk)
     val SkalVernepliktVurderesId = Opplysningstype.Id(UUID.fromString("01980cf4-9010-7bcf-b578-ca5a825d64ef"), Boolsk)

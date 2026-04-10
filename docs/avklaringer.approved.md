@@ -106,6 +106,13 @@ Søker har oppgitt tilleggsopplysninger i søknaden. Vurder om tilleggsopplysnin
 Søker har lukkede saker i Arena fra de siste 8 ukene. Sjekk om disse kan påvirke behandlingen.<br>Hvis vi nylig har gitt avslag, sjekk om det er nødvendig med ekstra veiledning.
 
 ---
+## Ikke oppfylt meldeplikt
+**Kode:** `IkkeOppfyllerMeldeplikt`
+
+### Beskrivelse
+Bruker har ikke meldt seg i tide (§4-8). Vurder om dagpenger skal stanses.
+
+---
 ## Ikke registrert som arbeidssøker
 **Kode:** `IkkeRegistrertSomArbeidsøker`
 

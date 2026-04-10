@@ -272,6 +272,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
+|019d870c-6847-71fa-89d2-81a53d19cfcf|Oppfyller meldeplikt|Boolsk|boolean|||Resultat
 ### § 4-9. Egenandel
 *Type:* Fastsettelse
 #### Avhenger på data fra

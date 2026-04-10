@@ -41,6 +41,7 @@ import no.nav.dagpenger.regel.Manuellprosess
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.Omgjøringsprosess
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.Stansprosess
 import no.nav.dagpenger.regel.RegelverkFerietillegg
 import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
@@ -188,6 +189,7 @@ fun registrerRegelverk(
         registrer(Manuellprosess())
         registrer(Omgjøringsprosess())
         registrer(Ferietilleggprosess())
+        registrer(Stansprosess())
     }
 
     opplysningRepository

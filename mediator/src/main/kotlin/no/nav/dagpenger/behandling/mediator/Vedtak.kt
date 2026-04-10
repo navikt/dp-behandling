@@ -29,6 +29,7 @@ import no.nav.dagpenger.behandling.mediator.api.tilOpplysningsverdiDTO
 import no.nav.dagpenger.behandling.mediator.api.tilUtbetalingDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -48,6 +49,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.FulleYtelser
 import no.nav.dagpenger.regel.Gjenopptak
+import no.nav.dagpenger.regel.Meldeplikt
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold
@@ -110,6 +112,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
                         is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
                         is FerietilleggId -> HendelseDTOTypeDTO.MANUELL // TODO Legg til Ferietillegg???
+                        is ArbeidssøkerperiodeId -> TODO()
                     },
                 skjedde = behandlingAv.skjedde,
             ),
@@ -237,6 +240,7 @@ internal val opplysningTilVilkårMap =
         ReellArbeidssøker.oppfyllerKravetTilEthvertArbeid to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_Å_TA_ETHVERT_ARBEID,
         ReellArbeidssøker.kravTilArbeidssøker to VilkaarNavnDTO.KRAV_TIL_ARBEIDSSØKER,
         RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker to VilkaarNavnDTO.REGISTRERT_SOM_ARBEIDSSØKER_PÅ_SØKNADSTIDSPUNKTET,
+        Meldeplikt.oppfyllerMeldeplikt to VilkaarNavnDTO.OPPFYLLER_MELDEPLIKT,
         StreikOgLockout.ikkeStreikEllerLockout to VilkaarNavnDTO.ER_MEDLEMMET_IKKE_PÅVIRKET_AV_STREIK_ELLER_LOCK_OUT_,
         TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntekt to VilkaarNavnDTO.KRAV_TIL_TAP_AV_ARBEIDSINNTEKT,
         TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid to VilkaarNavnDTO.TAP_AV_ARBEIDSTID_ER_MINST_TERSKEL,

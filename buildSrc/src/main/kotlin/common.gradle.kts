@@ -22,6 +22,7 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+    maxHeapSize = "1g"
     reports.junitXml.includeSystemOutLog = false
     reports.junitXml.includeSystemErrLog = false
     testLogging {

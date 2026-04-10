@@ -33,8 +33,50 @@ import kotlin.system.measureTimeMillis
 class BehandlingRepositoryPostgresPerformanceTest {
     private val ident = "12345678901"
 
-    // Pre-generer opplysningstyper som kan gjenbrukes
-    private val opplysningstyper = genererOpplysningstyper(500)
+    companion object {
+        // Pre-generer opplysningstyper én gang per JVM for å unngå global state-forurensning
+        private val opplysningstyper = genererOpplysningstyper(500)
+
+        private fun genererOpplysningstyper(antall: Int): List<Opplysningstype<*>> =
+            (0 until antall).map { i ->
+                when (i % 5) {
+                    0 -> {
+                        Opplysningstype.desimaltall(
+                            Opplysningstype.Id(UUIDv7.ny(), Desimaltall),
+                            "perf-opplysning-desimal-$i",
+                        )
+                    }
+
+                    1 -> {
+                        Opplysningstype.boolsk(
+                            Opplysningstype.Id(UUIDv7.ny(), Boolsk),
+                            "perf-opplysning-bool-$i",
+                        )
+                    }
+
+                    2 -> {
+                        Opplysningstype.heltall(
+                            Opplysningstype.Id(UUIDv7.ny(), Heltall),
+                            "perf-opplysning-heltall-$i",
+                        )
+                    }
+
+                    3 -> {
+                        Opplysningstype.dato(
+                            Opplysningstype.Id(UUIDv7.ny(), Dato),
+                            "perf-opplysning-dato-$i",
+                        )
+                    }
+
+                    else -> {
+                        Opplysningstype.tekst(
+                            Opplysningstype.Id(UUIDv7.ny(), Tekst),
+                            "perf-opplysning-tekst-$i",
+                        )
+                    }
+                }
+            }
+    }
 
     @Test
     fun `performance test - lagre og hent behandling med mange opplysninger i lang kjede`() {
@@ -321,44 +363,4 @@ class BehandlingRepositoryPostgresPerformanceTest {
             opplysninger.leggTil(faktum)
         }
     }
-
-    private fun genererOpplysningstyper(antall: Int): List<Opplysningstype<*>> =
-        (0 until antall).map { i ->
-            when (i % 5) {
-                0 -> {
-                    Opplysningstype.desimaltall(
-                        Opplysningstype.Id(UUIDv7.ny(), Desimaltall),
-                        "perf-opplysning-desimal-$i",
-                    )
-                }
-
-                1 -> {
-                    Opplysningstype.boolsk(
-                        Opplysningstype.Id(UUIDv7.ny(), Boolsk),
-                        "perf-opplysning-bool-$i",
-                    )
-                }
-
-                2 -> {
-                    Opplysningstype.heltall(
-                        Opplysningstype.Id(UUIDv7.ny(), Heltall),
-                        "perf-opplysning-heltall-$i",
-                    )
-                }
-
-                3 -> {
-                    Opplysningstype.dato(
-                        Opplysningstype.Id(UUIDv7.ny(), Dato),
-                        "perf-opplysning-dato-$i",
-                    )
-                }
-
-                else -> {
-                    Opplysningstype.tekst(
-                        Opplysningstype.Id(UUIDv7.ny(), Tekst),
-                        "perf-opplysning-tekst-$i",
-                    )
-                }
-            }
-        }
 }

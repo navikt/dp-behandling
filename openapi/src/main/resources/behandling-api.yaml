@@ -1814,7 +1814,7 @@ components:
           type: string
         type:
           type: string
-          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring", "Ferietillegg" ]
+          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring", "Arbeidssøkerperiode", "Ferietillegg" ]
         skjedde:
           type: string
           format: date
@@ -1897,6 +1897,7 @@ components:
         - Oppfyller kravet til verneplikt
         - Oppfyller kravet til å ta ethvert arbeid
         - Oppfyller kravet til å være arbeidsfør
+        - Oppfyller meldeplikt
         - Registrert som arbeidssøker på søknadstidspunktet
         - Tap av arbeidstid er minst terskel
         - Utfall etter samordning

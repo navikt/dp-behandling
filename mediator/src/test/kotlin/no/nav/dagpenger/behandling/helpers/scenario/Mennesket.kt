@@ -16,6 +16,7 @@ import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.uuid.UUIDv7
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.random.Random
@@ -123,6 +124,8 @@ internal class Mennesket(
         timer: List<Int> = emptyList(),
     ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, timer)
 
+    fun fastsattMeldedato(nummer: Int) = meldesyklus.periode(nummer).fraOgMed
+
     fun sendInnMeldekort(
         periode: Periode,
         korrigeringAv: UUID? = null,
@@ -132,6 +135,24 @@ internal class Mennesket(
         val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, timer)
         rapid.sendTestMessage(message)
         return meldekortId
+    }
+
+    fun avsluttArbeidssøkerperiode(
+        fastsattMeldingsdag: LocalDate,
+        avsluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+        fristBrutt: Boolean = false,
+        manueltAvregistrert: Boolean = false,
+    ) {
+        val message =
+            Meldingskatalog.avsluttArbeidssøkerperiode(
+                ident = ident,
+                fastsattMeldingsdag,
+                avsluttetTidspunkt,
+                fristBrutt,
+                manueltAvregistrert,
+            )
+
+        rapid.sendTestMessage(message)
     }
 
     val avklaringer: List<Avklaring>

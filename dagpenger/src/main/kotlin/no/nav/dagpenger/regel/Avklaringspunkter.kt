@@ -217,6 +217,13 @@ object Avklaringspunkter {
             beskrivelse = "Søker er ikke registrert som arbeidssøker på søknadstidspunktet.",
         )
 
+    val IkkeOppfyllerMeldeplikt =
+        Avklaringkode(
+            kode = "IkkeOppfyllerMeldeplikt",
+            tittel = "Ikke oppfylt meldeplikt",
+            beskrivelse = "Bruker har ikke meldt seg i tide (§4-8). Vurder om dagpenger skal stanses.",
+        )
+
     val HarOppgittPermittering =
         Avklaringkode(
             kode = "HarOppgittPermittering",

@@ -18,10 +18,10 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import org.junit.jupiter.api.Test
-import kotlin.concurrent.timer
 
 class BeregningTest {
     @Test
@@ -507,7 +507,7 @@ class BeregningTest {
     }
 
     @Test
-    fun ` jobbet for mye i påfølgende perioder fører til stans `() {
+    fun `arbeid over terskel 3 meldekort på rad`() {
         nyttScenario {
             inntektSiste12Mnd = 300000
         }.test {
@@ -534,12 +534,27 @@ class BeregningTest {
             person.sendInnMeldekort(4, timer = List(14) { 7 })
             meldekortBatch(true)
 
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
 
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
+
+                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe true
+            }
+
+            // Verifiser at vi kan håndtere melding om avsluttet arbeidssøkerperiode etter stans
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = 4.juli(2018),
+                avsluttetTidspunkt = 4.juli(2018).atTime(11, 21),
+            )
+
+            behandlingsresultat {
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
+
+                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe false
             }
         }
     }
