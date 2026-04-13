@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
+import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -83,7 +84,6 @@ class GjenopptakTest {
             behovsløsere.løsTilForslag()
 
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(23.august(2018)))
             saksbehandler.endreOpplysning(
                 oppholdMedArbeidI12ukerEllerMer,
                 true,
@@ -101,13 +101,22 @@ class GjenopptakTest {
                 behandlingskjedeId shouldBe innvilgelseBehandlingId
                 førteTil shouldBe "Gjenopptak"
 
+                with(opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned)) {
+                    this shouldHaveSize 2
+                }
+
                 with(opplysninger(Gjenopptak.skalGjenopptas)) {
                     this shouldHaveSize 1
                     this.single().verdi.verdi shouldBe true
                     this.single().opprinnelse shouldBe Periodestatus.Ny
+                    this.single().gyldigFraOgMed shouldBe 23.august(2018)
                 }
 
-                with(opplysninger(inntektFraSkatt)) { this shouldHaveSize 2 }
+                with(opplysninger(inntektFraSkatt)) {
+                    this shouldHaveSize 2
+                    this.last().gyldigFraOgMed shouldBe 23.august(2018)
+                }
+
                 with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
                 with(opplysninger(grunnlag)) {
                     this shouldHaveSize 2
