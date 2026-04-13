@@ -721,3 +721,59 @@ Egenskap: Beregning av meldekort
     Og det forbrukes 5 dager
     Og utbetales 2750,0 kroner
 
+  Scenario: Forbruk av siste rest i perioden med arbeid siste halvpart av perioden
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 1     | 01.01.2020 |          |
+      | Sats       | 500   | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  |              |       |
+      | Søndag  |              |       |
+      | Mandag  | Arbeidstimer | 4     |
+      | Tirsdag | Arbeidstimer | 4     |
+      | Onsdag  | Arbeidstimer | 4     |
+      | Torsdag | Arbeidstimer | 4     |
+      | Fredag  | Arbeidstimer | 4     |
+      | Lørdag  |              | 0     |
+      | Søndag  |              | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og det forbrukes 5 dager
+    Og utbetales 1875,0 kroner
+
+  Scenario: Forbruk av siste rest i perioden med arbeid første halvpart av perioden
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 1     | 01.01.2020 |          |
+      | Sats       | 500   | 01.01.2020 |          |
+      | FVA        | 40    | 01.01.2020 |          |
+      | Egenandel  | 0     | 01.01.2020 |          |
+    Når meldekort for periode som begynner fra og med 06.01.2020 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 4     |
+      | Tirsdag | Arbeidstimer | 4     |
+      | Onsdag  | Arbeidstimer | 4     |
+      | Torsdag | Arbeidstimer | 4     |
+      | Fredag  | Arbeidstimer | 4     |
+      | Lørdag  |              |       |
+      | Søndag  |              |       |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  |              | 0     |
+      | Søndag  |              | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og det forbrukes 5 dager
+    Og utbetales 1875,0 kroner
+
