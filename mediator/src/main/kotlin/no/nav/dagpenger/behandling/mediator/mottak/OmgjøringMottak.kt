@@ -53,7 +53,6 @@ internal class OmgjøringMessage(
             eksternId = OmgjøringId(UUIDv7.ny()),
             gjelderDato = packet["gjelderDato"].asLocalDate(),
             opprettet = opprettet,
-            meldekortkorrigeringerSupplier = meldekortRepository::hentKorrigeringer,
         )
 
     override fun behandle(

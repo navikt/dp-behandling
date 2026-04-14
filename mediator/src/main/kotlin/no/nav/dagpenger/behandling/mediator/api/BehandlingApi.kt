@@ -185,7 +185,6 @@ internal fun Application.behandlingApi(
                                     eksternId = OmgjøringId(id),
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
-                                    meldekortkorrigeringerSupplier = meldekortRepository::hentKorrigeringer,
                                 )
                             }
 

@@ -34,7 +34,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
                 // Mangler det meldeperioder prøver vi bare vilkår på nytt for innvilgelsesdatoen
                 ?: førsteDagMedRett
 
-        val sistehendelseDato = opplysninger.finnAlle(hendelseTypeOpplysningstype).maxOf { it.gyldighetsperiode.tilOgMed }
+        val sistehendelseDato = opplysninger.kunEgne.finnAlle(hendelseTypeOpplysningstype).maxOf { it.gyldighetsperiode.tilOgMed }
         val regelkjøringSluttDato = maxOf(sisteMeldeperiode, sistehendelseDato)
 
         return Regelkjøring(
