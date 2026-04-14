@@ -63,7 +63,6 @@ internal class PersonMediator : PersonObservatør {
             context.publish(key, melding.toJson())
             withLoggingContext("meldingId" to melding.id) {
                 logger.info { "Publisert melding." }
-                sikkerlogg.info { "Publisert melding. Innhold: ${melding.toJson()}" }
             }
         }
     }
