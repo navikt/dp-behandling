@@ -26,6 +26,7 @@ Laget avklaring om JobbetUtenforNorge
 Laget avklaring om HarOppgittPermittering
 Behov:
 - BostedslandErNorge
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger

@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.Samordning.uføre
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
@@ -26,18 +27,14 @@ class DagpengensStørrelseSteg : No {
     @BeforeStep
     fun kjørRegler() {
         regelkjøring = Regelkjøring(fraDato, opplysninger, *regelsett.toTypedArray())
+        opplysninger.leggTil(Faktum(uføre, false))
+        regelkjøring.evaluer()
     }
 
     init {
         Gitt("at dagpengegrunnlag er {string}") { grunnlag: String ->
             opplysninger.leggTil(Faktum(prøvingsdato, fraDato)).also { regelkjøring.evaluer() }
-            opplysninger
-                .leggTil(
-                    Faktum(
-                        Dagpengegrunnlag.grunnlag,
-                        Beløp(grunnlag.toBigDecimal()),
-                    ),
-                ).also { regelkjøring.evaluer() }
+            opplysninger.leggTil(Faktum(Dagpengegrunnlag.grunnlag, Beløp(grunnlag.toBigDecimal()))).also { regelkjøring.evaluer() }
         }
 
         Og("at søker har ikke barn") {

@@ -479,7 +479,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9433-70e9-a85b-c246150c45ce|Pleiepenger etter lovens kapittel 9|Boolsk|boolean|Pleiepenger||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45cf|Omsorgspenger etter lovens kapittel 9|Boolsk|boolean|Omsorgspenger||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45d0|Opplæringspenger etter lovens kapittel 9|Boolsk|boolean|Opplæringspenger||Ekstern
-|0194881f-9433-70e9-a85b-c246150c45d1|Uføretrygd etter lovens kapittel 12|Boolsk|boolean|||Utgangspunkt
+|0194881f-9433-70e9-a85b-c246150c45d1|Uføretrygd etter lovens kapittel 12|Boolsk|boolean|Uføre||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45d2|Foreldrepenger etter lovens kapittel 14|Boolsk|boolean|Foreldrepenger||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45d3|Svangerskapspenger etter lovens kapittel 14|Boolsk|boolean|Svangerskapspenger||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45d4|Sykepenger dagsats|Penger|Beløp|||Utgangspunkt

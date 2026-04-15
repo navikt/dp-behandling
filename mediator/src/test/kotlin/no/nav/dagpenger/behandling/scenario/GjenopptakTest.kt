@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -179,6 +180,15 @@ class GjenopptakTest {
             behovsløsere.løsTilForslag()
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(gjenopptaksdato))
             saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.endreOpplysning(
+                oppholdMedArbeidI12ukerEllerMer,
+                true,
+                "Har krav på ny vurdering av grunnlag",
+                Gyldighetsperiode(gjenopptaksdato),
+            )
+
+            // Verifiser at vi spør om inntekt
+            behovsløsere.aktiveBehov() shouldContain "Inntekt"
 
             // Legg inn en inntekt som gir et lavere grunnlag
             val lavereInntekt = person.inntekt(300000, gjenopptaksdato.minusMonths(2))

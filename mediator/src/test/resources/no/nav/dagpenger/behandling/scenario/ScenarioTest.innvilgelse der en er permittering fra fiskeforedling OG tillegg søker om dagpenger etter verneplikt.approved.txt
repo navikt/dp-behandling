@@ -24,6 +24,7 @@ Behov:
 - Inntekt
 - BostedslandErNorge
 - RegistrertSomArbeidssøker
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -32,9 +33,12 @@ Behov:
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Behov:
 - Inntekt
 - RegistrertSomArbeidssøker
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -42,10 +46,8 @@ Behov:
 - Foreldrepenger
 - Svangerskapspenger
 Laget avklaring om EØSArbeid
-Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
-Laget avklaring om MuligGjenopptak
 Laget avklaring om SjekkPrøvingsdato
 Laget avklaring om BeregnetArbeidstid
 Behov:
@@ -55,6 +57,7 @@ Laget avklaring om BarnMåGodkjennes
 Behov:
 - Inntekt
 - RegistrertSomArbeidssøker
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger

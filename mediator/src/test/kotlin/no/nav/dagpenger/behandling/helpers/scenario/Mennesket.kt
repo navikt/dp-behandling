@@ -208,6 +208,7 @@ internal class Mennesket(
                 Behov.Pleiepenger to false,
                 Behov.OppgittAndreYtelserUtenforNav to false,
                 Behov.AndreØkonomiskeYtelser to false,
+                Behov.Uføre to false,
             )
 
     private val inntektV1 get() = inntekt(inntektSiste12Mnd.toBigDecimal(), søknadsdato.minusMonths(2))

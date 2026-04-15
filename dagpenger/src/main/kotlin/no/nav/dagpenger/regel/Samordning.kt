@@ -182,8 +182,7 @@ object Samordning {
             regel(foreldrepenger) { innhentMed(prøvingsdato) }
             regel(svangerskapspenger) { innhentMed(prøvingsdato) }
 
-            // TODO: Hent uførestrygd og barnepenger fra pesys
-            regel(uføre) { somUtgangspunkt(false) }
+            regel(uføre) { innhentMed(prøvingsdato) }
             regel(skalUføreSamordnes) { erSann(uføre) }
 
             regel(samordnetArbeidstid) { somUtgangspunkt(0.0) }
@@ -204,6 +203,7 @@ object Samordning {
                     uføreDagsats,
                     sumHvisUføreIkkeSkalSamordnes,
                 )
+                // høyesteAv(uføreDagsats, sumHvisUføreIkkeSkalSamordnes)
             }
             regel(sumAndreYtelser) {
                 addisjon(

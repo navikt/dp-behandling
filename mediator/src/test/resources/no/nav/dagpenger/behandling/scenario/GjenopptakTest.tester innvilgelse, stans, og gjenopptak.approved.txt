@@ -25,6 +25,7 @@ Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
 Behov:
 - BostedslandErNorge
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -80,6 +81,7 @@ Behov:
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
+- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
@@ -92,6 +94,7 @@ Behov:
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
+- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
