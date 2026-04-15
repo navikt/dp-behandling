@@ -112,13 +112,13 @@ internal class PersonMediator : PersonObservatør {
     private fun BehandlingFerdig.tilVedtakFattetMelding(): JsonMessage {
         val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
         val vedtak = this.lagVedtakDTO(ident)
-        return JsonMessage.newMessage("vedtak_fattet", toMap(vedtak))
+        return toJsonMessage("vedtak_fattet", vedtak)
     }
 
     private fun BehandlingObservatør.VedtakEvent.tilBehandlingsresultat(
         hendelseNavn: String,
         ident: String,
-    ) = JsonMessage.newMessage(hendelseNavn, toMap(tilBehandlingsresultatDTO(ident)))
+    ) = toJsonMessage(hendelseNavn, tilBehandlingsresultatDTO(ident))
 
     private fun BehandlingAvbrutt.toJsonMessage() =
         JsonMessage
