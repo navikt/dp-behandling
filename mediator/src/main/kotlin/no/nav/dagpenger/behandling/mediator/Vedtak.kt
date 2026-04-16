@@ -1,6 +1,8 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.fasterxml.jackson.module.kotlin.convertValue
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTORolleDTO
 import no.nav.dagpenger.behandling.api.models.FormålDTO
@@ -255,4 +257,12 @@ internal val opplysningTilVilkårMap =
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")
 
-fun toMap(it: Any) = objectMapper.convertValue<Map<String, Any>>(it)
+fun toJsonMessage(
+    eventName: String,
+    dto: Any,
+): JsonMessage {
+    val node = objectMapper.valueToTree<ObjectNode>(dto)
+    node.put("@event_name", eventName)
+    val json = objectMapper.writeValueAsString(node)
+    return JsonMessage(json, MessageProblems(json))
+}

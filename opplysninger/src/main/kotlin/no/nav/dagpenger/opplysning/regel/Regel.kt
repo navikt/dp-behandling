@@ -44,7 +44,6 @@ abstract class Regel<T : Comparable<T>> internal constructor(
                 utdaterteOpplysninger.forEach { utdatert ->
                     val produsent =
                         produsenter[utdatert.opplysningstype] ?: return
-                    // ?: throw IllegalStateException("FanVt ikke produsent for $utdatert")
 
                     produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
                 }

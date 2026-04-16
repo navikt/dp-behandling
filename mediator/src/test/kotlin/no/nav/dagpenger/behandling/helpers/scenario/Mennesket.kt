@@ -220,6 +220,7 @@ internal class Mennesket(
                         "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
                         "gyldigTilOgMed" to LocalDate.of(søknadsdato.year, 12, 31),
                     ),
+                Behov.Uføre to false,
             )
 
     private val inntektV1 get() = inntekt(inntektSiste12Mnd.toBigDecimal(), søknadsdato.minusMonths(2))

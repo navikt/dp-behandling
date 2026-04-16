@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.api
 
-import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -51,7 +50,7 @@ import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
-import no.nav.dagpenger.behandling.mediator.toMap
+import no.nav.dagpenger.behandling.mediator.toJsonMessage
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Redigert
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilBeslutning
@@ -185,7 +184,6 @@ internal fun Application.behandlingApi(
                                     eksternId = OmgjøringId(id),
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
-                                    meldekortkorrigeringerSupplier = meldekortRepository::hentKorrigeringer,
                                 )
                             }
 
@@ -646,7 +644,7 @@ internal fun Application.behandlingApi(
                                         val behandlingsresultat = behandling.vedtakopplysninger.tilBehandlingsresultatDTO(ident)
                                         if (!dryRun) {
                                             messageContext(ident)
-                                                .publish(JsonMessage.newMessage("behandling_datalast", toMap(behandlingsresultat)).toJson())
+                                                .publish(toJsonMessage("behandling_datalast", behandlingsresultat).toJson())
 
                                             logger.info { "Publiserte behandling data for behandling=${behandling.behandlingId}" }
                                         }

@@ -18,8 +18,12 @@ Denne dokumentasjonen beskriver hvordan BeregnMeldekortHendelse behandles, og hv
 ```mermaid
 graph TB
     A[BeregnMeldekortHendelse] --> B[Opprett Behandling]
-    B --> C[Konverter Meldekort til Opplysninger]
-    C --> D[Meldekortprosess.regelkjøring]
+    B --> B1{Er omgjøring bak i tid?}
+    B1 -->|Ja| B2[Omgjøringsprosess]
+    B1 -->|Nei| B3[Meldekortprosess]
+    B2 --> C[Konverter Meldekort til Opplysninger]
+    B3 --> C
+    C --> D[Regelkjøring]
     D --> E[BeregningsperiodeFabrikk]
     E --> F[Beregningsperiode]
     F --> G[Beregningsresultat]
@@ -29,7 +33,12 @@ graph TB
     style A fill:#e1f5ff
     style G fill:#c8e6c9
     style I fill:#fff9c4
+    style B1 fill:#fff9c4
 ```
+
+> **Merk:** Hendelsen velger dynamisk mellom `Meldekortprosess` og `Omgjøringsprosess`.
+> Omgjøringsprosessen brukes når korrigert meldekort gjelder en periode som allerede er beregnet fremover i tid.
+> Ved omgjøring kjøres beregning for alle meldeperioder i kronologisk rekkefølge.
 
 ---
 
@@ -40,7 +49,7 @@ sequenceDiagram
     participant MK as Meldekort
     participant BMH as BeregnMeldekortHendelse
     participant BEH as Behandling
-    participant MKP as Meldekortprosess
+    participant PROSESS as Meldekortprosess/<br/>Omgjøringsprosess
     participant BPF as BeregningsperiodeFabrikk
     participant BP as Beregningsperiode
     participant KT as Kvotetelling
@@ -53,9 +62,10 @@ sequenceDiagram
     
     alt Er korrigering
         BMH->>BEH: Legg til avklaring "KorrigertMeldekortBehandling"
-        BMH->>BMH: Sjekk om periode allerede beregnet
-        alt Periode allerede utbetalt
+        BMH->>BMH: Sjekk om periode allerede beregnet etter denne
+        alt Periode allerede beregnet etter denne
             BMH->>BEH: Legg til avklaring "KorrigeringUtbetaltPeriode"
+            Note over BMH: harBeregnetPeriodenEtterDenne = true<br/>→ velger Omgjøringsprosess
         end
     else Ikke korrigering
         BMH->>BEH: Legg til avklaring "MeldekortBehandling"
@@ -69,24 +79,30 @@ sequenceDiagram
     BMH->>BEH: Konverter meldekort.tilOpplysninger()
     Note over BMH,BEH: Hver dag i meldekortet blir til opplysninger:<br/>arbeidsdag, arbeidstimer, meldt
     
-    BEH->>MKP: Start regelkjøring
-    MKP->>MKP: Bestem regelverksdato og prøvingsperiode
-    MKP->>BPF: lagBeregningsperiode()
+    BEH->>PROSESS: Start regelkjøring
+    PROSESS->>PROSESS: Bestem regelverksdato og prøvingsperiode
     
-    BPF->>BPF: hentMeldekortDagerMedRett()
-    BPF->>BPF: opprettPeriode(dager)
-    BPF->>BPF: hentGjenståendeEgenandel()
-    BPF->>BP: new Beregningsperiode(...)
+    alt Omgjøringsprosess
+        Note over PROSESS: Kjører beregning for ALLE meldeperioder<br/>i kronologisk rekkefølge
+        loop For hver meldeperiode
+            PROSESS->>BPF: beregnForPeriode(periode)
+            BPF->>BP: new Beregningsperiode(...)
+            BP-->>PROSESS: Beregningresultat
+        end
+        PROSESS->>KT: regelkjøringFerdig()
+    else Meldekortprosess
+        PROSESS->>BPF: lagBeregningsperiode()
+        BPF->>BPF: hentMeldekortDagerMedRett()
+        BPF->>BPF: opprettPeriode(dager)
+        BPF->>BPF: hentGjenståendeEgenandel()
+        BPF->>BP: new Beregningsperiode(...)
+        BP->>BP: beregnProsentfaktor()
+        BP->>BP: beregnUtbetaling()
+        BP-->>PROSESS: Beregningresultat
+        PROSESS->>BEH: Legg til resultat som opplysninger
+        PROSESS->>KT: regelkjøringFerdig()
+    end
     
-    BP->>BP: beregnProsentfaktor()
-    BP->>BP: beregnUtbetaling()
-    BP-->>MKP: Beregningresultat
-    
-    MKP->>BEH: Legg til resultat som opplysninger
-    Note over MKP,BEH: forbruktEgenandel, utbetalingForPeriode,<br/>gjenståendeEgenandel, oppfyllerKravTilTaptArbeidstid,<br/>sumFva, sumArbeidstimer, prosentfaktor
-    
-    MKP->>BEH: Legg til per-dag opplysninger (forbruk, utbetaling)
-    MKP->>KT: regelkjøringFerdig()
     KT->>BEH: Beregn og legg til forbrukt/gjenstående dager
 ```
 
@@ -103,7 +119,7 @@ flowchart TD
     A --> A1[Hent perioder med løpende rett]
     A1 --> A2[Sjekk om meldt i tide]
     
-    A2 --> A3{Meldt i tide?}
+    A2 --> A3{Meldt i tide?<br/>opplysninger.forDato meldeperiode.fraOgMed}
     A3 -->|Ja| A4[Alle dager i meldeperioden med rett]
     A3 -->|Nei| A5[Kun dager som er eksplisitt meldt]
     
@@ -124,7 +140,7 @@ flowchart TD
     B7 --> C
     B4 --> C
     
-    C[hentGjenståendeEgenandel] --> C1{Tidligere gjenstående<br/>egenandel?}
+    C[hentGjenståendeEgenandel<br/>bruker meldeperiode.fraOgMed] --> C1{Tidligere gjenstående<br/>egenandel?}
     C1 -->|Ja| C2[Bruk siste registrerte<br/>før meldeperioden]
     C1 -->|Nei| C3[Bruk innvilget egenandel]
     
@@ -173,96 +189,107 @@ flowchart TD
     V1 --> A[Beregn sumFva]
     A --> B[Beregn timerArbeidet]
     B --> C[Filtrer arbeidsdager<br/>basert på stønadsdager igjen]
-    C --> D[Beregn prosentfaktor]
+    C --> D[Beregn prosentfaktor<br/>= sumFva - timerArbeidet / sumFva]
     
     D --> E[beregnUtbetaling]
     
-    E --> F{Oppfyller krav til<br/>tapt arbeidstid?}
+    E --> E0{Har arbeidsdager?}
+    E0 -->|Nei| G0[Returner ingenArbeidsdager<br/>0 kr, oppfyller krav = true]
     
-    F -->|Nei| G[Returner nullresultat<br/>Ingen utbetaling<br/>Ingen forbruk]
+    E0 -->|Ja| F{Oppfyller krav til<br/>tapt arbeidstid?}
     
-    F -->|Ja| H[Grupper arbeidsdager etter sats]
+    F -->|Nei| G[Returner ingenUtbetaling<br/>0 kr, oppfyller krav = false]
     
-    H --> I[For hver satsgruppe:<br/>Beregn gradert beløp<br/>= sats × antall dager × prosentfaktor]
+    F -->|Ja| H[Grupper arbeidsdager i SatsGrupper]
     
-    I --> J[Beregn sum før egenandel]
+    H --> I[For hver SatsGruppe:<br/>bruttoBeløp = sats × antall dager × prosentfaktor]
     
-    J --> K[Fordel egenandel på bøtter]
-    K --> K1[Hver bøtte får egenandel<br/>proporsjonal med størrelse]
+    I --> J[Beregn totalBrutto fra alle grupper]
     
-    K1 --> L[For hver bøtte:<br/>Trekk egenandel fra gradert beløp]
+    J --> K[egenandelForPeriode per gruppe]
+    K --> K1[andel = gruppeBrutto / totalBrutto<br/>egenandel = min gruppeBrutto, gjenstående × andel]
     
-    L --> M[Fordel utbetaling per dag i bøtte]
-    M --> M1[Dagsbeløp = utbetalt ÷ antall dager]
-    M1 --> M2[Siste dag får dagsbeløp + rest]
+    K1 --> L[For hver gruppe:<br/>netto = bruttoBeløp - egenandel]
     
-    M2 --> N[Beregn forbrukt egenandel]
-    N --> O[Beregn gjenstående egenandel]
+    L --> M[SatsGruppe.fordelPåDager netto]
+    M --> M1[dagsbeløp = netto ÷ antall dager]
+    M1 --> M2[rest = netto mod antall dager<br/>Siste dag får dagsbeløp + rest]
+    
+    M2 --> N[Beregn forbrukt egenandel sum]
+    N --> O[gjenstående = tidligere - forbrukt]
     
     O --> P[Returner Beregningresultat]
     
     style START fill:#e1f5ff
     style P fill:#c8e6c9
     style G fill:#ffcdd2
+    style G0 fill:#fff3e0
     style F fill:#fff9c4
+    style E0 fill:#fff9c4
 ```
 
 ### Beregningsformler
 
 #### 1. Prosentfaktor
 ```
-prosentfaktor = (sumFva - timerArbeidet) / sumFva
+prosentfaktor = ((sumFva - timerArbeidet) / sumFva).timer
 ```
-Representerer hvor stor andel av arbeidstiden som er tapt.
+Representerer hvor stor andel av arbeidstiden som er tapt. Returneres som `Double`.
 
 #### 2. Krav til tapt arbeidstid
 ```
 terskel = (100 - snittTerskel) / 100
-oppfyller = (timerArbeidet / sumFva) <= terskel
+oppfyller = (timerArbeidet / sumFva).timer <= terskel
 ```
 Standard terskel er vanligvis 50% (kan arbeide inntil 50% av vanlig arbeidstid).
 
-#### 3. Gradert satsbeløp per gruppe
+#### 3. Tidlig retur
+Beregningen har to tidlige returer:
+- **Ingen arbeidsdager**: Returnerer `ingenArbeidsdager` (0 kr, men `oppfyllerKravTilTaptArbeidstid = true`)
+- **Ikke oppfylt terskel**: Returnerer `ingenUtbetaling` (0 kr, `oppfyllerKravTilTaptArbeidstid = false`)
+
+#### 4. Gradert brutto per SatsGruppe
 ```
-gradertBeløp = sats × antallDager × prosentfaktor
+bruttoBeløp = sats × antallDager × prosentfaktor
 ```
 
-#### 4. Egenandel per bøtte
+#### 5. Egenandel per gruppe (`egenandelForPeriode`)
 ```
-bøtteStørrelseIProsent = bøtteSum / sumFørEgenandel
-egenandelForBøtte = gjenståendeEgenandel × bøtteStørrelseIProsent
-```
-
-#### 5. Utbetaling per bøtte
-```
-utbetalt = gradertBeløp - egenandelForBøtte
+andel = gruppeBrutto / totalBrutto
+beregnetEgenandel = avrund(gjenståendeEgenandel × andel)
+egenandel = min(gruppeBrutto, beregnetEgenandel)
 ```
 
-#### 6. Dagsutbetaling
+#### 6. Netto utbetaling per gruppe
 ```
-reminder = utbetalt % antallDager
-dagsbeløp = (utbetalt - reminder) / antallDager
-beløpSisteDag = dagsbeløp + reminder
+netto = avrund(bruttoBeløp - egenandel)
 ```
 
-### Bøttesystemet
+#### 7. Dagsutbetaling (`SatsGruppe.fordelPåDager`)
+```
+rest = netto % antallDager
+dagsbeløp = (netto - rest) / antallDager
+sisteDag = dagsbeløp + rest
+```
 
-Når arbeidsdager har forskjellige satser (f.eks. pga. barnetillegg eller satsjusteringer), grupperes de i "bøtter":
+### SatsGruppe-systemet
+
+Når arbeidsdager har forskjellige satser (f.eks. pga. barnetillegg eller satsjusteringer), grupperes de i `SatsGruppe`-objekter. Hver gruppe har en `bruttoBeløp` og en `fordelPåDager`-metode:
 
 ```mermaid
 graph LR
-    A[Arbeidsdag 1<br/>Sats: 500kr] --> B1[Bøtte 1]
+    A[Arbeidsdag 1<br/>Sats: 500kr] --> B1[SatsGruppe 1]
     A2[Arbeidsdag 2<br/>Sats: 500kr] --> B1
     A3[Arbeidsdag 3<br/>Sats: 500kr] --> B1
     
-    A4[Arbeidsdag 4<br/>Sats: 600kr] --> B2[Bøtte 2]
+    A4[Arbeidsdag 4<br/>Sats: 600kr] --> B2[SatsGruppe 2]
     A5[Arbeidsdag 5<br/>Sats: 600kr] --> B2
     
-    B1 --> C1[Gradert: 1350kr<br/>Egenandel: 200kr<br/>Utbetalt: 1150kr]
-    B2 --> C2[Gradert: 1080kr<br/>Egenandel: 120kr<br/>Utbetalt: 960kr]
+    B1 --> C1[bruttoBeløp: 1350kr<br/>egenandel: 200kr<br/>netto: 1150kr]
+    B2 --> C2[bruttoBeløp: 1080kr<br/>egenandel: 120kr<br/>netto: 960kr]
     
-    C1 --> D1[Dag 1: 383kr<br/>Dag 2: 383kr<br/>Dag 3: 384kr]
-    C2 --> D2[Dag 4: 480kr<br/>Dag 5: 480kr]
+    C1 --> D1[fordelPåDager:<br/>Dag 1: 383kr<br/>Dag 2: 383kr<br/>Dag 3: 384kr]
+    C2 --> D2[fordelPåDager:<br/>Dag 4: 480kr<br/>Dag 5: 480kr]
     
     style B1 fill:#e1f5ff
     style B2 fill:#e1f5ff
@@ -282,7 +309,7 @@ flowchart TD
     
     K -->|Ja| K1[Legg til:<br/>KorrigertMeldekortBehandling]
     K1 --> K2{Periode allerede<br/>beregnet og utbetalt?}
-    K2 -->|Ja| K3[Legg til:<br/>KorrigeringUtbetaltPeriode<br/>⚠️ Kan ikke kvitteres]
+    K2 -->|Ja| K3[Legg til:<br/>KorrigeringUtbetaltPeriode<br/>→ bruker Omgjøringsprosess]
     K2 -->|Nei| U
     
     K -->|Nei| M[Legg til:<br/>MeldekortBehandling]
@@ -308,7 +335,7 @@ flowchart TD
 |------|--------|-------------|--------------|---------------|
 | **MeldekortBehandling** | Beregning av meldekort | Behandlingen er opprettet av meldekort og kan ikke automatisk behandles | Nei | Nei |
 | **KorrigertMeldekortBehandling** | Beregning av korrigert meldekort | Behandlingen er korrigering av et tidligere meldekort og kan ikke automatisk behandles | Nei | Nei |
-| **KorrigeringUtbetaltPeriode** | Beregning av meldekort som korrigerer tidligere periode | Behandlingen er korrigering av et tidligere meldekort og kan ikke behandles | Nei | **Nei** |
+| **KorrigeringUtbetaltPeriode** | Beregning av meldekort som korrigerer tidligere periode | Behandlingen er korrigering av et tidligere beregnet meldekort | Nei | Nei |
 | **MeldekortMedUtdanning** | Meldekort med utdanning | Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. | Nei | **Ja** |
 
 ---
@@ -367,6 +394,7 @@ mindmap
       sumFva
       sumArbeidstimer
       prosentfaktor
+      maksAntallPerioderMedIkkeTaptArbeidstid
     Per-dag-opplysninger
       forbruk
       utbetaling
@@ -376,7 +404,9 @@ mindmap
       terskel
     Kvotetelling-opplysninger
       forbrukt
-      gjenståendePeriode
+      gjenståendeDager
+      sisteForbruksdag
+      sisteGjenståendeDager
 ```
 
 ---
@@ -386,7 +416,9 @@ mindmap
 ### 1. Stønadsdager
 - **Innvilget**: Totalt antall stønadsdager ved innvilgelse (typisk 52, 104 uker)
 - **Forbrukt**: Akkumulert antall dager hvor det har vært forbruk
-- **Gjenstående**: Innvilget - forbrukt
+- **Gjenstående** (`gjenståendeDager`): Innvilget - forbrukt
+- **Siste gjenstående** (`sisteGjenståendeDager`): Initialiseres som `høyesteAv(antallStønadsdager)`
+- **Siste forbruksdag** (`sisteForbruksdag`): Siste dato hvor forbruk ble registrert
 - **Forbruk skjer**: Kun på arbeidsdager hvor krav til tapt arbeidstid er oppfylt
 
 ### 2. Egenandel
@@ -413,11 +445,23 @@ mindmap
 - Meldekort skal meldes innen fristen
 - Terskel: Max 8 dager ikke meldt i en periode
 - Hvis ikke meldt i tide: kun eksplisitt meldte dager får rett
+- Oppslag gjøres med `opplysninger.forDato(meldeperiode.fraOgMed)`
 
 ### 7. Dager med rett
 - Må ha løpende rett i perioden (basert på tidligere vedtak)
 - Må være meldt (enten i tide, eller eksplisitt per dag)
 - Meldeperiode må overlappe med rettighetsperiode
+
+### 8. Forretningsprosess (Meldekortprosess vs Omgjøringsprosess)
+- **Meldekortprosess**: Standard prosess for nye og korrigerte meldekort
+- **Omgjøringsprosess**: Brukes når korrigering gjelder periode som allerede er beregnet fremover i tid (`harBeregnetPeriodenEtterDenne = true`)
+- Omgjøringsprosessen kjører beregning for **alle** meldeperioder i kronologisk rekkefølge
+- Valget av prosess gjøres dynamisk via `get()` på `forretningsprosess`-propertyen
+
+### 9. Maks antall perioder med ikke-tapt arbeidstid
+- Ny opplysning: `maksAntallPerioderMedIkkeTaptArbeidstid`
+- Initialiseres til 3 som utgangspunkt (`somUtgangspunkt(3)`)
+- Begrenser antall påfølgende perioder en bruker kan ha uten tapt arbeidstid
 
 ---
 
@@ -468,13 +512,14 @@ Dag 10: 370kr
 ### Korrigering av tidligere periode
 ```mermaid
 flowchart TD
-    K[Mottatt korrigert meldekort] --> K1{Periode allerede beregnet?}
-    K1 -->|Nei| K2[Normal behandling med avklaring]
-    K1 -->|Ja| K3{Periode utbetalt?}
-    K3 -->|Nei| K4[Behandling med avklaring,<br/>kan beregnes på nytt]
-    K3 -->|Ja| K5[⚠️ Blokkerende avklaring<br/>Omgjøring bak i tid<br/>Kan ikke kvitteres]
+    K[Mottatt korrigert meldekort] --> K1{Periode allerede beregnet<br/>etter denne?}
+    K1 -->|Nei| K2[Normal behandling med avklaring<br/>→ Meldekortprosess]
+    K1 -->|Ja| K3[Omgjøringsprosess aktiveres<br/>Avklaring: KorrigeringUtbetaltPeriode]
+    K3 --> K4[Kjør beregning for ALLE<br/>meldeperioder kronologisk]
+    K4 --> K5[Kjør kvotetelling til slutt]
     
-    style K5 fill:#ffcdd2
+    style K3 fill:#ffcdd2
+    style K4 fill:#fff9c4
 ```
 
 ### Ikke oppfyller krav til tapt arbeidstid
@@ -484,12 +529,19 @@ Når terskelen overskrides:
 - **Ingen trekk** i egenandel
 - Opplysningene registreres likevel for dokumentasjon
 
+### Ingen arbeidsdager i perioden
+Når alle dager er fravær/helg (ingen arbeidsdager):
+- **Ingen utbetaling** for perioden
+- **Oppfyller krav** (`oppfyllerKravTilTaptArbeidstid = true`)
+- **Ingen forbruk** av stønadsdager
+- Alle timer/FVA settes til 0
+
 ### Flere satser i samme periode
 Eksempel: Barnetillegg starter midt i perioden
 - Dag 1-7: sats 500kr
 - Dag 8-10: sats 600kr (med barnetillegg)
 
-Systemet oppretter to bøtter og fordeler egenandel proporsjonalt.
+Systemet oppretter to SatsGrupper og fordeler egenandel proporsjonalt.
 
 ---
 
@@ -500,7 +552,8 @@ Systemet oppretter to bøtter og fordeler egenandel proporsjonalt.
 | Hendelsesbehandling | `BeregnMeldekortHendelse.kt` |
 | Meldekort-modell | `MeldekortInnsendtHendelse.kt` |
 | Konvertering til opplysninger | `MeldekortDagerTilOpplysning.kt` |
-| Prosesstyring | `Meldekortprosess.kt` |
+| Standard prosesstyring | `Meldekortprosess.kt` |
+| Omgjøringsprosess | `Omgjøringsprosess.kt` |
 | Periode-oppbygging | `BeregningsperiodeFabrikk.kt` |
 | Beregningslogikk | `Beregningsperiode.kt` |
 | Opplysningstyper | `Beregning.kt` |
@@ -508,4 +561,4 @@ Systemet oppretter to bøtter og fordeler egenandel proporsjonalt.
 
 ---
 
-*Dokumentasjon generert basert på kodebase per januar 2026*
+*Dokumentasjon oppdatert basert på kodebase per april 2026*

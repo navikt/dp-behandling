@@ -35,6 +35,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019ae986-a128-72f0-9868-032bc8a57b21|Prosentfaktor|Desimaltall|double|||Resultat
 |019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2|Siste forbruksdato|Dato|LocalDate|||Utgangspunkt
 |019d007f-8696-7409-bd51-f4fbfc4babb4|Siste antall dager som gjenstår|Heltall|int|| Dager|Intern
+|019d7244-fa9a-71e6-89b3-a2acef856ef5|Maks antall perioder en kan ha påfølgende tap av arbeidstid|Heltall|int|||Resultat
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger
@@ -96,10 +97,10 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|---|---|
 |0194881f-9413-77ce-92ec-d29700f04244|Inntektsopplysninger|InntektDataType|Inntekt|Inntekt||Resultat
 |0194881f-9413-77ce-92ec-d29700f04246|Maks lengde på opptjeningsperiode|Heltall|int|| Måneder|Intern
-|0194881f-9413-77ce-92ec-d29700f04247|Første måned av opptjeningsperiode|Dato|LocalDate|||Intern
+|0194881f-9413-77ce-92ec-d29700f04247|Første måned av opptjeningsperiode|Dato|LocalDate|||Resultat
 |0194881f-9414-7823-8d29-0e25b7feb7ce|Lovpålagt rapporteringsfrist for A-ordningen|Dato|LocalDate|||Intern
 |0194881f-9414-7823-8d29-0e25b7feb7cf|Arbeidsgivers rapporteringsfrist|Dato|LocalDate|||Intern
-|0194881f-9414-7823-8d29-0e25b7feb7d0|Siste avsluttende kalendermåned|Dato|LocalDate|||Intern
+|0194881f-9414-7823-8d29-0e25b7feb7d0|Siste avsluttende kalendermåned|Dato|LocalDate|||Resultat
 ### § 4-3. Tap av arbeidsinntekt og arbeidstid
 *Type:* Vilkår
 #### Avklaringer
@@ -478,7 +479,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9433-70e9-a85b-c246150c45ce|Pleiepenger etter lovens kapittel 9|Boolsk|boolean|Pleiepenger||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45cf|Omsorgspenger etter lovens kapittel 9|Boolsk|boolean|Omsorgspenger||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45d0|Opplæringspenger etter lovens kapittel 9|Boolsk|boolean|Opplæringspenger||Ekstern
-|0194881f-9433-70e9-a85b-c246150c45d1|Uføretrygd etter lovens kapittel 12|Boolsk|boolean|||Utgangspunkt
+|0194881f-9433-70e9-a85b-c246150c45d1|Uføretrygd etter lovens kapittel 12|Boolsk|boolean|Uføre||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45d2|Foreldrepenger etter lovens kapittel 14|Boolsk|boolean|Foreldrepenger||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45d3|Svangerskapspenger etter lovens kapittel 14|Boolsk|boolean|Svangerskapspenger||Ekstern
 |0194881f-9433-70e9-a85b-c246150c45d4|Sykepenger dagsats|Penger|Beløp|||Utgangspunkt

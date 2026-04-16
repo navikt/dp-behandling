@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
@@ -55,10 +56,13 @@ object Opptjeningstid {
 
             regel(inntektFraSkatt) { innhentMed(prøvingsdato, sisteAvsluttendendeKalenderMåned, førsteMånedAvOpptjeningsperiode) }
 
-            ønsketResultat(inntektFraSkatt)
+            ønsketResultat(inntektFraSkatt, sisteAvsluttendendeKalenderMåned, førsteMånedAvOpptjeningsperiode)
         }
 }
 
 private object Aordningen {
-    fun rapporteringsfrist(dato: LocalDate): LocalDate = LocalDate.of(dato.year, dato.month, 5)
+    fun rapporteringsfrist(dato: LocalDate): LocalDate =
+        LocalDate.of(dato.year, dato.month, 5).also { logger.info { "NÅ KJØRER VI JAGGU NY OPPTJENIGNSTPERIODE FOR $dato" } }
+
+    val logger = KotlinLogging.logger {}
 }

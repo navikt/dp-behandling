@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.høyesteAv
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
@@ -15,6 +16,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.forbruktEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbrukteDagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeDagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeEgenandelId
+import no.nav.dagpenger.regel.OpplysningsTyper.maksAntallPerioderMedIkkeTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldedatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
@@ -53,6 +55,13 @@ object Beregning {
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
     val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
+
+    val maksAntallPerioderMedIkkeTaptArbeidstid =
+        Opplysningstype.heltall(
+            maksAntallPerioderMedIkkeTaptArbeidstidId,
+            "Maks antall perioder en kan ha påfølgende tap av arbeidstid",
+            synlig = aldriSynlig,
+        )
 
     val sumFva = Opplysningstype.desimaltall(sumFvaId, "Sum av fastsatt vanlig arbeidstid", enhet = Enhet.Timer, synlig = aldriSynlig)
     val sumArbeidstimer =
@@ -97,6 +106,7 @@ object Beregning {
             regel(sisteForbruksdag) { tomRegel }
             // TODO: Lag en egen verdiAv()-regel?
             regel(sisteGjenståendeDager) { høyesteAv(antallStønadsdager) }
+            regel(maksAntallPerioderMedIkkeTaptArbeidstid) { somUtgangspunkt(3) }
 
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
@@ -115,6 +125,7 @@ object Beregning {
                 forbruktEgenandel,
                 gjenståendeEgenandel,
                 gjenståendeDager,
+                maksAntallPerioderMedIkkeTaptArbeidstid,
                 meldedato,
                 meldeperiode,
                 meldt,

@@ -4,8 +4,6 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
-import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
-import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -23,7 +21,6 @@ class OmgjøringHendelse(
     eksternId: EksternId<*>,
     gjelderDato: LocalDate,
     opprettet: LocalDateTime,
-    private val meldekortkorrigeringerSupplier: (originale: List<MeldekortId>) -> List<Meldekort>,
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,

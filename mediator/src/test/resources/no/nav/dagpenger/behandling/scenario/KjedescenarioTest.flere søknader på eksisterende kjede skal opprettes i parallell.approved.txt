@@ -25,6 +25,7 @@ Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
 Behov:
 - BostedslandErNorge
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -51,6 +52,7 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - BarnetilleggV2
+- Uføre
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -80,6 +82,7 @@ Behov:
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
+- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
@@ -92,6 +95,7 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - BarnetilleggV2
+- Uføre
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -121,6 +125,7 @@ Behov:
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
+- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
@@ -133,6 +138,7 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - BarnetilleggV2
+- Uføre
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -162,6 +168,7 @@ Behov:
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
+- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak

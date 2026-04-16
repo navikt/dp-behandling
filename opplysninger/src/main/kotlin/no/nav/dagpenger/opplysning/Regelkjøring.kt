@@ -101,6 +101,9 @@ class Regelkjøring(
             .map { evaluerDag(it) }
             .reduce { total, regelkjøringsrapport -> total + regelkjøringsrapport }
             .also {
+                if (it.prøvingsdato.size > 365) {
+                    logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.prøvingsdato.size}" }
+                }
                 logger.info {
                     """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
                     |Regler:
