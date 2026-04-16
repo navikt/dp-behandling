@@ -550,6 +550,10 @@ class BeregningTest {
                 avsluttetTidspunkt = 4.juli(2018).atTime(11, 21),
             )
 
+            // Lukker avklaringen som tvinger alle stans til manuell behandling
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
             behandlingsresultat {
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)

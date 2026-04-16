@@ -109,19 +109,23 @@ internal object Meldingskatalog {
 
     fun avsluttArbeidssøkerperiode(
         ident: String,
-        fastsattMeldingsdag: LocalDate = LocalDate.now(),
-        avsluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+        fastsattMeldedato: LocalDate = LocalDate.now(),
+        avregistrertTidspunkt: LocalDateTime = LocalDateTime.now(),
         fristBrutt: Boolean = false,
         manueltAvregistrert: Boolean = false,
     ) = JsonMessage
         .newMessage(
-            "avsluttet_arbeidssokerperiode",
+            "utmeldt_fra_arbeidssøkerregisteret",
             buildMap {
+                put("periodeId", UUID.randomUUID())
                 put("ident", ident)
-                put("avsluttetTidspunkt", avsluttetTidspunkt)
-                put("fastsattMeldingsdag", fastsattMeldingsdag)
-                put("fristBrutt", fristBrutt)
-                put("manueltAvregistrert", manueltAvregistrert)
+                put("fastsattMeldedato", fastsattMeldedato)
+                put("avregistrertTidspunkt", avregistrertTidspunkt)
+                when {
+                    fristBrutt -> put("årsak", "MELDEPLIKT_BRUTT")
+                    manueltAvregistrert -> put("årsak", "UTMELDT_I_ASR")
+                    else -> put("årsak", "UTMELDT_PÅ_MELDEKORT")
+                }
             },
         ).toJson()
 }

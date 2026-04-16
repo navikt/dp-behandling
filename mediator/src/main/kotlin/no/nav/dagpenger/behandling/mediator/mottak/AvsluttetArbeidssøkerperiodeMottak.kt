@@ -11,7 +11,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiode
@@ -19,14 +18,13 @@ import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
 
 internal class AvsluttetArbeidssøkerperiodeMottak(
     rapidsConnection: RapidsConnection,
-    private val messageMediator: MessageMediator,
+    private val messageMediator: IMessageMediator,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
             .apply {
-                precondition { it.requireValue("@event_name", "avsluttet_arbeidssokerperiode") }
-                validate { it.requireKey("ident", "fastsattMeldingsdag", "avsluttetTidspunkt") }
-                validate { it.interestedIn("fristBrutt", "manueltAvregistrert") }
+                precondition { it.requireValue("@event_name", "utmeldt_fra_arbeidssøkerregisteret") }
+                validate { it.requireKey("ident", "periodeId", "fastsattMeldedato", "avregistrertTidspunkt", "årsak") }
             }.register(this)
     }
 
@@ -37,7 +35,7 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        logger.info { "Mottok avsluttet_arbeidssokerperiode" }
+        logger.info { "Mottok utmeldt_fra_arbeidssøkerregisteret" }
 
         val message = AvsluttetArbeidssøkerperiodeMessage(packet)
         message.behandle(messageMediator, context)
@@ -46,8 +44,10 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
     class AvsluttetArbeidssøkerperiodeMessage(
         packet: JsonMessage,
     ) : KafkaMelding(packet) {
-        private val fastsattMeldingsdag = packet["fastsattMeldingsdag"].asLocalDate()
-        private val avsluttetTidspunkt = packet["avsluttetTidspunkt"].asLocalDateTime()
+        private val periodeId = packet["periodeId"].asUUID()
+        private val fastsattMeldingsdag = packet["fastsattMeldedato"].asLocalDate()
+        private val avsluttetTidspunkt = packet["avregistrertTidspunkt"].asLocalDateTime()
+        private val årsak = packet["årsak"].asText().let { Årsak.valueOf(it) }
 
         override val ident = packet["ident"].asText()
 
@@ -58,12 +58,12 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
                 opprettet = opprettet,
                 avsluttetArbeidssøkerperiode =
                     AvsluttetArbeidssøkerperiode(
-                        ArbeidssøkerperiodeId(id),
+                        ArbeidssøkerperiodeId(periodeId),
                         fastsattMeldingsdag,
                         avsluttetTidspunkt,
                         opprettet,
-                        fristBrutt = packet["fristBrutt"].asBoolean(false),
-                        manueltAvregistrert = packet["manueltAvregistrert"].asBoolean(false),
+                        fristBrutt = årsak == Årsak.MELDEPLIKT_BRUTT,
+                        manueltAvregistrert = årsak == Årsak.UTMELDT_I_ASR,
                     ),
             )
 
@@ -73,6 +73,13 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
         ) {
             mediator.behandle(hendelse, this, context)
         }
+    }
+
+    private enum class Årsak {
+        HAR_IKKE_RETT_PÅ_DAGPENGER,
+        UTMELDT_I_ASR,
+        MELDEPLIKT_BRUTT,
+        UTMELDT_PÅ_MELDEKORT,
     }
 
     private companion object {

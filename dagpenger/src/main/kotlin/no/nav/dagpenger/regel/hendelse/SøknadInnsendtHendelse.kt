@@ -13,7 +13,6 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
-import no.nav.dagpenger.regel.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
@@ -103,9 +102,6 @@ class SøknadInnsendtHendelse(
             )
             it.opplysninger.leggTil(
                 Faktum(hendelseTypeOpplysningstype, type, gyldighetsperiode = Gyldighetsperiode.kun(skjedde), kilde = kilde),
-            )
-            it.opplysninger.leggTil(
-                Faktum(oppfyllerMeldeplikt, true, Gyldighetsperiode(fraOgMed = skjedde), kilde = kilde),
             )
             if (basertPå
                     ?.vedtakopplysninger

@@ -39,7 +39,6 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -68,7 +67,7 @@ import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
-import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger
+import no.nav.dagpenger.regel.prosessvilkår.Uriktigeopplysninger
 import java.time.LocalDateTime
 
 fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
@@ -95,7 +94,6 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                     }
             }
     val fastsatt = vedtakFastsattDTO(opplysningerSomGjelderPåPrøvingsdato)
-    val egneId = opplysninger.somListe(Egne).map { it.id }
 
     return VedtakDTO(
         behandlingId = behandlingId,
@@ -111,8 +109,8 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
                         is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
-                        is FerietilleggId -> HendelseDTOTypeDTO.MANUELL // TODO Legg til Ferietillegg???
-                        is ArbeidssøkerperiodeId -> TODO()
+                        is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
+                        is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE
                     },
                 skjedde = behandlingAv.skjedde,
             ),

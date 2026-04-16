@@ -23,9 +23,9 @@ data class AvsluttetArbeidssøkerperiode(
     val arbeidssøkerperiodeId: ArbeidssøkerperiodeId,
     val fastsattMeldingsdag: LocalDate,
     val avsluttetTidspunkt: LocalDateTime,
-    val mottattTidspunkt: LocalDateTime = LocalDateTime.now(),
+    val mottattTidspunkt: LocalDateTime,
     val fristBrutt: Boolean,
-    val manueltAvregistrert: Boolean = false,
+    val manueltAvregistrert: Boolean,
 )
 
 class AvsluttetArbeidssøkerperiodeHendelse(
@@ -79,6 +79,18 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                             ),
                         )
                     }
+
+                    // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
+                    add(
+                        Avklaring(
+                            Avklaringkode(
+                                kode = "UtmeldtArbeidssøker",
+                                tittel = "Bruker har blitt utmeldt av arbeidssøkerregisteret",
+                                beskrivelse = "Bruker er ikke lenger arbeidssøker. Ta stilling til om forslaget til stans er riktig.",
+                                kanAvbrytes = false,
+                            ),
+                        ),
+                    )
                 },
         ).apply {
             // Marker bruker som ikke lenger registrert fra og med avsluttetTidspunkt.

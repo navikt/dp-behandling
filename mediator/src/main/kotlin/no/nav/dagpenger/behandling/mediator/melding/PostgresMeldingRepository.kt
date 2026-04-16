@@ -115,7 +115,6 @@ internal class PostgresMeldingRepository : MeldingRepository {
                 MeldingTypeDTO.AVSLUTTET_ARBEIDSSØKERPERIODE
             }
 
-
             is BeregnFerietilleggMessage -> {
                 MeldingTypeDTO.FERIETILLEGG
             }

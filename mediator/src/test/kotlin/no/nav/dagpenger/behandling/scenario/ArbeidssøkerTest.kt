@@ -108,6 +108,10 @@ class ArbeidssøkerTest {
                 fristBrutt = true,
             )
 
+            // Lukker avklaringen som tvinger alle stans til manuell behandling
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
             behandlingsresultat {
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
                     this shouldHaveSize 1
@@ -160,6 +164,10 @@ class ArbeidssøkerTest {
                 fastsattMeldingsdag = fastsattMeldedato,
                 avsluttetTidspunkt = fastsattMeldedato.plusDays(16).atTime(12, 21),
             )
+
+            // Lukker avklaringen som tvinger alle stans til manuell behandling
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
             behandlingsresultat {
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
