@@ -32,7 +32,7 @@ class OpplysningSvarHendelse(
         )
 }
 
-data class OpplysningSvar<T : Comparable<T>>(
+data class OpplysningSvar<T : Any>(
     val opplysningstype: Opplysningstype<T>,
     val verdi: T,
     val tilstand: Tilstand,

@@ -8,19 +8,19 @@ interface LesbarOpplysninger {
 
     val kunEgne: Opplysninger
 
-    fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>
+    fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>
 
-    fun <T : Comparable<T>> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>?
+    fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>?
 
-    fun har(opplysningstype: Opplysningstype<*>): Boolean
+    fun <T : Any> har(opplysningstype: Opplysningstype<T>): Boolean
 
-    fun mangler(opplysningstype: Opplysningstype<*>): Boolean = !har(opplysningstype)
+    fun <T : Any> mangler(opplysningstype: Opplysningstype<T>): Boolean = !har(opplysningstype)
 
     fun finnFlere(opplysningstyper: List<Opplysningstype<*>>): List<Opplysning<*>>
 
-    fun <T : Comparable<T>> finnAlle(opplysningstyper: List<Opplysningstype<T>>): List<Opplysning<T>>
+    fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>): List<Opplysning<T>>
 
-    fun <T : Comparable<T>> finnAlle(opplysningstype: Opplysningstype<T>): List<Opplysning<T>>
+    fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>): List<Opplysning<T>>
 
     fun finnOpplysning(opplysningId: UUID): Opplysning<*>
 

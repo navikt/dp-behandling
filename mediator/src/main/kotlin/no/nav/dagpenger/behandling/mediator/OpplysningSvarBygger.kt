@@ -14,7 +14,7 @@ import no.nav.dagpenger.regel.Behov.Barnetillegg
 import no.nav.dagpenger.regel.Behov.BarnetilleggV2
 import java.util.UUID
 
-class OpplysningSvarBygger<T : Comparable<T>>(
+class OpplysningSvarBygger<T : Any>(
     private val type: Opplysningstype<T>,
     private val verdi: VerdiMapper,
     private val kilde: Kilde,
@@ -33,7 +33,7 @@ class OpplysningSvarBygger<T : Comparable<T>>(
         )
 
     interface VerdiMapper {
-        fun <T : Comparable<T>> map(datatype: Datatype<T>): T
+        fun <T : Any> map(datatype: Datatype<T>): T
     }
 }
 

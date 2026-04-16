@@ -723,7 +723,7 @@ private val OtelTraceIdPlugin =
 private class HttpVerdiMapper(
     private val nyOpplysning: NyOpplysningDTO,
 ) : VerdiMapper {
-    override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
+    override fun <T : Any> map(datatype: Datatype<T>): T =
         when (datatype) {
             Heltall -> nyOpplysning.verdi.toInt() as T
             Boolsk -> nyOpplysning.verdi.toBoolean() as T

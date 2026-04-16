@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
 
 abstract class Forretningsprosess(
@@ -34,11 +35,12 @@ abstract class Forretningsprosess(
     open fun produsenter(
         regelverksdato: LocalDate,
         opplysningerPåPrøvingsdato: LesbarOpplysninger,
-    ) = regelverk.regelsett
-        .filter { it.skalKjøres(opplysningerPåPrøvingsdato) }
-        .filter { it.skalRevurderes(opplysningerPåPrøvingsdato) }
-        .flatMap { it.regler(regelverksdato) }
-        .associateBy { it.produserer }
+    ): Map<Opplysningstype<out Any>, Regel<*>> =
+        regelverk.regelsett
+            .filter { it.skalKjøres(opplysningerPåPrøvingsdato) }
+            .filter { it.skalRevurderes(opplysningerPåPrøvingsdato) }
+            .flatMap { it.regler(regelverksdato) }
+            .associateBy { it.produserer }
 }
 
 interface ProsessPlugin {

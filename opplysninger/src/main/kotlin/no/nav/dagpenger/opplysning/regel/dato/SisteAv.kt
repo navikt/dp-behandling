@@ -19,7 +19,7 @@ class SisteAv internal constructor(
 
 class SisteAvGyldighetsperiode internal constructor(
     produserer: Opplysningstype<LocalDate>,
-    private vararg val opplysningerTyper: Opplysningstype<*>,
+    private vararg val opplysningerTyper: Opplysningstype<Any>,
 ) : Regel<LocalDate>(produserer, opplysningerTyper.toList()) {
     override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
         val dager = opplysninger.finnFlere(opplysningerTyper.toList()).map { it.gyldighetsperiode.fraOgMed }
@@ -43,6 +43,6 @@ class SisteHeltallVerdi internal constructor(
 
 fun Opplysningstype<LocalDate>.sisteAv(vararg liste: Opplysningstype<LocalDate>) = SisteAv(this, *liste)
 
-fun Opplysningstype<LocalDate>.sisteAv(vararg liste: Opplysningstype<*>) = SisteAvGyldighetsperiode(this, *liste)
+fun Opplysningstype<LocalDate>.sisteAv(vararg liste: Opplysningstype<Any>) = SisteAvGyldighetsperiode(this, *liste)
 
 fun Opplysningstype<Int>.sisteAv(vararg liste: Opplysningstype<Int>) = SisteHeltallVerdi(this, *liste)

@@ -122,7 +122,7 @@ internal class OpplysningSvarMottak(
 
 internal class OpplysningSvarMessage(
     private val packet: JsonMessage,
-    private val opplysningstyper: Set<Opplysningstype<*>>,
+    private val opplysningstyper: Set<Opplysningstype<out Any>>,
 ) : KafkaMelding(packet) {
     private val hendelse
         get() =
@@ -278,7 +278,7 @@ private class JsonMapper(
     private val typeNavn: String,
     private val verdi: JsonNode,
 ) : OpplysningSvarBygger.VerdiMapper {
-    override fun <T : Comparable<T>> map(datatype: Datatype<T>): T =
+    override fun <T : Any> map(datatype: Datatype<T>): T =
         when (datatype) {
             Dato -> {
                 verdi.asLocalDate() as T

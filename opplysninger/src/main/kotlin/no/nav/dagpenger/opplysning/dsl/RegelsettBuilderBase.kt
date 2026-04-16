@@ -36,7 +36,7 @@ abstract class RegelsettBuilderBase(
         relevant = block
     }
 
-    fun <T : Comparable<T>> regel(
+    fun <T : Any> regel(
         produserer: Opplysningstype<T>,
         gjelderFraOgMed: LocalDate = LocalDate.MIN,
         block: Opplysningstype<T>.() -> Regel<*>,

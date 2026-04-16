@@ -120,7 +120,7 @@ internal class TestSaksbehandler2(
         return behandling.shouldNotBeNull()
     }
 
-    fun <T : Comparable<T>> endreOpplysning(
+    fun <T : Any> endreOpplysning(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
         begrunnelse: String = "",

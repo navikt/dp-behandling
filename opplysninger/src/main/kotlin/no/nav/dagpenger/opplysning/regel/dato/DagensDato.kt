@@ -11,7 +11,7 @@ class DagensDato internal constructor(
     override fun lagPlan(
         opplysninger: LesbarOpplysninger,
         plan: MutableSet<Regel<*>>,
-        produsenter: Map<Opplysningstype<out Comparable<*>>, Regel<*>>,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
         val dagensDato = LocalDate.now()

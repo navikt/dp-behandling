@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
 
-class Brukt<T : Comparable<T>> internal constructor(
+class Brukt<T : Any> internal constructor(
     produserer: Opplysningstype<String>,
     private val a: Opplysningstype<T>,
 ) : Regel<String>(produserer, listOf(a)) {

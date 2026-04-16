@@ -135,7 +135,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         private val session: Session,
         private val kildeRespository: KildeRepository = kildeRepository,
     ) {
-        fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<*>>> {
+        fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<out Any>>> {
             val rader: Set<OpplysningRad<*>> =
                 session
                     .run(
@@ -195,7 +195,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                 .groupBy { opplysningerIdForOpplysning.getValue(it.id) }
         }
 
-        private fun <T : Comparable<T>> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
+        private fun <T : Any> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
             val opplysingerId = uuid("opplysninger_id")
             val id = uuid("id")
             val typeUuid = uuid("type_uuid")
@@ -256,7 +256,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
         }
 
         @Suppress("UNCHECKED_CAST")
-        private fun <T : Comparable<T>> Datatype<T>.verdi(row: Row): T =
+        private fun <T : Any> Datatype<T>.verdi(row: Row): T =
             when (this) {
                 Boolsk -> {
                     row.boolean("verdi_boolsk")
@@ -521,18 +521,18 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun Collection<OpplysningRad<*>>.somOpplysninger(): List<Opplysning<*>> {
-    val opplysningMap = mutableMapOf<UUID, Opplysning<*>>()
+private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysning<out Any>> {
+    val opplysningMap = mutableMapOf<UUID, Opplysning<out Any>>()
 
     // Finn opplysningen som erstattes av denne
-    fun <T : Comparable<T>> OpplysningRad<T>.finnErstatter() {
+    fun <T : Any> OpplysningRad<T>.finnErstatter() {
         this.erstatter?.let {
             require(opplysningMap.contains(it)) { "Opplysning ${this.id} trenger id $it er ikke funnet" }
             (opplysningMap[this.id] as Opplysning<T>).erstatter(opplysningMap[it] as Opplysning<T>)
         }
     }
 
-    fun <T : Comparable<T>> OpplysningRad<T>.toOpplysning(): Opplysning<*> {
+    fun <T : Any> OpplysningRad<T>.toOpplysning(): Opplysning<out Any> {
         // If the Opplysning instance has already been created, return it
         opplysningMap[id]?.let { return it }
 
@@ -600,7 +600,7 @@ private data class UtledningRad(
     val versjon: String? = null,
 )
 
-private data class OpplysningRad<T : Comparable<T>>(
+private data class OpplysningRad<T : Any>(
     val opplysingerId: UUID,
     val id: UUID,
     val opplysningstype: Opplysningstype<T>,

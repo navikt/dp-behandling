@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
 
-class Divisjon<T : Comparable<T>> internal constructor(
+class Divisjon<T : Any> internal constructor(
     produserer: Opplysningstype<Beløp>,
     private val beløp: Opplysningstype<Beløp>,
     private val faktor: Opplysningstype<T>,
