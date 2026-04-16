@@ -103,13 +103,12 @@ class SøknadInnsendtHendelse(
             it.opplysninger.leggTil(
                 Faktum(hendelseTypeOpplysningstype, type, gyldighetsperiode = Gyldighetsperiode.kun(skjedde), kilde = kilde),
             )
-            if (basertPå
-                    ?.vedtakopplysninger
-                    ?.rettighetsperioder
-                    ?.lastOrNull()
-                    ?.harRett == false
-            ) {
-                it.opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
+
+            if (basertPå != null) {
+                // Om bruker tidligere har hatt minst en periode med rett så begynner med gjenopptaksbehandling som utgangspunkt
+                if (basertPå.vedtakopplysninger.rettighetsperioder.any { rettighetsperiode -> rettighetsperiode.harRett }) {
+                    it.opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
+                }
             }
         }
     }

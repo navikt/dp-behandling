@@ -19,6 +19,7 @@ import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opptjeningstid
+import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -342,6 +343,49 @@ class GjenopptakTest {
                     this[0].opprinnelse shouldBe Periodestatus.Arvet
                     this[1].opprinnelse shouldBe Periodestatus.Arvet
                     this[2].opprinnelse shouldBe Periodestatus.Ny
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `tester gjenopptak etter innvilgelse med kjent sluttdato`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(oppholdINorge, true, "Tok en tur til Afrika", Gyldighetsperiode(21.juni(2018), 25.juni(2018)))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe "Innvilgelse"
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].tilOgMed shouldBe 25.juni(2018)
+
+                opplysninger(oppholdINorge) shouldHaveSize 1
+            }
+
+            // Må ha startet forbruk for å kunne gjenoppta
+            person.sendInnMeldekort(1)
+            // meldekortBatch(true)
+
+            // Gjenoppta
+            person.søkGjenopptak(23.august(2018))
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                with(opplysninger(Rettighetstype.skalGjenopptakVurderes)) {
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe false
+                    this[1].verdi.verdi shouldBe true
                 }
             }
         }
