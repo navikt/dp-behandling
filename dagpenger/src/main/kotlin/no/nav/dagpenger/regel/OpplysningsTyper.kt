@@ -357,12 +357,21 @@ object OpplysningsTyper {
     // Uriktige Opplysninger
     val harAvgittUriktigeOpplysningerId = Opplysningstype.Id(UUID.fromString("019bc5f8-5c56-7f36-bff1-b10c8165764d"), Boolsk)
     val holderTilbakeInfoId = Opplysningstype.Id(UUID.fromString("019bc5f8-8af4-73c7-8b15-6feecd7810d2"), Boolsk)
-    val `unnlaterÅEtterkommePåleggId` = Opplysningstype.Id(UUID.fromString("019bc5f8-c377-740f-9df6-3c743b5144b1"), Boolsk)
+    val unnlaterÅEtterkommePåleggId = Opplysningstype.Id(UUID.fromString("019bc5f8-c377-740f-9df6-3c743b5144b1"), Boolsk)
     val oppfyllerVilkårManglendeEllerUriktigeOpplysningerId =
         Opplysningstype.Id(
             UUID.fromString("019bc5f8-fdf3-7240-afaf-52c0486eddc5"),
             Boolsk,
         )
+
+    // Ferietillegg
+    val årSomSkalBeregnesId = Opplysningstype.Id(UUID.fromString("019d7695-7c15-74b7-a3af-7c82e47c2a20"), Heltall)
+    val harKravPåFerietilleggId = Opplysningstype.Id(UUID.fromString("019d7231-21b8-7d1f-9e3a-314195d9f347"), Boolsk)
+    val ferietilleggBeløpId = Opplysningstype.Id(UUID.fromString("019d7231-50cb-7940-873b-969d1b9dab7e"), Penger)
+    val sumUtbetaltForÅrId = Opplysningstype.Id(UUID.fromString("019d7231-85a1-7ef5-a58e-1909ecdb4127"), Penger)
+    val ferietilleggProsentId = Opplysningstype.Id(UUID.fromString("019d7231-aecf-7b19-a027-5c25fb5f45be"), Desimaltall)
+    val antallDagerForbrukId = Opplysningstype.Id(UUID.fromString("019d7231-ddc0-7059-a631-7d4d06b974de"), Heltall)
+    val ferietilleggTerskelId = Opplysningstype.Id(UUID.fromString("019d7232-0fe1-79fa-8a87-b6937fe67079"), Heltall)
 
     // Omgjøring Uten klage
     val endringIkkeTilSkadeId = Opplysningstype.Id(UUID.fromString("019c5673-ae11-7a8a-ae77-170f6ac20944"), Boolsk)

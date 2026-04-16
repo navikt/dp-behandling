@@ -24,9 +24,10 @@ import no.nav.dagpenger.behandling.mediator.api.tilApiDato
 import no.nav.dagpenger.behandling.mediator.api.tilDataTypeDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningskildeDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningsverdiDTO
-import no.nav.dagpenger.behandling.mediator.api.utbetalinger
+import no.nav.dagpenger.behandling.mediator.api.tilUtbetalingDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
@@ -106,6 +107,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
                         is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
+                        is FerietilleggId -> HendelseDTOTypeDTO.MANUELL // TODO Legg til Ferietillegg???
                     },
                 skjedde = behandlingAv.skjedde,
             ),
@@ -132,7 +134,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
         vilkår = vilkår,
         fastsatt = fastsatt,
         gjenstående = VedtakDTOGjenståendeDTO(),
-        utbetalinger = opplysninger.utbetalinger(egneId),
+        utbetalinger = tilUtbetalingDTO(opplysninger),
         opplysninger = opplysningerSomGjelderPåPrøvingsdato.somListe().map { it.tilOpplysningDTO(opplysningerSomGjelderPåPrøvingsdato) },
     )
 }

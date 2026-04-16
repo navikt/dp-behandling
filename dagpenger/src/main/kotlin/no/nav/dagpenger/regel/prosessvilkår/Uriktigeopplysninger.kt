@@ -20,7 +20,7 @@ object Uriktigeopplysninger {
         )
     val unnlateråEtterkommePålegg =
         boolsk(
-            OpplysningsTyper.`unnlaterÅEtterkommePåleggId`,
+            OpplysningsTyper.unnlaterÅEtterkommePåleggId,
             "Uten rimelig grunn unnlater å etterkomme pålegg som er gitt med hjemmel i denne loven",
         )
 

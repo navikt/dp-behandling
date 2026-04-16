@@ -19,6 +19,16 @@ class Multiplikasjon<R : Comparable<R>, T1 : Comparable<T1>, T2 : Comparable<T2>
     override fun toString(): String = "Regner ut $produserer ved å gange $faktor1 med $faktor2"
 }
 
+@JvmName("prosentAvBeløpDouble")
+fun Opplysningstype<Beløp>.prosentAv(
+    beløp: Opplysningstype<Beløp>,
+    faktor: Opplysningstype<Double>,
+) = Multiplikasjon(
+    this,
+    beløp,
+    faktor,
+) { a, b -> a.div(100) * b }
+
 @JvmName("multiplikasjonBeløpDouble")
 fun Opplysningstype<Beløp>.multiplikasjon(
     beløp: Opplysningstype<Beløp>,

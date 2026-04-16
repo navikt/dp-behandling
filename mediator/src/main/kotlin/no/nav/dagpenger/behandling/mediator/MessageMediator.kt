@@ -13,6 +13,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
+import no.nav.dagpenger.behandling.mediator.mottak.BeregnFerietilleggMottak
+import no.nav.dagpenger.behandling.mediator.mottak.BeregnFerietilleggMottak.BeregnFerietilleggMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
 import no.nav.dagpenger.behandling.mediator.mottak.FjernOpplysningMessage
@@ -84,6 +86,7 @@ internal class MessageMediator(
         RekjørBehandlingMottak(rapidsConnection, this)
         SøknadInnsendtMottak(rapidsConnection, this)
         UtbetalingStatusMottak(rapidsConnection, this)
+        BeregnFerietilleggMottak(rapidsConnection, this)
     }
 
     private companion object {
@@ -198,6 +201,16 @@ internal class MessageMediator(
     override fun behandle(
         hendelse: StartHendelse,
         message: BeregnMeldekortMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
+    override fun behandle(
+        hendelse: StartHendelse,
+        message: BeregnFerietilleggMessage,
         context: MessageContext,
     ) {
         behandle(hendelse, message) {
@@ -335,6 +348,12 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: StartHendelse,
         message: BeregnMeldekortMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: StartHendelse,
+        message: BeregnFerietilleggMessage,
         context: MessageContext,
     )
 

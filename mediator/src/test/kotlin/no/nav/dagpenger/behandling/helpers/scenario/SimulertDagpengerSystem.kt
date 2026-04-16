@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.FailedMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
@@ -32,6 +33,7 @@ import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.RegelverkFerietillegg
 import org.approvaltests.Approvals
 import java.util.UUID
 import kotlin.random.Random
@@ -68,13 +70,15 @@ internal class SimulertDagpengerSystem(
     private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository)
     val auditlogg = TestAuditlogg()
 
+    private val opplysningstyper: Set<Opplysningstype<*>> = RegelverkDagpenger.produserer + RegelverkFerietillegg.produserer
+
     init {
         MarkerMeldekortSomBehandletMottak(rapid, meldekortRepository)
         MessageMediator(
             rapidsConnection = rapid,
             hendelseMediator = hendelseMediator,
             meldingRepository = postgresMeldingRepository,
-            opplysningstyper = RegelverkDagpenger.produserer,
+            opplysningstyper = opplysningstyper,
             meldekortRepository = meldekortRepository,
             apiRepositoryPostgres = apiRepositoryPostgres,
         )
@@ -86,7 +90,7 @@ internal class SimulertDagpengerSystem(
             personRepository,
             hendelseMediator,
             auditlogg,
-            RegelverkDagpenger.produserer,
+            opplysningstyper,
             apiRepositoryPostgres,
             meldekortRepository,
         ) { rapid }
@@ -156,6 +160,26 @@ internal class SimulertDagpengerSystem(
         override fun rapidName(): String {
             TODO("Not yet implemented")
         }
+    }
+
+    fun sendFerietillegg(
+        ident: String,
+        ferietilleggId: UUID,
+        opptjeningsår: Int,
+    ) {
+        rapid
+            .sendTestMessage(
+                JsonMessage
+                    .newMessage(
+                        "beregn_ferietillegg",
+                        mapOf(
+                            "ferietilleggId" to ferietilleggId,
+                            "ident" to ident,
+                            "opptjeningsår" to opptjeningsår,
+                        ),
+                    ).toJson(),
+                ident,
+            )
     }
 
     val meldekortkø = MeldekortBehandlingskø(personRepository, meldekortRepository, TestLol(rapid))

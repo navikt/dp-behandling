@@ -31,6 +31,7 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import no.nav.dagpenger.behandling.api.models.UtledningDTO
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
@@ -96,6 +97,7 @@ internal fun StartHendelse.tilHendelseDTO(): HendelseDTO =
                 is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                 is ManuellId -> HendelseDTOTypeDTO.MANUELL
                 is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
+                is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
             },
         skjedde = skjedde,
     )

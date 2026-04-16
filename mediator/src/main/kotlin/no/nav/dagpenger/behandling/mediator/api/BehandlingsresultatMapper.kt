@@ -10,10 +10,7 @@ import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
-import no.nav.dagpenger.regel.KravPåDagpenger
-import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-import java.util.UUID
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -37,7 +34,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                         perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
                     )
                 },
-            utbetalinger = opplysninger.utbetalinger(egneId),
+            utbetalinger = tilUtbetalingDTO(opplysninger),
             behandletAv = this.tilBehandletAvDTO(),
             førteTil = rettighetsperioder.avgjørelse(),
             opprettet = opprettet,
@@ -61,29 +58,15 @@ private fun Behandling.VedtakOpplysninger.tilBehandletAvDTO(): List<BehandletAvD
         },
     )
 
-internal fun LesbarOpplysninger.utbetalinger(egneId: List<UUID>): List<UtbetalingDTO> {
-    val meldeperioder = finnAlle(Beregning.meldeperiode)
-
-    val løpendeRett = finnAlle(KravPåDagpenger.harLøpendeRett)
-    val satser = finnAlle(dagsatsEtterSamordningMedBarnetillegg)
-    val dager = finnAlle(Beregning.utbetaling).associateBy { it.gyldighetsperiode.fraOgMed }
-
-    return meldeperioder.flatMap { periode ->
-        periode.verdi.mapNotNull { dato ->
-            if (løpendeRett.filter { it.verdi }.none { it.gyldighetsperiode.inneholder(dato) }) {
-                // Har ikke løpende rett i denne perioden, så ingen utbetaling
-                return@mapNotNull null
-            }
-
-            val dag = dager[dato] ?: throw IllegalStateException("Mangler utbetaling for dag $dato")
-            val sats = satser.first { it.gyldighetsperiode.inneholder(dato) }.verdi
-            UtbetalingDTO(
-                meldeperiode = periode.verdi.hashCode().toString(),
-                dato = dato,
-                sats = sats.verdien.toInt(),
-                utbetaling = dag.verdi.heleKroner.toInt(),
-                opprinnelse = (dag.id in egneId).tilOpprinnelseDTO(),
-            )
-        }
+internal fun Behandling.VedtakOpplysninger.tilUtbetalingDTO(opplysninger: LesbarOpplysninger): List<UtbetalingDTO> {
+    val utbetalinger = behandlingAv.forretningsprosess.regelverk.utbetalinger(opplysninger)
+    return utbetalinger.map {
+        UtbetalingDTO(
+            meldeperiode = it.meldeperiode,
+            dato = it.dato,
+            sats = it.sats,
+            utbetaling = it.utbetaling,
+            opprinnelse = it.endret.tilOpprinnelseDTO(),
+        )
     }
 }

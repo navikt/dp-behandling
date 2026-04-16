@@ -37,6 +37,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
+import no.nav.dagpenger.regel.hendelse.BeregnFerietilleggHendelse
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 
 internal class HendelseMediator(
@@ -311,6 +312,15 @@ internal class HendelseMediator(
     }
 
     override fun behandle(
+        hendelse: BeregnFerietilleggHendelse,
+        context: MessageContext,
+    ) {
+        hentPersonOgHåndter(hendelse, context) { person ->
+            person.håndter(hendelse)
+        }
+    }
+
+    override fun behandle(
         hendelse: FjernOpplysningHendelse,
         context: MessageContext,
     ) {
@@ -425,6 +435,11 @@ internal interface IHendelseMediator {
 
     fun behandle(
         hendelse: BeregnMeldekortHendelse,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: BeregnFerietilleggHendelse,
         context: MessageContext,
     )
 

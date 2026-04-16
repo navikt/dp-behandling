@@ -208,6 +208,18 @@ internal class Mennesket(
                 Behov.Pleiepenger to false,
                 Behov.OppgittAndreYtelserUtenforNav to false,
                 Behov.AndreØkonomiskeYtelser to false,
+                Behov.AntallDagerForbukt to
+                    mapOf(
+                        "verdi" to 100,
+                        "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
+                        "gyldigTilOgMed" to LocalDate.of(søknadsdato.year, 12, 31),
+                    ),
+                Behov.OpptjeningsBeløp to
+                    mapOf(
+                        "verdi" to inntektSiste12Mnd,
+                        "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
+                        "gyldigTilOgMed" to LocalDate.of(søknadsdato.year, 12, 31),
+                    ),
             )
 
     private val inntektV1 get() = inntekt(inntektSiste12Mnd.toBigDecimal(), søknadsdato.minusMonths(2))

@@ -3,12 +3,20 @@ package no.nav.dagpenger.opplysning
 import no.nav.dagpenger.dag.DAG
 import no.nav.dagpenger.dag.Edge
 import no.nav.dagpenger.dag.Node
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import java.time.LocalDate
 
+fun interface RettighetsperiodeStrategi {
+    fun rettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode>
+}
+
+fun interface UtbetalingerStrategi {
+    fun utbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling>
+}
+
 class Regelverk(
-    val rettighetsperiodetype: Opplysningstype<Boolean>? = null,
     vararg regelsett: Regelsett,
+    val rettighetsperiodeStrategi: RettighetsperiodeStrategi = { emptyList() },
+    val utbetalingerStrategi: UtbetalingerStrategi = { emptyList() },
 ) {
     private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
     val produserer = regelsett.flatMap { it.produserer }.toSet()
@@ -54,19 +62,9 @@ class Regelverk(
             .filter { it.type == RegelsettType.Fastsettelse }
             .filter { it.påvirkerResultat(opplysninger) }
 
-    fun rettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode> {
-        if (rettighetsperiodetype == null) return emptyList()
+    fun rettighetsperioder(opplysninger: LesbarOpplysninger) = rettighetsperiodeStrategi.rettighetsperioder(opplysninger)
 
-        val egne = opplysninger.somListe(Egne)
-        return opplysninger.finnAlle(rettighetsperiodetype).map { periode ->
-            Rettighetsperiode(
-                fraOgMed = periode.gyldighetsperiode.fraOgMed,
-                tilOgMed = periode.gyldighetsperiode.tilOgMed,
-                harRett = periode.verdi,
-                endret = egne.contains(periode),
-            )
-        }
-    }
+    fun utbetalinger(opplysninger: LesbarOpplysninger) = utbetalingerStrategi.utbetalinger(opplysninger)
 
     val vilkårsopplysninger by lazy {
         regelsett
@@ -99,5 +97,13 @@ data class Rettighetsperiode(
     val fraOgMed: LocalDate,
     val tilOgMed: LocalDate,
     val harRett: Boolean,
+    val endret: Boolean,
+)
+
+data class Utbetaling(
+    val meldeperiode: String,
+    val dato: LocalDate,
+    val sats: Int,
+    val utbetaling: Int,
     val endret: Boolean,
 )
