@@ -106,6 +106,34 @@ class RegelkjøringTest {
     }
 
     @Test
+    fun `periode med LocalDate MIN som start er ikke tillatt`() {
+        assertThrows<IllegalArgumentException> {
+            Regelkjøring.Periode(LocalDate.MIN, 1.januar)
+        }
+    }
+
+    @Test
+    fun `periode med LocalDate MAX som start er ikke tillatt`() {
+        assertThrows<IllegalArgumentException> {
+            Regelkjøring.Periode(LocalDate.MAX, 1.januar)
+        }
+    }
+
+    @Test
+    fun `periode med LocalDate MIN som endInclusive er ikke tillatt`() {
+        assertThrows<IllegalArgumentException> {
+            Regelkjøring.Periode(1.januar, LocalDate.MIN)
+        }
+    }
+
+    @Test
+    fun `periode med LocalDate MAX som endInclusive er ikke tillatt`() {
+        assertThrows<IllegalArgumentException> {
+            Regelkjøring.Periode(1.januar, LocalDate.MAX)
+        }
+    }
+
+    @Test
     @Disabled
     fun `vilkår arver gyldighetsperiode fra opplysninger`() {
         val opplysninger1 = Opplysninger()

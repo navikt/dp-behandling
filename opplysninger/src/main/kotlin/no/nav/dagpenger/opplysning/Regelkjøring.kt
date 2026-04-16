@@ -239,6 +239,13 @@ class Regelkjøring(
     ) : Iterable<LocalDate> {
         constructor(dag: LocalDate) : this(dag, dag)
 
+        init {
+            require(start != LocalDate.MIN) { "Periode.start kan ikke være LocalDate.MIN" }
+            require(start != LocalDate.MAX) { "Periode.start kan ikke være LocalDate.MAX" }
+            require(endInclusive != LocalDate.MIN) { "Periode.endInclusive kan ikke være LocalDate.MIN" }
+            require(endInclusive != LocalDate.MAX) { "Periode.endInclusive kan ikke være LocalDate.MAX" }
+        }
+
         override fun iterator() =
             object : Iterator<LocalDate> {
                 private var current = start
