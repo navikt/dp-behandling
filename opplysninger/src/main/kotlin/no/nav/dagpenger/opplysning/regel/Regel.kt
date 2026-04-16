@@ -9,10 +9,10 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
 
-abstract class Regel<T : Comparable<T>> internal constructor(
+abstract class Regel<T : Any> internal constructor(
     internal val produserer: Opplysningstype<T>,
     // todo: Bør dette være et Set? Vi er ikke avhengig av rekkefølge
-    internal val avhengerAv: List<Opplysningstype<*>> = emptyList(),
+    internal val avhengerAv: List<Opplysningstype<out Any>> = emptyList(),
 ) {
     init {
         require(avhengerAv.none { it == produserer }) {
@@ -23,7 +23,7 @@ abstract class Regel<T : Comparable<T>> internal constructor(
     internal open fun lagPlan(
         opplysninger: LesbarOpplysninger,
         plan: MutableSet<Regel<*>>,
-        produsenter: Map<Opplysningstype<*>, Regel<*>>,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
         if (besøkt.contains(this)) return else besøkt.add(this)

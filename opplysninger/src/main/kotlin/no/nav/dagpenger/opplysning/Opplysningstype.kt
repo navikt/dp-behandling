@@ -26,7 +26,7 @@ enum class OpplysningstypeKategori {
     Materiell,
 }
 
-class Opplysningstype<T : Comparable<T>>(
+class Opplysningstype<T : Any>(
     val id: Id<T>,
     val navn: String,
     val behovId: String,
@@ -44,7 +44,7 @@ class Opplysningstype<T : Comparable<T>>(
         definerteTyper.add(this)
     }
 
-    data class Id<T : Comparable<T>>(
+    data class Id<T>(
         val uuid: UUID,
         val datatype: Datatype<T>,
     )
@@ -175,7 +175,7 @@ class Opplysningstype<T : Comparable<T>>(
             utgåtteBehovId: Set<String> = emptySet(),
         ): Opplysningstype<BarnListe> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
 
-        fun <T : Comparable<T>> som(
+        fun <T : Any> som(
             id: Id<T>,
             beskrivelse: String,
             formål: Opplysningsformål = Opplysningsformål.Regel,

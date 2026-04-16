@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
 
-class Multiplikasjon<R : Comparable<R>, T1 : Comparable<T1>, T2 : Comparable<T2>> internal constructor(
+class Multiplikasjon<R : Any, T1 : Any, T2 : Any> internal constructor(
     produserer: Opplysningstype<R>,
     private val faktor1: Opplysningstype<T1>,
     private val faktor2: Opplysningstype<T2>,

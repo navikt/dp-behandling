@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 typealias Informasjonsbehov = Map<Opplysningstype<*>, Set<Opplysning<*>>>
 
-typealias Regelkart = Map<Opplysningstype<*>, Regel<*>>
+typealias Regelkart = Map<Opplysningstype<out Any>, Regel<*>>
 
 class Regelkjøring(
     private val regelverksdato: LocalDate,

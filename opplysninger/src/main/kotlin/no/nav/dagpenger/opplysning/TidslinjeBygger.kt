@@ -12,7 +12,7 @@ data class PeriodisertVerdi<T>(
 
 typealias Tidslinje<T> = List<PeriodisertVerdi<T>>
 
-class TidslinjeBygger<T : Comparable<T>>(
+class TidslinjeBygger<T : Any>(
     private val opplysninger: Collection<Opplysning<T>>,
 ) {
     val sortertOpplysninger = opplysninger.sortedBy { it.gyldighetsperiode.fraOgMed }

@@ -7,11 +7,11 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import java.time.LocalDate
 
-sealed class Datatype<T : Comparable<T>>(
+sealed class Datatype<T>(
     val klasse: Class<T>,
 ) {
     companion object {
-        fun fromString(datatype: String): Datatype<*> =
+        fun fromString(datatype: String): Datatype<out Any> =
             when (datatype) {
                 "Dato" -> Dato
                 "Desimaltall" -> Desimaltall

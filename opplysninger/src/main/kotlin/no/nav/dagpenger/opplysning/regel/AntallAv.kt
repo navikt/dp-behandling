@@ -5,7 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 
-class AntallAv<T : Comparable<T>>(
+class AntallAv<T : Any>(
     produserer: Opplysningstype<Int>,
     val opplysningstype: Opplysningstype<BarnListe>,
     val filter: Barn.() -> Boolean,

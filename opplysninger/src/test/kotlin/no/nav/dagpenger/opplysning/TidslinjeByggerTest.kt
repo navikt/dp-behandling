@@ -96,7 +96,7 @@ class TidslinjeByggerTest {
         )
     }
 
-    private fun <T : Comparable<T>> Opplysningstype<T>.periode(
+    private fun <T : Any> Opplysningstype<T>.periode(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate? = null,
         vurdering: T,

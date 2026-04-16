@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.finn
 
-class HvisSannMedResultat<T : Comparable<T>>(
+class HvisSannMedResultat<T : Any>(
     produserer: Opplysningstype<T>,
     private val sjekk: Opplysningstype<Boolean>,
     private val hvisSann: Opplysningstype<T>,
@@ -13,7 +13,7 @@ class HvisSannMedResultat<T : Comparable<T>>(
     override fun lagPlan(
         opplysninger: LesbarOpplysninger,
         plan: MutableSet<Regel<*>>,
-        produsenter: Map<Opplysningstype<*>, Regel<*>>,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
         if (besøkt.contains(this)) return else besøkt.add(this)
@@ -52,7 +52,7 @@ class HvisSannMedResultat<T : Comparable<T>>(
     override fun toString() = "Hvis $sjekk er sann, returner $hvisSann, ellers returner $hvisUsann"
 }
 
-fun <T : Comparable<T>> Opplysningstype<T>.hvisSannMedResultat(
+fun <T : Any> Opplysningstype<T>.hvisSannMedResultat(
     sjekk: Opplysningstype<Boolean>,
     hvisSann: Opplysningstype<T>,
     hvisUsann: Opplysningstype<T>,

@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import java.time.LocalDate
 
-class Oppslag<T : Comparable<T>> internal constructor(
+class Oppslag<T : Any> internal constructor(
     produserer: Opplysningstype<T>,
     private val dato: Opplysningstype<LocalDate>,
     private val block: (LocalDate) -> T,
@@ -18,7 +18,7 @@ class Oppslag<T : Comparable<T>> internal constructor(
     override fun toString() = "Finner gjeldende verdi for $produserer på $dato"
 }
 
-fun <T : Comparable<T>> Opplysningstype<T>.oppslag(
+fun <T : Any> Opplysningstype<T>.oppslag(
     dato: Opplysningstype<LocalDate>,
     block: (LocalDate) -> T,
 ) = Oppslag(this, dato, block)

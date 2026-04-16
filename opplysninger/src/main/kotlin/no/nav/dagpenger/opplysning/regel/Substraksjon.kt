@@ -5,7 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
 
 @Suppress("UNCHECKED_CAST")
-class Substraksjon<T : Comparable<T>> internal constructor(
+class Substraksjon<T : Any> internal constructor(
     produserer: Opplysningstype<T>,
     private vararg val opplysningstyper: Opplysningstype<T>,
     private val operasjon: (List<T>) -> T,

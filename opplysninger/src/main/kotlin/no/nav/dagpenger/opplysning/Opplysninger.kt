@@ -3,7 +3,6 @@ package no.nav.dagpenger.opplysning
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter
 import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
-import no.nav.dagpenger.opplysning.Opplysninger.Companion.logger
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.util.UUID
@@ -35,7 +34,7 @@ class Opplysninger private constructor(
         alleOpplysningerMap = alleOpplysninger.groupBy { it.opplysningstype }
     }
 
-    fun <T : Comparable<T>> leggTil(opplysning: Opplysning<T>) {
+    fun <T : Any> leggTil(opplysning: Opplysning<T>) {
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende != null) {
@@ -71,27 +70,26 @@ class Opplysninger private constructor(
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
 
-    internal fun <T : Comparable<T>> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
+    internal fun <T : Any> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
 
-    override fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T> =
+    override fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T> =
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
 
-    override fun <T : Comparable<T>> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
+    override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
         finnNullableOpplysning(opplysningstype, Gyldighetsperiode())
 
     override fun finnOpplysning(opplysningId: UUID) =
         alleOpplysninger.lastOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
-    override fun har(opplysningstype: Opplysningstype<*>) = alleOpplysninger.any { it.er(opplysningstype) }
+    override fun <T : Any> har(opplysningstype: Opplysningstype<T>) = alleOpplysninger.any { it.er(opplysningstype) }
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) =
         opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) } }
 
-    override fun <T : Comparable<T>> finnAlle(opplysningstyper: List<Opplysningstype<T>>) =
-        opplysningstyper.flatMap { type -> finnAlle(type) }
+    override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = opplysningstyper.flatMap { type -> finnAlle(type) }
 
-    override fun <T : Comparable<T>> finnAlle(opplysningstype: Opplysningstype<T>) =
+    override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) =
         alleOpplysninger.filter { it.er(opplysningstype) }.filterIsInstance<Opplysning<T>>()
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
@@ -138,7 +136,7 @@ class Opplysninger private constructor(
         avhengigheter.forEach { avhengighet -> fjern(avhengighet, false) }
     }
 
-    private fun <T : Comparable<T>> finnNullableOpplysning(
+    private fun <T : Any> finnNullableOpplysning(
         opplysningstype: Opplysningstype<T>,
         gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
     ): Opplysning<T>? {

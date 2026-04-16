@@ -14,7 +14,7 @@ data class Utledning(
     internal constructor(regel: Regel<*>, opplysninger: List<Opplysning<*>>) : this(regel::class.java.simpleName, opplysninger)
 }
 
-sealed class Opplysning<T : Comparable<T>>(
+sealed class Opplysning<T : Any>(
     val id: UUID,
     val opplysningstype: Opplysningstype<T>,
     val verdi: T,
@@ -59,7 +59,7 @@ sealed class Opplysning<T : Comparable<T>>(
     abstract fun lagForkortet(framTil: Opplysning<*>): Opplysning<T>
 }
 
-class Hypotese<T : Comparable<T>>(
+class Hypotese<T : Any>(
     id: UUID,
     opplysningstype: Opplysningstype<T>,
     verdi: T,
@@ -98,7 +98,7 @@ class Hypotese<T : Comparable<T>>(
     }
 }
 
-class Faktum<T : Comparable<T>>(
+class Faktum<T : Any>(
     id: UUID,
     opplysningstype: Opplysningstype<T>,
     verdi: T,

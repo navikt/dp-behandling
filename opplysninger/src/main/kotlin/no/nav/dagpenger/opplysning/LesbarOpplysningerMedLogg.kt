@@ -17,12 +17,12 @@ class LesbarOpplysningerMedLogg(
             oppslag.maxOfOrNull { it.opprettet }
                 ?: throw IllegalStateException("Ingen opplysninger har blitt brukt")
 
-    override fun <T : Comparable<T>> finnOpplysning(opplysningstype: Opplysningstype<T>) =
+    override fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>) =
         opplysninger.finnOpplysning(opplysningstype).apply {
             oppslag.add(this)
         }
 
-    override fun <T : Comparable<T>> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>? =
+    override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>? =
         opplysninger.finnNullableOpplysning(opplysningstype)?.apply {
             oppslag.add(this)
         }
@@ -32,7 +32,7 @@ class LesbarOpplysningerMedLogg(
             oppslag.add(this)
         }
 
-    override fun har(opplysningstype: Opplysningstype<*>) =
+    override fun <T : Any> har(opplysningstype: Opplysningstype<T>) =
         opplysninger.har(opplysningstype).also { harOpplysning ->
             if (harOpplysning) {
                 oppslag.add(opplysninger.finnOpplysning(opplysningstype))
@@ -48,9 +48,9 @@ class LesbarOpplysningerMedLogg(
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) = TODO("Not yet implemented")
 
-    override fun <T : Comparable<T>> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = TODO("Not yet implemented")
+    override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = TODO("Not yet implemented")
 
-    override fun <T : Comparable<T>> finnAlle(opplysningstype: Opplysningstype<T>) = TODO("Not yet implemented")
+    override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) = TODO("Not yet implemented")
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = TODO("Not yet implemented")
 
