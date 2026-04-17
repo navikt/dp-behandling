@@ -103,7 +103,7 @@ class DagpengerUtbetalingStrategi : UtbetalingerStrategi {
 
                 val dag = dager[dato] ?: throw IllegalStateException("Mangler utbetaling for dag $dato")
                 val sats = satser.first { it.gyldighetsperiode.inneholder(dato) }.verdi
-                Utbetaling(
+                Utbetaling.Meldekort(
                     meldeperiode = periode.verdi.hashCode().toString(),
                     dato = dato,
                     sats = sats.verdien.toInt(),

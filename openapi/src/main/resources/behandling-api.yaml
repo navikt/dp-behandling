@@ -788,7 +788,7 @@ components:
               description: Alle utbetalinger som er beregnet i behandlingskjeden
               type: array
               items:
-                $ref: '#/components/schemas/Utbetaling'
+                $ref: '#/components/schemas/UtbetalingBase'
             behandletAv:
               description: Hvilke saksbehandlere har vært involvert i behandlingen
               type: array
@@ -1642,7 +1642,7 @@ components:
         utbetalinger:
           type: array
           items:
-            $ref: '#/components/schemas/Utbetaling'
+            $ref: '#/components/schemas/UtbetalingBase'
           example:
             - dato: "2021-01-01"
               sats: 1000
@@ -1757,14 +1757,27 @@ components:
         opprinnelse:
           $ref: '#/components/schemas/Opprinnelse'
 
-    Utbetaling:
+    UtbetalingBase:
+      oneOf:
+        - $ref: '#/components/schemas/UtbetalingMeldekort'
+        - $ref: '#/components/schemas/UtbetalingFerietillegg'
+      discriminator:
+        propertyName: utbetalingstype
+        mapping:
+          Meldekort: '#/components/schemas/UtbetalingMeldekort'
+          Ferietillegg: '#/components/schemas/UtbetalingFerietillegg'
+
+    UtbetalingMeldekort:
       type: object
       required:
+        - utbetalingstype
         - meldeperiode
         - dato
         - sats
         - utbetaling
       properties:
+        utbetalingstype:
+          $ref: '#/components/schemas/Utbetalingstype'
         meldeperiode:
           type: string
         dato:
@@ -1776,6 +1789,28 @@ components:
           type: integer
         opprinnelse:
           $ref: '#/components/schemas/Opprinnelse'
+
+    UtbetalingFerietillegg:
+      type: object
+      required:
+        - utbetalingstype
+        - dato
+        - utbetaling
+      properties:
+        utbetalingstype:
+          $ref: '#/components/schemas/Utbetalingstype'
+        dato:
+          type: string
+          format: date
+        utbetaling:
+          type: integer
+        opprinnelse:
+          $ref: '#/components/schemas/Opprinnelse'
+
+    Utbetalingstype:
+      type: string
+      enum: [ "Meldekort", "Ferietillegg" ]
+      description: Angir om utbetalingen gjelder meldekort eller ferietillegg
 
     BehandletAv:
       type: object
