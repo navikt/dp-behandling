@@ -103,8 +103,6 @@ Behov:
 - Opplæringspenger
 - Foreldrepenger
 - Svangerskapspenger
-Behov:
-- RegistrertSomArbeidssøker
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
@@ -118,18 +116,13 @@ Behandling endret tilstand til: Ferdig
 Laget avklaring om HarSvartPåOmgjøringUtenKlage
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behov:
-- RegistrertSomArbeidssøker
-Behov:
-- RegistrertSomArbeidssøker
-Behov:
-- RegistrertSomArbeidssøker
-Behov:
-- RegistrertSomArbeidssøker
-Behov:
-- RegistrertSomArbeidssøker
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
 Behov:
 - Uføre
+- RegistrertSomArbeidssøker
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger

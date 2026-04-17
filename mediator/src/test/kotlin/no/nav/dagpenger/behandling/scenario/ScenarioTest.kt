@@ -383,7 +383,7 @@ class ScenarioTest {
                 "Søkte for lenge siden",
                 Gyldighetsperiode(1.juni(2018)),
             )
-
+            behovsløsere.løsTilForslag()
             behandlingsresultatForslag {
                 with(rettighetsperioder) {
                     size shouldBe 1
@@ -393,7 +393,7 @@ class ScenarioTest {
                 }
             }
 
-            person.arbeidssøkerregistreringsdato = 1.juni(2018)
+            // person.arbeidssøkerregistreringsdato = 1.juni(2018)
             saksbehandler.endreOpplysning(
                 prøvingsdato,
                 1.juni(2018),

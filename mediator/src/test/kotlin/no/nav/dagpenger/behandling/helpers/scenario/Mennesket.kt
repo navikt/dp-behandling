@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.helpers.scenario
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
@@ -34,7 +35,7 @@ internal class Mennesket(
     private lateinit var søknadsdato: LocalDate
     private lateinit var ønskerFraDato: LocalDate
     private lateinit var meldesyklus: Meldesyklus
-    lateinit var arbeidssøkerregistreringsdato: LocalDate
+    val arbeidsøkerRegisterPerioder = mutableListOf<Periode>()
 
     val sisteSøknadId get() = søknader.lastOrNull()
 
@@ -45,7 +46,7 @@ internal class Mennesket(
         this.søknadsdato = dato
         this.ønskerFraDato = ønskerFraDato
         this.meldesyklus = Meldesyklus(søknadsdato)
-        arbeidssøkerregistreringsdato = dato
+        arbeidsøkerRegisterPerioder.add(Periode(dato, LocalDate.MAX))
 
         rapid.sendTestMessage(
             Meldingskatalog.søknadInnsendt(
@@ -77,10 +78,15 @@ internal class Mennesket(
         return nySøknadId
     }
 
-    fun løsningFor(behov: List<String>): Map<String, Any> {
-        val behovSomLøses = løsninger.filterKeys { it in behov }
-        require(behovSomLøses.size == behov.toSet().size) { "Fant ikke løsning for alle behov: $behov" }
-        return behovSomLøses
+    fun løsningFor(behov: Map<String, JsonNode>): Map<String, Any> {
+        val behovsløsning =
+            behov.keys.associateWith { behovNavn ->
+                val løser = løsninger[behovNavn] ?: error("Fant ikke løsning for behov $behovNavn")
+                val behovsMelding = behov[behovNavn] ?: error("Fant ikke melding for behov $behovNavn")
+                løser.løs(behovsMelding)
+            }
+
+        return behovsløsning
     }
 
     val behandlingId: UUID
@@ -172,77 +178,107 @@ internal class Mennesket(
         val kode: String,
     )
 
-    private val løsninger
+    private val løsninger: Map<String, Behovsløsning>
         get() =
             mapOf(
-                "Fødselsdato" to søknadsdato.minusYears(alder.toLong()),
-                Behov.Søknadsdato to søknadsdato,
-                Behov.ØnskerDagpengerFraDato to ønskerFraDato,
-                Behov.ØnsketArbeidstid to 40.0,
+                "Fødselsdato" to Behovsløsning.Statisk(søknadsdato.minusYears(alder.toLong())),
+                Behov.Søknadsdato to Behovsløsning.Statisk(søknadsdato),
+                Behov.ØnskerDagpengerFraDato to Behovsløsning.Statisk(ønskerFraDato),
+                Behov.ØnsketArbeidstid to Behovsløsning.Statisk(40.0),
                 // Inntekt
-                Behov.Inntekt to mapOf("verdi" to inntektV1),
+                Behov.Inntekt to Behovsløsning.Statisk(mapOf("verdi" to inntektV1)),
                 // Reell arbeidssøker
-                Behov.KanJobbeDeltid to true,
-                Behov.KanJobbeHvorSomHelst to true,
-                Behov.HelseTilAlleTyperJobb to true,
-                Behov.VilligTilÅBytteYrke to true,
-                // Arbeidssøkerregistrering
+                Behov.KanJobbeDeltid to Behovsløsning.Statisk(true),
+                Behov.KanJobbeHvorSomHelst to Behovsløsning.Statisk(true),
+                Behov.HelseTilAlleTyperJobb to Behovsløsning.Statisk(true),
+                Behov.VilligTilÅBytteYrke to Behovsløsning.Statisk(true),
+                // Simulerer dp-oppslag-arbeidssoker
                 Behov.RegistrertSomArbeidssøker to
-                    listOfNotNull(
-                        "verdi" to arbeidssøkerregistreringsdato.isEqual(søknadsdato),
-                        "gyldigFraOgMed" to arbeidssøkerregistreringsdato,
-                        if (!arbeidssøkerregistreringsdato.isEqual(søknadsdato)) {
-                            "gyldigTilOgMed" to arbeidssøkerregistreringsdato
-                        } else {
-                            null
-                        },
-                    ).toMap(),
-                // Rettighetsype
-                Behov.Ordinær to scenario.ordinær,
-                Behov.Permittert to scenario.permittering,
-                Behov.Lønnsgaranti to false,
-                Behov.PermittertFiskeforedling to scenario.permittertfraFiskeforedling,
-                // Verneplikt
-                Behov.Verneplikt to scenario.verneplikt,
-                BostedslandErNorge to true,
-                Behov.TarUtdanningEllerOpplæring to false,
-                Behov.BarnetilleggV2 to
-                    mapOf(
-                        "verdi" to
+                    Behovsløsning.FraBehov { melding ->
+                        val prøvingsdato = LocalDate.parse(melding[Behov.RegistrertSomArbeidssøker][Behov.Prøvingsdato].asText())
+
+                        val erRegistrert = arbeidsøkerRegisterPerioder.any { periode -> prøvingsdato in periode }
+                        if (erRegistrert) {
                             mapOf(
-                                "søknadbarnId" to UUIDv7.ny(),
-                                "barn" to
-                                    listOf(
-                                        mapOf(
-                                            "fødselsdato" to 1.januar(2000),
-                                            "kvalifiserer" to true,
+                                "verdi" to true,
+                                "gyldigFraOgMed" to maxOf(arbeidsøkerRegisterPerioder.find { prøvingsdato in it }!!.fraOgMed, prøvingsdato),
+                            )
+                        } else {
+                            mapOf(
+                                "verdi" to false,
+                                "gyldigFraOgMed" to prøvingsdato,
+                                "gyldigTilOgMed" to prøvingsdato,
+                            )
+                        }
+                    },
+                // Rettighetstype
+                Behov.Ordinær to Behovsløsning.Statisk(scenario.ordinær),
+                Behov.Permittert to Behovsløsning.Statisk(scenario.permittering),
+                Behov.Lønnsgaranti to Behovsløsning.Statisk(false),
+                Behov.PermittertFiskeforedling to Behovsløsning.Statisk(scenario.permittertfraFiskeforedling),
+                // Verneplikt
+                Behov.Verneplikt to Behovsløsning.Statisk(scenario.verneplikt),
+                BostedslandErNorge to Behovsløsning.Statisk(true),
+                Behov.TarUtdanningEllerOpplæring to Behovsløsning.Statisk(false),
+                Behov.BarnetilleggV2 to
+                    Behovsløsning.Statisk(
+                        mapOf(
+                            "verdi" to
+                                mapOf(
+                                    "søknadbarnId" to UUIDv7.ny(),
+                                    "barn" to
+                                        listOf(
+                                            mapOf(
+                                                "fødselsdato" to 1.januar(2000),
+                                                "kvalifiserer" to true,
+                                            ),
                                         ),
-                                    ),
-                            ),
+                                ),
+                        ),
                     ),
-                "Beregnet vanlig arbeidstid per uke før tap" to 40,
-                Behov.Sykepenger to false,
-                Behov.Omsorgspenger to false,
-                Behov.Svangerskapspenger to false,
-                Behov.Foreldrepenger to false,
-                Behov.Opplæringspenger to false,
-                Behov.Pleiepenger to false,
-                Behov.OppgittAndreYtelserUtenforNav to false,
-                Behov.AndreØkonomiskeYtelser to false,
+                "Beregnet vanlig arbeidstid per uke før tap" to Behovsløsning.Statisk(40),
+                Behov.Sykepenger to Behovsløsning.Statisk(false),
+                Behov.Omsorgspenger to Behovsløsning.Statisk(false),
+                Behov.Svangerskapspenger to Behovsløsning.Statisk(false),
+                Behov.Foreldrepenger to Behovsløsning.Statisk(false),
+                Behov.Opplæringspenger to Behovsløsning.Statisk(false),
+                Behov.Pleiepenger to Behovsløsning.Statisk(false),
+                Behov.OppgittAndreYtelserUtenforNav to Behovsløsning.Statisk(false),
+                Behov.AndreØkonomiskeYtelser to Behovsløsning.Statisk(false),
+                Behov.Uføre to Behovsløsning.Statisk(false),
                 Behov.AntallDagerForbukt to
-                    mapOf(
-                        "verdi" to 100,
-                        "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
-                        "gyldigTilOgMed" to LocalDate.of(søknadsdato.year, 12, 31),
+                    Behovsløsning.Statisk(
+                        mapOf(
+                            "verdi" to 100,
+                            "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
+                            "gyldigTilOgMed" to LocalDate.of(søknadsdato.year, 12, 31),
+                        ),
                     ),
                 Behov.OpptjeningsBeløp to
-                    mapOf(
-                        "verdi" to inntektSiste12Mnd,
-                        "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
-                        "gyldigTilOgMed" to LocalDate.of(søknadsdato.year, 12, 31),
+                    Behovsløsning.Statisk(
+                        mapOf(
+                            "verdi" to inntektSiste12Mnd,
+                            "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
+                            "gyldigTilOgMed" to LocalDate.of(søknadsdato.year, 12, 31),
+                        ),
                     ),
-                Behov.Uføre to false,
             )
+
+    internal sealed class Behovsløsning {
+        abstract fun løs(behovMelding: JsonNode): Any
+
+        class Statisk(
+            private val verdi: Any,
+        ) : Behovsløsning() {
+            override fun løs(behovMelding: JsonNode): Any = verdi
+        }
+
+        class FraBehov(
+            private val resolver: (JsonNode) -> Any,
+        ) : Behovsløsning() {
+            override fun løs(behovMelding: JsonNode): Any = resolver(behovMelding)
+        }
+    }
 
     private val inntektV1 get() = inntekt(inntektSiste12Mnd.toBigDecimal(), søknadsdato.minusMonths(2))
 

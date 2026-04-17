@@ -21,7 +21,7 @@ internal class Behovsløsere(
         while (sisteMeldingErBehov) {
             iterasjoner++
             check(iterasjoner < maksIterasjoner) {
-                "Mulig uendelig behovsløkke etter $iterasjoner iterasjoner. Siste behov: ${aktiveBehov()}. Siste melding: \n ${
+                "Mulig uendelig behovsløkke etter $iterasjoner iterasjoner. Siste behov: ${aktiveBehov().keys}. Siste melding: \n ${
                     rapid.inspektør.message(
                         rapid.inspektør.size - 1,
                     )
@@ -35,7 +35,8 @@ internal class Behovsløsere(
         val aktiveBehov = aktiveBehov()
         val løsninger = person.løsningFor(aktiveBehov)
         lastOffset = rapid.inspektør.size
-        rapid.sendTestMessage(løstBehov(løsninger), person.ident)
+        val løstBehov = løstBehov(løsninger)
+        rapid.sendTestMessage(løstBehov, person.ident)
     }
 
     private fun løstBehov(løsninger: Map<String, Any>): String =
@@ -46,12 +47,14 @@ internal class Behovsløsere(
             objectMapper.writeValueAsString(løsningsobjekt)
         }
 
-    fun aktiveBehov(): List<String> {
+    fun aktiveBehov(): Map<String, JsonNode> {
         val nyeOffsets = lastOffset..<rapid.inspektør.size
         val nyeMeldinger = nyeOffsets.map { offset -> rapid.inspektør.message(offset) }
         val nyeBehov = nyeMeldinger.filter { it["@event_name"].asText() == "behov" }
-
-        return nyeBehov.flatMap { melding -> melding["@behov"].map { behov -> behov.asText() } }
+        return nyeBehov
+            .flatMap { melding ->
+                melding["@behov"].map { it.asText() to melding }
+            }.toMap()
     }
 
     fun sisteForslag(): JsonNode {
