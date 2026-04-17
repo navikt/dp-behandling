@@ -5,21 +5,26 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
+import no.nav.dagpenger.behandling.april
 import no.nav.dagpenger.behandling.august
+import no.nav.dagpenger.behandling.februar
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
-import no.nav.dagpenger.dato.februar
-import no.nav.dagpenger.dato.januar
+import no.nav.dagpenger.behandling.mars
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
+import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -332,6 +337,59 @@ class OmgjøringScenarioTester {
                 saksbehandler.lukkAlleAvklaringer()
             }
             behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+        }
+    }
+
+    @Test
+    fun `flytting av "prøvingsperioder" tilbake i tid`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(4.april(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                Søknadstidspunkt.søknadIdOpplysningstype,
+                person.sisteSøknadId!!.toString(),
+                "Endrer tilbake i tid",
+                gyldighetsperiode = Gyldighetsperiode(2.februar(2026)),
+            )
+         /*   saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+                false,
+                "Endrer tilbake i tid",
+                gyldighetsperiode = Gyldighetsperiode(2.februar(2026), 1.mars(2026)),
+            )
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+                true,
+                "Endrer tilbake i tid",
+                gyldighetsperiode = Gyldighetsperiode(2.mars(2026), LocalDate.MAX),
+            )
+
+
+            behovsløsere.løsTilForslag()
+
+          */
+
+            behandlingsresultatForslag {
+                with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
+                    this shouldHaveSize 1
+                    first().gyldigFraOgMed shouldBe 2.mars(2026)
+                    first().verdi shouldBe false
+                }
+            }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+            behandlingsresultat {
+                rettighetsperioder.shouldHaveSize(1)
+                rettighetsperioder.last().harRett shouldBe true
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(true)
+
+            behovsløsere.aktiveBehov().shouldBeEmpty()
         }
     }
 }

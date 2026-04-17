@@ -33,8 +33,6 @@ Behov:
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
 Behov:
 - Inntekt
 - RegistrertSomArbeidssøker
@@ -46,8 +44,10 @@ Behov:
 - Foreldrepenger
 - Svangerskapspenger
 Laget avklaring om EØSArbeid
+Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
+Laget avklaring om MuligGjenopptak
 Laget avklaring om SjekkPrøvingsdato
 Laget avklaring om BeregnetArbeidstid
 Behov:
