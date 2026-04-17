@@ -17,8 +17,10 @@ import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
+import no.nav.dagpenger.behandling.mediator.jobber.GJustering
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
+import no.nav.dagpenger.behandling.mediator.mottak.GJusteringMottak
 import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
@@ -73,6 +75,7 @@ internal class SimulertDagpengerSystem(
     private val opplysningstyper: Set<Opplysningstype<*>> = RegelverkDagpenger.produserer + RegelverkFerietillegg.produserer
 
     init {
+        GJusteringMottak(rapid, GJustering(personRepository))
         MarkerMeldekortSomBehandletMottak(rapid, meldekortRepository)
         MessageMediator(
             rapidsConnection = rapid,

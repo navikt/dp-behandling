@@ -18,10 +18,12 @@ import no.nav.dagpenger.behandling.mediator.api.simuleringApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
 import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
 import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
+import no.nav.dagpenger.behandling.mediator.jobber.GJustering
 import no.nav.dagpenger.behandling.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
+import no.nav.dagpenger.behandling.mediator.mottak.GJusteringMottak
 import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
@@ -124,6 +126,9 @@ internal class ApplicationBuilder(
         ) { engine, rapidsConnection: KafkaRapid ->
             // Logger bare oppgaver enn så lenge. Bør inn i HendelseMediator
             ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres())
+
+            // G-justering
+            GJusteringMottak(rapidsConnection, GJustering(personRepository))
 
             // Vedtak mottak
             MarkerMeldekortSomBehandletMottak(rapidsConnection, meldekortRepositoryPostgres)

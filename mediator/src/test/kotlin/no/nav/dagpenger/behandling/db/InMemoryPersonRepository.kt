@@ -58,6 +58,14 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
+    override fun finnBehandlingerForGJustering(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        block: (Behandling) -> Unit,
+    ) {
+        TODO("Not yet implemented")
+    }
+
     override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> {
         TODO("Not yet implemented")
     }

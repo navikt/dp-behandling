@@ -199,4 +199,33 @@ internal class TestSaksbehandler2(
     fun omgjørBehandling(gjelderDato: LocalDate) {
         rapid.sendTestMessage(Meldingskatalog.omgjørBehandling(testPerson.ident, gjelderDato))
     }
+
+    fun omgjørBehandlingMedOpplysninger(
+        gjelderDato: LocalDate,
+        initialOpplysninger: List<Map<String, Any>>,
+    ) {
+        rapid.sendTestMessage(
+            Meldingskatalog.omgjørBehandlingMedOpplysninger(testPerson.ident, gjelderDato, initialOpplysninger),
+        )
+    }
+
+    fun startGJustering(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+    ) {
+        val fraOffset = rapid.inspektør.size
+        rapid.sendTestMessage(Meldingskatalog.startGJustering(fraOgMed, tilOgMed), testPerson.ident)
+        // Re-process events that GJustering published (TestRapid.publish() doesn't auto-trigger rivers)
+        for (offset in fraOffset until rapid.inspektør.size) {
+            val eventNavn = rapid.inspektør.message(offset)["@event_name"]?.asText() ?: continue
+            if (eventNavn in setOf("rekjør_behandling", "omgjør_behandling")) {
+                val key = rapid.inspektør.key(offset)
+                if (key != null) {
+                    rapid.sendTestMessage(rapid.inspektør.message(offset).toString(), key)
+                } else {
+                    rapid.sendTestMessage(rapid.inspektør.message(offset).toString())
+                }
+            }
+        }
+    }
 }

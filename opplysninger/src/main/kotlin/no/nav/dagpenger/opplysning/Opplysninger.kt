@@ -118,6 +118,8 @@ class Opplysninger private constructor(
 
     fun fjern(opplysningId: UUID) = fjern(kunEgne.finnOpplysning(opplysningId))
 
+    fun fjernMedOpplysningstype(opplysningtypeId: UUID) = fjernHvis { it.opplysningstype.id.uuid == opplysningtypeId }
+
     private fun fjern(
         opplysning: Opplysning<*>,
         skalOppfriske: Boolean = true,

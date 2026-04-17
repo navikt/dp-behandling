@@ -270,6 +270,34 @@ internal class BehandlingRepositoryPostgres(
         }
     }
 
+    override fun finnBehandlingerForGJustering(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        block: (Behandling) -> Unit,
+    ) = sessionOf(dataSource).use { session ->
+        session.forEach(
+            queryOf(
+                // language=PostgreSQL
+                """
+                SELECT DISTINCT b.behandling_id
+                FROM behandling b
+                JOIN behandler_hendelse_behandling bhb ON b.behandling_id = bhb.behandling_id
+                JOIN behandler_hendelse bh ON bhb.melding_id = bh.melding_id
+                WHERE bh.skjedde BETWEEN :fraOgMed AND :tilOgMed
+                  AND b.tilstand NOT IN ('Avbrutt', 'UnderOpprettelse')
+                ORDER BY b.behandling_id
+                """.trimIndent(),
+                mapOf(
+                    "fraOgMed" to fraOgMed,
+                    "tilOgMed" to tilOgMed,
+                ),
+            ),
+        ) {
+            val hentBehandling = session.hentBehandling(it.uuid("behandling_id"))!!
+            block(hentBehandling)
+        }
+    }
+
     private fun lagre(
         behandling: Behandling,
         unitOfWork: PostgresUnitOfWork,

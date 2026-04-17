@@ -31,6 +31,7 @@ import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.DatalastKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.FlyttBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
+import no.nav.dagpenger.behandling.api.models.InitialOpplysningDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
 import no.nav.dagpenger.behandling.api.models.NyBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.NyOpplysningDTO
@@ -70,14 +71,18 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
@@ -178,12 +183,17 @@ internal fun Application.behandlingApi(
                     val hendelse =
                         when (nyBehandlingDto.behandlingstype) {
                             BehandlingstypeDTO.REVURDERING -> {
+                                val apiKilde = Systemkilde(melding.id, LocalDateTime.now())
                                 OmgjøringHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
                                     eksternId = OmgjøringId(id),
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
+                                    initialOpplysninger =
+                                        nyBehandlingDto.initialOpplysninger
+                                            ?.mapNotNull { dto -> dto.tilFaktum<Comparable<Any>>(opplysningstyper, apiKilde) }
+                                            ?: emptyList(),
                                 )
                             }
 
@@ -734,4 +744,30 @@ private class HttpVerdiMapper(
             Tekst -> nyOpplysning.verdi as T
             else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
         }
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Comparable<T>> InitialOpplysningDTO.tilFaktum(
+    opplysningstyper: Set<Opplysningstype<*>>,
+    kilde: Systemkilde,
+): Faktum<T>? {
+    val type = opplysningstyper.singleOrNull { it.id.uuid == opplysningstype } ?: return null
+    val typedType = type as Opplysningstype<T>
+    val gyldighetsperiode = gyldigFraOgMed?.let { Gyldighetsperiode(it) } ?: Gyldighetsperiode()
+    val typedVerdi: T =
+        when (typedType.datatype) {
+            Penger -> Beløp(verdi.toBigDecimal()) as T
+            Dato -> LocalDate.parse(verdi) as T
+            Heltall -> verdi.toInt() as T
+            Desimaltall -> verdi.toDouble() as T
+            Boolsk -> verdi.toBoolean() as T
+            Tekst -> verdi as T
+            else -> throw BadRequestException("Datatype ${typedType.datatype} støttes ikke for initialOpplysninger")
+        }
+    return Faktum(
+        opplysningstype = typedType,
+        verdi = typedVerdi,
+        gyldighetsperiode = gyldighetsperiode,
+        kilde = kilde,
+    )
 }

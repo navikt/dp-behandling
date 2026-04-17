@@ -21,6 +21,7 @@ class OmgjøringHendelse(
     eksternId: EksternId<*>,
     gjelderDato: LocalDate,
     opprettet: LocalDateTime,
+    val initialOpplysninger: List<Faktum<*>> = emptyList(),
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
@@ -61,6 +62,7 @@ class OmgjøringHendelse(
                     kilde = kilde,
                 ),
             )
+            initialOpplysninger.forEach { opplysning -> it.opplysninger.leggTil(opplysning) }
         }
     }
 }

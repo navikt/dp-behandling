@@ -81,7 +81,7 @@ internal class MessageMediator(
         GodkjennBehandlingMottak(rapidsConnection, this)
         InnsendingFerdigstiltMottak(rapidsConnection)
         MeldekortInnsendtMottak(rapidsConnection, this)
-        OmgjøringMottak(rapidsConnection, this, meldekortRepository)
+        OmgjøringMottak(rapidsConnection, this, meldekortRepository, opplysningstyper)
         OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
         OppgaveSendtTilKontroll(rapidsConnection, this)
         OpplysningSvarMottak(rapidsConnection, this, opplysningstyper)

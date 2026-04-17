@@ -670,6 +670,11 @@ components:
           type: string
           format: date
           description: Når hendelsen skjedde, hvis ikke settes det til nåværende tidspunkt
+        initialOpplysninger:
+          type: array
+          description: Opplysninger som skal overstyres ved oppstart av behandlingen (f.eks. nytt grunnbeløp ved omgjøring)
+          items:
+            $ref: '#/components/schemas/InitialOpplysning'
 
     Behandlingstype:
       type: string
@@ -711,6 +716,20 @@ components:
           type: string
           format: date
         gyldigTilOgMed:
+          type: string
+          format: date
+
+    InitialOpplysning:
+      type: object
+      required:
+        - opplysningstype
+        - verdi
+      properties:
+        opplysningstype:
+          $ref: '#/components/schemas/OpplysningTypeId'
+        verdi:
+          type: string
+        gyldigFraOgMed:
           type: string
           format: date
 

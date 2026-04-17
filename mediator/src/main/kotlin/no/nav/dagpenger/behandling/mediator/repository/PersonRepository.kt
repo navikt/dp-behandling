@@ -80,6 +80,13 @@ interface BehandlingRepository :
         tilOgMed: LocalDate,
         block: (Behandling) -> Unit,
     )
+
+    @WithSpan
+    fun finnBehandlingerForGJustering(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        block: (Behandling) -> Unit,
+    )
 }
 
 interface PersonRepository : BehandlingRepository {

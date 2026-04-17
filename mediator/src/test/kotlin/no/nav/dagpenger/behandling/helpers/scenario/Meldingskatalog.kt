@@ -98,12 +98,31 @@ internal object Meldingskatalog {
     fun omgjørBehandling(
         ident: String,
         gjelderDato: LocalDate,
+    ) = omgjørBehandlingMedOpplysninger(ident, gjelderDato)
+
+    fun omgjørBehandlingMedOpplysninger(
+        ident: String,
+        gjelderDato: LocalDate,
+        initialOpplysninger: List<Map<String, Any>> = emptyList(),
     ) = JsonMessage
         .newMessage(
             "omgjør_behandling",
+            buildMap {
+                put("ident", ident)
+                put("gjelderDato", gjelderDato)
+                if (initialOpplysninger.isNotEmpty()) put("initialOpplysninger", initialOpplysninger)
+            },
+        ).toJson()
+
+    fun startGJustering(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+    ) = JsonMessage
+        .newMessage(
+            "start_g_justering",
             mapOf(
-                "ident" to ident,
-                "gjelderDato" to gjelderDato,
+                "fraOgMed" to fraOgMed,
+                "tilOgMed" to tilOgMed,
             ),
         ).toJson()
 
