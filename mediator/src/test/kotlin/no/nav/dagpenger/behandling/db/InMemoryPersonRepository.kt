@@ -26,10 +26,9 @@ class InMemoryPersonRepository :
                 it.behandlinger()
             }.find { it.behandlingId == behandlingId }
 
-    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> =
+    override fun hentBehandlinger(ident: Ident): List<Behandling> =
         persondb.values
             .flatMap { it.behandlinger() }
-            .filter { it.behandlingId in behandlingIder }
 
     override fun flyttBehandling(
         behandlingId: UUID,

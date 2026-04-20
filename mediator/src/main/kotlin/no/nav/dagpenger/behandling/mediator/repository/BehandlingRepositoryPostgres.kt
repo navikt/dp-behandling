@@ -8,6 +8,7 @@ import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
@@ -30,12 +31,11 @@ internal class BehandlingRepositoryPostgres(
             }
         }
 
-    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
-        if (behandlingIder.isEmpty()) return emptyList()
-        return sessionOf(dataSource).use { session ->
-            session.hentBehandlinger(behandlingIder)
+    override fun hentBehandlinger(ident: Ident): List<Behandling> =
+        sessionOf(dataSource).use { session ->
+            val kjeder = session.finnAlleBehandlingskjeder(ident)
+            session.hentBehandlinger(kjeder)
         }
-    }
 
     override fun flyttBehandling(
         behandlingId: UUID,
@@ -55,39 +55,74 @@ internal class BehandlingRepositoryPostgres(
         }
     }
 
-    private fun Session.hentBehandling(behandlingId: UUID): Behandling? = hentBehandlinger(listOf(behandlingId)).singleOrNull()
+    private fun Session.hentBehandling(behandlingId: UUID): Behandling? {
+        val kjeder = finnBehandlingskjede(behandlingId)
+        val behandlinger = hentBehandlinger(kjeder)
+        // returnerer bare behandlinger som ble forespurt, i rekkefølge
+        return behandlinger.singleOrNull { it.behandlingId == behandlingId }
+    }
 
-    private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
-        if (behandlingIder.isEmpty()) return emptyList()
-
-        // Finn basertPå-relasjoner for disse IDene og sorterer dem
-        // topologisk slik at den første/eldste behandlingen i kjeden kommer først
-        val alleBehandlingIder =
-            this
-                .run(
-                    queryOf(
-                        // language=PostgreSQL
-                        """
+    private fun Session.finnBehandlingskjede(behandlingId: UUID): Set<UUID> {
+        // finner en kjede av behandlinger med utgangspunkt i en konkret behandling, sortert topologisk
+        return this
+            .run(
+                queryOf(
+                    // language=PostgreSQL
+                    """
                         with recursive behandlingkjede as (
-                            -- ankerbehandlinger
-                            select behandling_id, basert_på_behandling_id, 0 as dybde
-                            from behandling
-                            where behandling_id = ANY(:ider)
-                            
-                            union
-                            -- rekursive behandlinger
-                            select r.behandling_id, r.basert_på_behandling_id, bk.dybde + 1
-                            from behandling r
-                            join behandlingkjede bk on bk.basert_på_behandling_id = r.behandling_id
-                        )
-                        
-                        select behandling_id, basert_på_behandling_id 
+                        select behandling_id, basert_på_behandling_id, 0 as dybde
+                        from behandling
+                        where behandling_id = ?
+                    
+                        union all
+                    
+                        -- rekursive behandlinger
+                        select r.behandling_id, r.basert_på_behandling_id, bk.dybde + 1
+                        from behandling r
+                        join behandlingkjede bk on bk.basert_på_behandling_id = r.behandling_id
+                    )
+                    
+                        select behandling_id, basert_på_behandling_id, dybde
                         from behandlingkjede
                         order by dybde desc
-                        """.trimIndent(),
-                        mapOf("ider" to behandlingIder.toTypedArray()),
-                    ).map { row -> row.uuidOrNull("behandling_id") }.asList,
-                ).toSet()
+                    """.trimIndent(),
+                    behandlingId,
+                ).map { row -> row.uuidOrNull("behandling_id") }.asList,
+            ).toSet()
+    }
+
+    private fun Session.finnAlleBehandlingskjeder(ident: Ident): Set<UUID> {
+        // finner alle behandlingskjeder for en person, sortert topologisk
+        return this
+            .run(
+                queryOf(
+                    // language=PostgreSQL
+                    """
+                    with recursive behandlingkjede as (
+                        -- rotbehandlinger, de som ikke peker på noen andre
+                        select b.behandling_id, b.basert_på_behandling_id, 0 as høyde
+                        from behandling b
+                        inner join person_behandling pb on pb.behandling_id = b.behandling_id 
+                        where pb.ident = ? and b.basert_på_behandling_id is null
+                        
+                        union all
+                        -- rekursive behandlinger
+                        select r.behandling_id, r.basert_på_behandling_id, bk.høyde + 1
+                        from behandling r
+                        join behandlingkjede bk on bk.behandling_id = r.basert_på_behandling_id
+                    )
+                    
+                    select behandling_id, basert_på_behandling_id 
+                    from behandlingkjede
+                    order by høyde
+                    """.trimIndent(),
+                    ident.identifikator(),
+                ).map { row -> row.uuidOrNull("behandling_id") }.asList,
+            ).toSet()
+    }
+
+    private fun Session.hentBehandlinger(behandlingIder: Set<UUID>): List<Behandling> {
+        if (behandlingIder.isEmpty()) return emptyList()
 
         // Hent arbeidssteg for alle behandlinger i én spørring
         val arbeidsstegMap = mutableMapOf<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>()
@@ -98,7 +133,7 @@ internal class BehandlingRepositoryPostgres(
                     """
                     SELECT * FROM behandling_arbeidssteg WHERE behandling_id = ANY(:ider)
                     """.trimIndent(),
-                    mapOf("ider" to alleBehandlingIder.toTypedArray()),
+                    mapOf("ider" to behandlingIder.toTypedArray()),
                 ).map { row ->
                     val behandlingId = row.uuid("behandling_id")
                     val oppgave = Arbeidssteg.Oppgave.valueOf(row.string("oppgave"))
@@ -114,7 +149,7 @@ internal class BehandlingRepositoryPostgres(
             )
 
         // Hent avklaringer for alle behandlinger i én spørring
-        val avklaringerMap = hentAvklaringer(alleBehandlingIder)
+        val avklaringerMap = hentAvklaringer(behandlingIder)
 
         // Hent alle behandlinger i én spørring
         data class BehandlingRad(
@@ -146,7 +181,7 @@ internal class BehandlingRepositoryPostgres(
                         LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
                         WHERE behandling.behandling_id = ANY(:ider) 
                         """.trimIndent(),
-                        mapOf("ider" to alleBehandlingIder.toTypedArray()),
+                        mapOf("ider" to behandlingIder.toTypedArray()),
                     ).map { row ->
                         BehandlingRad(
                             behandlingId = row.uuid("behandling_id"),
@@ -164,7 +199,7 @@ internal class BehandlingRepositoryPostgres(
                             basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
                         )
                     }.asList,
-                ).sortedBy { alleBehandlingIder.indexOf(it.behandlingId) }
+                ).sortedBy { behandlingIder.indexOf(it.behandlingId) }
 
         val opplysningerMap =
             this
@@ -215,11 +250,7 @@ internal class BehandlingRepositoryPostgres(
                 }
         }
 
-        // returnerer bare behandlinger som ble forespurt, i rekkefølge
-        return behandlingerMap
-            .filter { (behandlingId, _) -> behandlingId in behandlingIder }
-            .values
-            .toList()
+        return behandlingerMap.values.toList()
     }
 
     override fun lagre(behandling: Behandling) {

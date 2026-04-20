@@ -94,7 +94,7 @@ class PersonRepositoryPostgres(
                     row.uuid("behandling_id")
                 }.asList,
             )
-        return behandlingRepository.hentBehandlinger(behandlingIder)
+        return behandlingRepository.hentBehandlinger(ident)
     }
 
     private fun Session.rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
