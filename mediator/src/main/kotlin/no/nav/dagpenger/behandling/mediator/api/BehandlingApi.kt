@@ -522,14 +522,12 @@ internal fun Application.behandlingApi(
                                 throw BadRequestException("Opplysningstype $opplysningstype kan ikke redigeres")
                             }
 
-                            if (behandling.basertPå != null && opplysningstype.er(prøvingsdato)) {
-                                throw BadRequestException(
-                                    "Kan ikke endre prøvingsdato på en behandling som er basert på en tidligere behandling",
-                                )
-                            }
-
-                            // TODO: Midlertidlig sperre for å unngå at prøvingsdato settes før søknadId sin gyldighetsperiode
                             if (opplysningstype.er(prøvingsdato)) {
+                                if (behandling.opplysninger.kunEgne.finnNullableOpplysning(prøvingsdato) == null) {
+                                    throw BadRequestException(
+                                        "Kan ikke endre prøvingsdato på en behandling som er basert på en tidligere behandling",
+                                    )
+                                }
                                 val søknadId = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
                                 if (søknadId != null) {
                                     val nyPrøvingsdato = LocalDate.parse(nyOpplysningDTO.verdi)
