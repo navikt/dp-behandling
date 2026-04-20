@@ -96,8 +96,9 @@ class Regelkjøring(
         observatører.add(observer)
     }
 
-    fun evaluer(): Regelkjøringsrapport =
-        prøvingsperiode
+    fun evaluer(): Regelkjøringsrapport {
+        trenger = mutableSetOf()
+        return prøvingsperiode
             .map { evaluerDag(it) }
             .reduce { total, regelkjøringsrapport -> total + regelkjøringsrapport }
             .also {
@@ -106,11 +107,12 @@ class Regelkjøring(
                 }
                 logger.info {
                     """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
-                    |Regler:
-                    |${it.kjørteRegler.joinToString("\n") { "- $it" }}
+                        |Regler:
+                        |${it.kjørteRegler.joinToString("\n") { "- $it" }}
                     """.trimMargin()
                 }
             }
+    }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         aktiverRegler(prøvingsdato)
@@ -159,7 +161,7 @@ class Regelkjøring(
 
         val (ekstern, intern) = produksjonsplan.partition { it is Ekstern<*> }
         plan = intern.toMutableSet()
-        trenger = ekstern.toSet()
+        trenger += ekstern.toSet()
     }
 
     private fun kjørRegelPlan() {

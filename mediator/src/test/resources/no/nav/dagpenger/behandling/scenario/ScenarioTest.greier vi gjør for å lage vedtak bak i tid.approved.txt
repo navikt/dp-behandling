@@ -8,18 +8,18 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- Inntekt
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- HelseTilAlleTyperJobb
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
 - RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+- Inntekt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
@@ -46,7 +46,6 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 Behov:
-- Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
@@ -58,6 +57,7 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+- Inntekt
 Behov:
 - BostedslandErNorge
 - Uføre
@@ -74,8 +74,8 @@ Behov:
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:
-- Inntekt
 - RegistrertSomArbeidssøker
+- Inntekt
 Laget avklaring om IkkeRegistrertSomArbeidsøker
 Behov:
 - BostedslandErNorge

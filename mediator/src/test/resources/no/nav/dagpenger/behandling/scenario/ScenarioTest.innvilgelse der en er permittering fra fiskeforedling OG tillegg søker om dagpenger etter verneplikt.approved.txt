@@ -6,18 +6,18 @@ Behov:
 - ØnskerDagpengerFraDato
 - Fødselsdato
 Behov:
-- Inntekt
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- HelseTilAlleTyperJobb
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
 - RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+- Inntekt
 Laget avklaring om EØSArbeid
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om InntektNesteKalendermåned

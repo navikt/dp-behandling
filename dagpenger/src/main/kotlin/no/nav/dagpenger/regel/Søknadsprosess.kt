@@ -102,6 +102,7 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         if (beregnetPrøvingsdato != null) {
             return beregnetPrøvingsdato.verdi
         }
+
         val sisteFraOgMed =
             opplysninger.kunEgne
                 .somListe()

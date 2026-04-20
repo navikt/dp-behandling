@@ -20,6 +20,7 @@ import no.nav.dagpenger.regel.Opphold
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Rettighetstype
+import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -375,13 +376,16 @@ class GjenopptakTest {
 
             // Må ha startet forbruk for å kunne gjenoppta
             person.sendInnMeldekort(1)
-            // meldekortBatch(true)
+            meldekortBatch(true)
 
             // Gjenoppta
             person.søkGjenopptak(23.august(2018))
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
+                with(opplysninger(Søknadstidspunkt.prøvingsdato)) {
+                    this shouldHaveSize 2
+                }
                 with(opplysninger(Rettighetstype.skalGjenopptakVurderes)) {
                     this shouldHaveSize 2
                     this[0].verdi.verdi shouldBe false
