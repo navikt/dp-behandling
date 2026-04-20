@@ -70,31 +70,6 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- Søknadsdato
-- ØnskerDagpengerFraDato
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- HelseTilAlleTyperJobb
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
-- RegistrertSomArbeidssøker
-- Ordinær
-- Permittert
-- Lønnsgaranti
-- PermittertFiskeforedling
-- Verneplikt
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Uføre
-- Foreldrepenger
-- Svangerskapspenger
-- AndreØkonomiskeYtelser
-- TarUtdanningEllerOpplæring
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
-Behov:
 - Uføre
 - RegistrertSomArbeidssøker
 - Sykepenger
@@ -116,8 +91,15 @@ Behandling endret tilstand til: Ferdig
 Laget avklaring om HarSvartPåOmgjøringUtenKlage
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
+Behov:
+- Uføre
+- RegistrertSomArbeidssøker
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:

@@ -189,7 +189,7 @@ class GjenopptakTest {
             )
 
             // Verifiser at vi spør om inntekt
-            behovsløsere.aktiveBehov().keys shouldContain "Inntekt"
+            behovsløsere.aktiveBehov() shouldContain "Inntekt"
 
             // Legg inn en inntekt som gir et lavere grunnlag
             val lavereInntekt = person.inntekt(300000, gjenopptaksdato.minusMonths(2))

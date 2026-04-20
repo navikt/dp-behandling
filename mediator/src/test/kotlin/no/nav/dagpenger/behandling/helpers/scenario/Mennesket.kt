@@ -196,12 +196,11 @@ internal class Mennesket(
                 Behov.RegistrertSomArbeidssøker to
                     Behovsløsning.FraBehov { melding ->
                         val prøvingsdato = LocalDate.parse(melding[Behov.RegistrertSomArbeidssøker][Behov.Prøvingsdato].asText())
-
-                        val erRegistrert = arbeidsøkerRegisterPerioder.any { periode -> prøvingsdato in periode }
-                        if (erRegistrert) {
+                        val periode = arbeidsøkerRegisterPerioder.lastOrNull { periode -> prøvingsdato in periode }
+                        if (periode != null) {
                             mapOf(
                                 "verdi" to true,
-                                "gyldigFraOgMed" to maxOf(arbeidsøkerRegisterPerioder.find { prøvingsdato in it }!!.fraOgMed, prøvingsdato),
+                                "gyldigFraOgMed" to maxOf(periode.fraOgMed, prøvingsdato),
                             )
                         } else {
                             mapOf(

@@ -85,5 +85,4 @@ Behov:
 - Uføre
 - Foreldrepenger
 - Svangerskapspenger
-Laget avklaring om IkkeRegistrertSomArbeidsøker
 Behandling endret tilstand til: ForslagTilVedtak

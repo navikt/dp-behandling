@@ -2,10 +2,8 @@ package no.nav.dagpenger.behandling.helpers.scenario
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.dagpenger.behandling.objectMapper
-import java.time.LocalDate
 
 internal class Behovsløsere(
     private val rapid: TestRapid,
@@ -21,7 +19,7 @@ internal class Behovsløsere(
         while (sisteMeldingErBehov) {
             iterasjoner++
             check(iterasjoner < maksIterasjoner) {
-                "Mulig uendelig behovsløkke etter $iterasjoner iterasjoner. Siste behov: ${aktiveBehov().keys}. Siste melding: \n ${
+                "Mulig uendelig behovsløkke etter $iterasjoner iterasjoner. Siste behov: ${aktiveBehov()}. Siste melding: \n ${
                     rapid.inspektør.message(
                         rapid.inspektør.size - 1,
                     )
@@ -32,71 +30,39 @@ internal class Behovsløsere(
     }
 
     private fun løsAktiveBehov() {
-        val aktiveBehov = aktiveBehov()
-        val løsninger = person.løsningFor(aktiveBehov)
+        val alleBehov = mutableMapOf<String, JsonNode>()
+        val behovMeldinger = uløsteBehov()
+        for (melding in behovMeldinger) {
+            for (behovNavn in melding["@behov"].map { it.asText() }) {
+                alleBehov[behovNavn] = melding
+            }
+        }
+        val løsninger = person.løsningFor(alleBehov)
         lastOffset = rapid.inspektør.size
-        val løstBehov = løstBehov(løsninger)
-        rapid.sendTestMessage(løstBehov, person.ident)
+        rapid.sendTestMessage(løstBehov(løsninger), person.ident)
+    }
+
+    fun aktiveBehov(): List<String> =
+        uløsteBehov().flatMap { melding ->
+            melding["@behov"].map { it.asText() }
+        }
+
+    private fun uløsteBehov(): List<JsonNode> {
+        val nyeOffsets = lastOffset..<rapid.inspektør.size
+        return nyeOffsets
+            .map { offset -> rapid.inspektør.message(offset) }
+            .filter { it["@event_name"].asText() == "behov" }
     }
 
     private fun løstBehov(løsninger: Map<String, Any>): String =
         rapid.inspektør.message(rapid.inspektør.size - 1).run {
-            val løsningsobjekt = this as ObjectNode
-            løsningsobjekt.put("@final", true)
-            løsningsobjekt.putPOJO("@løsning", løsninger)
-            objectMapper.writeValueAsString(løsningsobjekt)
+            val løsning = this as ObjectNode
+            løsning.put("@final", true)
+            løsning.putPOJO("@løsning", objectMapper.valueToTree(løsninger))
+            objectMapper.writeValueAsString(løsning)
         }
-
-    fun aktiveBehov(): Map<String, JsonNode> {
-        val nyeOffsets = lastOffset..<rapid.inspektør.size
-        val nyeMeldinger = nyeOffsets.map { offset -> rapid.inspektør.message(offset) }
-        val nyeBehov = nyeMeldinger.filter { it["@event_name"].asText() == "behov" }
-        return nyeBehov
-            .flatMap { melding ->
-                melding["@behov"].map { it.asText() to melding }
-            }.toMap()
-    }
-
-    fun sisteForslag(): JsonNode {
-        val sisteMelding = rapid.inspektør.message(rapid.inspektør.size - 1)
-        require(sisteMelding["@event_name"].asText() == "forslag_til_vedtak")
-        return sisteMelding
-    }
-
-    fun sisteVedtak(): JsonNode {
-        val sisteMelding = rapid.inspektør.message(rapid.inspektør.size - 1)
-        require(sisteMelding["@event_name"].asText() == "vedtak_fattet")
-        return sisteMelding
-    }
 
     fun sisteBehandlingsresultatForslag(): JsonNode = rapid.inspektør.sisteMelding("forslag_til_behandlingsresultat")
 
     fun sisteBehandlingsresultat(): JsonNode = rapid.inspektør.sisteMelding("behandlingsresultat")
-
-    fun løsningFor(
-        opplysning: String,
-        verdi: Any,
-        fraOgMed: LocalDate = LocalDate.now(),
-    ) {
-        rapid.sendTestMessage(
-            JsonMessage
-                .newNeed(
-                    listOf("behov"),
-                    mapOf(
-                        "@final" to true,
-                        "@opplysningsbehov" to true,
-                        "ident" to person.ident,
-                        "behandlingId" to person.behandlingId,
-                        "@løsning" to
-                            mapOf(
-                                opplysning to
-                                    mapOf(
-                                        "verdi" to verdi,
-                                        "gyldigFraOgMed" to fraOgMed,
-                                    ),
-                            ),
-                    ),
-                ).toJson(),
-        )
-    }
 }

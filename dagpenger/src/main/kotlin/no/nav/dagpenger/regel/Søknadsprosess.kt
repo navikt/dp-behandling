@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -36,7 +37,7 @@ import java.time.LocalDate
 class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     init {
         registrer(RettighetsperiodePlugin(regelverk))
-        registrer(PrøvingsdatoPlugin())
+        //  registrer(PrøvingsdatoPlugin())
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
@@ -96,23 +97,20 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         { forDato(prøvingsdato(this)) }
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate {
-        // TODO: Dette bør helst flyttes til validering av input på opplysninger
-        val søknadsdato =
-            opplysninger.kunEgne
-                .finnNullableOpplysning(Søknadstidspunkt.søknadIdOpplysningstype)
-                ?.gyldighetsperiode
-                ?.fraOgMed
-
         val sisteFraOgMed =
             opplysninger.kunEgne
                 .somListe()
                 .last { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
-                .gyldighetsperiode.fraOgMed
-
-        if (søknadsdato == null) {
-            return sisteFraOgMed
+                .gyldighetsperiode
+                .fraOgMed
+        // Bruk den beregnede prøvingsdato-opplysningen hvis den er beregnet i denne behandlingen (stabil verdi).
+        // Bruker kunEgne for å unngå å plukke opp arvet prøvingsdato fra forrige behandling (f.eks. ved gjenopptak).
+        val beregnetPrøvingsdato = opplysninger.kunEgne.finnNullableOpplysning(Søknadstidspunkt.prøvingsdato)
+        if (beregnetPrøvingsdato != null) {
+            return beregnetPrøvingsdato.verdi
         }
-
-        return maxOf(søknadsdato, sisteFraOgMed)
+        return sisteFraOgMed
     }
+
+    private val logger = KotlinLogging.logger { }
 }
