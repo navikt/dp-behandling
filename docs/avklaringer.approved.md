@@ -145,6 +145,13 @@ Søker har inntekt som tilhører neste kalendermåned. <br>Sjekk om det er tilst
 Søker har oppgitt arbeid utenfor Norge i søknaden. <br>Sjekk om disse arbeidsforholdene skal være med i vurderingen av retten til dagpenger.
 
 ---
+## Manuell kontroll ferietillegg
+**Kode:** `KontrollFerietillegg`
+
+### Beskrivelse
+Manuell kontroll av ferietillegg.
+
+---
 ## Manglende vurdering av reell arbeidssøker
 **Kode:** `ManglerReellArbeidssøker`
 

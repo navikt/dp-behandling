@@ -27,16 +27,12 @@ class FerietilleggTest {
 
             sendFerietillegg(fnr, ferietilleggId, opptjeningsår)
             behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
-            println("hei")
             behandlingsresultat {
-//                rettighetsperioder.single().harRett shouldBe false
-//                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
-
                 opplysninger(FerietilleggBeløp.ferietilleggBeløp).single().verdi.verdi shouldBe 47500
                 opplysninger(KravPåFerietillegg.harKravpåFerietillegg).single().verdi.verdi shouldBe true
-
-//                opplysninger shouldHaveSize 22
             }
         }
     }

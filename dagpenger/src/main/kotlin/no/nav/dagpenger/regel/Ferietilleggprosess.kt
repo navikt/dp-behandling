@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.regel.KravPåFerietillegg.FerietilleggKontroll
 import java.time.LocalDate
 
 class Ferietilleggprosess : Forretningsprosess(RegelverkFerietillegg) {
@@ -33,4 +34,9 @@ class Ferietilleggprosess : Forretningsprosess(RegelverkFerietillegg) {
             endInclusive = LocalDate.of(år, 12, 31),
         )
     }
+
+    override fun kontrollpunkter() =
+        listOf(
+            FerietilleggKontroll,
+        )
 }

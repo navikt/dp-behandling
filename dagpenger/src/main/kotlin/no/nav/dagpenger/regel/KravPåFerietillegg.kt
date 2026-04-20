@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
@@ -32,5 +33,16 @@ object KravPåFerietillegg {
             regel(ferietilleggTerskel) { somUtgangspunkt(8 * 5) }
 
             utfall(harKravpåFerietillegg) { størreEnn(antallDagerForbruk, ferietilleggTerskel) }
+        }
+
+    val FerietilleggKontroll =
+        Kontrollpunkt(Avklaringspunkter.KontrollFerietillegg) {
+            if (it.har(harKravpåFerietillegg)) {
+                if (it.erSann(harKravpåFerietillegg)) {
+                    return@Kontrollpunkt true
+                }
+            }
+
+            return@Kontrollpunkt false
         }
 }
