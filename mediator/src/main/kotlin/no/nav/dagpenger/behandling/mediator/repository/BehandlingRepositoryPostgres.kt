@@ -60,8 +60,7 @@ internal class BehandlingRepositoryPostgres(
     private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
         if (behandlingIder.isEmpty()) return emptyList()
 
-        // Finn basertPå-relasjoner for disse IDene og sorterer dem
-        // topologisk slik at den første/eldste behandlingen i kjeden kommer først
+        // Finn basertPå-relasjoner for disse IDene
         val alleBehandlingIder =
             this
                 .run(
@@ -70,20 +69,19 @@ internal class BehandlingRepositoryPostgres(
                         """
                         with recursive behandlingkjede as (
                             -- ankerbehandlinger
-                            select behandling_id, basert_på_behandling_id, 0 as dybde
+                            select behandling_id, basert_på_behandling_id
                             from behandling
                             where behandling_id = ANY(:ider)
                             
                             union
                             -- rekursive behandlinger
-                            select r.behandling_id, r.basert_på_behandling_id, bk.dybde + 1
+                            select r.behandling_id, r.basert_på_behandling_id
                             from behandling r
                             join behandlingkjede bk on bk.basert_på_behandling_id = r.behandling_id
                         )
                         
                         select behandling_id, basert_på_behandling_id 
                         from behandlingkjede
-                        order by dybde desc
                         """.trimIndent(),
                         mapOf("ider" to behandlingIder.toTypedArray()),
                     ).map { row -> row.uuidOrNull("behandling_id") }.asList,
@@ -145,6 +143,7 @@ internal class BehandlingRepositoryPostgres(
                         LEFT JOIN behandler_hendelse ON behandler_hendelse.melding_id = behandler_hendelse_behandling.melding_id
                         LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
                         WHERE behandling.behandling_id = ANY(:ider) 
+                        ORDER BY behandling.behandling_id
                         """.trimIndent(),
                         mapOf("ider" to alleBehandlingIder.toTypedArray()),
                     ).map { row ->
@@ -164,7 +163,7 @@ internal class BehandlingRepositoryPostgres(
                             basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
                         )
                     }.asList,
-                ).sortedBy { alleBehandlingIder.indexOf(it.behandlingId) }
+                )
 
         val opplysningerMap =
             this
@@ -174,16 +173,26 @@ internal class BehandlingRepositoryPostgres(
                         .toSet(),
                 )
 
+        // Topologisk sortering slik at basertPå alltid prosesseres før behandlinger som avhenger av den.
+        // ORDER BY behandling_id er ikke tilstrekkelig etter en flytt-operasjon, der en eldre behandling
+        // kan peke på en nyere (høyere UUID) behandling.
+        val radByBehandlingId = behandlingRader.associateBy { it.behandlingId }
+        val topologiskSortert = mutableListOf<BehandlingRad>()
+        val besøkt = mutableSetOf<UUID>()
+
+        fun besøk(rad: BehandlingRad) {
+            if (rad.behandlingId in besøkt) return
+            besøkt.add(rad.behandlingId)
+            rad.basertPåBehandlingId?.let { radByBehandlingId[it]?.let { parent -> besøk(parent) } }
+            topologiskSortert.add(rad)
+        }
+        behandlingRader.forEach { besøk(it) }
+
         // Bygg behandlinger med korrekte basertPå-referanser
         val behandlingerMap = linkedMapOf<UUID, Behandling>()
-        behandlingRader.forEach { rad ->
+        topologiskSortert.forEach { rad ->
             check(rad.behandlingId !in behandlingerMap) { "skal ikke finnes fra før" }
-            val basertPå =
-                rad.basertPåBehandlingId?.let {
-                    checkNotNull(behandlingerMap[it]) {
-                        "skal kunne finne en rehydret behandling med $it fordi den er tidligere i kjeden"
-                    }
-                }
+            val basertPå = rad.basertPåBehandlingId?.let { behandlingerMap.getValue(it) }
             Behandling
                 .rehydrer(
                     behandlingId = rad.behandlingId,
