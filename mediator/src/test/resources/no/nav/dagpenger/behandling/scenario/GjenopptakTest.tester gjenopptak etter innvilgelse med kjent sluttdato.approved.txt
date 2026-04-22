@@ -82,19 +82,10 @@ Behov:
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Behov:
 - RegistrertSomArbeidssøker
-- BostedslandErNorge
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- HelseTilAlleTyperJobb
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
-- Ordinær
-- Permittert
-- Lønnsgaranti
-- PermittertFiskeforedling
-- Verneplikt
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -102,8 +93,4 @@ Behov:
 - Uføre
 - Foreldrepenger
 - Svangerskapspenger
-- AndreØkonomiskeYtelser
-- TarUtdanningEllerOpplæring
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
 Behandling endret tilstand til: ForslagTilVedtak

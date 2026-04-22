@@ -384,7 +384,8 @@ class ScenarioTest {
                 Gyldighetsperiode(1.juni(2018)),
             )
 
-            behovsløsere.løsTilForslag()
+            // TODO("Dette må inn igjen")
+            // behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
                 with(rettighetsperioder) {

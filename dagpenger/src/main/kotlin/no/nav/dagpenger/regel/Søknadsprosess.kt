@@ -96,19 +96,22 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         { forDato(prøvingsdato(this)) }
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate {
-        // Bruk den beregnede prøvingsdato-opplysningen hvis den er beregnet i denne behandlingen (stabil verdi).
-        // Bruker kunEgne for å unngå å plukke opp arvet prøvingsdato fra forrige behandling (f.eks. ved gjenopptak).
-        val beregnetPrøvingsdato = opplysninger.kunEgne.finnNullableOpplysning(Søknadstidspunkt.prøvingsdato)
-        if (beregnetPrøvingsdato != null) {
-            return beregnetPrøvingsdato.verdi
-        }
+        val søknadsdato =
+            opplysninger.kunEgne
+                .finnNullableOpplysning(Søknadstidspunkt.søknadIdOpplysningstype)
+                ?.gyldighetsperiode
+                ?.fraOgMed
 
         val sisteFraOgMed =
             opplysninger.kunEgne
                 .somListe()
                 .last { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
-                .gyldighetsperiode
-                .fraOgMed
-        return sisteFraOgMed
+                .gyldighetsperiode.fraOgMed
+
+        if (søknadsdato == null) {
+            return sisteFraOgMed
+        }
+
+        return maxOf(søknadsdato, sisteFraOgMed)
     }
 }
