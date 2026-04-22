@@ -169,9 +169,12 @@ class ArbeidssøkerTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
-            behandlingsresultat {
+            behandlingsresultat(nummer = 4) {
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
                     this shouldHaveSize 0
+                }
+                with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {
+                    this shouldHaveSize 2
                 }
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
                     this shouldHaveSize 2
@@ -181,9 +184,9 @@ class ArbeidssøkerTest {
 
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].tilOgMed shouldBe 31.juli(2018)
+                rettighetsperioder[0].tilOgMed shouldBe 15.juli(2018)
                 rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 1.august(2018)
+                rettighetsperioder[1].fraOgMed shouldBe 16.juli(2018)
             }
         }
     }

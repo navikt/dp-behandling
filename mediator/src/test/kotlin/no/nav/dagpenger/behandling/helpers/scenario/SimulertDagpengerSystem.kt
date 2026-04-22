@@ -102,12 +102,30 @@ internal class SimulertDagpengerSystem(
 
     val rapidInspektør get() = rapid.inspektør
 
-    fun behandlingsresultatForslag(block: BehandlingsresultatAssertions.() -> Unit) {
-        BehandlingsresultatAssertions(behovsløsere.sisteBehandlingsresultatForslag()).block()
+    fun behandlingsresultatForslag(
+        nummer: Int? = null,
+        block: BehandlingsresultatAssertions.() -> Unit,
+    ) {
+        val forslag = behovsløsere.sisteBehandlingsresultatForslag()
+        if (nummer != null) {
+            require(nummer == forslag.first) {
+                "Fant ikke forventet forslag til behandlingsresultat, forventet: $nummer, fikk: ${forslag.first}"
+            }
+        }
+        BehandlingsresultatAssertions(forslag.second).block()
     }
 
-    fun behandlingsresultat(block: BehandlingsresultatAssertions.() -> Unit) {
-        BehandlingsresultatAssertions(behovsløsere.sisteBehandlingsresultat()).block()
+    fun behandlingsresultat(
+        nummer: Int? = null,
+        block: BehandlingsresultatAssertions.() -> Unit,
+    ) {
+        val behandlingsresultat = behovsløsere.sisteBehandlingsresultat()
+        if (nummer != null) {
+            require(nummer == behandlingsresultat.first) {
+                "Fant ikke forventet behandlingsresultat, forventet: $nummer, fikk: ${behandlingsresultat.first}"
+            }
+        }
+        BehandlingsresultatAssertions(behandlingsresultat.second).block()
     }
 
     fun BehandlingsresultatDTO.harOpplysning(opplysningId: UUID): Boolean {
@@ -240,12 +258,16 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
     Approvals.verify(meldinger.joinToString("\n"))
 }
 
-fun TestRapid.RapidInspector.sisteMelding(navn: String): JsonNode {
-    for (offset in size - 1 downTo 0) {
+fun TestRapid.RapidInspector.sisteMelding(navn: String): Pair<Int, JsonNode> {
+    val treff = mutableListOf<JsonNode>()
+    for (offset in 0 until size) {
         val message = message(offset)
         if (message["@event_name"].asText() == navn) {
-            return message
+            treff.add(message)
         }
+    }
+    if (treff.isNotEmpty()) {
+        return (treff.lastIndex + 1) to treff.last()
     }
     throw NoSuchElementException("Fant ingen melding av type=$navn")
 }

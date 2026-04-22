@@ -8,7 +8,6 @@ import no.nav.dagpenger.opplysning.PeriodisertVerdi
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.TidslinjeBygger
 import java.time.LocalDate
 
@@ -36,9 +35,9 @@ class RettighetsperiodePlugin(
         val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 
-        // Om saksbehandler har pilla, skal vi ikke overstyre med automatikk
+        // Om saksbehandler eller hendelse har pilla, skal vi ikke overstyre med automatikk
         val harPerioder = egne.har(KravPåDagpenger.harLøpendeRett)
-        val harPilla = harPerioder && egne.finnOpplysning(KravPåDagpenger.harLøpendeRett).kilde is Saksbehandlerkilde
+        val harPilla = harPerioder && egne.finnOpplysning(KravPåDagpenger.harLøpendeRett).kilde != null
         if (harPilla) return
 
         val vilkår =
@@ -85,12 +84,6 @@ class RettighetsperiodePlugin(
                 opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
             }
     }
-
-    private fun overlapperStartOgSammeVerdi(
-        opplysning: Opplysning<Boolean>,
-        gyldighetsperiode: Gyldighetsperiode,
-        periode: PeriodisertVerdi<Boolean>,
-    ): Boolean = opplysning.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && opplysning.verdi == periode.verdi
 
     companion object {
         private val logger = KotlinLogging.logger {}

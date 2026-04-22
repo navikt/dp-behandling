@@ -62,6 +62,7 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
                         fastsattMeldingsdag,
                         avsluttetTidspunkt,
                         opprettet,
+                        sagtNei = årsak == Årsak.UTMELDT_PÅ_MELDEKORT,
                         fristBrutt = årsak == Årsak.MELDEPLIKT_BRUTT,
                         manueltAvregistrert = årsak == Årsak.UTMELDT_I_ASR,
                     ),

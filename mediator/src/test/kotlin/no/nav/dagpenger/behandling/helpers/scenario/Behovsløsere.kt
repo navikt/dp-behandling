@@ -62,7 +62,7 @@ internal class Behovsløsere(
             objectMapper.writeValueAsString(løsning)
         }
 
-    fun sisteBehandlingsresultatForslag(): JsonNode = rapid.inspektør.sisteMelding("forslag_til_behandlingsresultat")
+    fun sisteBehandlingsresultatForslag() = rapid.inspektør.sisteMelding("forslag_til_behandlingsresultat")
 
-    fun sisteBehandlingsresultat(): JsonNode = rapid.inspektør.sisteMelding("behandlingsresultat")
+    fun sisteBehandlingsresultat() = rapid.inspektør.sisteMelding("behandlingsresultat")
 }

@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.Stansprosess
@@ -24,6 +25,7 @@ data class AvsluttetArbeidssøkerperiode(
     val fastsattMeldingsdag: LocalDate,
     val avsluttetTidspunkt: LocalDateTime,
     val mottattTidspunkt: LocalDateTime,
+    val sagtNei: Boolean,
     val fristBrutt: Boolean,
     val manueltAvregistrert: Boolean,
 )
@@ -103,6 +105,18 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                 ),
             )
 
+            // Om bruker sier "nei" til å stå registrert på meldekort
+            if (avsluttetArbeidssøkerperiode.sagtNei) {
+                val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
+                opplysninger.leggTil(
+                    Faktum(
+                        harLøpendeRett,
+                        false,
+                        Gyldighetsperiode(fraOgMed = meldingsdag),
+                        kilde = kilde,
+                    ),
+                )
+            }
             // Om meldekort sendes inn etter 21-dagers fristen skal også få stans på § 4-8
             if (avsluttetArbeidssøkerperiode.fristBrutt) {
                 val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
