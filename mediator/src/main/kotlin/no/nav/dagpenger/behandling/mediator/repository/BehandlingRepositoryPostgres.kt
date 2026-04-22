@@ -12,7 +12,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
+import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.time.LocalDate
 import java.util.UUID
@@ -20,6 +20,7 @@ import java.util.UUID
 internal class BehandlingRepositoryPostgres(
     private val opplysningRepository: OpplysningerRepository,
     private val avklaringRepository: AvklaringRepository,
+    private val registrertForretningsprosess: Prosessregister,
     private val kildeRepository: KildeRepository = KildeRepository(),
 ) : BehandlingRepository,
     AvklaringRepository by avklaringRepository {
@@ -203,7 +204,7 @@ internal class BehandlingRepositoryPostgres(
                             ident = rad.ident,
                             eksternId = EksternId.fromString(rad.eksternIdType, rad.eksternId),
                             skjedde = rad.skjedde,
-                            forretningsprosess = RegistrertForretningsprosess.opprett(rad.forretningsprosess),
+                            forretningsprosess = registrertForretningsprosess.opprett(rad.forretningsprosess),
                             opprettet = rad.opprettet,
                         ),
                     gjeldendeOpplysninger = opplysningerMap.getValue(rad.opplysningerId),

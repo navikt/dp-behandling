@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.mediator.standardRegelverk
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Desimaltall
@@ -71,7 +72,8 @@ class BehandlingRepositoryPostgresTest {
     fun `lagre og hent behandling fra postgres`() {
         withMigratedDb {
             val avklaringRepository = AvklaringRepositoryPostgres()
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository)
+            val behandlingRepositoryPostgres =
+                BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository, standardRegelverk())
 
             behandlingRepositoryPostgres.lagre(basertPåBehandling)
             behandlingRepositoryPostgres.lagre(behandling)

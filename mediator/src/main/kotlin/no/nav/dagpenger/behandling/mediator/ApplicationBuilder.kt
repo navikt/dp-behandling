@@ -35,7 +35,7 @@ import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
+import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.regel.Ferietilleggprosess
 import no.nav.dagpenger.regel.Manuellprosess
 import no.nav.dagpenger.regel.Meldekortprosess
@@ -70,12 +70,17 @@ internal class ApplicationBuilder(
     private val avklaringRepository = AvklaringRepositoryPostgres()
     private val opplysningRepository = OpplysningerRepositoryPostgres()
 
+    val registrertForretningsprosess = standardRegelverk()
+
+    val behandlingRepository =
+        BehandlingRepositoryPostgres(
+            opplysningRepository,
+            avklaringRepository,
+            registrertForretningsprosess,
+        )
     private val personRepository =
         PersonRepositoryPostgres(
-            BehandlingRepositoryPostgres(
-                opplysningRepository,
-                avklaringRepository,
-            ),
+            behandlingRepository,
         )
 
     private val meldekortRepositoryPostgres = MeldekortRepositoryPostgres()
@@ -179,11 +184,8 @@ internal class ApplicationBuilder(
     }
 }
 
-fun registrerRegelverk(
-    opplysningRepository: OpplysningerRepositoryPostgres,
-    opplysningstyper: Set<Opplysningstype<*>>,
-) {
-    RegistrertForretningsprosess.apply {
+fun standardRegelverk() =
+    Prosessregister().apply {
         registrer(Søknadsprosess())
         registrer(Meldekortprosess())
         registrer(Manuellprosess())
@@ -192,6 +194,10 @@ fun registrerRegelverk(
         registrer(Stansprosess())
     }
 
+fun registrerRegelverk(
+    opplysningRepository: OpplysningerRepositoryPostgres,
+    opplysningstyper: Set<Opplysningstype<*>>,
+) {
     opplysningRepository
         .lagreOpplysningstyper(
             opplysningstyper +

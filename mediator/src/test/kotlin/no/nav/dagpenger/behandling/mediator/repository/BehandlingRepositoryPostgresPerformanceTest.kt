@@ -4,6 +4,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
+import no.nav.dagpenger.behandling.mediator.standardRegelverk
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
@@ -88,7 +89,7 @@ class BehandlingRepositoryPostgresPerformanceTest {
             val opplysningerRepository = OpplysningerRepositoryPostgres()
             // Registrer forretningsprosesser og opplysningstyper
             registrerRegelverk(opplysningerRepository, opplysningstyper.toSet())
-            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
+            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, standardRegelverk())
 
             val behandlinger = mutableListOf<Behandling>()
 
@@ -185,7 +186,7 @@ class BehandlingRepositoryPostgresPerformanceTest {
             val opplysningerRepository = OpplysningerRepositoryPostgres()
             // Registrer forretningsprosesser og opplysningstyper
             registrerRegelverk(opplysningerRepository, opplysningstyper.toSet())
-            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
+            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, standardRegelverk())
 
             // Lag en rot-behandling som alle kjeder baserer seg på
             val rotSøknadId = UUIDv7.ny()

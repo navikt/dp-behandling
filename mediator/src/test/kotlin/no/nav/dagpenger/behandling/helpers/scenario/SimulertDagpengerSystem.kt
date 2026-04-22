@@ -29,6 +29,7 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgr
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
+import no.nav.dagpenger.behandling.mediator.standardRegelverk
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -47,11 +48,13 @@ internal class SimulertDagpengerSystem(
 
     private val rapid = TestRapid()
     private val opplysningerRepository = OpplysningerRepositoryPostgres()
+    private val registrertForretningsprosess = standardRegelverk()
     private val personRepository =
         PersonRepositoryPostgres(
             BehandlingRepositoryPostgres(
                 opplysningerRepository,
                 AvklaringRepositoryPostgres(AvklaringKafkaObservatør(rapid)),
+                registrertForretningsprosess,
             ),
         )
     private val meldekortRepository = MeldekortRepositoryPostgres()

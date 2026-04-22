@@ -8,6 +8,7 @@ import io.mockk.mockk
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
+import no.nav.dagpenger.behandling.mediator.standardRegelverk
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
@@ -32,6 +33,7 @@ class PersonRepositoryPostgresTest {
                 BehandlingRepositoryPostgres(
                     opplysningerRepository(),
                     mockk(relaxed = true),
+                    standardRegelverk(),
                 ),
             )
     private val søknadInnsendtHendelse =
