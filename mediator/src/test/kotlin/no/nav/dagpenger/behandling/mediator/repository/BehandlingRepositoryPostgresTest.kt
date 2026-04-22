@@ -141,10 +141,53 @@ class BehandlingRepositoryPostgresTest {
 
             behandlinger[0].behandlingId shouldBe b1.behandlingId
             behandlinger[1].behandlingId shouldBe b2.behandlingId
-            behandlinger[2].behandlingId shouldBe bastard.behandlingId
-            behandlinger[3].behandlingId shouldBe b3.behandlingId
-            behandlinger[4].behandlingId shouldBe b4.behandlingId
+            behandlinger[2].behandlingId shouldBe b3.behandlingId
+            behandlinger[3].behandlingId shouldBe b4.behandlingId
+            behandlinger[4].behandlingId shouldBe bastard.behandlingId
             behandlinger[5].behandlingId shouldBe b5.behandlingId
+        }
+    }
+
+    @Test
+    fun `flytter en eldre behandling til å peke på en nyere`() {
+        withMigratedDb {
+            // Registrer forretningsprosesser og opplysningstyper
+            registrerRegelverk(opplysningerRepository, opplysningstyper)
+
+            val avklaringRepository = AvklaringRepositoryPostgres()
+            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
+
+            val b1 = nyBehandling(null, Ferdig, Opplysninger.med(prøvingsdatoOpplysning))
+            val b2 = nyBehandling(b1, UnderBehandling, Opplysninger.med(opplysning2))
+            val b3 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning3))
+
+            behandlingRepositoryPostgres.lagre(b1)
+            behandlingRepositoryPostgres.lagre(b2)
+            behandlingRepositoryPostgres.lagre(b3)
+
+            behandlingRepositoryPostgres
+                .hentBehandlinger(
+                    listOf(b1.behandlingId, b2.behandlingId, b3.behandlingId),
+                ).also { behandlingerFørFlytt ->
+                    behandlingerFørFlytt.size shouldBe 3
+
+                    behandlingerFørFlytt[0].behandlingId shouldBe b1.behandlingId
+                    behandlingerFørFlytt[1].behandlingId shouldBe b2.behandlingId
+                    behandlingerFørFlytt[2].behandlingId shouldBe b3.behandlingId
+                }
+
+            behandlingRepositoryPostgres.flyttBehandling(b2.behandlingId, b3.behandlingId)
+
+            behandlingRepositoryPostgres
+                .hentBehandlinger(
+                    listOf(b1.behandlingId, b2.behandlingId, b3.behandlingId),
+                ).also { behandlingerEtterFlytt ->
+                    behandlingerEtterFlytt.size shouldBe 3
+
+                    behandlingerEtterFlytt[0].behandlingId shouldBe b1.behandlingId
+                    behandlingerEtterFlytt[1].behandlingId shouldBe b3.behandlingId
+                    behandlingerEtterFlytt[2].behandlingId shouldBe b2.behandlingId
+                }
         }
     }
 

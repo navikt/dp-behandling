@@ -83,7 +83,7 @@ internal class BehandlingRepositoryPostgres(
                         
                         select behandling_id, basert_på_behandling_id 
                         from behandlingkjede
-                        order by dybde desc
+                        order by dybde desc, behandling_id
                         """.trimIndent(),
                         mapOf("ider" to behandlingIder.toTypedArray()),
                     ).map { row -> row.uuidOrNull("behandling_id") }.asList,
