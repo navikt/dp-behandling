@@ -548,6 +548,12 @@ internal fun Application.behandlingApi(
                                 """.trimIndent()
                             }
 
+                            // Legg til i tracing hvilken behandling og opplysningstype som endres
+                            with(Span.current()) {
+                                setAttribute("behandlingId", behandlingId.toString())
+                                setAttribute("opplysningstype", opplysningstype.behovId)
+                            }
+
                             val svar =
                                 OpplysningsSvar(
                                     behandlingId,
