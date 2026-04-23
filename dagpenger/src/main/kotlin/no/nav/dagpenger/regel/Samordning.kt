@@ -203,7 +203,6 @@ object Samordning {
                     uføreDagsats,
                     sumHvisUføreIkkeSkalSamordnes,
                 )
-                // høyesteAv(uføreDagsats, sumHvisUføreIkkeSkalSamordnes)
             }
             regel(sumAndreYtelser) {
                 addisjon(
