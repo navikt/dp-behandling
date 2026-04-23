@@ -77,20 +77,8 @@ class BehandlingkjedeTest {
         val idBarnebarn = UUIDv7.ny()
         val barnebarn = nyBehandling(barn, idBarnebarn)
 
-        val kjedeMedBarnebarn =
-            Behandlingkjede(
-                rot = rot,
-                barn =
-                    listOf(
-                        Behandlingkjede(
-                            rot = barn,
-                            barn =
-                                listOf(
-                                    Behandlingkjede(barnebarn),
-                                ),
-                        ),
-                    ),
-            )
+        val kjedeMedBarnebarn = rot.somKjede() leggTil barn leggTil barnebarn
+
         kjedeMedBarnebarn.dybde shouldBe 2
         kjedeMedBarnebarn.etterkommere shouldBe 2
 
