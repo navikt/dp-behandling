@@ -13,7 +13,6 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold
@@ -166,7 +165,6 @@ class GjenopptakTest {
             person.søkGjenopptak(gjenopptaksdato)
             behovsløsere.løsTilForslag()
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(gjenopptaksdato))
-            saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(gjenopptaksdato))
             saksbehandler.endreOpplysning(
                 oppholdMedArbeidI12ukerEllerMer,
                 true,

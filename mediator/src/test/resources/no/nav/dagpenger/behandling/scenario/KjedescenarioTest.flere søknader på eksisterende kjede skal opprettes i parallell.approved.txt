@@ -52,7 +52,6 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - BarnetilleggV2
-- Uføre
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -65,23 +64,17 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
-- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
@@ -94,7 +87,6 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - BarnetilleggV2
-- Uføre
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -107,23 +99,17 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
-- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
@@ -136,7 +122,6 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - BarnetilleggV2
-- Uføre
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -149,23 +134,17 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
-- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
