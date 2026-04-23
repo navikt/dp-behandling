@@ -160,6 +160,26 @@ class BehandlingkjedeTest {
 
         kjede.denBehandlingenViSkalBasereNyPå() shouldBe barnebarn1
     }
+
+    @Test
+    fun `kan gå gjennom kjeden nivå-for-nivå`() {
+        val rot = nyBehandling()
+        val barn1 = nyBehandling(rot)
+        val barn2 = nyBehandling(rot)
+
+        val barnebarn1 = nyBehandling(barn1)
+        val barnebarn2 = nyBehandling(barn1)
+        val barnebarn3 = nyBehandling(barn2)
+
+        val oldebarn1 = nyBehandling(barnebarn1)
+        val oldebarn2 = nyBehandling(barnebarn2)
+        val oldebarn3 = nyBehandling(barnebarn2)
+
+        val kjedeMedOldebarn = listOf(rot, barn1, barn2, barnebarn1, barnebarn2, barnebarn3, oldebarn1, oldebarn2, oldebarn3).somKjede()
+
+        val rekkefølge = kjedeMedOldebarn.toList()
+        listOf(rot, barn1, barn2, barnebarn1, barnebarn2, barnebarn3, oldebarn1, oldebarn2, oldebarn3) shouldBe rekkefølge
+    }
 }
 
 private fun nyKjede() = nyBehandling().somKjede()

@@ -3,7 +3,7 @@ package no.nav.dagpenger.behandling.modell
 data class Behandlingkjede(
     val rot: Behandling,
     val barn: List<Behandlingkjede> = emptyList(),
-) {
+) : Iterable<Behandling> {
     val erLøvnode = barn.isEmpty()
     val dybde: Int = if (erLøvnode) 0 else barn.maxOf { it.dybde } + 1
     val etterkommere: Int = barn.sumOf { it.etterkommere } + barn.count()
@@ -12,6 +12,21 @@ data class Behandlingkjede(
     init {
         check(barn.all { it.rot.basertPå === rot }) {
             "Forventer at alle barn peker på samme objektreferanse som forelder"
+        }
+    }
+
+    // traverserer treet bredde først
+    override fun iterator(): Iterator<Behandling> {
+        return object : Iterator<Behandling> {
+            private val stabel = ArrayDeque(listOf(this@Behandlingkjede))
+
+            override fun hasNext() = stabel.isNotEmpty()
+
+            override fun next(): Behandling {
+                val gjeldende = stabel.removeFirst()
+                stabel.addAll(gjeldende.barn)
+                return gjeldende.rot
+            }
         }
     }
 }
