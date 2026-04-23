@@ -72,7 +72,7 @@ class Regelkjøring(
     private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
     private val avhengighetsgraf = Avhengighetsgraf(gjeldendeRegler)
 
-    // Setter opp hvilke opplysninger som skal brukes når reglene evalurerer om de skal kjøre
+    // Setter opp hvilke opplysninger som skal brukes når reglene evaluerer om de skal kjøre
     private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
 
     // Hvilke opplysninger som skal produseres. Må hentes på nytt hver gang, siden det kan endres etterhvert som nye regler kommer til
@@ -96,25 +96,34 @@ class Regelkjøring(
         observatører.add(observer)
     }
 
-    fun evaluer(): Regelkjøringsrapport =
-        prøvingsperiode
-            .map { evaluerDag(it) }
-            .reduce { total, regelkjøringsrapport -> total + regelkjøringsrapport }
-            .also {
-                if (it.prøvingsdato.size > 365) {
-                    logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.prøvingsdato.size}" }
-                }
-                logger.info {
-                    """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
+    fun evaluer(): Regelkjøringsrapport {
+        var totalRapport: Regelkjøringsrapport? = null
+        for (dato in prøvingsperiode) {
+            val rapport = evaluerDag(dato)
+            totalRapport = totalRapport?.plus(rapport) ?: rapport
+
+            if (rapport.informasjonsbehov.isNotEmpty()) {
+                // Om en dag sier den har behov må de løses før vi kan videre til neste dag
+                break
+            }
+        }
+
+        return totalRapport!!.also {
+            if (it.prøvingsdato.size > 365) {
+                logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.prøvingsdato.size}" }
+            }
+            logger.info {
+                """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
                         |Regler:
                         |${it.kjørteRegler.joinToString("\n") { "- $it" }}
-                    """.trimMargin()
-                }
+                """.trimMargin()
             }
+        }
+    }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         aktiverRegler(prøvingsdato)
-        while (plan.isNotEmpty() && trenger.isEmpty()) {
+        while (plan.isNotEmpty()) { // && trenger.isEmpty()) {
             kjørRegelPlan()
             aktiverRegler(prøvingsdato)
         }

@@ -8,20 +8,18 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- Ordinær
-- Permittert
-- Lønnsgaranti
-- PermittertFiskeforedling
-- Verneplikt
-Behov:
+- Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
 - RegistrertSomArbeidssøker
-Behov:
-- Inntekt
+- Ordinær
+- Permittert
+- Lønnsgaranti
+- PermittertFiskeforedling
+- Verneplikt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
@@ -37,11 +35,11 @@ Behov:
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om SjekkPrøvingsdato
+Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
-Laget avklaring om BeregnetArbeidstid
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak

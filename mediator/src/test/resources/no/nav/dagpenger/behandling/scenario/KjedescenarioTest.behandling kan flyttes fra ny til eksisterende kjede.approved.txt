@@ -8,20 +8,18 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- Ordinær
-- Permittert
-- Lønnsgaranti
-- PermittertFiskeforedling
-- Verneplikt
-Behov:
+- Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
 - RegistrertSomArbeidssøker
-Behov:
-- Inntekt
+- Ordinær
+- Permittert
+- Lønnsgaranti
+- PermittertFiskeforedling
+- Verneplikt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
@@ -37,11 +35,11 @@ Behov:
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om SjekkPrøvingsdato
+Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
-Laget avklaring om BeregnetArbeidstid
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
@@ -76,24 +74,16 @@ Behov:
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
-Behov:
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Uføre
-- Foreldrepenger
-- Svangerskapspenger
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
+Behov:
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Uføre
+- Foreldrepenger
+- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
@@ -106,12 +96,15 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - Uføre
+- BarnetilleggV2
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
+- RegistrertSomArbeidssøker
+- Ordinær
 - Permittert
 - Lønnsgaranti
 - PermittertFiskeforedling
@@ -124,24 +117,17 @@ Behov:
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
+Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
+Behov:
+- Uføre
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak

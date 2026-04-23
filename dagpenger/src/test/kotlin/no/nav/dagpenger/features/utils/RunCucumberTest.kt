@@ -4,10 +4,11 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.regel.Søknadstidspunkt
 import org.junit.platform.suite.api.IncludeEngines
 import org.junit.platform.suite.api.SelectClasspathResource
+import org.junit.platform.suite.api.Suite
 import java.time.LocalDate
 
 // Konfigurasjon av cucumber ligger i src/test/resources/junit-platform.properties
-// @Suite
+@Suite
 @SelectClasspathResource("features")
 @IncludeEngines("cucumber")
 class RunCucumberTest
