@@ -18,6 +18,15 @@ data class Behandlingkjede(
 
 fun Behandling.somKjede() = Behandlingkjede(this)
 
+fun List<Behandling>.somKjede(): Behandlingkjede {
+    check(isNotEmpty())
+    val rot = first()
+    check(rot.basertPå == null) { "forventer at første element i listen er roten" }
+    return drop(1).fold(rot.somKjede()) { kjede, behandling ->
+        kjede leggTil behandling
+    }
+}
+
 infix fun Behandlingkjede.leggTil(barn: Behandling): Behandlingkjede {
     checkNotNull(barn.basertPå) { "kan ikke legge til barn utenom en forelder" }
     check(barn.basertPå in this) { "kan ikke legge til barn med en forelder som ikke finnes i kjeden" }

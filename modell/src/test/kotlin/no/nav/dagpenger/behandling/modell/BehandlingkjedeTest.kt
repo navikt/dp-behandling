@@ -49,6 +49,19 @@ class BehandlingkjedeTest {
     }
 
     @Test
+    fun `opprette kjede med liste av behandlinger`() {
+        val rot = nyBehandling(basertPå = null)
+        val barn1 = nyBehandling(rot)
+        val barn2 = nyBehandling(rot)
+        val barnebarn = nyBehandling(barn1)
+
+        val rotMedBarnebarn = listOf(rot, barn1, barn2, barnebarn).somKjede()
+
+        rotMedBarnebarn.dybde shouldBe 2
+        rotMedBarnebarn.etterkommere shouldBe 3
+    }
+
+    @Test
     fun `en kjede uten barn har 0 i dybde`() {
         val rot = nyKjede()
         rot.dybde shouldBe 0
