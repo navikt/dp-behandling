@@ -20,6 +20,7 @@ import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -292,7 +293,6 @@ class ScenarioTest {
     }
 
     @Test
-    @Disabled("Skrus av for å teste innvilgelse med mange perioder")
     fun `innvilgelse der en er permittering fra fiskeforedling OG tillegg søker om dagpenger etter verneplikt`() {
         nyttScenario {
             inntektSiste12Mnd = 10
@@ -421,8 +421,15 @@ class ScenarioTest {
             )
 
             behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                ønsketdato,
+                1.juni(2018),
+                "Søkte for lenge siden",
+                Gyldighetsperiode(1.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag(2) {
+            behandlingsresultatForslag(3) {
                 with(rettighetsperioder) {
                     this shouldHaveSize 2
                     this[0].fraOgMed shouldBe 1.juni(2018)
@@ -440,7 +447,7 @@ class ScenarioTest {
             )
             behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag(3) {
+            behandlingsresultatForslag(4) {
                 with(rettighetsperioder) {
                     this shouldHaveSize 1
                     single().fraOgMed shouldBe 1.juni(2018)
@@ -480,22 +487,6 @@ class ScenarioTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
-        }
-    }
-
-    @Test
-    @Disabled("Arbeidssøkerregistrering må svare med riktig data")
-    fun `prøver ikke datoer før søknadstidspunkt`() {
-        nyttScenario {
-            // registreringsdato = 1.januar(2021)
-        }.test {
-            person.søkDagpenger(21.juni(2021))
-
-            behovsløsere.løsTilForslag()
-
-            behandlingsresultatForslag {
-                opplysninger(prøvingsdato).single().verdi.verdi shouldBe 21.juni(2021).toString()
-            }
         }
     }
 }

@@ -58,7 +58,24 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+Behov:
+- BostedslandErNorge
+- Uføre
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
+Behov:
+- BarnetilleggV2
+Behandling endret tilstand til: ForslagTilVedtak
 Laget avklaring om IkkeRegistrertSomArbeidsøker
+Behandling endret tilstand til: Redigert
+Behov:
+- Inntekt
 Behov:
 - BostedslandErNorge
 - Uføre

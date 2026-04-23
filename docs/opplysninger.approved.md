@@ -364,6 +364,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a250|Har samordnet|Boolsk|boolean|||Resultat
 ### § 22-13. Frister for framsetting av krav, virkningstidspunkt og etterbetaling
 *Type:* Vilkår
+#### Avhenger på data fra
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|

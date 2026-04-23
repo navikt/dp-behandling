@@ -8,21 +8,25 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- Ordinær
-- Permittert
-- Lønnsgaranti
-- PermittertFiskeforedling
-- Verneplikt
-Laget avklaring om HarOppgittPermitteringFiskeindustri
-Laget avklaring om Verneplikt
-Behov:
-- BostedslandErNorge
+- Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
 - RegistrertSomArbeidssøker
+- Ordinær
+- Permittert
+- Lønnsgaranti
+- PermittertFiskeforedling
+- Verneplikt
+Laget avklaring om EØSArbeid
+Laget avklaring om InntektNesteKalendermåned
+Laget avklaring om JobbetUtenforNorge
+Laget avklaring om HarOppgittPermitteringFiskeindustri
+Laget avklaring om Verneplikt
+Behov:
+- BostedslandErNorge
 - Uføre
 - Sykepenger
 - Pleiepenger
@@ -32,37 +36,10 @@ Behov:
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Behov:
-- Inntekt
-Laget avklaring om EØSArbeid
-Laget avklaring om InntektNesteKalendermåned
-Laget avklaring om JobbetUtenforNorge
 Laget avklaring om SjekkPrøvingsdato
+Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
-Laget avklaring om BeregnetArbeidstid
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
-Behov:
-- Inntekt
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
-Behov:
-- Inntekt
 Behandling endret tilstand til: ForslagTilVedtak

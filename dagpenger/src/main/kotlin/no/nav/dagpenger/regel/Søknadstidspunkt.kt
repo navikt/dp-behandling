@@ -35,8 +35,7 @@ object Søknadstidspunkt {
             behovId = InnhentFraOgMed,
         )
 
-    // TODO: Fjern synlighet på denne når den nye visninga tar over i prod
-    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato) // , gyldighetsperiode = egenVerdi)
+    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato)
     val søknadIdOpplysningstype = Opplysningstype.tekst(søknadId, "søknadId")
 
     val regelsett =
