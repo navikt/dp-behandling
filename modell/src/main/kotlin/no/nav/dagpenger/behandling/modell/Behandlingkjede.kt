@@ -42,3 +42,28 @@ private fun Behandlingkjede.leggTilBarnHvisDelAvGren(barn: Behandling): Behandli
     }
 
 operator fun Behandlingkjede.contains(behandling: Behandling): Boolean = rot === behandling || barn.any { behandling in it }
+
+enum class Gåmetode { BreddeFørst, DybdeFørst }
+
+fun Behandlingkjede.gåGjennom(
+    gåmetode: Gåmetode,
+    block: (Behandling) -> Unit,
+) {
+    val stabel = ArrayDeque<Behandlingkjede>(listOf(this))
+    while (stabel.isNotEmpty()) {
+        val gjeldende =
+            when (gåmetode) {
+                Gåmetode.BreddeFørst -> stabel.removeFirst()
+                Gåmetode.DybdeFørst -> stabel.removeLast()
+            }
+
+        block(gjeldende.rot)
+
+        stabel.addAll(
+            when (gåmetode) {
+                Gåmetode.BreddeFørst -> gjeldende.barn
+                Gåmetode.DybdeFørst -> gjeldende.barn.reversed()
+            },
+        )
+    }
+}

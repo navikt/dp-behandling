@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.barn
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -100,7 +101,42 @@ class BehandlingkjedeTest {
         (barn in kjedeMedEttBarn) shouldBe true
         (barnKopi in kjedeMedEttBarn) shouldBe false
     }
+
+    @Test
+    fun `kan gå gjennom kjeden nivå-for-nivå eller dybde-for-dybde`() {
+        val rot = nyKjede()
+        val barn1 = rot.nyttBarn()
+        val barn2 = rot.nyttBarn()
+
+        val barnebarn1 = nyBehandling(barn1)
+        val barnebarn2 = nyBehandling(barn1)
+        val barnebarn3 = nyBehandling(barn2)
+
+        val oldebarn1 = nyBehandling(barnebarn1)
+        val oldebarn2 = nyBehandling(barnebarn2)
+        val oldebarn3 = nyBehandling(barnebarn2)
+
+        val kjedeMedOldebarn = rot.leggTilAlle(barn1, barn2, barnebarn1, barnebarn2, barnebarn3, oldebarn1, oldebarn2, oldebarn3)
+
+        fun test(metode: Gåmetode): List<Behandling> =
+            buildList {
+                kjedeMedOldebarn.gåGjennom(metode) {
+                    add(it)
+                }
+            }
+
+        val breddeFørstRekkefølge = test(Gåmetode.BreddeFørst)
+        val dybdeFørstRekkefølge = test(Gåmetode.DybdeFørst)
+
+        listOf(rot.rot, barn1, barn2, barnebarn1, barnebarn2, barnebarn3, oldebarn1, oldebarn2, oldebarn3) shouldBe breddeFørstRekkefølge
+        listOf(rot.rot, barn1, barnebarn1, oldebarn1, barnebarn2, oldebarn2, oldebarn3, barn2, barnebarn3) shouldBe dybdeFørstRekkefølge
+    }
 }
+
+private fun Behandlingkjede.leggTilAlle(vararg behandling: Behandling): Behandlingkjede =
+    behandling.fold(this) { kjede, barn ->
+        kjede leggTil barn
+    }
 
 private fun nyKjede() = nyBehandling().somKjede()
 
