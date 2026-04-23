@@ -8,17 +8,19 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+Behov:
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
+- RegistrertSomArbeidssøker
+Behov:
 - Inntekt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
@@ -35,11 +37,11 @@ Behov:
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om SjekkPrøvingsdato
-Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
+Laget avklaring om BeregnetArbeidstid
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
@@ -80,10 +82,7 @@ Behov:
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
 Behov:
-- RegistrertSomArbeidssøker
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -91,9 +90,18 @@ Behov:
 - Uføre
 - Foreldrepenger
 - Svangerskapspenger
+Behov:
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Uføre
+- Foreldrepenger
+- Svangerskapspenger
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig

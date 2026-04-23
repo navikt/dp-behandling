@@ -18,6 +18,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Period
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.random.Random
@@ -35,7 +36,7 @@ internal class Mennesket(
     private lateinit var søknadsdato: LocalDate
     private lateinit var ønskerFraDato: LocalDate
     private lateinit var meldesyklus: Meldesyklus
-    val arbeidsøkerRegisterPerioder = mutableListOf<Periode>()
+    val arbeidsøkerRegisterPerioder = mutableSetOf<Periode>()
 
     val sisteSøknadId get() = søknader.lastOrNull()
 
@@ -195,20 +196,8 @@ internal class Mennesket(
                 // Simulerer dp-oppslag-arbeidssoker
                 Behov.RegistrertSomArbeidssøker to
                     Behovsløsning.FraBehov { melding ->
-                        val prøvingsdato = LocalDate.parse(melding[Behov.RegistrertSomArbeidssøker][Behov.Prøvingsdato].asText())
-                        val periode = arbeidsøkerRegisterPerioder.lastOrNull { periode -> prøvingsdato in periode }
-                        if (periode != null) {
-                            mapOf(
-                                "verdi" to true,
-                                "gyldigFraOgMed" to maxOf(periode.fraOgMed, prøvingsdato),
-                            )
-                        } else {
-                            mapOf(
-                                "verdi" to false,
-                                "gyldigFraOgMed" to prøvingsdato,
-                                "gyldigTilOgMed" to arbeidsøkerRegisterPerioder.first().fraOgMed.minusDays(1),
-                            )
-                        }
+                        val prøvingsdato = LocalDate.parse(melding[Behov.RegistrertSomArbeidssøker][Behov.InnhentFraOgMed].asText())
+                        byggArbeidssøkerperiodeListe(prøvingsdato)
                     },
                 // Rettighetstype
                 Behov.Ordinær to Behovsløsning.Statisk(scenario.ordinær),
@@ -308,6 +297,52 @@ internal class Mennesket(
                 ),
             sisteAvsluttendeKalenderMåned = YearMonth.from(fraOgMed),
         )
+
+    private fun byggArbeidssøkerperiodeListe(grensedato: LocalDate): List<Map<String, Any>> {
+        val sortertePerioder =
+            arbeidsøkerRegisterPerioder
+                .filter { it.tilOgMed >= grensedato }
+                .sortedBy { it.fraOgMed }
+
+        if (sortertePerioder.isEmpty()) return listOf(mapOf("verdi" to false, "gyldigFraOgMed" to grensedato))
+
+        val perioder = mutableListOf<Map<String, Any>>()
+
+        val førstePeriode = sortertePerioder.first()
+        if (!førstePeriode.contains(grensedato)) {
+            perioder.add(
+                mapOf(
+                    "verdi" to false,
+                    "gyldigFraOgMed" to grensedato,
+                    "gyldigTilOgMed" to førstePeriode.fraOgMed.minusDays(1),
+                ),
+            )
+        }
+        sortertePerioder.forEachIndexed { i, periode ->
+            perioder.add(
+                mapOf(
+                    "verdi" to true,
+                    "gyldigFraOgMed" to periode.fraOgMed,
+                    "gyldigTilOgMed" to periode.tilOgMed,
+                ),
+            )
+            if (sortertePerioder.size == i + 1) return@forEachIndexed
+            val nestePeriode = sortertePerioder[i + 1]
+            val dagerTilNestePeriode = Period.between(periode.tilOgMed, nestePeriode.fraOgMed)
+
+            if (!dagerTilNestePeriode.isZero && !periode.tilOgMed.isEqual(periode.tilOgMed)) {
+                perioder.add(
+                    mapOf(
+                        "verdi" to false,
+                        "gyldigFraOgMed" to periode.tilOgMed.plusDays(1),
+                        "gyldigTilOgMed" to nestePeriode.fraOgMed.minusDays(1),
+                    ),
+                )
+            }
+        }
+
+        return perioder
+    }
 
     private companion object {
         fun MutableList<UUID>.ny() = UUID.randomUUID().also { add(it) }

@@ -76,8 +76,6 @@ class RegelmotorIntegrasjonsTest {
                 ),
             )
         }
-        assertEquals(Grunnbeløp.TEST_GRUNNBELØP, opplysninger.finnOpplysning(ReglerForInntektTest.grunnbeløp).verdi)
-
         // Har er ikke lengre gyldig inntekt og må hentes på nytt
         opplysninger
             .leggTil(
@@ -91,6 +89,8 @@ class RegelmotorIntegrasjonsTest {
         opplysninger
             .leggTil(Hypotese(ReglerForInntektTest.inntekt36, Beløp(321321.0), Gyldighetsperiode(9.mai, 12.mai)))
             .also { regelkjøring.evaluer() }
+
+        assertEquals(Grunnbeløp.TEST_GRUNNBELØP, opplysninger.finnOpplysning(ReglerForInntektTest.grunnbeløp).verdi)
 
         regelkjøring.evaluer().mangler.shouldBeEmpty()
 

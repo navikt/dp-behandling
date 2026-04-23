@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import kotlin.reflect.KProperty
 
 object Behov {
+    val InnhentFraOgMed by StringConstant()
     val Søknadsdato by StringConstant()
     val ØnskerDagpengerFraDato by StringConstant()
     val Prøvingsdato by StringConstant()

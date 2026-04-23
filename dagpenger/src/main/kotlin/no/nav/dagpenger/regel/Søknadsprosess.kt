@@ -48,17 +48,17 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         val førsteGrensedato = egne.minOf { it.gyldighetsperiode.fraOgMed }
 
         // Prøvingsdato brukes til å forskyve innvilgelse fram i tid
-        val førsteØnsketVurderingsdato = egne.firstOrNull { it.er(Søknadstidspunkt.prøvingsdato) }?.verdi as LocalDate?
-        val førsteVurderingsdato = listOfNotNull(førsteØnsketVurderingsdato, førsteGrensedato).max()
+        // val førsteØnsketVurderingsdato = egne.firstOrNull { it.er(Søknadstidspunkt.ønsketdato) }?.verdi as LocalDate?
+        // val førsteVurderingsdato = listOfNotNull(førsteØnsketVurderingsdato, førsteGrensedato).max()
 
         // Vurder hele perioden, ikke bare en enkelt dato
         val siste = egne.maxOf { it.gyldighetsperiode.fraOgMed }
 
-        logger.info { "FØRSTE OG SISTE = $førsteGrensedato, $førsteVurderingsdato, $siste" }
+        logger.info { "FØRSTE OG SISTE = $førsteGrensedato, $siste" }
 
         return Regelkjøring(
             virkningsdato(opplysninger),
-            prøvingsperiode = Regelkjøring.Periode(start = førsteVurderingsdato, endInclusive = siste),
+            prøvingsperiode = Regelkjøring.Periode(start = førsteGrensedato, endInclusive = siste),
             opplysninger,
             this,
             // opplysningerGyldigPåPrøvingsdato,

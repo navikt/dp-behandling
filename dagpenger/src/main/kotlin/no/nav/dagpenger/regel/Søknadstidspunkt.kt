@@ -6,8 +6,10 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
+import no.nav.dagpenger.opplysning.regel.fraOgMed
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.tomRegel
+import no.nav.dagpenger.regel.Behov.InnhentFraOgMed
 import no.nav.dagpenger.regel.Behov.Prøvingsdato
 import no.nav.dagpenger.regel.Behov.Søknadsdato
 import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
@@ -15,6 +17,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.prøvingsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.søknadId
 import no.nav.dagpenger.regel.OpplysningsTyper.søknadsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.søknadstidspunktId
+import no.nav.dagpenger.regel.OpplysningsTyper.tidligsteVurderingsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønskerDagpengerFraDatoId
 import java.time.LocalDate
 
@@ -24,6 +27,13 @@ object Søknadstidspunkt {
     val ønsketdato = Opplysningstype.dato(ønskerDagpengerFraDatoId, "Ønsker dagpenger fra dato", behovId = ØnskerDagpengerFraDato)
 
     val søknadstidspunkt = Opplysningstype.dato(søknadstidspunktId, "Søknadstidspunkt", synlig = aldriSynlig)
+    val tidligsteVurderingsdato =
+        Opplysningstype.dato(
+            tidligsteVurderingsdatoId,
+            "Vurder rett fra og med",
+            synlig = aldriSynlig,
+            behovId = InnhentFraOgMed,
+        )
 
     // TODO: Fjern synlighet på denne når den nye visninga tar over i prod
     val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato) // , gyldighetsperiode = egenVerdi)
@@ -34,6 +44,7 @@ object Søknadstidspunkt {
             forskriftTilFolketrygden.hjemmel(3, 1, "Søknadstidspunkt", "Søknadstidspunkt"),
         ) {
             regel(søknadIdOpplysningstype) { tomRegel }
+            regel(tidligsteVurderingsdato) { fraOgMed(søknadIdOpplysningstype) }
             regel(søknadsdato) { innhentMed(søknadIdOpplysningstype) }
             regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }

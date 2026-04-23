@@ -8,7 +8,6 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
 - Lønnsgaranti
@@ -22,6 +21,7 @@ Behov:
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
+- RegistrertSomArbeidssøker
 - Uføre
 - Sykepenger
 - Pleiepenger

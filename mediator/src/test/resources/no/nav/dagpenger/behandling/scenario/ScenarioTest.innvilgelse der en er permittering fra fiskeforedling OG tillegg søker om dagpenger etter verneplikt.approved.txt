@@ -8,7 +8,6 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
 - Lønnsgaranti
@@ -23,6 +22,7 @@ Behov:
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
+- RegistrertSomArbeidssøker
 - Uføre
 - Sykepenger
 - Pleiepenger
@@ -43,4 +43,26 @@ Behov:
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
 Laget avklaring om BeregnetArbeidstid
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behov:
+- Uføre
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+Behov:
+- Inntekt
+Behov:
+- Uføre
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+Behov:
+- Inntekt
 Behandling endret tilstand til: ForslagTilVedtak
