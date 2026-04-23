@@ -8,18 +8,18 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- Inntekt
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
 - RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- HelseTilAlleTyperJobb
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
-- Inntekt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
@@ -89,7 +89,6 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- RegistrertSomArbeidssøker
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
@@ -97,16 +96,8 @@ Behov:
 - Uføre
 - Foreldrepenger
 - Svangerskapspenger
-Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
-Behov:
-- Inntekt
-Laget avklaring om EØSArbeid
-Laget avklaring om InntektNesteKalendermåned
-Laget avklaring om JobbetUtenforNorge
-Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
