@@ -137,3 +137,12 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         private val logger = KotlinLogging.logger { }
     }
 }
+/*
+første mulige vurderingsdato
+
+1. Vi må begynne et sted. Vi trenger en dato å begynne på. Den setter grense for hvor langt bak i tid man kan vilkårsprøve
+2. Behov må ha en dato de spør på - mulig løsning å spørre fraOgMed søknadsdato 👆
+3. Dato for innvilgelse må kunne flyttes fram i tid fra første mulige vurderingsdato
+4. Inntekt må kunne hentes fram i tid. Henger sammen med 👆
+5. Vi kan lage en knapp som kjører alt på nytt
+ */

@@ -14,11 +14,13 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+Behov:
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
+Behov:
 - Inntekt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
@@ -35,11 +37,11 @@ Behov:
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
 Laget avklaring om SjekkPrøvingsdato
-Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
+Laget avklaring om BeregnetArbeidstid
 Behandling endret tilstand til: ForslagTilVedtak
 Laget avklaring om ReellArbeidssøkerUnntak
 Behandling endret tilstand til: Redigert
