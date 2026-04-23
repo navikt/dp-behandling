@@ -1,0 +1,21 @@
+package no.nav.dagpenger.behandling.modell
+
+data class Behandlingkjede(
+    val rot: Behandling,
+    val barn: List<Behandlingkjede> = emptyList(),
+) {
+    val erLøvnode = barn.isEmpty()
+
+    init {
+        check(barn.all { it.rot.basertPå === rot }) {
+            "Forventer at alle barn peker på samme objektreferanse som forelder"
+        }
+    }
+}
+
+fun Behandling.somKjede() = Behandlingkjede(this)
+
+infix fun Behandlingkjede.med(barn: Behandling) =
+    copy(
+        barn = this.barn.plusElement(barn.somKjede()),
+    )
