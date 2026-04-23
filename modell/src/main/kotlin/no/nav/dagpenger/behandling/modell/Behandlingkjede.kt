@@ -7,6 +7,7 @@ data class Behandlingkjede(
     val erLøvnode = barn.isEmpty()
     val dybde: Int = if (erLøvnode) 0 else barn.maxOf { it.dybde } + 1
     val etterkommere: Int = barn.sumOf { it.etterkommere } + barn.count()
+    val erFerdig = rot.harTilstand(Behandling.TilstandType.Ferdig)
 
     init {
         check(barn.all { it.rot.basertPå === rot }) {
@@ -25,6 +26,7 @@ infix fun Behandlingkjede.leggTil(barn: Behandling): Behandlingkjede {
 
 private fun Behandlingkjede.leggTilBarnHvisDelAvGren(barn: Behandling): Behandlingkjede =
     if (barn.basertPå!! === this.rot) {
+        check(this.erFerdig) { "kan ikke legge til ny behandling på forelder som er uferdig" }
         copy(
             barn = this.barn.plusElement(barn.somKjede()),
         )
@@ -43,27 +45,21 @@ private fun Behandlingkjede.leggTilBarnHvisDelAvGren(barn: Behandling): Behandli
 
 operator fun Behandlingkjede.contains(behandling: Behandling): Boolean = rot === behandling || barn.any { behandling in it }
 
-enum class Gåmetode { BreddeFørst, DybdeFørst }
-
-fun Behandlingkjede.gåGjennom(
-    gåmetode: Gåmetode,
-    block: (Behandling) -> Unit,
-) {
+// går gjennom hele treet for å finne løvnoder å bygge videre på,
+// for å avdekke evt. korrupte trær
+fun Behandlingkjede.denBehandlingenViSkalBasereNyPå(): Behandling? {
     val stabel = ArrayDeque<Behandlingkjede>(listOf(this))
+    val kandidater = mutableListOf<Behandling>()
     while (stabel.isNotEmpty()) {
-        val gjeldende =
-            when (gåmetode) {
-                Gåmetode.BreddeFørst -> stabel.removeFirst()
-                Gåmetode.DybdeFørst -> stabel.removeLast()
-            }
+        val gjeldende = stabel.removeFirst()
 
-        block(gjeldende.rot)
+        if (gjeldende.erFerdig && gjeldende.barn.none { it.erFerdig }) {
+            kandidater.add(gjeldende.rot)
+        }
 
-        stabel.addAll(
-            when (gåmetode) {
-                Gåmetode.BreddeFørst -> gjeldende.barn
-                Gåmetode.DybdeFørst -> gjeldende.barn.reversed()
-            },
-        )
+        stabel.addAll(gjeldende.barn)
     }
+
+    check(kandidater.size <= 1) { "korrupt tre! det er mer enn en behandling som har tilstand ferdig og som er løvnode" }
+    return kandidater.firstOrNull()
 }

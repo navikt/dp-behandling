@@ -2,12 +2,14 @@ package no.nav.dagpenger.behandling.modell
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
+import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Avbrutt
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
+import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderBehandling
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Opplysningstype.Companion.barn
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -103,44 +105,53 @@ class BehandlingkjedeTest {
     }
 
     @Test
-    fun `kan gå gjennom kjeden nivå-for-nivå eller dybde-for-dybde`() {
-        val rot = nyKjede()
-        val barn1 = rot.nyttBarn()
-        val barn2 = rot.nyttBarn()
+    fun `skal kun bygge videre på siste ferdige behandling - roten er uferdig`() {
+        val rot = nyBehandling(tilstand = UnderBehandling)
+        val kjede = rot.somKjede()
+        kjede.denBehandlingenViSkalBasereNyPå() shouldBe null
+    }
 
-        val barnebarn1 = nyBehandling(barn1)
-        val barnebarn2 = nyBehandling(barn1)
-        val barnebarn3 = nyBehandling(barn2)
+    @Test
+    fun `skal kun bygge videre på siste ferdige behandling - roten er ferdig og har ingen barn`() {
+        val rot = nyBehandling(tilstand = Ferdig)
+        val kjede = rot.somKjede()
+        kjede.denBehandlingenViSkalBasereNyPå() shouldBe rot
+    }
 
-        val oldebarn1 = nyBehandling(barnebarn1)
-        val oldebarn2 = nyBehandling(barnebarn2)
-        val oldebarn3 = nyBehandling(barnebarn2)
+    @Test
+    fun `skal kun bygge videre på siste ferdige behandling - roten er ferdig og et uferdig barn`() {
+        val rot = nyBehandling(tilstand = Ferdig)
+        val barn = nyBehandling(rot, tilstand = UnderBehandling)
+        val kjede = rot.somKjede() leggTil barn
+        kjede.denBehandlingenViSkalBasereNyPå() shouldBe rot
+    }
 
-        val kjedeMedOldebarn = rot.leggTilAlle(barn1, barn2, barnebarn1, barnebarn2, barnebarn3, oldebarn1, oldebarn2, oldebarn3)
+    @Test
+    fun `skal kun bygge videre på siste ferdige behandling - roten er ferdig og to ferdig barn - ugyldig`() {
+        val rot = nyBehandling(tilstand = Ferdig)
+        val barn1 = nyBehandling(rot, tilstand = Ferdig)
+        val barn2 = nyBehandling(rot, tilstand = Ferdig)
+        val kjede = rot.somKjede() leggTil barn1 leggTil barn2
 
-        fun test(metode: Gåmetode): List<Behandling> =
-            buildList {
-                kjedeMedOldebarn.gåGjennom(metode) {
-                    add(it)
-                }
-            }
+        shouldThrow<IllegalStateException> { kjede.denBehandlingenViSkalBasereNyPå() }
+    }
 
-        val breddeFørstRekkefølge = test(Gåmetode.BreddeFørst)
-        val dybdeFørstRekkefølge = test(Gåmetode.DybdeFørst)
+    @Test
+    fun `skal kun bygge videre på siste ferdige behandling - roten er ferdig og har et ferdig barn og et ferdig barnebarn`() {
+        val rot = nyBehandling(tilstand = Ferdig)
+        val barn1 = nyBehandling(rot, tilstand = Ferdig)
+        val barn2 = nyBehandling(rot, tilstand = Avbrutt)
+        val barnebarn1 = nyBehandling(barn1, tilstand = Ferdig)
+        val barnebarn2 = nyBehandling(barn1, tilstand = Avbrutt)
+        val kjede = rot.somKjede() leggTil barn1 leggTil barn2 leggTil barnebarn1 leggTil barnebarn2
 
-        listOf(rot.rot, barn1, barn2, barnebarn1, barnebarn2, barnebarn3, oldebarn1, oldebarn2, oldebarn3) shouldBe breddeFørstRekkefølge
-        listOf(rot.rot, barn1, barnebarn1, oldebarn1, barnebarn2, oldebarn2, oldebarn3, barn2, barnebarn3) shouldBe dybdeFørstRekkefølge
+        kjede.denBehandlingenViSkalBasereNyPå() shouldBe barnebarn1
     }
 }
 
-private fun Behandlingkjede.leggTilAlle(vararg behandling: Behandling): Behandlingkjede =
-    behandling.fold(this) { kjede, barn ->
-        kjede leggTil barn
-    }
-
 private fun nyKjede() = nyBehandling().somKjede()
 
-private fun Behandlingkjede.nyttBarn() = nyBehandling(this)
+private fun Behandlingkjede.nyttBarn(tilstand: TilstandType = Ferdig) = nyBehandling(this.rot, tilstand = tilstand)
 
 private val testhendelse =
     TestHendelse(
@@ -155,13 +166,14 @@ private fun nyBehandling(basertPå: Behandlingkjede) = nyBehandling(basertPå.ro
 private fun nyBehandling(
     basertPå: Behandling? = null,
     behandlingId: UUID = UUIDv7.ny(),
+    tilstand: TilstandType = Ferdig,
 ) = Behandling.rehydrer(
     behandlingId = behandlingId,
     behandler = testhendelse,
     gjeldendeOpplysninger = Opplysninger.med(Faktum(opplysningstype1, 1.0)),
     basertPå = basertPå,
     opprettet = LocalDateTime.now(),
-    tilstand = Ferdig,
+    tilstand = tilstand,
     sistEndretTilstand = LocalDateTime.now(),
     avklaringer = emptyList(),
 )
