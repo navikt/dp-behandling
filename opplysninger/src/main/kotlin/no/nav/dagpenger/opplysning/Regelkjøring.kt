@@ -96,9 +96,8 @@ class Regelkjøring(
         observatører.add(observer)
     }
 
-    fun evaluer(): Regelkjøringsrapport {
-        trenger = mutableSetOf()
-        return prøvingsperiode
+    fun evaluer(): Regelkjøringsrapport =
+        prøvingsperiode
             .map { evaluerDag(it) }
             .reduce { total, regelkjøringsrapport -> total + regelkjøringsrapport }
             .also {
@@ -112,11 +111,10 @@ class Regelkjøring(
                     """.trimMargin()
                 }
             }
-    }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         aktiverRegler(prøvingsdato)
-        while (plan.isNotEmpty()) {
+        while (plan.isNotEmpty() && trenger.isEmpty()) {
             kjørRegelPlan()
             aktiverRegler(prøvingsdato)
         }
@@ -161,7 +159,7 @@ class Regelkjøring(
 
         val (ekstern, intern) = produksjonsplan.partition { it is Ekstern<*> }
         plan = intern.toMutableSet()
-        trenger += ekstern.toSet()
+        trenger = ekstern.toSet()
     }
 
     private fun kjørRegelPlan() {

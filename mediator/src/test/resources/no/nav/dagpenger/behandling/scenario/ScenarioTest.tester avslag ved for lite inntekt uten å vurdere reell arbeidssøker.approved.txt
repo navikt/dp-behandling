@@ -14,11 +14,13 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
+Behov:
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
+Behov:
 - Inntekt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned

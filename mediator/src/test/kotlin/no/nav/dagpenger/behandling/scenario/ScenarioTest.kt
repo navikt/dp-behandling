@@ -74,7 +74,7 @@ class ScenarioTest {
             saksbehandler.godkjenn()
 
             // En etterslenger for å verifisere at vi sender ut vedtak_fattet for avslag
-            rapidInspektør.message(16)["@event_name"].asText() shouldBe "vedtak_fattet"
+            rapidInspektør.message(18)["@event_name"].asText() shouldBe "vedtak_fattet"
 
             behandlingsresultat {
                 rettighetsperioder.single().harRett shouldBe false
