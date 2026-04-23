@@ -18,7 +18,7 @@ class BehandlingkjedeTest {
         val rot = nyKjede()
         rot.erLøvnode shouldBe true
 
-        val oppdatertKjede = rot med nyBehandling(rot)
+        val oppdatertKjede = rot leggTil nyBehandling(rot)
         oppdatertKjede.erLøvnode shouldBe false
     }
 
@@ -27,7 +27,22 @@ class BehandlingkjedeTest {
         val rot = nyKjede()
         val barn = nyBehandling(null)
 
-        shouldThrow<IllegalStateException> { rot med barn }
+        shouldThrow<IllegalStateException> { rot leggTil barn }
+    }
+
+    @Test
+    fun `kan legge til barn til en etterkommer`() {
+        val rot = nyKjede()
+        val barn1 = rot.nyttBarn()
+        val barn2 = rot.nyttBarn()
+
+        val barnebarn = nyBehandling(barn1)
+
+        val rotMedEttBarn = rot leggTil barn1 leggTil barn2
+        val rotMedBarnebarn = rotMedEttBarn leggTil barnebarn
+
+        rotMedBarnebarn.dybde shouldBe 2
+        rotMedBarnebarn.etterkommere shouldBe 3
     }
 
     @Test
@@ -43,11 +58,11 @@ class BehandlingkjedeTest {
         val barn1 = rot.nyttBarn()
         val barn2 = rot.nyttBarn()
 
-        val rotMedEttBarn = rot med barn1
+        val rotMedEttBarn = rot leggTil barn1
         rotMedEttBarn.dybde shouldBe 1
         rotMedEttBarn.etterkommere shouldBe 1
 
-        val rotMedToBarn = rotMedEttBarn med barn2
+        val rotMedToBarn = rotMedEttBarn leggTil barn2
 
         rotMedToBarn.dybde shouldBe 1
         rotMedToBarn.etterkommere shouldBe 2
@@ -92,7 +107,7 @@ class BehandlingkjedeTest {
         val barn = nyBehandling(rot.rot, idBarn)
         val barnKopi = nyBehandling(rot.rot, idBarn)
 
-        val kjedeMedEttBarn = rot med barn
+        val kjedeMedEttBarn = rot leggTil barn
 
         (barn in kjedeMedEttBarn) shouldBe true
         (barnKopi in kjedeMedEttBarn) shouldBe false
