@@ -9,10 +9,12 @@ import no.nav.dagpenger.features.utils.opplysningerTilRegelkjøring
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Søknadstidspunkt.tidligsteVurderingsdato
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.andreYtelser
 import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.nedreGrenseForSamordning
@@ -51,6 +53,8 @@ class SamordningUtenforFolketrygdenSteg : No {
                 .leggTil(
                     Faktum(Søknadstidspunkt.ønsketdato, 11.juni(2024)) as Opplysning<*>,
                 ).also { regelkjøring.evaluer() }
+            opplysninger.leggTil(Faktum(tidligsteVurderingsdato, 11.juni(2024)))
+            regelkjøring.evaluer()
         }
 
         Gitt("søker har oppgitt ytelse {string}") { ytelse: String ->

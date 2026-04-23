@@ -11,7 +11,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.IkkeRegistrertSomArbeidsøker
 import no.nav.dagpenger.regel.Behov.RegistrertSomArbeidssøker
 import no.nav.dagpenger.regel.OpplysningsTyper.OppyllerKravTilRegistrertArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.RegistrertSomArbeidssøkerId
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.Søknadstidspunkt.tidligsteVurderingsdato
 
 object RegistrertArbeidssøker {
     // Registrert som arbeidssøker
@@ -29,7 +29,7 @@ object RegistrertArbeidssøker {
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere - registrert som arbeidssøker", "Registrert som arbeidssøker")) {
             skalVurderes { it.har(kravTilAlder) }
 
-            regel(registrertArbeidssøker) { innhentMed(prøvingsdato) }
+            regel(registrertArbeidssøker) { innhentMed(tidligsteVurderingsdato) }
             utfall(oppyllerKravTilRegistrertArbeidssøker) { erSann(registrertArbeidssøker) }
 
             påvirkerResultat { it.har(kravTilAlder) }
