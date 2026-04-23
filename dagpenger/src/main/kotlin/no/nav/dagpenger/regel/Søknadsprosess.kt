@@ -27,6 +27,7 @@ import no.nav.dagpenger.regel.Rettighetstype.ManglerReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.Søknadstidspunkt.SjekkPrøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstidKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
@@ -45,7 +46,7 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         val egne = opplysninger.somListe(Egne).filter { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
 
         // Første mulige dato vi kan vurdere fra
-        val førsteGrensedato = egne.minOf { it.gyldighetsperiode.fraOgMed }
+        val førsteGrensedato = egne.first { it.er(søknadIdOpplysningstype) }.gyldighetsperiode.fraOgMed
 
         // Vurder hele perioden, ikke bare en enkelt dato
         val siste = egne.maxOf { it.gyldighetsperiode.fraOgMed }
