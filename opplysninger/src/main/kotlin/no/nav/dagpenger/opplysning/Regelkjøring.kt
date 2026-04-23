@@ -146,8 +146,8 @@ class Regelkjøring(
         }
     }
 
-    private fun aktiverRegler(prøvingsdato: LocalDate) {
-        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
+    private fun aktiverRegler(regelkjøringsdato: LocalDate) {
+        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(regelkjøringsdato)
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = forretningsprosess.produsenter(regelverksdato, opplysningerPåPrøvingsdato)
         val besøkt = mutableSetOf<Regel<*>>()

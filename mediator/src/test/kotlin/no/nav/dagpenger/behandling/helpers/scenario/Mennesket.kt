@@ -206,7 +206,7 @@ internal class Mennesket(
                             mapOf(
                                 "verdi" to false,
                                 "gyldigFraOgMed" to prøvingsdato,
-                                "gyldigTilOgMed" to prøvingsdato,
+                                "gyldigTilOgMed" to arbeidsøkerRegisterPerioder.first().fraOgMed.minusDays(1),
                             )
                         }
                     },

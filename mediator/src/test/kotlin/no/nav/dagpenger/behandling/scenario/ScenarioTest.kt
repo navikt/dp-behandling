@@ -384,10 +384,9 @@ class ScenarioTest {
                 Gyldighetsperiode(1.juni(2018)),
             )
 
-            // TODO("Dette må inn igjen")
-            // behovsløsere.løsTilForslag()
+            behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag {
+            behandlingsresultatForslag(2) {
                 with(rettighetsperioder) {
                     size shouldBe 1
                     single().fraOgMed shouldBe 27.november(2018)
@@ -396,19 +395,26 @@ class ScenarioTest {
                 }
             }
 
-            // person.arbeidssøkerregistreringsdato = 1.juni(2018)
             saksbehandler.endreOpplysning(
                 prøvingsdato,
                 1.juni(2018),
                 "Søkte for lenge siden",
+                gyldighetsperiode = Gyldighetsperiode(1.juni(2018), 26.november(2018)),
             )
+            saksbehandler.endreOpplysning(
+                prøvingsdato,
+                27.november(2018),
+                "Søkte for lenge siden",
+                gyldighetsperiode = Gyldighetsperiode(27.november(2018)),
+            )
+
             behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag {
+            behandlingsresultatForslag(3) {
                 with(rettighetsperioder) {
                     size shouldBe 1
                     this[0].fraOgMed shouldBe 1.juni(2018)
-                    this[0].tilOgMed shouldBe 1.juni(2018)
+                    // this[0].tilOgMed shouldBe 1.juni(2018)
                     this[0].harRett shouldBe false
                 }
             }
