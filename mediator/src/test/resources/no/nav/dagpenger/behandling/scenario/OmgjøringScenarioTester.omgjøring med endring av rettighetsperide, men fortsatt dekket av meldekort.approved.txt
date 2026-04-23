@@ -85,16 +85,6 @@ Behov:
 - Verneplikt
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
@@ -112,14 +102,8 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
