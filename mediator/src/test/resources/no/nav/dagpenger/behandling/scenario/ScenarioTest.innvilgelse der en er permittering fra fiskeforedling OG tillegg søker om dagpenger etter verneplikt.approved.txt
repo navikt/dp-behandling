@@ -5,6 +5,8 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 - Fødselsdato
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Behov:
 - RegistrertSomArbeidssøker
 - Ordinær
@@ -18,50 +20,26 @@ Behov:
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
 - Inntekt
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
+Laget avklaring om EØSArbeid
+Laget avklaring om InntektNesteKalendermåned
+Laget avklaring om JobbetUtenforNorge
 Laget avklaring om HarOppgittPermitteringFiskeindustri
 Laget avklaring om Verneplikt
 Behov:
 - BostedslandErNorge
+- Uføre
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
-- RegistrertSomArbeidssøker
-- Inntekt
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
-- RegistrertSomArbeidssøker
-- Inntekt
-Laget avklaring om EØSArbeid
-Laget avklaring om InntektNesteKalendermåned
-Laget avklaring om JobbetUtenforNorge
 Laget avklaring om SjekkPrøvingsdato
 Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
-Behov:
-- Uføre
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Foreldrepenger
-- Svangerskapspenger
-- RegistrertSomArbeidssøker
-- Inntekt
 Behandling endret tilstand til: ForslagTilVedtak

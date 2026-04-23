@@ -1,7 +1,9 @@
 package no.nav.dagpenger.regel
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -39,13 +41,29 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         registrer(PrøvingsdatoPlugin())
     }
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
-        Regelkjøring(
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+        val egne = opplysninger.somListe(Egne).filter { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+
+        // Første mulige dato vi kan vurdere fra
+        val førsteGrensedato = egne.minOf { it.gyldighetsperiode.fraOgMed }
+
+        // Prøvingsdato brukes til å forskyve innvilgelse fram i tid
+        val førsteØnsketVurderingsdato = egne.firstOrNull { it.er(Søknadstidspunkt.prøvingsdato) }?.verdi as LocalDate?
+        val førsteVurderingsdato = listOfNotNull(førsteØnsketVurderingsdato, førsteGrensedato).max()
+
+        // Vurder hele perioden, ikke bare en enkelt dato
+        val siste = egne.maxOf { it.gyldighetsperiode.fraOgMed }
+
+        logger.info { "FØRSTE OG SISTE = $førsteGrensedato, $førsteVurderingsdato, $siste" }
+
+        return Regelkjøring(
             virkningsdato(opplysninger),
+            prøvingsperiode = Regelkjøring.Periode(start = førsteVurderingsdato, endInclusive = siste),
             opplysninger,
             this,
-            opplysningerGyldigPåPrøvingsdato,
+            // opplysningerGyldigPåPrøvingsdato,
         )
+    }
 
     override fun kontrollpunkter() =
         listOf(
@@ -113,5 +131,9 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         }
 
         return maxOf(søknadsdato, sisteFraOgMed)
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger { }
     }
 }

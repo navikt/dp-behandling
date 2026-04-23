@@ -123,11 +123,11 @@ Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
 - RegistrertSomArbeidssøker
+- Uføre
 - Sykepenger
 - Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
-- Uføre
 - Foreldrepenger
 - Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
