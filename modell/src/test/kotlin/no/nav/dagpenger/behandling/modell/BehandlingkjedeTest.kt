@@ -14,23 +14,48 @@ import java.time.LocalDateTime
 class BehandlingkjedeTest {
     @Test
     fun `en løvnode har ikke barn`() {
-        val rotbehandling = nyKjede()
-        rotbehandling.erLøvnode shouldBe true
+        val rot = nyKjede()
+        rot.erLøvnode shouldBe true
 
-        val oppdatertKjede = rotbehandling med nyBehandling(rotbehandling.rot)
+        val oppdatertKjede = rot med nyBehandling(rot)
         oppdatertKjede.erLøvnode shouldBe false
     }
 
     @Test
     fun `tillater ikke barn som ikke baserer seg på forelder`() {
-        val rotbehandling = nyKjede()
+        val rot = nyKjede()
         val barn = nyBehandling(null)
 
-        shouldThrow<IllegalStateException> { rotbehandling med barn }
+        shouldThrow<IllegalStateException> { rot med barn }
+    }
+
+    @Test
+    fun `en kjede uten barn har 0 i dybde`() {
+        val rot = nyKjede()
+        rot.dybde shouldBe 0
+        rot.etterkommere shouldBe 0
+    }
+
+    @Test
+    fun `en kjede sin dybde bestemmes av det dypeste treet`() {
+        val rot = nyKjede()
+        val barn1 = rot.nyttBarn()
+        val barn2 = rot.nyttBarn()
+
+        val rotMedEttBarn = rot med barn1
+        rotMedEttBarn.dybde shouldBe 1
+        rotMedEttBarn.etterkommere shouldBe 1
+
+        val rotMedToBarn = rotMedEttBarn med barn2
+
+        rotMedToBarn.dybde shouldBe 1
+        rotMedToBarn.etterkommere shouldBe 2
     }
 }
 
 private fun nyKjede() = nyBehandling().somKjede()
+
+private fun Behandlingkjede.nyttBarn() = nyBehandling(this)
 
 private val testhendelse =
     TestHendelse(
@@ -40,12 +65,12 @@ private val testhendelse =
     )
 private val opplysningstype1 = Opplysningstype.desimaltall(Opplysningstype.Id(UUIDv7.ny(), Desimaltall), "aktiv-opplysning1")
 
-fun nyBehandling(basertPå: Behandling? = null) =
+private fun nyBehandling(basertPå: Behandlingkjede? = null) =
     Behandling.rehydrer(
         behandlingId = UUIDv7.ny(),
         behandler = testhendelse,
         gjeldendeOpplysninger = Opplysninger.med(Faktum(opplysningstype1, 1.0)),
-        basertPå = basertPå,
+        basertPå = basertPå?.rot,
         opprettet = LocalDateTime.now(),
         tilstand = Ferdig,
         sistEndretTilstand = LocalDateTime.now(),

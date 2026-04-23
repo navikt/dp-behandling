@@ -5,6 +5,8 @@ data class Behandlingkjede(
     val barn: List<Behandlingkjede> = emptyList(),
 ) {
     val erLøvnode = barn.isEmpty()
+    val dybde: Int = if (erLøvnode) 0 else barn.maxOf { it.dybde } + 1
+    val etterkommere: Int = barn.sumOf { it.etterkommere } + barn.count()
 
     init {
         check(barn.all { it.rot.basertPå === rot }) {
