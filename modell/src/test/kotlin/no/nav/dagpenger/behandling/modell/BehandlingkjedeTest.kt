@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
+import java.util.UUID
 
 class BehandlingkjedeTest {
     @Test
@@ -51,6 +52,51 @@ class BehandlingkjedeTest {
         rotMedToBarn.dybde shouldBe 1
         rotMedToBarn.etterkommere shouldBe 2
     }
+
+    @Test
+    fun `sjekker om en kjede inneholder en behandling`() {
+        val rot = nyBehandling()
+        val barn = nyBehandling(rot)
+        val barnSomIkkeErIKjeden = nyBehandling(rot)
+
+        val idBarnebarn = UUIDv7.ny()
+        val barnebarn = nyBehandling(barn, idBarnebarn)
+
+        val kjedeMedBarnebarn =
+            Behandlingkjede(
+                rot = rot,
+                barn =
+                    listOf(
+                        Behandlingkjede(
+                            rot = barn,
+                            barn =
+                                listOf(
+                                    Behandlingkjede(barnebarn),
+                                ),
+                        ),
+                    ),
+            )
+        kjedeMedBarnebarn.dybde shouldBe 2
+        kjedeMedBarnebarn.etterkommere shouldBe 2
+
+        (rot in kjedeMedBarnebarn) shouldBe true
+        (barn in kjedeMedBarnebarn) shouldBe true
+        (barnSomIkkeErIKjeden in kjedeMedBarnebarn) shouldBe false
+        (barnebarn in kjedeMedBarnebarn) shouldBe true
+    }
+
+    @Test
+    fun `sjekker om en kjede inneholder samme behandling ID`() {
+        val rot = nyKjede()
+        val idBarn = UUIDv7.ny()
+        val barn = nyBehandling(rot.rot, idBarn)
+        val barnKopi = nyBehandling(rot.rot, idBarn)
+
+        val kjedeMedEttBarn = rot med barn
+
+        (barn in kjedeMedEttBarn) shouldBe true
+        (barnKopi in kjedeMedEttBarn) shouldBe false
+    }
 }
 
 private fun nyKjede() = nyBehandling().somKjede()
@@ -65,14 +111,18 @@ private val testhendelse =
     )
 private val opplysningstype1 = Opplysningstype.desimaltall(Opplysningstype.Id(UUIDv7.ny(), Desimaltall), "aktiv-opplysning1")
 
-private fun nyBehandling(basertPå: Behandlingkjede? = null) =
-    Behandling.rehydrer(
-        behandlingId = UUIDv7.ny(),
-        behandler = testhendelse,
-        gjeldendeOpplysninger = Opplysninger.med(Faktum(opplysningstype1, 1.0)),
-        basertPå = basertPå?.rot,
-        opprettet = LocalDateTime.now(),
-        tilstand = Ferdig,
-        sistEndretTilstand = LocalDateTime.now(),
-        avklaringer = emptyList(),
-    )
+private fun nyBehandling(basertPå: Behandlingkjede) = nyBehandling(basertPå.rot)
+
+private fun nyBehandling(
+    basertPå: Behandling? = null,
+    behandlingId: UUID = UUIDv7.ny(),
+) = Behandling.rehydrer(
+    behandlingId = behandlingId,
+    behandler = testhendelse,
+    gjeldendeOpplysninger = Opplysninger.med(Faktum(opplysningstype1, 1.0)),
+    basertPå = basertPå,
+    opprettet = LocalDateTime.now(),
+    tilstand = Ferdig,
+    sistEndretTilstand = LocalDateTime.now(),
+    avklaringer = emptyList(),
+)

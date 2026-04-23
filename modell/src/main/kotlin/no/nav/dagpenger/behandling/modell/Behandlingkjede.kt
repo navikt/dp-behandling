@@ -21,3 +21,5 @@ infix fun Behandlingkjede.med(barn: Behandling) =
     copy(
         barn = this.barn.plusElement(barn.somKjede()),
     )
+
+operator fun Behandlingkjede.contains(behandling: Behandling): Boolean = rot === behandling || barn.any { behandling in it }
