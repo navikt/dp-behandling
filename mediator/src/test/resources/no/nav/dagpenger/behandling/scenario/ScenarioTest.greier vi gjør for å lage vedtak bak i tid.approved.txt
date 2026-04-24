@@ -72,10 +72,11 @@ Behov:
 Behov:
 - BarnetilleggV2
 Behandling endret tilstand til: ForslagTilVedtak
-Laget avklaring om IkkeRegistrertSomArbeidsøker
 Behandling endret tilstand til: Redigert
 Behov:
 - Inntekt
+- RegistrertSomArbeidssøker
+Laget avklaring om IkkeRegistrertSomArbeidsøker
 Behov:
 - BostedslandErNorge
 - Uføre

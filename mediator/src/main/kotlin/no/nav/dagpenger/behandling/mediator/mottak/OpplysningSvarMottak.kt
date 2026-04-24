@@ -33,6 +33,7 @@ import no.nav.dagpenger.opplysning.DuplikateOpplysningerException
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
+import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.OpplysningIkkeFunnetException
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
@@ -64,6 +65,8 @@ internal class OpplysningSvarMottak(
                 validate { it.requireKey("@løsning") }
                 validate { it.requireKey("behandlingId") }
                 validate { it.interestedIn("@utledetAv") }
+                validate { it.interestedIn("@standardverdi") }
+                validate { it.interestedIn("@forventetPeriode") }
                 validate { it.requireValue("@final", true) }
                 validate { it.interestedIn("@id", "@opprettet", "@behovId") }
             }.register(this)
@@ -188,8 +191,51 @@ internal class OpplysningSvarMessage(
                         )
                     add(opplysningSvarBygger.opplysningSvar())
                 }
+
+                // Fyll hull med standardverdi for opplysningstyper som har det
+                fyllHullMedStandardverdi(typeNavn, opplysningstype, svarer, kilde)?.let { addAll(it) }
             }
         }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Any> fyllHullMedStandardverdi(
+        typeNavn: String,
+        opplysningstype: Opplysningstype<T>,
+        svarer: List<Svar>,
+        kilde: Kilde,
+    ): List<OpplysningSvar<T>>? {
+        val standardverdi = opplysningstype.standardverdi ?: return null
+        val forventetPeriode = packet["@forventetPeriode"][typeNavn] ?: return null
+        if (forventetPeriode.isMissingNode) return null
+
+        val forventetFra = forventetPeriode["fraOgMed"]?.asLocalDate() ?: return null
+        val forventetTil = forventetPeriode["tilOgMed"]?.asLocalDate() ?: return null
+
+        // Svar uten eksplisitt gyldighetsperiode dekker hele forventet periode
+        if (svarer.any { it.gyldighetsperiode == null }) return null
+
+        val perioderMedSvar =
+            svarer
+                .mapNotNull { it.gyldighetsperiode }
+                .sortedBy { it.fraOgMed }
+
+        val hull = finnHull(forventetFra, forventetTil, perioderMedSvar)
+        if (hull.isEmpty()) return null
+
+        logger.info {
+            "Fyller ${hull.size} hull med standardverdi for $typeNavn (${opplysningstype.behovId})"
+        }
+
+        return hull.map { (fra, til) ->
+            OpplysningSvar(
+                opplysningstype = opplysningstype,
+                verdi = standardverdi,
+                tilstand = Tilstand.Hypotese,
+                kilde = kilde,
+                gyldighetsperiode = Gyldighetsperiode(fra, til),
+            )
+        }
+    }
 
     override fun behandle(
         mediator: IMessageMediator,
@@ -218,6 +264,37 @@ internal class OpplysningSvarMessage(
             typeNavn: String,
             jsonNode: JsonNode,
         ): List<Svar> = svarStrategier.firstNotNullOf { it.svar(typeNavn, jsonNode) }
+
+        fun finnHull(
+            forventetFra: LocalDate,
+            forventetTil: LocalDate,
+            perioder: List<Gyldighetsperiode>,
+        ): List<Pair<LocalDate, LocalDate>> {
+            if (perioder.isEmpty()) return listOf(forventetFra to forventetTil)
+
+            val hull = mutableListOf<Pair<LocalDate, LocalDate>>()
+            var gjeldendeDato = forventetFra
+
+            for (periode in perioder) {
+                if (gjeldendeDato < periode.fraOgMed) {
+                    hull.add(gjeldendeDato to periode.fraOgMed.minusDays(1))
+                }
+                if (periode.tilOgMed >= gjeldendeDato) {
+                    // Guard mot overflow når tilOgMed er LocalDate.MAX eller forbi forventetTil
+                    if (periode.tilOgMed >= forventetTil) {
+                        gjeldendeDato = forventetTil.plusDays(1)
+                        break
+                    }
+                    gjeldendeDato = periode.tilOgMed.plusDays(1)
+                }
+            }
+
+            if (gjeldendeDato <= forventetTil) {
+                hull.add(gjeldendeDato to forventetTil)
+            }
+
+            return hull
+        }
     }
 }
 

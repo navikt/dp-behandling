@@ -18,7 +18,6 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Period
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.random.Random
@@ -308,17 +307,7 @@ internal class Mennesket(
 
         val perioder = mutableListOf<Map<String, Any>>()
 
-        val førstePeriode = sortertePerioder.first()
-        if (!førstePeriode.contains(grensedato)) {
-            perioder.add(
-                mapOf(
-                    "verdi" to false,
-                    "gyldigFraOgMed" to grensedato,
-                    "gyldigTilOgMed" to førstePeriode.fraOgMed.minusDays(1),
-                ),
-            )
-        }
-        sortertePerioder.forEachIndexed { i, periode ->
+        sortertePerioder.forEach { periode ->
             perioder.add(
                 mapOf(
                     "verdi" to true,
@@ -326,19 +315,6 @@ internal class Mennesket(
                     "gyldigTilOgMed" to periode.tilOgMed,
                 ),
             )
-            if (sortertePerioder.size == i + 1) return@forEachIndexed
-            val nestePeriode = sortertePerioder[i + 1]
-            val dagerTilNestePeriode = Period.between(periode.tilOgMed, nestePeriode.fraOgMed)
-
-            if (!dagerTilNestePeriode.isZero && !periode.tilOgMed.isEqual(periode.tilOgMed)) {
-                perioder.add(
-                    mapOf(
-                        "verdi" to false,
-                        "gyldigFraOgMed" to periode.tilOgMed.plusDays(1),
-                        "gyldigTilOgMed" to nestePeriode.fraOgMed.minusDays(1),
-                    ),
-                )
-            }
         }
 
         return perioder

@@ -21,6 +21,7 @@ object RegistrertArbeidssøker {
             beskrivelse = "Registrert som arbeidssøker",
             behovId = RegistrertSomArbeidssøker,
             formål = Register,
+            standardverdi = false,
         )
     val oppyllerKravTilRegistrertArbeidssøker =
         boolsk(OppyllerKravTilRegistrertArbeidssøkerId, "Oppfyller kravet til å være registrert som arbeidssøker")

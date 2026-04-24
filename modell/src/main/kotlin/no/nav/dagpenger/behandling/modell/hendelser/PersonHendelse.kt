@@ -6,6 +6,7 @@ import no.nav.dagpenger.aktivitetslogg.IAktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.behandling.modell.OpplysningBehov
 import no.nav.dagpenger.opplysning.Informasjonsbehov
+import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Ulid
 import java.time.LocalDateTime
 import java.util.UUID
@@ -33,20 +34,35 @@ abstract class PersonHendelse(
 
     open fun kontekstMap(): Map<String, String> = emptyMap()
 
-    fun lagBehov(informasjonsbehov: Informasjonsbehov) =
-        informasjonsbehov.onEach { (behov, avhengigheter) ->
-            behov(
-                type = OpplysningBehov(behov.behovId),
-                melding = "Trenger en opplysning (${behov.behovId})",
-                detaljer =
-                    avhengigheter.associate { avhengighet ->
-                        val verdi =
-                            when (avhengighet.verdi) {
-                                is Ulid -> (avhengighet.verdi as Ulid).verdi
-                                else -> avhengighet.verdi
-                            }
-                        avhengighet.opplysningstype.behovId to verdi
-                    } + this.kontekstMap() + mapOf("@utledetAv" to avhengigheter.map { it.id }),
-            )
-        }
+    fun lagBehov(
+        informasjonsbehov: Informasjonsbehov,
+        prøvingsperiode: Regelkjøring.Periode? = null,
+    ) = informasjonsbehov.onEach { (behov, avhengigheter) ->
+        val standardverdiDetaljer: Map<String, Any> =
+            if (behov.standardverdi != null && prøvingsperiode != null) {
+                mapOf(
+                    "@standardverdi" to behov.standardverdi!!,
+                    "@forventetFraOgMed" to prøvingsperiode.start,
+                    "@forventetTilOgMed" to prøvingsperiode.endInclusive,
+                )
+            } else {
+                emptyMap()
+            }
+
+        behov(
+            type = OpplysningBehov(behov.behovId),
+            melding = "Trenger en opplysning (${behov.behovId})",
+            detaljer =
+                avhengigheter.associate { avhengighet ->
+                    val verdi =
+                        when (avhengighet.verdi) {
+                            is Ulid -> (avhengighet.verdi as Ulid).verdi
+                            else -> avhengighet.verdi
+                        }
+                    avhengighet.opplysningstype.behovId to verdi
+                } + this.kontekstMap() +
+                    mapOf("@utledetAv" to avhengigheter.map { it.id }) +
+                    standardverdiDetaljer,
+        )
+    }
 }

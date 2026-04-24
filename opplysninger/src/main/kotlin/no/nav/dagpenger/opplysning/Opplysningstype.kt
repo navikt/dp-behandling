@@ -37,6 +37,8 @@ class Opplysningstype<T : Any>(
     val utgåtteBehovId: Set<String> = emptySet(),
     /** Om opplysninger av denne typen skal arves til neste behandling i kjeden. Default true. */
     internal val opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+    /** Standardverdi som brukes når opplysningen ikke kan produseres av regelkjøringen. */
+    val standardverdi: T? = null,
 ) : Klassifiserbart {
     val datatype = id.datatype
 
@@ -90,6 +92,7 @@ class Opplysningstype<T : Any>(
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
             opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+            standardverdi: Boolean? = null,
         ): Opplysningstype<Boolean> =
             som(
                 id,
@@ -101,6 +104,7 @@ class Opplysningstype<T : Any>(
                 enhet = enhet,
                 utgåtteBehovId = utgåtteBehovId,
                 opplysningstypeKategori = opplysningstypeKategori,
+                standardverdi = standardverdi,
             )
 
         fun dato(
@@ -185,6 +189,7 @@ class Opplysningstype<T : Any>(
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
             opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+            standardverdi: T? = null,
         ): Opplysningstype<T> =
             Opplysningstype(
                 id,
@@ -196,6 +201,7 @@ class Opplysningstype<T : Any>(
                 enhet,
                 utgåtteBehovId,
                 opplysningstypeKategori,
+                standardverdi,
             )
     }
 

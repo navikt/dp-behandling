@@ -108,7 +108,7 @@ class Regelkjøring(
             }
         }
 
-        return totalRapport!!.also {
+        return totalRapport!!.copy(prøvingsperiode = prøvingsperiode).also {
             if (it.prøvingsdato.size > 365) {
                 logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.prøvingsdato.size}" }
             }
@@ -243,8 +243,8 @@ class Regelkjøring(
     }
 
     data class Periode(
-        private val start: LocalDate,
-        private val endInclusive: LocalDate,
+        val start: LocalDate,
+        val endInclusive: LocalDate,
     ) : Iterable<LocalDate> {
         constructor(dag: LocalDate) : this(dag, dag)
 
@@ -273,6 +273,7 @@ data class Regelkjøringsrapport(
     val informasjonsbehov: Informasjonsbehov,
     val foreldreløse: Set<Opplysning<*>>,
     val prøvingsdato: List<LocalDate>,
+    val prøvingsperiode: Regelkjøring.Periode? = null,
 ) {
     fun manglerOpplysninger(): Boolean = mangler.isNotEmpty()
 
@@ -285,6 +286,7 @@ data class Regelkjøringsrapport(
             informasjonsbehov = this.informasjonsbehov + other.informasjonsbehov,
             foreldreløse = this.foreldreløse + other.foreldreløse,
             prøvingsdato = this.prøvingsdato + other.prøvingsdato,
+            prøvingsperiode = this.prøvingsperiode ?: other.prøvingsperiode,
         )
 }
 

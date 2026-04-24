@@ -52,10 +52,38 @@ class BehovMediator {
                         behovMap
                             .values
                             .forEach { behov ->
-                                putAll(behov.filterNot { it.key == "@utledetAv" } as Map<String, Any>)
+                                putAll(
+                                    behov.filterNot {
+                                        it.key == "@utledetAv" ||
+                                            it.key == "@standardverdi" ||
+                                            it.key == "@forventetFraOgMed" ||
+                                            it.key == "@forventetTilOgMed"
+                                    } as Map<String, Any>,
+                                )
                             }
 
                         put("@utledetAv", behovMap.entries.associate { (behovNavn, detaljer) -> behovNavn to detaljer["@utledetAv"] })
+
+                        // Standardverdi-metadata: grupper per behov slik at OpplysningSvarMottak kan fylle hull
+                        val standardverdier =
+                            behovMap.entries
+                                .filter { (_, detaljer) -> detaljer.containsKey("@standardverdi") }
+                                .associate { (behovNavn, detaljer) -> behovNavn to detaljer["@standardverdi"] }
+                        if (standardverdier.isNotEmpty()) {
+                            put("@standardverdi", standardverdier)
+                            put(
+                                "@forventetPeriode",
+                                behovMap.entries
+                                    .filter { (_, detaljer) -> detaljer.containsKey("@forventetFraOgMed") }
+                                    .associate { (behovNavn, detaljer) ->
+                                        behovNavn to
+                                            mapOf(
+                                                "fraOgMed" to detaljer["@forventetFraOgMed"],
+                                                "tilOgMed" to detaljer["@forventetTilOgMed"],
+                                            )
+                                    },
+                            )
+                        }
                     }.let {
                         JsonMessage
                             .newNeed(behovMap.keys, it + erFinal(behovMap.size))
