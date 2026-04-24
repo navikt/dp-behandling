@@ -3,6 +3,8 @@ package no.nav.dagpenger.behandling.scenario
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
@@ -33,6 +35,7 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 class ScenarioTest {
     @Test
@@ -476,6 +479,42 @@ class ScenarioTest {
 
             behandlingsresultatForslag {
                 opplysninger(prøvingsdato).single().verdi.verdi shouldBe 21.juni(2021).toString()
+            }
+        }
+    }
+
+    @Test
+    fun `fang opp mulige hendelser om samordning`() {
+        nyttScenario {
+        }.test {
+            person.fåAnnenYtelse(21.juni(2021))
+            rapidInspektør.size shouldBe 0
+
+            person.søkDagpenger(21.juni(2021))
+
+            // Melding om mulig samordning fanges ikke opp før behandlingen er ferdig
+            person.fåAnnenYtelse(21.juni(2021))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            lateinit var innvilgelseId: UUID
+            behandlingsresultat(1) {
+                innvilgelseId = behandlingId
+                rettighetsperioder shouldHaveSize 1
+            }
+
+            // Meldinger om mulig samordning blir opprettet som en manuell behandling med avklaring
+            person.fåAnnenYtelse(24.juni(2021), "SYK")
+            behandlingsresultatForslag(3) {
+                behandlingId shouldNotBe innvilgelseId
+                rettighetsperioder shouldHaveSize 1
+            }
+
+            with(saksbehandler.åpneAvklaringer().single()) {
+                kode shouldBe "ManuellBehandling"
+                beskrivelse shouldContain "SYK"
             }
         }
     }

@@ -37,6 +37,20 @@ internal object Meldingskatalog {
             ),
         ).toJson()
 
+    fun fåAnnenYtelse(
+        ident: String,
+        fraOgMed: LocalDateTime = LocalDateTime.now(),
+        tema: String = "SYK",
+    ) = JsonMessage
+        .newMessage(
+            "andre_ytelse_mottatt",
+            mapOf(
+                "ident" to ident,
+                "tidspunkt" to fraOgMed,
+                "tema" to tema,
+            ),
+        ).toJson()
+
     fun meldekortInnsendt(
         ident: String,
         meldekortId: UUID,

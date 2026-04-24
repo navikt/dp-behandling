@@ -16,6 +16,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -102,6 +103,12 @@ internal class TestSaksbehandler2(
                 rapid,
             )
         }
+    }
+
+    fun åpneAvklaringer(eksternHendelseId: UUID? = null): List<Avklaringkode> {
+        val behandling = finnBehandlingBasertEllerSiste(eksternHendelseId)
+        behandling.shouldNotBeNull()
+        return behandling.aktiveAvklaringer().map { it.kode }
     }
 
     private fun finnBehandlingBasertEllerSiste(eksternHendelseId: UUID?): Behandling {

@@ -24,43 +24,48 @@ class OpprettBehandlingHendelse(
     gjelderDato: LocalDate,
     private val begrunnelse: String? = null,
     opprettet: LocalDateTime,
+    private val startNyKjede: Boolean = true,
 ) : StartHendelse(meldingsreferanseId, ident, eksternId, gjelderDato, opprettet) {
     override val forretningsprosess = Manuellprosess()
 
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ) = Behandling(
-        basertPå = forrigeBehandling,
-        behandler =
-            Hendelse(
-                meldingsreferanseId = meldingsreferanseId,
-                type = type,
-                ident = ident,
-                eksternId = eksternId,
-                skjedde = skjedde,
-                opprettet = opprettet,
-                forretningsprosess = forretningsprosess,
-            ),
-        opplysninger =
-            listOf(
-                Faktum(
-                    hendelseTypeOpplysningstype,
-                    type,
-                    gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
-                    kilde = Systemkilde(meldingsreferanseId, opprettet),
+    ): Behandling? {
+        if (!startNyKjede && forrigeBehandling == null) return null
+
+        return Behandling(
+            basertPå = forrigeBehandling,
+            behandler =
+                Hendelse(
+                    meldingsreferanseId = meldingsreferanseId,
+                    type = type,
+                    ident = ident,
+                    eksternId = eksternId,
+                    skjedde = skjedde,
+                    opprettet = opprettet,
+                    forretningsprosess = forretningsprosess,
                 ),
-            ),
-        avklaringer =
-            listOf(
-                Avklaring(
-                    Avklaringkode(
-                        kode = "ManuellBehandling",
-                        tittel = "Manuell behandling",
-                        beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
-                        kanAvbrytes = false,
+            opplysninger =
+                listOf(
+                    Faktum(
+                        hendelseTypeOpplysningstype,
+                        type,
+                        gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
+                        kilde = Systemkilde(meldingsreferanseId, opprettet),
                     ),
                 ),
-            ),
-    )
+            avklaringer =
+                listOf(
+                    Avklaring(
+                        Avklaringkode(
+                            kode = "ManuellBehandling",
+                            tittel = "Manuell behandling",
+                            beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
+                            kanAvbrytes = false,
+                        ),
+                    ),
+                ),
+        )
+    }
 }

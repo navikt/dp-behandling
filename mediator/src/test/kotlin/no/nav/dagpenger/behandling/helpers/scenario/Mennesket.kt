@@ -78,6 +78,20 @@ internal class Mennesket(
         return nySøknadId
     }
 
+    fun fåAnnenYtelse(
+        fraOgMed: LocalDate = LocalDate.now(),
+        tema: String = "SYK",
+    ) {
+        rapid.sendTestMessage(
+            Meldingskatalog.fåAnnenYtelse(
+                ident = ident,
+                fraOgMed = fraOgMed.atTime(13, 27),
+                tema = tema,
+            ),
+            ident,
+        )
+    }
+
     fun løsningFor(behov: Map<String, JsonNode>): Map<String, Any> {
         val behovsløsning =
             behov.keys.associateWith { behovNavn ->

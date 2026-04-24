@@ -13,7 +13,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 internal class OpprettBehandlingMottak(
@@ -53,7 +52,7 @@ internal class OpprettBehandlingMessage(
             eksternId = ManuellId(UUIDv7.ny()),
             gjelderDato = packet["prøvingsdato"].asOptionalLocalDate() ?: LocalDate.now(),
             begrunnelse = packet["begrunnelse"].asText(),
-            opprettet = LocalDateTime.now(),
+            opprettet = opprettet,
         )
 
     override fun behandle(

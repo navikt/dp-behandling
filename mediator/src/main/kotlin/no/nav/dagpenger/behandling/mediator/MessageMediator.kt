@@ -38,6 +38,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.PåminnelseMottak
 import no.nav.dagpenger.behandling.mediator.mottak.RekjørBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.RekjørBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.ReturnerTilSaksbehandlerMessage
+import no.nav.dagpenger.behandling.mediator.mottak.SamordningHendelseMottak
+import no.nav.dagpenger.behandling.mediator.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SendtTilKontrollMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMottak
@@ -61,7 +63,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
-import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import java.util.UUID
 
 internal class MessageMediator(
@@ -76,6 +77,7 @@ internal class MessageMediator(
         AvbrytBehandlingMottak(rapidsConnection, this)
         AvklaringIkkeRelevantMottak(rapidsConnection, this)
         AvsluttetArbeidssøkerperiodeMottak(rapidsConnection, this)
+        BeregnFerietilleggMottak(rapidsConnection, this)
         BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
         FjernOpplysningMottak(rapidsConnection, this, opplysningstyper)
         GodkjennBehandlingMottak(rapidsConnection, this)
@@ -88,9 +90,9 @@ internal class MessageMediator(
         OpprettBehandlingMottak(rapidsConnection, this)
         PåminnelseMottak(rapidsConnection, this)
         RekjørBehandlingMottak(rapidsConnection, this)
+        SamordningHendelseMottak(rapidsConnection, this)
         SøknadInnsendtMottak(rapidsConnection, this)
         UtbetalingStatusMottak(rapidsConnection, this)
-        BeregnFerietilleggMottak(rapidsConnection, this)
     }
 
     private companion object {
@@ -214,6 +216,16 @@ internal class MessageMediator(
 
     override fun behandle(
         hendelse: StartHendelse,
+        message: SamordningHendelseMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
+    override fun behandle(
+        hendelse: StartHendelse,
         message: BeregnFerietilleggMessage,
         context: MessageContext,
     ) {
@@ -223,7 +235,7 @@ internal class MessageMediator(
     }
 
     override fun behandle(
-        hendelse: OpprettBehandlingHendelse,
+        hendelse: StartHendelse,
         message: OpprettBehandlingMessage,
         context: MessageContext,
     ) {
@@ -372,8 +384,14 @@ internal interface IMessageMediator {
     )
 
     fun behandle(
-        hendelse: OpprettBehandlingHendelse,
+        hendelse: StartHendelse,
         message: OpprettBehandlingMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: StartHendelse,
+        message: SamordningHendelseMessage,
         context: MessageContext,
     )
 

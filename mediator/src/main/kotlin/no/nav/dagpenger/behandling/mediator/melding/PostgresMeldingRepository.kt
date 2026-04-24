@@ -17,6 +17,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OmgjøringMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpprettBehandlingMessage
+import no.nav.dagpenger.behandling.mediator.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMessage
 import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
@@ -103,6 +104,10 @@ internal class PostgresMeldingRepository : MeldingRepository {
                 MeldingTypeDTO.AVBRYT_BEHANDLING
             }
 
+            is SamordningHendelseMessage -> {
+                MeldingTypeDTO.SAMORDNING_HENDELSE
+            }
+
             is AvklaringIkkeRelevantMessage -> {
                 MeldingTypeDTO.AVKLARING_IKKE_RELEVANT
             }
@@ -181,6 +186,7 @@ private enum class MeldingTypeDTO {
     OMGJØRING,
     OPPLYSNING_SVAR,
     OPPRETT_BEHANDLING,
+    SAMORDNING_HENDELSE,
     SØKNAD_INNSENDT,
     UTBETALING_STATUS,
 }

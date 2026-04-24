@@ -10,9 +10,10 @@ import java.time.LocalDate
 import java.util.UUID
 
 internal class BehandlingsresultatAssertions(
-    val klump: JsonNode,
+    private val klump: JsonNode,
 ) {
     val basertPå: UUID? get() = klump["basertPå"]?.asUUID()
+    val behandlingId: UUID get() = klump["behandlingId"].asUUID()
     val behandlingskjedeId: UUID get() = klump["behandlingskjedeId"].asUUID()
     val rettighetsperioder: List<RettighetsperiodeDTO> = objectMapper.treeToValue(klump["rettighetsperioder"])
     val opplysninger: JsonNode = klump["opplysninger"]
