@@ -6,8 +6,8 @@ import no.nav.dagpenger.aktivitetslogg.IAktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.behandling.modell.OpplysningBehov
 import no.nav.dagpenger.opplysning.Informasjonsbehov
-import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Ulid
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -36,14 +36,15 @@ abstract class PersonHendelse(
 
     fun lagBehov(
         informasjonsbehov: Informasjonsbehov,
-        prøvingsperiode: Regelkjøring.Periode? = null,
+        forventetFraOgMed: LocalDate? = null,
+        forventetTilOgMed: LocalDate? = null,
     ) = informasjonsbehov.onEach { (behov, avhengigheter) ->
         val standardverdiDetaljer: Map<String, Any> =
-            if (behov.standardverdi != null && prøvingsperiode != null) {
+            if (behov.standardverdi != null && forventetFraOgMed != null && forventetTilOgMed != null) {
                 mapOf(
                     "@standardverdi" to behov.standardverdi!!,
-                    "@forventetFraOgMed" to prøvingsperiode.start,
-                    "@forventetTilOgMed" to prøvingsperiode.endInclusive,
+                    "@forventetFraOgMed" to forventetFraOgMed,
+                    "@forventetTilOgMed" to forventetTilOgMed,
                 )
             } else {
                 emptyMap()

@@ -108,12 +108,12 @@ class Regelkjøring(
             }
         }
 
-        return totalRapport!!.copy(prøvingsperiode = prøvingsperiode).also {
-            if (it.prøvingsdato.size > 365) {
-                logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.prøvingsdato.size}" }
+        return totalRapport!!.copy(prøvingsperiode = prøvingsperiode.toList()).also {
+            if (it.kjørteDatoer.size > 365) {
+                logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.kjørteDatoer.size}" }
             }
             logger.info {
-                """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
+                """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.kjørteDatoer.joinToString(", ")}
                         |Regler:
                         |${it.kjørteRegler.joinToString("\n") { "- $it" }}
                 """.trimMargin()
@@ -140,7 +140,7 @@ class Regelkjøring(
             mangler = trenger(),
             informasjonsbehov = informasjonsbehov(),
             foreldreløse = opplysninger.fjernet(),
-            prøvingsdato = listOf(prøvingsdato),
+            kjørteDatoer = listOf(prøvingsdato),
         ).also { rapport ->
             observatører.forEach { observer ->
                 val aktiveOpplysninger = opplysninger.kunEgne.forDato(prøvingsdato)
@@ -243,8 +243,8 @@ class Regelkjøring(
     }
 
     data class Periode(
-        val start: LocalDate,
-        val endInclusive: LocalDate,
+        private val start: LocalDate,
+        private val endInclusive: LocalDate,
     ) : Iterable<LocalDate> {
         constructor(dag: LocalDate) : this(dag, dag)
 
@@ -272,9 +272,12 @@ data class Regelkjøringsrapport(
     val mangler: Set<Opplysningstype<*>>,
     val informasjonsbehov: Informasjonsbehov,
     val foreldreløse: Set<Opplysning<*>>,
-    val prøvingsdato: List<LocalDate>,
-    val prøvingsperiode: Regelkjøring.Periode? = null,
+    val kjørteDatoer: List<LocalDate>,
+    val prøvingsperiode: List<LocalDate> = emptyList(),
 ) {
+    val forventetFraOgMed: LocalDate? get() = prøvingsperiode.firstOrNull()
+    val forventetTilOgMed: LocalDate? get() = prøvingsperiode.lastOrNull()
+
     fun manglerOpplysninger(): Boolean = mangler.isNotEmpty()
 
     fun erFerdig(): Boolean = !manglerOpplysninger()
@@ -285,8 +288,8 @@ data class Regelkjøringsrapport(
             mangler = this.mangler + other.mangler,
             informasjonsbehov = this.informasjonsbehov + other.informasjonsbehov,
             foreldreløse = this.foreldreløse + other.foreldreløse,
-            prøvingsdato = this.prøvingsdato + other.prøvingsdato,
-            prøvingsperiode = this.prøvingsperiode ?: other.prøvingsperiode,
+            kjørteDatoer = this.kjørteDatoer + other.kjørteDatoer,
+            prøvingsperiode = this.prøvingsperiode.ifEmpty { other.prøvingsperiode },
         )
 }
 

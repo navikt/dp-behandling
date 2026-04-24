@@ -458,7 +458,7 @@ class Behandling private constructor(
             if (rapport.erFerdig()) {
                 hendelse.logiskFeil("Behandlingen er ferdig men vi er fortsatt i ${this.type.name}")
             }
-            hendelse.lagBehov(rapport.informasjonsbehov, rapport.prøvingsperiode)
+            hendelse.lagBehov(rapport.informasjonsbehov, rapport.forventetFraOgMed, rapport.forventetTilOgMed)
         }
 
         override fun håndter(
@@ -646,7 +646,7 @@ class Behandling private constructor(
             if (rapport.erFerdig()) {
                 behandling.avgjørNesteTilstand(hendelse)
             } else {
-                hendelse.lagBehov(rapport.informasjonsbehov, rapport.prøvingsperiode)
+                hendelse.lagBehov(rapport.informasjonsbehov, rapport.forventetFraOgMed, rapport.forventetTilOgMed)
             }
         }
 
@@ -979,7 +979,7 @@ class Behandling private constructor(
 
         // Logger hva som skjedde (kan evt flyttes til egne funksjoner for ryddighet)
         rapport.kjørteRegler.forEach { hendelse.info(it.toString()) }
-        hendelse.lagBehov(rapport.informasjonsbehov, rapport.prøvingsperiode)
+        hendelse.lagBehov(rapport.informasjonsbehov, rapport.forventetFraOgMed, rapport.forventetTilOgMed)
 
         // 2. Kjører plugins via Kontekst
         val kontekst = Prosesskontekst(opplysninger)
