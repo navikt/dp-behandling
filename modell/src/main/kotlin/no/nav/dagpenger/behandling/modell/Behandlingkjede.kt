@@ -9,6 +9,9 @@ data class Behandlingkjede(
     val etterkommere: Int = barn.sumOf { it.etterkommere } + barn.count()
     val erFerdig = rot.harTilstand(Behandling.TilstandType.Ferdig)
 
+    val alleFerdigeLøvnoder = alleBehandlingerSomKanBaseresPå(this)
+    val nesteSomKanBaseresPå = alleFerdigeLøvnoder.maxByOrNull { it.behandlingId }
+
     init {
         check(barn.all { it.rot.basertPå === rot }) {
             "Forventer at alle barn peker på samme objektreferanse som forelder"
@@ -70,9 +73,8 @@ private fun Behandlingkjede.leggTilBarnHvisDelAvGren(barn: Behandling): Behandli
 operator fun Behandlingkjede.contains(behandling: Behandling): Boolean = rot === behandling || barn.any { behandling in it }
 
 // går gjennom hele treet for å finne løvnoder å bygge videre på,
-// for å avdekke evt. korrupte trær
-fun Behandlingkjede.denBehandlingenViSkalBasereNyPå(): Behandling? {
-    val stabel = ArrayDeque<Behandlingkjede>(listOf(this))
+private fun alleBehandlingerSomKanBaseresPå(kjede: Behandlingkjede): List<Behandling> {
+    val stabel = ArrayDeque(listOf(kjede))
     val kandidater = mutableListOf<Behandling>()
     while (stabel.isNotEmpty()) {
         val gjeldende = stabel.removeFirst()
@@ -83,7 +85,5 @@ fun Behandlingkjede.denBehandlingenViSkalBasereNyPå(): Behandling? {
 
         stabel.addAll(gjeldende.barn)
     }
-
-    check(kandidater.size <= 1) { "korrupt tre! det er mer enn en behandling som har tilstand ferdig og som er løvnode" }
-    return kandidater.firstOrNull()
+    return kandidater.toList()
 }

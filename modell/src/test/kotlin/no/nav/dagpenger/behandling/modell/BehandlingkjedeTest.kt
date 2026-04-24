@@ -121,14 +121,14 @@ class BehandlingkjedeTest {
     fun `skal kun bygge videre på siste ferdige behandling - roten er uferdig`() {
         val rot = nyBehandling(tilstand = UnderBehandling)
         val kjede = rot.somKjede()
-        kjede.denBehandlingenViSkalBasereNyPå() shouldBe null
+        kjede.nesteSomKanBaseresPå shouldBe null
     }
 
     @Test
     fun `skal kun bygge videre på siste ferdige behandling - roten er ferdig og har ingen barn`() {
         val rot = nyBehandling(tilstand = Ferdig)
         val kjede = rot.somKjede()
-        kjede.denBehandlingenViSkalBasereNyPå() shouldBe rot
+        kjede.nesteSomKanBaseresPå shouldBe rot
     }
 
     @Test
@@ -136,17 +136,23 @@ class BehandlingkjedeTest {
         val rot = nyBehandling(tilstand = Ferdig)
         val barn = nyBehandling(rot, tilstand = UnderBehandling)
         val kjede = rot.somKjede() leggTil barn
-        kjede.denBehandlingenViSkalBasereNyPå() shouldBe rot
+        kjede.nesteSomKanBaseresPå shouldBe rot
     }
 
     @Test
-    fun `skal kun bygge videre på siste ferdige behandling - roten er ferdig og to ferdig barn - ugyldig`() {
-        val rot = nyBehandling(tilstand = Ferdig)
-        val barn1 = nyBehandling(rot, tilstand = Ferdig)
-        val barn2 = nyBehandling(rot, tilstand = Ferdig)
-        val kjede = rot.somKjede() leggTil barn1 leggTil barn2
+    fun `skal kun bygge videre på siste ferdige behandling - roten er ferdig og to ferdig barn - velger nyeste`() {
+        val eldstId = UUIDv7.ny()
+        val nyestId = UUIDv7.ny()
 
-        shouldThrow<IllegalStateException> { kjede.denBehandlingenViSkalBasereNyPå() }
+        val rot = nyBehandling(tilstand = Ferdig)
+        val barn1 = nyBehandling(rot, tilstand = Ferdig, behandlingId = nyestId)
+        val barn2 = nyBehandling(rot, tilstand = Ferdig, behandlingId = eldstId)
+
+        val kjedeMedBarn1Først = rot.somKjede() leggTil barn1 leggTil barn2
+        kjedeMedBarn1Først.nesteSomKanBaseresPå shouldBe barn1
+
+        val kjedeMedBarn2Først = rot.somKjede() leggTil barn2 leggTil barn1
+        kjedeMedBarn2Først.nesteSomKanBaseresPå shouldBe barn1
     }
 
     @Test
@@ -158,7 +164,7 @@ class BehandlingkjedeTest {
         val barnebarn2 = nyBehandling(barn1, tilstand = Avbrutt)
         val kjede = rot.somKjede() leggTil barn1 leggTil barn2 leggTil barnebarn1 leggTil barnebarn2
 
-        kjede.denBehandlingenViSkalBasereNyPå() shouldBe barnebarn1
+        kjede.nesteSomKanBaseresPå shouldBe barnebarn1
     }
 
     @Test
