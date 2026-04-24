@@ -130,9 +130,9 @@ class Behandling private constructor(
             avklaringer = avklaringer,
         )
 
-        fun List<Behandling>.finn(behandlingId: UUID) =
+        fun List<Behandlingkjede>.finn(behandlingId: UUID) =
             try {
-                single { it.behandlingId == behandlingId }
+                flatten().single { it.behandlingId == behandlingId }
             } catch (e: IllegalArgumentException) {
                 throw IllegalArgumentException("Fant flere behandlinger med samme id, id=$behandlingId", e)
             }

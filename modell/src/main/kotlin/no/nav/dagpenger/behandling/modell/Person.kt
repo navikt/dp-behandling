@@ -38,7 +38,7 @@ data class Rettighetstatus(
 
 class Person(
     val ident: Ident,
-    behandlinger: List<Behandling>,
+    behandlinger: List<Behandlingkjede>,
     private val rettighetstatus: TemporalCollection<Rettighetstatus> = TemporalCollection(),
 ) : Aktivitetskontekst,
     PersonHåndter,
@@ -50,7 +50,7 @@ class Person(
 
     fun harRettighet(dato: LocalDate) = runCatching { rettighetstatus.get(dato).utfall }.getOrElse { false }
 
-    private val behandlinger = behandlinger.toMutableList()
+    private val behandlingkjeder = behandlinger.toMutableList()
 
     constructor(ident: Ident) : this(ident, mutableListOf())
 
@@ -81,15 +81,25 @@ class Person(
     }
 
     override fun håndter(hendelse: StartHendelse) {
-        if (behandlinger.any { it.behandler.eksternId == hendelse.eksternId }) {
+        if (behandlingkjeder.flatten().any { it.behandler.eksternId == hendelse.eksternId }) {
             hendelse.varsel("${hendelse.type} med eksternId ${hendelse.eksternId} er allerede mottatt")
             // return
         }
 
+        // 1. Det finnes ingen tidligere behandling = ingen kjede
+        // 2. Det finnes tidligere behandling, men ikke ferdig = ingen kjede
+        // 3. Det finnes tidligere behandling, men ikke rett på dagpenger = ingen kjede
+        // 4. Det finnes tidligere behandling, med rett på dagpenger = kjede
+        //      (velger den kjeden som har nyest behandling)
+        val kjede =
+            behandlingkjeder
+                .filter { it.nesteSomKanBaseresPå != null }
+                .maxByOrNull { it.nesteSomKanBaseresPå!!.behandlingId }
+
         // Oppskrift for å opprette en behandling
         hendelse.leggTilKontekst(this)
         val behandling =
-            hendelse.behandling(finnSisteFerdigeBehandling(), rettighetstatus)?.also { behandling ->
+            hendelse.behandling(kjede?.nesteSomKanBaseresPå, rettighetstatus)?.also { behandling ->
                 logger.info {
                     """
                     Oppretter behandling med behandlingId=${behandling.behandlingId} for 
@@ -97,7 +107,12 @@ class Person(
                     basert på behandlingId=${behandling.basertPå?.behandlingId}
                     """.trimIndent()
                 }
-                behandlinger.add(behandling)
+                if (kjede == null || behandling.basertPå == null) {
+                    behandlingkjeder.add(behandling.somKjede())
+                } else {
+                    val index = behandlingkjeder.indexOf(kjede)
+                    behandlingkjeder[index] = kjede leggTil behandling
+                }
                 observatører.forEach {
                     behandling.registrer(
                         PersonObservatørAdapter(ident.identifikator(), it),
@@ -114,66 +129,57 @@ class Person(
         behandling.håndter(hendelse)
     }
 
-    // 1. Det finnes ingen tidligere behandling = ingen kjede
-    // 2. Det finnes tidligere behandling, men ikke ferdig = ingen kjede
-    // 3. Det finnes tidligere behandling, men ikke rett på dagpenger = ingen kjede
-    // 4. Det finnes tidligere behandling, med rett på dagpenger = kjede
-    private fun finnSisteFerdigeBehandling() =
-        behandlinger.lastOrNull {
-            it.harTilstand(Ferdig)
-        }
-
     override fun håndter(hendelse: AvklaringIkkeRelevantHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: AvklaringKvittertHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: OpplysningSvarHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: AvbrytBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: ForslagGodkjentHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: LåsHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: LåsOppHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: PåminnelseHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: RekjørBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
@@ -184,7 +190,7 @@ class Person(
 
     override fun håndter(hendelse: GodkjennBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         krevLineærBehandlingskjede(behandling)
 
         behandling.håndter(hendelse)
@@ -192,7 +198,7 @@ class Person(
 
     override fun håndter(hendelse: BesluttBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         krevLineærBehandlingskjede(behandling)
 
         behandling.håndter(hendelse)
@@ -200,27 +206,27 @@ class Person(
 
     override fun håndter(hendelse: SendTilbakeHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: FjernOpplysningHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: FlyttBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlinger.finn(hendelse.behandlingId)
+        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
         behandling.håndter(hendelse)
     }
 
-    fun behandlinger() = behandlinger.toList()
+    fun behandlinger() = behandlingkjeder.flatten()
 
     fun registrer(observatør: PersonObservatør) {
         observatører.add(observatør)
-        behandlinger.forEach {
+        behandlingkjeder.flatten().forEach {
             it.registrer(PersonObservatørAdapter(ident.identifikator(), observatør))
             it.registrer(this)
         }
@@ -232,7 +238,7 @@ class Person(
     }
 
     private fun krevLineærBehandlingskjede(behandling: Behandling) {
-        if (!behandlinger.harParallelleBehandlinger(behandling)) return
+        if (!behandlingkjeder.harParallelleBehandlinger(behandling)) return
         throw IllegalStateException(
             """Vedtaket kan ikke fattes fordi en nyere åpen behandling er blitt opprettet. Avbryt denne eldre behandlingen og gjør 
             |endringene i siste opprettede behandling. Dersom endringene går tilbake i tid bør en revurderingsbehandling opprettes.
@@ -240,8 +246,12 @@ class Person(
         )
     }
 
-    private fun List<Behandling>.harParallelleBehandlinger(behandling: Behandling): Boolean =
-        any { it.harTilstand(Ferdig) && behandling.basertPå != null && it.basertPå?.behandlingId == behandling.basertPå.behandlingId }
+    private fun List<Behandlingkjede>.harParallelleBehandlinger(behandling: Behandling): Boolean {
+        if (behandling.basertPå == null) return false
+        return flatten().any {
+            it.harTilstand(Ferdig) && it.basertPå?.behandlingId == behandling.basertPå.behandlingId
+        }
+    }
 
     override fun toSpesifikkKontekst(): SpesifikkKontekst = PersonKontekst(ident.identifikator())
 

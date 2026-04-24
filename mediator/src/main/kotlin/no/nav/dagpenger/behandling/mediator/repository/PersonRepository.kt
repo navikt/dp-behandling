@@ -5,6 +5,7 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.Behandlingkjede
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -55,7 +56,7 @@ interface BehandlingRepository :
     ): Behandling?
 
     @WithSpan
-    fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling>
+    fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede>
 
     @WithSpan
     fun flyttBehandling(

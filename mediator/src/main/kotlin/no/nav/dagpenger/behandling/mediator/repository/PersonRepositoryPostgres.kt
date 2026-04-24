@@ -10,7 +10,7 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
-import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.Behandlingkjede
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -81,7 +81,7 @@ class PersonRepositoryPostgres(
                 ) == 1
         }
 
-    private fun Session.behandlingerFor(ident: Ident): List<Behandling> {
+    private fun Session.behandlingerFor(ident: Ident): List<Behandlingkjede> {
         val behandlingIder =
             this.run(
                 queryOf(

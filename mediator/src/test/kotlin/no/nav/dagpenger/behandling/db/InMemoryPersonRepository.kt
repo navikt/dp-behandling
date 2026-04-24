@@ -5,10 +5,12 @@ import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.mediator.repository.UnitOfWork
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.Behandlingkjede
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
+import no.nav.dagpenger.behandling.modell.somKjede
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.util.UUID
@@ -26,10 +28,11 @@ class InMemoryPersonRepository :
                 it.behandlinger()
             }.find { it.behandlingId == behandlingId }
 
-    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> =
+    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede> =
         persondb.values
             .flatMap { it.behandlinger() }
-            .filter { it.behandlingId in behandlingIder }
+            .groupBy { it.behandlingskjedeId }
+            .map { (_, behandlinger) -> behandlinger.somKjede() }
 
     override fun flyttBehandling(
         behandlingId: UUID,

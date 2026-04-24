@@ -82,18 +82,6 @@ class BehandlingRepositoryPostgresTest {
             avklaringer = listOf(avklaring),
         )
 
-    private val behandlingGren =
-        Behandling.rehydrer(
-            behandlingId = UUIDv7.ny(),
-            behandler = søknadInnsendtHendelse,
-            gjeldendeOpplysninger = Opplysninger.med(opplysning4),
-            basertPå = basertPåBehandling,
-            opprettet = LocalDateTime.now(),
-            tilstand = UnderBehandling,
-            sistEndretTilstand = LocalDateTime.now(),
-            avklaringer = listOf(avklaring),
-        )
-
     fun nyBehandling(
         basertPå: Behandling? = null,
         tilstand: Behandling.TilstandType,
@@ -132,18 +120,24 @@ class BehandlingRepositoryPostgresTest {
             behandlingRepositoryPostgres.lagre(b4)
             behandlingRepositoryPostgres.lagre(b5)
 
-            val behandlinger =
-                behandlingRepositoryPostgres.hentBehandlinger(
-                    listOf(b1.behandlingId, b2.behandlingId, bastard.behandlingId, b3.behandlingId, b4.behandlingId, b5.behandlingId),
-                )
+            val kjeden =
+                behandlingRepositoryPostgres
+                    .hentBehandlinger(
+                        listOf(b1.behandlingId, b2.behandlingId, bastard.behandlingId, b3.behandlingId, b4.behandlingId, b5.behandlingId),
+                    ).single()
+
+            kjeden.nesteSomKanBaseresPå shouldBe b4
+            kjeden.etterkommere shouldBe 5
+
+            val behandlinger = kjeden.toList()
 
             behandlinger.size shouldBe 6
 
             behandlinger[0].behandlingId shouldBe b1.behandlingId
             behandlinger[1].behandlingId shouldBe b2.behandlingId
             behandlinger[2].behandlingId shouldBe b3.behandlingId
-            behandlinger[3].behandlingId shouldBe b4.behandlingId
-            behandlinger[4].behandlingId shouldBe bastard.behandlingId
+            behandlinger[3].behandlingId shouldBe bastard.behandlingId
+            behandlinger[4].behandlingId shouldBe b4.behandlingId
             behandlinger[5].behandlingId shouldBe b5.behandlingId
         }
     }
@@ -168,7 +162,9 @@ class BehandlingRepositoryPostgresTest {
             behandlingRepositoryPostgres
                 .hentBehandlinger(
                     listOf(b1.behandlingId, b2.behandlingId, b3.behandlingId),
-                ).also { behandlingerFørFlytt ->
+                ).single()
+                .toList()
+                .also { behandlingerFørFlytt ->
                     behandlingerFørFlytt.size shouldBe 3
 
                     behandlingerFørFlytt[0].behandlingId shouldBe b1.behandlingId
@@ -181,7 +177,9 @@ class BehandlingRepositoryPostgresTest {
             behandlingRepositoryPostgres
                 .hentBehandlinger(
                     listOf(b1.behandlingId, b2.behandlingId, b3.behandlingId),
-                ).also { behandlingerEtterFlytt ->
+                ).single()
+                .toList()
+                .also { behandlingerEtterFlytt ->
                     behandlingerEtterFlytt.size shouldBe 3
 
                     behandlingerEtterFlytt[0].behandlingId shouldBe b1.behandlingId

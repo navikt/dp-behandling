@@ -8,9 +8,11 @@ import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.Behandlingkjede
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
+import no.nav.dagpenger.behandling.modell.somKjede
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
 import no.nav.dagpenger.opplysning.Saksbehandler
@@ -30,7 +32,7 @@ internal class BehandlingRepositoryPostgres(
             }
         }
 
-    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
+    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede> {
         if (behandlingIder.isEmpty()) return emptyList()
         return sessionOf(dataSource).use { session ->
             session.hentBehandlinger(behandlingIder)
@@ -55,9 +57,13 @@ internal class BehandlingRepositoryPostgres(
         }
     }
 
-    private fun Session.hentBehandling(behandlingId: UUID): Behandling? = hentBehandlinger(listOf(behandlingId)).singleOrNull()
+    private fun Session.hentBehandling(behandlingId: UUID): Behandling? {
+        // når vi henter en enkelt behandling så får vi maksimalt én kjede tilbake
+        val kjede = hentBehandlinger(listOf(behandlingId)).singleOrNull() ?: return null
+        return kjede.single { it.behandlingId == behandlingId }
+    }
 
-    private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandling> {
+    private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede> {
         if (behandlingIder.isEmpty()) return emptyList()
 
         // Finn basertPå-relasjoner for disse IDene og sorterer dem
@@ -83,7 +89,7 @@ internal class BehandlingRepositoryPostgres(
                         
                         select behandling_id, basert_på_behandling_id 
                         from behandlingkjede
-                        order by dybde desc, behandling_id
+                        order by dybde desc
                         """.trimIndent(),
                         mapOf("ider" to behandlingIder.toTypedArray()),
                     ).map { row -> row.uuidOrNull("behandling_id") }.asList,
@@ -176,50 +182,46 @@ internal class BehandlingRepositoryPostgres(
 
         // Bygg behandlinger med korrekte basertPå-referanser
         val behandlingerMap = linkedMapOf<UUID, Behandling>()
-        behandlingRader.forEach { rad ->
-            check(rad.behandlingId !in behandlingerMap) { "skal ikke finnes fra før" }
-            val basertPå =
-                rad.basertPåBehandlingId?.let {
-                    checkNotNull(behandlingerMap[it]) {
-                        "skal kunne finne en rehydret behandling med $it fordi den er tidligere i kjeden"
+        return behandlingRader
+            .map { rad ->
+                check(rad.behandlingId !in behandlingerMap) { "skal ikke finnes fra før" }
+                val basertPå =
+                    rad.basertPåBehandlingId?.let {
+                        checkNotNull(behandlingerMap[it]) {
+                            "skal kunne finne en rehydret behandling med $it fordi den er tidligere i kjeden"
+                        }
                     }
-                }
-            Behandling
-                .rehydrer(
-                    behandlingId = rad.behandlingId,
-                    behandler =
-                        Hendelse(
-                            meldingsreferanseId = rad.meldingId,
-                            type = rad.hendelseType,
-                            ident = rad.ident,
-                            eksternId = EksternId.fromString(rad.eksternIdType, rad.eksternId),
-                            skjedde = rad.skjedde,
-                            forretningsprosess = RegistrertForretningsprosess.opprett(rad.forretningsprosess),
-                            opprettet = rad.opprettet,
-                        ),
-                    gjeldendeOpplysninger = opplysningerMap.getValue(rad.opplysningerId),
-                    basertPå = basertPå,
-                    opprettet = rad.opprettet,
-                    tilstand = Behandling.TilstandType.valueOf(rad.tilstand),
-                    sistEndretTilstand = rad.sistEndretTilstand,
-                    avklaringer = avklaringerMap[rad.behandlingId] ?: emptyList(),
-                    godkjent =
-                        arbeidsstegMap[rad.behandlingId to Arbeidssteg.Oppgave.Godkjent] ?: Arbeidssteg(
-                            Arbeidssteg.Oppgave.Godkjent,
-                        ),
-                    besluttet =
-                        arbeidsstegMap[rad.behandlingId to Arbeidssteg.Oppgave.Besluttet]
-                            ?: Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
-                ).also {
-                    behandlingerMap[it.behandlingId] = it
-                }
-        }
-
-        // returnerer bare behandlinger som ble forespurt, i rekkefølge
-        return behandlingerMap
-            .filter { (behandlingId, _) -> behandlingId in behandlingIder }
-            .values
-            .toList()
+                Behandling
+                    .rehydrer(
+                        behandlingId = rad.behandlingId,
+                        behandler =
+                            Hendelse(
+                                meldingsreferanseId = rad.meldingId,
+                                type = rad.hendelseType,
+                                ident = rad.ident,
+                                eksternId = EksternId.fromString(rad.eksternIdType, rad.eksternId),
+                                skjedde = rad.skjedde,
+                                forretningsprosess = RegistrertForretningsprosess.opprett(rad.forretningsprosess),
+                                opprettet = rad.opprettet,
+                            ),
+                        gjeldendeOpplysninger = opplysningerMap.getValue(rad.opplysningerId),
+                        basertPå = basertPå,
+                        opprettet = rad.opprettet,
+                        tilstand = Behandling.TilstandType.valueOf(rad.tilstand),
+                        sistEndretTilstand = rad.sistEndretTilstand,
+                        avklaringer = avklaringerMap[rad.behandlingId] ?: emptyList(),
+                        godkjent =
+                            arbeidsstegMap[rad.behandlingId to Arbeidssteg.Oppgave.Godkjent] ?: Arbeidssteg(
+                                Arbeidssteg.Oppgave.Godkjent,
+                            ),
+                        besluttet =
+                            arbeidsstegMap[rad.behandlingId to Arbeidssteg.Oppgave.Besluttet]
+                                ?: Arbeidssteg(Arbeidssteg.Oppgave.Besluttet),
+                    ).also {
+                        behandlingerMap[it.behandlingId] = it
+                    }
+            }.groupBy { it.behandlingskjedeId }
+            .map { (_, behandlinger) -> behandlinger.somKjede() }
     }
 
     override fun lagre(behandling: Behandling) {
