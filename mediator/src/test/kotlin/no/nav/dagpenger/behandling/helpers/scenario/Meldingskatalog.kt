@@ -43,7 +43,7 @@ internal object Meldingskatalog {
         tema: String = "SYK",
     ) = JsonMessage
         .newMessage(
-            "andre_ytelse_mottatt",
+            "annen_ytelse_endret",
             mapOf(
                 "ident" to ident,
                 "tidspunkt" to fraOgMed,
