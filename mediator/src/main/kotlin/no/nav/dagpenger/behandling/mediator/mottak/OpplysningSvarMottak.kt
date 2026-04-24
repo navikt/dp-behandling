@@ -197,6 +197,26 @@ internal class OpplysningSvarMessage(
             }
         }
 
+    override fun behandle(
+        mediator: IMessageMediator,
+        context: MessageContext,
+    ) {
+        withLoggingContext(hendelse.kontekstMap()) {
+            logger.info { "Behandler svar på opplysninger: ${hendelse.opplysninger.map { it.opplysningstype.behovId }}" }
+            try {
+                mediator.behandle(hendelse, this, context)
+            } catch (e: OpplysningIkkeFunnetException) {
+                logger.error(e) {
+                    "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi en opplysning ikke ble funnet"
+                }
+            } catch (e: DuplikateOpplysningerException) {
+                logger.error(e) {
+                    "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi det er duplikater av opplysningstyper i opplysningene."
+                }
+            }
+        }
+    }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T : Any> fyllHullMedStandardverdi(
         typeNavn: String,
@@ -234,26 +254,6 @@ internal class OpplysningSvarMessage(
                 kilde = kilde,
                 gyldighetsperiode = Gyldighetsperiode(fra, til),
             )
-        }
-    }
-
-    override fun behandle(
-        mediator: IMessageMediator,
-        context: MessageContext,
-    ) {
-        withLoggingContext(hendelse.kontekstMap()) {
-            logger.info { "Behandler svar på opplysninger: ${hendelse.opplysninger.map { it.opplysningstype.behovId }}" }
-            try {
-                mediator.behandle(hendelse, this, context)
-            } catch (e: OpplysningIkkeFunnetException) {
-                logger.error(e) {
-                    "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi en opplysning ikke ble funnet"
-                }
-            } catch (e: DuplikateOpplysningerException) {
-                logger.error(e) {
-                    "Kan ikke håndtere ${hendelse.javaClass.simpleName} fordi det er duplikater av opplysningstyper i opplysningene."
-                }
-            }
         }
     }
 
