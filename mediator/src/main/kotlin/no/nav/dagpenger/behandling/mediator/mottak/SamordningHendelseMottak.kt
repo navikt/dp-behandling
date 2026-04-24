@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.mediator.mottak
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
@@ -12,7 +13,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
@@ -20,14 +20,15 @@ import no.nav.dagpenger.uuid.UUIDv7
 
 internal class SamordningHendelseMottak(
     rapidsConnection: RapidsConnection,
-    private val messageMediator: MessageMediator,
+    private val messageMediator: IMessageMediator,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
             .apply {
                 precondition { it.requireValue("@event_name", "annen_ytelse_endret") }
                 validate {
-                    it.requireKey("ident", "tema", "tidspunkt")
+                    it.requireKey("ident", "tema")
+                    it.require("tidspunkt", JsonNode::asLocalDateTime)
                 }
             }.register(this)
     }
