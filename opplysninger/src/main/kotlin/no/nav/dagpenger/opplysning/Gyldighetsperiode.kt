@@ -20,6 +20,21 @@ data class Gyldighetsperiode(
 
     fun inneholder(dato: LocalDate) = dato in this
 
+    /**
+     * Har perioden en eksplisitt startdato (fraOgMed er ikke MIN)?
+     */
+    val harStartdato get() = fraOgMed != LocalDate.MIN
+
+    /**
+     * Har perioden en eksplisitt sluttdato (tilOgMed er ikke MAX)?
+     */
+    val harSluttdato get() = tilOgMed != LocalDate.MAX
+
+    /**
+     * Er perioden ubegrenset (gyldig for alltid)?
+     */
+    val erUbegrenset get() = !harStartdato && !harSluttdato
+
     fun overlapper(gyldighetsperiode: Gyldighetsperiode) =
         this.contains(gyldighetsperiode.fraOgMed) || gyldighetsperiode.contains(this.fraOgMed)
 
@@ -87,9 +102,9 @@ data class Gyldighetsperiode(
 
     override fun toString(): String =
         when {
-            fraOgMed.isEqual(LocalDate.MIN) && tilOgMed.isEqual(LocalDate.MAX) -> "gyldig for alltid"
-            fraOgMed.isEqual(LocalDate.MIN) -> "gyldig til $tilOgMed"
-            tilOgMed.isEqual(LocalDate.MAX) -> "gyldig fra $fraOgMed"
+            erUbegrenset -> "gyldig for alltid"
+            !harStartdato -> "gyldig til $tilOgMed"
+            !harSluttdato -> "gyldig fra $fraOgMed"
             else -> "gyldig fra $fraOgMed til $tilOgMed"
         }
 
