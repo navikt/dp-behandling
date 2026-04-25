@@ -32,7 +32,7 @@ class MeldekortBeregningPlugin : ProsessPlugin {
         val antallIkkeMeldtDager =
             opplysninger
                 .finnAlle(Beregning.meldt)
-                .filter { it.gyldighetsperiode.overlapp(gyldighetsperiode) }
+                .filter { it.gyldighetsperiode.overlapper(gyldighetsperiode) }
                 .filterNot { it.verdi }
                 .size
         val erMeldtITide = antallIkkeMeldtDager < terskelForAntallDagerEnIkkeKanVæreMeldt

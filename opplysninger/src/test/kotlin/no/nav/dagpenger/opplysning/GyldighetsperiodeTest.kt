@@ -2,6 +2,9 @@ package no.nav.dagpenger.opplysning
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.opplysning.Gyldighetsperiode.Companion.overlappendePerioder
@@ -81,15 +84,15 @@ internal class GyldighetsperiodeTest {
         val a = Gyldighetsperiode(fraOgMed = 1.januar(2024), tilOgMed = 10.januar(2024))
         val b = Gyldighetsperiode(fraOgMed = 5.januar(2024), tilOgMed = 20.januar(2024))
 
-        a.overlapp(b) shouldBe true
-        b.overlapp(a) shouldBe true
+        a.overlapper(b) shouldBe true
+        b.overlapper(a) shouldBe true
     }
 
     @Test
     fun `overlapper i endepunkt`() {
         val a = Gyldighetsperiode(fraOgMed = 1.januar(2024), tilOgMed = 10.januar(2024))
         val b = Gyldighetsperiode(fraOgMed = 10.januar(2024), tilOgMed = 15.januar(2024))
-        a.overlapp(b) shouldBe true
+        a.overlapper(b) shouldBe true
     }
 
     @Test
@@ -97,14 +100,141 @@ internal class GyldighetsperiodeTest {
         val a = Gyldighetsperiode(fraOgMed = 10.januar(2024), tilOgMed = 20.januar(2024))
         val b = Gyldighetsperiode(fraOgMed = 1.januar(2024), tilOgMed = 15.januar(2024))
 
-        b.overlapp(a) shouldBe true
-        a.overlapp(b) shouldBe true
+        b.overlapper(a) shouldBe true
+        a.overlapper(b) shouldBe true
     }
 
     @Test
     fun `overlapper ikke`() {
         val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
         val b = Gyldighetsperiode(11.januar(2024), 20.januar(2024))
-        a.overlapp(b) shouldBe false
+        a.overlapper(b) shouldBe false
+    }
+
+    @Test
+    fun `erFør og erEtter`() {
+        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        val b = Gyldighetsperiode(15.januar(2024), 20.januar(2024))
+
+        a.erFør(b) shouldBe true
+        a.erEtter(b) shouldBe false
+        b.erFør(a) shouldBe false
+        b.erEtter(a) shouldBe true
+
+        // Overlappende perioder er verken før eller etter
+        val c = Gyldighetsperiode(5.januar(2024), 15.januar(2024))
+        a.erFør(c) shouldBe false
+        a.erEtter(c) shouldBe false
+    }
+
+    @Test
+    fun `tilstøter - kant i kant`() {
+        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        val b = Gyldighetsperiode(11.januar(2024), 20.januar(2024))
+        val c = Gyldighetsperiode(12.januar(2024), 20.januar(2024))
+
+        a.tilstøter(b) shouldBe true
+        b.tilstøter(a) shouldBe true
+        a.tilstøter(c) shouldBe false
+    }
+
+    @Test
+    fun `tilstøter - med MAX`() {
+        val a = Gyldighetsperiode(1.januar(2024))
+        val b = Gyldighetsperiode(5.januar(2024), 10.januar(2024))
+
+        // a har tilOgMed=MAX, kan ikke tilstøte noe
+        a.tilstøter(b) shouldBe false
+    }
+
+    @Test
+    fun `overlapp - overlappende perioder`() {
+        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        val b = Gyldighetsperiode(5.januar(2024), 15.januar(2024))
+
+        a.overlapp(b) shouldBe Gyldighetsperiode(5.januar(2024), 10.januar(2024))
+        b.overlapp(a) shouldBe Gyldighetsperiode(5.januar(2024), 10.januar(2024))
+    }
+
+    @Test
+    fun `overlapp - ingen overlapp`() {
+        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        val b = Gyldighetsperiode(15.januar(2024), 20.januar(2024))
+
+        a.overlapp(b) shouldBe null
+    }
+
+    @Test
+    fun `minus - trekk fra helt overlappende`() {
+        val a = Gyldighetsperiode(5.januar(2024), 15.januar(2024))
+        val b = Gyldighetsperiode(1.januar(2024), 20.januar(2024))
+
+        (a - b).shouldBeEmpty()
+    }
+
+    @Test
+    fun `minus - trekk fra delvis overlappende i midten`() {
+        val a = Gyldighetsperiode(1.januar(2024), 20.januar(2024))
+        val b = Gyldighetsperiode(5.januar(2024), 10.januar(2024))
+
+        val resultat = a - b
+        resultat shouldHaveSize 2
+        resultat[0] shouldBe Gyldighetsperiode(1.januar(2024), 4.januar(2024))
+        resultat[1] shouldBe Gyldighetsperiode(11.januar(2024), 20.januar(2024))
+    }
+
+    @Test
+    fun `minus - trekk fra overlappende til venstre`() {
+        val a = Gyldighetsperiode(5.januar(2024), 20.januar(2024))
+        val b = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+
+        val resultat = a - b
+        resultat shouldContainExactly listOf(Gyldighetsperiode(11.januar(2024), 20.januar(2024)))
+    }
+
+    @Test
+    fun `minus - trekk fra overlappende til høyre`() {
+        val a = Gyldighetsperiode(1.januar(2024), 15.januar(2024))
+        val b = Gyldighetsperiode(10.januar(2024), 20.januar(2024))
+
+        val resultat = a - b
+        resultat shouldContainExactly listOf(Gyldighetsperiode(1.januar(2024), 9.januar(2024)))
+    }
+
+    @Test
+    fun `minus - ingen overlapp`() {
+        val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        val b = Gyldighetsperiode(15.januar(2024), 20.januar(2024))
+
+        (a - b) shouldContainExactly listOf(a)
+    }
+
+    @Test
+    fun `minus collection - trekk fra flere perioder gir hull`() {
+        val hel = Gyldighetsperiode(1.januar(2024), 30.januar(2024))
+        val perioder =
+            listOf(
+                Gyldighetsperiode(1.januar(2024), 10.januar(2024)),
+                Gyldighetsperiode(20.januar(2024), 30.januar(2024)),
+            )
+
+        val hull = hel.minus(perioder)
+        hull shouldContainExactly listOf(Gyldighetsperiode(11.januar(2024), 19.januar(2024)))
+    }
+
+    @Test
+    fun `minus collection - med MIN og MAX`() {
+        val hel = Gyldighetsperiode() // MIN til MAX
+        val perioder =
+            listOf(
+                Gyldighetsperiode(1.januar(2024), 10.januar(2024)),
+                Gyldighetsperiode(20.januar(2024), 30.januar(2024)),
+            )
+
+        val hull = hel.minus(perioder)
+        hull shouldHaveSize 3
+        hull[0] shouldBe Gyldighetsperiode(LocalDate.MIN, 31.desember(2023))
+        hull[1] shouldBe Gyldighetsperiode(11.januar(2024), 19.januar(2024))
+        hull[2] shouldBe Gyldighetsperiode(31.januar(2024), LocalDate.MAX)
     }
 }
