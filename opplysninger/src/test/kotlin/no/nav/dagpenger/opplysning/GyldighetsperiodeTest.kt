@@ -112,6 +112,24 @@ internal class GyldighetsperiodeTest {
     }
 
     @Test
+    fun `harStartdato, harSluttdato og erUbegrenset`() {
+        val ubegrenset = Gyldighetsperiode()
+        ubegrenset.harStartdato shouldBe false
+        ubegrenset.harSluttdato shouldBe false
+        ubegrenset.erUbegrenset shouldBe true
+
+        val fraOgMed = Gyldighetsperiode(1.januar(2024))
+        fraOgMed.harStartdato shouldBe true
+        fraOgMed.harSluttdato shouldBe false
+        fraOgMed.erUbegrenset shouldBe false
+
+        val avgrenset = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
+        avgrenset.harStartdato shouldBe true
+        avgrenset.harSluttdato shouldBe true
+        avgrenset.erUbegrenset shouldBe false
+    }
+
+    @Test
     fun `erFør og erEtter`() {
         val a = Gyldighetsperiode(1.januar(2024), 10.januar(2024))
         val b = Gyldighetsperiode(15.januar(2024), 20.januar(2024))
