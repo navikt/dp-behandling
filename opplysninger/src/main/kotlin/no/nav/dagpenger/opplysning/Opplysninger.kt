@@ -143,7 +143,7 @@ class Opplysninger private constructor(
         val opplysninger =
             alleOpplysningerMap[opplysningstype]
                 ?.filterIsInstance<Opplysning<T>>()
-                ?.filter { it.gyldighetsperiode.overlapp(gyldighetsperiode) }
+                ?.filter { it.gyldighetsperiode.overlapper(gyldighetsperiode) }
 
         return opplysninger?.lastOrNull()
     }
