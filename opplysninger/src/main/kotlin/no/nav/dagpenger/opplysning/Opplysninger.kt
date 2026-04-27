@@ -160,14 +160,12 @@ class Opplysninger private constructor(
                         val forrige = resultat.lastOrNull()
 
                         when {
-                            // finner ingenting fra før
                             forrige == null -> {
                                 resultat.add(utfordrer)
                             }
 
-                            // Ingen overlapp
-                            forrige.gyldighetsperiode.endInclusive < utfordrer.gyldighetsperiode.fraOgMed -> {
-                                // Ingen overlapp, legger til utfordrer
+                            forrige.gyldighetsperiode.erFør(utfordrer.gyldighetsperiode) ||
+                                forrige.gyldighetsperiode.tilstøter(utfordrer.gyldighetsperiode) -> {
                                 resultat.add(utfordrer)
                             }
 
@@ -176,7 +174,6 @@ class Opplysninger private constructor(
 
                             // utfordrer er nyest, og overskriver hele forrige
                             forrige.gyldighetsperiode.fraOgMed == utfordrer.gyldighetsperiode.fraOgMed -> {
-                                // overskriver forrige med utfordrer
                                 resultat[resultat.lastIndex] = utfordrer
                             }
 
@@ -190,7 +187,6 @@ class Opplysninger private constructor(
                                         |Forkortet: ${forkortet.gyldighetsperiode}
                                     """.trimMargin()
                                 }
-                                // overskriver forrige til å gjelde frem til utfordrer, og legger til utfordrer
                                 resultat[resultat.lastIndex] = forkortet
                                 resultat.add(utfordrer)
                             }

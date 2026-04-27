@@ -105,7 +105,7 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         val sisteFraOgMed =
             opplysninger.kunEgne
                 .somListe()
-                .last { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+                .last { it.gyldighetsperiode.harStartdato }
                 .gyldighetsperiode.fraOgMed
 
         if (søknadsdato == null) {
