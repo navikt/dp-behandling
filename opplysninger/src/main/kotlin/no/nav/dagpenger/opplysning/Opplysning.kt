@@ -94,7 +94,24 @@ class Hypotese<T : Any>(
     override fun bekreft() = Faktum(id, super.opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet)
 
     override fun lagForkortet(framTil: Opplysning<*>): Opplysning<T> {
-        TODO("Not yet implemented")
+        val segmenter = gyldighetsperiode - framTil.gyldighetsperiode
+        val forkortetPeriode =
+            segmenter.firstOrNull { it.erFør(framTil.gyldighetsperiode) }
+                ?: throw IllegalArgumentException(
+                    "Kan ikke forkorte $gyldighetsperiode fram til ${framTil.gyldighetsperiode}",
+                )
+        return Hypotese(
+            id,
+            opplysningstype,
+            verdi,
+            forkortetPeriode,
+            utledetAv,
+            kilde,
+            opprettet,
+            erstatter,
+        ).apply {
+            erUtdatert = framTil.erUtdatert
+        }
     }
 }
 
@@ -133,23 +150,17 @@ class Faktum<T : Any>(
     override fun bekreft() = this
 
     override fun lagForkortet(framTil: Opplysning<*>): Opplysning<T> {
-        val forrigeFom = framTil.gyldighetsperiode.fraOgMed
-
-        val nyTom =
-            if (forrigeFom.isEqual(LocalDate.MIN)) {
-                throw IllegalArgumentException(
-                    """Kan ikke håndtere at forrigeFom er LocalDate.MIN. 
-                        |Forrige=${framTil.gyldighetsperiode}, framTil=${framTil.gyldighetsperiode}
-                    """.trimMargin(),
+        val segmenter = gyldighetsperiode - framTil.gyldighetsperiode
+        val forkortetPeriode =
+            segmenter.firstOrNull { it.erFør(framTil.gyldighetsperiode) }
+                ?: throw IllegalArgumentException(
+                    "Kan ikke forkorte $gyldighetsperiode fram til ${framTil.gyldighetsperiode}",
                 )
-            } else {
-                forrigeFom.minusDays(1)
-            }
         return Faktum(
             id,
             opplysningstype,
             verdi,
-            Gyldighetsperiode(fraOgMed = gyldighetsperiode.fraOgMed, tilOgMed = nyTom),
+            forkortetPeriode,
             utledetAv,
             kilde,
             opprettet,

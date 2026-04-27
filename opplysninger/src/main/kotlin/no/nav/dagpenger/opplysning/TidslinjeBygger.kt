@@ -24,18 +24,16 @@ class TidslinjeBygger<T : Any>(
 
         val perioder: Sequence<PeriodisertVerdi<T>> =
             skjæringsdatoer(opplysninger).zipWithNext().mapNotNull { (start, slutt) ->
-                val sluttdato = slutt.takeIf { !it.isEqual(MAX) }?.minusDays(1) ?: MAX
+                val sluttdato = if (slutt == MAX) MAX else slutt.minusDays(1)
 
                 val verdi = evaluerVerdi(verdierPåSkjæringsdato(start))
                 if (verdi == null) return@mapNotNull null
                 PeriodisertVerdi(start, sluttdato, verdi)
             }
 
-        // Slå sammen perioder som ligger kant i kant
         return slåSammenLike(perioder)
     }
 
-    // Dette er en flaskehals, men alle optimaliseringer gjør koden fryktelig mye mindre lesbar
     private fun verdierPåSkjæringsdato(start: LocalDate): List<Opplysning<T>> =
         sortertOpplysninger.filter { it.gyldighetsperiode.inneholder(start) }
 
@@ -55,8 +53,10 @@ class TidslinjeBygger<T : Any>(
 
         for (neste in perioder) {
             val siste = resultat.lastOrNull()
+            val sistePeriode = siste?.let { Gyldighetsperiode(it.fraOgMed, it.tilOgMed) }
+            val nestePeriode = Gyldighetsperiode(neste.fraOgMed, neste.tilOgMed)
 
-            if (siste != null && siste.verdi == neste.verdi && siste.tilOgMed.nesteDag().isEqual(neste.fraOgMed)) {
+            if (siste != null && siste.verdi == neste.verdi && sistePeriode!!.tilstøter(nestePeriode)) {
                 resultat[resultat.lastIndex] = siste.copy(tilOgMed = neste.tilOgMed)
             } else {
                 resultat.add(neste)

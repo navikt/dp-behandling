@@ -125,7 +125,7 @@ class Regelkjøring(
         val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
         opplysninger.fjernHvis {
             it.opplysningstype !in brukteOpplysninger &&
-                (it.gyldighetsperiode.fraOgMed.isEqual(prøvingsdato) || it.gyldighetsperiode.fraOgMed.isAfter(prøvingsdato))
+                it.gyldighetsperiode.fraOgMed >= prøvingsdato
         }
 
         return Regelkjøringsrapport(

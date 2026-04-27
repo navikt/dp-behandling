@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.TidslinjeBygger
-import java.time.LocalDate
 
 fun interface PeriodeOverskrivingsStrategi {
     fun skalIkkeLeggesTil(
@@ -73,7 +72,7 @@ class RettighetsperiodePlugin(
                 alleVilkårOppfylt
             }.forEach { periode ->
                 val gyldighetsperiode = Gyldighetsperiode(periode.fraOgMed, periode.tilOgMed)
-                require(!periode.fraOgMed.isEqual(LocalDate.MIN)) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
+                require(gyldighetsperiode.harStartdato) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
 
                 // Ikke legg til perioder som har lik fra- og med eksisterende perioder med samme verdi
                 // Denne unngår at vi legger til en forkortet rettighetsperiode men lener oss på "uterstatning" logikk i opplysninger.
