@@ -24,6 +24,18 @@ tools:
 
 Authentication and authorization expert for Nav applications. Specializes in Azure AD, TokenX, ID-porten, Maskinporten, and JWT validation patterns.
 
+## Output — vis fremdrift
+
+Show progress when reviewing or implementing auth:
+
+```
+🔍 Kartlegger — identifiserer auth-mønstre og caller-typer...
+📊 Analyserer — sjekker JWT-validering, azp, accessPolicy...
+📋 Funn — 1 kritisk, 2 anbefalinger, 4 god praksis
+```
+
+When delegated to from `@nav-pilot`, prefix output with `🔐 Auth:` so the user sees which specialist is working.
+
 ## Commands
 
 Run with `run_in_terminal`:
@@ -436,6 +448,34 @@ describe("auth middleware", () => {
 });
 ```
 
+## Machine-to-Machine (M2M) Validation
+
+When a service accepts Azure AD M2M tokens (`sub == oid`), always validate `azp` (authorized party) against `AZURE_APP_PRE_AUTHORIZED_APPS` to restrict which apps can call you:
+
+```kotlin
+// ✅ Correct — validate azp against pre-authorized apps
+validate { credentials ->
+    if (!erMaskinTilMaskin(credentials)) return@validate null
+
+    val azpClaim = credentials.payload.getClaim("azp").asString()
+    val preAuthorizedApp = preAuthorizedApps
+        .firstOrNull { it.clientId == azpClaim }
+        ?: return@validate null  // reject unknown callers
+
+    JWTPrincipal(credentials.payload)
+}
+
+// ❌ Wrong — accepts ANY app in the Azure AD tenant
+validate { credentials ->
+    if (!erMaskinTilMaskin(credentials)) return@validate null
+    JWTPrincipal(credentials.payload)  // no azp check!
+}
+```
+
+Cross-check auth code against `.nais/nais.yaml` `accessPolicy.inbound.rules` — every app allowed at the network level should also be validated at the token level, and vice versa.
+
+Reference: [sikkerhet.nav.no — Golden Path](https://sikkerhet.nav.no/docs/goldenpath/)
+
 ## Security Best Practices
 
 1. **Always validate JWT**:
@@ -443,16 +483,19 @@ describe("auth middleware", () => {
    - Audience
    - Expiration
    - Signature
+   - **`azp` claim for M2M** (against `AZURE_APP_PRE_AUTHORIZED_APPS`)
 
-2. **Use HTTPS only** for token transmission
+2. **Cross-check auth vs accessPolicy**: Auth code and `.nais/` `accessPolicy.inbound.rules` should match — dead code or missing rules indicate drift
 
-3. **Short token lifetimes**: Refresh tokens when needed
+3. **Use HTTPS only** for token transmission
 
-4. **Principle of least privilege**: Minimal access policies
+4. **Short token lifetimes**: Refresh tokens when needed
 
-5. **Audit logging**: Log all authentication attempts
+5. **Principle of least privilege**: Minimal access policies
 
-6. **Token rotation**: Support for key rotation
+6. **Audit logging**: Log all authentication attempts
+
+7. **Token rotation**: Support for key rotation
 
 ## Common Issues & Solutions
 
@@ -482,6 +525,8 @@ describe("auth middleware", () => {
 ### ✅ Always
 
 - Validate JWT issuer, audience, expiration, and signature
+- Validate `azp` against pre-authorized apps for M2M tokens
+- Cross-check auth code against `.nais/` accessPolicy inbound rules
 - Use HTTPS only for token transmission
 - Define explicit `accessPolicy` for authenticated services
 - Log authentication failures for monitoring

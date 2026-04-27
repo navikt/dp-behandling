@@ -1,0 +1,26 @@
+{
+  "up_to_date": false,
+  "source": "fa7e104",
+  "updates": [
+    {
+      "path": ".github/agents/auth.agent.md",
+      "current_hash": "a45181c6b7138169",
+      "source_hash": "97b03fd441f35a44"
+    },
+    {
+      "path": ".github/agents/nais.agent.md",
+      "current_hash": "6b2e7fb2322c7fe6",
+      "source_hash": "fa07ad8cfdf54a4a"
+    },
+    {
+      "path": ".github/agents/observability.agent.md",
+      "current_hash": "34e6bbe61132719a",
+      "source_hash": "ba87267d1d23aee2"
+    },
+    {
+      "path": ".github/agents/security-champion.agent.md",
+      "current_hash": "b1871587f069eb13",
+      "source_hash": "3081dcf0ddde695d"
+    }
+  ]
+}
