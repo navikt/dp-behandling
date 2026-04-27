@@ -19,6 +19,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
+import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 
 typealias Hendelse = Pair<String, JsonMessage>
@@ -90,6 +91,7 @@ internal class PersonMediator : PersonObservatør {
                                     is OmgjøringId -> "Omgjøring"
                                     is ArbeidssøkerperiodeId -> "Arbeidssøkerperiode"
                                     is FerietilleggId -> "Ferietillegg"
+                                    is SamordningId -> "Samordning"
                                 },
                             "skjedde" to hendelse.skjedde,
                         ),
@@ -143,6 +145,7 @@ internal class PersonMediator : PersonObservatør {
                                     is OmgjøringId -> "Omgjøring"
                                     is ArbeidssøkerperiodeId -> "Arbeidssøkerperiode"
                                     is FerietilleggId -> "Ferietillegg"
+                                    is SamordningId -> "Samordning"
                                 },
                         ),
                 ) + (årsak?.let { mapOf("årsak" to it) } ?: emptyMap()),

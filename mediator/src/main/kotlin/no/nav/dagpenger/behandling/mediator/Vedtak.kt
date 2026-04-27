@@ -34,6 +34,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
+import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Faktum
@@ -111,6 +112,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
                         is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
                         is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE
+                        is SamordningId -> HendelseDTOTypeDTO.SAMORDNING
                     },
                 skjedde = behandlingAv.skjedde,
             ),

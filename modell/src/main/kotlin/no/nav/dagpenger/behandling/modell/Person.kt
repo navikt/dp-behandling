@@ -34,7 +34,11 @@ data class Rettighetstatus(
     val utfall: Boolean,
     val behandlingId: UUID,
     val behandlingskjedeId: UUID,
-)
+) {
+    companion object {
+        val TemporalCollection<Rettighetstatus>.harIkkeInnvilgelse get() = this.getAll().none { it.utfall }
+    }
+}
 
 class Person(
     val ident: Ident,

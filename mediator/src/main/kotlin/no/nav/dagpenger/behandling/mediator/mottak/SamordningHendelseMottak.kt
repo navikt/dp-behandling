@@ -14,7 +14,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
-import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
+import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 
@@ -69,7 +69,7 @@ internal class SamordningHendelseMottak(
             OpprettBehandlingHendelse(
                 meldingsreferanseId = packet.id.toUUID(),
                 ident = ident,
-                eksternId = ManuellId(UUIDv7.ny()),
+                eksternId = SamordningId(UUIDv7.ny()),
                 gjelderDato = fom.toLocalDate(),
                 begrunnelse = "Fanget opp mulig endring i samordning mot $ytelse",
                 opprettet = opprettet,

@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling.scenario
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -486,23 +487,29 @@ class ScenarioTest {
     @Test
     fun `fang opp mulige hendelser om samordning`() {
         nyttScenario {
+            inntektSiste12Mnd = 500000
         }.test {
+            // Fanger ikke opp meldinger til mennesker uten historikk
             person.fåAnnenYtelse(21.juni(2021))
             rapidInspektør.size shouldBe 0
 
+            // Send søknad
             person.søkDagpenger(21.juni(2021))
 
             // Melding om mulig samordning fanges ikke opp før behandlingen er ferdig
             person.fåAnnenYtelse(21.juni(2021))
 
+            // Fatt vedtak
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
+            saksbehandler.beslutt()
 
             lateinit var innvilgelseId: UUID
             behandlingsresultat(1) {
                 innvilgelseId = behandlingId
                 rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.single().harRett shouldBe true
             }
 
             // Meldinger om mulig samordning blir opprettet som en manuell behandling med avklaring
@@ -515,6 +522,31 @@ class ScenarioTest {
             with(saksbehandler.åpneAvklaringer().single()) {
                 kode shouldBe "ManuellBehandling"
                 beskrivelse shouldContain "SYK"
+            }
+        }
+    }
+
+    @Test
+    fun `ikke lag samordning uten minst en løpende rett`() {
+        nyttScenario {
+            inntektSiste12Mnd = 50000
+        }.test {
+            // Fatt avslag
+            person.søkDagpenger(21.juni(2021))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.single().harRett shouldBe false
+            }
+
+            // Melding om samordning fører *ikke* til nytt forslag
+            person.fåAnnenYtelse(24.juni(2021), "SYK")
+
+            shouldThrow<IllegalArgumentException> {
+                behandlingsresultatForslag(3) { }
             }
         }
     }

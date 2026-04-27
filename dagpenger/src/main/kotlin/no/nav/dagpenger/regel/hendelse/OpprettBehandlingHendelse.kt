@@ -3,8 +3,10 @@ package no.nav.dagpenger.regel.hendelse
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
+import no.nav.dagpenger.behandling.modell.Rettighetstatus.Companion.harIkkeInnvilgelse
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
+import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
@@ -32,7 +34,8 @@ class OpprettBehandlingHendelse(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): Behandling? {
-        if (!startNyKjede && forrigeBehandling == null) return null
+        if (forrigeBehandling == null && !startNyKjede) return null
+        if (eksternId is SamordningId && rettighetstatus.harIkkeInnvilgelse) return null
 
         return Behandling(
             basertPå = forrigeBehandling,

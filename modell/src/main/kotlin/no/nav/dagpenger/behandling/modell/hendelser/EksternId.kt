@@ -33,6 +33,7 @@ sealed class EksternId<T>(
             "OmgjøringId" -> OmgjøringId(id)
             "ArbeidssøkerperiodeId" -> ArbeidssøkerperiodeId(id)
             "FerietilleggId" -> FerietilleggId(id)
+            "SamordningId" -> SamordningId(id)
             else -> throw IllegalArgumentException("Ukjent idType: $eksternIdType")
         }
     }
@@ -100,5 +101,16 @@ class ArbeidssøkerperiodeId(
     override fun kontekstMap() =
         mapOf(
             "avsluttetArbeidssøkerperiodeId" to id.toString(),
+        )
+}
+
+class SamordningId(
+    id: UUID,
+) : EksternId<UUID>(id) {
+    constructor(id: String) : this(UUID.fromString(id))
+
+    override fun kontekstMap() =
+        mapOf(
+            "samordningId" to id.toString(),
         )
 }

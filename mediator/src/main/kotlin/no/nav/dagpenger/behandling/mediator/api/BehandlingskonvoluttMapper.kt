@@ -36,6 +36,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
+import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -100,6 +101,7 @@ internal fun StartHendelse.tilHendelseDTO(): HendelseDTO =
                 is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
                 is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE
                 is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
+                is SamordningId -> HendelseDTOTypeDTO.SAMORDNING
             },
         skjedde = skjedde,
     )

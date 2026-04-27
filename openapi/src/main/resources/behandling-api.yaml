@@ -1849,7 +1849,7 @@ components:
           type: string
         type:
           type: string
-          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring", "Arbeidssøkerperiode", "Ferietillegg" ]
+          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring", "Arbeidssøkerperiode", "Ferietillegg", "Samordning" ]
         skjedde:
           type: string
           format: date
