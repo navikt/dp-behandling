@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling.mediator.repository
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
+import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
@@ -18,6 +19,9 @@ import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretnin
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.groupBy
 
 internal class BehandlingRepositoryPostgres(
     private val opplysningRepository: OpplysningerRepository,
@@ -63,9 +67,7 @@ internal class BehandlingRepositoryPostgres(
         return kjede.single { it.behandlingId == behandlingId }
     }
 
-    private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede> {
-        if (behandlingIder.isEmpty()) return emptyList()
-
+    private fun Session.lagBehandlingRad(behandlingIder: List<UUID>): List<BehandlingRad> {
         // Finn basertPå-relasjoner for disse IDene og sorterer dem
         // topologisk slik at den første/eldste behandlingen i kjeden kommer først
         val alleBehandlingIder =
@@ -94,50 +96,6 @@ internal class BehandlingRepositoryPostgres(
                         mapOf("ider" to behandlingIder.toTypedArray()),
                     ).map { row -> row.uuidOrNull("behandling_id") }.asList,
                 ).toSet()
-
-        // Hent arbeidssteg for alle behandlinger i én spørring
-        val arbeidsstegMap = mutableMapOf<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>()
-        this
-            .run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    SELECT * FROM behandling_arbeidssteg WHERE behandling_id = ANY(:ider)
-                    """.trimIndent(),
-                    mapOf("ider" to alleBehandlingIder.toTypedArray()),
-                ).map { row ->
-                    val behandlingId = row.uuid("behandling_id")
-                    val oppgave = Arbeidssteg.Oppgave.valueOf(row.string("oppgave"))
-                    val arbeidssteg =
-                        Arbeidssteg.rehydrer(
-                            Arbeidssteg.TilstandType.valueOf(row.string("tilstand")),
-                            oppgave,
-                            row.stringOrNull("utført_av")?.let { Saksbehandler(it) },
-                            row.localDateTimeOrNull("utført"),
-                        )
-                    arbeidsstegMap[behandlingId to oppgave] = arbeidssteg
-                }.asList,
-            )
-
-        // Hent avklaringer for alle behandlinger i én spørring
-        val avklaringerMap = hentAvklaringer(alleBehandlingIder)
-
-        // Hent alle behandlinger i én spørring
-        data class BehandlingRad(
-            val behandlingId: UUID,
-            val meldingId: UUID,
-            val hendelseType: String,
-            val ident: String,
-            val eksternIdType: String,
-            val eksternId: String,
-            val skjedde: java.time.LocalDate,
-            val forretningsprosess: String,
-            val opprettet: java.time.LocalDateTime,
-            val opplysningerId: UUID,
-            val tilstand: String,
-            val sistEndretTilstand: java.time.LocalDateTime,
-            val basertPåBehandlingId: UUID?,
-        )
 
         val behandlingRader =
             this
@@ -171,6 +129,46 @@ internal class BehandlingRepositoryPostgres(
                         )
                     }.asList,
                 ).sortedBy { alleBehandlingIder.indexOf(it.behandlingId) }
+        return behandlingRader
+    }
+
+    private fun Session.lagArbeidsstegMap(alleBehandlingIder: Set<UUID>): Map<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg> {
+        // Hent arbeidssteg for alle behandlinger i én spørring
+        val arbeidsstegMap = mutableMapOf<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>()
+        this
+            .run(
+                queryOf(
+                    // language=PostgreSQL
+                    """
+                    SELECT * FROM behandling_arbeidssteg WHERE behandling_id = ANY(:ider)
+                    """.trimIndent(),
+                    mapOf("ider" to alleBehandlingIder.toTypedArray()),
+                ).map { row ->
+                    val behandlingId = row.uuid("behandling_id")
+                    val oppgave = Arbeidssteg.Oppgave.valueOf(row.string("oppgave"))
+                    val arbeidssteg =
+                        Arbeidssteg.rehydrer(
+                            Arbeidssteg.TilstandType.valueOf(row.string("tilstand")),
+                            oppgave,
+                            row.stringOrNull("utført_av")?.let { Saksbehandler(it) },
+                            row.localDateTimeOrNull("utført"),
+                        )
+                    arbeidsstegMap[behandlingId to oppgave] = arbeidssteg
+                }.asList,
+            )
+        return arbeidsstegMap
+    }
+
+    private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede> {
+        if (behandlingIder.isEmpty()) return emptyList()
+
+        val behandlingRader = lagBehandlingRad(behandlingIder)
+        val alleBehandlingIder = behandlingRader.map { it.behandlingId }.toSet()
+
+        val arbeidsstegMap = lagArbeidsstegMap(alleBehandlingIder)
+
+        // Hent avklaringer for alle behandlinger i én spørring
+        val avklaringerMap = hentAvklaringer(alleBehandlingIder)
 
         val opplysningerMap =
             this
@@ -180,6 +178,15 @@ internal class BehandlingRepositoryPostgres(
                         .toSet(),
                 )
 
+        return lagBehandlingKjede(behandlingRader, avklaringerMap, opplysningerMap, arbeidsstegMap)
+    }
+
+    private fun lagBehandlingKjede(
+        behandlingRader: List<BehandlingRad>,
+        avklaringerMap: Map<UUID, List<Avklaring>>,
+        opplysningerMap: Map<UUID, Opplysninger>,
+        arbeidsstegMap: Map<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>,
+    ): List<Behandlingkjede> {
         // Bygg behandlinger med korrekte basertPå-referanser
         val behandlingerMap = linkedMapOf<UUID, Behandling>()
         return behandlingRader
@@ -223,6 +230,23 @@ internal class BehandlingRepositoryPostgres(
             }.groupBy { it.behandlingskjedeId }
             .map { (_, behandlinger) -> behandlinger.somKjede() }
     }
+
+    // Hent alle behandlinger i én spørring
+    private data class BehandlingRad(
+        val behandlingId: UUID,
+        val meldingId: UUID,
+        val hendelseType: String,
+        val ident: String,
+        val eksternIdType: String,
+        val eksternId: String,
+        val skjedde: java.time.LocalDate,
+        val forretningsprosess: String,
+        val opprettet: java.time.LocalDateTime,
+        val opplysningerId: UUID,
+        val tilstand: String,
+        val sistEndretTilstand: java.time.LocalDateTime,
+        val basertPåBehandlingId: UUID?,
+    )
 
     override fun lagre(behandling: Behandling) {
         val unitOfWork = PostgresUnitOfWork.transaction()
