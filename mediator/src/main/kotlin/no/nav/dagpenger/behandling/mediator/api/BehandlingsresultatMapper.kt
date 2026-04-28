@@ -5,6 +5,7 @@ import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTORolleDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningerDTOKlassifiseringDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.UtbetalingBaseDTO
 import no.nav.dagpenger.behandling.api.models.UtbetalingFerietilleggDTO
@@ -12,13 +13,20 @@ import no.nav.dagpenger.behandling.api.models.UtbetalingMeldekortDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
-import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
+import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Utbetaling
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val opplysningSet = opplysninger.somListe()
         val egneId = opplysninger.somListe(Egne).map { it.id }
+        val regelsett = behandlingAv.forretningsprosess.regelsett()
+        val produsertAv =
+            regelsett
+                .flatMap { rs -> rs.produserer.map { it to rs } }
+                .toMap()
 
         BehandlingsresultatDTO(
             behandlingId = behandlingId,
@@ -30,10 +38,13 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
             rettighetsperioder = rettighetsperioder(),
             opplysninger =
                 opplysningSet.somOpplysningperiode { type, opplysninger ->
+                    val tilhører = produsertAv.getOrDefault(type, null)
+
                     OpplysningerDTO(
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
                         datatype = type.datatype.tilDataTypeDTO(),
+                        klassifisering = type.tilKlassifiseringDTO(tilhører),
                         perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
                     )
                 },
@@ -44,6 +55,14 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
             sistEndret = sistEndret,
         )
     }
+
+private fun Opplysningstype<*>.tilKlassifiseringDTO(tilhører: Regelsett?): OpplysningerDTOKlassifiseringDTO? {
+    if (tilhører == null) return null
+    return when (tilhører.type) {
+        RegelsettType.Vilkår -> if (tilhører.utfall == this) OpplysningerDTOKlassifiseringDTO.UTFALL else null
+        else -> null
+    }
+}
 
 private fun Behandling.VedtakOpplysninger.tilBehandletAvDTO(): List<BehandletAvDTO> =
     listOfNotNull(

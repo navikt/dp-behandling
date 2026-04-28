@@ -1078,6 +1078,9 @@ components:
           type: string
         datatype:
           $ref: '#/components/schemas/DataType'
+        klassifisering:
+          type: string
+          enum: [ "Utfall" ]
         perioder:
           type: array
           items:
