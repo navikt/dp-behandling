@@ -37,6 +37,8 @@ class RealistiskBrevTest {
     private val vanligArbeidstidId = UUID.randomUUID()
     private val grunnlagId = UUID.randomUUID()
 
+    private val harLøpendeRettId = UUID.randomUUID()
+
     // -- Brevmal som matcher innvilgelsesbrevet --
     private val innvilgelsesmal =
         Brevmal(
@@ -56,10 +58,28 @@ class RealistiskBrevTest {
                         plassering = Plassering.OVERSKRIFT,
                         rekkefølge = 1,
                     ),
-                    // Innledning
+                    // Innledning — åpen periode (bare fraOgMed)
                     Maltekst(
-                        trigger = Trigger.Avgjørelse("Innvilgelse"),
-                        tekst = "Du får dagpenger fra og med 23. april 2026 til og med 27. april 2026.",
+                        trigger = Trigger.OpplysningFinnes(harLøpendeRettId, periodeType = PeriodeType.ÅPEN),
+                        tekst = "Du får dagpenger fra og med {{Har løpende rett.fraOgMed}}.",
+                        plassering = Plassering.INNLEDNING,
+                        rekkefølge = 1,
+                    ),
+                    // Innledning — lukket periode (fraOgMed + tilOgMed)
+                    Maltekst(
+                        trigger = Trigger.OpplysningFinnes(harLøpendeRettId, periodeType = PeriodeType.LUKKET),
+                        tekst =
+                            "Du får dagpenger fra og med {{Har løpende rett.fraOgMed}} " +
+                                "til og med {{Har løpende rett.tilOgMed}}.",
+                        plassering = Plassering.INNLEDNING,
+                        rekkefølge = 1,
+                    ),
+                    // Innledning — flere perioder (saksbehandler må skrive selv)
+                    Maltekst(
+                        trigger = Trigger.OpplysningFinnes(harLøpendeRettId, periodeType = PeriodeType.FLERE),
+                        tekst =
+                            "[Saksbehandler: Rettighetsperioden har flere perioder som " +
+                                "ikke kan beskrives maskinelt. Vennligst beskriv periodene manuelt.]",
                         plassering = Plassering.INNLEDNING,
                         rekkefølge = 1,
                     ),
@@ -167,6 +187,13 @@ class RealistiskBrevTest {
                             OpprinnelseDTO.NY,
                         ),
                         lagOpplysning(kravTilReellArbeidssøkerId, "Krav til arbeidssøker", BoolskVerdiDTO(true), OpprinnelseDTO.NY),
+                        lagOpplysningMedPeriode(
+                            harLøpendeRettId,
+                            "Har løpende rett",
+                            BoolskVerdiDTO(true),
+                            fraOgMed = LocalDate.of(2026, 4, 23),
+                            tilOgMed = LocalDate.of(2026, 4, 27),
+                        ),
                         lagOpplysning(dagsatsId, "Dagsats", PengeVerdiDTO(BigDecimal("462"))),
                         lagOpplysning(egenandelId, "Egenandel", PengeVerdiDTO(BigDecimal("1386"))),
                         lagOpplysning(dagpengeperiodeId, "Dagpengeperiode", HeltallVerdiDTO(52)),
@@ -182,7 +209,7 @@ class RealistiskBrevTest {
         // Innledning
         val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
         innledning shouldHaveSize 1
-        innledning[0].innhold[0] shouldContain "dagpenger fra og med"
+        innledning[0].innhold[0] shouldBe "Du får dagpenger fra og med 2026-04-23 til og med 2026-04-27."
         innledning[0].innhold[1] shouldContain "462 kroner dagen"
         innledning[0].innhold[2] shouldContain "Egenandelen din er 1386 kroner"
 
@@ -231,12 +258,23 @@ class RealistiskBrevTest {
                             BoolskVerdiDTO(true),
                             OpprinnelseDTO.ARVET,
                         ),
+                        lagOpplysningMedPeriode(
+                            harLøpendeRettId,
+                            "Har løpende rett",
+                            BoolskVerdiDTO(true),
+                            fraOgMed = LocalDate.of(2026, 4, 23),
+                        ),
                         lagOpplysning(dagsatsId, "Dagsats", PengeVerdiDTO(BigDecimal("462"))),
                         lagOpplysning(dagpengeperiodeId, "Dagpengeperiode", HeltallVerdiDTO(52)),
                     ),
             )
 
         val brev = BrevBygger(innvilgelsesmal).bygg(resultat)
+
+        // Åpen periode — bare fraOgMed
+        val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
+        innledning shouldHaveSize 1
+        innledning[0].innhold[0] shouldBe "Du får dagpenger fra og med 2026-04-23."
 
         val vilkår = brev.seksjoner.filter { it.plassering == Plassering.VILKÅR }
         // Bare alder vises — minsteinntekt er arvet og filtreres bort (kunNyeOpplysninger=true)
@@ -383,6 +421,33 @@ class RealistiskBrevTest {
         begrunnelse[2].tittel shouldBe "Du oppfyller ikke kravet til alder"
     }
 
+    @Test
+    fun `innvilgelsesbrev med flere perioder gir saksbehandler-placeholder`() {
+        val resultat =
+            lagResultat(
+                AvgjørelseDTO.INNVILGELSE,
+                opplysninger =
+                    listOf(
+                        lagOpplysningMedFlerePerioder(
+                            harLøpendeRettId,
+                            "Har løpende rett",
+                            listOf(
+                                LocalDate.of(2026, 1, 1) to LocalDate.of(2026, 3, 31),
+                                LocalDate.of(2026, 5, 1) to LocalDate.of(2026, 6, 30),
+                            ),
+                        ),
+                        lagOpplysning(dagsatsId, "Dagsats", PengeVerdiDTO(BigDecimal("462"))),
+                    ),
+            )
+
+        val brev = BrevBygger(innvilgelsesmal).bygg(resultat)
+
+        val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
+        innledning shouldHaveSize 1
+        innledning[0].innhold[0] shouldContain "[Saksbehandler:"
+        innledning[0].innhold[0] shouldContain "ikke kan beskrives maskinelt"
+    }
+
     // -- Hjelpemetoder --
 
     private fun lagResultat(
@@ -434,5 +499,51 @@ class RealistiskBrevTest {
                     verdi = verdi,
                 ),
             ),
+    )
+
+    private fun lagOpplysningMedPeriode(
+        typeId: UUID,
+        navn: String,
+        verdi: no.nav.dagpenger.behandling.api.models.OpplysningsverdiDTO,
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate? = null,
+        opprinnelse: OpprinnelseDTO = OpprinnelseDTO.NY,
+    ) = OpplysningerDTO(
+        opplysningTypeId = typeId,
+        navn = navn,
+        datatype = DataTypeDTO.BOOLSK,
+        perioder =
+            listOf(
+                OpplysningsperiodeDTO(
+                    id = UUID.randomUUID(),
+                    opprettet = LocalDateTime.now(),
+                    opprinnelse = opprinnelse,
+                    verdi = verdi,
+                    gyldigFraOgMed = fraOgMed,
+                    gyldigTilOgMed = tilOgMed,
+                ),
+            ),
+    )
+
+    private fun lagOpplysningMedFlerePerioder(
+        typeId: UUID,
+        navn: String,
+        perioder: List<Pair<LocalDate, LocalDate>>,
+        opprinnelse: OpprinnelseDTO = OpprinnelseDTO.NY,
+    ) = OpplysningerDTO(
+        opplysningTypeId = typeId,
+        navn = navn,
+        datatype = DataTypeDTO.BOOLSK,
+        perioder =
+            perioder.map { (fra, til) ->
+                OpplysningsperiodeDTO(
+                    id = UUID.randomUUID(),
+                    opprettet = LocalDateTime.now(),
+                    opprinnelse = opprinnelse,
+                    verdi = BoolskVerdiDTO(true),
+                    gyldigFraOgMed = fra,
+                    gyldigTilOgMed = til,
+                )
+            },
     )
 }
