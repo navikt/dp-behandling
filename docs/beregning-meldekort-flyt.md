@@ -7,6 +7,7 @@ Denne dokumentasjonen beskriver hvordan BeregnMeldekortHendelse behandles, og hv
 - [Detaljert hendelsesflyt](#detaljert-hendelsesflyt)
 - [BeregningsperiodeFabrikk - Regler](#beregningsperiodefabrikk---regler)
 - [Beregningsperiode - Beregningslogikk](#beregningsperiode---beregningslogikk)
+- [TaptArbeidstidStans](#taptarbeidstidstans)
 - [Avklaringer](#avklaringer)
 - [Dataflyt og opplysninger](#dataflyt-og-opplysninger)
 - [Nøkkelkonsepter](#nøkkelkonsepter)
@@ -299,6 +300,61 @@ graph LR
 
 ---
 
+## TaptArbeidstidStans
+
+Etter at beregningen for en meldeperiode er ferdig, sjekker systemet om bruker har gått for lenge uten å oppfylle kravet til tapt arbeidstid (§ 4-3). Dersom kravet ikke er oppfylt i tilstrekkelig mange **påfølgende** meldeperioder på rad, stanses dagpengene automatisk fra den første perioden i rekken.
+
+### Grenseverdi: antall tillatte perioder uten tapt arbeidstid
+
+Systemet har en konfigurerbar grenseverdi som styrer hvor mange påfølgende meldeperioder uten tapt arbeidstid som tolereres før stans iverksettes. Verdien er i dag satt til **3 perioder** (en meldeperiode er 14 dager, altså 6 uker på rad).
+
+Grenseverdien kan overstyres per sak dersom regelverket eller saksbehandler krever det.
+
+### Flyt
+
+```mermaid
+flowchart TD
+    START[Beregning for meldeperioden er ferdig] --> A[Tell antall påfølgende perioder\npå slutten av historikken\nsom IKKE oppfylte kravet til tapt arbeidstid]
+
+    A --> D{Antall perioder på rad\nuten tapt arbeidstid\n≥ grenseverdi?}
+
+    D -->|Nei| SKIP[Ingen handling\nDagpengene fortsetter]
+
+    D -->|Ja| H[Registrer stans fra og med\nstartdatoen til første periode i rekken]
+    H --> I[Beregningen kjøres på nytt\nDagpengene stanses fra stansdatoen]
+
+    style START fill:#e1f5ff
+    style H fill:#ffcdd2
+    style I fill:#fff9c4
+    style SKIP fill:#e8f5e9
+    style D fill:#fff9c4
+```
+
+### Hva skjer ved stans
+
+Systemet registrerer at vilkåret om tap av arbeidstid ikke lenger er oppfylt, med virkning fra den første perioden i rekken. Beregningen kjøres deretter på nytt, og dagpengene stanses fra og med den datoen — ingen videre utbetaling skjer.
+
+Stansen iverksettes **ikke** dersom en saksbehandler allerede har overstyrt rettigheten manuelt for den aktuelle perioden.
+
+### Eksempel
+
+```
+Periode 1:  Oppfyller kravet ✓
+Periode 2:  Oppfyller kravet ✓
+Periode 3:  Oppfyller IKKE kravet  ← 1 på rad
+Periode 4:  Oppfyller IKKE kravet  ← 2 på rad
+Periode 5:  Oppfyller kravet ✓      ← rekken nullstilles
+Periode 6:  Oppfyller IKKE kravet  ← 1 på rad
+Periode 7:  Oppfyller IKKE kravet  ← 2 på rad
+Periode 8:  Oppfyller IKKE kravet  ← 3 på rad → STANS
+
+→ Dagpengene stanses fra og med startdatoen til Periode 6
+```
+
+_(Eksempelet bruker gjeldende grenseverdi på 3 perioder)_
+
+---
+
 ## Avklaringer
 
 BeregnMeldekortHendelse oppretter avklaringer som må behandles:
@@ -459,9 +515,9 @@ mindmap
 - Valget av prosess gjøres dynamisk via `get()` på `forretningsprosess`-propertyen
 
 ### 9. Maks antall perioder med ikke-tapt arbeidstid
-- Ny opplysning: `maksAntallPerioderMedIkkeTaptArbeidstid`
-- Initialiseres til 3 som utgangspunkt (`somUtgangspunkt(3)`)
-- Begrenser antall påfølgende perioder en bruker kan ha uten tapt arbeidstid
+- Grenseverdi som styrer hvor mange påfølgende meldeperioder uten tapt arbeidstid som tolereres før stans iverksettes
+- Standardverdi: **3 perioder** (tilsvarer 6 uker)
+- Kan overstyres per sak av saksbehandler
 
 ---
 
@@ -556,6 +612,7 @@ Systemet oppretter to SatsGrupper og fordeler egenandel proporsjonalt.
 | Omgjøringsprosess | `Omgjøringsprosess.kt` |
 | Periode-oppbygging | `BeregningsperiodeFabrikk.kt` |
 | Beregningslogikk | `Beregningsperiode.kt` |
+| Automatisk stans ved manglende tapt arbeidstid | `TaptArbeidstidStans.kt` |
 | Opplysningstyper | `Beregning.kt` |
 | Dag-modeller | `Dag.kt` |
 
