@@ -10,6 +10,9 @@ import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderBehandling
+import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.Person
+import no.nav.dagpenger.behandling.modell.somKjede
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
@@ -26,7 +29,7 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 class BehandlingRepositoryPostgresTest {
-    private val ident = "123456789011"
+    private val ident = "12345678911"
     private val søknadId = UUIDv7.ny()
     private val søknadInnsendtHendelse =
         SøknadInnsendtHendelse(
@@ -113,18 +116,9 @@ class BehandlingRepositoryPostgresTest {
             val b4 = nyBehandling(b3, Ferdig, Opplysninger.med(opplysning4))
             val b5 = nyBehandling(b4, UnderBehandling, Opplysninger.med(opplysning5))
 
-            behandlingRepositoryPostgres.lagre(b1)
-            behandlingRepositoryPostgres.lagre(b2)
-            behandlingRepositoryPostgres.lagre(bastard)
-            behandlingRepositoryPostgres.lagre(b3)
-            behandlingRepositoryPostgres.lagre(b4)
-            behandlingRepositoryPostgres.lagre(b5)
+            opprettKjede(behandlingRepositoryPostgres, listOf(b1, b2, b3, bastard, b4, b5))
 
-            val kjeden =
-                behandlingRepositoryPostgres
-                    .hentBehandlinger(
-                        listOf(b1.behandlingId, b2.behandlingId, bastard.behandlingId, b3.behandlingId, b4.behandlingId, b5.behandlingId),
-                    ).single()
+            val kjeden = behandlingRepositoryPostgres.hentBehandlinger(Ident(ident)).single()
 
             kjeden.nesteSomKanBaseresPå shouldBe b4
             kjeden.etterkommere shouldBe 5
@@ -155,37 +149,25 @@ class BehandlingRepositoryPostgresTest {
             val b2 = nyBehandling(b1, UnderBehandling, Opplysninger.med(opplysning2))
             val b3 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning3))
 
-            behandlingRepositoryPostgres.lagre(b1)
-            behandlingRepositoryPostgres.lagre(b2)
-            behandlingRepositoryPostgres.lagre(b3)
+            opprettKjede(behandlingRepositoryPostgres, listOf(b1, b2, b3))
 
-            behandlingRepositoryPostgres
-                .hentBehandlinger(
-                    listOf(b1.behandlingId, b2.behandlingId, b3.behandlingId),
-                ).single()
-                .toList()
-                .also { behandlingerFørFlytt ->
-                    behandlingerFørFlytt.size shouldBe 3
+            behandlingRepositoryPostgres.hentBehandlinger(Ident(ident)).single().toList().also { behandlingerFørFlytt ->
+                behandlingerFørFlytt.size shouldBe 3
 
-                    behandlingerFørFlytt[0].behandlingId shouldBe b1.behandlingId
-                    behandlingerFørFlytt[1].behandlingId shouldBe b2.behandlingId
-                    behandlingerFørFlytt[2].behandlingId shouldBe b3.behandlingId
-                }
+                behandlingerFørFlytt[0].behandlingId shouldBe b1.behandlingId
+                behandlingerFørFlytt[1].behandlingId shouldBe b2.behandlingId
+                behandlingerFørFlytt[2].behandlingId shouldBe b3.behandlingId
+            }
 
             behandlingRepositoryPostgres.flyttBehandling(b2.behandlingId, b3.behandlingId)
 
-            behandlingRepositoryPostgres
-                .hentBehandlinger(
-                    listOf(b1.behandlingId, b2.behandlingId, b3.behandlingId),
-                ).single()
-                .toList()
-                .also { behandlingerEtterFlytt ->
-                    behandlingerEtterFlytt.size shouldBe 3
+            behandlingRepositoryPostgres.hentBehandlinger(Ident(ident)).single().toList().also { behandlingerEtterFlytt ->
+                behandlingerEtterFlytt.size shouldBe 3
 
-                    behandlingerEtterFlytt[0].behandlingId shouldBe b1.behandlingId
-                    behandlingerEtterFlytt[1].behandlingId shouldBe b3.behandlingId
-                    behandlingerEtterFlytt[2].behandlingId shouldBe b2.behandlingId
-                }
+                behandlingerEtterFlytt[0].behandlingId shouldBe b1.behandlingId
+                behandlingerEtterFlytt[1].behandlingId shouldBe b3.behandlingId
+                behandlingerEtterFlytt[2].behandlingId shouldBe b2.behandlingId
+            }
         }
     }
 
@@ -198,8 +180,7 @@ class BehandlingRepositoryPostgresTest {
             val avklaringRepository = AvklaringRepositoryPostgres()
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository)
 
-            behandlingRepositoryPostgres.lagre(basertPåBehandling)
-            behandlingRepositoryPostgres.lagre(behandling)
+            opprettKjede(behandlingRepositoryPostgres, listOf(basertPåBehandling, behandling))
 
             val rehydrertBehandling = behandlingRepositoryPostgres.hentBehandling(behandling.behandlingId).shouldNotBeNull()
 
@@ -231,6 +212,22 @@ class BehandlingRepositoryPostgresTest {
                             .truncatedTo(ChronoUnit.SECONDS)
                 }
             }
+        }
+    }
+
+    private fun opprettKjede(
+        behandlingRepositoryPostgres: BehandlingRepositoryPostgres,
+        behandlinger: List<Behandling>,
+    ) {
+        val personRepositoryPostgres = PersonRepositoryPostgres(behandlingRepositoryPostgres)
+
+        val kjeder =
+            behandlinger
+                .groupBy { it.behandlingskjedeId }
+                .map { (_, behandlingskjede) -> behandlingskjede.somKjede() }
+
+        Person(Ident(ident), kjeder).also {
+            personRepositoryPostgres.lagre(it)
         }
     }
 }

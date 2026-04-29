@@ -10,7 +10,6 @@ import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
-import no.nav.dagpenger.behandling.modell.Behandlingkjede
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -41,7 +40,7 @@ class PersonRepositoryPostgres(
                     ).map { row ->
                         val dbIdent = Ident(row.string("ident"))
                         val rettighetstatuser = session.rettighetstatusFor(dbIdent)
-                        val behandlinger = session.behandlingerFor(dbIdent)
+                        val behandlinger = behandlingRepository.hentBehandlinger(dbIdent)
                         logger.info { "Hentet person med ${behandlinger.size} behandlinger" }
                         Metrikk.registrerAntallBehandlinger(behandlinger.size)
                         Person(dbIdent, behandlinger, rettighetstatuser)
@@ -80,22 +79,6 @@ class PersonRepositoryPostgres(
                     ).map { row -> row.intOrNull(1) ?: 0 }.asSingle,
                 ) == 1
         }
-
-    private fun Session.behandlingerFor(ident: Ident): List<Behandlingkjede> {
-        val behandlingIder =
-            this.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    SELECT behandling_id FROM person_behandling WHERE ident IN (:ident) 
-                    """.trimIndent(),
-                    mapOf("ident" to ident.alleIdentifikatorer().first()),
-                ).map { row ->
-                    row.uuid("behandling_id")
-                }.asList,
-            )
-        return behandlingRepository.hentBehandlinger(behandlingIder)
-    }
 
     private fun Session.rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         this

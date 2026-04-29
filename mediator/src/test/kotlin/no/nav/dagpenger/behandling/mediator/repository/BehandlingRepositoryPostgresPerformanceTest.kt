@@ -5,6 +5,9 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.Person
+import no.nav.dagpenger.behandling.modell.somKjede
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
@@ -78,6 +81,22 @@ class BehandlingRepositoryPostgresPerformanceTest {
             }
     }
 
+    private fun opprettKjede(
+        behandlingRepositoryPostgres: BehandlingRepositoryPostgres,
+        behandlinger: List<Behandling>,
+    ) {
+        val personRepositoryPostgres = PersonRepositoryPostgres(behandlingRepositoryPostgres)
+
+        val kjeder =
+            behandlinger
+                .groupBy { it.behandlingskjedeId }
+                .map { (_, behandlingskjede) -> behandlingskjede.somKjede() }
+
+        Person(Ident(ident), kjeder).also {
+            personRepositoryPostgres.lagre(it)
+        }
+    }
+
     @Test
     fun `performance test - lagre og hent behandling med mange opplysninger i lang kjede`() {
         val antallBehandlingerIKjede = 10
@@ -90,42 +109,40 @@ class BehandlingRepositoryPostgresPerformanceTest {
             registrerRegelverk(opplysningerRepository, opplysningstyper.toSet())
             val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
 
-            val behandlinger = mutableListOf<Behandling>()
-
             // Lag kjede av behandlinger, hver med mange opplysninger
+            var forrigeBehandling: Behandling? = null
+            val behandlinger =
+                (0 until antallBehandlingerIKjede).map { behandlingNummer ->
+                    val søknadId = UUIDv7.ny()
+                    val hendelse = lagSøknadHendelse(søknadId)
+
+                    // Start med tomme opplysninger og legg til via leggTil()
+                    val opplysninger = Opplysninger()
+                    leggTilOpplysninger(opplysninger, behandlingNummer, antallOpplysningerPerBehandling)
+
+                    Behandling
+                        .rehydrer(
+                            behandlingId = UUIDv7.ny(),
+                            behandler = hendelse,
+                            gjeldendeOpplysninger = opplysninger,
+                            basertPå = forrigeBehandling,
+                            opprettet = LocalDateTime.now(),
+                            tilstand =
+                                if (behandlingNummer < antallBehandlingerIKjede - 1) {
+                                    Behandling.TilstandType.Ferdig
+                                } else {
+                                    Behandling.TilstandType.UnderBehandling
+                                },
+                            sistEndretTilstand = LocalDateTime.now(),
+                            avklaringer = emptyList(),
+                        ).also {
+                            forrigeBehandling = it
+                        }
+                }
+
             val lagreTid =
                 measureTimeMillis {
-                    var forrigeBehandling: Behandling? = null
-
-                    repeat(antallBehandlingerIKjede) { behandlingNummer ->
-                        val søknadId = UUIDv7.ny()
-                        val hendelse = lagSøknadHendelse(søknadId)
-
-                        // Start med tomme opplysninger og legg til via leggTil()
-                        val opplysninger = Opplysninger()
-                        leggTilOpplysninger(opplysninger, behandlingNummer, antallOpplysningerPerBehandling)
-
-                        val behandling =
-                            Behandling.rehydrer(
-                                behandlingId = UUIDv7.ny(),
-                                behandler = hendelse,
-                                gjeldendeOpplysninger = opplysninger,
-                                basertPå = forrigeBehandling,
-                                opprettet = LocalDateTime.now(),
-                                tilstand =
-                                    if (behandlingNummer < antallBehandlingerIKjede - 1) {
-                                        Behandling.TilstandType.Ferdig
-                                    } else {
-                                        Behandling.TilstandType.UnderBehandling
-                                    },
-                                sistEndretTilstand = LocalDateTime.now(),
-                                avklaringer = emptyList(),
-                            )
-
-                        behandlingRepository.lagre(behandling)
-                        behandlinger.add(behandling)
-                        forrigeBehandling = behandling
-                    }
+                    opprettKjede(behandlingRepository, behandlinger)
                 }
 
             println("\n=== Performance Resultater ===")
@@ -204,47 +221,46 @@ class BehandlingRepositoryPostgresPerformanceTest {
                     avklaringer = emptyList(),
                 )
 
-            behandlingRepository.lagre(rotBehandling)
-
             val alleBehandlinger = mutableListOf(rotBehandling)
+
+            repeat(antallKjeder) { kjedeNummer ->
+                var forrigeBehandling: Behandling = rotBehandling
+
+                repeat(antallBehandlingerPerKjede) { behandlingNummer ->
+                    val søknadId = UUIDv7.ny()
+                    val hendelse = lagSøknadHendelse(søknadId)
+                    val opplysninger = Opplysninger()
+                    leggTilOpplysninger(
+                        opplysninger,
+                        kjedeNummer * 1000 + behandlingNummer,
+                        antallOpplysningerPerBehandling,
+                    )
+
+                    val behandling =
+                        Behandling.rehydrer(
+                            behandlingId = UUIDv7.ny(),
+                            behandler = hendelse,
+                            gjeldendeOpplysninger = opplysninger,
+                            basertPå = forrigeBehandling,
+                            opprettet = LocalDateTime.now(),
+                            tilstand =
+                                if (behandlingNummer < antallBehandlingerPerKjede - 1) {
+                                    Behandling.TilstandType.Ferdig
+                                } else {
+                                    Behandling.TilstandType.UnderBehandling
+                                },
+                            sistEndretTilstand = LocalDateTime.now(),
+                            avklaringer = emptyList(),
+                        )
+
+                    alleBehandlinger.add(behandling)
+                    forrigeBehandling = behandling
+                }
+            }
 
             val lagreTid =
                 measureTimeMillis {
-                    repeat(antallKjeder) { kjedeNummer ->
-                        var forrigeBehandling: Behandling = rotBehandling
-
-                        repeat(antallBehandlingerPerKjede) { behandlingNummer ->
-                            val søknadId = UUIDv7.ny()
-                            val hendelse = lagSøknadHendelse(søknadId)
-                            val opplysninger = Opplysninger()
-                            leggTilOpplysninger(
-                                opplysninger,
-                                kjedeNummer * 1000 + behandlingNummer,
-                                antallOpplysningerPerBehandling,
-                            )
-
-                            val behandling =
-                                Behandling.rehydrer(
-                                    behandlingId = UUIDv7.ny(),
-                                    behandler = hendelse,
-                                    gjeldendeOpplysninger = opplysninger,
-                                    basertPå = forrigeBehandling,
-                                    opprettet = LocalDateTime.now(),
-                                    tilstand =
-                                        if (behandlingNummer < antallBehandlingerPerKjede - 1) {
-                                            Behandling.TilstandType.Ferdig
-                                        } else {
-                                            Behandling.TilstandType.UnderBehandling
-                                        },
-                                    sistEndretTilstand = LocalDateTime.now(),
-                                    avklaringer = emptyList(),
-                                )
-
-                            behandlingRepository.lagre(behandling)
-                            alleBehandlinger.add(behandling)
-                            forrigeBehandling = behandling
-                        }
-                    }
+                    opprettKjede(behandlingRepository, alleBehandlinger)
                 }
 
             println("\n=== Performance Resultater (Parallelle Kjeder) ===")

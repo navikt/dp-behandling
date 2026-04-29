@@ -56,7 +56,7 @@ interface BehandlingRepository :
     ): Behandling?
 
     @WithSpan
-    fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede>
+    fun hentBehandlinger(ident: Ident): List<Behandlingkjede>
 
     @WithSpan
     fun flyttBehandling(
@@ -64,9 +64,6 @@ interface BehandlingRepository :
         behandlingId: UUID,
         nyBasertPåId: UUID? = null,
     )
-
-    @WithSpan
-    fun lagre(behandling: Behandling)
 
     @WithSpan
     fun lagre(

@@ -10,6 +10,7 @@ import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPos
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandlingkjede
+import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
@@ -36,12 +37,10 @@ internal class BehandlingRepositoryPostgres(
             }
         }
 
-    override fun hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede> {
-        if (behandlingIder.isEmpty()) return emptyList()
-        return sessionOf(dataSource).use { session ->
-            session.hentBehandlinger(behandlingIder)
+    override fun hentBehandlinger(ident: Ident): List<Behandlingkjede> =
+        sessionOf(dataSource).use { session ->
+            session.hentBehandlinger(HentBehandling.AlleForIdent(ident))
         }
-    }
 
     override fun flyttBehandling(
         behandlingId: UUID,
@@ -63,39 +62,91 @@ internal class BehandlingRepositoryPostgres(
 
     private fun Session.hentBehandling(behandlingId: UUID): Behandling? {
         // når vi henter en enkelt behandling så får vi maksimalt én kjede tilbake
-        val kjede = hentBehandlinger(listOf(behandlingId)).singleOrNull() ?: return null
+        val kjede = hentBehandlinger(HentBehandling.Behandling(behandlingId)).singleOrNull() ?: return null
         return kjede.single { it.behandlingId == behandlingId }
     }
 
-    private fun Session.lagBehandlingRad(behandlingIder: List<UUID>): List<BehandlingRad> {
+    private fun byggCTEForIdent(ident: Ident): Pair<String, Map<String, Any>> {
+        // language=PostgreSQL
+        val cte =
+            """
+            with recursive behandlingkjede as (
+                -- rotbehandlinger, de som ikke peker på noen andre
+                select b.behandling_id, b.basert_på_behandling_id, 0 as dybde
+                from behandling b
+                inner join person_behandling pb on pb.behandling_id = b.behandling_id 
+                where pb.ident = ANY(:identer) and b.basert_på_behandling_id is null
+                
+                union all
+                -- rekursive behandlinger. avstanden øker jo lenger fremover i kjeden vi går
+                select r.behandling_id, r.basert_på_behandling_id, bk.dybde + 1
+                from behandling r
+                join behandlingkjede bk on bk.behandling_id = r.basert_på_behandling_id
+            )
+            """.trimIndent()
+
+        return cte to mapOf("identer" to ident.alleIdentifikatorer().toTypedArray())
+    }
+
+    private fun byggCTEForBehandling(behandlingId: UUID): Pair<String, Map<String, Any>> {
+        // language=PostgreSQL
+        val cte =
+            """
+            with recursive behandlingkjede as (
+                select behandling_id, basert_på_behandling_id, 0 as dybde
+                from behandling
+                where behandling_id = :behandlingId
+            
+                union all
+            
+                -- rekursive behandlinger. avstanden minsker jo lenger bakover i kjeden vi beveger oss, slik at roten har lavest dybde
+                select r.behandling_id, r.basert_på_behandling_id, bk.dybde - 1
+                from behandling r
+                join behandlingkjede bk on bk.basert_på_behandling_id = r.behandling_id
+            )
+            """.trimIndent()
+        return cte to mapOf("behandlingId" to behandlingId)
+    }
+
+    private sealed interface HentBehandling {
+        data class AlleForIdent(
+            val ident: Ident,
+        ) : HentBehandling
+
+        data class Behandling(
+            val behandlingId: UUID,
+        ) : HentBehandling
+    }
+
+    private fun Session.lagBehandlingRad(valg: HentBehandling): List<BehandlingRad> {
         // Finn basertPå-relasjoner for disse IDene og sorterer dem
         // topologisk slik at den første/eldste behandlingen i kjeden kommer først
+
+        val (cteForBehandlinger, params) =
+            when (valg) {
+                is HentBehandling.AlleForIdent -> byggCTEForIdent(valg.ident)
+                is HentBehandling.Behandling -> byggCTEForBehandling(valg.behandlingId)
+            }
+
         val alleBehandlingIder =
             this
                 .run(
                     queryOf(
                         // language=PostgreSQL
                         """
-                        with recursive behandlingkjede as (
-                            -- ankerbehandlinger
-                            select behandling_id, basert_på_behandling_id, 0 as dybde
-                            from behandling
-                            where behandling_id = ANY(:ider)
-                            
-                            union
-                            -- rekursive behandlinger
-                            select r.behandling_id, r.basert_på_behandling_id, bk.dybde + 1
-                            from behandling r
-                            join behandlingkjede bk on bk.basert_på_behandling_id = r.behandling_id
-                        )
+                        $cteForBehandlinger
                         
                         select behandling_id, basert_på_behandling_id 
                         from behandlingkjede
-                        order by dybde desc
+                        order by dybde
                         """.trimIndent(),
-                        mapOf("ider" to behandlingIder.toTypedArray()),
+                        params,
                     ).map { row -> row.uuidOrNull("behandling_id") }.asList,
-                ).toSet()
+                ).let { liste ->
+                    liste.toSet().also { sett ->
+                        check(liste.size == sett.size) { "spørringen forventer at det ikke er duplikater" }
+                    }
+                }
 
         val behandlingRader =
             this
@@ -159,10 +210,8 @@ internal class BehandlingRepositoryPostgres(
         return arbeidsstegMap
     }
 
-    private fun Session.hentBehandlinger(behandlingIder: List<UUID>): List<Behandlingkjede> {
-        if (behandlingIder.isEmpty()) return emptyList()
-
-        val behandlingRader = lagBehandlingRad(behandlingIder)
+    private fun Session.hentBehandlinger(valg: HentBehandling): List<Behandlingkjede> {
+        val behandlingRader = lagBehandlingRad(valg)
         val alleBehandlingIder = behandlingRader.map { it.behandlingId }.toSet()
 
         val arbeidsstegMap = lagArbeidsstegMap(alleBehandlingIder)
@@ -247,12 +296,6 @@ internal class BehandlingRepositoryPostgres(
         val sistEndretTilstand: java.time.LocalDateTime,
         val basertPåBehandlingId: UUID?,
     )
-
-    override fun lagre(behandling: Behandling) {
-        val unitOfWork = PostgresUnitOfWork.transaction()
-        lagre(behandling, unitOfWork)
-        unitOfWork.commit()
-    }
 
     override fun lagre(
         behandling: Behandling,
