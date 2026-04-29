@@ -6,6 +6,7 @@ import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
+import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
 import java.util.UUID
@@ -27,16 +28,43 @@ class BrevBygger(
                 .filter { it.plassering == Plassering.OVERSKRIFT }
                 .joinToString(" ") { kontekst.interpoler(it.tekst) }
 
-        val seksjoner =
-            aktiveMaltekster
-                .filter { it.plassering != Plassering.OVERSKRIFT }
-                .groupBy { it.plassering }
-                .map { (plassering, tekster) ->
+        // Grupper maltekster til seksjoner. Maltekster med tittel starter en ny seksjon.
+        val seksjoner = mutableListOf<Brevseksjon>()
+        var gjeldendePlassering: Plassering? = null
+        var gjeldendeTittel: String? = null
+        var gjeldendeTekster = mutableListOf<String>()
+
+        for (maltekst in aktiveMaltekster.filter { it.plassering != Plassering.OVERSKRIFT }) {
+            val harNyTittel = maltekst.tittel != null
+            val nyPlassering = maltekst.plassering != gjeldendePlassering
+
+            if ((harNyTittel || nyPlassering) && gjeldendeTekster.isNotEmpty()) {
+                seksjoner.add(
                     Brevseksjon(
-                        plassering = plassering,
-                        innhold = tekster.map { kontekst.interpoler(it.tekst) },
-                    )
-                }
+                        plassering = gjeldendePlassering!!,
+                        tittel = gjeldendeTittel,
+                        innhold = gjeldendeTekster.toList(),
+                    ),
+                )
+                gjeldendeTekster = mutableListOf()
+            }
+
+            if (harNyTittel || nyPlassering) {
+                gjeldendeTittel = maltekst.tittel?.let { kontekst.interpoler(it) }
+            }
+            gjeldendePlassering = maltekst.plassering
+            gjeldendeTekster.add(kontekst.interpoler(maltekst.tekst))
+        }
+
+        if (gjeldendeTekster.isNotEmpty() && gjeldendePlassering != null) {
+            seksjoner.add(
+                Brevseksjon(
+                    plassering = gjeldendePlassering,
+                    tittel = gjeldendeTittel,
+                    innhold = gjeldendeTekster.toList(),
+                ),
+            )
+        }
 
         return Brev(
             overskrift = overskrift,
@@ -58,10 +86,15 @@ internal class BrevKontekst(
         when (trigger) {
             is Trigger.Alltid -> true
             is Trigger.Avgjørelse -> resultat.førteTil.value.equals(trigger.avgjørelse, ignoreCase = true)
-            is Trigger.OpplysningFinnes -> trigger.opplysningsTypeId in opplysningerMap
+            is Trigger.OpplysningFinnes -> {
+                val opplysning = opplysningerMap[trigger.opplysningsTypeId]
+                opplysning != null && (!trigger.kunNyeOpplysninger || harNyePerioder(opplysning))
+            }
             is Trigger.OpplysningVerdi -> {
                 val opplysning = opplysningerMap[trigger.opplysningsTypeId]
-                opplysning != null && sisteVerdi(opplysning) == trigger.forventetVerdi
+                opplysning != null &&
+                    sisteVerdi(opplysning) == trigger.forventetVerdi &&
+                    (!trigger.kunNyeOpplysninger || harNyePerioder(opplysning))
             }
         }
 
@@ -70,6 +103,8 @@ internal class BrevKontekst(
             val nøkkel = match.groupValues[1]
             oppslåVerdi(nøkkel) ?: match.value
         }
+
+    private fun harNyePerioder(opplysning: OpplysningerDTO): Boolean = opplysning.perioder.any { it.opprinnelse == OpprinnelseDTO.NY }
 
     private fun oppslåVerdi(nøkkel: String): String? =
         when (nøkkel.lowercase()) {
