@@ -21,6 +21,7 @@ sealed interface Trigger {
     data class OpplysningFinnes(
         val opplysningsTypeId: UUID,
         val kunNyeOpplysninger: Boolean = false,
+        val periodeType: PeriodeType? = null,
     ) : Trigger
 
     data class OpplysningVerdi(
@@ -28,4 +29,19 @@ sealed interface Trigger {
         val forventetVerdi: String,
         val kunNyeOpplysninger: Boolean = false,
     ) : Trigger
+}
+
+/**
+ * Beskriver periodestrukturen til en opplysning.
+ * Brukes for å trigge ulike maltekster basert på om perioden er åpen, lukket, eller om det er flere perioder.
+ */
+enum class PeriodeType {
+    /** Kun fraOgMed — åpen, løpende rett */
+    ÅPEN,
+
+    /** Én periode med både fraOgMed og tilOgMed */
+    LUKKET,
+
+    /** Flere perioder — saksbehandler må skrive selv */
+    FLERE,
 }

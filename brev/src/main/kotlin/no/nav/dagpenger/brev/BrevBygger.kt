@@ -88,7 +88,9 @@ internal class BrevKontekst(
             is Trigger.Avgjørelse -> resultat.førteTil.value.equals(trigger.avgjørelse, ignoreCase = true)
             is Trigger.OpplysningFinnes -> {
                 val opplysning = opplysningerMap[trigger.opplysningsTypeId]
-                opplysning != null && (!trigger.kunNyeOpplysninger || harNyePerioder(opplysning))
+                opplysning != null &&
+                    (!trigger.kunNyeOpplysninger || harNyePerioder(opplysning)) &&
+                    (trigger.periodeType == null || matcherPeriodeType(opplysning, trigger.periodeType))
             }
             is Trigger.OpplysningVerdi -> {
                 val opplysning = opplysningerMap[trigger.opplysningsTypeId]
@@ -104,10 +106,33 @@ internal class BrevKontekst(
             oppslåVerdi(nøkkel) ?: match.value
         }
 
+    private fun matcherPeriodeType(
+        opplysning: OpplysningerDTO,
+        periodeType: PeriodeType,
+    ): Boolean {
+        val perioder = opplysning.perioder
+        return when (periodeType) {
+            PeriodeType.ÅPEN -> perioder.size == 1 && perioder[0].gyldigTilOgMed == null
+            PeriodeType.LUKKET -> perioder.size == 1 && perioder[0].gyldigTilOgMed != null
+            PeriodeType.FLERE -> perioder.size > 1
+        }
+    }
+
     private fun harNyePerioder(opplysning: OpplysningerDTO): Boolean = opplysning.perioder.any { it.opprinnelse == OpprinnelseDTO.NY }
 
-    private fun oppslåVerdi(nøkkel: String): String? =
-        when (nøkkel.lowercase()) {
+    private fun oppslåVerdi(nøkkel: String): String? {
+        // Støtter "opplysningsnavn.fraOgMed" og "opplysningsnavn.tilOgMed"
+        if ("." in nøkkel) {
+            val (navn, felt) = nøkkel.split(".", limit = 2)
+            val opplysning = opplysningerNavnMap[navn] ?: return null
+            val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
+            return when (felt.lowercase()) {
+                "fraogmed", "fra", "gyldigfraogmed" -> sistePeriode.gyldigFraOgMed?.toString()
+                "tilogmed", "til", "gyldigtilogmed" -> sistePeriode.gyldigTilOgMed?.toString()
+                else -> null
+            }
+        }
+        return when (nøkkel.lowercase()) {
             "avgjørelse" -> resultat.førteTil.value
             "ident" -> resultat.ident
             else -> {
@@ -115,6 +140,7 @@ internal class BrevKontekst(
                 opplysning?.let { sisteVerdi(it) }
             }
         }
+    }
 
     private fun sisteVerdi(opplysning: OpplysningerDTO): String? {
         val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
