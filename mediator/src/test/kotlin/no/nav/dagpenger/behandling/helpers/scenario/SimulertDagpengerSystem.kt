@@ -102,7 +102,7 @@ internal class SimulertDagpengerSystem(
 
     val rapidInspektør get() = rapid.inspektør
 
-    fun behandlingsresultatForslag(
+    inline fun behandlingsresultatForslag(
         nummer: Int? = null,
         block: BehandlingsresultatAssertions.() -> Unit,
     ) {
@@ -115,7 +115,7 @@ internal class SimulertDagpengerSystem(
         BehandlingsresultatAssertions(forslag.second).block()
     }
 
-    fun behandlingsresultat(
+    inline fun behandlingsresultat(
         nummer: Int? = null,
         block: BehandlingsresultatAssertions.() -> Unit,
     ) {
@@ -142,7 +142,7 @@ internal class SimulertDagpengerSystem(
         val ordinær: Boolean = false,
         var verneplikt: Boolean = false,
     ) {
-        fun test(block: SimulertDagpengerSystem.() -> Unit) {
+        inline fun test(block: SimulertDagpengerSystem.() -> Unit) {
             Postgres.withMigratedDb {
                 val test = SimulertDagpengerSystem(this)
                 test.opprettPerson(ident)

@@ -12,7 +12,7 @@ internal object Postgres {
         }
     }
 
-    fun withMigratedDb(block: () -> Unit) {
+    inline fun withMigratedDb(block: () -> Unit) {
         withCleanDb {
             PostgresDataSourceBuilder.runMigration()
             block()
@@ -49,7 +49,7 @@ internal object Postgres {
         System.clearProperty(ConfigUtils.CLEAN_DISABLED)
     }
 
-    fun withCleanDb(block: () -> Unit) {
+    inline fun withCleanDb(block: () -> Unit) {
         setup()
         PostgresDataSourceBuilder
             .clean()
