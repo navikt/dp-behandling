@@ -20,10 +20,12 @@ sealed interface Trigger {
 
     data class OpplysningFinnes(
         val opplysningsTypeId: UUID,
+        val kunNyeOpplysninger: Boolean = false,
     ) : Trigger
 
     data class OpplysningVerdi(
         val opplysningsTypeId: UUID,
         val forventetVerdi: String,
+        val kunNyeOpplysninger: Boolean = false,
     ) : Trigger
 }

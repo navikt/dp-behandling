@@ -7,5 +7,6 @@ data class Brev(
 
 data class Brevseksjon(
     val plassering: Plassering,
+    val tittel: String? = null,
     val innhold: List<String>,
 )
