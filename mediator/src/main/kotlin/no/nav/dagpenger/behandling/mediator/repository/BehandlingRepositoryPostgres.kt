@@ -128,7 +128,7 @@ internal class BehandlingRepositoryPostgres(
                 is HentBehandling.Behandling -> byggCTEForBehandling(valg.behandlingId)
             }
 
-        val alleBehandlingIder =
+        val behandlingRader =
             this
                 .run(
                     queryOf(
@@ -136,32 +136,15 @@ internal class BehandlingRepositoryPostgres(
                         """
                         $cteForBehandlinger
                         
-                        select behandling_id, basert_på_behandling_id 
-                        from behandlingkjede
+                        select b.*, bhb.*, bh.*, bo.*
+                        from behandlingkjede bk
+                        inner join behandling b on bk.behandling_id = b.behandling_id
+                        left join behandler_hendelse_behandling bhb on b.behandling_id = bhb.behandling_id
+                        left join behandler_hendelse bh on bh.melding_id = bhb.melding_id
+                        left join behandling_opplysninger bo on b.behandling_id = bo.behandling_id     
                         order by dybde
                         """.trimIndent(),
                         params,
-                    ).map { row -> row.uuidOrNull("behandling_id") }.asList,
-                ).let { liste ->
-                    liste.toSet().also { sett ->
-                        check(liste.size == sett.size) { "spørringen forventer at det ikke er duplikater" }
-                    }
-                }
-
-        val behandlingRader =
-            this
-                .run(
-                    queryOf(
-                        // language=PostgreSQL
-                        """
-                        SELECT *  
-                        FROM behandling 
-                        LEFT JOIN behandler_hendelse_behandling ON behandling.behandling_id = behandler_hendelse_behandling.behandling_id
-                        LEFT JOIN behandler_hendelse ON behandler_hendelse.melding_id = behandler_hendelse_behandling.melding_id
-                        LEFT JOIN behandling_opplysninger ON behandling.behandling_id = behandling_opplysninger.behandling_id                    
-                        WHERE behandling.behandling_id = ANY(:ider) 
-                        """.trimIndent(),
-                        mapOf("ider" to alleBehandlingIder.toTypedArray()),
                     ).map { row ->
                         BehandlingRad(
                             behandlingId = row.uuid("behandling_id"),
@@ -179,7 +162,10 @@ internal class BehandlingRepositoryPostgres(
                             basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
                         )
                     }.asList,
-                ).sortedBy { alleBehandlingIder.indexOf(it.behandlingId) }
+                ).also { liste ->
+                    val unike = liste.distinctBy { it.behandlingId }
+                    check(liste.size == unike.size) { "spørringen forventer at det ikke er duplikater" }
+                }
         return behandlingRader
     }
 
