@@ -1,0 +1,29 @@
+package no.nav.dagpenger.brev
+
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import java.util.UUID
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(value = Trigger.Alltid::class, name = "alltid"),
+    JsonSubTypes.Type(value = Trigger.Avgjørelse::class, name = "avgjørelse"),
+    JsonSubTypes.Type(value = Trigger.OpplysningFinnes::class, name = "opplysning_finnes"),
+    JsonSubTypes.Type(value = Trigger.OpplysningVerdi::class, name = "opplysning_verdi"),
+)
+sealed interface Trigger {
+    data object Alltid : Trigger
+
+    data class Avgjørelse(
+        val avgjørelse: String,
+    ) : Trigger
+
+    data class OpplysningFinnes(
+        val opplysningsTypeId: UUID,
+    ) : Trigger
+
+    data class OpplysningVerdi(
+        val opplysningsTypeId: UUID,
+        val forventetVerdi: String,
+    ) : Trigger
+}
