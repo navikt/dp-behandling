@@ -21,23 +21,32 @@ interface Makro {
     fun parser(argumentStreng: String): MakroKall?
 
     /**
-     * Utfører makroen på en opplysningsverdi (første i kjeden).
-     * [verdi] er råverdien fra opplysningen.
+     * Utfører makroen på en opplysningskontekst (første i kjeden).
+     * [kontekst] inneholder råverdien og periodedata.
      */
     fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
     ): String?
 
     /**
      * Utfører makroen på en streng (ved kjeding).
-     * Default-implementasjon delegerer til [utfør] med strengen som verdi.
+     * Default-implementasjon prøver å utføre med strengen som verdi.
      */
     fun utførPåStreng(
         verdi: String,
         kall: MakroKall,
-    ): String? = utfør(verdi, kall)
+    ): String? = utfør(OpplysningMakroKontekst(verdi = verdi), kall)
 }
+
+/**
+ * Kontekst som sendes til makroer — inneholder opplysningens verdi og periodedata.
+ */
+data class OpplysningMakroKontekst(
+    val verdi: Any,
+    val gyldigFraOgMed: LocalDate? = null,
+    val gyldigTilOgMed: LocalDate? = null,
+)
 
 /** Representerer et parset makrokall med eventuelle argumenter */
 sealed interface MakroKall
@@ -57,15 +66,15 @@ object MånedÅrMakro : Makro {
     }
 
     override fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
     ): String? {
-        val dato = verdi as? LocalDate ?: return null
+        val dato = kontekst.verdi as? LocalDate ?: return null
         val offset = (kall as MånedOffset).offset
         return dato.plusMonths(offset).format(NORSK_MÅNED_ÅR)
     }
 
-    private val NORSK_MÅNED_ÅR = DateTimeFormatter.ofPattern("MMMM yyyy", Locale("nb", "NO"))
+    private val NORSK_MÅNED_ÅR = DateTimeFormatter.ofPattern("MMMM yyyy", NB_NO)
 }
 
 object DatoMakro : Makro {
@@ -77,15 +86,15 @@ object DatoMakro : Makro {
     }
 
     override fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
     ): String? {
-        val dato = verdi as? LocalDate ?: return null
+        val dato = kontekst.verdi as? LocalDate ?: return null
         val offset = (kall as MånedOffset).offset
         return dato.plusMonths(offset).format(NORSK_DATO)
     }
 
-    private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale("nb", "NO"))
+    private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", NB_NO)
 }
 
 object PlussDagerMakro : Makro {
@@ -97,10 +106,10 @@ object PlussDagerMakro : Makro {
     }
 
     override fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
     ): String? {
-        val dato = verdi as? LocalDate ?: return null
+        val dato = kontekst.verdi as? LocalDate ?: return null
         val dager = (kall as DagerOffset).dager
         return dato.plusDays(dager).format(NORSK_DATO)
     }
@@ -109,7 +118,7 @@ object PlussDagerMakro : Makro {
         val dager: Long,
     ) : MakroKall
 
-    private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale("nb", "NO"))
+    private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", NB_NO)
 }
 
 object PlussUkerMakro : Makro {
@@ -121,10 +130,10 @@ object PlussUkerMakro : Makro {
     }
 
     override fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
     ): String? {
-        val dato = verdi as? LocalDate ?: return null
+        val dato = kontekst.verdi as? LocalDate ?: return null
         val uker = (kall as UkerOffset).uker
         return dato.plusWeeks(uker).format(NORSK_DATO)
     }
@@ -133,7 +142,35 @@ object PlussUkerMakro : Makro {
         val uker: Long,
     ) : MakroKall
 
-    private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale("nb", "NO"))
+    private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", NB_NO)
+}
+
+// --- Periode-makroer ---
+
+object FraOgMedMakro : Makro {
+    override val navn = setOf("fraogmed", "fra")
+
+    override fun parser(argumentStreng: String): MakroKall? = if (argumentStreng.isBlank()) IngenArgument else null
+
+    override fun utfør(
+        kontekst: OpplysningMakroKontekst,
+        kall: MakroKall,
+    ): String? = kontekst.gyldigFraOgMed?.format(NORSK_DATO)
+
+    private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", NB_NO)
+}
+
+object TilOgMedMakro : Makro {
+    override val navn = setOf("tilogmed", "til")
+
+    override fun parser(argumentStreng: String): MakroKall? = if (argumentStreng.isBlank()) IngenArgument else null
+
+    override fun utfør(
+        kontekst: OpplysningMakroKontekst,
+        kall: MakroKall,
+    ): String? = kontekst.gyldigTilOgMed?.format(NORSK_DATO)
+
+    private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", NB_NO)
 }
 
 // --- Tekst-makroer ---
@@ -146,9 +183,9 @@ object StorFørsteBokstavMakro : Makro {
     override fun parser(argumentStreng: String): MakroKall? = if (argumentStreng.isBlank()) IngenArgument else null
 
     override fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
-    ): String? = verdi.toString().replaceFirstChar { it.uppercase(NB_NO) }
+    ): String = kontekst.verdi.toString().replaceFirstChar { it.uppercase(NB_NO) }
 
     override fun utførPåStreng(
         verdi: String,
@@ -162,9 +199,9 @@ object StorBokstavMakro : Makro {
     override fun parser(argumentStreng: String): MakroKall? = if (argumentStreng.isBlank()) IngenArgument else null
 
     override fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
-    ): String? = verdi.toString().uppercase(NB_NO)
+    ): String = kontekst.verdi.toString().uppercase(NB_NO)
 
     override fun utførPåStreng(
         verdi: String,
@@ -178,9 +215,9 @@ object LitenBokstavMakro : Makro {
     override fun parser(argumentStreng: String): MakroKall? = if (argumentStreng.isBlank()) IngenArgument else null
 
     override fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
-    ): String? = verdi.toString().lowercase(NB_NO)
+    ): String = kontekst.verdi.toString().lowercase(NB_NO)
 
     override fun utførPåStreng(
         verdi: String,
@@ -211,11 +248,11 @@ object VelgMakro : Makro {
     }
 
     override fun utfør(
-        verdi: Any,
+        kontekst: OpplysningMakroKontekst,
         kall: MakroKall,
     ): String? {
         val mappinger = (kall as VelgKall).mappinger
-        return mappinger[verdi.toString()]
+        return mappinger[kontekst.verdi.toString()]
     }
 
     override fun utførPåStreng(
@@ -241,6 +278,8 @@ val standardMakroer: List<Makro> =
         DatoMakro,
         PlussDagerMakro,
         PlussUkerMakro,
+        FraOgMedMakro,
+        TilOgMedMakro,
         StorFørsteBokstavMakro,
         StorBokstavMakro,
         LitenBokstavMakro,

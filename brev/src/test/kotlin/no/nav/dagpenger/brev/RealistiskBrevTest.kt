@@ -63,15 +63,15 @@ class RealistiskBrevTest {
                     // Innledning — periodebasert (innvilgelse)
                     Maltekst(
                         trigger = Trigger.OpplysningFinnes(harLøpendeRettId, periodeType = PeriodeType.ÅPEN),
-                        tekst = "Du får dagpenger fra og med {{Har løpende rett.fraOgMed}}.",
+                        tekst = "Du får dagpenger fra og med {{Har løpende rett | fraOgMed()}}.",
                         plassering = Plassering.INNLEDNING,
                         rekkefølge = 1,
                     ),
                     Maltekst(
                         trigger = Trigger.OpplysningFinnes(harLøpendeRettId, periodeType = PeriodeType.LUKKET),
                         tekst =
-                            "Du får dagpenger fra og med {{Har løpende rett.fraOgMed}} " +
-                                "til og med {{Har løpende rett.tilOgMed}}.",
+                            "Du får dagpenger fra og med {{Har løpende rett | fraOgMed()}} " +
+                                "til og med {{Har løpende rett | tilOgMed()}}.",
                         plassering = Plassering.INNLEDNING,
                         rekkefølge = 1,
                     ),

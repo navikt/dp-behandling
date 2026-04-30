@@ -143,8 +143,8 @@ internal class BrevKontekst(
         for ((index, makroStr) in makroUttrykk.withIndex()) {
             val (makro, kall) = finnMakro(makroStr) ?: return null
             if (index == 0) {
-                val råverdi = oppslåRåverdi(nøkkel) ?: return null
-                resultat = makro.utfør(råverdi, kall)
+                val kontekst = oppslåKontekst(nøkkel) ?: return null
+                resultat = makro.utfør(kontekst, kall)
             } else {
                 resultat = resultat?.let { makro.utførPåStreng(it, kall) }
             }
@@ -163,28 +163,24 @@ internal class BrevKontekst(
         return makro to kall
     }
 
-    private fun oppslåRåverdi(nøkkel: String): Any? {
-        if ("." in nøkkel) {
-            val (navn, felt) = nøkkel.split(".", limit = 2)
-            val opplysning = opplysningerNavnMap[navn] ?: return null
-            val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
-            return when (felt.lowercase()) {
-                "fraogmed", "fra", "gyldigfraogmed" -> sistePeriode.gyldigFraOgMed
-                "tilogmed", "til", "gyldigtilogmed" -> sistePeriode.gyldigTilOgMed
-                else -> null
-            }
-        }
+    private fun oppslåKontekst(nøkkel: String): OpplysningMakroKontekst? {
         val opplysning = opplysningerNavnMap[nøkkel] ?: return null
         val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
-        return when (val verdi = sistePeriode.verdi) {
-            is BoolskVerdiDTO -> verdi.verdi
-            is DatoVerdiDTO -> verdi.verdi
-            is DesimaltallVerdiDTO -> verdi.verdi
-            is HeltallVerdiDTO -> verdi.verdi
-            is PengeVerdiDTO -> verdi.verdi
-            is TekstVerdiDTO -> verdi.verdi
-            else -> verdi.toString()
-        }
+        val verdi =
+            when (val v = sistePeriode.verdi) {
+                is BoolskVerdiDTO -> v.verdi
+                is DatoVerdiDTO -> v.verdi
+                is DesimaltallVerdiDTO -> v.verdi
+                is HeltallVerdiDTO -> v.verdi
+                is PengeVerdiDTO -> v.verdi
+                is TekstVerdiDTO -> v.verdi
+                else -> v.toString()
+            }
+        return OpplysningMakroKontekst(
+            verdi = verdi,
+            gyldigFraOgMed = sistePeriode.gyldigFraOgMed,
+            gyldigTilOgMed = sistePeriode.gyldigTilOgMed,
+        )
     }
 
     private fun matcherPeriodeType(
@@ -201,19 +197,8 @@ internal class BrevKontekst(
 
     private fun harNyePerioder(opplysning: OpplysningerDTO): Boolean = opplysning.perioder.any { it.opprinnelse == OpprinnelseDTO.NY }
 
-    private fun oppslåVerdi(nøkkel: String): String? {
-        // Støtter "opplysningsnavn.fraOgMed" og "opplysningsnavn.tilOgMed"
-        if ("." in nøkkel) {
-            val (navn, felt) = nøkkel.split(".", limit = 2)
-            val opplysning = opplysningerNavnMap[navn] ?: return null
-            val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
-            return when (felt.lowercase()) {
-                "fraogmed", "fra", "gyldigfraogmed" -> sistePeriode.gyldigFraOgMed?.let { formaterDato(it) }
-                "tilogmed", "til", "gyldigtilogmed" -> sistePeriode.gyldigTilOgMed?.let { formaterDato(it) }
-                else -> null
-            }
-        }
-        return when (nøkkel.lowercase()) {
+    private fun oppslåVerdi(nøkkel: String): String? =
+        when (nøkkel.lowercase()) {
             "avgjørelse" -> resultat.førteTil.value
             "ident" -> resultat.ident
             else -> {
@@ -221,7 +206,6 @@ internal class BrevKontekst(
                 opplysning?.let { sisteVerdi(it) }
             }
         }
-    }
 
     private fun sisteVerdi(opplysning: OpplysningerDTO): String? {
         val sistePeriode = opplysning.perioder.lastOrNull() ?: return null

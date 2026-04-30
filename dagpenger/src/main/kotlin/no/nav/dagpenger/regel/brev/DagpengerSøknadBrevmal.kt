@@ -69,7 +69,7 @@ val DagpengerBrevmal =
                             forventetVerdi = "true",
                             periodeType = PeriodeType.ÅPEN,
                         ),
-                    tekst = "Du får dagpenger fra og med {{Har løpende rett på dagpenger.fraOgMed}}.",
+                    tekst = "Du får dagpenger fra og med {{Har løpende rett på dagpenger | fraOgMed()}}.",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 1,
                 ),
@@ -81,8 +81,8 @@ val DagpengerBrevmal =
                             periodeType = PeriodeType.LUKKET,
                         ),
                     tekst =
-                        "Du får dagpenger fra og med {{Har løpende rett på dagpenger.fraOgMed}} " +
-                            "til og med {{Har løpende rett på dagpenger.tilOgMed}}.",
+                        "Du får dagpenger fra og med {{Har løpende rett på dagpenger | fraOgMed()}} " +
+                            "til og med {{Har løpende rett på dagpenger | tilOgMed()}}.",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 1,
                 ),
@@ -153,7 +153,7 @@ val DagpengerBrevmal =
                             periodeType = PeriodeType.ÅPEN,
                         ),
                     tekst =
-                        "**Derfor får du dagpenger fra {{Har løpende rett på dagpenger.fraOgMed}}**",
+                        "**Derfor får du dagpenger fra {{Har løpende rett på dagpenger | fraOgMed()}}**",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 6,
                 ),
@@ -165,7 +165,7 @@ val DagpengerBrevmal =
                             periodeType = PeriodeType.LUKKET,
                         ),
                     tekst =
-                        "**Derfor får du dagpenger fra {{Har løpende rett på dagpenger.fraOgMed}}**",
+                        "**Derfor får du dagpenger fra {{Har løpende rett på dagpenger | fraOgMed()}}**",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 6,
                 ),
@@ -265,7 +265,7 @@ val DagpengerBrevmal =
                     tittel = "Hvor lenge kan du få dagpenger?",
                     tekst =
                         "Du er innvilget dagpenger til og med " +
-                            "{{Har løpende rett på dagpenger.tilOgMed}}, " +
+                            "{{Har løpende rett på dagpenger | tilOgMed()}}, " +
                             "fordi du ikke lenger har rett til dagpenger etter denne datoen.\n\n" +
                             "Arbeidsinntekten din gir deg rett til en periode på maksimalt " +
                             "{{Antall stønadsuker (stønadsperiode)}} uker med dagpenger. " +
