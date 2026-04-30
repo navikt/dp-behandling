@@ -12,8 +12,7 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.brev.BrevBygger
 import no.nav.dagpenger.brev.MarkdownRenderer
 import no.nav.dagpenger.brev.Plassering
-import no.nav.dagpenger.regel.brev.DagpengerStansBrevmal
-import no.nav.dagpenger.regel.brev.DagpengerSøknadBrevmal
+import no.nav.dagpenger.regel.brev.DagpengerBrevmal
 import org.junit.jupiter.api.Test
 
 class BrevScenarioTest {
@@ -94,7 +93,7 @@ class BrevScenarioTest {
             saksbehandler.godkjenn()
 
             val resultatJson = behovsløsere.sisteBehandlingsresultat().second
-            val brev = byggStansBrev(resultatJson)
+            val brev = byggBrev(resultatJson)
 
             brev.shouldNotBeNull()
             brev.overskrift shouldBe "Nav har stanset dagpengene dine"
@@ -117,13 +116,8 @@ class BrevScenarioTest {
         }
     }
 
-    private fun byggStansBrev(resultatJson: JsonNode) =
-        BrevBygger(DagpengerStansBrevmal).bygg(
-            objectMapper.treeToValue<BehandlingsresultatDTO>(resultatJson),
-        )
-
     private fun byggBrev(resultatJson: JsonNode) =
-        BrevBygger(DagpengerSøknadBrevmal).bygg(
+        BrevBygger(DagpengerBrevmal).bygg(
             objectMapper.treeToValue<BehandlingsresultatDTO>(resultatJson),
         )
 }
