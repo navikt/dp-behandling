@@ -314,9 +314,9 @@ val DagpengerBrevmal =
 
                         Vi har registrert disse inntektene:
 
-                        - Periode 1: {{Inntektperiode 1}} kroner
-                        - Periode 2: {{Inntektperiode 2}} kroner
-                        - Periode 3: {{Inntektperiode 3}} kroner
+                        - {{Siste avsluttende kalendermåned | månedÅr(-11)}} - {{Siste avsluttende kalendermåned | månedÅr(0)}}: {{Inntektperiode 1}} kroner
+                        - {{Siste avsluttende kalendermåned | månedÅr(-23)}} - {{Siste avsluttende kalendermåned | månedÅr(-12)}}: {{Inntektperiode 2}} kroner
+                        - {{Siste avsluttende kalendermåned | månedÅr(-35)}} - {{Siste avsluttende kalendermåned | månedÅr(-24)}}: {{Inntektperiode 3}} kroner
 
                         Når vi beregner dagpengene dine, setter vi opp inntekten din tilsvarende årlig justering av grunnbeløpet (G). Inntekt over {{6 ganger grunnbeløp}} kroner ({{Faktor for maksimalt mulig grunnlag}} G) per tolvmånedersperiode vil ikke bli regnet med. Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner.
                         """.trimIndent(),

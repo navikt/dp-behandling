@@ -7,6 +7,7 @@ import no.nav.dagpenger.behandling.api.models.AvgjørelseDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
+import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
@@ -308,4 +309,47 @@ class BrevByggerTest {
                 ),
             ),
     )
+
+    @Test
+    fun `pipe-makro månedÅr formaterer dato med offset`() {
+        val sisteKalendermånedId = UUID.randomUUID()
+        val inntektperiode1Id = UUID.randomUUID()
+
+        val brevmal =
+            Brevmal(
+                navn = "Test",
+                maltekster =
+                    listOf(
+                        maltekst(
+                            Trigger.Alltid,
+                            "{{Siste avsluttende kalendermåned | månedÅr(-11)}} - {{Siste avsluttende kalendermåned | månedÅr(0)}}: {{Inntektperiode 1}} kroner",
+                            Plassering.FASTSETTELSE,
+                            1,
+                        ),
+                    ),
+            )
+
+        val resultat =
+            lagResultat(
+                AvgjørelseDTO.INNVILGELSE,
+                opplysninger =
+                    listOf(
+                        lagOpplysning(
+                            sisteKalendermånedId,
+                            "Siste avsluttende kalendermåned",
+                            no.nav.dagpenger.behandling.api.models
+                                .DatoVerdiDTO(verdi = LocalDate.of(2026, 3, 31)),
+                        ),
+                        lagOpplysning(
+                            inntektperiode1Id,
+                            "Inntektperiode 1",
+                            PengeVerdiDTO(verdi = BigDecimal("166665")),
+                        ),
+                    ),
+            )
+
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
+        val fastsettelse = brev.seksjoner.first { it.plassering == Plassering.FASTSETTELSE }
+        fastsettelse.innhold[0] shouldBe "april 2025 - mars 2026: 166 665 kroner"
+    }
 }
