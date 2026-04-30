@@ -53,7 +53,7 @@ class BrevScenarioTest {
     @Test
     fun `bygger avslagsbrev`() {
         nyttScenario {
-            alder = 88
+            alder = 58
             inntektSiste12Mnd = 5000
         }.test {
             person.søkDagpenger(21.juni(2024))
@@ -73,7 +73,7 @@ class BrevScenarioTest {
             begrunnelse
                 .flatMap { it.innhold }
                 .joinToString("\n")
-                .shouldContain("alder")
+                .shouldContain("inntekt")
 
             println(MarkdownRenderer.render(brev))
         }
