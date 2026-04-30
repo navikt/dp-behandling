@@ -15,9 +15,11 @@ typealias Informasjonsbehov = Map<Opplysningstype<*>, Set<Opplysning<*>>>
 
 typealias Regelkart = Map<Opplysningstype<out Any>, Regel<*>>
 
+typealias Regelkjøringsdato = Iterable<LocalDate>
+
 class Regelkjøring(
     private val regelverksdato: LocalDate,
-    private val prøvingsperiode: Periode,
+    private val prøvingsperiode: Regelkjøringsdato,
     private val opplysninger: Opplysninger,
     private val forretningsprosess: Forretningsprosess,
     val opplysningerTilRegelkjøring: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger = { prøvingsdato -> forDato(prøvingsdato) },
@@ -72,7 +74,7 @@ class Regelkjøring(
     private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
     private val avhengighetsgraf = Avhengighetsgraf(gjeldendeRegler)
 
-    // Setter opp hvilke opplysninger som skal brukes når reglene evalurerer om de skal kjøre
+    // Setter opp hvilke opplysninger som skal brukes når reglene evaluerer om de skal kjøre
     private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
 
     // Hvilke opplysninger som skal produseres. Må hentes på nytt hver gang, siden det kan endres etterhvert som nye regler kommer til
@@ -97,26 +99,33 @@ class Regelkjøring(
     }
 
     fun evaluer(): Regelkjøringsrapport {
-        trenger = mutableSetOf()
-        return prøvingsperiode
-            .map { evaluerDag(it) }
-            .reduce { total, regelkjøringsrapport -> total + regelkjøringsrapport }
-            .also {
-                if (it.prøvingsdato.size > 365) {
-                    logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.prøvingsdato.size}" }
-                }
-                logger.info {
-                    """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
+        var totalRapport: Regelkjøringsrapport? = null
+        for (dato in prøvingsperiode) {
+            val rapport = evaluerDag(dato)
+            totalRapport = totalRapport?.plus(rapport) ?: rapport
+
+            if (rapport.informasjonsbehov.isNotEmpty()) {
+                // Om en dag sier den har behov må de løses før vi kan videre til neste dag
+                break
+            }
+        }
+
+        return totalRapport!!.also {
+            if (it.prøvingsdato.size > 365) {
+                logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.prøvingsdato.size}" }
+            }
+            logger.info {
+                """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
                         |Regler:
                         |${it.kjørteRegler.joinToString("\n") { "- $it" }}
-                    """.trimMargin()
-                }
+                """.trimMargin()
             }
+        }
     }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         aktiverRegler(prøvingsdato)
-        while (plan.isNotEmpty()) {
+        while (plan.isNotEmpty()) { // && trenger.isEmpty()) {
             kjørRegelPlan()
             aktiverRegler(prøvingsdato)
         }
@@ -146,8 +155,8 @@ class Regelkjøring(
         }
     }
 
-    private fun aktiverRegler(prøvingsdato: LocalDate) {
-        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
+    private fun aktiverRegler(regelkjøringsdato: LocalDate) {
+        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(regelkjøringsdato)
         val produksjonsplan = mutableSetOf<Regel<*>>()
         val produsenter = forretningsprosess.produsenter(regelverksdato, opplysningerPåPrøvingsdato)
         val besøkt = mutableSetOf<Regel<*>>()
@@ -161,7 +170,7 @@ class Regelkjøring(
 
         val (ekstern, intern) = produksjonsplan.partition { it is Ekstern<*> }
         plan = intern.toMutableSet()
-        trenger += ekstern.toSet()
+        trenger = ekstern.toSet()
     }
 
     private fun kjørRegelPlan() {
@@ -172,7 +181,7 @@ class Regelkjøring(
 
     private fun kjør(regel: Regel<*>) {
         try {
-            val opplysning = regel.lagProdukt(opplysningerPåPrøvingsdato)
+            val opplysning = lagProdukt(regel)
             kjørteRegler.add(regel)
             plan.remove(regel)
             opplysninger.leggTilUtledet(opplysning)
@@ -187,6 +196,28 @@ class Regelkjøring(
             }
             throw e
         }
+    }
+
+    // Produserer en opplysning med riktig gyldighetsperiode basert på hva som allerede finnes.
+    private fun <T : Any> lagProdukt(regel: Regel<T>): Opplysning<T> {
+        val produkt = regel.lagProdukt(opplysningerPåPrøvingsdato)
+
+        // Sjekk om vi har perioder av denne opplysningstypen i samme behandling fra før
+        val eksisterendePerioder = opplysninger.kunEgne.finnAlle(regel.produserer).map { it.gyldighetsperiode }
+        if (eksisterendePerioder.isEmpty()) return produkt
+
+        // Sjekk om det er overlapp mellom den nye perioden og eksisterende perioder
+        val ønsketPeriode = Gyldighetsperiode(fraOgMed = regelverksdato)
+        val udekketPeriode = eksisterendePerioder.finnManglendePeriode(ønsketPeriode)
+
+        return udekketPeriode?.let { produkt.lagKopi(it) } ?: produkt
+    }
+
+    // Returnerer den første udekte perioden dersom eksisterende perioder overlapper med
+    // og splitter ønsket periode (dvs. skaper hull i tidslinjen). Null ellers.
+    private fun List<Gyldighetsperiode>.finnManglendePeriode(ønsketPeriode: Gyldighetsperiode): Gyldighetsperiode? {
+        val udekte = ønsketPeriode.minus(this)
+        return if (udekte.size >= 2) udekte.first() else null
     }
 
     private fun trenger(): Set<Opplysningstype<*>> {
@@ -206,6 +237,17 @@ class Regelkjøring(
                 // Finn verdien av avhengighetene
                 avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }.toSet()
             }
+
+    fun kanKjøre(
+        opplysningstype: Opplysningstype<*>,
+        påDato: LocalDate?,
+    ): Boolean {
+        if (påDato == null || påDato == LocalDate.MIN) return true
+        val regelsett = forretningsprosess.regelsett()
+        val produserende = regelsett.single { it.produserer.contains(opplysningstype) }
+
+        return produserende.skalKjøres(opplysninger.forDato(påDato))
+    }
 
     private class Regelsettprosess(
         val regelsett: List<Regelsett>,
@@ -246,6 +288,7 @@ class Regelkjøring(
             require(start != LocalDate.MAX) { "Periode.start kan ikke være LocalDate.MAX" }
             require(endInclusive != LocalDate.MIN) { "Periode.endInclusive kan ikke være LocalDate.MIN" }
             require(endInclusive != LocalDate.MAX) { "Periode.endInclusive kan ikke være LocalDate.MAX" }
+            require(start <= endInclusive) { "Periode.endInclusive kan ikke være før Periode.start" }
         }
 
         override fun iterator() =
@@ -256,6 +299,12 @@ class Regelkjøring(
 
                 override fun next(): LocalDate = current.apply { current = current.plusDays(1) }
             }
+    }
+
+    class Enkeltdager(
+        private val datoer: Collection<LocalDate>,
+    ) : Iterable<LocalDate> by datoer {
+        constructor(vararg dato: LocalDate) : this(dato.toList())
     }
 }
 

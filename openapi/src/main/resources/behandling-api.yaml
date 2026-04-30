@@ -831,7 +831,7 @@ components:
               type: array
               description: Regler som ut ifra saksbehandlingskonteksten har vært relevante for den konkrete behandlingen
               items:
-                  $ref: '#/components/schemas/Regelsett'
+                $ref: '#/components/schemas/Regelsett'
             opplysninger:
               description: Alle opplysninger som har vært til stede under behandlingen, også historiske
               type: array
@@ -1096,6 +1096,9 @@ components:
         opprettet:
           type: string
           format: date-time
+        type:
+          type: string
+          enum: [ "Faktum", "Hypotese" ]
         opprinnelse:
           $ref: '#/components/schemas/Opprinnelse'
         gyldigFraOgMed:

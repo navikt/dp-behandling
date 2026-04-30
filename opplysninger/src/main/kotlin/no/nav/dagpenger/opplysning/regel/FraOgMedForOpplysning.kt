@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 class FraOgMedForOpplysning internal constructor(
     produserer: Opplysningstype<LocalDate>,
-    private val opplysningstype: Opplysningstype<Boolean>,
+    private val opplysningstype: Opplysningstype<*>,
 ) : Regel<LocalDate>(produserer, listOf(opplysningstype)) {
     override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
         val opplysning = opplysninger.finnOpplysning(opplysningstype)
@@ -16,4 +16,4 @@ class FraOgMedForOpplysning internal constructor(
     override fun toString() = "Opplysning $opplysningstype er sann"
 }
 
-fun Opplysningstype<LocalDate>.fraOgMed(opplysningstype: Opplysningstype<Boolean>) = FraOgMedForOpplysning(this, opplysningstype)
+fun Opplysningstype<LocalDate>.fraOgMed(opplysningstype: Opplysningstype<*>) = FraOgMedForOpplysning(this, opplysningstype)

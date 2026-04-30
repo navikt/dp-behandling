@@ -25,6 +25,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortInnsendtHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PersonHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
@@ -35,6 +36,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Rettighetsperiode
@@ -234,6 +236,20 @@ class Behandling private constructor(
 
     fun registrer(observatør: BehandlingObservatør) {
         observatører.add(observatør)
+    }
+
+    fun kanLeggeTil(opplysning: OpplysningSvar<*>) = kanLeggeTil(opplysning.opplysningstype, opplysning.gyldighetsperiode?.fraOgMed)
+
+    fun kanLeggeTil(
+        opplysningstype: Opplysningstype<*>,
+        fraOgMed: LocalDate? = null,
+    ) {
+        val skalKjøres = regelkjøring.kanKjøre(opplysningstype, fraOgMed)
+        if (!skalKjøres) {
+            throw IllegalArgumentException(
+                "Kan ikke legge til $opplysningstype, regelsettet den tilhører kan ikke kjøres fra og med $fraOgMed). Det kan skyldes at opplysningen kun er nødvendig for en periode med rett, mens fraOgMed ligger utenfor en periode med rett.",
+            )
+        }
     }
 
     override fun toSpesifikkKontekst() = BehandlingKontekst(behandlingId, behandler.kontekstMap())
@@ -555,6 +571,9 @@ class Behandling private constructor(
 
             hendelse.opplysninger.forEach { opplysning ->
                 hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
+
+                behandling.kanLeggeTil(opplysning)
+
                 opplysning.leggTil(behandling.opplysninger)
             }
 
@@ -842,6 +861,9 @@ class Behandling private constructor(
 
             hendelse.opplysninger.forEach { opplysning ->
                 hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
+
+                behandling.kanLeggeTil(opplysning)
+
                 opplysning.leggTil(behandling.opplysninger)
             }
 

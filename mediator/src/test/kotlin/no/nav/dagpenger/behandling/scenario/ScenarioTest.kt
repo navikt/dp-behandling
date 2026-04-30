@@ -13,8 +13,9 @@ import no.nav.dagpenger.behandling.november
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Minsteinntekt
+import no.nav.dagpenger.regel.Opphold.oppholdINorge
+import no.nav.dagpenger.regel.Permittering.godkjentPermitteringsårsak
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
@@ -23,6 +24,7 @@ import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -58,7 +60,7 @@ class ScenarioTest {
                 opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe false
                 opplysninger(Minsteinntekt.minsteinntekt).shouldBeEmpty()
 
-                opplysninger shouldHaveSize 22
+                opplysninger shouldHaveSize 23
             }
         }
     }
@@ -85,7 +87,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker).single().verdi.verdi shouldBe true
 
-                opplysninger shouldHaveSize 66
+                opplysninger shouldHaveSize 67
             }
         }
     }
@@ -111,7 +113,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
 
-                opplysninger shouldHaveSize 51
+                opplysninger shouldHaveSize 52
             }
         }
     }
@@ -245,14 +247,49 @@ class ScenarioTest {
 
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(21.juni(2018), 22.juni(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(23.juni(2018), 26.juni(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, true, "Båten suser", Gyldighetsperiode(27.juni(2018), 29.juni(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(30.juni(2018), 2.juli(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, true, "Båten suser", Gyldighetsperiode(3.juli(2018), 3.juli(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(4.juli(2018), 5.juli(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, true, "Båten suser", Gyldighetsperiode(6.juli(2018), 6.juli(2018)))
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "Båten suser", Gyldighetsperiode(7.juli(2018)))
+            saksbehandler.endreOpplysning(
+                godkjentPermitteringsårsak,
+                true,
+                "Båten suser",
+                Gyldighetsperiode(21.juni(2018), 22.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                godkjentPermitteringsårsak,
+                false,
+                "Båten suser",
+                Gyldighetsperiode(23.juni(2018), 26.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                godkjentPermitteringsårsak,
+                true,
+                "Båten suser",
+                Gyldighetsperiode(27.juni(2018), 29.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                godkjentPermitteringsårsak,
+                false,
+                "Båten suser",
+                Gyldighetsperiode(30.juni(2018), 2.juli(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                godkjentPermitteringsårsak,
+                true,
+                "Båten suser",
+                Gyldighetsperiode(3.juli(2018), 3.juli(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                godkjentPermitteringsårsak,
+                false,
+                "Båten suser",
+                Gyldighetsperiode(4.juli(2018), 5.juli(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                godkjentPermitteringsårsak,
+                true,
+                "Båten suser",
+                Gyldighetsperiode(6.juli(2018), 6.juli(2018)),
+            )
+            saksbehandler.endreOpplysning(godkjentPermitteringsårsak, false, "Båten suser", Gyldighetsperiode(7.juli(2018)))
 
             behandlingsresultatForslag {
                 rettighetsperioder shouldHaveSize 8
@@ -271,10 +308,10 @@ class ScenarioTest {
 
             behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag {
+            behandlingsresultatForslag(1) {
                 rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].fraOgMed shouldBe 22.juni(2018)
                 rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 22.juni(2018)
                 with(opplysninger(Rettighetstype.permitteringFiskeforedling)) {
                     size shouldBe 1
                     first().verdi.verdi shouldBe true
@@ -388,32 +425,22 @@ class ScenarioTest {
                 Gyldighetsperiode(1.juni(2018)),
             )
 
-            // TODO("Dette må inn igjen")
-            // behovsløsere.løsTilForslag()
-
-            behandlingsresultatForslag {
-                with(rettighetsperioder) {
-                    size shouldBe 1
-                    single().fraOgMed shouldBe 27.november(2018)
-                    single().tilOgMed shouldBe null
-                    single().harRett shouldBe true
-                }
-            }
-
-            // person.arbeidssøkerregistreringsdato = 1.juni(2018)
+            behovsløsere.løsTilForslag()
             saksbehandler.endreOpplysning(
-                prøvingsdato,
+                ønsketdato,
                 1.juni(2018),
                 "Søkte for lenge siden",
+                Gyldighetsperiode(1.juni(2018)),
             )
             behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag {
+            behandlingsresultatForslag(3) {
                 with(rettighetsperioder) {
-                    size shouldBe 1
+                    this shouldHaveSize 2
                     this[0].fraOgMed shouldBe 1.juni(2018)
-                    this[0].tilOgMed shouldBe 1.juni(2018)
                     this[0].harRett shouldBe false
+                    this[1].fraOgMed shouldBe 27.november(2018)
+                    this[1].harRett shouldBe true
                 }
             }
 
@@ -425,9 +452,9 @@ class ScenarioTest {
             )
             behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag {
+            behandlingsresultatForslag(4) {
                 with(rettighetsperioder) {
-                    size shouldBe 1
+                    this shouldHaveSize 1
                     single().fraOgMed shouldBe 1.juni(2018)
                     single().tilOgMed shouldBe null
                     single().harRett shouldBe true
@@ -465,22 +492,6 @@ class ScenarioTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
-        }
-    }
-
-    @Test
-    @Disabled("Arbeidssøkerregistrering må svare med riktig data")
-    fun `prøver ikke datoer før søknadstidspunkt`() {
-        nyttScenario {
-            // registreringsdato = 1.januar(2021)
-        }.test {
-            person.søkDagpenger(21.juni(2021))
-
-            behovsløsere.løsTilForslag()
-
-            behandlingsresultatForslag {
-                opplysninger(prøvingsdato).single().verdi.verdi shouldBe 21.juni(2021).toString()
-            }
         }
     }
 
@@ -547,6 +558,39 @@ class ScenarioTest {
 
             shouldThrow<IllegalArgumentException> {
                 behandlingsresultatForslag(3) { }
+            }
+        }
+    }
+
+    @Test
+    fun `framprovoserer problemer med perioder med hull som tar over hele greia`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(oppholdINorge, true, gyldighetsperiode = Gyldighetsperiode(1.juni(2018), 10.juni(2018)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(oppholdINorge, true, gyldighetsperiode = Gyldighetsperiode(20.juni(2018), 30.juni(2018)))
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag(3) {
+                opplysninger(oppholdINorge) shouldHaveSize 2
+            }
+
+            saksbehandler.endreOpplysning(kanJobbeHvorSomHelst, true, gyldighetsperiode = Gyldighetsperiode(1.juni(2018), 8.juni(2018)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(kanJobbeHvorSomHelst, true, gyldighetsperiode = Gyldighetsperiode(11.juni(2018), 12.juni(2018)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(kanJobbeHvorSomHelst, true, gyldighetsperiode = Gyldighetsperiode(15.juni(2018)))
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag(6) {
+                // Det er nå en ekstra periode mellom 10 og 20. juni som ikke var nødvendig før det ble lagt til instanser av kanJobbeHvorSomHelst i hullet
+                opplysninger(oppholdINorge) shouldHaveSize 3
+
+                opplysninger(kanJobbeHvorSomHelst) shouldHaveSize 3
             }
         }
     }

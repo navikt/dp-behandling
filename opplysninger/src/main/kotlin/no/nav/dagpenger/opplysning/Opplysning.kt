@@ -57,6 +57,8 @@ sealed class Opplysning<T : Any>(
     }
 
     abstract fun lagForkortet(framTil: Opplysning<*>): Opplysning<T>
+
+    abstract fun lagKopi(gyldighetsperiode: Gyldighetsperiode): Opplysning<T>
 }
 
 class Hypotese<T : Any>(
@@ -113,6 +115,18 @@ class Hypotese<T : Any>(
             erUtdatert = framTil.erUtdatert
         }
     }
+
+    override fun lagKopi(gyldighetsperiode: Gyldighetsperiode): Opplysning<T> =
+        Hypotese(
+            id,
+            opplysningstype,
+            verdi,
+            gyldighetsperiode,
+            utledetAv,
+            kilde,
+            opprettet,
+            erstatter,
+        )
 }
 
 class Faktum<T : Any>(
@@ -148,6 +162,18 @@ class Faktum<T : Any>(
     ) : this(UUIDv7.ny(), opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet, erstatter)
 
     override fun bekreft() = this
+
+    override fun lagKopi(gyldighetsperiode: Gyldighetsperiode) =
+        Faktum(
+            id,
+            opplysningstype,
+            verdi,
+            gyldighetsperiode,
+            utledetAv,
+            kilde,
+            opprettet,
+            erstatter,
+        )
 
     override fun lagForkortet(framTil: Opplysning<*>): Opplysning<T> {
         val segmenter = gyldighetsperiode - framTil.gyldighetsperiode

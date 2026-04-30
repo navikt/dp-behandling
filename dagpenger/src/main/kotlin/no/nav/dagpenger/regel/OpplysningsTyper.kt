@@ -219,6 +219,7 @@ object OpplysningsTyper {
     val oppfyllerKravTilFramsattSøknadId = Opplysningstype.Id(UUID.fromString("019c092a-7759-700a-9f7d-f4415b91e8db"), Boolsk)
     val ønskerDagpengerFraDatoId = Opplysningstype.Id(UUID.fromString("0194881f-91d1-7df2-ba1d-4533f37fcc74"), Dato)
     val søknadstidspunktId = Opplysningstype.Id(UUID.fromString("0194881f-91d1-7df2-ba1d-4533f37fcc75"), Dato)
+    val tidligsteVurderingsdatoId = Opplysningstype.Id(UUID.fromString("019db9de-afaf-7e46-98b4-2fd20655b80f"), Dato)
     val prøvingsdatoId = Opplysningstype.Id(UUID.fromString("0194881f-91d1-7df2-ba1d-4533f37fcc76"), Dato)
     val ønsketArbeidstidId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a75f"), Desimaltall)
     val harTaptArbeidId = Opplysningstype.Id(UUID.fromString("0194881f-9435-72a8-b1ce-9575cbc2a75d"), Boolsk)

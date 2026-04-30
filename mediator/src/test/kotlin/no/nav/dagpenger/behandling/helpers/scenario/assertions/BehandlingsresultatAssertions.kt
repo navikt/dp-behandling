@@ -21,7 +21,7 @@ internal class BehandlingsresultatAssertions(
     val førteTil: String = klump["førteTil"].asText()
     val behandletHendelse: JsonNode = klump["behandletHendelse"]
 
-    val utfall = rettighetsperioder.last().harRett
+    val utfall get() = rettighetsperioder.last().harRett
 
     fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysningsperiode> {
         val opplysninger =

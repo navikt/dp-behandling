@@ -70,8 +70,9 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-91d1-7df2-ba1d-4533f37fcc73|Søknadsdato|Dato|LocalDate|Søknadsdato||Ekstern
 |0194881f-91d1-7df2-ba1d-4533f37fcc74|Ønsker dagpenger fra dato|Dato|LocalDate|ØnskerDagpengerFraDato||Ekstern
 |0194881f-91d1-7df2-ba1d-4533f37fcc75|Søknadstidspunkt|Dato|LocalDate|||Intern
-|0194881f-91d1-7df2-ba1d-4533f37fcc76|Prøvingsdato|Dato|LocalDate|||Intern
+|0194881f-91d1-7df2-ba1d-4533f37fcc76|Prøvingsdato|Dato|LocalDate|||Resultat
 |0194881f-91d1-7df2-ba1d-4533f37fcc77|søknadId|Tekst|String|||Utgangspunkt
+|019db9de-afaf-7e46-98b4-2fd20655b80f|Vurder rett fra og med|Dato|LocalDate|||Intern
 ### § 4-2. Opphold i Norge
 *Type:* Vilkår
 #### Avklaringer
@@ -363,6 +364,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a250|Har samordnet|Boolsk|boolean|||Resultat
 ### § 22-13. Frister for framsetting av krav, virkningstidspunkt og etterbetaling
 *Type:* Vilkår
+#### Avhenger på data fra
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
