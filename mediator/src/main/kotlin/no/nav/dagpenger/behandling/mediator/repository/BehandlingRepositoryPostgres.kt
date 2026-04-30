@@ -317,26 +317,8 @@ internal class BehandlingRepositoryPostgres(
         behandlinger: List<Behandling>,
         unitOfWork: PostgresUnitOfWork,
     ) {
+        lagreBehandlingHendelse(unitOfWork, behandlinger)
         behandlinger.forEach { behandling ->
-
-            unitOfWork.session.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
-                    VALUES (:ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) ON CONFLICT DO NOTHING 
-                    """.trimMargin(),
-                    mapOf(
-                        "ident" to behandling.behandler.ident,
-                        "melding_id" to behandling.behandler.meldingsreferanseId,
-                        "ekstern_id_type" to behandling.behandler.eksternId.type,
-                        "ekstern_id" to behandling.behandler.eksternId.id,
-                        "hendelse_type" to behandling.behandler.type,
-                        "skjedde" to behandling.behandler.skjedde,
-                        "forretningsprosess" to behandling.behandler.forretningsprosess.navn,
-                    ),
-                ).asUpdate,
-            )
             unitOfWork.session.run(
                 queryOf(
                     // language=PostgreSQL
@@ -408,6 +390,35 @@ internal class BehandlingRepositoryPostgres(
         }
 
         lagrePersonBehandlingkoblinger(unitOfWork, ident, behandlinger)
+    }
+
+    private fun lagreBehandlingHendelse(
+        unitOfWork: PostgresUnitOfWork,
+        behandlinger: List<Behandling>,
+    ) {
+        val params =
+            behandlinger.map { behandling ->
+                mapOf(
+                    "ident" to behandling.behandler.ident,
+                    "melding_id" to behandling.behandler.meldingsreferanseId,
+                    "ekstern_id_type" to behandling.behandler.eksternId.type,
+                    "ekstern_id" to behandling.behandler.eksternId.id,
+                    "hendelse_type" to behandling.behandler.type,
+                    "skjedde" to behandling.behandler.skjedde,
+                    "forretningsprosess" to behandling.behandler.forretningsprosess.navn,
+                )
+            }
+
+        unitOfWork.session
+            .batchPreparedNamedStatement(
+                // language=PostgreSQL
+                """
+                INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
+                VALUES (:ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) 
+                ON CONFLICT DO NOTHING 
+                """.trimMargin(),
+                params,
+            )
     }
 
     private fun lagrePersonBehandlingkoblinger(
