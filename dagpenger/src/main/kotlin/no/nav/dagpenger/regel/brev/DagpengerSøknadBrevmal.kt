@@ -14,7 +14,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.KravTilArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilMinsteinntektId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerMeldepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppyllerKravTilRegistrertArbeidssøkerId
-import no.nav.dagpenger.regel.OpplysningsTyper.OrdinærPeriodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.fastsattArbeidstidPerUkeFørTapId
 import no.nav.dagpenger.regel.OpplysningsTyper.harLøpendeRettId
 
@@ -257,17 +256,38 @@ val DagpengerBrevmal =
                     plassering = Plassering.BEGRUNNELSE,
                     rekkefølge = 5,
                 ),
-                // === Vilkår (vises ikke ved innvilgelse — implisitt oppfylt) ===
-                // === Fastsettelser ===
-                // Periode
+                // Periode (med sluttdato)
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(OrdinærPeriodeId.uuid),
+                    trigger =
+                        Trigger.OpplysningVerdi(
+                            harLøpendeRettId.uuid,
+                            forventetVerdi = "true",
+                            periodeType = PeriodeType.LUKKET,
+                        ),
                     tittel = "Hvor lenge kan du få dagpenger?",
                     tekst =
                         "Du er innvilget dagpenger til og med " +
                             "{{Har løpende rett på dagpenger | tilOgMed()}}, " +
                             "fordi du ikke lenger har rett til dagpenger etter denne datoen.\n\n" +
                             "Arbeidsinntekten din gir deg rett til en periode på maksimalt " +
+                            "{{Antall stønadsuker (stønadsperiode)}} uker med dagpenger. " +
+                            "Vurderingen er gjort etter [folketrygdloven § 4-15](https://lovdata.no/lov/1997-02-28-19/%C2%A74-15).\n\n" +
+                            "Hvis dagpengene dine stanser før perioden er over, kan du søke på nytt. " +
+                            "Du kan lese mer om grunner til stans lenger ned i brevet.",
+                    plassering = Plassering.FASTSETTELSE,
+                    rekkefølge = 1,
+                ),
+                // Periode (uten sluttdato)
+                Maltekst(
+                    trigger =
+                        Trigger.OpplysningVerdi(
+                            harLøpendeRettId.uuid,
+                            forventetVerdi = "true",
+                            periodeType = PeriodeType.ÅPEN,
+                        ),
+                    tittel = "Hvor lenge kan du få dagpenger?",
+                    tekst =
+                        "Arbeidsinntekten din gir deg rett til en periode på maksimalt " +
                             "{{Antall stønadsuker (stønadsperiode)}} uker med dagpenger. " +
                             "Vurderingen er gjort etter [folketrygdloven § 4-15](https://lovdata.no/lov/1997-02-28-19/%C2%A74-15).\n\n" +
                             "Hvis dagpengene dine stanser før perioden er over, kan du søke på nytt. " +
