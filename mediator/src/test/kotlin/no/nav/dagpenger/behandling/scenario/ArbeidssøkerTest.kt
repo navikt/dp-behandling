@@ -9,6 +9,7 @@ import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.behandling.scenario.BrevScenarioTest.Companion.byggBrev
 import no.nav.dagpenger.regel.Meldeplikt
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import org.junit.jupiter.api.Test
@@ -72,6 +73,8 @@ class ArbeidssøkerTest {
                     ),
                 )
             }
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
         }
     }
 
@@ -130,6 +133,9 @@ class ArbeidssøkerTest {
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 16.juli(2018)
             }
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
         }
     }
 
@@ -188,6 +194,9 @@ class ArbeidssøkerTest {
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 16.juli(2018)
             }
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
         }
     }
 }

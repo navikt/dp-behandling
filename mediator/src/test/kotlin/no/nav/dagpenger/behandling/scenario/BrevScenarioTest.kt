@@ -7,6 +7,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juli
@@ -41,11 +42,17 @@ class BrevScenarioTest {
 
             // Innledning skal inneholde periodeinfo
             val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
-            innledning.flatMap { it.innhold }.joinToString("\n").shouldContain("Du får dagpenger fra og med")
+            val innledningTekst = innledning.flatMap { it.innhold }.joinToString("\n")
+            innledningTekst.shouldContain("Du får dagpenger fra og med")
+            innledningTekst.shouldNotContain("{{")
 
             // Fastsettelser skal finnes
             val fastsettelser = brev.seksjoner.filter { it.plassering == Plassering.FASTSETTELSE }
             fastsettelser.shouldNotBeNull()
+
+            // Ingen uløste placeholders i hele brevet
+            val altTekst = brev.seksjoner.flatMap { it.innhold }.joinToString("\n")
+            altTekst.shouldNotContain("{{")
 
             // Print brevet for visuell inspeksjon
             println(MarkdownRenderer.render(brev))
