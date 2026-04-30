@@ -24,6 +24,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.harLøpendeRettId
 val DagpengerBrevmal =
     Brevmal(
         navn = "Dagpenger",
+        krevInnholdI = setOf(Plassering.BEGRUNNELSE, Plassering.VILKÅR, Plassering.FASTSETTELSE),
         maltekster =
             listOf(
                 // === Overskrift ===
@@ -97,13 +98,13 @@ val DagpengerBrevmal =
                 ),
                 // Dagsats og egenandel (vises når opplysningene finnes, typisk innvilgelse/endring)
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(DagsatsEtterSamordningMedBarnetilleggId.uuid),
+                    trigger = Trigger.OpplysningFinnes(DagsatsEtterSamordningMedBarnetilleggId.uuid, kunNyeOpplysninger = true),
                     tekst = "Du får {{Dagsats med barnetillegg etter samordning og 90 % regel}} kroner dagen for fem dager i uken.",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 3,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(EgenandelId.uuid),
+                    trigger = Trigger.OpplysningFinnes(EgenandelId.uuid, kunNyeOpplysninger = true),
                     tekst =
                         "Nav trekker en egenandel av dagpengene dine. " +
                             "Egenandelen din er {{Egenandel}} kroner.",
@@ -211,7 +212,7 @@ val DagpengerBrevmal =
                 ),
                 // === Fastsettelser ===
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(OrdinærPeriodeId.uuid),
+                    trigger = Trigger.OpplysningFinnes(OrdinærPeriodeId.uuid, kunNyeOpplysninger = true),
                     tittel = "Hvor lenge kan du få dagpenger?",
                     tekst =
                         "Arbeidsinntekten din gir deg rett til en periode på maksimalt " +
@@ -221,7 +222,7 @@ val DagpengerBrevmal =
                     rekkefølge = 1,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(DagsatsEtterSamordningMedBarnetilleggId.uuid),
+                    trigger = Trigger.OpplysningFinnes(DagsatsEtterSamordningMedBarnetilleggId.uuid, kunNyeOpplysninger = true),
                     tittel = "Slik har vi beregnet dagpengene dine",
                     tekst =
                         "Du får {{Dagsats med barnetillegg etter samordning og 90 % regel}} kroner per dag for fem dager i uken. " +
@@ -231,7 +232,7 @@ val DagpengerBrevmal =
                     rekkefølge = 2,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(fastsattArbeidstidPerUkeFørTapId.uuid),
+                    trigger = Trigger.OpplysningFinnes(fastsattArbeidstidPerUkeFørTapId.uuid, kunNyeOpplysninger = true),
                     tittel = "Arbeidstiden din",
                     tekst =
                         "Vi har kommet frem til at den vanlige arbeidstiden din er " +
@@ -240,7 +241,7 @@ val DagpengerBrevmal =
                     rekkefølge = 3,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(EgenandelId.uuid),
+                    trigger = Trigger.OpplysningFinnes(EgenandelId.uuid, kunNyeOpplysninger = true),
                     tittel = "Egenandel",
                     tekst =
                         "Egenandelen din er {{Egenandel}} kroner. " +

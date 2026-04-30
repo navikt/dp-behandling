@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.scenario
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -12,7 +13,9 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.brev.BrevBygger
 import no.nav.dagpenger.brev.MarkdownRenderer
 import no.nav.dagpenger.brev.Plassering
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.brev.DagpengerBrevmal
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
 import org.junit.jupiter.api.Test
 
 class BrevScenarioTest {
@@ -113,6 +116,62 @@ class BrevScenarioTest {
                 .shouldContain("dagpenger igjen")
 
             println(MarkdownRenderer.render(brev))
+        }
+    }
+
+    @Test
+    fun `produserer ikke brev om rene meldekortberegninger`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2024))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(true)
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
+
+            // Bare beregninger skal ikke lage brev
+            brev.shouldBeNull()
+        }
+    }
+
+    @Test
+    fun `produserer brev når meldekortberegninger har andre opplysnigner`() {
+        // TODO: Denne testen demonstrerer at endring av antallBarn i kontekst av en
+        //  meldekortbehandling ikke produserer 'Ny'-markerte opplysninger i behandlingsresultatet.
+        //  For at dette skal fungere trenger vi enten:
+        //  1. Et scenario der endringen propagerer som en egen behandling med Ny-opplysninger
+        //  2. Eller utvidelse av BehandlingsresultatDTO med regelsett-info
+        //  Inntil videre verifiserer vi at krevInnholdI-mekanismen fungerer korrekt:
+        //  uten nye vilkår/fastsettelser/begrunnelser → ingen brev.
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2024))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            saksbehandler.endreOpplysning(antallBarn, 2, "Fødte i går", Gyldighetsperiode(24.juni(2018)))
+            meldekortBatch(true)
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
+
+            // I dette scenarioet arves antallBarn-endringen uten å markeres som Ny i
+            // meldekortresultatet. krevInnholdI fanger korrekt at det ikke er noe
+            // nytt å informere om i dette behandlingsresultatet.
+            brev.shouldBeNull()
         }
     }
 
