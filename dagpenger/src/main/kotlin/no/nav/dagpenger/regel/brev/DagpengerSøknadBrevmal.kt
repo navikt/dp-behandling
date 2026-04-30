@@ -318,7 +318,7 @@ val DagpengerBrevmal =
                         - Periode 2: {{Inntektperiode 2}} kroner
                         - Periode 3: {{Inntektperiode 3}} kroner
 
-                        Når vi beregner dagpengene dine, setter vi opp inntekten din tilsvarende årlig justering av grunnbeløpet (G). Inntekt over {{6 ganger grunnbeløp}} kroner (6 G) per tolvmånedersperiode vil ikke bli regnet med. Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner.
+                        Når vi beregner dagpengene dine, setter vi opp inntekten din tilsvarende årlig justering av grunnbeløpet (G). Inntekt over {{6 ganger grunnbeløp}} kroner ({{Faktor for maksimalt mulig grunnlag}} G) per tolvmånedersperiode vil ikke bli regnet med. Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner.
                         """.trimIndent(),
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 4,

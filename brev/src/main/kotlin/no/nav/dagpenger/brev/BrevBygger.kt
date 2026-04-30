@@ -176,11 +176,14 @@ internal class BrevKontekst(
     companion object {
         private val PLACEHOLDER_REGEX = Regex("\\{\\{(.+?)}}")
         private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale("nb", "NO"))
+        private val NORSK_TALL = java.text.NumberFormat.getIntegerInstance(Locale("nb", "NO"))
 
         private fun formaterDato(dato: LocalDate): String = dato.format(NORSK_DATO)
 
         private fun formaterPenger(verdi: java.math.BigDecimal): String =
-            verdi.setScale(0, java.math.RoundingMode.HALF_UP).toBigInteger().toString()
+            NORSK_TALL
+                .format(verdi.setScale(0, java.math.RoundingMode.HALF_UP).toBigInteger())
+                .replace('\u00A0', ' ')
 
         private fun formaterDesimaltall(verdi: Double): String {
             val rounded =
