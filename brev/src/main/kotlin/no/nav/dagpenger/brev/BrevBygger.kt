@@ -120,9 +120,58 @@ internal class BrevKontekst(
 
     fun interpoler(tekst: String): String =
         PLACEHOLDER_REGEX.replace(tekst) { match ->
-            val nøkkel = match.groupValues[1]
-            oppslåVerdi(nøkkel) ?: match.value
+            val uttrykk = match.groupValues[1].trim()
+            evaluerUttrykk(uttrykk) ?: match.value
         }
+
+    /**
+     * Evaluerer et template-uttrykk med valgfri pipe-syntaks.
+     * Eksempler:
+     *   "Siste avsluttende kalendermåned" → slår opp verdien direkte
+     *   "Siste avsluttende kalendermåned | månedÅr(0)" → formaterer som "mars 2026"
+     *   "Siste avsluttende kalendermåned | månedÅr(-12)" → trekker fra 12 mnd, formaterer som "april 2025"
+     */
+    private fun evaluerUttrykk(uttrykk: String): String? {
+        if ("|" !in uttrykk) return oppslåVerdi(uttrykk)
+
+        val deler = uttrykk.split("|", limit = 2)
+        val nøkkel = deler[0].trim()
+        val makro = deler[1].trim()
+
+        val dato = oppslåDato(nøkkel) ?: return null
+        return utførMakro(dato, makro)
+    }
+
+    private fun oppslåDato(nøkkel: String): LocalDate? {
+        val opplysning = opplysningerNavnMap[nøkkel] ?: return null
+        val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
+        val verdi = sistePeriode.verdi
+        return when (verdi) {
+            is DatoVerdiDTO -> verdi.verdi
+            else -> null
+        }
+    }
+
+    private fun utførMakro(
+        dato: LocalDate,
+        makro: String,
+    ): String? {
+        val match = MAKRO_REGEX.matchEntire(makro) ?: return null
+        val funksjonsnavn = match.groupValues[1].lowercase()
+        val argument = match.groupValues[2].toLongOrNull() ?: 0L
+
+        return when (funksjonsnavn) {
+            "månedår", "måned_år", "maanedaar" -> {
+                val justert = dato.plusMonths(argument)
+                justert.format(NORSK_MÅNED_ÅR)
+            }
+            "dato" -> {
+                val justert = dato.plusMonths(argument)
+                formaterDato(justert)
+            }
+            else -> null
+        }
+    }
 
     private fun matcherPeriodeType(
         opplysning: OpplysningerDTO,
@@ -175,7 +224,9 @@ internal class BrevKontekst(
 
     companion object {
         private val PLACEHOLDER_REGEX = Regex("\\{\\{(.+?)}}")
+        private val MAKRO_REGEX = Regex("""([\w\p{L}]+)\((-?\d+)\)""")
         private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale("nb", "NO"))
+        private val NORSK_MÅNED_ÅR = DateTimeFormatter.ofPattern("MMMM yyyy", Locale("nb", "NO"))
         private val NORSK_TALL = java.text.NumberFormat.getIntegerInstance(Locale("nb", "NO"))
 
         private fun formaterDato(dato: LocalDate): String = dato.format(NORSK_DATO)
