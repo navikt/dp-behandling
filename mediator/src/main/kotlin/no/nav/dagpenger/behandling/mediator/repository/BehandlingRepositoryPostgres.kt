@@ -320,21 +320,8 @@ internal class BehandlingRepositoryPostgres(
         lagreBehandlingHendelse(unitOfWork, behandlinger)
         lagreBehandlinger(unitOfWork, behandlinger)
         lagreBehandlingTilstand(unitOfWork, behandlinger)
+        lagreBehandlerHendelse(unitOfWork, behandlinger)
         behandlinger.forEach { behandling ->
-            unitOfWork.session.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO behandler_hendelse_behandling (behandling_id, melding_id) 
-                    VALUES (:behandling_id, :melding_id) ON CONFLICT DO NOTHING
-                    """.trimIndent(),
-                    mapOf(
-                        "behandling_id" to behandling.behandlingId,
-                        "melding_id" to behandling.behandler.meldingsreferanseId,
-                    ),
-                ).asUpdate,
-            )
-
             // TODO: kan vi unngå hardkoding her?
             unitOfWork.session.lageArbeidssteg(behandling.behandlingId, behandling.godkjent)
             unitOfWork.session.lageArbeidssteg(behandling.behandlingId, behandling.besluttet)
@@ -359,6 +346,27 @@ internal class BehandlingRepositoryPostgres(
         }
 
         lagrePersonBehandlingkoblinger(unitOfWork, ident, behandlinger)
+    }
+
+    private fun lagreBehandlerHendelse(
+        unitOfWork: PostgresUnitOfWork,
+        behandlinger: List<Behandling>,
+    ) {
+        val params =
+            behandlinger.map { behandling ->
+                mapOf(
+                    "behandling_id" to behandling.behandlingId,
+                    "melding_id" to behandling.behandler.meldingsreferanseId,
+                )
+            }
+        unitOfWork.session.batchPreparedNamedStatement(
+            // language=PostgreSQL
+            """
+            INSERT INTO behandler_hendelse_behandling (behandling_id, melding_id) 
+            VALUES (:behandling_id, :melding_id) ON CONFLICT DO NOTHING
+            """.trimIndent(),
+            params,
+        )
     }
 
     private fun lagreBehandlingTilstand(
