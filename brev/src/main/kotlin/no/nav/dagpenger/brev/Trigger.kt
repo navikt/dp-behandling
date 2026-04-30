@@ -28,6 +28,7 @@ sealed interface Trigger {
         val opplysningsTypeId: UUID,
         val forventetVerdi: String,
         val kunNyeOpplysninger: Boolean = false,
+        val periodeType: PeriodeType? = null,
     ) : Trigger
 }
 
