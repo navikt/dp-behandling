@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 
 class BrevScenarioTest {
     @Test
-    fun `bygger innvilgelsesbrev fra scenariotest`() {
+    fun `bygger innvilgelsesbrev`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
         }.test {
@@ -51,7 +51,7 @@ class BrevScenarioTest {
     }
 
     @Test
-    fun `bygger avslagsbrev fra scenariotest`() {
+    fun `bygger avslagsbrev`() {
         nyttScenario {
             alder = 88
             inntektSiste12Mnd = 500000
