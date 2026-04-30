@@ -110,7 +110,8 @@ internal class BrevKontekst(
                 val opplysning = opplysningerMap[trigger.opplysningsTypeId]
                 opplysning != null &&
                     sisteVerdi(opplysning) == trigger.forventetVerdi &&
-                    (!trigger.kunNyeOpplysninger || harNyePerioder(opplysning))
+                    (!trigger.kunNyeOpplysninger || harNyePerioder(opplysning)) &&
+                    (trigger.periodeType == null || matcherPeriodeType(opplysning, trigger.periodeType))
             }
         }
 

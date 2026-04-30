@@ -63,13 +63,23 @@ val DagpengerBrevmal =
                 // === Innledning ===
                 // Periodebasert innledning (innvilgelse/gjenopptak)
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(harLøpendeRettId.uuid, periodeType = PeriodeType.ÅPEN),
+                    trigger =
+                        Trigger.OpplysningVerdi(
+                            harLøpendeRettId.uuid,
+                            forventetVerdi = "true",
+                            periodeType = PeriodeType.ÅPEN,
+                        ),
                     tekst = "Du får dagpenger fra og med {{Har løpende rett på dagpenger.fraOgMed}}.",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 1,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(harLøpendeRettId.uuid, periodeType = PeriodeType.LUKKET),
+                    trigger =
+                        Trigger.OpplysningVerdi(
+                            harLøpendeRettId.uuid,
+                            forventetVerdi = "true",
+                            periodeType = PeriodeType.LUKKET,
+                        ),
                     tekst =
                         "Du får dagpenger fra og med {{Har løpende rett på dagpenger.fraOgMed}} " +
                             "til og med {{Har løpende rett på dagpenger.tilOgMed}}.",
@@ -77,7 +87,12 @@ val DagpengerBrevmal =
                     rekkefølge = 1,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(harLøpendeRettId.uuid, periodeType = PeriodeType.FLERE),
+                    trigger =
+                        Trigger.OpplysningVerdi(
+                            harLøpendeRettId.uuid,
+                            forventetVerdi = "true",
+                            periodeType = PeriodeType.FLERE,
+                        ),
                     tekst =
                         "[Saksbehandler: Rettighetsperioden har flere perioder som " +
                             "ikke kan beskrives maskinelt. Vennligst beskriv periodene manuelt.]",
@@ -139,14 +154,24 @@ val DagpengerBrevmal =
                 ),
                 // "Derfor får du dagpenger fra..." (bold)
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(harLøpendeRettId.uuid, periodeType = PeriodeType.ÅPEN),
+                    trigger =
+                        Trigger.OpplysningVerdi(
+                            harLøpendeRettId.uuid,
+                            forventetVerdi = "true",
+                            periodeType = PeriodeType.ÅPEN,
+                        ),
                     tekst =
                         "**Derfor får du dagpenger fra {{Har løpende rett på dagpenger.fraOgMed}}**",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 6,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(harLøpendeRettId.uuid, periodeType = PeriodeType.LUKKET),
+                    trigger =
+                        Trigger.OpplysningVerdi(
+                            harLøpendeRettId.uuid,
+                            forventetVerdi = "true",
+                            periodeType = PeriodeType.LUKKET,
+                        ),
                     tekst =
                         "**Derfor får du dagpenger fra {{Har løpende rett på dagpenger.fraOgMed}}**",
                     plassering = Plassering.INNLEDNING,
