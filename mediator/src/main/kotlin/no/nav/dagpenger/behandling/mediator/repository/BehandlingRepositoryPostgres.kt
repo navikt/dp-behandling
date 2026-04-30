@@ -319,13 +319,11 @@ internal class BehandlingRepositoryPostgres(
     ) {
         lagreBehandlingHendelse(unitOfWork, behandlinger)
         lagreBehandlinger(unitOfWork, behandlinger)
+        lagrePersonBehandlingkoblinger(unitOfWork, ident, behandlinger)
         lagreBehandlingTilstand(unitOfWork, behandlinger)
         lagreBehandlerHendelse(unitOfWork, behandlinger)
+        lagreBehandlingArbeidssted(unitOfWork, behandlinger)
         behandlinger.forEach { behandling ->
-            // TODO: kan vi unngå hardkoding her?
-            unitOfWork.session.lageArbeidssteg(behandling.behandlingId, behandling.godkjent)
-            unitOfWork.session.lageArbeidssteg(behandling.behandlingId, behandling.besluttet)
-
             opplysningRepository.lagreOpplysninger(behandling.opplysninger() as Opplysninger, unitOfWork)
 
             unitOfWork.session.run(
@@ -344,8 +342,63 @@ internal class BehandlingRepositoryPostgres(
 
             avklaringRepository.lagreAvklaringer(behandling, unitOfWork)
         }
+    }
 
-        lagrePersonBehandlingkoblinger(unitOfWork, ident, behandlinger)
+    private fun lagreBehandlingArbeidssted(
+        unitOfWork: PostgresUnitOfWork,
+        behandlinger: List<Behandling>,
+    ) {
+        val arbeidsstegene =
+            behandlinger
+                .flatMap { behandling ->
+                    listOf(behandling.godkjent, behandling.besluttet).map { behandling to it }
+                }
+
+        val deleteParams =
+            arbeidsstegene
+                .mapNotNull { (behandling, arbeidssteg) ->
+                    when (arbeidssteg.tilstandType) {
+                        Arbeidssteg.TilstandType.IkkeUtført ->
+                            mapOf(
+                                "behandling_id" to behandling.behandlingId,
+                                "oppgave" to arbeidssteg.oppgave.name,
+                            )
+                        Arbeidssteg.TilstandType.Utført -> null
+                    }
+                }
+        val insertParams =
+            arbeidsstegene
+                .mapNotNull { (behandling, arbeidssteg) ->
+                    when (arbeidssteg.tilstandType) {
+                        Arbeidssteg.TilstandType.IkkeUtført -> null
+                        Arbeidssteg.TilstandType.Utført ->
+                            mapOf(
+                                "behandling_id" to behandling.behandlingId,
+                                "oppgave" to arbeidssteg.oppgave.name,
+                                "tilstand" to arbeidssteg.tilstandType.name,
+                                "utfort_av" to arbeidssteg.utførtAv.ident,
+                                "utfort" to arbeidssteg.utført,
+                            )
+                    }
+                }
+
+        unitOfWork.session
+            .batchPreparedNamedStatement(
+                //language=PostgreSQL
+                """DELETE FROM behandling_arbeidssteg WHERE behandling_id = :behandling_id AND oppgave = :oppgave""",
+                deleteParams,
+            )
+
+        unitOfWork.session
+            .batchPreparedNamedStatement(
+                // language=PostgreSQL
+                """
+                INSERT INTO behandling_arbeidssteg(behandling_id, oppgave, tilstand, utført_av, utført) 
+                VALUES (:behandling_id, :oppgave, :tilstand, :utfort_av, :utfort) 
+                ON CONFLICT (behandling_id, oppgave) DO UPDATE SET tilstand = :tilstand, utført_av = :utfort_av, utført = :utfort 
+                """.trimIndent(),
+                insertParams,
+            ).krevAtAntallRaderErNøyaktigLik(insertParams.size)
     }
 
     private fun lagreBehandlerHendelse(
@@ -470,40 +523,6 @@ internal class BehandlingRepositoryPostgres(
                 """.trimIndent(),
                 params,
             )
-    }
-
-    private fun Session.lageArbeidssteg(
-        behandlingId: UUID,
-        arbeidssteg: Arbeidssteg,
-    ) {
-        run(
-            when (arbeidssteg.tilstandType) {
-                Arbeidssteg.TilstandType.IkkeUtført -> {
-                    queryOf(
-                        //language=PostgreSQL
-                        """DELETE FROM behandling_arbeidssteg WHERE behandling_id = :behandling_id AND oppgave = :oppgave""",
-                        mapOf("behandling_id" to behandlingId, "oppgave" to arbeidssteg.oppgave.name),
-                    ).asUpdate
-                }
-
-                Arbeidssteg.TilstandType.Utført -> {
-                    queryOf(
-                        // language=PostgreSQL
-                        """
-                        INSERT INTO behandling_arbeidssteg(behandling_id, oppgave, tilstand, utført_av, utført) 
-                        VALUES (:behandling_id, :oppgave, :tilstand, :utfort_av, :utfort) ON CONFLICT (behandling_id, oppgave) DO UPDATE SET tilstand = :tilstand, utført_av = :utfort_av, utført = :utfort 
-                        """.trimIndent(),
-                        mapOf(
-                            "behandling_id" to behandlingId,
-                            "oppgave" to arbeidssteg.oppgave.name,
-                            "tilstand" to arbeidssteg.tilstandType.name,
-                            "utfort_av" to arbeidssteg.utførtAv.ident,
-                            "utfort" to arbeidssteg.utført,
-                        ),
-                    ).asUpdate
-                }
-            },
-        )
     }
 
     override fun lagreBegrunnelse(
