@@ -256,7 +256,15 @@ val DagpengerBrevmal =
                     tittel = "Du må sende meldekort",
                     tekst =
                         "For å ha rett på dagpenger må du sende meldekort hver 14. dag. " +
-                            "Du fyller ut meldekortet digitalt på nav.no/meldekort.",
+                            "Du fyller ut meldekortet digitalt på nav.no/meldekort. " +
+                            "Logg inn på nav.no for å se når du skal sende neste meldekort.\n\n" +
+                            "Hvis du sender meldekortet etter fristen, får du trekk i utbetalingen for neste meldekort. " +
+                            "Hvor mye du blir trukket avhenger av hvor mange dager for sent meldekortet ble sendt. " +
+                            "Du kan klage på trekk i utbetalingen. Klagefristen er seks uker.\n\n" +
+                            "Har det gått mer enn 20 dager siden siste gang du sendte et meldekort, " +
+                            "blir du tatt ut av arbeidssøkerregisteret hos Nav, og dagpengene dine stanser. " +
+                            "Da må du registrere deg som arbeidssøker på nytt og sende inn ny søknad om dagpenger.\n\n" +
+                            "Les mer om meldekort og hva som skal føres på nav.no/send-meldekort-dagpenger.",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 1,
                 ),
@@ -265,9 +273,134 @@ val DagpengerBrevmal =
                     tittel = "Du må sende meldekort",
                     tekst =
                         "For å ha rett på dagpenger må du sende meldekort hver 14. dag. " +
-                            "Du fyller ut meldekortet digitalt på nav.no/meldekort.",
+                            "Du fyller ut meldekortet digitalt på nav.no/meldekort. " +
+                            "Logg inn på nav.no for å se når du skal sende neste meldekort.\n\n" +
+                            "Hvis du sender meldekortet etter fristen, får du trekk i utbetalingen for neste meldekort. " +
+                            "Hvor mye du blir trukket avhenger av hvor mange dager for sent meldekortet ble sendt. " +
+                            "Du kan klage på trekk i utbetalingen. Klagefristen er seks uker.\n\n" +
+                            "Har det gått mer enn 20 dager siden siste gang du sendte et meldekort, " +
+                            "blir du tatt ut av arbeidssøkerregisteret hos Nav, og dagpengene dine stanser. " +
+                            "Da må du registrere deg som arbeidssøker på nytt og sende inn ny søknad om dagpenger.\n\n" +
+                            "Les mer om meldekort og hva som skal føres på nav.no/send-meldekort-dagpenger.",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 1,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    tittel = "Utbetaling",
+                    tekst =
+                        "Har du registrert en bankkonto hos Nav eller Skatteetaten, vil du få utbetalingen på den kontoen. " +
+                            "Pengene utbetales vanligvis innen to til tre dager etter at meldekortet ditt er registrert hos Nav. " +
+                            "Du kan se alle utbetalingene du har fått ved å logge inn på nav.no.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 2,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Gjenopptak"),
+                    tittel = "Utbetaling",
+                    tekst =
+                        "Har du registrert en bankkonto hos Nav eller Skatteetaten, vil du få utbetalingen på den kontoen. " +
+                            "Pengene utbetales vanligvis innen to til tre dager etter at meldekortet ditt er registrert hos Nav. " +
+                            "Du kan se alle utbetalingene du har fått ved å logge inn på nav.no.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 2,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    tittel = "Husk å sjekke skattekortet ditt",
+                    tekst =
+                        "Du må betale skatt av dagpengene du får fra Nav. " +
+                            "Det er lurt å endre skattekortet ditt når du får mindre utbetalt i måneden. " +
+                            "Hvis du både jobber og mottar dagpenger, og trekkes etter tabellkort på dagpengene, " +
+                            "kan det føre til at vi trekker for lite skatt. " +
+                            "Du bør derfor informere Nav om at du ønsker prosenttrekk av dagpengene. " +
+                            "Du kan endre skattekortet ditt på skatteetaten.no.\n\n" +
+                            "Les mer om skattetrekk på nav.no/skattetrekk.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 3,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Gjenopptak"),
+                    tittel = "Husk å sjekke skattekortet ditt",
+                    tekst =
+                        "Du må betale skatt av dagpengene du får fra Nav. " +
+                            "Det er lurt å endre skattekortet ditt når du får mindre utbetalt i måneden. " +
+                            "Hvis du både jobber og mottar dagpenger, og trekkes etter tabellkort på dagpengene, " +
+                            "kan det føre til at vi trekker for lite skatt. " +
+                            "Du bør derfor informere Nav om at du ønsker prosenttrekk av dagpengene. " +
+                            "Du kan endre skattekortet ditt på skatteetaten.no.\n\n" +
+                            "Les mer om skattetrekk på nav.no/skattetrekk.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 3,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    tittel = "Vi stanser dagpengene dine automatisk når du:",
+                    tekst =
+                        "ikke sender meldekort etter at du registrerte deg som arbeidsledig\n" +
+                            "har jobbet mer enn 50 prosent av den vanlige arbeidstiden din på tre meldekort " +
+                            "(60 prosent om du er permittert fra fiskeindustrien)\n" +
+                            "slutter å sende meldekort og det er mer enn 20 dager siden du sist sendte meldekort\n" +
+                            "svarer nei på spørsmålet på meldekortet om du fortsatt ønsker å være registrert som arbeidssøker\n" +
+                            "er ferdig med perioden du får dagpenger\n" +
+                            "er ferdig med perioden du får dagpenger som permittert\n" +
+                            "har fylt 67 år",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 4,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Gjenopptak"),
+                    tittel = "Vi stanser dagpengene dine automatisk når du:",
+                    tekst =
+                        "ikke sender meldekort etter at du registrerte deg som arbeidsledig\n" +
+                            "har jobbet mer enn 50 prosent av den vanlige arbeidstiden din på tre meldekort " +
+                            "(60 prosent om du er permittert fra fiskeindustrien)\n" +
+                            "slutter å sende meldekort og det er mer enn 20 dager siden du sist sendte meldekort\n" +
+                            "svarer nei på spørsmålet på meldekortet om du fortsatt ønsker å være registrert som arbeidssøker\n" +
+                            "er ferdig med perioden du får dagpenger\n" +
+                            "er ferdig med perioden du får dagpenger som permittert\n" +
+                            "har fylt 67 år",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 4,
+                ),
+                Maltekst(
+                    trigger = Trigger.Alltid,
+                    tittel = "Du må melde fra om endringer",
+                    tekst =
+                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
+                            "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
+                            "slik at du ikke får for mye eller for lite i dagpenger. " +
+                            "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
+                            "Du må gi beskjed til oss hvis du:\n\n" +
+                            "begynner eller slutter i arbeid, helt eller delvis\n" +
+                            "er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
+                            "blir oppsagt mens du er permittert\n" +
+                            "blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
+                            "begynner eller slutter på tiltak\n" +
+                            "begynner eller slutter på kurs eller annen utdanning\n" +
+                            "skal avvikle ferie eller permisjon\n" +
+                            "sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
+                            "endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "blir innlagt på sykehus eller institusjon\n" +
+                            "skal reise eller flytte til utlandet\n" +
+                            "mottar pensjon eller annen stønad\n" +
+                            "mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
+                            "mottar barnetillegg og du får ansvar for flere/færre barn\n" +
+                            "ikke ønsker arbeidstilbud i en periode\n" +
+                            "har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
+                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 5,
+                ),
+                Maltekst(
+                    trigger = Trigger.Alltid,
+                    tittel = "Du må gi oss riktige opplysninger",
+                    tekst =
+                        "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +
+                            "kan du få et krav om å betale tilbake dagpengene dine. " +
+                            "Du kan også miste retten til dagpenger i inntil 26 uker.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 6,
                 ),
                 Maltekst(
                     trigger = Trigger.Avgjørelse("Stans"),
@@ -276,16 +409,7 @@ val DagpengerBrevmal =
                         "Hvis du ønsker å få dagpenger igjen, må du registrere deg som arbeidssøker på nav.no. " +
                             "Du må deretter søke om dagpenger på nytt.",
                     plassering = Plassering.INFORMASJON,
-                    rekkefølge = 1,
-                ),
-                Maltekst(
-                    trigger = Trigger.Alltid,
-                    tittel = "Du må melde fra om endringer",
-                    tekst =
-                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
-                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 2,
+                    rekkefølge = 7,
                 ),
                 // === Avslutning ===
                 Maltekst(
@@ -293,18 +417,73 @@ val DagpengerBrevmal =
                     tittel = "Du har rett til innsyn",
                     tekst =
                         "Kontakt oss om du vil se dokumentene i saken din. " +
-                            "Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33.",
+                            "Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33. " +
+                            "Du kan lese mer om innsynsretten på nav.no/personvernerklaering.",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 1,
                 ),
                 Maltekst(
                     trigger = Trigger.Alltid,
-                    tittel = "Du har rett til å få hjelp fra andre",
+                    tittel = "Du har rettigheter knyttet til personopplysningene dine",
                     tekst =
-                        "Du kan be om hjelp fra andre under hele saksbehandlingen. " +
-                            "Dette følger av forvaltningsloven § 12.",
+                        "Du finner informasjon om hvordan Nav behandler personopplysningene dine, " +
+                            "og hvilke rettigheter du har, på nav.no/personvernerklaering.\n\n" +
+                            "Nav kan veilede deg på telefon 55 55 33 33 om hvordan Nav behandler personopplysninger.",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 2,
+                ),
+                Maltekst(
+                    trigger = Trigger.Alltid,
+                    tittel = "Du har rett til å få hjelp fra andre",
+                    tekst =
+                        "Du kan be om hjelp fra andre under hele saksbehandlingen, " +
+                            "for eksempel fra en advokat, rettshjelper, en organisasjon du er medlem av, " +
+                            "eller en myndig person over 18 år. Dette følger av forvaltningsloven § 12. " +
+                            "Hvis den som hjelper deg ikke er advokat, må du gi denne personen skriftlig fullmakt. " +
+                            "Bruk skjemaet du finner på nav.no/fullmakt. " +
+                            "Ta kontakt på telefon 55 55 33 33 hvis du ikke kan bruke det digitale skjemaet.",
+                    plassering = Plassering.AVSLUTNING,
+                    rekkefølge = 3,
+                ),
+                Maltekst(
+                    trigger = Trigger.Alltid,
+                    tittel = "Du har rett til å få veiledning fra Nav",
+                    tekst =
+                        "Vi har plikt til å veilede deg om dine rettigheter og plikter i saken din, " +
+                            "både før, under og etter saksbehandlingen. Dette følger av forvaltningsloven § 11. " +
+                            "Ta kontakt på telefon 55 55 33 33 eller på nav.no/kontaktoss hvis du har spørsmål.",
+                    plassering = Plassering.AVSLUTNING,
+                    rekkefølge = 4,
+                ),
+                Maltekst(
+                    trigger = Trigger.Alltid,
+                    tittel = "Du har rett til å klage",
+                    tekst =
+                        "Hvis du mener vedtaket er feil, kan du klage innen seks uker fra den datoen vedtaket har kommet fram til deg. " +
+                            "Klagen må være skriftlig. Du finner skjema og informasjon på nav.no/klage.\n\n" +
+                            "Nav kan veilede deg på telefon om hvordan du sender en klage. " +
+                            "Nav-kontoret ditt kan også hjelpe deg med å skrive en klage. " +
+                            "Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp.\n\n" +
+                            "Hvis du får medhold i klagen, kan du få dekket vesentlige utgifter som har vært nødvendige " +
+                            "for å få endret vedtaket, for eksempel hjelp fra advokat. " +
+                            "Du kan ha krav på fri rettshjelp etter rettshjelploven. " +
+                            "Du kan få mer informasjon om denne ordningen hos advokater, statsforvalteren eller Nav.\n\n" +
+                            "Du kan lese om saksomkostninger i forvaltningsloven § 36.\n\n" +
+                            "Hvis du sender klage i posten, må du signere klagen.\n\n" +
+                            "Mer informasjon om klagerettigheter finner du på nav.no/klagerettigheter.\n\n" +
+                            "Hvis du får medhold i klagen din, har du kun rett til dagpenger for de periodene du har vært registrert som arbeidssøker.",
+                    plassering = Plassering.AVSLUTNING,
+                    rekkefølge = 5,
+                ),
+                Maltekst(
+                    trigger = Trigger.Alltid,
+                    tittel = "Har du spørsmål?",
+                    tekst =
+                        "Du finner mer informasjon på nav.no/dagpenger. " +
+                            "På nav.no/kontakt kan du chatte eller skrive til oss. " +
+                            "Hvis du ikke finner svar på nav.no kan du ringe oss på telefon 55 55 33 33, hverdager 09.00-15.00.",
+                    plassering = Plassering.AVSLUTNING,
+                    rekkefølge = 6,
                 ),
             ),
     )
