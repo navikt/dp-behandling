@@ -119,4 +119,26 @@ class BrevRendererTest {
 
         TypstRenderer.render(brev) shouldBe expected
     }
+
+    @Test
+    fun `typst renderer konverterer markdown-lenker og bold`() {
+        val brevMedLenker =
+            Brev(
+                overskrift = "Test",
+                seksjoner =
+                    listOf(
+                        Brevseksjon(
+                            plassering = Plassering.INFORMASJON,
+                            innhold =
+                                listOf(
+                                    "Les mer på [nav.no/dagpenger](https://nav.no/dagpenger).",
+                                    "**Derfor får du dagpenger fra 1. mai 2026**",
+                                ),
+                        ),
+                    ),
+            )
+        val typst = TypstRenderer.render(brevMedLenker)
+        typst shouldContain """Les mer på #link("https://nav.no/dagpenger")[nav.no/dagpenger]."""
+        typst shouldContain "*Derfor får du dagpenger fra 1. mai 2026*"
+    }
 }
