@@ -165,9 +165,9 @@ internal class BrevKontekst(
         return when (val verdi = sistePeriode.verdi) {
             is BoolskVerdiDTO -> verdi.verdi.toString()
             is DatoVerdiDTO -> formaterDato(verdi.verdi)
-            is DesimaltallVerdiDTO -> verdi.verdi.toString()
+            is DesimaltallVerdiDTO -> formaterDesimaltall(verdi.verdi)
             is HeltallVerdiDTO -> verdi.verdi.toString()
-            is PengeVerdiDTO -> verdi.verdi.toString()
+            is PengeVerdiDTO -> formaterPenger(verdi.verdi)
             is TekstVerdiDTO -> verdi.verdi
             else -> verdi.toString()
         }
@@ -178,5 +178,18 @@ internal class BrevKontekst(
         private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale("nb", "NO"))
 
         private fun formaterDato(dato: LocalDate): String = dato.format(NORSK_DATO)
+
+        private fun formaterPenger(verdi: java.math.BigDecimal): String =
+            verdi.stripTrailingZeros().let {
+                if (it.scale() <= 0) it.toBigInteger().toString() else it.toPlainString()
+            }
+
+        private fun formaterDesimaltall(verdi: Double): String {
+            val rounded =
+                java.math.BigDecimal
+                    .valueOf(verdi)
+                    .setScale(2, java.math.RoundingMode.HALF_UP)
+            return rounded.stripTrailingZeros().toPlainString()
+        }
     }
 }
