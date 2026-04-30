@@ -99,7 +99,10 @@ internal class BrevKontekst(
     fun evaluerer(trigger: Trigger): Boolean =
         when (trigger) {
             is Trigger.Alltid -> true
-            is Trigger.Avgjørelse -> resultat.førteTil.value.equals(trigger.avgjørelse, ignoreCase = true)
+            is Trigger.Avgjørelse ->
+                resultat.førteTil.value.let { v ->
+                    trigger.avgjørelser.any { it.equals(v, ignoreCase = true) }
+                }
             is Trigger.OpplysningFinnes -> {
                 val opplysning = opplysningerMap[trigger.opplysningsTypeId]
                 opplysning != null &&
