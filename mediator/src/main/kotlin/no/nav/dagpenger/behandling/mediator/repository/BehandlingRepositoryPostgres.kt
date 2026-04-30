@@ -323,25 +323,34 @@ internal class BehandlingRepositoryPostgres(
         lagreBehandlingTilstand(unitOfWork, behandlinger)
         lagreBehandlerHendelse(unitOfWork, behandlinger)
         lagreBehandlingArbeidssted(unitOfWork, behandlinger)
+        lagreOpplysninger(unitOfWork, behandlinger)
+
         behandlinger.forEach { behandling ->
-            opplysningRepository.lagreOpplysninger(behandling.opplysninger() as Opplysninger, unitOfWork)
-
-            unitOfWork.session.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO behandling_opplysninger (opplysninger_id, behandling_id) 
-                    VALUES (:opplysninger_id, :behandling_id) ON CONFLICT DO NOTHING
-                    """.trimIndent(),
-                    mapOf(
-                        "opplysninger_id" to behandling.opplysninger().id,
-                        "behandling_id" to behandling.behandlingId,
-                    ),
-                ).asUpdate,
-            )
-
             avklaringRepository.lagreAvklaringer(behandling, unitOfWork)
         }
+    }
+
+    private fun lagreOpplysninger(
+        unitOfWork: PostgresUnitOfWork,
+        behandlinger: List<Behandling>,
+    ) {
+        opplysningRepository.lagreOpplysninger(behandlinger.map { it.opplysninger }, unitOfWork)
+
+        val params =
+            behandlinger.map { behandling ->
+                mapOf(
+                    "opplysninger_id" to behandling.opplysninger().id,
+                    "behandling_id" to behandling.behandlingId,
+                )
+            }
+        unitOfWork.session.batchPreparedNamedStatement(
+            // language=PostgreSQL
+            """
+            INSERT INTO behandling_opplysninger (opplysninger_id, behandling_id) 
+            VALUES (:opplysninger_id, :behandling_id) ON CONFLICT DO NOTHING
+            """.trimIndent(),
+            params,
+        )
     }
 
     private fun lagreBehandlingArbeidssted(

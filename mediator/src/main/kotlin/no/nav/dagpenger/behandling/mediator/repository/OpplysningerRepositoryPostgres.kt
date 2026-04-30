@@ -78,30 +78,38 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
         PostgresUnitOfWork.transaction {
-            lagreOpplysninger(opplysninger, this)
+            lagreOpplysninger(listOf(opplysninger), this)
         }
     }
 
     override fun lagreOpplysninger(
-        opplysninger: Opplysninger,
+        opplysninger: List<Opplysninger>,
         unitOfWork: PostgresUnitOfWork,
     ) {
-        unitOfWork.session.run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                INSERT INTO opplysninger (opplysninger_id) VALUES (:opplysningerId) ON CONFLICT DO NOTHING
-                """.trimIndent(),
-                mapOf("opplysningerId" to opplysninger.id),
-            ).asUpdate,
+        val params =
+            opplysninger.map {
+                mapOf("opplysningerId" to it.id)
+            }
+
+        unitOfWork.session.batchPreparedNamedStatement(
+            //language=PostgreSQL
+            """
+            INSERT INTO opplysninger (opplysninger_id) VALUES (:opplysningerId) ON CONFLICT DO NOTHING
+            """.trimIndent(),
+            params,
         )
 
-        val somListe: List<Opplysning<*>> = opplysninger.somListe(LesbarOpplysninger.Filter.Egne)
+        val opplysningerSomSkalLagres =
+            opplysninger.map {
+                val somListe = it.somListe(LesbarOpplysninger.Filter.Egne)
+                it.id to somListe.filter { opplysning -> opplysning.skalLagres }
+            }
+
+        val fjernet = opplysninger.flatMap { it.fjernet() }.toSet()
 
         OpplysningRepository(unitOfWork.session).lagreOpplysninger(
-            opplysninger.id,
-            somListe.filter { it.skalLagres },
-            opplysninger.fjernet(),
+            opplysningerSomSkalLagres,
+            fjernet,
         )
     }
 
@@ -304,14 +312,14 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             } as T
 
         fun lagreOpplysninger(
-            opplysningerId: UUID,
-            opplysninger: List<Opplysning<*>>,
+            opplysninger: List<Pair<UUID, List<Opplysning<*>>>>,
             fjernet: Set<Opplysning<*>>,
         ) {
-            kildeRespository.lagreKilder(opplysninger.mapNotNull { it.kilde }, session)
-            batchOpplysninger(opplysningerId, opplysninger).run(session)
-            batchFjernet(fjernet).run(session)
-            lagreUtledetAv(opplysninger)
+            val kilder = opplysninger.flatMap { (_, opplysningerliste) -> opplysningerliste.mapNotNull { it.kilde } }
+            kildeRespository.lagreKilder(kilder, session)
+            batchOpplysninger(opplysninger)
+            batchFjernet(fjernet)
+            lagreUtledetAv(opplysninger.flatMap { it.second })
         }
 
         @WithSpan
@@ -361,10 +369,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             )
 
         @WithSpan
-        private fun batchOpplysninger(
-            opplysningerId: UUID,
-            opplysninger: List<Opplysning<*>>,
-        ): BatchStatement {
+        private fun batchOpplysninger(opplysninger: List<Pair<UUID, List<Opplysning<*>>>>) {
             val defaultVerdi =
                 mapOf(
                     "verdi_heltall" to null,
@@ -373,55 +378,66 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
                     "verdi_boolsk" to null,
                     "verdi_string" to null,
                 )
-            return BatchStatement(
-                //language=PostgreSQL
-                """
-                WITH ins AS (SELECT opplysningstype_id FROM opplysningstype WHERE uuid = :typeUuid AND datatype = :datatype)
-                INSERT
-                INTO opplysning (opplysninger_id, id, status, opplysningstype_id, kilde_id, gyldig_fom, gyldig_tom, opprettet, datatype,
-                                 verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string, verdi_jsonb, erstatter_id)
-                VALUES (:opplysningerId, :id, :status, (SELECT opplysningstype_id FROM ins), :kilde_id, :fom::timestamp,
-                        :tom::timestamp, :opprettet, :datatype, :verdi_heltall, :verdi_desimaltall, :verdi_dato, :verdi_boolsk,
-                        :verdi_string, :verdi_jsonb, :erstatter_id)
-                ON CONFLICT(id) DO UPDATE SET erstatter_id=:erstatter_id
-                """.trimIndent(),
-                opplysninger.map { opplysning ->
-                    val gyldighetsperiode: Gyldighetsperiode = opplysning.gyldighetsperiode
 
-                    val datatype = opplysning.opplysningstype.datatype
-                    val (kolonne, data) = verdiKolonne(datatype, opplysning.verdi)
-                    val verdi = defaultVerdi + mapOf(kolonne to data)
+            val params =
+                opplysninger.flatMap { (opplysningerId, opplysningliste) ->
+                    opplysningliste.map { opplysning ->
+                        val gyldighetsperiode: Gyldighetsperiode = opplysning.gyldighetsperiode
 
-                    mapOf(
-                        "opplysningerId" to opplysningerId,
-                        "id" to opplysning.id,
-                        "status" to opplysning.javaClass.simpleName,
-                        "typeUuid" to opplysning.opplysningstype.id.uuid,
-                        "datatype" to opplysning.opplysningstype.datatype.navn(),
-                        "kilde_id" to opplysning.kilde?.id,
-                        "fom" to gyldighetsperiode.fraOgMed.takeIf { gyldighetsperiode.harStartdato },
-                        "tom" to gyldighetsperiode.tilOgMed.takeIf { gyldighetsperiode.harSluttdato },
-                        "opprettet" to opplysning.opprettet,
-                        "kolonne" to kolonne,
-                        "opplysning_id" to opplysning.id,
-                        "datatype" to datatype.navn(),
-                        "erstatter_id" to opplysning.erstatter?.id,
-                    ) + verdi
-                },
-            )
+                        val datatype = opplysning.opplysningstype.datatype
+                        val (kolonne, data) = verdiKolonne(datatype, opplysning.verdi)
+                        val verdi = defaultVerdi + mapOf(kolonne to data)
+
+                        mapOf(
+                            "opplysningerId" to opplysningerId,
+                            "id" to opplysning.id,
+                            "status" to opplysning.javaClass.simpleName,
+                            "typeUuid" to opplysning.opplysningstype.id.uuid,
+                            "datatype" to opplysning.opplysningstype.datatype.navn(),
+                            "kilde_id" to opplysning.kilde?.id,
+                            "fom" to gyldighetsperiode.fraOgMed.takeIf { gyldighetsperiode.harStartdato },
+                            "tom" to gyldighetsperiode.tilOgMed.takeIf { gyldighetsperiode.harSluttdato },
+                            "opprettet" to opplysning.opprettet,
+                            "kolonne" to kolonne,
+                            "opplysning_id" to opplysning.id,
+                            "datatype" to datatype.navn(),
+                            "erstatter_id" to opplysning.erstatter?.id,
+                        ) + verdi
+                    }
+                }
+
+            session
+                .batchPreparedNamedStatement(
+                    //language=PostgreSQL
+                    """
+                    WITH ins AS (SELECT opplysningstype_id FROM opplysningstype WHERE uuid = :typeUuid AND datatype = :datatype)
+                    INSERT
+                    INTO opplysning (opplysninger_id, id, status, opplysningstype_id, kilde_id, gyldig_fom, gyldig_tom, opprettet, datatype,
+                                     verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string, verdi_jsonb, erstatter_id)
+                    VALUES (:opplysningerId, :id, :status, (SELECT opplysningstype_id FROM ins), :kilde_id, :fom::timestamp,
+                            :tom::timestamp, :opprettet, :datatype, :verdi_heltall, :verdi_desimaltall, :verdi_dato, :verdi_boolsk,
+                            :verdi_string, :verdi_jsonb, :erstatter_id)
+                    ON CONFLICT(id) DO UPDATE SET erstatter_id=:erstatter_id
+                    """.trimIndent(),
+                    params,
+                ).krevAtAntallRaderErNøyaktigLik(params.size)
         }
 
         @WithSpan
-        private fun batchFjernet(fjernet: Set<Opplysning<*>>) =
-            BatchStatement(
-                //language=PostgreSQL
-                """
-                UPDATE opplysning SET fjernet=TRUE WHERE id=:id
-                """.trimIndent(),
-                fjernet.map { opplysning ->
-                    mapOf("id" to opplysning.id)
-                },
-            )
+        private fun batchFjernet(fjernet: Set<Opplysning<*>>) {
+            val params =
+                fjernet
+                    .map { opplysning -> mapOf("id" to opplysning.id) }
+
+            session
+                .batchPreparedNamedStatement(
+                    //language=PostgreSQL
+                    """
+                    UPDATE opplysning SET fjernet=TRUE WHERE id=:id
+                    """.trimIndent(),
+                    params,
+                )
+        }
 
         private fun verdiKolonne(
             datatype: Datatype<*>,
@@ -587,6 +603,14 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
     this.forEach { it.finnErstatter() }
 
     return alleOpplysninger
+}
+
+private fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
+    val sum = sum()
+    check(sum == forventet) {
+        "Forventet å oppdatere nøyaktig $forventet rader, men endte opp med å oppdatere $sum rader"
+    }
+    return this
 }
 
 private data class UtledningRad(
