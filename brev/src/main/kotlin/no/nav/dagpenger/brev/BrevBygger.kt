@@ -15,16 +15,27 @@ import java.util.Locale
 import java.util.UUID
 
 class BrevBygger(
-    private val maltekster: List<Maltekst>,
+    private val brevmal: Brevmal,
 ) {
-    constructor(brevmal: Brevmal) : this(brevmal.maltekster)
+    constructor(maltekster: List<Maltekst>) : this(Brevmal(navn = "", maltekster = maltekster))
 
-    fun bygg(resultat: BehandlingsresultatDTO): Brev {
+    /**
+     * Bygger et brev fra behandlingsresultatet.
+     * Returnerer null hvis malen har [Brevmal.krevInnholdI] satt og ingen av de
+     * krevde plasseringene fikk innhold (f.eks. kun meldekort-endringer).
+     */
+    fun bygg(resultat: BehandlingsresultatDTO): Brev? {
         val kontekst = BrevKontekst(resultat)
         val aktiveMaltekster =
-            maltekster
+            brevmal.maltekster
                 .filter { kontekst.evaluerer(it.trigger) }
                 .sortedWith(compareBy({ it.plassering.ordinal }, { it.rekkefølge }))
+
+        // Sjekk om krevde plasseringer har innhold
+        if (brevmal.krevInnholdI.isNotEmpty()) {
+            val harKrevdInnhold = aktiveMaltekster.any { it.plassering in brevmal.krevInnholdI }
+            if (!harKrevdInnhold) return null
+        }
 
         val overskrift =
             aktiveMaltekster

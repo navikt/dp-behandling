@@ -1,6 +1,7 @@
 package no.nav.dagpenger.brev
 
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import no.nav.dagpenger.behandling.api.models.AvgjørelseDTO
@@ -257,7 +258,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(dagpengerMal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)!!
 
         brev.overskrift shouldBe "Nav har innvilget søknaden din om dagpenger"
 
@@ -326,7 +327,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(dagpengerMal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)!!
 
         // Åpen periode — bare fraOgMed
         val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
@@ -357,7 +358,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(dagpengerMal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)!!
 
         brev.overskrift shouldBe "Nav har avslått søknaden din om dagpenger"
 
@@ -378,6 +379,8 @@ class RealistiskBrevTest {
         avslutning shouldHaveSize 2
         avslutning[0].tittel shouldBe "Du har rett til innsyn"
         avslutning[1].tittel shouldBe "Du har rett til å få hjelp fra andre"
+
+        TypstRenderer.render(brev)
     }
 
     @Test
@@ -398,7 +401,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(dagpengerMal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)!!
 
         val begrunnelse = brev.seksjoner.filter { it.plassering == Plassering.BEGRUNNELSE }
         // "Derfor får du avslag" + minsteinntekt + alder (arbeidssøker er oppfylt, vises ikke)
@@ -406,6 +409,8 @@ class RealistiskBrevTest {
         begrunnelse[0].tittel shouldBe "Derfor får du avslag"
         begrunnelse[1].tittel shouldBe "Du oppfyller ikke kravet til minsteinntekt"
         begrunnelse[2].tittel shouldBe "Du oppfyller ikke kravet til alder"
+
+        TypstRenderer.render(brev)
     }
 
     @Test
@@ -427,12 +432,123 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(dagpengerMal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)!!
 
         val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
         innledning shouldHaveSize 1
         innledning[0].innhold[0] shouldContain "[Saksbehandler:"
         innledning[0].innhold[0] shouldContain "ikke kan beskrives maskinelt"
+    }
+
+    // -- Endrings-mal --
+    // Kun meldekort-endringer → ingen brev. Reelle endringer → brev.
+    private val barnetilleggId = UUID.randomUUID()
+    private val kombinasjonMedUtdanningId = UUID.randomUUID()
+    private val meldekortUtbetalingId = UUID.randomUUID()
+
+    private val endringsMal =
+        Brevmal(
+            navn = "Dagpenger - endring",
+            krevInnholdI = setOf(Plassering.VILKÅR, Plassering.FASTSETTELSE, Plassering.BEGRUNNELSE),
+            maltekster =
+                listOf(
+                    Maltekst(
+                        trigger = Trigger.Avgjørelse("Endring"),
+                        tekst = "Nav har endret dagpengene dine",
+                        plassering = Plassering.OVERSKRIFT,
+                        rekkefølge = 1,
+                    ),
+                    Maltekst(
+                        trigger = Trigger.Avgjørelse("Endring"),
+                        tekst = "Vi har gjort endringer i dagpengene dine.",
+                        plassering = Plassering.INNLEDNING,
+                        rekkefølge = 1,
+                    ),
+                    // Nye vilkår
+                    Maltekst(
+                        trigger = Trigger.OpplysningVerdi(kombinasjonMedUtdanningId, "true", kunNyeOpplysninger = true),
+                        tittel = "Du kan kombinere dagpenger med utdanning",
+                        tekst = "Du har fått innvilget å ta utdanning mens du mottar dagpenger. Vedtaket er gjort etter § 4-6.",
+                        plassering = Plassering.VILKÅR,
+                        rekkefølge = 1,
+                    ),
+                    // Endrede fastsettelser
+                    Maltekst(
+                        trigger = Trigger.OpplysningFinnes(barnetilleggId, kunNyeOpplysninger = true),
+                        tittel = "Endring i barnetillegg",
+                        tekst = "Barnetillegget ditt er endret til {{Barnetillegg}} kroner per dag.",
+                        plassering = Plassering.FASTSETTELSE,
+                        rekkefølge = 1,
+                    ),
+                    // Faste tekster
+                    Maltekst(
+                        trigger = Trigger.Alltid,
+                        tittel = "Du har rett til innsyn",
+                        tekst = "Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33.",
+                        plassering = Plassering.AVSLUTNING,
+                        rekkefølge = 1,
+                    ),
+                ),
+        )
+
+    @Test
+    fun `endring med kun meldekort-opplysninger gir ikke brev`() {
+        val resultat =
+            lagResultat(
+                AvgjørelseDTO.ENDRING,
+                opplysninger =
+                    listOf(
+                        // Meldekort-opplysning — ingen maltekst matcher denne
+                        lagOpplysning(meldekortUtbetalingId, "Meldekort utbetaling", PengeVerdiDTO(BigDecimal("2310"))),
+                    ),
+            )
+
+        val brev = BrevBygger(endringsMal).bygg(resultat)
+
+        brev shouldBe null
+    }
+
+    @Test
+    fun `endring med nytt vilkår gir brev`() {
+        val resultat =
+            lagResultat(
+                AvgjørelseDTO.ENDRING,
+                opplysninger =
+                    listOf(
+                        lagOpplysning(meldekortUtbetalingId, "Meldekort utbetaling", PengeVerdiDTO(BigDecimal("2310"))),
+                        lagOpplysning(kombinasjonMedUtdanningId, "Kombinasjon med utdanning", BoolskVerdiDTO(true), OpprinnelseDTO.NY),
+                    ),
+            )
+
+        val brev = BrevBygger(endringsMal).bygg(resultat)
+
+        brev.shouldNotBeNull()
+        brev!!.overskrift shouldBe "Nav har endret dagpengene dine"
+        val vilkår = brev.seksjoner.filter { it.plassering == Plassering.VILKÅR }
+        vilkår shouldHaveSize 1
+        vilkår[0].tittel shouldBe "Du kan kombinere dagpenger med utdanning"
+    }
+
+    @Test
+    fun `endring med endret fastsettelse gir brev`() {
+        val resultat =
+            lagResultat(
+                AvgjørelseDTO.ENDRING,
+                opplysninger =
+                    listOf(
+                        lagOpplysning(meldekortUtbetalingId, "Meldekort utbetaling", PengeVerdiDTO(BigDecimal("2310"))),
+                        lagOpplysning(barnetilleggId, "Barnetillegg", PengeVerdiDTO(BigDecimal("45")), OpprinnelseDTO.NY),
+                    ),
+            )
+
+        val brev = BrevBygger(endringsMal).bygg(resultat)
+
+        brev.shouldNotBeNull()
+        brev!!.overskrift shouldBe "Nav har endret dagpengene dine"
+        val fastsettelser = brev.seksjoner.filter { it.plassering == Plassering.FASTSETTELSE }
+        fastsettelser shouldHaveSize 1
+        fastsettelser[0].tittel shouldBe "Endring i barnetillegg"
+        fastsettelser[0].innhold[0] shouldContain "45 kroner per dag"
     }
 
     // -- Hjelpemetoder --
