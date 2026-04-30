@@ -135,24 +135,7 @@ class PersonRepositoryPostgres(
 
         lagreRettighetshistorikk(unitOfWork, person.ident.identifikator(), person.rettighethistorikk())
 
-        person.behandlinger().forEach { behandling ->
-            behandlingRepository.lagre(behandling, unitOfWork)
-
-            unitOfWork.session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    INSERT INTO person_behandling (ident, behandling_id)
-                    VALUES (:ident, :behandling_id)
-                    ON CONFLICT DO NOTHING
-                    """.trimIndent(),
-                    mapOf(
-                        "ident" to person.ident.identifikator(),
-                        "behandling_id" to behandling.behandlingId,
-                    ),
-                ).asUpdate,
-            )
-        }
+        behandlingRepository.lagre(person.ident, person.behandlinger(), unitOfWork)
     }
 
     private fun lagreRettighetshistorikk(

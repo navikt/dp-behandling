@@ -11,7 +11,10 @@ import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
+import no.nav.dagpenger.behandling.modell.Ident
+import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
+import no.nav.dagpenger.behandling.modell.somKjede
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -98,16 +101,15 @@ class AvklaringRepositoryPostgresTest {
         val behandlingId get() = behandling.behandlingId
         private val behandling = behandling(*avklaring)
         private val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository(), repository)
+        private val personRepository = PersonRepositoryPostgres(behandlingRepository)
 
         init {
             lagre()
         }
 
         fun lagre() {
-            PostgresUnitOfWork.transaction {
-                behandlingRepository.lagre(behandling, this)
-                repository.lagreAvklaringer(behandling, this)
-            }
+            val person = Person(Ident(behandling.behandler.ident), listOf(behandling.somKjede()))
+            personRepository.lagre(person)
         }
 
         private fun behandling(vararg avklaring: Avklaring) =
@@ -116,7 +118,7 @@ class AvklaringRepositoryPostgresTest {
                 behandler =
                     SøknadInnsendtHendelse(
                         UUIDv7.ny(),
-                        "123",
+                        "12345678911",
                         UUIDv7.ny(),
                         LocalDate.now(),
                         1,

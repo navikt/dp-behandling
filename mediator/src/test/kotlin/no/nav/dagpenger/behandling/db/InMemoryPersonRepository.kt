@@ -42,7 +42,8 @@ class InMemoryPersonRepository :
     }
 
     override fun lagre(
-        behandling: Behandling,
+        ident: Ident,
+        behandlinger: List<Behandling>,
         unitOfWork: PostgresUnitOfWork,
     ) {
         TODO("Not yet implemented")

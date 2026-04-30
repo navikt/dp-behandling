@@ -67,7 +67,8 @@ interface BehandlingRepository :
 
     @WithSpan
     fun lagre(
-        behandling: Behandling,
+        ident: Ident,
+        behandlinger: List<Behandling>,
         unitOfWork: PostgresUnitOfWork,
     )
 
