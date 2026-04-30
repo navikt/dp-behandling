@@ -77,21 +77,16 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
             .use { session -> return@use session.hentOpplysninger(opplysningerId) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
-        val unitOfWork = PostgresUnitOfWork.transaction()
-        lagreOpplysninger(opplysninger, unitOfWork)
-        unitOfWork.commit()
+        PostgresUnitOfWork.transaction {
+            lagreOpplysninger(opplysninger, this)
+        }
     }
 
     override fun lagreOpplysninger(
         opplysninger: Opplysninger,
-        unitOfWork: UnitOfWork<*>,
-    ) = lagreOpplysninger(opplysninger, unitOfWork as PostgresUnitOfWork)
-
-    private fun lagreOpplysninger(
-        opplysninger: Opplysninger,
         unitOfWork: PostgresUnitOfWork,
-    ) = unitOfWork.inTransaction { tx ->
-        tx.run(
+    ) {
+        unitOfWork.session.run(
             queryOf(
                 //language=PostgreSQL
                 """
@@ -103,7 +98,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
         val somListe: List<Opplysning<*>> = opplysninger.somListe(LesbarOpplysninger.Filter.Egne)
 
-        OpplysningRepository(tx).lagreOpplysninger(
+        OpplysningRepository(unitOfWork.session).lagreOpplysninger(
             opplysninger.id,
             somListe.filter { it.skalLagres },
             opplysninger.fjernet(),

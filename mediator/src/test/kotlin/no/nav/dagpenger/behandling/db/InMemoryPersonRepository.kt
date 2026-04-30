@@ -3,7 +3,7 @@ package no.nav.dagpenger.behandling.db
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
-import no.nav.dagpenger.behandling.mediator.repository.UnitOfWork
+import no.nav.dagpenger.behandling.mediator.repository.PostgresUnitOfWork
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandlingkjede
 import no.nav.dagpenger.behandling.modell.Ident
@@ -43,7 +43,7 @@ class InMemoryPersonRepository :
 
     override fun lagre(
         behandling: Behandling,
-        unitOfWork: UnitOfWork<*>,
+        unitOfWork: PostgresUnitOfWork,
     ) {
         TODO("Not yet implemented")
     }
@@ -65,7 +65,7 @@ class InMemoryPersonRepository :
 
     override fun lagreAvklaringer(
         behandling: Behandling,
-        unitOfWork: UnitOfWork<*>,
+        unitOfWork: PostgresUnitOfWork,
     ) {
         TODO("Not yet implemented")
     }
@@ -84,7 +84,7 @@ class InMemoryPersonRepository :
 
     override fun lagre(
         person: Person,
-        unitOfWork: UnitOfWork<*>,
+        unitOfWork: PostgresUnitOfWork,
     ) {
         TODO("Not yet implemented")
     }

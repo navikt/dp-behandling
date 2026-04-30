@@ -4,57 +4,63 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.Session
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import java.sql.Connection
 
-class PostgresUnitOfWork private constructor(
-    private val session: Session,
-) : UnitOfWork<Session> {
-    private val transactionTimer = DbMetrics.transactionDuration.startTimer()
+private val logger = KotlinLogging.logger {}
 
+data class PostgresUnitOfWork(
+    val session: Session,
+) {
     companion object {
-        fun transaction() =
-            PostgresUnitOfWork(sessionOf(dataSource)).apply {
-                session.connection.begin()
-                DbMetrics.activeTransactions.inc()
+        fun transaction(transactionBlock: PostgresUnitOfWork.() -> Unit) {
+            sessionOf(dataSource).use { session ->
+                session.connection.underlying.withTransaction {
+                    PostgresUnitOfWork(session).apply(transactionBlock)
+                }
             }
-
-        private val logger = KotlinLogging.logger {}
-    }
-
-    override fun commit() {
-        val commitTimer = DbMetrics.commitDuration.startTimer()
-        try {
-            session.connection.commit()
-            DbMetrics.commitCounter.inc()
-        } finally {
-            commitTimer.observeDuration()
-            transactionTimer.observeDuration()
-            DbMetrics.activeTransactions.dec()
-            session.close()
         }
     }
+}
 
-    override fun rollback() = rollbackQuietly()
+private fun <R> Connection.withTransaction(transactionBlock: () -> R): R {
+    val transactionTimer = DbMetrics.transactionDuration.startTimer()
+    val previousValue = autoCommit
+    autoCommit = false
+    try {
+        DbMetrics.activeTransactions.inc()
 
-    override fun <T> inTransaction(block: (Session) -> T): T =
-        try {
-            block(session)
-        } catch (e: Exception) {
-            logger.error(e) { "Transaksjonen feilet, ruller tilbake" }
-            rollbackQuietly()
-            throw e
-        }
+        val result = transactionBlock()
 
-    private fun rollbackQuietly() {
-        val timer = DbMetrics.transactionDuration.startTimer()
-        try {
-            session.connection.rollback()
-            DbMetrics.rollbackCounter.inc()
-        } catch (rollbackException: Exception) {
-            logger.error(rollbackException) { "Feil under rollback" }
-        } finally {
-            timer.observeDuration()
-            DbMetrics.activeTransactions.dec()
-            session.close()
-        }
+        commitAndCount()
+
+        return result
+    } catch (err: Exception) {
+        rollbackAndCount()
+        logger.error(err) { "Transaksjonen feilet, ruller tilbake" }
+        throw err
+    } finally {
+        autoCommit = previousValue
+        DbMetrics.activeTransactions.dec()
+        transactionTimer.observeDuration()
+    }
+}
+
+private fun Connection.commitAndCount() {
+    val commitTimer = DbMetrics.commitDuration.startTimer()
+    try {
+        commit()
+        DbMetrics.commitCounter.inc()
+    } finally {
+        commitTimer.observeDuration()
+    }
+}
+
+private fun Connection.rollbackAndCount() {
+    val timer = DbMetrics.transactionDuration.startTimer()
+    try {
+        rollback()
+        DbMetrics.rollbackCounter.inc()
+    } finally {
+        timer.observeDuration()
     }
 }

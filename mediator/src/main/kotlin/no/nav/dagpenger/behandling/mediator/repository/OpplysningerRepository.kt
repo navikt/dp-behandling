@@ -11,7 +11,7 @@ interface OpplysningerRepository {
 
     fun lagreOpplysninger(
         opplysninger: Opplysninger,
-        unitOfWork: UnitOfWork<*>,
+        unitOfWork: PostgresUnitOfWork,
     )
 
     fun lagreOpplysningstyper(opplysningstyper: Collection<Opplysningstype<*>>): List<Int>

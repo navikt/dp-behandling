@@ -105,22 +105,17 @@ class PersonRepositoryPostgres(
 
     override fun lagre(person: Person) {
         lagrePersonMetrikk.time {
-            val unitOfWork = PostgresUnitOfWork.transaction()
-            lagre(person, unitOfWork)
-            unitOfWork.commit()
+            PostgresUnitOfWork.transaction {
+                lagre(person, this)
+            }
         }
     }
 
     override fun lagre(
         person: Person,
-        unitOfWork: UnitOfWork<*>,
-    ) = lagre(person, unitOfWork as PostgresUnitOfWork)
-
-    private fun lagre(
-        person: Person,
         unitOfWork: PostgresUnitOfWork,
-    ) = unitOfWork.inTransaction { tx ->
-        tx.run(
+    ) {
+        unitOfWork.session.run(
             queryOf(
                 //language=PostgreSQL
                 """
@@ -129,7 +124,7 @@ class PersonRepositoryPostgres(
                 mapOf("ident" to person.ident.identifikator()),
             ).asUpdate,
         )
-        tx.run(
+        unitOfWork.session.run(
             queryOf(
                 //language=PostgreSQL
                 "DELETE FROM rettighetstatus WHERE ident = :ident",
@@ -137,7 +132,7 @@ class PersonRepositoryPostgres(
             ).asUpdate,
         )
         person.rettighethistorikk().forEach { (gjelderFra, rettighetstatus) ->
-            tx.run(
+            unitOfWork.session.run(
                 queryOf(
                     //language=PostgreSQL
                     """
@@ -158,7 +153,7 @@ class PersonRepositoryPostgres(
         person.behandlinger().forEach { behandling ->
             behandlingRepository.lagre(behandling, unitOfWork)
 
-            tx.run(
+            unitOfWork.session.run(
                 queryOf(
                     //language=PostgreSQL
                     """

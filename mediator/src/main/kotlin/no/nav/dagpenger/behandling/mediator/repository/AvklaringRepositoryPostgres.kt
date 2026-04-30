@@ -115,9 +115,9 @@ internal class AvklaringRepositoryPostgres private constructor(
 
     override fun lagreAvklaringer(
         behandling: Behandling,
-        unitOfWork: UnitOfWork<*>,
+        unitOfWork: PostgresUnitOfWork,
     ) {
-        lagre(behandling, unitOfWork as PostgresUnitOfWork)
+        lagre(behandling, unitOfWork)
     }
 
     private fun lagre(
@@ -127,33 +127,31 @@ internal class AvklaringRepositoryPostgres private constructor(
         val avklaringer = behandling.avklaringer()
         val nyeAvklaringer = mutableListOf<Avklaring>()
 
-        unitOfWork.inTransaction { tx ->
-            val nyeAvklaringerIder: List<Int> =
-                BatchStatement(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO avklaring (id, behandling_id, kode, tittel, beskrivelse, kan_kvitteres, kan_avbrytes)
-                    VALUES (:avklaring_id, :behandling_id, :kode, :tittel, :beskrivelse, :kanKvitteres, :kanAvbrytes)
-                    ON CONFLICT (id) DO NOTHING
-                    """.trimIndent(),
-                    avklaringer.map { avklaring ->
-                        val avklaringskode = avklaring.kode
-                        mapOf(
-                            "avklaring_id" to avklaring.id,
-                            "behandling_id" to behandling.behandlingId,
-                            "kode" to avklaringskode.kode,
-                            "tittel" to avklaringskode.tittel,
-                            "beskrivelse" to avklaringskode.beskrivelse,
-                            "kanKvitteres" to avklaringskode.kanKvitteres,
-                            "kanAvbrytes" to avklaringskode.kanAvbrytes,
-                        )
-                    },
-                ).run(tx)
+        val nyeAvklaringerIder: List<Int> =
+            BatchStatement(
+                // language=PostgreSQL
+                """
+                INSERT INTO avklaring (id, behandling_id, kode, tittel, beskrivelse, kan_kvitteres, kan_avbrytes)
+                VALUES (:avklaring_id, :behandling_id, :kode, :tittel, :beskrivelse, :kanKvitteres, :kanAvbrytes)
+                ON CONFLICT (id) DO NOTHING
+                """.trimIndent(),
+                avklaringer.map { avklaring ->
+                    val avklaringskode = avklaring.kode
+                    mapOf(
+                        "avklaring_id" to avklaring.id,
+                        "behandling_id" to behandling.behandlingId,
+                        "kode" to avklaringskode.kode,
+                        "tittel" to avklaringskode.tittel,
+                        "beskrivelse" to avklaringskode.beskrivelse,
+                        "kanKvitteres" to avklaringskode.kanKvitteres,
+                        "kanAvbrytes" to avklaringskode.kanAvbrytes,
+                    )
+                },
+            ).run(unitOfWork.session)
 
-            nyeAvklaringerIder.forEachIndexed { idx, count ->
-                if (count != 0) {
-                    nyeAvklaringer.add(avklaringer.elementAt(idx))
-                }
+        nyeAvklaringerIder.forEachIndexed { idx, count ->
+            if (count != 0) {
+                nyeAvklaringer.add(avklaringer.elementAt(idx))
             }
 
             val alleKilder =
@@ -162,7 +160,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                     .distinctBy { it.id }
 
             if (alleKilder.isNotEmpty()) {
-                kildeRepository.lagreKilder(alleKilder, tx)
+                kildeRepository.lagreKilder(alleKilder, unitOfWork.session)
             }
 
             val alleEndringer =
@@ -194,7 +192,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                     ON CONFLICT DO NOTHING
                     """.trimIndent(),
                     alleEndringer,
-                ).run(tx)
+                ).run(unitOfWork.session)
             }
         }
 

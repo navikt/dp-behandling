@@ -283,11 +283,6 @@ internal class BehandlingRepositoryPostgres(
         val basertPåBehandlingId: UUID?,
     )
 
-    override fun lagre(
-        behandling: Behandling,
-        unitOfWork: UnitOfWork<*>,
-    ) = lagre(behandling, unitOfWork as PostgresUnitOfWork)
-
     override fun finnBehandlinger(
         tilstand: Behandling.TilstandType,
         fraOgMed: LocalDate,
@@ -316,98 +311,96 @@ internal class BehandlingRepositoryPostgres(
         }
     }
 
-    private fun lagre(
+    override fun lagre(
         behandling: Behandling,
         unitOfWork: PostgresUnitOfWork,
     ) {
-        unitOfWork.inTransaction { tx ->
-            tx.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                        INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
-                        VALUES (:ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) ON CONFLICT DO NOTHING 
-                    """.trimMargin(),
-                    mapOf(
-                        "ident" to behandling.behandler.ident,
-                        "melding_id" to behandling.behandler.meldingsreferanseId,
-                        "ekstern_id_type" to behandling.behandler.eksternId.type,
-                        "ekstern_id" to behandling.behandler.eksternId.id,
-                        "hendelse_type" to behandling.behandler.type,
-                        "skjedde" to behandling.behandler.skjedde,
-                        "forretningsprosess" to behandling.behandler.forretningsprosess.navn,
-                    ),
-                ).asUpdate,
-            )
-            tx.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand, basert_på_behandling_id)
-                    VALUES (:id, :tilstand, :sisteEndretTilstand, :basertPaaBehandlingId)
-                    ON CONFLICT (behandling_id) DO UPDATE SET tilstand                = :tilstand,
-                                                              sist_endret_tilstand    = :sisteEndretTilstand,
-                                                              basert_på_behandling_id = :basertPaaBehandlingId
-                    """.trimIndent(),
-                    mapOf(
-                        "id" to behandling.behandlingId,
-                        "tilstand" to behandling.tilstand().first.name,
-                        "sisteEndretTilstand" to behandling.tilstand().second,
-                        "basertPaaBehandlingId" to behandling.basertPå?.behandlingId,
-                    ),
-                ).asUpdate,
-            )
-            tx.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    INSERT INTO behandling_tilstand (behandling_id, tilstand, endret)
-                    VALUES (:behandling_id, :tilstand, :endret)
-                    ON CONFLICT DO NOTHING
-                    """.trimIndent(),
-                    mapOf(
-                        "behandling_id" to behandling.behandlingId,
-                        "tilstand" to behandling.tilstand().first.name,
-                        "endret" to behandling.tilstand().second,
-                    ),
-                ).asUpdate,
-            )
-            tx.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO behandler_hendelse_behandling (behandling_id, melding_id) 
-                    VALUES (:behandling_id, :melding_id) ON CONFLICT DO NOTHING
-                    """.trimIndent(),
-                    mapOf(
-                        "behandling_id" to behandling.behandlingId,
-                        "melding_id" to behandling.behandler.meldingsreferanseId,
-                    ),
-                ).asUpdate,
-            )
+        unitOfWork.session.run(
+            queryOf(
+                // language=PostgreSQL
+                """
+                    INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
+                    VALUES (:ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) ON CONFLICT DO NOTHING 
+                """.trimMargin(),
+                mapOf(
+                    "ident" to behandling.behandler.ident,
+                    "melding_id" to behandling.behandler.meldingsreferanseId,
+                    "ekstern_id_type" to behandling.behandler.eksternId.type,
+                    "ekstern_id" to behandling.behandler.eksternId.id,
+                    "hendelse_type" to behandling.behandler.type,
+                    "skjedde" to behandling.behandler.skjedde,
+                    "forretningsprosess" to behandling.behandler.forretningsprosess.navn,
+                ),
+            ).asUpdate,
+        )
+        unitOfWork.session.run(
+            queryOf(
+                // language=PostgreSQL
+                """
+                INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand, basert_på_behandling_id)
+                VALUES (:id, :tilstand, :sisteEndretTilstand, :basertPaaBehandlingId)
+                ON CONFLICT (behandling_id) DO UPDATE SET tilstand                = :tilstand,
+                                                          sist_endret_tilstand    = :sisteEndretTilstand,
+                                                          basert_på_behandling_id = :basertPaaBehandlingId
+                """.trimIndent(),
+                mapOf(
+                    "id" to behandling.behandlingId,
+                    "tilstand" to behandling.tilstand().first.name,
+                    "sisteEndretTilstand" to behandling.tilstand().second,
+                    "basertPaaBehandlingId" to behandling.basertPå?.behandlingId,
+                ),
+            ).asUpdate,
+        )
+        unitOfWork.session.run(
+            queryOf(
+                //language=PostgreSQL
+                """
+                INSERT INTO behandling_tilstand (behandling_id, tilstand, endret)
+                VALUES (:behandling_id, :tilstand, :endret)
+                ON CONFLICT DO NOTHING
+                """.trimIndent(),
+                mapOf(
+                    "behandling_id" to behandling.behandlingId,
+                    "tilstand" to behandling.tilstand().first.name,
+                    "endret" to behandling.tilstand().second,
+                ),
+            ).asUpdate,
+        )
+        unitOfWork.session.run(
+            queryOf(
+                // language=PostgreSQL
+                """
+                INSERT INTO behandler_hendelse_behandling (behandling_id, melding_id) 
+                VALUES (:behandling_id, :melding_id) ON CONFLICT DO NOTHING
+                """.trimIndent(),
+                mapOf(
+                    "behandling_id" to behandling.behandlingId,
+                    "melding_id" to behandling.behandler.meldingsreferanseId,
+                ),
+            ).asUpdate,
+        )
 
-            // TODO: kan vi unngå hardkoding her?
-            tx.lageArbeidssteg(behandling.behandlingId, behandling.godkjent)
-            tx.lageArbeidssteg(behandling.behandlingId, behandling.besluttet)
+        // TODO: kan vi unngå hardkoding her?
+        unitOfWork.session.lageArbeidssteg(behandling.behandlingId, behandling.godkjent)
+        unitOfWork.session.lageArbeidssteg(behandling.behandlingId, behandling.besluttet)
 
-            opplysningRepository.lagreOpplysninger(behandling.opplysninger() as Opplysninger, unitOfWork)
+        opplysningRepository.lagreOpplysninger(behandling.opplysninger() as Opplysninger, unitOfWork)
 
-            tx.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO behandling_opplysninger (opplysninger_id, behandling_id) 
-                    VALUES (:opplysninger_id, :behandling_id) ON CONFLICT DO NOTHING
-                    """.trimIndent(),
-                    mapOf(
-                        "opplysninger_id" to behandling.opplysninger().id,
-                        "behandling_id" to behandling.behandlingId,
-                    ),
-                ).asUpdate,
-            )
+        unitOfWork.session.run(
+            queryOf(
+                // language=PostgreSQL
+                """
+                INSERT INTO behandling_opplysninger (opplysninger_id, behandling_id) 
+                VALUES (:opplysninger_id, :behandling_id) ON CONFLICT DO NOTHING
+                """.trimIndent(),
+                mapOf(
+                    "opplysninger_id" to behandling.opplysninger().id,
+                    "behandling_id" to behandling.behandlingId,
+                ),
+            ).asUpdate,
+        )
 
-            avklaringRepository.lagreAvklaringer(behandling, unitOfWork)
-        }
+        avklaringRepository.lagreAvklaringer(behandling, unitOfWork)
     }
 
     private fun Session.lageArbeidssteg(

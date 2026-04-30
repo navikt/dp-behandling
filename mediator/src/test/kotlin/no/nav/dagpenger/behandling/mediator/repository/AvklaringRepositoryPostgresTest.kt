@@ -104,10 +104,10 @@ class AvklaringRepositoryPostgresTest {
         }
 
         fun lagre() {
-            val unitOfWork = PostgresUnitOfWork.transaction()
-            behandlingRepository.lagre(behandling, unitOfWork)
-            repository.lagreAvklaringer(behandling, unitOfWork)
-            unitOfWork.commit()
+            PostgresUnitOfWork.transaction {
+                behandlingRepository.lagre(behandling, this)
+                repository.lagreAvklaringer(behandling, this)
+            }
         }
 
         private fun behandling(vararg avklaring: Avklaring) =

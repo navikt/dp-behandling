@@ -21,7 +21,7 @@ interface AvklaringRepository {
     @WithSpan
     fun lagreAvklaringer(
         behandling: Behandling,
-        unitOfWork: UnitOfWork<*>,
+        unitOfWork: PostgresUnitOfWork,
     )
 
     @WithSpan
@@ -68,7 +68,7 @@ interface BehandlingRepository :
     @WithSpan
     fun lagre(
         behandling: Behandling,
-        unitOfWork: UnitOfWork<*>,
+        unitOfWork: PostgresUnitOfWork,
     )
 
     @WithSpan
@@ -90,7 +90,7 @@ interface PersonRepository : BehandlingRepository {
     @WithSpan
     fun lagre(
         person: Person,
-        unitOfWork: UnitOfWork<*>,
+        unitOfWork: PostgresUnitOfWork,
     )
 
     @WithSpan
@@ -161,12 +161,4 @@ interface MeldekortRepository {
         val erPåbegynt get() = påbegynt != null && ferdig == null
         val erFerdig get() = ferdig != null
     }
-}
-
-interface UnitOfWork<S> {
-    fun <T> inTransaction(block: (S) -> T): T
-
-    fun rollback()
-
-    fun commit()
 }
