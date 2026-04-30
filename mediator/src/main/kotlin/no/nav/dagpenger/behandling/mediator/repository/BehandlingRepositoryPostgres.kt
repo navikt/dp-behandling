@@ -318,25 +318,8 @@ internal class BehandlingRepositoryPostgres(
         unitOfWork: PostgresUnitOfWork,
     ) {
         lagreBehandlingHendelse(unitOfWork, behandlinger)
+        lagreBehandlinger(unitOfWork, behandlinger)
         behandlinger.forEach { behandling ->
-            unitOfWork.session.run(
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand, basert_på_behandling_id)
-                    VALUES (:id, :tilstand, :sisteEndretTilstand, :basertPaaBehandlingId)
-                    ON CONFLICT (behandling_id) DO UPDATE SET tilstand                = :tilstand,
-                                                              sist_endret_tilstand    = :sisteEndretTilstand,
-                                                              basert_på_behandling_id = :basertPaaBehandlingId
-                    """.trimIndent(),
-                    mapOf(
-                        "id" to behandling.behandlingId,
-                        "tilstand" to behandling.tilstand().first.name,
-                        "sisteEndretTilstand" to behandling.tilstand().second,
-                        "basertPaaBehandlingId" to behandling.basertPå?.behandlingId,
-                    ),
-                ).asUpdate,
-            )
             unitOfWork.session.run(
                 queryOf(
                     //language=PostgreSQL
@@ -390,6 +373,33 @@ internal class BehandlingRepositoryPostgres(
         }
 
         lagrePersonBehandlingkoblinger(unitOfWork, ident, behandlinger)
+    }
+
+    private fun lagreBehandlinger(
+        unitOfWork: PostgresUnitOfWork,
+        behandlinger: List<Behandling>,
+    ) {
+        val params =
+            behandlinger.map { behandling ->
+                mapOf(
+                    "id" to behandling.behandlingId,
+                    "tilstand" to behandling.tilstand().first.name,
+                    "sisteEndretTilstand" to behandling.tilstand().second,
+                    "basertPaaBehandlingId" to behandling.basertPå?.behandlingId,
+                )
+            }
+        unitOfWork.session
+            .batchPreparedNamedStatement(
+                // language=PostgreSQL
+                """
+                INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand, basert_på_behandling_id)
+                VALUES (:id, :tilstand, :sisteEndretTilstand, :basertPaaBehandlingId)
+                ON CONFLICT (behandling_id) DO UPDATE SET tilstand                = :tilstand,
+                                                          sist_endret_tilstand    = :sisteEndretTilstand,
+                                                          basert_på_behandling_id = :basertPaaBehandlingId
+                """.trimIndent(),
+                params,
+            ).krevAtAntallRaderErNøyaktigLik(params.size)
     }
 
     private fun lagreBehandlingHendelse(
@@ -544,5 +554,13 @@ internal class BehandlingRepositoryPostgres(
                 )?.let { UtbetalingStatus.Status.valueOf(it) }
                 ?: throw IllegalArgumentException("Fant ikke utbetalingstatus for behandling $behandlingId")
         }
+    }
+
+    private fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
+        val sum = sum()
+        check(sum == forventet) {
+            "Forventet å oppdatere nøyaktig $forventet rader, men endte opp med å oppdatere $sum rader"
+        }
+        return this
     }
 }
