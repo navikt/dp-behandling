@@ -39,13 +39,14 @@ class RealistiskBrevTest {
 
     private val harLøpendeRettId = UUID.randomUUID()
 
-    // -- Brevmal som matcher innvilgelsesbrevet --
-    private val innvilgelsesmal =
+    // -- Én felles brevmal for dagpenger (ny søknad) --
+    // Trigger-systemet sørger for at bare relevante tekster aktiveres
+    private val dagpengerMal =
         Brevmal(
             navn = "Dagpenger - ny søknad",
             maltekster =
                 listOf(
-                    // Overskrift
+                    // Overskrift — styrt av avgjørelse
                     Maltekst(
                         trigger = Trigger.Avgjørelse("Innvilgelse"),
                         tekst = "Nav har innvilget søknaden din om dagpenger",
@@ -58,14 +59,13 @@ class RealistiskBrevTest {
                         plassering = Plassering.OVERSKRIFT,
                         rekkefølge = 1,
                     ),
-                    // Innledning — åpen periode (bare fraOgMed)
+                    // Innledning — periodebasert (innvilgelse)
                     Maltekst(
                         trigger = Trigger.OpplysningFinnes(harLøpendeRettId, periodeType = PeriodeType.ÅPEN),
                         tekst = "Du får dagpenger fra og med {{Har løpende rett.fraOgMed}}.",
                         plassering = Plassering.INNLEDNING,
                         rekkefølge = 1,
                     ),
-                    // Innledning — lukket periode (fraOgMed + tilOgMed)
                     Maltekst(
                         trigger = Trigger.OpplysningFinnes(harLøpendeRettId, periodeType = PeriodeType.LUKKET),
                         tekst =
@@ -74,7 +74,6 @@ class RealistiskBrevTest {
                         plassering = Plassering.INNLEDNING,
                         rekkefølge = 1,
                     ),
-                    // Innledning — flere perioder (saksbehandler må skrive selv)
                     Maltekst(
                         trigger = Trigger.OpplysningFinnes(harLøpendeRettId, periodeType = PeriodeType.FLERE),
                         tekst =
@@ -83,19 +82,58 @@ class RealistiskBrevTest {
                         plassering = Plassering.INNLEDNING,
                         rekkefølge = 1,
                     ),
+                    // Innledning — avslag
+                    Maltekst(
+                        trigger = Trigger.Avgjørelse("Avslag"),
+                        tekst = "Vi har avslått søknaden din om dagpenger.",
+                        plassering = Plassering.INNLEDNING,
+                        rekkefølge = 2,
+                    ),
                     Maltekst(
                         trigger = Trigger.OpplysningFinnes(dagsatsId),
                         tekst = "Du får {{Dagsats}} kroner dagen for fem dager i uken.",
                         plassering = Plassering.INNLEDNING,
-                        rekkefølge = 2,
+                        rekkefølge = 3,
                     ),
                     Maltekst(
                         trigger = Trigger.OpplysningFinnes(egenandelId),
                         tekst = "Nav trekker en egenandel av dagpengene dine. Egenandelen din er {{Egenandel}} kroner.",
                         plassering = Plassering.INNLEDNING,
+                        rekkefølge = 4,
+                    ),
+                    // Begrunnelse — vises ved avslag
+                    Maltekst(
+                        trigger = Trigger.Avgjørelse("Avslag"),
+                        tittel = "Derfor får du avslag",
+                        tekst = "",
+                        plassering = Plassering.BEGRUNNELSE,
+                        rekkefølge = 0,
+                    ),
+                    Maltekst(
+                        trigger = Trigger.OpplysningVerdi(kravTilReellArbeidssøkerId, "false", kunNyeOpplysninger = true),
+                        tittel = "Du må være reell arbeidssøker",
+                        tekst =
+                            "For å ha rett til dagpenger, må du være villig til å ta alle typer arbeid med vanlig lønn. " +
+                                "Du har opplyst oss om at du ikke vil ta alle typer arbeid med vanlig lønn, " +
+                                "derfor har du ikke rett til dagpenger. Vedtaket er gjort etter folketrygdloven § 4-5.",
+                        plassering = Plassering.BEGRUNNELSE,
+                        rekkefølge = 1,
+                    ),
+                    Maltekst(
+                        trigger = Trigger.OpplysningVerdi(kravTilMinsteinntektId, "false", kunNyeOpplysninger = true),
+                        tittel = "Du oppfyller ikke kravet til minsteinntekt",
+                        tekst = "Du har ikke hatt tilstrekkelig arbeidsinntekt. Vurderingen er gjort etter folketrygdloven § 4-4.",
+                        plassering = Plassering.BEGRUNNELSE,
+                        rekkefølge = 2,
+                    ),
+                    Maltekst(
+                        trigger = Trigger.OpplysningVerdi(kravTilAlderId, "false", kunNyeOpplysninger = true),
+                        tittel = "Du oppfyller ikke kravet til alder",
+                        tekst = "Du oppfyller ikke alderskravet. Vurderingen er gjort etter folketrygdloven § 4-23.",
+                        plassering = Plassering.BEGRUNNELSE,
                         rekkefølge = 3,
                     ),
-                    // Begrunnelse - vilkår som ble vurdert (kun nye)
+                    // Vilkår — vises ved innvilgelse (kun nye)
                     Maltekst(
                         trigger = Trigger.OpplysningVerdi(kravTilAlderId, "true", kunNyeOpplysninger = true),
                         tittel = "Du oppfyller kravet til alder",
@@ -154,7 +192,7 @@ class RealistiskBrevTest {
                         plassering = Plassering.FASTSETTELSE,
                         rekkefølge = 4,
                     ),
-                    // Informasjon (faste tekster)
+                    // Informasjon (faste tekster — vises alltid)
                     Maltekst(
                         trigger = Trigger.Alltid,
                         tittel = "Du må sende meldekort",
@@ -167,6 +205,23 @@ class RealistiskBrevTest {
                         tittel = "Du må melde fra om endringer",
                         tekst = "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine.",
                         plassering = Plassering.INFORMASJON,
+                        rekkefølge = 2,
+                    ),
+                    // Avslutning (faste tekster — vises alltid)
+                    Maltekst(
+                        trigger = Trigger.Alltid,
+                        tittel = "Du har rett til innsyn",
+                        tekst =
+                            "Kontakt oss om du vil se dokumentene i saken din. " +
+                                "Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33.",
+                        plassering = Plassering.AVSLUTNING,
+                        rekkefølge = 1,
+                    ),
+                    Maltekst(
+                        trigger = Trigger.Alltid,
+                        tittel = "Du har rett til å få hjelp fra andre",
+                        tekst = "Du kan be om hjelp fra andre under hele saksbehandlingen. Dette følger av forvaltningsloven § 12.",
+                        plassering = Plassering.AVSLUTNING,
                         rekkefølge = 2,
                     ),
                 ),
@@ -202,7 +257,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(innvilgelsesmal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)
 
         brev.overskrift shouldBe "Nav har innvilget søknaden din om dagpenger"
 
@@ -271,7 +326,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(innvilgelsesmal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)
 
         // Åpen periode — bare fraOgMed
         val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
@@ -283,76 +338,6 @@ class RealistiskBrevTest {
         vilkår shouldHaveSize 1
         vilkår[0].tittel shouldBe "Du oppfyller kravet til alder"
     }
-
-    // -- Brevmal for avslag --
-    private val avslagsmal =
-        Brevmal(
-            navn = "Dagpenger - avslag",
-            maltekster =
-                listOf(
-                    Maltekst(
-                        trigger = Trigger.Avgjørelse("Avslag"),
-                        tekst = "Nav har avslått søknaden din om dagpenger",
-                        plassering = Plassering.OVERSKRIFT,
-                        rekkefølge = 1,
-                    ),
-                    Maltekst(
-                        trigger = Trigger.Avgjørelse("Avslag"),
-                        tekst = "Vi har avslått søknaden din om dagpenger fra 23. april 2026.",
-                        plassering = Plassering.INNLEDNING,
-                        rekkefølge = 1,
-                    ),
-                    // Begrunnelse - et vilkår per seksjon
-                    Maltekst(
-                        trigger = Trigger.Avgjørelse("Avslag"),
-                        tittel = "Derfor får du avslag",
-                        tekst = "",
-                        plassering = Plassering.BEGRUNNELSE,
-                        rekkefølge = 0,
-                    ),
-                    Maltekst(
-                        trigger = Trigger.OpplysningVerdi(kravTilReellArbeidssøkerId, "false", kunNyeOpplysninger = true),
-                        tittel = "Du må være reell arbeidssøker",
-                        tekst =
-                            "For å ha rett til dagpenger, må du være villig til å ta alle typer arbeid med vanlig lønn. " +
-                                "Du har opplyst oss om at du ikke vil ta alle typer arbeid med vanlig lønn, " +
-                                "derfor har du ikke rett til dagpenger. Vedtaket er gjort etter folketrygdloven § 4-5.",
-                        plassering = Plassering.BEGRUNNELSE,
-                        rekkefølge = 1,
-                    ),
-                    Maltekst(
-                        trigger = Trigger.OpplysningVerdi(kravTilMinsteinntektId, "false", kunNyeOpplysninger = true),
-                        tittel = "Du oppfyller ikke kravet til minsteinntekt",
-                        tekst = "Du har ikke hatt tilstrekkelig arbeidsinntekt. Vurderingen er gjort etter folketrygdloven § 4-4.",
-                        plassering = Plassering.BEGRUNNELSE,
-                        rekkefølge = 2,
-                    ),
-                    Maltekst(
-                        trigger = Trigger.OpplysningVerdi(kravTilAlderId, "false", kunNyeOpplysninger = true),
-                        tittel = "Du oppfyller ikke kravet til alder",
-                        tekst = "Du oppfyller ikke alderskravet. Vurderingen er gjort etter folketrygdloven § 4-23.",
-                        plassering = Plassering.BEGRUNNELSE,
-                        rekkefølge = 3,
-                    ),
-                    // Faste avslutnings-tekster
-                    Maltekst(
-                        trigger = Trigger.Alltid,
-                        tittel = "Du har rett til innsyn",
-                        tekst =
-                            "Kontakt oss om du vil se dokumentene i saken din. " +
-                                "Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33.",
-                        plassering = Plassering.AVSLUTNING,
-                        rekkefølge = 1,
-                    ),
-                    Maltekst(
-                        trigger = Trigger.Alltid,
-                        tittel = "Du har rett til å få hjelp fra andre",
-                        tekst = "Du kan be om hjelp fra andre under hele saksbehandlingen. Dette følger av forvaltningsloven § 12.",
-                        plassering = Plassering.AVSLUTNING,
-                        rekkefølge = 2,
-                    ),
-                ),
-        )
 
     @Test
     fun `avslagsbrev med begrunnelse per vilkår som ikke er oppfylt`() {
@@ -372,7 +357,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(avslagsmal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)
 
         brev.overskrift shouldBe "Nav har avslått søknaden din om dagpenger"
 
@@ -413,7 +398,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(avslagsmal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)
 
         val begrunnelse = brev.seksjoner.filter { it.plassering == Plassering.BEGRUNNELSE }
         // "Derfor får du avslag" + minsteinntekt + alder (arbeidssøker er oppfylt, vises ikke)
@@ -442,7 +427,7 @@ class RealistiskBrevTest {
                     ),
             )
 
-        val brev = BrevBygger(innvilgelsesmal).bygg(resultat)
+        val brev = BrevBygger(dagpengerMal).bygg(resultat)
 
         val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
         innledning shouldHaveSize 1
