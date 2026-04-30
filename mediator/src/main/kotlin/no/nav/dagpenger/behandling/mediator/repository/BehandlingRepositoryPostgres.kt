@@ -319,22 +319,8 @@ internal class BehandlingRepositoryPostgres(
     ) {
         lagreBehandlingHendelse(unitOfWork, behandlinger)
         lagreBehandlinger(unitOfWork, behandlinger)
+        lagreBehandlingTilstand(unitOfWork, behandlinger)
         behandlinger.forEach { behandling ->
-            unitOfWork.session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    INSERT INTO behandling_tilstand (behandling_id, tilstand, endret)
-                    VALUES (:behandling_id, :tilstand, :endret)
-                    ON CONFLICT DO NOTHING
-                    """.trimIndent(),
-                    mapOf(
-                        "behandling_id" to behandling.behandlingId,
-                        "tilstand" to behandling.tilstand().first.name,
-                        "endret" to behandling.tilstand().second,
-                    ),
-                ).asUpdate,
-            )
             unitOfWork.session.run(
                 queryOf(
                     // language=PostgreSQL
@@ -373,6 +359,29 @@ internal class BehandlingRepositoryPostgres(
         }
 
         lagrePersonBehandlingkoblinger(unitOfWork, ident, behandlinger)
+    }
+
+    private fun lagreBehandlingTilstand(
+        unitOfWork: PostgresUnitOfWork,
+        behandlinger: List<Behandling>,
+    ) {
+        val params =
+            behandlinger.map { behandling ->
+                mapOf(
+                    "behandling_id" to behandling.behandlingId,
+                    "tilstand" to behandling.tilstand().first.name,
+                    "endret" to behandling.tilstand().second,
+                )
+            }
+        unitOfWork.session.batchPreparedNamedStatement(
+            //language=PostgreSQL
+            """
+            INSERT INTO behandling_tilstand (behandling_id, tilstand, endret)
+            VALUES (:behandling_id, :tilstand, :endret)
+            ON CONFLICT DO NOTHING
+            """.trimIndent(),
+            params,
+        )
     }
 
     private fun lagreBehandlinger(
