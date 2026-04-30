@@ -134,12 +134,22 @@ internal class BrevKontekst(
     private fun evaluerUttrykk(uttrykk: String): String? {
         if ("|" !in uttrykk) return oppslåVerdi(uttrykk)
 
-        val deler = uttrykk.split("|", limit = 2)
-        val nøkkel = deler[0].trim()
-        val makro = deler[1].trim()
+        val deler = uttrykk.split("|").map { it.trim() }
+        val nøkkel = deler[0]
+        val makroer = deler.drop(1)
 
-        val dato = oppslåDato(nøkkel) ?: return null
-        return utførMakro(dato, makro)
+        // Kjør makroene sekvensielt — output fra en blir input til neste
+        var resultat: String? = null
+        for ((index, makro) in makroer.withIndex()) {
+            if (index == 0) {
+                resultat = utførMakro(nøkkel, makro)
+            } else {
+                // For kjeding: bruk forrige resultat som en streng-transformasjon
+                resultat = resultat?.let { utførStringMakro(it, makro) }
+            }
+            if (resultat == null) return null
+        }
+        return resultat
     }
 
     private fun oppslåDato(nøkkel: String): LocalDate? {
@@ -152,14 +162,66 @@ internal class BrevKontekst(
         }
     }
 
+    private fun oppslåRåverdi(nøkkel: String): Any? {
+        val opplysning = opplysningerNavnMap[nøkkel] ?: return null
+        val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
+        return when (val verdi = sistePeriode.verdi) {
+            is BoolskVerdiDTO -> verdi.verdi
+            is DatoVerdiDTO -> verdi.verdi
+            is DesimaltallVerdiDTO -> verdi.verdi
+            is HeltallVerdiDTO -> verdi.verdi
+            is PengeVerdiDTO -> verdi.verdi
+            is TekstVerdiDTO -> verdi.verdi
+            else -> verdi.toString()
+        }
+    }
+
+    /**
+     * Utfører en makro-transformasjon på en opplysning.
+     *
+     * Støttede makroer:
+     * - månedÅr(offset) — dato +/- N måneder, formatert som "april 2025"
+     * - dato(offset) — dato +/- N måneder, formatert som "1. april 2025"
+     * - plussDager(n) — dato + N dager, formatert som "1. april 2025"
+     * - storFørsteBokstav() — kapitaliserer første bokstav
+     * - velg(verdi1=tekst1, verdi2=tekst2, ...) — mapper verdi til lesbar tekst
+     */
     private fun utførMakro(
-        dato: LocalDate,
+        nøkkel: String,
         makro: String,
     ): String? {
-        val match = MAKRO_REGEX.matchEntire(makro) ?: return null
-        val funksjonsnavn = match.groupValues[1].lowercase()
-        val argument = match.groupValues[2].toLongOrNull() ?: 0L
+        // Prøv velg()-makro først (har annen syntaks)
+        val velgMatch = VELG_REGEX.matchEntire(makro)
+        if (velgMatch != null) {
+            val råverdi = oppslåRåverdi(nøkkel)?.toString() ?: return null
+            val mappinger = velgMatch.groupValues[1]
+            return utførVelg(råverdi, mappinger)
+        }
 
+        // Standard makro med numerisk argument
+        val standardMatch = MAKRO_REGEX.matchEntire(makro)
+        if (standardMatch != null) {
+            val funksjonsnavn = standardMatch.groupValues[1].lowercase()
+            val argument = standardMatch.groupValues[2].toLongOrNull() ?: 0L
+            return utførStandardMakro(nøkkel, funksjonsnavn, argument)
+        }
+
+        // Makro uten argument (f.eks. storFørsteBokstav)
+        val utenArgMatch = MAKRO_UTEN_ARG_REGEX.matchEntire(makro)
+        if (utenArgMatch != null) {
+            val funksjonsnavn = utenArgMatch.groupValues[1].lowercase()
+            return utførMakroUtenArg(nøkkel, funksjonsnavn)
+        }
+
+        return null
+    }
+
+    private fun utførStandardMakro(
+        nøkkel: String,
+        funksjonsnavn: String,
+        argument: Long,
+    ): String? {
+        val dato = oppslåDato(nøkkel) ?: return null
         return when (funksjonsnavn) {
             "månedår", "måned_år", "maanedaar" -> {
                 val justert = dato.plusMonths(argument)
@@ -169,8 +231,63 @@ internal class BrevKontekst(
                 val justert = dato.plusMonths(argument)
                 formaterDato(justert)
             }
+            "plussdager", "dager" -> {
+                val justert = dato.plusDays(argument)
+                formaterDato(justert)
+            }
+            "plussuker", "uker" -> {
+                val justert = dato.plusWeeks(argument)
+                formaterDato(justert)
+            }
             else -> null
         }
+    }
+
+    private fun utførMakroUtenArg(
+        nøkkel: String,
+        funksjonsnavn: String,
+    ): String? {
+        val verdi = oppslåVerdi(nøkkel) ?: return null
+        return when (funksjonsnavn) {
+            "storførstebokstav", "capitalize" ->
+                verdi.replaceFirstChar { it.uppercase(Locale("nb", "NO")) }
+            "stor", "uppercase" -> verdi.uppercase(Locale("nb", "NO"))
+            "liten", "lowercase" -> verdi.lowercase(Locale("nb", "NO"))
+            else -> null
+        }
+    }
+
+    private fun utførVelg(
+        verdi: String,
+        mappinger: String,
+    ): String? {
+        // Parser "verdi1=tekst1, verdi2=tekst2"
+        val map =
+            mappinger
+                .split(",")
+                .associate { del ->
+                    val (k, v) = del.split("=", limit = 2).map { it.trim() }
+                    k to v
+                }
+        return map[verdi]
+    }
+
+    private fun utførStringMakro(
+        verdi: String,
+        makro: String,
+    ): String? {
+        val utenArgMatch = MAKRO_UTEN_ARG_REGEX.matchEntire(makro)
+        if (utenArgMatch != null) {
+            val funksjonsnavn = utenArgMatch.groupValues[1].lowercase()
+            return when (funksjonsnavn) {
+                "storførstebokstav", "capitalize" ->
+                    verdi.replaceFirstChar { it.uppercase(Locale("nb", "NO")) }
+                "stor", "uppercase" -> verdi.uppercase(Locale("nb", "NO"))
+                "liten", "lowercase" -> verdi.lowercase(Locale("nb", "NO"))
+                else -> null
+            }
+        }
+        return null
     }
 
     private fun matcherPeriodeType(
@@ -225,6 +342,8 @@ internal class BrevKontekst(
     companion object {
         private val PLACEHOLDER_REGEX = Regex("\\{\\{(.+?)}}")
         private val MAKRO_REGEX = Regex("""([\w\p{L}]+)\((-?\d+)\)""")
+        private val MAKRO_UTEN_ARG_REGEX = Regex("""([\w\p{L}]+)\(\)""")
+        private val VELG_REGEX = Regex("""velg\((.+)\)""")
         private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale("nb", "NO"))
         private val NORSK_MÅNED_ÅR = DateTimeFormatter.ofPattern("MMMM yyyy", Locale("nb", "NO"))
         private val NORSK_TALL = java.text.NumberFormat.getIntegerInstance(Locale("nb", "NO"))

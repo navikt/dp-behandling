@@ -352,4 +352,115 @@ class BrevByggerTest {
         val fastsettelse = brev.seksjoner.first { it.plassering == Plassering.FASTSETTELSE }
         fastsettelse.innhold[0] shouldBe "april 2025 - mars 2026: 166 665 kroner"
     }
+
+    @Test
+    fun `velg-makro mapper verdier til lesbar tekst`() {
+        val beregningsregelId = UUID.randomUUID()
+
+        val brevmal =
+            Brevmal(
+                navn = "Test",
+                maltekster =
+                    listOf(
+                        maltekst(
+                            Trigger.Alltid,
+                            "Vi har brukt {{Brukt beregningsregel | velg(Siste12=de siste 12 månedene, Siste36=gjennomsnittet av de siste 36 månedene)}}.",
+                            Plassering.FASTSETTELSE,
+                            1,
+                        ),
+                    ),
+            )
+
+        val resultat =
+            lagResultat(
+                AvgjørelseDTO.INNVILGELSE,
+                opplysninger =
+                    listOf(
+                        lagOpplysning(
+                            beregningsregelId,
+                            "Brukt beregningsregel",
+                            no.nav.dagpenger.behandling.api.models
+                                .TekstVerdiDTO(verdi = "Siste12"),
+                        ),
+                    ),
+            )
+
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
+        val fastsettelse = brev.seksjoner.first { it.plassering == Plassering.FASTSETTELSE }
+        fastsettelse.innhold[0] shouldBe "Vi har brukt de siste 12 månedene."
+    }
+
+    @Test
+    fun `storFørsteBokstav-makro kapitaliserer`() {
+        val datoId = UUID.randomUUID()
+
+        val brevmal =
+            Brevmal(
+                navn = "Test",
+                maltekster =
+                    listOf(
+                        maltekst(
+                            Trigger.Alltid,
+                            "{{Siste avsluttende kalendermåned | månedÅr(0) | storFørsteBokstav()}}",
+                            Plassering.FASTSETTELSE,
+                            1,
+                        ),
+                    ),
+            )
+
+        val resultat =
+            lagResultat(
+                AvgjørelseDTO.INNVILGELSE,
+                opplysninger =
+                    listOf(
+                        lagOpplysning(
+                            datoId,
+                            "Siste avsluttende kalendermåned",
+                            no.nav.dagpenger.behandling.api.models
+                                .DatoVerdiDTO(verdi = LocalDate.of(2026, 3, 31)),
+                        ),
+                    ),
+            )
+
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
+        val fastsettelse = brev.seksjoner.first { it.plassering == Plassering.FASTSETTELSE }
+        fastsettelse.innhold[0] shouldBe "Mars 2026"
+    }
+
+    @Test
+    fun `plussDager-makro legger til dager på dato`() {
+        val datoId = UUID.randomUUID()
+
+        val brevmal =
+            Brevmal(
+                navn = "Test",
+                maltekster =
+                    listOf(
+                        maltekst(
+                            Trigger.Alltid,
+                            "Frist: {{Vedtaksdato | plussDager(42)}}",
+                            Plassering.FASTSETTELSE,
+                            1,
+                        ),
+                    ),
+            )
+
+        val resultat =
+            lagResultat(
+                AvgjørelseDTO.INNVILGELSE,
+                opplysninger =
+                    listOf(
+                        lagOpplysning(
+                            datoId,
+                            "Vedtaksdato",
+                            no.nav.dagpenger.behandling.api.models
+                                .DatoVerdiDTO(verdi = LocalDate.of(2026, 1, 1)),
+                        ),
+                    ),
+            )
+
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
+        val fastsettelse = brev.seksjoner.first { it.plassering == Plassering.FASTSETTELSE }
+        fastsettelse.innhold[0] shouldBe "Frist: 12. februar 2026"
+    }
 }
