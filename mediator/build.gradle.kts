@@ -41,6 +41,7 @@ dependencies {
     implementation("io.ktor:ktor-server-sse:${libs.versions.ktor.get()}")
 
     testImplementation(libs.kotest.assertions.core)
+    testImplementation(project(path = ":brev"))
 
     testImplementation(libs.rapids.and.rivers.test)
     testImplementation(libs.mockk)

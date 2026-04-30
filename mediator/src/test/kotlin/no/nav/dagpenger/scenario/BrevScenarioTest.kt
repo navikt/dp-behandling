@@ -1,0 +1,83 @@
+package no.nav.dagpenger.behandling.scenario
+
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.treeToValue
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
+import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.brev.BrevBygger
+import no.nav.dagpenger.brev.MarkdownRenderer
+import no.nav.dagpenger.brev.Plassering
+import no.nav.dagpenger.regel.brev.DagpengerSøknadBrevmal
+import org.junit.jupiter.api.Test
+
+class BrevScenarioTest {
+    @Test
+    fun `bygger innvilgelsesbrev fra scenariotest`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2024))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
+
+            brev.shouldNotBeNull()
+            brev.overskrift shouldBe "Nav har innvilget søknaden din om dagpenger"
+
+            // Innledning skal inneholde periodeinfo
+            val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
+            innledning.flatMap { it.innhold }.joinToString("\n").shouldContain("Du får dagpenger fra og med")
+
+            // Fastsettelser skal finnes
+            val fastsettelser = brev.seksjoner.filter { it.plassering == Plassering.FASTSETTELSE }
+            fastsettelser.shouldNotBeNull()
+
+            // Print brevet for visuell inspeksjon
+            println(MarkdownRenderer.render(brev))
+        }
+    }
+
+    @Test
+    fun `bygger avslagsbrev fra scenariotest`() {
+        nyttScenario {
+            alder = 88
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2024))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
+
+            brev.shouldNotBeNull()
+            brev.overskrift shouldBe "Nav har avslått søknaden din om dagpenger"
+
+            // Begrunnelse skal finnes
+            val begrunnelse = brev.seksjoner.filter { it.plassering == Plassering.BEGRUNNELSE }
+            begrunnelse
+                .flatMap { it.innhold }
+                .joinToString("\n")
+                .shouldContain("alder")
+
+            println(MarkdownRenderer.render(brev))
+        }
+    }
+
+    private fun byggBrev(resultatJson: JsonNode) =
+        BrevBygger(DagpengerSøknadBrevmal).bygg(
+            objectMapper.treeToValue<BehandlingsresultatDTO>(resultatJson),
+        )
+}

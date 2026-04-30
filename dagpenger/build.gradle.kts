@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(project(path = ":regelverk"))
     implementation(project(path = ":dag"))
+    implementation(project(path = ":brev"))
     implementation(libs.dp.grunnbelop)
     implementation(libs.otel.instrumentation.annotations)
     implementation(libs.otel.api)
