@@ -5,8 +5,10 @@ import no.nav.dagpenger.brev.Maltekst
 import no.nav.dagpenger.brev.PeriodeType
 import no.nav.dagpenger.brev.Plassering
 import no.nav.dagpenger.brev.Trigger
+import no.nav.dagpenger.regel.OpplysningsTyper.AntallBarnSomGirRettTilBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.DagsatsEtterSamordningMedBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.EgenandelId
+import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilMinsteinntektId
@@ -227,67 +229,119 @@ val DagpengerBrevmal =
                     plassering = Plassering.BEGRUNNELSE,
                     rekkefølge = 5,
                 ),
-                // === Vilkår (innvilgelse) ===
-                Maltekst(
-                    trigger = Trigger.OpplysningVerdi(KravTilAlderId.uuid, "true", kunNyeOpplysninger = true),
-                    tittel = "Du oppfyller kravet til alder",
-                    tekst = "Vurderingen er gjort etter folketrygdloven § 4-23.",
-                    plassering = Plassering.VILKÅR,
-                    rekkefølge = 1,
-                ),
-                Maltekst(
-                    trigger = Trigger.OpplysningVerdi(KravTilMinsteinntektId.uuid, "true", kunNyeOpplysninger = true),
-                    tittel = "Du oppfyller kravet til minsteinntekt",
-                    tekst = "Vurderingen er gjort etter folketrygdloven § 4-4.",
-                    plassering = Plassering.VILKÅR,
-                    rekkefølge = 2,
-                ),
-                Maltekst(
-                    trigger = Trigger.OpplysningVerdi(KravTilArbeidssøkerId.uuid, "true", kunNyeOpplysninger = true),
-                    tittel = "Du er reell arbeidssøker",
-                    tekst = "Vedtaket er gjort etter folketrygdloven § 4-5.",
-                    plassering = Plassering.VILKÅR,
-                    rekkefølge = 3,
-                ),
+                // === Vilkår (vises ikke ved innvilgelse — implisitt oppfylt) ===
                 // === Fastsettelser ===
+                // Periode
                 Maltekst(
                     trigger = Trigger.OpplysningFinnes(OrdinærPeriodeId.uuid, kunNyeOpplysninger = true),
                     tittel = "Hvor lenge kan du få dagpenger?",
                     tekst =
-                        "Arbeidsinntekten din gir deg rett til en periode på maksimalt " +
+                        "Du er innvilget dagpenger til og med " +
+                            "{{Har løpende rett på dagpenger.tilOgMed}}, " +
+                            "fordi du ikke lenger har rett til dagpenger etter denne datoen.\n\n" +
+                            "Arbeidsinntekten din gir deg rett til en periode på maksimalt " +
                             "{{Antall stønadsuker (stønadsperiode)}} uker med dagpenger. " +
-                            "Vurderingen er gjort etter folketrygdloven § 4-15.",
+                            "Vurderingen er gjort etter folketrygdloven § 4-15.\n\n" +
+                            "Hvis dagpengene dine stanser før perioden er over, kan du søke på nytt. " +
+                            "Du kan lese mer om grunner til stans lenger ned i brevet.",
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 1,
                 ),
+                // Sats og grunnlag
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(DagsatsEtterSamordningMedBarnetilleggId.uuid, kunNyeOpplysninger = true),
+                    trigger =
+                        Trigger.OpplysningFinnes(
+                            DagsatsEtterSamordningMedBarnetilleggId.uuid,
+                            kunNyeOpplysninger = true,
+                        ),
                     tittel = "Slik har vi beregnet dagpengene dine",
                     tekst =
-                        "Du får {{Dagsats med barnetillegg etter samordning og 90 % regel}} kroner per dag for fem dager i uken. " +
-                            "Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner. " +
-                            "Beregningen er gjort etter folketrygdloven § 4-11 andre ledd.",
+                        "Du får {{Dagsats med barnetillegg etter samordning og 90 % regel}} " +
+                            "kroner per dag for fem dager i uken.",
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 2,
                 ),
+                // Barnetillegg (vises kun når det finnes barn som gir tillegg)
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(fastsattArbeidstidPerUkeFørTapId.uuid, kunNyeOpplysninger = true),
+                    trigger =
+                        Trigger.OpplysningFinnes(
+                            AntallBarnSomGirRettTilBarnetilleggId.uuid,
+                            kunNyeOpplysninger = true,
+                        ),
+                    tekst =
+                        "Dette inkluderer barnetillegg for " +
+                            "{{Antall barn som gir rett til barnetillegg}} barn, " +
+                            "som er {{Barnetilleggets størrelse i kroner per dag for hvert barn}} " +
+                            "kroner per dag.",
+                    plassering = Plassering.FASTSETTELSE,
+                    rekkefølge = 3,
+                ),
+                // Beregningsforklaring
+                Maltekst(
+                    trigger =
+                        Trigger.OpplysningFinnes(
+                            GrunnlagId.uuid,
+                            kunNyeOpplysninger = true,
+                        ),
+                    tekst =
+                        "Vi beregner hvor mye du kan få i dagpenger basert på hva du har hatt i inntekt " +
+                            "de siste 12 månedene, eller i gjennomsnitt de siste 36 månedene. " +
+                            "Vi velger det alternativet som er best for deg. " +
+                            "For deg har vi valgt {{Brukt beregningsregel}}.",
+                    plassering = Plassering.FASTSETTELSE,
+                    rekkefølge = 4,
+                ),
+                // Grunnlag og info om inntektssjekk
+                Maltekst(
+                    trigger =
+                        Trigger.OpplysningFinnes(
+                            GrunnlagId.uuid,
+                            kunNyeOpplysninger = true,
+                        ),
+                    tekst =
+                        "Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner.\n\n" +
+                            "Du kan se hva som gir rett til dagpenger på nav.no/dagpenger. " +
+                            "Vi har hentet inntektene dine fra Skatteetaten. " +
+                            "Du kan sjekke inntekten din på skatteetaten.no/mineinntekter.\n\n" +
+                            "Hvis opplysningene ikke stemmer, må du:\n\n" +
+                            "Kontakte arbeidsgiveren din, slik at de kan rette " +
+                            "inntektsopplysningene dine.\n" +
+                            "Ta kontakt med Nav og dokumentere endringene.\n\n" +
+                            "Beregningen er gjort etter folketrygdloven § 4-11 andre ledd.",
+                    plassering = Plassering.FASTSETTELSE,
+                    rekkefølge = 5,
+                ),
+                // Arbeidstid
+                Maltekst(
+                    trigger =
+                        Trigger.OpplysningFinnes(
+                            fastsattArbeidstidPerUkeFørTapId.uuid,
+                            kunNyeOpplysninger = true,
+                        ),
                     tittel = "Arbeidstiden din",
                     tekst =
                         "Vi har kommet frem til at den vanlige arbeidstiden din er " +
                             "{{Fastsatt arbeidstid per uke før tap}} timer per uke.",
                     plassering = Plassering.FASTSETTELSE,
-                    rekkefølge = 3,
+                    rekkefølge = 6,
                 ),
+                // Egenandel
                 Maltekst(
                     trigger = Trigger.OpplysningFinnes(EgenandelId.uuid, kunNyeOpplysninger = true),
                     tittel = "Egenandel",
                     tekst =
-                        "Egenandelen din er {{Egenandel}} kroner. " +
+                        "Når du får dagpenger, trekker Nav en egenandel fra den første " +
+                            "utbetalingen din. Den tilsvarer tre ganger dagsatsen med " +
+                            "eventuelt barnetillegg.\n\n" +
+                            "Egenandelen din er {{Egenandel}} kroner.\n\n" +
                             "Vi trekker egenandelen fra den første utbetalingen din. " +
+                            "Får vi ikke trukket hele egenandelen fra den første utbetalingen, " +
+                            "trekker vi resten fra den neste utbetalingen din.\n\n" +
+                            "Egenandelen trekkes automatisk. I utbetalingsoversikten vil " +
+                            "dagsatsen din se lavere ut i perioder hvor egenandel er trukket.\n\n" +
                             "Les mer om egenandel i folketrygdloven § 4-9.",
                     plassering = Plassering.FASTSETTELSE,
-                    rekkefølge = 4,
+                    rekkefølge = 7,
                 ),
                 // === Informasjon ===
                 Maltekst(
