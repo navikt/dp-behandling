@@ -2,6 +2,7 @@ package no.nav.dagpenger.behandling.scenario
 
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
@@ -10,6 +11,7 @@ import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Comp
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.scenario.BrevScenarioTest.Companion.byggBrev
+import no.nav.dagpenger.brev.TypstRenderer
 import no.nav.dagpenger.regel.Meldeplikt
 import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import org.junit.jupiter.api.Test
@@ -73,8 +75,10 @@ class ArbeidssøkerTest {
                     ),
                 )
             }
-            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val resultatJson = behovsløsere.sisteBehandlingsresultatForslag().second
             val brev = byggBrev(resultatJson)
+            brev.shouldNotBeNull()
+            println(TypstRenderer.render(brev))
         }
     }
 
@@ -136,6 +140,8 @@ class ArbeidssøkerTest {
 
             val resultatJson = behovsløsere.sisteBehandlingsresultat().second
             val brev = byggBrev(resultatJson)
+            brev.shouldNotBeNull()
+            println(TypstRenderer.render(brev))
         }
     }
 
@@ -197,6 +203,8 @@ class ArbeidssøkerTest {
 
             val resultatJson = behovsløsere.sisteBehandlingsresultat().second
             val brev = byggBrev(resultatJson)
+            brev.shouldNotBeNull()
+            println(TypstRenderer.render(brev))
         }
     }
 }

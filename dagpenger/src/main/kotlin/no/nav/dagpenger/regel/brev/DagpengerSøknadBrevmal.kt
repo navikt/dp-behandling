@@ -453,29 +453,30 @@ val DagpengerBrevmal =
                     trigger = Trigger.Avgjørelse("Innvilgelse", "Gjenopptak", "Stans", "Endring"),
                     tittel = "Du må melde fra om endringer",
                     tekst =
-                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
-                            "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
-                            "slik at du ikke får for mye eller for lite i dagpenger. " +
-                            "Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.\n\n" +
-                            "Du må gi beskjed til oss hvis du:\n\n" +
-                            "- begynner eller slutter i arbeid, helt eller delvis\n" +
-                            "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
-                            "- blir oppsagt mens du er permittert\n" +
-                            "- blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
-                            "- begynner eller slutter på tiltak\n" +
-                            "- begynner eller slutter på kurs eller annen utdanning\n" +
-                            "- skal avvikle ferie eller permisjon\n" +
-                            "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "- endrer adresse - dette gjør du på " +
-                            "[skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)\n" +
-                            "- blir innlagt på sykehus eller institusjon\n" +
-                            "- skal reise eller flytte til utlandet\n" +
-                            "- mottar pensjon eller annen stønad\n" +
-                            "- mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
-                            "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
-                            "- ikke ønsker arbeidstilbud i en periode\n" +
-                            "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
-                            "Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).",
+                        """
+                        Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. Derfor er det din plikt å gi beskjed til Nav om endringen, slik at du ikke får for mye eller for lite i dagpenger. Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.
+
+                        Du må gi beskjed til oss hvis du:
+
+                        - begynner eller slutter i arbeid, helt eller delvis
+                        - er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker
+                        - blir oppsagt mens du er permittert
+                        - blir sykmeldt, får endret sykmelding eller blir friskmeldt
+                        - begynner eller slutter på tiltak
+                        - begynner eller slutter på kurs eller annen utdanning
+                        - skal avvikle ferie eller permisjon
+                        - sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring
+                        - endrer adresse - dette gjør du på [skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)
+                        - blir innlagt på sykehus eller institusjon
+                        - skal reise eller flytte til utlandet
+                        - mottar pensjon eller annen stønad
+                        - mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia
+                        - mottar barnetillegg og du får ansvar for flere/færre barn
+                        - ikke ønsker arbeidstilbud i en periode
+                        - har andre opplysninger som kan bety noe for retten til ytelser
+
+                        Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).
+                        """.trimIndent(),
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 5,
                 ),
