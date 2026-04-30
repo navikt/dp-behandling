@@ -35,6 +35,7 @@ dependencies {
     implementation("com.github.navikt.tbd-libs:naisful-app:2025.11.04-10.54-c831038e")
 
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
+    testImplementation(project(path = ":brev"))
 
     testImplementation(libs.rapids.and.rivers.test)
     testImplementation(libs.mockk)
