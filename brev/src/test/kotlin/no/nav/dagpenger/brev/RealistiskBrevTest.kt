@@ -209,7 +209,7 @@ class RealistiskBrevTest {
         // Innledning
         val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
         innledning shouldHaveSize 1
-        innledning[0].innhold[0] shouldBe "Du får dagpenger fra og med 2026-04-23 til og med 2026-04-27."
+        innledning[0].innhold[0] shouldBe "Du får dagpenger fra og med 23. april 2026 til og med 27. april 2026."
         innledning[0].innhold[1] shouldContain "462 kroner dagen"
         innledning[0].innhold[2] shouldContain "Egenandelen din er 1386 kroner"
 
@@ -240,6 +240,8 @@ class RealistiskBrevTest {
         info shouldHaveSize 2
         info[0].tittel shouldBe "Du må sende meldekort"
         info[1].tittel shouldBe "Du må melde fra om endringer"
+
+        TypstRenderer.render(brev)
     }
 
     @Test
@@ -274,7 +276,7 @@ class RealistiskBrevTest {
         // Åpen periode — bare fraOgMed
         val innledning = brev.seksjoner.filter { it.plassering == Plassering.INNLEDNING }
         innledning shouldHaveSize 1
-        innledning[0].innhold[0] shouldBe "Du får dagpenger fra og med 2026-04-23."
+        innledning[0].innhold[0] shouldBe "Du får dagpenger fra og med 23. april 2026."
 
         val vilkår = brev.seksjoner.filter { it.plassering == Plassering.VILKÅR }
         // Bare alder vises — minsteinntekt er arvet og filtreres bort (kunNyeOpplysninger=true)

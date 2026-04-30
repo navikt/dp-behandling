@@ -9,6 +9,9 @@ import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
 import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.UUID
 
 class BrevBygger(
@@ -127,8 +130,8 @@ internal class BrevKontekst(
             val opplysning = opplysningerNavnMap[navn] ?: return null
             val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
             return when (felt.lowercase()) {
-                "fraogmed", "fra", "gyldigfraogmed" -> sistePeriode.gyldigFraOgMed?.toString()
-                "tilogmed", "til", "gyldigtilogmed" -> sistePeriode.gyldigTilOgMed?.toString()
+                "fraogmed", "fra", "gyldigfraogmed" -> sistePeriode.gyldigFraOgMed?.let { formaterDato(it) }
+                "tilogmed", "til", "gyldigtilogmed" -> sistePeriode.gyldigTilOgMed?.let { formaterDato(it) }
                 else -> null
             }
         }
@@ -146,7 +149,7 @@ internal class BrevKontekst(
         val sistePeriode = opplysning.perioder.lastOrNull() ?: return null
         return when (val verdi = sistePeriode.verdi) {
             is BoolskVerdiDTO -> verdi.verdi.toString()
-            is DatoVerdiDTO -> verdi.verdi.toString()
+            is DatoVerdiDTO -> formaterDato(verdi.verdi)
             is DesimaltallVerdiDTO -> verdi.verdi.toString()
             is HeltallVerdiDTO -> verdi.verdi.toString()
             is PengeVerdiDTO -> verdi.verdi.toString()
@@ -157,5 +160,8 @@ internal class BrevKontekst(
 
     companion object {
         private val PLACEHOLDER_REGEX = Regex("\\{\\{(.+?)}}")
+        private val NORSK_DATO = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale("nb", "NO"))
+
+        private fun formaterDato(dato: LocalDate): String = dato.format(NORSK_DATO)
     }
 }
