@@ -96,20 +96,59 @@ val DagpengerBrevmal =
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 2,
                 ),
-                // Dagsats og egenandel (vises når opplysningene finnes, typisk innvilgelse/endring)
+                // Dagsats (vises når opplysningen finnes, typisk innvilgelse/endring)
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(DagsatsEtterSamordningMedBarnetilleggId.uuid, kunNyeOpplysninger = true),
-                    tekst = "Du får {{Dagsats med barnetillegg etter samordning og 90 % regel}} kroner dagen for fem dager i uken.",
+                    trigger =
+                        Trigger.OpplysningFinnes(
+                            DagsatsEtterSamordningMedBarnetilleggId.uuid,
+                            kunNyeOpplysninger = true,
+                        ),
+                    tekst =
+                        "Du får {{Dagsats med barnetillegg etter samordning og 90 % regel}} " +
+                            "kroner dagen for fem dager i uken.",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 3,
                 ),
+                // Egenandel i innledning
                 Maltekst(
                     trigger = Trigger.OpplysningFinnes(EgenandelId.uuid, kunNyeOpplysninger = true),
                     tekst =
                         "Nav trekker en egenandel av dagpengene dine. " +
-                            "Egenandelen din er {{Egenandel}} kroner.",
+                            "Egenandelen din er {{Egenandel}} kroner, " +
+                            "som er tre ganger dagsatsen din. " +
+                            "Egenandelen blir trukket før du får første utbetaling.",
                     plassering = Plassering.INNLEDNING,
                     rekkefølge = 4,
+                ),
+                // Henvisning til mer info lenger ned
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    tekst =
+                        "Du kan lese mer om beregning, utbetaling og egenandel lenger ned i brevet.",
+                    plassering = Plassering.INNLEDNING,
+                    rekkefølge = 5,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Gjenopptak"),
+                    tekst =
+                        "Du kan lese mer om beregning, utbetaling og egenandel lenger ned i brevet.",
+                    plassering = Plassering.INNLEDNING,
+                    rekkefølge = 5,
+                ),
+                // "Derfor får du dagpenger fra..." (bold)
+                Maltekst(
+                    trigger = Trigger.OpplysningFinnes(harLøpendeRettId.uuid, periodeType = PeriodeType.ÅPEN),
+                    tekst =
+                        "**Derfor får du dagpenger fra {{Har løpende rett på dagpenger.fraOgMed}}**",
+                    plassering = Plassering.INNLEDNING,
+                    rekkefølge = 6,
+                ),
+                Maltekst(
+                    trigger = Trigger.OpplysningFinnes(harLøpendeRettId.uuid, periodeType = PeriodeType.LUKKET),
+                    tekst =
+                        "**Derfor får du dagpenger fra {{Har løpende rett på dagpenger.fraOgMed}}**",
+                    plassering = Plassering.INNLEDNING,
+                    rekkefølge = 6,
                 ),
                 // === Begrunnelse ===
                 // Avslag-begrunnelse
