@@ -67,6 +67,7 @@ val DagpengerBrevmal =
                         Trigger.OpplysningVerdi(
                             harLøpendeRettId.uuid,
                             forventetVerdi = "true",
+                            kunNyeOpplysninger = true,
                             periodeType = PeriodeType.ÅPEN,
                         ),
                     tekst = "Du får dagpenger fra og med {{Har løpende rett på dagpenger.fraOgMed}}.",
@@ -158,6 +159,7 @@ val DagpengerBrevmal =
                         Trigger.OpplysningVerdi(
                             harLøpendeRettId.uuid,
                             forventetVerdi = "true",
+                            kunNyeOpplysninger = true,
                             periodeType = PeriodeType.ÅPEN,
                         ),
                     tekst =
@@ -322,19 +324,17 @@ val DagpengerBrevmal =
                             kunNyeOpplysninger = true,
                         ),
                     tekst =
-                        "Vi beregner hvor mye du kan få i dagpenger basert på hva du har hatt i inntekt " +
-                            "de siste 12 månedene, eller i gjennomsnitt de siste 36 månedene. " +
-                            "Vi velger det alternativet som er best for deg. " +
-                            "For deg har vi valgt {{Brukt beregningsregel}}.\n\n" +
-                            "Vi har registrert disse inntektene:\n\n" +
-                            "Periode 1: {{Inntektperiode 1}} kroner\n" +
-                            "Periode 2: {{Inntektperiode 2}} kroner\n" +
-                            "Periode 3: {{Inntektperiode 3}} kroner\n\n" +
-                            "Når vi beregner dagpengene dine, setter vi opp inntekten din tilsvarende " +
-                            "årlig justering av grunnbeløpet (G). " +
-                            "Inntekt over {{6 ganger grunnbeløp}} kroner (6 G) per " +
-                            "tolvmånedersperiode vil ikke bli regnet med. " +
-                            "Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner.",
+                        """
+                        Vi beregner hvor mye du kan få i dagpenger basert på hva du har hatt i inntekt de siste 12 månedene, eller i gjennomsnitt de siste 36 månedene. Vi velger det alternativet som er best for deg. For deg har vi valgt {{Brukt beregningsregel}}.
+
+                        Vi har registrert disse inntektene:
+
+                        - Periode 1: {{Inntektperiode 1}} kroner
+                        - Periode 2: {{Inntektperiode 2}} kroner
+                        - Periode 3: {{Inntektperiode 3}} kroner
+
+                        Når vi beregner dagpengene dine, setter vi opp inntekten din tilsvarende årlig justering av grunnbeløpet (G). Inntekt over {{6 ganger grunnbeløp}} kroner (6 G) per tolvmånedersperiode vil ikke bli regnet med. Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner.
+                        """.trimIndent(),
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 4,
                 ),
