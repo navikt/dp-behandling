@@ -14,6 +14,7 @@ import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
+import java.time.LocalDate
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
@@ -131,25 +132,9 @@ class PersonRepositoryPostgres(
                 mapOf("ident" to person.ident.identifikator()),
             ).asUpdate,
         )
-        person.rettighethistorikk().forEach { (gjelderFra, rettighetstatus) ->
-            unitOfWork.session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    INSERT INTO rettighetstatus (ident, gjelder_fra, virkningsdato, har_rettighet, behandling_id, behandlingskjede_id)
-                    VALUES (:ident, :gjelderFra, :virkningsdato, :harRettighet, :behandlingId, :behandlingskjedeId)
-                    """.trimIndent(),
-                    mapOf(
-                        "ident" to person.ident.identifikator(),
-                        "gjelderFra" to gjelderFra,
-                        "virkningsdato" to rettighetstatus.virkningsdato,
-                        "behandlingId" to rettighetstatus.behandlingId,
-                        "harRettighet" to rettighetstatus.utfall,
-                        "behandlingskjedeId" to rettighetstatus.behandlingskjedeId,
-                    ),
-                ).asUpdate,
-            )
-        }
+
+        lagreRettighetshistorikk(unitOfWork, person.ident.identifikator(), person.rettighethistorikk())
+
         person.behandlinger().forEach { behandling ->
             behandlingRepository.lagre(behandling, unitOfWork)
 
@@ -168,5 +153,41 @@ class PersonRepositoryPostgres(
                 ).asUpdate,
             )
         }
+    }
+
+    private fun lagreRettighetshistorikk(
+        unitOfWork: PostgresUnitOfWork,
+        ident: String,
+        rettighethistorikk: Map<LocalDate, Rettighetstatus>,
+    ) {
+        val params =
+            rettighethistorikk
+                .map { (gjelderFra, rettighetstatus) ->
+                    mapOf(
+                        "ident" to ident,
+                        "gjelderFra" to gjelderFra,
+                        "virkningsdato" to rettighetstatus.virkningsdato,
+                        "behandlingId" to rettighetstatus.behandlingId,
+                        "harRettighet" to rettighetstatus.utfall,
+                        "behandlingskjedeId" to rettighetstatus.behandlingskjedeId,
+                    )
+                }
+
+        unitOfWork.session
+            .batchPreparedNamedStatement(
+                //language=PostgreSQL
+                """
+                INSERT INTO rettighetstatus (ident, gjelder_fra, virkningsdato, har_rettighet, behandling_id, behandlingskjede_id)
+                VALUES (:ident, :gjelderFra, :virkningsdato, :harRettighet, :behandlingId, :behandlingskjedeId)
+                """.trimIndent(),
+                params,
+            ).krevAtAntallRaderErNøyaktigLik(params.size)
+    }
+
+    private fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
+        check(sum() == forventet) {
+            "Forventet å oppdatere $forventet rader nøyaktig"
+        }
+        return this
     }
 }
