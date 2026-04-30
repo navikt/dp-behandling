@@ -175,7 +175,7 @@ val DagpengerBrevmal =
                     tittel = "Du oppfyller ikke kravet til alder",
                     tekst =
                         "Du oppfyller ikke alderskravet for å motta dagpenger. " +
-                            "Vurderingen er gjort etter folketrygdloven § 4-23.",
+                            "Vurderingen er gjort etter [folketrygdloven § 4-23](https://lovdata.no/lov/1997-02-28-19/%C2%A74-23).",
                     plassering = Plassering.BEGRUNNELSE,
                     rekkefølge = 1,
                 ),
@@ -184,7 +184,7 @@ val DagpengerBrevmal =
                     tittel = "Du oppfyller ikke kravet til minsteinntekt",
                     tekst =
                         "Du har ikke hatt tilstrekkelig arbeidsinntekt. " +
-                            "Vurderingen er gjort etter folketrygdloven § 4-4.",
+                            "Vurderingen er gjort etter [folketrygdloven § 4-4](https://lovdata.no/lov/1997-02-28-19/%C2%A74-4).",
                     plassering = Plassering.BEGRUNNELSE,
                     rekkefølge = 2,
                 ),
@@ -193,7 +193,7 @@ val DagpengerBrevmal =
                     tittel = "Du må være reell arbeidssøker",
                     tekst =
                         "For å ha rett til dagpenger, må du være villig til å ta alle typer arbeid med vanlig lønn. " +
-                            "Vedtaket er gjort etter folketrygdloven § 4-5.",
+                            "Vedtaket er gjort etter [folketrygdloven § 4-5](https://lovdata.no/lov/1997-02-28-19/%C2%A74-5).",
                     plassering = Plassering.BEGRUNNELSE,
                     rekkefølge = 3,
                 ),
@@ -209,7 +209,7 @@ val DagpengerBrevmal =
                         "For å ha rett til dagpenger må du være registrert som arbeidssøker hos Nav. " +
                             "Vi har fått melding om at du ikke lenger er registrert som arbeidssøker, " +
                             "og dagpengene dine er derfor stanset. " +
-                            "Vedtaket er gjort etter folketrygdloven § 4-8.",
+                            "Vedtaket er gjort etter [folketrygdloven § 4-8](https://lovdata.no/lov/1997-02-28-19/%C2%A74-8).",
                     plassering = Plassering.BEGRUNNELSE,
                     rekkefølge = 4,
                 ),
@@ -225,7 +225,7 @@ val DagpengerBrevmal =
                         "For å ha rett til dagpenger må du sende meldekort innen fristen. " +
                             "Vi har ikke mottatt meldekort fra deg innen fristen, " +
                             "og dagpengene dine er derfor stanset. " +
-                            "Vedtaket er gjort etter folketrygdloven § 4-8.",
+                            "Vedtaket er gjort etter [folketrygdloven § 4-8](https://lovdata.no/lov/1997-02-28-19/%C2%A74-8).",
                     plassering = Plassering.BEGRUNNELSE,
                     rekkefølge = 5,
                 ),
@@ -241,7 +241,7 @@ val DagpengerBrevmal =
                             "fordi du ikke lenger har rett til dagpenger etter denne datoen.\n\n" +
                             "Arbeidsinntekten din gir deg rett til en periode på maksimalt " +
                             "{{Antall stønadsuker (stønadsperiode)}} uker med dagpenger. " +
-                            "Vurderingen er gjort etter folketrygdloven § 4-15.\n\n" +
+                            "Vurderingen er gjort etter [folketrygdloven § 4-15](https://lovdata.no/lov/1997-02-28-19/%C2%A74-15).\n\n" +
                             "Hvis dagpengene dine stanser før perioden er over, kan du søke på nytt. " +
                             "Du kan lese mer om grunner til stans lenger ned i brevet.",
                     plassering = Plassering.FASTSETTELSE,
@@ -315,7 +315,7 @@ val DagpengerBrevmal =
                             "- Kontakte arbeidsgiveren din, slik at de kan rette " +
                             "inntektsopplysningene dine.\n" +
                             "- Ta kontakt med Nav og dokumentere endringene.\n\n" +
-                            "Beregningen er gjort etter folketrygdloven § 4-11 andre ledd.",
+                            "Beregningen er gjort etter [folketrygdloven § 4-11 andre ledd](https://lovdata.no/lov/1997-02-28-19/%C2%A74-11).",
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 5,
                 ),
@@ -347,7 +347,7 @@ val DagpengerBrevmal =
                             "trekker vi resten fra den neste utbetalingen din.\n\n" +
                             "Egenandelen trekkes automatisk. I utbetalingsoversikten vil " +
                             "dagsatsen din se lavere ut i perioder hvor egenandel er trukket.\n\n" +
-                            "Les mer om egenandel i folketrygdloven § 4-9.",
+                            "Les mer om egenandel i [folketrygdloven § 4-9](https://lovdata.no/lov/1997-02-28-19/%C2%A74-9).",
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 7,
                 ),
@@ -490,7 +490,7 @@ val DagpengerBrevmal =
                             "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
                             "- ikke ønsker arbeidstilbud i en periode\n" +
                             "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
-                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
+                            "Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 5,
                 ),
@@ -520,7 +520,7 @@ val DagpengerBrevmal =
                             "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
                             "- ikke ønsker arbeidstilbud i en periode\n" +
                             "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
-                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
+                            "Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 5,
                 ),
@@ -550,7 +550,7 @@ val DagpengerBrevmal =
                             "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
                             "- ikke ønsker arbeidstilbud i en periode\n" +
                             "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
-                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
+                            "Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 5,
                 ),
@@ -580,7 +580,7 @@ val DagpengerBrevmal =
                             "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
                             "- ikke ønsker arbeidstilbud i en periode\n" +
                             "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
-                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
+                            "Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 5,
                 ),
@@ -660,7 +660,8 @@ val DagpengerBrevmal =
                     tekst =
                         "Du kan be om hjelp fra andre under hele saksbehandlingen, " +
                             "for eksempel fra en advokat, rettshjelper, en organisasjon du er medlem av, " +
-                            "eller en myndig person over 18 år. Dette følger av forvaltningsloven § 12. " +
+                            "eller en myndig person over 18 år. " +
+                            "Dette følger av [forvaltningsloven § 12](https://lovdata.no/lov/1967-02-10/%C2%A712). " +
                             "Hvis den som hjelper deg ikke er advokat, må du gi denne personen skriftlig fullmakt. " +
                             "Bruk skjemaet du finner på [nav.no/fullmakt](https://nav.no/fullmakt). " +
                             "Ta kontakt på telefon 55 55 33 33 hvis du ikke kan bruke det digitale skjemaet.",
@@ -672,8 +673,10 @@ val DagpengerBrevmal =
                     tittel = "Du har rett til å få veiledning fra Nav",
                     tekst =
                         "Vi har plikt til å veilede deg om dine rettigheter og plikter i saken din, " +
-                            "både før, under og etter saksbehandlingen. Dette følger av forvaltningsloven § 11. " +
-                            "Ta kontakt på telefon 55 55 33 33 eller på [nav.no/kontaktoss](https://[nav.no/kontakt](https://nav.no/kontakt)oss) hvis du har spørsmål.",
+                            "både før, under og etter saksbehandlingen. " +
+                            "Dette følger av [forvaltningsloven § 11](https://lovdata.no/lov/1967-02-10/%C2%A711). " +
+                            "Ta kontakt på telefon 55 55 33 33 eller på " +
+                            "[nav.no/kontaktoss](https://nav.no/kontaktoss) hvis du har spørsmål.",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 4,
                 ),
@@ -688,9 +691,9 @@ val DagpengerBrevmal =
                             "Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp.\n\n" +
                             "Hvis du får medhold i klagen, kan du få dekket vesentlige utgifter som har vært nødvendige " +
                             "for å få endret vedtaket, for eksempel hjelp fra advokat. " +
-                            "Du kan ha krav på fri rettshjelp etter rettshjelploven. " +
+                            "Du kan ha krav på fri rettshjelp etter [rettshjelploven](https://lovdata.no/lov/2024-11-22-79). " +
                             "Du kan få mer informasjon om denne ordningen hos advokater, statsforvalteren eller Nav.\n\n" +
-                            "Du kan lese om saksomkostninger i forvaltningsloven § 36.\n\n" +
+                            "Du kan lese om saksomkostninger i [forvaltningsloven § 36](https://lovdata.no/lov/1967-02-10/%C2%A736).\n\n" +
                             "Hvis du sender klage i posten, må du signere klagen.\n\n" +
                             "Mer informasjon om klagerettigheter finner du på " +
                             "[nav.no/klagerettigheter](https://nav.no/klagerettigheter).\n\n" +
