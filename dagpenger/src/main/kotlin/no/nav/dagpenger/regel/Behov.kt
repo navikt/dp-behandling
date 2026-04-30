@@ -47,7 +47,7 @@ object Behov {
     val BostedslandErNorge by StringConstant()
     val OppholdINorge by StringConstant()
 
-    val AntallDagerForbukt by StringConstant()
+    val AntallDagerForbrukt by StringConstant()
     val OpptjeningsBeløp by StringConstant()
 }
 

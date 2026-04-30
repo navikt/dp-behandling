@@ -259,7 +259,7 @@ internal class Mennesket(
                 Behov.OppgittAndreYtelserUtenforNav to Behovsløsning.Statisk(false),
                 Behov.AndreØkonomiskeYtelser to Behovsløsning.Statisk(false),
                 Behov.Uføre to Behovsløsning.Statisk(false),
-                Behov.AntallDagerForbukt to
+                Behov.AntallDagerForbrukt to
                     Behovsløsning.Statisk(
                         mapOf(
                             "verdi" to 100,

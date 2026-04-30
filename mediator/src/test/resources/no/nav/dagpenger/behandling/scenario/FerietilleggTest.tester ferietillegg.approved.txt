@@ -47,7 +47,7 @@ Behandling endret tilstand til: Ferdig
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- AntallDagerForbukt
+- AntallDagerForbrukt
 Laget avklaring om KontrollFerietillegg
 Behov:
 - OpptjeningsBeløp

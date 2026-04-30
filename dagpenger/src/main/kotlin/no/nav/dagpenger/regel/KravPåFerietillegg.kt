@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.regel.tomRegel
-import no.nav.dagpenger.regel.Behov.AntallDagerForbukt
+import no.nav.dagpenger.regel.Behov.AntallDagerForbrukt
 import no.nav.dagpenger.regel.OpplysningsTyper.antallDagerForbrukId
 import no.nav.dagpenger.regel.OpplysningsTyper.ferietilleggTerskelId
 import no.nav.dagpenger.regel.OpplysningsTyper.harKravPåFerietilleggId
@@ -16,7 +16,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.årSomSkalBeregnesId
 
 object KravPåFerietillegg {
     val harKravpåFerietillegg = boolsk(harKravPåFerietilleggId, "Har krav på ferietillegg")
-    val antallDagerForbruk = heltall(antallDagerForbrukId, "Antall dager forbrukte i opptjeningsåret", behovId = AntallDagerForbukt)
+    val antallDagerForbruk = heltall(antallDagerForbrukId, "Antall dager forbrukte i opptjeningsåret", behovId = AntallDagerForbrukt)
     val ferietilleggTerskel = heltall(ferietilleggTerskelId, "Antall dager som må være forbrukt for at man skal ha krav på ferietillegg")
     val åretDetSkalBeregnesFerietilleggFor = heltall(årSomSkalBeregnesId, "Året som det skal beregnes ferietillegg for")
 
