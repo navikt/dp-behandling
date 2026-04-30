@@ -206,10 +206,27 @@ val DagpengerBrevmal =
                 ),
                 Maltekst(
                     trigger = Trigger.OpplysningVerdi(KravTilMinsteinntektId.uuid, "false", kunNyeOpplysninger = true),
-                    tittel = "Du oppfyller ikke kravet til minsteinntekt",
+                    tittel = "Du har hatt for lav inntekt",
                     tekst =
-                        "Du har ikke hatt tilstrekkelig arbeidsinntekt. " +
-                            "Vurderingen er gjort etter [folketrygdloven § 4-4](https://lovdata.no/lov/1997-02-28-19/%C2%A74-4).",
+                        "For å få dagpenger må du ha hatt arbeidsinntekt på " +
+                            "{{Inntektskrav for siste 12 måneder}} kroner de siste 12 månedene, " +
+                            "eller {{Inntektskrav for siste 36 måneder}} kroner de siste 36 månedene.\n\n" +
+                            "Den registrerte arbeidsinntekten din de siste 12 månedene til og med " +
+                            "{{Arbeidsinntekt siste 12 måneder.tilOgMed}} er " +
+                            "{{Arbeidsinntekt siste 12 måneder}} kroner.\n" +
+                            "Den registrerte arbeidsinntekten din de siste 36 månedene til og med " +
+                            "{{Arbeidsinntekt siste 36 måneder.tilOgMed}} er " +
+                            "{{Arbeidsinntekt siste 36 måneder}} kroner.\n" +
+                            "Du kan se hvilke inntekter som gir rett til dagpenger på " +
+                            "[nav.no/dagpenger](https://nav.no/dagpenger). " +
+                            "Vi har hentet arbeidsinntektene dine fra Skatteetaten. " +
+                            "Du kan sjekke dem på " +
+                            "[skatteetaten.no/mineinntekter](https://skatteetaten.no/mineinntekter).\n\n" +
+                            "Hvis opplysningene ikke stemmer, må du:\n\n" +
+                            "- Kontakte arbeidsgiveren din, slik at de kan rette inntektsopplysningene dine.\n" +
+                            "- Ta kontakt med Nav og dokumentere endringene.\n\n" +
+                            "Vedtaket er gjort etter " +
+                            "[folketrygdloven § 4-4](https://lovdata.no/lov/1997-02-28-19/%C2%A74-4).",
                     plassering = Plassering.BEGRUNNELSE,
                     rekkefølge = 2,
                 ),

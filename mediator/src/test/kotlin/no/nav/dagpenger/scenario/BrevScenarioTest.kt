@@ -54,7 +54,7 @@ class BrevScenarioTest {
     fun `bygger avslagsbrev`() {
         nyttScenario {
             alder = 88
-            inntektSiste12Mnd = 500000
+            inntektSiste12Mnd = 5000
         }.test {
             person.søkDagpenger(21.juni(2024))
 
