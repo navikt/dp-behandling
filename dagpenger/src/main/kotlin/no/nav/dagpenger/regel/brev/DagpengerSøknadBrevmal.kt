@@ -276,7 +276,7 @@ val DagpengerBrevmal =
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 3,
                 ),
-                // Beregningsforklaring
+                // Beregningsforklaring med inntekter
                 Maltekst(
                     trigger =
                         Trigger.OpplysningFinnes(
@@ -287,11 +287,20 @@ val DagpengerBrevmal =
                         "Vi beregner hvor mye du kan få i dagpenger basert på hva du har hatt i inntekt " +
                             "de siste 12 månedene, eller i gjennomsnitt de siste 36 månedene. " +
                             "Vi velger det alternativet som er best for deg. " +
-                            "For deg har vi valgt {{Brukt beregningsregel}}.",
+                            "For deg har vi valgt {{Brukt beregningsregel}}.\n\n" +
+                            "Vi har registrert disse inntektene:\n\n" +
+                            "Periode 1: {{Inntektperiode 1}} kroner\n" +
+                            "Periode 2: {{Inntektperiode 2}} kroner\n" +
+                            "Periode 3: {{Inntektperiode 3}} kroner\n\n" +
+                            "Når vi beregner dagpengene dine, setter vi opp inntekten din tilsvarende " +
+                            "årlig justering av grunnbeløpet (G). " +
+                            "Inntekt over {{6 ganger grunnbeløp}} kroner (6 G) per " +
+                            "tolvmånedersperiode vil ikke bli regnet med. " +
+                            "Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner.",
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 4,
                 ),
-                // Grunnlag og info om inntektssjekk
+                // Info om inntektssjekk
                 Maltekst(
                     trigger =
                         Trigger.OpplysningFinnes(
@@ -299,8 +308,7 @@ val DagpengerBrevmal =
                             kunNyeOpplysninger = true,
                         ),
                     tekst =
-                        "Inntektsgrunnlaget ditt er beregnet til {{Dagpengegrunnlag}} kroner.\n\n" +
-                            "Du kan se hva som gir rett til dagpenger på nav.no/dagpenger. " +
+                        "Du kan se hva som gir rett til dagpenger på nav.no/dagpenger. " +
                             "Vi har hentet inntektene dine fra Skatteetaten. " +
                             "Du kan sjekke inntekten din på skatteetaten.no/mineinntekter.\n\n" +
                             "Hvis opplysningene ikke stemmer, må du:\n\n" +
