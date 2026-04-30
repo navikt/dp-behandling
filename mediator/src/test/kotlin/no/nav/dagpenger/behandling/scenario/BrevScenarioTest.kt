@@ -12,6 +12,7 @@ import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.brev.BrevBygger
 import no.nav.dagpenger.brev.MarkdownRenderer
 import no.nav.dagpenger.brev.Plassering
+import no.nav.dagpenger.regel.brev.DagpengerStansBrevmal
 import no.nav.dagpenger.regel.brev.DagpengerSøknadBrevmal
 import org.junit.jupiter.api.Test
 
@@ -75,6 +76,51 @@ class BrevScenarioTest {
             println(MarkdownRenderer.render(brev))
         }
     }
+
+    @Test
+    fun `produserer brev om stans`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2024))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.avsluttArbeidssøkerperiode(25.juni(2024))
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggStansBrev(resultatJson)
+
+            brev.shouldNotBeNull()
+            brev.overskrift shouldBe "Nav har stanset dagpengene dine"
+
+            // Begrunnelse skal forklare hvorfor stans
+            val begrunnelse = brev.seksjoner.filter { it.plassering == Plassering.BEGRUNNELSE }
+            begrunnelse
+                .flatMap { it.innhold }
+                .joinToString("\n")
+                .shouldContain("registrert som arbeidssøker")
+
+            // Informasjon om gjenopptak
+            val informasjon = brev.seksjoner.filter { it.plassering == Plassering.INFORMASJON }
+            informasjon
+                .flatMap { it.innhold }
+                .joinToString("\n")
+                .shouldContain("dagpenger igjen")
+
+            println(MarkdownRenderer.render(brev))
+        }
+    }
+
+    private fun byggStansBrev(resultatJson: JsonNode) =
+        BrevBygger(DagpengerStansBrevmal).bygg(
+            objectMapper.treeToValue<BehandlingsresultatDTO>(resultatJson),
+        )
 
     private fun byggBrev(resultatJson: JsonNode) =
         BrevBygger(DagpengerSøknadBrevmal).bygg(
