@@ -35,6 +35,9 @@ object MarkdownRenderer : BrevRenderer {
  * Rendrer brev til Typst.
  */
 object TypstRenderer : BrevRenderer {
+    private val markdownLinkPattern = Regex("""\[([^\]]+)\]\(([^)]+)\)""")
+    private val markdownBoldPattern = Regex("""\*\*([^*]+)\*\*""")
+
     override fun render(brev: Brev): String =
         buildString {
             appendLine("= ${brev.overskrift}")
@@ -47,10 +50,21 @@ object TypstRenderer : BrevRenderer {
                 }
                 for (tekst in seksjon.innhold) {
                     if (tekst.isNotBlank()) {
-                        appendLine(tekst)
+                        appendLine(tekst.tilTypst())
                         appendLine()
                     }
                 }
             }
         }.trimEnd() + "\n"
+
+    private fun String.tilTypst(): String =
+        this
+            .replace(markdownLinkPattern) { match ->
+                val tekst = match.groupValues[1]
+                val url = match.groupValues[2]
+                "#link(\"$url\")[$tekst]"
+            }.replace(markdownBoldPattern) { match ->
+                val innhold = match.groupValues[1]
+                "*$innhold*"
+            }
 }

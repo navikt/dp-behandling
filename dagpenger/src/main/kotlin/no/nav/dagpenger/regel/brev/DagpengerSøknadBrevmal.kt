@@ -308,9 +308,9 @@ val DagpengerBrevmal =
                             kunNyeOpplysninger = true,
                         ),
                     tekst =
-                        "Du kan se hva som gir rett til dagpenger på nav.no/dagpenger. " +
+                        "Du kan se hva som gir rett til dagpenger på [nav.no/dagpenger](https://nav.no/dagpenger). " +
                             "Vi har hentet inntektene dine fra Skatteetaten. " +
-                            "Du kan sjekke inntekten din på skatteetaten.no/mineinntekter.\n\n" +
+                            "Du kan sjekke inntekten din på [skatteetaten.no/mineinntekter](https://skatteetaten.no/mineinntekter).\n\n" +
                             "Hvis opplysningene ikke stemmer, må du:\n\n" +
                             "- Kontakte arbeidsgiveren din, slik at de kan rette " +
                             "inntektsopplysningene dine.\n" +
@@ -357,15 +357,15 @@ val DagpengerBrevmal =
                     tittel = "Du må sende meldekort",
                     tekst =
                         "For å ha rett på dagpenger må du sende meldekort hver 14. dag. " +
-                            "Du fyller ut meldekortet digitalt på nav.no/meldekort. " +
-                            "Logg inn på nav.no for å se når du skal sende neste meldekort.\n\n" +
+                            "Du fyller ut meldekortet digitalt på [nav.no/meldekort](https://nav.no/meldekort). " +
+                            "Logg inn på [nav.no](https://nav.no) for å se når du skal sende neste meldekort.\n\n" +
                             "Hvis du sender meldekortet etter fristen, får du trekk i utbetalingen for neste meldekort. " +
                             "Hvor mye du blir trukket avhenger av hvor mange dager for sent meldekortet ble sendt. " +
                             "Du kan klage på trekk i utbetalingen. Klagefristen er seks uker.\n\n" +
                             "Har det gått mer enn 20 dager siden siste gang du sendte et meldekort, " +
                             "blir du tatt ut av arbeidssøkerregisteret hos Nav, og dagpengene dine stanser. " +
                             "Da må du registrere deg som arbeidssøker på nytt og sende inn ny søknad om dagpenger.\n\n" +
-                            "Les mer om meldekort og hva som skal føres på nav.no/send-meldekort-dagpenger.",
+                            "Les mer om meldekort og hva som skal føres på [nav.no/send-meldekort-dagpenger](https://nav.no/send-meldekort-dagpenger).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 1,
                 ),
@@ -374,15 +374,15 @@ val DagpengerBrevmal =
                     tittel = "Du må sende meldekort",
                     tekst =
                         "For å ha rett på dagpenger må du sende meldekort hver 14. dag. " +
-                            "Du fyller ut meldekortet digitalt på nav.no/meldekort. " +
-                            "Logg inn på nav.no for å se når du skal sende neste meldekort.\n\n" +
+                            "Du fyller ut meldekortet digitalt på [nav.no/meldekort](https://nav.no/meldekort). " +
+                            "Logg inn på [nav.no](https://nav.no) for å se når du skal sende neste meldekort.\n\n" +
                             "Hvis du sender meldekortet etter fristen, får du trekk i utbetalingen for neste meldekort. " +
                             "Hvor mye du blir trukket avhenger av hvor mange dager for sent meldekortet ble sendt. " +
                             "Du kan klage på trekk i utbetalingen. Klagefristen er seks uker.\n\n" +
                             "Har det gått mer enn 20 dager siden siste gang du sendte et meldekort, " +
                             "blir du tatt ut av arbeidssøkerregisteret hos Nav, og dagpengene dine stanser. " +
                             "Da må du registrere deg som arbeidssøker på nytt og sende inn ny søknad om dagpenger.\n\n" +
-                            "Les mer om meldekort og hva som skal føres på nav.no/send-meldekort-dagpenger.",
+                            "Les mer om meldekort og hva som skal føres på [nav.no/send-meldekort-dagpenger](https://nav.no/send-meldekort-dagpenger).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 1,
                 ),
@@ -392,7 +392,7 @@ val DagpengerBrevmal =
                     tekst =
                         "Har du registrert en bankkonto hos Nav eller Skatteetaten, vil du få utbetalingen på den kontoen. " +
                             "Pengene utbetales vanligvis innen to til tre dager etter at meldekortet ditt er registrert hos Nav. " +
-                            "Du kan se alle utbetalingene du har fått ved å logge inn på nav.no.",
+                            "Du kan se alle utbetalingene du har fått ved å logge inn på [nav.no](https://nav.no).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 2,
                 ),
@@ -402,7 +402,7 @@ val DagpengerBrevmal =
                     tekst =
                         "Har du registrert en bankkonto hos Nav eller Skatteetaten, vil du få utbetalingen på den kontoen. " +
                             "Pengene utbetales vanligvis innen to til tre dager etter at meldekortet ditt er registrert hos Nav. " +
-                            "Du kan se alle utbetalingene du har fått ved å logge inn på nav.no.",
+                            "Du kan se alle utbetalingene du har fått ved å logge inn på [nav.no](https://nav.no).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 2,
                 ),
@@ -415,8 +415,8 @@ val DagpengerBrevmal =
                             "Hvis du både jobber og mottar dagpenger, og trekkes etter tabellkort på dagpengene, " +
                             "kan det føre til at vi trekker for lite skatt. " +
                             "Du bør derfor informere Nav om at du ønsker prosenttrekk av dagpengene. " +
-                            "Du kan endre skattekortet ditt på skatteetaten.no.\n\n" +
-                            "Les mer om skattetrekk på nav.no/skattetrekk.",
+                            "Du kan endre skattekortet ditt på [skatteetaten.no](https://skatteetaten.no).\n\n" +
+                            "Les mer om skattetrekk på [nav.no/skattetrekk](https://nav.no/skattetrekk).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 3,
                 ),
@@ -429,8 +429,8 @@ val DagpengerBrevmal =
                             "Hvis du både jobber og mottar dagpenger, og trekkes etter tabellkort på dagpengene, " +
                             "kan det føre til at vi trekker for lite skatt. " +
                             "Du bør derfor informere Nav om at du ønsker prosenttrekk av dagpengene. " +
-                            "Du kan endre skattekortet ditt på skatteetaten.no.\n\n" +
-                            "Les mer om skattetrekk på nav.no/skattetrekk.",
+                            "Du kan endre skattekortet ditt på [skatteetaten.no](https://skatteetaten.no).\n\n" +
+                            "Les mer om skattetrekk på [nav.no/skattetrekk](https://nav.no/skattetrekk).",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 3,
                 ),
@@ -471,7 +471,7 @@ val DagpengerBrevmal =
                         "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
                             "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
                             "slik at du ikke får for mye eller for lite i dagpenger. " +
-                            "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
+                            "Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.\n\n" +
                             "Du må gi beskjed til oss hvis du:\n\n" +
                             "- begynner eller slutter i arbeid, helt eller delvis\n" +
                             "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
@@ -481,7 +481,8 @@ val DagpengerBrevmal =
                             "- begynner eller slutter på kurs eller annen utdanning\n" +
                             "- skal avvikle ferie eller permisjon\n" +
                             "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "- endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "- endrer adresse - dette gjør du på " +
+                            "[skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)\n" +
                             "- blir innlagt på sykehus eller institusjon\n" +
                             "- skal reise eller flytte til utlandet\n" +
                             "- mottar pensjon eller annen stønad\n" +
@@ -500,7 +501,7 @@ val DagpengerBrevmal =
                         "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
                             "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
                             "slik at du ikke får for mye eller for lite i dagpenger. " +
-                            "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
+                            "Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.\n\n" +
                             "Du må gi beskjed til oss hvis du:\n\n" +
                             "- begynner eller slutter i arbeid, helt eller delvis\n" +
                             "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
@@ -510,7 +511,8 @@ val DagpengerBrevmal =
                             "- begynner eller slutter på kurs eller annen utdanning\n" +
                             "- skal avvikle ferie eller permisjon\n" +
                             "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "- endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "- endrer adresse - dette gjør du på " +
+                            "[skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)\n" +
                             "- blir innlagt på sykehus eller institusjon\n" +
                             "- skal reise eller flytte til utlandet\n" +
                             "- mottar pensjon eller annen stønad\n" +
@@ -529,7 +531,7 @@ val DagpengerBrevmal =
                         "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
                             "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
                             "slik at du ikke får for mye eller for lite i dagpenger. " +
-                            "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
+                            "Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.\n\n" +
                             "Du må gi beskjed til oss hvis du:\n\n" +
                             "- begynner eller slutter i arbeid, helt eller delvis\n" +
                             "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
@@ -539,7 +541,8 @@ val DagpengerBrevmal =
                             "- begynner eller slutter på kurs eller annen utdanning\n" +
                             "- skal avvikle ferie eller permisjon\n" +
                             "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "- endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "- endrer adresse - dette gjør du på " +
+                            "[skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)\n" +
                             "- blir innlagt på sykehus eller institusjon\n" +
                             "- skal reise eller flytte til utlandet\n" +
                             "- mottar pensjon eller annen stønad\n" +
@@ -558,7 +561,7 @@ val DagpengerBrevmal =
                         "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
                             "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
                             "slik at du ikke får for mye eller for lite i dagpenger. " +
-                            "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
+                            "Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.\n\n" +
                             "Du må gi beskjed til oss hvis du:\n\n" +
                             "- begynner eller slutter i arbeid, helt eller delvis\n" +
                             "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
@@ -568,7 +571,8 @@ val DagpengerBrevmal =
                             "- begynner eller slutter på kurs eller annen utdanning\n" +
                             "- skal avvikle ferie eller permisjon\n" +
                             "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "- endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "- endrer adresse - dette gjør du på " +
+                            "[skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)\n" +
                             "- blir innlagt på sykehus eller institusjon\n" +
                             "- skal reise eller flytte til utlandet\n" +
                             "- mottar pensjon eller annen stønad\n" +
@@ -624,7 +628,7 @@ val DagpengerBrevmal =
                     trigger = Trigger.Avgjørelse("Stans"),
                     tittel = "Slik kan du få dagpenger igjen",
                     tekst =
-                        "Hvis du ønsker å få dagpenger igjen, må du registrere deg som arbeidssøker på nav.no. " +
+                        "Hvis du ønsker å få dagpenger igjen, må du registrere deg som arbeidssøker på [nav.no](https://nav.no). " +
                             "Du må deretter søke om dagpenger på nytt.",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 7,
@@ -635,8 +639,8 @@ val DagpengerBrevmal =
                     tittel = "Du har rett til innsyn",
                     tekst =
                         "Kontakt oss om du vil se dokumentene i saken din. " +
-                            "Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33. " +
-                            "Du kan lese mer om innsynsretten på nav.no/personvernerklaering.",
+                            "Ta kontakt på [nav.no/kontakt](https://nav.no/kontakt) eller på telefon 55 55 33 33. " +
+                            "Du kan lese mer om innsynsretten på [nav.no/personvernerklaering](https://nav.no/personvernerklaering).",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 1,
                 ),
@@ -645,7 +649,7 @@ val DagpengerBrevmal =
                     tittel = "Du har rettigheter knyttet til personopplysningene dine",
                     tekst =
                         "Du finner informasjon om hvordan Nav behandler personopplysningene dine, " +
-                            "og hvilke rettigheter du har, på nav.no/personvernerklaering.\n\n" +
+                            "og hvilke rettigheter du har, på [nav.no/personvernerklaering](https://nav.no/personvernerklaering).\n\n" +
                             "Nav kan veilede deg på telefon 55 55 33 33 om hvordan Nav behandler personopplysninger.",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 2,
@@ -658,7 +662,7 @@ val DagpengerBrevmal =
                             "for eksempel fra en advokat, rettshjelper, en organisasjon du er medlem av, " +
                             "eller en myndig person over 18 år. Dette følger av forvaltningsloven § 12. " +
                             "Hvis den som hjelper deg ikke er advokat, må du gi denne personen skriftlig fullmakt. " +
-                            "Bruk skjemaet du finner på nav.no/fullmakt. " +
+                            "Bruk skjemaet du finner på [nav.no/fullmakt](https://nav.no/fullmakt). " +
                             "Ta kontakt på telefon 55 55 33 33 hvis du ikke kan bruke det digitale skjemaet.",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 3,
@@ -669,7 +673,7 @@ val DagpengerBrevmal =
                     tekst =
                         "Vi har plikt til å veilede deg om dine rettigheter og plikter i saken din, " +
                             "både før, under og etter saksbehandlingen. Dette følger av forvaltningsloven § 11. " +
-                            "Ta kontakt på telefon 55 55 33 33 eller på nav.no/kontaktoss hvis du har spørsmål.",
+                            "Ta kontakt på telefon 55 55 33 33 eller på [nav.no/kontaktoss](https://[nav.no/kontakt](https://nav.no/kontakt)oss) hvis du har spørsmål.",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 4,
                 ),
@@ -678,7 +682,7 @@ val DagpengerBrevmal =
                     tittel = "Du har rett til å klage",
                     tekst =
                         "Hvis du mener vedtaket er feil, kan du klage innen seks uker fra den datoen vedtaket har kommet fram til deg. " +
-                            "Klagen må være skriftlig. Du finner skjema og informasjon på nav.no/klage.\n\n" +
+                            "Klagen må være skriftlig. Du finner skjema og informasjon på [nav.no/klage](https://nav.no/klage).\n\n" +
                             "Nav kan veilede deg på telefon om hvordan du sender en klage. " +
                             "Nav-kontoret ditt kan også hjelpe deg med å skrive en klage. " +
                             "Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp.\n\n" +
@@ -688,7 +692,8 @@ val DagpengerBrevmal =
                             "Du kan få mer informasjon om denne ordningen hos advokater, statsforvalteren eller Nav.\n\n" +
                             "Du kan lese om saksomkostninger i forvaltningsloven § 36.\n\n" +
                             "Hvis du sender klage i posten, må du signere klagen.\n\n" +
-                            "Mer informasjon om klagerettigheter finner du på nav.no/klagerettigheter.\n\n" +
+                            "Mer informasjon om klagerettigheter finner du på " +
+                            "[nav.no/klagerettigheter](https://nav.no/klagerettigheter).\n\n" +
                             "Hvis du får medhold i klagen din, har du kun rett til dagpenger for de periodene du har vært registrert som arbeidssøker.",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 5,
@@ -697,9 +702,9 @@ val DagpengerBrevmal =
                     trigger = Trigger.Alltid,
                     tittel = "Har du spørsmål?",
                     tekst =
-                        "Du finner mer informasjon på nav.no/dagpenger. " +
-                            "På nav.no/kontakt kan du chatte eller skrive til oss. " +
-                            "Hvis du ikke finner svar på nav.no kan du ringe oss på telefon 55 55 33 33, hverdager 09.00-15.00.",
+                        "Du finner mer informasjon på [nav.no/dagpenger](https://nav.no/dagpenger). " +
+                            "På [nav.no/kontakt](https://nav.no/kontakt) kan du chatte eller skrive til oss. " +
+                            "Hvis du ikke finner svar på [nav.no](https://nav.no) kan du ringe oss på telefon 55 55 33 33, hverdager 09.00-15.00.",
                     plassering = Plassering.AVSLUTNING,
                     rekkefølge = 6,
                 ),
