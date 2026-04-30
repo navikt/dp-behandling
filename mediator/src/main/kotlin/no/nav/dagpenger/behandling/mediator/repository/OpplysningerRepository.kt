@@ -10,7 +10,7 @@ interface OpplysningerRepository {
     fun lagreOpplysninger(opplysninger: Opplysninger)
 
     fun lagreOpplysninger(
-        opplysninger: Opplysninger,
+        opplysninger: List<Opplysninger>,
         unitOfWork: PostgresUnitOfWork,
     )
 
