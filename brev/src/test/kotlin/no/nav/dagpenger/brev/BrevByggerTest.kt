@@ -47,7 +47,7 @@ class BrevByggerTest {
             )
 
         val resultat = lagResultat(AvgjørelseDTO.INNVILGELSE)
-        val brev = BrevBygger(brevmal).bygg(resultat)
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
 
         brev.overskrift shouldBe "Innvilgelse av dagpenger"
         brev.seksjoner shouldHaveSize 2
@@ -74,7 +74,7 @@ class BrevByggerTest {
             )
 
         val resultat = lagResultat(AvgjørelseDTO.AVSLAG)
-        val brev = BrevBygger(brevmal).bygg(resultat)
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
 
         brev.overskrift shouldBe "Avslag på søknad om dagpenger"
     }
@@ -106,7 +106,7 @@ class BrevByggerTest {
                     ),
             )
 
-        val brev = BrevBygger(brevmal).bygg(resultat)
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
 
         brev.overskrift shouldBe "Innvilgelse av dagpenger"
 
@@ -143,7 +143,7 @@ class BrevByggerTest {
                 opplysninger = listOf(lagOpplysning(kravTilMinsteinntektId, "Minsteinntekt", BoolskVerdiDTO(verdi = true))),
             )
 
-        val brev = BrevBygger(brevmal).bygg(resultat)
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
 
         val vilkår = brev.seksjoner.first { it.plassering == Plassering.VILKÅR }
         vilkår.innhold shouldHaveSize 1
@@ -179,7 +179,7 @@ class BrevByggerTest {
                 opplysninger = listOf(lagOpplysning(kravTilAlderId, "Oppfyller kravet til alder", BoolskVerdiDTO(verdi = false))),
             )
 
-        val brev = BrevBygger(brevmal).bygg(resultat)
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
 
         val vilkår = brev.seksjoner.first { it.plassering == Plassering.VILKÅR }
         vilkår.innhold shouldHaveSize 1
@@ -228,7 +228,7 @@ class BrevByggerTest {
                     ),
             )
 
-        val brev = BrevBygger(brevmal).bygg(resultat)
+        val brev = BrevBygger(brevmal).bygg(resultat)!!
 
         brev.overskrift shouldBe "Innvilgelse av dagpenger"
         brev.seksjoner shouldHaveSize 4
