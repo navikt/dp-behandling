@@ -312,9 +312,9 @@ val DagpengerBrevmal =
                             "Vi har hentet inntektene dine fra Skatteetaten. " +
                             "Du kan sjekke inntekten din på skatteetaten.no/mineinntekter.\n\n" +
                             "Hvis opplysningene ikke stemmer, må du:\n\n" +
-                            "Kontakte arbeidsgiveren din, slik at de kan rette " +
+                            "- Kontakte arbeidsgiveren din, slik at de kan rette " +
                             "inntektsopplysningene dine.\n" +
-                            "Ta kontakt med Nav og dokumentere endringene.\n\n" +
+                            "- Ta kontakt med Nav og dokumentere endringene.\n\n" +
                             "Beregningen er gjort etter folketrygdloven § 4-11 andre ledd.",
                     plassering = Plassering.FASTSETTELSE,
                     rekkefølge = 5,
@@ -438,14 +438,14 @@ val DagpengerBrevmal =
                     trigger = Trigger.Avgjørelse("Innvilgelse"),
                     tittel = "Vi stanser dagpengene dine automatisk når du:",
                     tekst =
-                        "ikke sender meldekort etter at du registrerte deg som arbeidsledig\n" +
-                            "har jobbet mer enn 50 prosent av den vanlige arbeidstiden din på tre meldekort " +
+                        "- ikke sender meldekort etter at du registrerte deg som arbeidsledig\n" +
+                            "- har jobbet mer enn 50 prosent av den vanlige arbeidstiden din på tre meldekort " +
                             "(60 prosent om du er permittert fra fiskeindustrien)\n" +
-                            "slutter å sende meldekort og det er mer enn 20 dager siden du sist sendte meldekort\n" +
-                            "svarer nei på spørsmålet på meldekortet om du fortsatt ønsker å være registrert som arbeidssøker\n" +
-                            "er ferdig med perioden du får dagpenger\n" +
-                            "er ferdig med perioden du får dagpenger som permittert\n" +
-                            "har fylt 67 år",
+                            "- slutter å sende meldekort og det er mer enn 20 dager siden du sist sendte meldekort\n" +
+                            "- svarer nei på spørsmålet på meldekortet om du fortsatt ønsker å være registrert som arbeidssøker\n" +
+                            "- er ferdig med perioden du får dagpenger\n" +
+                            "- er ferdig med perioden du får dagpenger som permittert\n" +
+                            "- har fylt 67 år",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 4,
                 ),
@@ -453,14 +453,14 @@ val DagpengerBrevmal =
                     trigger = Trigger.Avgjørelse("Gjenopptak"),
                     tittel = "Vi stanser dagpengene dine automatisk når du:",
                     tekst =
-                        "ikke sender meldekort etter at du registrerte deg som arbeidsledig\n" +
-                            "har jobbet mer enn 50 prosent av den vanlige arbeidstiden din på tre meldekort " +
+                        "- ikke sender meldekort etter at du registrerte deg som arbeidsledig\n" +
+                            "- har jobbet mer enn 50 prosent av den vanlige arbeidstiden din på tre meldekort " +
                             "(60 prosent om du er permittert fra fiskeindustrien)\n" +
-                            "slutter å sende meldekort og det er mer enn 20 dager siden du sist sendte meldekort\n" +
-                            "svarer nei på spørsmålet på meldekortet om du fortsatt ønsker å være registrert som arbeidssøker\n" +
-                            "er ferdig med perioden du får dagpenger\n" +
-                            "er ferdig med perioden du får dagpenger som permittert\n" +
-                            "har fylt 67 år",
+                            "- slutter å sende meldekort og det er mer enn 20 dager siden du sist sendte meldekort\n" +
+                            "- svarer nei på spørsmålet på meldekortet om du fortsatt ønsker å være registrert som arbeidssøker\n" +
+                            "- er ferdig med perioden du får dagpenger\n" +
+                            "- er ferdig med perioden du får dagpenger som permittert\n" +
+                            "- har fylt 67 år",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 4,
                 ),
@@ -473,22 +473,22 @@ val DagpengerBrevmal =
                             "slik at du ikke får for mye eller for lite i dagpenger. " +
                             "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
                             "Du må gi beskjed til oss hvis du:\n\n" +
-                            "begynner eller slutter i arbeid, helt eller delvis\n" +
-                            "er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
-                            "blir oppsagt mens du er permittert\n" +
-                            "blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
-                            "begynner eller slutter på tiltak\n" +
-                            "begynner eller slutter på kurs eller annen utdanning\n" +
-                            "skal avvikle ferie eller permisjon\n" +
-                            "sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
-                            "blir innlagt på sykehus eller institusjon\n" +
-                            "skal reise eller flytte til utlandet\n" +
-                            "mottar pensjon eller annen stønad\n" +
-                            "mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
-                            "mottar barnetillegg og du får ansvar for flere/færre barn\n" +
-                            "ikke ønsker arbeidstilbud i en periode\n" +
-                            "har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
+                            "- begynner eller slutter i arbeid, helt eller delvis\n" +
+                            "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
+                            "- blir oppsagt mens du er permittert\n" +
+                            "- blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
+                            "- begynner eller slutter på tiltak\n" +
+                            "- begynner eller slutter på kurs eller annen utdanning\n" +
+                            "- skal avvikle ferie eller permisjon\n" +
+                            "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
+                            "- endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "- blir innlagt på sykehus eller institusjon\n" +
+                            "- skal reise eller flytte til utlandet\n" +
+                            "- mottar pensjon eller annen stønad\n" +
+                            "- mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
+                            "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
+                            "- ikke ønsker arbeidstilbud i en periode\n" +
+                            "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
                             "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
                     plassering = Plassering.INFORMASJON,
                     rekkefølge = 5,
