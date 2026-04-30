@@ -465,7 +465,7 @@ val DagpengerBrevmal =
                     rekkefølge = 4,
                 ),
                 Maltekst(
-                    trigger = Trigger.Alltid,
+                    trigger = Trigger.Avgjørelse("Innvilgelse"),
                     tittel = "Du må melde fra om endringer",
                     tekst =
                         "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
@@ -494,7 +494,124 @@ val DagpengerBrevmal =
                     rekkefølge = 5,
                 ),
                 Maltekst(
-                    trigger = Trigger.Alltid,
+                    trigger = Trigger.Avgjørelse("Gjenopptak"),
+                    tittel = "Du må melde fra om endringer",
+                    tekst =
+                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
+                            "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
+                            "slik at du ikke får for mye eller for lite i dagpenger. " +
+                            "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
+                            "Du må gi beskjed til oss hvis du:\n\n" +
+                            "- begynner eller slutter i arbeid, helt eller delvis\n" +
+                            "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
+                            "- blir oppsagt mens du er permittert\n" +
+                            "- blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
+                            "- begynner eller slutter på tiltak\n" +
+                            "- begynner eller slutter på kurs eller annen utdanning\n" +
+                            "- skal avvikle ferie eller permisjon\n" +
+                            "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
+                            "- endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "- blir innlagt på sykehus eller institusjon\n" +
+                            "- skal reise eller flytte til utlandet\n" +
+                            "- mottar pensjon eller annen stønad\n" +
+                            "- mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
+                            "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
+                            "- ikke ønsker arbeidstilbud i en periode\n" +
+                            "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
+                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 5,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Stans"),
+                    tittel = "Du må melde fra om endringer",
+                    tekst =
+                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
+                            "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
+                            "slik at du ikke får for mye eller for lite i dagpenger. " +
+                            "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
+                            "Du må gi beskjed til oss hvis du:\n\n" +
+                            "- begynner eller slutter i arbeid, helt eller delvis\n" +
+                            "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
+                            "- blir oppsagt mens du er permittert\n" +
+                            "- blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
+                            "- begynner eller slutter på tiltak\n" +
+                            "- begynner eller slutter på kurs eller annen utdanning\n" +
+                            "- skal avvikle ferie eller permisjon\n" +
+                            "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
+                            "- endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "- blir innlagt på sykehus eller institusjon\n" +
+                            "- skal reise eller flytte til utlandet\n" +
+                            "- mottar pensjon eller annen stønad\n" +
+                            "- mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
+                            "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
+                            "- ikke ønsker arbeidstilbud i en periode\n" +
+                            "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
+                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 5,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Endring"),
+                    tittel = "Du må melde fra om endringer",
+                    tekst =
+                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
+                            "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
+                            "slik at du ikke får for mye eller for lite i dagpenger. " +
+                            "Ta kontakt med Nav på nav.no/send-beskjed, eller på telefon 55 55 33 33.\n\n" +
+                            "Du må gi beskjed til oss hvis du:\n\n" +
+                            "- begynner eller slutter i arbeid, helt eller delvis\n" +
+                            "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
+                            "- blir oppsagt mens du er permittert\n" +
+                            "- blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
+                            "- begynner eller slutter på tiltak\n" +
+                            "- begynner eller slutter på kurs eller annen utdanning\n" +
+                            "- skal avvikle ferie eller permisjon\n" +
+                            "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
+                            "- endrer adresse - dette gjør du på skatteetaten.no/folkeregisteret\n" +
+                            "- blir innlagt på sykehus eller institusjon\n" +
+                            "- skal reise eller flytte til utlandet\n" +
+                            "- mottar pensjon eller annen stønad\n" +
+                            "- mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
+                            "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
+                            "- ikke ønsker arbeidstilbud i en periode\n" +
+                            "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
+                            "Du kan lese mer om opplysningsplikten i folketrygdloven § 21-3.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 5,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    tittel = "Du må gi oss riktige opplysninger",
+                    tekst =
+                        "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +
+                            "kan du få et krav om å betale tilbake dagpengene dine. " +
+                            "Du kan også miste retten til dagpenger i inntil 26 uker.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 6,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Gjenopptak"),
+                    tittel = "Du må gi oss riktige opplysninger",
+                    tekst =
+                        "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +
+                            "kan du få et krav om å betale tilbake dagpengene dine. " +
+                            "Du kan også miste retten til dagpenger i inntil 26 uker.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 6,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Stans"),
+                    tittel = "Du må gi oss riktige opplysninger",
+                    tekst =
+                        "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +
+                            "kan du få et krav om å betale tilbake dagpengene dine. " +
+                            "Du kan også miste retten til dagpenger i inntil 26 uker.",
+                    plassering = Plassering.INFORMASJON,
+                    rekkefølge = 6,
+                ),
+                Maltekst(
+                    trigger = Trigger.Avgjørelse("Endring"),
                     tittel = "Du må gi oss riktige opplysninger",
                     tekst =
                         "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +
