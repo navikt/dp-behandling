@@ -267,7 +267,7 @@ class RealistiskBrevTest {
         innledning shouldHaveSize 1
         innledning[0].innhold[0] shouldBe "Du får dagpenger fra og med 23. april 2026 til og med 27. april 2026."
         innledning[0].innhold[1] shouldContain "462 kroner dagen"
-        innledning[0].innhold[2] shouldContain "Egenandelen din er 1386 kroner"
+        innledning[0].innhold[2] shouldContain "Egenandelen din er 1 386 kroner"
 
         // Vilkår — hver med tittel
         val vilkår = brev.seksjoner.filter { it.plassering == Plassering.VILKÅR }
@@ -286,7 +286,7 @@ class RealistiskBrevTest {
         fastsettelser[0].innhold[0] shouldContain "52 uker"
         fastsettelser[1].tittel shouldBe "Slik har vi beregnet dagpengene dine"
         fastsettelser[1].innhold[0] shouldContain "462 kroner per dag"
-        fastsettelser[1].innhold[0] shouldContain "192508 kroner"
+        fastsettelser[1].innhold[0] shouldContain "192 508 kroner"
         fastsettelser[2].tittel shouldBe "Arbeidstiden din"
         fastsettelser[2].innhold[0] shouldContain "37.5 timer"
         fastsettelser[3].tittel shouldBe "Egenandel"

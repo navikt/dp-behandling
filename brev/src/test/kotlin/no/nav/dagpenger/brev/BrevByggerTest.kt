@@ -111,7 +111,7 @@ class BrevByggerTest {
         brev.overskrift shouldBe "Innvilgelse av dagpenger"
 
         val fastsettelse = brev.seksjoner.first { it.plassering == Plassering.FASTSETTELSE }
-        fastsettelse.innhold[0] shouldBe "Din dagsats er 1234 kroner, basert på et grunnlag på 350000 kroner."
+        fastsettelse.innhold[0] shouldBe "Din dagsats er 1 234 kroner, basert på et grunnlag på 350 000 kroner."
     }
 
     @Test
@@ -242,7 +242,7 @@ class BrevByggerTest {
         vilkår.innhold[1] shouldBe "Du oppfyller kravet til minsteinntekt."
 
         val fastsettelse = brev.seksjoner.first { it.plassering == Plassering.FASTSETTELSE }
-        fastsettelse.innhold[0] shouldBe "Din dagsats er 1234 kroner."
+        fastsettelse.innhold[0] shouldBe "Din dagsats er 1 234 kroner."
 
         val avslutning = brev.seksjoner.first { it.plassering == Plassering.AVSLUTNING }
         avslutning.innhold[0] shouldContain "Med vennlig hilsen"
