@@ -67,7 +67,6 @@ val DagpengerBrevmal =
                         Trigger.OpplysningVerdi(
                             harLøpendeRettId.uuid,
                             forventetVerdi = "true",
-                            kunNyeOpplysninger = true,
                             periodeType = PeriodeType.ÅPEN,
                         ),
                     tekst = "Du får dagpenger fra og med {{Har løpende rett på dagpenger.fraOgMed}}.",
@@ -119,7 +118,6 @@ val DagpengerBrevmal =
                     trigger =
                         Trigger.OpplysningFinnes(
                             DagsatsEtterSamordningMedBarnetilleggId.uuid,
-                            kunNyeOpplysninger = true,
                         ),
                     tekst =
                         "Du får {{Dagsats med barnetillegg etter samordning og 90 % regel}} " +
@@ -129,7 +127,7 @@ val DagpengerBrevmal =
                 ),
                 // Egenandel i innledning
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(EgenandelId.uuid, kunNyeOpplysninger = true),
+                    trigger = Trigger.OpplysningFinnes(EgenandelId.uuid),
                     tekst =
                         "Nav trekker en egenandel av dagpengene dine. " +
                             "Egenandelen din er {{Egenandel}} kroner, " +
@@ -140,14 +138,7 @@ val DagpengerBrevmal =
                 ),
                 // Henvisning til mer info lenger ned
                 Maltekst(
-                    trigger = Trigger.Avgjørelse("Innvilgelse"),
-                    tekst =
-                        "Du kan lese mer om beregning, utbetaling og egenandel lenger ned i brevet.",
-                    plassering = Plassering.INNLEDNING,
-                    rekkefølge = 5,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Gjenopptak"),
+                    trigger = Trigger.Avgjørelse("Innvilgelse", "Gjenopptak"),
                     tekst =
                         "Du kan lese mer om beregning, utbetaling og egenandel lenger ned i brevet.",
                     plassering = Plassering.INNLEDNING,
@@ -159,7 +150,6 @@ val DagpengerBrevmal =
                         Trigger.OpplysningVerdi(
                             harLøpendeRettId.uuid,
                             forventetVerdi = "true",
-                            kunNyeOpplysninger = true,
                             periodeType = PeriodeType.ÅPEN,
                         ),
                     tekst =
@@ -198,7 +188,7 @@ val DagpengerBrevmal =
                 ),
                 // Vilkår som ikke er oppfylt (avslag og stans)
                 Maltekst(
-                    trigger = Trigger.OpplysningVerdi(KravTilAlderId.uuid, "false", kunNyeOpplysninger = true),
+                    trigger = Trigger.OpplysningVerdi(KravTilAlderId.uuid, "false"),
                     tittel = "Du oppfyller ikke kravet til alder",
                     tekst =
                         "Du oppfyller ikke alderskravet for å motta dagpenger. " +
@@ -207,7 +197,7 @@ val DagpengerBrevmal =
                     rekkefølge = 1,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningVerdi(KravTilMinsteinntektId.uuid, "false", kunNyeOpplysninger = true),
+                    trigger = Trigger.OpplysningVerdi(KravTilMinsteinntektId.uuid, "false"),
                     tittel = "Du har hatt for lav inntekt",
                     tekst =
                         """
@@ -229,7 +219,7 @@ val DagpengerBrevmal =
                     rekkefølge = 2,
                 ),
                 Maltekst(
-                    trigger = Trigger.OpplysningVerdi(KravTilArbeidssøkerId.uuid, "false", kunNyeOpplysninger = true),
+                    trigger = Trigger.OpplysningVerdi(KravTilArbeidssøkerId.uuid, "false"),
                     tittel = "Du må være reell arbeidssøker",
                     tekst =
                         "For å ha rett til dagpenger, må du være villig til å ta alle typer arbeid med vanlig lønn. " +
@@ -242,7 +232,6 @@ val DagpengerBrevmal =
                         Trigger.OpplysningVerdi(
                             OppyllerKravTilRegistrertArbeidssøkerId.uuid,
                             "false",
-                            kunNyeOpplysninger = true,
                         ),
                     tittel = "Du er ikke lenger registrert som arbeidssøker",
                     tekst =
@@ -258,7 +247,6 @@ val DagpengerBrevmal =
                         Trigger.OpplysningVerdi(
                             OppfyllerMeldepliktId.uuid,
                             "false",
-                            kunNyeOpplysninger = true,
                         ),
                     tittel = "Du har ikke oppfylt meldeplikten",
                     tekst =
@@ -273,7 +261,7 @@ val DagpengerBrevmal =
                 // === Fastsettelser ===
                 // Periode
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(OrdinærPeriodeId.uuid, kunNyeOpplysninger = true),
+                    trigger = Trigger.OpplysningFinnes(OrdinærPeriodeId.uuid),
                     tittel = "Hvor lenge kan du få dagpenger?",
                     tekst =
                         "Du er innvilget dagpenger til og med " +
@@ -292,7 +280,6 @@ val DagpengerBrevmal =
                     trigger =
                         Trigger.OpplysningFinnes(
                             DagsatsEtterSamordningMedBarnetilleggId.uuid,
-                            kunNyeOpplysninger = true,
                         ),
                     tittel = "Slik har vi beregnet dagpengene dine",
                     tekst =
@@ -306,7 +293,6 @@ val DagpengerBrevmal =
                     trigger =
                         Trigger.OpplysningFinnes(
                             AntallBarnSomGirRettTilBarnetilleggId.uuid,
-                            kunNyeOpplysninger = true,
                         ),
                     tekst =
                         "Dette inkluderer barnetillegg for " +
@@ -321,7 +307,6 @@ val DagpengerBrevmal =
                     trigger =
                         Trigger.OpplysningFinnes(
                             GrunnlagId.uuid,
-                            kunNyeOpplysninger = true,
                         ),
                     tekst =
                         """
@@ -343,7 +328,6 @@ val DagpengerBrevmal =
                     trigger =
                         Trigger.OpplysningFinnes(
                             GrunnlagId.uuid,
-                            kunNyeOpplysninger = true,
                         ),
                     tekst =
                         "Du kan se hva som gir rett til dagpenger på [nav.no/dagpenger](https://nav.no/dagpenger). " +
@@ -362,7 +346,6 @@ val DagpengerBrevmal =
                     trigger =
                         Trigger.OpplysningFinnes(
                             fastsattArbeidstidPerUkeFørTapId.uuid,
-                            kunNyeOpplysninger = true,
                         ),
                     tittel = "Arbeidstiden din",
                     tekst =
@@ -373,7 +356,7 @@ val DagpengerBrevmal =
                 ),
                 // Egenandel
                 Maltekst(
-                    trigger = Trigger.OpplysningFinnes(EgenandelId.uuid, kunNyeOpplysninger = true),
+                    trigger = Trigger.OpplysningFinnes(EgenandelId.uuid),
                     tittel = "Egenandel",
                     tekst =
                         "Når du får dagpenger, trekker Nav en egenandel fra den første " +
@@ -391,7 +374,7 @@ val DagpengerBrevmal =
                 ),
                 // === Informasjon ===
                 Maltekst(
-                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    trigger = Trigger.Avgjørelse("Innvilgelse", "Gjenopptak"),
                     tittel = "Du må sende meldekort",
                     tekst =
                         "For å ha rett på dagpenger må du sende meldekort hver 14. dag. " +
@@ -408,24 +391,7 @@ val DagpengerBrevmal =
                     rekkefølge = 1,
                 ),
                 Maltekst(
-                    trigger = Trigger.Avgjørelse("Gjenopptak"),
-                    tittel = "Du må sende meldekort",
-                    tekst =
-                        "For å ha rett på dagpenger må du sende meldekort hver 14. dag. " +
-                            "Du fyller ut meldekortet digitalt på [nav.no/meldekort](https://nav.no/meldekort). " +
-                            "Logg inn på [nav.no](https://nav.no) for å se når du skal sende neste meldekort.\n\n" +
-                            "Hvis du sender meldekortet etter fristen, får du trekk i utbetalingen for neste meldekort. " +
-                            "Hvor mye du blir trukket avhenger av hvor mange dager for sent meldekortet ble sendt. " +
-                            "Du kan klage på trekk i utbetalingen. Klagefristen er seks uker.\n\n" +
-                            "Har det gått mer enn 20 dager siden siste gang du sendte et meldekort, " +
-                            "blir du tatt ut av arbeidssøkerregisteret hos Nav, og dagpengene dine stanser. " +
-                            "Da må du registrere deg som arbeidssøker på nytt og sende inn ny søknad om dagpenger.\n\n" +
-                            "Les mer om meldekort og hva som skal føres på [nav.no/send-meldekort-dagpenger](https://nav.no/send-meldekort-dagpenger).",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 1,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    trigger = Trigger.Avgjørelse("Innvilgelse", "Gjenopptak"),
                     tittel = "Utbetaling",
                     tekst =
                         "Har du registrert en bankkonto hos Nav eller Skatteetaten, vil du få utbetalingen på den kontoen. " +
@@ -435,17 +401,7 @@ val DagpengerBrevmal =
                     rekkefølge = 2,
                 ),
                 Maltekst(
-                    trigger = Trigger.Avgjørelse("Gjenopptak"),
-                    tittel = "Utbetaling",
-                    tekst =
-                        "Har du registrert en bankkonto hos Nav eller Skatteetaten, vil du få utbetalingen på den kontoen. " +
-                            "Pengene utbetales vanligvis innen to til tre dager etter at meldekortet ditt er registrert hos Nav. " +
-                            "Du kan se alle utbetalingene du har fått ved å logge inn på [nav.no](https://nav.no).",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 2,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    trigger = Trigger.Avgjørelse("Innvilgelse", "Gjenopptak"),
                     tittel = "Husk å sjekke skattekortet ditt",
                     tekst =
                         "Du må betale skatt av dagpengene du får fra Nav. " +
@@ -459,21 +415,7 @@ val DagpengerBrevmal =
                     rekkefølge = 3,
                 ),
                 Maltekst(
-                    trigger = Trigger.Avgjørelse("Gjenopptak"),
-                    tittel = "Husk å sjekke skattekortet ditt",
-                    tekst =
-                        "Du må betale skatt av dagpengene du får fra Nav. " +
-                            "Det er lurt å endre skattekortet ditt når du får mindre utbetalt i måneden. " +
-                            "Hvis du både jobber og mottar dagpenger, og trekkes etter tabellkort på dagpengene, " +
-                            "kan det føre til at vi trekker for lite skatt. " +
-                            "Du bør derfor informere Nav om at du ønsker prosenttrekk av dagpengene. " +
-                            "Du kan endre skattekortet ditt på [skatteetaten.no](https://skatteetaten.no).\n\n" +
-                            "Les mer om skattetrekk på [nav.no/skattetrekk](https://nav.no/skattetrekk).",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 3,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    trigger = Trigger.Avgjørelse("Innvilgelse", "Gjenopptak"),
                     tittel = "Vi stanser dagpengene dine automatisk når du:",
                     tekst =
                         "- ikke sender meldekort etter at du registrerte deg som arbeidsledig\n" +
@@ -488,22 +430,7 @@ val DagpengerBrevmal =
                     rekkefølge = 4,
                 ),
                 Maltekst(
-                    trigger = Trigger.Avgjørelse("Gjenopptak"),
-                    tittel = "Vi stanser dagpengene dine automatisk når du:",
-                    tekst =
-                        "- ikke sender meldekort etter at du registrerte deg som arbeidsledig\n" +
-                            "- har jobbet mer enn 50 prosent av den vanlige arbeidstiden din på tre meldekort " +
-                            "(60 prosent om du er permittert fra fiskeindustrien)\n" +
-                            "- slutter å sende meldekort og det er mer enn 20 dager siden du sist sendte meldekort\n" +
-                            "- svarer nei på spørsmålet på meldekortet om du fortsatt ønsker å være registrert som arbeidssøker\n" +
-                            "- er ferdig med perioden du får dagpenger\n" +
-                            "- er ferdig med perioden du får dagpenger som permittert\n" +
-                            "- har fylt 67 år",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 4,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Innvilgelse"),
+                    trigger = Trigger.Avgjørelse("Innvilgelse", "Gjenopptak", "Stans", "Endring"),
                     tittel = "Du må melde fra om endringer",
                     tekst =
                         "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
@@ -533,127 +460,7 @@ val DagpengerBrevmal =
                     rekkefølge = 5,
                 ),
                 Maltekst(
-                    trigger = Trigger.Avgjørelse("Gjenopptak"),
-                    tittel = "Du må melde fra om endringer",
-                    tekst =
-                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
-                            "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
-                            "slik at du ikke får for mye eller for lite i dagpenger. " +
-                            "Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.\n\n" +
-                            "Du må gi beskjed til oss hvis du:\n\n" +
-                            "- begynner eller slutter i arbeid, helt eller delvis\n" +
-                            "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
-                            "- blir oppsagt mens du er permittert\n" +
-                            "- blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
-                            "- begynner eller slutter på tiltak\n" +
-                            "- begynner eller slutter på kurs eller annen utdanning\n" +
-                            "- skal avvikle ferie eller permisjon\n" +
-                            "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "- endrer adresse - dette gjør du på " +
-                            "[skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)\n" +
-                            "- blir innlagt på sykehus eller institusjon\n" +
-                            "- skal reise eller flytte til utlandet\n" +
-                            "- mottar pensjon eller annen stønad\n" +
-                            "- mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
-                            "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
-                            "- ikke ønsker arbeidstilbud i en periode\n" +
-                            "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
-                            "Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 5,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Stans"),
-                    tittel = "Du må melde fra om endringer",
-                    tekst =
-                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
-                            "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
-                            "slik at du ikke får for mye eller for lite i dagpenger. " +
-                            "Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.\n\n" +
-                            "Du må gi beskjed til oss hvis du:\n\n" +
-                            "- begynner eller slutter i arbeid, helt eller delvis\n" +
-                            "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
-                            "- blir oppsagt mens du er permittert\n" +
-                            "- blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
-                            "- begynner eller slutter på tiltak\n" +
-                            "- begynner eller slutter på kurs eller annen utdanning\n" +
-                            "- skal avvikle ferie eller permisjon\n" +
-                            "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "- endrer adresse - dette gjør du på " +
-                            "[skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)\n" +
-                            "- blir innlagt på sykehus eller institusjon\n" +
-                            "- skal reise eller flytte til utlandet\n" +
-                            "- mottar pensjon eller annen stønad\n" +
-                            "- mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
-                            "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
-                            "- ikke ønsker arbeidstilbud i en periode\n" +
-                            "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
-                            "Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 5,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Endring"),
-                    tittel = "Du må melde fra om endringer",
-                    tekst =
-                        "Hvis det skjer en endring i situasjonen din, kan det påvirke dagpengene dine. " +
-                            "Derfor er det din plikt å gi beskjed til Nav om endringen, " +
-                            "slik at du ikke får for mye eller for lite i dagpenger. " +
-                            "Ta kontakt med Nav på [nav.no/send-beskjed](https://nav.no/send-beskjed), eller på telefon 55 55 33 33.\n\n" +
-                            "Du må gi beskjed til oss hvis du:\n\n" +
-                            "- begynner eller slutter i arbeid, helt eller delvis\n" +
-                            "- er permittert og har arbeidet for permitterende arbeidsgiver i mer enn seks uker\n" +
-                            "- blir oppsagt mens du er permittert\n" +
-                            "- blir sykmeldt, får endret sykmelding eller blir friskmeldt\n" +
-                            "- begynner eller slutter på tiltak\n" +
-                            "- begynner eller slutter på kurs eller annen utdanning\n" +
-                            "- skal avvikle ferie eller permisjon\n" +
-                            "- sitter i varetekt, soner straff, har omvendt voldsalarm eller er under forvaring\n" +
-                            "- endrer adresse - dette gjør du på " +
-                            "[skatteetaten.no/folkeregisteret](https://skatteetaten.no/folkeregisteret)\n" +
-                            "- blir innlagt på sykehus eller institusjon\n" +
-                            "- skal reise eller flytte til utlandet\n" +
-                            "- mottar pensjon eller annen stønad\n" +
-                            "- mottar barnetillegg og barnet skal oppholde seg utenfor EØS, Sveits eller Storbritannia\n" +
-                            "- mottar barnetillegg og du får ansvar for flere/færre barn\n" +
-                            "- ikke ønsker arbeidstilbud i en periode\n" +
-                            "- har andre opplysninger som kan bety noe for retten til ytelser\n\n" +
-                            "Du kan lese mer om opplysningsplikten i [folketrygdloven § 21-3](https://lovdata.no/lov/1997-02-28-19/%C2%A721-3).",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 5,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Innvilgelse"),
-                    tittel = "Du må gi oss riktige opplysninger",
-                    tekst =
-                        "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +
-                            "kan du få et krav om å betale tilbake dagpengene dine. " +
-                            "Du kan også miste retten til dagpenger i inntil 26 uker.",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 6,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Gjenopptak"),
-                    tittel = "Du må gi oss riktige opplysninger",
-                    tekst =
-                        "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +
-                            "kan du få et krav om å betale tilbake dagpengene dine. " +
-                            "Du kan også miste retten til dagpenger i inntil 26 uker.",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 6,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Stans"),
-                    tittel = "Du må gi oss riktige opplysninger",
-                    tekst =
-                        "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +
-                            "kan du få et krav om å betale tilbake dagpengene dine. " +
-                            "Du kan også miste retten til dagpenger i inntil 26 uker.",
-                    plassering = Plassering.INFORMASJON,
-                    rekkefølge = 6,
-                ),
-                Maltekst(
-                    trigger = Trigger.Avgjørelse("Endring"),
+                    trigger = Trigger.Avgjørelse("Innvilgelse", "Gjenopptak", "Stans", "Endring"),
                     tittel = "Du må gi oss riktige opplysninger",
                     tekst =
                         "Hvis du gir oss opplysninger som ikke er riktige eller mangelfulle, " +

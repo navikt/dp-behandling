@@ -15,19 +15,21 @@ sealed interface Trigger {
     data object Alltid : Trigger
 
     data class Avgjørelse(
-        val avgjørelse: String,
-    ) : Trigger
+        val avgjørelser: List<String>,
+    ) : Trigger {
+        constructor(vararg avgjørelse: String) : this(avgjørelse.toList())
+    }
 
     data class OpplysningFinnes(
         val opplysningsTypeId: UUID,
-        val kunNyeOpplysninger: Boolean = false,
+        val kunNyeOpplysninger: Boolean = true,
         val periodeType: PeriodeType? = null,
     ) : Trigger
 
     data class OpplysningVerdi(
         val opplysningsTypeId: UUID,
         val forventetVerdi: String,
-        val kunNyeOpplysninger: Boolean = false,
+        val kunNyeOpplysninger: Boolean = true,
         val periodeType: PeriodeType? = null,
     ) : Trigger
 }
