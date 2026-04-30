@@ -144,13 +144,6 @@ class BrevScenarioTest {
 
     @Test
     fun `produserer brev når meldekortberegninger har andre opplysnigner`() {
-        // TODO: Denne testen demonstrerer at endring av antallBarn i kontekst av en
-        //  meldekortbehandling ikke produserer 'Ny'-markerte opplysninger i behandlingsresultatet.
-        //  For at dette skal fungere trenger vi enten:
-        //  1. Et scenario der endringen propagerer som en egen behandling med Ny-opplysninger
-        //  2. Eller utvidelse av BehandlingsresultatDTO med regelsett-info
-        //  Inntil videre verifiserer vi at krevInnholdI-mekanismen fungerer korrekt:
-        //  uten nye vilkår/fastsettelser/begrunnelser → ingen brev.
         nyttScenario {
             inntektSiste12Mnd = 500000
         }.test {
@@ -162,16 +155,18 @@ class BrevScenarioTest {
             saksbehandler.beslutt()
 
             person.sendInnMeldekort(1)
+            meldekortBatch()
             saksbehandler.endreOpplysning(antallBarn, 2, "Fødte i går", Gyldighetsperiode(24.juni(2018)))
-            meldekortBatch(true)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
 
             val resultatJson = behovsløsere.sisteBehandlingsresultat().second
             val brev = byggBrev(resultatJson)
 
-            // I dette scenarioet arves antallBarn-endringen uten å markeres som Ny i
-            // meldekortresultatet. krevInnholdI fanger korrekt at det ikke er noe
-            // nytt å informere om i dette behandlingsresultatet.
-            brev.shouldBeNull()
+            brev.shouldNotBeNull()
+            brev.overskrift shouldBe "Nav har endret dagpengene dine"
+            brev.seksjoner.any { it.plassering == Plassering.FASTSETTELSE } shouldBe true
         }
     }
 
