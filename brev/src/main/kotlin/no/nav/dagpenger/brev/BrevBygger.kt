@@ -180,9 +180,7 @@ internal class BrevKontekst(
         private fun formaterDato(dato: LocalDate): String = dato.format(NORSK_DATO)
 
         private fun formaterPenger(verdi: java.math.BigDecimal): String =
-            verdi.stripTrailingZeros().let {
-                if (it.scale() <= 0) it.toBigInteger().toString() else it.toPlainString()
-            }
+            verdi.setScale(0, java.math.RoundingMode.HALF_UP).toBigInteger().toString()
 
         private fun formaterDesimaltall(verdi: Double): String {
             val rounded =
