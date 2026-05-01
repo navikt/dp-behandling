@@ -153,47 +153,47 @@ internal class AvklaringRepositoryPostgres private constructor(
             if (count != 0) {
                 nyeAvklaringer.add(avklaringer.elementAt(idx))
             }
+        }
 
-            val alleKilder =
-                avklaringer
-                    .flatMap { it.endringer.filterIsInstance<Avklart>().map { it.avklartAv } }
-                    .distinctBy { it.id }
+        val alleKilder =
+            avklaringer
+                .flatMap { it.endringer.filterIsInstance<Avklart>().map { it.avklartAv } }
+                .distinctBy { it.id }
 
-            if (alleKilder.isNotEmpty()) {
-                kildeRepository.lagreKilder(alleKilder, unitOfWork.session)
-            }
+        if (alleKilder.isNotEmpty()) {
+            kildeRepository.lagreKilder(alleKilder, unitOfWork.session)
+        }
 
-            val alleEndringer =
-                avklaringer.flatMap { avklaring ->
-                    avklaring.endringer.map { endring ->
-                        val kildeId = (endring as? Avklart)?.avklartAv?.id
-                        mapOf(
-                            "endring_id" to endring.id,
-                            "avklaring_id" to avklaring.id,
-                            "endret" to endring.endret,
-                            "endring_type" to
-                                when (endring) {
-                                    is UnderBehandling -> "UnderBehandling"
-                                    is Avklart -> "Avklart"
-                                    is Avbrutt -> "Avbrutt"
-                                },
-                            "kilde_id" to kildeId,
-                            "begrunnelse" to (endring as? Avklart)?.begrunnelse,
-                        )
-                    }
+        val alleEndringer =
+            avklaringer.flatMap { avklaring ->
+                avklaring.endringer.map { endring ->
+                    val kildeId = (endring as? Avklart)?.avklartAv?.id
+                    mapOf(
+                        "endring_id" to endring.id,
+                        "avklaring_id" to avklaring.id,
+                        "endret" to endring.endret,
+                        "endring_type" to
+                            when (endring) {
+                                is UnderBehandling -> "UnderBehandling"
+                                is Avklart -> "Avklart"
+                                is Avbrutt -> "Avbrutt"
+                            },
+                        "kilde_id" to kildeId,
+                        "begrunnelse" to (endring as? Avklart)?.begrunnelse,
+                    )
                 }
-
-            if (alleEndringer.isNotEmpty()) {
-                BatchStatement(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO avklaring_endring (endring_id, avklaring_id, endret, type, kilde_id, begrunnelse)
-                    VALUES (:endring_id, :avklaring_id, :endret, :endring_type, :kilde_id, :begrunnelse)
-                    ON CONFLICT DO NOTHING
-                    """.trimIndent(),
-                    alleEndringer,
-                ).run(unitOfWork.session)
             }
+
+        if (alleEndringer.isNotEmpty()) {
+            BatchStatement(
+                // language=PostgreSQL
+                """
+                INSERT INTO avklaring_endring (endring_id, avklaring_id, endret, type, kilde_id, begrunnelse)
+                VALUES (:endring_id, :avklaring_id, :endret, :endring_type, :kilde_id, :begrunnelse)
+                ON CONFLICT DO NOTHING
+                """.trimIndent(),
+                alleEndringer,
+            ).run(unitOfWork.session)
         }
 
         nyeAvklaringer.forEach {
