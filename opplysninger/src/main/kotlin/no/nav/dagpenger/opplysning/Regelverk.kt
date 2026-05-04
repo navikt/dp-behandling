@@ -100,18 +100,10 @@ data class Rettighetsperiode(
     val endret: Boolean,
 )
 
-sealed interface Utbetaling {
-    data class Meldekort(
-        val meldeperiode: String,
-        val dato: LocalDate,
-        val sats: Int,
-        val utbetaling: Int,
-        val endret: Boolean,
-    ) : Utbetaling
-
-    data class Ferietillegg(
-        val dato: LocalDate,
-        val utbetaling: Int,
-        val endret: Boolean,
-    ) : Utbetaling
-}
+data class Utbetaling(
+    val meldeperiode: String,
+    val dato: LocalDate,
+    val sats: Int,
+    val utbetaling: Int,
+    val endret: Boolean,
+)

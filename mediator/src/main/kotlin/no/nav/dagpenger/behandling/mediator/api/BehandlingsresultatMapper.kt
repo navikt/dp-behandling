@@ -6,14 +6,11 @@ import no.nav.dagpenger.behandling.api.models.BehandletAvDTORolleDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
-import no.nav.dagpenger.behandling.api.models.UtbetalingBaseDTO
-import no.nav.dagpenger.behandling.api.models.UtbetalingFerietilleggDTO
-import no.nav.dagpenger.behandling.api.models.UtbetalingMeldekortDTO
+import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
-import no.nav.dagpenger.opplysning.Utbetaling
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -61,27 +58,15 @@ private fun Behandling.VedtakOpplysninger.tilBehandletAvDTO(): List<BehandletAvD
         },
     )
 
-internal fun Behandling.VedtakOpplysninger.tilUtbetalingDTO(opplysninger: LesbarOpplysninger): List<UtbetalingBaseDTO> {
+internal fun Behandling.VedtakOpplysninger.tilUtbetalingDTO(opplysninger: LesbarOpplysninger): List<UtbetalingDTO> {
     val utbetalinger = behandlingAv.forretningsprosess.regelverk.utbetalinger(opplysninger)
     return utbetalinger.map {
-        when (it) {
-            is Utbetaling.Ferietillegg -> {
-                UtbetalingFerietilleggDTO(
-                    dato = it.dato,
-                    utbetaling = it.utbetaling,
-                    opprinnelse = it.endret.tilOpprinnelseDTO(),
-                )
-            }
-
-            is Utbetaling.Meldekort -> {
-                UtbetalingMeldekortDTO(
-                    meldeperiode = it.meldeperiode,
-                    dato = it.dato,
-                    sats = it.sats,
-                    utbetaling = it.utbetaling,
-                    opprinnelse = it.endret.tilOpprinnelseDTO(),
-                )
-            }
-        }
+        UtbetalingDTO(
+            meldeperiode = it.meldeperiode,
+            dato = it.dato,
+            sats = it.sats,
+            utbetaling = it.utbetaling,
+            opprinnelse = it.endret.tilOpprinnelseDTO(),
+        )
     }
 }

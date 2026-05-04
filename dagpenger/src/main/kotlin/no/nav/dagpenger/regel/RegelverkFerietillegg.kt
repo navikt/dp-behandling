@@ -40,8 +40,10 @@ class FerietilleggUtbetalingStrategi : UtbetalingerStrategi {
         val opptjeningsår = opplysninger.finnOpplysning(KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor).verdi
 
         val utbetaling =
-            Utbetaling.Ferietillegg(
+            Utbetaling(
+                meldeperiode = "Periode",
                 dato = LocalDate.of(opptjeningsår + 1, 5, 1),
+                sats = ferietilleggBeløp.verdi.verdien.toInt(),
                 utbetaling = ferietilleggBeløp.verdi.verdien.toInt(),
                 endret = true,
             )
