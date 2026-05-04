@@ -65,7 +65,7 @@ class InMemoryPersonRepository :
     override fun harIdent(ident: Ident) = persondb[ident] != null
 
     override fun lagreAvklaringer(
-        behandling: Behandling,
+        avklaringer: List<Pair<Behandling, Avklaring>>,
         unitOfWork: PostgresUnitOfWork,
     ) {
         TODO("Not yet implemented")
