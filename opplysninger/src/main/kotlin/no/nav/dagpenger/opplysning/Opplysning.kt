@@ -56,9 +56,7 @@ sealed class Opplysning<T : Any>(
         fun Collection<Opplysning<*>>.gyldigeFor(dato: LocalDate) = filter { it.gyldighetsperiode.inneholder(dato) }
     }
 
-    abstract fun lagForkortet(framTil: Opplysning<*>): Opplysning<T>
-
-    abstract fun lagKopi(gyldighetsperiode: Gyldighetsperiode): Opplysning<T>
+    abstract fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode): Opplysning<T>
 }
 
 class Hypotese<T : Any>(
@@ -95,28 +93,7 @@ class Hypotese<T : Any>(
 
     override fun bekreft() = Faktum(id, super.opplysningstype, verdi, gyldighetsperiode, utledetAv, kilde, opprettet)
 
-    override fun lagForkortet(framTil: Opplysning<*>): Opplysning<T> {
-        val segmenter = gyldighetsperiode - framTil.gyldighetsperiode
-        val forkortetPeriode =
-            segmenter.firstOrNull { it.erFør(framTil.gyldighetsperiode) }
-                ?: throw IllegalArgumentException(
-                    "Kan ikke forkorte $gyldighetsperiode fram til ${framTil.gyldighetsperiode}",
-                )
-        return Hypotese(
-            id,
-            opplysningstype,
-            verdi,
-            forkortetPeriode,
-            utledetAv,
-            kilde,
-            opprettet,
-            erstatter,
-        ).apply {
-            erUtdatert = framTil.erUtdatert
-        }
-    }
-
-    override fun lagKopi(gyldighetsperiode: Gyldighetsperiode): Opplysning<T> =
+    override fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode): Opplysning<T> =
         Hypotese(
             id,
             opplysningstype,
@@ -163,7 +140,7 @@ class Faktum<T : Any>(
 
     override fun bekreft() = this
 
-    override fun lagKopi(gyldighetsperiode: Gyldighetsperiode) =
+    override fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode) =
         Faktum(
             id,
             opplysningstype,
@@ -174,25 +151,4 @@ class Faktum<T : Any>(
             opprettet,
             erstatter,
         )
-
-    override fun lagForkortet(framTil: Opplysning<*>): Opplysning<T> {
-        val segmenter = gyldighetsperiode - framTil.gyldighetsperiode
-        val forkortetPeriode =
-            segmenter.firstOrNull { it.erFør(framTil.gyldighetsperiode) }
-                ?: throw IllegalArgumentException(
-                    "Kan ikke forkorte $gyldighetsperiode fram til ${framTil.gyldighetsperiode}",
-                )
-        return Faktum(
-            id,
-            opplysningstype,
-            verdi,
-            forkortetPeriode,
-            utledetAv,
-            kilde,
-            opprettet,
-            erstatter,
-        ).apply {
-            erUtdatert = framTil.erUtdatert
-        }
-    }
 }

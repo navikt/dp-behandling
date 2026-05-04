@@ -178,7 +178,7 @@ class Opplysninger private constructor(
                             }
 
                             else -> {
-                                val forkortet = forrige.lagForkortet(utfordrer)
+                                val forkortet = forrige.forkortetTil(utfordrer)
                                 logger.debug {
                                     """
                                         |Kant-i-kant overlapper opplysning ${forrige.id} og ${utfordrer.id} for type ${forrige.opplysningstype.navn}. Lager forkortet opplysning.
@@ -202,6 +202,18 @@ class Opplysninger private constructor(
     }
 
     fun inneholder(opplysning: Opplysning<*>): Boolean = alleOpplysninger.contains(opplysning)
+
+    private fun Opplysning<*>.forkortetTil(utfordrer: Opplysning<*>): Opplysning<*> {
+        val segmenter = gyldighetsperiode - utfordrer.gyldighetsperiode
+        val forkortetPeriode =
+            segmenter.firstOrNull { it.erFør(utfordrer.gyldighetsperiode) }
+                ?: throw IllegalArgumentException(
+                    "Kan ikke forkorte $gyldighetsperiode fram til ${utfordrer.gyldighetsperiode}",
+                )
+        return medGyldighetsperiode(forkortetPeriode).apply {
+            erUtdatert = utfordrer.erUtdatert
+        }
+    }
 
     fun erArvet(opplysning: Opplysning<*>): Boolean = basertPåOpplysninger.contains(opplysning)
 

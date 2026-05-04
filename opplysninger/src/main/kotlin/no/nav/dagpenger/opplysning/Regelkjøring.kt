@@ -210,7 +210,7 @@ class Regelkjøring(
         val ønsketPeriode = Gyldighetsperiode(fraOgMed = regelverksdato)
         val udekketPeriode = eksisterendePerioder.finnManglendePeriode(ønsketPeriode)
 
-        return udekketPeriode?.let { produkt.lagKopi(it) } ?: produkt
+        return udekketPeriode?.let { produkt.medGyldighetsperiode(it) } ?: produkt
     }
 
     // Returnerer den første udekte perioden dersom eksisterende perioder overlapper med

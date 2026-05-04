@@ -233,7 +233,7 @@ class OpplysningerTest {
 
         // Før fiksen ville dette krasje med:
         // java.lang.IllegalArgumentException: fraOgMed=2025-12-29 må være før tilOgMed=2025-12-11
-        // fordi lagForkortet fikk opplysningene i feil rekkefølge (sortert etter ID)
+        // fordi forkortingen fikk opplysningene i feil rekkefølge (sortert etter ID)
 
         val endring5 =
             Faktum(
