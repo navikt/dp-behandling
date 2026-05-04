@@ -325,9 +325,13 @@ internal class BehandlingRepositoryPostgres(
         lagreBehandlingArbeidssted(unitOfWork, behandlinger)
         lagreOpplysninger(unitOfWork, behandlinger)
 
-        behandlinger.forEach { behandling ->
-            avklaringRepository.lagreAvklaringer(behandling, unitOfWork)
-        }
+        avklaringRepository.lagreAvklaringer(
+            behandlinger
+                .flatMap { behandling ->
+                    behandling.avklaringer().map { behandling to it }
+                },
+            unitOfWork,
+        )
     }
 
     private fun lagreOpplysninger(

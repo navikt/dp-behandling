@@ -114,47 +114,54 @@ internal class AvklaringRepositoryPostgres private constructor(
     }
 
     override fun lagreAvklaringer(
-        behandling: Behandling,
+        avklaringer: List<Pair<Behandling, Avklaring>>,
         unitOfWork: PostgresUnitOfWork,
     ) {
-        lagre(behandling, unitOfWork)
+        val nyeAvklaringer = lagreNyeAvklaringer(avklaringer, unitOfWork)
+        lagreKilder(avklaringer.map { it.second }, unitOfWork)
+        lagreEndringer(avklaringer.map { it.second }, unitOfWork)
+
+        nyeAvklaringer.forEach {
+            emitNyAvklaring(
+                it.first.behandler.ident,
+                it.first.toSpesifikkKontekst(),
+                it.second,
+            )
+        }
     }
 
-    private fun lagre(
-        behandling: Behandling,
+    private fun lagreNyeAvklaringer(
+        avklaringer: List<Pair<Behandling, Avklaring>>,
+        unitOfWork: PostgresUnitOfWork,
+    ): List<Pair<Behandling, Avklaring>> =
+        BatchStatement(
+            // language=PostgreSQL
+            """
+            INSERT INTO avklaring (id, behandling_id, kode, tittel, beskrivelse, kan_kvitteres, kan_avbrytes)
+            VALUES (:avklaring_id, :behandling_id, :kode, :tittel, :beskrivelse, :kanKvitteres, :kanAvbrytes)
+            ON CONFLICT (id) DO NOTHING
+            """.trimIndent(),
+            avklaringer.map { (behandling: Behandling, avklaring: Avklaring) ->
+                val avklaringskode = avklaring.kode
+                mapOf(
+                    "avklaring_id" to avklaring.id,
+                    "behandling_id" to behandling.behandlingId,
+                    "kode" to avklaringskode.kode,
+                    "tittel" to avklaringskode.tittel,
+                    "beskrivelse" to avklaringskode.beskrivelse,
+                    "kanKvitteres" to avklaringskode.kanKvitteres,
+                    "kanAvbrytes" to avklaringskode.kanAvbrytes,
+                )
+            },
+        ).run(unitOfWork.session)
+            .zip(avklaringer)
+            .filter { (count: Int, _) -> count != 0 }
+            .map { (_, avklaring) -> avklaring }
+
+    private fun lagreKilder(
+        avklaringer: Collection<Avklaring>,
         unitOfWork: PostgresUnitOfWork,
     ) {
-        val avklaringer = behandling.avklaringer()
-        val nyeAvklaringer = mutableListOf<Avklaring>()
-
-        val nyeAvklaringerIder: List<Int> =
-            BatchStatement(
-                // language=PostgreSQL
-                """
-                INSERT INTO avklaring (id, behandling_id, kode, tittel, beskrivelse, kan_kvitteres, kan_avbrytes)
-                VALUES (:avklaring_id, :behandling_id, :kode, :tittel, :beskrivelse, :kanKvitteres, :kanAvbrytes)
-                ON CONFLICT (id) DO NOTHING
-                """.trimIndent(),
-                avklaringer.map { avklaring ->
-                    val avklaringskode = avklaring.kode
-                    mapOf(
-                        "avklaring_id" to avklaring.id,
-                        "behandling_id" to behandling.behandlingId,
-                        "kode" to avklaringskode.kode,
-                        "tittel" to avklaringskode.tittel,
-                        "beskrivelse" to avklaringskode.beskrivelse,
-                        "kanKvitteres" to avklaringskode.kanKvitteres,
-                        "kanAvbrytes" to avklaringskode.kanAvbrytes,
-                    )
-                },
-            ).run(unitOfWork.session)
-
-        nyeAvklaringerIder.forEachIndexed { idx, count ->
-            if (count != 0) {
-                nyeAvklaringer.add(avklaringer.elementAt(idx))
-            }
-        }
-
         val alleKilder =
             avklaringer
                 .flatMap { it.endringer.filterIsInstance<Avklart>().map { it.avklartAv } }
@@ -163,7 +170,12 @@ internal class AvklaringRepositoryPostgres private constructor(
         if (alleKilder.isNotEmpty()) {
             kildeRepository.lagreKilder(alleKilder, unitOfWork.session)
         }
+    }
 
+    private fun lagreEndringer(
+        avklaringer: Collection<Avklaring>,
+        unitOfWork: PostgresUnitOfWork,
+    ) {
         val alleEndringer =
             avklaringer.flatMap { avklaring ->
                 avklaring.endringer.map { endring ->
@@ -194,14 +206,6 @@ internal class AvklaringRepositoryPostgres private constructor(
                 """.trimIndent(),
                 alleEndringer,
             ).run(unitOfWork.session)
-        }
-
-        nyeAvklaringer.forEach {
-            emitNyAvklaring(
-                behandling.behandler.ident,
-                behandling.toSpesifikkKontekst(),
-                it,
-            )
         }
     }
 

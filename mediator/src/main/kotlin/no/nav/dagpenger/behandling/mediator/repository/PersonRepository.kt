@@ -20,7 +20,7 @@ import java.util.UUID
 interface AvklaringRepository {
     @WithSpan
     fun lagreAvklaringer(
-        behandling: Behandling,
+        avklaringer: List<Pair<Behandling, Avklaring>>,
         unitOfWork: PostgresUnitOfWork,
     )
 
