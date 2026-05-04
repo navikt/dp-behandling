@@ -51,8 +51,8 @@ class BeregnFerietilleggHendelse(
                         KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor,
                         opptjeningsår,
                         Gyldighetsperiode(
-                            fraOgMed = LocalDate.of(opptjeningsår, 1, 1),
-                            tilOgMed = LocalDate.of(opptjeningsår, 12, 31),
+                            fraOgMed = LocalDate.of(opptjeningsår + 1, 1, 1),
+                            tilOgMed = LocalDate.of(opptjeningsår + 1, 12, 31),
                         ),
                         kilde = kilde,
                     ),
