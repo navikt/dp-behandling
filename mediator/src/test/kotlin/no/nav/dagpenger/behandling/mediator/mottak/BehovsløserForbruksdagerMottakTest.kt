@@ -167,8 +167,10 @@ class BehovsløserForbruksdagerMottakTest {
                 "@behov" to listOf("AntallDagerForbrukt"),
                 "@behovId" to UUID.randomUUID().toString(),
                 "ident" to ident,
-                "AntallDagerForbrukt" to mapOf<String, Any>(),
-                "opptjeningsår" to opptjeningsår,
+                "AntallDagerForbrukt" to
+                    mapOf(
+                        "OpptjeningsårFerietillegg" to opptjeningsår,
+                    ),
             ),
         ).toJson()
 }

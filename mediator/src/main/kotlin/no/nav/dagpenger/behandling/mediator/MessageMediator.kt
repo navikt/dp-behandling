@@ -15,6 +15,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssøkerperiodeMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
+import no.nav.dagpenger.behandling.mediator.mottak.BehovsløserForbruksdagerMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnFerietilleggMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnFerietilleggMottak.BeregnFerietilleggMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak
@@ -47,6 +48,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMessage
 import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMottak
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
+import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
@@ -72,6 +74,7 @@ internal class MessageMediator(
     meldekortRepository: MeldekortRepository,
     private val apiRepositoryPostgres: ApiRepositoryPostgres,
     opplysningstyper: Set<Opplysningstype<*>>,
+    personRepository: PersonRepositoryPostgres,
 ) : IMessageMediator {
     init {
         AvbrytBehandlingMottak(rapidsConnection, this)
@@ -83,6 +86,7 @@ internal class MessageMediator(
         GodkjennBehandlingMottak(rapidsConnection, this)
         InnsendingFerdigstiltMottak(rapidsConnection)
         MeldekortInnsendtMottak(rapidsConnection, this)
+        BehovsløserForbruksdagerMottak(rapidsConnection, personRepository)
         OmgjøringMottak(rapidsConnection, this, meldekortRepository)
         OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
         OppgaveSendtTilKontroll(rapidsConnection, this)

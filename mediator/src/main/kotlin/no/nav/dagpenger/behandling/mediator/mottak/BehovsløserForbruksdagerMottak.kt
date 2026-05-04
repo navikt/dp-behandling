@@ -13,6 +13,7 @@ import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepository
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.regel.Behov.OpptjeningsårFerietillegg
 import no.nav.dagpenger.regel.beregning.Beregning.forbruk
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -35,7 +36,7 @@ internal class BehovsløserForbruksdagerMottak(
                     it.forbid("@løsning")
                 }
                 validate {
-                    it.requireKey("ident", BEHOV, "opptjeningsår")
+                    it.requireKey("ident", BEHOV, "$BEHOV.$OpptjeningsårFerietillegg")
                     it.interestedIn("@behovId")
                 }
             }.register(this)
@@ -49,7 +50,7 @@ internal class BehovsløserForbruksdagerMottak(
         meterRegistry: MeterRegistry,
     ) {
         val fnr = packet["ident"].asText()
-        val opptjeningsår = packet["opptjeningsår"].asInt()
+        val opptjeningsår = packet[BEHOV][OpptjeningsårFerietillegg].asInt()
 
         withLoggingContext(
             "behovId" to packet["@behovId"].asText(),

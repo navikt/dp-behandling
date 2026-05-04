@@ -78,9 +78,10 @@ internal class SimulertDagpengerSystem(
             rapidsConnection = rapid,
             hendelseMediator = hendelseMediator,
             meldingRepository = postgresMeldingRepository,
-            opplysningstyper = opplysningstyper,
             meldekortRepository = meldekortRepository,
             apiRepositoryPostgres = apiRepositoryPostgres,
+            opplysningstyper = opplysningstyper,
+            personRepository = personRepository,
         )
         registrerRegelverk(opplysningerRepository, Opplysningstype.definerteTyper)
     }

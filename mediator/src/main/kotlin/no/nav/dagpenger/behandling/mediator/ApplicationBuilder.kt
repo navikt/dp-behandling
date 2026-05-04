@@ -141,6 +141,7 @@ internal class ApplicationBuilder(
                 opplysningstyper = opplysningstyper,
                 meldekortRepository = meldekortRepositoryPostgres,
                 apiRepositoryPostgres = apiRepositoryPostgres,
+                personRepository = personRepository,
             )
 
             rapidsConnection.register(
