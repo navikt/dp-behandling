@@ -150,6 +150,29 @@ class ScenarioTest {
     }
 
     @Test
+    fun `tester innvilgelse med forskjøvet innvilgelse fram i tid`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(ønsketdato, 1.juli(2018), "Ønsker innvilgelse fra 1. juli", Gyldighetsperiode(1.juli(2018)))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder.single().fraOgMed shouldBe 1.juli(2018)
+            }
+        }
+    }
+
+    @Test
     fun `tester innvilgelse med kjent til og med dato`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
