@@ -345,23 +345,29 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         type = AktivitetType.valueOf(row.string("type")),
                         timer = row.intOrNull("timer")?.seconds,
                     )
-                Dag(
+                DagRad(
                     dato = row.localDate("dato"),
                     meldt = row.boolean("meldt"),
-                    aktiviteter = listOf(aktivitet),
+                    aktivitet = aktivitet,
                 )
             }.asList,
         ).groupBy { it.dato }
             .map { (dato, rader) ->
                 // sjekker at alle dager har samme 'meldt'-verdi da koden antar dette stemmer
                 check(rader.all { it.meldt == rader.first().meldt }) { "Forventet at alle rader for dato $dato har samme 'meldt'-verdi" }
-                rader.reduce { result, dag ->
-                    result.copy(
-                        aktiviteter = result.aktiviteter + dag.aktiviteter.single(),
-                    )
-                }
+                Dag(
+                    dato = dato,
+                    meldt = rader.first().meldt,
+                    aktiviteter = rader.map { it.aktivitet },
+                )
             }
 }
+
+private data class DagRad(
+    val dato: LocalDate,
+    val meldt: Boolean,
+    val aktivitet: MeldekortAktivitet,
+)
 
 class VentendeMeldekortDings(
     private val meldekortRepository: MeldekortRepository,
