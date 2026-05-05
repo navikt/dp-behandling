@@ -21,6 +21,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
+import no.nav.dagpenger.regel.hendelse.BeregnFerietilleggHendelse
 
 typealias Hendelse = Pair<String, JsonMessage>
 
@@ -46,7 +47,7 @@ internal class PersonMediator : PersonObservatør {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
         meldinger.add(ident to event.tilBehandlingsresultat("behandlingsresultat", ident))
         // todo: Fjerne vedtak fattet melding når vi slutter å synke avslag til Arena.
-        if (event.erAvslag() && event.behandlingAv.type != FerietilleggId::class.simpleName) {
+        if (event.erAvslag() && event.behandlingAv.type != BeregnFerietilleggHendelse::class.simpleName) {
             meldinger.add(ident to event.tilVedtakFattetMelding())
         }
     }
