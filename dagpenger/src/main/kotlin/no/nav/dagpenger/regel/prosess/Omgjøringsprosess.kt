@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.regel.Kvoteteller
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.prosess.PeriodeOverskrivingsStrategi.Companion.OVERSKRIV_ALLTID
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -22,13 +23,14 @@ import java.time.LocalDate
 
 class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     private val meldekortBeregningPlugin = MeldekortBeregningPlugin()
-    private val kvotetelling = Kvotetelling()
+    private val stønadsdagKvotetelling = stønadsdagKvotetelling()
+    private val bortfallKvotetelling = bortfallKvotetelling()
 
     init {
         registrer(RettighetsperiodePlugin(this.regelverk, OVERSKRIV_ALLTID))
         // TODO: Sjekk at dette faktisk er lurt
         // registrer(PrøvingsdatoPlugin())
-        registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, kvotetelling))
+        registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, stønadsdagKvotetelling, bortfallKvotetelling))
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -73,7 +75,8 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
  */
 class OmgjøringBeregningPlugin(
     private val meldekortBeregningPlugin: MeldekortBeregningPlugin,
-    private val kvotetelling: Kvotetelling,
+    private val stønadsdagKvotetelling: Kvoteteller,
+    private val bortfallKvotetelling: Kvoteteller,
 ) : ProsessPlugin,
     Aktivitetskontekst {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
@@ -93,7 +96,8 @@ class OmgjøringBeregningPlugin(
         }
 
         // Kjør kvotetelling etter at alle perioder er beregnet
-        kvotetelling.regelkjøringFerdig(kontekst)
+        stønadsdagKvotetelling.regelkjøringFerdig(kontekst)
+        bortfallKvotetelling.regelkjøringFerdig(kontekst)
     }
 
     override fun toSpesifikkKontekst() = SpesifikkKontekst("OmgjøringBeregningPlugin")

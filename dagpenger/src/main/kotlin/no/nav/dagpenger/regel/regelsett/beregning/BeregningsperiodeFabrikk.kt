@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
+import no.nav.dagpenger.regel.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldtITide
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
@@ -33,18 +34,20 @@ class BeregningsperiodeFabrikk(
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
                 opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
         val gjenståendeEgenandel = hentGjenståendeEgenandel(meldeperiode.fraOgMed)
+        val bortfallsdagerIgjen = hentGjenståendeBortfall(meldeperiode.fraOgMed)
 
         logger.info {
             """
             Oppretter beregningsperiode med:
             - gjenståendeEgenandel = $gjenståendeEgenandel, 
             - stønadsdagerIgjen = $stønadsdagerIgjen, 
+            - bortfallsdagerIgjen = $bortfallsdagerIgjen,
             - periode = ${dager.joinToString(
                 "|",
             ) { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ", " + it.javaClass.simpleName + ")" }}
             """.trimIndent()
         }
-        return Beregningsperiode(gjenståendeEgenandel, dager, stønadsdagerIgjen)
+        return Beregningsperiode(gjenståendeEgenandel, dager, stønadsdagerIgjen, bortfallsdagerIgjen)
     }
 
     private fun hentGjenståendeEgenandel(førsteDag: LocalDate): Beløp {
@@ -55,6 +58,22 @@ class BeregningsperiodeFabrikk(
             .finnAlle(Beregning.gjenståendeEgenandel)
             .lastOrNull { it.gyldighetsperiode.tilOgMed.isBefore(førsteDag) }
             ?.verdi ?: innvilgetEgenandel
+    }
+
+    private fun hentGjenståendeBortfall(førsteDag: LocalDate): Int {
+        if (!opplysninger.har(TidsbegrensetBortfall.harBortfall)) return 0
+        if (!opplysninger.erSann(TidsbegrensetBortfall.harBortfall)) return 0
+        if (!opplysninger.har(TidsbegrensetBortfall.antallBortfallsdager)) return 0
+        val antallBortfallsdager = opplysninger.finnOpplysning(TidsbegrensetBortfall.antallBortfallsdager).verdi
+        if (antallBortfallsdager <= 0) return 0
+
+        // Finn siste registrerte gjenstående bortfall før denne meldeperioden
+        val gjenstående =
+            opplysninger
+                .finnAlle(Beregning.gjenståendeBortfallsdager)
+                .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
+                ?.verdi
+        return gjenstående ?: antallBortfallsdager
     }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
