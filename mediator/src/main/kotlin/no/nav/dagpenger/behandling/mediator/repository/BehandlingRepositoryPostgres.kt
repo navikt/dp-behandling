@@ -71,17 +71,23 @@ internal class BehandlingRepositoryPostgres(
         // language=PostgreSQL
         val cte =
             """
-            with recursive behandlingkjede as (
-                -- rotbehandlinger, de som ikke peker på noen andre
-                select b.behandling_id, b.basert_på_behandling_id, 0 as dybde
+            with recursive 
+            personens_behandlinger as (
+                select b.behandling_id, b.basert_på_behandling_id
                 from behandling b
                 inner join person_behandling pb on pb.behandling_id = b.behandling_id 
-                where pb.ident = ANY(:identer) and b.basert_på_behandling_id is null
+                where pb.ident = ANY(:identer)
+            ), 
+            behandlingkjede as (
+                -- rotbehandlinger, de som ikke peker på noen andre
+                select b.behandling_id, b.basert_på_behandling_id, 0 as dybde
+                from personens_behandlinger b
+                where b.basert_på_behandling_id is null
                 
                 union all
                 -- rekursive behandlinger. avstanden øker jo lenger fremover i kjeden vi går
                 select r.behandling_id, r.basert_på_behandling_id, bk.dybde + 1
-                from behandling r
+                from personens_behandlinger r
                 join behandlingkjede bk on bk.behandling_id = r.basert_på_behandling_id
             )
             """.trimIndent()
