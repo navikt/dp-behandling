@@ -46,7 +46,7 @@ internal class PersonMediator : PersonObservatør {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
         meldinger.add(ident to event.tilBehandlingsresultat("behandlingsresultat", ident))
         // todo: Fjerne vedtak fattet melding når vi slutter å synke avslag til Arena.
-        if (event.erAvslag()) {
+        if (event.erAvslag() && event.behandlingAv.type != FerietilleggId::class.simpleName) {
             meldinger.add(ident to event.tilVedtakFattetMelding())
         }
     }
