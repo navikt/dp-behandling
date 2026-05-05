@@ -331,41 +331,36 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             queryOf(
                 //language=PostgreSQL
                 """
-                SELECT * FROM meldekort_dag WHERE meldekort_id = :meldekortId
+                SELECT d.dato, d.meldt, a.type, EXTRACT(EPOCH FROM a.timer) AS timer
+                FROM meldekort_dag d
+                LEFT JOIN meldekort_aktivitet a on a.meldekort_id = d.meldekort_id AND a.dato = d.dato 
+                WHERE d.meldekort_id = :meldekortId
                 """.trimIndent(),
                 mapOf(
                     "meldekortId" to meldkortId.id,
                 ),
-            ).map {
+            ).map { row ->
+                val aktivitet =
+                    MeldekortAktivitet(
+                        type = AktivitetType.valueOf(row.string("type")),
+                        timer = row.intOrNull("timer")?.seconds,
+                    )
                 Dag(
-                    dato = it.localDate("dato"),
-                    meldt = it.boolean("meldt"),
-                    aktiviteter = this.hentAktiviteter(meldkortId, it.localDate("dato")),
+                    dato = row.localDate("dato"),
+                    meldt = row.boolean("meldt"),
+                    aktiviteter = listOf(aktivitet),
                 )
             }.asList,
-        )
-
-    private fun Session.hentAktiviteter(
-        meldkortId: MeldekortId,
-        localDate: LocalDate,
-    ): List<MeldekortAktivitet> =
-        run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                SELECT dato, type, EXTRACT(EPOCH FROM timer) AS timer FROM meldekort_aktivitet WHERE meldekort_id = :meldekortId AND dato = :dato
-                """.trimIndent(),
-                mapOf(
-                    "meldekortId" to meldkortId.id,
-                    "dato" to localDate,
-                ),
-            ).map {
-                MeldekortAktivitet(
-                    type = AktivitetType.valueOf(it.string("type")),
-                    timer = it.intOrNull("timer")?.seconds,
-                )
-            }.asList,
-        )
+        ).groupBy { it.dato }
+            .map { (dato, rader) ->
+                // sjekker at alle dager har samme 'meldt'-verdi da koden antar dette stemmer
+                check(rader.all { it.meldt == rader.first().meldt }) { "Forventet at alle rader for dato $dato har samme 'meldt'-verdi" }
+                rader.reduce { result, dag ->
+                    result.copy(
+                        aktiviteter = result.aktiviteter + dag.aktiviteter.single(),
+                    )
+                }
+            }
 }
 
 class VentendeMeldekortDings(
