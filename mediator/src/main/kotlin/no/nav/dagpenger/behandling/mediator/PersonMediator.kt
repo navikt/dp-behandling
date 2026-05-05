@@ -45,11 +45,13 @@ internal class PersonMediator : PersonObservatør {
     override fun ferdig(event: BehandlingFerdig) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
         meldinger.add(ident to event.tilBehandlingsresultat("behandlingsresultat", ident))
-
-        if (event.rettighetsperioder.size == 1 && event.rettighetsperioder.single().harRett == false) {
+        // todo: Fjerne vedtak fattet melding når vi slutter å synke avslag til Arena.
+        if (event.erAvslag()) {
             meldinger.add(ident to event.tilVedtakFattetMelding())
         }
     }
+
+    private fun BehandlingFerdig.erAvslag(): Boolean = this.rettighetsperioder.size == 1 && !this.rettighetsperioder.single().harRett
 
     override fun avbrutt(event: BehandlingAvbrutt) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
