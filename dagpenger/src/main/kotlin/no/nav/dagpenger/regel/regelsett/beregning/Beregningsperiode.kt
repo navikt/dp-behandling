@@ -11,12 +11,14 @@ class Beregningsperiode private constructor(
     private val meldedager: Set<Dag>,
     terskelstrategi: Terskelstrategi,
     private val stønadsdagerIgjen: Int,
+    private val bortfallsdagerIgjen: Int,
 ) {
-    constructor(gjenståendeEgenandel: Beløp, dag: Set<Dag>, stønadsdagerIgjen: Int) : this(
+    constructor(gjenståendeEgenandel: Beløp, dag: Set<Dag>, stønadsdagerIgjen: Int, bortfallsdagerIgjen: Int = 0) : this(
         gjenståendeEgenandel,
         dag,
         snitterskel,
         stønadsdagerIgjen,
+        bortfallsdagerIgjen,
     )
 
     init {
@@ -55,32 +57,51 @@ class Beregningsperiode private constructor(
         if (arbeidsdager.isEmpty()) return ingenArbeidsdager
         if (!oppfyllerKravTilTaptArbeidstid) return ingenUtbetaling
 
-        // Grupper arbeidsdager etter dagsats og beregn gradert brutto per gruppe
+        // Skill bortfallsdager fra utbetalingsdager — tidligste dager først er bortfall
+        val sortert = arbeidsdager.sorted()
+        val bortfallsdager = sortert.take(bortfallsdagerIgjen).toSet()
+        val utbetalingsdager = sortert.drop(bortfallsdagerIgjen).toSet()
+
+        // Bortfallsdager: forbruk men 0 utbetaling, ingen egenandel
+        val bortfallForbruksdager = bortfallsdager.map { Beregningresultat.Forbruksdag(it, Beløp(0), erBortfall = true) }
+
+        // Beregn utbetaling og egenandel kun for ikke-bortfallsdager
+        if (utbetalingsdager.isEmpty()) {
+            return Beregningresultat(
+                utbetaling = Beløp(0),
+                forbruktEgenandel = Beløp(0),
+                forbruksdager = bortfallForbruksdager.sortedBy { it.dag.dato },
+                gjenståendeEgenandel = gjenståendeEgenandel,
+                oppfyllerKravTilTaptArbeidstid = true,
+                sumFva = sumFva,
+                sumArbeidstimer = timerArbeidet,
+                prosentfaktor = prosentfaktor,
+            )
+        }
+
         val satsgrupper =
-            arbeidsdager.groupBy { it.sats }.map { (sats, dager) ->
+            utbetalingsdager.groupBy { it.sats }.map { (sats, dager) ->
                 val sum = sats * dager.size
                 val gradert = sum * prosentfaktor
                 SatsGruppe(dager, gradert)
             }
 
         val totalBrutto = Beløp(satsgrupper.sumOf { it.bruttoBeløp.verdien })
-
-        // Beregn egenandel per satsgruppe én gang og gjenbruk ved fordeling og summering
         val grupperMedEgenandel = satsgrupper.map { it to egenandelForPeriode(it.bruttoBeløp, totalBrutto) }
 
-        val forbruksdager =
-            grupperMedEgenandel
-                .flatMap { (gruppe, egenandelForGruppe) ->
-                    val netto = (gruppe.bruttoBeløp - egenandelForGruppe).avrundetBeløp
-                    gruppe.fordelPåDager(netto)
-                }.sortedBy { it.dag.dato }
+        val utbetalingsForbruksdager =
+            grupperMedEgenandel.flatMap { (gruppe, egenandelForGruppe) ->
+                val netto = (gruppe.bruttoBeløp - egenandelForGruppe).avrundetBeløp
+                gruppe.fordelPåDager(netto)
+            }
 
         val forbruktEgenandel = Beløp(grupperMedEgenandel.sumOf { (_, egenandel) -> egenandel.verdien })
+        val alleForbruksdager = (bortfallForbruksdager + utbetalingsForbruksdager).sortedBy { it.dag.dato }
 
         return Beregningresultat(
-            utbetaling = Beløp(forbruksdager.sumOf { it.tilUtbetaling.verdien }),
+            utbetaling = Beløp(alleForbruksdager.sumOf { it.tilUtbetaling.verdien }),
             forbruktEgenandel = forbruktEgenandel,
-            forbruksdager = forbruksdager,
+            forbruksdager = alleForbruksdager,
             meldedager = meldedager,
             gjenståendeEgenandel = gjenståendeEgenandel - forbruktEgenandel,
             oppfyllerKravTilTaptArbeidstid = true,
@@ -165,7 +186,8 @@ data class Beregningresultat(
         data class Forbruksdag(
             override val dag: Dag,
             override val tilUtbetaling: Beløp,
-        ) : Beregningsdag
+        val erBortfall: Boolean = false,
+    ): Beregningsdag
 
         data class IkkeForbruksdag(
             override val dag: Dag,

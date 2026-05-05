@@ -77,6 +77,7 @@ val RegelverkDagpenger =
         Søknad.regelsett,
         Søknadstidspunkt.regelsett,
         TapAvArbeidsinntektOgArbeidstid.regelsett,
+        TidsbegrensetBortfall.regelsett,
         Uriktigeopplysninger.regelsett,
         Utdanning.regelsett,
         Utestengning.regelsett,
