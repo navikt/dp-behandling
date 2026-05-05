@@ -36,6 +36,11 @@ Dette er opplysninger som blir brukt av regelverket.
 |019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2|Siste forbruksdato|Dato|LocalDate|||Utgangspunkt
 |019d007f-8696-7409-bd51-f4fbfc4babb4|Siste antall dager som gjenstår|Heltall|int|| Dager|Intern
 |019d7244-fa9a-71e6-89b3-a2acef856ef5|Maks antall perioder en kan ha påfølgende tap av arbeidstid|Heltall|int|||Resultat
+|019df7d6-5157-7e29-b582-d3d1dfcc30c5|Antall bortfallsdager som er forbrukt|Heltall|int|| Dager|Resultat
+|019df7d6-5159-7290-b8a1-9fc9edc58579|Antall bortfallsdager som gjenstår|Heltall|int|| Dager|Resultat
+|019df7d6-515a-7458-bdc1-8fa2ef530152|Siste dag med forbruk av bortfall|Dato|LocalDate|||Utgangspunkt
+|019df7d6-515b-79c5-9c80-6ee2bc4b951b|Siste antall bortfallsdager som gjenstår|Heltall|int|| Dager|Utgangspunkt
+|019df7e6-33bc-7daa-ad4e-46ba84c3cb49|Dag med bortfall av dagpenger|Boolsk|boolean|||Resultat
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger
@@ -286,6 +291,13 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943f-78d9-b874-00a4944c54f0|Antall dagsats for egenandel|Desimaltall|double|| Dager|Intern
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Penger|Beløp|||Intern
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Penger|Beløp|||Utgangspunkt
+### § 4-10. Tidsbegrenset bortfall av dagpenger
+*Type:* Fastsettelse
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|019df7d6-5156-7785-a6fd-54f5af1244be|Antall dager med bortfall|Heltall|int|| Dager|Utgangspunkt
+|019df9b1-7052-72e9-9232-547f7cb6ba60|Er ilagt tidsbegrenset bortfall av dagpenger|Boolsk|boolean|||Utgangspunkt
 ### § 4-11. Dagpengegrunnlag
 *Type:* Fastsettelse
 #### Avklaringer

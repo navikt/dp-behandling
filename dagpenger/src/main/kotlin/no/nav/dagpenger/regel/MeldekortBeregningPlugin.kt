@@ -62,6 +62,7 @@ class MeldekortBeregningPlugin : ProsessPlugin {
 
                 opplysninger.leggTil(Faktum(forbruk, forbruksdag != null, dagGyldighetsperiode))
                 opplysninger.leggTil(Faktum(utbetaling, forbruksdag?.tilUtbetaling ?: Beløp(0), dagGyldighetsperiode))
+                opplysninger.leggTil(Faktum(Beregning.erBortfallsdag, forbruksdag?.erBortfall ?: false, dagGyldighetsperiode))
             }
 
         return resultat

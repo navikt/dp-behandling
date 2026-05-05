@@ -340,6 +340,15 @@ object OpplysningsTyper {
     val sisteDagMedForbrukId = Opplysningstype.Id(UUID.fromString("019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2"), Dato)
     val sisteGjenståendeDagerId = Opplysningstype.Id(UUID.fromString("019d007f-8696-7409-bd51-f4fbfc4babb4"), Heltall)
 
+    // Bortfall (tidsbegrenset sanksjon)
+    val harBortfallId = Opplysningstype.Id(UUID.fromString("019df9b1-7052-72e9-9232-547f7cb6ba60"), Boolsk)
+    val antallBortfallsdagerId = Opplysningstype.Id(UUID.fromString("019df7d6-5156-7785-a6fd-54f5af1244be"), Heltall)
+    val erBortfallsdagId = Opplysningstype.Id(UUID.fromString("019df7e6-33bc-7daa-ad4e-46ba84c3cb49"), Boolsk)
+    val forbruktBortfallsdagerId = Opplysningstype.Id(UUID.fromString("019df7d6-5157-7e29-b582-d3d1dfcc30c5"), Heltall)
+    val gjenståendeBortfallsdagerId = Opplysningstype.Id(UUID.fromString("019df7d6-5159-7290-b8a1-9fc9edc58579"), Heltall)
+    val sisteBortfallsdagMedForbrukId = Opplysningstype.Id(UUID.fromString("019df7d6-515a-7458-bdc1-8fa2ef530152"), Dato)
+    val sisteGjenståendeBortfallsdagerId = Opplysningstype.Id(UUID.fromString("019df7d6-515b-79c5-9c80-6ee2bc4b951b"), Heltall)
+
     val taptArbeidIPeriodenId = Opplysningstype.Id(UUID.fromString("01997b70-6e6e-702a-a296-18ae5fb9621d"), Boolsk)
     val gjenståendeEgenandelId = Opplysningstype.Id(UUID.fromString("01997b70-a12c-7622-bff8-82a20687e640"), Penger)
 

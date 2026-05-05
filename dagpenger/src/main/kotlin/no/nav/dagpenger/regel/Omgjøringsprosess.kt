@@ -16,12 +16,13 @@ import java.time.LocalDate
 
 class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     private val meldekortBeregningPlugin = MeldekortBeregningPlugin()
-    private val kvotetelling = Kvotetelling()
+    private val stønadsdagKvotetelling = stønadsdagKvotetelling()
+    private val bortfallKvotetelling = bortfallKvotetelling()
 
     init {
         registrer(RettighetsperiodePlugin(this.regelverk, OVERSKRIV_ALLTID))
         registrer(PrøvingsdatoPlugin())
-        registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, kvotetelling))
+        registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, stønadsdagKvotetelling, bortfallKvotetelling))
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -69,7 +70,8 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
  */
 class OmgjøringBeregningPlugin(
     private val meldekortBeregningPlugin: MeldekortBeregningPlugin,
-    private val kvotetelling: Kvotetelling,
+    private val stønadsdagKvotetelling: Kvoteteller,
+    private val bortfallKvotetelling: Kvoteteller,
 ) : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
@@ -85,6 +87,7 @@ class OmgjøringBeregningPlugin(
         }
 
         // Kjør kvotetelling etter at alle perioder er beregnet
-        kvotetelling.regelkjøringFerdig(kontekst)
+        stønadsdagKvotetelling.regelkjøringFerdig(kontekst)
+        bortfallKvotetelling.regelkjøringFerdig(kontekst)
     }
 }
