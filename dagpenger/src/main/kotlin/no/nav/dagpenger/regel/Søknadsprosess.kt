@@ -49,13 +49,14 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        val egne = opplysninger.somListe(Egne).filter { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+        val egne =
+            opplysninger
+                .somListe(Egne)
+                .filter { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+                .filterNot { it.er(harLøpendeRett) }
 
         // Finn den siste opplysningen som er satt inn og kjør på den datoen
-        val sisteFraOgMed =
-            egne
-                .last { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
-                .gyldighetsperiode.fraOgMed
+        val sisteFraOgMed = egne.last().gyldighetsperiode.fraOgMed
 
         val førsteMuligeVurderingsdato = førsteMuligeVurderingsdato(egne)
         val regelkjøringsdato = maxOf(førsteMuligeVurderingsdato, sisteFraOgMed)

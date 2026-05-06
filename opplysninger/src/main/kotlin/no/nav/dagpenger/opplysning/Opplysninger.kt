@@ -196,9 +196,10 @@ class Opplysninger private constructor(
                 }
 
         // Sorter opplysningene i samme rekkefølge som de var i før bearbeiding
-        return this.mapNotNull { opplysning ->
-            bearbeidet[opplysning.opplysningstype]?.takeIf { it.isNotEmpty() }?.removeFirst()
-        }
+        return this
+            .mapNotNull { opplysning ->
+                bearbeidet[opplysning.opplysningstype]?.takeIf { it.isNotEmpty() }?.removeFirst()
+            }.sortedBy { it.id }
     }
 
     fun inneholder(opplysning: Opplysning<*>): Boolean = alleOpplysninger.contains(opplysning)

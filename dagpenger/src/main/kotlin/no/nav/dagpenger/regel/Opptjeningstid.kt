@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
