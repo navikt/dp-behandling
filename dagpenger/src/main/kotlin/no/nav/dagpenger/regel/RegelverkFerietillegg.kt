@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.opplysning.DagpengerType.FERIETILLEGG
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
@@ -41,11 +42,12 @@ class FerietilleggUtbetalingStrategi : UtbetalingerStrategi {
 
         val utbetaling =
             Utbetaling(
-                meldeperiode = "Periode",
+                meldeperiode = "Ferietillegg-$opptjeningsår",
                 dato = LocalDate.of(opptjeningsår + 1, 5, 1),
                 sats = ferietilleggBeløp.verdi.verdien.toInt(),
                 utbetaling = ferietilleggBeløp.verdi.verdien.toInt(),
                 endret = true,
+                dagpengerType = FERIETILLEGG,
             )
         return listOf(utbetaling)
     }

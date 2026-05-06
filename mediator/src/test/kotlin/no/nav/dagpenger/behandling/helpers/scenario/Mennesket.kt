@@ -263,16 +263,14 @@ internal class Mennesket(
                     Behovsløsning.Statisk(
                         mapOf(
                             "verdi" to 100,
-                            "gyldigFraOgMed" to LocalDate.of(søknadsdato.year + 1, 1, 1),
-                            "gyldigTilOgMed" to LocalDate.of(søknadsdato.year + 1, 12, 31),
+                            "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
                         ),
                     ),
                 Behov.OpptjeningsBeløp to
                     Behovsløsning.Statisk(
                         mapOf(
                             "verdi" to inntektSiste12Mnd,
-                            "gyldigFraOgMed" to LocalDate.of(søknadsdato.year + 1, 1, 1),
-                            "gyldigTilOgMed" to LocalDate.of(søknadsdato.year + 1, 12, 31),
+                            "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
                         ),
                     ),
             )

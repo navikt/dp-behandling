@@ -6,7 +6,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.KravPåFerietillegg.FerietilleggKontroll
-import no.nav.dagpenger.regel.KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
 class Ferietilleggprosess : Forretningsprosess(RegelverkFerietillegg) {
@@ -30,9 +30,11 @@ class Ferietilleggprosess : Forretningsprosess(RegelverkFerietillegg) {
 
     private fun prøvingsperiode(opplysninger: LesbarOpplysninger): Regelkjøring.Periode {
         // TODO: Finn en enda riktigere dato?
-        val beregningsÅr = opplysninger.kunEgne.finnOpplysning(åretDetSkalBeregnesFerietilleggFor).verdi
-        val flottDatoForBeregning = LocalDate.of(beregningsÅr + 1, 5, 1)
-        return Regelkjøring.Periode(flottDatoForBeregning)
+        val skjedde =
+            opplysninger.kunEgne
+                .finnOpplysning(hendelseTypeOpplysningstype)
+                .gyldighetsperiode.fraOgMed
+        return Regelkjøring.Periode(skjedde)
     }
 
     override fun kontrollpunkter() =

@@ -1764,6 +1764,7 @@ components:
         - dato
         - sats
         - utbetaling
+        - dagpengeType
       properties:
         meldeperiode:
           type: string
@@ -1776,6 +1777,9 @@ components:
           type: integer
         opprinnelse:
           $ref: '#/components/schemas/Opprinnelse'
+        dagpengeType:
+          type: string
+          enum: [ "OrdinæreDagpenger", "Ferietillegg" ]
 
     BehandletAv:
       type: object

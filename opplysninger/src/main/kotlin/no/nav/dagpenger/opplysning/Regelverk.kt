@@ -106,4 +106,10 @@ data class Utbetaling(
     val sats: Int,
     val utbetaling: Int,
     val endret: Boolean,
+    val dagpengerType: DagpengerType,
 )
+
+enum class DagpengerType {
+    ORDINÆR,
+    FERIETILLEGG,
+}

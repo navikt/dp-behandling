@@ -7,7 +7,10 @@ import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerDTO
 import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
+import no.nav.dagpenger.behandling.api.models.UtbetalingDTODagpengeTypeDTO.FERIETILLEGG
+import no.nav.dagpenger.behandling.api.models.UtbetalingDTODagpengeTypeDTO.ORDINÆRE_DAGPENGER
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.opplysning.DagpengerType
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
@@ -67,6 +70,11 @@ internal fun Behandling.VedtakOpplysninger.tilUtbetalingDTO(opplysninger: Lesbar
             sats = it.sats,
             utbetaling = it.utbetaling,
             opprinnelse = it.endret.tilOpprinnelseDTO(),
+            dagpengeType =
+                when (it.dagpengerType) {
+                    DagpengerType.ORDINÆR -> ORDINÆRE_DAGPENGER
+                    DagpengerType.FERIETILLEGG -> FERIETILLEGG
+                },
         )
     }
 }

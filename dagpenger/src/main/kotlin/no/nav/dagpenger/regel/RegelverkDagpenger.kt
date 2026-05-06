@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel
 
+import no.nav.dagpenger.opplysning.DagpengerType.ORDINÆR
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
@@ -109,6 +110,7 @@ class DagpengerUtbetalingStrategi : UtbetalingerStrategi {
                     sats = sats.verdien.toInt(),
                     utbetaling = dag.verdi.heleKroner.toInt(),
                     endret = (dag.id in egneId),
+                    dagpengerType = ORDINÆR,
                 )
             }
         }
