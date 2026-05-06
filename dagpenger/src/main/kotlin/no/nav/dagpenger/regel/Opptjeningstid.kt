@@ -61,8 +61,5 @@ object Opptjeningstid {
 }
 
 private object Aordningen {
-    fun rapporteringsfrist(dato: LocalDate): LocalDate =
-        LocalDate.of(dato.year, dato.month, 5).also { logger.info { "NÅ KJØRER VI JAGGU NY OPPTJENIGNSTPERIODE FOR $dato" } }
-
-    val logger = KotlinLogging.logger {}
+    fun rapporteringsfrist(dato: LocalDate): LocalDate = LocalDate.of(dato.year, dato.month, 5)
 }
