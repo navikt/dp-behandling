@@ -21,8 +21,6 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.time.Duration.Companion.seconds
 
 class MeldekortRepositoryPostgres : MeldekortRepository {
@@ -124,7 +122,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         """
                 SELECT m.* FROM meldekort m 
                 INNER JOIN meldekort erstatning ON m.korrigert_av_meldekort_id = erstatning.meldekort_id
-                WHERE m.meldekort_id = ANY(:originale) and m.behandling_startet is null
+                WHERE m.meldekort_id = ANY(:originale) AND m.behandling_startet IS NULL
                 """,
                         mapOf("originale" to originale.map { it.id }.toTypedArray()),
                     ).map { row ->
@@ -370,18 +368,21 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 """
                 SELECT d.meldekort_id, d.dato, d.meldt, a.type, EXTRACT(EPOCH FROM a.timer) AS timer
                 FROM meldekort_dag d
-                LEFT JOIN meldekort_aktivitet a on a.meldekort_id = d.meldekort_id AND a.dato = d.dato 
+                LEFT JOIN meldekort_aktivitet a ON a.meldekort_id = d.meldekort_id AND a.dato = d.dato 
                 WHERE d.meldekort_id = ANY(:meldekortId)
                 """.trimIndent(),
                 mapOf(
                     "meldekortId" to meldekort.map { it.eksternMeldekortId.id }.toTypedArray(),
                 ),
             ).map { row ->
+                val aktivitetType = row.stringOrNull("type")
                 val aktivitet =
-                    MeldekortAktivitet(
-                        type = AktivitetType.valueOf(row.string("type")),
-                        timer = row.intOrNull("timer")?.seconds,
-                    )
+                    aktivitetType?.let {
+                        MeldekortAktivitet(
+                            type = AktivitetType.valueOf(it),
+                            timer = row.intOrNull("timer")?.seconds,
+                        )
+                    }
                 DagRad(
                     meldekortId = MeldekortId(row.string("meldekort_id")),
                     dato = row.localDate("dato"),
@@ -405,7 +406,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 Dag(
                     dato = dato,
                     meldt = rader.first().meldt,
-                    aktiviteter = rader.map { it.aktivitet },
+                    aktiviteter = rader.mapNotNull { it.aktivitet },
                 )
             }
 }
@@ -428,7 +429,7 @@ private data class DagRad(
     val meldekortId: MeldekortId,
     val dato: LocalDate,
     val meldt: Boolean,
-    val aktivitet: MeldekortAktivitet,
+    val aktivitet: MeldekortAktivitet?,
 )
 
 class VentendeMeldekortDings(

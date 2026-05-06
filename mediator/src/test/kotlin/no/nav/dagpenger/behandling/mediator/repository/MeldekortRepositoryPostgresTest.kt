@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -50,6 +51,10 @@ class MeldekortRepositoryPostgresTest {
                                 listOf(
                                     MeldekortAktivitet(
                                         type = AktivitetType.Fravær,
+                                        timer = null,
+                                    ),
+                                    MeldekortAktivitet(
+                                        type = AktivitetType.Syk,
                                         timer = null,
                                     ),
                                 )
@@ -111,6 +116,9 @@ class MeldekortRepositoryPostgresTest {
                     innsendtTidspunkt = meldekort.innsendtTidspunkt.truncateToSeconds(),
                 )
 
+            // 2 aktiviteter på oddetallsdager og 1 aktivitet på partallsdager
+            rehydrertMeldekort.dager.flatMap { it.aktiviteter } shouldHaveSize 21
+
             val rehydrertKorrigertMeldekort = meldekortRepository.hent(meldekortKorrigertInnsendtHendelse.meldekort.id)
             rehydrertKorrigertMeldekort.shouldNotBeNull()
             rehydrertKorrigertMeldekort.copy(
@@ -120,6 +128,55 @@ class MeldekortRepositoryPostgresTest {
                     innsendtTidspunkt =
                         meldekortKorrigertInnsendtHendelse.meldekort.innsendtTidspunkt.truncateToSeconds(),
                 )
+        }
+    }
+
+    @Test
+    fun `kan lagre meldekort uten aktivitet på alle dager`() {
+        withMigratedDb {
+            val meldekortRepository = MeldekortRepositoryPostgres()
+            val ident = "12345678910"
+            val start = LocalDate.now()
+            val dager =
+                (1..14).map {
+                    Dag(
+                        dato = start.plusDays(it.toLong()),
+                        meldt = true,
+                        aktiviteter = emptyList(),
+                    )
+                }
+
+            val meldingsreferanseId1 = UUIDv7.ny()
+            val meldekort =
+                Meldekort(
+                    id = UUIDv7.ny(),
+                    meldingsreferanseId = meldingsreferanseId1,
+                    ident = ident,
+                    eksternMeldekortId = MeldekortId("1"),
+                    fom = start,
+                    tom = start.plusDays(14),
+                    kilde = MeldekortKilde("Bruker", ident),
+                    dager = dager,
+                    innsendtTidspunkt = LocalDateTime.now(),
+                    korrigeringAv = null,
+                    meldedato = LocalDate.now(),
+                    kanSendesFra = start.plusDays(13),
+                )
+            val meldekortInnsendtHendelse =
+                MeldekortInnsendtHendelse(
+                    opprettet = LocalDateTime.now(),
+                    meldingsreferanseId = meldingsreferanseId1,
+                    meldekort =
+                    meldekort,
+                )
+
+            lagreHendelseOmMeldekort(ident, meldekortInnsendtHendelse)
+            meldekortRepository.lagre(meldekortInnsendtHendelse.meldekort)
+
+            val rehydrertMeldekort = meldekortRepository.hent(meldekortInnsendtHendelse.meldekort.id)
+
+            rehydrertMeldekort.shouldNotBeNull()
+            rehydrertMeldekort.dager.flatMap { it.aktiviteter }.shouldBeEmpty()
         }
     }
 
