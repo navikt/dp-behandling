@@ -10,15 +10,15 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
-import no.nav.dagpenger.opplysning.regelsett.Alderskrav
-import no.nav.dagpenger.opplysning.regelsett.Alderskrav.fødselsdato
 import no.nav.dagpenger.opplysning.regelsett.Grunnbeløp
-import no.nav.dagpenger.opplysning.regelsett.Prøvingsdato
-import no.nav.dagpenger.opplysning.regelsett.Prøvingsdato.prøvingsdato
-import no.nav.dagpenger.opplysning.regelsett.Prøvingsdato.sisteDagMedArbeidsplikt
-import no.nav.dagpenger.opplysning.regelsett.Prøvingsdato.sisteDagMedLønn
-import no.nav.dagpenger.opplysning.regelsett.Prøvingsdato.søknadsdato
 import no.nav.dagpenger.opplysning.regelsett.ReglerForInntektTest
+import no.nav.dagpenger.opplysning.regelsett.TestAlderskravRegelsett
+import no.nav.dagpenger.opplysning.regelsett.TestAlderskravRegelsett.fødselsdato
+import no.nav.dagpenger.opplysning.regelsett.TestPrøvingsdatoRegelsett
+import no.nav.dagpenger.opplysning.regelsett.TestPrøvingsdatoRegelsett.prøvingsdato
+import no.nav.dagpenger.opplysning.regelsett.TestPrøvingsdatoRegelsett.sisteDagMedArbeidsplikt
+import no.nav.dagpenger.opplysning.regelsett.TestPrøvingsdatoRegelsett.sisteDagMedLønn
+import no.nav.dagpenger.opplysning.regelsett.TestPrøvingsdatoRegelsett.søknadsdato
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -40,15 +40,15 @@ class RegelmotorIntegrasjonsTest {
         val alleVilkår = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Vilkår")
         val regelsett =
             vilkår("Krav til Dagpenger") {
-                regel(alleVilkår) { alle(ReglerForInntektTest.minsteinntekt, Alderskrav.vilkår) }
+                regel(alleVilkår) { alle(ReglerForInntektTest.minsteinntekt, TestAlderskravRegelsett.vilkår) }
             }
         val regelkjøring =
             Regelkjøring(
                 regelverksdato,
                 opplysninger,
                 regelsett,
-                Prøvingsdato.regelsett,
-                Alderskrav.regelsett,
+                TestPrøvingsdatoRegelsett.regelsett,
+                TestAlderskravRegelsett.regelsett,
                 ReglerForInntektTest.regelsett,
             )
 
@@ -99,7 +99,13 @@ class RegelmotorIntegrasjonsTest {
 
         assertTrue(opplysninger.har(alleVilkår))
 
-        val regelDAG = RegeltreBygger(regelsett, ReglerForInntektTest.regelsett, Prøvingsdato.regelsett, Alderskrav.regelsett).dag()
+        val regelDAG =
+            RegeltreBygger(
+                regelsett,
+                ReglerForInntektTest.regelsett,
+                TestPrøvingsdatoRegelsett.regelsett,
+                TestAlderskravRegelsett.regelsett,
+            ).dag()
         val mermaidDiagram = MermaidPrinter(regelDAG).toPrint()
         println(mermaidDiagram)
 
@@ -127,10 +133,10 @@ class RegelmotorIntegrasjonsTest {
 
         opplysninger.leggTil(Faktum(fødselsdato, LocalDate.of(1953, 2, 10))).also { regelkjøring.evaluer() }
 
-        assertTrue(opplysninger.har(Alderskrav.vilkår))
-        assertTrue(opplysninger.finnOpplysning(Alderskrav.vilkår).verdi)
+        assertTrue(opplysninger.har(TestAlderskravRegelsett.vilkår))
+        assertTrue(opplysninger.finnOpplysning(TestAlderskravRegelsett.vilkår).verdi)
 
-        val regelDAG = RegeltreBygger(Alderskrav.regelsett).dag()
+        val regelDAG = RegeltreBygger(TestAlderskravRegelsett.regelsett).dag()
         val mermaidDiagram = MermaidPrinter(regelDAG).toPrint()
         println(mermaidDiagram)
         println(opplysninger.toString())
@@ -252,7 +258,7 @@ class RegelmotorIntegrasjonsTest {
     }
 }
 
-private class TestProsess : Forretningsprosess(Regelverk(Alderskrav.regelsett, Prøvingsdato.regelsett)) {
+private class TestProsess : Forretningsprosess(Regelverk(TestAlderskravRegelsett.regelsett, TestPrøvingsdatoRegelsett.regelsett)) {
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
         TODO("Not yet implemented")
     }
@@ -269,5 +275,6 @@ private class TestProsess : Forretningsprosess(Regelverk(Alderskrav.regelsett, P
         TODO("Not yet implemented")
     }
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = listOf(Alderskrav.vilkår, prøvingsdato)
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
+        listOf(TestAlderskravRegelsett.vilkår, prøvingsdato)
 }

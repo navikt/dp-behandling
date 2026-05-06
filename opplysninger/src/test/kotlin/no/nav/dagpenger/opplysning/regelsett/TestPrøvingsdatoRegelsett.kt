@@ -8,7 +8,7 @@ import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.uuid.UUIDv7
 
-internal object Prøvingsdato {
+internal object TestPrøvingsdatoRegelsett {
     val søknadsdato = Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "Søknadsdato")
     val sisteDagMedArbeidsplikt = Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "Siste dag med arbeidsplikt")
     val sisteDagMedLønn = Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "Siste dag med lønn")

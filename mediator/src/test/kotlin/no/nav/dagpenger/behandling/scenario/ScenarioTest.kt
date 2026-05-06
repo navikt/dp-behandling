@@ -9,12 +9,14 @@ import io.kotest.matchers.string.shouldContain
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.behandling.november
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.Alderskrav
 import no.nav.dagpenger.regel.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
+import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Permittering.godkjentPermitteringsårsak
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
@@ -157,7 +159,15 @@ class ScenarioTest {
             person.søkDagpenger(21.juni(2018))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(ønsketdato, 1.juli(2018), "Ønsker innvilgelse fra 1. juli", Gyldighetsperiode(1.juli(2018)))
+            behandlingsresultatForslag {
+                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 31.mai(2018).toString()
+            }
+            saksbehandler.endreOpplysning(
+                ønsketdato,
+                7.juli(2018),
+                "Ønsker innvilgelse fra 7. juli. Endrer opptjeningstidperiode.",
+                Gyldighetsperiode(7.juli(2018)),
+            )
             behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
@@ -167,7 +177,9 @@ class ScenarioTest {
             behandlingsresultat {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().fraOgMed shouldBe 1.juli(2018)
+                rettighetsperioder.single().fraOgMed shouldBe 7.juli(2018)
+
+                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 30.juni(2018).toString()
             }
         }
     }

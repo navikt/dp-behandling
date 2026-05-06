@@ -13,11 +13,11 @@ import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.uuid.UUIDv7
 
-internal object Alderskrav {
+internal object TestAlderskravRegelsett {
     val fødselsdato = Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "Fødselsdato")
     val aldersgrense = Opplysningstype.heltall(Id(UUIDv7.ny(), Heltall), "Aldersgrense")
 
-    private val virkningsdato = Prøvingsdato.prøvingsdato
+    private val virkningsdato = TestPrøvingsdatoRegelsett.prøvingsdato
     private val sisteMåned = Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "Dato søker når maks alder")
     private val sisteDagIMåned = Opplysningstype.dato(Id(UUIDv7.ny(), Dato), "Siste mulige dag bruker kan oppfylle alderskrav")
 
