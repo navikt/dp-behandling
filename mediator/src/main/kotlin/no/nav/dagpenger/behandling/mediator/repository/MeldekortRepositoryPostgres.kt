@@ -21,6 +21,8 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.component1
+import kotlin.collections.component2
 import kotlin.time.Duration.Companion.seconds
 
 class MeldekortRepositoryPostgres : MeldekortRepository {
@@ -48,36 +50,46 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
 
         val meldekort =
             sessionOf(dataSource).use { session ->
-                session.run(
-                    queryOf(
-                        //language=PostgreSQL
-                        """
-                        SELECT DISTINCT ON (ident) *
-                        FROM meldekort
-                        WHERE behandling_ferdig IS NULL
-                          AND korrigert_av_meldekort_id IS NULL
-                          AND satt_på_vent IS NULL
-                          AND CASE
-                                  -- Meldekortet er innsendt etter tilOgMed (altså forsinket) - da skal det behandles umiddelbart
-                                  WHEN meldedato > tom THEN TRUE 
-                                  -- Første virkedag etter innsending har inntruffet (eller er i dag)
-                                  ELSE meldedato <= :kjoringsdato AND :forsteVirkedag <= :kjoringsdato 
-                            END IS TRUE
-                        ORDER BY ident, fom, løpenummer DESC
-                        LIMIT 1000
-                        """.trimIndent(),
-                        mapOf(
-                            "forsteVirkedag" to førsteVirkedag,
-                            "kjoringsdato" to kjøringsdato,
-                        ),
-                    ).map { row ->
+                val meldekortUtenDager =
+                    session.run(
+                        queryOf(
+                            //language=PostgreSQL
+                            """
+                            SELECT DISTINCT ON (ident) *
+                            FROM meldekort
+                            WHERE behandling_ferdig IS NULL
+                              AND korrigert_av_meldekort_id IS NULL
+                              AND satt_på_vent IS NULL
+                              AND CASE
+                                      -- Meldekortet er innsendt etter tilOgMed (altså forsinket) - da skal det behandles umiddelbart
+                                      WHEN meldedato > tom THEN TRUE 
+                                      -- Første virkedag etter innsending har inntruffet (eller er i dag)
+                                      ELSE meldedato <= :kjoringsdato AND :forsteVirkedag <= :kjoringsdato 
+                                END IS TRUE
+                            ORDER BY ident, fom, løpenummer DESC
+                            LIMIT 1000
+                            """.trimIndent(),
+                            mapOf(
+                                "forsteVirkedag" to førsteVirkedag,
+                                "kjoringsdato" to kjøringsdato,
+                            ),
+                        ).map { row ->
+                            Triple(
+                                row.meldekort(),
+                                row.localDateTimeOrNull("behandling_startet"),
+                                row.localDateTimeOrNull("behandling_ferdig"),
+                            )
+                        }.asList,
+                    )
+                session
+                    .medDager(meldekortUtenDager.map { it.first })
+                    .mapIndexed { index, it ->
                         Meldekortstatus(
-                            row.meldekort(session),
-                            row.localDateTimeOrNull("behandling_startet"),
-                            row.localDateTimeOrNull("behandling_ferdig"),
+                            meldekort = it,
+                            påbegynt = meldekortUtenDager[index].second,
+                            ferdig = meldekortUtenDager[index].third,
                         )
-                    }.asList,
-                )
+                    }
             }
 
         val (påbegynt, behandlingsklar) = meldekort.partition { it.erPåbegynt }
@@ -86,36 +98,40 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
 
     override fun hent(meldekortId: UUID) =
         sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    SELECT * FROM meldekort WHERE id = :meldekortId
-                    """.trimIndent(),
-                    mapOf(
-                        "meldekortId" to meldekortId,
-                    ),
-                ).map { row ->
-                    row.meldekort(session)
-                }.asSingle,
-            )
+            val meldekortUtenDager =
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT * FROM meldekort WHERE id = :meldekortId
+                        """.trimIndent(),
+                        mapOf(
+                            "meldekortId" to meldekortId,
+                        ),
+                    ).map { row ->
+                        row.meldekort()
+                    }.asSingle,
+                ) ?: return@use null
+            session.medDager(listOf(meldekortUtenDager)).single()
         }
 
     override fun hentKorrigeringer(originale: List<MeldekortId>): List<Meldekort> =
         sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
+            val meldekortUtenDager =
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
                 SELECT m.* FROM meldekort m 
                 INNER JOIN meldekort erstatning ON m.korrigert_av_meldekort_id = erstatning.meldekort_id
                 WHERE m.meldekort_id = ANY(:originale) and m.behandling_startet is null
                 """,
-                    mapOf("originale" to originale.map { it.id }.toTypedArray()),
-                ).map { row ->
-                    row.meldekort(session)
-                }.asList,
-            )
+                        mapOf("originale" to originale.map { it.id }.toTypedArray()),
+                    ).map { row ->
+                        row.meldekort()
+                    }.asList,
+                )
+            session.medDager(meldekortUtenDager)
         }
 
     override fun behandlingStartet(meldekortId: MeldekortId) {
@@ -209,8 +225,8 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                 ) == true
         }
 
-    private fun Row.meldekort(session: Session): Meldekort =
-        Meldekort(
+    private fun Row.meldekort(): MeldekortRad =
+        MeldekortRad(
             id = uuid("id"),
             meldingsreferanseId = uuid("meldingsreferanse_id"),
             ident = string("ident"),
@@ -222,7 +238,6 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     rolle = string("kilde_rolle"),
                     ident = string("kilde_ident"),
                 ),
-            dager = session.hentDager(MeldekortId(string("meldekort_id"))),
             innsendtTidspunkt = localDateTime("innsendt_tidspunkt"),
             korrigeringAv = stringOrNull("korrigert_meldekort_id")?.let { MeldekortId(it) },
             meldedato = localDate("meldedato"),
@@ -326,18 +341,40 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
         )
     }
 
-    private fun Session.hentDager(meldkortId: MeldekortId): List<Dag> =
+    private fun Session.medDager(meldekort: List<MeldekortRad>): List<Meldekort> {
+        val dagerForAlleMeldekort = hentDager(meldekort)
+
+        return meldekort.map { meldekort ->
+            val dager = dagerForAlleMeldekort[meldekort.eksternMeldekortId] ?: emptyList()
+            Meldekort(
+                id = meldekort.id,
+                meldingsreferanseId = meldekort.meldingsreferanseId,
+                ident = meldekort.ident,
+                eksternMeldekortId = meldekort.eksternMeldekortId,
+                fom = meldekort.fom,
+                tom = meldekort.tom,
+                kilde = meldekort.kilde,
+                dager = dager,
+                innsendtTidspunkt = meldekort.innsendtTidspunkt,
+                korrigeringAv = meldekort.korrigeringAv,
+                meldedato = meldekort.meldedato,
+                kanSendesFra = meldekort.kanSendesFra,
+            )
+        }
+    }
+
+    private fun Session.hentDager(meldekort: List<MeldekortRad>): Map<MeldekortId, List<Dag>> =
         run(
             queryOf(
                 //language=PostgreSQL
                 """
-                SELECT d.dato, d.meldt, a.type, EXTRACT(EPOCH FROM a.timer) AS timer
+                SELECT d.meldekort_id, d.dato, d.meldt, a.type, EXTRACT(EPOCH FROM a.timer) AS timer
                 FROM meldekort_dag d
                 LEFT JOIN meldekort_aktivitet a on a.meldekort_id = d.meldekort_id AND a.dato = d.dato 
-                WHERE d.meldekort_id = :meldekortId
+                WHERE d.meldekort_id = ANY(:meldekortId)
                 """.trimIndent(),
                 mapOf(
-                    "meldekortId" to meldkortId.id,
+                    "meldekortId" to meldekort.map { it.eksternMeldekortId.id }.toTypedArray(),
                 ),
             ).map { row ->
                 val aktivitet =
@@ -346,15 +383,25 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                         timer = row.intOrNull("timer")?.seconds,
                     )
                 DagRad(
+                    meldekortId = MeldekortId(row.string("meldekort_id")),
                     dato = row.localDate("dato"),
                     meldt = row.boolean("meldt"),
                     aktivitet = aktivitet,
                 )
             }.asList,
-        ).groupBy { it.dato }
+        ).grupperPerMeldekort()
+
+    private fun List<DagRad>.grupperPerMeldekort(): Map<MeldekortId, List<Dag>> =
+        this
+            .groupBy { it.meldekortId }
+            .mapValues { (_, dager) -> dager.slåSammenDatoer() }
+
+    private fun List<DagRad>.slåSammenDatoer(): List<Dag> =
+        this
+            .groupBy { it.dato }
             .map { (dato, rader) ->
                 // sjekker at alle dager har samme 'meldt'-verdi da koden antar dette stemmer
-                check(rader.all { it.meldt == rader.first().meldt }) { "Forventet at alle rader for dato $dato har samme 'meldt'-verdi" }
+                check(rader.all { it.meldt == rader.first().meldt }) { "Forventet at alle dager for $dato har samme 'meldt'-verdi" }
                 Dag(
                     dato = dato,
                     meldt = rader.first().meldt,
@@ -363,7 +410,22 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
             }
 }
 
+private data class MeldekortRad(
+    val id: UUID,
+    val meldingsreferanseId: UUID,
+    val ident: String,
+    val eksternMeldekortId: MeldekortId,
+    val fom: LocalDate,
+    val tom: LocalDate,
+    val kilde: MeldekortKilde,
+    val innsendtTidspunkt: LocalDateTime,
+    val korrigeringAv: MeldekortId?,
+    val meldedato: LocalDate,
+    val kanSendesFra: LocalDate,
+)
+
 private data class DagRad(
+    val meldekortId: MeldekortId,
     val dato: LocalDate,
     val meldt: Boolean,
     val aktivitet: MeldekortAktivitet,
