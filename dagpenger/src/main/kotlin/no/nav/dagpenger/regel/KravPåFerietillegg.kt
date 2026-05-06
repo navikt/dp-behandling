@@ -6,7 +6,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
-import no.nav.dagpenger.opplysning.regel.størreEnn
+import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.regel.Behov.AntallDagerForbrukt
 import no.nav.dagpenger.regel.Behov.OpptjeningsårFerietillegg
@@ -22,6 +22,8 @@ object KravPåFerietillegg {
     val åretDetSkalBeregnesFerietilleggFor =
         heltall(årSomSkalBeregnesId, "Året som det skal beregnes ferietillegg for", behovId = OpptjeningsårFerietillegg)
 
+    const val MIN_ANTALL_DAGER_FORBRUKT_FOR_RETT = 8 * 5 + 1
+
     // Det kan ha vært omgjøring som har ført til feilutbetaling eller etterbetaling. Vi må kunne gjøre en omgjøring av forrige ferietillegg
     val regelsett =
         vilkår(
@@ -32,9 +34,9 @@ object KravPåFerietillegg {
             // sende inn år eller hente alle?
             regel(åretDetSkalBeregnesFerietilleggFor) { tomRegel }
             regel(antallDagerForbruk) { innhentMed(åretDetSkalBeregnesFerietilleggFor) }
-            regel(ferietilleggTerskel) { somUtgangspunkt(8 * 5) }
+            regel(ferietilleggTerskel) { somUtgangspunkt(MIN_ANTALL_DAGER_FORBRUKT_FOR_RETT) }
 
-            utfall(harKravpåFerietillegg) { størreEnn(antallDagerForbruk, ferietilleggTerskel) }
+            utfall(harKravpåFerietillegg) { størreEnnEllerLik(antallDagerForbruk, ferietilleggTerskel) }
         }
 
     val FerietilleggKontroll =

@@ -23,9 +23,11 @@ import no.nav.dagpenger.opplysning.Redigerbar
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.regel.FerietilleggBeløp.sumUtbetaltForÅr
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.KravPåFerietillegg.antallDagerForbruk
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold
@@ -312,6 +314,9 @@ internal val redigerbareOpplysninger =
                             // Gjenoppptak
                             oppholdMedArbeidI12ukerEllerMer,
                             skalGjenopptakVurderes,
+                            // Ferietillegg
+                            antallDagerForbruk,
+                            sumUtbetaltForÅr,
                         ),
                     )
 
