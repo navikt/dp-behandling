@@ -36,9 +36,7 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                     )
                 }
 
-                meldekort.dager.forEach { dag ->
-                    tx.lagreMeldekortDager(meldekort, dag)
-                }
+                tx.lagreMeldekortDager(meldekort, meldekort.dager)
             }
         }
     }
@@ -289,40 +287,44 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
 
     private fun TransactionalSession.lagreMeldekortDager(
         meldekort: Meldekort,
-        dag: Dag,
+        dager: List<Dag>,
     ) {
-        run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                INSERT INTO meldekort_dag (meldekort_id, meldt, dato) 
-                VALUES (:meldekortId, :meldt, :dato)
-                """.trimIndent(),
+        batchPreparedNamedStatement(
+            //language=PostgreSQL
+            """
+            INSERT INTO meldekort_dag (meldekort_id, meldt, dato) 
+            VALUES (:meldekortId, :meldt, :dato)
+            """.trimIndent(),
+            dager.map { dag ->
                 mapOf(
                     "meldekortId" to meldekort.eksternMeldekortId.id,
                     "meldt" to dag.meldt,
                     "dato" to dag.dato,
-                ),
-            ).asUpdate,
-        ).also {
-            dag.aktiviteter.forEach { aktivitet ->
-                this.lagreAktiviteter(meldekort, dag, aktivitet)
-            }
-        }
+                )
+            },
+        ).krevAtAntallRaderErNøyaktigLik(dager.size)
+
+        lagreAktiviteter(
+            meldekort,
+            dager.flatMap { dag ->
+                dag.aktiviteter.map { aktivitet ->
+                    dag to aktivitet
+                }
+            },
+        )
     }
 
     private fun TransactionalSession.lagreAktiviteter(
         meldekort: Meldekort,
-        dag: Dag,
-        aktivitet: MeldekortAktivitet,
+        aktiviteter: List<Pair<Dag, MeldekortAktivitet>>,
     ) {
-        run(
-            queryOf(
-                //language=PostgreSQL
-                """
-                INSERT INTO meldekort_aktivitet (meldekort_id, dato, type, timer) 
-                VALUES (:meldekortId, :dato, :type, :timer)
-                """.trimIndent(),
+        batchPreparedNamedStatement(
+            //language=PostgreSQL
+            """
+            INSERT INTO meldekort_aktivitet (meldekort_id, dato, type, timer) 
+            VALUES (:meldekortId, :dato, :type, :timer)
+            """.trimIndent(),
+            aktiviteter.map { (dag, aktivitet) ->
                 mapOf(
                     "meldekortId" to meldekort.eksternMeldekortId.id,
                     "dato" to dag.dato,
@@ -334,9 +336,9 @@ class MeldekortRepositoryPostgres : MeldekortRepository {
                                 value = timer.toString()
                             }
                         },
-                ),
-            ).asUpdate,
-        )
+                )
+            },
+        ).krevAtAntallRaderErNøyaktigLik(aktiviteter.size)
     }
 
     private fun Session.medDager(meldekort: List<MeldekortRad>): List<Meldekort> {

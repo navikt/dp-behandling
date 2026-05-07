@@ -611,12 +611,4 @@ internal class BehandlingRepositoryPostgres(
                 ?: throw IllegalArgumentException("Fant ikke utbetalingstatus for behandling $behandlingId")
         }
     }
-
-    private fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
-        val sum = sum()
-        check(sum == forventet) {
-            "Forventet å oppdatere nøyaktig $forventet rader, men endte opp med å oppdatere $sum rader"
-        }
-        return this
-    }
 }
