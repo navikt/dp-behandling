@@ -32,7 +32,7 @@ dependencies {
     implementation(libs.bundles.ktor.server)
     implementation("io.ktor:ktor-server-core-jvm:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-swagger:${libs.versions.ktor.get()}")
-    implementation("com.github.navikt.tbd-libs:naisful-app:2025.11.04-10.54-c831038e")
+    implementation("com.github.navikt.tbd-libs:naisful-app:20260429.1019")
 
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
 
@@ -41,7 +41,7 @@ dependencies {
     testImplementation(libs.mock.oauth2.server)
     testImplementation(libs.bundles.postgres.test)
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
-    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:2025.11.04-10.54-c831038e")
+    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:20260429.1019")
     testImplementation("com.approvaltests:approvaltests:22.3.3")
 }
 
