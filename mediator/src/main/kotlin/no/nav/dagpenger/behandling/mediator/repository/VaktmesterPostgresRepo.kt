@@ -40,32 +40,33 @@ internal class VaktmesterPostgresRepo {
 
     private fun TransactionalSession.slettOpplysningerMerketForFjerning(antallBehandlinger: Int): SlettingRapport {
         logger.info { "Finner kandidater" }
-        this
-            .run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    CREATE TEMP TABLE opplysninger_til_sletting ON COMMIT DROP AS
-                    with opplysningssett_som_skal_slettes as (
-                        SELECT f.opplysninger_id, b.behandling_id
-                        FROM (
-                            SELECT DISTINCT o.opplysninger_id
-                            FROM opplysning o
-                            WHERE o.fjernet = TRUE
-                        ) f
-                        LEFT JOIN behandling_opplysninger b ON b.opplysninger_id = f.opplysninger_id
-                        ORDER BY f.opplysninger_id
-                        LIMIT :antall
-                    )
-                    SELECT o.id, o.opplysninger_id, oss.behandling_id
-                    FROM opplysning o
-                    inner join opplysningssett_som_skal_slettes oss on o.opplysninger_id = oss.opplysninger_id
-                    WHERE fjernet = TRUE
-                    ORDER BY o.opprettet DESC
-                    """.trimIndent(),
-                    mapOf("antall" to antallBehandlinger),
-                ).asExecute,
-            )
+        val antallOpplysningerSomSkalSlettes =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        CREATE TEMP TABLE opplysninger_til_sletting ON COMMIT DROP AS
+                        with opplysningssett_som_skal_slettes as (
+                            SELECT f.opplysninger_id, b.behandling_id
+                            FROM (
+                                SELECT DISTINCT o.opplysninger_id
+                                FROM opplysning o
+                                WHERE o.fjernet = TRUE
+                            ) f
+                            LEFT JOIN behandling_opplysninger b ON b.opplysninger_id = f.opplysninger_id
+                            ORDER BY f.opplysninger_id
+                            LIMIT :antall
+                        )
+                        SELECT o.id, o.opplysninger_id, oss.behandling_id
+                        FROM opplysning o
+                        inner join opplysningssett_som_skal_slettes oss on o.opplysninger_id = oss.opplysninger_id
+                        WHERE fjernet = TRUE
+                        ORDER BY o.opprettet DESC
+                        """.trimIndent(),
+                        mapOf("antall" to antallBehandlinger),
+                    ).asUpdate,
+                )
 
         // ANALYZE på temp-tabellen etter populering så planneren har litt kjøtt på beinet
         this
@@ -78,6 +79,7 @@ internal class VaktmesterPostgresRepo {
                 ).asExecute,
             )
 
+        logger.info { "Fant $antallOpplysningerSomSkalSlettes kandidater" }
         logger.info { "sletter fra opplysning_utledet_av" }
         val antallSlettetUtledetAv =
             this
@@ -127,17 +129,6 @@ internal class VaktmesterPostgresRepo {
                         //language=PostgreSQL
                         """
                         select count(1) as antall from opplysninger_til_sletting group by opplysninger_id
-                        """.trimIndent(),
-                    ).map { row -> row.int("antall") }.asSingle,
-                ) ?: 0
-
-        val antallOpplysningerSomSkalSlettes =
-            this
-                .run(
-                    queryOf(
-                        //language=PostgreSQL
-                        """
-                        select count(1) as antall from opplysninger_til_sletting
                         """.trimIndent(),
                     ).map { row -> row.int("antall") }.asSingle,
                 ) ?: 0
