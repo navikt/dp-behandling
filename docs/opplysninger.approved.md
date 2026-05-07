@@ -67,7 +67,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|0194881f-91d1-7df2-ba1d-4533f37fcc73|Søknadsdato|Dato|LocalDate|Søknadsdato||Ekstern
+|0194881f-91d1-7df2-ba1d-4533f37fcc73|Søknadsdato|Dato|LocalDate|||Intern
 |0194881f-91d1-7df2-ba1d-4533f37fcc74|Ønsker dagpenger fra dato|Dato|LocalDate|ØnskerDagpengerFraDato||Ekstern
 |0194881f-91d1-7df2-ba1d-4533f37fcc75|Søknadstidspunkt|Dato|LocalDate|||Intern
 |0194881f-91d1-7df2-ba1d-4533f37fcc76|Prøvingsdato|Dato|LocalDate|||Resultat

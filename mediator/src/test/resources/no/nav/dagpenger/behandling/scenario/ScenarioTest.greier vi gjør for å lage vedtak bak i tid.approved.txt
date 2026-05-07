@@ -2,7 +2,6 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- Søknadsdato
 - ØnskerDagpengerFraDato
 - Fødselsdato
 Laget avklaring om HattLukkedeSakerSiste8Uker
@@ -43,7 +42,6 @@ Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:
-- Søknadsdato
 - ØnskerDagpengerFraDato
 Behov:
 - Inntekt
@@ -87,6 +85,32 @@ Behov:
 - Svangerskapspenger
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
+Behov:
+- Inntekt
+Behov:
+- BarnetilleggV2
+- Uføre
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
+Behov:
+- Inntekt
+Behov:
+- BostedslandErNorge
+- Uføre
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
+Behov:
+- BarnetilleggV2
 Behandling endret tilstand til: ForslagTilVedtak

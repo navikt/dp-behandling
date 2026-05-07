@@ -20,7 +20,6 @@ import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Permittering.godkjentPermitteringsårsak
 import no.nav.dagpenger.regel.ReellArbeidssøker
 import no.nav.dagpenger.regel.ReellArbeidssøker.kanJobbeHvorSomHelst
-import no.nav.dagpenger.regel.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.Rettighetstype
 import no.nav.dagpenger.regel.Rettighetstype.erReellArbeidssøkerVurdert
@@ -31,6 +30,7 @@ import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
@@ -459,8 +459,8 @@ class ScenarioTest {
                 "Søkte for lenge siden",
                 Gyldighetsperiode(1.juni(2018)),
             )
-
             behovsløsere.løsTilForslag()
+
             saksbehandler.endreOpplysning(
                 ønsketdato,
                 1.juni(2018),
@@ -469,18 +469,8 @@ class ScenarioTest {
             )
             behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag(3) {
-                with(rettighetsperioder) {
-                    this shouldHaveSize 2
-                    this[0].fraOgMed shouldBe 1.juni(2018)
-                    this[0].harRett shouldBe false
-                    this[1].fraOgMed shouldBe 27.november(2018)
-                    this[1].harRett shouldBe true
-                }
-            }
-
             saksbehandler.endreOpplysning(
-                RegistrertArbeidssøker.registrertArbeidssøker,
+                oppyllerKravTilRegistrertArbeidssøker,
                 true,
                 "Søkte for lenge siden",
                 Gyldighetsperiode(1.juni(2018)),
@@ -490,10 +480,48 @@ class ScenarioTest {
             behandlingsresultatForslag(4) {
                 with(rettighetsperioder) {
                     this shouldHaveSize 1
-                    single().fraOgMed shouldBe 1.juni(2018)
-                    // TODO: Registrert blir plutselig satt som false fram til 26. november????
-                    // single().tilOgMed shouldBe null
-                    single().harRett shouldBe false
+                    this[0].fraOgMed shouldBe 1.juni(2018)
+                    this[0].harRett shouldBe true
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `sjekk at vi ikke går i loop når det kommer opplysninger som ikke har avhengighetene sine i samme gyldighetsperiode`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(27.november(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                søknadIdOpplysningstype,
+                person.sisteSøknadId!!.toString(),
+                "Søkte for lenge siden",
+                Gyldighetsperiode(1.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            // Tester at vi ikke går i loop når det legges til en opplysning i en perioden uten rett
+            // Dette ble løst av `kanLeggeTil()`, men den sperren er fjernet, fordi behovet er borte
+            saksbehandler.endreOpplysning(
+                antallBarn,
+                22,
+                "Fikk en haug med barn",
+                Gyldighetsperiode(5.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag(3) {
+                with(rettighetsperioder) {
+                    this shouldHaveSize 1
+                    this[0].fraOgMed shouldBe 27.november(2018)
+                    this[0].harRett shouldBe true
+                }
+
+                with(opplysninger(antallBarn)) {
+                    this shouldHaveSize 1
                 }
             }
         }

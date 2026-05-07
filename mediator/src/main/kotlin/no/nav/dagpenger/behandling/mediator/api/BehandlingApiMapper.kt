@@ -70,6 +70,7 @@ import no.nav.dagpenger.regel.StreikOgLockout.deltarIStreikOgLockout
 import no.nav.dagpenger.regel.StreikOgLockout.sammeBedriftOgPåvirket
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.arbeidstidsreduksjonIkkeBruktTidligere
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
@@ -93,9 +94,9 @@ import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.barnetilleggetsS
 import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage.ansesUgyldigVedtak
 import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage.endringIkkeTilSkade
 import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage.ikkeUnderretning
-import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.holderTilbake
-import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.`unnlateråEtterkommePålegg`
-import no.nav.dagpenger.regel.`prosessvilkår`.Uriktigeopplysninger.uriktigeOpplysninger
+import no.nav.dagpenger.regel.prosessvilkår.Uriktigeopplysninger.holderTilbake
+import no.nav.dagpenger.regel.prosessvilkår.Uriktigeopplysninger.unnlateråEtterkommePålegg
+import no.nav.dagpenger.regel.prosessvilkår.Uriktigeopplysninger.uriktigeOpplysninger
 import java.time.LocalDateTime
 import kotlin.io.encoding.Base64
 
@@ -234,6 +235,7 @@ internal val redigerbareOpplysninger =
                         listOf(
                             harLøpendeRett,
                             prøvingsdato,
+                            ønsketdato,
                             // 4-2 Opphold
                             oppholdINorge,
                             unntakForOpphold,
@@ -321,7 +323,8 @@ internal val redigerbareOpplysninger =
                     )
 
                     // 4-5 Registrert arbeidssøker
-                    add(RegistrertArbeidssøker.registrertArbeidssøker)
+                    // TODO: Verifiser at denne faktisk ikke skal være redigerbar
+                    //  add(RegistrertArbeidssøker.registrertArbeidssøker)
                     add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
 
                     // Redigering for å kunne tilbakedatere søknader i dev

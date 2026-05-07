@@ -44,7 +44,7 @@ object Søknadstidspunkt {
         ) {
             regel(søknadIdOpplysningstype) { tomRegel }
             regel(tidligsteVurderingsdato) { fraOgMed(søknadIdOpplysningstype) }
-            regel(søknadsdato) { innhentMed(søknadIdOpplysningstype) }
+            regel(søknadsdato) { fraOgMed(søknadIdOpplysningstype) }
             regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
             regel(prøvingsdato) { sisteAv(søknadstidspunkt) }

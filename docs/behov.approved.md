@@ -24,7 +24,6 @@ Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De 
 |RegistrertSomArbeidssøker | Registrert som arbeidssøker | Boolsk|boolean|
 |Svangerskapspenger | Svangerskapspenger etter lovens kapittel 14 | Boolsk|boolean|
 |Sykepenger | Sykepenger etter lovens kapittel 8 | Boolsk|boolean|
-|Søknadsdato | Søknadsdato | Dato|LocalDate|
 |TarUtdanningEllerOpplæring | Brukeren er under utdanning eller opplæring | Boolsk|boolean|
 |Uføre | Uføretrygd etter lovens kapittel 12 | Boolsk|boolean|
 |Verneplikt | Avtjent verneplikt | Boolsk|boolean|

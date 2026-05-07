@@ -295,7 +295,7 @@ graph RL
   HB["Oppfyller kravet til framsatt søknad"] -->|"Alle"| HC["Har satt frem skriftlig søknad"]
   HB["Oppfyller kravet til framsatt søknad"] -->|"Alle"| GZ["Ønsker dagpenger ved framsatt søknad"]
   EU["Vurder rett fra og med"] -->|"FraOgMedForOpplysning"| AQ["søknadId"]
-  HD["Søknadsdato"] -->|"Ekstern"| AQ["søknadId"]
+  HD["Søknadsdato"] -->|"FraOgMedForOpplysning"| AQ["søknadId"]
   HA["Ønsker dagpenger fra dato"] -->|"Ekstern"| AQ["søknadId"]
   HE["Søknadstidspunkt"] -->|"SisteAv"| HD["Søknadsdato"]
   HE["Søknadstidspunkt"] -->|"SisteAv"| HA["Ønsker dagpenger fra dato"]
