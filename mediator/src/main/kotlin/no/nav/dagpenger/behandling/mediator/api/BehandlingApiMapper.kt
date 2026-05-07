@@ -26,7 +26,6 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.FerietilleggBeløp.sumUtbetaltForÅr
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.KravPåFerietillegg.antallDagerForbruk
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
@@ -233,7 +232,8 @@ internal val redigerbareOpplysninger =
                 buildSet {
                     addAll(
                         listOf(
-                            harLøpendeRett,
+                            // Det skal ikke være nødvendig å la saksbehandler manipulere lenger. Som en siste utvei kan vi legge den til igjen ved behov
+                            // harLøpendeRett,
                             prøvingsdato,
                             ønsketdato,
                             // 4-2 Opphold
