@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskA
+import no.nav.dagpenger.opplysning.TestOpplysningstyper.boolskB
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.desimaltall
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.foreldrevilkår
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.undervilkår1
@@ -233,7 +234,7 @@ class OpplysningerTest {
 
         // Før fiksen ville dette krasje med:
         // java.lang.IllegalArgumentException: fraOgMed=2025-12-29 må være før tilOgMed=2025-12-11
-        // fordi lagForkortet fikk opplysningene i feil rekkefølge (sortert etter ID)
+        // fordi forkortingen fikk opplysningene i feil rekkefølge (sortert etter ID)
 
         val endring5 =
             Faktum(
@@ -260,6 +261,33 @@ class OpplysningerTest {
         sortert[2].gyldighetsperiode.tilOgMed shouldBe 5.januar(2026)
         sortert[3].gyldighetsperiode.fraOgMed shouldBe 6.januar(2026)
         sortert[3].gyldighetsperiode.tilOgMed shouldBe LocalDate.MAX
+    }
+
+    @Test
+    fun `utenErstattet bevarer original id-rekkefølge når fraOgMed-rekkefølge avviker fra id-rekkefølge`() {
+        val opplysninger = Opplysninger()
+
+        val aFørstMars = Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(1.mars))
+        opplysninger.leggTil(aFørstMars)
+
+        val bMidten = Faktum(boolskB, true)
+        opplysninger.leggTil(bMidten)
+
+        val aSenereMedTidligDato = Faktum(desimaltall, 3.0, gyldighetsperiode = Gyldighetsperiode(1.januar, 28.februar))
+        opplysninger.leggTil(aSenereMedTidligDato)
+
+        // Sjekk at id-rekkefølge faktisk er som forventet (id1 < id3, dvs. aFørstMars ble opprettet før aSenere)
+        require(aFørstMars.id < aSenereMedTidligDato.id) {
+            "Forutsetning for testen feilet: aFørstMars.id må være lavere enn aSenereMedTidligDato.id"
+        }
+
+        val liste = opplysninger.somListe()
+
+        // Opplysningene skal ligge i id-rekkefølge, ikke fraOgMed-rekkefølge
+        liste shouldHaveSize 3
+        liste[0].verdi shouldBe 1.0 // aFørstMars (lavest id, fom=Mars)
+        liste[1].verdi shouldBe true // bMidten
+        liste[2].verdi shouldBe 3.0 // aSenereMedTidligDato (høyest id, fom=Januar)
     }
 
     //language=Mermaid

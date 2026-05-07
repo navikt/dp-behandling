@@ -148,13 +148,7 @@ internal class OpplysningSvarMessage(
                         throw IllegalArgumentException("Ukjent opplysningstype: $typeNavn")
                     }
 
-                val svar =
-                    lagSvar(typeNavn, løsning).also {
-                        logger.info {
-                            "Løsning for opplysning $typeNavn med svartype: ${it::class.simpleName}. " +
-                                "Gyldighetsperiode=${it.gyldighetsperiode}"
-                        }
-                    }
+                val svarer = lagSvarer(typeNavn, løsning)
                 val kilde =
                     when (løsning.has("@kilde")) {
                         true -> {
@@ -178,17 +172,22 @@ internal class OpplysningSvarMessage(
 
                 val utledetAv = packet["@utledetAv"][typeNavn]?.map { it.asUUID() } ?: emptyList()
 
-                val opplysningSvarBygger =
-                    OpplysningSvarBygger(
-                        opplysningstype,
-                        JsonMapper(typeNavn, svar.verdi),
-                        kilde,
-                        svar.tilstand,
-                        svar.gyldighetsperiode,
-                        utledetAv,
-                    )
-                val opplysning = opplysningSvarBygger.opplysningSvar()
-                add(opplysning)
+                svarer.forEach { svar ->
+                    logger.info {
+                        "Løsning for opplysning $typeNavn med ${svarer.size} periode(r). " +
+                            "Gyldighetsperiode=${svar.gyldighetsperiode}"
+                    }
+                    val opplysningSvarBygger =
+                        OpplysningSvarBygger(
+                            opplysningstype,
+                            JsonMapper(typeNavn, svar.verdi),
+                            kilde,
+                            svar.tilstand,
+                            svar.gyldighetsperiode,
+                            utledetAv,
+                        )
+                    add(opplysningSvarBygger.opplysningSvar())
+                }
             }
         }
 
@@ -213,12 +212,12 @@ internal class OpplysningSvarMessage(
     }
 
     private companion object {
-        private val svarStrategier = listOf(KomplekstSvar, EnkeltSvar)
+        private val svarStrategier = listOf(KomplekstSvar, ListeSvar, EnkeltSvar)
 
-        fun lagSvar(
+        fun lagSvarer(
             typeNavn: String,
             jsonNode: JsonNode,
-        ): Svar = svarStrategier.firstNotNullOf { it.svar(typeNavn, jsonNode) }
+        ): List<Svar> = svarStrategier.firstNotNullOf { it.svar(typeNavn, jsonNode) }
     }
 }
 
@@ -226,7 +225,7 @@ private fun interface SvarStrategi {
     fun svar(
         typeNavn: String,
         svar: JsonNode,
-    ): Svar?
+    ): List<Svar>?
 
     data class Svar(
         val verdi: JsonNode,
@@ -252,14 +251,34 @@ private object KomplekstSvar : SvarStrategi {
     override fun svar(
         typeNavn: String,
         svar: JsonNode,
-    ): Svar? {
+    ): List<Svar>? {
         if (!svar.isObject) return null
-        return Svar(
-            svar["verdi"],
-            svar["status"]?.asText()?.let { Tilstand.valueOf(it) } ?: Tilstand.Faktum,
-            svar["gyldigFraOgMed"]?.asLocalDate(),
-            svar["gyldigTilOgMed"]?.asLocalDate(),
+        return listOf(
+            Svar(
+                svar["verdi"],
+                svar["status"]?.asText()?.let { Tilstand.valueOf(it) } ?: Tilstand.Faktum,
+                svar["gyldigFraOgMed"]?.asLocalDate(),
+                svar["gyldigTilOgMed"]?.asLocalDate(),
+            ),
         )
+    }
+}
+
+private object ListeSvar : SvarStrategi {
+    override fun svar(
+        typeNavn: String,
+        svar: JsonNode,
+    ): List<Svar>? {
+        if (!svar.isArray) return null
+        if (!svar.all { it.isObject && it.has("verdi") }) return null
+        return svar.map { item ->
+            Svar(
+                item["verdi"],
+                item["status"]?.asText()?.let { Tilstand.valueOf(it) } ?: Tilstand.Faktum,
+                item["gyldigFraOgMed"]?.asLocalDate(),
+                item["gyldigTilOgMed"]?.asLocalDate(),
+            )
+        }
     }
 }
 
@@ -267,9 +286,9 @@ private object EnkeltSvar : SvarStrategi {
     override fun svar(
         typeNavn: String,
         svar: JsonNode,
-    ): Svar? {
+    ): List<Svar>? {
         if (svar.isObject) return null
-        return Svar(svar, Tilstand.Faktum)
+        return listOf(Svar(svar, Tilstand.Faktum))
     }
 }
 

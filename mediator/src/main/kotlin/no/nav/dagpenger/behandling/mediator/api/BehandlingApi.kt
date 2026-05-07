@@ -566,6 +566,8 @@ internal fun Application.behandlingApi(
                                     nyOpplysningDTO.gyldigTilOgMed,
                                 )
 
+                            behandling.kanLeggeTil(opplysningstype, nyOpplysningDTO.gyldigFraOgMed)
+
                             apiRepositoryPostgres.endreOpplysning(behandlingId, opplysningstype.behovId) {
                                 logger.info { "Starter en endring i behandling" }
                                 messageContext(behandling.behandler.ident).publish(svar.toJson())

@@ -259,6 +259,60 @@ class OpplysningSvarMottakTest {
     }
 
     @Test
+    fun `støtter svar med liste av perioder for samme opplysningstype`() {
+        val periode1Fra = LocalDate.of(2024, 1, 1)
+        val periode1Til = LocalDate.of(2024, 3, 31)
+        val periode2Fra = LocalDate.of(2024, 4, 1)
+        val periode2Til = LocalDate.of(2024, 6, 30)
+
+        rapid.sendTestMessage(
+            JsonMessage
+                .newNeed(
+                    listOf("boolsk"),
+                    buildMap {
+                        putAll(konvolutt)
+                        put(
+                            "@løsning",
+                            mapOf(
+                                "boolsk" to
+                                    listOf(
+                                        mapOf(
+                                            "verdi" to true,
+                                            "gyldigFraOgMed" to periode1Fra.toString(),
+                                            "gyldigTilOgMed" to periode1Til.toString(),
+                                        ),
+                                        mapOf(
+                                            "verdi" to false,
+                                            "gyldigFraOgMed" to periode2Fra.toString(),
+                                            "gyldigTilOgMed" to periode2Til.toString(),
+                                        ),
+                                    ),
+                            ),
+                        )
+                        put("@utledetAv", mapOf("boolsk" to emptyList<String>()))
+                    },
+                ).toJson(),
+        )
+
+        val hendelse = slot<OpplysningSvarHendelse>()
+        verify {
+            messageMediator.behandle(capture(hendelse), any(), any())
+        }
+
+        hendelse.isCaptured shouldBe true
+        hendelse.captured.behandlingId shouldBe behandlingId
+        hendelse.captured.opplysninger shouldHaveSize 2
+
+        val første = hendelse.captured.opplysninger[0]
+        første.verdi shouldBe true
+        første.leggTil(opplysningMock).gyldighetsperiode shouldBe Gyldighetsperiode(periode1Fra, periode1Til)
+
+        val andre = hendelse.captured.opplysninger[1]
+        andre.verdi shouldBe false
+        andre.leggTil(opplysningMock).gyldighetsperiode shouldBe Gyldighetsperiode(periode2Fra, periode2Til)
+    }
+
+    @Test
     fun `logger og kaster behov uten opplysningsbehov`() {
         rapid.sendTestMessage(
             JsonMessage

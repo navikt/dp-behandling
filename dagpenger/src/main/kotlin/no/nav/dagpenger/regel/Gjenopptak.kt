@@ -80,7 +80,7 @@ object Gjenopptak {
 
             // Sjekk om avbruddet har vart lenge nok til å gi nytt grunnlag
             regel(terskelUkerNyttGrunnlag) { somUtgangspunkt(12) }
-            regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false) }
+            regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false, førsteAvbruddsdag) }
 
             // Sjekk at det har gått nok tid siden siste forbruk til at det kan gjenopptas
             regel(antallUker) { somUtgangspunkt(52) }

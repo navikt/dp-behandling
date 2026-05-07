@@ -19,6 +19,7 @@ import no.nav.dagpenger.behandling.api.models.LovkildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningskildeDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTO
+import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningsverdiDTO
 import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
 import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
@@ -44,7 +45,9 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Heltall
+import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -77,6 +80,11 @@ internal fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
         opprinnelse = (id in egneId).tilOpprinnelseDTO(),
         gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
         gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
+        type =
+            when (this) {
+                is Faktum<*> -> OpplysningsperiodeDTOTypeDTO.FAKTUM
+                is Hypotese<*> -> OpplysningsperiodeDTOTypeDTO.HYPOTESE
+            },
         verdi = tilOpplysningsverdiDTO(),
         kilde = tilOpplysningskildeDTO(),
         utledetAv =

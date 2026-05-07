@@ -8,18 +8,18 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- Inntekt
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
 - RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- HelseTilAlleTyperJobb
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
-- Inntekt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
@@ -46,6 +46,7 @@ Behov:
 - Søknadsdato
 - ØnskerDagpengerFraDato
 Behov:
+- Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - HelseTilAlleTyperJobb
@@ -57,8 +58,24 @@ Behov:
 - Lønnsgaranti
 - PermittertFiskeforedling
 - Verneplikt
-- Inntekt
+Behov:
+- BostedslandErNorge
+- Uføre
+- Sykepenger
+- Pleiepenger
+- Omsorgspenger
+- Opplæringspenger
+- Foreldrepenger
+- Svangerskapspenger
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
+Behov:
+- BarnetilleggV2
+Behandling endret tilstand til: ForslagTilVedtak
 Laget avklaring om IkkeRegistrertSomArbeidsøker
+Behandling endret tilstand til: Redigert
+Behov:
+- Inntekt
 Behov:
 - BostedslandErNorge
 - Uføre
@@ -72,6 +89,4 @@ Behov:
 - TarUtdanningEllerOpplæring
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behov:
-- BarnetilleggV2
 Behandling endret tilstand til: ForslagTilVedtak

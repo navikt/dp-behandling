@@ -13,7 +13,6 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Minsteinntekt
 import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.Opphold
@@ -87,13 +86,6 @@ class GjenopptakTest {
             behovsløsere.løsTilForslag()
 
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
-            saksbehandler.endreOpplysning(
-                oppholdMedArbeidI12ukerEllerMer,
-                true,
-                "Skal inntekte inntekt på nytt",
-                Gyldighetsperiode(23.august(2018)),
-            )
-
             behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
@@ -105,7 +97,8 @@ class GjenopptakTest {
                 førteTil shouldBe "Gjenopptak"
 
                 with(opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned)) {
-                    this shouldHaveSize 2
+                    // Vi skal ikke fastsette grunnlag på nytt
+                    this shouldHaveSize 1
                 }
 
                 with(opplysninger(Gjenopptak.skalGjenopptas)) {
@@ -115,20 +108,11 @@ class GjenopptakTest {
                     this.single().gyldigFraOgMed shouldBe 23.august(2018)
                 }
 
-                with(opplysninger(inntektFraSkatt)) {
-                    this shouldHaveSize 2
-                    this.last().gyldigFraOgMed shouldBe 23.august(2018)
-                }
-
                 with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
                 with(opplysninger(grunnlag)) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
                     this[0].opprinnelse shouldBe Periodestatus.Arvet
                     this[0].verdi.verdi shouldBe 517349
-
-                    // Den nye inntekten er ikke nok å bli valgt
-                    this[1].opprinnelse shouldBe Periodestatus.Ny
-                    this[1].verdi.verdi shouldBe this[0].verdi.verdi
                 }
 
                 with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
@@ -181,7 +165,6 @@ class GjenopptakTest {
             person.søkGjenopptak(gjenopptaksdato)
             behovsløsere.løsTilForslag()
             saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(gjenopptaksdato))
-            saksbehandler.endreOpplysning(harLøpendeRett, true, "Har krav", Gyldighetsperiode(gjenopptaksdato))
             saksbehandler.endreOpplysning(
                 oppholdMedArbeidI12ukerEllerMer,
                 true,

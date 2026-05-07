@@ -42,7 +42,7 @@ internal object ReglerForInntektTest {
         )
     val grunnbeløp = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "Grunnbeløp")
 
-    private val prøvingsdato = Prøvingsdato.prøvingsdato
+    private val prøvingsdato = TestPrøvingsdatoRegelsett.prøvingsdato
     private val antattRapporteringsFrist = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "Antatt rapporteringsfrist")
     private val reellRapporteringsFrist = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "Reell rapporteringsfrist")
     private val sisteAvsluttendeKalenderMåned =
