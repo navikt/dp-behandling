@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.TidslinjeBygger
+import no.nav.dagpenger.opplysning.Utledning
 
 fun interface PeriodeOverskrivingsStrategi {
     fun skalIkkeLeggesTil(
@@ -80,7 +81,14 @@ class RettighetsperiodePlugin(
                     return@forEach
                 }
 
-                opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, periode.verdi, gyldighetsperiode))
+                opplysninger.leggTil(
+                    Faktum(
+                        KravPåDagpenger.harLøpendeRett,
+                        periode.verdi,
+                        gyldighetsperiode,
+                        Utledning(this.javaClass.simpleName, utfall),
+                    ),
+                )
             }
     }
 
