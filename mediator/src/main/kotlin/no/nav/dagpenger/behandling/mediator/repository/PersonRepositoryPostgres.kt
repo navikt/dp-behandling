@@ -198,11 +198,4 @@ class PersonRepositoryPostgres(
                 params,
             ).krevAtAntallRaderErNøyaktigLik(params.size)
     }
-
-    private fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
-        check(sum() == forventet) {
-            "Forventet å oppdatere $forventet rader nøyaktig"
-        }
-        return this
-    }
 }

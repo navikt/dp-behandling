@@ -8,3 +8,11 @@ internal data class BatchStatement(
 ) {
     fun run(tx: Session) = tx.batchPreparedNamedStatement(query, params)
 }
+
+fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
+    val sum = sum()
+    check(sum == forventet) {
+        "Forventet å oppdatere nøyaktig $forventet rader, men endte opp med å oppdatere $sum rader"
+    }
+    return this
+}

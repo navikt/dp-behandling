@@ -605,14 +605,6 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
     return alleOpplysninger
 }
 
-private fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
-    val sum = sum()
-    check(sum == forventet) {
-        "Forventet å oppdatere nøyaktig $forventet rader, men endte opp med å oppdatere $sum rader"
-    }
-    return this
-}
-
 private data class UtledningRad(
     val regel: String,
     val opplysninger: List<UUID>,
