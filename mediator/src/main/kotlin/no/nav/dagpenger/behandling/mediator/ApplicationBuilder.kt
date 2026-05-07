@@ -167,7 +167,7 @@ internal class ApplicationBuilder(
         logger.info { "Starter opp dp-behandling" }
 
         // Start jobb som sletter fjernet opplysninger
-        // SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
+        SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
 
         // Start meldekortbehandling
         BehandleMeldekort(
