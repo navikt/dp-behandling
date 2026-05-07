@@ -13,20 +13,71 @@ import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
+import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.Opptjeningstid
 import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
+import no.nav.dagpenger.regel.Søknadstidspunkt
+import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.beregning.Beregning
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class OmgjøringScenarioTester {
+    @Test
+    @Disabled("Fungerer ikke i main (enda)")
+    fun `omgjøring av førstegangs innvilgelse tilbake i tid`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            // Søk og innvilg dagpenger
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+
+                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 31.mai(2018).toString()
+            }
+            val opprinneligSøknadId = person.sisteSøknadId!!
+
+            // Utfør omgjøring
+            saksbehandler.omgjørBehandling(30.juni(2018))
+            saksbehandler.endreOpplysning(
+                søknadIdOpplysningstype,
+                opprinneligSøknadId.toString(),
+                "Bak i tid",
+                Gyldighetsperiode(1.mai(2018)),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                Søknadstidspunkt.prøvingsdato,
+                1.mai(2018),
+                "Bak i tid",
+                Gyldighetsperiode(1.mai(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            // saksbehandler.endreOpplysning(OmgjøringUtenKlage.ansesUgyldigVedtak, true)
+
+            // Verifiser at behandlingen har beregnet utbetaling for perioden
+            behandlingsresultatForslag(5) {
+                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldNotBe 31.mai(2018).toString()
+            }
+        }
+    }
+
     @Test
     fun `omgjøring av behandling beregner alle meldeperioder på nytt med nytt grunnlag`() {
         nyttScenario {
