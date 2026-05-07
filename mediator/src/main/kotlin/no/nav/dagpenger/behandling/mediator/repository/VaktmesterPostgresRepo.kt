@@ -45,7 +45,7 @@ internal class VaktmesterPostgresRepo {
                 queryOf(
                     //language=PostgreSQL
                     """
-                    CREATE TEMP TABLE opplysninger_til_sletting AS
+                    CREATE TEMP TABLE opplysninger_til_sletting ON COMMIT DROP AS
                     with opplysningssett_som_skal_slettes as (
                         SELECT f.opplysninger_id, b.behandling_id
                         FROM (
@@ -64,6 +64,17 @@ internal class VaktmesterPostgresRepo {
                     ORDER BY o.opprettet DESC
                     """.trimIndent(),
                     mapOf("antall" to antallBehandlinger),
+                ).asExecute,
+            )
+
+        // ANALYZE på temp-tabellen etter populering så planneren har litt kjøtt på beinet
+        this
+            .run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    ANALYZE opplysninger_til_sletting
+                    """.trimIndent(),
                 ).asExecute,
             )
 
@@ -159,13 +170,6 @@ internal class VaktmesterPostgresRepo {
                         row.uuid("id")
                     }.asList,
                 )
-
-        this.run(
-            queryOf(
-                //language=PostgreSQL
-                """drop table opplysninger_til_sletting""",
-            ).asExecute,
-        )
 
         return SlettingRapport(
             antallOpplysningssett = antallOpplysningssett,
