@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
-import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -30,9 +29,6 @@ import no.nav.dagpenger.regel.Rettighetstype.ManglerReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.Søknadstidspunkt.SjekkPrøvingsdato
 import no.nav.dagpenger.regel.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
-import no.nav.dagpenger.regel.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
 import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstidKontroll
 import no.nav.dagpenger.regel.Verneplikt.VernepliktKontroll
@@ -55,26 +51,18 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
                 .filter { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
                 .filterNot { it.er(harLøpendeRett) }
 
-        logger.info {
-            "Kandidater for å bli sisteFraOgMed:\n" +
-                egne.joinToString("\n") {
-                    "${it.id}, ${it.opplysningstype.behovId}, ${it.gyldighetsperiode.fraOgMed}"
-                }
-        }
-
-        // Finn den siste opplysningen som er satt inn og kjør på den datoen
+        // sisteFraOgMed sikrer at regler evalueres på datoen til sist tillagte opplysning
         val sisteFraOgMed = egne.last().gyldighetsperiode.fraOgMed
+        val prøvingsdato = PrøvingsdatoUtleder.utled(opplysninger)
+        val regelkjøringsdato = maxOf(prøvingsdato, sisteFraOgMed)
 
-        val førsteMuligeVurderingsdato = førsteMuligeVurderingsdato(egne)
-        val regelkjøringsdato = maxOf(førsteMuligeVurderingsdato, sisteFraOgMed)
-
-        logger.info { "Regelkjøringsdato=$regelkjøringsdato (førsteMuligeVurderingsdato=$førsteMuligeVurderingsdato)" }
+        logger.info { "Regelkjøringsdato=$regelkjøringsdato (prøvingsdato=$prøvingsdato, sisteFraOgMed=$sisteFraOgMed)" }
 
         return Regelkjøring(
-            virkningsdato(opplysninger),
+            regelverksdato = virkningsdato(opplysninger),
             prøvingsperiode = Regelkjøring.Enkeltdager(regelkjøringsdato),
-            opplysninger,
-            this,
+            opplysninger = opplysninger,
+            forretningsprosess = this,
         )
     }
 
@@ -120,22 +108,6 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMap {
             it.ønsketInformasjon
         }
-
-    private fun førsteMuligeVurderingsdato(egne: List<Opplysning<*>>): LocalDate {
-        val faktiskSøknadsdato = egne.first { it.er(søknadIdOpplysningstype) }.gyldighetsperiode.fraOgMed
-        val søknadsdato = egne.firstOrNull { it.er(søknadsdato) }?.verdi as LocalDate?
-        val ønskerFraDato = egne.firstOrNull { it.er(ønsketdato) }?.verdi as LocalDate?
-
-        // Første mulige vurderingsdato er ønskerFraDato (når satt), ellers søknadsdato
-        val mulige =
-            listOfNotNull(
-                faktiskSøknadsdato,
-                søknadsdato,
-                ønskerFraDato,
-            )
-
-        return mulige.last()
-    }
 
     private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
 

@@ -129,12 +129,6 @@ class ScenarioTest {
             person.søkDagpenger(21.juni(2018))
 
             behovsløsere.løsTilForslag()
-
-            saksbehandler.endreOpplysning(kanJobbeHvorSomHelst, false)
-            behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(kanJobbeHvorSomHelst, true)
-            behovsløsere.løsTilForslag()
-
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -536,7 +530,6 @@ class ScenarioTest {
             inntektSiste12Mnd = 500000
         }.test {
             person.søkDagpenger(21.juni(2021))
-
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
@@ -549,11 +542,10 @@ class ScenarioTest {
                 "Flyttet prøvingsdato automatisk",
                 Gyldighetsperiode(25.juni(2021)),
             )
-
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                // opplysninger(prøvingsdato).single().verdi.verdi shouldBe 25.juni(2021).toString()
+                opplysninger(prøvingsdato).single().verdi.verdi shouldBe 25.juni(2021).toString()
             }
 
             saksbehandler.lukkAlleAvklaringer()

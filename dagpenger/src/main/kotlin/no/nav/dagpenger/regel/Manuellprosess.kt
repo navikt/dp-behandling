@@ -37,13 +37,15 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
         registrer(RettighetsperiodePlugin(regelverk))
     }
 
-    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring =
-        Regelkjøring(
-            virkningsdato(opplysninger),
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+        val dato = prøvingsdato(opplysninger)
+        return Regelkjøring(
+            dato,
             opplysninger,
             this,
             opplysningerGyldigPåPrøvingsdato,
         )
+    }
 
     override fun kontrollpunkter() =
         listOf(
@@ -86,9 +88,5 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
     private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
         { forDato(prøvingsdato(this)) }
 
-    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate =
-        opplysninger.kunEgne
-            .somListe()
-            .last { it.gyldighetsperiode.harStartdato }
-            .gyldighetsperiode.fraOgMed
+    private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate = PrøvingsdatoUtleder.utled(opplysninger)
 }

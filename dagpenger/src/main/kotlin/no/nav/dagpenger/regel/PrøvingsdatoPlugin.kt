@@ -17,23 +17,35 @@ class PrøvingsdatoPlugin : ProsessPlugin {
         val harPilla = harPerioder && egne.finnOpplysning(KravPåDagpenger.harLøpendeRett).kilde is Saksbehandlerkilde
         if (harPilla) return
 
-        // Automatisk setter prøvingsdato til første mulige innvilgelse
-        egne.finnAlle(KravPåDagpenger.harLøpendeRett).firstOrNull { it.verdi }?.let {
-            val gjeldende = opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato)
+        // Finn første innvilgelsesperiode (støtter multi-periode: vi bryr oss om den første)
+        val førsteInnvilgelse =
+            egne.finnAlle(KravPåDagpenger.harLøpendeRett).firstOrNull { it.verdi }
+                ?: return
 
-            // Hvis prøvingsdato allerede er satt til riktig dato, gjør ingenting
-            if (gjeldende.verdi.isEqual(it.gyldighetsperiode.fraOgMed)) return@let
+        val gjeldende = opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato)
+        val nyDato = førsteInnvilgelse.gyldighetsperiode.fraOgMed
 
-            opplysninger.leggTil(
-                Faktum(
-                    Søknadstidspunkt.prøvingsdato,
-                    it.gyldighetsperiode.fraOgMed,
-                    Gyldighetsperiode(it.gyldighetsperiode.fraOgMed),
-                ),
-            )
+        // Allerede korrekt — ingen endring nødvendig
+        if (gjeldende.verdi.isEqual(nyDato)) return
 
-            kontekst.beOmRekjøring()
+        // Monotoni-garanti: plugin kan bare flytte prøvingsdato fremover.
+        // Å flytte bakover krever eksplisitt saksbehandler-handling.
+        // Dette sikrer konvergens: datoen beveger seg monotont fremover og stabiliseres.
+        if (nyDato.isBefore(gjeldende.verdi)) {
+            logger.info { "PrøvingsdatoPlugin: Ignorerer flytting bakover fra ${gjeldende.verdi} til $nyDato" }
+            return
         }
+
+        logger.info { "PrøvingsdatoPlugin: Flytter prøvingsdato fra ${gjeldende.verdi} til $nyDato" }
+        opplysninger.leggTil(
+            Faktum(
+                Søknadstidspunkt.prøvingsdato,
+                nyDato,
+                Gyldighetsperiode(nyDato),
+            ),
+        )
+
+        kontekst.beOmRekjøring()
     }
 
     companion object {
