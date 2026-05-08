@@ -38,6 +38,8 @@ dp-behandling/
 
 ## Build & Test Commands
 
+Prosjektet bruker Gradle og [ApprovalTests](https://approvaltests.com/) for testing.
+
 ```bash
 # Bygg hele prosjektet
 ./gradlew build
@@ -56,6 +58,29 @@ dp-behandling/
 # Sjekk formatering
 ./gradlew ktlintCheck
 ```
+
+## ApprovalTests — viktig for AI-agenter
+
+ApprovalTests sammenligner testoutput mot godkjente referansefiler (`.approved.txt`).
+Når output endrer seg, genereres en `.received.txt`-fil og testen feiler.
+
+### Når tester feiler etter kodeendringer
+
+1. **Sjekk om det finnes nye `.received.txt`-filer** — dette betyr at testoutput har endret seg.
+2. **Sammenlign `.received.txt` med tilhørende `.approved.txt`** for å forstå hva som har endret seg.
+3. **Hvis endringene er forventet og korrekte**: Kopier innholdet fra `.received.txt` til `.approved.txt` (eller erstatt filen).
+4. **Hvis endringene er uventede**: Undersøk kodeendringene som forårsaket avviket.
+
+### Filkonvensjoner
+
+- `.approved.txt` — Godkjent referanseoutput (committes til git).
+- `.received.txt` — Faktisk testoutput ved avvik (skal **ikke** committes).
+
+### Vanlige feil
+
+- **Ikke anta at testen er ødelagt** bare fordi den feiler. Sjekk alltid `.received.txt` først.
+- **Ikke slett `.approved.txt`-filer** — de er referansedata for testene.
+- Etter kodeendringer som påvirker output, må `.approved.txt` oppdateres for at testene skal passere.
 
 ## Code Standards
 
