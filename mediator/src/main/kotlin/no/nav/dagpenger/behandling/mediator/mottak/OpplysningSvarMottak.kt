@@ -72,7 +72,7 @@ internal class OpplysningSvarMottak(
     private val skipBehovId = emptyList<String>()
     private val skipBehandlingsId =
         listOf(
-            "019dde75-f1b0-76ce-a8f8-b3c71829a74e",
+            "019e0278-46f1-724f-b773-1bf41952997b",
         )
 
     @WithSpan
