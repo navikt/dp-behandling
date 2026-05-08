@@ -40,6 +40,7 @@ import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 class ScenarioTest {
@@ -469,18 +470,20 @@ class ScenarioTest {
             )
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(
-                oppyllerKravTilRegistrertArbeidssøker,
-                true,
-                "Søkte for lenge siden",
-                Gyldighetsperiode(1.juni(2018)),
-            )
-            behovsløsere.løsTilForslag()
+            // Tester at vi ikke kan legge til opplysninger som ikke er dekket innenfor perioden  du har rett på dagpenger for uten at vilkårene for perioden er oppfylt
+            assertThrows<IllegalArgumentException> {
+                saksbehandler.endreOpplysning(
+                    oppyllerKravTilRegistrertArbeidssøker,
+                    true,
+                    "Søkte for lenge siden",
+                    Gyldighetsperiode(1.juni(2018)),
+                )
+            }
 
-            behandlingsresultatForslag(4) {
+            behandlingsresultatForslag(3) {
                 with(rettighetsperioder) {
                     this shouldHaveSize 1
-                    this[0].fraOgMed shouldBe 1.juni(2018)
+                    this[0].fraOgMed shouldBe 27.november(2018)
                     this[0].harRett shouldBe true
                 }
             }
@@ -503,17 +506,17 @@ class ScenarioTest {
             )
             behovsløsere.løsTilForslag()
 
-            // Tester at vi ikke går i loop når det legges til en opplysning i en perioden uten rett
-            // Dette ble løst av `kanLeggeTil()`, men den sperren er fjernet, fordi behovet er borte
-            saksbehandler.endreOpplysning(
-                antallBarn,
-                22,
-                "Fikk en haug med barn",
-                Gyldighetsperiode(5.juni(2018)),
-            )
-            behovsløsere.løsTilForslag()
+            // Tester at vi ikke kan legge til opplysninger som ikke er dekket innenfor perioden  du har rett på dagpenger for uten at vilkårene for perioden er oppfylt
+            assertThrows<IllegalArgumentException> {
+                saksbehandler.endreOpplysning(
+                    antallBarn,
+                    22,
+                    "Fikk en haug med barn",
+                    Gyldighetsperiode(5.juni(2018)),
+                )
+            }
 
-            behandlingsresultatForslag(3) {
+            behandlingsresultatForslag(2) {
                 with(rettighetsperioder) {
                     this shouldHaveSize 1
                     this[0].fraOgMed shouldBe 27.november(2018)
