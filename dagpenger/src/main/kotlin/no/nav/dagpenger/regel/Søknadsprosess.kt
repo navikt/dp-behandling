@@ -55,6 +55,13 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
                 .filter { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
                 .filterNot { it.er(harLøpendeRett) }
 
+        logger.info {
+            "Kandidater for å bli sisteFraOgMed:\n" +
+                egne.joinToString("\n") {
+                    "${it.id}, ${it.opplysningstype.behovId}, ${it.gyldighetsperiode.fraOgMed}"
+                }
+        }
+
         // Finn den siste opplysningen som er satt inn og kjør på den datoen
         val sisteFraOgMed = egne.last().gyldighetsperiode.fraOgMed
 
