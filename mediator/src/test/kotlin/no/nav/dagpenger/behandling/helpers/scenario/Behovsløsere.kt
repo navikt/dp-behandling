@@ -13,9 +13,10 @@ internal class Behovsløsere(
 
     private val sisteMeldingErBehov get() = rapid.inspektør.field(rapid.inspektør.size - 1, "@event_name").asText() == "behov"
 
-    fun løsTilForslag() {
+    fun løsTilForslag(): MutableSet<String> {
         var iterasjoner = 0
         val maksIterasjoner = 50
+        val løsninger = mutableSetOf<String>()
         while (sisteMeldingErBehov) {
             iterasjoner++
             check(iterasjoner < maksIterasjoner) {
@@ -25,11 +26,14 @@ internal class Behovsløsere(
                     )
                 }"
             }
-            løsAktiveBehov()
+            løsAktiveBehov().also {
+                løsninger += it
+            }
         }
+        return løsninger
     }
 
-    private fun løsAktiveBehov() {
+    private fun løsAktiveBehov(): Set<String> {
         val alleBehov = mutableMapOf<String, JsonNode>()
         val behovMeldinger = uløsteBehov()
         for (melding in behovMeldinger) {
@@ -40,6 +44,7 @@ internal class Behovsløsere(
         val løsninger = person.løsningFor(alleBehov)
         lastOffset = rapid.inspektør.size
         rapid.sendTestMessage(løstBehov(løsninger), person.ident)
+        return løsninger.keys
     }
 
     fun aktiveBehov(): List<String> =

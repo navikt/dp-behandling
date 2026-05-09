@@ -656,4 +656,71 @@ class ScenarioTest {
             }
         }
     }
+
+    @Test
+    fun `endring opphold til ja i framtiden, da bør det bli nytt innvilgelsestidspunkt`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                oppholdINorge,
+                true,
+                "Endres",
+                Gyldighetsperiode(fraOgMed = 10.juni(2018)),
+            )
+            behovsløsere.løsTilForslag() shouldHaveSize 8
+
+            behandlingsresultatForslag(2) {
+                with(opplysninger(oppholdINorge)) {
+                    this shouldHaveSize 1
+                    this[0].gyldigFraOgMed shouldNotBe 1.juni(2018)
+                    this[0].gyldigFraOgMed shouldBe 10.juni(2018)
+                    this[0].gyldigTilOgMed shouldBe null
+                }
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].fraOgMed shouldBe 10.juni(2018)
+            }
+        }
+    }
+
+    @Test
+    fun `setter eksplisitt opphold til nei, så ja`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                oppholdINorge,
+                false,
+                "Endres",
+                Gyldighetsperiode(fraOgMed = 1.juni(2018), tilOgMed = 9.juni(2018)),
+            )
+            behovsløsere.løsTilForslag() shouldHaveSize 0
+
+            saksbehandler.endreOpplysning(
+                oppholdINorge,
+                true,
+                "Endres",
+                Gyldighetsperiode(fraOgMed = 10.juni(2018)),
+            )
+            behovsløsere.løsTilForslag() shouldHaveSize 8
+
+            behandlingsresultatForslag(3) {
+                with(opplysninger(oppholdINorge)) {
+                    this shouldHaveSize 2
+                    this[0].gyldigFraOgMed shouldBe 1.juni(2018)
+                    this[0].gyldigTilOgMed shouldBe 9.juni(2018)
+                    this[1].gyldigFraOgMed shouldBe 10.juni(2018)
+                    this[1].gyldigTilOgMed shouldBe null
+                }
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].fraOgMed shouldBe 10.juni(2018)
+            }
+        }
+    }
 }
