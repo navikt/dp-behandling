@@ -123,7 +123,10 @@ class Regelkjøring(
         }
     }
 
+    private var gjeldendePrøvingsdato: LocalDate = LocalDate.MIN
+
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
+        gjeldendePrøvingsdato = prøvingsdato
         aktiverRegler(prøvingsdato)
         while (plan.isNotEmpty()) { // && trenger.isEmpty()) {
             kjørRegelPlan()
@@ -209,18 +212,22 @@ class Regelkjøring(
         val eksisterendePerioder = opplysninger.kunEgne.finnAlle(regel.produserer).map { it.gyldighetsperiode }
         if (eksisterendePerioder.isEmpty()) return produkt
 
-        // Sjekk om det er overlapp mellom den nye perioden og eksisterende perioder
-        val ønsketPeriode = Gyldighetsperiode(fraOgMed = regelverksdato)
-        val udekketPeriode = eksisterendePerioder.finnManglendePeriode(ønsketPeriode)
+        // Regler uten avhengigheter (f.eks. somUtgangspunkt) produserer opplysninger med MIN..MAX periode.
+        // Begrens perioden til å starte fra prøvingsdatoen for å unngå å overskrive eksisterende
+        // opplysninger med smalere gyldighetsperioder (f.eks. satt av saksbehandler).
+        val begrensetProdukt =
+            if (produkt.gyldighetsperiode.erUbegrenset) {
+                produkt.medGyldighetsperiode(Gyldighetsperiode(gjeldendePrøvingsdato))
+            } else {
+                produkt
+            }
 
-        return udekketPeriode?.let { produkt.medGyldighetsperiode(it) } ?: produkt
-    }
+        // Trim den nye perioden slik at den ikke overlapper med eksisterende perioder.
+        // Velg segmentet som inneholder prøvingsdatoen — det er den datoen vi evaluerer for.
+        val ledigePerioder = begrensetProdukt.gyldighetsperiode.minus(eksisterendePerioder)
+        val passendePeriode = ledigePerioder.firstOrNull { it.inneholder(gjeldendePrøvingsdato) }
 
-    // Returnerer den første udekte perioden dersom eksisterende perioder overlapper med
-    // og splitter ønsket periode (dvs. skaper hull i tidslinjen). Null ellers.
-    private fun List<Gyldighetsperiode>.finnManglendePeriode(ønsketPeriode: Gyldighetsperiode): Gyldighetsperiode? {
-        val udekte = ønsketPeriode.minus(this)
-        return if (udekte.size >= 2) udekte.first() else null
+        return passendePeriode?.let { begrensetProdukt.medGyldighetsperiode(it) } ?: begrensetProdukt
     }
 
     private fun trenger(): Set<Opplysningstype<*>> {
