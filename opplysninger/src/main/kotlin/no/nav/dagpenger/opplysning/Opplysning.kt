@@ -25,6 +25,9 @@ sealed class Opplysning<T : Any>(
     var erUtdatert: Boolean = false,
     private var _erstatter: Opplysning<T>? = null,
     private var _skalLagres: Boolean = false,
+    // Flagg som indikerer om opplysningen har blitt behandlet av regelkjøringen.
+    // Default true fordi opplysninger lastet fra DB allerede er behandlet (flagget persisteres ikke).
+    var behandlet: Boolean = true,
 ) : Klassifiserbart by opplysningstype {
     private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID }
 

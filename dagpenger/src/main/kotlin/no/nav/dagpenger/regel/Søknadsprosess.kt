@@ -45,18 +45,17 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        val egne =
-            opplysninger
-                .somListe(Egne)
-                .filter { !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
-                .filterNot { it.er(harLøpendeRett) }
-
-        // sisteFraOgMed sikrer at regler evalueres på datoen til sist tillagte opplysning
-        val sisteFraOgMed = egne.last().gyldighetsperiode.fraOgMed
         val prøvingsdato = PrøvingsdatoUtleder.utled(opplysninger)
-        val regelkjøringsdato = maxOf(prøvingsdato, sisteFraOgMed)
+        val ubehandlede = opplysninger.ubehandledeDatoer()
 
-        logger.info { "Regelkjøringsdato=$regelkjøringsdato (prøvingsdato=$prøvingsdato, sisteFraOgMed=$sisteFraOgMed)" }
+        val regelkjøringsdato =
+            if (ubehandlede.isNotEmpty()) {
+                maxOf(prøvingsdato, ubehandlede.first())
+            } else {
+                prøvingsdato
+            }
+
+        logger.info { "Regelkjøringsdato=$regelkjøringsdato (prøvingsdato=$prøvingsdato, ubehandlede=$ubehandlede)" }
 
         return Regelkjøring(
             regelverksdato = virkningsdato(opplysninger),

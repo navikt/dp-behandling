@@ -35,6 +35,7 @@ class Opplysninger private constructor(
     }
 
     fun <T : Any> leggTil(opplysning: Opplysning<T>) {
+        opplysning.behandlet = false
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende != null) {
@@ -70,7 +71,23 @@ class Opplysninger private constructor(
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
 
-    internal fun <T : Any> leggTilUtledet(opplysning: Opplysning<T>) = leggTil(opplysning)
+    internal fun <T : Any> leggTilUtledet(opplysning: Opplysning<T>) {
+        leggTil(opplysning)
+        opplysning.behandlet = true
+    }
+
+    fun markerBehandlet(dato: LocalDate) {
+        egne
+            .filter { it.gyldighetsperiode.inneholder(dato) && !it.behandlet }
+            .forEach { it.behandlet = true }
+    }
+
+    fun ubehandledeDatoer(): List<LocalDate> =
+        egne
+            .filter { !it.behandlet && !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+            .map { it.gyldighetsperiode.fraOgMed }
+            .distinct()
+            .sorted()
 
     override fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T> =
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")

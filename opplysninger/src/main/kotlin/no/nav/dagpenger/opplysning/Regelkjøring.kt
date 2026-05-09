@@ -143,6 +143,8 @@ class Regelkjøring(
                 it.gyldighetsperiode.fraOgMed >= prøvingsdato
         }
 
+        opplysninger.markerBehandlet(prøvingsdato)
+
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
             mangler = trenger(),
