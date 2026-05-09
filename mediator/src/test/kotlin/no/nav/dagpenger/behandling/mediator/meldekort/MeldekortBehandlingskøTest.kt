@@ -26,6 +26,8 @@ class MeldekortBehandlingskøTest {
     @Test
     fun `tester kø`() {
         withMigratedDb {
+            // Bruker en eksplisitt virkedag (mandag) for å unngå flaky tester på helger/helligdager
+            val kjøringsdato = LocalDate.of(2024, 1, 29)
             val meldekort = MeldekortBehandlingskø(personRepository, meldekortRepository, rapid)
             lagPerson(1.januar(2024))
 
@@ -33,18 +35,18 @@ class MeldekortBehandlingskøTest {
             person.lagMeldekort(2)
 
             // Første meldekort behandles
-            meldekort.sendMeldekortTilBehandling()
+            meldekort.sendMeldekortTilBehandling(kjøringsdato)
             rapid.inspektør.size shouldBe 1
 
             // Første meldekort behandles fortsatt
-            meldekort.sendMeldekortTilBehandling()
+            meldekort.sendMeldekortTilBehandling(kjøringsdato)
             rapid.inspektør.size shouldBe 1
 
             // Første meldekort er ferdig behandlet
             person.markerFerdig(1)
 
             // Andre meldekort startes
-            meldekort.sendMeldekortTilBehandling()
+            meldekort.sendMeldekortTilBehandling(kjøringsdato)
             rapid.inspektør.size shouldBe 2
         }
     }

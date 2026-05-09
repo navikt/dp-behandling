@@ -11,6 +11,7 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
+import java.time.LocalDate
 
 class MeldekortBehandlingskø(
     private val personRepositoryPostgres: PersonRepository,
@@ -22,13 +23,13 @@ class MeldekortBehandlingskø(
         private val logger = KotlinLogging.logger {}
     }
 
-    fun sendMeldekortTilBehandling(): List<MeldekortId> {
+    fun sendMeldekortTilBehandling(kjøringsdato: LocalDate = LocalDate.now()): List<MeldekortId> {
         val begynteMeldekort = mutableListOf<MeldekortId>()
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
                 tx.medLås(LÅSE_NØKKEL) {
                     do {
-                        val kø = meldekortRepository.hentMeldekortkø()
+                        val kø = meldekortRepository.hentMeldekortkø(kjøringsdato)
                         val totalt = kø.behandlingsklare + kø.underBehandling
                         logger.info {
                             "Har funnet ${totalt.size} meldekort," +

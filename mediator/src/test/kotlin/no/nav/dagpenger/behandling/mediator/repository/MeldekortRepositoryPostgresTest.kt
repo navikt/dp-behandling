@@ -231,6 +231,8 @@ class MeldekortRepositoryPostgresTest {
         withMigratedDb {
             val repo = MeldekortRepositoryPostgres()
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
+            // Bruker en eksplisitt virkedag for å unngå flaky tester på helger/helligdager
+            val kjøringsdato = LocalDate.of(2024, 7, 1)
 
             val person1 = repo.generatorFor("111111111", 1.januar(2024), meldingGenerator)
             val person2 = repo.generatorFor("222222222", 1.januar(2024), meldingGenerator)
@@ -251,7 +253,7 @@ class MeldekortRepositoryPostgresTest {
             // Korrigering av meldekort 4 er nå meldekort 11 i kjeden.
             // Det skal behandles før meldekort 5.
             // Meldekort 4 skal ikke behandles
-            with(repo.hentMeldekortkø().behandlingsklare) {
+            with(repo.hentMeldekortkø(kjøringsdato).behandlingsklare) {
                 shouldHaveSize(2)
                 forPerson(person1) shouldBe person1.meldekort(1)
                 forPerson(person2) shouldBe person2.meldekort(11)
@@ -261,7 +263,7 @@ class MeldekortRepositoryPostgresTest {
             person2.markerFerdig(11)
 
             // Meldekort 5 skal være behandlingsklart når korrigeringen av 4 er ferdig
-            with(repo.hentMeldekortkø().behandlingsklare) {
+            with(repo.hentMeldekortkø(kjøringsdato).behandlingsklare) {
                 shouldHaveSize(2)
                 forPerson(person1) shouldBe person1.meldekort(1)
                 forPerson(person2) shouldBe person2.meldekort(5)
@@ -271,7 +273,7 @@ class MeldekortRepositoryPostgresTest {
             person2.markerStartet(5)
 
             // Meldekort 5 skal være behandlingsklart selv om det er påbegynt
-            with(repo.hentMeldekortkø()) {
+            with(repo.hentMeldekortkø(kjøringsdato)) {
                 behandlingsklare.shouldHaveSize(1)
                 behandlingsklare.forPerson(person1) shouldBe person1.meldekort(1)
 
