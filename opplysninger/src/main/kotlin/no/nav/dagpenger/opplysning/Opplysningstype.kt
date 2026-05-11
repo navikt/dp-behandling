@@ -36,7 +36,7 @@ class Opplysningstype<T : Any>(
     val enhet: Enhet? = null,
     val utgåtteBehovId: Set<String> = emptySet(),
     /** Om opplysninger av denne typen skal arves til neste behandling i kjeden. Default true. */
-    internal val opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+    val opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
 ) : Klassifiserbart {
     val datatype = id.datatype
 

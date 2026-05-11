@@ -237,6 +237,13 @@ class BeregningTest {
                     this.first().gyldigFraOgMed shouldBe 21.juni(2018)
                     this.last().gyldigFraOgMed shouldBe 8.juli(2018)
                 }
+                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
+                    this shouldHaveSize 2
+                    this.first().gyldigFraOgMed shouldBe 21.juni(2018)
+                    this.first().verdi.verdi shouldBe true
+                    this.last().gyldigFraOgMed shouldBe 8.juli(2018)
+                    this.last().verdi.verdi shouldBe false
+                }
 
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 28

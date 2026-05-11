@@ -37,6 +37,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.OpplysningstypeKategori
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Rettighetsperiode
@@ -244,6 +245,10 @@ class Behandling private constructor(
         opplysningstype: Opplysningstype<*>,
         fraOgMed: LocalDate? = null,
     ) {
+        if (opplysningstype.opplysningstypeKategori == OpplysningstypeKategori.Prosess) {
+            // Prosessopplysninger skal ikke valideres mot regelkjøring, da de ikke er nødvendige for å kjøre regler og kan legges til når som helst i behandlingen. De er kun ment for å gi ekstra kontekst i behandlingen og skal ikke påvirke utfallet av regelkjøringen.
+            return
+        }
         val skalKjøres = regelkjøring.kanKjøre(opplysningstype, fraOgMed)
         if (!skalKjøres) {
             throw IllegalArgumentException(
