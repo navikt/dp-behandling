@@ -108,6 +108,9 @@ interface PersonRepository : BehandlingRepository {
     }
 
     @WithSpan
+    fun hentIdenterMedRettighetsperioder(år: Int): List<String>
+
+    @WithSpan
     fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus>
 
     @WithSpan

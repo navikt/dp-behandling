@@ -138,6 +138,38 @@ class PersonRepositoryPostgres(
         behandlingRepository.lagre(person.ident, person.behandlinger(), unitOfWork)
     }
 
+    override fun hentIdenterMedRettighetsperioder(år: Int): List<String> =
+        sessionOf(dataSource).use { session ->
+            session
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        WITH åretFør AS (
+                            SELECT DISTINCT ON (ident) ident, har_rettighet
+                            FROM rettighetstatus
+                            WHERE gjelder_fra < :fom
+                            ORDER BY ident, gjelder_fra DESC
+                        )
+                        SELECT DISTINCT ident
+                        FROM rettighetstatus
+                        WHERE har_rettighet = true
+                          AND gjelder_fra BETWEEN :fom AND :tom
+                        union
+                        select ident
+                        from åretFør
+                        where har_rettighet = true
+                        """.trimIndent(),
+                        mapOf(
+                            "fom" to LocalDate.of(år, 1, 1),
+                            "tom" to LocalDate.of(år, 12, 31),
+                        ),
+                    ).map { row ->
+                        row.string("ident")
+                    }.asList,
+                )
+        }
+
     private fun lagreRettighetshistorikk(
         unitOfWork: PostgresUnitOfWork,
         ident: String,

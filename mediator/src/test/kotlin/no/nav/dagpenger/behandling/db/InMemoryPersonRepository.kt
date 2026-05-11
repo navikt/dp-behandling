@@ -90,6 +90,10 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
+    override fun hentIdenterMedRettighetsperioder(år: Int): List<String> {
+        TODO("Not yet implemented")
+    }
+
     fun reset() {
         persondb.clear()
     }

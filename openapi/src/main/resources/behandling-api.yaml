@@ -587,6 +587,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
+  /ferietillegg/generer:
+    parameters:
+      - name: opptjeningsår
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+    post:
+      description: Genererer ferietillegg for alle behandlinger som har utbetaling i det gitte året
+      security:
+        - azureAd: [ ]
+      tags:
+        - Ferietillegg
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FerietilleggKvittering'
+        default:
+          description: Feil ved generering av ferietillegg
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
   /dataprodukt/behandling:
     parameters:
       - name: fraOgMed
@@ -1826,6 +1854,19 @@ components:
           type: string
           format: date
           description: Når hendelsen skjedde på utsiden av vårt system
+
+    FerietilleggKvittering:
+      type: object
+      required:
+        - antallBestilt
+        - opptjeningsår
+      properties:
+        antallBestilt:
+          type: integer
+        opptjeningsår:
+          type: integer
+        tidBrukt:
+          type: string
 
     DatalastKvittering:
       type: object

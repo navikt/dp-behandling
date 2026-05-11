@@ -80,9 +80,13 @@ object TestApplication {
         httpMethod: HttpMethod = HttpMethod.Post,
         endepunkt: String,
         body: String? = null,
+        adgrupper: List<String> =
+            listOf(
+                Configuration.properties[Configuration.Grupper.saksbehandler],
+            ),
         token: String =
             testAzureAdToken(
-                ADGrupper = listOf(Configuration.properties[Configuration.Grupper.saksbehandler]),
+                ADGrupper = adgrupper,
                 navIdent = "123",
             ),
     ): HttpResponse =

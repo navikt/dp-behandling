@@ -25,12 +25,14 @@ import no.nav.dagpenger.behandling.api.models.BehandlingDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
 import no.nav.dagpenger.behandling.api.models.EnhetDTO
+import no.nav.dagpenger.behandling.api.models.FerietilleggKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
 import no.nav.dagpenger.behandling.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.maskinToken
@@ -311,6 +313,36 @@ internal class BehandlingApiTest {
             response.bodyAsText().shouldNotBeEmpty()
             val vedtakDTO = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingsresultatDTO::class.java) }
             vedtakDTO.behandlingId shouldBe person.behandlingId
+        }
+    }
+
+    @Test
+    fun `henter ferietillegg`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(
+                dato = 1.juli(2025),
+                ønskerFraDato = 1.juli(2025),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Post,
+                    adgrupper = listOf(Configuration.properties[Configuration.Grupper.admin]),
+                    endepunkt = "/ferietillegg/generer/2025",
+                )
+            response.status shouldBe HttpStatusCode.OK
+            val respDTO = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), FerietilleggKvitteringDTO::class.java) }
+            respDTO.antallBestilt shouldBe 1
+
+            rapidInspektør.key(rapidInspektør.size - 1) shouldBe person.ident
+            val message = rapidInspektør.message(rapidInspektør.size - 1)
+            message["@event_name"].asText() shouldBe "beregn_ferietillegg"
+            message["opptjeningsår"].asInt() shouldBe 2025
+            message["ident"].asText() shouldBe person.ident
         }
     }
 

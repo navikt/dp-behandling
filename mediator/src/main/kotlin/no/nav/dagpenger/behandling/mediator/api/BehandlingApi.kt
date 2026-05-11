@@ -29,6 +29,7 @@ import no.nav.dagpenger.behandling.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.BehandlingstypeDTO
 import no.nav.dagpenger.behandling.api.models.DataTypeDTO
 import no.nav.dagpenger.behandling.api.models.DatalastKvitteringDTO
+import no.nav.dagpenger.behandling.api.models.FerietilleggKvitteringDTO
 import no.nav.dagpenger.behandling.api.models.FlyttBehandlingDTO
 import no.nav.dagpenger.behandling.api.models.IdentForesporselDTO
 import no.nav.dagpenger.behandling.api.models.KvitteringDTO
@@ -89,6 +90,7 @@ import java.util.UUID
 import kotlin.time.measureTime
 
 private val logger = KotlinLogging.logger { }
+private val sikkerlogg = KotlinLogging.logger("tjenestekall.FjernOpplysning")
 
 internal fun Application.behandlingApi(
     personRepository: PersonRepository,
@@ -672,8 +674,60 @@ internal fun Application.behandlingApi(
                 }
             }
         }
+        authenticate("admin") {
+            route("ferietillegg") {
+                post("generer/{opptjeningsår}") {
+                    val opptjeningsår = call.parameters["opptjeningsår"]?.toInt() ?: LocalDate.now().minusYears(1).year
+                    val dryRun = call.request.queryParameters["dryRun"]?.toBoolean() ?: false
+
+                    withLoggingContext(
+                        "opptjeningsår" to opptjeningsår.toString(),
+                    ) {
+                        logger.info { "Genererer ferietillegg for $opptjeningsår" }
+                        var antallFerietillegg = 0
+                        val tidBrukt =
+                            measureTime {
+                                personRepository
+                                    .hentIdenterMedRettighetsperioder(opptjeningsår)
+                                    .forEach { ident ->
+                                        val ferietilleggId = UUIDv7.ny()
+                                        sikkerlogg.info { "Genererer ferietillegg for ident=$ident og opptjeningsår=$opptjeningsår" }
+                                        val req =
+                                            FerietilleggRequest(
+                                                opptjeningsår = opptjeningsår,
+                                                ident = ident,
+                                                ferietilleggId = ferietilleggId,
+                                            )
+                                        if (!dryRun) {
+                                            messageContext(ident)
+                                                .publish(ident, toJsonMessage("beregn_ferietillegg", req).toJson())
+
+                                            logger.info { "Publiserte ferietillegg med id=$ferietilleggId" }
+                                        }
+
+                                        antallFerietillegg++
+                                    }
+                            }
+
+                        call.respond(
+                            FerietilleggKvitteringDTO(
+                                opptjeningsår = opptjeningsår,
+                                antallBestilt = antallFerietillegg,
+                                tidBrukt = tidBrukt.toString(),
+                            ),
+                        )
+                    }
+                }
+            }
+        }
     }
 }
+
+data class FerietilleggRequest(
+    val opptjeningsår: Int,
+    val ident: String,
+    val ferietilleggId: UUID,
+)
 
 internal fun hentBehandling(
     personRepository: PersonRepository,
