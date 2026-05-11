@@ -71,6 +71,11 @@ class OpplysningerTest {
 
         opplysninger2.somListe().map { it.verdi } shouldContainInOrder listOf(0.5, 1.0, 2.0, 5.0)
 
+        // To ulike måter å hente ut opplysninger på en bestemt dag
+        opplysninger2.finnOpplysning(desimaltall, 1.januar).verdi shouldBe 0.5
+        opplysninger2.finnOpplysning(desimaltall, 9.januar).verdi shouldBe 2.0
+        opplysninger2.finnOpplysning(desimaltall, 12.januar).verdi shouldBe 5.0
+
         opplysninger2.forDato(1.januar).finnOpplysning(desimaltall).verdi shouldBe 0.5
         opplysninger2.forDato(9.januar).finnOpplysning(desimaltall).verdi shouldBe 2.0
         opplysninger2.forDato(12.januar).finnOpplysning(desimaltall).verdi shouldBe 5.0

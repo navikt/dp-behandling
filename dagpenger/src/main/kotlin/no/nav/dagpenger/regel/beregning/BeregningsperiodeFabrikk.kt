@@ -60,7 +60,7 @@ class BeregningsperiodeFabrikk(
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
-        val meldtITide = opplysninger.forDato(meldeperiode.fraOgMed).finnOpplysning(meldtITide).verdi
+        val meldtITide = opplysninger.finnOpplysning(meldtITide, meldeperiode.fraOgMed).verdi
         val dagerMedRett =
             meldeperiode
                 .filter { meldekortDag -> perioderMedRett.any { it.inneholder(meldekortDag) } }
@@ -68,7 +68,7 @@ class BeregningsperiodeFabrikk(
         return if (meldtITide) {
             dagerMedRett
         } else {
-            dagerMedRett.filter { meldekortDag -> opplysninger.forDato(meldekortDag).erSann(Beregning.meldt) }
+            dagerMedRett.filter { meldekortDag -> opplysninger.erSann(Beregning.meldt, meldekortDag) }
         }
     }
 

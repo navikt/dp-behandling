@@ -6,13 +6,23 @@ import java.util.UUID
 interface LesbarOpplysninger {
     val id: UUID
 
-    val kunEgne: Opplysninger
+    val kunEgne: LesbarOpplysninger
 
     fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>
+
+    fun <T : Any> finnOpplysning(
+        opplysningstype: Opplysningstype<T>,
+        gjelderFor: LocalDate,
+    ): Opplysning<T> = forDato(gjelderFor).finnOpplysning(opplysningstype)
 
     fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>?
 
     fun <T : Any> har(opplysningstype: Opplysningstype<T>): Boolean
+
+    fun <T : Any> har(
+        opplysningstype: Opplysningstype<T>,
+        gjelderFor: LocalDate,
+    ): Boolean = forDato(gjelderFor).har(opplysningstype)
 
     fun <T : Any> mangler(opplysningstype: Opplysningstype<T>): Boolean = !har(opplysningstype)
 
@@ -27,6 +37,11 @@ interface LesbarOpplysninger {
     fun forDato(gjelderFor: LocalDate): LesbarOpplysninger
 
     fun erSann(opplysningstype: Opplysningstype<Boolean>) = har(opplysningstype) && finnOpplysning(opplysningstype).verdi
+
+    fun erSann(
+        opplysningstype: Opplysningstype<Boolean>,
+        gjelderFor: LocalDate,
+    ) = har(opplysningstype, gjelderFor) && finnOpplysning(opplysningstype, gjelderFor).verdi
 
     fun oppfyller(opplysningstype: Opplysningstype<Boolean>) = erSann(opplysningstype)
 

@@ -64,6 +64,9 @@ class SøknadInnsendtHendelse(
             }
 
         if (basertPå == null && fagsakId == 0) {
+            // Vi tar kun inn søknad så lenge den har en fagsakId i seg. Det vil være søknader om nytt rett (som oppretter sak i Arena).
+            // Søknad om gjenopptak vil ikke ha fagsakId.
+            // Har vi en behandlingskjede (noe er innvilget) så vil vi også fange opp gjenopptaksøknader.
             return null
         }
 

@@ -2,7 +2,6 @@ package no.nav.dagpenger.opplysning
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter
-import no.nav.dagpenger.opplysning.Opplysning.Companion.gyldigeFor
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.util.UUID
@@ -27,7 +26,7 @@ class Opplysninger private constructor(
 
     private var alleOpplysningerMap = alleOpplysninger.groupBy { it.opplysningstype }
 
-    override val kunEgne get() = Opplysninger(id = id, opplysninger = egne)
+    override val kunEgne: LesbarOpplysninger get() = OpplysningerView(this, bareEgne = true)
 
     private fun refreshOpplysninger() {
         alleOpplysninger.refresh()
@@ -92,6 +91,13 @@ class Opplysninger private constructor(
     override fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T> =
         finnNullableOpplysning(opplysningstype) ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig")
 
+    override fun <T : Any> finnOpplysning(
+        opplysningstype: Opplysningstype<T>,
+        gjelderFor: LocalDate,
+    ): Opplysning<T> =
+        finnNullableOpplysningMedFiltre(opplysningstype, gjelderFor, false)
+            ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig for $gjelderFor")
+
     override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
         finnNullableOpplysning(opplysningstype, Gyldighetsperiode())
 
@@ -101,6 +107,11 @@ class Opplysninger private constructor(
 
     override fun <T : Any> har(opplysningstype: Opplysningstype<T>) = alleOpplysninger.any { it.er(opplysningstype) }
 
+    override fun <T : Any> har(
+        opplysningstype: Opplysningstype<T>,
+        gjelderFor: LocalDate,
+    ) = finnNullableOpplysningMedFiltre(opplysningstype, gjelderFor, false) != null
+
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) =
         opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) } }
 
@@ -109,11 +120,7 @@ class Opplysninger private constructor(
     override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) =
         alleOpplysninger.filter { it.er(opplysningstype) }.filterIsInstance<Opplysning<T>>()
 
-    override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger {
-        val forDato = alleOpplysninger.gyldigeFor(gjelderFor)
-        val (aktiveForDato, basertPåDato) = forDato.partition { it in egne }
-        return Opplysninger(id, aktiveForDato, Opplysninger(UUIDv7.ny(), basertPåDato))
-    }
+    override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger = OpplysningerView(this, gjelderFor = gjelderFor)
 
     override fun somListe(filter: Filter) =
         when (filter) {
@@ -131,7 +138,11 @@ class Opplysninger private constructor(
             refreshOpplysninger()
         }
 
-    fun fjern(opplysningId: UUID) = fjern(kunEgne.finnOpplysning(opplysningId))
+    fun fjern(opplysningId: UUID) =
+        fjern(
+            egne.lastOrNull { it.id == opplysningId }
+                ?: throw OpplysningIkkeFunnetException("Har ikke egen opplysning med id=$opplysningId"),
+        )
 
     private fun fjern(
         opplysning: Opplysning<*>,
@@ -230,6 +241,32 @@ class Opplysninger private constructor(
                 )
         return medGyldighetsperiode(forkortetPeriode).apply {
             erUtdatert = utfordrer.erUtdatert
+        }
+    }
+
+    // Interne hjelpemetoder for OpplysningerView
+    internal fun hentOpplysninger(bareEgne: Boolean): List<Opplysning<*>> =
+        if (bareEgne) egne.utenErstattet() else alleOpplysninger.toList()
+
+    internal fun <T : Any> finnNullableOpplysningMedFiltre(
+        opplysningstype: Opplysningstype<T>,
+        gjelderFor: LocalDate?,
+        bareEgne: Boolean,
+    ): Opplysning<T>? {
+        val kandidater =
+            if (bareEgne) {
+                egne
+                    .filter { it.er(opplysningstype) }
+                    .filterIsInstance<Opplysning<T>>()
+            } else {
+                alleOpplysningerMap[opplysningstype]
+                    ?.filterIsInstance<Opplysning<T>>()
+                    ?: emptyList()
+            }
+        return if (gjelderFor != null) {
+            kandidater.lastOrNull { it.gyldighetsperiode.inneholder(gjelderFor) }
+        } else {
+            kandidater.lastOrNull()
         }
     }
 
