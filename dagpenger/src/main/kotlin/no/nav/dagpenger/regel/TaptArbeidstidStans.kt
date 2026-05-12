@@ -30,7 +30,7 @@ class TaptArbeidstidStans : ProsessPlugin {
             val stansperiode = Gyldighetsperiode(stansFraOgMed)
 
             // Unngå å legge til opplysningen en gang til.
-            val harLøpendeRett = opplysninger.forDato(stansFraOgMed).finnOpplysning(KravPåDagpenger.harLøpendeRett)
+            val harLøpendeRett = opplysninger.finnOpplysning(KravPåDagpenger.harLøpendeRett, stansFraOgMed)
             if (!harLøpendeRett.verdi || harLøpendeRett.kilde is Saksbehandlerkilde) {
                 return
             }

@@ -22,6 +22,13 @@ class LesbarOpplysningerMedLogg(
             oppslag.add(this)
         }
 
+    override fun <T : Any> finnOpplysning(
+        opplysningstype: Opplysningstype<T>,
+        gjelderFor: LocalDate,
+    ) = opplysninger.finnOpplysning(opplysningstype, gjelderFor).apply {
+        oppslag.add(this)
+    }
+
     override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>? =
         opplysninger.finnNullableOpplysning(opplysningstype)?.apply {
             oppslag.add(this)
@@ -39,12 +46,30 @@ class LesbarOpplysningerMedLogg(
             }
         }
 
+    override fun <T : Any> har(
+        opplysningstype: Opplysningstype<T>,
+        gjelderFor: LocalDate,
+    ) = opplysninger.har(opplysningstype, gjelderFor).also { harOpplysning ->
+        if (harOpplysning) {
+            oppslag.add(opplysninger.finnOpplysning(opplysningstype, gjelderFor))
+        }
+    }
+
     override fun erSann(opplysningstype: Opplysningstype<Boolean>) =
         opplysninger.erSann(opplysningstype).also {
             if (opplysninger.har(opplysningstype)) {
                 oppslag.add(opplysninger.finnOpplysning(opplysningstype))
             }
         }
+
+    override fun erSann(
+        opplysningstype: Opplysningstype<Boolean>,
+        gjelderFor: LocalDate,
+    ) = opplysninger.erSann(opplysningstype, gjelderFor).also {
+        if (opplysninger.har(opplysningstype, gjelderFor)) {
+            oppslag.add(opplysninger.finnOpplysning(opplysningstype, gjelderFor))
+        }
+    }
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) = TODO("Not yet implemented")
 
@@ -54,7 +79,7 @@ class LesbarOpplysningerMedLogg(
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = TODO("Not yet implemented")
 
-    override val kunEgne: Opplysninger get() = TODO("Not yet implemented")
+    override val kunEgne: LesbarOpplysninger get() = TODO("Not yet implemented")
 
     override fun somListe(filter: LesbarOpplysninger.Filter) = TODO("Not yet implemented")
 
