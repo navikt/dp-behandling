@@ -331,7 +331,7 @@ internal class BehandlingApiTest {
             val response =
                 testContext.autentisert(
                     httpMethod = HttpMethod.Post,
-                    adgrupper = listOf(Configuration.properties[Configuration.Grupper.admin]),
+                    adgrupper = Configuration.properties[Configuration.Grupper.admin],
                     endepunkt = "/ferietillegg/generer/2025",
                 )
             response.status shouldBe HttpStatusCode.OK

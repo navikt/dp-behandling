@@ -49,7 +49,7 @@ spec:
     - name: KAFKA_EXTRA_TOPIC
       value: "{{kafka.extra_topic}}"
     - name: GRUPPER_ADMIN
-      value: "{{azure.grupper.admin}}"
+      value: "{{azure.grupper.admin}},{{azure.grupper.admin_ekstra}}"
   envFrom:
     - secret: dp-behandling-unleash-api-token
   {{#if ingresses}}
@@ -69,6 +69,7 @@ spec:
           - id: "{{azure.grupper.saksbehandler}}"
           - id: "{{azure.grupper.beslutter}}"
           - id: "{{azure.grupper.admin}}"
+          - id: "{{azure.grupper.admin_ekstra}}"
   observability:
     logging:
       destinations:

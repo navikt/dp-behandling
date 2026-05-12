@@ -43,18 +43,15 @@ private fun JWTCredential.tilgangsjekkForSaksbehandler(ADGruppe: String) =
     ) { "Mangler tilgang" }
 
 internal fun JWTAuthenticationProvider.Config.autoriserAdminTilgang() {
-    val adminGruppe = Configuration.properties[Configuration.Grupper.admin]
+    val adminGrupper = Configuration.properties[Configuration.Grupper.admin]
 
     validate { jwtClaims: JWTCredential ->
-        jwtClaims.måInneholdeAdminTilgang(adminGruppe = adminGruppe)
+        jwtClaims.måInneholdeAdminTilgang(adminGrupper = adminGrupper)
         JWTPrincipal(jwtClaims.payload)
     }
 }
 
-private fun JWTCredential.måInneholdeAdminTilgang(adminGruppe: String) {
-    require(
-        this.payload.claims["groups"]
-            ?.asList(String::class.java)
-            ?.contains(adminGruppe) ?: false,
-    ) { "Mangler admin tilgang" }
+private fun JWTCredential.måInneholdeAdminTilgang(adminGrupper: List<String>) {
+    val brukerGrupper = this.payload.claims["groups"]?.asList(String::class.java) ?: emptyList()
+    require(brukerGrupper.any { it in adminGrupper }) { "Mangler admin tilgang" }
 }
