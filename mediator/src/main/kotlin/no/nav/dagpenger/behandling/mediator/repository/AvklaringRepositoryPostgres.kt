@@ -121,6 +121,8 @@ internal class AvklaringRepositoryPostgres private constructor(
         lagreKilder(avklaringer.map { it.second }, unitOfWork)
         lagreEndringer(avklaringer.map { it.second }, unitOfWork)
 
+        val nyeIds = nyeAvklaringer.map { it.second.id }.toSet()
+
         nyeAvklaringer.forEach {
             emitNyAvklaring(
                 it.first.behandler.ident,
@@ -128,6 +130,18 @@ internal class AvklaringRepositoryPostgres private constructor(
                 it.second,
             )
         }
+
+        // Emit endretAvklaring for eksisterende avklaringer som har endret tilstand
+        avklaringer
+            .filter { (_, avklaring) -> avklaring.id !in nyeIds }
+            .filter { (_, avklaring) -> avklaring.erAvklart() || avklaring.erAvbrutt() }
+            .forEach { (behandling, avklaring) ->
+                emitEndretAvklaring(
+                    behandling.behandler.ident,
+                    behandling.toSpesifikkKontekst(),
+                    avklaring,
+                )
+            }
     }
 
     private fun lagreNyeAvklaringer(
@@ -237,6 +251,22 @@ internal class AvklaringRepositoryPostgres private constructor(
                 NyAvklaringHendelse(
                     ident,
                     toSpesifikkKontekst,
+                    avklaring,
+                ),
+            )
+        }
+    }
+
+    private fun emitEndretAvklaring(
+        ident: String,
+        kontekst: Behandling.BehandlingKontekst,
+        avklaring: Avklaring,
+    ) {
+        observatører.forEach {
+            it.endretAvklaring(
+                AvklaringRepositoryObserver.EndretAvklaringHendelse(
+                    ident,
+                    kontekst,
                     avklaring,
                 ),
             )
