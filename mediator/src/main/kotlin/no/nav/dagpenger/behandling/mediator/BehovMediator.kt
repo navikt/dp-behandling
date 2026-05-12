@@ -11,7 +11,9 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Behov
 
-class BehovMediator {
+internal class BehovMediator(
+    private val behovssporer: Behovssporer? = null,
+) {
     private companion object {
         val logger = KotlinLogging.logger { }
         val sikkerlogg = KotlinLogging.logger("tjenestekall.BehovMediator")
@@ -69,6 +71,16 @@ class BehovMediator {
                             leggPåOtelTracing(behovId, behovMap)
 
                             context.publish(it.toJson())
+
+                            // Spor behov i Behovssporer
+                            val behandlingId = kontekst["behandlingId"]
+                            if (behandlingId != null && behovssporer != null) {
+                                behovssporer.behovSendt(
+                                    java.util.UUID.fromString(behandlingId),
+                                    behovMap.keys.toList(),
+                                    Behovssporer.Kilde.Kafka,
+                                )
+                            }
                         }
                     }
             }

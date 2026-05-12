@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
-import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
@@ -10,6 +9,7 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -21,7 +21,8 @@ class ApiRepositoryPostgresTest {
             val behandling = Behandling(UUID.randomUUID())
             behandling.endreTilstand(TilstandType.ForslagTilVedtak)
 
-            val repo = ApiRepositoryPostgres(mockk())
+            val behovssporer = Behovssporer(dataSource)
+            val repo = ApiRepositoryPostgres(io.mockk.mockk(), behovssporer)
 
             runBlocking {
                 repo.endreOpplysning(
@@ -34,6 +35,8 @@ class ApiRepositoryPostgresTest {
                     // Simulerer en asynkron prosess som tar litt tid.
                     CoroutineScope(IO).launch {
                         delay(200)
+                        // Simulerer at behovet løses (som MessageMediator gjør)
+                        behovssporer.behovLøst(behandling.id, "Fødselsdato")
                         behandling.endreTilstand(TilstandType.ForslagTilVedtak)
                     }
                 }

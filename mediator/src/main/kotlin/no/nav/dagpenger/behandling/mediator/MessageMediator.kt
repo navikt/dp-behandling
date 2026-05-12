@@ -73,6 +73,7 @@ internal class MessageMediator(
     private val meldingRepository: MeldingRepository,
     meldekortRepository: MeldekortRepository,
     private val apiRepositoryPostgres: ApiRepositoryPostgres,
+    private val behovssporer: Behovssporer,
     opplysningstyper: Set<Opplysningstype<*>>,
     personRepository: PersonRepositoryPostgres,
 ) : IMessageMediator {
@@ -141,7 +142,7 @@ internal class MessageMediator(
         behandle(hendelse, message) {
             hendelseMediator.behandle(it, context)
 
-            apiRepositoryPostgres.behovLøst(
+            behovssporer.behovLøst(
                 hendelse.behandlingId,
                 *hendelse.opplysninger.map { it.opplysningstype.behovId }.toTypedArray(),
             )
@@ -265,7 +266,7 @@ internal class MessageMediator(
     ) {
         behandle(hendelse, message) {
             hendelseMediator.behandle(it, context)
-            apiRepositoryPostgres.behovLøst(hendelse.behandlingId, hendelse.behovId)
+            behovssporer.behovLøst(hendelse.behandlingId, hendelse.behovId)
         }
     }
 

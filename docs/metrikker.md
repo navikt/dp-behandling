@@ -16,6 +16,7 @@ Generert fra `PrometheusRegistry` — legger du til en ny metrikk, oppdateres de
 | `dp_behandling_avbrutt` | counter | Antall avbrutte behandlinger | hendelse_type, aarsak |
 | `dp_behandling_avklaring_levetid_sekunder` | histogram | Tid fra avklaring opprettes til den lukkes, i sekunder | kode |
 | `dp_behandling_avklaring_opprettet` | counter | Avklaringer opprettet i behandling | kode |
+| `dp_behandling_behov_losningstid_sekunder` | histogram | Tid fra behov sendes til løsning mottas, i sekunder | behov, kilde |
 | `dp_behandling_besluttet` | counter | Antall besluttede behandlinger | — |
 | `dp_behandling_ferdig` | counter | Antall ferdige behandlinger | utfall, hendelse_type, automatisk |
 | `dp_behandling_forslag` | counter | Antall forslag til vedtak | hendelse_type |

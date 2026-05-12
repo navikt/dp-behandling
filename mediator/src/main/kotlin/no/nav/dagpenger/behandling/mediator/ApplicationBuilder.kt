@@ -81,16 +81,21 @@ internal class ApplicationBuilder(
     private val meldekortRepositoryPostgres = MeldekortRepositoryPostgres()
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepositoryPostgres)
 
-    private val behandlingMetrikker =
-        BehandlingMetrikker().also {
-            BehandlingMetrikker.registrerBehovGauge(dataSource)
-        }
+    private val behandlingMetrikker = BehandlingMetrikker()
+
+    private val behovssporer = Behovssporer(dataSource)
+
     private val hendelseMediator =
-        HendelseMediator(personRepository, meldekortRepositoryPostgres, observatører = listOf(ventendeMeldekort, behandlingMetrikker))
+        HendelseMediator(
+            personRepository,
+            meldekortRepositoryPostgres,
+            behovMediator = BehovMediator(behovssporer),
+            observatører = listOf(ventendeMeldekort, behandlingMetrikker),
+        )
 
     private val postgresMeldingRepository = PostgresMeldingRepository()
 
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)
 
     private val rapidsConnection: RapidsConnection =
         RapidApplication.create(
@@ -146,6 +151,7 @@ internal class ApplicationBuilder(
                 opplysningstyper = opplysningstyper,
                 meldekortRepository = meldekortRepositoryPostgres,
                 apiRepositoryPostgres = apiRepositoryPostgres,
+                behovssporer = behovssporer,
                 personRepository = personRepository,
             )
 

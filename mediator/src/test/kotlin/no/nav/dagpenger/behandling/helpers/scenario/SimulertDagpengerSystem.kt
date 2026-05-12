@@ -11,8 +11,10 @@ import io.ktor.server.application.Application
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.db.Postgres
+import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
 import no.nav.dagpenger.behandling.mediator.BehovMediator
+import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
@@ -67,7 +69,8 @@ internal class SimulertDagpengerSystem(
 
     private val postgresMeldingRepository = PostgresMeldingRepository()
 
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository)
+    private val behovssporer = Behovssporer(dataSource)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)
     val auditlogg = TestAuditlogg()
 
     private val opplysningstyper: Set<Opplysningstype<*>> = RegelverkDagpenger.produserer + RegelverkFerietillegg.produserer
@@ -80,6 +83,7 @@ internal class SimulertDagpengerSystem(
             meldingRepository = postgresMeldingRepository,
             meldekortRepository = meldekortRepository,
             apiRepositoryPostgres = apiRepositoryPostgres,
+            behovssporer = behovssporer,
             opplysningstyper = opplysningstyper,
             personRepository = personRepository,
         )

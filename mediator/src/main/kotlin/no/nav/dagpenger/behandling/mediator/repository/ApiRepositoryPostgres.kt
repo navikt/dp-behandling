@@ -6,6 +6,7 @@ import kotlinx.coroutines.withTimeout
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
 import no.nav.dagpenger.behandling.mediator.melding.Melding
 import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
@@ -34,6 +35,7 @@ internal class ApiMelding(
 
 internal class ApiRepositoryPostgres(
     private val meldingRepository: MeldingRepository,
+    private val behovssporer: Behovssporer,
     private val timout: Duration = 15.seconds,
     private val pollIntervalMs: Duration = 50.milliseconds,
 ) {
@@ -46,26 +48,6 @@ internal class ApiRepositoryPostgres(
         meldingRepository.markerSomBehandlet(melding.id)
     }
 
-    fun behovLøst(
-        behandlingId: UUID,
-        vararg behov: String,
-    ) {
-        logger.info { "Markerer behov som løst for behandlingId=$behandlingId, behov=${behov.joinToString()}" }
-        sessionOf(dataSource).use { session ->
-            session.transaction {
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    DELETE
-                    FROM behandling_aktive_behov
-                    WHERE behandling_id = :behandlingId AND behov = :behov
-                    """.trimIndent(),
-                    mapOf("behandlingId" to behandlingId, "behov" to behov),
-                ).asUpdate
-            }
-        }
-    }
-
     suspend fun endreOpplysning(
         behandlingId: UUID,
         behov: String,
@@ -73,20 +55,9 @@ internal class ApiRepositoryPostgres(
     ) {
         val start = tidBruktPerEndring.labelValues(behov).startTimer()
 
-        // 1. Insert an "active change" row in a separate transaction.
+        // 1. Register behov via Behovssporer
         logger.info { "Oppretter behov som uløst for behandlingId=$behandlingId, behov=$behov" }
-        sessionOf(dataSource).use { session ->
-            session.run {
-                queryOf(
-                    // language=PostgreSQL
-                    """
-                    INSERT INTO behandling_aktive_behov (behandling_id, behov, status, opprettet)
-                    VALUES (:behandlingId, :behov, 'pending', NOW())
-                    """.trimIndent(),
-                    mapOf("behandlingId" to behandlingId, "behov" to behov),
-                ).asUpdate
-            }
-        }
+        behovssporer.behovSendt(behandlingId, listOf(behov), no.nav.dagpenger.behandling.mediator.Behovssporer.Kilde.Api)
 
         // Hent ut når tilstanden var endret før, så vi ikke henter samme tilstand igjen
         val sistEndret = hentBehandlingSistEndret(behandlingId)
@@ -97,7 +68,7 @@ internal class ApiRepositoryPostgres(
             block()
         } catch (e: Exception) {
             logger.info { "Fikk feil under endring for behandlingId=$behandlingId, behov=$behov" }
-            // If Kafka fails to produce, update the active change row to mark as failed.
+            // Marker behovet som feilet
             sessionOf(dataSource).use { session ->
                 session.run {
                     queryOf(

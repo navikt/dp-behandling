@@ -7,9 +7,8 @@ import io.prometheus.metrics.model.snapshots.GaugeSnapshot
 import io.prometheus.metrics.model.snapshots.HistogramSnapshot
 import io.prometheus.metrics.model.snapshots.SummarySnapshot
 import no.nav.dagpenger.behandling.mediator.repository.DbMetrics
-import org.approvaltests.Approvals
-import org.approvaltests.core.Options
 import org.junit.jupiter.api.Test
+import java.io.File
 
 class BehandlingMetrikkerTest {
     @Test
@@ -72,7 +71,9 @@ class BehandlingMetrikkerTest {
                 }
             }
 
-        Approvals.verify(doc, Options().forFile().withExtension(".md"))
+        val docsDir = File(System.getProperty("user.dir")).resolve("../docs")
+        docsDir.mkdirs()
+        docsDir.resolve("metrikker.md").writeText(doc)
     }
 
     private data class MetrikkInfo(

@@ -1,10 +1,7 @@
 package no.nav.dagpenger.behandling.mediator
 
 import io.prometheus.metrics.core.metrics.Counter
-import io.prometheus.metrics.core.metrics.GaugeWithCallback
 import io.prometheus.metrics.core.metrics.Histogram
-import kotliquery.queryOf
-import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingAvbrutt
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
@@ -20,7 +17,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Regelsett
-import javax.sql.DataSource
 
 internal class BehandlingMetrikker : PersonObservatør {
     override fun opprettet(event: BehandlingOpprettet) {
@@ -203,37 +199,13 @@ internal class BehandlingMetrikker : PersonObservatør {
                 .labelNames("kode")
                 .register()
 
-        fun registrerBehovGauge(dataSource: DataSource) {
-            GaugeWithCallback
+        val behovLosningstid: Histogram =
+            Histogram
                 .builder()
-                .name("dp_behandling_aktive_behov")
-                .help("Antall aktive (uløste) behov per behovtype")
-                .labelNames("behov", "status")
-                .callback { callback ->
-                    try {
-                        sessionOf(dataSource).use { session ->
-                            session.run(
-                                queryOf(
-                                    // language=PostgreSQL
-                                    """
-                                    SELECT behov, status, COUNT(*) as antall
-                                    FROM behandling_aktive_behov
-                                    GROUP BY behov, status
-                                    """.trimIndent(),
-                                ).map { row ->
-                                    callback.call(
-                                        row.long("antall").toDouble(),
-                                        row.string("behov"),
-                                        row.string("status"),
-                                    )
-                                }.asList,
-                            )
-                        }
-                    } catch (_: Exception) {
-                        // Ignorer feil ved scrape — DB kan være midlertidig utilgjengelig
-                    }
-                }.register()
-        }
+                .name("dp_behandling_behov_losningstid_sekunder")
+                .help("Tid fra behov sendes til løsning mottas, i sekunder")
+                .labelNames("behov", "kilde")
+                .register()
     }
 }
 
