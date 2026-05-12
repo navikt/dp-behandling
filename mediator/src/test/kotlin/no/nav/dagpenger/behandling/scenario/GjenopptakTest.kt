@@ -369,6 +369,11 @@ class GjenopptakTest {
                 with(opplysninger(Søknadstidspunkt.prøvingsdato)) {
                     this shouldHaveSize 2
                 }
+                with(opplysninger(oppholdINorge)) {
+                    this shouldHaveSize 2
+                    this[0].gyldigFraOgMed shouldBe 21.juni(2018)
+                    this[1].gyldigFraOgMed shouldBe 23.august(2018)
+                }
                 with(opplysninger(Rettighetstype.skalGjenopptakVurderes)) {
                     this shouldHaveSize 2
                     this[0].verdi.verdi shouldBe false

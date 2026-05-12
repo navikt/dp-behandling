@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.db.medLås
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.meldekortKøStørrelse
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
@@ -31,6 +32,8 @@ class MeldekortBehandlingskø(
                     do {
                         val kø = meldekortRepository.hentMeldekortkø(kjøringsdato)
                         val totalt = kø.behandlingsklare + kø.underBehandling
+                        meldekortKøStørrelse.labelValues("behandlingsklare").set(kø.behandlingsklare.size.toDouble())
+                        meldekortKøStørrelse.labelValues("under_behandling").set(kø.underBehandling.size.toDouble())
                         logger.info {
                             "Har funnet ${totalt.size} meldekort," +
                                 " ${kø.underBehandling.size} påbegynt og ${kø.behandlingsklare.size} behandlingsklare."

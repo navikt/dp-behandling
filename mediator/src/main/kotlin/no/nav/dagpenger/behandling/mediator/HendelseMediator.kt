@@ -10,6 +10,13 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.besluttetTeller
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.godkjentTeller
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.hendelseTeller
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.opplysningSvarTeller
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.sendtTilbakeTeller
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.startHendelseMottattTeller
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.utbetalingStatusTeller
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerHendelse
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
@@ -133,6 +140,7 @@ internal class HendelseMediator(
                 tidBruktPerHendelse.labelValues(hendelse.javaClass.simpleName).time {
                     handler(person)
                 }
+                hendelseTeller.labelValues(hendelse.javaClass.simpleName).inc()
             }
             ferdigstill(context, personMediator, hendelse)
         } catch (aktivitetException: Aktivitetslogg.AktivitetException) {
@@ -182,6 +190,7 @@ internal class HendelseMediator(
         hendelse: StartHendelse,
         context: MessageContext,
     ) {
+        startHendelseMottattTeller.labelValues(hendelse.javaClass.simpleName).inc()
         hentPersonOgHåndter(hendelse, context) { person ->
             person.håndter(hendelse)
         }
@@ -191,6 +200,7 @@ internal class HendelseMediator(
         hendelse: OpplysningSvarHendelse,
         context: MessageContext,
     ) {
+        opplysningSvarTeller.inc()
         hentPersonOgHåndter(hendelse, context) { person ->
             person.håndter(hendelse)
         }
@@ -279,6 +289,7 @@ internal class HendelseMediator(
         hendelse: GodkjennBehandlingHendelse,
         context: MessageContext,
     ) {
+        godkjentTeller.inc()
         hentPersonOgHåndter(hendelse, context) { person ->
             person.håndter(hendelse)
         }
@@ -288,6 +299,7 @@ internal class HendelseMediator(
         hendelse: BesluttBehandlingHendelse,
         context: MessageContext,
     ) {
+        besluttetTeller.inc()
         hentPersonOgHåndter(hendelse, context) { person ->
             person.håndter(hendelse)
         }
@@ -297,6 +309,7 @@ internal class HendelseMediator(
         hendelse: SendTilbakeHendelse,
         context: MessageContext,
     ) {
+        sendtTilbakeTeller.inc()
         hentPersonOgHåndter(hendelse, context) { person ->
             person.håndter(hendelse)
         }
@@ -333,6 +346,7 @@ internal class HendelseMediator(
         hendelse: UtbetalingStatus,
         context: MessageContext,
     ) {
+        utbetalingStatusTeller.labelValues(hendelse.status.name.lowercase()).inc()
         lagreUtbetalingStatus(hendelse)
     }
 

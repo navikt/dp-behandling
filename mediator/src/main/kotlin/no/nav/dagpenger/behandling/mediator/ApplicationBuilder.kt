@@ -81,7 +81,12 @@ internal class ApplicationBuilder(
     private val meldekortRepositoryPostgres = MeldekortRepositoryPostgres()
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepositoryPostgres)
 
-    private val hendelseMediator = HendelseMediator(personRepository, meldekortRepositoryPostgres, observatører = listOf(ventendeMeldekort))
+    private val behandlingMetrikker =
+        BehandlingMetrikker().also {
+            BehandlingMetrikker.registrerBehovGauge(dataSource)
+        }
+    private val hendelseMediator =
+        HendelseMediator(personRepository, meldekortRepositoryPostgres, observatører = listOf(ventendeMeldekort, behandlingMetrikker))
 
     private val postgresMeldingRepository = PostgresMeldingRepository()
 

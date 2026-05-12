@@ -4,6 +4,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
+import no.nav.dagpenger.avklaring.Avklaring
+import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.avklaringLevetid
 import no.nav.dagpenger.behandling.mediator.Metrikk.avklaringOpprettetTeller
 
 class AvklaringKafkaObservatør(
@@ -37,7 +39,24 @@ class AvklaringKafkaObservatør(
         }
     }
 
-    override fun endretAvklaring(endretAvklaringHendelse: AvklaringRepositoryObserver.EndretAvklaringHendelse) {}
+    override fun endretAvklaring(endretAvklaringHendelse: AvklaringRepositoryObserver.EndretAvklaringHendelse) {
+        val avklaring = endretAvklaringHendelse.avklaring
+        if (avklaring.erAvklart() || avklaring.erAvbrutt()) {
+            val opprettet =
+                avklaring.endringer
+                    .filterIsInstance<Avklaring.Endring.UnderBehandling>()
+                    .firstOrNull()
+                    ?.endret
+            if (opprettet != null) {
+                val levetidSekunder =
+                    java.time.Duration
+                        .between(opprettet, avklaring.sistEndret)
+                        .seconds
+                        .toDouble()
+                avklaringLevetid.labelValues(avklaring.kode.kode).observe(levetidSekunder)
+            }
+        }
+    }
 
     private companion object {
         private val logger = KotlinLogging.logger {}
