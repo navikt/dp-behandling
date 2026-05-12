@@ -8,6 +8,16 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
+sealed class StartHendelseResultat {
+    data class Opprettet(
+        val behandling: Behandling,
+    ) : StartHendelseResultat()
+
+    data class IkkeOpprettet(
+        val årsak: String,
+    ) : StartHendelseResultat()
+}
+
 // Baseklasse for alle hendelser som kan påvirke dagpengene til en person og må behandles
 abstract class StartHendelse(
     val meldingsreferanseId: UUID,
@@ -30,5 +40,5 @@ abstract class StartHendelse(
     abstract fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling?
+    ): StartHendelseResultat
 }

@@ -8,6 +8,9 @@ import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.IkkeOpprettet
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -33,42 +36,48 @@ class OpprettBehandlingHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling? {
-        if (forrigeBehandling == null && !startNyKjede) return null
-        if (eksternId is SamordningId && rettighetstatus.harIkkeInnvilgelse) return null
+    ): StartHendelseResultat {
+        if (forrigeBehandling == null && !startNyKjede) {
+            return IkkeOpprettet("Hendelse av type $type kan ikke starte en ny behandlingskjede uten en tidligere behandling")
+        }
+        if (eksternId is SamordningId && rettighetstatus.harIkkeInnvilgelse) {
+            return IkkeOpprettet("Samordningshendelse av type $type kan ikke opprette behandling uten innvilget dagpengerett")
+        }
 
-        return Behandling(
-            basertPå = forrigeBehandling,
-            behandler =
-                Hendelse(
-                    meldingsreferanseId = meldingsreferanseId,
-                    type = type,
-                    ident = ident,
-                    eksternId = eksternId,
-                    skjedde = skjedde,
-                    opprettet = opprettet,
-                    forretningsprosess = forretningsprosess,
-                ),
-            opplysninger =
-                listOf(
-                    Faktum(
-                        hendelseTypeOpplysningstype,
-                        type,
-                        gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
-                        kilde = Systemkilde(meldingsreferanseId, opprettet),
+        return Opprettet(
+            Behandling(
+                basertPå = forrigeBehandling,
+                behandler =
+                    Hendelse(
+                        meldingsreferanseId = meldingsreferanseId,
+                        type = type,
+                        ident = ident,
+                        eksternId = eksternId,
+                        skjedde = skjedde,
+                        opprettet = opprettet,
+                        forretningsprosess = forretningsprosess,
                     ),
-                ),
-            avklaringer =
-                listOf(
-                    Avklaring(
-                        Avklaringkode(
-                            kode = "ManuellBehandling",
-                            tittel = "Manuell behandling",
-                            beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
-                            kanAvbrytes = false,
+                opplysninger =
+                    listOf(
+                        Faktum(
+                            hendelseTypeOpplysningstype,
+                            type,
+                            gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
+                            kilde = Systemkilde(meldingsreferanseId, opprettet),
                         ),
                     ),
-                ),
+                avklaringer =
+                    listOf(
+                        Avklaring(
+                            Avklaringkode(
+                                kode = "ManuellBehandling",
+                                tittel = "Manuell behandling",
+                                beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
+                                kanAvbrytes = false,
+                            ),
+                        ),
+                    ),
+            ),
         )
     }
 }

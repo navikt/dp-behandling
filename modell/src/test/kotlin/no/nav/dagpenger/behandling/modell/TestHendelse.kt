@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.modell
 
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Forretningsprosess
@@ -68,7 +69,7 @@ class TestHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling {
+    ): StartHendelseResultat {
         TODO("Not yet implemented")
     }
 }

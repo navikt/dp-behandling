@@ -5,6 +5,9 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.IkkeOpprettet
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -41,7 +44,7 @@ class SøknadInnsendtHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling? {
+    ): StartHendelseResultat {
         val basertPå =
             forrigeBehandling?.let { forrigeBehandling ->
                 val erSammeType = forrigeBehandling.behandler.erSammeType(this)
@@ -67,53 +70,55 @@ class SøknadInnsendtHendelse(
             // Vi tar kun inn søknad så lenge den har en fagsakId i seg. Det vil være søknader om nytt rett (som oppretter sak i Arena).
             // Søknad om gjenopptak vil ikke ha fagsakId.
             // Har vi en behandlingskjede (noe er innvilget) så vil vi også fange opp gjenopptaksøknader.
-            return null
+            return IkkeOpprettet("Hendelse av type $type mangler fagsakId og har ingen behandling å basere seg på")
         }
 
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
-        return Behandling(
-            basertPå = basertPå,
-            behandler =
-                Hendelse(
-                    meldingsreferanseId = meldingsreferanseId,
-                    type = type,
-                    ident = ident,
-                    eksternId = eksternId,
-                    skjedde = skjedde,
-                    opprettet = opprettet,
-                    forretningsprosess = forretningsprosess,
-                ),
-            opplysninger =
-                buildList {
-                    if (basertPå == null) {
-                        add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = kilde))
-                    }
-                },
-            avklaringer =
-                buildList {
-                    if (basertPå != null) {
-                        add(Avklaring(GjenopptakBehandling))
-                    } else {
-                        if (søknadstype == Søknadstype.Gjenopptak) {
-                            add(Avklaring(SøktGjenopptak))
+        return Opprettet(
+            Behandling(
+                basertPå = basertPå,
+                behandler =
+                    Hendelse(
+                        meldingsreferanseId = meldingsreferanseId,
+                        type = type,
+                        ident = ident,
+                        eksternId = eksternId,
+                        skjedde = skjedde,
+                        opprettet = opprettet,
+                        forretningsprosess = forretningsprosess,
+                    ),
+                opplysninger =
+                    buildList {
+                        if (basertPå == null) {
+                            add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = kilde))
                         }
-                    }
-                },
-        ).also {
-            it.opplysninger.leggTil(
-                Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = kilde, gyldighetsperiode = Gyldighetsperiode(skjedde)),
-            )
-            it.opplysninger.leggTil(
-                Faktum(hendelseTypeOpplysningstype, type, gyldighetsperiode = Gyldighetsperiode.kun(skjedde), kilde = kilde),
-            )
+                    },
+                avklaringer =
+                    buildList {
+                        if (basertPå != null) {
+                            add(Avklaring(GjenopptakBehandling))
+                        } else {
+                            if (søknadstype == Søknadstype.Gjenopptak) {
+                                add(Avklaring(SøktGjenopptak))
+                            }
+                        }
+                    },
+            ).also {
+                it.opplysninger.leggTil(
+                    Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = kilde, gyldighetsperiode = Gyldighetsperiode(skjedde)),
+                )
+                it.opplysninger.leggTil(
+                    Faktum(hendelseTypeOpplysningstype, type, gyldighetsperiode = Gyldighetsperiode.kun(skjedde), kilde = kilde),
+                )
 
-            if (basertPå != null) {
-                // Om bruker tidligere har hatt minst en periode med rett så begynner med gjenopptaksbehandling som utgangspunkt
-                if (basertPå.vedtakopplysninger.rettighetsperioder.any { rettighetsperiode -> rettighetsperiode.harRett }) {
-                    it.opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
+                if (basertPå != null) {
+                    // Om bruker tidligere har hatt minst en periode med rett så begynner med gjenopptaksbehandling som utgangspunkt
+                    if (basertPå.vedtakopplysninger.rettighetsperioder.any { rettighetsperiode -> rettighetsperiode.harRett }) {
+                        it.opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
+                    }
                 }
-            }
-        }
+            },
+        )
     }
 
     companion object {
