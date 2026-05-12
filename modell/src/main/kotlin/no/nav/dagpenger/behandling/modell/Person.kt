@@ -25,6 +25,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.util.UUID
@@ -103,31 +104,37 @@ class Person(
         // Oppskrift for å opprette en behandling
         hendelse.leggTilKontekst(this)
         val behandling =
-            hendelse.behandling(kjede?.nesteSomKanBaseresPå, rettighetstatus)?.also { behandling ->
-                logger.info {
-                    """
-                    Oppretter behandling med behandlingId=${behandling.behandlingId} for 
-                    hendelse ${hendelse.type} av ${hendelse.eksternId.id}
-                    basert på behandlingId=${behandling.basertPå?.behandlingId}
-                    """.trimIndent()
+            when (val resultat = hendelse.behandling(kjede?.nesteSomKanBaseresPå, rettighetstatus)) {
+                is StartHendelseResultat.IkkeOpprettet -> {
+                    val melding =
+                        "Kan ikke starte behandling av ${hendelse.type} med id ${hendelse.eksternId.id}: ${resultat.årsak}"
+                    hendelse.varsel(melding)
+                    logger.info { melding }
+                    return
                 }
-                if (kjede == null || behandling.basertPå == null) {
-                    behandlingkjeder.add(behandling.somKjede())
-                } else {
-                    val index = behandlingkjeder.indexOf(kjede)
-                    behandlingkjeder[index] = kjede leggTil behandling
-                }
-                observatører.forEach {
-                    behandling.registrer(
-                        PersonObservatørAdapter(ident.identifikator(), it),
-                    )
+
+                is StartHendelseResultat.Opprettet -> {
+                    resultat.behandling
                 }
             }
 
-        if (behandling == null) {
-            hendelse.varsel("Behandlingskjeden ønsker ikke å behandle hendelse ${hendelse.type}")
-            logger.warn { "Behandlingskjeden ønsker ikke å behandle hendelse ${hendelse.type} med id ${hendelse.eksternId.id} " }
-            return
+        logger.info {
+            """
+            Oppretter behandling med behandlingId=${behandling.behandlingId} for 
+            hendelse ${hendelse.type} av ${hendelse.eksternId.id}
+            basert på behandlingId=${behandling.basertPå?.behandlingId}
+            """.trimIndent()
+        }
+        if (kjede == null || behandling.basertPå == null) {
+            behandlingkjeder.add(behandling.somKjede())
+        } else {
+            val index = behandlingkjeder.indexOf(kjede)
+            behandlingkjeder[index] = kjede leggTil behandling
+        }
+        observatører.forEach {
+            behandling.registrer(
+                PersonObservatørAdapter(ident.identifikator(), it),
+            )
         }
 
         behandling.håndter(hendelse)

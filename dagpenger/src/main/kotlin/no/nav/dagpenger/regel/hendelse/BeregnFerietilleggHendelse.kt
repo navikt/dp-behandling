@@ -5,6 +5,8 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
@@ -34,30 +36,32 @@ class BeregnFerietilleggHendelse(
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
-    ): Behandling {
+    ): StartHendelseResultat {
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
-        return Behandling(
-            basertPå = null,
-            behandler = this,
-            opplysninger =
-                listOf(
-                    Faktum(
-                        hendelseTypeOpplysningstype,
-                        type,
-                        Gyldighetsperiode.kun(skjedde),
-                        kilde = kilde,
-                    ),
-                    Faktum(
-                        KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor,
-                        opptjeningsår,
-                        Gyldighetsperiode(
-                            fraOgMed = LocalDate.of(opptjeningsår, 1, 1),
+        return Opprettet(
+            Behandling(
+                basertPå = null,
+                behandler = this,
+                opplysninger =
+                    listOf(
+                        Faktum(
+                            hendelseTypeOpplysningstype,
+                            type,
+                            Gyldighetsperiode.kun(skjedde),
+                            kilde = kilde,
                         ),
-                        kilde = kilde,
+                        Faktum(
+                            KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor,
+                            opptjeningsår,
+                            Gyldighetsperiode(
+                                fraOgMed = LocalDate.of(opptjeningsår, 1, 1),
+                            ),
+                            kilde = kilde,
+                        ),
                     ),
-                ),
-            // husk å legge inn avklaring som stopper disse opp så saksbehandler kan sjekke de
-            avklaringer = emptyList(),
+                // husk å legge inn avklaring som stopper disse opp så saksbehandler kan sjekke de
+                avklaringer = emptyList(),
+            ),
         )
     }
 

@@ -9,6 +9,7 @@ import no.nav.dagpenger.behandling.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.behandling.modell.hendelser.EksternId
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -153,7 +154,7 @@ class PersonTest {
         override fun behandling(
             forrigeBehandling: Behandling?,
             rettighetstatus: TemporalCollection<Rettighetstatus>,
-        ): Behandling {
+        ): StartHendelseResultat {
             TODO("Not yet implemented")
         }
     }
