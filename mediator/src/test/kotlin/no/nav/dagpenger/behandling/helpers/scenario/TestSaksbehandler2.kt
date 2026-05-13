@@ -122,10 +122,7 @@ internal class TestSaksbehandler2(
                             .toString() == eksternHendelseId.toString()
                     }
             } else {
-                personRepository
-                    .hent(testPerson.ident.tilPersonIdentfikator())
-                    ?.behandlinger()
-                    ?.maxByOrNull { it.behandlingId }!!
+                personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.last()
             }
         return behandling.shouldNotBeNull()
     }

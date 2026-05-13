@@ -12,7 +12,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.BesluttBehandlingHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.ForslagGodkjentHendelse
@@ -100,13 +99,7 @@ class Person(
         val kjede =
             behandlingkjeder
                 .filter { it.nesteSomKanBaseresPå != null }
-                .filter {
-                    if (hendelse.eksternId is FerietilleggId) {
-                        it.erFerieTillegg
-                    } else {
-                        !it.erFerieTillegg
-                    }
-                }.maxByOrNull { it.nesteSomKanBaseresPå!!.behandlingId }
+                .maxByOrNull { it.nesteSomKanBaseresPå!!.behandlingId }
 
         // Oppskrift for å opprette en behandling
         hendelse.leggTilKontekst(this)

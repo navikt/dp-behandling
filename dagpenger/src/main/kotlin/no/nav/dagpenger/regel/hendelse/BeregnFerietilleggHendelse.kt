@@ -38,11 +38,9 @@ class BeregnFerietilleggHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): StartHendelseResultat {
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
-        val forrigeOpptjeningsår =
-            forrigeBehandling?.opplysninger()?.finnOpplysning(KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor)?.verdi
         return Opprettet(
             Behandling(
-                basertPå = if (forrigeOpptjeningsår == this.opptjeningsår) forrigeBehandling else null,
+                basertPå = null,
                 behandler = this,
                 opplysninger =
                     listOf(
