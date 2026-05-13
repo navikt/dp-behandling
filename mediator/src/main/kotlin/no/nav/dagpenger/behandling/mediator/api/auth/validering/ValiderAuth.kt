@@ -56,7 +56,9 @@ internal fun JWTAuthenticationProvider.Config.autoriserAdminTilgang() {
 
 private fun JWTCredential.måInneholdeAdminTilgang(adminGrupper: List<String>) {
     val brukerGrupper = this.payload.claims["groups"]?.asList(String::class.java) ?: emptyList()
-    require(brukerGrupper.any { it in adminGrupper }) { "Mangler admin tilgang" }.also {
-        logger.warn { it }
+    require(brukerGrupper.any { it in adminGrupper }) {
+        "Mangler admin tilgang".also {
+            logger.warn { it }
+        }
     }
 }
