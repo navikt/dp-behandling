@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.februar
 import no.nav.dagpenger.opplysning.januar
 import no.nav.dagpenger.opplysning.mars
+import no.nav.dagpenger.opplysning.regel.barn.antallAv
 import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.uuid.UUIDv7

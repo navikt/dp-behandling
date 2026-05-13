@@ -9,7 +9,10 @@ class SisteAv internal constructor(
     produserer: Opplysningstype<LocalDate>,
     private vararg val datoer: Opplysningstype<LocalDate>,
 ) : Regel<LocalDate>(produserer, datoer.toList()) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val dager = opplysninger.finnAlle(datoer.toList()).map { it.verdi }
         return dager.maxOrNull() ?: throw IllegalStateException("Ingen datoer funnet")
     }
@@ -21,7 +24,10 @@ class SisteAvGyldighetsperiode internal constructor(
     produserer: Opplysningstype<LocalDate>,
     private vararg val opplysningerTyper: Opplysningstype<Any>,
 ) : Regel<LocalDate>(produserer, opplysningerTyper.toList()) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val dager = opplysninger.finnFlere(opplysningerTyper.toList()).map { it.gyldighetsperiode.fraOgMed }
         return dager.maxOrNull() ?: throw IllegalStateException("Ingen datoer funnet")
     }
@@ -33,7 +39,10 @@ class SisteHeltallVerdi internal constructor(
     produserer: Opplysningstype<Int>,
     private vararg val opplysningerTyper: Opplysningstype<Int>,
 ) : Regel<Int>(produserer, opplysningerTyper.toList()) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Int {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Int {
         val dager = opplysninger.finnAlle(opplysningerTyper.toList())
         return dager.maxByOrNull { it.gyldighetsperiode.tilOgMed }?.verdi ?: 0
     }

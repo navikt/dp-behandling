@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
-import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.inntekt.v1.Inntekt
@@ -22,6 +21,7 @@ import java.time.Period
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.random.Random
+import kotlin.to
 
 internal class Mennesket(
     private val rapid: TestRapid,
@@ -228,13 +228,7 @@ internal class Mennesket(
                             "verdi" to
                                 mapOf(
                                     "søknadbarnId" to UUIDv7.ny(),
-                                    "barn" to
-                                        listOf(
-                                            mapOf(
-                                                "fødselsdato" to 1.januar(2000),
-                                                "kvalifiserer" to true,
-                                            ),
-                                        ),
+                                    "barn" to scenario.barn,
                                 ),
                         ),
                     ),

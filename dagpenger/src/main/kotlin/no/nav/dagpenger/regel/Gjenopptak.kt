@@ -31,11 +31,11 @@ import no.nav.dagpenger.regel.beregning.Beregning.sisteGjenståendeDager
 
 object Gjenopptak {
     private val terskelUkerNyttGrunnlag =
-        heltall(terskelUkerNyttGrunnlagId, "Antall uker med arbeid for nytt grunnlag", enhet = Enhet.Uker, synlig = aldriSynlig)
+        heltall(terskelUkerNyttGrunnlagId, "Antall uker med arbeid for nytt grunnlag", synlig = aldriSynlig, enhet = Enhet.Uker)
     private val antallUker =
-        heltall(terskelUkerSidenSistForbrukId, "Kravet til antall uker før gjenopptak", enhet = Enhet.Uker, synlig = aldriSynlig)
+        heltall(terskelUkerSidenSistForbrukId, "Kravet til antall uker før gjenopptak", synlig = aldriSynlig, enhet = Enhet.Uker)
     private val minimumGjenståendeDager =
-        heltall(minimumGjenståendeDagerId, "Antall gjenstående dager for å kunne gjenoppta", enhet = Enhet.Dager, synlig = aldriSynlig)
+        heltall(minimumGjenståendeDagerId, "Antall gjenstående dager for å kunne gjenoppta", synlig = aldriSynlig, enhet = Enhet.Dager)
 
     val gjenopptaksdato = Søknadstidspunkt.prøvingsdato
 

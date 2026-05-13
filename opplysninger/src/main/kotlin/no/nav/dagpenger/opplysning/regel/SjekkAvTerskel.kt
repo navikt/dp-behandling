@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import java.time.LocalDate
 
 class SjekkAvTerskel internal constructor(
     produserer: Opplysningstype<Boolean>,
@@ -9,7 +10,10 @@ class SjekkAvTerskel internal constructor(
     private val total: Opplysningstype<Double>,
     private val terskel: Opplysningstype<Double>,
 ) : Regel<Boolean>(produserer, listOf(andel, total, terskel)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Boolean {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Boolean {
         val andel = opplysninger.finnOpplysning(andel).verdi
         val total = opplysninger.finnOpplysning(total).verdi
         val terskel = opplysninger.finnOpplysning(terskel).verdi

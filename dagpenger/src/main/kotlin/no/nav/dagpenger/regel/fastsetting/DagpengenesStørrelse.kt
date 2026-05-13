@@ -11,9 +11,11 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.regel.addisjon
-import no.nav.dagpenger.opplysning.regel.antallAv
 import no.nav.dagpenger.opplysning.regel.avrund
+import no.nav.dagpenger.opplysning.regel.barn.antallAv
+import no.nav.dagpenger.opplysning.regel.barn.barnetillegg
 import no.nav.dagpenger.opplysning.regel.divisjon
 import no.nav.dagpenger.opplysning.regel.erUlik
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -22,6 +24,7 @@ import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
+import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Avklaringspunkter.BarnMåGodkjennes
@@ -34,6 +37,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.AvrundetDagsatsUtenBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.AvrundetMaksSatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.AvrundetUkessatsMedBarnetilleggFørSmordningId
 import no.nav.dagpenger.regel.OpplysningsTyper.BarnId
+import no.nav.dagpenger.regel.OpplysningsTyper.BarnSomGirTilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.BarnetillegDekningsgradId
 import no.nav.dagpenger.regel.OpplysningsTyper.BarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.BarnetilleggetsStørrelsePerDagId
@@ -58,8 +62,31 @@ import no.nav.dagpenger.regel.kravPåDagpenger
 import java.math.BigDecimal
 import java.time.LocalDate
 
+fun førsteBarnMedEndring(barn: Opplysningstype<BarnListe>) =
+    GyldighetsperiodeStrategi<BarnListe> { produkt, basertPå, prøvingsdato ->
+        val barnOpplysning = basertPå.single { it.er(barn) }
+
+        val enBursdag =
+            produkt.barn.minOfOrNull { it.fødselsdato.plusYears(18) }
+
+        if (enBursdag == null) {
+            barnOpplysning.gyldighetsperiode
+        } else {
+            barnOpplysning.gyldighetsperiode.copy(tilOgMed = enBursdag)
+        }
+    }
+
 object DagpengenesStørrelse {
     val barn = Opplysningstype.barn(BarnId, "Barn", Register, behovId = BarnetilleggV2, utgåtteBehovId = setOf(Barnetillegg))
+
+    // TODO: Bytt ID
+    val barnSomGirTillegg =
+        Opplysningstype.barn(
+            BarnSomGirTilleggId,
+            "Barn som gir tillegg",
+            gyldighetsperiode = førsteBarnMedEndring(barn),
+        )
+
     val antallBarn = heltall(AntallBarnSomGirRettTilBarnetilleggId, "Antall barn som gir rett til barnetillegg")
     val barnetilleggetsStørrelse =
         beløp(BarnetilleggetsStørrelsePerDagId, "Barnetilleggets størrelse i kroner per dag for hvert barn")
@@ -121,7 +148,12 @@ object DagpengenesStørrelse {
             skalVurderes { kravPåDagpenger(it) }
 
             regel(barn) { innhentMed(søknadIdOpplysningstype) }
-            regel(antallBarn) { antallAv(barn) { kvalifiserer } }
+            regel(barnSomGirTillegg) {
+                barnetillegg(barn) { prøvingsdato ->
+                    kvalifiserer && fødselsdato.plusYears(18).isAfter(prøvingsdato)
+                }
+            }
+            regel(antallBarn) { antallAv(barnSomGirTillegg) }
 
             // Regn ut dagsats uten barnetillegg, før samordning
             regel(dekningsgrad) { oppslag(prøvingsdato) { DagpengensStørrelseFaktor.forDato(it) } }

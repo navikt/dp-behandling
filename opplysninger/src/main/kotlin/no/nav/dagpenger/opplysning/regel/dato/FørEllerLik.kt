@@ -10,7 +10,10 @@ class FørEllerLik internal constructor(
     private val dato: Opplysningstype<LocalDate>,
     private val tom: Opplysningstype<LocalDate>,
 ) : Regel<Boolean>(produserer, listOf(dato, tom)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Boolean {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Boolean {
         val a = opplysninger.finnOpplysning(dato).verdi
         val b = opplysninger.finnOpplysning(tom).verdi
         return a.isBefore(b) || a.isEqual(b)

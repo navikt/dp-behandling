@@ -8,7 +8,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.ScenarioBarn
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
@@ -65,7 +67,7 @@ class BeregningTest {
                 // Første forbruksdag er 21, så 11 dager i perioden gir utbetaling
                 utbetalinger shouldHaveSize 11
 
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 4968
 
                 with(opplysninger(Beregning.forbrukt)) {
                     none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
@@ -96,7 +98,7 @@ class BeregningTest {
             meldekortBatch()
 
             behandlingsresultatForslag {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 4968
 
                 with(opplysninger(Beregning.forbrukt)) {
                     forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
@@ -127,6 +129,21 @@ class BeregningTest {
     fun `beregning av flere meldekort etter hverandre`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
+            barn =
+                listOf(
+                    ScenarioBarn(
+                        29.juni(2000),
+                        true,
+                    ),
+                    ScenarioBarn(
+                        30.juni(2000),
+                        true,
+                    ),
+                    ScenarioBarn(
+                        6.juli(2000),
+                        true,
+                    ),
+                )
         }.test {
             person.søkDagpenger(21.juni(2018))
 
@@ -135,8 +152,17 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
+            var satsVedInnvilgelse = 0
             behandlingsresultat {
                 rettighetsperioder.single().harRett shouldBe true
+                with(opplysninger(DagpengenesStørrelse.antallBarn)) {
+                    this.single().verdi.verdi shouldBe 3
+                    this.single().gyldigTilOgMed shouldBe 29.juni(2018)
+                }
+                with(opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)) {
+                    satsVedInnvilgelse = this.single().verdi.verdi as Int
+                    satsVedInnvilgelse shouldBe 1293
+                }
             }
 
             // Send inn meldekort
@@ -152,10 +178,23 @@ class BeregningTest {
             meldekortBatch(true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 42806
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 42296
 
                 // Bare de siste 14 dagene skal markeres som ny for de tilhører siste meldeperiode
                 utbetalinger.count { it["opprinnelse"].asText() == "Ny" } shouldBe 14
+
+                // Sjekk at barnet som har blitt 18 ikke lenger telles med for barnetillegg
+                with(opplysninger(DagpengenesStørrelse.antallBarn)) {
+                    this.single().verdi.verdi shouldBe 0
+                    this.single().gyldigTilOgMed shouldBe null
+                }
+
+                // Sjekk at barnet som har blitt 18 ikke lenger gir barnetillegg i satsen
+                with(opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)) {
+                    val barnetillegg = opplysninger(DagpengenesStørrelse.barnetilleggetsStørrelse).single().verdi.verdi as Int
+                    this.single().verdi.verdi shouldNotBe satsVedInnvilgelse
+                    this.single().verdi.verdi shouldBe satsVedInnvilgelse - (barnetillegg * 3)
+                }
 
                 with(opplysninger(Beregning.forbrukt)) {
                     val forbruksdager = map { it.verdi.verdi as Int }
@@ -331,7 +370,7 @@ class BeregningTest {
                 }
 
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    first().verdi.verdi shouldBe 5036
+                    first().verdi.verdi shouldBe 4968
                 }
 
                 with(opplysninger(Beregning.gjenståendeEgenandel)) {
@@ -340,7 +379,7 @@ class BeregningTest {
                 }
                 with(opplysninger(Beregning.forbruktEgenandel)) {
                     this shouldHaveSize 1
-                    first().verdi.verdi shouldBe 3777
+                    first().verdi.verdi shouldBe 3726
                 }
                 with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
                     this shouldHaveSize 1
@@ -427,9 +466,9 @@ class BeregningTest {
 
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     this shouldHaveSize 3
-                    this[0].verdi.verdi shouldBe 5036
-                    this[1].verdi.verdi shouldBe 12590
-                    this[2].verdi.verdi shouldBe 12590
+                    this[0].verdi.verdi shouldBe 4968
+                    this[1].verdi.verdi shouldBe 12420
+                    this[2].verdi.verdi shouldBe 12420
                 }
             }
 
@@ -449,9 +488,9 @@ class BeregningTest {
 
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     this shouldHaveSize 3
-                    this[0].verdi.verdi shouldBe 5036
+                    this[0].verdi.verdi shouldBe 4968
                     this[1].verdi.verdi shouldBe 0
-                    this[2].verdi.verdi shouldBe 12590
+                    this[2].verdi.verdi shouldBe 12420
                 }
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 42
@@ -473,6 +512,10 @@ class BeregningTest {
     fun `vi kan håndtere endring av barnetillegg og sats midt i meldekort`() {
         nyttScenario {
             inntektSiste12Mnd = 300000
+            barn =
+                listOf(
+                    ScenarioBarn(29.juni(2010), true),
+                )
         }.test {
             person.søkDagpenger(21.juni(2018))
 

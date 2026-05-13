@@ -85,7 +85,6 @@ Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
 - ØnskerDagpengerFraDato
-- BarnetilleggV2
 - BostedslandErNorge
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -100,7 +99,6 @@ Behov:
 - Verneplikt
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:

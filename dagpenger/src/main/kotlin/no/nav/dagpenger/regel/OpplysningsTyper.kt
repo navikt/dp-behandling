@@ -48,6 +48,7 @@ object OpplysningsTyper {
     val HarAvkortetGrunnlagetIPeriode3Id = Opplysningstype.Id(UUID.fromString("0194881f-9410-7481-b263-4606fdd10cb8"), Boolsk)
     val HarAvkortetGrunnlagId = Opplysningstype.Id(UUID.fromString("0194881f-9410-7481-b263-4606fdd10cb9"), Boolsk)
     val BarnId = Opplysningstype.Id(UUID.fromString("0194881f-9428-74d5-b160-f63a4c61a23b"), BarnDatatype)
+    val BarnSomGirTilleggId = Opplysningstype.Id(UUID.fromString("019e2085-a97a-776b-ba2c-4bca8e01a166"), BarnDatatype)
     val AntallBarnSomGirRettTilBarnetilleggId = Opplysningstype.Id(UUID.fromString("0194881f-9428-74d5-b160-f63a4c61a23c"), Heltall)
     val BarnetillegDekningsgradId = Opplysningstype.Id(UUID.fromString("0194881f-9428-74d5-b160-f63a4c61a23e"), Desimaltall)
     val DagsatsUtenBarnetilleggFørSamordningId = Opplysningstype.Id(UUID.fromString("0194881f-9428-74d5-b160-f63a4c61a23f"), Penger)

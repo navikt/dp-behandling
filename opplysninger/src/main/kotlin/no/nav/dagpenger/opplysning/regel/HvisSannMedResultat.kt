@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.finn
+import java.time.LocalDate
 
 class HvisSannMedResultat<T : Any>(
     produserer: Opplysningstype<T>,
@@ -39,7 +40,10 @@ class HvisSannMedResultat<T : Any>(
         }
     }
 
-    override fun kjør(opplysninger: LesbarOpplysninger): T {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): T {
         val sjekk = opplysninger.finnOpplysning(sjekk).verdi
 
         return if (sjekk) {

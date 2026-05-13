@@ -3,13 +3,17 @@ package no.nav.dagpenger.opplysning.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import java.time.LocalDate
 
 class HøyesteAvHvisHøyere<T : Comparable<T>>(
     produserer: Opplysningstype<T>,
     vararg opplysningstyper: Opplysningstype<T>,
 ) : HøyesteAv<T>(produserer, *opplysningstyper) {
-    override fun kjør(opplysninger: LesbarOpplysninger): T {
-        val nyMax = super.kjør(opplysninger)
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): T {
+        val nyMax = super.kjør(opplysninger, prøvingsdato)
         if (!opplysninger.har(produserer)) return nyMax
         return maxOf(opplysninger.finnOpplysning(produserer).verdi, nyMax)
     }

@@ -52,7 +52,8 @@ class Opplysningstype<T : Any>(
     fun gyldighetsperiode(
         produkt: T,
         basertPå: List<Opplysning<*>>,
-    ): Gyldighetsperiode = gyldighetsperiodeStrategi.gyldighetsperiode(produkt, basertPå)
+        prøvingsdato: LocalDate,
+    ): Gyldighetsperiode = gyldighetsperiodeStrategi.gyldighetsperiode(produkt, basertPå, prøvingsdato)
 
     companion object {
         val definerteTyper = mutableSetOf<Opplysningstype<*>>()
@@ -76,9 +77,11 @@ class Opplysningstype<T : Any>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
+            gyldighetsperiode: GyldighetsperiodeStrategi<Int> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<Int> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+        ): Opplysningstype<Int> =
+            som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
 
         fun boolsk(
             id: Id<Boolean>,
@@ -171,9 +174,11 @@ class Opplysningstype<T : Any>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
+            gyldighetsperiode: GyldighetsperiodeStrategi<BarnListe> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<BarnListe> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+        ): Opplysningstype<BarnListe> =
+            som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
 
         fun <T : Any> som(
             id: Id<T>,

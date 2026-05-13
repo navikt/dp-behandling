@@ -13,6 +13,7 @@ import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.db.Postgres
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
+import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
@@ -37,6 +38,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.RegelverkFerietillegg
 import org.approvaltests.Approvals
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
 
@@ -138,6 +140,11 @@ internal class SimulertDagpengerSystem(
         return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
     }
 
+    data class ScenarioBarn(
+        val fødselsdato: LocalDate,
+        val kvalifiserer: Boolean,
+    )
+
     class ScenarioOptions(
         var ident: String = Random.Default.nextLong(10000000000, 19999999999).toString(),
         var alder: Int = 33,
@@ -146,6 +153,7 @@ internal class SimulertDagpengerSystem(
         var permittertfraFiskeforedling: Boolean = false,
         val ordinær: Boolean = false,
         var verneplikt: Boolean = false,
+        var barn: List<ScenarioBarn> = listOf(ScenarioBarn(29.juni(2000), true)),
     ) {
         inline fun test(block: SimulertDagpengerSystem.() -> Unit) {
             Postgres.withMigratedDb {

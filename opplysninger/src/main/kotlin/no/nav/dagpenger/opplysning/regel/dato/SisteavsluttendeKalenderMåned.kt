@@ -15,7 +15,10 @@ class SisteavsluttendeKalenderMåned internal constructor(
     private val dato: Opplysningstype<LocalDate>,
     private val terskeldato: Opplysningstype<LocalDate>,
 ) : Regel<LocalDate>(produserer, listOf(dato, terskeldato)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val a = opplysninger.finnOpplysning(dato).verdi
         val b = opplysninger.finnOpplysning(terskeldato).verdi
         val månederTilbake =

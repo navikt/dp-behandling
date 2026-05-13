@@ -17,7 +17,10 @@ class NesteStønadsdag internal constructor(
     produserer: Opplysningstype<LocalDate>,
     private val dato: Opplysningstype<LocalDate>,
 ) : Regel<LocalDate>(produserer, listOf(dato)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): LocalDate {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): LocalDate {
         val arbeidsdag = opplysninger.finnOpplysning(dato).verdi
         return finnFørsteArbeidsdag(arbeidsdag.plusDays(1))
     }

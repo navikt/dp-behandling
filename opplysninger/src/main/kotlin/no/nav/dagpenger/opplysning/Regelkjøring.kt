@@ -129,7 +129,7 @@ class Regelkjøring(
         gjeldendePrøvingsdato = prøvingsdato
         aktiverRegler(prøvingsdato)
         while (plan.isNotEmpty()) { // && trenger.isEmpty()) {
-            kjørRegelPlan()
+            kjørRegelPlan(prøvingsdato)
             aktiverRegler(prøvingsdato)
         }
 
@@ -181,15 +181,18 @@ class Regelkjøring(
         trenger = ekstern.toSet()
     }
 
-    private fun kjørRegelPlan() {
+    private fun kjørRegelPlan(prøvingsdato: LocalDate) {
         while (plan.size > 0) {
-            kjør(plan.first())
+            kjør(plan.first(), prøvingsdato)
         }
     }
 
-    private fun kjør(regel: Regel<*>) {
+    private fun kjør(
+        regel: Regel<*>,
+        prøvingsdato: LocalDate,
+    ) {
         try {
-            val opplysning = lagProdukt(regel)
+            val opplysning = lagProdukt(regel, prøvingsdato)
             kjørteRegler.add(regel)
             plan.remove(regel)
             opplysninger.leggTilUtledet(opplysning)
@@ -207,8 +210,11 @@ class Regelkjøring(
     }
 
     // Produserer en opplysning med riktig gyldighetsperiode basert på hva som allerede finnes.
-    private fun <T : Any> lagProdukt(regel: Regel<T>): Opplysning<T> {
-        val produkt = regel.lagProdukt(opplysningerPåPrøvingsdato)
+    private fun <T : Any> lagProdukt(
+        regel: Regel<T>,
+        prøvingsdato: LocalDate,
+    ): Opplysning<T> {
+        val produkt = regel.lagProdukt(opplysningerPåPrøvingsdato, prøvingsdato)
 
         // Sjekk om vi har perioder av denne opplysningstypen i samme behandling fra før
         val eksisterendePerioder = opplysninger.kunEgne.finnAlle(regel.produserer).map { it.gyldighetsperiode }

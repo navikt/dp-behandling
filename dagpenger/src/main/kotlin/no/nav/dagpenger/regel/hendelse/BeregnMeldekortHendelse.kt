@@ -18,6 +18,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.Omgjøringsprosess
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDateTime
 import java.util.UUID
@@ -135,6 +136,21 @@ class BeregnMeldekortHendelse(
                                     ),
                                 ),
                             )
+                        }
+                        if (meldekort.dager.any {
+                                val b = runCatching { forrigeBehandling.opplysninger().finnOpplysning(antallBarn, it.dato) }
+                                b.isFailure
+                            }
+                        ) {
+                            /*add(
+                                Avklaring(
+                                    Avklaringkode(
+                                        "Mangler barn",
+                                        tittel = "Beregning av meldekort",
+                                        beskrivelse = "Meldekortet inneholder dager som faller hvor det er registrert barn i tidligere",
+                                    ),
+                                ),
+                            )*/
                         }
                     },
             ).apply {
