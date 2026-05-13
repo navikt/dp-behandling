@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Utledning
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.collections.isNotEmpty
@@ -53,11 +54,13 @@ data class OpplysningSvar<T : Any>(
             } else {
                 Utledning("innhentMed", basertPå)
             }
-        val gyldighetsperiode = gyldighetsperiode ?: opplysningstype.gyldighetsperiode(verdi, basertPå)
+        // TODO ??????????????
+        val prøvingsdato = LocalDate.now()
+        val gyldighetsperiode = gyldighetsperiode ?: opplysningstype.gyldighetsperiode(verdi, basertPå, prøvingsdato)
 
         val opplysning =
             when (tilstand) {
-                Tilstand.Hypotese ->
+                Tilstand.Hypotese -> {
                     Hypotese(
                         opplysningstype,
                         verdi,
@@ -65,8 +68,9 @@ data class OpplysningSvar<T : Any>(
                         gyldighetsperiode = gyldighetsperiode,
                         utledetAv = utledning,
                     )
+                }
 
-                Tilstand.Faktum ->
+                Tilstand.Faktum -> {
                     Faktum(
                         opplysningstype,
                         verdi,
@@ -74,6 +78,7 @@ data class OpplysningSvar<T : Any>(
                         gyldighetsperiode = gyldighetsperiode,
                         utledetAv = utledning,
                     )
+                }
             }
         opplysninger.leggTil(opplysning)
 

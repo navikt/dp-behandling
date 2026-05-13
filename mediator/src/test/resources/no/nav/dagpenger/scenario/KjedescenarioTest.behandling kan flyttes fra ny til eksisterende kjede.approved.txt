@@ -86,6 +86,7 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
+- ØnskerDagpengerFraDato
 - AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
@@ -99,6 +100,8 @@ Behov:
 - RegistrertSomArbeidssøker
 - TarUtdanningEllerOpplæring
 - Verneplikt
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid

@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import java.time.LocalDate
 import no.nav.dagpenger.opplysning.Regelplanlegger
 
 class TomRegel<T : Any> internal constructor(
@@ -17,7 +18,10 @@ class TomRegel<T : Any> internal constructor(
         return
     }
 
-    override fun kjør(opplysninger: LesbarOpplysninger): T = throw IllegalStateException("Kan ikke kjøres")
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): T = throw IllegalStateException("Kan ikke kjøres")
 
     override fun toString() = "Venter på ekstern verdi for $produserer"
 }
