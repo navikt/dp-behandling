@@ -1246,6 +1246,5 @@ interface BehandlingObservatør {
 
     fun endretTilstand(event: BehandlingEndretTilstand) {}
 
-    // TODO: Burde flyttes til en egen observer
     fun avklaringLukket(event: AvklaringLukket) {}
 }

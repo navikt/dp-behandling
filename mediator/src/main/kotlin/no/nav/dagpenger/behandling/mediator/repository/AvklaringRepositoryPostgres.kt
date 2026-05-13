@@ -117,37 +117,33 @@ internal class AvklaringRepositoryPostgres private constructor(
         avklaringer: List<Pair<Behandling, Avklaring>>,
         unitOfWork: PostgresUnitOfWork,
     ) {
-        val nyeAvklaringer = lagreNyeAvklaringer(avklaringer, unitOfWork)
-        lagreKilder(avklaringer.map { it.second }, unitOfWork)
-        lagreEndringer(avklaringer.map { it.second }, unitOfWork)
+        val unikeAvklaringer = avklaringer.map { it.second }.distinctBy { it.id }
 
-        val nyeIds = nyeAvklaringer.map { it.second.id }.toSet()
+        lagreAlleAvklaringer(avklaringer, unitOfWork)
+        lagreKilder(unikeAvklaringer, unitOfWork)
+        lagreNyeEndringer(unikeAvklaringer, unitOfWork)
 
-        nyeAvklaringer.forEach {
-            emitNyAvklaring(
-                it.first.behandler.ident,
-                it.first.toSpesifikkKontekst(),
-                it.second,
-            )
+        // Emit observer-events utledet fra nye endringer — før markerLagret
+        avklaringer.forEach { (behandling, avklaring) ->
+            val ident = behandling.behandler.ident
+            val kontekst = behandling.toSpesifikkKontekst()
+
+            if (avklaring.erNy) {
+                emitNyAvklaring(ident, kontekst, avklaring)
+            }
+
+            if (avklaring.nyeEndringer.isNotEmpty()) {
+                emitEndretAvklaring(ident, kontekst, avklaring)
+            }
         }
 
-        // Emit endretAvklaring for eksisterende avklaringer som har endret tilstand
-        avklaringer
-            .filter { (_, avklaring) -> avklaring.id !in nyeIds }
-            .filter { (_, avklaring) -> avklaring.erAvklart() || avklaring.erAvbrutt() }
-            .forEach { (behandling, avklaring) ->
-                emitEndretAvklaring(
-                    behandling.behandler.ident,
-                    behandling.toSpesifikkKontekst(),
-                    avklaring,
-                )
-            }
+        unikeAvklaringer.forEach { it.markerLagret() }
     }
 
-    private fun lagreNyeAvklaringer(
+    private fun lagreAlleAvklaringer(
         avklaringer: List<Pair<Behandling, Avklaring>>,
         unitOfWork: PostgresUnitOfWork,
-    ): List<Pair<Behandling, Avklaring>> =
+    ) {
         BatchStatement(
             // language=PostgreSQL
             """
@@ -168,9 +164,7 @@ internal class AvklaringRepositoryPostgres private constructor(
                 )
             },
         ).run(unitOfWork.session)
-            .zip(avklaringer)
-            .filter { (count: Int, _) -> count != 0 }
-            .map { (_, avklaring) -> avklaring }
+    }
 
     private fun lagreKilder(
         avklaringer: Collection<Avklaring>,
@@ -186,13 +180,13 @@ internal class AvklaringRepositoryPostgres private constructor(
         }
     }
 
-    private fun lagreEndringer(
+    private fun lagreNyeEndringer(
         avklaringer: Collection<Avklaring>,
         unitOfWork: PostgresUnitOfWork,
     ) {
         val alleEndringer =
             avklaringer.flatMap { avklaring ->
-                avklaring.endringer.map { endring ->
+                avklaring.nyeEndringer.map { endring ->
                     val kildeId = (endring as? Avklart)?.avklartAv?.id
                     mapOf(
                         "endring_id" to endring.id,
@@ -216,7 +210,6 @@ internal class AvklaringRepositoryPostgres private constructor(
                 """
                 INSERT INTO avklaring_endring (endring_id, avklaring_id, endret, type, kilde_id, begrunnelse)
                 VALUES (:endring_id, :avklaring_id, :endret, :endring_type, :kilde_id, :begrunnelse)
-                ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 alleEndringer,
             ).run(unitOfWork.session)

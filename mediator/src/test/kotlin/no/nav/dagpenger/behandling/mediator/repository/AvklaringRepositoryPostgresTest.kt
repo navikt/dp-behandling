@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.avklaring.Avklaring
-import no.nav.dagpenger.avklaring.Avklaring.Endring.UnderBehandling
 import no.nav.dagpenger.avklaring.Avklaringer
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
@@ -157,5 +156,5 @@ class AvklaringRepositoryPostgresTest {
         }
     }
 
-    private fun avklaring(avklaringkode: Avklaringkode) = Avklaring.rehydrer(UUIDv7.ny(), avklaringkode, mutableListOf(UnderBehandling()))
+    private fun avklaring(avklaringkode: Avklaringkode) = Avklaring(avklaringkode)
 }

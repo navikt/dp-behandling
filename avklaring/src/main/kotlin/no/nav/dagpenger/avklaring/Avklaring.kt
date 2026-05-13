@@ -24,6 +24,17 @@ data class Avklaring(
 
     val kanKvitteres = kode.kanKvitteres
 
+    // Antall endringer ved rehydrering — brukes for dirty-tracking
+    private var lagretEndringerCount = 0
+
+    val nyeEndringer get() = historikk.sortedBy { it.endret }.drop(lagretEndringerCount)
+
+    val erNy get() = lagretEndringerCount == 0
+
+    fun markerLagret() {
+        lagretEndringerCount = historikk.size
+    }
+
     fun måAvklares() = tilstand is UnderBehandling
 
     fun erAvklart() = tilstand is Avklart
@@ -40,9 +51,9 @@ data class Avklaring(
         return historikk.add(Avklart(avklartAv = saksbehandlerkilde, begrunnelse = begrunnelse))
     }
 
-    internal fun avklar(kilde: Kilde) = historikk.add(Avklart(avklartAv = kilde))
+    internal fun avklar(kilde: Kilde): Boolean = historikk.add(Avklart(avklartAv = kilde))
 
-    internal fun gjenåpne() = historikk.add(UnderBehandling())
+    internal fun gjenåpne(): Boolean = historikk.add(UnderBehandling())
 
     private fun kanKvitteresSjekk() {
         require(kanKvitteres) { "Avklaring $kode kan ikke kvitteres ut, krever endring i behandlingen" }
@@ -87,6 +98,8 @@ data class Avklaring(
             id: UUID,
             kode: Avklaringkode,
             historikk: MutableList<Endring>,
-        ) = Avklaring(id, kode, historikk)
+        ) = Avklaring(id, kode, historikk).also {
+            it.lagretEndringerCount = historikk.size
+        }
     }
 }

@@ -71,7 +71,7 @@ class BehandlingRepositoryPostgresTest {
     private val opplysning5 = Faktum(opplysningstype5, false)
 
     private val avklaring =
-        Avklaring.rehydrer(UUIDv7.ny(), Avklaringspunkter.JobbetUtenforNorge, mutableListOf(Avklaring.Endring.UnderBehandling()))
+        Avklaring(Avklaringspunkter.JobbetUtenforNorge)
 
     private val behandling =
         Behandling.rehydrer(
