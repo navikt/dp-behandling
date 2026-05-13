@@ -69,7 +69,8 @@ fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysnin
 fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
     RegelverkDagpenger
         .relevanteVilkår(opplysninger)
-        .flatMap { it.betingelser }
+        .asSequence()
+        .flatMap { it.betingelser.asSequence() }
         .all { opplysninger.erSann(it) }
 
 class DagpengerRettighetsperiodeStrategi : RettighetsperiodeStrategi {
