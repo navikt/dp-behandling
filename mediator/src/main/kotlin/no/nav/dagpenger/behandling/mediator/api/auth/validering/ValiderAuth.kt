@@ -20,7 +20,10 @@ internal fun JWTAuthenticationProvider.Config.autoriser() {
             "app" -> {
                 jwtClaims.tilgangsjekkForMaskinToken(apper)
             }
-            else -> jwtClaims.tilgangsjekkForSaksbehandler(ADGruppe = saksbehandlerGruppe)
+
+            else -> {
+                jwtClaims.tilgangsjekkForSaksbehandler(ADGruppe = saksbehandlerGruppe)
+            }
         }
         JWTPrincipal(jwtClaims.payload)
     }
@@ -53,5 +56,7 @@ internal fun JWTAuthenticationProvider.Config.autoriserAdminTilgang() {
 
 private fun JWTCredential.måInneholdeAdminTilgang(adminGrupper: List<String>) {
     val brukerGrupper = this.payload.claims["groups"]?.asList(String::class.java) ?: emptyList()
-    require(brukerGrupper.any { it in adminGrupper }) { "Mangler admin tilgang" }
+    require(brukerGrupper.any { it in adminGrupper }) { "Mangler admin tilgang" }.also {
+        logger.warn { it }
+    }
 }
