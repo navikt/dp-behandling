@@ -69,7 +69,6 @@ spec:
           - id: "{{azure.grupper.saksbehandler}}"
           - id: "{{azure.grupper.beslutter}}"
           - id: "{{azure.grupper.admin}}"
-          - id: "{{azure.grupper.admin_ekstra}}"
   observability:
     logging:
       destinations:
