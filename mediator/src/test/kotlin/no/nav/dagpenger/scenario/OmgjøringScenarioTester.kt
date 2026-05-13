@@ -269,7 +269,7 @@ class OmgjøringScenarioTester {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 21403
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 21114
             }
 
             // Omgjøring
@@ -300,7 +300,7 @@ class OmgjøringScenarioTester {
                 with(opplysninger(Gjenopptak.skalGjenopptas)) {
                     this.minByOrNull { it.gyldigFraOgMed!! }!!.gyldigFraOgMed shouldBe 1.august(2018)
                 }
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27698
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27324
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[1].harRett shouldBe false
@@ -311,8 +311,8 @@ class OmgjøringScenarioTester {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeGreaterThan 27698
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 40288
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeGreaterThan 27324
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 39744
                 behandletHendelse["type"].asString() shouldBe "Meldekort"
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true

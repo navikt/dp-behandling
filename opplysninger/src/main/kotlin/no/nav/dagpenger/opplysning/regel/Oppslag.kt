@@ -9,7 +9,10 @@ class Oppslag<T : Any> internal constructor(
     private val dato: Opplysningstype<LocalDate>,
     private val block: (LocalDate) -> T,
 ) : Regel<T>(produserer, listOf(dato)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): T {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): T {
         val oppslagsdato = opplysninger.finnOpplysning(dato).verdi
 
         return block(oppslagsdato)

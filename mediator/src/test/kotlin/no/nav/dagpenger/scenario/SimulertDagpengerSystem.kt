@@ -19,6 +19,7 @@ import io.ktor.http.content.TextContent
 import io.ktor.server.application.Application
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.konfigurasjon.Configuration
+import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.mediator.BehandlingRuntime
 import no.nav.dagpenger.mediator.IAktivitetsloggMediator
 import no.nav.dagpenger.mediator.api.TestApplication
@@ -39,6 +40,7 @@ import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.scenario.assertions.BehandlingsresultatAssertions
 import no.nav.dagpenger.utestengning.UtestengningRegistrering
 import org.approvaltests.Approvals
+import java.time.LocalDate
 import tools.jackson.databind.JsonNode
 import java.time.LocalDate
 import java.util.UUID
@@ -130,6 +132,11 @@ internal class SimulertDagpengerSystem(
         return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
     }
 
+    data class ScenarioBarn(
+        val fødselsdato: LocalDate,
+        val kvalifiserer: Boolean,
+    )
+
     class ScenarioOptions(
         var ident: String = Random.nextLong(10000000000, 19999999999).toString(),
         var fødselsdato: LocalDate = LocalDate.now().minusYears(33),
@@ -143,6 +150,7 @@ internal class SimulertDagpengerSystem(
         var saksbehandlerGruppe: String = "dagpenger-saksbehandler",
         var adminGrupper: List<String> = listOf("enkel-admin"),
         var maskintilgangnavn: String = "test-app",
+        var barn: List<ScenarioBarn> = listOf(ScenarioBarn(29.juni(2000), true)),
     ) {
         inline fun test(crossinline block: SimulertDagpengerSystem.() -> Unit) {
             withMigratedDb {
