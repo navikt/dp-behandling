@@ -1,5 +1,7 @@
 package no.nav.dagpenger.behandling.modell
 
+import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
+
 data class Behandlingkjede(
     val rot: Behandling,
     val barn: List<Behandlingkjede> = emptyList(),
@@ -11,6 +13,8 @@ data class Behandlingkjede(
 
     val alleFerdigeLøvnoder = alleBehandlingerSomKanBaseresPå(this)
     val nesteSomKanBaseresPå = alleFerdigeLøvnoder.maxByOrNull { it.behandlingId }
+
+    val erFerieTillegg: Boolean = rot.behandler.eksternId is FerietilleggId
 
     init {
         check(barn.all { it.rot.basertPå === rot }) {
