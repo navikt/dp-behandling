@@ -39,7 +39,7 @@ class BeregnFerietilleggHendelse(
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
         return Opprettet(
             Behandling(
-                basertPå = null,
+                basertPå = if (sammeOpptjeningsår(forrigeBehandling)) forrigeBehandling else null,
                 behandler = this,
                 opplysninger =
                     listOf(
@@ -62,5 +62,15 @@ class BeregnFerietilleggHendelse(
                 avklaringer = emptyList(),
             ),
         )
+    }
+
+    private fun sammeOpptjeningsår(forrigeBehandling: Behandling?): Boolean {
+        if (forrigeBehandling == null) return false
+        val forrigeOpptjeningsår =
+            forrigeBehandling
+                .opplysninger()
+                .finnOpplysning(KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor)
+                .verdi
+        return forrigeOpptjeningsår == opptjeningsår
     }
 }
