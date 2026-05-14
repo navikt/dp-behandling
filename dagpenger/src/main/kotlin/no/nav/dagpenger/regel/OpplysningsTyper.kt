@@ -367,15 +367,6 @@ object OpplysningsTyper {
             Boolsk,
         )
 
-    // Ferietillegg
-    val årSomSkalBeregnesId = Opplysningstype.Id(UUID.fromString("019d7695-7c15-74b7-a3af-7c82e47c2a20"), Heltall)
-    val harKravPåFerietilleggId = Opplysningstype.Id(UUID.fromString("019d7231-21b8-7d1f-9e3a-314195d9f347"), Boolsk)
-    val ferietilleggBeløpId = Opplysningstype.Id(UUID.fromString("019d7231-50cb-7940-873b-969d1b9dab7e"), Penger)
-    val sumUtbetaltForÅrId = Opplysningstype.Id(UUID.fromString("019d7231-85a1-7ef5-a58e-1909ecdb4127"), Penger)
-    val ferietilleggProsentId = Opplysningstype.Id(UUID.fromString("019d7231-aecf-7b19-a027-5c25fb5f45be"), Desimaltall)
-    val antallDagerForbrukId = Opplysningstype.Id(UUID.fromString("019d7231-ddc0-7059-a631-7d4d06b974de"), Heltall)
-    val ferietilleggTerskelId = Opplysningstype.Id(UUID.fromString("019d7232-0fe1-79fa-8a87-b6937fe67079"), Heltall)
-
     // Omgjøring Uten klage
     val endringIkkeTilSkadeId = Opplysningstype.Id(UUID.fromString("019c5673-ae11-7a8a-ae77-170f6ac20944"), Boolsk)
     val ikkeUnderretningId = Opplysningstype.Id(UUID.fromString("019c5676-5c44-73d4-bc65-aee9d9257aa1"), Boolsk)

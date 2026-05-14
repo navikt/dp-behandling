@@ -22,6 +22,7 @@ import java.time.Period
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.random.Random
+import no.nav.dagpenger.ferietillegg.Behov as FerietilleggBehov
 
 internal class Mennesket(
     private val rapid: TestRapid,
@@ -248,14 +249,14 @@ internal class Mennesket(
                 Behov.OppgittAndreYtelserUtenforNav to Behovsløsning.Statisk(false),
                 Behov.AndreØkonomiskeYtelser to Behovsløsning.Statisk(false),
                 Behov.Uføre to Behovsløsning.Statisk(false),
-                Behov.AntallDagerForbrukt to
+                FerietilleggBehov.AntallDagerForbrukt to
                     Behovsløsning.Statisk(
                         mapOf(
                             "verdi" to 100,
                             "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
                         ),
                     ),
-                Behov.OpptjeningsBeløp to
+                FerietilleggBehov.OpptjeningsBeløp to
                     Behovsløsning.Statisk(
                         mapOf(
                             "verdi" to inntektSiste12Mnd,

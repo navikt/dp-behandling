@@ -33,9 +33,9 @@ import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
+import no.nav.dagpenger.ferietillegg.RegelverkFerietillegg
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.RegelverkFerietillegg
 import org.approvaltests.Approvals
 import java.util.UUID
 import kotlin.random.Random

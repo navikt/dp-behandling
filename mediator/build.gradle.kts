@@ -9,6 +9,7 @@ dependencies {
     implementation(project(path = ":modell"))
     implementation(project(path = ":openapi"))
     implementation(project(path = ":dagpenger"))
+    implementation(project(path = ":ferietillegg"))
     implementation(project(path = ":opplysninger"))
     implementation(project(path = ":avklaring"))
     implementation(project(path = ":uuid-v7"))

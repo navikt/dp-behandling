@@ -44,7 +44,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
-import no.nav.dagpenger.regel.hendelse.BeregnFerietilleggHendelse
+import no.nav.dagpenger.ferietillegg.hendelse.BeregnFerietilleggHendelse
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 
 internal class HendelseMediator(

@@ -1,17 +1,18 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.ferietillegg
 
+import no.nav.dagpenger.ferietillegg.Behov.OpptjeningsBeløp
+import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.harKravpåFerietillegg
+import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor
+import no.nav.dagpenger.ferietillegg.OpplysningsTyper.ferietilleggBeløpId
+import no.nav.dagpenger.ferietillegg.OpplysningsTyper.ferietilleggProsentId
+import no.nav.dagpenger.ferietillegg.OpplysningsTyper.sumUtbetaltForÅrId
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.prosentAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
-import no.nav.dagpenger.regel.Behov.OpptjeningsBeløp
-import no.nav.dagpenger.regel.KravPåFerietillegg.harKravpåFerietillegg
-import no.nav.dagpenger.regel.KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor
-import no.nav.dagpenger.regel.OpplysningsTyper.ferietilleggBeløpId
-import no.nav.dagpenger.regel.OpplysningsTyper.ferietilleggProsentId
-import no.nav.dagpenger.regel.OpplysningsTyper.sumUtbetaltForÅrId
 
 object FerietilleggBeløp {
     val ferietilleggBeløp = beløp(ferietilleggBeløpId, "Beløp på ferietillegg")

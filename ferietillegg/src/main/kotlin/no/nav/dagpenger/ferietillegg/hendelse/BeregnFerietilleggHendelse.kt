@@ -1,19 +1,18 @@
-package no.nav.dagpenger.regel.hendelse
+package no.nav.dagpenger.ferietillegg.hendelse
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
+import no.nav.dagpenger.ferietillegg.Ferietilleggprosess
+import no.nav.dagpenger.ferietillegg.KravPåFerietillegg
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.regel.Ferietilleggprosess
-import no.nav.dagpenger.regel.KravPåFerietillegg
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -63,9 +62,5 @@ class BeregnFerietilleggHendelse(
                 avklaringer = emptyList(),
             ),
         )
-    }
-
-    companion object {
-        private val logger = KotlinLogging.logger {}
     }
 }

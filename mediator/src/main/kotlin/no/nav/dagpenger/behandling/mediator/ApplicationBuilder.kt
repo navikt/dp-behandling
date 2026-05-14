@@ -34,14 +34,14 @@ import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.ferietillegg.Ferietilleggprosess
+import no.nav.dagpenger.ferietillegg.RegelverkFerietillegg
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
-import no.nav.dagpenger.regel.Ferietilleggprosess
 import no.nav.dagpenger.regel.Manuellprosess
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.Omgjøringsprosess
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.RegelverkFerietillegg
 import no.nav.dagpenger.regel.Stansprosess
 import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype

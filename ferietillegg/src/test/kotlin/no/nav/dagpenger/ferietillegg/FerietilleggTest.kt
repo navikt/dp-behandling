@@ -1,14 +1,14 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.ferietillegg
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.FerietilleggKontroll
+import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.harKravpåFerietillegg
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.KreverAvklaring
 import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.OK
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.regel.KravPåFerietillegg.FerietilleggKontroll
-import no.nav.dagpenger.regel.KravPåFerietillegg.harKravpåFerietillegg
 import org.junit.jupiter.api.Test
 
 class FerietilleggTest {

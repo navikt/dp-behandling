@@ -1,4 +1,4 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.ferietillegg
 
 import no.nav.dagpenger.opplysning.DagpengerType.FERIETILLEGG
 import no.nav.dagpenger.opplysning.LesbarOpplysninger

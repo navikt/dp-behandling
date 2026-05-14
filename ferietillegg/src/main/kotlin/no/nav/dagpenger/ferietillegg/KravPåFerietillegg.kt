@@ -1,19 +1,21 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.ferietillegg
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.ferietillegg.Avklaringspunkter.KontrollFerietillegg
+import no.nav.dagpenger.ferietillegg.Behov.AntallDagerForbrukt
+import no.nav.dagpenger.ferietillegg.Behov.OpptjeningsårFerietillegg
+import no.nav.dagpenger.ferietillegg.OpplysningsTyper.antallDagerForbrukId
+import no.nav.dagpenger.ferietillegg.OpplysningsTyper.ferietilleggTerskelId
+import no.nav.dagpenger.ferietillegg.OpplysningsTyper.harKravPåFerietilleggId
+import no.nav.dagpenger.ferietillegg.OpplysningsTyper.årSomSkalBeregnesId
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnnEllerLik
 import no.nav.dagpenger.opplysning.regel.tomRegel
-import no.nav.dagpenger.regel.Behov.AntallDagerForbrukt
-import no.nav.dagpenger.regel.Behov.OpptjeningsårFerietillegg
-import no.nav.dagpenger.regel.OpplysningsTyper.antallDagerForbrukId
-import no.nav.dagpenger.regel.OpplysningsTyper.ferietilleggTerskelId
-import no.nav.dagpenger.regel.OpplysningsTyper.harKravPåFerietilleggId
-import no.nav.dagpenger.regel.OpplysningsTyper.årSomSkalBeregnesId
 
 object KravPåFerietillegg {
     val harKravpåFerietillegg = boolsk(harKravPåFerietilleggId, "Har krav på ferietillegg")
@@ -40,7 +42,7 @@ object KravPåFerietillegg {
         }
 
     val FerietilleggKontroll =
-        Kontrollpunkt(Avklaringspunkter.KontrollFerietillegg) {
+        Kontrollpunkt(KontrollFerietillegg) {
             if (it.har(harKravpåFerietillegg)) {
                 if (it.erSann(harKravpåFerietillegg)) {
                     return@Kontrollpunkt true

@@ -21,7 +21,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
-import no.nav.dagpenger.regel.hendelse.BeregnFerietilleggHendelse
+import no.nav.dagpenger.ferietillegg.hendelse.BeregnFerietilleggHendelse
 
 typealias Hendelse = Pair<String, JsonMessage>
 

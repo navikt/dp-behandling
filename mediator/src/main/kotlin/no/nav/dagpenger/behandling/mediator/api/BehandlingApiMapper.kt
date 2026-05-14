@@ -14,6 +14,8 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.konfigurasjon.Feature
 import no.nav.dagpenger.behandling.konfigurasjon.unleash
 import no.nav.dagpenger.behandling.modell.Behandling
+import no.nav.dagpenger.ferietillegg.FerietilleggBeløp.sumUtbetaltForÅr
+import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.antallDagerForbruk
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
@@ -23,10 +25,8 @@ import no.nav.dagpenger.opplysning.Redigerbar
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.regel.FerietilleggBeløp.sumUtbetaltForÅr
 import no.nav.dagpenger.regel.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
-import no.nav.dagpenger.regel.KravPåFerietillegg.antallDagerForbruk
 import no.nav.dagpenger.regel.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.Opphold.unntakForOpphold

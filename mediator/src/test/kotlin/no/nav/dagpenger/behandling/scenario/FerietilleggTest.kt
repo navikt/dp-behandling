@@ -3,8 +3,8 @@ package no.nav.dagpenger.behandling.scenario
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juni
-import no.nav.dagpenger.regel.FerietilleggBeløp
-import no.nav.dagpenger.regel.KravPåFerietillegg
+import no.nav.dagpenger.ferietillegg.FerietilleggBeløp
+import no.nav.dagpenger.ferietillegg.KravPåFerietillegg
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 
