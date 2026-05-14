@@ -198,6 +198,7 @@ class BehandlingsresultatTest {
             behandlingId = behandlingId,
             basertPåBehandling = null,
             behandlingskjedeId = behandlingId,
+            regelverk = "Dagpenger",
             rettighetsperioder = listOf(Rettighetsperiode(MIN, MAX, true, true)),
             virkningsdato = LocalDate.now(),
             behandlingAv =

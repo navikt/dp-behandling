@@ -82,6 +82,7 @@ internal class PersonMediator : PersonObservatør {
                     "behandlingId" to behandlingId.toString(),
                     "basertPåBehandlinger" to listOf(basertPåBehandlinger.toString()),
                     "behandlingskjedeId" to behandlingskjedeId.toString(),
+                    "regelverk" to regelverk,
                     "behandletHendelse" to
                         mapOf(
                             "id" to hendelse.eksternId.id,
@@ -127,7 +128,9 @@ internal class PersonMediator : PersonObservatør {
     private fun BehandlingObservatør.VedtakEvent.tilBehandlingsresultat(
         hendelseNavn: String,
         ident: String,
-    ) = toJsonMessage(hendelseNavn, tilBehandlingsresultatDTO(ident))
+    ) = toJsonMessage(hendelseNavn, tilBehandlingsresultatDTO(ident)).also {
+        it["regelverk"] = regelverk
+    }
 
     private fun BehandlingAvbrutt.toJsonMessage() =
         JsonMessage

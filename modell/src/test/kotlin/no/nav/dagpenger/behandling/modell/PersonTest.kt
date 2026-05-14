@@ -116,6 +116,7 @@ class PersonTest {
             behandlingId = behandlingId,
             basertPåBehandling = null,
             behandlingskjedeId = behandlingId,
+            regelverk = "Dagpenger",
             rettighetsperioder = rettighetsperiode.toList(),
             virkningsdato = virkningsdato,
             behandlingAv = TestHendelse(),

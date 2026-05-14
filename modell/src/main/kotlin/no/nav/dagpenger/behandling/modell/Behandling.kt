@@ -1084,6 +1084,7 @@ class Behandling private constructor(
                 behandlingId = behandlingId,
                 basertPåBehandling = basertPåBehandlinger(),
                 behandlingskjedeId = behandlingskjedeId,
+                regelverk = regelverk,
                 rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()),
                 virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,
@@ -1101,6 +1102,7 @@ class Behandling private constructor(
                 behandlingId = behandlingId,
                 basertPåBehandlinger = basertPåBehandlinger(),
                 behandlingskjedeId = behandlingskjedeId,
+                regelverk = regelverk,
                 hendelse = behandler,
             )
 
@@ -1164,6 +1166,7 @@ class Behandling private constructor(
         val behandlingId: UUID
         val basertPåBehandling: UUID?
         val behandlingskjedeId: UUID
+        val regelverk: String
         val rettighetsperioder: List<Rettighetsperiode>
         val virkningsdato: LocalDate
         val behandlingAv: StartHendelse
@@ -1183,6 +1186,7 @@ class Behandling private constructor(
         override val behandlingId: UUID,
         override val basertPåBehandling: UUID?,
         override val behandlingskjedeId: UUID,
+        override val regelverk: String,
         override val rettighetsperioder: List<Rettighetsperiode>,
         override val virkningsdato: LocalDate,
         override val behandlingAv: StartHendelse,
@@ -1200,6 +1204,7 @@ interface BehandlingObservatør {
         val behandlingId: UUID,
         val basertPåBehandlinger: UUID?,
         val behandlingskjedeId: UUID,
+        val regelverk: String,
         val hendelse: StartHendelse,
     ) : PersonEvent()
 
