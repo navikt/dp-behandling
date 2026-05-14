@@ -16,7 +16,6 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
-import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.Søknadsprosess
@@ -123,6 +122,6 @@ class SøknadInnsendtHendelse(
 
     companion object {
         val fagsakIdOpplysningstype = Opplysningstype.heltall(FagsakIdId, "fagsakId")
-        val hendelseTypeOpplysningstype = Opplysningstype.tekst(OpplysningsTyper.HendelseTypeId, "hendelseType")
+        val hendelseTypeOpplysningstype = no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
     }
 }
