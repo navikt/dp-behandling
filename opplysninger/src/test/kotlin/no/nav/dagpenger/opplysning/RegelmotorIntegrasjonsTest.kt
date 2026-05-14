@@ -166,7 +166,7 @@ class RegelmotorIntegrasjonsTest {
             Regelkjøring(
                 fraDato,
                 opplysninger,
-                object : Forretningsprosess(Regelverk(regelsett)) {
+                object : Forretningsprosess(Regelverk(regelsett = arrayOf(regelsett))) {
                     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
                         TODO("Not yet implemented")
                     }
@@ -221,7 +221,7 @@ class RegelmotorIntegrasjonsTest {
             Regelkjøring(
                 fraDato,
                 opplysninger,
-                object : Forretningsprosess(Regelverk(regelsett)) {
+                object : Forretningsprosess(Regelverk(regelsett = arrayOf(regelsett))) {
                     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
                         TODO("Not yet implemented")
                     }
@@ -258,7 +258,8 @@ class RegelmotorIntegrasjonsTest {
     }
 }
 
-private class TestProsess : Forretningsprosess(Regelverk(TestAlderskravRegelsett.regelsett, TestPrøvingsdatoRegelsett.regelsett)) {
+private class TestProsess :
+    Forretningsprosess(Regelverk(regelsett = arrayOf(TestAlderskravRegelsett.regelsett, TestPrøvingsdatoRegelsett.regelsett))) {
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
         TODO("Not yet implemented")
     }

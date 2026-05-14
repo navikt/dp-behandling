@@ -26,6 +26,7 @@ import no.nav.dagpenger.regel.prosessvilkår.Uriktigeopplysninger
 
 val RegelverkDagpenger =
     Regelverk(
+        navn = "Dagpenger",
         Alderskrav.regelsett,
         Beregning.regelsett,
         Dagpengegrunnlag.regelsett,
@@ -59,7 +60,6 @@ val RegelverkDagpenger =
         Vanligarbeidstid.regelsett,
         Verneplikt.regelsett,
         VernepliktFastsetting.regelsett,
-        navn = "Dagpenger",
         rettighetsperiodeStrategi = DagpengerRettighetsperiodeStrategi(),
         utbetalingerStrategi = DagpengerUtbetalingStrategi(),
     )

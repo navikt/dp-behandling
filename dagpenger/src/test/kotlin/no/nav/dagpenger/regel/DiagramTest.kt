@@ -54,7 +54,7 @@ class DiagramTest {
     fun `lager tre av regelsettene`() {
         val regelverk =
             Regelverk(
-                *RegelverkDagpenger.regelsett.toTypedArray(),
+                regelsett = RegelverkDagpenger.regelsett.toTypedArray(),
             )
 
         regelverk.regeltreFor(Minsteinntekt.minsteinntekt).also {

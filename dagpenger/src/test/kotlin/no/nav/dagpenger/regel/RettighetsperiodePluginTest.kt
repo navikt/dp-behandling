@@ -22,9 +22,11 @@ class RettighetsperiodePluginTest {
 
     private val regelverk =
         Regelverk(
-            vilkår("vilkår 2") {
-                utfall(utfall2) { somUtgangspunkt(true) }
-            },
+            regelsett = arrayOf(
+                vilkår("vilkår 2") {
+                    utfall(utfall2) { somUtgangspunkt(true) }
+                },
+            ),
         )
 
     @Test

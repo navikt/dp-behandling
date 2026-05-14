@@ -12,9 +12,9 @@ import java.time.LocalDate
 
 val RegelverkFerietillegg =
     Regelverk(
+        navn = "Ferietillegg",
         KravPåFerietillegg.regelsett,
         FerietilleggBeløp.regelsett,
-        navn = "Ferietillegg",
         rettighetsperiodeStrategi = FerietilleggRettighetsperiodeStrategi(),
         utbetalingerStrategi = FerietilleggUtbetalingStrategi(),
     )
