@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.basertPå
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik

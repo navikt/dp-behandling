@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarStreikEllerLockoutId

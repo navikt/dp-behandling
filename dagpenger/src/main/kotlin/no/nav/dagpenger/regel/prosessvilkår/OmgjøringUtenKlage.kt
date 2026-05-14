@@ -4,11 +4,11 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.OpplysningstypeKategori
 import no.nav.dagpenger.opplysning.dsl.prosess
+import no.nav.dagpenger.opplysning.forvaltningsloven
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.OpplysningsTyper
-import no.nav.dagpenger.regel.forvaltningsloven
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 
 object OmgjøringUtenKlage {

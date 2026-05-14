@@ -1,6 +1,5 @@
-package no.nav.dagpenger.regel
+package no.nav.dagpenger.opplysning
 
-import no.nav.dagpenger.opplysning.Lovkilde
 import java.net.URI
 
 val aOpplynsingsLoven = Lovkilde("A-opplysningsloven", "a-opplysningsloven")

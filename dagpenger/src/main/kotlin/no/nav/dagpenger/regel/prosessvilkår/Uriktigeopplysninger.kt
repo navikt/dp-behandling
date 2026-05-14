@@ -2,10 +2,10 @@ package no.nav.dagpenger.regel.prosessvilkår
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.ingenAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.OpplysningsTyper
-import no.nav.dagpenger.regel.folketrygden
 
 object Uriktigeopplysninger {
     val uriktigeOpplysninger =

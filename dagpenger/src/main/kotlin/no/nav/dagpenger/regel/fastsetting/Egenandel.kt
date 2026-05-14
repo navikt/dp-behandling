@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
+import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
@@ -16,7 +17,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.IngenEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.TreGangerDagsatsId
 import no.nav.dagpenger.regel.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.folketrygden
 import no.nav.dagpenger.regel.kravPåDagpenger
 
 object Egenandel {
