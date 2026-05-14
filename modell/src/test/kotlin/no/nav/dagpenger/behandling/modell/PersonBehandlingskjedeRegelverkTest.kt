@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.uuid.UUIDv7
@@ -26,12 +27,12 @@ class PersonBehandlingskjedeRegelverkTest {
 
     private val regelverkDagpenger =
         Regelverk(
-            navn = "Dagpenger",
+            navn = RegelverkType("Dagpenger"),
             rettighetsperiodeStrategi = { listOf(Rettighetsperiode(LocalDate.now(), LocalDate.MAX, true, true)) },
         )
     private val regelverkFerietillegg =
         Regelverk(
-            navn = "Ferietillegg",
+            navn = RegelverkType("Ferietillegg"),
             rettighetsperiodeStrategi = { listOf(Rettighetsperiode(LocalDate.now(), LocalDate.MAX, true, true)) },
         )
 

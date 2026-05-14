@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import com.spun.util.persistence.Loader
 import no.nav.dagpenger.dag.printer.MermaidPrinter
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.dag.RegeltreBygger
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
@@ -54,6 +55,7 @@ class DiagramTest {
     fun `lager tre av regelsettene`() {
         val regelverk =
             Regelverk(
+                RegelverkType("Test"),
                 regelsett = RegelverkDagpenger.regelsett.toTypedArray(),
             )
 

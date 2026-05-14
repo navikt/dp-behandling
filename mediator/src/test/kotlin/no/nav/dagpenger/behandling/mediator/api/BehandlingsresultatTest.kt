@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
@@ -198,7 +199,7 @@ class BehandlingsresultatTest {
             behandlingId = behandlingId,
             basertPåBehandling = null,
             behandlingskjedeId = behandlingId,
-            regelverk = "Dagpenger",
+            regelverk = RegelverkType("Dagpenger"),
             rettighetsperioder = listOf(Rettighetsperiode(MIN, MAX, true, true)),
             virkningsdato = LocalDate.now(),
             behandlingAv =

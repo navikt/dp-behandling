@@ -40,6 +40,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.OpplysningstypeKategori
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
@@ -1166,7 +1167,7 @@ class Behandling private constructor(
         val behandlingId: UUID
         val basertPåBehandling: UUID?
         val behandlingskjedeId: UUID
-        val regelverk: String
+        val regelverk: RegelverkType
         val rettighetsperioder: List<Rettighetsperiode>
         val virkningsdato: LocalDate
         val behandlingAv: StartHendelse
@@ -1186,7 +1187,7 @@ class Behandling private constructor(
         override val behandlingId: UUID,
         override val basertPåBehandling: UUID?,
         override val behandlingskjedeId: UUID,
-        override val regelverk: String,
+        override val regelverk: RegelverkType,
         override val rettighetsperioder: List<Rettighetsperiode>,
         override val virkningsdato: LocalDate,
         override val behandlingAv: StartHendelse,
@@ -1204,7 +1205,7 @@ interface BehandlingObservatør {
         val behandlingId: UUID,
         val basertPåBehandlinger: UUID?,
         val behandlingskjedeId: UUID,
-        val regelverk: String,
+        val regelverk: RegelverkType,
         val hendelse: StartHendelse,
     ) : PersonEvent()
 

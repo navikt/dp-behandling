@@ -264,7 +264,7 @@ class Regelkjøring(
     private class Regelsettprosess(
         val regelsett: List<Regelsett>,
         val opplysningstypes: List<Opplysningstype<*>> = regelsett.flatMap { it.produserer },
-    ) : Forretningsprosess(Regelverk(regelsett = regelsett.toTypedArray())) {
+    ) : Forretningsprosess(Regelverk(navn = RegelverkType("Regelsettprosess"), regelsett = regelsett.toTypedArray())) {
         override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
             TODO("Not yet implemented")
         }

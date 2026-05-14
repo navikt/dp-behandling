@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.DagpengerType.ORDINÆR
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.Utbetaling
@@ -26,7 +27,7 @@ import no.nav.dagpenger.regel.prosessvilkår.Uriktigeopplysninger
 
 val RegelverkDagpenger =
     Regelverk(
-        navn = "Dagpenger",
+        navn = RegelverkType("Dagpenger"),
         Alderskrav.regelsett,
         Beregning.regelsett,
         Dagpengegrunnlag.regelsett,

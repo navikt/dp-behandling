@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.DagpengerType.FERIETILLEGG
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.Utbetaling
@@ -12,7 +13,7 @@ import java.time.LocalDate
 
 val RegelverkFerietillegg =
     Regelverk(
-        navn = "Ferietillegg",
+        navn = RegelverkType("Ferietillegg"),
         KravPåFerietillegg.regelsett,
         FerietilleggBeløp.regelsett,
         rettighetsperiodeStrategi = FerietilleggRettighetsperiodeStrategi(),

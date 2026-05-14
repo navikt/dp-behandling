@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -37,7 +38,7 @@ class TestHendelse(
     private val opplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "opplysning")
     override val forretningsprosess: Forretningsprosess
         get() =
-            object : Forretningsprosess(Regelverk(regelsett = arrayOf(regelsett))) {
+            object : Forretningsprosess(Regelverk(RegelverkType("Test"), regelsett = arrayOf(regelsett))) {
                 override fun regelkjøring(opplysninger: Opplysninger) =
                     Regelkjøring(
                         skjedde,

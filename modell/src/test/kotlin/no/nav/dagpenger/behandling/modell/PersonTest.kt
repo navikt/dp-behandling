@@ -16,6 +16,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.uuid.UUIDv7
@@ -116,7 +117,7 @@ class PersonTest {
             behandlingId = behandlingId,
             basertPåBehandling = null,
             behandlingskjedeId = behandlingId,
-            regelverk = "Dagpenger",
+            regelverk = RegelverkType("Dagpenger"),
             rettighetsperioder = rettighetsperiode.toList(),
             virkningsdato = virkningsdato,
             behandlingAv = TestHendelse(),
@@ -149,7 +150,7 @@ class PersonTest {
             ManuellId(UUIDv7.ny()),
             LocalDate.now(),
             LocalDateTime.now(),
-            Testprosess(Regelverk()),
+            Testprosess(Regelverk(RegelverkType("Test"))),
         )
 
         override fun behandling(

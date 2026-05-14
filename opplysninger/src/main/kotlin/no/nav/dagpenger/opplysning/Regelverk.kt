@@ -5,6 +5,13 @@ import no.nav.dagpenger.dag.Edge
 import no.nav.dagpenger.dag.Node
 import java.time.LocalDate
 
+@JvmInline
+value class RegelverkType(
+    val navn: String,
+) {
+    override fun toString() = navn
+}
+
 fun interface RettighetsperiodeStrategi {
     fun rettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode>
 }
@@ -14,7 +21,7 @@ fun interface UtbetalingerStrategi {
 }
 
 class Regelverk(
-    val navn: String = "Ukjent",
+    val navn: RegelverkType,
     vararg regelsett: Regelsett,
     val rettighetsperiodeStrategi: RettighetsperiodeStrategi = { emptyList() },
     val utbetalingerStrategi: UtbetalingerStrategi = { emptyList() },
