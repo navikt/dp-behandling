@@ -15,6 +15,7 @@ fun interface UtbetalingerStrategi {
 
 class Regelverk(
     vararg regelsett: Regelsett,
+    val navn: String = "Ukjent",
     val rettighetsperiodeStrategi: RettighetsperiodeStrategi = { emptyList() },
     val utbetalingerStrategi: UtbetalingerStrategi = { emptyList() },
 ) {

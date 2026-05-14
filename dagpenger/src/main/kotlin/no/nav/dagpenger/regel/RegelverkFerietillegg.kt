@@ -14,6 +14,7 @@ val RegelverkFerietillegg =
     Regelverk(
         KravPåFerietillegg.regelsett,
         FerietilleggBeløp.regelsett,
+        navn = "Ferietillegg",
         rettighetsperiodeStrategi = FerietilleggRettighetsperiodeStrategi(),
         utbetalingerStrategi = FerietilleggUtbetalingStrategi(),
     )

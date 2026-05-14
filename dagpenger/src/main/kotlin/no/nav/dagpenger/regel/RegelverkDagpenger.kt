@@ -59,6 +59,7 @@ val RegelverkDagpenger =
         Vanligarbeidstid.regelsett,
         Verneplikt.regelsett,
         VernepliktFastsetting.regelsett,
+        navn = "Dagpenger",
         rettighetsperiodeStrategi = DagpengerRettighetsperiodeStrategi(),
         utbetalingerStrategi = DagpengerUtbetalingStrategi(),
     )
