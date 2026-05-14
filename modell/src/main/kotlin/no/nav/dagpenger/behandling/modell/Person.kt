@@ -98,6 +98,7 @@ class Person(
         //      (velger den kjeden som har nyest behandling)
         val kjede =
             behandlingkjeder
+                .filter { it.rot.regelverk == hendelse.forretningsprosess.regelverk.navn }
                 .filter { it.nesteSomKanBaseresPå != null }
                 .maxByOrNull { it.nesteSomKanBaseresPå!!.behandlingId }
 
@@ -249,7 +250,8 @@ class Person(
     }
 
     private fun krevLineærBehandlingskjede(behandling: Behandling) {
-        if (!behandlingkjeder.harParallelleBehandlinger(behandling)) return
+        val relevanteKjeder = behandlingkjeder.filter { it.rot.regelverk == behandling.regelverk }
+        if (!relevanteKjeder.harParallelleBehandlinger(behandling)) return
         throw IllegalStateException(
             """Vedtaket kan ikke fattes fordi en nyere åpen behandling er blitt opprettet. Avbryt denne eldre behandlingen og gjør 
             |endringene i siste opprettede behandling. Dersom endringene går tilbake i tid bør en revurderingsbehandling opprettes.

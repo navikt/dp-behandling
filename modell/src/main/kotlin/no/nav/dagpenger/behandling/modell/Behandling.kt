@@ -86,6 +86,7 @@ class Behandling private constructor(
     private val observatører = mutableListOf<BehandlingObservatør>()
     private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
+    val regelverk get() = forretningsprosess.regelverk.navn
 
     val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 
