@@ -1,5 +1,4 @@
 package no.nav.dagpenger.features
-
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
@@ -20,17 +19,18 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
-import no.nav.dagpenger.regel.MeldekortBeregningPlugin
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
-import no.nav.dagpenger.regel.beregning.Beregning.forbruk
-import no.nav.dagpenger.regel.beregning.Beregning.terskel
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.antallStønadsdager
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
-import no.nav.dagpenger.regel.fastsetting.Egenandel.egenandel
-import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.hendelse.tilOpplysninger
+import no.nav.dagpenger.regel.prosess.MeldekortBeregningPlugin
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.terskel
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
+import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel.egenandel
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime

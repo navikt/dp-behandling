@@ -12,7 +12,7 @@ import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

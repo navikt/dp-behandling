@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-
 import no.nav.dagpenger.opplysning.Avklaringkode
 
 @Suppress("ktlint:standard:max-line-length")

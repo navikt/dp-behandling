@@ -1,10 +1,12 @@
 package no.nav.dagpenger.regel
-
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.regel.Verneplikt.regelsett
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
+import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.regelsett
 import org.junit.jupiter.api.Test
 
 class VernepliktTest {

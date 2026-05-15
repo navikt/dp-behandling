@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel.hendelse
-
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
@@ -10,8 +9,8 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.tilTimer
-import no.nav.dagpenger.regel.Meldeplikt.oppfyllerMeldeplikt
-import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 
 fun Meldekort.tilOpplysninger(kilde: Kilde): List<Opplysning<*>> {
     val opplysninger = mutableListOf<Opplysning<*>>()

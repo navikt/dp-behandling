@@ -7,9 +7,9 @@ import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.KreverAvklari
 import no.nav.dagpenger.opplysning.IKontrollpunkt.Kontrollresultat.OK
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
-import no.nav.dagpenger.regel.Alderskrav.Under18Kontroll
-import no.nav.dagpenger.regel.Alderskrav.fødselsdato
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.Under18Kontroll
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.fødselsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadsdato
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 

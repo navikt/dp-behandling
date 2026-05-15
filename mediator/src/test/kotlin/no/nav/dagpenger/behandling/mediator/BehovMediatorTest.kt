@@ -1,5 +1,4 @@
 package no.nav.dagpenger.behandling.mediator
-
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe

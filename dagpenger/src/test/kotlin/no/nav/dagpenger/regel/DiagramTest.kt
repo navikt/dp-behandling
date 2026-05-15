@@ -1,10 +1,10 @@
 package no.nav.dagpenger.regel
-
 import com.spun.util.persistence.Loader
 import no.nav.dagpenger.dag.printer.MermaidPrinter
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.dag.RegeltreBygger
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
 import org.approvaltests.namer.NamerWrapper

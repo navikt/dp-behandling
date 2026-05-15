@@ -1,10 +1,11 @@
 package no.nav.dagpenger.regel.beregning
-
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningsperiode
+import no.nav.dagpenger.regel.regelsett.beregning.Fraværsdag
 import org.junit.jupiter.api.Test
 
 class BeregningsperiodeTest {

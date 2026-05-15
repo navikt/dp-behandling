@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
@@ -8,6 +7,11 @@ import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak
 import no.nav.dagpenger.regel.mottak.OpprettBehandlingMottak
 import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak
 import no.nav.dagpenger.regel.mottak.SøknadInnsendtMottak
+import no.nav.dagpenger.regel.prosess.Manuellprosess
+import no.nav.dagpenger.regel.prosess.Meldekortprosess
+import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
+import no.nav.dagpenger.regel.prosess.Stansprosess
+import no.nav.dagpenger.regel.prosess.Søknadsprosess
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 

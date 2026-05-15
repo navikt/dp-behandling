@@ -15,9 +15,9 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.Meldekortprosess
-import no.nav.dagpenger.regel.Omgjøringsprosess
-import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.prosess.Meldekortprosess
+import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDateTime
 import java.util.UUID

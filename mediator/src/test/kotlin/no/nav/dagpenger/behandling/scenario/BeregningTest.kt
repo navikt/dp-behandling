@@ -16,11 +16,11 @@ import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
-import no.nav.dagpenger.regel.Opphold
-import no.nav.dagpenger.regel.RegistrertArbeidssøker
-import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import org.junit.jupiter.api.Test
 
 class BeregningTest {

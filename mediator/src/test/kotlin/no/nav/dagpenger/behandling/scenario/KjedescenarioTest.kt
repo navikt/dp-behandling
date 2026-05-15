@@ -1,5 +1,4 @@
 package no.nav.dagpenger.behandling.scenario
-
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -10,9 +9,9 @@ import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.Opplysningsperiode.Periodestatus.Arvet
 import no.nav.dagpenger.behandling.juni
-import no.nav.dagpenger.regel.Minsteinntekt
-import no.nav.dagpenger.regel.Opphold
-import no.nav.dagpenger.regel.PermitteringFraFiskeindustrien
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
 import org.junit.jupiter.api.Test
 import java.util.UUID
 

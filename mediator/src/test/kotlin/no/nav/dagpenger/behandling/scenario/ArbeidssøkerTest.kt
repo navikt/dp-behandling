@@ -9,8 +9,8 @@ import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
-import no.nav.dagpenger.regel.Meldeplikt
-import no.nav.dagpenger.regel.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import org.junit.jupiter.api.Test
 
 class ArbeidssøkerTest {

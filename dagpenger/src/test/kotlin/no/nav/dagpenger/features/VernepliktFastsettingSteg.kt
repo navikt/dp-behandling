@@ -10,19 +10,19 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
-import no.nav.dagpenger.regel.Minsteinntekt.inntekt12
-import no.nav.dagpenger.regel.Minsteinntekt.inntekt36
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Rettighetstype.skalVernepliktVurderes
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag12mnd
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag36mnd
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode.ordinærPeriode
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting.vernepliktPeriode
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag12mnd
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag36mnd
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
+import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
+import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktPeriode
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntekt12
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntekt36
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalVernepliktVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 
 class VernepliktFastsettingSteg : No {
     private val fraDato = 10.mai(2022)

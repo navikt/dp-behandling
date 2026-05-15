@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
