@@ -14,10 +14,10 @@ import java.time.LocalDate
 val RegelverkFerietillegg =
     Regelverk(
         navn = RegelverkType("Ferietillegg"),
-        KravPåFerietillegg.regelsett,
-        FerietilleggBeløp.regelsett,
         rettighetsperiodeStrategi = FerietilleggRettighetsperiodeStrategi(),
         utbetalingerStrategi = FerietilleggUtbetalingStrategi(),
+        KravPåFerietillegg.regelsett,
+        FerietilleggBeløp.regelsett,
     )
 
 class FerietilleggRettighetsperiodeStrategi : RettighetsperiodeStrategi {
