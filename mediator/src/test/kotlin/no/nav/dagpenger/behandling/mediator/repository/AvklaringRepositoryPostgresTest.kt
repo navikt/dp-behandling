@@ -1,5 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.repository
-import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -7,31 +7,19 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaringer
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.behandling.modell.somKjede
 import no.nav.dagpenger.opplysning.Avklaringkode
-import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
-import no.nav.dagpenger.regel.hendelse.Søknadstype
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 class AvklaringRepositoryPostgresTest {
-    private val rapid = TestRapid()
     private val repository = AvklaringRepositoryPostgres()
 
     @Test
@@ -98,8 +86,12 @@ class AvklaringRepositoryPostgresTest {
         vararg avklaring: Avklaring,
     ) {
         val behandlingId get() = behandling.behandlingId
-        private val behandling = behandling(*avklaring)
-        private val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository(), repository, Prosessregister())
+        private val behandling = TestBehandlinger.rehydrerBehandling(avklaringer = avklaring.toList())
+        private val prosessregister =
+            Prosessregister().also {
+                TestBehandlinger.registrerTestProsesser(it)
+            }
+        private val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository(), repository, prosessregister)
         private val personRepository = PersonRepositoryPostgres(behandlingRepository)
 
         init {
@@ -110,31 +102,6 @@ class AvklaringRepositoryPostgresTest {
             val person = Person(Ident(behandling.behandler.ident), listOf(behandling.somKjede()))
             personRepository.lagre(person)
         }
-
-        private fun behandling(vararg avklaring: Avklaring) =
-            Behandling.rehydrer(
-                behandlingId = UUIDv7.ny(),
-                behandler =
-                    SøknadInnsendtHendelse(
-                        UUIDv7.ny(),
-                        "12345678911",
-                        UUIDv7.ny(),
-                        LocalDate.now(),
-                        1,
-                        LocalDateTime.now(),
-                        Søknadstype.NySøknad,
-                    ),
-                gjeldendeOpplysninger =
-                    Opplysninger.med(
-                        Faktum(hendelseTypeOpplysningstype, "Søknad"),
-                        Faktum(prøvingsdato, LocalDate.now(), Gyldighetsperiode(LocalDate.now())),
-                        Faktum(kravTilAlder, false),
-                    ),
-                opprettet = LocalDateTime.now(),
-                tilstand = TilstandType.ForslagTilVedtak,
-                sistEndretTilstand = LocalDateTime.now(),
-                avklaringer = avklaring.toList(),
-            )
 
         fun avklar(
             saksbehandler: String,
