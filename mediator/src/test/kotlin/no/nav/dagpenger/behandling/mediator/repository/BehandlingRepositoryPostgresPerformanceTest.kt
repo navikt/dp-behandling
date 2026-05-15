@@ -3,11 +3,11 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.somKjede
+import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
@@ -16,7 +16,9 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
 import no.nav.dagpenger.opplysning.Tekst
+import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
@@ -106,7 +108,9 @@ class BehandlingRepositoryPostgresPerformanceTest {
             val avklaringRepository = AvklaringRepositoryPostgres()
             val opplysningerRepository = OpplysningerRepositoryPostgres()
             // Registrer forretningsprosesser og opplysningstyper
-            registrerRegelverk(opplysningerRepository, opplysningstyper.toSet())
+            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
             val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
 
             // Lag kjede av behandlinger, hver med mange opplysninger
@@ -201,7 +205,9 @@ class BehandlingRepositoryPostgresPerformanceTest {
             val avklaringRepository = AvklaringRepositoryPostgres()
             val opplysningerRepository = OpplysningerRepositoryPostgres()
             // Registrer forretningsprosesser og opplysningstyper
-            registrerRegelverk(opplysningerRepository, opplysningstyper.toSet())
+            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
             val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
 
             // Lag en rot-behandling som alle kjeder baserer seg på

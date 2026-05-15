@@ -22,7 +22,6 @@ import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
-import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
@@ -33,9 +32,11 @@ import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
-import no.nav.dagpenger.ferietillegg.RegelverkFerietillegg
+import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
+import no.nav.dagpenger.regel.DagpengerRegistrering
+import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import org.approvaltests.Approvals
 import java.util.UUID
 import kotlin.random.Random
@@ -73,7 +74,8 @@ internal class SimulertDagpengerSystem(
     private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)
     val auditlogg = TestAuditlogg()
 
-    private val opplysningstyper: Set<Opplysningstype<*>> = RegelverkDagpenger.produserer + RegelverkFerietillegg.produserer
+    private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
+    private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
 
     init {
         MarkerMeldekortSomBehandletMottak(rapid, meldekortRepository)
@@ -86,8 +88,10 @@ internal class SimulertDagpengerSystem(
             behovssporer = behovssporer,
             opplysningstyper = opplysningstyper,
             personRepository = personRepository,
-        )
-        registrerRegelverk(opplysningerRepository, Opplysningstype.definerteTyper)
+        ).apply {
+            regelverk.forEach { it.registrer(rapid, this, RegistrertForretningsprosess) }
+        }
+        opplysningerRepository.lagreOpplysningstyper(Opplysningstype.definerteTyper)
     }
 
     val api: Application.() -> Unit = {

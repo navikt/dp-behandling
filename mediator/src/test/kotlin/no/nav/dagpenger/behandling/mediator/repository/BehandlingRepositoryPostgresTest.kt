@@ -6,19 +6,21 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.mediator.registrerRegelverk
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderBehandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.somKjede
+import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
 import no.nav.dagpenger.regel.Avklaringspunkter
+import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
@@ -104,7 +106,9 @@ class BehandlingRepositoryPostgresTest {
     fun `lagre og hente en kjede med grener fra postgres`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            registrerRegelverk(opplysningerRepository, opplysningstyper)
+            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
@@ -140,7 +144,9 @@ class BehandlingRepositoryPostgresTest {
     fun `flytter en eldre behandling til å peke på en nyere`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            registrerRegelverk(opplysningerRepository, opplysningstyper)
+            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
@@ -175,7 +181,9 @@ class BehandlingRepositoryPostgresTest {
     fun `lagre og hent behandling fra postgres`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            registrerRegelverk(opplysningerRepository, opplysningstyper)
+            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository)
