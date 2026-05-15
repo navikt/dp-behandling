@@ -48,12 +48,9 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
-import no.nav.dagpenger.ferietillegg.mottak.BeregnFerietilleggMottak
+import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak
-import no.nav.dagpenger.regel.mottak.OpprettBehandlingMottak
-import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak
-import no.nav.dagpenger.regel.mottak.SøknadInnsendtMottak
+import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.regelverk.melding.MeldingRepository
@@ -70,10 +67,9 @@ internal class MessageMediator(
     personRepository: PersonRepositoryPostgres,
 ) : IMessageMediator {
     init {
+        // Generiske mottak
         AvbrytBehandlingMottak(rapidsConnection, this)
         AvklaringIkkeRelevantMottak(rapidsConnection, this)
-        AvsluttetArbeidssøkerperiodeMottak(rapidsConnection, this)
-        BeregnFerietilleggMottak(rapidsConnection, this)
         BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
         FjernOpplysningMottak(rapidsConnection, this, opplysningstyper)
         GodkjennBehandlingMottak(rapidsConnection, this)
@@ -84,12 +80,13 @@ internal class MessageMediator(
         OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
         OppgaveSendtTilKontroll(rapidsConnection, this)
         OpplysningSvarMottak(rapidsConnection, this, opplysningstyper)
-        OpprettBehandlingMottak(rapidsConnection, this)
         PåminnelseMottak(rapidsConnection, this)
         RekjørBehandlingMottak(rapidsConnection, this)
-        SamordningHendelseMottak(rapidsConnection, this)
-        SøknadInnsendtMottak(rapidsConnection, this)
         UtbetalingStatusMottak(rapidsConnection, this)
+
+        // Regelverksspesifikke mottak
+        DagpengerRegistrering().mottak(rapidsConnection, this)
+        FerietilleggRegistrering().mottak(rapidsConnection, this)
     }
 
     private companion object {
