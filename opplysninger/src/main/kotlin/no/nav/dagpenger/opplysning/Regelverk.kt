@@ -22,9 +22,9 @@ fun interface UtbetalingerStrategi {
 
 class Regelverk(
     val navn: RegelverkType,
-    vararg regelsett: Regelsett,
     val rettighetsperiodeStrategi: RettighetsperiodeStrategi = { emptyList() },
     val utbetalingerStrategi: UtbetalingerStrategi = { emptyList() },
+    vararg regelsett: Regelsett,
 ) {
     private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
     val produserer = regelsett.flatMap { it.produserer }.toSet()

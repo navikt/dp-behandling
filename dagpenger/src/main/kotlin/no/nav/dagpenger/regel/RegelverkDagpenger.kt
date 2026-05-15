@@ -48,6 +48,8 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVer
 val RegelverkDagpenger =
     Regelverk(
         navn = RegelverkType("Dagpenger"),
+        rettighetsperiodeStrategi = DagpengerRettighetsperiodeStrategi(),
+        utbetalingerStrategi = DagpengerUtbetalingStrategi(),
         Alderskrav.regelsett,
         Beregning.regelsett,
         Dagpengegrunnlag.regelsett,
@@ -81,8 +83,6 @@ val RegelverkDagpenger =
         Vanligarbeidstid.regelsett,
         Verneplikt.regelsett,
         VernepliktFastsetting.regelsett,
-        rettighetsperiodeStrategi = DagpengerRettighetsperiodeStrategi(),
-        utbetalingerStrategi = DagpengerUtbetalingStrategi(),
     )
 
 fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
