@@ -1,25 +1,23 @@
-package no.nav.dagpenger.behandling.mediator.mottak
+package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.dagpenger.behandling.mediator.MessageMediator
-import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage
-import no.nav.dagpenger.regel.mottak.SøknadInnsendtMottak
+import no.nav.dagpenger.regelverk.HendelseMottaker
+import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.test.Test
 
 class SøknadInnsendtMottakTest {
     private val testRapid = TestRapid()
-    private val messageMediator = mockk<MessageMediator>(relaxed = true)
-    private val søknadInnsendtMottak = SøknadInnsendtMottak(testRapid, messageMediator)
+    private val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
+    private val søknadInnsendtMottak = SøknadInnsendtMottak(testRapid, hendelseMottaker)
 
     @Test
     fun `skal inkludere søknad med fagsakId 0`() {
         testRapid.sendTestMessage(søknadInnsendMelding(0))
         verify(exactly = 1) {
-            messageMediator.behandle(
+            hendelseMottaker.behandle(
                 any(),
                 any() as SøknadInnsendtMessage,
                 any(),
@@ -31,7 +29,7 @@ class SøknadInnsendtMottakTest {
     fun `skal ikke skippe søknad med fagsakId != 0`() {
         testRapid.sendTestMessage(søknadInnsendMelding(123))
         verify(exactly = 1) {
-            messageMediator.behandle(
+            hendelseMottaker.behandle(
                 any(),
                 any() as SøknadInnsendtMessage,
                 any(),
