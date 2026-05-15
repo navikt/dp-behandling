@@ -36,8 +36,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.BruktBeregningsregelId
 import no.nav.dagpenger.regel.OpplysningsTyper.FaktorForMaksimaltMuligGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.GjennomsnittligArbeidsinntektSiste36MånederId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnbeløpForGrunnlagId
-import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagForVernepliktErGunstigstId
-import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagHvisVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagSiste12MndId
 import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagVedOrdinæreDagpengerId
@@ -129,14 +127,8 @@ object Dagpengegrunnlag {
     val uavkortet12mnd = Opplysningstype.beløp(UavkortetGrunnlagSiste12MndId, "Uavkortet grunnlag siste 12 mnd", Legacy, aldriSynlig)
     val uavkortet36mnd = Opplysningstype.beløp(UavkortetGrunnlagSiste36MndId, "Uavkortet grunnlag siste 36 mnd", Legacy, aldriSynlig)
 
-    internal val grunnlagHvisVerneplikt =
-        Opplysningstype.beløp(GrunnlagHvisVernepliktId, "Grunnlag for verneplikt hvis kravet er oppfylt", synlig = aldriSynlig)
-    val grunnlagForVernepliktErGunstigst =
-        Opplysningstype.boolsk(
-            GrunnlagForVernepliktErGunstigstId,
-            "Grunnlaget for verneplikt er høyere enn dagpengegrunnlaget",
-            synlig = synligOmVerneplikt,
-        )
+    internal val grunnlagHvisVerneplikt get() = VernepliktFastsetting.grunnlagHvisVerneplikt
+    val grunnlagForVernepliktErGunstigst get() = VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 
     val regelsett =
         fastsettelse(
