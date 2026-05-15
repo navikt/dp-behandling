@@ -10,10 +10,10 @@ import no.nav.dagpenger.behandling.api.models.UtbetalingDTO
 import no.nav.dagpenger.behandling.api.models.UtbetalingDTODagpengeTypeDTO.FERIETILLEGG
 import no.nav.dagpenger.behandling.api.models.UtbetalingDTODagpengeTypeDTO.ORDINÆRE_DAGPENGER
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.opplysning.DagpengerType
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
+import no.nav.dagpenger.opplysning.Ytelsestype
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -71,9 +71,10 @@ internal fun Behandling.VedtakOpplysninger.tilUtbetalingDTO(opplysninger: Lesbar
             utbetaling = it.utbetaling,
             opprinnelse = it.endret.tilOpprinnelseDTO(),
             dagpengeType =
-                when (it.dagpengerType) {
-                    DagpengerType.ORDINÆR -> ORDINÆRE_DAGPENGER
-                    DagpengerType.FERIETILLEGG -> FERIETILLEGG
+                when (it.ytelsestype) {
+                    Ytelsestype("Ordinær") -> ORDINÆRE_DAGPENGER
+                    Ytelsestype("Ferietillegg") -> FERIETILLEGG
+                    else -> error("Ukjent ytelsestype: ${it.ytelsestype}")
                 },
         )
     }
