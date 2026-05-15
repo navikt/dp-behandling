@@ -18,7 +18,7 @@ import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.barnMapper
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.mediator.mottak.SvarStrategi.Svar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar.Tilstand
@@ -120,7 +120,7 @@ internal class OpplysningSvarMottak(
 internal class OpplysningSvarMessage(
     private val packet: JsonMessage,
     private val opplysningstyper: Set<Opplysningstype<out Any>>,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     private val hendelse
         get() =
             OpplysningSvarHendelse(

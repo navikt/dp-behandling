@@ -13,7 +13,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.uuid.UUIDv7
@@ -59,7 +59,7 @@ internal class SamordningHendelseMottak(
 
     internal class SamordningHendelseMessage(
         packet: JsonMessage,
-    ) : KafkaMelding(packet) {
+    ) : HåndterbarKafkaMelding(packet) {
         override val ident: String = packet["ident"].asText()
 
         val ytelse = packet["tema"].asText()

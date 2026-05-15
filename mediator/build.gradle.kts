@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation(project(path = ":konfigurasjon"))
+    implementation(project(path = ":regelverk"))
     implementation(project(path = ":modell"))
     implementation(project(path = ":openapi"))
     implementation(project(path = ":dagpenger"))

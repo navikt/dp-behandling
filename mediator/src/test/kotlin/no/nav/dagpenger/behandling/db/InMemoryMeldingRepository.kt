@@ -1,7 +1,7 @@
 package no.nav.dagpenger.behandling.db
 
-import no.nav.dagpenger.behandling.mediator.melding.Melding
-import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
+import no.nav.dagpenger.regelverk.melding.Melding
+import no.nav.dagpenger.regelverk.melding.MeldingRepository
 import java.util.UUID
 
 internal class InMemoryMeldingRepository : MeldingRepository {

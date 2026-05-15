@@ -14,7 +14,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 
@@ -68,7 +68,7 @@ internal class SøknadInnsendtMottak(
 
 internal class SøknadInnsendtMessage(
     private val packet: JsonMessage,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     override val ident get() = packet["ident"].asText()
     private val søknadId = packet["søknadId"].asUUID()
     private val søknadstype = packet["type"].textValue()?.let { Søknadstype.valueOf(it) } ?: Søknadstype.NySøknad

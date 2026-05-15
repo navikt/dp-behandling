@@ -1,8 +1,8 @@
-package no.nav.dagpenger.behandling.mediator.melding
+package no.nav.dagpenger.regelverk.melding
 
 import java.util.UUID
 
-internal interface MeldingRepository {
+interface MeldingRepository {
     fun lagreMelding(
         melding: Melding,
         ident: String,

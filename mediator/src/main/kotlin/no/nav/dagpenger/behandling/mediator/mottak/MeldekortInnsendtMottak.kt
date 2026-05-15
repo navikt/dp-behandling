@@ -16,7 +16,7 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
@@ -79,7 +79,7 @@ internal class MeldekortInnsendtMottak(
 
 internal class MeldekortInnsendtMessage(
     private val packet: JsonMessage,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     override val ident get() = packet["ident"].asText()
 
     override fun behandle(

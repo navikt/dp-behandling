@@ -21,6 +21,8 @@ import no.nav.dagpenger.behandling.mediator.mottak.SamordningHendelseMottak.Samo
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMessage
 import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
+import no.nav.dagpenger.regelverk.melding.Melding
+import no.nav.dagpenger.regelverk.melding.MeldingRepository
 import org.postgresql.util.PGobject
 import java.util.UUID
 

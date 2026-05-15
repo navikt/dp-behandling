@@ -11,7 +11,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 
 internal class UtbetalingStatusMottak(
@@ -69,7 +69,7 @@ internal class UtbetalingStatusMottak(
 
 internal class UtbetalingStatusMessage(
     private val packet: JsonMessage,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     private val hendelse
         get() =
             UtbetalingStatus(

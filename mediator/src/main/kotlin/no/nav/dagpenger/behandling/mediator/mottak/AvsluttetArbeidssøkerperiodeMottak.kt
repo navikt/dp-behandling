@@ -11,7 +11,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiode
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
@@ -43,7 +43,7 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
 
     class AvsluttetArbeidssøkerperiodeMessage(
         packet: JsonMessage,
-    ) : KafkaMelding(packet) {
+    ) : HåndterbarKafkaMelding(packet) {
         private val periodeId = packet["periodeId"].asUUID()
         private val fastsattMeldingsdag = packet["fastsattMeldedato"].asLocalDate()
         private val avsluttetTidspunkt = packet["avregistrertTidspunkt"].asLocalDateTime()

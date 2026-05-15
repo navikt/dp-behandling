@@ -14,7 +14,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import java.util.UUID
 
@@ -72,7 +72,7 @@ internal class AvbrytBehandlingMottak(
 
 internal class AvbrytBehandlingMessage(
     packet: JsonMessage,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     private val årsak = packet["årsak"].asText("Avbrutt av datamaskinen")
 
     private val hendelse

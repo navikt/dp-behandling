@@ -12,7 +12,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.LåsOppHendelse
 
 internal class OppgaveReturnertTilSaksbehandler(
@@ -52,7 +52,7 @@ internal class OppgaveReturnertTilSaksbehandler(
 
 internal class ReturnerTilSaksbehandlerMessage(
     packet: JsonMessage,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     private val hendelse
         get() = LåsOppHendelse(id, ident, behandlingId, opprettet)
     override val ident = packet["ident"].asText()
