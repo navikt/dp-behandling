@@ -4,13 +4,8 @@ plugins {
     `java-library`
 }
 dependencies {
+    implementation(project(path = ":regelverk"))
     implementation(project(path = ":dag"))
-    implementation(project(path = ":opplysninger"))
-    implementation(project(path = ":uuid-v7"))
-    implementation(project(path = ":modell"))
-    implementation(project(path = ":dato"))
-    implementation(project(path = ":avklaring"))
-    implementation(project(path = ":konfigurasjon"))
     implementation("no.nav.dagpenger:dp-grunnbelop:20260109.219.701e55")
 
     testImplementation("io.cucumber:cucumber-java:7.22.1")
