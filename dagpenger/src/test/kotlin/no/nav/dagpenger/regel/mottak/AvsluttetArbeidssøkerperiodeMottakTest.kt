@@ -1,13 +1,12 @@
-package no.nav.dagpenger.behandling.mediator.mottak
+package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
-import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak
 import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
+import no.nav.dagpenger.regelverk.HendelseMottaker
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,11 +14,11 @@ import java.util.UUID
 
 class AvsluttetArbeidssøkerperiodeMottakTest {
     private val rapid = TestRapid()
-    private val mediator = mockk<IMessageMediator>(relaxed = true)
+    private val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
 
     @Test
     fun `lytter på meldinger fra RAMP`() {
-        AvsluttetArbeidssøkerperiodeMottak(rapid, mediator)
+        AvsluttetArbeidssøkerperiodeMottak(rapid, hendelseMottaker)
 
         val melding =
             JsonMessage.newMessage(
@@ -36,7 +35,7 @@ class AvsluttetArbeidssøkerperiodeMottakTest {
         rapid.sendTestMessage(melding.toJson())
 
         verify {
-            mediator.behandle(any<AvsluttetArbeidssøkerperiodeHendelse>(), any<AvsluttetArbeidssøkerperiodeMessage>(), any())
+            hendelseMottaker.behandle(any<AvsluttetArbeidssøkerperiodeHendelse>(), any<AvsluttetArbeidssøkerperiodeMessage>(), any())
         }
     }
 }

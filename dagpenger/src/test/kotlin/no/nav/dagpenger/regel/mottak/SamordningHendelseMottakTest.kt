@@ -1,26 +1,25 @@
-package no.nav.dagpenger.behandling.mediator.mottak
+package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
-import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak
 import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak.SamordningHendelseMessage
+import no.nav.dagpenger.regelverk.HendelseMottaker
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 class SamordningHendelseMottakTest {
-    private val mediator = mockk<IMessageMediator>(relaxed = true)
+    private val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
     private val rapid =
         TestRapid().also {
-            SamordningHendelseMottak(it, mediator)
+            SamordningHendelseMottak(it, hendelseMottaker)
         }
 
     @Test
-    fun `leser ikke meldinger som matcher filteret`() {
+    fun `lytter på meldinger fra RAMP`() {
         rapid.sendTestMessage(
             JsonMessage
                 .newMessage(
@@ -34,7 +33,7 @@ class SamordningHendelseMottakTest {
         )
 
         verify(exactly = 1) {
-            mediator.behandle(any<StartHendelse>(), any<SamordningHendelseMessage>(), any())
+            hendelseMottaker.behandle(any<StartHendelse>(), any<SamordningHendelseMessage>(), any())
         }
     }
 
@@ -53,7 +52,7 @@ class SamordningHendelseMottakTest {
         )
 
         verify(exactly = 0) {
-            mediator.behandle(any<StartHendelse>(), any<SamordningHendelseMessage>(), any())
+            hendelseMottaker.behandle(any<StartHendelse>(), any<SamordningHendelseMessage>(), any())
         }
     }
 }
