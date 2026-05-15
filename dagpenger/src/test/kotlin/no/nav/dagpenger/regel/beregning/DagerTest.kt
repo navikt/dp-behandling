@@ -1,9 +1,11 @@
 package no.nav.dagpenger.regel.beregning
-
 import io.kotest.matchers.equals.shouldBeEqual
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
+import no.nav.dagpenger.regel.regelsett.beregning.Arbeidsdag
+import no.nav.dagpenger.regel.regelsett.beregning.Fraværsdag
+import no.nav.dagpenger.regel.regelsett.beregning.Helgedag
 import kotlin.test.Test
 
 class DagerTest {

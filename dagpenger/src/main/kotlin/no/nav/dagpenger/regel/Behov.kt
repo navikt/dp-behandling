@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-
 import kotlin.reflect.KProperty
 
 object Behov {

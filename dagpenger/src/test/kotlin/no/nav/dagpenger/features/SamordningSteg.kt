@@ -13,11 +13,11 @@ import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Samordning
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.ukessats
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.ukessats
+import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 

@@ -6,12 +6,12 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.regel.Gjenopptak
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Rettighetstype
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import java.time.LocalDate
 
 class GjenopptakSteg : No {

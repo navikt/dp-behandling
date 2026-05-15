@@ -18,16 +18,16 @@ import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
-import no.nav.dagpenger.regel.Gjenopptak
-import no.nav.dagpenger.regel.Opphold
-import no.nav.dagpenger.regel.Opptjeningstid
-import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
-import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 

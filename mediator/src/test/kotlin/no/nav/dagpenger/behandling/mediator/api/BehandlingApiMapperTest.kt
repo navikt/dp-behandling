@@ -1,5 +1,4 @@
 package no.nav.dagpenger.behandling.mediator.api
-
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -29,13 +28,13 @@ import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.Avklaringspunkter
-import no.nav.dagpenger.regel.Minsteinntekt
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test

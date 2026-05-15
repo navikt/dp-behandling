@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel.hendelse
-
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -17,9 +16,10 @@ import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
-import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
-import no.nav.dagpenger.regel.Søknadsprosess
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.prosess.Søknadsprosess
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime

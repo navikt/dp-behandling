@@ -14,7 +14,7 @@ import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.ferietillegg.Behov.OpptjeningsårFerietillegg
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.regel.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 

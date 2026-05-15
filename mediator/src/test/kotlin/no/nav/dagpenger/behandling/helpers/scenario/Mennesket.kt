@@ -1,5 +1,4 @@
 package no.nav.dagpenger.behandling.helpers.scenario
-
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
@@ -14,6 +13,8 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.uuid.UUIDv7
 import java.math.BigDecimal
 import java.time.LocalDate

@@ -11,7 +11,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.RegelkjøringObserver
 import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
-import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 
 class OmgjøringUtenKlageSteg : No {

@@ -8,8 +8,8 @@ import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import org.junit.jupiter.api.Test
 
 class RedigeringTest {

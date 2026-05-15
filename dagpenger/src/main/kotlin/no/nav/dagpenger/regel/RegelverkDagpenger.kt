@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-
 import no.nav.dagpenger.opplysning.DagpengerType.ORDINÆR
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
@@ -9,21 +8,42 @@ import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.Utbetaling
 import no.nav.dagpenger.opplysning.UtbetalingerStrategi
-import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
-import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
-import no.nav.dagpenger.regel.beregning.Beregning
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-import no.nav.dagpenger.regel.fastsetting.Dagpengeperiode
-import no.nav.dagpenger.regel.fastsetting.Egenandel
-import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
-import no.nav.dagpenger.regel.fastsetting.PermitteringFraFiskeindustrienFastsetting
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden
-import no.nav.dagpenger.regel.fastsetting.Vanligarbeidstid
-import no.nav.dagpenger.regel.fastsetting.VernepliktFastsetting
-import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
-import no.nav.dagpenger.regel.prosessvilkår.Uriktigeopplysninger
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFraFiskeindustrienFastsetting
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
+import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
+import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
+import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Permittering
+import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
+import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
+import no.nav.dagpenger.regel.regelsett.vilkår.StreikOgLockout
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknad
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 
 val RegelverkDagpenger =
     Regelverk(

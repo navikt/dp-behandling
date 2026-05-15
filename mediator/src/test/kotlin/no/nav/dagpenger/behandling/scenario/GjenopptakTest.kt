@@ -11,18 +11,18 @@ import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
-import no.nav.dagpenger.regel.Gjenopptak
-import no.nav.dagpenger.regel.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
-import no.nav.dagpenger.regel.Minsteinntekt
-import no.nav.dagpenger.regel.Minsteinntekt.inntektFraSkatt
-import no.nav.dagpenger.regel.Opphold
-import no.nav.dagpenger.regel.Opphold.oppholdINorge
-import no.nav.dagpenger.regel.Opptjeningstid
-import no.nav.dagpenger.regel.Rettighetstype
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
-import no.nav.dagpenger.regel.fastsetting.Dagpengegrunnlag.grunnlag
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
+import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import org.junit.jupiter.api.Test
 
 class GjenopptakTest {

@@ -1,0 +1,73 @@
+package no.nav.dagpenger.regel.regelsett.vilkår
+import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
+import no.nav.dagpenger.opplysning.forskriftTilFolketrygden
+import no.nav.dagpenger.opplysning.regel.dato.sisteAv
+import no.nav.dagpenger.opplysning.regel.fraOgMed
+import no.nav.dagpenger.opplysning.regel.innhentMed
+import no.nav.dagpenger.opplysning.regel.tomRegel
+import no.nav.dagpenger.regel.Avklaringspunkter
+import no.nav.dagpenger.regel.Behov.InnhentFraOgMed
+import no.nav.dagpenger.regel.Behov.Prøvingsdato
+import no.nav.dagpenger.regel.Behov.Søknadsdato
+import no.nav.dagpenger.regel.Behov.ØnskerDagpengerFraDato
+import no.nav.dagpenger.regel.OpplysningsTyper.prøvingsdatoId
+import no.nav.dagpenger.regel.OpplysningsTyper.søknadId
+import no.nav.dagpenger.regel.OpplysningsTyper.søknadsdatoId
+import no.nav.dagpenger.regel.OpplysningsTyper.søknadstidspunktId
+import no.nav.dagpenger.regel.OpplysningsTyper.tidligsteVurderingsdatoId
+import no.nav.dagpenger.regel.OpplysningsTyper.ønskerDagpengerFraDatoId
+import no.nav.dagpenger.regel.kravPåDagpenger
+import java.time.LocalDate
+
+object Søknadstidspunkt {
+    // § 3A-1.Søknadstidspunkt https://lovdata.no/forskrift/1998-09-16-890/§3a-1
+    val søknadsdato = Opplysningstype.dato(søknadsdatoId, "Søknadsdato", behovId = Søknadsdato)
+    val ønsketdato = Opplysningstype.dato(ønskerDagpengerFraDatoId, "Ønsker dagpenger fra dato", behovId = ØnskerDagpengerFraDato)
+
+    val søknadstidspunkt = Opplysningstype.dato(søknadstidspunktId, "Søknadstidspunkt", synlig = aldriSynlig)
+    val tidligsteVurderingsdato =
+        Opplysningstype.dato(
+            tidligsteVurderingsdatoId,
+            "Vurder rett fra og med",
+            synlig = aldriSynlig,
+            behovId = InnhentFraOgMed,
+        )
+
+    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato)
+    val søknadIdOpplysningstype = Opplysningstype.tekst(søknadId, "søknadId")
+
+    val regelsett =
+        fastsettelse(
+            forskriftTilFolketrygden.hjemmel(3, 1, "Søknadstidspunkt", "Søknadstidspunkt"),
+        ) {
+            regel(søknadIdOpplysningstype) { tomRegel }
+            regel(tidligsteVurderingsdato) { fraOgMed(søknadIdOpplysningstype) }
+            regel(søknadsdato) { fraOgMed(søknadIdOpplysningstype) }
+            regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
+            regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
+            regel(prøvingsdato) { sisteAv(søknadstidspunkt) }
+
+            ønsketResultat(prøvingsdato)
+
+            avklaring(Avklaringspunkter.VirkningstidspunktForLangtFramITid)
+        }
+
+    val VirkningstidspunktForLangtFremITid =
+        Kontrollpunkt(Avklaringspunkter.VirkningstidspunktForLangtFramITid) {
+            it.har(prøvingsdato) &&
+                it.finnOpplysning(prøvingsdato).verdi.isAfter(
+                    LocalDate.now().plusDays(14),
+                )
+        }
+
+    val SjekkPrøvingsdato =
+        Kontrollpunkt(Avklaringspunkter.SjekkPrøvingsdato) {
+            it.har(prøvingsdato) &&
+                kravPåDagpenger(it) &&
+                it.finnOpplysning(prøvingsdato).kilde !is Saksbehandlerkilde
+        }
+}

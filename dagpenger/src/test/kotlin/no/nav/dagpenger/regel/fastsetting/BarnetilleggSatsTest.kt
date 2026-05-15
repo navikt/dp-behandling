@@ -1,7 +1,7 @@
 package no.nav.dagpenger.regel.fastsetting
-
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.regelsett.fastsetting.BarnetilleggSats
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.time.LocalDate

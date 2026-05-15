@@ -13,15 +13,15 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Søknadstidspunkt.tidligsteVurderingsdato
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.andreYtelser
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.nedreGrenseForSamordning
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.samordnetUkessats
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.samordnetUkessatsUtenBarnetillegg
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
-import no.nav.dagpenger.regel.fastsetting.SamordingUtenforFolketrygden.sumAvYtelserUtenforFolketrygden
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.andreYtelser
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.nedreGrenseForSamordning
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.samordnetUkessats
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.samordnetUkessatsUtenBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.sumAvYtelserUtenforFolketrygden
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.tidligsteVurderingsdato
 
 class SamordningUtenforFolketrygdenSteg : No {
     private val fraDato = 10.mai(2022)

@@ -8,12 +8,12 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.regel.Permittering
-import no.nav.dagpenger.regel.Rettighetstype
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.Verneplikt
-import no.nav.dagpenger.regel.fastsetting.PermitteringFastsetting
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
+import no.nav.dagpenger.regel.regelsett.vilkår.Permittering
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 
 class PermitteringFastsettingSteg : No {
     private val fraDato = 23.mai(2024)

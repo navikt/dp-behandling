@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.regel.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import org.junit.jupiter.api.Test
 
 // Tester ulike scenarier for kjeding av behandlinger

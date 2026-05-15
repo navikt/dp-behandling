@@ -1,5 +1,4 @@
 package no.nav.dagpenger.behandling.mediator.api
-
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -38,11 +37,11 @@ import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.maskinToken
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.withMockAuthServerAndTestApplication
-import no.nav.dagpenger.regel.Alderskrav
-import no.nav.dagpenger.regel.Minsteinntekt
-import no.nav.dagpenger.regel.ReellArbeidssøker
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.uuid.UUIDv7
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Disabled

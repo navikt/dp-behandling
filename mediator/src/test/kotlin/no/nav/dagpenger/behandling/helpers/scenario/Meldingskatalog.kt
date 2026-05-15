@@ -1,5 +1,4 @@
 package no.nav.dagpenger.behandling.helpers.scenario
-
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate

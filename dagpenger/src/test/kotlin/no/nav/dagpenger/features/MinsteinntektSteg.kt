@@ -14,13 +14,13 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.tomHjemmel
-import no.nav.dagpenger.regel.Minsteinntekt
-import no.nav.dagpenger.regel.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.OpplysningsTyper.MinsteinntektEllerVernepliktId
 import no.nav.dagpenger.regel.RegelverkDagpenger
-import no.nav.dagpenger.regel.Søknadstidspunkt
-import no.nav.dagpenger.regel.Verneplikt
-import no.nav.dagpenger.regel.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 
 private val minsteinntektEllerVerneplikt = boolsk(MinsteinntektEllerVernepliktId, "Oppfyller kravet til minsteinntekt eller verneplikt")
 

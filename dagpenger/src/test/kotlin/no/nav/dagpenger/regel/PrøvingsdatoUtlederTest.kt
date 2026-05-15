@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.dato.mai
@@ -7,11 +6,12 @@ import no.nav.dagpenger.dato.november
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadsdato
-import no.nav.dagpenger.regel.Søknadstidspunkt.søknadstidspunkt
-import no.nav.dagpenger.regel.Søknadstidspunkt.ønsketdato
+import no.nav.dagpenger.regel.prosess.PrøvingsdatoUtleder
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

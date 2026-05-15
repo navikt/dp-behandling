@@ -9,10 +9,10 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosesskontekst
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
-import no.nav.dagpenger.regel.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
-import no.nav.dagpenger.regel.TaptArbeidstidStans
-import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regel.prosess.TaptArbeidstidStans
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 
 class TaptArbeidstidStansSteg : No {
     private val opplysninger = mutableListOf<Opplysning<*>>()

@@ -13,10 +13,10 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
-import no.nav.dagpenger.regel.Meldeplikt.oppfyllerMeldeplikt
-import no.nav.dagpenger.regel.RegistrertArbeidssøker.registrertArbeidssøker
-import no.nav.dagpenger.regel.Stansprosess
+import no.nav.dagpenger.regel.prosess.Stansprosess
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime

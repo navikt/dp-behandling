@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
@@ -13,7 +12,8 @@ import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
-import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.prosess.RettighetsperiodePlugin
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.uuid.UUIDv7
 import kotlin.test.Test
 
