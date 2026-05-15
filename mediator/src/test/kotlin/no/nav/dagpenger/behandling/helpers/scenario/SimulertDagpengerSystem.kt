@@ -165,7 +165,7 @@ internal class SimulertDagpengerSystem(
         personRepository.lagre(Person(ident.tilPersonIdentfikator()))
     }
 
-    class TestLol(
+    class TestRapidMessageContext(
         private val rapid: TestRapid,
     ) : MessageContext {
         override fun publish(message: String) {
@@ -208,7 +208,7 @@ internal class SimulertDagpengerSystem(
             )
     }
 
-    val meldekortkø = MeldekortBehandlingskø(personRepository, meldekortRepository, TestLol(rapid))
+    val meldekortkø = MeldekortBehandlingskø(personRepository, meldekortRepository, TestRapidMessageContext(rapid))
 
     fun meldekortBatch(avklar: Boolean = false) {
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()
