@@ -114,10 +114,10 @@ data class Utbetaling(
     val sats: Int,
     val utbetaling: Int,
     val endret: Boolean,
-    val dagpengerType: DagpengerType,
+    val ytelsestype: Ytelsestype,
 )
 
-enum class DagpengerType {
-    ORDINÆR,
-    FERIETILLEGG,
-}
+@JvmInline
+value class Ytelsestype(
+    val navn: String,
+)

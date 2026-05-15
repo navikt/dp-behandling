@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-import no.nav.dagpenger.opplysning.DagpengerType.ORDINÆR
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
@@ -8,6 +7,7 @@ import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.Utbetaling
 import no.nav.dagpenger.opplysning.UtbetalingerStrategi
+import no.nav.dagpenger.opplysning.Ytelsestype
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
@@ -133,7 +133,7 @@ class DagpengerUtbetalingStrategi : UtbetalingerStrategi {
                     sats = sats.verdien.toInt(),
                     utbetaling = dag.verdi.heleKroner.toInt(),
                     endret = (dag.id in egneId),
-                    dagpengerType = ORDINÆR,
+                    ytelsestype = Ytelsestype("Ordinær"),
                 )
             }
         }

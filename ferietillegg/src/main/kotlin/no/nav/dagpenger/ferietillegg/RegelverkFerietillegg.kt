@@ -1,6 +1,5 @@
 package no.nav.dagpenger.ferietillegg
 
-import no.nav.dagpenger.opplysning.DagpengerType.FERIETILLEGG
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
@@ -9,6 +8,7 @@ import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.Utbetaling
 import no.nav.dagpenger.opplysning.UtbetalingerStrategi
+import no.nav.dagpenger.opplysning.Ytelsestype
 import java.time.LocalDate
 
 val RegelverkFerietillegg =
@@ -49,7 +49,7 @@ class FerietilleggUtbetalingStrategi : UtbetalingerStrategi {
                 sats = ferietilleggBeløp.verdi.verdien.toInt(),
                 utbetaling = ferietilleggBeløp.verdi.verdien.toInt(),
                 endret = true,
-                dagpengerType = FERIETILLEGG,
+                ytelsestype = Ytelsestype("Ferietillegg"),
             )
         return listOf(utbetaling)
     }
