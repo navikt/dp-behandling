@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.mediator.mottak
+package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
@@ -11,16 +11,15 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.MessageMediator
-import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
+import no.nav.dagpenger.regelverk.HendelseMottaker
+import no.nav.dagpenger.regelverk.asUUID
+import no.nav.dagpenger.regelverk.melding.KafkaMelding
 
-internal class SøknadInnsendtMottak(
+class SøknadInnsendtMottak(
     rapidsConnection: RapidsConnection,
-    private val messageMediator: MessageMediator,
+    private val hendelseMottaker: HendelseMottaker,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
@@ -56,7 +55,10 @@ internal class SøknadInnsendtMottak(
             sikkerlogg.info { "Mottok behandlingsklar søknad: ${packet.toJson()}" }
 
             val message = SøknadInnsendtMessage(packet)
-            message.behandle(messageMediator, context)
+            withLoggingContext(message.hendelse.kontekstMap()) {
+                logger.info { "Behandler søknad innsendt hendelse" }
+                hendelseMottaker.behandle(message.hendelse, message, context)
+            }
         }
     }
 
@@ -66,14 +68,14 @@ internal class SøknadInnsendtMottak(
     }
 }
 
-internal class SøknadInnsendtMessage(
+class SøknadInnsendtMessage(
     private val packet: JsonMessage,
-) : HåndterbarKafkaMelding(packet) {
+) : KafkaMelding(packet) {
     override val ident get() = packet["ident"].asText()
     private val søknadId = packet["søknadId"].asUUID()
     private val søknadstype = packet["type"].textValue()?.let { Søknadstype.valueOf(it) } ?: Søknadstype.NySøknad
 
-    private val hendelse: SøknadInnsendtHendelse
+    internal val hendelse: SøknadInnsendtHendelse
         get() {
             return SøknadInnsendtHendelse(
                 id,
@@ -85,18 +87,4 @@ internal class SøknadInnsendtMessage(
                 søknadstype,
             )
         }
-
-    override fun behandle(
-        mediator: IMessageMediator,
-        context: MessageContext,
-    ) {
-        withLoggingContext(hendelse.kontekstMap()) {
-            logger.info { "Behandler søknad innsendt hendelse" }
-            mediator.behandle(hendelse, this, context)
-        }
-    }
-
-    private companion object {
-        private val logger = KotlinLogging.logger {}
-    }
 }

@@ -5,7 +5,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.db.Postgres
-import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
+import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.uuid.UUIDv7
 import kotlin.test.Test
 

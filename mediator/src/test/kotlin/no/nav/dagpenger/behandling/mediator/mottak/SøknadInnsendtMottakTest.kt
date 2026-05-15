@@ -4,6 +4,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.MessageMediator
+import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage
+import no.nav.dagpenger.regel.mottak.SøknadInnsendtMottak
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.Test

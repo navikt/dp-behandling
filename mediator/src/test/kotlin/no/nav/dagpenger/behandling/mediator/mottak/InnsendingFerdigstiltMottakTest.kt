@@ -9,6 +9,8 @@ import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage
+import no.nav.dagpenger.regel.mottak.SøknadInnsendtMottak
 import org.junit.jupiter.api.Test
 import java.util.UUID
 

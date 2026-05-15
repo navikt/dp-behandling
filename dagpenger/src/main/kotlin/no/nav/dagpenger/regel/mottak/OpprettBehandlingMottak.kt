@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.mediator.mottak
+package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
@@ -7,17 +7,17 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.ManuellId
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
+import no.nav.dagpenger.regelverk.HendelseMottaker
+import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.util.UUID
 
-internal class OpprettBehandlingMottak(
+class OpprettBehandlingMottak(
     rapidsConnection: RapidsConnection,
-    private val hendelseMediator: IMessageMediator,
+    private val hendelseMottaker: HendelseMottaker,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
@@ -37,15 +37,15 @@ internal class OpprettBehandlingMottak(
         meterRegistry: MeterRegistry,
     ) {
         val message = OpprettBehandlingMessage(packet)
-        message.behandle(hendelseMediator, context)
+        hendelseMottaker.behandle(message.hendelse, message, context)
     }
 }
 
-internal class OpprettBehandlingMessage(
+class OpprettBehandlingMessage(
     packet: JsonMessage,
-) : HåndterbarKafkaMelding(packet) {
+) : KafkaMelding(packet) {
     override val ident: String = packet["ident"].asText()
-    private val hendelse =
+    internal val hendelse =
         OpprettBehandlingHendelse(
             meldingsreferanseId = UUID.fromString(packet.id),
             ident = ident,
@@ -54,11 +54,4 @@ internal class OpprettBehandlingMessage(
             begrunnelse = packet["begrunnelse"].asText(),
             opprettet = opprettet,
         )
-
-    override fun behandle(
-        mediator: IMessageMediator,
-        context: MessageContext,
-    ) {
-        mediator.behandle(hendelse, this, context)
-    }
 }
