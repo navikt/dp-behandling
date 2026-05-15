@@ -12,7 +12,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
@@ -65,7 +65,7 @@ internal class BeregnMeldekortMottak(
     class BeregnMeldekortMessage(
         packet: JsonMessage,
         meldekort: Meldekort,
-    ) : KafkaMelding(packet) {
+    ) : HåndterbarKafkaMelding(packet) {
         val meldekortId: UUID = packet["meldekortId"].asUUID()
         override val ident = packet["ident"].asText()
 

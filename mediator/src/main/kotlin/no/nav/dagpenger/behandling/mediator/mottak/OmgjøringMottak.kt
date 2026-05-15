@@ -8,7 +8,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
@@ -44,7 +44,7 @@ internal class OmgjøringMottak(
 internal class OmgjøringMessage(
     packet: JsonMessage,
     meldekortRepository: MeldekortRepository,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     override val ident: String = packet["ident"].asText()
     private val hendelse =
         OmgjøringHendelse(

@@ -6,8 +6,6 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.behandling.mediator.Metrikk.totalTidBruktPerHendelse
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
-import no.nav.dagpenger.behandling.mediator.melding.MeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
@@ -56,6 +54,9 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.regelverk.HendelseMottaker
+import no.nav.dagpenger.regelverk.melding.KafkaMelding
+import no.nav.dagpenger.regelverk.melding.MeldingRepository
 import java.util.UUID
 
 internal class MessageMediator(
@@ -246,13 +247,7 @@ internal class MessageMediator(
     }
 }
 
-internal interface IMessageMediator {
-    fun behandle(
-        hendelse: StartHendelse,
-        message: KafkaMelding,
-        context: MessageContext,
-    )
-
+internal interface IMessageMediator : HendelseMottaker {
     fun behandle(
         hendelse: OpplysningSvarHendelse,
         message: OpplysningSvarMessage,

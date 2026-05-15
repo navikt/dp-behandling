@@ -13,7 +13,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 
 internal class PåminnelseMottak(
@@ -67,7 +67,7 @@ internal class PåminnelseMottak(
 
 internal class BehandlingStårFastMessage(
     private val packet: JsonMessage,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     override val ident get() = packet["ident"].asText()
 
     private val hendelse

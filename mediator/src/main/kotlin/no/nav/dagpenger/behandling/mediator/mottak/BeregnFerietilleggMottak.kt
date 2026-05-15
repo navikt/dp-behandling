@@ -12,7 +12,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.ferietillegg.hendelse.BeregnFerietilleggHendelse
 import java.util.UUID
 
@@ -59,7 +59,7 @@ internal class BeregnFerietilleggMottak(
     class BeregnFerietilleggMessage(
         packet: JsonMessage,
         ferietilleggId: UUID,
-    ) : KafkaMelding(packet) {
+    ) : HåndterbarKafkaMelding(packet) {
         val opptjeningsår = packet["opptjeningsår"].asInt()
         override val ident = packet["ident"].asText()
 

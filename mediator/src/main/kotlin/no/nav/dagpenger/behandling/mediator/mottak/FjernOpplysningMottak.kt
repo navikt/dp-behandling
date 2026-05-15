@@ -12,7 +12,7 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.KafkaMelding
+import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.opplysning.OpplysningIkkeFunnetException
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -94,7 +94,7 @@ internal class FjernOpplysningMottak(
 internal class FjernOpplysningMessage(
     packet: JsonMessage,
     opplysningstype: String,
-) : KafkaMelding(packet) {
+) : HåndterbarKafkaMelding(packet) {
     override val ident: String = packet["ident"].asText()
     private val hendelse =
         FjernOpplysningHendelse(
