@@ -5,8 +5,9 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
+import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak
+import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime

@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.mediator.mottak
+package no.nav.dagpenger.regel.mottak
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
@@ -12,15 +12,15 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
+import no.nav.dagpenger.regelverk.HendelseMottaker
+import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.uuid.UUIDv7
 
-internal class SamordningHendelseMottak(
+class SamordningHendelseMottak(
     rapidsConnection: RapidsConnection,
-    private val messageMediator: IMessageMediator,
+    private val hendelseMottaker: HendelseMottaker,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
@@ -42,7 +42,7 @@ internal class SamordningHendelseMottak(
     ) {
         val message = SamordningHendelseMessage(packet)
         logger.info { "Mottok hendelse om mulig samordning med ${message.ytelse} fra ${message.fom}" }
-        message.behandle(messageMediator, context)
+        hendelseMottaker.behandle(message.hendelse, message, context)
     }
 
     override fun onError(
@@ -57,15 +57,15 @@ internal class SamordningHendelseMottak(
         private val logger = KotlinLogging.logger {}
     }
 
-    internal class SamordningHendelseMessage(
+    class SamordningHendelseMessage(
         packet: JsonMessage,
-    ) : HåndterbarKafkaMelding(packet) {
+    ) : KafkaMelding(packet) {
         override val ident: String = packet["ident"].asText()
 
         val ytelse = packet["tema"].asText()
         val fom = packet["tidspunkt"].asLocalDateTime()
 
-        private val hendelse =
+        internal val hendelse =
             OpprettBehandlingHendelse(
                 meldingsreferanseId = packet.id.toUUID(),
                 ident = ident,
@@ -75,12 +75,5 @@ internal class SamordningHendelseMottak(
                 opprettet = opprettet,
                 startNyKjede = false,
             )
-
-        override fun behandle(
-            mediator: IMessageMediator,
-            context: MessageContext,
-        ) {
-            mediator.behandle(hendelse, this, context)
-        }
     }
 }

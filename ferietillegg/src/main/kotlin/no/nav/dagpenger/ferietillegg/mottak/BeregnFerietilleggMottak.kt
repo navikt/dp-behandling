@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.mediator.mottak
+package no.nav.dagpenger.ferietillegg.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
@@ -9,16 +9,15 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.MessageMediator
-import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.ferietillegg.hendelse.BeregnFerietilleggHendelse
+import no.nav.dagpenger.regelverk.HendelseMottaker
+import no.nav.dagpenger.regelverk.asUUID
+import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import java.util.UUID
 
-internal class BeregnFerietilleggMottak(
+class BeregnFerietilleggMottak(
     rapidsConnection: RapidsConnection,
-    private val messageMediator: MessageMediator,
+    private val hendelseMottaker: HendelseMottaker,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
@@ -48,7 +47,7 @@ internal class BeregnFerietilleggMottak(
         ) {
             log.info { "Mottok beregn_ferietillegg" }
             val message = BeregnFerietilleggMessage(packet, ferietilleggId)
-            message.behandle(messageMediator, context)
+            hendelseMottaker.behandle(message.hendelse, message, context)
         }
     }
 
@@ -59,17 +58,10 @@ internal class BeregnFerietilleggMottak(
     class BeregnFerietilleggMessage(
         packet: JsonMessage,
         ferietilleggId: UUID,
-    ) : HåndterbarKafkaMelding(packet) {
+    ) : KafkaMelding(packet) {
         val opptjeningsår = packet["opptjeningsår"].asInt()
         override val ident = packet["ident"].asText()
 
-        override fun behandle(
-            mediator: IMessageMediator,
-            context: MessageContext,
-        ) {
-            mediator.behandle(hendelse, this, context)
-        }
-
-        private val hendelse = BeregnFerietilleggHendelse(id, ident, opprettet, opptjeningsår, ferietilleggId)
+        internal val hendelse = BeregnFerietilleggHendelse(id, ident, opprettet, opptjeningsår, ferietilleggId)
     }
 }

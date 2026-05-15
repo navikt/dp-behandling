@@ -5,8 +5,9 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak
+import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneOffset

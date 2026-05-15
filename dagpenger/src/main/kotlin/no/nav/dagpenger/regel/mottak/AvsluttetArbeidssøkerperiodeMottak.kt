@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.mediator.mottak
+package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
@@ -10,15 +10,15 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.behandling.mediator.IMessageMediator
-import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiode
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
+import no.nav.dagpenger.regelverk.HendelseMottaker
+import no.nav.dagpenger.regelverk.melding.KafkaMelding
 
-internal class AvsluttetArbeidssøkerperiodeMottak(
+class AvsluttetArbeidssøkerperiodeMottak(
     rapidsConnection: RapidsConnection,
-    private val messageMediator: IMessageMediator,
+    private val hendelseMottaker: HendelseMottaker,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
@@ -38,12 +38,12 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
         logger.info { "Mottok utmeldt_fra_arbeidssøkerregisteret" }
 
         val message = AvsluttetArbeidssøkerperiodeMessage(packet)
-        message.behandle(messageMediator, context)
+        hendelseMottaker.behandle(message.hendelse, message, context)
     }
 
     class AvsluttetArbeidssøkerperiodeMessage(
         packet: JsonMessage,
-    ) : HåndterbarKafkaMelding(packet) {
+    ) : KafkaMelding(packet) {
         private val periodeId = packet["periodeId"].asUUID()
         private val fastsattMeldingsdag = packet["fastsattMeldedato"].asLocalDate()
         private val avsluttetTidspunkt = packet["avregistrertTidspunkt"].asLocalDateTime()
@@ -51,7 +51,7 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
 
         override val ident = packet["ident"].asText()
 
-        private val hendelse =
+        internal val hendelse =
             AvsluttetArbeidssøkerperiodeHendelse(
                 meldingsreferanseId = id,
                 ident = ident,
@@ -67,13 +67,6 @@ internal class AvsluttetArbeidssøkerperiodeMottak(
                         manueltAvregistrert = årsak == Årsak.UTMELDT_I_ASR,
                     ),
             )
-
-        override fun behandle(
-            mediator: IMessageMediator,
-            context: MessageContext,
-        ) {
-            mediator.behandle(hendelse, this, context)
-        }
     }
 
     private enum class Årsak {
