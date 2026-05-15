@@ -16,22 +16,17 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
-import no.nav.dagpenger.regel.DagpengerRegistrering
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
-import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 class PersonRepositoryPostgresTest {
     private val fnr = "12345678901"
-    private val søknadId = UUIDv7.ny()
     private val prosessregister =
         Prosessregister().also {
-            DagpengerRegistrering().registrerProsesser(it)
+            TestBehandlinger.registrerTestProsesser(it)
         }
     private val personRepositoryPostgres
         get() =
@@ -42,16 +37,6 @@ class PersonRepositoryPostgresTest {
                     prosessregister,
                 ),
             )
-    private val søknadInnsendtHendelse =
-        SøknadInnsendtHendelse(
-            meldingsreferanseId = søknadId,
-            ident = fnr,
-            søknadId = søknadId,
-            gjelderDato = LocalDate.now(),
-            fagsakId = 1,
-            opprettet = LocalDateTime.now(),
-            Søknadstype.NySøknad,
-        )
 
     @Test
     fun `hent returnerer person når personen finnes i databasen`() =
@@ -92,7 +77,8 @@ class PersonRepositoryPostgresTest {
         withMigratedDb {
             val ident = Ident(fnr)
             val opplysning = Faktum(Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Heltall"), 5)
-            val behandling = Behandling(søknadInnsendtHendelse, listOf(opplysning))
+            val hendelse = TestBehandlinger.lagTestHendelse(fnr)
+            val behandling = Behandling(hendelse, listOf(opplysning))
             val person = Person(ident, listOf(behandling.somKjede()))
 
             personRepositoryPostgres.lagre(person)
@@ -117,7 +103,8 @@ class PersonRepositoryPostgresTest {
     fun `lagre setter ikke inn person i databasen når personen allerede finnes`() =
         withMigratedDb {
             val ident = Ident(fnr)
-            val behandling = Behandling(søknadInnsendtHendelse, emptyList())
+            val hendelse = TestBehandlinger.lagTestHendelse(fnr)
+            val behandling = Behandling(hendelse, emptyList())
             val person = Person(ident, listOf(behandling.somKjede()))
 
             personRepositoryPostgres.lagre(person)
