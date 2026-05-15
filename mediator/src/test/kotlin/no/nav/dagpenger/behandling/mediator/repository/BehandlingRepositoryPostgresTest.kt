@@ -12,18 +12,13 @@ import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderBehandlin
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.somKjede
-import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Boolsk
+import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
-import no.nav.dagpenger.regel.Avklaringspunkter
-import no.nav.dagpenger.regel.DagpengerRegistrering
-import no.nav.dagpenger.regel.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
-import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -32,25 +27,17 @@ import java.time.temporal.ChronoUnit
 
 class BehandlingRepositoryPostgresTest {
     private val ident = "12345678911"
-    private val søknadId = UUIDv7.ny()
-    private val søknadInnsendtHendelse =
-        SøknadInnsendtHendelse(
-            meldingsreferanseId = søknadId,
-            ident = ident,
-            søknadId = søknadId,
-            gjelderDato = LocalDate.now(),
-            fagsakId = 1,
-            opprettet = LocalDateTime.now(),
-            Søknadstype.NySøknad,
-        )
-    private val prøvingsdatoOpplysning = Faktum(prøvingsdato, LocalDate.now())
+    private val testHendelse = TestBehandlinger.lagTestHendelse(ident)
+
+    private val datoOpplysningstype = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "test-dato")
+    private val datoOpplysning = Faktum(datoOpplysningstype, LocalDate.now())
     private val tidligereOpplysning =
         Faktum(Opplysningstype.desimaltall(Opplysningstype.Id(UUIDv7.ny(), Desimaltall), "tidligere-opplysning"), 1.0)
     private val basertPåBehandling =
         Behandling.rehydrer(
             behandlingId = UUIDv7.ny(),
-            behandler = søknadInnsendtHendelse,
-            gjeldendeOpplysninger = Opplysninger.med(prøvingsdatoOpplysning, tidligereOpplysning),
+            behandler = testHendelse,
+            gjeldendeOpplysninger = Opplysninger.med(datoOpplysning, tidligereOpplysning),
             opprettet = LocalDateTime.now(),
             tilstand = Ferdig,
             sistEndretTilstand = LocalDateTime.now(),
@@ -64,7 +51,7 @@ class BehandlingRepositoryPostgresTest {
 
     private val opplysningerRepository = OpplysningerRepositoryPostgres()
     private val opplysningstyper =
-        listOf(opplysningstype1, opplysningstype2, opplysningstype3, opplysningstype4, opplysningstype5, prøvingsdato).toSet()
+        listOf(opplysningstype1, opplysningstype2, opplysningstype3, opplysningstype4, opplysningstype5, datoOpplysningstype).toSet()
 
     private val opplysning1 = Faktum(opplysningstype1, 1.0)
     private val opplysning2 = Faktum(opplysningstype2, 2.0)
@@ -73,12 +60,12 @@ class BehandlingRepositoryPostgresTest {
     private val opplysning5 = Faktum(opplysningstype5, false)
 
     private val avklaring =
-        Avklaring(Avklaringspunkter.JobbetUtenforNorge)
+        Avklaring(TestBehandlinger.testAvklaringskode)
 
     private val behandling =
         Behandling.rehydrer(
             behandlingId = UUIDv7.ny(),
-            behandler = søknadInnsendtHendelse,
+            behandler = testHendelse,
             gjeldendeOpplysninger = Opplysninger.med(opplysning1, opplysning2, opplysning3),
             basertPå = basertPåBehandling,
             opprettet = LocalDateTime.now(),
@@ -93,7 +80,7 @@ class BehandlingRepositoryPostgresTest {
         opplysninger: Opplysninger = Opplysninger.med(opplysning1, opplysning2, opplysning3),
     ) = Behandling.rehydrer(
         behandlingId = UUIDv7.ny(),
-        behandler = søknadInnsendtHendelse,
+        behandler = testHendelse,
         gjeldendeOpplysninger = opplysninger, // Opplysninger.med(opplysning4),
         basertPå = basertPå,
         opprettet = LocalDateTime.now(),
@@ -106,14 +93,13 @@ class BehandlingRepositoryPostgresTest {
     fun `lagre og hente en kjede med grener fra postgres`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
-            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            TestBehandlinger.registrerTestProsesser(RegistrertForretningsprosess)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
 
-            val b1 = nyBehandling(null, Ferdig, Opplysninger.med(prøvingsdatoOpplysning))
+            val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning2))
             val bastard = nyBehandling(b2, UnderBehandling, Opplysninger.med(opplysning1))
             val b3 = nyBehandling(b2, Ferdig, Opplysninger.med(opplysning3))
@@ -144,14 +130,13 @@ class BehandlingRepositoryPostgresTest {
     fun `flytter en eldre behandling til å peke på en nyere`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
-            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            TestBehandlinger.registrerTestProsesser(RegistrertForretningsprosess)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
 
-            val b1 = nyBehandling(null, Ferdig, Opplysninger.med(prøvingsdatoOpplysning))
+            val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, UnderBehandling, Opplysninger.med(opplysning2))
             val b3 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning3))
 
@@ -181,8 +166,7 @@ class BehandlingRepositoryPostgresTest {
     fun `lagre og hent behandling fra postgres`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
-            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            TestBehandlinger.registrerTestProsesser(RegistrertForretningsprosess)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
