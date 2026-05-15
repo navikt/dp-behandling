@@ -36,7 +36,7 @@ import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
+import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.helse.rapids_rivers.RapidApplication
@@ -63,12 +63,14 @@ internal class ApplicationBuilder(
 
     private val avklaringRepository = AvklaringRepositoryPostgres()
     private val opplysningRepository = OpplysningerRepositoryPostgres()
+    private val prosessregister = Prosessregister()
 
     private val personRepository =
         PersonRepositoryPostgres(
             BehandlingRepositoryPostgres(
                 opplysningRepository,
                 avklaringRepository,
+                prosessregister,
             ),
         )
 
@@ -148,7 +150,7 @@ internal class ApplicationBuilder(
                 behovssporer = behovssporer,
                 personRepository = personRepository,
             ).apply {
-                regelverk.forEach { it.registrer(rapidsConnection, this, RegistrertForretningsprosess) }
+                regelverk.forEach { it.registrer(rapidsConnection, this, prosessregister) }
             }
 
             rapidsConnection.register(

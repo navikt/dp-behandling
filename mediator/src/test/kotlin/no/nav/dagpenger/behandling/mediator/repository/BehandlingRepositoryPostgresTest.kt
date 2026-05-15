@@ -18,7 +18,7 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
+import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -93,11 +93,12 @@ class BehandlingRepositoryPostgresTest {
     fun `lagre og hente en kjede med grener fra postgres`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            TestBehandlinger.registrerTestProsesser(RegistrertForretningsprosess)
+            val prosessregister = Prosessregister()
+            TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
+            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning2))
@@ -130,11 +131,12 @@ class BehandlingRepositoryPostgresTest {
     fun `flytter en eldre behandling til å peke på en nyere`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            TestBehandlinger.registrerTestProsesser(RegistrertForretningsprosess)
+            val prosessregister = Prosessregister()
+            TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
+            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, UnderBehandling, Opplysninger.med(opplysning2))
@@ -166,11 +168,12 @@ class BehandlingRepositoryPostgresTest {
     fun `lagre og hent behandling fra postgres`() {
         withMigratedDb {
             // Registrer forretningsprosesser og opplysningstyper
-            TestBehandlinger.registrerTestProsesser(RegistrertForretningsprosess)
+            val prosessregister = Prosessregister()
+            TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres()
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository)
+            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository, prosessregister)
 
             opprettKjede(behandlingRepositoryPostgres, listOf(basertPåBehandling, behandling))
 

@@ -17,6 +17,7 @@ import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
@@ -98,7 +99,7 @@ class AvklaringRepositoryPostgresTest {
     ) {
         val behandlingId get() = behandling.behandlingId
         private val behandling = behandling(*avklaring)
-        private val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository(), repository)
+        private val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository(), repository, Prosessregister())
         private val personRepository = PersonRepositoryPostgres(behandlingRepository)
 
         init {

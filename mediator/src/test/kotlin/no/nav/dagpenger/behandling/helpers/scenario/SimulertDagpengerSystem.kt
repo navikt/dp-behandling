@@ -33,7 +33,7 @@ import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
+import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import org.approvaltests.Approvals
@@ -49,11 +49,13 @@ internal class SimulertDagpengerSystem(
 
     private val rapid = TestRapid()
     private val opplysningerRepository = OpplysningerRepositoryPostgres()
+    private val prosessregister = Prosessregister()
     private val personRepository =
         PersonRepositoryPostgres(
             BehandlingRepositoryPostgres(
                 opplysningerRepository,
                 AvklaringRepositoryPostgres(AvklaringKafkaObservatør(rapid)),
+                prosessregister,
             ),
         )
     private val meldekortRepository = MeldekortRepositoryPostgres()
@@ -88,7 +90,7 @@ internal class SimulertDagpengerSystem(
             opplysningstyper = opplysningstyper,
             personRepository = personRepository,
         ).apply {
-            regelverk.forEach { it.registrer(rapid, this, RegistrertForretningsprosess) }
+            regelverk.forEach { it.registrer(rapid, this, prosessregister) }
         }
         opplysningerRepository.lagreOpplysningstyper(Opplysningstype.definerteTyper)
     }

@@ -63,10 +63,6 @@ data class Prosesskontekst(
 }
 
 class Prosessregister {
-    companion object {
-        val RegistrertForretningsprosess = Prosessregister()
-    }
-
     private val forretningsprosesser = mutableMapOf<String, Forretningsprosess>()
 
     fun registrer(forretningsprosess: Forretningsprosess) {
