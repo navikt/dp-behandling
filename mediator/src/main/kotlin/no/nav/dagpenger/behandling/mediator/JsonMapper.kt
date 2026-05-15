@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling
+package no.nav.dagpenger.behandling.mediator
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature

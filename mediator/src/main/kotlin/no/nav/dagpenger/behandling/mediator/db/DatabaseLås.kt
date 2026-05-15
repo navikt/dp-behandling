@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.db
+package no.nav.dagpenger.behandling.mediator.db
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.TransactionalSession

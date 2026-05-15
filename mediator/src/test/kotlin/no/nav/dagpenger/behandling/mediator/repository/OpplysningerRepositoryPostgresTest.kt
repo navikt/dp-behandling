@@ -26,11 +26,11 @@ import no.nav.dagpenger.behandling.TestOpplysningstyper.tekst
 import no.nav.dagpenger.behandling.TestOpplysningstyper.utledetOpplysningstype
 import no.nav.dagpenger.behandling.april
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.mai
-import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.september
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum

@@ -10,7 +10,6 @@ import io.ktor.server.application.Application
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.db.Postgres
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.Behovssporer
@@ -18,6 +17,7 @@ import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak

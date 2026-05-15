@@ -2,8 +2,8 @@ package no.nav.dagpenger.behandling.mediator
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
-import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Kilde

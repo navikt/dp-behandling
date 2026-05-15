@@ -5,8 +5,8 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.medLås
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.db.medLås
 import java.util.UUID
 
 internal class VaktmesterPostgresRepo {

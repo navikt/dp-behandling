@@ -9,8 +9,8 @@ import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.januar
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.Meldekortgenerator.Companion.generatorFor
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag

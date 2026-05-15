@@ -5,9 +5,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.ForslagTilVedtak
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning

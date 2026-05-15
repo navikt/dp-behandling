@@ -1,4 +1,4 @@
-package no.nav.dagpenger.behandling.db
+package no.nav.dagpenger.behandling.mediator.db
 
 import ch.qos.logback.core.util.OptionHelper.getEnv
 import ch.qos.logback.core.util.OptionHelper.getSystemProperty

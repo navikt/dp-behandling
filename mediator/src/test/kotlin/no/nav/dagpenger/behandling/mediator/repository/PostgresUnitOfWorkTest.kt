@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import org.junit.jupiter.api.Test
 
 class PostgresUnitOfWorkTest {

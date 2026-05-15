@@ -1,6 +1,7 @@
 package no.nav.dagpenger.behandling.db
 
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder
 import org.flywaydb.core.internal.configuration.ConfigUtils
 import org.testcontainers.postgresql.PostgreSQLContainer
 

@@ -5,7 +5,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortkø
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortstatus
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør

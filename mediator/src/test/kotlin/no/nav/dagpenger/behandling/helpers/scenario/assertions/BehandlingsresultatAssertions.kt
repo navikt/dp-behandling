@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
 import java.time.LocalDate
 import java.util.UUID

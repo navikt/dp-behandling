@@ -6,9 +6,9 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
-import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype

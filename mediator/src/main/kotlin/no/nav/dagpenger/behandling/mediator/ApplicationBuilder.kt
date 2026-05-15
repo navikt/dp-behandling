@@ -10,13 +10,13 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.api.simuleringApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
 import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
 import no.nav.dagpenger.behandling.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
@@ -24,6 +24,7 @@ import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
 import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
@@ -33,7 +34,6 @@ import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPos
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
-import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister

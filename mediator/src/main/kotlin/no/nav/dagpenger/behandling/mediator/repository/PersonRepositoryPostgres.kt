@@ -6,10 +6,10 @@ import io.prometheus.metrics.model.snapshots.Labels
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus

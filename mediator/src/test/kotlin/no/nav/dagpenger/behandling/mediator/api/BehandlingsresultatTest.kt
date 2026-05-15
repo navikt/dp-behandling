@@ -8,8 +8,8 @@ import no.nav.dagpenger.behandling.august
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.mai
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
