@@ -13,13 +13,10 @@ import no.nav.dagpenger.behandling.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.behandling.mediator.mottak.AvklaringIkkeRelevantMottak
 import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssøkerperiodeMottak
-import no.nav.dagpenger.behandling.mediator.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BehovsløserForbruksdagerMottak
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnFerietilleggMottak
-import no.nav.dagpenger.behandling.mediator.mottak.BeregnFerietilleggMottak.BeregnFerietilleggMessage
 import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak
-import no.nav.dagpenger.behandling.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
 import no.nav.dagpenger.behandling.mediator.mottak.FjernOpplysningMessage
 import no.nav.dagpenger.behandling.mediator.mottak.FjernOpplysningMottak
 import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMessage
@@ -27,22 +24,18 @@ import no.nav.dagpenger.behandling.mediator.mottak.GodkjennBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.InnsendingFerdigstiltMottak
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.MeldekortInnsendtMottak
-import no.nav.dagpenger.behandling.mediator.mottak.OmgjøringMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OmgjøringMottak
 import no.nav.dagpenger.behandling.mediator.mottak.OppgaveReturnertTilSaksbehandler
 import no.nav.dagpenger.behandling.mediator.mottak.OppgaveSendtTilKontroll
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpplysningSvarMottak
-import no.nav.dagpenger.behandling.mediator.mottak.OpprettBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.OpprettBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.PåminnelseMottak
 import no.nav.dagpenger.behandling.mediator.mottak.RekjørBehandlingMessage
 import no.nav.dagpenger.behandling.mediator.mottak.RekjørBehandlingMottak
 import no.nav.dagpenger.behandling.mediator.mottak.ReturnerTilSaksbehandlerMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SamordningHendelseMottak
-import no.nav.dagpenger.behandling.mediator.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SendtTilKontrollMessage
-import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMessage
 import no.nav.dagpenger.behandling.mediator.mottak.SøknadInnsendtMottak
 import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMessage
 import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMottak
@@ -63,8 +56,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
-import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import java.util.UUID
 
 internal class MessageMediator(
@@ -106,7 +97,7 @@ internal class MessageMediator(
 
     override fun behandle(
         hendelse: StartHendelse,
-        message: SøknadInnsendtMessage,
+        message: KafkaMelding,
         context: MessageContext,
     ) {
         behandle(hendelse, message) {
@@ -210,56 +201,6 @@ internal class MessageMediator(
     }
 
     override fun behandle(
-        hendelse: StartHendelse,
-        message: BeregnMeldekortMessage,
-        context: MessageContext,
-    ) {
-        behandle(hendelse, message) {
-            hendelseMediator.behandle(it, context)
-        }
-    }
-
-    override fun behandle(
-        hendelse: StartHendelse,
-        message: SamordningHendelseMessage,
-        context: MessageContext,
-    ) {
-        behandle(hendelse, message) {
-            hendelseMediator.behandle(it, context)
-        }
-    }
-
-    override fun behandle(
-        hendelse: StartHendelse,
-        message: BeregnFerietilleggMessage,
-        context: MessageContext,
-    ) {
-        behandle(hendelse, message) {
-            hendelseMediator.behandle(it, context)
-        }
-    }
-
-    override fun behandle(
-        hendelse: StartHendelse,
-        message: OpprettBehandlingMessage,
-        context: MessageContext,
-    ) {
-        behandle(hendelse, message) {
-            hendelseMediator.behandle(it, context)
-        }
-    }
-
-    override fun behandle(
-        hendelse: OmgjøringHendelse,
-        message: OmgjøringMessage,
-        context: MessageContext,
-    ) {
-        behandle(hendelse, message) {
-            hendelseMediator.behandle(it, context)
-        }
-    }
-
-    override fun behandle(
         hendelse: FjernOpplysningHendelse,
         message: FjernOpplysningMessage,
         context: MessageContext,
@@ -273,16 +214,6 @@ internal class MessageMediator(
     override fun behandle(
         hendelse: UtbetalingStatus,
         message: UtbetalingStatusMessage,
-        context: MessageContext,
-    ) {
-        behandle(hendelse, message) {
-            hendelseMediator.behandle(it, context)
-        }
-    }
-
-    override fun behandle(
-        hendelse: AvsluttetArbeidssøkerperiodeHendelse,
-        message: AvsluttetArbeidssøkerperiodeMessage,
         context: MessageContext,
     ) {
         behandle(hendelse, message) {
@@ -318,7 +249,7 @@ internal class MessageMediator(
 internal interface IMessageMediator {
     fun behandle(
         hendelse: StartHendelse,
-        message: SøknadInnsendtMessage,
+        message: KafkaMelding,
         context: MessageContext,
     )
 
@@ -377,36 +308,6 @@ internal interface IMessageMediator {
     )
 
     fun behandle(
-        hendelse: StartHendelse,
-        message: BeregnMeldekortMessage,
-        context: MessageContext,
-    )
-
-    fun behandle(
-        hendelse: StartHendelse,
-        message: BeregnFerietilleggMessage,
-        context: MessageContext,
-    )
-
-    fun behandle(
-        hendelse: StartHendelse,
-        message: OpprettBehandlingMessage,
-        context: MessageContext,
-    )
-
-    fun behandle(
-        hendelse: StartHendelse,
-        message: SamordningHendelseMessage,
-        context: MessageContext,
-    )
-
-    fun behandle(
-        hendelse: OmgjøringHendelse,
-        message: OmgjøringMessage,
-        context: MessageContext,
-    )
-
-    fun behandle(
         hendelse: FjernOpplysningHendelse,
         message: FjernOpplysningMessage,
         context: MessageContext,
@@ -415,12 +316,6 @@ internal interface IMessageMediator {
     fun behandle(
         hendelse: UtbetalingStatus,
         message: UtbetalingStatusMessage,
-        context: MessageContext,
-    )
-
-    fun behandle(
-        hendelse: AvsluttetArbeidssøkerperiodeHendelse,
-        message: AvsluttetArbeidssøkerperiodeMessage,
         context: MessageContext,
     )
 }
