@@ -1,12 +1,12 @@
 package no.nav.dagpenger.ferietillegg
 
-import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.FerietilleggKontroll
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
 class Ferietilleggprosess : Forretningsprosess(RegelverkFerietillegg) {

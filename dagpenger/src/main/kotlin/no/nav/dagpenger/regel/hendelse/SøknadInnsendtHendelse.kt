@@ -9,7 +9,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
-import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -21,6 +20,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.Søknadsprosess
 import no.nav.dagpenger.regel.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
