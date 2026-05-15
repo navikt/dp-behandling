@@ -48,9 +48,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
-import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.regelverk.melding.MeldingRepository
@@ -83,10 +81,6 @@ internal class MessageMediator(
         PåminnelseMottak(rapidsConnection, this)
         RekjørBehandlingMottak(rapidsConnection, this)
         UtbetalingStatusMottak(rapidsConnection, this)
-
-        // Regelverksspesifikke mottak
-        DagpengerRegistrering().mottak(rapidsConnection, this)
-        FerietilleggRegistrering().mottak(rapidsConnection, this)
     }
 
     private companion object {
