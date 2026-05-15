@@ -9,7 +9,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
-import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -19,6 +18,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Meldekortprosess
 import no.nav.dagpenger.regel.Omgjøringsprosess
 import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDateTime
 import java.util.UUID
 

@@ -18,7 +18,6 @@ import no.nav.dagpenger.behandling.api.models.RedigerbareOpplysningerDTO
 import no.nav.dagpenger.behandling.april
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -37,6 +36,7 @@ import no.nav.dagpenger.regel.Søknadstidspunkt
 import no.nav.dagpenger.regel.Verneplikt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
+import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

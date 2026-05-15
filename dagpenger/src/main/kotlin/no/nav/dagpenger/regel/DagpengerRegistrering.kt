@@ -1,7 +1,6 @@
 package no.nav.dagpenger.regel
 
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
-import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
@@ -14,7 +13,7 @@ import no.nav.dagpenger.regelverk.RegelverkRegistrering
 
 class DagpengerRegistrering : RegelverkRegistrering(RegelverkDagpenger) {
     override val opplysningstyper: Set<Opplysningstype<*>> =
-        regelverk.produserer + fagsakIdOpplysningstype + hendelseTypeOpplysningstype
+        super.opplysningstyper + fagsakIdOpplysningstype
 
     override fun registrerMottak(
         rapidsConnection: RapidsConnection,

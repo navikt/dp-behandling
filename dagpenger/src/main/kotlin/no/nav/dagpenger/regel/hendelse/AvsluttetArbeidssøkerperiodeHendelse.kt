@@ -8,7 +8,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
-import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -18,6 +17,7 @@ import no.nav.dagpenger.regel.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.Stansprosess
+import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
