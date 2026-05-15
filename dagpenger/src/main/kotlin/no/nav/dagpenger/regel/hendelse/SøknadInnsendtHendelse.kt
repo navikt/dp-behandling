@@ -9,6 +9,7 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
+import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -122,6 +123,5 @@ class SøknadInnsendtHendelse(
 
     companion object {
         val fagsakIdOpplysningstype = Opplysningstype.heltall(FagsakIdId, "fagsakId")
-        val hendelseTypeOpplysningstype = no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
     }
 }
