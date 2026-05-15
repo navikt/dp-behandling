@@ -3,6 +3,7 @@ package no.nav.dagpenger.features
 import io.cucumber.java.BeforeStep
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.behandling.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.dato.mai
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
@@ -11,7 +12,6 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.RegelkjøringObserver
 import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
-import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.hendelseTypeOpplysningstype
 import no.nav.dagpenger.regel.prosessvilkår.OmgjøringUtenKlage
 
 class OmgjøringUtenKlageSteg : No {
