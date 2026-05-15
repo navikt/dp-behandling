@@ -3,7 +3,7 @@ package no.nav.dagpenger.behandling.helpers.scenario
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
-import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.behandling.mediator.objectMapper
 
 internal class Behovsløsere(
     private val rapid: TestRapid,

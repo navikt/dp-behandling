@@ -2,7 +2,7 @@ package no.nav.dagpenger.behandling.mediator.utboks
 
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 
 class UtboksLagerPostgres : UtboksLager {
     override fun lagre(melding: String) {

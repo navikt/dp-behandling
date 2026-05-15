@@ -15,7 +15,7 @@ import io.ktor.server.application.Application
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
-import no.nav.dagpenger.behandling.objectMapper
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 object TestApplication {

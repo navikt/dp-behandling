@@ -3,7 +3,7 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.Session
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import java.sql.Connection
 
 private val logger = KotlinLogging.logger {}

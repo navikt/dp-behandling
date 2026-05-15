@@ -2,7 +2,7 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId

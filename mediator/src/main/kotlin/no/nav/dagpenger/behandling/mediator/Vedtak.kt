@@ -27,6 +27,7 @@ import no.nav.dagpenger.behandling.mediator.api.tilDataTypeDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningskildeDTO
 import no.nav.dagpenger.behandling.mediator.api.tilOpplysningsverdiDTO
 import no.nav.dagpenger.behandling.mediator.api.tilUtbetalingDTO
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
@@ -36,7 +37,6 @@ import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import no.nav.dagpenger.behandling.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
 import no.nav.dagpenger.behandling.modell.hendelser.SøknadId
-import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
