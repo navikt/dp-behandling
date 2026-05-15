@@ -16,7 +16,7 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Prosessregister.Companion.RegistrertForretningsprosess
+import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
@@ -108,10 +108,11 @@ class BehandlingRepositoryPostgresPerformanceTest {
             val avklaringRepository = AvklaringRepositoryPostgres()
             val opplysningerRepository = OpplysningerRepositoryPostgres()
             // Registrer forretningsprosesser og opplysningstyper
-            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
-            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            val prosessregister = Prosessregister()
+            DagpengerRegistrering().registrerProsesser(prosessregister)
+            FerietilleggRegistrering().registrerProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
-            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
+            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
 
             // Lag kjede av behandlinger, hver med mange opplysninger
             var forrigeBehandling: Behandling? = null
@@ -205,10 +206,11 @@ class BehandlingRepositoryPostgresPerformanceTest {
             val avklaringRepository = AvklaringRepositoryPostgres()
             val opplysningerRepository = OpplysningerRepositoryPostgres()
             // Registrer forretningsprosesser og opplysningstyper
-            DagpengerRegistrering().registrerProsesser(RegistrertForretningsprosess)
-            FerietilleggRegistrering().registrerProsesser(RegistrertForretningsprosess)
+            val prosessregister = Prosessregister()
+            DagpengerRegistrering().registrerProsesser(prosessregister)
+            FerietilleggRegistrering().registrerProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
-            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository)
+            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
 
             // Lag en rot-behandling som alle kjeder baserer seg på
             val rotSøknadId = UUIDv7.ny()

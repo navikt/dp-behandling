@@ -15,6 +15,8 @@ import no.nav.dagpenger.behandling.modell.somKjede
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Prosessregister
+import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.uuid.UUIDv7
@@ -27,12 +29,17 @@ import java.time.LocalDateTime
 class PersonRepositoryPostgresTest {
     private val fnr = "12345678901"
     private val søknadId = UUIDv7.ny()
+    private val prosessregister =
+        Prosessregister().also {
+            DagpengerRegistrering().registrerProsesser(it)
+        }
     private val personRepositoryPostgres
         get() =
             PersonRepositoryPostgres(
                 BehandlingRepositoryPostgres(
                     opplysningerRepository(),
                     mockk(relaxed = true),
+                    prosessregister,
                 ),
             )
     private val søknadInnsendtHendelse =

@@ -38,7 +38,6 @@ Lag en ny modul med avhengighet til `regelverk`-modulen:
 // mitt-regelverk/build.gradle.kts
 dependencies {
     implementation(project(":regelverk"))
-    implementation(project(":opplysninger"))
     // ...
 }
 ```
