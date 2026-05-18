@@ -8,7 +8,7 @@ import no.nav.dagpenger.ferietillegg.OpplysningsTyper.ferietilleggProsentId
 import no.nav.dagpenger.ferietillegg.OpplysningsTyper.sumUtbetaltForÅrId
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
-import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.prosentAv
@@ -20,8 +20,8 @@ object FerietilleggBeløp {
     val ferietilleggProsent = desimaltall(ferietilleggProsentId, "Prosent for ferietillegg")
 
     val regelsett =
-        vilkår(
-            folketrygden.hjemmel(4, 14, "Ferietillegg", "Ferietillegg"),
+        fastsettelse(
+            folketrygden.hjemmel(4, 14, "Ferietillegg fastsettelse", "Ferietillegg fastsettelse"),
         ) {
             skalVurderes { it.erSann(harKravpåFerietillegg) }
 
