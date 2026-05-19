@@ -80,8 +80,18 @@ class FerietilleggTest {
             sendFerietillegg(fnr, UUIDv7.ny(), opptjeningsår)
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            val ferietilleggBehandling2Id = person.behandlingId
+            println("dagpengerId : $dagpengerBehandlingId")
+            println("ferietilleggId : $ferietilleggId")
+            println("meldekortId : $meldekortBehandlingId")
+            println("ferietillegg2Id : ${person.behandlingId}")
+            println("ferietillegg2Id : $ferietilleggBehandling2Id")
 
             behandlingsresultat {
+                println("basertPå : $basertPå")
+                println("id : $behandlingId")
                 basertPå shouldBe ferietilleggBehandlingId
             }
         }

@@ -49,18 +49,20 @@ class BeregnFerietilleggHendelse(
                             Gyldighetsperiode.kun(skjedde),
                             kilde = kilde,
                         ),
-                        Faktum(
-                            KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor,
-                            opptjeningsår,
-                            Gyldighetsperiode(
-                                fraOgMed = LocalDate.of(opptjeningsår, 1, 1),
-                            ),
-                            kilde = kilde,
-                        ),
                     ),
-                // husk å legge inn avklaring som stopper disse opp så saksbehandler kan sjekke de
                 avklaringer = emptyList(),
-            ),
+            ).apply {
+                this.opplysninger.leggTil(
+                    Faktum(
+                        KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor,
+                        opptjeningsår,
+                        Gyldighetsperiode(
+                            fraOgMed = LocalDate.of(opptjeningsår, 1, 1),
+                        ),
+                        kilde = kilde,
+                    ),
+                )
+            },
         )
     }
 
