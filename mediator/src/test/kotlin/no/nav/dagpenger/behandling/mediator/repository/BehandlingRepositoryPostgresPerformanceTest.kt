@@ -105,7 +105,7 @@ class BehandlingRepositoryPostgresPerformanceTest {
         val antallOpplysningerPerBehandling = 100
 
         withMigratedDb {
-            val avklaringRepository = AvklaringRepositoryPostgres()
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
             val opplysningerRepository = OpplysningerRepositoryPostgres()
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
@@ -203,7 +203,7 @@ class BehandlingRepositoryPostgresPerformanceTest {
         val antallOpplysningerPerBehandling = 50
 
         withMigratedDb {
-            val avklaringRepository = AvklaringRepositoryPostgres()
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
             val opplysningerRepository = OpplysningerRepositoryPostgres()
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
