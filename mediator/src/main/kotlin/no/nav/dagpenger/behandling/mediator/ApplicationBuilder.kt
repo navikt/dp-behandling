@@ -15,6 +15,7 @@ import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.api.simuleringApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
 import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
+import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder
 import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
@@ -60,8 +61,8 @@ internal class ApplicationBuilder(
     private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
 
     private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
-
-    private val avklaringRepository = AvklaringRepositoryPostgres()
+    private val dataSource = PostgresDataSourceBuilder.dataSource
+    private val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
     private val opplysningRepository = OpplysningerRepositoryPostgres()
     private val prosessregister = Prosessregister()
 

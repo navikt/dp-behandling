@@ -97,7 +97,7 @@ class BehandlingRepositoryPostgresTest {
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres()
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
@@ -135,7 +135,7 @@ class BehandlingRepositoryPostgresTest {
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres()
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
@@ -172,7 +172,7 @@ class BehandlingRepositoryPostgresTest {
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres()
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
             val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository, prosessregister)
 
             opprettKjede(behandlingRepositoryPostgres, listOf(basertPåBehandling, behandling))

@@ -9,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
 import io.ktor.server.application.Application
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
+import no.nav.dagpenger.behandling.db.DBTestContext
 import no.nav.dagpenger.behandling.db.Postgres
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
 import no.nav.dagpenger.behandling.mediator.BehovMediator
@@ -17,7 +18,6 @@ import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
@@ -41,6 +41,7 @@ import java.util.UUID
 import kotlin.random.Random
 
 internal class SimulertDagpengerSystem(
+    dbTestContext: DBTestContext,
     oppsett: ScenarioOptions,
 ) {
     companion object {
@@ -54,7 +55,7 @@ internal class SimulertDagpengerSystem(
         PersonRepositoryPostgres(
             BehandlingRepositoryPostgres(
                 opplysningerRepository,
-                AvklaringRepositoryPostgres(AvklaringKafkaObservatør(rapid)),
+                AvklaringRepositoryPostgres(dbTestContext.dataSource, AvklaringKafkaObservatør(rapid)),
                 prosessregister,
             ),
         )
@@ -71,7 +72,7 @@ internal class SimulertDagpengerSystem(
 
     private val postgresMeldingRepository = PostgresMeldingRepository()
 
-    private val behovssporer = Behovssporer(dataSource)
+    private val behovssporer = Behovssporer(dbTestContext.dataSource)
     private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)
     val auditlogg = TestAuditlogg()
 
@@ -154,7 +155,7 @@ internal class SimulertDagpengerSystem(
     ) {
         inline fun test(block: SimulertDagpengerSystem.() -> Unit) {
             Postgres.withMigratedDb {
-                val test = SimulertDagpengerSystem(this)
+                val test = SimulertDagpengerSystem(this, this@ScenarioOptions)
                 test.opprettPerson(ident)
                 test.block()
 
