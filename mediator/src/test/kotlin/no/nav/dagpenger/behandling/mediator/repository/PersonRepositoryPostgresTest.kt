@@ -96,6 +96,7 @@ class PersonRepositoryPostgresTest {
                 Prosessregister().also {
                     TestBehandlinger.registrerTestProsesser(it)
                 }
+            val kildeRepository = KildeRepository(dataSource)
             val personRepositoryPostgres =
                 PersonRepositoryPostgres(
                     dataSource,
@@ -103,6 +104,7 @@ class PersonRepositoryPostgresTest {
                         dataSource,
                         opplysningerRepository(dataSource),
                         mockk(relaxed = true),
+                        kildeRepository,
                         prosessregister,
                     ),
                 )

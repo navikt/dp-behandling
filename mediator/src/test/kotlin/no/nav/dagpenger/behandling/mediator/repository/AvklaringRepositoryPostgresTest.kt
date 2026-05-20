@@ -120,13 +120,14 @@ class AvklaringRepositoryPostgresTest {
 
     private fun avklaringTest(block: Avklaringtest.() -> Unit) {
         withMigratedDb {
-            val repository = AvklaringRepositoryPostgres(dataSource)
+            val kildeRepository = KildeRepository(dataSource)
+            val repository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
             val prosessregister =
                 Prosessregister().also {
                     TestBehandlinger.registrerTestProsesser(it)
                 }
             val behandlingRepository =
-                BehandlingRepositoryPostgres(dataSource, opplysningerRepository(dataSource), repository, prosessregister)
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository(dataSource), repository, kildeRepository, prosessregister)
             val personRepository = PersonRepositoryPostgres(dataSource, behandlingRepository)
             block(Avklaringtest(repository, behandlingRepository, personRepository))
         }

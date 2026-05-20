@@ -28,8 +28,8 @@ internal class BehandlingRepositoryPostgres(
     private val dataSource: DataSource,
     private val opplysningRepository: OpplysningerRepository,
     private val avklaringRepository: AvklaringRepository,
+    private val kildeRepository: KildeRepository,
     private val prosessregister: Prosessregister,
-    private val kildeRepository: KildeRepository = KildeRepository(dataSource),
 ) : BehandlingRepository,
     AvklaringRepository by avklaringRepository {
     override fun hentBehandling(behandlingId: UUID): Behandling? =
@@ -216,6 +216,7 @@ internal class BehandlingRepositoryPostgres(
         val opplysningerMap =
             this
                 .hentOpplysninger(
+                    kildeRepository,
                     behandlingRader
                         .map { it.opplysningerId }
                         .toSet(),

@@ -19,12 +19,12 @@ import java.time.LocalDateTime
 import java.util.UUID
 import javax.sql.DataSource
 
-internal class AvklaringRepositoryPostgres private constructor(
+internal class AvklaringRepositoryPostgres(
     private val dataSource: DataSource,
-    private val observatører: MutableList<AvklaringRepositoryObserver> = mutableListOf(),
-    private val kildeRepository: KildeRepository = KildeRepository(dataSource),
+    private val kildeRepository: KildeRepository,
+    observatører: List<AvklaringRepositoryObserver> = emptyList(),
 ) : AvklaringRepository {
-    constructor(dataSource: DataSource, vararg observatører: AvklaringRepositoryObserver) : this(dataSource, observatører.toMutableList())
+    private val observatører = observatører.toMutableList()
 
     fun registerObserver(observer: AvklaringRepositoryObserver) {
         observatører.add(observer)

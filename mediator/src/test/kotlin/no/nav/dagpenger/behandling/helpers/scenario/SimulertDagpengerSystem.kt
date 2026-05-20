@@ -25,6 +25,7 @@ import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.KildeRepository
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
@@ -49,7 +50,8 @@ internal class SimulertDagpengerSystem(
     }
 
     private val rapid = TestRapid()
-    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbTestContext.dataSource)
+    private val kildeRepository = KildeRepository(dbTestContext.dataSource)
+    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbTestContext.dataSource, kildeRepository)
     private val prosessregister = Prosessregister()
     private val personRepository =
         PersonRepositoryPostgres(
@@ -57,7 +59,8 @@ internal class SimulertDagpengerSystem(
             BehandlingRepositoryPostgres(
                 dbTestContext.dataSource,
                 opplysningerRepository,
-                AvklaringRepositoryPostgres(dbTestContext.dataSource, AvklaringKafkaObservatør(rapid)),
+                AvklaringRepositoryPostgres(dbTestContext.dataSource, kildeRepository, listOf(AvklaringKafkaObservatør(rapid))),
+                kildeRepository,
                 prosessregister,
             ),
         )

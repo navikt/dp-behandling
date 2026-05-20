@@ -6,7 +6,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -44,28 +43,32 @@ import java.util.UUID
 import javax.sql.DataSource
 import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
-class OpplysningerRepositoryPostgres(
+internal class OpplysningerRepositoryPostgres(
     private val dataSource: DataSource,
+    private val kildeRepository: KildeRepository,
 ) : OpplysningerRepository {
     internal companion object {
         private val opplysningstyper by lazy {
             Opplysningstype.definerteTyper.associateBy { it.id }
         }
         private val logger = KotlinLogging.logger { }
-        private val kildeRepository = KildeRepository(dataSource)
 
-        fun Session.hentOpplysninger(opplysningerId: UUID) =
-            hentOpplysninger(setOf(opplysningerId))
-                .values
-                .singleOrNull()
-                ?: Opplysninger.rehydrer(opplysningerId, emptyList())
+        fun Session.hentOpplysninger(
+            kildeRepository: KildeRepository,
+            opplysningerId: UUID,
+        ) = hentOpplysninger(kildeRepository, setOf(opplysningerId))
+            .values
+            .singleOrNull()
+            ?: Opplysninger.rehydrer(opplysningerId, emptyList())
 
-        fun Session.hentOpplysninger(opplysningerIder: Set<UUID>) =
-            OpplysningRepository(this)
-                .hentOpplysninger(opplysningerIder)
-                .mapValues { (opplysningerId, opplysninger) ->
-                    Opplysninger.rehydrer(opplysningerId, opplysninger)
-                }
+        fun Session.hentOpplysninger(
+            kildeRepository: KildeRepository,
+            opplysningerIder: Set<UUID>,
+        ) = OpplysningRepository(this, kildeRepository)
+            .hentOpplysninger(opplysningerIder)
+            .mapValues { (opplysningerId, opplysninger) ->
+                Opplysninger.rehydrer(opplysningerId, opplysninger)
+            }
 
         private val serdeBarn = objectMapper.serde<BarnListe>()
 
@@ -77,7 +80,7 @@ class OpplysningerRepositoryPostgres(
 
     override fun hentOpplysninger(opplysningerId: UUID) =
         sessionOf(dataSource)
-            .use { session -> return@use session.hentOpplysninger(opplysningerId) }
+            .use { session -> return@use session.hentOpplysninger(kildeRepository, opplysningerId) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
         PostgresUnitOfWork.transaction {
@@ -110,7 +113,7 @@ class OpplysningerRepositoryPostgres(
 
         val fjernet = opplysninger.flatMap { it.fjernet() }.toSet()
 
-        OpplysningRepository(unitOfWork.session).lagreOpplysninger(
+        OpplysningRepository(unitOfWork.session, kildeRepository).lagreOpplysninger(
             opplysningerSomSkalLagres,
             fjernet,
         )
@@ -139,7 +142,7 @@ class OpplysningerRepositoryPostgres(
 
     private class OpplysningRepository(
         private val session: Session,
-        private val kildeRespository: KildeRepository = kildeRepository,
+        private val kildeRespository: KildeRepository,
     ) {
         fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<out Any>>> {
             val rader: Set<OpplysningRad<*>> =

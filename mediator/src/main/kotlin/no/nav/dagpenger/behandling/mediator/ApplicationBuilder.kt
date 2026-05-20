@@ -30,6 +30,7 @@ import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.KildeRepository
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
@@ -62,8 +63,9 @@ internal class ApplicationBuilder(
 
     private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
     private val dataSource = PostgresDataSourceBuilder.dataSource
-    private val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-    private val opplysningRepository = OpplysningerRepositoryPostgres(dataSource)
+    private val kildeRepository = KildeRepository(dataSource)
+    private val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+    private val opplysningRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
     private val prosessregister = Prosessregister()
 
     private val personRepository =
@@ -73,6 +75,7 @@ internal class ApplicationBuilder(
                 dataSource,
                 opplysningRepository,
                 avklaringRepository,
+                kildeRepository,
                 prosessregister,
             ),
         )

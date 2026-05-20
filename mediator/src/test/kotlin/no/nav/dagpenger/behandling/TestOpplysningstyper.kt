@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling
 
+import no.nav.dagpenger.behandling.mediator.repository.KildeRepository
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
@@ -44,7 +45,7 @@ internal object TestOpplysningstyper {
     val beløpB = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpB")
 
     fun opplysningerRepository(dataSource: DataSource): OpplysningerRepositoryPostgres =
-        OpplysningerRepositoryPostgres(dataSource).apply {
+        OpplysningerRepositoryPostgres(dataSource, KildeRepository(dataSource)).apply {
             lagreOpplysningstyper(definerteTyper)
         }
 }

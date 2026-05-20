@@ -106,15 +106,16 @@ class BehandlingRepositoryPostgresPerformanceTest {
         val antallOpplysningerPerBehandling = 100
 
         withMigratedDb {
-            val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource)
+            val kildeRepository = KildeRepository(dataSource)
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             DagpengerRegistrering().registrerProsesser(prosessregister)
             FerietilleggRegistrering().registrerProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
             val behandlingRepository =
-                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, prosessregister)
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
 
             // Lag kjede av behandlinger, hver med mange opplysninger
             var forrigeBehandling: Behandling? = null
@@ -205,15 +206,16 @@ class BehandlingRepositoryPostgresPerformanceTest {
         val antallOpplysningerPerBehandling = 50
 
         withMigratedDb {
-            val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource)
+            val kildeRepository = KildeRepository(dataSource)
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             DagpengerRegistrering().registrerProsesser(prosessregister)
             FerietilleggRegistrering().registrerProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
             val behandlingRepository =
-                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, prosessregister)
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
 
             // Lag en rot-behandling som alle kjeder baserer seg på
             val rotSøknadId = UUIDv7.ny()
