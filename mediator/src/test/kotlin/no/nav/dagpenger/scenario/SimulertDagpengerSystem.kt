@@ -19,7 +19,6 @@ import io.ktor.http.content.TextContent
 import io.ktor.server.application.Application
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.konfigurasjon.Configuration
-import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.mediator.BehandlingRuntime
 import no.nav.dagpenger.mediator.IAktivitetsloggMediator
 import no.nav.dagpenger.mediator.api.TestApplication
@@ -150,7 +149,7 @@ internal class SimulertDagpengerSystem(
         var saksbehandlerGruppe: String = "dagpenger-saksbehandler",
         var adminGrupper: List<String> = listOf("enkel-admin"),
         var maskintilgangnavn: String = "test-app",
-        var barn: List<ScenarioBarn> = listOf(ScenarioBarn(29.juni(2000), true)),
+        var barn: List<ScenarioBarn> = listOf(),
     ) {
         inline fun test(crossinline block: SimulertDagpengerSystem.() -> Unit) {
             withMigratedDb {

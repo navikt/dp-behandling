@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.fastsetting
 import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningsformål.Legacy
 import no.nav.dagpenger.opplysning.Opplysningsformål.Register
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -63,15 +64,13 @@ import java.time.LocalDate
 
 fun førsteBarnMedEndring(barn: Opplysningstype<BarnListe>) =
     GyldighetsperiodeStrategi<BarnListe> { produkt, basertPå, prøvingsdato ->
-        val barnOpplysning = basertPå.single { it.er(barn) }
-
         val enBursdag =
             produkt.barn.minOfOrNull { it.fødselsdato.plusYears(18) }
 
         if (enBursdag == null) {
-            barnOpplysning.gyldighetsperiode
+            Gyldighetsperiode(prøvingsdato)
         } else {
-            barnOpplysning.gyldighetsperiode.copy(tilOgMed = enBursdag)
+            Gyldighetsperiode(prøvingsdato, tilOgMed = enBursdag)
         }
     }
 

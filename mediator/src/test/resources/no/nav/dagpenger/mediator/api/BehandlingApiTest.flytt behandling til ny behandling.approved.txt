@@ -39,7 +39,6 @@ Laget avklaring om SjekkPrøvingsdato
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
-Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
@@ -100,6 +99,8 @@ Behov:
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
 Laget avklaring om BarnMåGodkjennes
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:

@@ -13,6 +13,7 @@ Generert fra `PrometheusRegistry` — legger du til en ny metrikk, oppdateres de
 | `behandling_publiser_aktivitetslogg_sekunder` | histogram | Tid brukt på å hente person med behandlinger | — |
 | `commit_duration_seconds` | histogram | Time spent in actual DB commit | — |
 | `dp_antall_behandlinger` | histogram | Antall behandlinger per person | — |
+| `dp_behandling_aktive_behov` | gauge | Antall aktive (uløste) behov per behovtype og kilde | behov, kilde |
 | `dp_behandling_avbrutt` | counter | Antall avbrutte behandlinger | hendelse_type, aarsak |
 | `dp_behandling_avklaring_levetid_sekunder` | histogram | Tid fra avklaring opprettes til den lukkes, i sekunder | kode |
 | `dp_behandling_avklaring_opprettet` | counter | Avklaringer opprettet i behandling | kode |
