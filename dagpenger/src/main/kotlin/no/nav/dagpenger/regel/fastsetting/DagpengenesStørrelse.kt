@@ -79,7 +79,6 @@ fun førsteBarnMedEndring(barn: Opplysningstype<BarnListe>) =
 object DagpengenesStørrelse {
     val barn = Opplysningstype.barn(BarnId, "Barn", Register, behovId = BarnetilleggV2, utgåtteBehovId = setOf(Barnetillegg))
 
-    // TODO: Bytt ID
     val barnSomGirTillegg =
         Opplysningstype.barn(
             BarnSomGirTilleggId,
@@ -108,7 +107,7 @@ object DagpengenesStørrelse {
     val ukesatsMedBarnetillegg =
         beløp(AvrundetUkessatsMedBarnetilleggFørSmordningId, "Avrundet ukessats med barnetillegg før samordning", Legacy, aldriSynlig)
     private val avrundetDagsatsUtenBarnetillegg =
-        beløp(AvrundetDagsatsUtenBarnetilleggId, "Dagsats uten barnetillegg før samordning")
+        beløp(AvrundetDagsatsUtenBarnetilleggId, "Avrundet dagsats uten barnetillegg før samordning")
     private val beløpOverMaks =
         beløp(
             beløpOverMaksId,

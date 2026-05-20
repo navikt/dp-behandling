@@ -362,6 +362,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a24e|Ukessats med barnetillegg etter samordning|Penger|Beløp|||Resultat
 |0194881f-9428-74d5-b160-f63a4c61a24f|Dagsats med barnetillegg etter samordning og 90 % regel|Penger|Beløp|||Intern
 |0194881f-9428-74d5-b160-f63a4c61a250|Har samordnet|Boolsk|boolean|||Resultat
+|019e2085-a97a-776b-ba2c-4bca8e01a166|Barn som gir tillegg|BarnDatatype|BarnListe|||Intern
 ### § 22-13. Frister for framsetting av krav, virkningstidspunkt og etterbetaling
 *Type:* Vilkår
 #### Avhenger på data fra

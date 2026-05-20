@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.mai
 import no.nav.dagpenger.opplysning.regel.inntekt.FiltrerRelevanteInntekter
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.uuid.UUIDv7
@@ -39,7 +40,7 @@ class FiltrerRelevanteInntekterTest {
             ),
         )
 
-        val filtrertInntekt = regel.lagProdukt(opplysninger, prøvingsdato)
+        val filtrertInntekt = regel.lagProdukt(opplysninger, 1.mai)
         filtrertInntekt
             .verdi.verdi.inntektsListe
             .flatMap { it.klassifiserteInntekter } shouldHaveSize 1

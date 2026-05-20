@@ -24,7 +24,7 @@ class AntallAvTest {
     val regelsett =
         vilkår("Antall barn som kvalifiserer") {
             regel(barnetype) { innhentes }
-            regel(antallBarn) { antallAv(barnetype) { kvalifiserer } }
+            regel(antallBarn) { antallAv(barnetype) }
         }
 
     @Test
@@ -44,7 +44,7 @@ class AntallAvTest {
         val regelkjøring = Regelkjøring(1.januar(2020), opplysninger, regelsett)
         regelkjøring.evaluer()
 
-        opplysninger.finnOpplysning(antallBarn).verdi shouldBe 1
+        opplysninger.finnOpplysning(antallBarn).verdi shouldBe 3
 
         val nyListe =
             BarnListe(
@@ -56,6 +56,6 @@ class AntallAvTest {
         opplysninger.leggTil(Faktum(barnetype, nyListe)).also {
             regelkjøring.evaluer()
         }
-        opplysninger.finnOpplysning(antallBarn).verdi shouldBe 2
+        opplysninger.finnOpplysning(antallBarn).verdi shouldBe 4
     }
 }

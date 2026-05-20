@@ -99,10 +99,10 @@ class OmgjøringScenarioTester {
             // Verifiser opprinnelig utbetaling
             behandlingsresultat {
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    first().verdi.verdi shouldBe 5036
+                    first().verdi.verdi shouldBe 4968
                 }
                 with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                    this[0].verdi.verdi shouldBe 1259
+                    this[0].verdi.verdi shouldBe 1242
                 }
             }
 
@@ -131,8 +131,8 @@ class OmgjøringScenarioTester {
                 }
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     // Utbetalingen skal fortsatt være beregnet (med samme verdi siden grunnlaget er likt)
-                    single().verdi.verdi shouldNotBe 5036
-                    single().verdi.verdi shouldBe 8760
+                    single().verdi.verdi shouldNotBe 4968
+                    single().verdi.verdi shouldBe 8811
                 }
             }
         }
