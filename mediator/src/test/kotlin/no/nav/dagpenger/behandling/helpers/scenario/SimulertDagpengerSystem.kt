@@ -38,7 +38,7 @@ internal class SimulertDagpengerSystem(
 
     private val runtime =
         BehandlingRuntime(
-            dataSource = dbTestContext.dataSource,
+            dbSession = dbTestContext.dbSession,
             rapidsConnection = rapid,
             auditlogg = auditlogg,
             regelverk = regelverk,

@@ -4,9 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotliquery.queryOf
-import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.ForslagTilVedtak
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
@@ -16,7 +16,6 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeoutException
-import javax.sql.DataSource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -34,7 +33,7 @@ internal class ApiMelding(
 }
 
 internal class ApiRepositoryPostgres(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
     private val meldingRepository: MeldingRepository,
     private val behovssporer: Behovssporer,
     private val timout: Duration = 15.seconds,
@@ -70,7 +69,7 @@ internal class ApiRepositoryPostgres(
         } catch (e: Exception) {
             logger.info { "Fikk feil under endring for behandlingId=$behandlingId, behov=$behov" }
             // Marker behovet som feilet
-            sessionOf(dataSource).use { session ->
+            dbSession.session { session ->
                 session.run {
                     queryOf(
                         // language=PostgreSQL
@@ -135,7 +134,7 @@ internal class ApiRepositoryPostgres(
     private fun getStatus(
         behandlingId: UUID,
         behov: String,
-    ) = sessionOf(dataSource).use { session ->
+    ) = dbSession.session { session ->
         session.run(
             queryOf(
                 // language=PostgreSQL
@@ -150,7 +149,7 @@ internal class ApiRepositoryPostgres(
     }
 
     private fun hentBehandlingSistEndret(behandlingId: UUID) =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session
                 .run(
                     queryOf(
@@ -168,7 +167,7 @@ internal class ApiRepositoryPostgres(
     private fun hentBehandlingTilstand(
         behandlingId: UUID,
         sistEndret: LocalDateTime,
-    ) = sessionOf(dataSource).use { session ->
+    ) = dbSession.session { session ->
         session
             .run(
                 queryOf(

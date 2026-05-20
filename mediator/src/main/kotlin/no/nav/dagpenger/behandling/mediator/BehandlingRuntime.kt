@@ -5,6 +5,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.ktor.server.application.Application
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
@@ -24,14 +25,13 @@ import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
-import javax.sql.DataSource
 
 /**
  * Kapsler all wiring av repositories, mediatorer, mottak og API.
  * Brukes av ApplicationBuilder i prod og SimulertDagpengerSystem i test.
  */
 class BehandlingRuntime(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
     val rapidsConnection: RapidsConnection,
     private val auditlogg: Auditlogg,
     private val regelverk: List<RegelverkRegistrering>,
@@ -40,16 +40,16 @@ class BehandlingRuntime(
 ) {
     private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
 
-    private val kildeRepository = KildeRepository(dataSource)
-    private val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
-    private val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+    private val kildeRepository = KildeRepository(dbSession)
+    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
+    private val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
     private val prosessregister = Prosessregister()
 
     val personRepository: PersonRepository =
         PersonRepositoryPostgres(
-            dataSource,
+            dbSession,
             BehandlingRepositoryPostgres(
-                dataSource,
+                dbSession,
                 opplysningerRepository,
                 avklaringRepository,
                 kildeRepository,
@@ -57,14 +57,14 @@ class BehandlingRuntime(
             ),
         )
 
-    val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
+    val meldekortRepository = MeldekortRepositoryPostgres(dbSession)
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
 
-    private val behovssporer = Behovssporer(dataSource)
+    private val behovssporer = Behovssporer(dbSession)
 
     val hendelseMediator: IHendelseMediator =
         HendelseMediator(
-            UtboksLagerPostgres(dataSource),
+            UtboksLagerPostgres(dbSession),
             personRepository,
             meldekortRepository,
             behovMediator = BehovMediator(behovssporer),
@@ -72,11 +72,11 @@ class BehandlingRuntime(
             observatører = listOf(ventendeMeldekort, BehandlingMetrikker()),
         )
 
-    private val postgresMeldingRepository = PostgresMeldingRepository(dataSource)
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(dataSource, postgresMeldingRepository, behovssporer)
+    private val postgresMeldingRepository = PostgresMeldingRepository(dbSession)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(dbSession, postgresMeldingRepository, behovssporer)
 
     fun registrerMottak() {
-        ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres(dataSource))
+        ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres(dbSession))
         MarkerMeldekortSomBehandletMottak(rapidsConnection, meldekortRepository)
 
         avklaringRepository.registerObserver(AvklaringKafkaObservatør(rapidsConnection))
@@ -112,5 +112,5 @@ class BehandlingRuntime(
     }
 
     fun meldekortBehandlingskø(messageContext: MessageContext) =
-        MeldekortBehandlingskø(dataSource, personRepository, meldekortRepository, messageContext)
+        MeldekortBehandlingskø(dbSession, personRepository, meldekortRepository, messageContext)
 }

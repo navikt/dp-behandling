@@ -11,14 +11,13 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.queryOf
-import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepository.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.regel.OpplysningsTyper
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import javax.sql.DataSource
 
 internal class ArenaOppgaveMottak(
     rapidsConnection: RapidsConnection,
@@ -139,10 +138,10 @@ interface SakRepository {
 }
 
 internal class SakRepositoryPostgres(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
 ) : SakRepository {
     override fun finnBehandling(fagsakId: Int): Behandling? =
-        sessionOf(dataSource).use {
+        dbSession.session {
             it.run(
                 queryOf(
                     //language=PostgreSQL

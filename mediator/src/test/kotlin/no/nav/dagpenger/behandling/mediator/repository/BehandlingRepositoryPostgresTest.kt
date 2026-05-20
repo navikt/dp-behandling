@@ -92,16 +92,16 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `lagre og hente en kjede med grener fra postgres`() {
         withMigratedDb {
-            val kildeRepository = KildeRepository(dataSource)
-            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
+            val kildeRepository = KildeRepository(dbSession)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
             val behandlingRepositoryPostgres =
-                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
+                BehandlingRepositoryPostgres(dbSession, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning2))
@@ -133,16 +133,16 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `flytter en eldre behandling til å peke på en nyere`() {
         withMigratedDb {
-            val kildeRepository = KildeRepository(dataSource)
-            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
+            val kildeRepository = KildeRepository(dbSession)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
             val behandlingRepositoryPostgres =
-                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
+                BehandlingRepositoryPostgres(dbSession, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, UnderBehandling, Opplysninger.med(opplysning2))
@@ -173,18 +173,18 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `lagre og hent behandling fra postgres`() {
         withMigratedDb {
-            val kildeRepository = KildeRepository(dataSource)
-            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
+            val kildeRepository = KildeRepository(dbSession)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
             val behandlingRepositoryPostgres =
                 BehandlingRepositoryPostgres(
-                    dataSource = dataSource,
-                    opplysningRepository = opplysningerRepository(dataSource),
+                    dbSession = dbSession,
+                    opplysningRepository = opplysningerRepository(dbSession),
                     avklaringRepository = avklaringRepository,
                     kildeRepository = kildeRepository,
                     prosessregister = prosessregister,
@@ -229,7 +229,7 @@ class BehandlingRepositoryPostgresTest {
         behandlingRepositoryPostgres: BehandlingRepositoryPostgres,
         behandlinger: List<Behandling>,
     ) {
-        val personRepositoryPostgres = PersonRepositoryPostgres(dataSource, behandlingRepositoryPostgres)
+        val personRepositoryPostgres = PersonRepositoryPostgres(dbSession, behandlingRepositoryPostgres)
 
         val kjeder =
             behandlinger

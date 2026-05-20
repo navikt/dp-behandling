@@ -1,14 +1,13 @@
 package no.nav.dagpenger.behandling.mediator.utboks
 
 import kotliquery.queryOf
-import kotliquery.sessionOf
-import javax.sql.DataSource
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 
 class UtboksLagerPostgres(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
 ) : UtboksLager {
     override fun lagre(melding: String) {
-        sessionOf(dataSource).use {
+        dbSession.session {
             it.run(
                 queryOf(
                     //language=PostgreSQL

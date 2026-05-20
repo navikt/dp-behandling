@@ -4,18 +4,17 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
-import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.meldekortKøStørrelse
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.db.medLås
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import java.time.LocalDate
-import javax.sql.DataSource
 
 class MeldekortBehandlingskø(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
     private val personRepositoryPostgres: PersonRepository,
     private val meldekortRepository: MeldekortRepository,
     private val rapid: MessageContext,
@@ -27,7 +26,7 @@ class MeldekortBehandlingskø(
 
     fun sendMeldekortTilBehandling(kjøringsdato: LocalDate = LocalDate.now()): List<MeldekortId> {
         val begynteMeldekort = mutableListOf<MeldekortId>()
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.transaction { tx ->
                 tx.medLås(LÅSE_NØKKEL) {
                     do {

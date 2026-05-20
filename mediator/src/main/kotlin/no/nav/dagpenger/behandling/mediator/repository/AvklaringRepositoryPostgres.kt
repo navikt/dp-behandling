@@ -1,11 +1,11 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import kotliquery.queryOf
-import kotliquery.sessionOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaring.Endring.Avbrutt
 import no.nav.dagpenger.avklaring.Avklaring.Endring.Avklart
 import no.nav.dagpenger.avklaring.Avklaring.Endring.UnderBehandling
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryObserver.NyAvklaringHendelse
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
@@ -17,10 +17,9 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDateTime
 import java.util.UUID
-import javax.sql.DataSource
 
 internal class AvklaringRepositoryPostgres(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
     private val kildeRepository: KildeRepository,
     observatører: List<AvklaringRepositoryObserver> = emptyList(),
 ) : AvklaringRepository {
@@ -35,7 +34,7 @@ internal class AvklaringRepositoryPostgres(
     override fun hentAvklaringer(behandlingIder: Set<UUID>): Map<UUID, List<Avklaring>> {
         if (behandlingIder.isEmpty()) return emptyMap()
 
-        return sessionOf(dataSource).use { session ->
+        return dbSession.session { session ->
             val avklaringer =
                 session.run(
                     queryOf(
