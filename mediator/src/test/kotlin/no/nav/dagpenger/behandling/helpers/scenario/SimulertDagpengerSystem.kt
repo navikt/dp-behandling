@@ -51,25 +51,25 @@ internal class SimulertDagpengerSystem(
     }
 
     private val rapid = TestRapid()
-    private val kildeRepository = KildeRepository(dbTestContext.dataSource)
-    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbTestContext.dataSource, kildeRepository)
+    private val kildeRepository = KildeRepository(dbTestContext.dbSession)
+    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbTestContext.dbSession, kildeRepository)
     private val prosessregister = Prosessregister()
     private val personRepository =
         PersonRepositoryPostgres(
-            dbTestContext.dataSource,
+            dbTestContext.dbSession,
             BehandlingRepositoryPostgres(
-                dbTestContext.dataSource,
+                dbTestContext.dbSession,
                 opplysningerRepository,
-                AvklaringRepositoryPostgres(dbTestContext.dataSource, kildeRepository, listOf(AvklaringKafkaObservatør(rapid))),
+                AvklaringRepositoryPostgres(dbTestContext.dbSession, kildeRepository, listOf(AvklaringKafkaObservatør(rapid))),
                 kildeRepository,
                 prosessregister,
             ),
         )
-    private val meldekortRepository = MeldekortRepositoryPostgres(dbTestContext.dataSource)
+    private val meldekortRepository = MeldekortRepositoryPostgres(dbTestContext.dbSession)
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
     private val hendelseMediator =
         HendelseMediator(
-            postgres = UtboksLagerPostgres(dbTestContext.dataSource),
+            postgres = UtboksLagerPostgres(dbTestContext.dbSession),
             personRepository = personRepository,
             meldekortRepository = meldekortRepository,
             behovMediator = BehovMediator(),
@@ -77,10 +77,10 @@ internal class SimulertDagpengerSystem(
             listOf(ventendeMeldekort),
         )
 
-    private val postgresMeldingRepository = PostgresMeldingRepository(dbTestContext.dataSource)
+    private val postgresMeldingRepository = PostgresMeldingRepository(dbTestContext.dbSession)
 
-    private val behovssporer = Behovssporer(dbTestContext.dataSource)
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(dbTestContext.dataSource, postgresMeldingRepository, behovssporer)
+    private val behovssporer = Behovssporer(dbTestContext.dbSession)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(dbTestContext.dbSession, postgresMeldingRepository, behovssporer)
     val auditlogg = TestAuditlogg()
 
     private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
@@ -219,7 +219,7 @@ internal class SimulertDagpengerSystem(
     }
 
     val meldekortkø =
-        MeldekortBehandlingskø(dbTestContext.dataSource, personRepository, meldekortRepository, TestRapidMessageContext(rapid))
+        MeldekortBehandlingskø(dbTestContext.dbSession, personRepository, meldekortRepository, TestRapidMessageContext(rapid))
 
     fun meldekortBatch(avklar: Boolean = false) {
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()

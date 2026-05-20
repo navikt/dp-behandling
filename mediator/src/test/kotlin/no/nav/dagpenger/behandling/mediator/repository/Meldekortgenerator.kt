@@ -1,7 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.repository
 
 import kotliquery.queryOf
-import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
 import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
@@ -12,11 +12,10 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import javax.sql.DataSource
 
 class Meldekortgenerator private constructor(
     private val repository: MeldekortRepository,
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
     val ident: String,
     private val eksternMeldekortId: Iterator<Long>,
     startdato: LocalDate = LocalDate.now(),
@@ -94,7 +93,7 @@ class Meldekortgenerator private constructor(
                 meldingsreferanseId = meldekort.meldingsreferanseId,
                 meldekort = meldekort,
             )
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.run(
                 queryOf(
                     //language=PostgreSQL
@@ -145,7 +144,7 @@ class Meldekortgenerator private constructor(
 
     companion object {
         fun MeldekortRepository.generatorFor(
-            dataSource: DataSource,
+            dataSource: DatabaseSession,
             ident: String,
             startdato: LocalDate,
             generator: Iterator<Long> = meldekortIdGenerator,

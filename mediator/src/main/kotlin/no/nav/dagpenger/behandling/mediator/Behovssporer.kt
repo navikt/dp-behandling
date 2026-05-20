@@ -3,12 +3,11 @@ package no.nav.dagpenger.behandling.mediator
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.prometheus.metrics.core.metrics.GaugeWithCallback
 import kotliquery.queryOf
-import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import java.util.UUID
-import javax.sql.DataSource
 
 internal class Behovssporer(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
 ) {
     companion object {
         private val logger = KotlinLogging.logger { }
@@ -29,7 +28,7 @@ internal class Behovssporer(
         kilde: Kilde,
     ) {
         if (behov.isEmpty()) return
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.transaction { tx ->
                 behov.forEach { behovNavn ->
                     tx.run(
@@ -61,7 +60,7 @@ internal class Behovssporer(
         vararg behov: String,
     ) {
         if (behov.isEmpty()) return
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.transaction { tx ->
                 behov.forEach { behovNavn ->
                     // Hent opprettet-tidspunkt og kilde for histogram
@@ -109,7 +108,7 @@ internal class Behovssporer(
     }
 
     fun hentAktiveBehov(behandlingId: UUID): List<AktivtBehov> =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.run(
                 queryOf(
                     // language=PostgreSQL
@@ -146,7 +145,7 @@ internal class Behovssporer(
                 .labelNames("behov", "kilde")
                 .callback { callback ->
                     try {
-                        sessionOf(dataSource).use { session ->
+                        dbSession.session { session ->
                             session.run(
                                 queryOf(
                                     // language=PostgreSQL

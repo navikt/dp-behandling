@@ -5,7 +5,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -40,11 +40,10 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import javax.sql.DataSource
 import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
 internal class OpplysningerRepositoryPostgres(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
     private val kildeRepository: KildeRepository,
 ) : OpplysningerRepository {
     internal companion object {
@@ -79,11 +78,10 @@ internal class OpplysningerRepositoryPostgres(
     }
 
     override fun hentOpplysninger(opplysningerId: UUID) =
-        sessionOf(dataSource)
-            .use { session -> return@use session.hentOpplysninger(kildeRepository, opplysningerId) }
+        dbSession.session { session -> session.hentOpplysninger(kildeRepository, opplysningerId) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
-        PostgresUnitOfWork.transaction(dataSource) {
+        dbSession.transaction {
             lagreOpplysninger(listOf(opplysninger), this)
         }
     }
@@ -120,7 +118,7 @@ internal class OpplysningerRepositoryPostgres(
     }
 
     override fun lagreOpplysningstyper(opplysningstyper: Collection<Opplysningstype<*>>) =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             BatchStatement(
                 //language=PostgreSQL
                 """

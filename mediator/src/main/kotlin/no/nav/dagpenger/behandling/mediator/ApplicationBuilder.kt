@@ -4,7 +4,6 @@ import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.server.application.ApplicationStopped
 import io.micrometer.core.instrument.Clock
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -61,7 +60,7 @@ internal class ApplicationBuilder(
 
     private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
     private val postgresDataSourceBuilder = PostgresDataSourceBuilder()
-    private val dataSource = postgresDataSourceBuilder.dataSource
+    private val dataSource = postgresDataSourceBuilder.dbsession
     private val kildeRepository = KildeRepository(dataSource)
     private val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
     private val opplysningRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
@@ -115,11 +114,6 @@ internal class ApplicationBuilder(
                         preStopHook = preStopHook::handlePreStopRequest,
                         statusPagesConfig = { statusPagesConfig() },
                     ) {
-                        monitor.subscribe(ApplicationStopped) {
-                            logger.info { "Forsøker å lukke datasource..." }
-                            dataSource.close()
-                            logger.info { "Lukket datasource" }
-                        }
                         behandlingApi(
                             personRepository = personRepository,
                             hendelseMediator = hendelseMediator,

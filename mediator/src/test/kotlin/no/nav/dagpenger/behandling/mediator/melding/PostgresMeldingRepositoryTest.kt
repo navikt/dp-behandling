@@ -12,7 +12,7 @@ internal class PostgresMeldingRepositoryTest {
         val melding = ApiMelding(ident)
 
         Postgres.withMigratedDb {
-            val postgresHendelseRepository = PostgresMeldingRepository(dataSource)
+            val postgresHendelseRepository = PostgresMeldingRepository(dbSession)
             postgresHendelseRepository.lagreMelding(
                 melding = melding,
                 ident = ident,

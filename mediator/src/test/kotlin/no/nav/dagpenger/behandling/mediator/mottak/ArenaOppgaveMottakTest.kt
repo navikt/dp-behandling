@@ -142,7 +142,7 @@ class ArenaOppgaveMottakTest {
 
     private fun arenaOppgavemottakTest(block: Arenatest.() -> Unit) {
         withMigratedDb {
-            val sakRepository = spyk(SakRepositoryPostgres(dataSource))
+            val sakRepository = spyk(SakRepositoryPostgres(dbSession))
 
             val rapid =
                 TestRapid().apply {
