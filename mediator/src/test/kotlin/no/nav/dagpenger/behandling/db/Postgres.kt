@@ -40,6 +40,7 @@ internal object Postgres {
             hikariConfig.copyStateTo(this)
         }
 
+    private val dataSource = lazy { HikariDataSource(hikariConfig) }
     private val flywayDataSource by lazy { HikariDataSource(flywayConfig) }
 
     private val flyWay by lazy {
@@ -59,7 +60,7 @@ internal object Postgres {
     }
 
     inline fun withCleanDb(block: DBTestContext.() -> Unit) {
-        val context = DBTestContext(DatabaseSession(lazy { HikariDataSource(hikariConfig) }), flyWay)
+        val context = DBTestContext(DatabaseSession(dataSource), flyWay)
         context.clean()
         block(context)
     }
