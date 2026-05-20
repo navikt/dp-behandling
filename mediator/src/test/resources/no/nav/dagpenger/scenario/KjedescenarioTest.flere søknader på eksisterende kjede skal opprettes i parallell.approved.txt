@@ -49,6 +49,43 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
+- ØnskerDagpengerFraDato
+- AndreØkonomiskeYtelser
+- BarnetilleggV2
+- BostedslandErNorge
+- HelseTilAlleTyperJobb
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- Lønnsgaranti
+- Ordinær
+- Permittert
+- PermittertFiskeforedling
+- RegistrertSomArbeidssøker
+- TarUtdanningEllerOpplæring
+- Verneplikt
+- VilligTilÅBytteYrke
+- ØnskerDagpengerFraDato
+- ØnsketArbeidstid
+Laget avklaring om BarnMåGodkjennes
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
+Behov:
+- ErUtestengt
+- Foreldrepenger
+- Omsorgspenger
+- Opplæringspenger
+- Pleiepenger
+- Svangerskapspenger
+- Sykepenger
+- Uføre
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Laget avklaring om GjenopptakBehandling
+Laget avklaring om HarTilleggsopplysninger
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behov:
+- ØnskerDagpengerFraDato
 - AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
@@ -86,41 +123,7 @@ Behandling endret tilstand til: UnderBehandling
 Behov:
 - AndreØkonomiskeYtelser
 - BarnetilleggV2
-- BostedslandErNorge
-- HelseTilAlleTyperJobb
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- Lønnsgaranti
-- Ordinær
-- Permittert
-- PermittertFiskeforedling
-- RegistrertSomArbeidssøker
-- TarUtdanningEllerOpplæring
-- Verneplikt
-- VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
-- ØnsketArbeidstid
-Laget avklaring om BarnMåGodkjennes
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
-Behov:
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- Uføre
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: TilGodkjenning
-Laget avklaring om GjenopptakBehandling
-Laget avklaring om HarTilleggsopplysninger
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behov:
-- AndreØkonomiskeYtelser
-- BarnetilleggV2
 - BostedslandErNorge
 - HelseTilAlleTyperJobb
 - KanJobbeDeltid
