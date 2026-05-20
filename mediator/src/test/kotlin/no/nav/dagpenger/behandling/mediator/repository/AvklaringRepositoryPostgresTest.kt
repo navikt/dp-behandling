@@ -126,7 +126,8 @@ class AvklaringRepositoryPostgresTest {
                 Prosessregister().also {
                     TestBehandlinger.registrerTestProsesser(it)
                 }
-            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository(dataSource), repository, prosessregister)
+            val behandlingRepository =
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository(dataSource), repository, prosessregister)
 
             block(Avklaringtest(repository, behandlingRepository))
         }

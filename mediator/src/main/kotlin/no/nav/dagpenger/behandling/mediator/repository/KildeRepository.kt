@@ -11,8 +11,11 @@ import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import java.util.UUID
+import javax.sql.DataSource
 
-internal class KildeRepository {
+internal class KildeRepository(
+    private val dataSource: DataSource,
+) {
     @WithSpan
     fun hentKilde(uuid: UUID): Kilde? = hentKilder(listOf(uuid))[uuid]
 

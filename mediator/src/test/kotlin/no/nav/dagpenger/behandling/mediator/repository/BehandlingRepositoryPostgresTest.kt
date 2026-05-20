@@ -98,7 +98,8 @@ class BehandlingRepositoryPostgresTest {
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
+            val behandlingRepositoryPostgres =
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning2))
@@ -137,7 +138,8 @@ class BehandlingRepositoryPostgresTest {
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
+            val behandlingRepositoryPostgres =
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, UnderBehandling, Opplysninger.med(opplysning2))
@@ -177,6 +179,7 @@ class BehandlingRepositoryPostgresTest {
             val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
             val behandlingRepositoryPostgres =
                 BehandlingRepositoryPostgres(
+                    dataSource = dataSource,
                     opplysningRepository = opplysningerRepository(dataSource),
                     avklaringRepository = avklaringRepository,
                     prosessregister = prosessregister,

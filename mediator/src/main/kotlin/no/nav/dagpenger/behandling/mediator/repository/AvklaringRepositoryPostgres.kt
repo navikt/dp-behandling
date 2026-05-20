@@ -22,7 +22,7 @@ import javax.sql.DataSource
 internal class AvklaringRepositoryPostgres private constructor(
     private val dataSource: DataSource,
     private val observatører: MutableList<AvklaringRepositoryObserver> = mutableListOf(),
-    private val kildeRepository: KildeRepository = KildeRepository(),
+    private val kildeRepository: KildeRepository = KildeRepository(dataSource),
 ) : AvklaringRepository {
     constructor(dataSource: DataSource, vararg observatører: AvklaringRepositoryObserver) : this(dataSource, observatører.toMutableList())
 

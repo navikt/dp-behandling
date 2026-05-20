@@ -99,6 +99,7 @@ class PersonRepositoryPostgresTest {
             val personRepositoryPostgres =
                 PersonRepositoryPostgres(
                     BehandlingRepositoryPostgres(
+                        dataSource,
                         opplysningerRepository(dataSource),
                         mockk(relaxed = true),
                         prosessregister,

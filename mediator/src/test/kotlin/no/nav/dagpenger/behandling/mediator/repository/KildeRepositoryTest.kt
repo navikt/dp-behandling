@@ -6,7 +6,6 @@ import io.mockk.mockk
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -15,7 +14,6 @@ import java.util.UUID
 
 class KildeRepositoryTest {
     private val meldingsreferanseId = UUID.randomUUID()
-    private val kildeRepository = KildeRepository()
 
     init {
         PostgresMeldingRepository().also {
@@ -31,6 +29,7 @@ class KildeRepositoryTest {
     @Test
     fun lagreBegrunnelse() =
         withMigratedDb {
+            val kildeRepository = KildeRepository(dataSource)
             val kilde = Saksbehandlerkilde(meldingsreferanseId, Saksbehandler("EIF2025"))
 
             kildeRepository.lagreKilde(kilde, sessionOf(dataSource))
@@ -47,7 +46,7 @@ class KildeRepositoryTest {
     fun `Lagre kilde uten begrunnelse`() {
         withMigratedDb {
             val kilde = Saksbehandlerkilde(meldingsreferanseId, Saksbehandler("EIF2025"))
-
+            val kildeRepository = KildeRepository(dataSource)
             kildeRepository.lagreKilde(kilde, sessionOf(dataSource))
 
             // Lagre en tom begrunnelse uten begrunnelse_sist_endret

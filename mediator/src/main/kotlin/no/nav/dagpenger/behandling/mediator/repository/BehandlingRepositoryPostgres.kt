@@ -5,7 +5,6 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -20,16 +19,17 @@ import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.time.LocalDate
 import java.util.UUID
+import javax.sql.DataSource
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.forEach
 import kotlin.collections.groupBy
 
 internal class BehandlingRepositoryPostgres(
+    private val dataSource: DataSource,
     private val opplysningRepository: OpplysningerRepository,
     private val avklaringRepository: AvklaringRepository,
     private val prosessregister: Prosessregister,
-    private val kildeRepository: KildeRepository = KildeRepository(),
+    private val kildeRepository: KildeRepository = KildeRepository(dataSource),
 ) : BehandlingRepository,
     AvklaringRepository by avklaringRepository {
     override fun hentBehandling(behandlingId: UUID): Behandling? =

@@ -69,6 +69,7 @@ internal class ApplicationBuilder(
     private val personRepository =
         PersonRepositoryPostgres(
             BehandlingRepositoryPostgres(
+                dataSource,
                 opplysningRepository,
                 avklaringRepository,
                 prosessregister,

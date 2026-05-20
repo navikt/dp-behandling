@@ -54,6 +54,7 @@ internal class SimulertDagpengerSystem(
     private val personRepository =
         PersonRepositoryPostgres(
             BehandlingRepositoryPostgres(
+                dbTestContext.dataSource,
                 opplysningerRepository,
                 AvklaringRepositoryPostgres(dbTestContext.dataSource, AvklaringKafkaObservatør(rapid)),
                 prosessregister,

@@ -112,7 +112,8 @@ class BehandlingRepositoryPostgresPerformanceTest {
             DagpengerRegistrering().registrerProsesser(prosessregister)
             FerietilleggRegistrering().registrerProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
-            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
+            val behandlingRepository =
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, prosessregister)
 
             // Lag kjede av behandlinger, hver med mange opplysninger
             var forrigeBehandling: Behandling? = null
@@ -210,7 +211,8 @@ class BehandlingRepositoryPostgresPerformanceTest {
             DagpengerRegistrering().registrerProsesser(prosessregister)
             FerietilleggRegistrering().registrerProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
-            val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
+            val behandlingRepository =
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, prosessregister)
 
             // Lag en rot-behandling som alle kjeder baserer seg på
             val rotSøknadId = UUIDv7.ny()

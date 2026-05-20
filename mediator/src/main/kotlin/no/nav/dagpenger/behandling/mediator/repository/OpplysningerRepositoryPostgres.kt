@@ -52,7 +52,7 @@ class OpplysningerRepositoryPostgres(
             Opplysningstype.definerteTyper.associateBy { it.id }
         }
         private val logger = KotlinLogging.logger { }
-        private val kildeRepository = KildeRepository()
+        private val kildeRepository = KildeRepository(dataSource)
 
         fun Session.hentOpplysninger(opplysningerId: UUID) =
             hentOpplysninger(setOf(opplysningerId))
