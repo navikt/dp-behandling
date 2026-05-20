@@ -39,7 +39,6 @@ Laget avklaring om SjekkPrøvingsdato
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
-Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
@@ -50,6 +49,7 @@ Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
 - ØnskerDagpengerFraDato
+- BarnetilleggV2
 - AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
@@ -94,5 +94,4 @@ Laget avklaring om SjekkPrøvingsdato
 Laget avklaring om BeregnetArbeidstid
 Behov:
 - OppgittAndreYtelserUtenforNav
-Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
