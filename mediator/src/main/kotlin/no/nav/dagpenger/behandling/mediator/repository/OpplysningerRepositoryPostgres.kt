@@ -41,9 +41,12 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import javax.sql.DataSource
 import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
-class OpplysningerRepositoryPostgres : OpplysningerRepository {
+class OpplysningerRepositoryPostgres(
+    private val dataSource: DataSource,
+) : OpplysningerRepository {
     internal companion object {
         private val opplysningstyper by lazy {
             Opplysningstype.definerteTyper.associateBy { it.id }

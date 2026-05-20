@@ -63,7 +63,7 @@ internal class ApplicationBuilder(
     private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
     private val dataSource = PostgresDataSourceBuilder.dataSource
     private val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-    private val opplysningRepository = OpplysningerRepositoryPostgres()
+    private val opplysningRepository = OpplysningerRepositoryPostgres(dataSource)
     private val prosessregister = Prosessregister()
 
     private val personRepository =

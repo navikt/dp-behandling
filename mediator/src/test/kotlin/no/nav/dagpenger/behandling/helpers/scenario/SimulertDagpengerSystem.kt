@@ -49,7 +49,7 @@ internal class SimulertDagpengerSystem(
     }
 
     private val rapid = TestRapid()
-    private val opplysningerRepository = OpplysningerRepositoryPostgres()
+    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbTestContext.dataSource)
     private val prosessregister = Prosessregister()
     private val personRepository =
         PersonRepositoryPostgres(

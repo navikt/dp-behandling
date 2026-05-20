@@ -13,6 +13,7 @@ import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.uuid.UUIDv7
+import javax.sql.DataSource
 
 internal object TestOpplysningstyper {
     val baseOpplysningstype = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "Base")
@@ -42,8 +43,8 @@ internal object TestOpplysningstyper {
     val beløpA = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpA")
     val beløpB = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpB")
 
-    fun opplysningerRepository(): OpplysningerRepositoryPostgres =
-        OpplysningerRepositoryPostgres().apply {
+    fun opplysningerRepository(dataSource: DataSource): OpplysningerRepositoryPostgres =
+        OpplysningerRepositoryPostgres(dataSource).apply {
             lagreOpplysningstyper(definerteTyper)
         }
 }

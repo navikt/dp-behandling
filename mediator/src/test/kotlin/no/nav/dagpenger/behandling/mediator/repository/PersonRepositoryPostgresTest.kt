@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.doubles.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.dagpenger.behandling.TestOpplysningstyper.heltall
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
@@ -13,35 +14,16 @@ import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.somKjede
 import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Heltall
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
-import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class PersonRepositoryPostgresTest {
-    private val fnr = "12345678901"
-    private val prosessregister =
-        Prosessregister().also {
-            TestBehandlinger.registrerTestProsesser(it)
-        }
-    private val personRepositoryPostgres
-        get() =
-            PersonRepositoryPostgres(
-                BehandlingRepositoryPostgres(
-                    opplysningerRepository(),
-                    mockk(relaxed = true),
-                    prosessregister,
-                ),
-            )
-
     @Test
     fun `hent returnerer person når personen finnes i databasen`() =
-        withMigratedDb {
-            val ident = Ident(fnr)
+        personTest {
             val expectedPerson =
                 Person(ident, emptyList()).also {
                     personRepositoryPostgres.lagre(it)
@@ -64,9 +46,7 @@ class PersonRepositoryPostgresTest {
 
     @Test
     fun `hent returnerer null når personen ikke finnes i databasen`() =
-        withMigratedDb {
-            val ident = Ident(fnr)
-
+        personTest {
             val actualPerson = personRepositoryPostgres.hent(ident)
 
             assertNull(actualPerson)
@@ -74,9 +54,8 @@ class PersonRepositoryPostgresTest {
 
     @Test
     fun `lagre setter inn person og deres behandlinger i databasen`() =
-        withMigratedDb {
-            val ident = Ident(fnr)
-            val opplysning = Faktum(Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Heltall"), 5)
+        personTest {
+            val opplysning = Faktum(heltall, 5)
             val hendelse = TestBehandlinger.lagTestHendelse(fnr)
             val behandling = Behandling(hendelse, listOf(opplysning))
             val person = Person(ident, listOf(behandling.somKjede()))
@@ -101,8 +80,7 @@ class PersonRepositoryPostgresTest {
 
     @Test
     fun `lagre setter ikke inn person i databasen når personen allerede finnes`() =
-        withMigratedDb {
-            val ident = Ident(fnr)
+        personTest {
             val hendelse = TestBehandlinger.lagTestHendelse(fnr)
             val behandling = Behandling(hendelse, emptyList())
             val person = Person(ident, listOf(behandling.somKjede()))
@@ -110,4 +88,30 @@ class PersonRepositoryPostgresTest {
             personRepositoryPostgres.lagre(person)
             personRepositoryPostgres.lagre(person)
         }
+
+    private fun personTest(block: Persontest.() -> Unit) {
+        withMigratedDb {
+            val fnr = "12345678901"
+            val prosessregister =
+                Prosessregister().also {
+                    TestBehandlinger.registrerTestProsesser(it)
+                }
+            val personRepositoryPostgres =
+                PersonRepositoryPostgres(
+                    BehandlingRepositoryPostgres(
+                        opplysningerRepository(dataSource),
+                        mockk(relaxed = true),
+                        prosessregister,
+                    ),
+                )
+            block(Persontest(fnr, personRepositoryPostgres))
+        }
+    }
+
+    private data class Persontest(
+        val fnr: String,
+        val personRepositoryPostgres: PersonRepositoryPostgres,
+    ) {
+        val ident = Ident(fnr)
+    }
 }

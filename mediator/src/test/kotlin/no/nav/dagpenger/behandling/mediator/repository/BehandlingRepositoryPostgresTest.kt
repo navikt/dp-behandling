@@ -49,7 +49,6 @@ class BehandlingRepositoryPostgresTest {
     private val opplysningstype4 = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "aktiv-opplysning4")
     private val opplysningstype5 = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "aktiv-opplysning5")
 
-    private val opplysningerRepository = OpplysningerRepositoryPostgres()
     private val opplysningstyper =
         listOf(opplysningstype1, opplysningstype2, opplysningstype3, opplysningstype4, opplysningstype5, datoOpplysningstype).toSet()
 
@@ -92,6 +91,7 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `lagre og hente en kjede med grener fra postgres`() {
         withMigratedDb {
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
@@ -130,6 +130,7 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `flytter en eldre behandling til å peke på en nyere`() {
         withMigratedDb {
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
@@ -167,13 +168,19 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `lagre og hent behandling fra postgres`() {
         withMigratedDb {
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
             val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository, prosessregister)
+            val behandlingRepositoryPostgres =
+                BehandlingRepositoryPostgres(
+                    opplysningRepository = opplysningerRepository(dataSource),
+                    avklaringRepository = avklaringRepository,
+                    prosessregister = prosessregister,
+                )
 
             opprettKjede(behandlingRepositoryPostgres, listOf(basertPåBehandling, behandling))
 

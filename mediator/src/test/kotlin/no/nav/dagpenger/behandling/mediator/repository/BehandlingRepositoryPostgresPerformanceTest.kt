@@ -106,7 +106,7 @@ class BehandlingRepositoryPostgresPerformanceTest {
 
         withMigratedDb {
             val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-            val opplysningerRepository = OpplysningerRepositoryPostgres()
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             DagpengerRegistrering().registrerProsesser(prosessregister)
@@ -204,7 +204,7 @@ class BehandlingRepositoryPostgresPerformanceTest {
 
         withMigratedDb {
             val avklaringRepository = AvklaringRepositoryPostgres(dataSource)
-            val opplysningerRepository = OpplysningerRepositoryPostgres()
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             DagpengerRegistrering().registrerProsesser(prosessregister)
