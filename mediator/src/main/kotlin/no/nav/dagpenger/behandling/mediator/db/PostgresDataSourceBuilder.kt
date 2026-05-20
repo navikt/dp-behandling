@@ -19,13 +19,12 @@ private const val DB_URL_KEY = "DB_URL"
 internal class PostgresDataSourceBuilder {
     private fun getOrThrow(key: String): String = getEnv(key) ?: error("Mangler miljøvariabel $key")
 
-    private val hikariConfig by lazy {
+    private val baseConfig =
         HikariConfig().apply {
             jdbcUrl = getOrThrow(DB_URL_KEY).ensurePrefix("jdbc:postgresql://").stripCredentials()
             username = getOrThrow(DB_USERNAME_KEY)
             password = getOrThrow(DB_PASSWORD_KEY)
-            // Default 10
-            maximumPoolSize = 10
+
             // Default 30 sekund
             connectionTimeout = 10.seconds.inWholeMilliseconds
             // Default 10 minutter
@@ -42,17 +41,37 @@ internal class PostgresDataSourceBuilder {
                     Clock.SYSTEM,
                 )
         }
+
+    private val hikariConfig by lazy {
+        HikariConfig().apply {
+            baseConfig.copyStateTo(this)
+            poolName = "app"
+            // Default 10
+            maximumPoolSize = 10
+        }
     }
 
     val dataSource by lazy { HikariDataSource(hikariConfig) }
 
     internal fun runMigration() {
-        Flyway
-            .configure()
-            .connectRetries(10)
-            .dataSource(dataSource)
-            .load()
-            .migrate()
+        val config =
+            HikariConfig().apply {
+                baseConfig.copyStateTo(this)
+                poolName = "flyway"
+                // ideelt skulle vi bare behøvd én connection,
+                // men flyway har noen leaks som gjør at den ikke klarer seg med bare én
+                maximumPoolSize = 2
+            }
+        // oppretter egen datasource sånn at vi iallfall lukker den ordentlig,
+        // og får returnert connections tilbake til postgres
+        HikariDataSource(config).use {
+            Flyway
+                .configure()
+                .connectRetries(10)
+                .dataSource(it)
+                .load()
+                .migrate()
+        }
     }
 }
 
