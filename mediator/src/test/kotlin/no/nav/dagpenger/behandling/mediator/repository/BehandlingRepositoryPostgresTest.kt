@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
+import no.nav.dagpenger.behandling.db.DBTestContext
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
@@ -220,11 +221,11 @@ class BehandlingRepositoryPostgresTest {
         }
     }
 
-    private fun opprettKjede(
+    private fun DBTestContext.opprettKjede(
         behandlingRepositoryPostgres: BehandlingRepositoryPostgres,
         behandlinger: List<Behandling>,
     ) {
-        val personRepositoryPostgres = PersonRepositoryPostgres(behandlingRepositoryPostgres)
+        val personRepositoryPostgres = PersonRepositoryPostgres(dataSource, behandlingRepositoryPostgres)
 
         val kjeder =
             behandlinger

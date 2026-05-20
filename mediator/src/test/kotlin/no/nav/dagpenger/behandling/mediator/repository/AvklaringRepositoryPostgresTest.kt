@@ -26,7 +26,7 @@ class AvklaringRepositoryPostgresTest {
             val kode1 = Avklaringkode("JobbetUtenforNorge", "Arbeid utenfor Norge", "Personen har oppgitt arbeid utenfor Norge")
             val kode2 = Avklaringkode("HarVunnetNobelprisen", "Har vunnet nobelprisen", "Personen har vunnet en nobelpris ")
 
-            val behandling = TestBehandling(behandlingRepository, avklaring(kode1), avklaring(kode2))
+            val behandling = testBehandling(avklaring(kode1), avklaring(kode2))
             val avklaringer = repository.hentAvklaringer(behandling.behandlingId)
 
             avklaringer.size shouldBe 2
@@ -38,7 +38,7 @@ class AvklaringRepositoryPostgresTest {
         avklaringTest {
             val kode1 = Avklaringkode("JobbetUtenforNorge", "Arbeid utenfor Norge", "Personen har oppgitt arbeid utenfor Norge")
 
-            val behandling = TestBehandling(behandlingRepository, avklaring(kode1))
+            val behandling = testBehandling(avklaring(kode1))
             behandling.avklar("123", "begrunnelse")
 
             val avklaringer = repository.hentAvklaringer(behandling.behandlingId)
@@ -66,27 +66,26 @@ class AvklaringRepositoryPostgresTest {
             val forventedeTilstander = listOf("UnderBehandling", "Avklart", "UnderBehandling", "Avklart")
             avklaring.endringer.map { it::class.simpleName!! } shouldBe forventedeTilstander
 
-            val behandling = TestBehandling(behandlingRepository, avklaring)
+            val behandling = testBehandling(avklaring)
             val avklaringerFraDb = repository.hentAvklaringer(behandling.behandlingId)
 
-            repository.hentAvklaringer(TestBehandling(behandlingRepository, avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(behandlingRepository, avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(behandlingRepository, avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(behandlingRepository, avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(behandlingRepository, avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(behandlingRepository, avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
 
             avklaringerFraDb.single().endringer.map { it::class.simpleName!! } shouldBe forventedeTilstander
         }
     }
 
     private class TestBehandling(
-        behandlingRepository: BehandlingRepository,
+        private val personRepository: PersonRepository,
         vararg avklaring: Avklaring,
     ) {
         val behandlingId get() = behandling.behandlingId
         private val behandling = TestBehandlinger.rehydrerBehandling(avklaringer = avklaring.toList())
-        private val personRepository = PersonRepositoryPostgres(behandlingRepository)
 
         init {
             lagre()
@@ -128,13 +127,16 @@ class AvklaringRepositoryPostgresTest {
                 }
             val behandlingRepository =
                 BehandlingRepositoryPostgres(dataSource, opplysningerRepository(dataSource), repository, prosessregister)
-
-            block(Avklaringtest(repository, behandlingRepository))
+            val personRepository = PersonRepositoryPostgres(dataSource, behandlingRepository)
+            block(Avklaringtest(repository, behandlingRepository, personRepository))
         }
     }
 
     private data class Avklaringtest(
         val repository: AvklaringRepository,
         val behandlingRepository: BehandlingRepositoryPostgres,
-    )
+        val personRepository: PersonRepositoryPostgres,
+    ) {
+        fun testBehandling(vararg avklaring: Avklaring) = TestBehandling(personRepository, *avklaring)
+    }
 }

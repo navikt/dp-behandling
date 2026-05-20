@@ -15,10 +15,12 @@ import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
+import javax.sql.DataSource
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
 class PersonRepositoryPostgres(
+    private val dataSource: DataSource,
     private val behandlingRepository: BehandlingRepository,
 ) : PersonRepository,
     BehandlingRepository by behandlingRepository {

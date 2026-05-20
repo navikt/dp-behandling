@@ -98,6 +98,7 @@ class PersonRepositoryPostgresTest {
                 }
             val personRepositoryPostgres =
                 PersonRepositoryPostgres(
+                    dataSource,
                     BehandlingRepositoryPostgres(
                         dataSource,
                         opplysningerRepository(dataSource),
