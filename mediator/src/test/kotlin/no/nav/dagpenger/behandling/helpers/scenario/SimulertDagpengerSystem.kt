@@ -72,7 +72,7 @@ internal class SimulertDagpengerSystem(
             listOf(ventendeMeldekort),
         )
 
-    private val postgresMeldingRepository = PostgresMeldingRepository()
+    private val postgresMeldingRepository = PostgresMeldingRepository(dbTestContext.dataSource)
 
     private val behovssporer = Behovssporer(dbTestContext.dataSource)
     private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)

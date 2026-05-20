@@ -25,8 +25,11 @@ import no.nav.dagpenger.regelverk.melding.Melding
 import no.nav.dagpenger.regelverk.melding.MeldingRepository
 import org.postgresql.util.PGobject
 import java.util.UUID
+import javax.sql.DataSource
 
-internal class PostgresMeldingRepository : MeldingRepository {
+internal class PostgresMeldingRepository(
+    val datasource: DataSource,
+) : MeldingRepository {
     override fun lagreMelding(
         melding: Melding,
         ident: String,

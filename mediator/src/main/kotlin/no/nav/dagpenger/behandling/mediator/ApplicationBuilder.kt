@@ -92,7 +92,7 @@ internal class ApplicationBuilder(
             observatører = listOf(ventendeMeldekort, behandlingMetrikker),
         )
 
-    private val postgresMeldingRepository = PostgresMeldingRepository()
+    private val postgresMeldingRepository = PostgresMeldingRepository(dataSource)
 
     private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)
 

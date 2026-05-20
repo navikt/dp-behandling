@@ -11,28 +11,12 @@ import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import javax.sql.DataSource
 
 class KildeRepositoryTest {
-    private val meldingsreferanseId = UUID.randomUUID()
-
-    init {
-        PostgresMeldingRepository().also {
-            it.lagreMelding(
-                mockk(),
-                "123456789",
-                meldingsreferanseId,
-                "{}",
-            )
-        }
-    }
-
     @Test
     fun lagreBegrunnelse() =
-        withMigratedDb {
-            val kildeRepository = KildeRepository(dataSource)
-            val kilde = Saksbehandlerkilde(meldingsreferanseId, Saksbehandler("EIF2025"))
-
-            kildeRepository.lagreKilde(kilde, sessionOf(dataSource))
+        kildeTest {
             kildeRepository.lagreBegrunnelse(kilde.id, "Begrunnelse")
 
             with(kildeRepository.hentKilde(kilde.id)) {
@@ -44,11 +28,7 @@ class KildeRepositoryTest {
 
     @Test
     fun `Lagre kilde uten begrunnelse`() {
-        withMigratedDb {
-            val kilde = Saksbehandlerkilde(meldingsreferanseId, Saksbehandler("EIF2025"))
-            val kildeRepository = KildeRepository(dataSource)
-            kildeRepository.lagreKilde(kilde, sessionOf(dataSource))
-
+        kildeTest {
             // Lagre en tom begrunnelse uten begrunnelse_sist_endret
             sessionOf(dataSource)
                 .use { session ->
@@ -75,4 +55,32 @@ class KildeRepositoryTest {
             }
         }
     }
+
+    private fun kildeTest(block: Kildetest.() -> Unit) {
+        withMigratedDb {
+            val meldingsreferanseId = UUID.randomUUID()
+            PostgresMeldingRepository(dataSource).also {
+                it.lagreMelding(
+                    mockk(),
+                    "123456789",
+                    meldingsreferanseId,
+                    "{}",
+                )
+            }
+
+            val kildeRepository = KildeRepository(dataSource)
+            val kilde = Saksbehandlerkilde(meldingsreferanseId, Saksbehandler("EIF2025"))
+            // trenger en session her fordi det brukes til å lagre ting
+            sessionOf(dataSource).use {
+                kildeRepository.lagreKilde(kilde, it)
+            }
+            block(Kildetest(kildeRepository, kilde, dataSource))
+        }
+    }
+
+    private data class Kildetest(
+        val kildeRepository: KildeRepository,
+        val kilde: Saksbehandlerkilde,
+        val dataSource: DataSource,
+    )
 }
