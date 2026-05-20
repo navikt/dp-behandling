@@ -16,7 +16,6 @@ import no.nav.dagpenger.behandling.mediator.api.simuleringApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
 import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
 import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
 import no.nav.dagpenger.behandling.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
@@ -61,7 +60,8 @@ internal class ApplicationBuilder(
     private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
 
     private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
-    private val dataSource = PostgresDataSourceBuilder.dataSource
+    private val postgresDataSourceBuilder = PostgresDataSourceBuilder()
+    private val dataSource = postgresDataSourceBuilder.dataSource
     private val kildeRepository = KildeRepository(dataSource)
     private val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
     private val opplysningRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
@@ -177,7 +177,7 @@ internal class ApplicationBuilder(
     fun stop() = rapidsConnection.stop()
 
     override fun onStartup(rapidsConnection: RapidsConnection) {
-        runMigration()
+        postgresDataSourceBuilder.runMigration()
         opplysningRepository.lagreOpplysningstyper(opplysningstyper)
         logger.info { "Starter opp dp-behandling" }
 
