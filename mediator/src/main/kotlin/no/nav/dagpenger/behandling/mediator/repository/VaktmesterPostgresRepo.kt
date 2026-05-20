@@ -4,13 +4,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.db.medLås
 import java.util.UUID
-import javax.sql.DataSource
 
 internal class VaktmesterPostgresRepo(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
 ) {
     companion object {
         private val låsenøkkel = 121212
@@ -22,7 +21,7 @@ internal class VaktmesterPostgresRepo(
         val rapport =
             try {
                 logger.info { "Skal finne kandidater til sletting, med øvre grense på $antallBehandlinger" }
-                sessionOf(dataSource).use { session ->
+                dbSession.session { session ->
                     logger.info { "Har opprettet session" }
                     session.transaction { tx ->
                         logger.info { "Har startet transaksjon" }

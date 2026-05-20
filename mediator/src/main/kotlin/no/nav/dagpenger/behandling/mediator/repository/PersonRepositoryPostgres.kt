@@ -5,21 +5,20 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import io.prometheus.metrics.model.snapshots.Labels
 import kotliquery.Session
 import kotliquery.queryOf
-import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
-import javax.sql.DataSource
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
 class PersonRepositoryPostgres(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
     private val behandlingRepository: BehandlingRepository,
 ) : PersonRepository,
     BehandlingRepository by behandlingRepository {
@@ -29,7 +28,7 @@ class PersonRepositoryPostgres(
 
     @WithSpan
     override fun hent(ident: Ident) =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             val timer = TimeSource.Monotonic.markNow()
             session
                 .run(
@@ -65,11 +64,11 @@ class PersonRepositoryPostgres(
 
     @WithSpan
     override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
-        sessionOf(dataSource).use { session -> session.rettighetstatusFor(ident) }
+        dbSession.session { session -> session.rettighetstatusFor(ident) }
 
     @WithSpan
     override fun harIdent(ident: Ident): Boolean =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session
                 .run(
                     queryOf(
@@ -107,7 +106,7 @@ class PersonRepositoryPostgres(
 
     override fun lagre(person: Person) {
         lagrePersonMetrikk.time {
-            PostgresUnitOfWork.transaction(dataSource) {
+            dbSession.transaction {
                 lagre(person, this)
             }
         }
@@ -140,7 +139,7 @@ class PersonRepositoryPostgres(
     }
 
     override fun hentIdenterMedRettighetsperioder(år: Int): List<String> =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session
                 .run(
                     queryOf(

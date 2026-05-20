@@ -25,13 +25,13 @@ class MeldekortBehandlingskøTest {
     @Test
     fun `tester kø`() {
         withMigratedDb {
-            val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
+            val meldekortRepository = MeldekortRepositoryPostgres(dbSession)
             // Bruker en eksplisitt virkedag (mandag) for å unngå flaky tester på helger/helligdager
             val kjøringsdato = LocalDate.of(2024, 1, 29)
-            val meldekort = MeldekortBehandlingskø(dataSource, personRepository, meldekortRepository, rapid)
+            val meldekort = MeldekortBehandlingskø(dbSession, personRepository, meldekortRepository, rapid)
             lagPerson(1.januar(2024))
 
-            val person = meldekortRepository.generatorFor(dataSource, ident, 1.januar(2024))
+            val person = meldekortRepository.generatorFor(dbSession, ident, 1.januar(2024))
             person.lagMeldekort(2)
 
             // Første meldekort behandles

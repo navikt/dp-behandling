@@ -2,12 +2,12 @@ package no.nav.dagpenger.behandling.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import org.flywaydb.core.Flyway
 import org.testcontainers.postgresql.PostgreSQLContainer
-import javax.sql.DataSource
 
 data class DBTestContext(
-    val dataSource: DataSource,
+    val dbSession: DatabaseSession,
     val flyWay: Flyway,
 ) {
     fun clean() {
@@ -40,7 +40,6 @@ internal object Postgres {
             hikariConfig.copyStateTo(this)
         }
 
-    private val dataSource by lazy { HikariDataSource(hikariConfig) }
     private val flywayDataSource by lazy { HikariDataSource(flywayConfig) }
 
     private val flyWay by lazy {
@@ -60,7 +59,7 @@ internal object Postgres {
     }
 
     inline fun withCleanDb(block: DBTestContext.() -> Unit) {
-        val context = DBTestContext(dataSource, flyWay)
+        val context = DBTestContext(DatabaseSession(lazy { HikariDataSource(hikariConfig) }), flyWay)
         context.clean()
         block(context)
     }

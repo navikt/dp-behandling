@@ -51,7 +51,7 @@ internal class PostgresDataSourceBuilder {
         }
     }
 
-    val dataSource by lazy { HikariDataSource(hikariConfig) }
+    val dbsession = DatabaseSession(lazy { HikariDataSource(hikariConfig) })
 
     internal fun runMigration() {
         val config =

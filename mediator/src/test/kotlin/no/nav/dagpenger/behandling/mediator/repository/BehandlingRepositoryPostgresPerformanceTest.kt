@@ -88,7 +88,7 @@ class BehandlingRepositoryPostgresPerformanceTest {
         behandlingRepositoryPostgres: BehandlingRepositoryPostgres,
         behandlinger: List<Behandling>,
     ) {
-        val personRepositoryPostgres = PersonRepositoryPostgres(dataSource, behandlingRepositoryPostgres)
+        val personRepositoryPostgres = PersonRepositoryPostgres(dbSession, behandlingRepositoryPostgres)
 
         val kjeder =
             behandlinger
@@ -106,16 +106,16 @@ class BehandlingRepositoryPostgresPerformanceTest {
         val antallOpplysningerPerBehandling = 100
 
         withMigratedDb {
-            val kildeRepository = KildeRepository(dataSource)
-            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
-            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
+            val kildeRepository = KildeRepository(dbSession)
+            val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             DagpengerRegistrering().registrerProsesser(prosessregister)
             FerietilleggRegistrering().registrerProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
             val behandlingRepository =
-                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
+                BehandlingRepositoryPostgres(dbSession, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
 
             // Lag kjede av behandlinger, hver med mange opplysninger
             var forrigeBehandling: Behandling? = null
@@ -206,16 +206,16 @@ class BehandlingRepositoryPostgresPerformanceTest {
         val antallOpplysningerPerBehandling = 50
 
         withMigratedDb {
-            val kildeRepository = KildeRepository(dataSource)
-            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
-            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
+            val kildeRepository = KildeRepository(dbSession)
+            val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             DagpengerRegistrering().registrerProsesser(prosessregister)
             FerietilleggRegistrering().registrerProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper.toSet())
             val behandlingRepository =
-                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
+                BehandlingRepositoryPostgres(dbSession, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
 
             // Lag en rot-behandling som alle kjeder baserer seg på
             val rotSøknadId = UUIDv7.ny()

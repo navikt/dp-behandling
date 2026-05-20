@@ -4,7 +4,6 @@ import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.server.application.ApplicationStopped
 import io.micrometer.core.instrument.Clock
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -42,7 +41,6 @@ internal class ApplicationBuilder(
     private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
 
     private val postgresDataSourceBuilder = PostgresDataSourceBuilder()
-    private val dataSource = postgresDataSourceBuilder.dataSource
 
     private lateinit var runtime: BehandlingRuntime
 
@@ -53,7 +51,7 @@ internal class ApplicationBuilder(
                 withKtor { preStopHook, rapid ->
                     runtime =
                         BehandlingRuntime(
-                            dataSource = dataSource,
+                            dbSession = postgresDataSourceBuilder.dbsession,
                             rapidsConnection = rapid,
                             auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapid),
                             regelverk = regelverk,
@@ -69,11 +67,6 @@ internal class ApplicationBuilder(
                         preStopHook = preStopHook::handlePreStopRequest,
                         statusPagesConfig = { statusPagesConfig() },
                     ) {
-                        monitor.subscribe(ApplicationStopped) {
-                            logger.info { "Forsøker å lukke datasource..." }
-                            dataSource.close()
-                            logger.info { "Lukket datasource" }
-                        }
                         runtime.api(this)
                         simuleringApi()
                     }
@@ -104,7 +97,7 @@ internal class ApplicationBuilder(
         runtime.lagreOpplysningstyper()
         logger.info { "Starter opp dp-behandling" }
 
-        SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo(dataSource))
+        SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo(postgresDataSourceBuilder.dbsession))
 
         BehandleMeldekort(
             runtime.meldekortBehandlingskø(rapidsConnection),

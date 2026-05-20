@@ -1,5 +1,6 @@
 package no.nav.dagpenger.behandling
 
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.repository.KildeRepository
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -14,7 +15,6 @@ import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.uuid.UUIDv7
-import javax.sql.DataSource
 
 internal object TestOpplysningstyper {
     val baseOpplysningstype = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "Base")
@@ -44,7 +44,7 @@ internal object TestOpplysningstyper {
     val beløpA = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpA")
     val beløpB = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpB")
 
-    fun opplysningerRepository(dataSource: DataSource): OpplysningerRepositoryPostgres =
+    fun opplysningerRepository(dataSource: DatabaseSession): OpplysningerRepositoryPostgres =
         OpplysningerRepositoryPostgres(dataSource, KildeRepository(dataSource)).apply {
             lagreOpplysningstyper(definerteTyper)
         }

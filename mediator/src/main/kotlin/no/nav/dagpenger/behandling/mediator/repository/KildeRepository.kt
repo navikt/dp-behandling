@@ -3,23 +3,22 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
-import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import java.util.UUID
-import javax.sql.DataSource
 
 internal class KildeRepository(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
 ) {
     @WithSpan
     fun hentKilde(uuid: UUID): Kilde? = hentKilder(listOf(uuid))[uuid]
 
     @WithSpan
-    fun hentKilder(uuid: List<UUID>): Map<UUID, Kilde> = sessionOf(dataSource).use { hentKilder(uuid, it) }
+    fun hentKilder(uuid: List<UUID>): Map<UUID, Kilde> = dbSession.session { hentKilder(uuid, it) }
 
     @WithSpan
     fun hentKilder(
@@ -156,22 +155,21 @@ internal class KildeRepository(
         kildeId: UUID,
         begrunnelse: String,
     ) {
-        sessionOf(dataSource)
-            .use { session ->
-                session.run(
-                    queryOf(
-                        //language=PostgreSQL
-                        """
-                        UPDATE kilde_saksbehandler 
-                        SET begrunnelse = :begrunnelse, begrunnelse_sist_endret = NOW() 
-                        WHERE kilde_id = :kildeId
-                        """.trimIndent(),
-                        mapOf(
-                            "kildeId" to kildeId,
-                            "begrunnelse" to begrunnelse,
-                        ),
-                    ).asUpdate,
-                )
-            }
+        dbSession.session { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    UPDATE kilde_saksbehandler 
+                    SET begrunnelse = :begrunnelse, begrunnelse_sist_endret = NOW() 
+                    WHERE kilde_id = :kildeId
+                    """.trimIndent(),
+                    mapOf(
+                        "kildeId" to kildeId,
+                        "begrunnelse" to begrunnelse,
+                    ),
+                ).asUpdate,
+            )
+        }
     }
 }

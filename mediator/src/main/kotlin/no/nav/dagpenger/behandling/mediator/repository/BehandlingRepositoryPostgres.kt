@@ -2,9 +2,9 @@ package no.nav.dagpenger.behandling.mediator.repository
 
 import kotliquery.Session
 import kotliquery.queryOf
-import kotliquery.sessionOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentBehandlingTimer
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.behandling.modell.Arbeidssteg
 import no.nav.dagpenger.behandling.modell.Behandling
@@ -19,13 +19,12 @@ import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.time.LocalDate
 import java.util.UUID
-import javax.sql.DataSource
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.groupBy
 
 internal class BehandlingRepositoryPostgres(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
     private val opplysningRepository: OpplysningerRepository,
     private val avklaringRepository: AvklaringRepository,
     private val kildeRepository: KildeRepository,
@@ -34,13 +33,13 @@ internal class BehandlingRepositoryPostgres(
     AvklaringRepository by avklaringRepository {
     override fun hentBehandling(behandlingId: UUID): Behandling? =
         hentBehandlingTimer.time<Behandling?> {
-            sessionOf(dataSource).use { session ->
+            dbSession.session { session ->
                 session.hentBehandling(behandlingId)
             }
         }
 
     override fun hentBehandlinger(ident: Ident): List<Behandlingkjede> =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.hentBehandlinger(HentBehandling.AlleForIdent(ident))
         }
 
@@ -48,7 +47,7 @@ internal class BehandlingRepositoryPostgres(
         behandlingId: UUID,
         nyBasertPåId: UUID?,
     ) {
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.run(
                 queryOf(
                     //language=PostgreSQL
@@ -297,7 +296,7 @@ internal class BehandlingRepositoryPostgres(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         block: (Behandling) -> Unit,
-    ) = sessionOf(dataSource).use { session ->
+    ) = dbSession.session { session ->
         session.forEach(
             queryOf(
                 // language="PostgreSQL"
@@ -550,7 +549,7 @@ internal class BehandlingRepositoryPostgres(
         opplysningId: UUID,
         begrunnelse: String,
     ) {
-        sessionOf(dataSource).use {
+        dbSession.session {
             val kildeId =
                 it.run(
                     queryOf(
@@ -571,7 +570,7 @@ internal class BehandlingRepositoryPostgres(
     }
 
     override fun lagreUtbetalingStatus(utbetalingStatus: UtbetalingStatus) {
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.transaction {
                 it.run(
                     queryOf(
@@ -593,9 +592,9 @@ internal class BehandlingRepositoryPostgres(
         }
     }
 
-    override fun hentUtbetalingStatus(behandlingId: UUID): UtbetalingStatus.Status {
-        sessionOf(dataSource).use { session ->
-            return session
+    override fun hentUtbetalingStatus(behandlingId: UUID): UtbetalingStatus.Status =
+        dbSession.session { session ->
+            session
                 .run(
                     queryOf(
                         //language=PostgreSQL
@@ -611,5 +610,4 @@ internal class BehandlingRepositoryPostgres(
                 )?.let { UtbetalingStatus.Status.valueOf(it) }
                 ?: throw IllegalArgumentException("Fant ikke utbetalingstatus for behandling $behandlingId")
         }
-    }
 }

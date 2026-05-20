@@ -3,10 +3,9 @@ package no.nav.dagpenger.behandling.mediator.repository
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortkø
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository.Meldekortstatus
-import no.nav.dagpenger.behandling.mediator.repository.PostgresUnitOfWork.Companion.transaction
 import no.nav.dagpenger.behandling.modell.BehandlingObservatør
 import no.nav.dagpenger.behandling.modell.PersonObservatør
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
@@ -20,14 +19,13 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import javax.sql.DataSource
 import kotlin.time.Duration.Companion.seconds
 
 class MeldekortRepositoryPostgres(
-    private val dataSource: DataSource,
+    private val dbSession: DatabaseSession,
 ) : MeldekortRepository {
     override fun lagre(meldekort: Meldekort) {
-        transaction(dataSource) {
+        dbSession.transaction {
             lagreMeldekort(meldekort)
 
             meldekort.korrigeringAv?.let { korrigertMeldekortId ->
@@ -45,7 +43,7 @@ class MeldekortRepositoryPostgres(
         val førsteVirkedag = finnFørsteArbeidsdag(kjøringsdato)
 
         val meldekort =
-            sessionOf(dataSource).use { session ->
+            dbSession.session { session ->
                 val meldekortUtenDager =
                     session.run(
                         queryOf(
@@ -93,7 +91,7 @@ class MeldekortRepositoryPostgres(
     }
 
     override fun hent(meldekortId: UUID) =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             val meldekortUtenDager =
                 session.run(
                     queryOf(
@@ -107,12 +105,12 @@ class MeldekortRepositoryPostgres(
                     ).map { row ->
                         row.meldekort()
                     }.asSingle,
-                ) ?: return@use null
+                ) ?: return@session null
             session.medDager(listOf(meldekortUtenDager)).single()
         }
 
     override fun hentKorrigeringer(originale: List<MeldekortId>): List<Meldekort> =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             val meldekortUtenDager =
                 session.run(
                     queryOf(
@@ -131,7 +129,7 @@ class MeldekortRepositoryPostgres(
         }
 
     override fun behandlingStartet(meldekortId: MeldekortId) {
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.transaction { tx ->
                 tx.run(
                     queryOf(
@@ -150,7 +148,7 @@ class MeldekortRepositoryPostgres(
     }
 
     override fun markerSomFerdig(meldekortId: MeldekortId) {
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.transaction { tx ->
                 tx.run(
                     queryOf(
@@ -169,7 +167,7 @@ class MeldekortRepositoryPostgres(
     }
 
     override fun settPåVent(meldekortId: MeldekortId) {
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.transaction { tx ->
                 tx.run(
                     queryOf(
@@ -188,7 +186,7 @@ class MeldekortRepositoryPostgres(
     }
 
     override fun sluttMedDerreVentegreieneNåDa(ident: String) {
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session.transaction { tx ->
                 tx.run(
                     queryOf(
@@ -206,7 +204,7 @@ class MeldekortRepositoryPostgres(
     }
 
     override fun harMeldekort(eksternMeldekortId: MeldekortId): Boolean =
-        sessionOf(dataSource).use { session ->
+        dbSession.session { session ->
             session
                 .run(
                     queryOf(

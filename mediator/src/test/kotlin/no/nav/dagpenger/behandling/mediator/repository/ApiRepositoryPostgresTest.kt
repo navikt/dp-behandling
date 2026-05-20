@@ -6,23 +6,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotliquery.queryOf
-import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.Behovssporer
+import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import org.junit.jupiter.api.Test
 import java.util.UUID
-import javax.sql.DataSource
 
 class ApiRepositoryPostgresTest {
     @Test
     fun `kan vente på endringer i tilstand`() {
         withMigratedDb {
-            val behandling = Behandling(dataSource, UUID.randomUUID())
+            val behandling = Behandling(dbSession, UUID.randomUUID())
             behandling.endreTilstand(TilstandType.ForslagTilVedtak)
 
-            val behovssporer = Behovssporer(dataSource)
-            val repo = ApiRepositoryPostgres(dataSource, io.mockk.mockk(), behovssporer)
+            val behovssporer = Behovssporer(dbSession)
+            val repo = ApiRepositoryPostgres(dbSession, io.mockk.mockk(), behovssporer)
 
             runBlocking {
                 repo.endreOpplysning(
@@ -45,11 +44,11 @@ class ApiRepositoryPostgresTest {
     }
 
     private class Behandling(
-        val dataSource: DataSource,
+        val dbSession: DatabaseSession,
         val id: UUID,
     ) {
         fun endreTilstand(tilstand: TilstandType) =
-            sessionOf(dataSource).use {
+            dbSession.session {
                 it.run(
                     queryOf(
                         //language=PostgreSQL
