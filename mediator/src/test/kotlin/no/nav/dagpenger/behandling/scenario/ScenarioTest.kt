@@ -140,7 +140,7 @@ class ScenarioTest {
                 rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
 
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
-                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1259
+                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1242
 
                 opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
             }
@@ -212,7 +212,7 @@ class ScenarioTest {
                 rettighetsperioder[1].fraOgMed shouldBe 28.juni(2018)
 
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
-                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1259
+                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1242
 
                 opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
             }

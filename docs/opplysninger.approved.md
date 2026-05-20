@@ -346,7 +346,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9428-74d5-b160-f63a4c61a23e|Faktor for utregning av dagsats etter dagpengegrunnlaget|Desimaltall|double|| G|Intern
 |0194881f-9428-74d5-b160-f63a4c61a23f|Dagsats uten barnetillegg før samordning|Penger|Beløp|||Intern
 |0194881f-9428-74d5-b160-f63a4c61a240|Avrundet ukessats med barnetillegg før samordning|Penger|Beløp|||Resultat
-|0194881f-9428-74d5-b160-f63a4c61a241|Dagsats uten barnetillegg før samordning|Penger|Beløp|||Intern
+|0194881f-9428-74d5-b160-f63a4c61a241|Avrundet dagsats uten barnetillegg før samordning|Penger|Beløp|||Intern
 |0194881f-9428-74d5-b160-f63a4c61a242|Andel av dagsats med barnetillegg som overstiger maks andel av dagpengegrunnlaget|Penger|Beløp|||Intern
 |0194881f-9428-74d5-b160-f63a4c61a243|Andel av dagsats uten barnetillegg avkortet til maks andel av dagpengegrunnlaget|Penger|Beløp|||Intern
 |0194881f-9428-74d5-b160-f63a4c61a244|Sum av barnetillegg|Penger|Beløp|||Intern

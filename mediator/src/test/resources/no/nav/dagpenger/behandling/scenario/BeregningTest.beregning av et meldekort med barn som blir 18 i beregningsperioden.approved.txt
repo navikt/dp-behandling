@@ -38,60 +38,20 @@ Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
+Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
-Laget avklaring om ManuellBehandling
+Laget avklaring om MeldekortBehandling
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
-Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
-Laget avklaring om GjenopptakBehandling
-Laget avklaring om HarTilleggsopplysninger
+Laget avklaring om MeldekortBehandling
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behov:
-- ØnskerDagpengerFraDato
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- HelseTilAlleTyperJobb
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
-- RegistrertSomArbeidssøker
-- Ordinær
-- Permittert
-- Lønnsgaranti
-- PermittertFiskeforedling
-- Verneplikt
-- AndreØkonomiskeYtelser
-- TarUtdanningEllerOpplæring
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
-Behov:
-- Sykepenger
-- Pleiepenger
-- Omsorgspenger
-- Opplæringspenger
-- Uføre
-- Foreldrepenger
-- Svangerskapspenger
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
-Behov:
-- Inntekt
-Laget avklaring om EØSArbeid
-Laget avklaring om InntektNesteKalendermåned
-Laget avklaring om JobbetUtenforNorge
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
-Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig

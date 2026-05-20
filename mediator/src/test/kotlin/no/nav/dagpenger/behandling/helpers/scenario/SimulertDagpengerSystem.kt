@@ -13,7 +13,6 @@ import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.db.Postgres
 import no.nav.dagpenger.behandling.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
-import no.nav.dagpenger.behandling.juni
 import no.nav.dagpenger.behandling.mediator.BehovMediator
 import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.mediator.HendelseMediator
@@ -153,7 +152,7 @@ internal class SimulertDagpengerSystem(
         var permittertfraFiskeforedling: Boolean = false,
         val ordinær: Boolean = false,
         var verneplikt: Boolean = false,
-        var barn: List<ScenarioBarn> = listOf(ScenarioBarn(29.juni(2000), true)),
+        var barn: List<ScenarioBarn> = listOf(),
     ) {
         inline fun test(block: SimulertDagpengerSystem.() -> Unit) {
             Postgres.withMigratedDb {

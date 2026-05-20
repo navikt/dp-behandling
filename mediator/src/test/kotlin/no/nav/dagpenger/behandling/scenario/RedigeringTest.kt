@@ -29,7 +29,7 @@ class RedigeringTest {
                 behandlingsresultat { utfall shouldBe true }
                 behandlingsresultat {
                     with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this[0].verdi.verdi shouldBe 1259
+                        this[0].verdi.verdi shouldBe 1242
                     }
                 }
 
@@ -43,11 +43,11 @@ class RedigeringTest {
 
                 behandlingsresultatForslag {
                     with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this[0].verdi.verdi shouldBe 1259
+                        this[0].verdi.verdi shouldBe 1242
 
                         this shouldHaveSize 2
                         this[1].verdi.verdi shouldNotBe 1259
-                        this[1].verdi.verdi shouldBe 737
+                        this[1].verdi.verdi shouldBe 720
                     }
                 }
 
@@ -60,11 +60,11 @@ class RedigeringTest {
 
                 behandlingsresultatForslag {
                     with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this[0].verdi.verdi shouldBe 1259
+                        this[0].verdi.verdi shouldBe 1242
 
                         this shouldHaveSize 2
-                        this[1].verdi.verdi shouldNotBe 1259
-                        this[1].verdi.verdi shouldBe 977
+                        this[1].verdi.verdi shouldNotBe 1242
+                        this[1].verdi.verdi shouldBe 960
                     }
                 }
                 saksbehandler.lukkAlleAvklaringer()
@@ -82,9 +82,9 @@ class RedigeringTest {
                 behandlingsresultatForslag {
                     with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
                         this shouldHaveSize 3
-                        this[0].verdi.verdi shouldBe 1259
-                        this[1].verdi.verdi shouldBe 977
-                        this[2].verdi.verdi shouldBe 737
+                        this[0].verdi.verdi shouldBe 1242
+                        this[1].verdi.verdi shouldBe 960
+                        this[2].verdi.verdi shouldBe 720
                     }
                 }
             }

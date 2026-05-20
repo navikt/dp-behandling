@@ -292,7 +292,7 @@ class OmgjøringScenarioTester {
             meldekortBatch(true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27991
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27600
 
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true

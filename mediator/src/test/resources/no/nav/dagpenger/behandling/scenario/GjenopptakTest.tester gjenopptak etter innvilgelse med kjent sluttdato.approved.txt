@@ -38,7 +38,6 @@ Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
-Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
@@ -72,7 +71,6 @@ Behov:
 - Verneplikt
 - AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:

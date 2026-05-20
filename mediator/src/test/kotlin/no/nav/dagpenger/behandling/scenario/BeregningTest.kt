@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
@@ -126,6 +127,94 @@ class BeregningTest {
     }
 
     @Test
+    fun `beregning av et meldekort med barn som blir 18 i beregningsperioden`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            barn =
+                listOf(
+                    ScenarioBarn(26.juni(2000), true),
+                    ScenarioBarn(12.juli(2000), true),
+                )
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            var barnetillegg = 0
+            behandlingsresultat {
+                with(opplysninger(DagpengenesStørrelse.antallBarn)) {
+                    this shouldHaveSize 1
+                    this.single().verdi.verdi shouldBe 2
+                    this.single().gyldigTilOgMed shouldBe 26.juni(2018)
+                }
+
+                with(opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)) {
+                    this shouldHaveSize 1
+                    this[0].verdi.verdi shouldBe 1276
+                }
+
+                barnetillegg = opplysninger(DagpengenesStørrelse.barnetilleggetsStørrelse).single().verdi.verdi as Int
+            }
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+
+            behandlingsresultatForslag {
+                with(opplysninger(DagpengenesStørrelse.antallBarn)) {
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe 2
+                    this[0].gyldigTilOgMed shouldBe 26.juni(2018)
+
+                    this[1].verdi.verdi shouldBe 1
+                    this[1].gyldigFraOgMed shouldBe 27.juni(2018)
+                    this[1].gyldigTilOgMed shouldBe 12.juli(2018)
+                }
+
+                with(opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)) {
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe 1276
+                    this[1].verdi.verdi shouldBe 1276 - barnetillegg // Ett barnetillegg mindre
+                }
+            }
+
+            // Send inn meldekort
+            person.sendInnMeldekort(2)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(true)
+
+            behandlingsresultat {
+                with(opplysninger(DagpengenesStørrelse.antallBarn)) {
+                    this shouldHaveSize 3
+                    this[0].verdi.verdi shouldBe 2
+                    this[0].gyldigTilOgMed shouldBe 26.juni(2018)
+
+                    this[1].verdi.verdi shouldBe 1
+                    this[1].gyldigFraOgMed shouldBe 27.juni(2018)
+                    this[1].gyldigTilOgMed shouldBe 12.juli(2018)
+
+                    this[2].verdi.verdi shouldBe 0
+                    this[2].gyldigFraOgMed shouldBe 13.juli(2018)
+                    this[2].gyldigTilOgMed.shouldBeNull()
+                }
+
+                with(opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)) {
+                    this shouldHaveSize 3
+                    this[0].verdi.verdi shouldBe 1276
+                    this[1].verdi.verdi shouldBe 1276 - barnetillegg // Ett barnetillegg mindre
+                    this[2].verdi.verdi shouldBe 1276 - barnetillegg * 2 // To barnetillegg mindre
+                }
+            }
+        }
+    }
+
+    @Test
     fun `beregning av flere meldekort etter hverandre`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -178,22 +267,25 @@ class BeregningTest {
             meldekortBatch(true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 42296
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 42619
 
                 // Bare de siste 14 dagene skal markeres som ny for de tilhører siste meldeperiode
                 utbetalinger.count { it["opprinnelse"].asText() == "Ny" } shouldBe 14
 
                 // Sjekk at barnet som har blitt 18 ikke lenger telles med for barnetillegg
                 with(opplysninger(DagpengenesStørrelse.antallBarn)) {
-                    this.single().verdi.verdi shouldBe 0
-                    this.single().gyldigTilOgMed shouldBe null
+                    this shouldHaveSize 3
+                    this.last().verdi.verdi shouldBe 0
+                    this.last().gyldigTilOgMed shouldBe null
                 }
 
                 // Sjekk at barnet som har blitt 18 ikke lenger gir barnetillegg i satsen
                 with(opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)) {
                     val barnetillegg = opplysninger(DagpengenesStørrelse.barnetilleggetsStørrelse).single().verdi.verdi as Int
-                    this.single().verdi.verdi shouldNotBe satsVedInnvilgelse
-                    this.single().verdi.verdi shouldBe satsVedInnvilgelse - (barnetillegg * 3)
+
+                    this shouldHaveSize 3
+                    this.last().verdi.verdi shouldNotBe satsVedInnvilgelse
+                    this.last().verdi.verdi shouldBe satsVedInnvilgelse - (barnetillegg * 3)
                 }
 
                 with(opplysninger(Beregning.forbrukt)) {
