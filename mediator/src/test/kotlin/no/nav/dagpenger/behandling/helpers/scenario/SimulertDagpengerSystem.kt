@@ -61,7 +61,7 @@ internal class SimulertDagpengerSystem(
                 prosessregister,
             ),
         )
-    private val meldekortRepository = MeldekortRepositoryPostgres()
+    private val meldekortRepository = MeldekortRepositoryPostgres(dbTestContext.dataSource)
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
     private val hendelseMediator =
         HendelseMediator(

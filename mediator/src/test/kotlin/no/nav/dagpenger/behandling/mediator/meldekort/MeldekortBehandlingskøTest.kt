@@ -19,13 +19,13 @@ import java.time.LocalDate
 class MeldekortBehandlingskøTest {
     private val rapid = TestRapid()
     private val personRepository = mockk<PersonRepository>()
-    private val meldekortRepository = MeldekortRepositoryPostgres()
 
     private val ident = "12345678901"
 
     @Test
     fun `tester kø`() {
         withMigratedDb {
+            val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
             // Bruker en eksplisitt virkedag (mandag) for å unngå flaky tester på helger/helligdager
             val kjøringsdato = LocalDate.of(2024, 1, 29)
             val meldekort = MeldekortBehandlingskø(personRepository, meldekortRepository, rapid)

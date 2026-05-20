@@ -77,7 +77,7 @@ internal class ApplicationBuilder(
             ),
         )
 
-    private val meldekortRepositoryPostgres = MeldekortRepositoryPostgres()
+    private val meldekortRepositoryPostgres = MeldekortRepositoryPostgres(dataSource)
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepositoryPostgres)
 
     private val behandlingMetrikker = BehandlingMetrikker()

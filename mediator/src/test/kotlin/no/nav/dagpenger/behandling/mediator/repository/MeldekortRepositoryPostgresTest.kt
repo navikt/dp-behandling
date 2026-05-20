@@ -31,7 +31,7 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun `lagre og hente meldekort`() {
         withMigratedDb {
-            val meldekortRepository = MeldekortRepositoryPostgres()
+            val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
             val ident = "12345678910"
             val start = LocalDate.now()
             val dager =
@@ -134,7 +134,7 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun `kan lagre meldekort uten aktivitet på alle dager`() {
         withMigratedDb {
-            val meldekortRepository = MeldekortRepositoryPostgres()
+            val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
             val ident = "12345678910"
             val start = LocalDate.now()
             val dager =
@@ -229,7 +229,7 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun hentUbehandledeMeldekort() {
         withMigratedDb {
-            val repo = MeldekortRepositoryPostgres()
+            val repo = MeldekortRepositoryPostgres(dataSource)
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
             // Bruker en eksplisitt virkedag for å unngå flaky tester på helger/helligdager
             val kjøringsdato = LocalDate.of(2024, 7, 1)
@@ -286,7 +286,7 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun hentKorrigeringer() {
         withMigratedDb {
-            val repo = MeldekortRepositoryPostgres()
+            val repo = MeldekortRepositoryPostgres(dataSource)
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
 
             val person1 = repo.generatorFor("111111111", 1.januar(2024), meldingGenerator)
@@ -328,7 +328,7 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun `plukker ikke meldekort som er sendt inn før meldedag`() {
         withMigratedDb {
-            val repo = MeldekortRepositoryPostgres()
+            val repo = MeldekortRepositoryPostgres(dataSource)
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
 
             val person1 = repo.generatorFor("111111111", 1.januar(2018), meldingGenerator)
