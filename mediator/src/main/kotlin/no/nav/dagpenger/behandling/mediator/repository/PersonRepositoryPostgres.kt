@@ -9,7 +9,6 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
@@ -108,7 +107,7 @@ class PersonRepositoryPostgres(
 
     override fun lagre(person: Person) {
         lagrePersonMetrikk.time {
-            PostgresUnitOfWork.transaction {
+            PostgresUnitOfWork.transaction(dataSource) {
                 lagre(person, this)
             }
         }

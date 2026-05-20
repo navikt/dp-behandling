@@ -29,7 +29,6 @@ import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.september
 import no.nav.dagpenger.opplysning.Boolsk
@@ -474,7 +473,7 @@ class OpplysningerRepositoryPostgresTest {
     fun `kan fjerne opplysninger`() {
         withMigratedDb {
             val repo = opplysningerRepository(dataSource)
-            val vaktmesterRepo = VaktmesterPostgresRepo()
+            val vaktmesterRepo = VaktmesterPostgresRepo(dataSource)
             val heltallFaktum = Faktum(heltall, 10)
             val heltallFaktum2 = Faktum(heltall, 20)
             val opplysninger = Opplysninger.med(heltallFaktum)
@@ -492,7 +491,7 @@ class OpplysningerRepositoryPostgresTest {
     fun `ikke slette mer enn vi skal fra tidligere opplysninger `() {
         withMigratedDb {
             val repo = opplysningerRepository(dataSource)
-            val vaktmesterRepo = VaktmesterPostgresRepo()
+            val vaktmesterRepo = VaktmesterPostgresRepo(dataSource)
 
             // Gammel behandling
             val opprinneligDato = LocalDate.now()
@@ -556,7 +555,7 @@ class OpplysningerRepositoryPostgresTest {
             val e = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "E")
             val f = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "F")
             val repo = opplysningerRepository(dataSource)
-            val vaktmesterRepo = VaktmesterPostgresRepo()
+            val vaktmesterRepo = VaktmesterPostgresRepo(dataSource)
 
             val regelsett1 =
                 vilkår("vilkår en") {
@@ -601,7 +600,7 @@ class OpplysningerRepositoryPostgresTest {
     @Test
     fun `Sletter flere sett med opplysninger`() {
         withMigratedDb {
-            val vaktmesterRepo = VaktmesterPostgresRepo()
+            val vaktmesterRepo = VaktmesterPostgresRepo(dataSource)
 
             val a = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "A")
             val b = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "B")

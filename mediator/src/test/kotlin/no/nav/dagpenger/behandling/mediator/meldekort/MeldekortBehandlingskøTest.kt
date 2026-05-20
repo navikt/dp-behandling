@@ -28,10 +28,10 @@ class MeldekortBehandlingskøTest {
             val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
             // Bruker en eksplisitt virkedag (mandag) for å unngå flaky tester på helger/helligdager
             val kjøringsdato = LocalDate.of(2024, 1, 29)
-            val meldekort = MeldekortBehandlingskø(personRepository, meldekortRepository, rapid)
+            val meldekort = MeldekortBehandlingskø(dataSource, personRepository, meldekortRepository, rapid)
             lagPerson(1.januar(2024))
 
-            val person = meldekortRepository.generatorFor(ident, 1.januar(2024))
+            val person = meldekortRepository.generatorFor(dataSource, ident, 1.januar(2024))
             person.lagMeldekort(2)
 
             // Første meldekort behandles

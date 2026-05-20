@@ -16,7 +16,6 @@ import no.nav.dagpenger.behandling.mediator.api.simuleringApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
 import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
 import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.runMigration
 import no.nav.dagpenger.behandling.mediator.jobber.BehandleMeldekort
 import no.nav.dagpenger.behandling.mediator.jobber.SlettFjernetOpplysninger
@@ -25,7 +24,6 @@ import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.ArenaOppgaveMottak
 import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
@@ -36,6 +34,7 @@ import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPos
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
+import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
@@ -89,6 +88,7 @@ internal class ApplicationBuilder(
 
     private val hendelseMediator =
         HendelseMediator(
+            UtboksLagerPostgres(dataSource),
             personRepository,
             meldekortRepositoryPostgres,
             behovMediator = BehovMediator(behovssporer),
@@ -97,7 +97,7 @@ internal class ApplicationBuilder(
 
     private val postgresMeldingRepository = PostgresMeldingRepository(dataSource)
 
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(dataSource, postgresMeldingRepository, behovssporer)
 
     private val rapidsConnection: RapidsConnection =
         RapidApplication.create(
@@ -135,7 +135,7 @@ internal class ApplicationBuilder(
             },
         ) { engine, rapidsConnection: KafkaRapid ->
             // Logger bare oppgaver enn så lenge. Bør inn i HendelseMediator
-            ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres())
+            ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres(dataSource))
 
             // Vedtak mottak
             MarkerMeldekortSomBehandletMottak(rapidsConnection, meldekortRepositoryPostgres)
@@ -182,11 +182,12 @@ internal class ApplicationBuilder(
         logger.info { "Starter opp dp-behandling" }
 
         // Start jobb som sletter fjernet opplysninger
-        SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo())
+        SlettFjernetOpplysninger.slettOpplysninger(VaktmesterPostgresRepo(dataSource))
 
         // Start meldekortbehandling
         BehandleMeldekort(
             MeldekortBehandlingskø(
+                dataSource,
                 personRepository,
                 meldekortRepositoryPostgres,
                 rapidsConnection,

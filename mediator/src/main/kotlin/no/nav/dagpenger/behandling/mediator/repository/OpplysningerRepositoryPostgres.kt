@@ -83,7 +83,7 @@ internal class OpplysningerRepositoryPostgres(
             .use { session -> return@use session.hentOpplysninger(kildeRepository, opplysningerId) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
-        PostgresUnitOfWork.transaction {
+        PostgresUnitOfWork.transaction(dataSource) {
             lagreOpplysninger(listOf(opplysninger), this)
         }
     }

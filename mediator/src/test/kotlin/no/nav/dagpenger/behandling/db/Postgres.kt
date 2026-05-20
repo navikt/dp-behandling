@@ -28,11 +28,11 @@ internal object Postgres {
 
     fun withMigratedDb(
         target: String,
-        block: () -> Unit,
+        block: DBTestContext.() -> Unit,
     ) {
         withCleanDb {
             PostgresDataSourceBuilder.runMigrationTo(target)
-            block()
+            block(DBTestContext(PostgresDataSourceBuilder.dataSource))
         }
     }
 

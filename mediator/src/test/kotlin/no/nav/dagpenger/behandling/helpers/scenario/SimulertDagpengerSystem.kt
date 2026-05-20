@@ -30,6 +30,7 @@ import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgr
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
+import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
@@ -68,6 +69,7 @@ internal class SimulertDagpengerSystem(
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
     private val hendelseMediator =
         HendelseMediator(
+            postgres = UtboksLagerPostgres(dbTestContext.dataSource),
             personRepository = personRepository,
             meldekortRepository = meldekortRepository,
             behovMediator = BehovMediator(),
@@ -78,7 +80,7 @@ internal class SimulertDagpengerSystem(
     private val postgresMeldingRepository = PostgresMeldingRepository(dbTestContext.dataSource)
 
     private val behovssporer = Behovssporer(dbTestContext.dataSource)
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(dbTestContext.dataSource, postgresMeldingRepository, behovssporer)
     val auditlogg = TestAuditlogg()
 
     private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
@@ -216,7 +218,8 @@ internal class SimulertDagpengerSystem(
             )
     }
 
-    val meldekortkø = MeldekortBehandlingskø(personRepository, meldekortRepository, TestRapidMessageContext(rapid))
+    val meldekortkø =
+        MeldekortBehandlingskø(dbTestContext.dataSource, personRepository, meldekortRepository, TestRapidMessageContext(rapid))
 
     fun meldekortBatch(avklar: Boolean = false) {
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()

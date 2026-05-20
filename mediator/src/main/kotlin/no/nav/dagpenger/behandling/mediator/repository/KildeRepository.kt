@@ -4,7 +4,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse

@@ -46,14 +46,13 @@ import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
 
 internal class HendelseMediator(
+    private val postgres: UtboksLagerPostgres,
     private val personRepository: PersonRepository,
     private val meldekortRepository: MeldekortRepository,
     private val behovMediator: BehovMediator = BehovMediator(),
     private val aktivitetsloggMediator: AktivitetsloggMediator = AktivitetsloggMediator(),
     observatører: Collection<PersonObservatør> = emptySet(),
 ) : IHendelseMediator {
-    private val postgres = UtboksLagerPostgres()
-
     private val observatører = observatører.toSet()
 
     private companion object {

@@ -5,11 +5,13 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.db.medLås
 import java.util.UUID
+import javax.sql.DataSource
 
-internal class VaktmesterPostgresRepo {
+internal class VaktmesterPostgresRepo(
+    private val dataSource: DataSource,
+) {
     companion object {
         private val låsenøkkel = 121212
         private val logger = KotlinLogging.logger {}

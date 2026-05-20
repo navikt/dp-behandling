@@ -27,7 +27,7 @@ class MeldekortRepositoryPostgres(
     private val dataSource: DataSource,
 ) : MeldekortRepository {
     override fun lagre(meldekort: Meldekort) {
-        transaction {
+        transaction(dataSource) {
             lagreMeldekort(meldekort)
 
             meldekort.korrigeringAv?.let { korrigertMeldekortId ->

@@ -6,15 +6,16 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.mediator.BehandlingMetrikker.Companion.meldekortKøStørrelse
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.db.medLås
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.hendelser.MeldekortId
 import java.time.LocalDate
+import javax.sql.DataSource
 
 class MeldekortBehandlingskø(
+    private val dataSource: DataSource,
     private val personRepositoryPostgres: PersonRepository,
     private val meldekortRepository: MeldekortRepository,
     private val rapid: MessageContext,
