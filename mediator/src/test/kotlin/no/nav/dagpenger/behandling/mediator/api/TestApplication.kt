@@ -1,8 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.api
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.github.navikt.tbd_libs.naisful.test.TestContext
-import com.github.navikt.tbd_libs.naisful.test.naisfulTestApp
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -11,12 +10,18 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.content.TextContent
+import io.ktor.serialization.jackson3.JacksonConverter
 import io.ktor.server.application.Application
-import io.micrometer.prometheusmetrics.PrometheusConfig
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.ktor.server.application.install
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.testing.testApplication
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.security.mock.oauth2.MockOAuth2Server
+
+class TestContext(
+    val client: HttpClient,
+)
 
 object TestApplication {
     private const val AZUREAD_ISSUER_ID = "azureAd"
@@ -62,17 +67,25 @@ object TestApplication {
         System.setProperty("azure-app.client-id", CLIENT_ID)
         System.setProperty("azure-app.well-known-url", "${mockOAuth2Server.wellKnownUrl(AZUREAD_ISSUER_ID)}")
 
-        return naisfulTestApp(
-            {
-                apply { moduleFunction() }
-            },
-            objectMapper.apply {
-                // OpenAPI-generator klarer ikke optional-felter. Derfor må vi eksplisitt fjerne null-verdier
-                setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
-            },
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-        ) {
-            test()
+        testApplication {
+            application {
+                install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
+                    register(ContentType.Application.Json, JacksonConverter(objectMapper))
+                }
+                install(StatusPages) {
+                    statusPagesConfig()
+                }
+                moduleFunction()
+            }
+
+            val testClient =
+                createClient {
+                    install(ContentNegotiation) {
+                        register(ContentType.Application.Json, JacksonConverter(objectMapper))
+                    }
+                }
+
+            test(TestContext(testClient))
         }
     }
 

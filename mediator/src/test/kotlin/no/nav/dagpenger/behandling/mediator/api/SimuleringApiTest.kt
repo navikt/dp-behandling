@@ -1,10 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.api
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.header
 import io.ktor.client.request.put
@@ -14,8 +9,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.withMockAuthServerAndTestApplication
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.simulering.api.models.BeregningDTO
 import org.junit.jupiter.api.Test
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 
 internal class SimuleringApiTest {
@@ -282,10 +279,6 @@ internal class SimuleringApiTest {
         """.trimIndent()
 
     private companion object {
-        private val objectMapper =
-            jacksonObjectMapper()
-                .registerModule(JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        private val objectMapper = no.nav.dagpenger.behandling.mediator.objectMapper
     }
 }

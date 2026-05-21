@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.mottak
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
@@ -20,7 +19,7 @@ import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.barnMapper
 import no.nav.dagpenger.behandling.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.behandling.mediator.mottak.SvarStrategi.Svar
-import no.nav.dagpenger.behandling.mediator.objectMapper
+import no.nav.dagpenger.behandling.mediator.tilInntektV1
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar.Tilstand
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvarHendelse
@@ -46,6 +45,7 @@ import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Ulid
+import tools.jackson.databind.JsonNode
 import java.time.LocalDate
 import java.util.UUID
 
@@ -167,7 +167,12 @@ internal class OpplysningSvarMessage(
                         }
                     }
 
-                val utledetAv = packet["@utledetAv"][typeNavn]?.map { it.asUUID() } ?: emptyList()
+                val utledetAv =
+                    packet["@utledetAv"][typeNavn]
+                        ?.takeUnless { it.isMissingNode || it.isNull }
+                        ?.toList()
+                        ?.map { it.asUUID() }
+                        ?: emptyList()
 
                 svarer.forEach { svar ->
                     logger.info {
@@ -268,7 +273,7 @@ private object ListeSvar : SvarStrategi {
     ): List<Svar>? {
         if (!svar.isArray) return null
         if (!svar.all { it.isObject && it.has("verdi") }) return null
-        return svar.map { item ->
+        return svar.toList().map { item ->
             Svar(
                 item["verdi"],
                 item["status"]?.asText()?.let { Tilstand.valueOf(it) } ?: Tilstand.Faktum,
@@ -326,7 +331,7 @@ private class JsonMapper(
 
             InntektDataType -> {
                 Inntekt(
-                    objectMapper.convertValue(verdi, no.nav.dagpenger.inntekt.v1.Inntekt::class.java),
+                    verdi.tilInntektV1(),
                 ) as T
             }
 

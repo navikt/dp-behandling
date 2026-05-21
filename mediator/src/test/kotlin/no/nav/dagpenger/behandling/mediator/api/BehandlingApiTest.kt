@@ -1,10 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.api
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.navikt.tbd_libs.naisful.test.TestContext
+
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -46,6 +41,8 @@ import no.nav.dagpenger.uuid.UUIDv7
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import tools.jackson.core.type.TypeReference
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.LocalDate
 
 internal class BehandlingApiTest {
@@ -644,10 +641,6 @@ internal class BehandlingApiTest {
     }
 
     private companion object {
-        private val objectMapper =
-            jacksonObjectMapper()
-                .registerModule(JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        private val objectMapper = jacksonObjectMapper()
     }
 }

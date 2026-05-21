@@ -1,11 +1,11 @@
 package no.nav.dagpenger.behandling.helpers.scenario.assertions
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.treeToValue
 import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype
+import tools.jackson.databind.JsonNode
+import tools.jackson.module.kotlin.treeToValue
 import java.time.LocalDate
 import java.util.UUID
 

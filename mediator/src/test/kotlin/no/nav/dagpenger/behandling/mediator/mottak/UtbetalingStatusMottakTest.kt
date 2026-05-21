@@ -4,12 +4,10 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import no.nav.dagpenger.behandling.mediator.IMessageMediator
 import no.nav.dagpenger.behandling.modell.hendelser.UtbetalingStatus
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.api.Test
 import java.util.UUID
 
 class UtbetalingStatusMottakTest {
@@ -20,18 +18,19 @@ class UtbetalingStatusMottakTest {
         UtbetalingStatusMottak(rapidsConnection = testRapid, messageMediator)
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["utbetaling_mottatt", "utbetaling_sendt", "utbetaling_feilet", "utbetaling_utført"])
-    fun `vi kan motta utbetalingstatusmeldinger`(event: String) {
-        val message = utbetalingStatusEvent(event)
-        testRapid.sendTestMessage(message)
-        val slot = slot<UtbetalingStatus>()
-        verify(exactly = 1) { messageMediator.behandle(capture(slot), any<UtbetalingStatusMessage>(), any<MessageContext>()) }
-        slot.isCaptured shouldBe true
-        val hendelse = slot.captured
-        hendelse.behandlingId shouldBe UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851")
-        hendelse.ident() shouldBe "12345678901"
-        hendelse.behandletHendelseId shouldBe "654321"
+    @Test
+    fun `vi kan motta utbetalingstatusmeldinger`() {
+        val slots = mutableListOf<UtbetalingStatus>()
+        listOf("utbetaling_mottatt", "utbetaling_sendt", "utbetaling_feilet", "utbetaling_utført").forEach { event ->
+            val message = utbetalingStatusEvent(event)
+            testRapid.sendTestMessage(message)
+        }
+        verify(exactly = 4) { messageMediator.behandle(capture(slots), any<UtbetalingStatusMessage>(), any<MessageContext>()) }
+        slots.forEach { hendelse ->
+            hendelse.behandlingId shouldBe UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851")
+            hendelse.ident() shouldBe "12345678901"
+            hendelse.behandletHendelseId shouldBe "654321"
+        }
     }
 
     private fun utbetalingStatusEvent(string: String) =

@@ -112,13 +112,13 @@ internal class MeldekortInnsendtMessage(
                             ident = packet["kilde"]["ident"].asText(),
                         ),
                     dager =
-                        packet["dager"].map { dag ->
+                        packet["dager"].toList().map { dag ->
                             Dag(
                                 dato = dag["dato"].asLocalDate(),
                                 // todo: Vi må få dette feltet fra team ramp.
                                 meldt = dag["meldt"]?.takeIf { !it.isMissingOrNull() }?.asBoolean() ?: true,
                                 aktiviteter =
-                                    dag["aktiviteter"].map {
+                                    dag["aktiviteter"].toList().map {
                                         MeldekortAktivitet(
                                             type =
                                                 when (it["type"].asText()) {

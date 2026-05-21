@@ -8,6 +8,8 @@ import kotliquery.queryOf
 import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
+import no.nav.dagpenger.behandling.mediator.tilInntektV1
+import no.nav.dagpenger.behandling.mediator.tilJsonNode
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
@@ -40,7 +42,6 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
 internal class OpplysningerRepositoryPostgres(
     private val dbSession: DatabaseSession,
@@ -73,7 +74,6 @@ internal class OpplysningerRepositoryPostgres(
 
         // Legacy serde for å kunne lese gamle verdier lagret med gammel struktur
         private val legazySerdeBarn = objectMapper.serde<List<Barn>>()
-        private val serdeInntekt = objectMapper.serde<InntektV1>()
         private val serdePeriode = objectMapper.serde<Periode>()
     }
 
@@ -307,7 +307,7 @@ internal class OpplysningerRepositoryPostgres(
                 }
 
                 InntektDataType -> {
-                    Inntekt(row.binaryStream("verdi_jsonb").use { serdeInntekt.fromJson(it) })
+                    Inntekt(row.binaryStream("verdi_jsonb").use { objectMapper.readTree(it).tilInntektV1() })
                 }
 
                 PeriodeDataType -> {
@@ -493,7 +493,7 @@ internal class OpplysningerRepositoryPostgres(
                     (verdi as Inntekt).verdi.let {
                         PGobject().apply {
                             type = "jsonb"
-                            value = serdeInntekt.toJson(it)
+                            value = it.tilJsonNode().toString()
                         }
                     },
                 )

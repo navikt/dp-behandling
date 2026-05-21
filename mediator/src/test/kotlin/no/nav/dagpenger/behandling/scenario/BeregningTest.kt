@@ -63,9 +63,9 @@ class BeregningTest {
                 }
 
                 // Første forbruksdag er 21, så 11 dager i perioden gir utbetaling
-                utbetalinger shouldHaveSize 11
+                utbetalinger.toList() shouldHaveSize 11
 
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
                     none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
@@ -96,7 +96,7 @@ class BeregningTest {
             meldekortBatch()
 
             behandlingsresultatForslag {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
                     forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
@@ -152,10 +152,10 @@ class BeregningTest {
             meldekortBatch(true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 42806
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 42806
 
                 // Bare de siste 14 dagene skal markeres som ny for de tilhører siste meldeperiode
-                utbetalinger.count { it["opprinnelse"].asText() == "Ny" } shouldBe 14
+                utbetalinger.toList().count { it["opprinnelse"].asText() == "Ny" } shouldBe 14
 
                 with(opplysninger(Beregning.forbrukt)) {
                     val forbruksdager = map { it.verdi.verdi as Int }
@@ -489,8 +489,8 @@ class BeregningTest {
 
             // Verifiser gammel sats
             behandlingsresultatForslag {
-                val satsPerDag = utbetalinger.map { it["sats"].asInt() }
-                val utbetalingPerDag = utbetalinger.map { it["utbetaling"].asInt() }
+                val satsPerDag = utbetalinger.toList().map { it["sats"].asInt() }
+                val utbetalingPerDag = utbetalinger.toList().map { it["utbetaling"].asInt() }
                 satsPerDag.shouldContainExactly(762, 762, 762, 762, 762, 762, 762, 762, 762, 762, 762)
                 utbetalingPerDag.shouldContainExactly(435, 435, 0, 0, 435, 435, 435, 435, 438, 0, 0)
             }
@@ -505,8 +505,8 @@ class BeregningTest {
 
             // Verifiser at vi får ny og høyere sats fra og med 25. juni
             behandlingsresultatForslag {
-                val satsPerDag = utbetalinger.map { it["sats"].asInt() }
-                val utbetalingPerDag = utbetalinger.map { it["utbetaling"].asInt() }
+                val satsPerDag = utbetalinger.toList().map { it["sats"].asInt() }
+                val utbetalingPerDag = utbetalinger.toList().map { it["utbetaling"].asInt() }
                 satsPerDag.shouldContainExactly(762, 762, 762, 762, 1074, 1074, 1074, 1074, 1074, 1074, 1074)
                 utbetalingPerDag.shouldContainExactly(509, 510, 0, 0, 717, 717, 717, 717, 721, 0, 0)
             }

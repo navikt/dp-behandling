@@ -2,7 +2,6 @@ package no.nav.dagpenger.behandling.mediator.api.auth
 
 import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.natpryce.konfig.PropertyGroup
 import com.natpryce.konfig.getValue
 import com.natpryce.konfig.stringType
@@ -11,12 +10,14 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.serialization.jackson.jackson
+import io.ktor.http.ContentType
+import io.ktor.serialization.jackson3.JacksonConverter
 import io.ktor.server.auth.jwt.JWTAuthenticationProvider
 import kotlinx.coroutines.runBlocking
 import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.api.auth.validering.autoriser
 import no.nav.dagpenger.behandling.mediator.api.auth.validering.autoriserAdminTilgang
+import no.nav.dagpenger.behandling.mediator.objectMapper
 import java.net.URI
 import java.net.URL
 import java.util.concurrent.TimeUnit
@@ -89,8 +90,6 @@ private data class OpenIdConfiguration(
 private val httpClient =
     HttpClient(CIO) {
         install(ContentNegotiation) {
-            jackson {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            }
+            register(ContentType.Application.Json, JacksonConverter(objectMapper))
         }
     }

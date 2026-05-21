@@ -1,11 +1,11 @@
 package no.nav.dagpenger.behandling.helpers.scenario
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.mediator.objectMapper
+import no.nav.dagpenger.behandling.mediator.tilJsonNode
 import no.nav.dagpenger.inntekt.v1.Inntekt
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
@@ -16,6 +16,7 @@ import no.nav.dagpenger.regel.Behov.BostedslandErNorge
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.uuid.UUIDv7
+import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -203,7 +204,7 @@ internal class Mennesket(
                 Behov.ØnskerDagpengerFraDato to Behovsløsning.Statisk(ønskerFraDato),
                 Behov.ØnsketArbeidstid to Behovsløsning.Statisk(40.0),
                 // Inntekt
-                Behov.Inntekt to Behovsløsning.Statisk(mapOf("verdi" to inntektV1)),
+                Behov.Inntekt to Behovsløsning.Statisk(mapOf("verdi" to inntektV1.tilJsonNode())),
                 // Reell arbeidssøker
                 Behov.KanJobbeDeltid to Behovsløsning.Statisk(true),
                 Behov.KanJobbeHvorSomHelst to Behovsløsning.Statisk(true),

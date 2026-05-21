@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import no.nav.dagpenger.behandling.api.models.BehandletAvDTO
@@ -69,6 +68,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
+import tools.jackson.databind.node.ObjectNode
 import java.time.LocalDateTime
 
 fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {

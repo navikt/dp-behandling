@@ -1,5 +1,4 @@
 package no.nav.dagpenger.behandling.helpers.scenario
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.FailedMessage
@@ -20,6 +19,7 @@ import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import org.approvaltests.Approvals
+import tools.jackson.databind.JsonNode
 import java.util.UUID
 import kotlin.random.Random
 
