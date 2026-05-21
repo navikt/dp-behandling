@@ -129,7 +129,7 @@ object TapAvArbeidsinntektOgArbeidstid {
     val kravTilTapAvArbeidsinntektOgArbeidstid =
         boolsk(kravTilTapAvArbeidsinntektOgArbeidstidId, "Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid", synlig = aldriSynlig)
 
-    val regelsett =
+    val regelsett by lazy {
         vilkår(
             folketrygden.hjemmel(4, 3, "Tap av arbeidsinntekt og arbeidstid", "Tap av arbeidsinntekt og arbeidstid"),
         ) {
@@ -180,6 +180,7 @@ object TapAvArbeidsinntektOgArbeidstid {
                 it.har(kravTilTapAvArbeidsinntektOgArbeidstid)
             }
         }
+    }
 
     val beregnetArbeidstidKontroll =
         Kontrollpunkt(avklaringkode = BeregnetArbeidstid) { opplysninger ->

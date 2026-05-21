@@ -150,7 +150,7 @@ object SamordingUtenforFolketrygden {
             "Dagsats uten barnetillegg samordnet",
         )
 
-    val regelsett =
+    val regelsett by lazy {
         fastsettelse(
             folketrygden.hjemmel(
                 4,
@@ -219,6 +219,7 @@ object SamordingUtenforFolketrygden {
 
             avklaring(YtelserUtenforFolketrygden)
         }
+    }
 
     val YtelserUtenforFolketrygdenKontroll =
         Kontrollpunkt(avklaringkode = Avklaringspunkter.YtelserUtenforFolketrygden) { opplysninger ->

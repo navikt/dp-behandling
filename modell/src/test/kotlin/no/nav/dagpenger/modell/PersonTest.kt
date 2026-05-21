@@ -2,14 +2,14 @@ package no.nav.dagpenger.modell
 
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.modell.hjelpere.juli
-import no.nav.dagpenger.modell.hjelpere.juni
-import no.nav.dagpenger.modell.hjelpere.mai
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.modell.hjelpere.juli
+import no.nav.dagpenger.modell.hjelpere.juni
+import no.nav.dagpenger.modell.hjelpere.mai
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
