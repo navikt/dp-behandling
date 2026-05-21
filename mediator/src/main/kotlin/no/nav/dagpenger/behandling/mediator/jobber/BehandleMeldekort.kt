@@ -1,7 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.jobber
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.opentelemetry.instrumentation.annotations.WithSpan
+import io.opentelemetry.api.GlobalOpenTelemetry
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import kotlin.concurrent.fixedRateTimer
 import kotlin.time.Duration.Companion.minutes
@@ -11,9 +11,9 @@ internal class BehandleMeldekort(
 ) {
     private companion object {
         private val logger = KotlinLogging.logger {}
+        private val tracer = GlobalOpenTelemetry.getTracer(BehandleMeldekort::class.java.name)
     }
 
-    @WithSpan
     fun start() {
         fixedRateTimer(
             name = "Behandle meldekort",
@@ -21,11 +21,17 @@ internal class BehandleMeldekort(
             initialDelay = 1.minutes.inWholeMilliseconds,
             period = 1.minutes.inWholeMilliseconds,
             action = {
+                val span = tracer.spanBuilder("behandle-meldekortkø").startSpan()
                 try {
-                    logger.info { "Starter behandling av meldekortkø" }
-                    meldekortBehandlingskø.sendMeldekortTilBehandling()
+                    span.makeCurrent().use {
+                        logger.info { "Starter behandling av meldekortkø" }
+                        meldekortBehandlingskø.sendMeldekortTilBehandling()
+                    }
                 } catch (e: Exception) {
+                    span.recordException(e)
                     logger.error(e) { "Behandle meldekort feilet" }
+                } finally {
+                    span.end()
                 }
             },
         )

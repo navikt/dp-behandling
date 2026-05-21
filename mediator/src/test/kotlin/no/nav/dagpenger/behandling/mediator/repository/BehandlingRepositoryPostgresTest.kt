@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
+import no.nav.dagpenger.behandling.db.DBTestContext
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
@@ -49,7 +50,6 @@ class BehandlingRepositoryPostgresTest {
     private val opplysningstype4 = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "aktiv-opplysning4")
     private val opplysningstype5 = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "aktiv-opplysning5")
 
-    private val opplysningerRepository = OpplysningerRepositoryPostgres()
     private val opplysningstyper =
         listOf(opplysningstype1, opplysningstype2, opplysningstype3, opplysningstype4, opplysningstype5, datoOpplysningstype).toSet()
 
@@ -92,13 +92,16 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `lagre og hente en kjede med grener fra postgres`() {
         withMigratedDb {
+            val kildeRepository = KildeRepository(dataSource)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres()
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val behandlingRepositoryPostgres =
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning2))
@@ -130,13 +133,16 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `flytter en eldre behandling til å peke på en nyere`() {
         withMigratedDb {
+            val kildeRepository = KildeRepository(dataSource)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres()
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository, avklaringRepository, prosessregister)
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val behandlingRepositoryPostgres =
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
 
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, UnderBehandling, Opplysninger.med(opplysning2))
@@ -167,13 +173,22 @@ class BehandlingRepositoryPostgresTest {
     @Test
     fun `lagre og hent behandling fra postgres`() {
         withMigratedDb {
+            val kildeRepository = KildeRepository(dataSource)
+            val opplysningerRepository = OpplysningerRepositoryPostgres(dataSource, kildeRepository)
             // Registrer forretningsprosesser og opplysningstyper
             val prosessregister = Prosessregister()
             TestBehandlinger.registrerTestProsesser(prosessregister)
             opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
 
-            val avklaringRepository = AvklaringRepositoryPostgres()
-            val behandlingRepositoryPostgres = BehandlingRepositoryPostgres(opplysningerRepository(), avklaringRepository, prosessregister)
+            val avklaringRepository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val behandlingRepositoryPostgres =
+                BehandlingRepositoryPostgres(
+                    dataSource = dataSource,
+                    opplysningRepository = opplysningerRepository(dataSource),
+                    avklaringRepository = avklaringRepository,
+                    kildeRepository = kildeRepository,
+                    prosessregister = prosessregister,
+                )
 
             opprettKjede(behandlingRepositoryPostgres, listOf(basertPåBehandling, behandling))
 
@@ -210,11 +225,11 @@ class BehandlingRepositoryPostgresTest {
         }
     }
 
-    private fun opprettKjede(
+    private fun DBTestContext.opprettKjede(
         behandlingRepositoryPostgres: BehandlingRepositoryPostgres,
         behandlinger: List<Behandling>,
     ) {
-        val personRepositoryPostgres = PersonRepositoryPostgres(behandlingRepositoryPostgres)
+        val personRepositoryPostgres = PersonRepositoryPostgres(dataSource, behandlingRepositoryPostgres)
 
         val kjeder =
             behandlinger

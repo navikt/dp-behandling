@@ -8,9 +8,9 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import kotliquery.sessionOf
+import no.nav.dagpenger.behandling.db.DBTestContext
 import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
 import no.nav.dagpenger.behandling.januar
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.repository.Meldekortgenerator.Companion.generatorFor
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
 import no.nav.dagpenger.behandling.modell.hendelser.Dag
@@ -31,7 +31,7 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun `lagre og hente meldekort`() {
         withMigratedDb {
-            val meldekortRepository = MeldekortRepositoryPostgres()
+            val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
             val ident = "12345678910"
             val start = LocalDate.now()
             val dager =
@@ -134,7 +134,7 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun `kan lagre meldekort uten aktivitet på alle dager`() {
         withMigratedDb {
-            val meldekortRepository = MeldekortRepositoryPostgres()
+            val meldekortRepository = MeldekortRepositoryPostgres(dataSource)
             val ident = "12345678910"
             val start = LocalDate.now()
             val dager =
@@ -182,7 +182,7 @@ class MeldekortRepositoryPostgresTest {
 
     private fun LocalDateTime.truncateToSeconds() = this.truncatedTo(ChronoUnit.SECONDS)
 
-    private fun lagreHendelseOmMeldekort(
+    private fun DBTestContext.lagreHendelseOmMeldekort(
         ident: String,
         meldekortInnsendtHendelse: MeldekortInnsendtHendelse,
     ) {
@@ -229,13 +229,13 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun hentUbehandledeMeldekort() {
         withMigratedDb {
-            val repo = MeldekortRepositoryPostgres()
+            val repo = MeldekortRepositoryPostgres(dataSource)
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
             // Bruker en eksplisitt virkedag for å unngå flaky tester på helger/helligdager
             val kjøringsdato = LocalDate.of(2024, 7, 1)
 
-            val person1 = repo.generatorFor("111111111", 1.januar(2024), meldingGenerator)
-            val person2 = repo.generatorFor("222222222", 1.januar(2024), meldingGenerator)
+            val person1 = repo.generatorFor(dataSource, "111111111", 1.januar(2024), meldingGenerator)
+            val person2 = repo.generatorFor(dataSource, "222222222", 1.januar(2024), meldingGenerator)
 
             person1.lagMeldekort(10)
             person2.lagMeldekort(10)
@@ -286,10 +286,10 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun hentKorrigeringer() {
         withMigratedDb {
-            val repo = MeldekortRepositoryPostgres()
+            val repo = MeldekortRepositoryPostgres(dataSource)
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
 
-            val person1 = repo.generatorFor("111111111", 1.januar(2024), meldingGenerator)
+            val person1 = repo.generatorFor(dataSource, "111111111", 1.januar(2024), meldingGenerator)
 
             person1.lagMeldekort(3)
 
@@ -328,10 +328,10 @@ class MeldekortRepositoryPostgresTest {
     @Test
     fun `plukker ikke meldekort som er sendt inn før meldedag`() {
         withMigratedDb {
-            val repo = MeldekortRepositoryPostgres()
+            val repo = MeldekortRepositoryPostgres(dataSource)
             val meldingGenerator = Meldekortgenerator.meldekortIdGenerator
 
-            val person1 = repo.generatorFor("111111111", 1.januar(2018), meldingGenerator)
+            val person1 = repo.generatorFor(dataSource, "111111111", 1.januar(2018), meldingGenerator)
             person1.lagMeldekort(5)
 
             repo.hentMeldekortkø(11.januar(2018)).behandlingsklare shouldHaveSize 0

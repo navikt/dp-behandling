@@ -9,16 +9,17 @@ import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.mediator.Metrikk
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.mediator.Metrikk.lagrePersonMetrikk
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
+import javax.sql.DataSource
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
 class PersonRepositoryPostgres(
+    private val dataSource: DataSource,
     private val behandlingRepository: BehandlingRepository,
 ) : PersonRepository,
     BehandlingRepository by behandlingRepository {
@@ -106,7 +107,7 @@ class PersonRepositoryPostgres(
 
     override fun lagre(person: Person) {
         lagrePersonMetrikk.time {
-            PostgresUnitOfWork.transaction {
+            PostgresUnitOfWork.transaction(dataSource) {
                 lagre(person, this)
             }
         }
@@ -197,12 +198,5 @@ class PersonRepositoryPostgres(
                 """.trimIndent(),
                 params,
             ).krevAtAntallRaderErNøyaktigLik(params.size)
-    }
-
-    private fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
-        check(sum() == forventet) {
-            "Forventet å oppdatere $forventet rader nøyaktig"
-        }
-        return this
     }
 }

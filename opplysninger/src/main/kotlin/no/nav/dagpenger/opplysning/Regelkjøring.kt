@@ -298,9 +298,9 @@ class Regelkjøring(
         init {
             require(start != LocalDate.MIN) { "Periode.start kan ikke være LocalDate.MIN" }
             require(start != LocalDate.MAX) { "Periode.start kan ikke være LocalDate.MAX" }
-            require(endInclusive != LocalDate.MIN) { "Periode.endInclusive kan ikke være LocalDate.MIN" }
-            require(endInclusive != LocalDate.MAX) { "Periode.endInclusive kan ikke være LocalDate.MAX" }
-            require(start <= endInclusive) { "Periode.endInclusive kan ikke være før Periode.start" }
+            require(endInclusive != LocalDate.MIN) { "Periode.endInclusive $endInclusive kan ikke være LocalDate.MIN" }
+            require(endInclusive != LocalDate.MAX) { "Periode.endInclusive $endInclusive kan ikke være LocalDate.MAX" }
+            require(start <= endInclusive) { "Periode.endInclusive $endInclusive kan ikke være før Periode.start $start" }
         }
 
         override fun iterator() =

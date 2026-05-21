@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.OpplysningsTyper.framsattSøknadId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravTilFramsattSøknadId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønskerDagpengerId
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
 object Søknad {
     val framsattSøknad = Opplysningstype.boolsk(framsattSøknadId, "Har satt frem skriftlig søknad")
@@ -17,7 +17,7 @@ object Søknad {
         Opplysningstype.boolsk(
             ønskerDagpengerId,
             "Ønsker dagpenger ved framsatt søknad",
-            gyldighetsperiode = basertPå(ønsketdato),
+            gyldighetsperiode = basertPå(prøvingsdato),
         )
 
     val oppfyllerKravetTilSøknad = Opplysningstype.boolsk(oppfyllerKravTilFramsattSøknadId, "Oppfyller kravet til framsatt søknad")
@@ -25,7 +25,7 @@ object Søknad {
     val regelsett =
         vilkår(folketrygden.hjemmel(22, 13, "Frister for framsetting av krav, virkningstidspunkt og etterbetaling", "Søknad")) {
             regel(framsattSøknad) { somUtgangspunkt(true) }
-            regel(ønskerDagpenger) { somUtgangspunkt(true, ønsketdato) }
+            regel(ønskerDagpenger) { somUtgangspunkt(true, prøvingsdato) }
 
             utfall(oppfyllerKravetTilSøknad) { alle(framsattSøknad, ønskerDagpenger) }
         }

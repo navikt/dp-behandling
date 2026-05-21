@@ -9,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
 import io.ktor.server.application.Application
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
+import no.nav.dagpenger.behandling.db.DBTestContext
 import no.nav.dagpenger.behandling.db.Postgres
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
 import no.nav.dagpenger.behandling.mediator.BehovMediator
@@ -17,7 +18,6 @@ import no.nav.dagpenger.behandling.mediator.HendelseMediator
 import no.nav.dagpenger.behandling.mediator.MessageMediator
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
@@ -25,10 +25,12 @@ import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.KildeRepository
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
+import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
@@ -41,6 +43,7 @@ import java.util.UUID
 import kotlin.random.Random
 
 internal class SimulertDagpengerSystem(
+    dbTestContext: DBTestContext,
     oppsett: ScenarioOptions,
 ) {
     companion object {
@@ -48,20 +51,25 @@ internal class SimulertDagpengerSystem(
     }
 
     private val rapid = TestRapid()
-    private val opplysningerRepository = OpplysningerRepositoryPostgres()
+    private val kildeRepository = KildeRepository(dbTestContext.dataSource)
+    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbTestContext.dataSource, kildeRepository)
     private val prosessregister = Prosessregister()
     private val personRepository =
         PersonRepositoryPostgres(
+            dbTestContext.dataSource,
             BehandlingRepositoryPostgres(
+                dbTestContext.dataSource,
                 opplysningerRepository,
-                AvklaringRepositoryPostgres(AvklaringKafkaObservatør(rapid)),
+                AvklaringRepositoryPostgres(dbTestContext.dataSource, kildeRepository, listOf(AvklaringKafkaObservatør(rapid))),
+                kildeRepository,
                 prosessregister,
             ),
         )
-    private val meldekortRepository = MeldekortRepositoryPostgres()
+    private val meldekortRepository = MeldekortRepositoryPostgres(dbTestContext.dataSource)
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
     private val hendelseMediator =
         HendelseMediator(
+            postgres = UtboksLagerPostgres(dbTestContext.dataSource),
             personRepository = personRepository,
             meldekortRepository = meldekortRepository,
             behovMediator = BehovMediator(),
@@ -69,10 +77,10 @@ internal class SimulertDagpengerSystem(
             listOf(ventendeMeldekort),
         )
 
-    private val postgresMeldingRepository = PostgresMeldingRepository()
+    private val postgresMeldingRepository = PostgresMeldingRepository(dbTestContext.dataSource)
 
-    private val behovssporer = Behovssporer(dataSource)
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(postgresMeldingRepository, behovssporer)
+    private val behovssporer = Behovssporer(dbTestContext.dataSource)
+    private val apiRepositoryPostgres = ApiRepositoryPostgres(dbTestContext.dataSource, postgresMeldingRepository, behovssporer)
     val auditlogg = TestAuditlogg()
 
     private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
@@ -154,7 +162,7 @@ internal class SimulertDagpengerSystem(
     ) {
         inline fun test(block: SimulertDagpengerSystem.() -> Unit) {
             Postgres.withMigratedDb {
-                val test = SimulertDagpengerSystem(this)
+                val test = SimulertDagpengerSystem(this, this@ScenarioOptions)
                 test.opprettPerson(ident)
                 test.block()
 
@@ -210,7 +218,8 @@ internal class SimulertDagpengerSystem(
             )
     }
 
-    val meldekortkø = MeldekortBehandlingskø(personRepository, meldekortRepository, TestRapidMessageContext(rapid))
+    val meldekortkø =
+        MeldekortBehandlingskø(dbTestContext.dataSource, personRepository, meldekortRepository, TestRapidMessageContext(rapid))
 
     fun meldekortBatch(avklar: Boolean = false) {
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()
