@@ -24,6 +24,7 @@ class HendelseMediatorTest {
     fun foobar() {
         val mediator =
             HendelseMediator(
+                postgres = mockk(),
                 personRepository = mockk(),
                 meldekortRepository = mockk(),
                 behovMediator = mockk(),

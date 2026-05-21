@@ -20,15 +20,13 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
 class AvklaringRepositoryPostgresTest {
-    private val repository = AvklaringRepositoryPostgres()
-
     @Test
     fun `lagrer og rehydrer avklaringer`() {
-        withMigratedDb {
+        avklaringTest {
             val kode1 = Avklaringkode("JobbetUtenforNorge", "Arbeid utenfor Norge", "Personen har oppgitt arbeid utenfor Norge")
             val kode2 = Avklaringkode("HarVunnetNobelprisen", "Har vunnet nobelprisen", "Personen har vunnet en nobelpris ")
 
-            val behandling = TestBehandling(avklaring(kode1), avklaring(kode2))
+            val behandling = testBehandling(avklaring(kode1), avklaring(kode2))
             val avklaringer = repository.hentAvklaringer(behandling.behandlingId)
 
             avklaringer.size shouldBe 2
@@ -37,10 +35,10 @@ class AvklaringRepositoryPostgresTest {
 
     @Test
     fun `lagrer kilde og begrunnelse på avklarte avklaringer`() {
-        withMigratedDb {
+        avklaringTest {
             val kode1 = Avklaringkode("JobbetUtenforNorge", "Arbeid utenfor Norge", "Personen har oppgitt arbeid utenfor Norge")
 
-            val behandling = TestBehandling(avklaring(kode1))
+            val behandling = testBehandling(avklaring(kode1))
             behandling.avklar("123", "begrunnelse")
 
             val avklaringer = repository.hentAvklaringer(behandling.behandlingId)
@@ -56,7 +54,7 @@ class AvklaringRepositoryPostgresTest {
 
     @Test
     fun `tar vare på rekkefølge av endringer`() {
-        withMigratedDb {
+        avklaringTest {
             val kode1 = Avklaringkode("JobbetUtenforNorge", "Arbeid utenfor Norge", "Personen har oppgitt arbeid utenfor Norge")
 
             val avklaring = avklaring(kode1)
@@ -68,31 +66,26 @@ class AvklaringRepositoryPostgresTest {
             val forventedeTilstander = listOf("UnderBehandling", "Avklart", "UnderBehandling", "Avklart")
             avklaring.endringer.map { it::class.simpleName!! } shouldBe forventedeTilstander
 
-            val behandling = TestBehandling(avklaring)
+            val behandling = testBehandling(avklaring)
             val avklaringerFraDb = repository.hentAvklaringer(behandling.behandlingId)
 
-            repository.hentAvklaringer(TestBehandling(avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(avklaring).behandlingId)
-            repository.hentAvklaringer(TestBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
+            repository.hentAvklaringer(testBehandling(avklaring).behandlingId)
 
             avklaringerFraDb.single().endringer.map { it::class.simpleName!! } shouldBe forventedeTilstander
         }
     }
 
-    private inner class TestBehandling(
+    private class TestBehandling(
+        private val personRepository: PersonRepository,
         vararg avklaring: Avklaring,
     ) {
         val behandlingId get() = behandling.behandlingId
         private val behandling = TestBehandlinger.rehydrerBehandling(avklaringer = avklaring.toList())
-        private val prosessregister =
-            Prosessregister().also {
-                TestBehandlinger.registrerTestProsesser(it)
-            }
-        private val behandlingRepository = BehandlingRepositoryPostgres(opplysningerRepository(), repository, prosessregister)
-        private val personRepository = PersonRepositoryPostgres(behandlingRepository)
 
         init {
             lagre()
@@ -124,4 +117,27 @@ class AvklaringRepositoryPostgresTest {
     }
 
     private fun avklaring(avklaringkode: Avklaringkode) = Avklaring(avklaringkode)
+
+    private fun avklaringTest(block: Avklaringtest.() -> Unit) {
+        withMigratedDb {
+            val kildeRepository = KildeRepository(dataSource)
+            val repository = AvklaringRepositoryPostgres(dataSource, kildeRepository)
+            val prosessregister =
+                Prosessregister().also {
+                    TestBehandlinger.registrerTestProsesser(it)
+                }
+            val behandlingRepository =
+                BehandlingRepositoryPostgres(dataSource, opplysningerRepository(dataSource), repository, kildeRepository, prosessregister)
+            val personRepository = PersonRepositoryPostgres(dataSource, behandlingRepository)
+            block(Avklaringtest(repository, behandlingRepository, personRepository))
+        }
+    }
+
+    private data class Avklaringtest(
+        val repository: AvklaringRepository,
+        val behandlingRepository: BehandlingRepositoryPostgres,
+        val personRepository: PersonRepositoryPostgres,
+    ) {
+        fun testBehandling(vararg avklaring: Avklaring) = TestBehandling(personRepository, *avklaring)
+    }
 }

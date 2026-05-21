@@ -6,7 +6,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.mediator.repository.JsonSerde.Companion.serde
 import no.nav.dagpenger.opplysning.BarnDatatype
@@ -41,28 +40,35 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import javax.sql.DataSource
 import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
-class OpplysningerRepositoryPostgres : OpplysningerRepository {
+internal class OpplysningerRepositoryPostgres(
+    private val dataSource: DataSource,
+    private val kildeRepository: KildeRepository,
+) : OpplysningerRepository {
     internal companion object {
         private val opplysningstyper by lazy {
             Opplysningstype.definerteTyper.associateBy { it.id }
         }
         private val logger = KotlinLogging.logger { }
-        private val kildeRepository = KildeRepository()
 
-        fun Session.hentOpplysninger(opplysningerId: UUID) =
-            hentOpplysninger(setOf(opplysningerId))
-                .values
-                .singleOrNull()
-                ?: Opplysninger.rehydrer(opplysningerId, emptyList())
+        fun Session.hentOpplysninger(
+            kildeRepository: KildeRepository,
+            opplysningerId: UUID,
+        ) = hentOpplysninger(kildeRepository, setOf(opplysningerId))
+            .values
+            .singleOrNull()
+            ?: Opplysninger.rehydrer(opplysningerId, emptyList())
 
-        fun Session.hentOpplysninger(opplysningerIder: Set<UUID>) =
-            OpplysningRepository(this)
-                .hentOpplysninger(opplysningerIder)
-                .mapValues { (opplysningerId, opplysninger) ->
-                    Opplysninger.rehydrer(opplysningerId, opplysninger)
-                }
+        fun Session.hentOpplysninger(
+            kildeRepository: KildeRepository,
+            opplysningerIder: Set<UUID>,
+        ) = OpplysningRepository(this, kildeRepository)
+            .hentOpplysninger(opplysningerIder)
+            .mapValues { (opplysningerId, opplysninger) ->
+                Opplysninger.rehydrer(opplysningerId, opplysninger)
+            }
 
         private val serdeBarn = objectMapper.serde<BarnListe>()
 
@@ -74,10 +80,10 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
     override fun hentOpplysninger(opplysningerId: UUID) =
         sessionOf(dataSource)
-            .use { session -> return@use session.hentOpplysninger(opplysningerId) }
+            .use { session -> return@use session.hentOpplysninger(kildeRepository, opplysningerId) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
-        PostgresUnitOfWork.transaction {
+        PostgresUnitOfWork.transaction(dataSource) {
             lagreOpplysninger(listOf(opplysninger), this)
         }
     }
@@ -107,7 +113,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
         val fjernet = opplysninger.flatMap { it.fjernet() }.toSet()
 
-        OpplysningRepository(unitOfWork.session).lagreOpplysninger(
+        OpplysningRepository(unitOfWork.session, kildeRepository).lagreOpplysninger(
             opplysningerSomSkalLagres,
             fjernet,
         )
@@ -136,7 +142,7 @@ class OpplysningerRepositoryPostgres : OpplysningerRepository {
 
     private class OpplysningRepository(
         private val session: Session,
-        private val kildeRespository: KildeRepository = kildeRepository,
+        private val kildeRespository: KildeRepository,
     ) {
         fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<out Any>>> {
             val rader: Set<OpplysningRad<*>> =
@@ -603,14 +609,6 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
     this.forEach { it.finnErstatter() }
 
     return alleOpplysninger
-}
-
-private fun List<Int>.krevAtAntallRaderErNøyaktigLik(forventet: Int): List<Int> {
-    val sum = sum()
-    check(sum == forventet) {
-        "Forventet å oppdatere nøyaktig $forventet rader, men endte opp med å oppdatere $sum rader"
-    }
-    return this
 }
 
 private data class UtledningRad(

@@ -34,7 +34,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.kanJobbeHvorS
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erReellArbeidssøkerVurdert
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
@@ -725,8 +724,8 @@ class ScenarioTest {
         }
     }
 
+    // @Disabled
     @Test
-    @Disabled
     fun `Bug - endre prøvingsdato til tidligere enn ønsket fra dato ender opp i loop`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -734,17 +733,17 @@ class ScenarioTest {
             person.søkDagpenger(13.mai(2026), 27.mai(2026))
             behovsløsere.løsTilForslag()
 
-            val prøvingsdato = 13.mai(2026)
+            val flyttePrøvingsdato = 15.mai(2026)
             saksbehandler.endreOpplysning(
-                Søknadstidspunkt.prøvingsdato,
                 prøvingsdato,
-                gyldighetsperiode = Gyldighetsperiode(fraOgMed = prøvingsdato),
+                flyttePrøvingsdato,
+                gyldighetsperiode = Gyldighetsperiode(fraOgMed = flyttePrøvingsdato),
             )
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
                 rettighetsperioder.size shouldBe 1
-                rettighetsperioder.first().fraOgMed shouldBe 13.mai(2026)
+                rettighetsperioder.first().fraOgMed shouldBe 15.mai(2026)
             }
         }
     }

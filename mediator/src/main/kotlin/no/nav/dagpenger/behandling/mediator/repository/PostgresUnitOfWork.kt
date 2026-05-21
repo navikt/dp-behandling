@@ -3,8 +3,8 @@ package no.nav.dagpenger.behandling.mediator.repository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.Session
 import kotliquery.sessionOf
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import java.sql.Connection
+import javax.sql.DataSource
 
 private val logger = KotlinLogging.logger {}
 
@@ -12,7 +12,10 @@ data class PostgresUnitOfWork(
     val session: Session,
 ) {
     companion object {
-        fun transaction(transactionBlock: PostgresUnitOfWork.() -> Unit) {
+        fun transaction(
+            dataSource: DataSource,
+            transactionBlock: PostgresUnitOfWork.() -> Unit,
+        ) {
             sessionOf(dataSource).use { session ->
                 session.connection.underlying.withTransaction {
                     PostgresUnitOfWork(session).apply(transactionBlock)

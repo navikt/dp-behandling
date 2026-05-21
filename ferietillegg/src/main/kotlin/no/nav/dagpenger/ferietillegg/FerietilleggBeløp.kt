@@ -34,5 +34,6 @@ object FerietilleggBeløp {
             regel(ferietilleggBeløp) { prosentAv(sumUtbetaltForÅr, ferietilleggProsent) }
 
             ønsketResultat(ferietilleggBeløp)
+            påvirkerResultat { it.erSann(harKravpåFerietillegg) }
         }
 }

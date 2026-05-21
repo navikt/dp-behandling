@@ -7,7 +7,6 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.mediator.Metrikk.tidBruktPerEndring
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder.dataSource
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.ForslagTilVedtak
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.TilGodkjenning
@@ -17,6 +16,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeoutException
+import javax.sql.DataSource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -34,6 +34,7 @@ internal class ApiMelding(
 }
 
 internal class ApiRepositoryPostgres(
+    private val dataSource: DataSource,
     private val meldingRepository: MeldingRepository,
     private val behovssporer: Behovssporer,
     private val timout: Duration = 15.seconds,

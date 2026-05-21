@@ -1,9 +1,25 @@
 package no.nav.dagpenger.behandling.db
 
+import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.dagpenger.behandling.mediator.db.PostgresDataSourceBuilder
-import org.flywaydb.core.internal.configuration.ConfigUtils
+import org.flywaydb.core.Flyway
 import org.testcontainers.postgresql.PostgreSQLContainer
+import javax.sql.DataSource
+
+data class DBTestContext(
+    val dataSource: DataSource,
+    val flyWay: Flyway,
+) {
+    fun clean() {
+        flyWay.clean()
+    }
+
+    fun runMigration(): Int =
+        flyWay
+            .migrate()
+            .migrations
+            .size
+}
 
 internal object Postgres {
     val instance by lazy {
@@ -13,69 +29,39 @@ internal object Postgres {
         }
     }
 
-    inline fun withMigratedDb(block: () -> Unit) {
+    private val hikariConfig =
+        HikariConfig().apply {
+            jdbcUrl = instance.jdbcUrl
+            username = instance.username
+            password = instance.password
+        }
+    private val flywayConfig =
+        HikariConfig().apply {
+            hikariConfig.copyStateTo(this)
+        }
+
+    private val dataSource by lazy { HikariDataSource(hikariConfig) }
+    private val flywayDataSource by lazy { HikariDataSource(flywayConfig) }
+
+    private val flyWay by lazy {
+        Flyway
+            .configure()
+            .connectRetries(10)
+            .dataSource(flywayDataSource)
+            .cleanDisabled(false)
+            .load()
+    }
+
+    inline fun withMigratedDb(block: DBTestContext.() -> Unit) {
         withCleanDb {
-            PostgresDataSourceBuilder.runMigration()
+            runMigration()
             block()
         }
     }
 
-    fun withMigratedDb(
-        target: String,
-        block: () -> Unit,
-    ) {
-        withCleanDb {
-            PostgresDataSourceBuilder.runMigrationTo(target)
-            block()
-        }
-    }
-
-    fun withMigratedDb(): HikariDataSource {
-        setup()
-        PostgresDataSourceBuilder.runMigration()
-        return PostgresDataSourceBuilder.dataSource
-    }
-
-    fun setup() {
-        System.setProperty(ConfigUtils.CLEAN_DISABLED, "false")
-        System.setProperty(PostgresDataSourceBuilder.DB_URL_KEY, instance.jdbcUrl)
-        System.setProperty(PostgresDataSourceBuilder.DB_USERNAME_KEY, instance.username)
-        System.setProperty(PostgresDataSourceBuilder.DB_PASSWORD_KEY, instance.password)
-    }
-
-    fun tearDown() {
-        System.clearProperty(PostgresDataSourceBuilder.DB_URL_KEY)
-        System.clearProperty(PostgresDataSourceBuilder.DB_USERNAME_KEY)
-        System.clearProperty(PostgresDataSourceBuilder.DB_PASSWORD_KEY)
-        System.clearProperty(ConfigUtils.CLEAN_DISABLED)
-    }
-
-    inline fun withCleanDb(block: () -> Unit) {
-        setup()
-        PostgresDataSourceBuilder
-            .clean()
-            .run {
-                block()
-            }.also {
-                tearDown()
-            }
-    }
-
-    fun withCleanDb(
-        target: String,
-        setup: () -> Unit,
-        test: () -> Unit,
-    ) {
-        this.setup()
-        PostgresDataSourceBuilder
-            .clean()
-            .run {
-                PostgresDataSourceBuilder.runMigrationTo(target)
-                setup()
-                PostgresDataSourceBuilder.runMigration()
-                test()
-            }.also {
-                tearDown()
-            }
+    inline fun withCleanDb(block: DBTestContext.() -> Unit) {
+        val context = DBTestContext(dataSource, flyWay)
+        context.clean()
+        block(context)
     }
 }
