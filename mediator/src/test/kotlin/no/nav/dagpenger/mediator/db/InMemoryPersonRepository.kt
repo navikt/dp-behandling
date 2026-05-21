@@ -1,0 +1,115 @@
+package no.nav.dagpenger.mediator.db
+
+import no.nav.dagpenger.avklaring.Avklaring
+import no.nav.dagpenger.mediator.repository.BehandlingRepository
+import no.nav.dagpenger.mediator.repository.PersonRepository
+import no.nav.dagpenger.mediator.repository.PostgresUnitOfWork
+import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Behandlingkjede
+import no.nav.dagpenger.modell.Ident
+import no.nav.dagpenger.modell.Person
+import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.hendelser.UtbetalingStatus
+import no.nav.dagpenger.modell.somKjede
+import no.nav.dagpenger.opplysning.TemporalCollection
+import java.time.LocalDate
+import java.util.UUID
+
+class InMemoryPersonRepository :
+    PersonRepository,
+    BehandlingRepository {
+    private val persondb = mutableMapOf<Ident, Person>()
+
+    override fun hent(ident: Ident): Person? = persondb[ident]
+
+    override fun hentBehandling(behandlingId: UUID): Behandling? =
+        persondb.values
+            .flatMap {
+                it.behandlinger()
+            }.find { it.behandlingId == behandlingId }
+
+    override fun hentBehandlinger(ident: Ident): List<Behandlingkjede> =
+        persondb.values
+            .flatMap { it.behandlinger() }
+            .groupBy { it.behandlingskjedeId }
+            .map { (_, behandlinger) -> behandlinger.somKjede() }
+
+    override fun flyttBehandling(
+        behandlingId: UUID,
+        nyBasertPåId: UUID?,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun lagre(
+        ident: Ident,
+        behandlinger: List<Behandling>,
+        unitOfWork: PostgresUnitOfWork,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun finnBehandlinger(
+        tilstand: Behandling.TilstandType,
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        block: (Behandling) -> Unit,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> {
+        TODO("Not yet implemented")
+    }
+
+    override fun harIdent(ident: Ident) = persondb[ident] != null
+
+    override fun lagreAvklaringer(
+        avklaringer: List<Pair<Behandling, Avklaring>>,
+        unitOfWork: PostgresUnitOfWork,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun hentAvklaringer(behandlingId: UUID): List<Avklaring> {
+        TODO("Not yet implemented")
+    }
+
+    override fun hentAvklaringer(behandlingIder: Set<UUID>): Map<UUID, List<Avklaring>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun lagre(person: Person) {
+        persondb[person.ident] = person
+    }
+
+    override fun lagre(
+        person: Person,
+        unitOfWork: PostgresUnitOfWork,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun hentIdenterMedRettighetsperioder(år: Int): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    fun reset() {
+        persondb.clear()
+    }
+
+    override fun lagreBegrunnelse(
+        opplysningId: UUID,
+        begrunnelse: String,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun lagreUtbetalingStatus(utbetalingStatus: UtbetalingStatus) {
+        TODO("Not yet implemented")
+    }
+
+    override fun hentUtbetalingStatus(behandlingId: UUID): UtbetalingStatus.Status {
+        TODO("Not yet implemented")
+    }
+}

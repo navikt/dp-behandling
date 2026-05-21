@@ -75,7 +75,7 @@ class SøknadInnsendtMessage(
     private val søknadId = packet["søknadId"].asUUID()
     private val søknadstype =
         packet["type"].let { node ->
-            if (node.isMissingNode) Søknadstype.NySøknad else Søknadstype.valueOf(node.textValue())
+            if (node.isMissingNode) Søknadstype.NySøknad else Søknadstype.valueOf(node.stringValue())
         }
 
     internal val hendelse: SøknadInnsendtHendelse

@@ -1,0 +1,81 @@
+package no.nav.dagpenger.mediator
+
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
+import no.nav.dagpenger.mediator.objectMapper
+import no.nav.dagpenger.modell.hendelser.OpplysningSvar
+import no.nav.dagpenger.opplysning.Datatype
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Kilde
+import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.verdier.Barn
+import no.nav.dagpenger.opplysning.verdier.BarnListe
+import no.nav.dagpenger.regel.Behov.Barnetillegg
+import no.nav.dagpenger.regel.Behov.BarnetilleggV2
+import tools.jackson.databind.JsonNode
+import java.util.UUID
+
+class OpplysningSvarBygger<T : Any>(
+    private val type: Opplysningstype<T>,
+    private val verdi: VerdiMapper,
+    private val kilde: Kilde,
+    private val tilstand: OpplysningSvar.Tilstand,
+    private val gyldighetsperiode: Gyldighetsperiode?,
+    private val utledetAv: List<UUID>,
+) {
+    fun opplysningSvar() =
+        OpplysningSvar(
+            opplysningstype = type,
+            verdi = verdi.map(type.datatype),
+            tilstand = tilstand,
+            kilde = kilde,
+            gyldighetsperiode = gyldighetsperiode,
+            utledetAv = utledetAv,
+        )
+
+    interface VerdiMapper {
+        fun <T : Any> map(datatype: Datatype<T>): T
+    }
+}
+
+fun barnMapper(verdi: String): BarnListe = barnMapper(BarnetilleggV2, objectMapper.readTree(verdi))
+
+fun barnMapper(
+    typeNavn: String,
+    verdi: JsonNode,
+): BarnListe =
+    when (typeNavn) {
+        Barnetillegg -> {
+            BarnListe(
+                barn =
+                    verdi.toList().map {
+                        Barn(
+                            fødselsdato = it["fødselsdato"].asLocalDate(),
+                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asString(),
+                            etternavn = it["etternavn"]?.asString(),
+                            statsborgerskap = it["statsborgerskap"]?.asString(),
+                            kvalifiserer = it["kvalifiserer"].asBoolean(),
+                        )
+                    },
+            )
+        }
+
+        BarnetilleggV2 -> {
+            BarnListe(
+                søknadbarnId = verdi["søknadbarnId"].asUUID(),
+                barn =
+                    verdi["barn"].toList().map {
+                        Barn(
+                            fødselsdato = it["fødselsdato"].asLocalDate(),
+                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asString(),
+                            etternavn = it["etternavn"]?.asString(),
+                            statsborgerskap = it["statsborgerskap"]?.asString(),
+                            kvalifiserer = it["kvalifiserer"].asBoolean(),
+                        )
+                    },
+            )
+        }
+
+        else -> {
+            throw IllegalArgumentException("Ukjent typeNavn for barnMapper: $typeNavn")
+        }
+    }

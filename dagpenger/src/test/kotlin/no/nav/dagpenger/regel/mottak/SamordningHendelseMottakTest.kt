@@ -4,7 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
+import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import org.junit.jupiter.api.Test

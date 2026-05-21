@@ -1,16 +1,16 @@
 package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
-import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.Rettighetstatus
-import no.nav.dagpenger.behandling.modell.Rettighetstatus.Companion.harIkkeInnvilgelse
-import no.nav.dagpenger.behandling.modell.hendelser.EksternId
-import no.nav.dagpenger.behandling.modell.hendelser.Hendelse
-import no.nav.dagpenger.behandling.modell.hendelser.SamordningId
-import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
-import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.IkkeOpprettet
-import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetstatus.Companion.harIkkeInnvilgelse
+import no.nav.dagpenger.modell.hendelser.EksternId
+import no.nav.dagpenger.modell.hendelser.Hendelse
+import no.nav.dagpenger.modell.hendelser.SamordningId
+import no.nav.dagpenger.modell.hendelser.StartHendelse
+import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
+import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
