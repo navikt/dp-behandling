@@ -50,7 +50,7 @@ internal class HendelseMediator(
     private val personRepository: PersonRepository,
     private val meldekortRepository: MeldekortRepository,
     private val behovMediator: BehovMediator = BehovMediator(),
-    private val aktivitetsloggMediator: AktivitetsloggMediator = AktivitetsloggMediator(),
+    private val aktivitetsloggMediator: IAktivitetsloggMediator = AktivitetsloggMediator(),
     observatører: Collection<PersonObservatør> = emptySet(),
 ) : IHendelseMediator {
     private val observatører = observatører.toSet()
@@ -355,7 +355,7 @@ internal class HendelseMediator(
     }
 }
 
-internal interface IHendelseMediator {
+interface IHendelseMediator {
     fun behandle(
         hendelse: StartHendelse,
         context: MessageContext,

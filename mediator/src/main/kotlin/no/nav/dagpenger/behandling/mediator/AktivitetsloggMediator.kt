@@ -8,11 +8,18 @@ import no.nav.dagpenger.aktivitetslogg.AktivitetsloggEventMapper
 import no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse
 import no.nav.dagpenger.behandling.mediator.Metrikk.aktivitetsloggTimer
 
-internal class AktivitetsloggMediator {
+interface IAktivitetsloggMediator {
+    fun håndter(
+        context: MessageContext,
+        hendelse: AktivitetsloggHendelse,
+    )
+}
+
+class AktivitetsloggMediator : IAktivitetsloggMediator {
     private val aktivitetsloggEventMapper = AktivitetsloggEventMapper()
 
     @WithSpan
-    fun håndter(
+    override fun håndter(
         context: MessageContext,
         hendelse: AktivitetsloggHendelse,
     ) {

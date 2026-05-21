@@ -34,7 +34,7 @@ import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMessage
 import no.nav.dagpenger.behandling.mediator.mottak.UtbetalingStatusMottak
 import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepository
-import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
+import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.FjernOpplysningHendelse
@@ -56,13 +56,13 @@ import java.util.UUID
 
 internal class MessageMediator(
     rapidsConnection: RapidsConnection,
-    private val hendelseMediator: HendelseMediator,
+    private val hendelseMediator: IHendelseMediator,
     private val meldingRepository: MeldingRepository,
     meldekortRepository: MeldekortRepository,
     private val apiRepositoryPostgres: ApiRepositoryPostgres,
     private val behovssporer: Behovssporer,
     opplysningstyper: Set<Opplysningstype<*>>,
-    personRepository: PersonRepositoryPostgres,
+    personRepository: PersonRepository,
 ) : IMessageMediator {
     init {
         // Generiske mottak

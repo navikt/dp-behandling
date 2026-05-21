@@ -4,7 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.matchers.nulls.shouldNotBeNull
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
-import no.nav.dagpenger.behandling.mediator.HendelseMediator
+import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.repository.PersonRepository
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
@@ -31,7 +31,7 @@ import java.util.UUID
 
 internal class TestSaksbehandler2(
     private val testPerson: Mennesket,
-    private val hendelseMediator: HendelseMediator,
+    private val hendelseMediator: IHendelseMediator,
     private val personRepository: PersonRepository,
     private val rapid: TestRapid,
 ) {
