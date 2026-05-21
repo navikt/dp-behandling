@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.behandling.db.DBTestContext
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType.UnderBehandling

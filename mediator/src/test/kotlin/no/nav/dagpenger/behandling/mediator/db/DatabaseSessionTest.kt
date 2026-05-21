@@ -3,7 +3,7 @@ package no.nav.dagpenger.behandling.mediator.db
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.repository.DbMetrics
 import org.junit.jupiter.api.Test
 

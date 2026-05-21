@@ -8,7 +8,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.dagpenger.behandling.db.DBTestContext
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.mediator.repository.Meldekortgenerator.Companion.generatorFor
 import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType

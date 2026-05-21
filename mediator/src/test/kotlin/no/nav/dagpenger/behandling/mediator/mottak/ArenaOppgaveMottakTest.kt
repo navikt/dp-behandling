@@ -5,7 +5,7 @@ import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.spyk
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.asUUID
 import no.nav.dagpenger.behandling.modell.Behandling
 import org.intellij.lang.annotations.Language

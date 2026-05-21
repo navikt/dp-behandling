@@ -4,7 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.januar
 import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.behandling.mediator.repository.Meldekortgenerator.Companion.generatorFor

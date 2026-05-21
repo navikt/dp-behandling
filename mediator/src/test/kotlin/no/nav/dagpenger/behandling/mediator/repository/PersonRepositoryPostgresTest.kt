@@ -7,7 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.dagpenger.behandling.TestOpplysningstyper.heltall
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.Metrikk.hentPersonTimer
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Ident
