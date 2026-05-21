@@ -3,7 +3,6 @@ package no.nav.dagpenger.mediator.db
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
-import no.nav.dagpenger.mediator.db.withMigratedDb
 import no.nav.dagpenger.mediator.repository.DbMetrics
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Isolated
@@ -64,7 +63,7 @@ class DatabaseSessionTest {
 }
 
 private fun transaksjonstest(testblokk: (DatabaseSession) -> Unit) {
-    withMigratedDb {
+    withIsolatedDb {
         dbSession.session { session ->
             session.run(queryOf("create table counter (id int primary key, value int)").asExecute)
             session.run(queryOf("insert into counter values (1, 1)").asExecute)

@@ -74,6 +74,8 @@ internal object Postgres {
         }
     }
 
+    private val systemtilkobling = instance.createConnection("")
+
     private val tilgjengeligeTestsesjoner =
         ArrayBlockingQueue(ANTALL_TESTER_I_PARALLELL, false, opprettInitielleTilkoblinger(ANTALL_TESTER_I_PARALLELL))
 
@@ -93,6 +95,17 @@ internal object Postgres {
         }
     }
 
+    fun withIsolatedTestContext(block: (DBTestContext) -> Unit) {
+        val databasenavn = "testdb_isolated_${System.currentTimeMillis()}"
+        val testContext = opprettTilkobling(databasenavn)
+        try {
+            block(testContext)
+        } finally {
+            logger.info { "Sletter midlertidig database" }
+            systemtilkobling.createStatement().execute("drop database $databasenavn with (force)")
+        }
+    }
+
     private fun opprettInitielleTilkoblinger(antall: Int): List<DBTestContext> {
         logger.info { "Oppretter $antall testdatabaser..." }
         return (1..antall)
@@ -103,9 +116,7 @@ internal object Postgres {
     private fun opprettTilkobling(databasenavn: String): DBTestContext {
         logger.info { "Initialiserer $databasenavn" }
         logger.info { "oppretter db for $databasenavn" }
-        instance.createConnection("").use { conn ->
-            conn.createStatement().execute("create database $databasenavn")
-        }
+        systemtilkobling.createStatement().execute("create database $databasenavn")
         logger.info { "oppretter testsesjon for $databasenavn" }
         return createTestSession(databasenavn)
     }
@@ -125,6 +136,12 @@ internal object Postgres {
 
 internal inline fun withMigratedDb(crossinline block: DBTestContext.() -> Unit) {
     Postgres.withTestContext { context ->
+        block(context)
+    }
+}
+
+internal inline fun withIsolatedDb(crossinline block: DBTestContext.() -> Unit) {
+    Postgres.withIsolatedTestContext { context ->
         block(context)
     }
 }
