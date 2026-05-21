@@ -60,7 +60,7 @@ internal class RekjørBehandlingMottak(
 internal class RekjørBehandlingMessage(
     private val packet: JsonMessage,
 ) : HåndterbarKafkaMelding(packet) {
-    override val ident get() = packet["ident"].asText()
+    override val ident get() = packet["ident"].asString()
 
     private val hendelse
         get() =

@@ -45,21 +45,21 @@ fun InntektV1.tilJsonNode(): JsonNode =
 
 fun JsonNode.tilInntektV1(): InntektV1 =
     InntektV1(
-        inntektsId = this["inntektsId"].asText(),
+        inntektsId = this["inntektsId"].asString(),
         inntektsListe =
             this["inntektsListe"].toList().map { måned ->
                 KlassifisertInntektMåned(
-                    årMåned = YearMonth.parse(måned["årMåned"].asText()),
+                    årMåned = YearMonth.parse(måned["årMåned"].asString()),
                     klassifiserteInntekter =
                         måned["klassifiserteInntekter"].toList().map { klassifisertInntekt ->
                             KlassifisertInntekt(
                                 beløp = klassifisertInntekt["beløp"].decimalValue(),
-                                inntektKlasse = InntektKlasse.valueOf(klassifisertInntekt["inntektKlasse"].asText()),
+                                inntektKlasse = InntektKlasse.valueOf(klassifisertInntekt["inntektKlasse"].asString()),
                             )
                         },
                     harAvvik = måned["harAvvik"].asBoolean(),
                 )
             },
         manueltRedigert = this["manueltRedigert"]?.takeUnless { it.isMissingNode || it.isNull }?.asBoolean() ?: false,
-        sisteAvsluttendeKalenderMåned = YearMonth.parse(this["sisteAvsluttendeKalenderMåned"].asText()),
+        sisteAvsluttendeKalenderMåned = YearMonth.parse(this["sisteAvsluttendeKalenderMåned"].asString()),
     )

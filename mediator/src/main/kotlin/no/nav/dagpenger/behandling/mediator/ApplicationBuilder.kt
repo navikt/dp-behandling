@@ -102,10 +102,4 @@ internal class ApplicationBuilder(
             runtime.meldekortBehandlingskø(rapidsConnection),
         ).start()
     }
-
-    override fun onShutdownComplete(rapidsConnection: RapidsConnection) {
-        logger.info { "Forsøker å lukke datasource..." }
-        dataSource.close()
-        logger.info { "Lukket datasource" }
-    }
 }

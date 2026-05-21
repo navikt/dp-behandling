@@ -45,7 +45,7 @@ internal class OmgjøringMessage(
     packet: JsonMessage,
     meldekortRepository: MeldekortRepository,
 ) : HåndterbarKafkaMelding(packet) {
-    override val ident: String = packet["ident"].asText()
+    override val ident: String = packet["ident"].asString()
     private val hendelse =
         OmgjøringHendelse(
             meldingsreferanseId = id,

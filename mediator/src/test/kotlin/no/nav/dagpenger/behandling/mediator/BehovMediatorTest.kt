@@ -40,18 +40,18 @@ class BehovMediatorTest {
         mediator.håndter(rapid, hendelse)
 
         with(rapid.inspektør.message(0)) {
-            this["@behov"].toList().map { it.asText() } shouldContainExactly listOf("TestBehov1", "TestBehov2")
+            this["@behov"].toList().map { it.asString() } shouldContainExactly listOf("TestBehov1", "TestBehov2")
 
             this["TestBehov1"].size() shouldBe 2
-            this["TestBehov1"]["test1"].asText() shouldBe "test1"
-            this["TestBehov1"]["felles"].asText() shouldBe "felles"
+            this["TestBehov1"]["test1"].asString() shouldBe "test1"
+            this["TestBehov1"]["felles"].asString() shouldBe "felles"
 
             this["TestBehov2"].size() shouldBe 2
-            this["TestBehov2"]["test2"].asText() shouldBe "test2"
-            this["TestBehov2"]["felles"].asText() shouldBe "felles"
+            this["TestBehov2"]["test2"].asString() shouldBe "test2"
+            this["TestBehov2"]["felles"].asString() shouldBe "felles"
 
-            this["@utledetAv"]["TestBehov1"].toList().map { it.asText() }.shouldContainExactly("test1", "felles")
-            this["@utledetAv"]["TestBehov2"].toList().map { it.asText() }.shouldContainExactly("test2", "felles")
+            this["@utledetAv"]["TestBehov1"].toList().map { it.asString() }.shouldContainExactly("test1", "felles")
+            this["@utledetAv"]["TestBehov2"].toList().map { it.asString() }.shouldContainExactly("test2", "felles")
         }
     }
 

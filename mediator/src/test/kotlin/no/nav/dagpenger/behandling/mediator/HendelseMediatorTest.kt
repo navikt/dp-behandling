@@ -45,24 +45,24 @@ class HendelseMediatorTest {
         rapid.inspektør.size shouldBe 2
 
         with(rapid.inspektør.message(0)) {
-            this["@event_name"].asText() shouldBe "FOO"
-            this["ident"].asText() shouldBe "ident"
+            this["@event_name"].asString() shouldBe "FOO"
+            this["ident"].asString() shouldBe "ident"
             this["søknadId"].asUUID() shouldBe søknadId
             this["gjelderDato"].asLocalDate() shouldBe gjelderDato
             this["detaljA"].shouldBeNull()
             this["detaljB"].shouldBeNull()
-            this["kontekstA"].asText() shouldBe "verdiA"
-            this["kontekstB"].asText() shouldBe "verdiB"
+            this["kontekstA"].asString() shouldBe "verdiA"
+            this["kontekstB"].asString() shouldBe "verdiB"
         }
         with(rapid.inspektør.message(1)) {
-            this["@event_name"].asText() shouldBe "BAR"
-            this["ident"].asText() shouldBe "ident"
+            this["@event_name"].asString() shouldBe "BAR"
+            this["ident"].asString() shouldBe "ident"
             this["søknadId"].asUUID() shouldBe søknadId
             this["gjelderDato"].asLocalDate() shouldBe gjelderDato
-            this["detaljA"].asText() shouldBe "verdiA"
-            this["detaljB"].asText() shouldBe "verdiB"
-            this["kontekstA"].asText() shouldBe "verdiA"
-            this["kontekstB"].asText() shouldBe "verdiB"
+            this["detaljA"].asString() shouldBe "verdiA"
+            this["detaljB"].asString() shouldBe "verdiB"
+            this["kontekstA"].asString() shouldBe "verdiA"
+            this["kontekstB"].asString() shouldBe "verdiB"
         }
 
         observer.lyttetPåFoo shouldBe true

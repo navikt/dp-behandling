@@ -67,7 +67,7 @@ internal class BeregnMeldekortMottak(
         meldekort: Meldekort,
     ) : HåndterbarKafkaMelding(packet) {
         val meldekortId: UUID = packet["meldekortId"].asUUID()
-        override val ident = packet["ident"].asText()
+        override val ident = packet["ident"].asString()
 
         override fun behandle(
             mediator: IMessageMediator,

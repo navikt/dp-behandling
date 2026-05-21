@@ -39,11 +39,11 @@ internal class AvklaringIkkeRelevantMottak(
         meterRegistry: MeterRegistry,
     ) {
         withLoggingContext(
-            "behovId" to packet["@behovId"].asText(),
-            "behandlingId" to packet["behandlingId"].asText(),
-            "avklaringId" to packet["avklaringId"].asText(),
+            "behovId" to packet["@behovId"].asString(),
+            "behandlingId" to packet["behandlingId"].asString(),
+            "avklaringId" to packet["avklaringId"].asString(),
         ) {
-            logger.info { "Mottok at avklaring ikke er relevant for ${packet["kode"].asText()}" }
+            logger.info { "Mottok at avklaring ikke er relevant for ${packet["kode"].asString()}" }
             val message = AvklaringIkkeRelevantMessage(packet)
             message.behandle(messageMediator, context)
         }
@@ -53,14 +53,14 @@ internal class AvklaringIkkeRelevantMottak(
 internal class AvklaringIkkeRelevantMessage(
     packet: JsonMessage,
 ) : HåndterbarKafkaMelding(packet) {
-    override val ident = packet["ident"].asText()
+    override val ident = packet["ident"].asString()
 
     private val hendelse
         get() = AvklaringIkkeRelevantHendelse(id, ident, avklaringId, kode, behandlingId, opprettet)
 
     private val avklaringId = packet["avklaringId"].asUUID()
     private val behandlingId = packet["behandlingId"].asUUID()
-    private val kode = packet["kode"].asText()
+    private val kode = packet["kode"].asString()
 
     override fun behandle(
         mediator: IMessageMediator,

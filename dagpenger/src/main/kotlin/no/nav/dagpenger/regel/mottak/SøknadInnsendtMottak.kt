@@ -71,7 +71,7 @@ class SøknadInnsendtMottak(
 class SøknadInnsendtMessage(
     private val packet: JsonMessage,
 ) : KafkaMelding(packet) {
-    override val ident get() = packet["ident"].asText()
+    override val ident get() = packet["ident"].asString()
     private val søknadId = packet["søknadId"].asUUID()
     private val søknadstype =
         packet["type"].let { node ->

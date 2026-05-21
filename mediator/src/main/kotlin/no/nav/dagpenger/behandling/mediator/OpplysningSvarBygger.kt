@@ -44,19 +44,21 @@ fun barnMapper(
     verdi: JsonNode,
 ): BarnListe =
     when (typeNavn) {
-        Barnetillegg ->
+        Barnetillegg -> {
             BarnListe(
                 barn =
                     verdi.toList().map {
                         Barn(
                             fødselsdato = it["fødselsdato"].asLocalDate(),
-                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asText(),
-                            etternavn = it["etternavn"]?.asText(),
-                            statsborgerskap = it["statsborgerskap"]?.asText(),
+                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asString(),
+                            etternavn = it["etternavn"]?.asString(),
+                            statsborgerskap = it["statsborgerskap"]?.asString(),
                             kvalifiserer = it["kvalifiserer"].asBoolean(),
                         )
                     },
             )
+        }
+
         BarnetilleggV2 -> {
             BarnListe(
                 søknadbarnId = verdi["søknadbarnId"].asUUID(),
@@ -64,13 +66,16 @@ fun barnMapper(
                     verdi["barn"].toList().map {
                         Barn(
                             fødselsdato = it["fødselsdato"].asLocalDate(),
-                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asText(),
-                            etternavn = it["etternavn"]?.asText(),
-                            statsborgerskap = it["statsborgerskap"]?.asText(),
+                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asString(),
+                            etternavn = it["etternavn"]?.asString(),
+                            statsborgerskap = it["statsborgerskap"]?.asString(),
                             kvalifiserer = it["kvalifiserer"].asBoolean(),
                         )
                     },
             )
         }
-        else -> throw IllegalArgumentException("Ukjent typeNavn for barnMapper: $typeNavn")
+
+        else -> {
+            throw IllegalArgumentException("Ukjent typeNavn for barnMapper: $typeNavn")
+        }
     }

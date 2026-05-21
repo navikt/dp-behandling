@@ -56,7 +56,7 @@ internal class UtbetalingStatusMottak(
                 setAttribute("app.behandlingId", behandlingId.toString())
             }
             val message = UtbetalingStatusMessage(packet)
-            logger.info { "Mottok hendelse utbetalingstatus for behandlingen - status ${packet["status"].asText()} " }
+            logger.info { "Mottok hendelse utbetalingstatus for behandlingen - status ${packet["status"].asString()} " }
 
             message.behandle(messageMediator, context)
         }
@@ -76,19 +76,19 @@ internal class UtbetalingStatusMessage(
                 id,
                 ident,
                 status =
-                    when (packet["@event_name"].asText()) {
+                    when (packet["@event_name"].asString()) {
                         "utbetaling_mottatt" -> UtbetalingStatus.Status.MOTTATT
                         "utbetaling_sendt" -> UtbetalingStatus.Status.SENDT
                         "utbetaling_feilet" -> UtbetalingStatus.Status.FEILET
                         "utbetaling_utført" -> UtbetalingStatus.Status.UTFØRT
-                        else -> throw IllegalArgumentException("Ukjent utbetalingshendelse ${packet["@event_name"].asText()}")
+                        else -> throw IllegalArgumentException("Ukjent utbetalingshendelse ${packet["@event_name"].asString()}")
                     },
                 behandlingId = behandlingId,
                 opprettet = opprettet,
-                behandletHendelseId = packet["behandletHendelseId"].asText(),
+                behandletHendelseId = packet["behandletHendelseId"].asString(),
             )
 
-    override val ident = packet["ident"].asText()
+    override val ident = packet["ident"].asString()
 
     private val behandlingId = packet["behandlingId"].asUUID()
 

@@ -306,4 +306,4 @@ internal interface IMessageMediator : HendelseMottaker {
     )
 }
 
-fun JsonNode.asUUID(): UUID = this.asText().let { UUID.fromString(it) }
+fun JsonNode.asUUID(): UUID = this.asString().let { UUID.fromString(it) }

@@ -13,7 +13,7 @@ abstract class KafkaMelding(
     }
 
     override val id: UUID = packet["@id"].asUUID()
-    private val navn = packet["@event_name"].asText()
+    private val navn = packet["@event_name"].asString()
     val opprettet = packet["@opprettet"].asLocalDateTime()
     abstract val ident: String
 
@@ -31,7 +31,7 @@ abstract class KafkaMelding(
 
     protected open fun additionalTracinginfo(packet: JsonMessage): Map<String, String> = emptyMap()
 
-    fun JsonNode.asUUID() = this.asText().let { UUID.fromString(it) }
+    fun JsonNode.asUUID() = this.asString().let { UUID.fromString(it) }
 
     fun toJson() = packet.toJson()
 }

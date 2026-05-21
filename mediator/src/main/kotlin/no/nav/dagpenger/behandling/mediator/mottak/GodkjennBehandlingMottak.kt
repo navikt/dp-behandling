@@ -70,7 +70,7 @@ internal class GodkjennBehandlingMessage(
 ) : HåndterbarKafkaMelding(packet) {
     private val hendelse
         get() = ForslagGodkjentHendelse(id, ident, behandlingId, opprettet)
-    override val ident = packet["ident"].asText()
+    override val ident = packet["ident"].asString()
 
     private val behandlingId = packet["behandlingId"].asUUID()
 

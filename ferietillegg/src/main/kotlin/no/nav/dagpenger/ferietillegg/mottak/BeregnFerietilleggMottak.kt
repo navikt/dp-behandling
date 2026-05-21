@@ -60,7 +60,7 @@ class BeregnFerietilleggMottak(
         ferietilleggId: UUID,
     ) : KafkaMelding(packet) {
         val opptjeningsår = packet["opptjeningsår"].asInt()
-        override val ident = packet["ident"].asText()
+        override val ident = packet["ident"].asString()
 
         internal val hendelse = BeregnFerietilleggHendelse(id, ident, opprettet, opptjeningsår, ferietilleggId)
     }

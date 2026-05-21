@@ -79,7 +79,7 @@ internal class OpplysningSvarMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val behovId = packet["@behovId"].asText()
+        val behovId = packet["@behovId"].asString()
         val behandlingId = packet["behandlingId"].asUUID()
         addOtelAttributes(behovId, behandlingId)
 
@@ -130,7 +130,7 @@ internal class OpplysningSvarMessage(
                 opplysninger = opplysning,
                 opprettet,
             )
-    override val ident get() = packet["ident"].asText()
+    override val ident get() = packet["ident"].asString()
 
     private val logger = KotlinLogging.logger {}
     private val sikkerLogger = KotlinLogging.logger("tjenestekall.OpplysningSvarMessage")
@@ -150,12 +150,12 @@ internal class OpplysningSvarMessage(
                     when (løsning.has("@kilde")) {
                         true -> {
                             val ident =
-                                løsning["@kilde"]["saksbehandler"]?.asText() ?: throw IllegalArgumentException("Mangler saksbehandler")
+                                løsning["@kilde"]["saksbehandler"]?.asString() ?: throw IllegalArgumentException("Mangler saksbehandler")
                             Saksbehandlerkilde(
                                 meldingsreferanseId = packet["@id"].asUUID(),
                                 opprettet = packet["@opprettet"].asLocalDateTime(),
                                 saksbehandler = Saksbehandler(ident),
-                                begrunnelse = Saksbehandlerbegrunnelse(løsning["@kilde"]["begrunnelse"].asText()),
+                                begrunnelse = Saksbehandlerbegrunnelse(løsning["@kilde"]["begrunnelse"].asString()),
                             )
                         }
 
@@ -258,7 +258,7 @@ private object KomplekstSvar : SvarStrategi {
         return listOf(
             Svar(
                 svar["verdi"],
-                svar["status"]?.asText()?.let { Tilstand.valueOf(it) } ?: Tilstand.Faktum,
+                svar["status"]?.asString()?.let { Tilstand.valueOf(it) } ?: Tilstand.Faktum,
                 svar["gyldigFraOgMed"]?.asLocalDate(),
                 svar["gyldigTilOgMed"]?.asLocalDate(),
             ),
@@ -276,7 +276,7 @@ private object ListeSvar : SvarStrategi {
         return svar.toList().map { item ->
             Svar(
                 item["verdi"],
-                item["status"]?.asText()?.let { Tilstand.valueOf(it) } ?: Tilstand.Faktum,
+                item["status"]?.asString()?.let { Tilstand.valueOf(it) } ?: Tilstand.Faktum,
                 item["gyldigFraOgMed"]?.asLocalDate(),
                 item["gyldigTilOgMed"]?.asLocalDate(),
             )
@@ -318,11 +318,11 @@ private class JsonMapper(
             }
 
             ULID -> {
-                Ulid(verdi.asText()) as T
+                Ulid(verdi.asString()) as T
             }
 
             Penger -> {
-                Beløp(verdi.asText().toBigDecimal()) as T
+                Beløp(verdi.asString().toBigDecimal()) as T
             }
 
             BarnDatatype -> {
@@ -336,7 +336,7 @@ private class JsonMapper(
             }
 
             Tekst -> {
-                verdi.asText() as T
+                verdi.asString() as T
             }
 
             PeriodeDataType -> {

@@ -60,9 +60,9 @@ class SamordningHendelseMottak(
     class SamordningHendelseMessage(
         packet: JsonMessage,
     ) : KafkaMelding(packet) {
-        override val ident: String = packet["ident"].asText()
+        override val ident: String = packet["ident"].asString()
 
-        val ytelse = packet["tema"].asText()
+        val ytelse = packet["tema"].asString()
         val fom = packet["tidspunkt"].asLocalDateTime()
 
         internal val hendelse =

@@ -38,10 +38,10 @@ class MarkerMeldekortSomBehandletMottak(
         meterRegistry: MeterRegistry,
     ) {
         withLoggingContext(
-            "behandlingId" to packet["behandlingId"].asText(),
+            "behandlingId" to packet["behandlingId"].asString(),
         ) {
             logger.info { "Markerer melderkortet som ferdig behandlet" }
-            val meldekortId = packet["behandletHendelse"]["id"].asText()
+            val meldekortId = packet["behandletHendelse"]["id"].asString()
             meldekortRepository.markerSomFerdig(MeldekortId(meldekortId))
         }
     }

@@ -229,7 +229,7 @@ class OmgjøringScenarioTester {
             behandlingsresultat {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeGreaterThan 27698
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 40288
-                behandletHendelse["type"].asText() shouldBe "Meldekort"
+                behandletHendelse["type"].asString() shouldBe "Meldekort"
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[1].harRett shouldBe false

@@ -56,10 +56,10 @@ internal class InnsendingFerdigstiltMottak(
 class InnsendingFerdigstiltMessage(
     packet: JsonMessage,
 ) {
-    private val ident = packet["fødselsnummer"].asText()
+    private val ident = packet["fødselsnummer"].asString()
     private val innsendt = packet["datoRegistrert"].asLocalDateTime()
     private val søknadId = packet["søknadsData"]["søknad_uuid"].asUUID()
-    private val type = packet["type"].asText()
+    private val type = packet["type"].asString()
     private val fagsakId =
         packet["fagsakId"].asInt(0).also {
             if (it == 0) logger.warn { "Søknad ($type) mottatt uten fagsakId" }

@@ -183,13 +183,13 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
     val meldinger = mutableListOf<String>()
     for (offset in 0..<inspektør.size) {
         val melding = inspektør.message(offset)
-        when (melding["@event_name"].asText()) {
+        when (melding["@event_name"].asString()) {
             "behov" -> {
-                meldinger.add("Behov:${melding["@behov"].joinToString("\n- ", "\n- ") { it.asText() }}")
+                meldinger.add("Behov:${melding["@behov"].joinToString("\n- ", "\n- ") { it.asString() }}")
             }
 
             "NyAvklaring" -> {
-                meldinger.add("Laget avklaring om ${melding["kode"].asText()}")
+                meldinger.add("Laget avklaring om ${melding["kode"].asString()}")
             }
 
             "behandling_opprettet" -> {
@@ -197,7 +197,7 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
             }
 
             "behandling_endret_tilstand" -> {
-                meldinger.add("Behandling endret tilstand til: ${melding["gjeldendeTilstand"].asText()}")
+                meldinger.add("Behandling endret tilstand til: ${melding["gjeldendeTilstand"].asString()}")
             }
 
             "forslag_til_vedtak" -> {
@@ -213,7 +213,7 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
             "behandlingsresultat" -> {}
 
             else -> {
-                meldinger.add("melding: ${melding["@event_name"].asText()}")
+                meldinger.add("melding: ${melding["@event_name"].asString()}")
             }
         }
     }
@@ -224,7 +224,7 @@ fun TestRapid.RapidInspector.sisteMelding(navn: String): Pair<Int, JsonNode> {
     val treff = mutableListOf<JsonNode>()
     for (offset in 0 until size) {
         val message = message(offset)
-        if (message["@event_name"].asText() == navn) {
+        if (message["@event_name"].asString() == navn) {
             treff.add(message)
         }
     }

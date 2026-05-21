@@ -77,7 +77,7 @@ internal class AvbrytBehandlingMessage(
 
     private val hendelse
         get() = AvbrytBehandlingHendelse(id, ident, behandlingId, årsak, opprettet)
-    override val ident = packet["ident"].asText()
+    override val ident = packet["ident"].asString()
 
     private val behandlingId = packet["behandlingId"].asUUID()
 

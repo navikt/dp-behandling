@@ -49,11 +49,11 @@ internal class BehovsløserForbruksdagerMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val fnr = packet["ident"].asText()
+        val fnr = packet["ident"].asString()
         val opptjeningsår = packet[BEHOV][OpptjeningsårFerietillegg].asInt()
 
         withLoggingContext(
-            "behovId" to packet["@behovId"].asText(),
+            "behovId" to packet["@behovId"].asString(),
         ) {
             log.info { "Skal løse behov '$BEHOV'" }
 

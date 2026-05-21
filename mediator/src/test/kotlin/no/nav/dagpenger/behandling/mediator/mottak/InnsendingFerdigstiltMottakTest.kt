@@ -22,11 +22,11 @@ internal class InnsendingFerdigstiltMottakTest {
         rapid.inspektør.key(0) shouldBe ident
         val message = rapid.inspektør.message(0)
         with(message) {
-            this["ident"].asText() shouldBe ident
+            this["ident"].asString() shouldBe ident
             this["fagsakId"].asInt() shouldBe 123
             this["journalpostId"].asInt() shouldBe 123
             this["søknadId"].asUUID() shouldBe søknadId
-            this["type"].asText() shouldBe "NySøknad"
+            this["type"].asString() shouldBe "NySøknad"
         }
     }
 
@@ -38,11 +38,11 @@ internal class InnsendingFerdigstiltMottakTest {
 
         val message = rapid.inspektør.message(0)
         with(message) {
-            this["ident"].asText() shouldBe ident
+            this["ident"].asString() shouldBe ident
             this["fagsakId"].asInt() shouldBe 0
             this["journalpostId"].asInt() shouldBe 123
             this["søknadId"].asUUID() shouldBe søknadId
-            this["type"].asText() shouldBe "Gjenopptak"
+            this["type"].asString() shouldBe "Gjenopptak"
         }
     }
 

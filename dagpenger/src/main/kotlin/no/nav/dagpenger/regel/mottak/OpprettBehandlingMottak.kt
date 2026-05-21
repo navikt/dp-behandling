@@ -44,14 +44,14 @@ class OpprettBehandlingMottak(
 class OpprettBehandlingMessage(
     packet: JsonMessage,
 ) : KafkaMelding(packet) {
-    override val ident: String = packet["ident"].asText()
+    override val ident: String = packet["ident"].asString()
     internal val hendelse =
         OpprettBehandlingHendelse(
             meldingsreferanseId = UUID.fromString(packet.id),
             ident = ident,
             eksternId = ManuellId(UUIDv7.ny()),
             gjelderDato = packet["prøvingsdato"].asOptionalLocalDate() ?: LocalDate.now(),
-            begrunnelse = packet["begrunnelse"].asText(),
+            begrunnelse = packet["begrunnelse"].asString(),
             opprettet = opprettet,
         )
 }

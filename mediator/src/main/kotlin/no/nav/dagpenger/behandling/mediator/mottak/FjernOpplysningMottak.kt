@@ -46,7 +46,7 @@ internal class FjernOpplysningMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val behovId = packet["@behovId"].asText()
+        val behovId = packet["@behovId"].asString()
         val behandlingId = packet["behandlingId"].asUUID()
         val opplysningId = packet["opplysningId"].asUUID()
 
@@ -62,7 +62,7 @@ internal class FjernOpplysningMottak(
         ) {
             logger.info { "Mottok behov for å fjerne opplysning" }
 
-            val opplysningstype = packet["behovId"].asText()
+            val opplysningstype = packet["behovId"].asString()
             val message = FjernOpplysningMessage(packet, opplysningstype)
 
             try {
@@ -95,7 +95,7 @@ internal class FjernOpplysningMessage(
     packet: JsonMessage,
     opplysningstype: String,
 ) : HåndterbarKafkaMelding(packet) {
-    override val ident: String = packet["ident"].asText()
+    override val ident: String = packet["ident"].asString()
     private val hendelse =
         FjernOpplysningHendelse(
             meldingsreferanseId = UUID.fromString(packet.id),

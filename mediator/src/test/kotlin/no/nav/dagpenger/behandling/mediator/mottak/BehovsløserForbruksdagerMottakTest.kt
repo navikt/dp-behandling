@@ -93,7 +93,7 @@ class BehovsløserForbruksdagerMottakTest {
 
         val løsning = rapid.inspektør.message(0)
         løsning["@løsning"]["AntallDagerForbrukt"]["verdi"].asLong() shouldBe 10L // 5 + 1 + 3 + 1
-        løsning["@løsning"]["AntallDagerForbrukt"]["gyldigFraOgMed"].asText() shouldBe "2025-01-01"
+        løsning["@løsning"]["AntallDagerForbrukt"]["gyldigFraOgMed"].asString() shouldBe "2025-01-01"
     }
 
     @Test

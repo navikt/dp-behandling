@@ -51,7 +51,7 @@ internal class MeldekortInnsendtMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val meldekortId = packet["id"].asText()
+        val meldekortId = packet["id"].asString()
         if (meldekortId in skipMeldekort) {
             logger.info { "Skipper $meldekortId" }
             return
@@ -80,7 +80,7 @@ internal class MeldekortInnsendtMottak(
 internal class MeldekortInnsendtMessage(
     private val packet: JsonMessage,
 ) : HåndterbarKafkaMelding(packet) {
-    override val ident get() = packet["ident"].asText()
+    override val ident get() = packet["ident"].asString()
 
     override fun behandle(
         mediator: IMessageMediator,
@@ -102,14 +102,14 @@ internal class MeldekortInnsendtMessage(
                 Meldekort(
                     id = UUIDv7.ny(),
                     meldingsreferanseId = meldingsreferanseId,
-                    ident = packet["ident"].asText(),
-                    eksternMeldekortId = MeldekortId(packet["id"].asText()),
+                    ident = packet["ident"].asString(),
+                    eksternMeldekortId = MeldekortId(packet["id"].asString()),
                     fom = packet["periode"]["fraOgMed"].asLocalDate(),
                     tom = packet["periode"]["tilOgMed"].asLocalDate(),
                     kilde =
                         MeldekortKilde(
-                            rolle = packet["kilde"]["rolle"].asText(),
-                            ident = packet["kilde"]["ident"].asText(),
+                            rolle = packet["kilde"]["rolle"].asString(),
+                            ident = packet["kilde"]["ident"].asString(),
                         ),
                     dager =
                         packet["dager"].toList().map { dag ->
@@ -121,7 +121,7 @@ internal class MeldekortInnsendtMessage(
                                     dag["aktiviteter"].toList().map {
                                         MeldekortAktivitet(
                                             type =
-                                                when (it["type"].asText()) {
+                                                when (it["type"].asString()) {
                                                     "Arbeid" -> AktivitetType.Arbeid
 
                                                     "Syk" -> AktivitetType.Syk
@@ -131,12 +131,12 @@ internal class MeldekortInnsendtMessage(
                                                     "Fravaer" -> AktivitetType.Fravær
 
                                                     else -> throw IllegalArgumentException(
-                                                        "Ukjent aktivitetstype '${it["type"].asText()}'",
+                                                        "Ukjent aktivitetstype '${it["type"].asString()}'",
                                                     )
                                                 },
                                             timer =
-                                                if (it.hasNonNull("timer") && it["timer"].asText() != "") {
-                                                    Duration.parseIsoString(it["timer"].asText())
+                                                if (it.hasNonNull("timer") && it["timer"].asString() != "") {
+                                                    Duration.parseIsoString(it["timer"].asString())
                                                 } else {
                                                     null
                                                 },
@@ -148,7 +148,7 @@ internal class MeldekortInnsendtMessage(
                     korrigeringAv =
                         packet["originalMeldekortId"]
                             .takeUnless { it.isMissingOrNull() }
-                            ?.asText()
+                            ?.asString()
                             ?.let { MeldekortId(it) },
                     meldedato = packet["meldedato"].asOptionalLocalDate() ?: innsendtTidspunkt.toLocalDate(),
                     kanSendesFra = packet["kanSendesFra"].asOptionalLocalDate() ?: packet["periode"]["tilOgMed"].asLocalDate().minusDays(1),

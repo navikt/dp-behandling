@@ -79,15 +79,15 @@ internal class ArenaOppgaveMottak(
                 return
             }
 
-            val beskrivelse = packet["after.OPPGAVETYPE_BESKRIVELSE"].asText()
-            val endretAv = packet["after.ENDRET_AV"].asText()
+            val beskrivelse = packet["after.OPPGAVETYPE_BESKRIVELSE"].asString()
+            val endretAv = packet["after.ENDRET_AV"].asString()
 
             if (endretAv == "ARBLINJE") {
                 logger.info { "Oppgaven er ikke tildelt en saksbehandler enda, ignorerer." }
                 return
             }
 
-            if (packet["after.USERNAME"].asText().length == 4) {
+            if (packet["after.USERNAME"].asString().length == 4) {
                 logger.info { "Oppgaven er tildelt en benk. Skal ikke avbrytes." }
                 return
             }
@@ -125,7 +125,7 @@ internal class ArenaOppgaveMottak(
 
 private var arenaDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS]")
 
-private fun JsonNode.asArenaDato(): LocalDateTime = asText().let { LocalDateTime.parse(it, arenaDateFormatter) }
+private fun JsonNode.asArenaDato(): LocalDateTime = asString().let { LocalDateTime.parse(it, arenaDateFormatter) }
 
 interface SakRepository {
     fun finnBehandling(fagsakId: Int): Behandling?

@@ -47,9 +47,9 @@ class AvsluttetArbeidssøkerperiodeMottak(
         private val periodeId = packet["periodeId"].asUUID()
         private val fastsattMeldingsdag = packet["fastsattMeldedato"].asLocalDate()
         private val avsluttetTidspunkt = packet["avregistrertTidspunkt"].asLocalDateTime()
-        private val årsak = packet["årsak"].asText().let { Årsak.valueOf(it) }
+        private val årsak = packet["årsak"].asString().let { Årsak.valueOf(it) }
 
-        override val ident = packet["ident"].asText()
+        override val ident = packet["ident"].asString()
 
         internal val hendelse =
             AvsluttetArbeidssøkerperiodeHendelse(

@@ -175,11 +175,11 @@ internal class BehandlingApiTest {
 
             val behandling = objectMapper.readTree(bodyAsText)
             behandling["saksbehandlingsregler"].isEmpty shouldBe false
-            behandling["saksbehandlingsregler"][0]["type"].asText() shouldBe "Prosess"
+            behandling["saksbehandlingsregler"][0]["type"].asString() shouldBe "Prosess"
             behandling["saksbehandlingsregler"][0]["opplysninger"].isEmpty shouldBe false
 
             behandling["avklaringer"].isEmpty shouldBe false
-            behandling["avklaringer"][0]["regelsett"][0]["type"].asText() shouldBe "Prosess"
+            behandling["avklaringer"][0]["regelsett"][0]["type"].asString() shouldBe "Prosess"
 
             person.behandlingId.shouldNotBeNull()
 
@@ -336,9 +336,9 @@ internal class BehandlingApiTest {
 
             rapidInspektør.key(rapidInspektør.size - 1) shouldBe person.ident
             val message = rapidInspektør.message(rapidInspektør.size - 1)
-            message["@event_name"].asText() shouldBe "beregn_ferietillegg"
+            message["@event_name"].asString() shouldBe "beregn_ferietillegg"
             message["opptjeningsår"].asInt() shouldBe 2025
-            message["ident"].asText() shouldBe person.ident
+            message["ident"].asString() shouldBe person.ident
         }
     }
 

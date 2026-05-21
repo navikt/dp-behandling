@@ -11,7 +11,7 @@ internal class Behovsløsere(
 ) {
     private var lastOffset = 1
 
-    private val sisteMeldingErBehov get() = rapid.inspektør.field(rapid.inspektør.size - 1, "@event_name").asText() == "behov"
+    private val sisteMeldingErBehov get() = rapid.inspektør.field(rapid.inspektør.size - 1, "@event_name").asString() == "behov"
 
     fun løsTilForslag(): MutableSet<String> {
         var iterasjoner = 0
@@ -37,7 +37,7 @@ internal class Behovsløsere(
         val alleBehov = mutableMapOf<String, JsonNode>()
         val behovMeldinger = uløsteBehov()
         for (melding in behovMeldinger) {
-            for (behovNavn in melding["@behov"].toList().map { it.asText() }) {
+            for (behovNavn in melding["@behov"].toList().map { it.asString() }) {
                 alleBehov[behovNavn] = melding
             }
         }
@@ -49,14 +49,14 @@ internal class Behovsløsere(
 
     fun aktiveBehov(): List<String> =
         uløsteBehov().flatMap { melding ->
-            melding["@behov"].toList().map { it.asText() }
+            melding["@behov"].toList().map { it.asString() }
         }
 
     private fun uløsteBehov(): List<JsonNode> {
         val nyeOffsets = lastOffset..<rapid.inspektør.size
         return nyeOffsets
             .map { offset -> rapid.inspektør.message(offset) }
-            .filter { it["@event_name"].asText() == "behov" }
+            .filter { it["@event_name"].asString() == "behov" }
     }
 
     private fun løstBehov(løsninger: Map<String, Any>): String =

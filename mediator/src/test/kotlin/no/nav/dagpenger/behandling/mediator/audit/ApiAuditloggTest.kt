@@ -18,9 +18,9 @@ class ApiAuditloggTest {
         rapid.inspektør.size shouldBe 1
 
         with(rapid.inspektør.message(0)) {
-            get("@event_name").asText() shouldBe "aktivitetslogg"
-            get("ident").asText() shouldBe ident
-            get("hendelse")["type"].asText() shouldBe "Auditlogg"
+            get("@event_name").asString() shouldBe "aktivitetslogg"
+            get("ident").asString() shouldBe ident
+            get("hendelse")["type"].asString() shouldBe "Auditlogg"
             get("aktiviteter").size() shouldBe 1
         }
     }

@@ -111,7 +111,7 @@ internal class Mennesket(
         get() {
             for (offset in rapid.inspektør.size - 1 downTo 0) {
                 val message = rapid.inspektør.message(offset)
-                if (message["@event_name"].asText() == "behandling_opprettet") {
+                if (message["@event_name"].asString() == "behandling_opprettet") {
                     return message["behandlingId"].asUUID()
                 }
             }
@@ -123,7 +123,7 @@ internal class Mennesket(
     fun behandling(behandlingId: UUID): BehandlingsresultatDTO {
         for (offset in rapid.inspektør.size - 1 downTo 0) {
             val message = rapid.inspektør.message(offset)
-            if (message["@event_name"].asText() == "forslag_til_behandlingsresultat" &&
+            if (message["@event_name"].asString() == "forslag_til_behandlingsresultat" &&
                 message["behandlingId"].asUUID() == behandlingId
             ) {
                 return objectMapper.convertValue(message, BehandlingsresultatDTO::class.java)
@@ -184,8 +184,8 @@ internal class Mennesket(
             val liste = mutableListOf<Avklaring>()
             for (offset in rapid.inspektør.size - 1 downTo 0) {
                 val message = rapid.inspektør.message(offset)
-                if (message["@event_name"].asText() == "NyAvklaring") {
-                    liste.add(Avklaring(message["avklaringId"].asUUID(), message["kode"].asText()))
+                if (message["@event_name"].asString() == "NyAvklaring") {
+                    liste.add(Avklaring(message["avklaringId"].asUUID(), message["kode"].asString()))
                 }
             }
             return liste.toList()
@@ -213,7 +213,7 @@ internal class Mennesket(
                 // Simulerer dp-oppslag-arbeidssoker
                 Behov.RegistrertSomArbeidssøker to
                     Behovsløsning.FraBehov { melding ->
-                        val prøvingsdato = LocalDate.parse(melding[Behov.RegistrertSomArbeidssøker][Behov.InnhentFraOgMed].asText())
+                        val prøvingsdato = LocalDate.parse(melding[Behov.RegistrertSomArbeidssøker][Behov.InnhentFraOgMed].asString())
                         byggArbeidssøkerperiodeListe(prøvingsdato)
                     },
                 // Rettighetstype
