@@ -15,4 +15,6 @@ object OpplysningsTyper {
     val ferietilleggProsentId = Opplysningstype.Id(UUID.fromString("019d7231-aecf-7b19-a027-5c25fb5f45be"), Desimaltall)
     val antallDagerForbrukId = Opplysningstype.Id(UUID.fromString("019d7231-ddc0-7059-a631-7d4d06b974de"), Heltall)
     val ferietilleggTerskelId = Opplysningstype.Id(UUID.fromString("019d7232-0fe1-79fa-8a87-b6937fe67079"), Heltall)
+    val foreløpigBeregnetBeløpId = Opplysningstype.Id(UUID.fromString("019e4990-483e-775f-9b29-73211ef6ea17"), Penger)
+    val nullBeløpId = Opplysningstype.Id(UUID.fromString("019e4990-791e-7309-a159-de4f30bc721d"), Penger)
 }

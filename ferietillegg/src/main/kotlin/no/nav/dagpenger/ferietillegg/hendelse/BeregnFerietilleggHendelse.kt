@@ -1,11 +1,13 @@
 package no.nav.dagpenger.ferietillegg.hendelse
 
+import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.behandling.modell.Behandling
 import no.nav.dagpenger.behandling.modell.Rettighetstatus
 import no.nav.dagpenger.behandling.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.ferietillegg.Avklaringspunkter.KontrollFerietilleggRevurdering
 import no.nav.dagpenger.ferietillegg.Ferietilleggprosess
 import no.nav.dagpenger.ferietillegg.KravPåFerietillegg
 import no.nav.dagpenger.opplysning.Faktum
@@ -37,9 +39,10 @@ class BeregnFerietilleggHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): StartHendelseResultat {
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
+        val basertPå = if (sammeOpptjeningsår(forrigeBehandling)) forrigeBehandling else null
         return Opprettet(
             Behandling(
-                basertPå = if (sammeOpptjeningsår(forrigeBehandling)) forrigeBehandling else null,
+                basertPå = basertPå,
                 behandler = this,
                 opplysninger =
                     listOf(
@@ -50,7 +53,16 @@ class BeregnFerietilleggHendelse(
                             kilde = kilde,
                         ),
                     ),
-                avklaringer = emptyList(),
+                avklaringer =
+                    buildList {
+                        if (basertPå != null) {
+                            add(
+                                Avklaring(
+                                    KontrollFerietilleggRevurdering,
+                                ),
+                            )
+                        }
+                    },
             ).apply {
                 this.opplysninger.leggTil(
                     Faktum(

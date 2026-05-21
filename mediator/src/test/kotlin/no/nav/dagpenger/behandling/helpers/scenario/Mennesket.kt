@@ -33,6 +33,7 @@ internal class Mennesket(
     val ident = scenario.ident
     private val alder = scenario.alder
     private val inntektSiste12Mnd = scenario.inntektSiste12Mnd
+    var antallDagerForbrukt: Int = 100
 
     private val søknader = mutableListOf<UUID>()
     private val fagsak = mutableListOf<Int>()
@@ -254,7 +255,7 @@ internal class Mennesket(
                 FerietilleggBehov.AntallDagerForbrukt to
                     Behovsløsning.Statisk(
                         mapOf(
-                            "verdi" to 100,
+                            "verdi" to antallDagerForbrukt,
                             "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
                         ),
                     ),

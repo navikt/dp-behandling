@@ -59,12 +59,12 @@ Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Ferdig
+Laget avklaring om FerietilleggRevurdert
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
 - AntallDagerForbrukt
 - OpptjeningsBeløp
-Laget avklaring om KontrollFerietillegg
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Ferdig

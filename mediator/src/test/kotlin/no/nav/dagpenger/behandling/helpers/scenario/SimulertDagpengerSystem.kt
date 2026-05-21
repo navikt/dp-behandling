@@ -162,6 +162,10 @@ internal class SimulertDagpengerSystem(
             )
     }
 
+    fun løsBehovForAntallForbruksdager(antallDager: Int) {
+        person.antallDagerForbrukt = antallDager
+    }
+
     val meldekortkø = runtime.meldekortBehandlingskø(TestRapidMessageContext(rapid))
 
     fun meldekortBatch(avklar: Boolean = false) {

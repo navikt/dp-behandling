@@ -12,4 +12,14 @@ object Avklaringspunkter {
                 Manuell kontroll av ferietillegg.
                 """.trimIndent(),
         )
+
+    val KontrollFerietilleggRevurdering =
+        Avklaringkode(
+            kode = "FerietilleggRevurdert",
+            tittel = "Ferietillegg er revurdert",
+            beskrivelse =
+                "Ferietillegg er revurdert",
+            kanAvbrytes = false,
+            kanKvitteres = true,
+        )
 }

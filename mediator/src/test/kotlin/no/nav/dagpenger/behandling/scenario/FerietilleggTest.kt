@@ -65,6 +65,10 @@ class FerietilleggTest {
             val ferietilleggBehandlingId = person.behandlingId
 
             behandlingsresultat {
+                opplysninger(KravPåFerietillegg.harKravpåFerietillegg).single().verdi.verdi shouldBe true
+                opplysninger(KravPåFerietillegg.antallDagerForbruk).single().verdi.verdi shouldBe 100
+                opplysninger(FerietilleggBeløp.ferietilleggBeløp).single().verdi.verdi shouldBe 47500
+                opplysninger(FerietilleggBeløp.sumUtbetaltForÅr).single().verdi.verdi shouldBe 500000
                 basertPå shouldBe null
             }
 
@@ -78,20 +82,19 @@ class FerietilleggTest {
 
             // Vi lager en ferietillegg behandling til som baserer seg på den forrige ferietillegg
             sendFerietillegg(fnr, UUIDv7.ny(), opptjeningsår)
+
+            val antallDagerForbruk = 39
+            løsBehovForAntallForbruksdager(antallDagerForbruk)
             behovsløsere.løsTilForslag()
+            saksbehandler.åpneAvklaringer().filter { it.kode == "FerietilleggRevurdert" }.size shouldBe 1
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
-            val ferietilleggBehandling2Id = person.behandlingId
-            println("dagpengerId : $dagpengerBehandlingId")
-            println("ferietilleggId : $ferietilleggId")
-            println("meldekortId : $meldekortBehandlingId")
-            println("ferietillegg2Id : ${person.behandlingId}")
-            println("ferietillegg2Id : $ferietilleggBehandling2Id")
-
-            behandlingsresultat {
-                println("basertPå : $basertPå")
-                println("id : $behandlingId")
+            behandlingsresultat(4) {
+                opplysninger(KravPåFerietillegg.harKravpåFerietillegg).last().verdi.verdi shouldBe false
+                opplysninger(KravPåFerietillegg.antallDagerForbruk).single().verdi.verdi shouldBe 39
+                opplysninger(FerietilleggBeløp.ferietilleggBeløp).single().verdi.verdi shouldBe 0
+                opplysninger(FerietilleggBeløp.sumUtbetaltForÅr).single().verdi.verdi shouldBe 500000
                 basertPå shouldBe ferietilleggBehandlingId
             }
         }
