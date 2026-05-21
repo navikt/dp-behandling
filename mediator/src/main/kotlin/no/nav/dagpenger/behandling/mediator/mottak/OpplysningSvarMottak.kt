@@ -310,7 +310,7 @@ private class JsonMapper(
             }
 
             Desimaltall -> {
-                verdi.asDouble() as T
+                verdi.asString().replace(",", ".").toDouble() as T
             }
 
             Boolsk -> {
