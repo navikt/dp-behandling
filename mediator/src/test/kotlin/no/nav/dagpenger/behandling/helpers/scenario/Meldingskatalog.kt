@@ -128,7 +128,7 @@ internal object Meldingskatalog {
         manueltAvregistrert: Boolean = false,
     ) = JsonMessage
         .newMessage(
-            "utmeldt_fra_arbeidssøkerregisteret",
+            "avsluttet_arbeidssokerperiode",
             buildMap {
                 put("periodeId", UUID.randomUUID())
                 put("ident", ident)
