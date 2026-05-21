@@ -1006,8 +1006,15 @@ class Behandling private constructor(
         // 1. Evaluerer regler
         val rapport = regelkjøring.evaluer()
 
-        // Logger hva som skjedde (kan evt flyttes til egne funksjoner for ryddighet)
+        // Logger hva som skjedde
         rapport.kjørteRegler.forEach { hendelse.info(it.toString()) }
+        if (rapport.kjørteRegler.isNotEmpty()) {
+            hendelse.info("Regelkjøring: ${rapport.kjørteRegler.size} regler kjørt, ${rapport.mangler.size} mangler gjenstår")
+        }
+        if (rapport.informasjonsbehov.isNotEmpty()) {
+            val behovNavn = rapport.informasjonsbehov.keys.map { it.navn }
+            hendelse.info("Trenger ekstern informasjon: ${behovNavn.joinToString()}")
+        }
         hendelse.lagBehov(rapport.informasjonsbehov)
 
         // 2. Kjører plugins via Kontekst
@@ -1034,17 +1041,21 @@ class Behandling private constructor(
     // Behandlingen er ferdig og vi må rute til forslag eller godkjenning
     private fun avgjørNesteTilstand(hendelse: PersonHendelse) {
         if (aktiveAvklaringer().isNotEmpty()) {
+            hendelse.info("Har ${aktiveAvklaringer().size} aktive avklaringer, går til ForslagTilVedtak")
             return tilstand(ForslagTilVedtak(), hendelse)
         }
 
         if (!erAutomatiskBehandlet()) {
+            hendelse.info("Behandlingen er ikke automatisk behandlet, krever godkjenning")
             return tilstand(TilGodkjenning(), hendelse)
         }
 
         if (kreverTotrinnskontroll()) {
+            hendelse.info("Behandlingen krever totrinnskontroll")
             return tilstand(TilGodkjenning(), hendelse)
         }
 
+        hendelse.info("Alle vilkår er oppfylt for automatisk vedtak")
         return tilstand(Ferdig(), hendelse)
     }
 
@@ -1072,6 +1083,7 @@ class Behandling private constructor(
         tilstand = nyTilstand
 
         hendelse.kontekst(tilstand)
+        hendelse.info("Tilstandsendring: ${forrigeTilstand.type.name} → ${nyTilstand.type.name}")
         emitVedtaksperiodeEndret(forrigeTilstand)
 
         tilstand.entering(this, hendelse)
