@@ -46,6 +46,6 @@ internal object TestOpplysningstyper {
 
     fun opplysningerRepository(dataSource: DatabaseSession): OpplysningerRepositoryPostgres =
         OpplysningerRepositoryPostgres(dataSource, KildeRepository(dataSource)).apply {
-            lagreOpplysningstyper(definerteTyper)
+            lagreOpplysningstyper(definerteTyper.toList())
         }
 }

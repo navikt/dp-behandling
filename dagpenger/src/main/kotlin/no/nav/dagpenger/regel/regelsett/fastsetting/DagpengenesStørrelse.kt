@@ -113,7 +113,7 @@ object DagpengenesStørrelse {
         beløp(DagsatsEtterSamordningMedBarnetilleggId, "Dagsats med barnetillegg etter samordning og 90 % regel")
     val harSamordnet = boolsk(HarSamordnetId, "Har samordnet")
 
-    val regelsett =
+    val regelsett by lazy {
         fastsettelse(
             folketrygden.hjemmel(4, 12, "Dagpengenes størrelse", "Sats og barnetillegg"),
         ) {
@@ -167,6 +167,7 @@ object DagpengenesStørrelse {
 
             ønsketResultat(ukessats, dagsatsSamordnetUtenforFolketrygden, ukesatsMedBarnetillegg, harSamordnet)
         }
+    }
 
     val BarnetilleggKontroll =
         Kontrollpunkt(BarnMåGodkjennes) {

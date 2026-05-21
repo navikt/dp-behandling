@@ -19,7 +19,7 @@ object Vanligarbeidstid {
             "Fastsatt arbeidstid per uke før tap",
             enhet = Enhet.Timer,
         )
-    val regelsett =
+    val regelsett by lazy {
         fastsettelse(
             folketrygden.hjemmel(4, 3, "Fastsettelse av arbeidstid", "Fastsettelse av arbeidstid"),
         ) {
@@ -37,4 +37,5 @@ object Vanligarbeidstid {
                 oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)
             }
         }
+    }
 }

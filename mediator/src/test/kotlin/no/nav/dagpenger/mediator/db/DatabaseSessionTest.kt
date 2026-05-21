@@ -6,7 +6,9 @@ import kotliquery.queryOf
 import no.nav.dagpenger.mediator.db.withMigratedDb
 import no.nav.dagpenger.mediator.repository.DbMetrics
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.Isolated
 
+@Isolated
 class DatabaseSessionTest {
     @Test
     fun `rydder opp etter seg og lager ikke connetion leaks`() {

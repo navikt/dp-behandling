@@ -166,7 +166,7 @@ object Samordning {
     // Fulle dagpenger minus en/flere av reduserte ytelsene man mottar per samme dag (regnestykket)
     // avrundetDagsUtenBarnetillegg - sykepenger - pleiepenger - omsorgspenger - opplæringspenger - uføre - foreldrepenger - svangerskapspenger
 
-    val regelsett =
+    val regelsett by lazy {
         vilkår(
             folketrygden.hjemmel(
                 kapittel = 4,
@@ -243,6 +243,7 @@ object Samordning {
 
             avklaring(Avklaringspunkter.Samordning)
         }
+    }
 
     val SkalSamordnes =
         Kontrollpunkt(Avklaringspunkter.Samordning) {
