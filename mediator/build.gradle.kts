@@ -52,5 +52,5 @@ dependencies {
 }
 
 application {
-    mainClass.set("no.nav.dagpenger.behandling.mediator.AppKt")
+    mainClass.set("no.nav.dagpenger.mediator.AppKt")
 }

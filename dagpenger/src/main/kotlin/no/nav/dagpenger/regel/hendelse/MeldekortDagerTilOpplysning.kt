@@ -1,7 +1,7 @@
 package no.nav.dagpenger.regel.hendelse
-import no.nav.dagpenger.behandling.modell.hendelser.AktivitetType
-import no.nav.dagpenger.behandling.modell.hendelser.Dag
-import no.nav.dagpenger.behandling.modell.hendelser.Meldekort
+import no.nav.dagpenger.modell.hendelser.AktivitetType
+import no.nav.dagpenger.modell.hendelser.Dag
+import no.nav.dagpenger.modell.hendelser.Meldekort
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Kilde

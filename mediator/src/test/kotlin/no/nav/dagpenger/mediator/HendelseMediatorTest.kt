@@ -1,0 +1,114 @@
+package no.nav.dagpenger.mediator
+
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
+import io.mockk.mockk
+import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
+import no.nav.dagpenger.aktivitetslogg.AktivitetsloggObserver
+import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
+import no.nav.dagpenger.aktivitetslogg.aktivitet.Hendelse
+import no.nav.dagpenger.mediator.repository.TestBehandlinger
+import no.nav.dagpenger.uuid.UUIDv7
+import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
+
+class HendelseMediatorTest {
+    private val rapid = TestRapid()
+
+    // TODO: Denne skal dø
+    @Test
+    fun foobar() {
+        val mediator =
+            HendelseMediator(
+                postgres = mockk(),
+                personRepository = mockk(),
+                meldekortRepository = mockk(),
+                behovMediator = mockk(),
+                aktivitetsloggMediator = mockk(),
+            )
+        val søknadId = UUIDv7.ny()
+        val gjelderDato = LocalDate.now()
+        val hendelse = TestBehandlinger.lagTestHendelse("ident", søknadId = søknadId, gjelderDato = gjelderDato)
+        val observer = TestObserver()
+        hendelse.registrer(observer)
+        hendelse.kontekst(hendelse)
+        hendelse.kontekst(Testkontekst())
+
+        hendelse.hendelse(FooBar.FOO, "foo")
+        hendelse.hendelse(FooBar.BAR, "bar", mapOf("detaljA" to "verdiA", "detaljB" to "verdiB", "kontekstA" to "bar"))
+
+        mediator.håndter(hendelse, rapid)
+        rapid.inspektør.size shouldBe 2
+
+        with(rapid.inspektør.message(0)) {
+            this["@event_name"].asString() shouldBe "FOO"
+            this["ident"].asString() shouldBe "ident"
+            this["søknadId"].asUUID() shouldBe søknadId
+            this["gjelderDato"].asLocalDate() shouldBe gjelderDato
+            this["detaljA"].shouldBeNull()
+            this["detaljB"].shouldBeNull()
+            this["kontekstA"].asString() shouldBe "verdiA"
+            this["kontekstB"].asString() shouldBe "verdiB"
+        }
+        with(rapid.inspektør.message(1)) {
+            this["@event_name"].asString() shouldBe "BAR"
+            this["ident"].asString() shouldBe "ident"
+            this["søknadId"].asUUID() shouldBe søknadId
+            this["gjelderDato"].asLocalDate() shouldBe gjelderDato
+            this["detaljA"].asString() shouldBe "verdiA"
+            this["detaljB"].asString() shouldBe "verdiB"
+            this["kontekstA"].asString() shouldBe "verdiA"
+            this["kontekstB"].asString() shouldBe "verdiB"
+        }
+
+        observer.lyttetPåFoo shouldBe true
+        observer.verdiA shouldBe "verdiA"
+    }
+
+    private class TestObserver : AktivitetsloggObserver {
+        var lyttetPåFoo: Boolean = false
+        lateinit var verdiA: String
+
+        override fun hendelse(
+            id: UUID,
+            label: Char,
+            type: Hendelse.Hendelsetype,
+            melding: String,
+            kontekster: List<SpesifikkKontekst>,
+            tidsstempel: LocalDateTime,
+        ) {
+            when (type) {
+                FooBar.FOO -> tellA()
+                FooBar.BAR -> tellB(kontekster.filterIsInstance<Testkontekst.TestKontekst>().single())
+            }
+        }
+
+        private fun tellA() {
+            lyttetPåFoo = true
+        }
+
+        private fun tellB(testKontekst: Testkontekst.TestKontekst) {
+            verdiA = testKontekst.kontekstA
+        }
+    }
+
+    private class Testkontekst : Aktivitetskontekst {
+        override fun toSpesifikkKontekst() = TestKontekst("verdiA", "verdiB")
+
+        data class TestKontekst(
+            val kontekstA: String,
+            val kontekstB: String,
+        ) : SpesifikkKontekst("egenKontekst") {
+            override val kontekstMap = mapOf("kontekstA" to kontekstA, "kontekstB" to kontekstB)
+        }
+    }
+
+    private enum class FooBar : Hendelse.Hendelsetype {
+        FOO,
+        BAR,
+    }
+}

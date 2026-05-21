@@ -10,7 +10,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
+import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiode
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
 import no.nav.dagpenger.regelverk.HendelseMottaker
