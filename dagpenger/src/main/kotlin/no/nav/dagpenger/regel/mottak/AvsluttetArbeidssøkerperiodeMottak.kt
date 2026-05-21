@@ -23,8 +23,16 @@ class AvsluttetArbeidssøkerperiodeMottak(
     init {
         River(rapidsConnection)
             .apply {
-                precondition { it.requireValue("@event_name", "utmeldt_fra_arbeidssøkerregisteret") }
-                validate { it.requireKey("ident", "periodeId", "fastsattMeldedato", "avregistrertTidspunkt", "årsak") }
+                precondition { it.requireValue("@event_name", "avsluttet_arbeidssokerperiode") }
+                validate {
+                    it.requireKey(
+                        "ident",
+                        "periodeId",
+                        "fastsattMeldedato",
+                        "avregistrertTidspunkt",
+                        "årsak",
+                    )
+                }
             }.register(this)
     }
 
@@ -35,7 +43,7 @@ class AvsluttetArbeidssøkerperiodeMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        logger.info { "Mottok utmeldt_fra_arbeidssøkerregisteret" }
+        logger.info { "Mottok avsluttet_arbeidssokerperiode" }
 
         val message = AvsluttetArbeidssøkerperiodeMessage(packet)
         hendelseMottaker.behandle(message.hendelse, message, context)

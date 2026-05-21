@@ -22,7 +22,7 @@ class AvsluttetArbeidssøkerperiodeMottakTest {
 
         val melding =
             JsonMessage.newMessage(
-                "utmeldt_fra_arbeidssøkerregisteret",
+                "avsluttet_arbeidssokerperiode",
                 mapOf(
                     "ident" to "12312312311",
                     "periodeId" to UUID.randomUUID(),
