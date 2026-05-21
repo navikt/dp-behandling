@@ -182,13 +182,13 @@ object TapAvArbeidsinntektOgArbeidstid {
         }
 
     val beregnetArbeidstidKontroll =
-        Kontrollpunkt(sjekker = BeregnetArbeidstid) { opplysninger ->
+        Kontrollpunkt(avklaringkode = BeregnetArbeidstid) { opplysninger ->
             opplysninger.har(beregnetArbeidstid) &&
                 opplysninger.finnOpplysning(beregnetArbeidstid).kilde !is Saksbehandlerkilde
         }
 
     val TapArbeidstidBeregningsregelKontroll =
-        Kontrollpunkt(sjekker = TapAvArbeidstidBeregningsregel) { opplysninger ->
+        Kontrollpunkt(avklaringkode = TapAvArbeidstidBeregningsregel) { opplysninger ->
             if (opplysninger.mangler(beregnetArbeidstid)) {
                 return@Kontrollpunkt false
             }

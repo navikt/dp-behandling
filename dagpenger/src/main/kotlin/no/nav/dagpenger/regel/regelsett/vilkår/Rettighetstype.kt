@@ -84,7 +84,7 @@ object Rettighetstype {
         }
 
     val ManglerReellArbeidssøkerKontroll =
-        Kontrollpunkt(sjekker = Avklaringspunkter.ManglerReellArbeidssøker) { opplysninger ->
+        Kontrollpunkt(avklaringkode = Avklaringspunkter.ManglerReellArbeidssøker) { opplysninger ->
             kravPåDagpenger(opplysninger) && !opplysninger.erSann(erReellArbeidssøkerVurdert)
         }
 }

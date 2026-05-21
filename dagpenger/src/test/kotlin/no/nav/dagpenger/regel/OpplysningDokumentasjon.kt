@@ -1,11 +1,17 @@
 package no.nav.dagpenger.regel
 
 import com.spun.util.persistence.Loader
+import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Avklaringkode.Companion.alleAvklaringer
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.TomRegel
 import no.nav.dagpenger.opplysning.regel.Utgangspunkt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
+import no.nav.dagpenger.regel.prosess.Manuellprosess
+import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
+import no.nav.dagpenger.regel.prosess.Søknadsprosess
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
 import org.approvaltests.namer.NamerWrapper
@@ -126,22 +132,30 @@ class OpplysningDokumentasjon {
 
     @Test
     fun `dokumenterer avklaringer`() {
+        val avhengigheter = finnAvhengigheter()
+
         val markdown = StringBuilder()
         markdown.appendLine("# Avklaringer")
 
         // language="Markdown"
         markdown.appendLine(
-            """Avklaringer opprettes hvor regelmotoren er usikker på enten fakta eller riktig vei videre.
-                |
-            """.trimMargin(),
-        )
-        // language="Markdown"
-        markdown.appendLine(
-            """Avklaringer opprettes av "kontrollpunkt" som gjør en vurdering av opplysninger og ser om det avklaringen er nødvendig.
-                |
-                |Endringer i opplysninger vil automatisk lukke avklaringen om kontrollpunktet sier den ikke lengre er nødvendig.
-                |Tilsvarende vil avklaringen åpnes opp igjen om opplysningene endres.
-                |
+            """
+            |Avklaringer opprettes hvor regelmotoren er usikker på enten fakta eller riktig vei videre.
+            |
+            |Avklaringer opprettes av "kontrollpunkt" som gjør en vurdering av opplysninger og ser om avklaringen er nødvendig.
+            |
+            |Endringer i opplysninger vil automatisk lukke avklaringen om kontrollpunktet sier den ikke lenger er nødvendig.
+            |Tilsvarende vil avklaringen åpnes opp igjen om opplysningene endres.
+            |
+            |## Forklaring av egenskaper
+            |
+            |**Kan lukkes av saksbehandler** betyr at saksbehandler selv kan markere avklaringen som håndtert uten å endre fakta i behandlingen.
+            |Avklaringer som *ikke* kan lukkes av saksbehandler krever at opplysningene i saken faktisk endres – ellers lukkes de ikke.
+            |
+            |**Lukkes automatisk** betyr at systemet kan lukke avklaringen automatisk når de underliggende opplysningene endres og behovet for avklaringern forsvinner.
+            |
+            |Avklaringer som *ikke* kan lukkes automatisk må alltid håndteres manuelt av saksbehandler, uavhengig av opplysningene.
+            |
             """.trimMargin(),
         )
 
@@ -153,6 +167,17 @@ class OpplysningDokumentasjon {
         alleAvklaringer.sortedBy { it.kode }.forEach {
             markdown.appendLine("## ${it.tittel}")
             markdown.appendLine("**Kode:** `${it.kode}`\n")
+
+            if (it.kanKvitteres) {
+                markdown.appendLine("✅ Kan lukkes av saksbehandler\n")
+            } else {
+                markdown.appendLine("❌ Kan ikke lukkes av saksbehandler\n")
+            }
+            if (it.kanAvbrytes) {
+                markdown.appendLine("✅ Lukkes automatisk når opplysningene endres\n")
+            } else {
+                markdown.appendLine("❌ Lukkes ikke automatisk når opplysningene endres\n")
+            }
 
             if (it.beskrivelse.isNotEmpty()) {
                 markdown.appendLine("### Beskrivelse")
@@ -166,13 +191,42 @@ class OpplysningDokumentasjon {
                 }
             }
 
-            if (!it.kanKvitteres) markdown.appendLine("❌ Kan ikke kvitteres\n")
-            if (!it.kanAvbrytes) markdown.appendLine("❌ Kan ikke avbrytes\n")
+            val avhengigheterForAvklaring = avhengigheter[it]
+            if (!avhengigheterForAvklaring.isNullOrEmpty()) {
+                markdown.appendLine("### Opplysninger avklaringen ser på")
+                avhengigheterForAvklaring.sortedBy { type -> type.navn }.forEach { type ->
+                    markdown.appendLine("- ${type.navn}")
+                }
+                markdown.appendLine()
+            }
 
             markdown.appendLine("---")
         }
 
         skriv("avklaringer", markdown.toString())
+    }
+
+    private fun finnAvhengigheter(): Map<Avklaringkode, Set<Opplysningstype<*>>> {
+        val alleProsessKontrollpunkter =
+            listOf(
+                Søknadsprosess().kontrollpunkter(),
+                Manuellprosess().kontrollpunkter(),
+                Omgjøringsprosess().kontrollpunkter(),
+            ).flatten()
+                .filterIsInstance<Kontrollpunkt>()
+                .distinctBy { it.avklaringkode }
+
+        return alleProsessKontrollpunkter.associate { kontrollpunkt ->
+            val spy = SpionLesbarOpplysninger()
+            try {
+                kontrollpunkt.evaluer(spy)
+            } catch (_: SpionLesbarOpplysninger.SpionAvsluttet) {
+                // Forventet – kontrollpunktet nådde en finnOpplysning()-kall
+            } catch (_: Exception) {
+                // Annen feil – vi tar det vi har fått så langt
+            }
+            kontrollpunkt.avklaringkode to spy.brukedeTyper
+        }
     }
 
     private fun tilMarkdownURL(tekst: String) =

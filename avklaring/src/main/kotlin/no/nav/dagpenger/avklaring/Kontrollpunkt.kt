@@ -10,7 +10,7 @@ fun interface Kontroll {
 }
 
 class Kontrollpunkt(
-    private val sjekker: Avklaringkode,
+    val avklaringkode: Avklaringkode,
     private val kontroll: Kontroll,
 ) : IKontrollpunkt {
     override fun evaluer(opplysninger: LesbarOpplysninger): IKontrollpunkt.Kontrollresultat {
@@ -18,7 +18,7 @@ class Kontrollpunkt(
         return when {
             kontroll.kjør(opplysningerMedLogg) ->
                 IKontrollpunkt.Kontrollresultat.KreverAvklaring(
-                    sjekker,
+                    avklaringkode,
                     opplysningerMedLogg.sistBrukteOpplysning,
                 )
 

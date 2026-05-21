@@ -64,7 +64,7 @@ object Verneplikt {
         }
 
     val VernepliktKontroll =
-        Kontrollpunkt(sjekker = Avklaringspunkter.Verneplikt) { opplysninger ->
+        Kontrollpunkt(avklaringkode = Avklaringspunkter.Verneplikt) { opplysninger ->
             opplysninger.har(avtjentVerneplikt) && opplysninger.finnOpplysning(avtjentVerneplikt).verdi
         }
 }

@@ -32,7 +32,7 @@ object FulleYtelser {
         }
 
     val FulleYtelserKontrollpunkt =
-        Kontrollpunkt(sjekker = Avklaringspunkter.FulleYtelser) { opplysninger ->
+        Kontrollpunkt(avklaringkode = Avklaringspunkter.FulleYtelser) { opplysninger ->
             listOf(skalSamordnes, skalSamordnesUtenforFolketrygden).any {
                 opplysninger.har(it) && opplysninger.finnOpplysning(it).verdi
             }
