@@ -69,7 +69,7 @@ internal class RekjørBehandlingMessage(
                 ident,
                 packet["behandlingId"].asUUID(),
                 opprettet,
-                packet["oppfriskOpplysningIder"].map { it.asUUID() },
+                packet["oppfriskOpplysningIder"].toList().map { it.asUUID() },
             )
 
     override fun behandle(

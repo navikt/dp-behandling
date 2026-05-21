@@ -1,9 +1,13 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.github.navikt.tbd_libs.naisful.naisApp
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.http.ContentType
+import io.ktor.serialization.jackson3.JacksonConverter
+import io.ktor.server.application.install
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.statuspages.StatusPages
 import io.micrometer.core.instrument.Clock
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -21,7 +25,6 @@ import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.helse.rapids_rivers.RapidApplication
-import org.slf4j.LoggerFactory
 
 internal class ApplicationBuilder(
     config: Map<String, String>,
@@ -48,31 +51,27 @@ internal class ApplicationBuilder(
         RapidApplication.create(
             env = config,
             builder = {
-                withKtor { preStopHook, rapid ->
-                    runtime =
-                        BehandlingRuntime(
-                            dbSession = postgresDataSourceBuilder.dbsession,
-                            rapidsConnection = rapid,
-                            auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapid),
-                            regelverk = regelverk,
-                        ) { ident: String -> ApiMessageContext(rapid, ident) }
-
-                    naisApp(
-                        meterRegistry = meterRegistry,
-                        objectMapper = objectMapper,
-                        applicationLogger = LoggerFactory.getLogger("ApplicationLogger"),
-                        callLogger = LoggerFactory.getLogger("CallLogger"),
-                        aliveCheck = rapid::isReady,
-                        readyCheck = rapid::isReady,
-                        preStopHook = preStopHook::handlePreStopRequest,
-                        statusPagesConfig = { statusPagesConfig() },
-                    ) {
-                        runtime.api(this)
-                        simuleringApi()
+                withKtorModule {
+                    install(ContentNegotiation) {
+                        register(ContentType.Application.Json, JacksonConverter(objectMapper))
                     }
+                    install(StatusPages) {
+                        statusPagesConfig()
+                    }
+                    runtime.api(this)
+                    simuleringApi()
                 }
             },
+            meterRegistry = meterRegistry,
         ) { engine, rapidsConnection: KafkaRapid ->
+            runtime =
+                BehandlingRuntime(
+                    dbSession = postgresDataSourceBuilder.dbsession,
+                    rapidsConnection = rapidsConnection,
+                    auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapidsConnection),
+                    regelverk = regelverk,
+                ) { ident: String -> ApiMessageContext(rapidsConnection, ident) }
+
             runtime.registrerMottak()
 
             rapidsConnection.register(
@@ -102,5 +101,11 @@ internal class ApplicationBuilder(
         BehandleMeldekort(
             runtime.meldekortBehandlingskø(rapidsConnection),
         ).start()
+    }
+
+    override fun onShutdownComplete(rapidsConnection: RapidsConnection) {
+        logger.info { "Forsøker å lukke datasource..." }
+        dataSource.close()
+        logger.info { "Lukket datasource" }
     }
 }

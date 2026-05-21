@@ -1,8 +1,8 @@
 package no.nav.dagpenger.regelverk.melding
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
+import tools.jackson.databind.JsonNode
 import java.util.UUID
 
 abstract class KafkaMelding(

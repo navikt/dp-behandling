@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.withMDC
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
@@ -52,6 +51,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.regelverk.melding.MeldingRepository
+import tools.jackson.databind.JsonNode
 import java.util.UUID
 
 internal class MessageMediator(

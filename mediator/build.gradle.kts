@@ -19,7 +19,7 @@ dependencies {
     implementation(libs.bundles.jackson)
 
     implementation(libs.bundles.postgres)
-    implementation("com.fasterxml.jackson.module:jackson-module-blackbird:${libs.versions.jackson.get()}")
+    implementation("tools.jackson.module:jackson-module-blackbird:${libs.versions.jackson.get()}")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
 
@@ -34,7 +34,9 @@ dependencies {
     implementation(libs.bundles.ktor.server)
     implementation("io.ktor:ktor-server-core-jvm:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-swagger:${libs.versions.ktor.get()}")
-    implementation("com.github.navikt.tbd-libs:naisful-app:2025.11.04-10.54-c831038e")
+    implementation("io.ktor:ktor-server-content-negotiation:${libs.versions.ktor.get()}")
+    implementation("io.ktor:ktor-server-status-pages:${libs.versions.ktor.get()}")
+    implementation("io.ktor:ktor-serialization-jackson3:${libs.versions.ktor.get()}")
 
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
 
@@ -43,7 +45,8 @@ dependencies {
     testImplementation(libs.mock.oauth2.server)
     testImplementation(libs.bundles.postgres.test)
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
-    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:2025.11.04-10.54-c831038e")
+    testImplementation("io.ktor:ktor-client-content-negotiation:${libs.versions.ktor.get()}")
+    testImplementation("io.ktor:ktor-serialization-jackson3:${libs.versions.ktor.get()}")
     testImplementation("com.approvaltests:approvaltests:22.3.3")
 }
 

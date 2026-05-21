@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.mottak
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
@@ -17,6 +16,7 @@ import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.uuid.UUIDv7
+import tools.jackson.databind.JsonNode
 
 class SamordningHendelseMottak(
     rapidsConnection: RapidsConnection,

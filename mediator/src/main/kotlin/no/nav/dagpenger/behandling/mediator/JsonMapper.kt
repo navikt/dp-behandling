@@ -1,18 +1,65 @@
 package no.nav.dagpenger.behandling.mediator
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.blackbird.BlackbirdModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.nav.dagpenger.inntekt.v1.InntektKlasse
+import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
+import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.blackbird.BlackbirdModule
+import tools.jackson.module.kotlin.KotlinModule
+import java.time.YearMonth
+import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
 val objectMapper: ObjectMapper =
-    jacksonObjectMapper()
-        .registerModule(JavaTimeModule())
-        .registerModule(BlackbirdModule())
-        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-        // OpenAPI-generator klarer ikke optional-felter. Derfor må vi eksplisitt fjerne null-verdier
-        .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
+    JsonMapper
+        .builder()
+        .addModule(KotlinModule.Builder().build())
+        .addModule(BlackbirdModule())
+        .changeDefaultPropertyInclusion { it.withValueInclusion(JsonInclude.Include.NON_NULL) }
+        .build()
+
+fun InntektV1.tilJsonNode(): JsonNode =
+    objectMapper.valueToTree(
+        mapOf(
+            "inntektsId" to inntektsId,
+            "inntektsListe" to
+                inntektsListe.map { måned ->
+                    mapOf(
+                        "årMåned" to måned.årMåned.toString(),
+                        "klassifiserteInntekter" to
+                            måned.klassifiserteInntekter.map { klassifisertInntekt ->
+                                mapOf(
+                                    "beløp" to klassifisertInntekt.beløp,
+                                    "inntektKlasse" to klassifisertInntekt.inntektKlasse.name,
+                                )
+                            },
+                        "harAvvik" to måned.harAvvik,
+                    )
+                },
+            "manueltRedigert" to manueltRedigert,
+            "sisteAvsluttendeKalenderMåned" to sisteAvsluttendeKalenderMåned.toString(),
+        ),
+    )
+
+fun JsonNode.tilInntektV1(): InntektV1 =
+    InntektV1(
+        inntektsId = this["inntektsId"].asText(),
+        inntektsListe =
+            this["inntektsListe"].toList().map { måned ->
+                KlassifisertInntektMåned(
+                    årMåned = YearMonth.parse(måned["årMåned"].asText()),
+                    klassifiserteInntekter =
+                        måned["klassifiserteInntekter"].toList().map { klassifisertInntekt ->
+                            KlassifisertInntekt(
+                                beløp = klassifisertInntekt["beløp"].decimalValue(),
+                                inntektKlasse = InntektKlasse.valueOf(klassifisertInntekt["inntektKlasse"].asText()),
+                            )
+                        },
+                    harAvvik = måned["harAvvik"].asBoolean(),
+                )
+            },
+        manueltRedigert = this["manueltRedigert"]?.takeUnless { it.isMissingNode || it.isNull }?.asBoolean() ?: false,
+        sisteAvsluttendeKalenderMåned = YearMonth.parse(this["sisteAvsluttendeKalenderMåned"].asText()),
+    )

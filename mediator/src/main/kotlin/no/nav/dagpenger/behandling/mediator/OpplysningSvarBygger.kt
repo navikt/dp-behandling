@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import no.nav.dagpenger.behandling.mediator.objectMapper
 import no.nav.dagpenger.behandling.modell.hendelser.OpplysningSvar
@@ -12,6 +11,7 @@ import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.regel.Behov.Barnetillegg
 import no.nav.dagpenger.regel.Behov.BarnetilleggV2
+import tools.jackson.databind.JsonNode
 import java.util.UUID
 
 class OpplysningSvarBygger<T : Any>(
@@ -47,7 +47,7 @@ fun barnMapper(
         Barnetillegg ->
             BarnListe(
                 barn =
-                    verdi.map {
+                    verdi.toList().map {
                         Barn(
                             fødselsdato = it["fødselsdato"].asLocalDate(),
                             fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asText(),
@@ -61,7 +61,7 @@ fun barnMapper(
             BarnListe(
                 søknadbarnId = verdi["søknadbarnId"].asUUID(),
                 barn =
-                    verdi["barn"].map {
+                    verdi["barn"].toList().map {
                         Barn(
                             fødselsdato = it["fødselsdato"].asLocalDate(),
                             fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asText(),

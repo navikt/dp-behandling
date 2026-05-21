@@ -1,6 +1,5 @@
 package no.nav.dagpenger.behandling.mediator.mottak
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
@@ -15,6 +14,7 @@ import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.mediator.mottak.SakRepository.Behandling
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType
 import no.nav.dagpenger.regel.OpplysningsTyper
+import tools.jackson.databind.JsonNode
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID

@@ -73,7 +73,10 @@ class SøknadInnsendtMessage(
 ) : KafkaMelding(packet) {
     override val ident get() = packet["ident"].asText()
     private val søknadId = packet["søknadId"].asUUID()
-    private val søknadstype = packet["type"].textValue()?.let { Søknadstype.valueOf(it) } ?: Søknadstype.NySøknad
+    private val søknadstype =
+        packet["type"].let { node ->
+            if (node.isMissingNode) Søknadstype.NySøknad else Søknadstype.valueOf(node.textValue())
+        }
 
     internal val hendelse: SøknadInnsendtHendelse
         get() {

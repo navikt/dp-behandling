@@ -1,9 +1,9 @@
 package no.nav.dagpenger.behandling.helpers.scenario
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.dagpenger.behandling.mediator.objectMapper
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ObjectNode
 
 internal class Behovsløsere(
     private val rapid: TestRapid,
@@ -37,7 +37,7 @@ internal class Behovsløsere(
         val alleBehov = mutableMapOf<String, JsonNode>()
         val behovMeldinger = uløsteBehov()
         for (melding in behovMeldinger) {
-            for (behovNavn in melding["@behov"].map { it.asText() }) {
+            for (behovNavn in melding["@behov"].toList().map { it.asText() }) {
                 alleBehov[behovNavn] = melding
             }
         }
@@ -49,7 +49,7 @@ internal class Behovsløsere(
 
     fun aktiveBehov(): List<String> =
         uløsteBehov().flatMap { melding ->
-            melding["@behov"].map { it.asText() }
+            melding["@behov"].toList().map { it.asText() }
         }
 
     private fun uløsteBehov(): List<JsonNode> {
