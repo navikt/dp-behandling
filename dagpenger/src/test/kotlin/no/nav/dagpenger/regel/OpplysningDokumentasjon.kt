@@ -166,18 +166,12 @@ class OpplysningDokumentasjon {
 
         alleAvklaringer.sortedBy { it.kode }.forEach {
             markdown.appendLine("## ${it.tittel}")
-            markdown.appendLine("**Kode:** `${it.kode}`\n")
+            markdown.appendLine("- **Kode:** `${it.kode}`")
 
-            if (it.kanKvitteres) {
-                markdown.appendLine("✅ Kan lukkes av saksbehandler\n")
-            } else {
-                markdown.appendLine("❌ Kan ikke lukkes av saksbehandler\n")
-            }
-            if (it.kanAvbrytes) {
-                markdown.appendLine("✅ Lukkes automatisk når opplysningene endres\n")
-            } else {
-                markdown.appendLine("❌ Lukkes ikke automatisk når opplysningene endres\n")
-            }
+            markdown.append("- **Kan lukkes av saksbehandler:** ")
+            if (it.kanKvitteres) markdown.appendLine("✅ ") else markdown.appendLine("❌ ")
+            markdown.append("- **Lukkes automatisk når opplysningene endres:** ")
+            if (it.kanAvbrytes) markdown.appendLine("✅ ") else markdown.appendLine("❌ ")
 
             if (it.beskrivelse.isNotEmpty()) {
                 markdown.appendLine("### Beskrivelse")

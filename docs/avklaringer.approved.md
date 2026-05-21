@@ -16,12 +16,9 @@ Avklaringer som *ikke* kan lukkes av saksbehandler krever at opplysningene i sak
 Avklaringer som *ikke* kan lukkes automatisk må alltid håndteres manuelt av saksbehandler, uavhengig av opplysningene.
 
 ## Barnetillegg
-**Kode:** `BarnMåGodkjennes`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `BarnMåGodkjennes`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Barn må godkjennes om de skal gi barnetillegg. Sjekk hvilke barn som skal gi barnetillegg.
 
@@ -32,12 +29,9 @@ Barn må godkjennes om de skal gi barnetillegg. Sjekk hvilke barn som skal gi ba
 
 ---
 ## Arbeidstid
-**Kode:** `BeregnetArbeidstid`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `BeregnetArbeidstid`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Sjekk om vanlig arbeidstid er korrekt og at det er brukt riktig beregningsregel. <br>Du må også sjekke om ny vanlig arbeidstid er korrekt.
 
@@ -48,12 +42,9 @@ Sjekk om vanlig arbeidstid er korrekt og at det er brukt riktig beregningsregel.
 
 ---
 ## Bostedsland er ikke Norge
-**Kode:** `Bostedsland`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `Bostedsland`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har oppgitt bostedsland som ikke er i Norge.<br>Sjekk om bruker er unntatt vilkårene for opphold i Norge.
 
@@ -64,12 +55,9 @@ Søker har oppgitt bostedsland som ikke er i Norge.<br>Sjekk om bruker er unntat
 
 ---
 ## Bruker er under 18 år
-**Kode:** `BrukerUnder18`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `BrukerUnder18`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker er under 18 år og skal ikke ha automatisk behandling.
 
@@ -78,12 +66,9 @@ Søker er under 18 år og skal ikke ha automatisk behandling.
 
 ---
 ## Arbeid i EØS, Sveits eller Storbritannia
-**Kode:** `EØSArbeid`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `EØSArbeid`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har oppgitt arbeid fra EØS, Sveits eller Storbritannia i søknaden. <br>Vurder om det skal være sammenlegging.
 
@@ -92,12 +77,9 @@ Søker har oppgitt arbeid fra EØS, Sveits eller Storbritannia i søknaden. <br>
 
 ---
 ## Andre fulle ytelser etter folketrygdloven
-**Kode:** `FulleYtelser`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `FulleYtelser`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Sjekk om søker har andre fulle ytelser. <br>Om søker har andre fulle ytelser, må det velges mellom dagpenger eller disse ytelsene.
 
@@ -108,23 +90,17 @@ Sjekk om søker har andre fulle ytelser. <br>Om søker har andre fulle ytelser, 
 
 ---
 ## !! Behandles som gjenopptak i ny løsning. Disse støtter vi ikke, så IKKE RØR 😬
-**Kode:** `GjenopptakBehandling`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `GjenopptakBehandling`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Denne saken har en innvilget behandling i ny løsning. og det må vurderes om den skal gjenopptas.
 
 ---
 ## Permittering
-**Kode:** `HarOppgittPermittering`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `HarOppgittPermittering`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har oppgitt permittering i søknaden. Vurder om søker er permittert og har rett til dagpenger som permittert.
 
@@ -135,12 +111,9 @@ Søker har oppgitt permittering i søknaden. Vurder om søker er permittert og h
 
 ---
 ## Permittering fiskeindustri
-**Kode:** `HarOppgittPermitteringFiskeindustri`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `HarOppgittPermitteringFiskeindustri`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har oppgitt permittering fra fiskeindustri i søknaden. <br>Vurder om søker er permittert og har rett til dagpenger som permittert fra fiskeindustrien.
 
@@ -151,12 +124,9 @@ Søker har oppgitt permittering fra fiskeindustri i søknaden. <br>Vurder om sø
 
 ---
 ## Omgjøring uten klage
-**Kode:** `HarSvartPåOmgjøringUtenKlage`
-
-❌ Kan ikke lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `HarSvartPåOmgjøringUtenKlage`
+- **Kan lukkes av saksbehandler:** ❌ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Saksbehandler må svare på hvorfor vedtaket omgjøres uten at det har vært klage på tidligere vedtak. Sjekk at det er lagt inn en begrunnelse for omgjøringen.
 
@@ -167,12 +137,9 @@ Saksbehandler må svare på hvorfor vedtaket omgjøres uten at det har vært kla
 
 ---
 ## Tilleggsopplysninger
-**Kode:** `HarTilleggsopplysninger`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `HarTilleggsopplysninger`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har oppgitt tilleggsopplysninger i søknaden. Vurder om tilleggsopplysninger har betydning for saken.<br>I tillegg bør det vurderes om opplysningene skal videreformidles til Nav lokal eller om søker trenger veiledning.
 
@@ -181,12 +148,9 @@ Søker har oppgitt tilleggsopplysninger i søknaden. Vurder om tilleggsopplysnin
 
 ---
 ## Nylig lukkede saker i Arena
-**Kode:** `HattLukkedeSakerSiste8Uker`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `HattLukkedeSakerSiste8Uker`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har lukkede saker i Arena fra de siste 8 ukene. Sjekk om disse kan påvirke behandlingen.<br>Hvis vi nylig har gitt avslag, sjekk om det er nødvendig med ekstra veiledning.
 
@@ -195,23 +159,17 @@ Søker har lukkede saker i Arena fra de siste 8 ukene. Sjekk om disse kan påvir
 
 ---
 ## Ikke oppfylt meldeplikt
-**Kode:** `IkkeOppfyllerMeldeplikt`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `IkkeOppfyllerMeldeplikt`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Bruker har ikke meldt seg i tide (§4-8). Vurder om dagpenger skal stanses.
 
 ---
 ## Ikke registrert som arbeidssøker
-**Kode:** `IkkeRegistrertSomArbeidsøker`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `IkkeRegistrertSomArbeidsøker`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker er ikke registrert som arbeidssøker på søknadstidspunktet.
 
@@ -222,12 +180,9 @@ Søker er ikke registrert som arbeidssøker på søknadstidspunktet.
 
 ---
 ## Manuelt redigert inntekt
-**Kode:** `InntektManueltRedigert`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `InntektManueltRedigert`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Inntekten er manuelt redigert. Du må begrunne årsaken.
 
@@ -236,12 +191,9 @@ Inntekten er manuelt redigert. Du må begrunne årsaken.
 
 ---
 ## Inntekt neste måned
-**Kode:** `InntektNesteKalendermåned`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `InntektNesteKalendermåned`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har inntekt som tilhører neste kalendermåned. <br>Sjekk om det er tilstrekkelige inntekter til at utfallet eller dagpengegrunnlaget vil endre seg i neste kalendermåned.
 
@@ -252,12 +204,9 @@ Søker har inntekt som tilhører neste kalendermåned. <br>Sjekk om det er tilst
 
 ---
 ## Arbeid utenfor Norge
-**Kode:** `JobbetUtenforNorge`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `JobbetUtenforNorge`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har oppgitt arbeid utenfor Norge i søknaden. <br>Sjekk om disse arbeidsforholdene skal være med i vurderingen av retten til dagpenger.
 
@@ -266,12 +215,9 @@ Søker har oppgitt arbeid utenfor Norge i søknaden. <br>Sjekk om disse arbeidsf
 
 ---
 ## Manglende vurdering av reell arbeidssøker
-**Kode:** `ManglerReellArbeidssøker`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `ManglerReellArbeidssøker`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
 
@@ -280,12 +226,9 @@ Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
 
 ---
 ## Gjenopptak i Arena
-**Kode:** `MuligGjenopptak`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `MuligGjenopptak`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har åpne saker i Arena som kan være gjenopptak. Sjekk om saken kan gjenopptas i Arena.
 
@@ -294,12 +237,9 @@ Søker har åpne saker i Arena som kan være gjenopptak. Sjekk om saken kan gjen
 
 ---
 ## Grunnbeløpet for dagpengegrunnlag
-**Kode:** `NyttGrunnbeløpForGrunnlag`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `NyttGrunnbeløpForGrunnlag`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Prøvingsdatoen er 1. mai eller senere. Grunnbeløpet for inneværende år var ikke iverksatt på behandlingstidspunktet.<br>Hvis grunnbeløpet ikke er vedtatt ennå, kan behandlingen godkjennes med det gamle grunnbeløpet. Det blir G-justert i Arena.<br>Er grunnbeløpet for inneværende år vedtatt, kjør behandlingen på nytt, og huk av 'Grunnbeløp for grunnlag' for å oppdatere grunnbeløpet.
 
@@ -310,12 +250,9 @@ Prøvingsdatoen er 1. mai eller senere. Grunnbeløpet for inneværende år var i
 
 ---
 ## Prøvingsdato er etter rapporteringsfrist
-**Kode:** `PrøvingsdatoEtterRapporteringsfrist`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `PrøvingsdatoEtterRapporteringsfrist`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Prøvingsdatoen er etter neste rapporteringsperiode for inntekt. <br>Vurder om du bør vente til etter A-ordningens rapporteringsfrist for å få med korrekte inntekter.
 
@@ -324,12 +261,9 @@ Prøvingsdatoen er etter neste rapporteringsperiode for inntekt. <br>Vurder om d
 
 ---
 ## Unntak til å være reell arbeidssøker
-**Kode:** `ReellArbeidssøkerUnntak`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `ReellArbeidssøkerUnntak`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Vurder om søker fyller unntakene til reell arbeidssøker.
 
@@ -340,12 +274,9 @@ Vurder om søker fyller unntakene til reell arbeidssøker.
 
 ---
 ## Samordning
-**Kode:** `Samordning`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `Samordning`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Vi har funnet andre ytelser fra folketrygden. <br>Vurder om, og eventuelt hvordan, de skal samordnes med dagpengene.
 
@@ -356,12 +287,9 @@ Vi har funnet andre ytelser fra folketrygden. <br>Vurder om, og eventuelt hvorda
 
 ---
 ## Prøvingsdato
-**Kode:** `SjekkPrøvingsdato`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `SjekkPrøvingsdato`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Sjekk at valgt prøvingsdato er riktig.
 
@@ -370,12 +298,9 @@ Sjekk at valgt prøvingsdato er riktig.
 
 ---
 ## Svangerskapsrelaterte sykepenger
-**Kode:** `SvangerskapsrelaterteSykepenger`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `SvangerskapsrelaterteSykepenger`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har fått utbetalt sykepenger. Sjekk om sykepengene er svangerskapsrelaterte, <br>og skal være med i inntektsgrunnlaget for vurderingen av minste arbeidsinntekt.
 
@@ -386,34 +311,25 @@ Søker har fått utbetalt sykepenger. Sjekk om sykepengene er svangerskapsrelate
 
 ---
 ## Søknadstidspunktet ligger for langt fram i tid
-**Kode:** `SøknadstidspunktForLangtFramITid`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `SøknadstidspunktForLangtFramITid`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søknadstidspunktet ligger mer enn 14 dager fram i tid.
 
 ---
 ## Søkt gjenopptak
-**Kode:** `SøktGjenopptak`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `SøktGjenopptak`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har søkt om gjenopptak. Saker som skal gjenopptas må håndteres i Arena.
 
 ---
 ## Du må velge kun én beregningsregel for tap av arbeidsinntekt og arbeidstid
-**Kode:** `TapAvArbeidsinntektOgArbeidstid`
-
-❌ Kan ikke lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `TapAvArbeidsinntektOgArbeidstid`
+- **Kan lukkes av saksbehandler:** ❌ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Kun én beregningsregel kan være gyldig til enhver tid. <br>Velg en av "Arbeidstid siste 6 måneder", "Arbeidstid siste 12 måneder" eller "Arbeidstid siste 36 måneder".
 
@@ -424,12 +340,9 @@ Kun én beregningsregel kan være gyldig til enhver tid. <br>Velg en av "Arbeids
 
 ---
 ## Verneplikt
-**Kode:** `Verneplikt`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `Verneplikt`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har svart ja på avtjent verneplikt i søknaden. <br>Vurder om kravet til dagpenger ved avtjent verneplikt er oppfylt.
 
@@ -440,12 +353,9 @@ Søker har svart ja på avtjent verneplikt i søknaden. <br>Vurder om kravet til
 
 ---
 ## Prøvingsdato ligger for langt fram i tid
-**Kode:** `VirkningstidspunktForLangtFramItid`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `VirkningstidspunktForLangtFramItid`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Prøvingsdato ligger mer enn 14 dager fram i tid.
 
@@ -456,12 +366,9 @@ Prøvingsdato ligger mer enn 14 dager fram i tid.
 
 ---
 ## Ytelser utenfor folketrygden
-**Kode:** `YtelserUtenforFolketrygden`
-
-✅ Kan lukkes av saksbehandler
-
-✅ Lukkes automatisk når opplysningene endres
-
+- **Kode:** `YtelserUtenforFolketrygden`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Søker har oppgitt i søknaden at hen mottar ytelser utenfor folketrygden.<br>Sjekk hvilke ytelser som er oppgitt utenfor folketrygden og om dette har konsekvenser for dagpengene.
 
