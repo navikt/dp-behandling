@@ -14,7 +14,7 @@ class HøyesteAvHvisHøyere<T : Comparable<T>>(
         return maxOf(opplysninger.finnOpplysning(produserer).verdi, nyMax)
     }
 
-    override fun toString() = "${super.toString()}, bare hvis høyere enn gjeldende"
+    override fun toString() = "${super.toString()}, bare hvis høyere enn gjeldende verdi"
 }
 
 @JvmName("høyesteAvInt")

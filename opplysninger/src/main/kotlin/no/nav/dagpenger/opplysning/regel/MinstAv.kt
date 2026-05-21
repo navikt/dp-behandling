@@ -12,7 +12,7 @@ class MinstAv<T : Comparable<T>> internal constructor(
         opplysningstyper.minOfOrNull { opplysningstype -> opplysninger.finnOpplysning(opplysningstype).verdi }
             ?: throw IllegalArgumentException("Ingen opplysninger å sammenligne")
 
-    override fun toString() = "Produserer $produserer ved å velge laveste verdien av ${opplysningstyper.joinToString { it.navn }}"
+    override fun toString() = "Fastsetter $produserer til laveste verdi av ${opplysningstyper.joinToString { it.navn }}"
 }
 
 @JvmName("minstAvDouble")

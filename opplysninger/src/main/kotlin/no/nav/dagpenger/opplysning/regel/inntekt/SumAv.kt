@@ -14,7 +14,7 @@ class SumAv internal constructor(
         return verdier.fold(Beløp(0.0)) { acc, beløp -> acc + beløp }
     }
 
-    override fun toString() = "Summerer ${beløp.joinToString(" + ") { it.navn }}"
+    override fun toString() = "Beregner $produserer ved å summere ${beløp.joinToString(" + ") { it.navn }}"
 }
 
 fun Opplysningstype<Beløp>.sumAv(vararg beløp: Opplysningstype<Beløp>) = SumAv(this, beløp.toList())

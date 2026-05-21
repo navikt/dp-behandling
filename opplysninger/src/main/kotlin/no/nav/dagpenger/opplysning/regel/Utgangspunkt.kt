@@ -10,7 +10,7 @@ class Utgangspunkt<T : Any> internal constructor(
 ) : Regel<T>(produserer, nullstillesAv) {
     override fun kjør(opplysninger: LesbarOpplysninger): T = verdi
 
-    override fun toString() = "Bruker $verdi som utgangspunkt for $produserer"
+    override fun toString() = "Fastsetter $produserer med utgangspunkt $verdi"
 }
 
 fun <T : Any> Opplysningstype<T>.somUtgangspunkt(verdi: T) = Utgangspunkt(this, verdi)

@@ -9,7 +9,7 @@ class Ekstern<T : Any> internal constructor(
 ) : Regel<T>(produserer, avhengigheter) {
     override fun kjør(opplysninger: LesbarOpplysninger): T = throw IllegalStateException("Kan ikke kjøres")
 
-    override fun toString() = "Henter inn opplysning for $produserer med ${avhengerAv.joinToString { it.navn }} som avhengigheter."
+    override fun toString() = "Henter $produserer" + if (avhengerAv.isNotEmpty()) " basert på ${avhengerAv.joinToString { it.navn }}" else ""
 }
 
 fun <T : Any> Opplysningstype<T>.innhentMed(vararg opplysninger: Opplysningstype<out Any>) = Ekstern(this, opplysninger.toList())

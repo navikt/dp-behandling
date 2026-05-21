@@ -22,7 +22,7 @@ class TrekkFraMåned internal constructor(
         }
     }
 
-    override fun toString() = "Trekker fra $antallMnd fra $dato" + if (førsteDagIMåned) " til første dag i måneden" else ""
+    override fun toString() = "Beregner $produserer ved å trekke fra $antallMnd måneder fra $dato" + if (førsteDagIMåned) " til første dag i måneden" else ""
 }
 
 fun Opplysningstype<LocalDate>.trekkFraMåned(

@@ -13,7 +13,7 @@ class FraOgMedForOpplysning internal constructor(
         return opplysning.gyldighetsperiode.fraOgMed
     }
 
-    override fun toString() = "Opplysning $opplysningstype er sann"
+    override fun toString() = "Henter fra-og-med-dato for $opplysningstype"
 }
 
 fun Opplysningstype<LocalDate>.fraOgMed(opplysningstype: Opplysningstype<*>) = FraOgMedForOpplysning(this, opplysningstype)

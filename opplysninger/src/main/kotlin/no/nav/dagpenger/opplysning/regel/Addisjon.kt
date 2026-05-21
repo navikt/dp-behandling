@@ -13,7 +13,7 @@ class Addisjon(
         return Beløp(verdier.sumOf { it.verdien })
     }
 
-    override fun toString(): String = "Addisjon av ${ledd.joinToString("+") { it.toString() }}"
+    override fun toString(): String = "Beregner $produserer ved å legge sammen ${ledd.joinToString(" + ")}"
 }
 
 fun Opplysningstype<Beløp>.addisjon(

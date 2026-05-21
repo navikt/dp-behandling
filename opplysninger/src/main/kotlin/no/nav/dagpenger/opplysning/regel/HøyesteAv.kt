@@ -12,7 +12,7 @@ open class HøyesteAv<T : Comparable<T>>(
         opplysningstyper.maxOfOrNull { opplysningstype -> opplysninger.finnOpplysning(opplysningstype).verdi }
             ?: throw IllegalArgumentException("Ingen opplysninger å sammenligne")
 
-    override fun toString() = "Produserer $produserer ved å velge høyeste verdien av ${opplysningstyper.joinToString { it.navn }}"
+    override fun toString() = "Fastsetter $produserer til høyeste verdi av ${opplysningstyper.joinToString { it.navn }}"
 }
 
 @JvmName("høyesteAvInt")

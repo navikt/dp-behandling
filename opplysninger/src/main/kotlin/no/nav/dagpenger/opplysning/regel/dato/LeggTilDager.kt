@@ -15,7 +15,7 @@ class LeggTilDager internal constructor(
         return a.plusDays(opplysninger.finnOpplysning(antallDager).verdi.toLong())
     }
 
-    override fun toString() = "Legg til $antallDager dager på $dato"
+    override fun toString() = "Beregner $produserer ved å legge til $antallDager dager på $dato"
 }
 
 fun Opplysningstype<LocalDate>.leggTilDager(

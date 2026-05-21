@@ -18,7 +18,7 @@ class TomRegel<T : Any> internal constructor(
 
     override fun kjør(opplysninger: LesbarOpplysninger): T = throw IllegalStateException("Kan ikke kjøres")
 
-    override fun toString() = "Tom regel for $produserer"
+    override fun toString() = "Venter på ekstern verdi for $produserer"
 }
 
 val <T : Any> Opplysningstype<T>.tomRegel get() = TomRegel(this, emptyList())

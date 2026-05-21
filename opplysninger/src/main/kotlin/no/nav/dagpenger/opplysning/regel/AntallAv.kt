@@ -15,7 +15,7 @@ class AntallAv<T : Any>(
         return liste.filter { filter(it) }.size
     }
 
-    override fun toString() = "Produserer $produserer ved å telle antall instanser av $opplysningstype som oppfyller filteret."
+    override fun toString() = "Beregner $produserer ved å telle antall $opplysningstype som oppfyller filteret"
 }
 
 @Suppress("UNCHECKED_CAST")

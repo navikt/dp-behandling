@@ -24,7 +24,7 @@ class FørsteArbeidsdag internal constructor(
         return finnFørsteArbeidsdag(arbeidsdag)
     }
 
-    override fun toString() = "Finn første virkedag etter $dato"
+    override fun toString() = "Finner første virkedag etter $dato"
 }
 
 fun Opplysningstype<LocalDate>.førsteArbeidsdag(dato: Opplysningstype<LocalDate>) = FørsteArbeidsdag(this, dato)

@@ -15,7 +15,7 @@ class LeggTilUker internal constructor(
         return a.plusWeeks(opplysninger.finnOpplysning(antallUker).verdi.toLong())
     }
 
-    override fun toString() = "Legg til $antallUker uker på $dato"
+    override fun toString() = "Beregner $produserer ved å legge til $antallUker uker på $dato"
 }
 
 fun Opplysningstype<LocalDate>.leggTilUker(

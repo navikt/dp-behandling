@@ -16,7 +16,7 @@ class Multiplikasjon<R : Any, T1 : Any, T2 : Any> internal constructor(
         return operasjon(a.verdi, b.verdi)
     }
 
-    override fun toString(): String = "Regner ut $produserer ved å gange $faktor1 med $faktor2"
+    override fun toString(): String = "Beregner $produserer ved å gange $faktor1 med $faktor2"
 }
 
 @JvmName("prosentAvBeløpDouble")

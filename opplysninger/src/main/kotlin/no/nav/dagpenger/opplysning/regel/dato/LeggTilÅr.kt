@@ -15,7 +15,7 @@ class LeggTilÅr internal constructor(
         return a.plusYears(opplysninger.finnOpplysning(antallÅr).verdi.toLong())
     }
 
-    override fun toString() = "Legg til $antallÅr på $dato"
+    override fun toString() = "Beregner $produserer ved å legge til $antallÅr år på $dato"
 }
 
 fun Opplysningstype<LocalDate>.leggTilÅr(

@@ -22,7 +22,7 @@ class NesteStønadsdag internal constructor(
         return finnFørsteArbeidsdag(arbeidsdag.plusDays(1))
     }
 
-    override fun toString() = "Finn første stønadsdag etter $dato"
+    override fun toString() = "Finner første stønadsdag etter $dato"
 }
 
 fun Opplysningstype<LocalDate>.nesteStønadsdag(dato: Opplysningstype<LocalDate>) = NesteStønadsdag(this, dato)

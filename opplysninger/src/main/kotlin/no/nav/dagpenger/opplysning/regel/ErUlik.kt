@@ -15,7 +15,7 @@ class ErUlik internal constructor(
         return a != b
     }
 
-    override fun toString() = "$a er ikke lik $b"
+    override fun toString() = "Sjekker om $a er ulik $b"
 }
 
 fun Opplysningstype<Boolean>.erUlik(

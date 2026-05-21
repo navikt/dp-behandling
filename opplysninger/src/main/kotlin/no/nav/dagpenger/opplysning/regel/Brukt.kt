@@ -18,7 +18,7 @@ class Brukt<T : Any> internal constructor(
             ?.navn!!
     }
 
-    override fun toString() = "Hvilken regel har utledet $a"
+    override fun toString() = "Finner hvilken opplysning som har utledet $a"
 }
 
 @JvmName("bruktBeløp")

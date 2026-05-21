@@ -17,7 +17,7 @@ class SjekkAvTerskel internal constructor(
         return (1 - (andel / total)) * 100 >= terskel
     }
 
-    override fun toString() = "$andel av $total er minst $terskel prosent"
+    override fun toString() = "Sjekker om $andel av $total er minst $terskel prosent"
 }
 
 fun Opplysningstype<Boolean>.prosentTerskel(

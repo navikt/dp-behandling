@@ -15,7 +15,7 @@ class Substraksjon<T : Any> internal constructor(
         return operasjon(verdier)
     }
 
-    override fun toString() = "Substraksjon av ${opplysningstyper.joinToString(", ")}"
+    override fun toString() = "Beregner $produserer ved å trekke fra ${opplysningstyper.drop(1).joinToString(", ")} fra ${opplysningstyper.first()}"
 }
 
 @JvmName("substraksjonDouble")

@@ -14,7 +14,7 @@ class Avrund(
         return Beløp(verdi.avrundet.numberValueExact(BigDecimal::class.java))
     }
 
-    override fun toString() = "Produserer $produserer ved å avrunde $beløp"
+    override fun toString() = "Beregner $produserer ved å avrunde $beløp"
 }
 
 fun Opplysningstype<Beløp>.avrund(grunnlag: Opplysningstype<Beløp>) = Avrund(this, grunnlag)

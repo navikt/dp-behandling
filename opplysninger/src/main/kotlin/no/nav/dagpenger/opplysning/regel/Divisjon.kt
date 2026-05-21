@@ -16,7 +16,7 @@ class Divisjon<T : Any> internal constructor(
         return operasjon.invoke(a, b)
     }
 
-    override fun toString(): String = "Divisjon av $beløp med $faktor"
+    override fun toString(): String = "Beregner $produserer ved å dele $beløp på $faktor"
 }
 
 @JvmName("divisjonDouble")

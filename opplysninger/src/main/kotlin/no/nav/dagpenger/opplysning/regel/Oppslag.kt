@@ -15,7 +15,7 @@ class Oppslag<T : Any> internal constructor(
         return block(oppslagsdato)
     }
 
-    override fun toString() = "Finner gjeldende verdi for $produserer på $dato"
+    override fun toString() = "Slår opp gjeldende verdi for $produserer på $dato"
 }
 
 fun <T : Any> Opplysningstype<T>.oppslag(
