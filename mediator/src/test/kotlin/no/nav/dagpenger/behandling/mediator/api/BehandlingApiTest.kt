@@ -27,8 +27,6 @@ import no.nav.dagpenger.behandling.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem
 import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.behandling.juli
-import no.nav.dagpenger.behandling.konfigurasjon.Configuration
-import no.nav.dagpenger.behandling.mediator.api.TestApplication.autentisert
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.maskinToken
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.behandling.mediator.api.TestApplication.withMockAuthServerAndTestApplication
@@ -327,7 +325,7 @@ internal class BehandlingApiTest {
             val response =
                 testContext.autentisert(
                     httpMethod = HttpMethod.Post,
-                    adgrupper = Configuration.properties[Configuration.Grupper.admin],
+                    adgrupper = this.oppsett.adminGrupper,
                     endepunkt = "/ferietillegg/generer/2025",
                 )
             response.status shouldBe HttpStatusCode.OK
@@ -527,7 +525,7 @@ internal class BehandlingApiTest {
                     """{"ident":"${person.ident}"}""",
                     token =
                         testAzureAdToken(
-                            ADGrupper = listOf(Configuration.properties[Configuration.Grupper.saksbehandler]),
+                            ADGrupper = listOf(oppsett.saksbehandlerGruppe),
                             navIdent = "555",
                         ),
                 ).status shouldBe HttpStatusCode.Created
@@ -625,19 +623,14 @@ internal class BehandlingApiTest {
     }
 
     private fun medSikretBehandlingApi(block: suspend SimulertDagpengerSystem.(TestContext) -> Unit) {
-        System.setProperty("Grupper.saksbehandler", "dagpenger-saksbehandler")
-        System.setProperty("Grupper.beslutter", "dagpenger-beslutter")
-        System.setProperty("Grupper.admin", "enkel-admin")
-        System.setProperty("Maskintilgang.navn", "test-app")
         nyttScenario {
             inntektSiste12Mnd = 350000
+            saksbehandlerGruppe = "dagpenger-saksbehandler"
+            adminGrupper = listOf("enkel-admin")
+            maskintilgangnavn = "test-app"
         }.test {
             withMockAuthServerAndTestApplication(this.api) { block(this) }
         }
-        System.clearProperty("Grupper.saksbehandler")
-        System.clearProperty("Grupper.beslutter")
-        System.clearProperty("Maskintilgang.navn")
-        System.clearProperty("Grupper.admin")
     }
 
     private companion object {

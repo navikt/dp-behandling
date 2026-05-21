@@ -5,13 +5,29 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.FailedMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
+import com.natpryce.konfig.ConfigurationMap
+import io.ktor.client.request.header
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.content.TextContent
 import io.ktor.server.application.Application
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.db.DBTestContext
 import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
+import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.BehandlingRuntime
 import no.nav.dagpenger.behandling.mediator.IAktivitetsloggMediator
+import no.nav.dagpenger.behandling.mediator.api.TestApplication
+import no.nav.dagpenger.behandling.mediator.api.TestApplication.AZUREAD_ISSUER_ID
+import no.nav.dagpenger.behandling.mediator.api.TestApplication.testAzureAdToken
+import no.nav.dagpenger.behandling.mediator.api.TestContext
+import no.nav.dagpenger.behandling.mediator.api.auth.AuthFactory
+import no.nav.dagpenger.behandling.mediator.api.auth.AuthFactory.azure_app
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
@@ -21,11 +37,12 @@ import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import org.approvaltests.Approvals
 import tools.jackson.databind.JsonNode
 import java.util.UUID
+import kotlin.collections.listOf
 import kotlin.random.Random
 
 internal class SimulertDagpengerSystem(
     dbTestContext: DBTestContext,
-    oppsett: ScenarioOptions,
+    val oppsett: ScenarioOptions,
 ) {
     companion object {
         fun nyttScenario(block: ScenarioOptions.() -> Unit = {}) = ScenarioOptions().apply(block)
@@ -36,8 +53,22 @@ internal class SimulertDagpengerSystem(
 
     val auditlogg = TestAuditlogg()
 
+    private val authFactory =
+        AuthFactory(
+            ConfigurationMap(
+                mapOf(
+                    Configuration.Grupper.saksbehandler.name to oppsett.saksbehandlerGruppe,
+                    Configuration.Maskintilgang.navn.name to oppsett.maskintilgangnavn,
+                    Configuration.Grupper.admin.name to oppsett.adminGrupper.joinToString(","),
+                    azure_app.client_id.name to TestApplication.CLIENT_ID,
+                    azure_app.well_known_url.name to "${TestApplication.mockOAuth2Server.wellKnownUrl(AZUREAD_ISSUER_ID)}",
+                ),
+            ),
+        )
+
     private val runtime =
         BehandlingRuntime(
+            authFactory = authFactory,
             dbSession = dbTestContext.dbSession,
             rapidsConnection = rapid,
             auditlogg = auditlogg,
@@ -103,6 +134,9 @@ internal class SimulertDagpengerSystem(
         var permittertfraFiskeforedling: Boolean = false,
         val ordinær: Boolean = false,
         var verneplikt: Boolean = false,
+        var saksbehandlerGruppe: String = "dagpenger-saksbehandler",
+        var adminGrupper: List<String> = listOf("enkel-admin"),
+        var maskintilgangnavn: String = "test-app",
     ) {
         inline fun test(crossinline block: SimulertDagpengerSystem.() -> Unit) {
             withMigratedDb {
@@ -181,6 +215,25 @@ internal class SimulertDagpengerSystem(
             }
         }
     }
+
+    internal suspend fun TestContext.autentisert(
+        httpMethod: HttpMethod = HttpMethod.Post,
+        endepunkt: String,
+        body: String? = null,
+        adgrupper: List<String> = listOf(oppsett.saksbehandlerGruppe),
+        token: String =
+            testAzureAdToken(
+                ADGrupper = adgrupper,
+                navIdent = "123",
+            ),
+    ): HttpResponse =
+        client.request(endepunkt) {
+            this.method = httpMethod
+            body?.let { this.setBody(TextContent(it, ContentType.Application.Json)) }
+            this.header(HttpHeaders.Authorization, "Bearer $token")
+            this.header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+            this.header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        }
 }
 
 private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {

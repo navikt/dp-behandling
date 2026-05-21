@@ -14,6 +14,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
 import no.nav.dagpenger.behandling.mediator.api.ApiMessageContext
+import no.nav.dagpenger.behandling.mediator.api.auth.AuthFactory
 import no.nav.dagpenger.behandling.mediator.api.simuleringApi
 import no.nav.dagpenger.behandling.mediator.api.statusPagesConfig
 import no.nav.dagpenger.behandling.mediator.audit.ApiAuditlogg
@@ -66,6 +67,7 @@ internal class ApplicationBuilder(
         ) { engine, rapidsConnection: KafkaRapid ->
             runtime =
                 BehandlingRuntime(
+                    authFactory = AuthFactory(no.nav.dagpenger.behandling.konfigurasjon.Configuration.properties),
                     dbSession = postgresDataSourceBuilder.dbsession,
                     rapidsConnection = rapidsConnection,
                     auditlogg = ApiAuditlogg(AktivitetsloggMediator(), rapidsConnection),

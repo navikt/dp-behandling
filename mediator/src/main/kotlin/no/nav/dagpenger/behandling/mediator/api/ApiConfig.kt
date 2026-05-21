@@ -3,18 +3,20 @@ package no.nav.dagpenger.behandling.mediator.api
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
-import io.ktor.server.auth.AuthenticationConfig
 import io.ktor.server.auth.jwt.jwt
-import no.nav.dagpenger.behandling.mediator.api.auth.AuthFactory.adminTilgang
-import no.nav.dagpenger.behandling.mediator.api.auth.AuthFactory.azureAd
+import no.nav.dagpenger.behandling.mediator.api.auth.AuthFactory
 
-internal fun Application.authenticationConfig(
-    auth: AuthenticationConfig.() -> Unit = {
-        jwt("azureAd") { azureAd() }
-        jwt("admin") { adminTilgang() }
-    },
-) {
+internal fun Application.authenticationConfig(authFactory: AuthFactory) {
     install(Authentication) {
-        auth()
+        jwt("azureAd") {
+            with(authFactory) {
+                azureAd()
+            }
+        }
+        jwt("admin") {
+            with(authFactory) {
+                adminTilgang()
+            }
+        }
     }
 }

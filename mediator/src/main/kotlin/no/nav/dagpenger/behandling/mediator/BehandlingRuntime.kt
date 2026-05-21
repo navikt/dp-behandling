@@ -3,6 +3,7 @@ package no.nav.dagpenger.behandling.mediator
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.ktor.server.application.Application
+import no.nav.dagpenger.behandling.mediator.api.auth.AuthFactory
 import no.nav.dagpenger.behandling.mediator.api.behandlingApi
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
 import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
@@ -31,6 +32,7 @@ import no.nav.dagpenger.regelverk.RegelverkRegistrering
  * Brukes av ApplicationBuilder i prod og SimulertDagpengerSystem i test.
  */
 class BehandlingRuntime(
+    private val authFactory: AuthFactory,
     private val dbSession: DatabaseSession,
     val rapidsConnection: RapidsConnection,
     private val auditlogg: Auditlogg,
@@ -101,6 +103,7 @@ class BehandlingRuntime(
 
     val api: Application.() -> Unit = {
         behandlingApi(
+            authFactory = authFactory,
             personRepository = personRepository,
             hendelseMediator = hendelseMediator,
             auditlogg = auditlogg,

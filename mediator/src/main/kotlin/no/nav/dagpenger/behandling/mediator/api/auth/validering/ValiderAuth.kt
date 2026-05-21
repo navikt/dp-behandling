@@ -4,21 +4,20 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.auth.jwt.JWTAuthenticationProvider
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.auth.jwt.JWTPrincipal
-import no.nav.dagpenger.behandling.konfigurasjon.Configuration
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerApp
 
 private val logger = KotlinLogging.logger { }
 
-internal fun JWTAuthenticationProvider.Config.autoriser() {
-    val saksbehandlerGruppe = Configuration.properties[Configuration.Grupper.saksbehandler]
-    val apper: List<String> = Configuration.properties[Configuration.Maskintilgang.navn]
-
+internal fun JWTAuthenticationProvider.Config.autoriser(
+    saksbehandlerGruppe: String,
+    apperMedTilgang: List<String>,
+) {
     validate { jwtClaims: JWTCredential ->
         val type = jwtClaims.payload.claims["idtyp"]?.asString()
         logger.trace { "Tilgangsjekker idtyp: $type" }
         when (type) {
             "app" -> {
-                jwtClaims.tilgangsjekkForMaskinToken(apper)
+                jwtClaims.tilgangsjekkForMaskinToken(apperMedTilgang)
             }
 
             else -> {
@@ -45,9 +44,7 @@ private fun JWTCredential.tilgangsjekkForSaksbehandler(ADGruppe: String) =
             ?.contains(ADGruppe) ?: false,
     ) { "Mangler tilgang" }
 
-internal fun JWTAuthenticationProvider.Config.autoriserAdminTilgang() {
-    val adminGrupper = Configuration.properties[Configuration.Grupper.admin]
-
+internal fun JWTAuthenticationProvider.Config.autoriserAdminTilgang(adminGrupper: List<String>) {
     validate { jwtClaims: JWTCredential ->
         jwtClaims.måInneholdeAdminTilgang(adminGrupper = adminGrupper)
         JWTPrincipal(jwtClaims.payload)

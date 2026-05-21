@@ -41,6 +41,7 @@ import no.nav.dagpenger.behandling.api.models.RettighetsstatusDTO
 import no.nav.dagpenger.behandling.api.models.SaksbehandlerbegrunnelseDTO
 import no.nav.dagpenger.behandling.mediator.IHendelseMediator
 import no.nav.dagpenger.behandling.mediator.OpplysningSvarBygger.VerdiMapper
+import no.nav.dagpenger.behandling.mediator.api.auth.AuthFactory
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.behandling.mediator.api.auth.saksbehandlerIdOrNull
 import no.nav.dagpenger.behandling.mediator.api.melding.FjernOpplysning
@@ -93,6 +94,7 @@ private val logger = KotlinLogging.logger { }
 private val sikkerlogg = KotlinLogging.logger("tjenestekall.FjernOpplysning")
 
 internal fun Application.behandlingApi(
+    authFactory: AuthFactory,
     personRepository: PersonRepository,
     hendelseMediator: IHendelseMediator,
     auditlogg: Auditlogg,
@@ -102,7 +104,7 @@ internal fun Application.behandlingApi(
     meterRegistry: PrometheusMeterRegistry? = null,
     messageContext: (ident: String) -> MessageContext,
 ) {
-    authenticationConfig()
+    authenticationConfig(authFactory)
     install(OtelTraceIdPlugin)
 
     routing {

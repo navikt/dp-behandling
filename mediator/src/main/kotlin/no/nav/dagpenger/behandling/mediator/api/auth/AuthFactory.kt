@@ -22,16 +22,18 @@ import java.net.URI
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
-object AuthFactory {
+class AuthFactory(
+    val properties: com.natpryce.konfig.Configuration,
+) {
     @Suppress("ClassName")
-    private object azure_app : PropertyGroup() {
+    object azure_app : PropertyGroup() {
         val well_known_url by stringType
         val client_id by stringType
     }
 
     private val azureAdConfiguration: OpenIdConfiguration by lazy {
         runBlocking {
-            httpClient.get(Configuration.properties[azure_app.well_known_url]).body()
+            httpClient.get(properties[azure_app.well_known_url]).body()
         }
     }
 
@@ -48,15 +50,18 @@ object AuthFactory {
         }
 
     fun JWTAuthenticationProvider.Config.azureAd() {
+        val saksbehandlerGruppe = properties[Configuration.Grupper.saksbehandler]
+        val apper: List<String> = properties[Configuration.Maskintilgang.navn]
         realm = Configuration.APP_NAME
         verifiserTokenFormatOgSignatur()
-        autoriser()
+        autoriser(saksbehandlerGruppe, apper)
     }
 
     fun JWTAuthenticationProvider.Config.adminTilgang() {
+        val adminGrupper = properties[Configuration.Grupper.admin]
         realm = Configuration.APP_NAME
         verifiserTokenFormatOgSignatur()
-        autoriserAdminTilgang()
+        autoriserAdminTilgang(adminGrupper)
     }
 
     private fun JWTAuthenticationProvider.Config.verifiserTokenFormatOgSignatur() {
@@ -64,7 +69,7 @@ object AuthFactory {
             jwkProvider = jwkProvider(URI(azureAdConfiguration.jwksUri).toURL()),
             issuer = azureAdConfiguration.issuer,
             configure = {
-                withAudience(Configuration.properties[azure_app.client_id])
+                withAudience(properties[azure_app.client_id])
             },
         )
     }
