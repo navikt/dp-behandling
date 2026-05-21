@@ -15,6 +15,7 @@ import io.mockk.verify
 import no.nav.dagpenger.mediator.MessageMediator
 import no.nav.dagpenger.mediator.TestOpplysningstyper.barn
 import no.nav.dagpenger.mediator.TestOpplysningstyper.boolsk
+import no.nav.dagpenger.mediator.TestOpplysningstyper.desimal
 import no.nav.dagpenger.mediator.TestOpplysningstyper.inntektA
 import no.nav.dagpenger.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.modell.hendelser.OpplysningSvarHendelse
@@ -35,7 +36,7 @@ class OpplysningSvarMottakTest {
     private val opplysningMock = mockk<Opplysninger>(relaxed = true)
 
     init {
-        OpplysningSvarMottak(rapid, messageMediator, setOf(boolsk, inntektA, barn))
+        OpplysningSvarMottak(rapid, messageMediator, setOf(boolsk, inntektA, barn, desimal))
     }
 
     @BeforeEach
@@ -143,6 +144,27 @@ class OpplysningSvarMottakTest {
             .leggTil(opplysningMock)
             .gyldighetsperiode shouldBe
             Gyldighetsperiode(LocalDate.MIN, gyldigTilOgMed)
+    }
+
+    @Test
+    fun `kan lese desimalverdier med komma`() {
+        rapid.sendTestMessage(
+            løsningMedMetadata(
+                null,
+                gyldigTilOgMed,
+                opplysningstype = desimal.behovId,
+                verdi = "18,75",
+            ).toJson(),
+        )
+
+        val hendelse = slot<OpplysningSvarHendelse>()
+        verify {
+            messageMediator.behandle(capture(hendelse), any(), any())
+        }
+
+        hendelse.isCaptured shouldBe true
+        hendelse.captured.behandlingId shouldBe behandlingId
+        hendelse.captured.opplysninger shouldHaveSize 1
     }
 
     @Test
