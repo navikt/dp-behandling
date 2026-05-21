@@ -6,7 +6,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaringer
 import no.nav.dagpenger.behandling.TestOpplysningstyper.opplysningerRepository
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.modell.Ident
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.behandling.modell.hendelser.AvklaringKvittertHendelse

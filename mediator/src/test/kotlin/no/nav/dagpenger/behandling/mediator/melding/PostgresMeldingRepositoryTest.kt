@@ -1,7 +1,7 @@
 package no.nav.dagpenger.behandling.mediator.melding
 
 import io.kotest.matchers.equals.shouldBeEqual
-import no.nav.dagpenger.behandling.db.Postgres
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.repository.ApiMelding
 import kotlin.test.Test
 
@@ -11,7 +11,7 @@ internal class PostgresMeldingRepositoryTest {
         val ident = "12345678910"
         val melding = ApiMelding(ident)
 
-        Postgres.withMigratedDb {
+        withMigratedDb {
             val postgresHendelseRepository = PostgresMeldingRepository(dbSession)
             postgresHendelseRepository.lagreMelding(
                 melding = melding,

@@ -1,7 +1,6 @@
 package no.nav.dagpenger.behandling.db
 
 import io.kotest.matchers.ints.shouldBeExactly
-import no.nav.dagpenger.behandling.db.Postgres.withCleanDb
 import org.junit.jupiter.api.Test
 
 class PostgresMigrationTest {

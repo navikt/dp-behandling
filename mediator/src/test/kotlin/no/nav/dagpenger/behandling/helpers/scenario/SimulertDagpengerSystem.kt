@@ -9,7 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
 import io.ktor.server.application.Application
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.db.DBTestContext
-import no.nav.dagpenger.behandling.db.Postgres
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
 import no.nav.dagpenger.behandling.mediator.BehandlingRuntime
 import no.nav.dagpenger.behandling.mediator.IAktivitetsloggMediator
@@ -104,8 +104,8 @@ internal class SimulertDagpengerSystem(
         val ordinær: Boolean = false,
         var verneplikt: Boolean = false,
     ) {
-        inline fun test(block: SimulertDagpengerSystem.() -> Unit) {
-            Postgres.withMigratedDb {
+        inline fun test(crossinline block: SimulertDagpengerSystem.() -> Unit) {
+            withMigratedDb {
                 val test = SimulertDagpengerSystem(this, this@ScenarioOptions)
                 test.opprettPerson(ident)
                 test.block()

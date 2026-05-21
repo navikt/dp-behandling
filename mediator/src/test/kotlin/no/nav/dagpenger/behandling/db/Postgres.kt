@@ -5,11 +5,21 @@ import com.zaxxer.hikari.HikariDataSource
 import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import org.flywaydb.core.Flyway
 import org.testcontainers.postgresql.PostgreSQLContainer
+import javax.sql.DataSource
 
 data class DBTestContext(
     val dbSession: DatabaseSession,
-    val flyWay: Flyway,
+    private val flywayDataSource: Lazy<DataSource>,
 ) {
+    private val flyWay by lazy {
+        Flyway
+            .configure()
+            .connectRetries(10)
+            .dataSource(flywayDataSource.value)
+            .cleanDisabled(false)
+            .load()
+    }
+
     fun clean() {
         flyWay.clean()
     }
@@ -22,7 +32,7 @@ data class DBTestContext(
 }
 
 internal object Postgres {
-    val instance by lazy {
+    private val instance by lazy {
         PostgreSQLContainer("postgres:18.0").apply {
             withReuse(true)
             start()
@@ -41,27 +51,20 @@ internal object Postgres {
         }
 
     private val dataSource = lazy { HikariDataSource(hikariConfig) }
-    private val flywayDataSource by lazy { HikariDataSource(flywayConfig) }
+    private val flywayDataSource = lazy { HikariDataSource(flywayConfig) }
 
-    private val flyWay by lazy {
-        Flyway
-            .configure()
-            .connectRetries(10)
-            .dataSource(flywayDataSource)
-            .cleanDisabled(false)
-            .load()
-    }
+    val testContext = DBTestContext(DatabaseSession(dataSource), flywayDataSource)
+}
 
-    inline fun withMigratedDb(block: DBTestContext.() -> Unit) {
-        withCleanDb {
-            runMigration()
-            block()
-        }
+internal inline fun withMigratedDb(block: DBTestContext.() -> Unit) {
+    withCleanDb {
+        runMigration()
+        block()
     }
+}
 
-    inline fun withCleanDb(block: DBTestContext.() -> Unit) {
-        val context = DBTestContext(DatabaseSession(dataSource), flyWay)
-        context.clean()
-        block(context)
-    }
+internal inline fun withCleanDb(block: DBTestContext.() -> Unit) {
+    val context = Postgres.testContext
+    context.clean()
+    block(context)
 }

@@ -6,7 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotliquery.queryOf
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.mediator.Behovssporer
 import no.nav.dagpenger.behandling.mediator.db.DatabaseSession
 import no.nav.dagpenger.behandling.modell.Behandling.TilstandType

@@ -24,7 +24,7 @@ import no.nav.dagpenger.behandling.TestOpplysningstyper.periode
 import no.nav.dagpenger.behandling.TestOpplysningstyper.tekst
 import no.nav.dagpenger.behandling.TestOpplysningstyper.utledetOpplysningstype
 import no.nav.dagpenger.behandling.april
-import no.nav.dagpenger.behandling.db.Postgres.withMigratedDb
+import no.nav.dagpenger.behandling.db.withMigratedDb
 import no.nav.dagpenger.behandling.juli
 import no.nav.dagpenger.behandling.mai
 import no.nav.dagpenger.behandling.mediator.objectMapper
