@@ -48,6 +48,7 @@ dependencies {
     testImplementation("io.ktor:ktor-client-content-negotiation:${libs.versions.ktor.get()}")
     testImplementation("io.ktor:ktor-serialization-jackson3:${libs.versions.ktor.get()}")
     testImplementation("com.approvaltests:approvaltests:22.3.3")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.0")
 }
 
 application {

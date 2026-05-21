@@ -20,6 +20,12 @@ data class DatabaseSession(
 ) {
     fun <R> session(block: (Session) -> R): R = sessionOf(dataSource.value).use(block)
 
+    fun close() {
+        if (dataSource.isInitialized()) {
+            (dataSource.value as? AutoCloseable)?.close()
+        }
+    }
+
     fun transaction(transactionBlock: PostgresUnitOfWork.() -> Unit) {
         session { session ->
             session.connection.underlying.withTransaction {
