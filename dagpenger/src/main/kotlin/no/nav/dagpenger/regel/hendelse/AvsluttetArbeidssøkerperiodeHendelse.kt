@@ -2,12 +2,12 @@ package no.nav.dagpenger.regel.hendelse
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Avklaring
-import no.nav.dagpenger.behandling.modell.Behandling
-import no.nav.dagpenger.behandling.modell.Rettighetstatus
-import no.nav.dagpenger.behandling.modell.hendelser.ArbeidssøkerperiodeId
-import no.nav.dagpenger.behandling.modell.hendelser.StartHendelse
-import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat
-import no.nav.dagpenger.behandling.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
+import no.nav.dagpenger.modell.hendelser.StartHendelse
+import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode

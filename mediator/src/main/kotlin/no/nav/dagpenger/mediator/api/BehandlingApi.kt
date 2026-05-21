@@ -1,0 +1,799 @@
+package no.nav.dagpenger.mediator.api
+
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.createApplicationPlugin
+import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.NotFoundException
+import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.put
+import io.ktor.server.routing.route
+import io.ktor.server.routing.routing
+import io.ktor.server.util.getOrFail
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.opentelemetry.api.trace.Span
+import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
+import no.nav.dagpenger.mediator.IHendelseMediator
+import no.nav.dagpenger.mediator.OpplysningSvarBygger.VerdiMapper
+import no.nav.dagpenger.mediator.api.auth.AuthFactory
+import no.nav.dagpenger.mediator.api.auth.saksbehandlerId
+import no.nav.dagpenger.mediator.api.auth.saksbehandlerIdOrNull
+import no.nav.dagpenger.mediator.api.melding.FjernOpplysning
+import no.nav.dagpenger.mediator.api.melding.OpplysningsSvar
+import no.nav.dagpenger.mediator.api.models.AvklaringKvitteringDTO
+import no.nav.dagpenger.mediator.api.models.BehandlingstypeDTO
+import no.nav.dagpenger.mediator.api.models.DataTypeDTO
+import no.nav.dagpenger.mediator.api.models.DatalastKvitteringDTO
+import no.nav.dagpenger.mediator.api.models.FerietilleggKvitteringDTO
+import no.nav.dagpenger.mediator.api.models.FlyttBehandlingDTO
+import no.nav.dagpenger.mediator.api.models.IdentForesporselDTO
+import no.nav.dagpenger.mediator.api.models.KvitteringDTO
+import no.nav.dagpenger.mediator.api.models.NyBehandlingDTO
+import no.nav.dagpenger.mediator.api.models.NyOpplysningDTO
+import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
+import no.nav.dagpenger.mediator.api.models.RekjoringDTO
+import no.nav.dagpenger.mediator.api.models.RettighetsstatusDTO
+import no.nav.dagpenger.mediator.api.models.SaksbehandlerbegrunnelseDTO
+import no.nav.dagpenger.mediator.audit.Auditlogg
+import no.nav.dagpenger.mediator.barnMapper
+import no.nav.dagpenger.mediator.repository.ApiMelding
+import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
+import no.nav.dagpenger.mediator.repository.MeldekortRepository
+import no.nav.dagpenger.mediator.repository.PersonRepository
+import no.nav.dagpenger.mediator.toJsonMessage
+import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
+import no.nav.dagpenger.modell.Behandling.TilstandType.Redigert
+import no.nav.dagpenger.modell.Behandling.TilstandType.TilBeslutning
+import no.nav.dagpenger.modell.Behandling.TilstandType.TilGodkjenning
+import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
+import no.nav.dagpenger.modell.hendelser.AvbrytBehandlingHendelse
+import no.nav.dagpenger.modell.hendelser.AvklaringKvittertHendelse
+import no.nav.dagpenger.modell.hendelser.BesluttBehandlingHendelse
+import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
+import no.nav.dagpenger.modell.hendelser.GodkjennBehandlingHendelse
+import no.nav.dagpenger.modell.hendelser.ManuellId
+import no.nav.dagpenger.modell.hendelser.OmgjøringId
+import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
+import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.opplysning.BarnDatatype
+import no.nav.dagpenger.opplysning.Boolsk
+import no.nav.dagpenger.opplysning.Datatype
+import no.nav.dagpenger.opplysning.Dato
+import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Heltall
+import no.nav.dagpenger.opplysning.InntektDataType
+import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.PeriodeDataType
+import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.Tekst
+import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
+import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.uuid.UUIDv7
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
+import kotlin.time.measureTime
+
+private val logger = KotlinLogging.logger { }
+private val sikkerlogg = KotlinLogging.logger("tjenestekall.FjernOpplysning")
+
+internal fun Application.behandlingApi(
+    authFactory: AuthFactory,
+    personRepository: PersonRepository,
+    hendelseMediator: IHendelseMediator,
+    auditlogg: Auditlogg,
+    opplysningstyper: Set<Opplysningstype<*>>,
+    apiRepositoryPostgres: ApiRepositoryPostgres,
+    meldekortRepository: MeldekortRepository,
+    meterRegistry: PrometheusMeterRegistry? = null,
+    messageContext: (ident: String) -> MessageContext,
+) {
+    authenticationConfig(authFactory)
+    install(OtelTraceIdPlugin)
+
+    routing {
+        swaggerUI(path = "openapi", swaggerFile = "behandling-api.yaml")
+
+        get("/") { call.respond(HttpStatusCode.OK) }
+        get("/features") {
+            call.respond(
+                HttpStatusCode.OK,
+                emptyMap<String, Boolean>(),
+            )
+        }
+        get("/opplysningstyper") {
+            val typer =
+                opplysningstyper.map {
+                    OpplysningstypeDTO(
+                        opplysningTypeId = it.id.uuid,
+                        behovId = it.behovId,
+                        navn = it.navn,
+                        datatype =
+                            when (it.datatype) {
+                                Boolsk -> DataTypeDTO.BOOLSK
+                                Dato -> DataTypeDTO.DATO
+                                Desimaltall -> DataTypeDTO.DESIMALTALL
+                                Heltall -> DataTypeDTO.HELTALL
+                                ULID -> DataTypeDTO.ULID
+                                Penger -> DataTypeDTO.PENGER
+                                InntektDataType -> DataTypeDTO.INNTEKT
+                                BarnDatatype -> DataTypeDTO.BARN
+                                Tekst -> DataTypeDTO.TEKST
+                                PeriodeDataType -> DataTypeDTO.PERIODE
+                            },
+                    )
+                }
+            call.respond(HttpStatusCode.OK, typer)
+        }
+
+        authenticate("azureAd") {
+            route("person/rettighetsstatus") {
+                post {
+                    val identForespørsel = call.receive<IdentForesporselDTO>()
+                    val ident = identForespørsel.ident.tilPersonIdentfikator()
+
+                    val rettighetstatusForPerson = personRepository.rettighetstatusFor(ident).contents()
+
+                    if (rettighetstatusForPerson.isEmpty()) {
+                        call.respond(HttpStatusCode.NotFound, "Ingen rettighetsstatus funnet for person")
+                        return@post
+                    }
+
+                    val rettighetsstatus =
+                        rettighetstatusForPerson.map { (_, rettighet) ->
+                            RettighetsstatusDTO(
+                                virkningsdato = rettighet.virkningsdato,
+                                harRett = rettighet.utfall,
+                                behandlingId = rettighet.behandlingId,
+                                behandlingskjedeId = rettighet.behandlingskjedeId,
+                            )
+                        }
+
+                    call.respond(rettighetsstatus)
+                }
+            }
+            route("person/behandling") {
+                post {
+                    val nyBehandlingDto = call.receive<NyBehandlingDTO>()
+                    val ident = nyBehandlingDto.ident
+                    val id = nyBehandlingDto.id ?: UUIDv7.ny()
+                    val skjedde = nyBehandlingDto.skjedde ?: LocalDate.now()
+                    if (!personRepository.harIdent(ident.tilPersonIdentfikator())) {
+                        throw NotFoundException("Person ikke funnet")
+                    }
+
+                    val melding = ApiMelding(nyBehandlingDto.ident)
+                    val hendelse =
+                        when (nyBehandlingDto.behandlingstype) {
+                            BehandlingstypeDTO.REVURDERING -> {
+                                OmgjøringHendelse(
+                                    meldingsreferanseId = melding.id,
+                                    ident = nyBehandlingDto.ident,
+                                    eksternId = OmgjøringId(id),
+                                    gjelderDato = skjedde,
+                                    opprettet = LocalDateTime.now(),
+                                )
+                            }
+
+                            else -> {
+                                OpprettBehandlingHendelse(
+                                    meldingsreferanseId = melding.id,
+                                    ident = nyBehandlingDto.ident,
+                                    eksternId = ManuellId(id),
+                                    gjelderDato = skjedde,
+                                    begrunnelse = nyBehandlingDto.begrunnelse,
+                                    opprettet = LocalDateTime.now(),
+                                )
+                            }
+                        }
+
+                    apiRepositoryPostgres.behandle(melding) {
+                        hendelse.info(
+                            "Oppretter behandling manuelt (type: ${nyBehandlingDto.behandlingstype})",
+                            nyBehandlingDto.ident,
+                            call.saksbehandlerId(),
+                            AuditOperasjon.CREATE,
+                        )
+                        hendelseMediator.behandle(hendelse, messageContext(nyBehandlingDto.ident))
+                    }
+
+                    call.respond(
+                        HttpStatusCode.OK,
+                        personRepository
+                            .hent(ident.tilPersonIdentfikator())!!
+                            .behandlinger()
+                            .single { it.behandler.eksternId == hendelse.eksternId }
+                            .tilBehandlingDTO(),
+                    )
+                }
+            }
+            route("behandling") {
+                post {
+                    val identForespørsel = call.receive<IdentForesporselDTO>()
+                    val ident = identForespørsel.ident
+                    val person =
+                        personRepository.hent(
+                            ident.tilPersonIdentfikator(),
+                        ) ?: throw NotFoundException("Person ikke funnet")
+
+                    auditlogg.les("Listet ut behandlinger", ident, call.saksbehandlerId())
+
+                    call.respond(HttpStatusCode.OK, person.behandlinger().map { it.tilBehandlingDTO() })
+                }
+                get("v2/{behandlingId}") {
+                    val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                    auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
+                    call.respond(HttpStatusCode.OK, behandling.tilBehandlingDTO())
+                }
+
+                route("{behandlingId}") {
+                    get {
+                        val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                        auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
+
+                        call.respond(HttpStatusCode.OK, behandling.tilBehandlingDTO())
+                    }
+
+                    get("behandlingsresultat") {
+                        val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                        call.saksbehandlerIdOrNull()?.let {
+                            auditlogg.les("Så en behandling", behandling.behandler.ident, it)
+                        }
+
+                        val vedtakOpplysninger = behandling.vedtakopplysninger
+
+                        call.respond(
+                            HttpStatusCode.OK,
+                            vedtakOpplysninger.tilBehandlingsresultatDTO(behandling.behandler.ident),
+                        )
+                    }
+
+                    get("vurderinger") {
+                        val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                        auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
+
+                        call.respond(HttpStatusCode.OK, behandling.tilSaksbehandlersVurderinger())
+                    }
+
+                    put("vurderinger/{opplysningId}") {
+                        val begrunnelse = call.receive<SaksbehandlerbegrunnelseDTO>()
+
+                        personRepository.lagreBegrunnelse(call.opplysningId, begrunnelse.begrunnelse)
+
+                        call.respond(HttpStatusCode.Accepted)
+                    }
+
+                    post("godkjenn") {
+                        val identForespørsel = call.receive<IdentForesporselDTO>()
+                        val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                        // TODO: La dette egentlig komme fra modellen
+                        if (!behandling.harTilstand(TilGodkjenning)) {
+                            throw BadRequestException(
+                                "Behandlingen er ikke klar til å godkjennes. Er i status ${behandling.tilstand().first}",
+                            )
+                        }
+
+                        val hendelse =
+                            GodkjennBehandlingHendelse(
+                                UUIDv7.ny(),
+                                identForespørsel.ident,
+                                call.behandlingId,
+                                Saksbehandler(call.saksbehandlerId()),
+                                LocalDateTime.now(),
+                            )
+                        hendelse.info("Godkjente behandling", identForespørsel.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+
+                        hendelseMediator.behandle(hendelse, messageContext(identForespørsel.ident))
+
+                        call.respond(HttpStatusCode.Created)
+                    }
+
+                    post("beslutt") {
+                        val identForespørsel = call.receive<IdentForesporselDTO>()
+                        val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                        // TODO: La dette egentlig komme fra modellen
+                        if (!behandling.harTilstand(TilBeslutning)) {
+                            // throw BadRequestException("Behandlingen er ikke til beslutning enda")
+                        }
+
+                        val hendelse =
+                            BesluttBehandlingHendelse(
+                                UUIDv7.ny(),
+                                identForespørsel.ident,
+                                call.behandlingId,
+                                Saksbehandler(call.saksbehandlerId()),
+                                LocalDateTime.now(),
+                            )
+                        hendelse.info("Besluttet behandling", identForespørsel.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+
+                        hendelseMediator.behandle(hendelse, messageContext(identForespørsel.ident))
+
+                        hendelse.harAktiviteter()
+
+                        call.respond(HttpStatusCode.Created)
+                    }
+                    post("send-tilbake") {
+                        val identForespørsel = call.receive<IdentForesporselDTO>()
+                        val hendelse = SendTilbakeHendelse(UUIDv7.ny(), identForespørsel.ident, call.behandlingId, LocalDateTime.now())
+                        hendelse.info(
+                            "Sendte behandling tilbake til saksbehandler",
+                            identForespørsel.ident,
+                            call.saksbehandlerId(),
+                            AuditOperasjon.UPDATE,
+                        )
+
+                        hendelseMediator.behandle(hendelse, messageContext(identForespørsel.ident))
+
+                        call.respond(HttpStatusCode.Created)
+                    }
+
+                    post("avbryt") {
+                        val identForespørsel = call.receive<IdentForesporselDTO>()
+
+                        val hendelse =
+                            AvbrytBehandlingHendelse(
+                                UUIDv7.ny(),
+                                identForespørsel.ident,
+                                call.behandlingId,
+                                "Avbrutt av saksbehandler",
+                                LocalDateTime.now(),
+                            )
+                        hendelse.info("Avbrøt behandling", identForespørsel.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+
+                        hendelseMediator.behandle(hendelse, messageContext(identForespørsel.ident))
+
+                        call.respond(HttpStatusCode.Created)
+                    }
+
+                    post("rekjor") {
+                        val rekjøring = call.receive<RekjoringDTO>()
+
+                        logger.info { "Kjører behandling på nytt, oppfrisker=${rekjøring.opplysninger}" }
+
+                        val hendelse =
+                            RekjørBehandlingHendelse(
+                                UUIDv7.ny(),
+                                rekjøring.ident,
+                                call.behandlingId,
+                                LocalDateTime.now(),
+                                rekjøring.opplysninger ?: emptyList(),
+                            ).apply {
+                                info("Rekjør behandling", rekjøring.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+                            }
+
+                        when (rekjøring.opplysninger?.isEmpty()) {
+                            // Hvis ingen opplysninger er endret kan vi kjøre synkront
+                            null, true -> {
+                                hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
+                            }
+
+                            // Hvis opplysninger er endret må vi vente på at behovene løses
+                            false -> {
+                                val behandling = hentBehandling(personRepository, call.behandlingId)
+                                // TODO: Vi bør klare å vente på alle endringene
+                                val opplysning = behandling.opplysninger().finnOpplysning(rekjøring.opplysninger!!.first())
+
+                                apiRepositoryPostgres.endreOpplysning(call.behandlingId, opplysning.opplysningstype.behovId) {
+                                    hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
+                                }
+                            }
+                        }
+
+                        call.respond(HttpStatusCode.Created)
+                    }
+
+                    post("flytt") {
+                        val behandlingId = call.behandlingId
+                        val flytting = call.receive<FlyttBehandlingDTO>()
+                        val behandling = hentBehandling(personRepository, behandlingId)
+
+                        val hendelse =
+                            FlyttBehandlingHendelse(
+                                UUIDv7.ny(),
+                                behandling.behandler.ident,
+                                call.behandlingId,
+                                flytting.nyBasertPå,
+                                emptyList(),
+                                LocalDateTime.now(),
+                            ).apply {
+                                info("Flytter behandling", behandling.behandler.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
+                            }
+
+                        logger.info { "Flytter behandling på nytt, nyBasertPå=${flytting.nyBasertPå}" }
+                        hendelseMediator.behandle(hendelse, messageContext(behandling.behandler.ident))
+
+                        call.respond(HttpStatusCode.Accepted)
+                    }
+
+                    delete("opplysning/{opplysningId}") {
+                        val behandlingId = call.behandlingId
+                        val opplysningId = call.opplysningId
+                        withLoggingContext(
+                            "behandlingId" to behandlingId.toString(),
+                        ) {
+                            val behandling = hentBehandling(personRepository, behandlingId)
+
+                            if (behandling.harTilstand(Redigert)) {
+                                throw BadRequestException("Kan ikke fjerne opplysning før forrige redigering er ferdig")
+                            }
+
+                            if (!behandling.kanRedigeres()) {
+                                throw BadRequestException(
+                                    "Kan ikke fjerne opplysning fordi behandlingen er ikke i redigerbar tilstand",
+                                )
+                            }
+
+                            val kunEgne = behandling.opplysninger().kunEgne
+                            val opplysning = kunEgne.finnOpplysning(opplysningId)
+                            if (!redigerbareOpplysninger.kanRedigere(opplysning.opplysningstype)) {
+                                throw BadRequestException("Opplysningstype ${opplysning.opplysningstype} kan ikke redigeres")
+                            }
+
+                            val perioder = kunEgne.finnAlle(opplysning.opplysningstype)
+                            if (perioder.size > 1 && perioder.singleOrNull { it.erstatter != null }?.id == opplysningId) {
+                                throw BadRequestException(
+                                    "Kan ikke fjerne denne opplysningen, de påfølgende periodene må fjernes først",
+                                )
+                            }
+
+                            logger.info {
+                                """
+                                Skal fjerne opplysning i behandlingId=$behandlingId, 
+                                behovId=${opplysning.opplysningstype.behovId},
+                                datatype=${opplysning.opplysningstype.datatype},
+                                """.trimIndent()
+                            }
+
+                            val svar =
+                                FjernOpplysning(
+                                    behandlingId = behandlingId,
+                                    opplysningId = opplysningId,
+                                    behovId = opplysning.opplysningstype.behovId,
+                                    ident = behandling.behandler.ident,
+                                    saksbehandler = call.saksbehandlerId(),
+                                )
+
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysning.opplysningstype.behovId) {
+                                logger.info { "Starter en fjerning av opplysning i behandling" }
+                                messageContext(behandling.behandler.ident).publish(svar.toJson())
+                                auditlogg.oppdater("Fjernet opplysning", behandling.behandler.ident, call.saksbehandlerId())
+                                logger.info { "Venter på slettingen blir ferdig i behandling" }
+                            }
+
+                            logger.info { "Svarer med at opplysning er fjernet" }
+
+                            call.respond(HttpStatusCode.OK, KvitteringDTO(behandlingId))
+                        }
+                    }
+
+                    post("opplysning/") {
+                        val behandlingId = call.behandlingId
+
+                        withLoggingContext(
+                            "behandlingId" to behandlingId.toString(),
+                        ) {
+                            val nyOpplysningDTO = call.receive<NyOpplysningDTO>()
+                            val behandling = hentBehandling(personRepository, behandlingId)
+
+                            if (behandling.harTilstand(Redigert)) {
+                                throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
+                            }
+
+                            if (!behandling.kanRedigeres()) {
+                                throw BadRequestException(
+                                    "Kan ikke redigere opplysning fordi behandlingen er ikke i redigerbar tilstand",
+                                )
+                            }
+
+                            val erTilOgMedFørFraOgMed =
+                                nyOpplysningDTO.gyldigFraOgMed != null &&
+                                    nyOpplysningDTO.gyldigTilOgMed?.isBefore(nyOpplysningDTO.gyldigFraOgMed) == true
+                            if (erTilOgMedFørFraOgMed) {
+                                throw BadRequestException(
+                                    """
+                                        |Til og med dato "${nyOpplysningDTO.gyldigTilOgMed}" kan ikke være før fra og med dato "${nyOpplysningDTO.gyldigFraOgMed}"
+                                    """.trimMargin(),
+                                )
+                            }
+
+                            val opplysningstype =
+                                opplysningstyper.singleOrNull { it.id.uuid == nyOpplysningDTO.opplysningstype }
+                                    ?: throw NotFoundException("Opplysningstype med id ${nyOpplysningDTO.opplysningstype} ikke funnet")
+
+                            if (!redigerbareOpplysninger.kanRedigere(opplysningstype)) {
+                                throw BadRequestException("Opplysningstype $opplysningstype kan ikke redigeres")
+                            }
+
+                            if (opplysningstype.er(prøvingsdato)) {
+                                if (behandling.opplysninger.kunEgne.finnNullableOpplysning(prøvingsdato) == null) {
+                                    throw BadRequestException(
+                                        "Kan ikke endre prøvingsdato på en behandling som er basert på en tidligere behandling",
+                                    )
+                                }
+                                val søknadId = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
+                                if (søknadId != null) {
+                                    val nyPrøvingsdato = LocalDate.parse(nyOpplysningDTO.verdi)
+
+                                    if (nyPrøvingsdato.isBefore(søknadId.gyldighetsperiode.fraOgMed)) {
+                                        throw BadRequestException("Prøvingsdato kan ikke settes før søknadsdato")
+                                    }
+                                }
+                            }
+
+                            logger.info {
+                                """
+                                Mottok en endring i behandlingId=$behandlingId, 
+                                behovId=${opplysningstype.behovId},
+                                datatype=${opplysningstype.datatype},
+                                gyldigFraOgMed=${nyOpplysningDTO.gyldigFraOgMed},
+                                gyldigTilOgMed=${nyOpplysningDTO.gyldigTilOgMed}
+                                """.trimIndent()
+                            }
+
+                            // Legg til i tracing hvilken behandling og opplysningstype som endres
+                            with(Span.current()) {
+                                setAttribute("behandlingId", behandlingId.toString())
+                                setAttribute("opplysningstype", opplysningstype.behovId)
+                            }
+
+                            val svar =
+                                OpplysningsSvar(
+                                    behandlingId,
+                                    opplysningstype.behovId,
+                                    behandling.behandler.ident,
+                                    HttpVerdiMapper(nyOpplysningDTO).map(opplysningstype.datatype),
+                                    call.saksbehandlerId(),
+                                    nyOpplysningDTO.begrunnelse,
+                                    nyOpplysningDTO.gyldigFraOgMed,
+                                    nyOpplysningDTO.gyldigTilOgMed,
+                                )
+
+                            behandling.kanLeggeTil(opplysningstype, nyOpplysningDTO.gyldigFraOgMed)
+
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysningstype.behovId) {
+                                logger.info { "Starter en endring i behandling" }
+                                messageContext(behandling.behandler.ident).publish(svar.toJson())
+                                auditlogg.oppdater("Oppdaterte opplysning", behandling.behandler.ident, call.saksbehandlerId())
+                                logger.info { "Venter på endring i behandling" }
+                            }
+
+                            logger.info { "Svarer med at opplysning er oppdatert" }
+
+                            call.respond(HttpStatusCode.OK, KvitteringDTO(behandlingId))
+                        }
+                    }
+
+                    get("avklaring") {
+                        val behandlingId = call.behandlingId
+                        val behandling = hentBehandling(personRepository, behandlingId)
+                        call.respond(HttpStatusCode.OK, behandling.avklaringer().map { it.tilAvklaringDTO() })
+                    }
+
+                    put("avklaring/{avklaringId}") {
+                        val behandlingId = call.behandlingId
+                        withLoggingContext(
+                            "behandlingId" to behandlingId.toString(),
+                        ) {
+                            val avklaringId = call.avklaringId
+                            val kvitteringDTO = call.receive<AvklaringKvitteringDTO>()
+                            val behandling = hentBehandling(personRepository, behandlingId)
+
+                            require(!behandling.harTilstand(Redigert)) { "Kan ikke avklare om behandling står i tilstanden Redigert" }
+
+                            val avklaring =
+                                behandling.avklaringer().singleOrNull { it.id == avklaringId }
+                                    ?: throw NotFoundException("Avklaring ikke funnet")
+
+                            if (!avklaring.kanKvitteres) {
+                                call.respond(HttpStatusCode.BadRequest)
+                                return@put
+                            }
+
+                            hendelseMediator.behandle(
+                                AvklaringKvittertHendelse(
+                                    meldingsreferanseId = UUIDv7.ny(),
+                                    ident = behandling.behandler.ident,
+                                    avklaringId = avklaringId,
+                                    behandlingId = behandling.behandlingId,
+                                    saksbehandler = call.saksbehandlerId(),
+                                    begrunnelse = kvitteringDTO.begrunnelse,
+                                    opprettet = LocalDateTime.now(),
+                                ),
+                                messageContext(behandling.behandler.ident),
+                            )
+
+                            call.respond(HttpStatusCode.NoContent)
+                        }
+                    }
+                }
+            }
+        }
+        authenticate("admin") {
+            route("dataprodukt") {
+                post("behandling") {
+                    val fraOgMed = LocalDate.parse(call.queryParameters.getOrFail("fraOgMed"))
+                    val dryRun = call.request.queryParameters["dryRun"]?.toBoolean() ?: false
+                    val tilOgMed = call.queryParameters["tilOgMed"]?.let { LocalDate.parse(it) } ?: LocalDate.now()
+                    val datalastId = UUIDv7.ny()
+
+                    withLoggingContext(
+                        "datalastId" to datalastId.toString(),
+                        "fraOgMed" to fraOgMed.toString(),
+                        "tilOgMed" to tilOgMed.toString(),
+                    ) {
+                        var behandlinger = 0
+                        val tidBrukt =
+                            measureTime {
+                                personRepository
+                                    .finnBehandlinger(Ferdig, fraOgMed, tilOgMed) { behandling ->
+                                        logger.info { "Forberederer publsering av data for behandling=${behandling.behandlingId}" }
+
+                                        val ident = behandling.behandler.ident
+                                        val behandlingsresultat = behandling.vedtakopplysninger.tilBehandlingsresultatDTO(ident)
+                                        if (!dryRun) {
+                                            messageContext(ident)
+                                                .publish(toJsonMessage("behandling_datalast", behandlingsresultat).toJson())
+
+                                            logger.info { "Publiserte behandling data for behandling=${behandling.behandlingId}" }
+                                        }
+
+                                        behandlinger++
+                                    }
+                            }
+
+                        call.respond(
+                            DatalastKvitteringDTO(
+                                id = datalastId,
+                                fraOgMed = fraOgMed,
+                                tilOgMed = tilOgMed,
+                                behandlinger = behandlinger,
+                                tidBrukt = tidBrukt.toString(),
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+        authenticate("admin") {
+            route("ferietillegg") {
+                post("generer/{opptjeningsår}") {
+                    val opptjeningsår = call.parameters["opptjeningsår"]?.toInt() ?: LocalDate.now().minusYears(1).year
+                    val dryRun = call.request.queryParameters["dryRun"]?.toBoolean() ?: false
+
+                    withLoggingContext(
+                        "opptjeningsår" to opptjeningsår.toString(),
+                    ) {
+                        logger.info { "Genererer ferietillegg for $opptjeningsår" }
+                        var antallFerietillegg = 0
+                        val tidBrukt =
+                            measureTime {
+                                personRepository
+                                    .hentIdenterMedRettighetsperioder(opptjeningsår)
+                                    .forEach { ident ->
+                                        val ferietilleggId = UUIDv7.ny()
+                                        sikkerlogg.info { "Genererer ferietillegg for ident=$ident og opptjeningsår=$opptjeningsår" }
+                                        val req =
+                                            FerietilleggRequest(
+                                                opptjeningsår = opptjeningsår,
+                                                ident = ident,
+                                                ferietilleggId = ferietilleggId,
+                                            )
+                                        if (!dryRun) {
+                                            messageContext(ident)
+                                                .publish(ident, toJsonMessage("beregn_ferietillegg", req).toJson())
+
+                                            logger.info { "Publiserte ferietillegg med id=$ferietilleggId" }
+                                        }
+
+                                        antallFerietillegg++
+                                    }
+                            }
+
+                        call.respond(
+                            FerietilleggKvitteringDTO(
+                                opptjeningsår = opptjeningsår,
+                                antallBestilt = antallFerietillegg,
+                                tidBrukt = tidBrukt.toString(),
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class FerietilleggRequest(
+    val opptjeningsår: Int,
+    val ident: String,
+    val ferietilleggId: UUID,
+)
+
+internal fun hentBehandling(
+    personRepository: PersonRepository,
+    behandlingId: UUID,
+) = personRepository.hentBehandling(behandlingId) ?: throw NotFoundException("Behandling ikke funnet")
+
+internal class ApiMessageContext(
+    val rapid: MessageContext,
+    val ident: String,
+) : MessageContext {
+    override fun publish(message: String) {
+        publish(ident, message)
+    }
+
+    override fun publish(
+        key: String,
+        message: String,
+    ) {
+        rapid.publish(ident, message)
+    }
+
+    override fun publish(messages: List<OutgoingMessage>) = rapid.publish(messages)
+
+    override fun rapidName() = "API"
+}
+
+private val ApplicationCall.opplysningId: UUID
+    get() {
+        val opplysningId = parameters["opplysningId"] ?: throw IllegalArgumentException("OpplysningId må være satt")
+        return UUID.fromString(opplysningId)
+    }
+private val ApplicationCall.behandlingId: UUID
+    get() {
+        val behandlingId = parameters["behandlingId"] ?: throw IllegalArgumentException("BehandlingId må være satt")
+        return UUID.fromString(behandlingId)
+    }
+
+private val ApplicationCall.avklaringId: UUID
+    get() {
+        val avklaringId = parameters["avklaringId"] ?: throw IllegalArgumentException("BehandlingId må være satt")
+        return UUID.fromString(avklaringId)
+    }
+
+private val OtelTraceIdPlugin =
+    createApplicationPlugin("OtelTraceIdPlugin") {
+        onCallRespond { call, _ ->
+            val traceId = runCatching { Span.current().spanContext.traceId }.getOrNull()
+            traceId?.let { call.response.headers.append("X-Trace-Id", it) }
+        }
+    }
+
+@Suppress("UNCHECKED_CAST")
+private class HttpVerdiMapper(
+    private val nyOpplysning: NyOpplysningDTO,
+) : VerdiMapper {
+    override fun <T : Any> map(datatype: Datatype<T>): T =
+        when (datatype) {
+            Heltall -> nyOpplysning.verdi.toInt() as T
+            Boolsk -> nyOpplysning.verdi.toBoolean() as T
+            Desimaltall -> nyOpplysning.verdi.toDouble() as T
+            Penger -> nyOpplysning.verdi.toDouble() as T
+            Dato -> nyOpplysning.verdi.let { LocalDate.parse(it) } as T
+            BarnDatatype -> barnMapper(nyOpplysning.verdi) as T
+            Tekst -> nyOpplysning.verdi as T
+            else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
+        }
+}
