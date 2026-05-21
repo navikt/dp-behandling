@@ -7,35 +7,16 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
 import io.ktor.server.application.Application
-import io.mockk.mockk
 import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.behandling.db.DBTestContext
 import no.nav.dagpenger.behandling.db.Postgres
 import no.nav.dagpenger.behandling.helpers.scenario.assertions.BehandlingsresultatAssertions
-import no.nav.dagpenger.behandling.mediator.BehovMediator
-import no.nav.dagpenger.behandling.mediator.Behovssporer
-import no.nav.dagpenger.behandling.mediator.HendelseMediator
-import no.nav.dagpenger.behandling.mediator.MessageMediator
-import no.nav.dagpenger.behandling.mediator.api.behandlingApi
+import no.nav.dagpenger.behandling.mediator.BehandlingRuntime
+import no.nav.dagpenger.behandling.mediator.IAktivitetsloggMediator
 import no.nav.dagpenger.behandling.mediator.audit.Auditlogg
-import no.nav.dagpenger.behandling.mediator.meldekort.MeldekortBehandlingskø
-import no.nav.dagpenger.behandling.mediator.melding.PostgresMeldingRepository
-import no.nav.dagpenger.behandling.mediator.mottak.MarkerMeldekortSomBehandletMottak
-import no.nav.dagpenger.behandling.mediator.repository.ApiRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.repository.AvklaringKafkaObservatør
-import no.nav.dagpenger.behandling.mediator.repository.AvklaringRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.repository.BehandlingRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.repository.KildeRepository
-import no.nav.dagpenger.behandling.mediator.repository.MeldekortRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.repository.OpplysningerRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.repository.PersonRepositoryPostgres
-import no.nav.dagpenger.behandling.mediator.repository.VentendeMeldekortDings
-import no.nav.dagpenger.behandling.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.behandling.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.behandling.modell.Person
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
-import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import org.approvaltests.Approvals
@@ -51,72 +32,35 @@ internal class SimulertDagpengerSystem(
     }
 
     private val rapid = TestRapid()
-    private val kildeRepository = KildeRepository(dbTestContext.dataSource)
-    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbTestContext.dataSource, kildeRepository)
-    private val prosessregister = Prosessregister()
-    private val personRepository =
-        PersonRepositoryPostgres(
-            dbTestContext.dataSource,
-            BehandlingRepositoryPostgres(
-                dbTestContext.dataSource,
-                opplysningerRepository,
-                AvklaringRepositoryPostgres(dbTestContext.dataSource, kildeRepository, listOf(AvklaringKafkaObservatør(rapid))),
-                kildeRepository,
-                prosessregister,
-            ),
-        )
-    private val meldekortRepository = MeldekortRepositoryPostgres(dbTestContext.dataSource)
-    private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
-    private val hendelseMediator =
-        HendelseMediator(
-            postgres = UtboksLagerPostgres(dbTestContext.dataSource),
-            personRepository = personRepository,
-            meldekortRepository = meldekortRepository,
-            behovMediator = BehovMediator(),
-            aktivitetsloggMediator = mockk(relaxed = true),
-            listOf(ventendeMeldekort),
-        )
+    private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
 
-    private val postgresMeldingRepository = PostgresMeldingRepository(dbTestContext.dataSource)
-
-    private val behovssporer = Behovssporer(dbTestContext.dataSource)
-    private val apiRepositoryPostgres = ApiRepositoryPostgres(dbTestContext.dataSource, postgresMeldingRepository, behovssporer)
     val auditlogg = TestAuditlogg()
 
-    private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
-    private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
+    private val runtime =
+        BehandlingRuntime(
+            dataSource = dbTestContext.dataSource,
+            rapidsConnection = rapid,
+            auditlogg = auditlogg,
+            regelverk = regelverk,
+            aktivitetsloggMediator =
+                object : IAktivitetsloggMediator {
+                    override fun håndter(
+                        context: MessageContext,
+                        hendelse: no.nav.dagpenger.aktivitetslogg.AktivitetsloggHendelse,
+                    ) {}
+                },
+        ) { rapid }
 
     init {
-        MarkerMeldekortSomBehandletMottak(rapid, meldekortRepository)
-        MessageMediator(
-            rapidsConnection = rapid,
-            hendelseMediator = hendelseMediator,
-            meldingRepository = postgresMeldingRepository,
-            meldekortRepository = meldekortRepository,
-            apiRepositoryPostgres = apiRepositoryPostgres,
-            behovssporer = behovssporer,
-            opplysningstyper = opplysningstyper,
-            personRepository = personRepository,
-        ).apply {
-            regelverk.forEach { it.registrer(rapid, this, prosessregister) }
-        }
-        opplysningerRepository.lagreOpplysningstyper(Opplysningstype.definerteTyper)
+        runtime.registrerMottak()
+        runtime.lagreOpplysningstyper()
     }
 
-    val api: Application.() -> Unit = {
-        behandlingApi(
-            personRepository,
-            hendelseMediator,
-            auditlogg,
-            opplysningstyper,
-            apiRepositoryPostgres,
-            meldekortRepository,
-        ) { rapid }
-    }
+    val api: Application.() -> Unit = runtime.api
 
     val person = Mennesket(rapid, oppsett)
     val behovsløsere = Behovsløsere(rapid, person)
-    val saksbehandler = TestSaksbehandler2(person, hendelseMediator, personRepository, rapid)
+    val saksbehandler = TestSaksbehandler2(person, runtime.hendelseMediator, runtime.personRepository, rapid)
 
     val rapidInspektør get() = rapid.inspektør
 
@@ -147,7 +91,7 @@ internal class SimulertDagpengerSystem(
     }
 
     fun BehandlingsresultatDTO.harOpplysning(opplysningId: UUID): Boolean {
-        val behandling = personRepository.hentBehandling(person.behandlingId)
+        val behandling = runtime.personRepository.hentBehandling(person.behandlingId)
         return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
     }
 
@@ -172,7 +116,7 @@ internal class SimulertDagpengerSystem(
     }
 
     private fun opprettPerson(ident: String) {
-        personRepository.lagre(Person(ident.tilPersonIdentfikator()))
+        runtime.personRepository.lagre(Person(ident.tilPersonIdentfikator()))
     }
 
     class TestRapidMessageContext(
@@ -218,8 +162,7 @@ internal class SimulertDagpengerSystem(
             )
     }
 
-    val meldekortkø =
-        MeldekortBehandlingskø(dbTestContext.dataSource, personRepository, meldekortRepository, TestRapidMessageContext(rapid))
+    val meldekortkø = runtime.meldekortBehandlingskø(TestRapidMessageContext(rapid))
 
     fun meldekortBatch(avklar: Boolean = false) {
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()
@@ -230,7 +173,7 @@ internal class SimulertDagpengerSystem(
                 saksbehandler.godkjenn()
 
                 // Marker som ferdig (vi klarer ikke å fange det i VedtakFattetMottak)
-                meldekortRepository.markerSomFerdig(eksternMeldekortId)
+                runtime.meldekortRepository.markerSomFerdig(eksternMeldekortId)
             }
         }
     }
