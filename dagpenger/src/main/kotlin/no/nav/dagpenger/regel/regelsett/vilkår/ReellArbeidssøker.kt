@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
@@ -36,7 +37,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.villigTilMinimumArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.ønsketArbeidstidId
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erReellArbeidssøkerVurdert
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.uføre
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 
@@ -95,7 +96,7 @@ object ReellArbeidssøker {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
-            skalVurderes { it.oppfyller(kravTilAlder) && it.erSann(erReellArbeidssøkerVurdert) }
+            skalVurderes { it.oppfyller(kravTilAlder) && it.erSann(kravetReellArbeidsøkerSkalVurderes) }
 
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
             regel(minimumVanligArbeidstid) { somUtgangspunkt(18.75, søknadIdOpplysningstype) }
@@ -127,13 +128,13 @@ object ReellArbeidssøker {
                 )
             }
 
-            ønsketResultat(erReellArbeidssøkerVurdert)
+            ønsketResultat(kravetReellArbeidsøkerSkalVurderes)
 
             avklaring(ReellArbeidssøkerUnntak)
             avklaring(IkkeRegistrertSomArbeidsøker)
 
             påvirkerResultat {
-                if (!it.erSann(erReellArbeidssøkerVurdert) && !oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)) {
+                if (!it.erSann(kravetReellArbeidsøkerSkalVurderes) && !oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)) {
                     return@påvirkerResultat false
                 }
                 it.erSann(kravTilAlder) || oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)
@@ -142,6 +143,9 @@ object ReellArbeidssøker {
 
     val ReellArbeidssøkerKontroll =
         Kontrollpunkt(ReellArbeidssøkerUnntak) {
+            if (it.har(kravetReellArbeidsøkerSkalVurderes) && !it.erSann(kravetReellArbeidsøkerSkalVurderes)) {
+                // return@Kontrollpunkt false
+            }
             if (it.erSann(godkjentDeltidssøker) ||
                 it.erSann(godkjentLokalArbeidssøker) ||
                 it.erSann(godkjentArbeidsufør)

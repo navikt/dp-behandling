@@ -84,7 +84,7 @@ internal class TestSaksbehandler2(
         rapid.sendTestMessage(Meldingskatalog.opprettBehandling(testPerson.ident, gjelder), testPerson.ident)
     }
 
-    fun lukkAlleAvklaringer(eksternHendelseId: UUID? = null) {
+    fun lukkAlleAvklaringer(eksternHendelseId: UUID? = null): List<Avklaringkode> {
         val behandling = finnBehandlingBasertEllerSiste(eksternHendelseId)
         behandling.shouldNotBeNull()
         val avklaringer: List<Avklaring> = behandling.aktiveAvklaringer()
@@ -103,6 +103,8 @@ internal class TestSaksbehandler2(
                 rapid,
             )
         }
+
+        return avklaringer.map { it.kode }
     }
 
     fun åpneAvklaringer(eksternHendelseId: UUID? = null): List<Avklaringkode> {

@@ -2,7 +2,10 @@ package no.nav.dagpenger.scenario
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveAtMostSize
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -32,7 +35,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erReellArbeidssøkerVurdert
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
@@ -99,13 +102,23 @@ class ScenarioTest {
     fun `tester avslag ved for lite inntekt uten å vurdere reell arbeidssøker`() {
         nyttScenario {
             inntektSiste12Mnd = 50000
+            kanJobbeDeltid = false
         }.test {
             person.søkDagpenger(21.juni(2018))
-
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(erReellArbeidssøkerVurdert, false)
-            saksbehandler.lukkAlleAvklaringer()
+            // Avklaring om reell arbeidssøker dukker opp
+            with(saksbehandler.åpneAvklaringer()) {
+                map { it.kode } shouldContain "ReellArbeidssøkerUnntak"
+                this shouldHaveSize 7
+            }
+
+            saksbehandler.endreOpplysning(kravetReellArbeidsøkerSkalVurderes, false)
+            with(saksbehandler.lukkAlleAvklaringer()) {
+                // Avklaringen for reell arbeidssøker forsvinner automatisk om det ikke skal vurderes
+                map { it.kode } shouldNotContain "ReellArbeidssøkerUnntak"
+                this shouldHaveAtMostSize 6
+            }
             saksbehandler.godkjenn()
 
             behandlingsresultat {
@@ -382,7 +395,7 @@ class ScenarioTest {
 
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(erReellArbeidssøkerVurdert, false, "Kan ikke vurdere reell arbeidssøker")
+            saksbehandler.endreOpplysning(kravetReellArbeidsøkerSkalVurderes, false, "Kan ikke vurdere reell arbeidssøker")
             saksbehandler.endreOpplysning(
                 prøvingsdato,
                 21.juni(2018),

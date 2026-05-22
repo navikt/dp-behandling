@@ -43,11 +43,11 @@ object Rettighetstype {
             Bruker,
             behovId = PermittertFiskeforedling,
         )
-    val erReellArbeidssøkerVurdert: Opplysningstype<Boolean> =
+    val kravetReellArbeidsøkerSkalVurderes: Opplysningstype<Boolean> =
         boolsk(
             ErReellArbeidssøkerVurdertId,
             "Kravet til reell arbeidssøker er relevant",
-            synlig = { !kravPåDagpenger(it) || !it.erSann(erReellArbeidssøkerVurdert) },
+            synlig = { !kravPåDagpenger(it) || !it.erSann(kravetReellArbeidsøkerSkalVurderes) },
         )
 
     val skalVernepliktVurderes = boolsk(SkalVernepliktVurderesId, "Skal kravet til verneplikt vurderes")
@@ -75,16 +75,16 @@ object Rettighetstype {
 
             regel(rettighetstype) { enAv(ordinær, erPermittert, lønnsgaranti, permitteringFiskeforedling) }
 
-            regel(erReellArbeidssøkerVurdert) { somUtgangspunkt(true) }
+            regel(kravetReellArbeidsøkerSkalVurderes) { somUtgangspunkt(true) }
             regel(skalVernepliktVurderes) { erSann(avtjentVerneplikt) }
 
             regel(skalGjenopptakVurderes) { somUtgangspunkt(false) }
 
-            ønsketResultat(rettighetstype, erReellArbeidssøkerVurdert, skalVernepliktVurderes, skalGjenopptakVurderes)
+            ønsketResultat(rettighetstype, kravetReellArbeidsøkerSkalVurderes, skalVernepliktVurderes, skalGjenopptakVurderes)
         }
 
     val ManglerReellArbeidssøkerKontroll =
         Kontrollpunkt(avklaringkode = Avklaringspunkter.ManglerReellArbeidssøker) { opplysninger ->
-            kravPåDagpenger(opplysninger) && !opplysninger.erSann(erReellArbeidssøkerVurdert)
+            kravPåDagpenger(opplysninger) && !opplysninger.erSann(kravetReellArbeidsøkerSkalVurderes)
         }
 }

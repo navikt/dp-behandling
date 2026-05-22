@@ -13,6 +13,7 @@ import no.nav.dagpenger.mediator.tilJsonNode
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
+import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.kanJobbeDeltid
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.uuid.UUIDv7
@@ -40,6 +41,7 @@ internal class Mennesket(
     private lateinit var søknadsdato: LocalDate
     private lateinit var ønskerFraDato: LocalDate
     private lateinit var meldesyklus: Meldesyklus
+    private val kanJobbeDeltid = scenario.kanJobbeDeltid
     val arbeidsøkerRegisterPerioder = mutableSetOf<Periode>()
 
     val sisteSøknadId get() = søknader.lastOrNull()
@@ -207,7 +209,7 @@ internal class Mennesket(
                 // Inntekt
                 Behov.Inntekt to Behovsløsning.Statisk(mapOf("verdi" to inntektV1.tilJsonNode())),
                 // Reell arbeidssøker
-                Behov.KanJobbeDeltid to Behovsløsning.Statisk(true),
+                Behov.KanJobbeDeltid to Behovsløsning.Statisk(kanJobbeDeltid),
                 Behov.KanJobbeHvorSomHelst to Behovsløsning.Statisk(true),
                 Behov.HelseTilAlleTyperJobb to Behovsløsning.Statisk(true),
                 Behov.VilligTilÅBytteYrke to Behovsløsning.Statisk(true),

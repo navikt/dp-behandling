@@ -213,18 +213,28 @@ class OpplysningerRepositoryPostgresTest {
     fun `Klarer å lagre store mengder opplysninger effektivt`() {
         withMigratedDb {
             val repo = opplysningerRepository(dbSession)
-            val fakta =
-                (1..50000).map {
+
+            val litenBatch = 1000
+            val storBatch = 50000
+            val faktorGrense = 60L // Stor batch (50x) bør ikke ta mer enn 60x liten batch
+
+            fun lagFakta(antall: Int) =
+                (1..antall).map {
                     val fomTom = LocalDate.now().minusDays(it.toLong())
                     Faktum(desimal, it.toDouble(), Gyldighetsperiode(fomTom, fomTom))
                 }
-            val opplysninger = Opplysninger.med(fakta)
 
-            val tidBrukt = measureTimeMillis { repo.lagreOpplysninger(opplysninger) }
-            tidBrukt shouldBeLessThan 5555
+            val litenOpplysninger = Opplysninger.med(lagFakta(litenBatch))
+            val tidLiten = measureTimeMillis { repo.lagreOpplysninger(litenOpplysninger) }
 
-            val fraDb = repo.hentOpplysninger(opplysninger.id)
-            fraDb.somListe().size shouldBe fakta.size
+            val storOpplysninger = Opplysninger.med(lagFakta(storBatch))
+            val tidStor = measureTimeMillis { repo.lagreOpplysninger(storOpplysninger) }
+
+            // Relativ sjekk: fanger O(n²)-regresjoner uavhengig av maskinlast
+            tidStor shouldBeLessThan (tidLiten * faktorGrense)
+
+            val fraDb = repo.hentOpplysninger(storOpplysninger.id)
+            fraDb.somListe().size shouldBe storBatch
         }
     }
 

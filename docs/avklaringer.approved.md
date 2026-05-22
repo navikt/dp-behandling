@@ -270,7 +270,7 @@ Vurder om søker fyller unntakene til reell arbeidssøker.
 ### Tilknyttet regelsett
 - [§ 4-5. Reelle arbeidssøkere](./opplysninger.approved.md#-4-5-reelle-arbeidssøkere)
 ### Opplysninger avklaringen ser på
-- Det er godkjent at bruker kun søker deltidsarbeid
+- Kravet til reell arbeidssøker er relevant
 
 ---
 ## Samordning
