@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 class PostgresMigrationTest {
     @Test
     fun `Migration scripts are applied successfully`() {
-        withMigratedDb {
+        withIsolatedDb {
             val migrations = runMigration()
             migrations shouldBeExactly 25
         }

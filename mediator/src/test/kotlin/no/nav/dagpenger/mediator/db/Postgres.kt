@@ -120,11 +120,32 @@ internal object Postgres {
 
     private fun opprettTilkobling(databasenavn: String): DBTestContext {
         logger.info { "Initialiserer $databasenavn" }
-        logger.info { "oppretter db for $databasenavn" }
-        systemtilkobling.createStatement().execute("create database $databasenavn")
+        opprettDatabase(databasenavn)
         logger.info { "oppretter testsesjon for $databasenavn" }
         return createTestSession(databasenavn)
     }
+
+    private fun opprettDatabase(databasenavn: String) {
+        if (finnesDatabase(databasenavn)) {
+            logger.info { "oppretter ikke db for $databasenavn; finnes fra før" }
+            return
+        }
+        logger.info { "oppretter db for $databasenavn" }
+        systemtilkobling.createStatement().execute("create database $databasenavn")
+    }
+
+    private fun finnesDatabase(databasenavn: String): Boolean =
+        systemtilkobling
+            .prepareStatement(
+                //language=PostgreSQL
+                "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = ?)",
+            ).use { stmt ->
+                stmt.setString(1, databasenavn)
+                stmt.executeQuery().use {
+                    it.next()
+                    it.getBoolean(1)
+                }
+            }
 
     private fun createTestSession(databasenavn: String): DBTestContext {
         val connectionConfig =
