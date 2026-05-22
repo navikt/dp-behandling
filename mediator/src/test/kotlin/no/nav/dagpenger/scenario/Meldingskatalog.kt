@@ -136,7 +136,7 @@ internal object Meldingskatalog {
                 put("avregistrertTidspunkt", avregistrertTidspunkt)
                 when {
                     fristBrutt -> put("årsak", "MELDEPLIKT_BRUTT")
-                    manueltAvregistrert -> put("årsak", "UTMELDT_I_ASR")
+                    manueltAvregistrert -> put("årsak", "UTMELDT_I_ARBEIDSSØKERREGISTERET")
                     else -> put("årsak", "UTMELDT_PÅ_MELDEKORT")
                 }
             },
