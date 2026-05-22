@@ -23,6 +23,7 @@ data class DBTestContext(
 
     val dbSession: DatabaseSession = DatabaseSession(lazy { HikariDataSource(hikariConfig) })
 
+    // bruker lazy slik at migrering faktisk bare utføres én gang
     private val migratedOutput: List<MigrateOutput> by lazy {
         HikariDataSource(hikariConfig).use { flywayDataSource ->
             Flyway
@@ -65,6 +66,10 @@ data class DBTestContext(
 
 private val ANTALL_TESTER_I_PARALLELL = System.getProperty("junit.jupiter.execution.parallel.config.fixed.parallelism")?.toInt() ?: 1
 
+/**
+ * oppretter en PostgreSQLContainer med flere databaser for å muliggjøre at tester kan kjøre i parallell.
+ * databasene migreres med flyway én gang, og så tømmes tabellene mellom hver test.
+ */
 internal object Postgres {
     private val logger = KotlinLogging.logger { }
     private val instance by lazy {
