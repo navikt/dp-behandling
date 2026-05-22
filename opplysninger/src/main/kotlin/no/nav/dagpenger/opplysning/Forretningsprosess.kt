@@ -14,7 +14,7 @@ abstract class Forretningsprosess(
 
     abstract fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate
 
-    abstract fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>>
+    abstract fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>>
 
     open fun kontrollpunkter(): List<IKontrollpunkt> = emptyList()
 

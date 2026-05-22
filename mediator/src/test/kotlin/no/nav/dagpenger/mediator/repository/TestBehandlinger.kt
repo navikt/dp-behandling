@@ -78,7 +78,7 @@ internal class TestProsess : Forretningsprosess(TestBehandlinger.testRegelverk) 
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = LocalDate.now()
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = emptyList()
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> = emptySet()
 }
 
 internal class TestStartHendelse(

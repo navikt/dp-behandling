@@ -183,7 +183,7 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
-                    override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
+                    override fun ønsketResultat(opplysninger: LesbarOpplysninger) = setOf(c)
                 },
             ) { prøvingsdato ->
                 forDato(prøvingsdato)
@@ -238,7 +238,7 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
-                    override fun ønsketResultat(opplysninger: LesbarOpplysninger) = listOf(c)
+                    override fun ønsketResultat(opplysninger: LesbarOpplysninger) = setOf(c)
                 },
             ) { prøvingsdato ->
                 forDato(prøvingsdato)
@@ -278,6 +278,6 @@ private class TestProsess :
         TODO("Not yet implemented")
     }
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
-        listOf(TestAlderskravRegelsett.vilkår, prøvingsdato)
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> =
+        setOf(TestAlderskravRegelsett.vilkår, prøvingsdato)
 }

@@ -1,8 +1,8 @@
 package no.nav.dagpenger.regel.prosess
+
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.RegelverkDagpenger
@@ -80,8 +80,8 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = prøvingsdato(opplysninger)
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMap {
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger) =
+        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
             it.ønsketInformasjon
         }
 

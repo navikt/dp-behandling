@@ -56,7 +56,7 @@ class TestHendelse(
                     TODO("Not yet implemented")
                 }
 
-                override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> {
+                override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> {
                     TODO("Not yet implemented")
                 }
             }

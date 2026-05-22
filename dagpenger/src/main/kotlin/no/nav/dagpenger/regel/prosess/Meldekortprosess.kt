@@ -49,8 +49,8 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = meldeperiode(opplysninger).tilOgMed
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMap {
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger) =
+        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
             it.ønsketInformasjon
         }
 

@@ -27,8 +27,13 @@ class Regelsett internal constructor(
     val navn: String = hjemmel.kortnavn
 
     // Hvilke opplysninger dette regelsettet definerer til vedtak
-    val ønsketInformasjon: List<Opplysningstype<*>>
-        get() = ønsketResultat + betingelser + listOfNotNull(utfall)
+    val ønsketInformasjon: Set<Opplysningstype<*>>
+        get() =
+            buildSet {
+                addAll(ønsketResultat)
+                addAll(betingelser)
+                utfall?.let { add(it) }
+            }
 
     // Hvilke opplysninger dette regelsettet produserer
     val produserer: Set<Opplysningstype<*>> by lazy { regler.map { it.key }.toSet() }

@@ -23,8 +23,8 @@ class Ferietilleggprosess : Forretningsprosess(RegelverkFerietillegg) {
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = LocalDate.now()
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMap {
+    override fun ønsketResultat(opplysninger: LesbarOpplysninger) =
+        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
             it.ønsketInformasjon
         }
 

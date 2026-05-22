@@ -33,7 +33,7 @@ class Regelkjøring(
         regelverksdato = regelverksdato,
         prøvingsperiode = Periode(regelverksdato),
         opplysninger = opplysninger,
-        forretningsprosess = Regelsettprosess(regelsett.toList(), regelsett.toList().flatMap { it.produserer }),
+        forretningsprosess = Regelsettprosess(regelsett.toList(), regelsett.flatMapTo(mutableSetOf()) { it.produserer }),
     )
 
     // brukes av tester
@@ -46,7 +46,7 @@ class Regelkjøring(
         regelverksdato = regelverksdato,
         prøvingsperiode = Periode(regelverksdato),
         opplysninger = opplysninger,
-        forretningsprosess = Regelsettprosess(regelsett.toList(), regelsett.toList().flatMap { it.produserer }),
+        forretningsprosess = Regelsettprosess(regelsett.toList(), regelsett.flatMapTo(mutableSetOf()) { it.produserer }),
         opplysningerTilRegelkjøring,
     )
 
@@ -78,7 +78,7 @@ class Regelkjøring(
     private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
 
     // Hvilke opplysninger som skal produseres. Må hentes på nytt hver gang, siden det kan endres etterhvert som nye regler kommer til
-    private val ønsketResultat get() = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato).toSet()
+    private val ønsketResultat get() = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
 
     // Set som brukes til å lage planen, og spore hva som blir gjort
     private var plan: MutableSet<Regel<*>> = mutableSetOf()
@@ -263,7 +263,7 @@ class Regelkjøring(
 
     private class Regelsettprosess(
         val regelsett: List<Regelsett>,
-        val opplysningstypes: List<Opplysningstype<*>> = regelsett.flatMap { it.produserer },
+        val opplysningstypes: Set<Opplysningstype<*>> = regelsett.flatMapTo(mutableSetOf()) { it.produserer },
     ) : Forretningsprosess(Regelverk(navn = RegelverkType("Regelsettprosess"), regelsett = regelsett.toTypedArray())) {
         override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
             TODO("Not yet implemented")
@@ -286,7 +286,7 @@ class Regelkjøring(
             opplysningerPåPrøvingsdato: LesbarOpplysninger,
         ) = regelsett.flatMap { it.regler(regelverksdato) }.associateBy { it.produserer }
 
-        override fun ønsketResultat(opplysninger: LesbarOpplysninger): List<Opplysningstype<*>> = opplysningstypes
+        override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> = opplysningstypes
     }
 
     data class Periode(
