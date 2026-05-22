@@ -516,7 +516,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring ${hendelse.kode} er ikke lenger relevant")
+                hendelse.info("Avklaring lukket av ekstern løser: ${hendelse.kode}")
             }
         }
     }
@@ -562,7 +562,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring ${hendelse.kode} er ikke lenger relevant")
+                hendelse.info("Avklaring lukket av ekstern løser: ${hendelse.kode}")
                 behandling.emitAvklaringLukket(hendelse.avklaringId, hendelse.kode)
             }
 
@@ -576,7 +576,12 @@ class Behandling private constructor(
             hendelse.kontekst(this)
 
             behandling.avklaringer.kvitter(hendelse.avklaringId, hendelse.kilde, hendelse.begrunnelse)
-            hendelse.info("Avklaring er kvittert")
+            val avklaringKode =
+                behandling.avklaringer
+                    .avklaringer()
+                    .find { it.id == hendelse.avklaringId }
+                    ?.kode
+            hendelse.info("Avklaring kvittert av saksbehandler: $avklaringKode")
 
             behandling.avgjørNesteTilstand(hendelse)
         }
@@ -695,7 +700,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring ${hendelse.kode} er ikke lenger relevant")
+                hendelse.info("Avklaring lukket av ekstern løser: ${hendelse.kode}")
                 behandling.emitAvklaringLukket(hendelse.avklaringId, hendelse.kode)
             }
         }
@@ -915,7 +920,12 @@ class Behandling private constructor(
             hendelse.kontekst(this)
 
             behandling.avklaringer.kvitter(hendelse.avklaringId, hendelse.kilde, hendelse.begrunnelse)
-            hendelse.info("Avklaring er kvittert")
+            val avklaringKode =
+                behandling.avklaringer
+                    .avklaringer()
+                    .find { it.id == hendelse.avklaringId }
+                    ?.kode
+            hendelse.info("Avklaring kvittert av saksbehandler: $avklaringKode")
         }
 
         override fun håndter(
@@ -1017,6 +1027,9 @@ class Behandling private constructor(
             throw IllegalStateException("Fanget i uendelig løkke: Regler og plugins blir aldri enige.")
         }
 
+        // Snapshot av avklaringer før regelkjøring
+        val avklaringerFør = avklaringer.avklaringer().associate { it.id to it.måAvklares() }
+
         // 1. Evaluerer regler
         val rapport = regelkjøring.evaluer()
 
@@ -1024,6 +1037,17 @@ class Behandling private constructor(
         rapport.kjørteRegler.forEach { hendelse.info(it.toString()) }
         if (rapport.kjørteRegler.isNotEmpty()) {
             hendelse.info("Regelkjøring: ${rapport.kjørteRegler.size} regler kjørt, ${rapport.mangler.size} mangler gjenstår")
+        }
+
+        // Logger avklaringsendringer
+        avklaringer.avklaringer().forEach { avklaring ->
+            val varAktivFør = avklaringerFør[avklaring.id]
+            when {
+                varAktivFør == null && avklaring.måAvklares() ->
+                    hendelse.info("Avklaring opprettet: ${avklaring.kode}")
+                varAktivFør == true && avklaring.erAvbrutt() ->
+                    hendelse.info("Avklaring avbrutt av systemet: ${avklaring.kode}")
+            }
         }
         if (rapport.informasjonsbehov.isNotEmpty()) {
             val behovNavn = rapport.informasjonsbehov.keys.map { it.navn }
