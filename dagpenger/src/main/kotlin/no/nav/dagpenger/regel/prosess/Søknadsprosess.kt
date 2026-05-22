@@ -4,7 +4,6 @@ import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
@@ -104,11 +103,6 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     }
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = minsteinntekt(opplysninger) && alder(opplysninger)
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger) =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
-            it.ønsketInformasjon
-        }
 
     private fun minsteinntekt(opplysninger: LesbarOpplysninger): Boolean = oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger)
 

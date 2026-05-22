@@ -1,11 +1,9 @@
 package no.nav.dagpenger.regel.prosess
-import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -42,17 +40,10 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
         )
     }
 
-    override fun kontrollpunkter() = emptyList<Kontrollpunkt>()
-
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
         opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = meldeperiode(opplysninger).tilOgMed
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger) =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
-            it.ønsketInformasjon
-        }
 
     private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): LocalDate =
         opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi

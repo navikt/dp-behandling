@@ -6,10 +6,8 @@ import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.opplysning.Forretningsprosess
-import no.nav.dagpenger.opplysning.IKontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
@@ -145,13 +143,7 @@ private class RegelverkTestHendelse(
                     opplysninger,
                 )
 
-            override fun kontrollpunkter(): List<IKontrollpunkt> = emptyList()
-
-            override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = false
-
             override fun virkningsdato(opplysninger: LesbarOpplysninger) = testSkjedde
-
-            override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> = emptySet()
         }
 
     override fun behandling(

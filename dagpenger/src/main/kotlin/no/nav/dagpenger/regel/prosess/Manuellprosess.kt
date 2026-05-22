@@ -80,11 +80,6 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = prøvingsdato(opplysninger)
 
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger) =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
-            it.ønsketInformasjon
-        }
-
     private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
         { forDato(prøvingsdato(this)) }
 

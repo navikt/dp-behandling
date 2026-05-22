@@ -1,10 +1,8 @@
 package no.nav.dagpenger.regel.prosess
-import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.RegelverkDagpenger
@@ -26,16 +24,9 @@ class Stansprosess : Forretningsprosess(RegelverkDagpenger) {
         )
     }
 
-    override fun kontrollpunkter() = emptyList<Kontrollpunkt>()
-
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
         opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger) =
         opplysninger.somListe(Egne).filter { it.gyldighetsperiode.harStartdato }.minOf { it.gyldighetsperiode.fraOgMed }
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger) =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
-            it.ønsketInformasjon
-        }
 }

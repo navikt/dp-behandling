@@ -13,7 +13,6 @@ import no.nav.dagpenger.modell.hjelpere.mai
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
@@ -169,10 +168,6 @@ class PersonTest {
         }
 
         override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
-            TODO("Not yet implemented")
-        }
-
-        override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> {
             TODO("Not yet implemented")
         }
     }

@@ -2,7 +2,6 @@ package no.nav.dagpenger.regel.prosess
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -57,11 +56,6 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
         val meldeperioder = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
         return meldeperioder.minOf { it.gyldighetsperiode.fraOgMed }
     }
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger) =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
-            it.ønsketInformasjon
-        }
 
     private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): LocalDate =
         opplysninger.finnAlle(Søknadstidspunkt.prøvingsdato).minOf { it.gyldighetsperiode.fraOgMed }

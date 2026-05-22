@@ -5,7 +5,6 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Forretningsprosess
-import no.nav.dagpenger.opplysning.IKontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -46,17 +45,7 @@ class TestHendelse(
                         regelsett,
                     )
 
-                override fun kontrollpunkter(): List<IKontrollpunkt> = emptyList()
-
-                override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
-                    TODO("Not yet implemented")
-                }
-
                 override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
-                    TODO("Not yet implemented")
-                }
-
-                override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> {
                     TODO("Not yet implemented")
                 }
             }

@@ -171,14 +171,6 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
-                    override fun kontrollpunkter(): List<IKontrollpunkt> {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
                     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
                         TODO("Not yet implemented")
                     }
@@ -226,14 +218,6 @@ class RegelmotorIntegrasjonsTest {
                         TODO("Not yet implemented")
                     }
 
-                    override fun kontrollpunkter(): List<IKontrollpunkt> {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
                     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
                         TODO("Not yet implemented")
                     }
@@ -263,14 +247,6 @@ private class TestProsess :
         Regelverk(RegelverkType("Test"), regelsett = arrayOf(TestAlderskravRegelsett.regelsett, TestPrøvingsdatoRegelsett.regelsett)),
     ) {
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        TODO("Not yet implemented")
-    }
-
-    override fun kontrollpunkter(): List<IKontrollpunkt> {
-        TODO("Not yet implemented")
-    }
-
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger): Boolean {
         TODO("Not yet implemented")
     }
 
