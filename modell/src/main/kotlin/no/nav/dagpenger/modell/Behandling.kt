@@ -5,6 +5,7 @@ import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaringer
 import no.nav.dagpenger.modell.Behandling.BehandlingTilstand.Companion.fraType
+import no.nav.dagpenger.modell.Behandling.Fase.Companion.fase
 import no.nav.dagpenger.modell.Behandling.TilstandType.ForslagTilVedtak
 import no.nav.dagpenger.modell.Behandling.TilstandType.TilGodkjenning
 import no.nav.dagpenger.modell.Behandling.VedtakOpplysninger
@@ -272,6 +273,16 @@ class Behandling private constructor(
         override val kontekstMap = mapOf("behandlingId" to behandlingId.toString()) + behandlerKontekst
     }
 
+    private class Fase(
+        val fase: String,
+    ) : Aktivitetskontekst {
+        override fun toSpesifikkKontekst() = SpesifikkKontekst("Fase", mapOf("fase" to fase))
+
+        companion object {
+            fun PersonHendelse.fase(fase: String) = kontekst(Fase(fase))
+        }
+    }
+
     enum class TilstandType {
         UnderOpprettelse,
         UnderBehandling,
@@ -489,6 +500,7 @@ class Behandling private constructor(
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.kontekst(this)
+            hendelse.fase("mottok_svar")
             hendelse.opplysninger.forEach { opplysning ->
                 hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
                 opplysning.leggTil(behandling.opplysninger)
@@ -652,6 +664,7 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: OpplysningSvarHendelse,
         ) {
+            hendelse.fase("mottok_svar")
             hendelse.opplysninger.forEach { opplysning ->
                 hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
                 opplysning.leggTil(behandling.opplysninger)
@@ -999,6 +1012,7 @@ class Behandling private constructor(
         hendelse: PersonHendelse,
         iterasjon: Int = 0,
     ) {
+        hendelse.fase("regelkjøring")
         if (iterasjon > MAKS_ITERASJONER) {
             throw IllegalStateException("Fanget i uendelig løkke: Regler og plugins blir aldri enige.")
         }
@@ -1013,6 +1027,7 @@ class Behandling private constructor(
         }
         if (rapport.informasjonsbehov.isNotEmpty()) {
             val behovNavn = rapport.informasjonsbehov.keys.map { it.navn }
+            hendelse.fase("informasjonsinnhenting")
             hendelse.info("Trenger ekstern informasjon: ${behovNavn.joinToString()}")
         }
         hendelse.lagBehov(rapport.informasjonsbehov)
@@ -1040,6 +1055,7 @@ class Behandling private constructor(
 
     // Behandlingen er ferdig og vi må rute til forslag eller godkjenning
     private fun avgjørNesteTilstand(hendelse: PersonHendelse) {
+        hendelse.fase("beslutning")
         if (aktiveAvklaringer().isNotEmpty()) {
             hendelse.info("Har ${aktiveAvklaringer().size} aktive avklaringer, går til ForslagTilVedtak")
             return tilstand(ForslagTilVedtak(), hendelse)
