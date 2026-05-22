@@ -28,7 +28,7 @@ class AvsluttetArbeidssøkerperiodeMottakTest {
                     "periodeId" to UUID.randomUUID(),
                     "fastsattMeldedato" to LocalDate.now(),
                     "avregistrertTidspunkt" to LocalDateTime.now(),
-                    "årsak" to "UTMELDT_I_ASR",
+                    "årsak" to "UTMELDT_I_ARBEIDSSØKERREGISTERET",
                 ),
             )
 
