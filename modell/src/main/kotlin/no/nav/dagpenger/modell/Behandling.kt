@@ -516,7 +516,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring lukket av ekstern løser: ${hendelse.kode}")
+                hendelse.info("Avklaring ble lukket automatisk: ${hendelse.kode}")
             }
         }
     }
@@ -562,7 +562,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring lukket av ekstern løser: ${hendelse.kode}")
+                hendelse.info("Avklaring ble lukket automatisk: ${hendelse.kode}")
                 behandling.emitAvklaringLukket(hendelse.avklaringId, hendelse.kode)
             }
 
@@ -700,7 +700,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             if (behandling.avklaringer.avklar(hendelse.avklaringId, hendelse.kilde)) {
-                hendelse.info("Avklaring lukket av ekstern løser: ${hendelse.kode}")
+                hendelse.info("Avklaring ble lukket automatisk: ${hendelse.kode}")
                 behandling.emitAvklaringLukket(hendelse.avklaringId, hendelse.kode)
             }
         }
@@ -1046,7 +1046,7 @@ class Behandling private constructor(
                 varAktivFør == null && avklaring.måAvklares() ->
                     hendelse.info("Avklaring opprettet: ${avklaring.kode}")
                 varAktivFør == true && avklaring.erAvbrutt() ->
-                    hendelse.info("Avklaring avbrutt av systemet: ${avklaring.kode}")
+                    hendelse.info("Avklaringen er ikke lenger relevant: ${avklaring.kode}")
             }
         }
         if (rapport.informasjonsbehov.isNotEmpty()) {
