@@ -581,6 +581,7 @@ class Behandling private constructor(
                     .avklaringer()
                     .find { it.id == hendelse.avklaringId }
                     ?.kode
+                    ?.kode
             hendelse.info("Avklaring kvittert av saksbehandler: $avklaringKode")
 
             behandling.avgjørNesteTilstand(hendelse)
@@ -925,6 +926,7 @@ class Behandling private constructor(
                     .avklaringer()
                     .find { it.id == hendelse.avklaringId }
                     ?.kode
+                    ?.kode
             hendelse.info("Avklaring kvittert av saksbehandler: $avklaringKode")
         }
 
@@ -1052,9 +1054,9 @@ class Behandling private constructor(
             val varAktivFør = avklaringerFør[avklaring.id]
             when {
                 varAktivFør == null && avklaring.måAvklares() ->
-                    hendelse.info("Avklaring opprettet: ${avklaring.kode}")
+                    hendelse.info("Avklaring opprettet: ${avklaring.kode.kode}")
                 varAktivFør == true && avklaring.erAvbrutt() ->
-                    hendelse.info("Avklaringen er ikke lenger relevant: ${avklaring.kode}")
+                    hendelse.info("Avklaringen er ikke lenger relevant: ${avklaring.kode.kode}")
             }
         }
         if (rapport.informasjonsbehov.isNotEmpty()) {
