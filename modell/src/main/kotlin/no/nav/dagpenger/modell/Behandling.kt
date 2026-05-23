@@ -1036,7 +1036,15 @@ class Behandling private constructor(
         // Logger hva som skjedde
         rapport.kjørteRegler.forEach { hendelse.info(it.toString()) }
         if (rapport.kjørteRegler.isNotEmpty()) {
-            hendelse.info("Regelkjøring: ${rapport.kjørteRegler.size} regler kjørt, ${rapport.mangler.size} mangler gjenstår")
+            val datoer =
+                rapport.prøvingsdato.sorted().let { sortert ->
+                    if (sortert.size == 1) {
+                        sortert.first().toString()
+                    } else {
+                        "${sortert.first()} til ${sortert.last()} (${sortert.size} dager)"
+                    }
+                }
+            hendelse.info("Regelkjøring: ${rapport.kjørteRegler.size} regler kjørt for $datoer, ${rapport.mangler.size} mangler gjenstår")
         }
 
         // Logger avklaringsendringer
