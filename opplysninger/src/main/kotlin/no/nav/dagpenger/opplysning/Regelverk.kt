@@ -12,18 +12,57 @@ value class RegelverkType(
     override fun toString() = navn
 }
 
-fun interface RettighetsperiodeStrategi {
+sealed class Utfall {
+    data class Innvilgelse(
+        val perioder: List<Rettighetsperiode>,
+    ) : Utfall() {
+        override fun toString() = "Innvilgelse (${perioder.filter { it.harRett }.joinToString { "${it.fraOgMed} til ${it.tilOgMed}" }})"
+    }
+
+    data object Avslag : Utfall() {
+        override fun toString() = "Avslag"
+    }
+
+    data class Stans(
+        val perioder: List<Rettighetsperiode>,
+    ) : Utfall() {
+        override fun toString() = "Stans"
+    }
+
+    data class Gjenopptak(
+        val perioder: List<Rettighetsperiode>,
+    ) : Utfall() {
+        override fun toString() = "Gjenopptak (${perioder.filter { it.harRett }.joinToString { "${it.fraOgMed} til ${it.tilOgMed}" }})"
+    }
+
+    data class Endring(
+        val perioder: List<Rettighetsperiode>,
+    ) : Utfall() {
+        override fun toString() = "Endring"
+    }
+
+    data object Uavklart : Utfall() {
+        override fun toString() = "Uavklart"
+    }
+}
+
+fun interface Rettighetsperiodeberegning {
     fun rettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode>
 }
 
-fun interface UtbetalingerStrategi {
+fun interface Utbetalingsberegning {
     fun utbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling>
+}
+
+fun interface Utfallberegning {
+    fun utfall(opplysninger: LesbarOpplysninger): Utfall
 }
 
 class Regelverk(
     val navn: RegelverkType,
-    val rettighetsperiodeStrategi: RettighetsperiodeStrategi = { emptyList() },
-    val utbetalingerStrategi: UtbetalingerStrategi = { emptyList() },
+    private val rettighetsperiodeberegning: Rettighetsperiodeberegning = Rettighetsperiodeberegning { emptyList() },
+    private val utbetalingsberegning: Utbetalingsberegning = Utbetalingsberegning { emptyList() },
+    private val utfallberegning: Utfallberegning = Utfallberegning { Utfall.Uavklart },
     vararg regelsett: Regelsett,
 ) {
     private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
@@ -70,9 +109,11 @@ class Regelverk(
             .filter { it.type == RegelsettType.Fastsettelse }
             .filter { it.påvirkerResultat(opplysninger) }
 
-    fun rettighetsperioder(opplysninger: LesbarOpplysninger) = rettighetsperiodeStrategi.rettighetsperioder(opplysninger)
+    fun rettighetsperioder(opplysninger: LesbarOpplysninger) = rettighetsperiodeberegning.rettighetsperioder(opplysninger)
 
-    fun utbetalinger(opplysninger: LesbarOpplysninger) = utbetalingerStrategi.utbetalinger(opplysninger)
+    fun utbetalinger(opplysninger: LesbarOpplysninger) = utbetalingsberegning.utbetalinger(opplysninger)
+
+    fun utfall(opplysninger: LesbarOpplysninger) = utfallberegning.utfall(opplysninger)
 
     val vilkårsopplysninger by lazy {
         regelsett

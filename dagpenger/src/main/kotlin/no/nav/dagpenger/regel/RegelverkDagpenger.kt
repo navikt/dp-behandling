@@ -4,9 +4,8 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
-import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.Utbetaling
-import no.nav.dagpenger.opplysning.UtbetalingerStrategi
+import no.nav.dagpenger.opplysning.Utfall
 import no.nav.dagpenger.opplysning.Ytelsestype
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
@@ -48,8 +47,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVer
 val RegelverkDagpenger =
     Regelverk(
         navn = RegelverkType("Dagpenger"),
-        rettighetsperiodeStrategi = DagpengerRettighetsperiodeStrategi(),
-        utbetalingerStrategi = DagpengerUtbetalingStrategi(),
+        rettighetsperiodeberegning = ::dagpengerRettighetsperioder,
+        utbetalingsberegning = ::dagpengerUtbetalinger,
+        utfallberegning = ::dagpengerUtfall,
         Alderskrav.regelsett,
         Beregning.regelsett,
         Dagpengegrunnlag.regelsett,
@@ -95,47 +95,58 @@ fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
         .flatMap { it.betingelser.asSequence() }
         .all { opplysninger.erSann(it) }
 
-class DagpengerRettighetsperiodeStrategi : RettighetsperiodeStrategi {
-    override fun rettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode> {
-        val egne = opplysninger.somListe(Egne)
-        return opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).map { periode ->
-            Rettighetsperiode(
-                fraOgMed = periode.gyldighetsperiode.fraOgMed,
-                tilOgMed = periode.gyldighetsperiode.tilOgMed,
-                harRett = periode.verdi,
-                endret = egne.contains(periode),
-            )
-        }
+private fun dagpengerRettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode> {
+    val egne = opplysninger.somListe(Egne)
+    return opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).map { periode ->
+        Rettighetsperiode(
+            fraOgMed = periode.gyldighetsperiode.fraOgMed,
+            tilOgMed = periode.gyldighetsperiode.tilOgMed,
+            harRett = periode.verdi,
+            endret = egne.contains(periode),
+        )
     }
 }
 
-class DagpengerUtbetalingStrategi : UtbetalingerStrategi {
-    override fun utbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
-        val meldeperioder = opplysninger.finnAlle(Beregning.meldeperiode)
+private fun dagpengerUtfall(opplysninger: LesbarOpplysninger): Utfall {
+    val perioder = dagpengerRettighetsperioder(opplysninger)
+    if (perioder.isEmpty()) return Utfall.Uavklart
 
-        val egneId = opplysninger.somListe(Egne).map { it.id }
-        val løpendeRett = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
-        val satser = opplysninger.finnAlle(dagsatsEtterSamordningMedBarnetillegg)
-        val dager = opplysninger.finnAlle(Beregning.utbetaling).associateBy { it.gyldighetsperiode.fraOgMed }
+    val (nye, arvede) = perioder.partition { it.endret }
 
-        return meldeperioder.flatMap { periode ->
-            periode.verdi.mapNotNull { dato ->
-                if (løpendeRett.filter { it.verdi }.none { it.gyldighetsperiode.inneholder(dato) }) {
-                    // Har ikke løpende rett i denne perioden, så ingen utbetaling
-                    return@mapNotNull null
-                }
+    return when {
+        arvede.isEmpty() -> if (nye.any { it.harRett }) Utfall.Innvilgelse(perioder) else Utfall.Avslag
+        nye.isEmpty() -> Utfall.Endring(perioder)
+        arvede.last().harRett && !nye.any { it.harRett } -> Utfall.Stans(perioder)
+        !arvede.last().harRett && !nye.any { it.harRett } -> Utfall.Avslag
+        !arvede.last().harRett && nye.any { it.harRett } -> Utfall.Gjenopptak(perioder)
+        else -> Utfall.Endring(perioder)
+    }
+}
 
-                val dag = dager[dato] ?: throw IllegalStateException("Mangler utbetaling for dag $dato")
-                val sats = satser.first { it.gyldighetsperiode.inneholder(dato) }.verdi
-                Utbetaling(
-                    meldeperiode = periode.verdi.hashCode().toString(),
-                    dato = dato,
-                    sats = sats.verdien.toInt(),
-                    utbetaling = dag.verdi.heleKroner.toInt(),
-                    endret = (dag.id in egneId),
-                    ytelsestype = Ytelsestype("Ordinær"),
-                )
+private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
+    val meldeperioder = opplysninger.finnAlle(Beregning.meldeperiode)
+
+    val egneId = opplysninger.somListe(Egne).map { it.id }
+    val løpendeRett = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
+    val satser = opplysninger.finnAlle(dagsatsEtterSamordningMedBarnetillegg)
+    val dager = opplysninger.finnAlle(Beregning.utbetaling).associateBy { it.gyldighetsperiode.fraOgMed }
+
+    return meldeperioder.flatMap { periode ->
+        periode.verdi.mapNotNull { dato ->
+            if (løpendeRett.filter { it.verdi }.none { it.gyldighetsperiode.inneholder(dato) }) {
+                return@mapNotNull null
             }
+
+            val dag = dager[dato] ?: throw IllegalStateException("Mangler utbetaling for dag $dato")
+            val sats = satser.first { it.gyldighetsperiode.inneholder(dato) }.verdi
+            Utbetaling(
+                meldeperiode = periode.verdi.hashCode().toString(),
+                dato = dato,
+                sats = sats.verdien.toInt(),
+                utbetaling = dag.verdi.heleKroner.toInt(),
+                endret = (dag.id in egneId),
+                ytelsestype = Ytelsestype("Ordinær"),
+            )
         }
     }
 }

@@ -1090,6 +1090,11 @@ class Behandling private constructor(
     // Behandlingen er ferdig og vi må rute til forslag eller godkjenning
     private fun avgjørNesteTilstand(hendelse: PersonHendelse) {
         hendelse.fase("beslutning")
+
+        // Logg utfallet
+        val utfall = forretningsprosess.regelverk.utfall(opplysninger())
+        hendelse.info("Utfall: $utfall")
+
         if (aktiveAvklaringer().isNotEmpty()) {
             hendelse.info("Har ${aktiveAvklaringer().size} aktive avklaringer, går til ForslagTilVedtak")
             return tilstand(ForslagTilVedtak(), hendelse)

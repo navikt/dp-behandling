@@ -26,12 +26,12 @@ class PersonBehandlingskjedeRegelverkTest {
     private val regelverkDagpenger =
         Regelverk(
             navn = RegelverkType("Dagpenger"),
-            rettighetsperiodeStrategi = { listOf(Rettighetsperiode(LocalDate.now(), LocalDate.MAX, true, true)) },
+            rettighetsperiodeberegning = { listOf(Rettighetsperiode(LocalDate.now(), LocalDate.MAX, true, true)) },
         )
     private val regelverkFerietillegg =
         Regelverk(
             navn = RegelverkType("Ferietillegg"),
-            rettighetsperiodeStrategi = { listOf(Rettighetsperiode(LocalDate.now(), LocalDate.MAX, true, true)) },
+            rettighetsperiodeberegning = { listOf(Rettighetsperiode(LocalDate.now(), LocalDate.MAX, true, true)) },
         )
 
     @Test
