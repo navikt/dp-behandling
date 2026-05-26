@@ -22,8 +22,8 @@ import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.util.getOrFail
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.opentelemetry.api.trace.Span
+import kotlinx.coroutines.delay
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
 import no.nav.dagpenger.mediator.IHendelseMediator
 import no.nav.dagpenger.mediator.OpplysningSvarBygger.VerdiMapper
@@ -50,7 +50,6 @@ import no.nav.dagpenger.mediator.audit.Auditlogg
 import no.nav.dagpenger.mediator.barnMapper
 import no.nav.dagpenger.mediator.repository.ApiMelding
 import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
-import no.nav.dagpenger.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.toJsonMessage
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
@@ -88,6 +87,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 
 private val logger = KotlinLogging.logger { }
@@ -100,8 +100,6 @@ internal fun Application.behandlingApi(
     auditlogg: Auditlogg,
     opplysningstyper: Set<Opplysningstype<*>>,
     apiRepositoryPostgres: ApiRepositoryPostgres,
-    meldekortRepository: MeldekortRepository,
-    meterRegistry: PrometheusMeterRegistry? = null,
     messageContext: (ident: String) -> MessageContext,
 ) {
     authenticationConfig(authFactory)
@@ -287,6 +285,10 @@ internal fun Application.behandlingApi(
                         val identForespørsel = call.receive<IdentForesporselDTO>()
                         val behandling = hentBehandling(personRepository, call.behandlingId)
 
+                        if (call.queryParameters["timeout"] == "true") {
+                            delay(30.seconds)
+                        }
+
                         // TODO: La dette egentlig komme fra modellen
                         if (!behandling.harTilstand(TilGodkjenning)) {
                             throw BadRequestException(
@@ -312,6 +314,10 @@ internal fun Application.behandlingApi(
                     post("beslutt") {
                         val identForespørsel = call.receive<IdentForesporselDTO>()
                         val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                        if (call.queryParameters["timeout"] == "true") {
+                            delay(30.seconds)
+                        }
 
                         // TODO: La dette egentlig komme fra modellen
                         if (!behandling.harTilstand(TilBeslutning)) {
