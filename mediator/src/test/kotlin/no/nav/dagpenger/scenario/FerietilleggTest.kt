@@ -1,9 +1,11 @@
 package no.nav.dagpenger.scenario
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.ferietillegg.FerietilleggBeløp
 import no.nav.dagpenger.ferietillegg.KravPåFerietillegg
 import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
@@ -70,6 +72,16 @@ class FerietilleggTest {
                 opplysninger(FerietilleggBeløp.ferietilleggBeløp).single().verdi.verdi shouldBe 47500
                 opplysninger(FerietilleggBeløp.sumUtbetaltForÅr).single().verdi.verdi shouldBe 500000
                 basertPå shouldBe null
+
+                utbetalinger.size() shouldBe 1
+                with(utbetalinger.first()) {
+                    this["utbetaling"].asInt() shouldBe 47500
+                    this["dato"].asLocalDate() shouldBe 1.mai(2019)
+                    this["dagpengeType"].asString() shouldBe "Ferietillegg"
+                    this["meldeperiode"].asString() shouldBe "Ferietillegg-2018"
+                    this["sats"].asInt() shouldBe 47500
+                    this["opprinnelse"].asString() shouldBe "Ny"
+                }
             }
 
             // Nå har vi to kjeder, en med vanlig dagpenger og en ferietillegg
@@ -96,6 +108,16 @@ class FerietilleggTest {
                 opplysninger(FerietilleggBeløp.ferietilleggBeløp).single().verdi.verdi shouldBe 0
                 opplysninger(FerietilleggBeløp.sumUtbetaltForÅr).single().verdi.verdi shouldBe 500000
                 basertPå shouldBe ferietilleggBehandlingId
+
+                utbetalinger.size() shouldBe 1
+                with(utbetalinger.first()) {
+                    this["utbetaling"].asInt() shouldBe 0
+                    this["dato"].asLocalDate() shouldBe 1.mai(2019)
+                    this["dagpengeType"].asString() shouldBe "Ferietillegg"
+                    this["meldeperiode"].asString() shouldBe "Ferietillegg-2018"
+                    this["sats"].asInt() shouldBe 0
+                    this["opprinnelse"].asString() shouldBe "Ny"
+                }
             }
         }
     }
