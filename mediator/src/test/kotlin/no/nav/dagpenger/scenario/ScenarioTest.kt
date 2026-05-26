@@ -386,7 +386,7 @@ class ScenarioTest {
     }
 
     @Test
-    @Disabled("Ikke mulig å sette prøvingsdato direkte, ønsker dato må manipuleres")
+    @Disabled("Ikke mulig å skru av reell arbeidssøker fra ønsket dato")
     fun `tester avslag ved for lite inntekt, ikke reell arbeidssøker, og prøvingsdato flyttes til søknadsdato`() {
         nyttScenario {
             inntektSiste12Mnd = 50000
@@ -398,9 +398,9 @@ class ScenarioTest {
             saksbehandler.endreOpplysning(kravetReellArbeidsøkerSkalVurderes, false, "Kan ikke vurdere reell arbeidssøker")
             saksbehandler.endreOpplysning(
                 prøvingsdato,
-                21.juni(2018),
-                "Avslag skal være fra søknadsdato",
-                Gyldighetsperiode(21.juni(2018)),
+                25.juni(2018),
+                "Avslag skal være fra ønsøknadsdato",
+                Gyldighetsperiode(25.juni(2017)),
             )
             behovsløsere.løsTilForslag()
 
@@ -409,10 +409,11 @@ class ScenarioTest {
 
             behandlingsresultat {
                 rettighetsperioder.single().harRett shouldBe false
-                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder.single().fraOgMed shouldBe 25.juni(2018)
 
                 opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe true
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
+                opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
 
                 opplysninger shouldHaveSize 43
             }
