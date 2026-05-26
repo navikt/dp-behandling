@@ -71,7 +71,7 @@ class AvsluttetArbeidssøkerperiodeMottak(
                         avsluttetTidspunkt,
                         opprettet,
                         sagtNei = årsak == Årsak.UTMELDT_PÅ_MELDEKORT,
-                        fristBrutt = årsak == Årsak.MELDEPLIKT_BRUTT,
+                        fristBrutt = årsak == Årsak.IKKE_MELDT_SEG_PÅ_21_DAGER,
                         manueltAvregistrert = årsak == Årsak.UTMELDT_I_ARBEIDSSØKERREGISTERET,
                     ),
             )
@@ -80,7 +80,7 @@ class AvsluttetArbeidssøkerperiodeMottak(
     private enum class Årsak {
         HAR_IKKE_RETT_PÅ_DAGPENGER,
         UTMELDT_I_ARBEIDSSØKERREGISTERET,
-        MELDEPLIKT_BRUTT,
+        IKKE_MELDT_SEG_PÅ_21_DAGER,
         UTMELDT_PÅ_MELDEKORT,
     }
 

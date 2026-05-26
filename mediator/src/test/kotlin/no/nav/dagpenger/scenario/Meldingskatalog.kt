@@ -135,7 +135,7 @@ internal object Meldingskatalog {
                 put("fastsattMeldedato", fastsattMeldedato)
                 put("avregistrertTidspunkt", avregistrertTidspunkt)
                 when {
-                    fristBrutt -> put("årsak", "MELDEPLIKT_BRUTT")
+                    fristBrutt -> put("årsak", "IKKE_MELDT_SEG_PÅ_21_DAGER")
                     manueltAvregistrert -> put("årsak", "UTMELDT_I_ARBEIDSSØKERREGISTERET")
                     else -> put("årsak", "UTMELDT_PÅ_MELDEKORT")
                 }
