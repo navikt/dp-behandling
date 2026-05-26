@@ -502,7 +502,8 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.fase("mottok_svar")
             hendelse.opplysninger.forEach { opplysning ->
-                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
+                val kildebeskrivelse = if (opplysning.kilde is Saksbehandlerkilde) " (fra saksbehandler)" else ""
+                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}$kildebeskrivelse")
                 opplysning.leggTil(behandling.opplysninger)
             }
 
@@ -621,7 +622,7 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: FjernOpplysningHendelse,
         ) {
-            hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
+            hendelse.info("Saksbehandler fjernet opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
 
             behandling.tilstand(Redigert(), hendelse)
@@ -672,7 +673,8 @@ class Behandling private constructor(
         ) {
             hendelse.fase("mottok_svar")
             hendelse.opplysninger.forEach { opplysning ->
-                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
+                val kildebeskrivelse = if (opplysning.kilde is Saksbehandlerkilde) " (fra saksbehandler)" else ""
+                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}$kildebeskrivelse")
                 opplysning.leggTil(behandling.opplysninger)
             }
 
@@ -863,18 +865,14 @@ class Behandling private constructor(
             }
 
             behandling.godkjent.utførtAv(hendelse.godkjentAv)
-            if (!behandling.forretningsprosess.kreverTotrinnskontroll(behandling.opplysninger)) {
-                hendelse.info("Ble godkjent, men krever ikke totrinnskontroll")
-                behandling.tilstand(Ferdig(), hendelse)
-            }
+            hendelse.info("Saksbehandler ${hendelse.godkjentAv.ident} godkjente behandlingen")
 
-            hendelse.info("Ble godkjent og krever totrinnskontroll")
-            // Om behandlingen ikke krever totrinnskontroller vi ferdige
             if (!behandling.forretningsprosess.kreverTotrinnskontroll(behandling.opplysninger)) {
+                hendelse.info("Krever ikke totrinnskontroll")
                 return behandling.tilstand(Ferdig(), hendelse)
             }
 
-            // Behandlinger som krever totrinnskontroll må sendes til beslutning
+            hendelse.info("Krever totrinnskontroll")
             behandling.tilstand(TilBeslutning(), hendelse)
         }
 
@@ -886,7 +884,8 @@ class Behandling private constructor(
             hendelse.info("Fikk svar på opplysning i ${this.type.name}.")
 
             hendelse.opplysninger.forEach { opplysning ->
-                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
+                val kildebeskrivelse = if (opplysning.kilde is Saksbehandlerkilde) " (fra saksbehandler)" else ""
+                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}$kildebeskrivelse")
 
                 behandling.kanLeggeTil(opplysning)
 
@@ -900,7 +899,7 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: FjernOpplysningHendelse,
         ) {
-            hendelse.info("Skal fjerne opplysning ${hendelse.opplysningId}")
+            hendelse.info("Saksbehandler fjernet opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
 
             behandling.tilstand(Redigert(), hendelse)
@@ -990,6 +989,7 @@ class Behandling private constructor(
             }
 
             behandling.besluttet.utførtAv(hendelse.besluttetAv)
+            hendelse.info("Saksbehandler ${hendelse.besluttetAv.ident} besluttet behandlingen")
             behandling.tilstand(Ferdig(), hendelse)
         }
 

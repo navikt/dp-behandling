@@ -109,7 +109,6 @@ class BehandlingRuntime(
             auditlogg = auditlogg,
             opplysningstyper = opplysningstyper,
             apiRepositoryPostgres = apiRepositoryPostgres,
-            meldekortRepository = meldekortRepository,
             messageContext = messageContextFactory,
         )
     }
