@@ -128,7 +128,13 @@ class Regelkjøring(
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         gjeldendePrøvingsdato = prøvingsdato
         aktiverRegler(prøvingsdato)
+
+        val maksimaltAntallIterasjoner = 1000
+        var iterasjoner = 0
         while (plan.isNotEmpty()) { // && trenger.isEmpty()) {
+            check(++iterasjoner <= maksimaltAntallIterasjoner) {
+                "Loop detection! Har kjørt $iterasjoner uten å gjøre oss ferdig"
+            }
             kjørRegelPlan()
             aktiverRegler(prøvingsdato)
         }
