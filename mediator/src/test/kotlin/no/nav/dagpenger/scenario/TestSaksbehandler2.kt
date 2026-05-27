@@ -8,6 +8,7 @@ import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
+import no.nav.dagpenger.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.FjernOpplysningHendelse
@@ -211,5 +212,18 @@ internal class TestSaksbehandler2(
 
     fun omgjørBehandling(gjelderDato: LocalDate) {
         rapid.sendTestMessage(Meldingskatalog.omgjørBehandling(testPerson.ident, gjelderDato))
+    }
+
+    fun avbryt(årsak: String = "Avbryt") {
+        hendelseMediator.behandle(
+            AvbrytBehandlingHendelse(
+                meldingsreferanseId = UUIDv7.ny(),
+                ident = testPerson.ident,
+                behandlingId = testPerson.behandlingId,
+                opprettet = LocalDateTime.now(),
+                årsak = årsak,
+            ),
+            rapid,
+        )
     }
 }

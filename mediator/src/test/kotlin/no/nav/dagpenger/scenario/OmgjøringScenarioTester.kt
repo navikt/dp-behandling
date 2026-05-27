@@ -385,4 +385,30 @@ class OmgjøringScenarioTester {
             behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
         }
     }
+
+    @Test
+    @Disabled
+    fun `Omgjør en behandling før vi har rett på den første`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(13.mai(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.avbryt()
+
+            person.søkDagpenger(15.mai(2026), 28.mai(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 28.mai(2026)
+            }
+
+            // Omgjøring
+            saksbehandler.omgjørBehandling(27.mai(2018))
+        }
+    }
 }
