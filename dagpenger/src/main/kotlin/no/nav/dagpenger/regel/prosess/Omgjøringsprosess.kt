@@ -84,7 +84,6 @@ class OmgjøringBeregningPlugin(
 
         kontekst.info("Start re-beregning for ${meldeperioder.size} meldeperioder ved omgjøring.")
         meldeperioder.forEach { periode ->
-            kontekst.info("Reberegner meldeperiode: $periode")
             meldekortBeregningPlugin.beregnForPeriode(kontekst, periode)
         }
 
