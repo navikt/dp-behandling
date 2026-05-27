@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Regelplanlegger
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
 
@@ -22,7 +23,7 @@ abstract class Regel<T : Any> internal constructor(
 
     internal open fun lagPlan(
         opplysninger: LesbarOpplysninger,
-        plan: MutableSet<Regel<*>>,
+        plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {

@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Regelplanlegger
 import no.nav.dagpenger.opplysning.finn
 
 class HvisSannMedResultat<T : Any>(
@@ -12,7 +13,7 @@ class HvisSannMedResultat<T : Any>(
 ) : Regel<T>(produserer, listOf(sjekk, hvisSann, hvisUsann)) {
     override fun lagPlan(
         opplysninger: LesbarOpplysninger,
-        plan: MutableSet<Regel<*>>,
+        plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {

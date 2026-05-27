@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Regelplanlegger
 
 class TomRegel<T : Any> internal constructor(
     produserer: Opplysningstype<T>,
@@ -9,7 +10,7 @@ class TomRegel<T : Any> internal constructor(
 ) : Regel<T>(produserer, avhengigheter) {
     override fun lagPlan(
         opplysninger: LesbarOpplysninger,
-        plan: MutableSet<Regel<*>>,
+        plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
