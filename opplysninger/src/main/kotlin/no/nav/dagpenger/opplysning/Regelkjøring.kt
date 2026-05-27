@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import no.nav.dagpenger.opplysning.Regelkjøring.Regelkjøringstilstand.Companion.aktiver
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
@@ -16,6 +17,24 @@ typealias Informasjonsbehov = Map<Opplysningstype<*>, Set<Opplysning<*>>>
 typealias Regelkart = Map<Opplysningstype<out Any>, Regel<*>>
 
 typealias Regelkjøringsdato = Iterable<LocalDate>
+
+class Regelplanlegger {
+    private val regler = mutableSetOf<Regel<*>>()
+
+    fun add(regel: Regel<*>) {
+        regler.add(regel)
+    }
+
+    fun lagProduksjonsplan(): Produksjonsplan {
+        val (ekstern, intern) = regler.partition { it is Ekstern<*> }
+        return Produksjonsplan(ekstern = ekstern.toSet(), intern = intern.toSet())
+    }
+}
+
+data class Produksjonsplan(
+    val ekstern: Set<Regel<*>>,
+    val intern: Set<Regel<*>>,
+)
 
 class Regelkjøring(
     private val regelverksdato: LocalDate,
@@ -74,16 +93,8 @@ class Regelkjøring(
     private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
     private val avhengighetsgraf = Avhengighetsgraf(gjeldendeRegler)
 
-    // Setter opp hvilke opplysninger som skal brukes når reglene evaluerer om de skal kjøre
-    private lateinit var opplysningerPåPrøvingsdato: LesbarOpplysninger
-
-    // Hvilke opplysninger som skal produseres. Må hentes på nytt hver gang, siden det kan endres etterhvert som nye regler kommer til
-    private val ønsketResultat get() = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
-
-    // Set som brukes til å lage planen, og spore hva som blir gjort
-    private var plan: MutableSet<Regel<*>> = mutableSetOf()
+    // Sporing av hva som faktisk er kjørt på tvers av iterasjoner.
     private val kjørteRegler: MutableSet<Regel<*>> = mutableSetOf()
-    private var trenger = setOf<Regel<*>>()
 
     init {
         val duplikate = gjeldendeRegler.groupBy { it.produserer }.filter { it.value.size > 1 }
@@ -123,21 +134,14 @@ class Regelkjøring(
         }
     }
 
-    private var gjeldendePrøvingsdato: LocalDate = LocalDate.MIN
-
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
-        gjeldendePrøvingsdato = prøvingsdato
-        aktiverRegler(prøvingsdato)
-        while (plan.isNotEmpty()) { // && trenger.isEmpty()) {
-            kjørRegelPlan()
-            aktiverRegler(prøvingsdato)
-        }
+        val tilstand = planleggOgUtfør(prøvingsdato)
 
         // Fjern utledede opplysninger som ikke brukes for å produsere ønsket resultat.
         // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
         // ønsketResultat kan være ufullstendig (regelsett med skalKjøres=false pga manglende data).
-        if (trenger.isEmpty()) {
-            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
+        if (tilstand.eksterneRegler.isEmpty()) {
+            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, tilstand.ønsketResultat)
             opplysninger.fjernHvis {
                 val ikkeGjortAvSaksbehandler = it.kilde !is Saksbehandlerkilde
                 val trengsIkke = it.opplysningstype !in brukteOpplysninger
@@ -151,8 +155,8 @@ class Regelkjøring(
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
-            mangler = trenger(),
-            informasjonsbehov = informasjonsbehov(),
+            mangler = tilstand.trenger,
+            informasjonsbehov = tilstand.informasjonsbehov(gjeldendeRegler),
             foreldreløse = opplysninger.fjernet(),
             prøvingsdato = listOf(prøvingsdato),
         ).also { rapport ->
@@ -167,92 +171,21 @@ class Regelkjøring(
         }
     }
 
-    private fun aktiverRegler(regelkjøringsdato: LocalDate) {
-        opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(regelkjøringsdato)
-        val produksjonsplan = mutableSetOf<Regel<*>>()
-        val produsenter = forretningsprosess.produsenter(regelverksdato, opplysningerPåPrøvingsdato)
-        val besøkt = mutableSetOf<Regel<*>>()
+    // Itererer plan -> kjør -> ny plan helt til ingen flere regler står for tur.
+    // Den eneste muteringspunktet for `opplysninger` og `kjørteRegler` i regelkjøringen.
+    private fun planleggOgUtfør(prøvingsdato: LocalDate): Regelkjøringstilstand {
+        var tilstand = aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring)
 
-        // Kjør de reglene som skal kjøres
-        ønsketResultat
-            .mapNotNull { produsenter[it] }
-            .forEach { produsent ->
-                produsent.lagPlan(opplysningerPåPrøvingsdato, produksjonsplan, produsenter, besøkt)
+        while (tilstand.plan.isNotEmpty()) {
+            val resultater = tilstand.kjørRegelPlan(kjørteRegler.toSet(), opplysninger.kunEgne)
+            resultater.forEach { (regel, opplysning) ->
+                kjørteRegler.add(regel)
+                opplysninger.leggTilUtledet(opplysning)
             }
-
-        val (ekstern, intern) = produksjonsplan.partition { it is Ekstern<*> }
-        plan = intern.toMutableSet()
-        trenger = ekstern.toSet()
-    }
-
-    private fun kjørRegelPlan() {
-        while (plan.size > 0) {
-            kjør(plan.first())
+            tilstand = aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring)
         }
+        return tilstand
     }
-
-    private fun kjør(regel: Regel<*>) {
-        try {
-            val opplysning = lagProdukt(regel)
-            kjørteRegler.add(regel)
-            plan.remove(regel)
-            opplysninger.leggTilUtledet(opplysning)
-        } catch (e: IllegalArgumentException) {
-            logger.info {
-                """
-                Skal kjøre: 
-                ${plan.joinToString("\n") { it.produserer.navn }}
-                Har kjørt: 
-                ${kjørteRegler.joinToString("\n") { it.produserer.navn }}
-                """.trimIndent()
-            }
-            throw e
-        }
-    }
-
-    // Produserer en opplysning med riktig gyldighetsperiode basert på hva som allerede finnes.
-    private fun <T : Any> lagProdukt(regel: Regel<T>): Opplysning<T> {
-        val produkt = regel.lagProdukt(opplysningerPåPrøvingsdato)
-
-        // Sjekk om vi har perioder av denne opplysningstypen i samme behandling fra før
-        val eksisterendePerioder = opplysninger.kunEgne.finnAlle(regel.produserer).map { it.gyldighetsperiode }
-        if (eksisterendePerioder.isEmpty()) return produkt
-
-        // Regler uten avhengigheter (f.eks. somUtgangspunkt) produserer opplysninger med MIN..MAX periode.
-        // Begrens perioden til å starte fra prøvingsdatoen for å unngå å overskrive eksisterende
-        // opplysninger med smalere gyldighetsperioder (f.eks. satt av saksbehandler).
-        val begrensetProdukt =
-            if (produkt.gyldighetsperiode.erUbegrenset) {
-                produkt.medGyldighetsperiode(Gyldighetsperiode(gjeldendePrøvingsdato))
-            } else {
-                produkt
-            }
-
-        // Trim den nye perioden slik at den ikke overlapper med eksisterende perioder.
-        // Velg segmentet som inneholder prøvingsdatoen — det er den datoen vi evaluerer for.
-        val ledigePerioder = begrensetProdukt.gyldighetsperiode.minus(eksisterendePerioder)
-        val passendePeriode = ledigePerioder.firstOrNull { it.inneholder(gjeldendePrøvingsdato) }
-
-        return passendePeriode?.let { begrensetProdukt.medGyldighetsperiode(it) } ?: begrensetProdukt
-    }
-
-    private fun trenger(): Set<Opplysningstype<*>> {
-        val eksterneOpplysninger = trenger.map { it.produserer }.toSet()
-        return eksterneOpplysninger
-    }
-
-    private fun informasjonsbehov(): Informasjonsbehov =
-        trenger()
-            .associateWith {
-                // Finn regel som produserer opplysningstype og hent ut avhengigheter
-                gjeldendeRegler.find { regel -> regel.produserer(it) }?.avhengerAv ?: emptyList()
-            }.filter { (_, avhengigheter) ->
-                // Finn bare opplysninger hvor alle avhengigheter er tilfredsstilt
-                avhengigheter.all { opplysningerPåPrøvingsdato.har(it) }
-            }.mapValues { (_, avhengigheter) ->
-                // Finn verdien av avhengighetene
-                avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }.toSet()
-            }
 
     fun kanKjøre(
         opplysningstype: Opplysningstype<*>,
@@ -263,6 +196,111 @@ class Regelkjøring(
         val produserende = regelsett.single { it.produserer.contains(opplysningstype) }
 
         return produserende.skalKjøres(opplysninger.forDato(påDato))
+    }
+
+    private data class Regelkjøringstilstand(
+        val prøvingsdato: LocalDate,
+        val opplysningerPåPrøvingsdato: LesbarOpplysninger,
+        val ønsketResultat: Set<Opplysningstype<*>>,
+        val plan: Set<Regel<*>>,
+        val eksterneRegler: Set<Regel<*>>,
+    ) {
+        val trenger: Set<Opplysningstype<*>> = eksterneRegler.map { it.produserer }.toSet()
+
+        companion object {
+            fun aktiver(
+                prøvingsdato: LocalDate,
+                regelverksdato: LocalDate,
+                opplysninger: Opplysninger,
+                forretningsprosess: Forretningsprosess,
+                opplysningerTilRegelkjøring: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger,
+            ): Regelkjøringstilstand {
+                val opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
+                val produsenter = forretningsprosess.produsenter(regelverksdato, opplysningerPåPrøvingsdato)
+                val ønsketResultat = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
+
+                val planlegger = Regelplanlegger()
+                val besøkt = mutableSetOf<Regel<*>>()
+
+                // Kjør de reglene som skal kjøres
+                ønsketResultat
+                    .mapNotNull { produsenter[it] }
+                    .forEach { produsent ->
+                        produsent.lagPlan(opplysningerPåPrøvingsdato, planlegger, produsenter, besøkt)
+                    }
+
+                val (ekstern, intern) = planlegger.lagProduksjonsplan()
+                return Regelkjøringstilstand(
+                    prøvingsdato = prøvingsdato,
+                    opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
+                    ønsketResultat = ønsketResultat,
+                    plan = intern,
+                    eksterneRegler = ekstern,
+                )
+            }
+        }
+
+        fun informasjonsbehov(gjeldendeRegler: Set<Regel<*>>): Informasjonsbehov =
+            trenger
+                .associateWith {
+                    // Finn regel som produserer opplysningstype og hent ut avhengigheter
+                    gjeldendeRegler.find { regel -> regel.produserer(it) }?.avhengerAv ?: emptyList()
+                }.filter { (_, avhengigheter) ->
+                    // Finn bare opplysninger hvor alle avhengigheter er tilfredsstilt
+                    avhengigheter.all { opplysningerPåPrøvingsdato.har(it) }
+                }.mapValues { (_, avhengigheter) ->
+                    // Finn verdien av avhengighetene
+                    avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }.toSet()
+                }
+
+        fun kjørRegelPlan(
+            kjørteRegler: Set<Regel<*>>,
+            egneOpplysninger: LesbarOpplysninger,
+        ): List<Pair<Regel<*>, Opplysning<*>>> =
+            plan.map { regel ->
+                try {
+                    regel to lagProdukt(regel, egneOpplysninger)
+                } catch (e: IllegalArgumentException) {
+                    logger.info {
+                        """
+                        Skal kjøre: 
+                        ${plan.joinToString("\n") { it.produserer.navn }}
+                        Har kjørt: 
+                        ${kjørteRegler.joinToString("\n") { it.produserer.navn }}
+                        """.trimIndent()
+                    }
+                    throw e
+                }
+            }
+
+        // Produserer en opplysning med riktig gyldighetsperiode basert på hva som allerede finnes.
+        private fun <T : Any> lagProdukt(
+            regel: Regel<T>,
+            egneOpplysninger: LesbarOpplysninger,
+        ): Opplysning<T> {
+            val produkt = regel.lagProdukt(opplysningerPåPrøvingsdato)
+
+            // Sjekk om vi har perioder av denne opplysningstypen i samme behandling fra før
+            val eksisterendePerioder = egneOpplysninger.finnAlle(regel.produserer).map { it.gyldighetsperiode }
+            if (eksisterendePerioder.isEmpty()) return produkt
+
+            // Regler uten avhengigheter (f.eks. somUtgangspunkt) produserer opplysninger med MIN..MAX periode.
+            // Begrens perioden til å starte fra prøvingsdatoen for å unngå å overskrive eksisterende
+            // opplysninger med smalere gyldighetsperioder (f.eks. satt av saksbehandler).
+            val begrensetProdukt =
+                if (produkt.gyldighetsperiode.erUbegrenset) {
+                    produkt.medGyldighetsperiode(Gyldighetsperiode(prøvingsdato))
+                } else {
+                    produkt
+                }
+
+            // Trim den nye perioden slik at den ikke overlapper med eksisterende perioder.
+            // Velg segmentet som inneholder prøvingsdatoen — det er den datoen vi evaluerer for.
+            val ledigePerioder = begrensetProdukt.gyldighetsperiode.minus(eksisterendePerioder)
+            val passendePeriode = ledigePerioder.firstOrNull { it.inneholder(prøvingsdato) }
+
+            return passendePeriode?.let { begrensetProdukt.medGyldighetsperiode(it) } ?: begrensetProdukt
+        }
     }
 
     private class Regelsettprosess(
