@@ -1,4 +1,6 @@
 package no.nav.dagpenger.regel.prosess
+import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
+import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -67,8 +69,10 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
 class OmgjøringBeregningPlugin(
     private val meldekortBeregningPlugin: MeldekortBeregningPlugin,
     private val kvotetelling: Kvotetelling,
-) : ProsessPlugin {
+) : ProsessPlugin,
+    Aktivitetskontekst {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
+        kontekst.kontekst(this)
         val opplysninger = kontekst.opplysninger
         val meldeperioder =
             opplysninger
@@ -77,11 +81,16 @@ class OmgjøringBeregningPlugin(
                 .sortedBy { it.fraOgMed }
 
         // Kjør beregning for hver meldeperiode i kronologisk rekkefølge
+
+        kontekst.info("Start re-beregning for ${meldeperioder.size} meldeperioder ved omgjøring.")
         meldeperioder.forEach { periode ->
+            kontekst.info("Reberegner meldeperiode: $periode")
             meldekortBeregningPlugin.beregnForPeriode(kontekst, periode)
         }
 
         // Kjør kvotetelling etter at alle perioder er beregnet
         kvotetelling.regelkjøringFerdig(kontekst)
     }
+
+    override fun toSpesifikkKontekst() = SpesifikkKontekst("OmgjøringBeregningPlugin")
 }

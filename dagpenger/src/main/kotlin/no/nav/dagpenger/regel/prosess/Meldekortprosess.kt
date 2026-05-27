@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.prosess
+import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -53,6 +54,7 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
 
 class Kvotetelling : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
+        kontekst.kontekst(this)
         val opplysninger = kontekst.opplysninger
         val innvilgetStønadsdager = opplysninger.finnOpplysning(antallStønadsdager).verdi
 
@@ -99,4 +101,6 @@ class Kvotetelling : ProsessPlugin {
             )
         }
     }
+
+    override fun toSpesifikkKontekst() = SpesifikkKontekst("Kvotetelling")
 }

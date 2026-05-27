@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 import io.github.oshai.kotlinlogging.KotlinLogging
+import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.ProsessPlugin
@@ -10,6 +11,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 
 class PrøvingsdatoPlugin : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
+        kontekst.kontekst(this)
         val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 
@@ -48,6 +50,8 @@ class PrøvingsdatoPlugin : ProsessPlugin {
 
         kontekst.beOmRekjøring()
     }
+
+    override fun toSpesifikkKontekst() = SpesifikkKontekst("PrøvingsdatoPlugin")
 
     companion object {
         private val logger = KotlinLogging.logger {}

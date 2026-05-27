@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 
+import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
@@ -25,8 +26,10 @@ class MeldekortBeregningPlugin : ProsessPlugin {
         kontekst: Prosesskontekst,
         meldeperiode: Periode,
     ): Beregningresultat {
+        kontekst.kontekst(this)
         val opplysninger = kontekst.opplysninger
         val gyldighetsperiode = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed)
+        kontekst.info("Beregner meldeperiode: ${gyldighetsperiode.fraOgMed} til ${gyldighetsperiode.tilOgMed}")
 
         val terskelForAntallDagerEnIkkeKanVæreMeldt = TerskelTrekkForSenMelding.forDato(meldeperiode.fraOgMed)
         val antallIkkeMeldtDager =
@@ -68,4 +71,9 @@ class MeldekortBeregningPlugin : ProsessPlugin {
     }
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi
+
+    override fun toSpesifikkKontekst() =
+        SpesifikkKontekst(
+            "MeldekortBeregningPlugin",
+        )
 }

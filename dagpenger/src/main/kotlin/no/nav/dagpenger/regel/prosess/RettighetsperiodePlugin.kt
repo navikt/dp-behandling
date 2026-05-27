@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 import io.github.oshai.kotlinlogging.KotlinLogging
+import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
@@ -32,6 +33,7 @@ class RettighetsperiodePlugin(
     private val overskrivingsStrategi: PeriodeOverskrivingsStrategi = PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
 ) : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
+        kontekst.kontekst(this)
         val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 
@@ -50,12 +52,14 @@ class RettighetsperiodePlugin(
                 .somListe()
                 .filter { it.opplysningstype in vilkår }
                 .filterIsInstance<Opplysning<Boolean>>()
-
-        logger.info {
+        val melding =
             """RettighetsperiodePlugin beregner rettighetsperiode basert på i
             |vilkår(${vilkår.size}): $vilkår 
             |utfall(${utfall.size}): $utfall
             """.trimMargin()
+        kontekst.info(melding)
+        logger.info {
+            melding
         }
 
         // Fjern gamle perioder før vi legger til nye
@@ -91,6 +95,11 @@ class RettighetsperiodePlugin(
                 )
             }
     }
+
+    override fun toSpesifikkKontekst() =
+        SpesifikkKontekst(
+            "RettighetsperiodePlugin",
+        )
 
     companion object {
         private val logger = KotlinLogging.logger {}
