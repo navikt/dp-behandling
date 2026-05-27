@@ -464,7 +464,7 @@ class Behandling private constructor(
             behandling.emitOpprettet()
 
             behandling.forretningsprosess.kjørUnderOpprettelse(
-                Prosesskontekst(behandling.opplysninger, behandling.behandler),
+                Prosesskontekst(behandling.opplysninger, hendelse),
             )
 
             behandling.tilstand(UnderBehandling(), hendelse)
@@ -1072,8 +1072,7 @@ class Behandling private constructor(
         hendelse.lagBehov(rapport.informasjonsbehov)
 
         // 2. Kjører plugins via Kontekst
-        val kontekst =
-            Prosesskontekst(opplysninger, behandler)
+        val kontekst = Prosesskontekst(opplysninger, hendelse)
         forretningsprosess.kjørEtterRegelkjøring(kontekst)
 
         if (rapport.erFerdig()) {
