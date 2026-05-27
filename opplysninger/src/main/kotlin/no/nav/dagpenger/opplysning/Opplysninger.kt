@@ -35,6 +35,7 @@ class Opplysninger private constructor(
 
     fun <T : Any> leggTil(opplysning: Opplysning<T>) {
         opplysning.behandlet = false
+        opplysning.behandletVed = null
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende != null) {
@@ -77,8 +78,13 @@ class Opplysninger private constructor(
 
     fun markerBehandlet(dato: LocalDate) {
         egne
-            .filter { it.gyldighetsperiode.inneholder(dato) && !it.behandlet }
-            .forEach { it.behandlet = true }
+            .filter { it.gyldighetsperiode.inneholder(dato) }
+            .forEach {
+                it.behandlet = true
+                // Kun utledede opplysninger trenger behandletVed-sporing for cleanup.
+                // Input-opplysninger (fra behov) skal ikke fjernes av behandletVed-sjekken.
+                if (it.utledetAv != null && it.behandletVed == null) it.behandletVed = dato
+            }
     }
 
     fun ubehandledeDatoer(): List<LocalDate> =

@@ -41,7 +41,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpply
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.UUID
@@ -386,8 +385,7 @@ class ScenarioTest {
     }
 
     @Test
-    @Disabled("Ikke mulig å skru av reell arbeidssøker fra ønsket dato")
-    fun `tester avslag ved for lite inntekt, ikke reell arbeidssøker, og prøvingsdato flyttes til søknadsdato`() {
+    fun `tester avslag ved for lite inntekt, ikke reell arbeidssøker, med avslag fra ønsket dato`() {
         nyttScenario {
             inntektSiste12Mnd = 50000
         }.test {
@@ -415,7 +413,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
 
-                opplysninger shouldHaveSize 43
+                opplysninger shouldHaveSize 52
             }
         }
     }
