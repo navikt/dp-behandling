@@ -463,7 +463,9 @@ class Behandling private constructor(
             hendelse.info("Mottatt ${hendelse.type} og startet behandling")
             behandling.emitOpprettet()
 
-            behandling.forretningsprosess.kjørUnderOpprettelse(Prosesskontekst(behandling.opplysninger))
+            behandling.forretningsprosess.kjørUnderOpprettelse(
+                Prosesskontekst(behandling.opplysninger, behandling.behandler),
+            )
 
             behandling.tilstand(UnderBehandling(), hendelse)
         }
@@ -1053,10 +1055,13 @@ class Behandling private constructor(
         avklaringer.avklaringer().forEach { avklaring ->
             val varAktivFør = avklaringerFør[avklaring.id]
             when {
-                varAktivFør == null && avklaring.måAvklares() ->
+                varAktivFør == null && avklaring.måAvklares() -> {
                     hendelse.info("Avklaring opprettet: ${avklaring.kode.kode}")
-                varAktivFør == true && avklaring.erAvbrutt() ->
+                }
+
+                varAktivFør == true && avklaring.erAvbrutt() -> {
                     hendelse.info("Avklaringen er ikke lenger relevant: ${avklaring.kode.kode}")
+                }
             }
         }
         if (rapport.informasjonsbehov.isNotEmpty()) {
@@ -1067,7 +1072,8 @@ class Behandling private constructor(
         hendelse.lagBehov(rapport.informasjonsbehov)
 
         // 2. Kjører plugins via Kontekst
-        val kontekst = Prosesskontekst(opplysninger)
+        val kontekst =
+            Prosesskontekst(opplysninger, behandler)
         forretningsprosess.kjørEtterRegelkjøring(kontekst)
 
         if (rapport.erFerdig()) {

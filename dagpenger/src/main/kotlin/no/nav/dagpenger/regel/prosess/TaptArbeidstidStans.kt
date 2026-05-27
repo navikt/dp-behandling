@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.prosess
+import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.ProsessPlugin
@@ -17,6 +18,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
  */
 class TaptArbeidstidStans : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
+        kontekst.kontekst(this)
         val opplysninger = kontekst.opplysninger
 
         val påfølgendeUtenTapt =
@@ -36,6 +38,10 @@ class TaptArbeidstidStans : ProsessPlugin {
                 return
             }
 
+            kontekst.info(
+                "Bruker har ikke oppfylt kravet til tapt arbeidstid i ${påfølgendeUtenTapt.size} påfølgende perioder. Stans av dagpenger fra og med $stansFraOgMed.",
+            )
+
             opplysninger.leggTil(
                 Faktum(TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid, false, stansperiode),
             )
@@ -43,4 +49,6 @@ class TaptArbeidstidStans : ProsessPlugin {
             kontekst.beOmRekjøring()
         }
     }
+
+    override fun toSpesifikkKontekst() = SpesifikkKontekst("TaptArbeidstidStans")
 }

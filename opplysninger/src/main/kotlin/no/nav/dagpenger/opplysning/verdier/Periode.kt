@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning.verdier
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 data class Periode(
     override val start: LocalDate,
@@ -23,4 +24,10 @@ data class Periode(
 
             override fun next(): LocalDate = current.apply { current = current.plusDays(1) }
         }
+
+    override fun toString() = "${start.format(datoFormatterer)} til ${endInclusive.format(datoFormatterer)}"
+
+    private companion object {
+        val datoFormatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    }
 }

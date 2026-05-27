@@ -1,5 +1,9 @@
 package no.nav.dagpenger.opplysning
 
+import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
+import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
+import no.nav.dagpenger.aktivitetslogg.IAktivitetslogg
+import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
 
@@ -46,7 +50,7 @@ abstract class Forretningsprosess(
             .associateBy { it.produserer }
 }
 
-interface ProsessPlugin {
+interface ProsessPlugin : Aktivitetskontekst {
     fun underOpprettelse(kontekst: Prosesskontekst) {}
 
     fun etterRegelkjøring(kontekst: Prosesskontekst) {}
@@ -56,13 +60,24 @@ interface ProsessPlugin {
 
 data class Prosesskontekst(
     val opplysninger: Opplysninger,
-) {
+    private val aktivitetslogg: IAktivitetslogg = Aktivitetslogg(),
+) : Aktivitetskontekst,
+    IAktivitetslogg by aktivitetslogg {
+    init {
+        aktivitetslogg.kontekst(this)
+    }
+
     var kreverRekjøring: Boolean = false
         private set
 
     fun beOmRekjøring() {
         kreverRekjøring = true
     }
+
+    override fun toSpesifikkKontekst(): SpesifikkKontekst =
+        SpesifikkKontekst(
+            "Prosesskontekst",
+        )
 }
 
 class Prosessregister {
