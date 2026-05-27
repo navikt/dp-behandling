@@ -84,7 +84,6 @@ internal object Postgres {
     private val tilgjengeligeTestsesjoner =
         ArrayBlockingQueue(ANTALL_TESTER_I_PARALLELL, false, opprettInitielleTilkoblinger(ANTALL_TESTER_I_PARALLELL))
 
-    @PublishedApi
     internal fun hentLedigTestContext(): DBTestContext {
         logger.info { "Tester venter på ledig database..." }
         val testContext =
@@ -95,7 +94,6 @@ internal object Postgres {
         return testContext
     }
 
-    @PublishedApi
     internal fun frigiTestContext(testContext: DBTestContext) {
         logger.info { "Tømmer tabeller for innhold..." }
         testContext.truncateTables()
@@ -103,13 +101,11 @@ internal object Postgres {
         tilgjengeligeTestsesjoner.offer(testContext)
     }
 
-    @PublishedApi
     internal fun opprettIsolertTestContext(): Pair<String, DBTestContext> {
         val databasenavn = "testdb_isolated_${System.currentTimeMillis()}"
         return databasenavn to opprettTilkobling(databasenavn)
     }
 
-    @PublishedApi
     internal fun slettIsolertDatabase(databasenavn: String) {
         logger.info { "Sletter midlertidig database" }
         systemtilkobling.createStatement().execute("drop database $databasenavn with (force)")
