@@ -9,15 +9,15 @@ import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class MeldekortBehandlingsresultatSignalMottakTest {
+class MeldekortBehandlingsresultatKontrollregningMottakTest {
     private val rapid = TestRapid()
 
     init {
-        MeldekortBehandlingsresultatSignalMottak(rapid)
+        MeldekortBehandlingsresultatKontrollregningMottak(rapid)
     }
 
     @Test
-    fun `publiserer signal ved for sen melding og stans`() {
+    fun `publiserer kontrollregningbehov ved for sen melding og stans`() {
         rapid.sendTestMessage(
             behandlingsresultat(
                 førteTil = "STANS",
@@ -34,15 +34,15 @@ class MeldekortBehandlingsresultatSignalMottakTest {
 
         rapid.inspektør.size shouldBeExactly 1
         with(rapid.inspektør.message(0)) {
-            this["@event_name"].asString() shouldBe "meldekort_behandlingsresultat_signal"
+            this["@event_name"].asString() shouldBe "meldekortberegning_trenger_kontrollregning"
             this["behandlingId"].asString() shouldBe "12345678-1234-1234-1234-123456789012"
-            this["trigger"]["trekkVedForsenMelding"].asBoolean() shouldBe true
-            this["trigger"]["avgjorelseStans"].asBoolean() shouldBe true
+            this["detaljer"]["trekkVedForsenMelding"].asBoolean() shouldBe true
+            this["detaljer"]["avgjorelseStans"].asBoolean() shouldBe true
         }
     }
 
     @Test
-    fun `publiserer signal ved arbeidsdag false og ny opplysning utenfor beregning`() {
+    fun `publiserer kontrollregningbehov ved arbeidsdag false og ny opplysning utenfor beregning`() {
         rapid.sendTestMessage(
             behandlingsresultat(
                 førteTil = "ENDRING",
@@ -64,14 +64,14 @@ class MeldekortBehandlingsresultatSignalMottakTest {
 
         rapid.inspektør.size shouldBeExactly 1
         with(rapid.inspektør.message(0)) {
-            this["@event_name"].asString() shouldBe "meldekort_behandlingsresultat_signal"
-            this["trigger"]["arbeidsdagUtenArbeid"].asBoolean() shouldBe true
-            this["trigger"]["nyOpplysningUtenforBeregning"].asBoolean() shouldBe true
+            this["@event_name"].asString() shouldBe "meldekortberegning_trenger_kontrollregning"
+            this["detaljer"]["arbeidsdagUtenArbeid"].asBoolean() shouldBe true
+            this["detaljer"]["nyOpplysningUtenforBeregning"].asBoolean() shouldBe true
         }
     }
 
     @Test
-    fun `publiserer ikke signal når stoppsignal mangler`() {
+    fun `publiserer kontrollregningbehov når meldekort har innhold og endring uten stans`() {
         rapid.sendTestMessage(
             behandlingsresultat(
                 førteTil = "ENDRING",
@@ -86,11 +86,30 @@ class MeldekortBehandlingsresultatSignalMottakTest {
             ),
         )
 
+        rapid.inspektør.size shouldBeExactly 1
+    }
+
+    @Test
+    fun `publiserer ikke kontrollregningbehov når meldekort har innhold men ingen endring og ingen stans`() {
+        rapid.sendTestMessage(
+            behandlingsresultat(
+                førteTil = "ENDRING",
+                opplysninger =
+                    listOf(
+                        opplysning(
+                            opplysningTypeId = arbeidstimerId.uuid,
+                            opprinnelse = "NY",
+                            verdi = "0",
+                        ),
+                    ),
+            ),
+        )
+
         rapid.inspektør.size shouldBeExactly 0
     }
 
     @Test
-    fun `publiserer ikke signal for ikke meldekort`() {
+    fun `publiserer ikke kontrollregningbehov for ikke meldekort`() {
         rapid.sendTestMessage(
             behandlingsresultat(
                 hendelseType = "Søknad",

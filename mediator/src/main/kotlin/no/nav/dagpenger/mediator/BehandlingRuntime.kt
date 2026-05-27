@@ -11,7 +11,7 @@ import no.nav.dagpenger.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.mediator.melding.PostgresMeldingRepository
 import no.nav.dagpenger.mediator.mottak.ArenaOppgaveMottak
 import no.nav.dagpenger.mediator.mottak.MarkerMeldekortSomBehandletMottak
-import no.nav.dagpenger.mediator.mottak.MeldekortBehandlingsresultatSignalMottak
+import no.nav.dagpenger.mediator.mottak.MeldekortBehandlingsresultatKontrollregningMottak
 import no.nav.dagpenger.mediator.mottak.SakRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.AvklaringKafkaObservatør
@@ -81,7 +81,7 @@ class BehandlingRuntime(
     fun registrerMottak() {
         ArenaOppgaveMottak(rapidsConnection, SakRepositoryPostgres(dbSession))
         MarkerMeldekortSomBehandletMottak(rapidsConnection, meldekortRepository)
-        MeldekortBehandlingsresultatSignalMottak(rapidsConnection)
+        MeldekortBehandlingsresultatKontrollregningMottak(rapidsConnection)
 
         avklaringRepository.registerObserver(AvklaringKafkaObservatør(rapidsConnection))
 
