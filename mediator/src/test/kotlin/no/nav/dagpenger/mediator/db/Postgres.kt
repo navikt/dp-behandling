@@ -84,30 +84,52 @@ internal object Postgres {
     private val tilgjengeligeTestsesjoner =
         ArrayBlockingQueue(ANTALL_TESTER_I_PARALLELL, false, opprettInitielleTilkoblinger(ANTALL_TESTER_I_PARALLELL))
 
-    fun withTestContext(block: (DBTestContext) -> Unit) {
+    @PublishedApi
+    internal fun hentLedigTestContext(): DBTestContext {
         logger.info { "Tester venter på ledig database..." }
         val testContext =
-            tilgjengeligeTestsesjoner.poll(Duration.ofSeconds(20).toSeconds(), TimeUnit.SECONDS) ?: error("Fikk ikke tak i databasesesjon!")
+            tilgjengeligeTestsesjoner.poll(Duration.ofSeconds(20).toSeconds(), TimeUnit.SECONDS)
+                ?: error("Fikk ikke tak i databasesesjon!")
+        logger.info { "Fikk tak i database..." }
+        testContext.runMigration()
+        return testContext
+    }
+
+    @PublishedApi
+    internal fun frigiTestContext(testContext: DBTestContext) {
+        logger.info { "Tømmer tabeller for innhold..." }
+        testContext.truncateTables()
+        logger.info { "Gir databasen tilbake..." }
+        tilgjengeligeTestsesjoner.offer(testContext)
+    }
+
+    @PublishedApi
+    internal fun opprettIsolertTestContext(): Pair<String, DBTestContext> {
+        val databasenavn = "testdb_isolated_${System.currentTimeMillis()}"
+        return databasenavn to opprettTilkobling(databasenavn)
+    }
+
+    @PublishedApi
+    internal fun slettIsolertDatabase(databasenavn: String) {
+        logger.info { "Sletter midlertidig database" }
+        systemtilkobling.createStatement().execute("drop database $databasenavn with (force)")
+    }
+
+    inline fun withTestContext(block: (DBTestContext) -> Unit) {
+        val testContext = hentLedigTestContext()
         try {
-            logger.info { "Fikk tak i database..." }
-            testContext.runMigration()
             block(testContext)
         } finally {
-            logger.info { "Tømmer tabeller for innhold..." }
-            testContext.truncateTables()
-            logger.info { "Gir databasen tilbake..." }
-            tilgjengeligeTestsesjoner.offer(testContext)
+            frigiTestContext(testContext)
         }
     }
 
-    fun withIsolatedTestContext(block: (DBTestContext) -> Unit) {
-        val databasenavn = "testdb_isolated_${System.currentTimeMillis()}"
-        val testContext = opprettTilkobling(databasenavn)
+    inline fun withIsolatedTestContext(block: (DBTestContext) -> Unit) {
+        val (databasenavn, testContext) = opprettIsolertTestContext()
         try {
             block(testContext)
         } finally {
-            logger.info { "Sletter midlertidig database" }
-            systemtilkobling.createStatement().execute("drop database $databasenavn with (force)")
+            slettIsolertDatabase(databasenavn)
         }
     }
 
