@@ -28,6 +28,10 @@ sealed class Opplysning<T : Any>(
     // Flagg som indikerer om opplysningen har blitt behandlet av regelkjøringen.
     // Default true fordi opplysninger lastet fra DB allerede er behandlet (flagget persisteres ikke).
     var behandlet: Boolean = true,
+    // Hvilken prøvingsdato opplysningen sist ble behandlet ved. Persisteres til DB.
+    // Brukes for å skille opplysninger fra nåværende eval-syklus (kan fjernes ved cleanup)
+    // fra opplysninger fra tidligere eval-sykluser med annen prøvingsdato (skal beskyttes).
+    var behandletVed: LocalDate? = null,
 ) : Klassifiserbart by opplysningstype {
     private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID }
 

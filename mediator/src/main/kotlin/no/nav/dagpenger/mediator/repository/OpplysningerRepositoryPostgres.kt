@@ -246,6 +246,7 @@ internal class OpplysningerRepositoryPostgres(
             val erstatterId = this.uuidOrNull("erstatter_id")
 
             val kildeId = this.uuidOrNull("kilde_id")
+            val behandletVed = this.localDateOrNull("behandlet_ved")
 
             return OpplysningRad(
                 opplysingerId = opplysingerId,
@@ -259,6 +260,7 @@ internal class OpplysningerRepositoryPostgres(
                 kilde = null,
                 opprettet = opprettet,
                 erstatter = erstatterId,
+                behandletVed = behandletVed,
             )
         }
 
@@ -406,6 +408,7 @@ internal class OpplysningerRepositoryPostgres(
                             "opplysning_id" to opplysning.id,
                             "datatype" to datatype.navn(),
                             "erstatter_id" to opplysning.erstatter?.id,
+                            "behandlet_ved" to opplysning.behandletVed,
                         ) + verdi
                     }
                 }
@@ -417,11 +420,11 @@ internal class OpplysningerRepositoryPostgres(
                     WITH ins AS (SELECT opplysningstype_id FROM opplysningstype WHERE uuid = :typeUuid AND datatype = :datatype)
                     INSERT
                     INTO opplysning (opplysninger_id, id, status, opplysningstype_id, kilde_id, gyldig_fom, gyldig_tom, opprettet, datatype,
-                                     verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string, verdi_jsonb, erstatter_id)
+                                     verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string, verdi_jsonb, erstatter_id, behandlet_ved)
                     VALUES (:opplysningerId, :id, :status, (SELECT opplysningstype_id FROM ins), :kilde_id, :fom::timestamp,
                             :tom::timestamp, :opprettet, :datatype, :verdi_heltall, :verdi_desimaltall, :verdi_dato, :verdi_boolsk,
-                            :verdi_string, :verdi_jsonb, :erstatter_id)
-                    ON CONFLICT(id) DO UPDATE SET erstatter_id=:erstatter_id
+                            :verdi_string, :verdi_jsonb, :erstatter_id, :behandlet_ved)
+                    ON CONFLICT(id) DO UPDATE SET erstatter_id=:erstatter_id, behandlet_ved=:behandlet_ved
                     """.trimIndent(),
                     params,
                 ).krevAtAntallRaderErNøyaktigLik(params.size)
@@ -598,6 +601,7 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
             }
 
         // Add the Opplysning instance to the map and return it
+        opplysning.behandletVed = behandletVed
         opplysningMap[id] = opplysning
         return opplysning
     }
@@ -627,4 +631,5 @@ private data class OpplysningRad<T : Any>(
     val kilde: Kilde? = null,
     val opprettet: LocalDateTime,
     val erstatter: UUID? = null,
+    val behandletVed: LocalDate? = null,
 )

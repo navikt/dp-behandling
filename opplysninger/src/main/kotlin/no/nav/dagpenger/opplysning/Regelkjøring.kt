@@ -134,13 +134,13 @@ class Regelkjøring(
         }
 
         // Fjern utledede opplysninger som ikke brukes for å produsere ønsket resultat.
-        // Opplysninger med Saksbehandlerkilde beholdes alltid — de er eksplisitte overstyringer
-        // og skal aldri fjernes av avhengighetsanalyse.
         val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
         opplysninger.fjernHvis {
-            it.kilde !is Saksbehandlerkilde &&
-                it.opplysningstype !in brukteOpplysninger &&
-                it.gyldighetsperiode.fraOgMed >= prøvingsdato
+            val ikkeGjortAvSaksbehandler = it.kilde !is Saksbehandlerkilde
+            val trengsIkke = it.opplysningstype !in brukteOpplysninger
+            val tilhørerDenneRegelkjøringen = it.gyldighetsperiode.fraOgMed >= prøvingsdato || it.behandletVed == prøvingsdato
+
+            ikkeGjortAvSaksbehandler && trengsIkke && tilhørerDenneRegelkjøringen
         }
 
         opplysninger.markerBehandlet(prøvingsdato)
