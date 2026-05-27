@@ -75,7 +75,6 @@ Behandling endret tilstand til: Redigert
 Behov:
 - Inntekt
 Behov:
-- BostedslandErNorge
 - Uføre
 - Sykepenger
 - Pleiepenger
@@ -83,12 +82,9 @@ Behov:
 - Opplæringspenger
 - Foreldrepenger
 - Svangerskapspenger
-- AndreØkonomiskeYtelser
-- TarUtdanningEllerOpplæring
 Behov:
 - Inntekt
 Behov:
-- BarnetilleggV2
 - Uføre
 - Sykepenger
 - Pleiepenger

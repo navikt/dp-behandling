@@ -134,13 +134,17 @@ class Regelkjøring(
         }
 
         // Fjern utledede opplysninger som ikke brukes for å produsere ønsket resultat.
-        val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
-        opplysninger.fjernHvis {
-            val ikkeGjortAvSaksbehandler = it.kilde !is Saksbehandlerkilde
-            val trengsIkke = it.opplysningstype !in brukteOpplysninger
-            val tilhørerDenneRegelkjøringen = it.gyldighetsperiode.fraOgMed >= prøvingsdato || it.behandletVed == prøvingsdato
+        // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
+        // ønsketResultat kan være ufullstendig (regelsett med skalKjøres=false pga manglende data).
+        if (trenger.isEmpty()) {
+            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, ønsketResultat)
+            opplysninger.fjernHvis {
+                val ikkeGjortAvSaksbehandler = it.kilde !is Saksbehandlerkilde
+                val trengsIkke = it.opplysningstype !in brukteOpplysninger
+                val tilhørerDenneRegelkjøringen = it.gyldighetsperiode.fraOgMed >= prøvingsdato || it.behandletVed == prøvingsdato
 
-            ikkeGjortAvSaksbehandler && trengsIkke && tilhørerDenneRegelkjøringen
+                ikkeGjortAvSaksbehandler && trengsIkke && tilhørerDenneRegelkjøringen
+            }
         }
 
         opplysninger.markerBehandlet(prøvingsdato)
