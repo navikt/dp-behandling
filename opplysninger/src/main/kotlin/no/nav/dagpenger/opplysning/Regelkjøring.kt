@@ -132,13 +132,15 @@ class Regelkjøring(
     }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
-        val (tilstand, kjørteRegler) = planleggOgUtfør(prøvingsdato)
+        val (kjøreplan, regelresultater) = planleggOgUtfør(prøvingsdato)
+
+        val kjørteRegler = regelresultater.flatten().map { it.regel }.toSet()
 
         // Fjern utledede opplysninger som ikke brukes for å produsere ønsket resultat.
         // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
         // ønsketResultat kan være ufullstendig (regelsett med skalKjøres=false pga manglende data).
-        if (tilstand.eksterneRegler.isEmpty()) {
-            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, tilstand.ønsketResultat)
+        if (kjøreplan.siste.eksterneRegler.isEmpty()) {
+            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, kjøreplan.siste.ønsketResultat)
             opplysninger.fjernHvis {
                 val ikkeGjortAvSaksbehandler = it.kilde !is Saksbehandlerkilde
                 val trengsIkke = it.opplysningstype !in brukteOpplysninger
@@ -152,8 +154,8 @@ class Regelkjøring(
 
         return Regelkjøringsrapport(
             kjørteRegler = kjørteRegler,
-            mangler = tilstand.trenger,
-            informasjonsbehov = tilstand.informasjonsbehov(gjeldendeRegler),
+            mangler = kjøreplan.siste.trenger,
+            informasjonsbehov = kjøreplan.siste.informasjonsbehov(gjeldendeRegler),
             foreldreløse = opplysninger.fjernet(),
             prøvingsdato = listOf(prøvingsdato),
         ).also { rapport ->
@@ -168,21 +170,50 @@ class Regelkjøring(
         }
     }
 
+    private class Kjøreplan(
+        val siste: Regelkjøringstilstand,
+        val historikk: List<Regelkjøringstilstand> = emptyList(),
+    ) {
+        fun skalKjøre() = siste.plan.isNotEmpty()
+
+        fun kjørPlan(lesbarOpplysninger: LesbarOpplysninger): List<Regelkjøringstilstand.Regelkjøringutfall<*>> =
+            siste.kjørRegelPlan(lesbarOpplysninger)
+
+        fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan =
+            Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
+    }
+
     // Itererer plan -> kjør -> ny plan helt til ingen flere regler står for tur.
     // Den eneste muteringspunktet for `opplysninger` i regelkjøringen.
-    private fun planleggOgUtfør(prøvingsdato: LocalDate): Pair<Regelkjøringstilstand, Set<Regel<*>>> {
-        val kjørteRegler: MutableSet<Regel<*>> = mutableSetOf()
-        var tilstand = aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring)
-
-        while (tilstand.plan.isNotEmpty()) {
-            val resultater = tilstand.kjørRegelPlan(kjørteRegler.toSet(), opplysninger.kunEgne)
-            resultater.forEach { (regel, opplysning) ->
-                kjørteRegler.add(regel)
-                opplysninger.leggTilUtledet(opplysning)
+    private fun planleggOgUtfør(prøvingsdato: LocalDate): Pair<Kjøreplan, List<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>> {
+        var kjøreplan =
+            Kjøreplan(
+                siste = aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring),
+            )
+        val regelresultater = mutableListOf<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>()
+        try {
+            while (kjøreplan.skalKjøre()) {
+                val resultater = kjøreplan.kjørPlan(opplysninger.kunEgne)
+                regelresultater.add(resultater)
+                resultater.forEach { (_, opplysning) ->
+                    opplysninger.leggTilUtledet(opplysning)
+                }
+                kjøreplan =
+                    kjøreplan.nyPlan(aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring))
             }
-            tilstand = aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring)
+            return kjøreplan to regelresultater.toList()
+        } catch (err: RegelkjøringException) {
+            logger.info {
+                """
+                Feil for med regel: ${err.regel.produserer.navn}
+                Skal kjøre: 
+                ${kjøreplan.siste.plan.joinToString("\n") { it.produserer.navn }}
+                Har kjørt: 
+                ${regelresultater.flatten().joinToString("\n") { it.regel.produserer.navn }}
+                """.trimIndent()
+            }
+            throw err
         }
-        return tilstand to kjørteRegler.toSet()
     }
 
     fun kanKjøre(
@@ -251,45 +282,44 @@ class Regelkjøring(
                     avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }.toSet()
                 }
 
-        fun kjørRegelPlan(
-            kjørteRegler: Set<Regel<*>>,
-            egneOpplysninger: LesbarOpplysninger,
-        ): List<Pair<Regel<*>, Opplysning<*>>> =
+        fun kjørRegelPlan(egneOpplysninger: LesbarOpplysninger): List<Regelkjøringutfall<*>> =
             plan.map { regel ->
                 try {
-                    regel to lagProdukt(regel, egneOpplysninger)
+                    regel.kjørRegel(egneOpplysninger)
                 } catch (e: IllegalArgumentException) {
-                    logger.info {
-                        """
-                        Skal kjøre: 
-                        ${plan.joinToString("\n") { it.produserer.navn }}
-                        Har kjørt: 
-                        ${kjørteRegler.joinToString("\n") { it.produserer.navn }}
-                        """.trimIndent()
-                    }
-                    throw e
+                    throw RegelkjøringException(regel, e)
                 }
             }
 
+        private fun <T : Any> Regel<T>.kjørRegel(egneOpplysninger: LesbarOpplysninger): Regelkjøringutfall<T> {
+            val produkt =
+                this
+                    .lagProdukt(opplysningerPåPrøvingsdato)
+                    .medGyldighetsperiode(this, egneOpplysninger)
+
+            return Regelkjøringutfall(
+                regel = this,
+                produkt = produkt,
+            )
+        }
+
         // Produserer en opplysning med riktig gyldighetsperiode basert på hva som allerede finnes.
-        private fun <T : Any> lagProdukt(
+        private fun <T : Any> Opplysning<T>.medGyldighetsperiode(
             regel: Regel<T>,
             egneOpplysninger: LesbarOpplysninger,
         ): Opplysning<T> {
-            val produkt = regel.lagProdukt(opplysningerPåPrøvingsdato)
-
             // Sjekk om vi har perioder av denne opplysningstypen i samme behandling fra før
             val eksisterendePerioder = egneOpplysninger.finnAlle(regel.produserer).map { it.gyldighetsperiode }
-            if (eksisterendePerioder.isEmpty()) return produkt
+            if (eksisterendePerioder.isEmpty()) return this
 
             // Regler uten avhengigheter (f.eks. somUtgangspunkt) produserer opplysninger med MIN..MAX periode.
             // Begrens perioden til å starte fra prøvingsdatoen for å unngå å overskrive eksisterende
             // opplysninger med smalere gyldighetsperioder (f.eks. satt av saksbehandler).
             val begrensetProdukt =
-                if (produkt.gyldighetsperiode.erUbegrenset) {
-                    produkt.medGyldighetsperiode(Gyldighetsperiode(prøvingsdato))
+                if (this.gyldighetsperiode.erUbegrenset) {
+                    this.medGyldighetsperiode(Gyldighetsperiode(prøvingsdato))
                 } else {
-                    produkt
+                    this
                 }
 
             // Trim den nye perioden slik at den ikke overlapper med eksisterende perioder.
@@ -299,7 +329,17 @@ class Regelkjøring(
 
             return passendePeriode?.let { begrensetProdukt.medGyldighetsperiode(it) } ?: begrensetProdukt
         }
+
+        data class Regelkjøringutfall<T : Any>(
+            val regel: Regel<T>,
+            val produkt: Opplysning<T>,
+        )
     }
+
+    private class RegelkjøringException(
+        val regel: Regel<*>,
+        override val cause: Throwable?,
+    ) : RuntimeException(cause)
 
     private class Regelsettprosess(
         val regelsett: List<Regelsett>,
