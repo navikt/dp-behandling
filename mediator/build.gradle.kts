@@ -37,6 +37,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-status-pages:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-serialization-jackson3:${libs.versions.ktor.get()}")
+    implementation("io.ktor:ktor-server-sse:${libs.versions.ktor.get()}")
 
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
 

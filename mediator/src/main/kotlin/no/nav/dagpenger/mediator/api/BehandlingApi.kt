@@ -21,6 +21,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.ktor.server.sse.SSE
 import io.ktor.server.util.getOrFail
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.delay
@@ -46,10 +47,12 @@ import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.mediator.api.models.RekjoringDTO
 import no.nav.dagpenger.mediator.api.models.RettighetsstatusDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlerbegrunnelseDTO
+import no.nav.dagpenger.mediator.api.sse.opprettSseStream
 import no.nav.dagpenger.mediator.audit.Auditlogg
 import no.nav.dagpenger.mediator.barnMapper
 import no.nav.dagpenger.mediator.repository.ApiMelding
 import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
+import no.nav.dagpenger.mediator.repository.OppdateringRepository
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.repository.TidslinjeRepository
 import no.nav.dagpenger.mediator.toJsonMessage
@@ -103,9 +106,11 @@ internal fun Application.behandlingApi(
     apiRepositoryPostgres: ApiRepositoryPostgres,
     messageContext: (ident: String) -> MessageContext,
     tidslinjeRepository: TidslinjeRepository,
+    oppdateringRepository: OppdateringRepository,
 ) {
     authenticationConfig(authFactory)
     install(OtelTraceIdPlugin)
+    install(SSE)
 
     routing {
         swaggerUI(path = "openapi", swaggerFile = "behandling-api.yaml")
@@ -197,10 +202,28 @@ internal fun Application.behandlingApi(
                                     mapOf(
                                         "fraOgMed" to r.fraOgMed.toString(),
                                         "harRett" to r.harRett,
+                                        "behandlingId" to r.behandlingId.toString(),
                                     )
                                 },
                         ),
                     )
+                }
+            }
+            route("oppdateringer") {
+                post("person") {
+                    val ident = call.receive<IdentForesporselDTO>().ident
+                    auditlogg.les("Abonnerte på oppdateringer for person", ident, call.saksbehandlerId())
+                    call.opprettSseStream(oppdateringRepository.oppdateringerForPerson(ident))
+                }
+                get("behandling/{behandlingId}") {
+                    val behandlingId = call.behandlingId
+                    val behandling = hentBehandling(personRepository, behandlingId)
+                    auditlogg.les(
+                        "Abonnerte på oppdateringer for behandling",
+                        behandling.behandler.ident,
+                        call.saksbehandlerId(),
+                    )
+                    call.opprettSseStream(oppdateringRepository.oppdateringerForBehandling(behandlingId))
                 }
             }
             route("person/behandling") {

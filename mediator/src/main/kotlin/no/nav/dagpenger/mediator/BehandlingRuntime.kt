@@ -19,6 +19,7 @@ import no.nav.dagpenger.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.BehandlingRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.KildeRepository
 import no.nav.dagpenger.mediator.repository.MeldekortRepositoryPostgres
+import no.nav.dagpenger.mediator.repository.OppdateringRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.repository.PersonRepositoryPostgres
@@ -65,12 +66,14 @@ class BehandlingRuntime(
     private val ventendeMeldekort = VentendeMeldekortDings(meldekortRepository)
 
     private val behovssporer = Behovssporer(dbSession)
+    private val oppdateringRepository = OppdateringRepositoryPostgres(dbSession)
 
     val hendelseMediator: IHendelseMediator =
         HendelseMediator(
             UtboksLagerPostgres(dbSession),
             personRepository,
             meldekortRepository,
+            oppdateringRepository = oppdateringRepository,
             behovMediator = BehovMediator(behovssporer),
             aktivitetsloggMediator = aktivitetsloggMediator,
             observatører = listOf(ventendeMeldekort, BehandlingMetrikker()),
@@ -114,6 +117,7 @@ class BehandlingRuntime(
             apiRepositoryPostgres = apiRepositoryPostgres,
             messageContext = messageContextFactory,
             tidslinjeRepository = TidslinjeRepository(dbSession),
+            oppdateringRepository = oppdateringRepository,
         )
     }
 

@@ -23,6 +23,8 @@ tags:
     description: Drodling rundt hvordan vi tror vedtak, eller resultat på behandlinger, skal se ut.
   - name: Dataprodukt
     description: Operasjoner for produksjon av data til dataprodukter.
+  - name: Oppdatering
+    description: Operasjoner for løpende oppdateringer via SSE.
 
 paths:
   /opplysningstyper:
@@ -587,6 +589,122 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
+  /oppdateringer/person:
+    parameters:
+      - name: since
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+        description: Start cursor for replay av oppdateringer. Hvis ikke satt brukes Last-Event-ID eller siste oppdatering i scope.
+    post:
+      description: |
+        Strøm av oppdateringer for en person (SSE).
+
+        Domenespesifikke `event`-typer:
+        - `behandling_opprettet`
+        - `behandling_endret_tilstand`
+        - `forslag_til_behandlingsresultat`
+        - `behandlingsresultat`
+        - `behandling_avbrutt`
+        - `avklaring_lukket`
+
+        Tekniske kontroll-events:
+        - `ping` (heartbeat)
+        - `close` (stream må reconnectes, f.eks. reauth)
+      security:
+        - azureAd: [ ]
+      tags:
+        - Oppdatering
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentForesporsel'
+      responses:
+        200:
+          description: OK (text/event-stream)
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: |
+                  id: 42
+                  event: behandling_endret_tilstand
+                  data: {"ident":"12345678901","behandlingId":"0195d0dd-ff3a-7127-95b0-77dcc7982a41","forrigeTilstand":"UnderBehandling","gjeldendeTilstand":"TilGodkjenning"}
+        429:
+          description: For mange samtidige oppdateringsstrømmer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+        default:
+          description: Feil ved oppretting av oppdateringsstrøm
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /oppdateringer/behandling/{behandlingId}:
+    parameters:
+      - name: behandlingId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: since
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+        description: Start cursor for replay av oppdateringer. Hvis ikke satt brukes Last-Event-ID eller siste oppdatering i scope.
+    get:
+      description: |
+        Strøm av oppdateringer for en behandling (SSE).
+
+        Domenespesifikke `event`-typer:
+        - `behandling_opprettet`
+        - `behandling_endret_tilstand`
+        - `forslag_til_behandlingsresultat`
+        - `behandlingsresultat`
+        - `behandling_avbrutt`
+        - `avklaring_lukket`
+
+        Tekniske kontroll-events:
+        - `ping` (heartbeat)
+        - `close` (stream må reconnectes, f.eks. reauth)
+      security:
+        - azureAd: [ ]
+      tags:
+        - Oppdatering
+      responses:
+        200:
+          description: OK (text/event-stream)
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: |
+                  id: 43
+                  event: avklaring_lukket
+                  data: {"ident":"12345678901","behandlingId":"0195d0dd-ff3a-7127-95b0-77dcc7982a41","avklaringId":"0195d0de-0d95-7cf3-9e4a-d6dcf924f3d1","kode":"MeldekortUavklart"}
+        429:
+          description: For mange samtidige oppdateringsstrømmer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+        default:
+          description: Feil ved oppretting av oppdateringsstrøm
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
   /ferietillegg/generer/{opptjeningsår}:
     parameters:
       - name: opptjeningsår
@@ -684,6 +802,33 @@ components:
       properties:
         ident:
           $ref: '#/components/schemas/Personident'
+
+    Oppdatering:
+      type: object
+      required:
+        - id
+        - type
+        - payload
+      properties:
+        id:
+          type: integer
+          format: int64
+        type:
+          $ref: '#/components/schemas/OppdateringEventType'
+        payload:
+          type: object
+          description: Hendelsesspesifikk payload (SSE data-felt)
+
+    OppdateringEventType:
+      type: string
+      description: Domenespesifikke SSE event-typer som sendes i oppdateringsstrømmen
+      enum:
+        - behandling_opprettet
+        - behandling_endret_tilstand
+        - forslag_til_behandlingsresultat
+        - behandlingsresultat
+        - behandling_avbrutt
+        - avklaring_lukket
 
     NyBehandling:
       type: object

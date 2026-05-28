@@ -44,7 +44,7 @@ class TidslinjeRepository(
             // language=PostgreSQL
             val rettigheterQuery =
                 """
-                SELECT virkningsdato, har_rettighet
+                SELECT virkningsdato, har_rettighet, behandling_id
                 FROM rettighetstatus
                 WHERE ident = ANY(:identer)
                 ORDER BY virkningsdato
@@ -57,6 +57,7 @@ class TidslinjeRepository(
                             Rettighetsperiode(
                                 fraOgMed = row.localDate("virkningsdato"),
                                 harRett = row.boolean("har_rettighet"),
+                                behandlingId = row.uuid("behandling_id"),
                             )
                         }.asList,
                 )
@@ -84,6 +85,7 @@ data class PersonTidslinje(
 data class Rettighetsperiode(
     val fraOgMed: LocalDate,
     val harRett: Boolean,
+    val behandlingId: UUID,
 )
 
 data class BehandlingTidslinje(

@@ -19,6 +19,7 @@ import no.nav.dagpenger.mediator.BehandlingMetrikker.Companion.startHendelseMott
 import no.nav.dagpenger.mediator.BehandlingMetrikker.Companion.utbetalingStatusTeller
 import no.nav.dagpenger.mediator.Metrikk.tidBruktPerHendelse
 import no.nav.dagpenger.mediator.repository.MeldekortRepository
+import no.nav.dagpenger.mediator.repository.OppdateringRepository
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.utboks.Utboks
 import no.nav.dagpenger.mediator.utboks.UtboksLagerPostgres
@@ -49,6 +50,7 @@ internal class HendelseMediator(
     private val postgres: UtboksLagerPostgres,
     private val personRepository: PersonRepository,
     private val meldekortRepository: MeldekortRepository,
+    private val oppdateringRepository: OppdateringRepository,
     private val behovMediator: BehovMediator = BehovMediator(),
     private val aktivitetsloggMediator: IAktivitetsloggMediator = AktivitetsloggMediator(),
     observatører: Collection<PersonObservatør> = emptySet(),
@@ -131,15 +133,17 @@ internal class HendelseMediator(
         }
         try {
             val personMediator = PersonMediator()
+            val oppdateringObserver = OppdateringObserver()
             person(ident) { person ->
                 person.registrer(personMediator)
+                person.registrer(oppdateringObserver)
                 observatører.forEach { observatør -> person.registrer(observatør) }
                 tidBruktPerHendelse.labelValues(hendelse.javaClass.simpleName).time {
                     handler(person)
                 }
                 hendelseTeller.labelValues(hendelse.javaClass.simpleName).inc()
             }
-            ferdigstill(context, personMediator, hendelse)
+            ferdigstill(context, personMediator, oppdateringObserver, hendelse)
         } catch (aktivitetException: Aktivitetslogg.AktivitetException) {
             sikkerlogg.error(
                 aktivitetException,
@@ -163,11 +167,13 @@ internal class HendelseMediator(
     private fun ferdigstill(
         context: MessageContext,
         personMediator: PersonMediator,
+        oppdateringObserver: OppdateringObserver,
         hendelse: PersonHendelse,
     ) {
         val utboks = Utboks(context, postgres)
 
         personMediator.ferdigstill(utboks)
+        oppdateringObserver.ferdigstill(oppdateringRepository, hendelse.meldingsreferanseId())
 
         if (!hendelse.harAktiviteter()) return
         if (hendelse.harFunksjonelleFeilEllerVerre()) {
