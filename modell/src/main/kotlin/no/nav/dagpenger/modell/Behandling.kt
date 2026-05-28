@@ -33,6 +33,7 @@ import no.nav.dagpenger.modell.hendelser.PåminnelseHendelse
 import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
@@ -1096,9 +1097,9 @@ class Behandling private constructor(
     private fun avgjørNesteTilstand(hendelse: PersonHendelse) {
         hendelse.fase("beslutning")
 
-        // Logg utfallet
-        val utfall = forretningsprosess.regelverk.utfall(opplysninger())
-        hendelse.info("Utfall: $utfall")
+        // Logg avgjørelsen
+        val avgjørelse = forretningsprosess.regelverk.avgjørelse(opplysninger())
+        hendelse.info("Avgjørelse: $avgjørelse")
 
         if (aktiveAvklaringer().isNotEmpty()) {
             hendelse.info("Har ${aktiveAvklaringer().size} aktive avklaringer, går til ForslagTilVedtak")
@@ -1159,6 +1160,7 @@ class Behandling private constructor(
                 behandlingskjedeId = behandlingskjedeId,
                 regelverk = regelverk,
                 rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()),
+                avgjørelse = forretningsprosess.regelverk.avgjørelse(opplysninger()),
                 virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,
                 opplysninger = opplysninger,
@@ -1241,6 +1243,7 @@ class Behandling private constructor(
         val behandlingskjedeId: UUID
         val regelverk: RegelverkType
         val rettighetsperioder: List<Rettighetsperiode>
+        val avgjørelse: Avgjørelse
         val virkningsdato: LocalDate
         val behandlingAv: StartHendelse
         val opplysninger: LesbarOpplysninger
@@ -1261,6 +1264,7 @@ class Behandling private constructor(
         override val behandlingskjedeId: UUID,
         override val regelverk: RegelverkType,
         override val rettighetsperioder: List<Rettighetsperiode>,
+        override val avgjørelse: Avgjørelse,
         override val virkningsdato: LocalDate,
         override val behandlingAv: StartHendelse,
         override val opplysninger: LesbarOpplysninger,

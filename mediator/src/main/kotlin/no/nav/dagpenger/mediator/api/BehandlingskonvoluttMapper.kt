@@ -40,6 +40,7 @@ import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.SøknadId
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
@@ -54,7 +55,6 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.RegelsettType
-import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
@@ -219,30 +219,15 @@ internal fun LocalDate.tilApiDato(): LocalDate? =
         else -> this
     }
 
-internal fun List<Rettighetsperiode>.avgjørelse(): AvgjørelseDTO {
-    val (nye, arvede) = this.partition { it.endret }
-
-    return when {
-        // Ny kjede (og guard på at arvede ikke er tom)
-        arvede.isEmpty() -> if (nye.harRett()) AvgjørelseDTO.INNVILGELSE else AvgjørelseDTO.AVSLAG
-
-        // Ingen endring (fra innvilget til innvilget)
-        arvede.sisteHarRett() && nye.isEmpty() -> AvgjørelseDTO.ENDRING
-
-        // Stanset løpende rett til avslag gir avslag (fra avslag til avslag)
-        !arvede.sisteHarRett() && !nye.harRett() -> AvgjørelseDTO.AVSLAG
-
-        // Går fra innvilget til avslag
-        arvede.sisteHarRett() && !nye.harRett() -> AvgjørelseDTO.STANS
-
-        // Går fra avslag til innvilget
-        else -> AvgjørelseDTO.GJENOPPTAK
+internal fun Avgjørelse.tilAvgjørelseDTO(): AvgjørelseDTO =
+    when (this) {
+        is Avgjørelse.Innvilgelse -> AvgjørelseDTO.INNVILGELSE
+        is Avgjørelse.Avslag -> AvgjørelseDTO.AVSLAG
+        is Avgjørelse.Stans -> AvgjørelseDTO.STANS
+        is Avgjørelse.Gjenopptak -> AvgjørelseDTO.GJENOPPTAK
+        is Avgjørelse.Endring -> AvgjørelseDTO.ENDRING
+        is Avgjørelse.Uavklart -> AvgjørelseDTO.AVSLAG
     }
-}
-
-private fun List<Rettighetsperiode>.harRett() = any { it.harRett }
-
-private fun List<Rettighetsperiode>.sisteHarRett() = last().harRett
 
 private val regelsettId = RegelverkDagpenger.regelsett.associateWith { it.avklaringer }
 

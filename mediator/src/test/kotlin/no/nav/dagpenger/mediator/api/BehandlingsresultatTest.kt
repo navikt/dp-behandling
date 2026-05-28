@@ -10,6 +10,7 @@ import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.objectMapper
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
@@ -201,6 +202,7 @@ class BehandlingsresultatTest {
             behandlingskjedeId = behandlingId,
             regelverk = RegelverkType("Dagpenger"),
             rettighetsperioder = listOf(Rettighetsperiode(MIN, MAX, true, true)),
+            avgjørelse = Avgjørelse.Innvilgelse(listOf(Rettighetsperiode(MIN, MAX, true, true))),
             virkningsdato = LocalDate.now(),
             behandlingAv =
                 SøknadInnsendtHendelse(

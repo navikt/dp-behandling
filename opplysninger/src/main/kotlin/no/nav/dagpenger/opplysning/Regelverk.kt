@@ -12,36 +12,36 @@ value class RegelverkType(
     override fun toString() = navn
 }
 
-sealed class Utfall {
+sealed class Avgjørelse {
     data class Innvilgelse(
         val perioder: List<Rettighetsperiode>,
-    ) : Utfall() {
+    ) : Avgjørelse() {
         override fun toString() = "Innvilgelse (${perioder.filter { it.harRett }.joinToString { "${it.fraOgMed} til ${it.tilOgMed}" }})"
     }
 
-    data object Avslag : Utfall() {
+    data object Avslag : Avgjørelse() {
         override fun toString() = "Avslag"
     }
 
     data class Stans(
         val perioder: List<Rettighetsperiode>,
-    ) : Utfall() {
+    ) : Avgjørelse() {
         override fun toString() = "Stans"
     }
 
     data class Gjenopptak(
         val perioder: List<Rettighetsperiode>,
-    ) : Utfall() {
+    ) : Avgjørelse() {
         override fun toString() = "Gjenopptak (${perioder.filter { it.harRett }.joinToString { "${it.fraOgMed} til ${it.tilOgMed}" }})"
     }
 
     data class Endring(
         val perioder: List<Rettighetsperiode>,
-    ) : Utfall() {
+    ) : Avgjørelse() {
         override fun toString() = "Endring"
     }
 
-    data object Uavklart : Utfall() {
+    data object Uavklart : Avgjørelse() {
         override fun toString() = "Uavklart"
     }
 }
@@ -54,15 +54,15 @@ fun interface Utbetalingsberegning {
     fun utbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling>
 }
 
-fun interface Utfallberegning {
-    fun utfall(opplysninger: LesbarOpplysninger): Utfall
+fun interface Avgjørelsesberegning {
+    fun avgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse
 }
 
 class Regelverk(
     val navn: RegelverkType,
     private val rettighetsperiodeberegning: Rettighetsperiodeberegning = Rettighetsperiodeberegning { emptyList() },
     private val utbetalingsberegning: Utbetalingsberegning = Utbetalingsberegning { emptyList() },
-    private val utfallberegning: Utfallberegning = Utfallberegning { Utfall.Uavklart },
+    private val avgjørelsesberegning: Avgjørelsesberegning = Avgjørelsesberegning { Avgjørelse.Uavklart },
     vararg regelsett: Regelsett,
 ) {
     private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
@@ -113,7 +113,7 @@ class Regelverk(
 
     fun utbetalinger(opplysninger: LesbarOpplysninger) = utbetalingsberegning.utbetalinger(opplysninger)
 
-    fun utfall(opplysninger: LesbarOpplysninger) = utfallberegning.utfall(opplysninger)
+    fun avgjørelse(opplysninger: LesbarOpplysninger) = avgjørelsesberegning.avgjørelse(opplysninger)
 
     val vilkårsopplysninger by lazy {
         regelsett

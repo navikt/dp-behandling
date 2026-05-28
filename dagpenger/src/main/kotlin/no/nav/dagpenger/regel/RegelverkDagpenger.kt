@@ -1,11 +1,11 @@
 package no.nav.dagpenger.regel
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Utbetaling
-import no.nav.dagpenger.opplysning.Utfall
 import no.nav.dagpenger.opplysning.Ytelsestype
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
@@ -49,7 +49,7 @@ val RegelverkDagpenger =
         navn = RegelverkType("Dagpenger"),
         rettighetsperiodeberegning = ::dagpengerRettighetsperioder,
         utbetalingsberegning = ::dagpengerUtbetalinger,
-        utfallberegning = ::dagpengerUtfall,
+        avgjørelsesberegning = ::dagpengerAvgjørelse,
         Alderskrav.regelsett,
         Beregning.regelsett,
         Dagpengegrunnlag.regelsett,
@@ -107,19 +107,20 @@ private fun dagpengerRettighetsperioder(opplysninger: LesbarOpplysninger): List<
     }
 }
 
-private fun dagpengerUtfall(opplysninger: LesbarOpplysninger): Utfall {
+private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse {
     val perioder = dagpengerRettighetsperioder(opplysninger)
-    if (perioder.isEmpty()) return Utfall.Uavklart
+    if (perioder.isEmpty()) return Avgjørelse.Uavklart
 
     val (nye, arvede) = perioder.partition { it.endret }
 
     return when {
-        arvede.isEmpty() -> if (nye.any { it.harRett }) Utfall.Innvilgelse(perioder) else Utfall.Avslag
-        nye.isEmpty() -> Utfall.Endring(perioder)
-        arvede.last().harRett && !nye.any { it.harRett } -> Utfall.Stans(perioder)
-        !arvede.last().harRett && !nye.any { it.harRett } -> Utfall.Avslag
-        !arvede.last().harRett && nye.any { it.harRett } -> Utfall.Gjenopptak(perioder)
-        else -> Utfall.Endring(perioder)
+        arvede.isEmpty() -> if (nye.any { it.harRett }) Avgjørelse.Innvilgelse(perioder) else Avgjørelse.Avslag
+        nye.isEmpty() && arvede.last().harRett -> Avgjørelse.Endring(perioder)
+        nye.isEmpty() && !arvede.last().harRett -> Avgjørelse.Avslag
+        arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Stans(perioder)
+        !arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Avslag
+        !arvede.last().harRett && nye.any { it.harRett } -> Avgjørelse.Gjenopptak(perioder)
+        else -> Avgjørelse.Endring(perioder)
     }
 }
 

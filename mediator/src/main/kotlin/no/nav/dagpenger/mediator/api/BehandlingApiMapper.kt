@@ -149,7 +149,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                     .regelsettAvType(RegelsettType.Prosess)
                     .map { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
-            forslagOm = vedtakopplysninger.rettighetsperioder.avgjørelse(),
+            forslagOm = vedtakopplysninger.avgjørelse.tilAvgjørelseDTO(),
             opprettet = opprettet,
             sistEndret = sistEndret,
         )

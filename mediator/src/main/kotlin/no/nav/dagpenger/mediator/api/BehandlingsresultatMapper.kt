@@ -39,7 +39,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                 },
             utbetalinger = tilUtbetalingDTO(opplysninger),
             behandletAv = this.tilBehandletAvDTO(),
-            førteTil = rettighetsperioder.avgjørelse(),
+            førteTil = avgjørelse.tilAvgjørelseDTO(),
             opprettet = opprettet,
             sistEndret = sistEndret,
         )

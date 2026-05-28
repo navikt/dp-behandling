@@ -10,6 +10,7 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hjelpere.juli
 import no.nav.dagpenger.modell.hjelpere.juni
 import no.nav.dagpenger.modell.hjelpere.mai
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -112,12 +113,14 @@ class PersonTest {
         vararg rettighetsperiode: Rettighetsperiode,
     ): Behandling.Resultat {
         val behandlingId = UUIDv7.ny()
+        val perioder = rettighetsperiode.toList()
         return Behandling.Resultat(
             behandlingId = behandlingId,
             basertPåBehandling = null,
             behandlingskjedeId = behandlingId,
             regelverk = RegelverkType("Dagpenger"),
-            rettighetsperioder = rettighetsperiode.toList(),
+            rettighetsperioder = perioder,
+            avgjørelse = if (perioder.any { it.harRett }) Avgjørelse.Innvilgelse(perioder) else Avgjørelse.Avslag,
             virkningsdato = virkningsdato,
             behandlingAv = TestHendelse(),
             opplysninger = Opplysninger(),

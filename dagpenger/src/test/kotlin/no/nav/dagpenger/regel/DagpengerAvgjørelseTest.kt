@@ -4,18 +4,18 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.dato.mars
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Utfall
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import kotlin.test.Test
 
-class DagpengerUtfallTest {
+class DagpengerAvgjørelseTest {
     @Test
     fun `uavklart når ingen perioder finnes`() {
         val opplysninger = Opplysninger()
-        RegelverkDagpenger.utfall(opplysninger) shouldBe Utfall.Uavklart
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Uavklart
     }
 
     @Test
@@ -24,10 +24,10 @@ class DagpengerUtfallTest {
             Opplysninger().apply {
                 leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.januar(2024))))
             }
-        val utfall = RegelverkDagpenger.utfall(opplysninger)
-        utfall.shouldBeInstanceOf<Utfall.Innvilgelse>()
-        utfall.perioder.size shouldBe 1
-        utfall.perioder.first().harRett shouldBe true
+        val avgjørelse = RegelverkDagpenger.avgjørelse(opplysninger)
+        avgjørelse.shouldBeInstanceOf<Avgjørelse.Innvilgelse>()
+        avgjørelse.perioder.size shouldBe 1
+        avgjørelse.perioder.first().harRett shouldBe true
     }
 
     @Test
@@ -37,8 +37,8 @@ class DagpengerUtfallTest {
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.januar(2024), 31.januar(2024))))
                 leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.mars(2024))))
             }
-        val utfall = RegelverkDagpenger.utfall(opplysninger)
-        utfall.shouldBeInstanceOf<Utfall.Innvilgelse>()
+        val avgjørelse = RegelverkDagpenger.avgjørelse(opplysninger)
+        avgjørelse.shouldBeInstanceOf<Avgjørelse.Innvilgelse>()
     }
 
     @Test
@@ -47,7 +47,7 @@ class DagpengerUtfallTest {
             Opplysninger().apply {
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.januar(2024))))
             }
-        RegelverkDagpenger.utfall(opplysninger) shouldBe Utfall.Avslag
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Avslag
     }
 
     @Test
@@ -57,7 +57,7 @@ class DagpengerUtfallTest {
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.januar(2024), 31.januar(2024))))
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.mars(2024))))
             }
-        RegelverkDagpenger.utfall(opplysninger) shouldBe Utfall.Avslag
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Avslag
     }
 
     @Test
@@ -68,8 +68,8 @@ class DagpengerUtfallTest {
             }
         val opplysninger = Opplysninger.basertPå(forrige)
 
-        val utfall = RegelverkDagpenger.utfall(opplysninger)
-        utfall.shouldBeInstanceOf<Utfall.Endring>()
+        val avgjørelse = RegelverkDagpenger.avgjørelse(opplysninger)
+        avgjørelse.shouldBeInstanceOf<Avgjørelse.Endring>()
     }
 
     @Test
@@ -83,8 +83,8 @@ class DagpengerUtfallTest {
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.mars(2024))))
             }
 
-        val utfall = RegelverkDagpenger.utfall(opplysninger)
-        utfall.shouldBeInstanceOf<Utfall.Stans>()
+        val avgjørelse = RegelverkDagpenger.avgjørelse(opplysninger)
+        avgjørelse.shouldBeInstanceOf<Avgjørelse.Stans>()
     }
 
     @Test
@@ -98,8 +98,8 @@ class DagpengerUtfallTest {
                 leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.mars(2024))))
             }
 
-        val utfall = RegelverkDagpenger.utfall(opplysninger)
-        utfall.shouldBeInstanceOf<Utfall.Gjenopptak>()
+        val avgjørelse = RegelverkDagpenger.avgjørelse(opplysninger)
+        avgjørelse.shouldBeInstanceOf<Avgjørelse.Gjenopptak>()
     }
 
     @Test
@@ -113,11 +113,11 @@ class DagpengerUtfallTest {
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.mars(2024))))
             }
 
-        RegelverkDagpenger.utfall(opplysninger) shouldBe Utfall.Avslag
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Avslag
     }
 
     @Test
-    fun `etter stans gir neste behandling endring`() {
+    fun `etter stans gir neste behandling avslag`() {
         // Første behandling: innvilget
         val første =
             Opplysninger().apply {
@@ -129,12 +129,12 @@ class DagpengerUtfallTest {
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.mars(2024))))
             }
         // Verifiser at stans er korrekt
-        RegelverkDagpenger.utfall(andre).shouldBeInstanceOf<Utfall.Stans>()
+        RegelverkDagpenger.avgjørelse(andre).shouldBeInstanceOf<Avgjørelse.Stans>()
 
         // Tredje behandling (meldekort): arver alt, legger ikke til nye perioder
         val tredje = Opplysninger.basertPå(andre)
 
-        // Ingen nye perioder = ingen endring i rett = ENDRING
-        RegelverkDagpenger.utfall(tredje).shouldBeInstanceOf<Utfall.Endring>()
+        // Siste arvede periode har ikke rett, ingen nye perioder = avslag
+        RegelverkDagpenger.avgjørelse(tredje) shouldBe Avgjørelse.Avslag
     }
 }
