@@ -4,6 +4,7 @@ import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.PeriodisertVerdi
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
@@ -53,37 +54,7 @@ class RettighetsperiodePlugin(
                 .filter { it.opplysningstype in vilkår }
                 .filterIsInstance<Opplysning<Boolean>>()
 
-        val vurderte = utfall.associateBy { it.opplysningstype }
-        val alleOppfylt = vurderte.size == vilkår.size && vurderte.values.all { it.verdi }
-        val antallOppfylt = vurderte.values.count { it.verdi }
-        val antallIkkeOppfylt = vurderte.values.count { !it.verdi }
-        val antallMangler = vilkår.size - vurderte.size
-
-        val oppsummering =
-            buildString {
-                append("Rettighetsperiode: ${vilkår.size} vilkår vurdert")
-                if (alleOppfylt) {
-                    append(", alle oppfylt")
-                } else {
-                    if (antallOppfylt > 0) append(", $antallOppfylt oppfylt")
-                    if (antallIkkeOppfylt > 0) append(", $antallIkkeOppfylt ikke oppfylt")
-                    if (antallMangler > 0) append(", $antallMangler mangler vurdering")
-                }
-            }
-        kontekst.info(oppsummering)
-
-        vilkår.forEach { vilkårType ->
-            val vurdering = vurderte[vilkårType]
-            val linje =
-                when {
-                    vurdering == null -> "⊘ $vilkårType (mangler vurdering)"
-                    vurdering.verdi -> "✓ $vilkårType (${vurdering.gyldighetsperiode})"
-                    else -> "✗ $vilkårType (${vurdering.gyldighetsperiode})"
-                }
-            kontekst.info(linje)
-        }
-
-        logger.info { oppsummering }
+        loggVilkårsvurdering(vilkår, utfall, kontekst)
 
         // Fjern gamle perioder før vi legger til nye
         egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
@@ -123,6 +94,44 @@ class RettighetsperiodePlugin(
         SpesifikkKontekst(
             "RettighetsperiodePlugin",
         )
+
+    private fun loggVilkårsvurdering(
+        vilkår: List<Opplysningstype<Boolean>>,
+        utfall: List<Opplysning<Boolean>>,
+        kontekst: Prosesskontekst,
+    ) {
+        val vurderte = utfall.associateBy { it.opplysningstype }
+        val alleOppfylt = vurderte.size == vilkår.size && vurderte.values.all { it.verdi }
+        val antallOppfylt = vurderte.values.count { it.verdi }
+        val antallIkkeOppfylt = vurderte.values.count { !it.verdi }
+        val antallMangler = vilkår.size - vurderte.size
+
+        val oppsummering =
+            buildString {
+                append("Rettighetsperiode: ${vilkår.size} vilkår vurdert")
+                if (alleOppfylt) {
+                    append(", alle oppfylt")
+                } else {
+                    if (antallOppfylt > 0) append(", $antallOppfylt oppfylt")
+                    if (antallIkkeOppfylt > 0) append(", $antallIkkeOppfylt ikke oppfylt")
+                    if (antallMangler > 0) append(", $antallMangler mangler vurdering")
+                }
+            }
+        kontekst.info(oppsummering)
+
+        vilkår.forEach { vilkårType ->
+            val vurdering = vurderte[vilkårType]
+            val linje =
+                when {
+                    vurdering == null -> "⊘ $vilkårType (mangler vurdering)"
+                    vurdering.verdi -> "✓ $vilkårType (${vurdering.gyldighetsperiode})"
+                    else -> "✗ $vilkårType (${vurdering.gyldighetsperiode})"
+                }
+            kontekst.info(linje)
+        }
+
+        logger.info { oppsummering }
+    }
 
     companion object {
         private val logger = KotlinLogging.logger {}
