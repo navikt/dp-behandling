@@ -93,9 +93,6 @@ class Regelkjøring(
     private val gjeldendeRegler get() = forretningsprosess.regelsett().flatMap { it.regler(regelverksdato) }.toSet()
     private val avhengighetsgraf = Avhengighetsgraf(gjeldendeRegler)
 
-    // Sporing av hva som faktisk er kjørt på tvers av iterasjoner.
-    private val kjørteRegler: MutableSet<Regel<*>> = mutableSetOf()
-
     init {
         val duplikate = gjeldendeRegler.groupBy { it.produserer }.filter { it.value.size > 1 }
 
@@ -135,7 +132,7 @@ class Regelkjøring(
     }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
-        val tilstand = planleggOgUtfør(prøvingsdato)
+        val (tilstand, kjørteRegler) = planleggOgUtfør(prøvingsdato)
 
         // Fjern utledede opplysninger som ikke brukes for å produsere ønsket resultat.
         // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
@@ -172,8 +169,9 @@ class Regelkjøring(
     }
 
     // Itererer plan -> kjør -> ny plan helt til ingen flere regler står for tur.
-    // Den eneste muteringspunktet for `opplysninger` og `kjørteRegler` i regelkjøringen.
-    private fun planleggOgUtfør(prøvingsdato: LocalDate): Regelkjøringstilstand {
+    // Den eneste muteringspunktet for `opplysninger` i regelkjøringen.
+    private fun planleggOgUtfør(prøvingsdato: LocalDate): Pair<Regelkjøringstilstand, Set<Regel<*>>> {
+        val kjørteRegler: MutableSet<Regel<*>> = mutableSetOf()
         var tilstand = aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring)
 
         while (tilstand.plan.isNotEmpty()) {
@@ -184,7 +182,7 @@ class Regelkjøring(
             }
             tilstand = aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring)
         }
-        return tilstand
+        return tilstand to kjørteRegler.toSet()
     }
 
     fun kanKjøre(
