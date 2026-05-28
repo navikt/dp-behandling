@@ -23,7 +23,6 @@ import no.nav.dagpenger.mediator.repository.OppdateringRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.repository.PersonRepositoryPostgres
-import no.nav.dagpenger.mediator.repository.TidslinjeRepository
 import no.nav.dagpenger.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -116,7 +115,6 @@ class BehandlingRuntime(
             opplysningstyper = opplysningstyper,
             apiRepositoryPostgres = apiRepositoryPostgres,
             messageContext = messageContextFactory,
-            tidslinjeRepository = TidslinjeRepository(dbSession),
             oppdateringRepository = oppdateringRepository,
         )
     }

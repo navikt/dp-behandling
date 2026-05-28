@@ -54,7 +54,6 @@ import no.nav.dagpenger.mediator.repository.ApiMelding
 import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OppdateringRepository
 import no.nav.dagpenger.mediator.repository.PersonRepository
-import no.nav.dagpenger.mediator.repository.TidslinjeRepository
 import no.nav.dagpenger.mediator.toJsonMessage
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.Behandling.TilstandType.Redigert
@@ -105,7 +104,6 @@ internal fun Application.behandlingApi(
     opplysningstyper: Set<Opplysningstype<*>>,
     apiRepositoryPostgres: ApiRepositoryPostgres,
     messageContext: (ident: String) -> MessageContext,
-    tidslinjeRepository: TidslinjeRepository,
     oppdateringRepository: OppdateringRepository,
 ) {
     authenticationConfig(authFactory)
@@ -171,42 +169,6 @@ internal fun Application.behandlingApi(
                         }
 
                     call.respond(rettighetsstatus)
-                }
-            }
-            route("person/tidslinje") {
-                post {
-                    val identForespørsel = call.receive<IdentForesporselDTO>()
-                    val ident = identForespørsel.ident.tilPersonIdentfikator()
-
-                    auditlogg.les("Hentet tidslinje", identForespørsel.ident, call.saksbehandlerId())
-
-                    val tidslinje = tidslinjeRepository.hentTidslinje(ident)
-
-                    call.respond(
-                        HttpStatusCode.OK,
-                        mapOf(
-                            "behandlinger" to
-                                tidslinje.behandlinger.map { b ->
-                                    buildMap {
-                                        put("behandlingId", b.behandlingId.toString())
-                                        b.basertPå?.let { put("basertPå", it.toString()) }
-                                        put("hendelse", b.hendelseBeskrivelse())
-                                        put("hendelseTidspunkt", b.hendelseTidspunkt.toOffsetDateTime().toString())
-                                        put("opprettet", b.opprettet.toOffsetDateTime().toString())
-                                        put("status", b.status())
-                                        put("sistEndret", b.sistEndretTilstand.toOffsetDateTime().toString())
-                                    }
-                                },
-                            "rettighetsperioder" to
-                                tidslinje.rettighetsperioder.map { r ->
-                                    mapOf(
-                                        "fraOgMed" to r.fraOgMed.toString(),
-                                        "harRett" to r.harRett,
-                                        "behandlingId" to r.behandlingId.toString(),
-                                    )
-                                },
-                        ),
-                    )
                 }
             }
             route("oppdateringer") {
