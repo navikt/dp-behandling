@@ -5,6 +5,7 @@ import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
+import no.nav.dagpenger.regel.OpplysningsTyper.maksimalVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -26,7 +27,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
                         opplysning(
                             opplysningTypeId = trekkVedForsenMeldingId.uuid,
                             opprinnelse = "NY",
-                            verdi = "true",
+                            verdi = "false",
                         ),
                     ),
             ),
@@ -83,6 +84,11 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
                             opprinnelse = "NY",
                             verdi = "7.5",
                         ),
+                        opplysning(
+                            opplysningTypeId = maksimalVanligArbeidstidId.uuid,
+                            opprinnelse = "NY",
+                            verdi = "0",
+                        ),
                     ),
             ),
         )
@@ -98,7 +104,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
                 opplysninger =
                     listOf(
                         opplysning(
-                            opplysningTypeId = arbeidstimerId.uuid,
+                            opplysningTypeId = maksimalVanligArbeidstidId.uuid,
                             opprinnelse = "NY",
                             verdi = "0",
                         ),
