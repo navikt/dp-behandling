@@ -30,6 +30,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpply
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class OmgjøringScenarioTester {
     @Test
@@ -387,7 +388,6 @@ class OmgjøringScenarioTester {
     }
 
     @Test
-    @Disabled
     fun `Omgjør en behandling før vi har rett på den første`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -408,7 +408,9 @@ class OmgjøringScenarioTester {
             }
 
             // Omgjøring
-            saksbehandler.omgjørBehandling(27.mai(2018))
+            assertThrows<IllegalStateException> {
+                saksbehandler.omgjørBehandling(27.mai(2018))
+            }
         }
     }
 }
