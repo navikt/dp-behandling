@@ -23,10 +23,10 @@ description: Hvordan basis, opplysning, regelkjøring, regelverk og behandling h
 
 # 1) Hva betyr "basis" i denne løsningen?
 
-I praksis er "basis" det som en behandling står på:
+I praksis er "basis" det som trengs for at en behandling skjer:
 
 - **Start hendelse** fra hendelsen (f.eks. søknad/meldekort).
-- **Arv fra tidligere behandling** i samme kjede (materielle opplysninger).
+- **Arv fra tidligere behandling** i samme kjede (materielle opplysninger). 
 - **Nye opplysninger** som kommer inn underveis.
 
 **Kjernepoeng:** Ny behandling kan være *basert på* tidligere ferdig behandling, men vurderes på nytt med gjeldende regler og opplysninger.
@@ -44,8 +44,8 @@ En opplysning er en verdi med juridisk betydning, og har:
 - **sporbarhet** (hvilke opplysninger/regler den bygger på).
 
 Opplysninger kan være:
-- **Faktum** (bekreftet), eller
-- **Hypotese** (foreløpig/utledet).
+- **Faktum** - som legges til grunn som sannhet i behandlingen, herunder vilkårsvurderinger
+- **Hypotese** - opplysninger som ikke er tilstrekkelig for å konstantere hva som er faktum
 
 ---
 
@@ -68,7 +68,7 @@ Nyttig skille:
 
 # 4) Regelverk: fra hjemmel til maskinell struktur
 
-Regelverket er organisert i **regelsett**.
+Anvendelsen av (det juridiske) regelverket er organisert i teknisk **regelsett**.
 
 Hvert regelsett har:
 - **hjemmel** (f.eks. paragraf),
@@ -76,8 +76,6 @@ Hvert regelsett har:
 - hvilke opplysninger det **produserer**,
 - hvilke opplysninger det **avhenger av**,
 - eventuelle **avklaringer**.
-
-**Juridisk lesing:** Hjemler er strukturert som kjørbare avhengigheter.
 
 ---
 
@@ -97,7 +95,7 @@ Utledning skjer som en kjede:
 
 # 6) Regelkjøring: hva skjer faktisk?
 
-Regelmotoren gjør dette i sløyfer:
+Regelmotoren gjør dette i "sløyfer", utifra den rett som skal vurderes, eks. rettighetstype, vudering av rett i meldeperiode:
 
 1. Setter opp aktive regler for aktuell dato/periode.
 2. Lager en produksjonsplan for ønskede resultater.
@@ -106,13 +104,13 @@ Regelmotoren gjør dette i sløyfer:
 5. Sender **behov** om manglende data.
 6. Fortsetter når svar kommer inn.
 
-**Resultat:** Enten ferdig vurdering, eller presist informasjonsbehov.
+**Resultat:** Enten ferdig vurdering, eller informasjonsbehov.
 
 ---
 
 # 7) Behandling: rammen rundt regelmotoren
 
-Behandling er prosessen som styrer tilstandene:
+En behandling kan ha forskjellige tilstander
 
 - Under opprettelse
 - Under behandling
@@ -127,7 +125,7 @@ Når regelkjøring er ferdig vurderes:
 
 ---
 
-# 8) Avklaringer: når jussen trenger menneskelig vurdering
+# 8) Avklaringer: når behandlinge trenger menneskelig vurdering
 
 Avklaringer opprettes av kontrollpunkter når systemet ser:
 
@@ -166,7 +164,7 @@ Når regelkjøring er ferdig:
 Modellen gir sporbarhet på tre nivåer:
 
 1. **Opplysningsnivå:** verdi, kilde, gyldighet, utledning.
-2. **Regelnivå:** hvilke regler som er kjørt og hvorfor.
+2. **Regelnivå:** hvilke regler som er kjørt og hvorfor. Sporbarhet også på nå regelen ble kjørt, opplysninger innhentet
 3. **Behandlingsnivå:** tilstander, avklaringer, godkjenning/beslutning.
 
 Dette gjør det mulig å forklare:

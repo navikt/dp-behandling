@@ -135,7 +135,8 @@ Følg disse instruksjonene når brukeren refererer til dem.
 
 ```
 dp-behandling/
-├── dagpenger/        # Regler og hendelser for dagpenger
+├── ferietillegg/     # Regler og hendelser for ferietillegg på Dagpenger
+├── dagpenger/        # Regler og hendelser for Dagpenger
 ├── mediator/         # Kafka-mediator, rivers og API
 ├── modell/           # Domenemodell (behandling, opplysninger, avklaringer)
 ├── opplysninger/     # Opplysningstyper og regelmotor
