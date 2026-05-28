@@ -90,8 +90,6 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
                 "trekkVedForsenMelding" to harTrekkVedForSenMelding,
                 "arbeidsdagUtenArbeid" to harArbeidsdagMedFalse,
                 "arbeidstimerIkkeNull" to harArbeidstimerIkkeNull,
-                "meldekortMedInnhold" to meldekortMedInnhold,
-                "harEndring" to harEndring,
                 "avgjorelseStans" to harStans,
                 "nyOpplysningUtenforBeregning" to harNyOpplysningUtenforBeregning,
             )

@@ -33,12 +33,13 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
         )
 
         rapid.inspektør.size shouldBeExactly 1
-        with(rapid.inspektør.message(0)) {
-            this["@event_name"].asString() shouldBe "meldekortberegning_trenger_kontrollregning"
-            this["behandlingId"].asString() shouldBe "12345678-1234-1234-1234-123456789012"
-            this["detaljer"]["trekkVedForsenMelding"].asBoolean() shouldBe true
-            this["detaljer"]["avgjorelseStans"].asBoolean() shouldBe true
-        }
+        val message = rapid.inspektør.message(0)
+        message["@event_name"].asString() shouldBe "meldekortberegning_trenger_kontrollregning"
+        message["behandlingId"].asString() shouldBe "12345678-1234-1234-1234-123456789012"
+        message["detaljer"]["trekkVedForsenMelding"].asBoolean() shouldBe true
+        message["detaljer"]["avgjorelseStans"].asBoolean() shouldBe true
+        message["detaljer"].has("meldekortMedInnhold") shouldBe false
+        message["detaljer"].has("harEndring") shouldBe false
     }
 
     @Test
