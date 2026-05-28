@@ -1,6 +1,7 @@
 package no.nav.dagpenger.scenario
 
 import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
@@ -387,7 +388,6 @@ class OmgjøringScenarioTester {
     }
 
     @Test
-    @Disabled
     fun `Omgjør en behandling før vi har rett på den første`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -408,7 +408,9 @@ class OmgjøringScenarioTester {
             }
 
             // Omgjøring
-            saksbehandler.omgjørBehandling(27.mai(2018))
+            shouldThrow<IllegalStateException> {
+                saksbehandler.omgjørBehandling(27.mai(2018))
+            }
         }
     }
 }

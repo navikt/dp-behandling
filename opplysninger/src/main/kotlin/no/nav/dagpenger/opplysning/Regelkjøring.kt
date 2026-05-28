@@ -179,8 +179,13 @@ class Regelkjøring(
         fun kjørPlan(lesbarOpplysninger: LesbarOpplysninger): List<Regelkjøringstilstand.Regelkjøringutfall<*>> =
             siste.kjørRegelPlan(lesbarOpplysninger)
 
-        fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan =
-            Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
+        fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan {
+            // loop detection
+            if (regelkjøringstilstand.plan == siste.plan) {
+                error("Går i loop! Planlegger samme plan vi har fra før")
+            }
+            return Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
+        }
     }
 
     // Itererer plan -> kjør -> ny plan helt til ingen flere regler står for tur.
