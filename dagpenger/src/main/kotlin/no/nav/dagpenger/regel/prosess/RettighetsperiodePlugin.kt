@@ -52,15 +52,38 @@ class RettighetsperiodePlugin(
                 .somListe()
                 .filter { it.opplysningstype in vilkår }
                 .filterIsInstance<Opplysning<Boolean>>()
-        val melding =
-            """RettighetsperiodePlugin beregner rettighetsperiode basert på i
-            |vilkår(${vilkår.size}): $vilkår 
-            |utfall(${utfall.size}): $utfall
-            """.trimMargin()
-        kontekst.info(melding)
-        logger.info {
-            melding
+
+        val vurderte = utfall.associateBy { it.opplysningstype }
+        val alleOppfylt = vurderte.size == vilkår.size && vurderte.values.all { it.verdi }
+        val antallOppfylt = vurderte.values.count { it.verdi }
+        val antallIkkeOppfylt = vurderte.values.count { !it.verdi }
+        val antallMangler = vilkår.size - vurderte.size
+
+        val oppsummering =
+            buildString {
+                append("Rettighetsperiode: ${vilkår.size} vilkår vurdert")
+                if (alleOppfylt) {
+                    append(", alle oppfylt")
+                } else {
+                    if (antallOppfylt > 0) append(", $antallOppfylt oppfylt")
+                    if (antallIkkeOppfylt > 0) append(", $antallIkkeOppfylt ikke oppfylt")
+                    if (antallMangler > 0) append(", $antallMangler mangler vurdering")
+                }
+            }
+        kontekst.info(oppsummering)
+
+        vilkår.forEach { vilkårType ->
+            val vurdering = vurderte[vilkårType]
+            val linje =
+                when {
+                    vurdering == null -> "⊘ $vilkårType (mangler vurdering)"
+                    vurdering.verdi -> "✓ $vilkårType (${vurdering.gyldighetsperiode})"
+                    else -> "✗ $vilkårType (${vurdering.gyldighetsperiode})"
+                }
+            kontekst.info(linje)
         }
+
+        logger.info { oppsummering }
 
         // Fjern gamle perioder før vi legger til nye
         egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
