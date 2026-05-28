@@ -10,6 +10,7 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.dagpenger.mediator.api.models.AvgjørelseDTO
 import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
@@ -62,23 +63,20 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
     private class MeldekortberegningKontrollbehov(
         private val packet: JsonMessage,
     ) {
-        val harArbeidsdagMedFalse get() = nyePerioder.any { it.opplysningTypeId == arbeidsdagId.uuid && it.periode.boolskVerdi() == false }
+        val harArbeidsdagMedFalse get() = nyePerioder.any { it.er(arbeidsdagId) && it.periode.boolskVerdi(erLik = false) }
         val harArbeidstimerIkkeNull get() =
             nyePerioder.any {
-                it.opplysningTypeId == arbeidstimerId.uuid &&
-                    it.periode.desimaltallVerdi()?.compareTo(BigDecimal.ZERO) != 0
+                it.er(arbeidstimerId) && !it.periode.desimaltallVerdi(erLik = BigDecimal.ZERO)
             }
         val harNyOpplysningUtenforBeregning get() = nyePerioder.any { it.opplysningTypeId !in beregningOpplysningTypeIder }
 
         val harTrekkVedForSenMelding get() =
             nyePerioder.any {
-                it.opplysningTypeId == trekkVedForsenMeldingId.uuid &&
-                    it.periode.boolskVerdi() == true
+                it.er(trekkVedForsenMeldingId) && it.periode.boolskVerdi(erLik = true)
             }
         val meldekortMedInnhold get() =
             nyePerioder.any {
-                it.opplysningTypeId == arbeidsdagId.uuid ||
-                    it.opplysningTypeId == arbeidstimerId.uuid
+                it.er(arbeidsdagId) || it.er(arbeidstimerId)
             }
         val harEndring get() = harArbeidsdagMedFalse || harArbeidstimerIkkeNull || harNyOpplysningUtenforBeregning
         val harStans get() = packet["førteTil"].er(AvgjørelseDTO.STANS)
@@ -104,6 +102,8 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
             }
         }
 
+        private fun NyPeriode.er(opplysningTypeId: Opplysningstype.Id<*>) = this.opplysningTypeId == opplysningTypeId.uuid
+
         private companion object {
             private val beregningOpplysningTypeIder =
                 Beregning.regelsett.produserer
@@ -117,20 +117,26 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
                     råverdi.equals(enumVerdi.name, ignoreCase = true) || råverdi.equals(enumVerdi.toString(), ignoreCase = true)
                 }
 
-            private fun JsonNode.boolskVerdi(): Boolean? {
+            private fun JsonNode.boolskVerdi(erLik: Boolean): Boolean {
                 val verdiNode = this["verdi"]["verdi"]
-                return when {
-                    verdiNode.isBoolean -> verdiNode.asBoolean()
-                    else -> verdiNode.asString().toBooleanStrictOrNull()
-                }
+                val verdi =
+                    when {
+                        verdiNode.isBoolean -> verdiNode.asBoolean()
+                        else -> verdiNode.asString().toBooleanStrictOrNull()
+                    }
+
+                return verdi == erLik
             }
 
-            private fun JsonNode.desimaltallVerdi(): BigDecimal? {
+            private fun JsonNode.desimaltallVerdi(erLik: BigDecimal): Boolean {
                 val verdiNode = this["verdi"]["verdi"]
-                return when {
-                    verdiNode.isNumber -> verdiNode.decimalValue()
-                    else -> verdiNode.asString().toBigDecimalOrNull()
-                }
+                val verdi =
+                    when {
+                        verdiNode.isNumber -> verdiNode.decimalValue()
+                        else -> verdiNode.asString().toBigDecimalOrNull()
+                    }
+
+                return verdi?.compareTo(erLik) == 0
             }
 
             private fun JsonNode.asUUIDOrNull() = this.asString().let { runCatching { UUID.fromString(it) }.getOrNull() }
