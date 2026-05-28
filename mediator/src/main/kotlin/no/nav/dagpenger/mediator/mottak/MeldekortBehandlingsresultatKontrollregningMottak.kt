@@ -15,6 +15,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
 import java.util.UUID
@@ -40,9 +41,20 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         meterRegistry: MeterRegistry,
     ) {
         val kontrollbehov = MeldekortberegningKontrollbehov(packet)
-        if (!kontrollbehov.harKontrollbehov) return
 
         withLoggingContext("behandlingId" to packet["behandlingId"].asString()) {
+            if (!kontrollbehov.harKontrollbehov) {
+                logger.info {
+                    "Ingen kontrollbehov: " +
+                        "meldekortMedInnhold=${kontrollbehov.meldekortMedInnhold}, " +
+                        "trekkVedForSenMelding=${kontrollbehov.harTrekkVedForSenMelding}, " +
+                        "harEndring=${kontrollbehov.harEndring}, " +
+                        "harStans=${kontrollbehov.harStans}"
+                }
+                return
+            }
+
+            val detaljer = kontrollbehov.kontrollbehovDetaljer()
             context.publish(
                 packet["ident"].asString(),
                 JsonMessage
@@ -52,11 +64,11 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
                             "ident" to packet["ident"].asString(),
                             "behandlingId" to packet["behandlingId"].asString(),
                             "behandletHendelseId" to packet["behandletHendelse"]["id"].asString(),
-                            "detaljer" to kontrollbehov.kontrollbehovDetaljer(),
+                            "detaljer" to detaljer,
                         ),
                     ).toJson(),
             )
-            logger.info { "Publiserte meldekortberegning_trenger_kontrollregning" }
+            logger.info { "Publiserte kontrollregningbehov: $detaljer" }
         }
     }
 
@@ -64,21 +76,22 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         private val packet: JsonMessage,
     ) {
         val harArbeidsdagMedFalse get() = nyePerioder.any { it.er(arbeidsdagId) && it.periode.boolskVerdi(erLik = false) }
-        val harArbeidstimerIkkeNull get() =
-            nyePerioder.any {
-                it.er(arbeidstimerId) && !it.periode.desimaltallVerdi(erLik = BigDecimal.ZERO)
-            }
+        val harArbeidstimerIkkeNull
+            get() =
+                nyePerioder.any {
+                    it.er(arbeidstimerId) && !it.periode.desimaltallVerdi(erLik = BigDecimal.ZERO)
+                }
         val harNyOpplysningUtenforBeregning get() = nyePerioder.any { it.opplysningTypeId !in beregningOpplysningTypeIder }
 
-        val harTrekkVedForSenMelding get() =
-            nyePerioder.any {
-                it.er(trekkVedForsenMeldingId) && it.periode.boolskVerdi(erLik = true)
-            }
-        val meldekortMedInnhold get() =
-            nyePerioder.any {
-                it.er(arbeidsdagId) || it.er(arbeidstimerId)
-            }
-        val harEndring get() = harArbeidsdagMedFalse || harArbeidstimerIkkeNull || harNyOpplysningUtenforBeregning
+        val harTrekkVedForSenMelding
+            get() =
+                nyePerioder.any {
+                    it.er(trekkVedForsenMeldingId) && it.periode.boolskVerdi(erLik = false)
+                }
+        val meldekortMedInnhold
+            get() = harArbeidsdagMedFalse || harArbeidstimerIkkeNull
+
+        val harEndring get() = harNyOpplysningUtenforBeregning
         val harStans get() = packet["førteTil"].er(AvgjørelseDTO.STANS)
 
         val harKontrollbehov get() = (harTrekkVedForSenMelding || meldekortMedInnhold) && (harEndring || harStans)
@@ -93,13 +106,17 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
             )
 
         private val nyePerioder: List<NyPeriode> by lazy {
-            packet["opplysninger"].toList().flatMap { opplysning ->
-                val opplysningTypeId = opplysning["opplysningTypeId"].asUUIDOrNull() ?: return@flatMap emptyList()
-                opplysning["perioder"]
-                    .toList()
-                    .filter { it.erNyPeriode() }
-                    .map { NyPeriode(opplysningTypeId, it) }
-            }
+            packet["opplysninger"]
+                .toList()
+                .filterNot {
+                    it["opplysningTypeId"].asString() == hendelseTypeOpplysningstype.id.uuid.toString()
+                }.flatMap { opplysning ->
+                    val opplysningTypeId = opplysning["opplysningTypeId"].asUUIDOrNull() ?: return@flatMap emptyList()
+                    opplysning["perioder"]
+                        .toList()
+                        .filter { it.erNyPeriode() }
+                        .map { NyPeriode(opplysningTypeId, it) }
+                }
         }
 
         private fun NyPeriode.er(opplysningTypeId: Opplysningstype.Id<*>) = this.opplysningTypeId == opplysningTypeId.uuid
