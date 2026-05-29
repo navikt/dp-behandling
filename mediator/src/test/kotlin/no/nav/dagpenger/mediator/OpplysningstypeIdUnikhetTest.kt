@@ -5,59 +5,109 @@ import com.tngtech.archunit.core.importer.ImportOption
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.OpplysningstypeRegister
+import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import java.lang.reflect.Modifier
 import java.util.UUID
-import kotlin.reflect.KClass
-import kotlin.reflect.full.memberProperties
 
 /**
- * Verifiserer at alle statisk-definerte [Opplysningstype.Id]-vals på tvers av moduler
- * har unike UUID-er. Dette erstatter den tidligere runtime-sjekken i
- * `Opplysningstype.init`, som krevde en global mutable `definerteTyper`.
+ * Verifiserer at alle statisk-deklarerte [Opplysningstype]- og [Opplysningstype.Id]-vals
+ * i hovedkoden har unike UUID-er. Erstatter den tidligere runtime-sjekken i
+ * `Opplysningstype.init` (som krevde global mutable `definerteTyper`) og er trygg
+ * å kjøre parallelt.
  *
- * Sjekken kjører compile/test-time mot kjente `OpplysningsTyper`-objekter funnet
- * via classpath-scanning og er trygg å kjøre parallelt.
+ * Skanner *alle* klasser i `no.nav.dagpenger`, ikke bare `OpplysningsTyper`-objekter,
+ * slik at top-level vals i vilkårlige filer også fanges opp.
  */
 class OpplysningstypeIdUnikhetTest {
-    private val opplysningsTyperObjekter: List<KClass<*>> =
+    private data class Felt(
+        val kilde: String,
+        val uuid: UUID,
+        val datatype: String,
+        val navn: String?,
+        val instans: Any,
+    )
+
+    private val alleStatiskeOpplysningstypeFelter: List<Felt> by lazy {
         ClassFileImporter()
             .withImportOption(ImportOption.DoNotIncludeTests())
             .importPackages("no.nav.dagpenger")
-            .filter { it.simpleName == "OpplysningsTyper" }
-            .map { Class.forName(it.fullName).kotlin }
+            .map { it.fullName }
+            .distinct()
+            .flatMap { fqn -> feltVerdierI(fqn) }
+    }
 
-    @Test
-    fun `finner OpplysningsTyper-objekter i klassebanen`() {
-        opplysningsTyperObjekter.shouldNotBeEmpty()
+    private fun feltVerdierI(fqn: String): List<Felt> {
+        val klasse =
+            runCatching { Class.forName(fqn) }.getOrNull() ?: return emptyList()
+        val instans = runCatching { klasse.kotlin.objectInstance }.getOrNull()
+        return klasse.declaredFields.mapNotNull { field ->
+            if (!Modifier.isStatic(field.modifiers) && instans == null) return@mapNotNull null
+            field.isAccessible = true
+            val verdi =
+                runCatching {
+                    if (Modifier.isStatic(field.modifiers)) field.get(null) else field.get(instans)
+                }.getOrNull() ?: return@mapNotNull null
+            val kilde = "${klasse.name}.${field.name}"
+            when (verdi) {
+                is Opplysningstype<*> -> Felt(kilde, verdi.id.uuid, verdi.datatype.toString(), verdi.navn, verdi.id)
+                is Opplysningstype.Id<*> -> Felt(kilde, verdi.uuid, verdi.datatype.toString(), null, verdi)
+                else -> null
+            }
+        }
     }
 
     @Test
-    fun `alle Opplysningstype Id-er har unike UUID-er på tvers av moduler`() {
-        data class IdReferanse(
-            val kilde: String,
-            val navn: String,
-            val uuid: UUID,
-        )
+    fun `finner opplysningstype-felter i klassebanen`() {
+        alleStatiskeOpplysningstypeFelter.shouldNotBeEmpty()
+    }
 
-        val alleIder: List<IdReferanse> =
-            opplysningsTyperObjekter.flatMap { kclass ->
-                val instans = kclass.objectInstance ?: return@flatMap emptyList()
-                kclass.memberProperties
-                    .mapNotNull { prop ->
-                        val verdi = prop.getter.call(instans) as? Opplysningstype.Id<*> ?: return@mapNotNull null
-                        IdReferanse(kilde = kclass.qualifiedName ?: kclass.simpleName.orEmpty(), navn = prop.name, uuid = verdi.uuid)
-                    }
-            }
-
+    @Test
+    fun `alle statiske opplysningstype-vals har unike UUID-er`() {
+        // Grupper per UUID, men telle bare hver instans én gang (samme instans brukt fra flere
+        // felter er gjenbruk, ikke duplisering). Et duplikat er to *forskjellige* instanser
+        // (Id eller Opplysningstype) som deler UUID.
         val duplikater =
-            alleIder
+            alleStatiskeOpplysningstypeFelter
                 .groupBy { it.uuid }
+                .mapValues { (_, felter) -> felter.distinctBy { System.identityHashCode(it.instans) } }
                 .filterValues { it.size > 1 }
-                .map { (uuid, referanser) ->
-                    val visning = referanser.joinToString(", ") { "${it.kilde}.${it.navn}" }
-                    "UUID $uuid brukes av flere opplysninger: $visning"
+                .map { (uuid, felter) ->
+                    val visning = felter.joinToString(", ") { "${it.kilde} (${it.datatype}, navn=${it.navn})" }
+                    "UUID $uuid deles av: $visning"
                 }
-
         duplikater.shouldBeEmpty()
+    }
+
+    @Test
+    fun `register bygget fra alle regelverk har ingen UUID-konflikter`() {
+        val alleTyper =
+            ClassFileImporter()
+                .withImportOption(ImportOption.DoNotIncludeTests())
+                .importPackages("no.nav.dagpenger")
+                .filter { javaClass ->
+                    runCatching {
+                        val k = Class.forName(javaClass.fullName)
+                        !Modifier.isAbstract(k.modifiers) &&
+                            RegelverkRegistrering::class.java.isAssignableFrom(k) &&
+                            k != RegelverkRegistrering::class.java
+                    }.getOrDefault(false)
+                }.mapNotNull { javaClass ->
+                    runCatching {
+                        Class
+                            .forName(
+                                javaClass.fullName,
+                            ).getDeclaredConstructor()
+                            .apply { isAccessible = true }
+                            .newInstance() as RegelverkRegistrering
+                    }.getOrNull()
+                }.flatMap { it.opplysningstyper }
+
+        // OpplysningstypeRegister.av(...) kaster ved UUID-konflikt
+        assertDoesNotThrow {
+            OpplysningstypeRegister.av(alleTyper)
+        }
     }
 }
