@@ -325,7 +325,6 @@ object OpplysningsTyper {
     val meldedatoId = Opplysningstype.Id(UUID.fromString("019a9b47-2442-7533-bc71-a71a4600c49a"), Dato)
 
     // Hendelser
-    val HendelseTypeId = Opplysningstype.Id(UUID.fromString("01958ef2-e237-77c4-89e1-de91256e2e4a"), Tekst)
     val skalUføreSamordnesId = Opplysningstype.Id(UUID.fromString("0196afaf-afbd-7079-b2cf-3669ad9d86aa"), Boolsk)
     val uføreBeløpSomSkalSamordnesId = Opplysningstype.Id(UUID.fromString("0196afbf-e32d-775a-ad10-f476e26dcb6f"), Penger)
     val sumHvisUføreIkkeSkalSamordnesId = Opplysningstype.Id(UUID.fromString("0196afc0-6807-7fa3-83e4-cf7f621f3a7e"), Penger)
