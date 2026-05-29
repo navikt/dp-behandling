@@ -40,15 +40,6 @@ class Opplysningstype<T : Any>(
 ) : Klassifiserbart {
     val datatype = id.datatype
 
-    init {
-        if (!definerteTyper.add(this)) {
-            val eksisterende = definerteTyper.first { it.id == id }
-            require(eksisterende.navn == this.navn) {
-                "Opplysningstype med UUID ${id.uuid} er allerede definert som '${eksisterende.navn}', kan ikke redefinere som '${this.navn}'"
-            }
-        }
-    }
-
     data class Id<T>(
         val uuid: UUID,
         val datatype: Datatype<T>,
@@ -60,8 +51,6 @@ class Opplysningstype<T : Any>(
     ): Gyldighetsperiode = gyldighetsperiodeStrategi.gyldighetsperiode(produkt, basertPå)
 
     companion object {
-        val definerteTyper = mutableSetOf<Opplysningstype<*>>()
-
         val alltidSynlig: Opplysningssjekk = { true }
         val aldriSynlig: Opplysningssjekk = { false }
 

@@ -1,6 +1,7 @@
 package no.nav.dagpenger.mediator.repository
 
 import no.nav.dagpenger.avklaring.Avklaring
+import no.nav.dagpenger.mediator.TestOpplysningstyper
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandling.TilstandType
 import no.nav.dagpenger.modell.Rettighetstatus
@@ -8,12 +9,10 @@ import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Avklaringkode
-import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
@@ -31,7 +30,7 @@ import java.util.UUID
  * Ingen avhengighet til dagpenger- eller ferietillegg-modulene.
  */
 internal object TestBehandlinger {
-    private val testOpplysningstype = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "test-vilkår")
+    private val testOpplysningstype = TestOpplysningstyper.boolsk
 
     private val testRegelsett =
         vilkår("test") {

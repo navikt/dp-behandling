@@ -32,8 +32,8 @@ class BehandlingRepositoryPostgresTest {
 
     private val datoOpplysningstype = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "test-dato")
     private val datoOpplysning = Faktum(datoOpplysningstype, LocalDate.now())
-    private val tidligereOpplysning =
-        Faktum(Opplysningstype.desimaltall(Opplysningstype.Id(UUIDv7.ny(), Desimaltall), "tidligere-opplysning"), 1.0)
+    private val tidligereOpplysningstype = Opplysningstype.desimaltall(Opplysningstype.Id(UUIDv7.ny(), Desimaltall), "tidligere-opplysning")
+    private val tidligereOpplysning = Faktum(tidligereOpplysningstype, 1.0)
     private val basertPåBehandling =
         Behandling.rehydrer(
             behandlingId = UUIDv7.ny(),
@@ -51,7 +51,15 @@ class BehandlingRepositoryPostgresTest {
     private val opplysningstype5 = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "aktiv-opplysning5")
 
     private val opplysningstyper =
-        listOf(opplysningstype1, opplysningstype2, opplysningstype3, opplysningstype4, opplysningstype5, datoOpplysningstype).toSet()
+        listOf(
+            opplysningstype1,
+            opplysningstype2,
+            opplysningstype3,
+            opplysningstype4,
+            opplysningstype5,
+            datoOpplysningstype,
+            tidligereOpplysningstype,
+        ).toSet()
 
     private val opplysning1 = Faktum(opplysningstype1, 1.0)
     private val opplysning2 = Faktum(opplysningstype2, 2.0)

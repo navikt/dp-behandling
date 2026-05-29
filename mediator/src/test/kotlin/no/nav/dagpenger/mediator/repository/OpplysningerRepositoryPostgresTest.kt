@@ -561,7 +561,7 @@ class OpplysningerRepositoryPostgresTest {
             val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
             val e = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "E")
             val f = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "F")
-            val repo = opplysningerRepository(dbSession)
+            val repo = opplysningerRepository(dbSession, listOf(a, b, c, d, e, f))
             val vaktmesterRepo = VaktmesterPostgresRepo(dbSession)
 
             val regelsett1 =
@@ -614,7 +614,7 @@ class OpplysningerRepositoryPostgresTest {
             val c = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "C")
             val d = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "D")
 
-            val repo = opplysningerRepository(dbSession)
+            val repo = opplysningerRepository(dbSession, listOf(a, b, c, d))
 
             val regelsett =
                 vilkår("vilkår") {

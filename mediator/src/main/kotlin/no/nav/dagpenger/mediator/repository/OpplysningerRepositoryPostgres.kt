@@ -27,6 +27,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.alltidSynlig
+import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Tekst
@@ -46,25 +47,25 @@ import java.util.UUID
 internal class OpplysningerRepositoryPostgres(
     private val dbSession: DatabaseSession,
     private val kildeRepository: KildeRepository,
+    private val opplysningstypeRegister: OpplysningstypeRegister = OpplysningstypeRegister.tom,
 ) : OpplysningerRepository {
     internal companion object {
-        private val opplysningstyper by lazy {
-            Opplysningstype.definerteTyper.associateBy { it.id }
-        }
         private val logger = KotlinLogging.logger { }
 
         fun Session.hentOpplysninger(
             kildeRepository: KildeRepository,
+            opplysningstypeRegister: OpplysningstypeRegister,
             opplysningerId: UUID,
-        ) = hentOpplysninger(kildeRepository, setOf(opplysningerId))
+        ) = hentOpplysninger(kildeRepository, opplysningstypeRegister, setOf(opplysningerId))
             .values
             .singleOrNull()
             ?: Opplysninger.rehydrer(opplysningerId, emptyList())
 
         fun Session.hentOpplysninger(
             kildeRepository: KildeRepository,
+            opplysningstypeRegister: OpplysningstypeRegister,
             opplysningerIder: Set<UUID>,
-        ) = OpplysningRepository(this, kildeRepository)
+        ) = OpplysningRepository(this, kildeRepository, opplysningstypeRegister)
             .hentOpplysninger(opplysningerIder)
             .mapValues { (opplysningerId, opplysninger) ->
                 Opplysninger.rehydrer(opplysningerId, opplysninger)
@@ -78,7 +79,7 @@ internal class OpplysningerRepositoryPostgres(
     }
 
     override fun hentOpplysninger(opplysningerId: UUID) =
-        dbSession.session { session -> session.hentOpplysninger(kildeRepository, opplysningerId) }
+        dbSession.session { session -> session.hentOpplysninger(kildeRepository, opplysningstypeRegister, opplysningerId) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
         dbSession.transaction {
@@ -111,7 +112,7 @@ internal class OpplysningerRepositoryPostgres(
 
         val fjernet = opplysninger.flatMap { it.fjernet() }.toSet()
 
-        OpplysningRepository(unitOfWork.session, kildeRepository).lagreOpplysninger(
+        OpplysningRepository(unitOfWork.session, kildeRepository, opplysningstypeRegister).lagreOpplysninger(
             opplysningerSomSkalLagres,
             fjernet,
         )
@@ -141,6 +142,7 @@ internal class OpplysningerRepositoryPostgres(
     private class OpplysningRepository(
         private val session: Session,
         private val kildeRespository: KildeRepository,
+        private val opplysningstypeRegister: OpplysningstypeRegister,
     ) {
         fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<out Any>>> {
             val rader: Set<OpplysningRad<*>> =
@@ -209,7 +211,7 @@ internal class OpplysningerRepositoryPostgres(
 
             val opplysningTypeId = Opplysningstype.Id(typeUuid, datatype)
             val opplysningstype: Opplysningstype<T> =
-                opplysningstyper[opplysningTypeId]
+                opplysningstypeRegister[opplysningTypeId]
                     ?.let {
                         if (datatype != it.datatype) {
                             logger.warn {

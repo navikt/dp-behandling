@@ -15,6 +15,7 @@ import no.nav.dagpenger.modell.hendelser.Hendelse
 import no.nav.dagpenger.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.modell.somKjede
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.time.LocalDate
@@ -29,6 +30,7 @@ internal class BehandlingRepositoryPostgres(
     private val avklaringRepository: AvklaringRepository,
     private val kildeRepository: KildeRepository,
     private val prosessregister: Prosessregister,
+    private val opplysningstypeRegister: OpplysningstypeRegister = OpplysningstypeRegister.tom,
 ) : BehandlingRepository,
     AvklaringRepository by avklaringRepository {
     override fun hentBehandling(behandlingId: UUID): Behandling? =
@@ -216,6 +218,7 @@ internal class BehandlingRepositoryPostgres(
             this
                 .hentOpplysninger(
                     kildeRepository,
+                    opplysningstypeRegister,
                     behandlingRader
                         .map { it.opplysningerId }
                         .toSet(),
