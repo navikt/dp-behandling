@@ -6,7 +6,7 @@ plugins {
 dependencies {
     implementation(project(path = ":regelverk"))
     implementation(project(path = ":dag"))
-    implementation("no.nav.dagpenger:dp-grunnbelop:20260109.219.701e55")
+    implementation("no.nav.dagpenger:dp-grunnbelop:20260529.284.a0e9bd")
     implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.1.0")
     implementation("io.opentelemetry:opentelemetry-api:1.36.0")
 
