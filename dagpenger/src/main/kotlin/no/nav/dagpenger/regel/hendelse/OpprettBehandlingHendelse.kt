@@ -44,6 +44,8 @@ class OpprettBehandlingHendelse(
             return IkkeOpprettet("Samordningshendelse av type $type kan ikke opprette behandling uten innvilget dagpengerett")
         }
 
+        begrunnelse?.let { info("Begrunnelse for opprettelse: $it") }
+
         return Opprettet(
             Behandling(
                 basertPå = forrigeBehandling,
