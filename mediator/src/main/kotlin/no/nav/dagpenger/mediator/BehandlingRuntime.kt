@@ -26,6 +26,7 @@ import no.nav.dagpenger.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.VentendeMeldekortDings
 import no.nav.dagpenger.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 
@@ -43,9 +44,10 @@ class BehandlingRuntime(
     private val messageContextFactory: (ident: String) -> MessageContext = { rapidsConnection as MessageContext },
 ) {
     private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
+    private val opplysningstypeRegister: OpplysningstypeRegister = OpplysningstypeRegister.av(opplysningstyper)
 
     private val kildeRepository = KildeRepository(dbSession)
-    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
+    private val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository, opplysningstypeRegister)
     private val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
     private val prosessregister = Prosessregister()
 
@@ -58,6 +60,7 @@ class BehandlingRuntime(
                 avklaringRepository,
                 kildeRepository,
                 prosessregister,
+                opplysningstypeRegister,
             ),
         )
 

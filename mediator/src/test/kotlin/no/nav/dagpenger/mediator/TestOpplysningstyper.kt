@@ -10,7 +10,7 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Opplysningstype.Companion.definerteTyper
+import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Tekst
@@ -44,8 +44,33 @@ internal object TestOpplysningstyper {
     val beløpA = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpA")
     val beløpB = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BeløpB")
 
-    fun opplysningerRepository(dataSource: DatabaseSession): OpplysningerRepositoryPostgres =
-        OpplysningerRepositoryPostgres(dataSource, KildeRepository(dataSource)).apply {
-            lagreOpplysningstyper(definerteTyper.toList())
+    val alle: Set<Opplysningstype<*>> =
+        setOf(
+            baseOpplysningstype,
+            utledetOpplysningstype,
+            maksdato,
+            mindato,
+            heltall,
+            boolsk,
+            dato,
+            desimal,
+            inntektA,
+            tekst,
+            barn,
+            periode,
+            beløpA,
+            beløpB,
+        )
+
+    val register: OpplysningstypeRegister = OpplysningstypeRegister.av(alle)
+
+    fun opplysningerRepository(
+        dataSource: DatabaseSession,
+        ekstraTyper: Collection<Opplysningstype<*>> = emptyList(),
+    ): OpplysningerRepositoryPostgres {
+        val testregister = OpplysningstypeRegister.av(register.alle + ekstraTyper)
+        return OpplysningerRepositoryPostgres(dataSource, KildeRepository(dataSource), testregister).apply {
+            lagreOpplysningstyper(testregister.alle.toList())
         }
+    }
 }
