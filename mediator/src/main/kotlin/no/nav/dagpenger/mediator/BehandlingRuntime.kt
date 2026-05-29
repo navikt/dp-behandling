@@ -28,6 +28,13 @@ import no.nav.dagpenger.mediator.utboks.UtboksLagerPostgres
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Prosessregister
+import no.nav.dagpenger.regel.OpplysningsTyper.DagensDatoId
+import no.nav.dagpenger.regel.OpplysningsTyper.EttBeregnetVirkningstidspunktId
+import no.nav.dagpenger.regel.OpplysningsTyper.GrunnlagUtenVernepliktId
+import no.nav.dagpenger.regel.OpplysningsTyper.KravPåDagpengerId
+import no.nav.dagpenger.regel.OpplysningsTyper.UnntakForArbeidssøkerId
+import no.nav.dagpenger.regel.OpplysningsTyper.andreØkonomiskeYtelserId
+import no.nav.dagpenger.regel.OpplysningsTyper.ikkeKravPåLønnFraTidligereArbeidsgiverId
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 
 /**
@@ -44,7 +51,17 @@ class BehandlingRuntime(
     private val messageContextFactory: (ident: String) -> MessageContext = { rapidsConnection as MessageContext },
 ) {
     private val opplysningstyper: Set<Opplysningstype<*>> = regelverk.flatMap { it.opplysningstyper }.toSet()
-    private val opplysningstypeRegister: OpplysningstypeRegister = OpplysningstypeRegister.av(opplysningstyper)
+    private val historiskeOpplysningstyper =
+        setOf(
+            DagensDatoId,
+            EttBeregnetVirkningstidspunktId,
+            KravPåDagpengerId,
+            UnntakForArbeidssøkerId,
+            andreØkonomiskeYtelserId,
+            ikkeKravPåLønnFraTidligereArbeidsgiverId,
+            GrunnlagUtenVernepliktId,
+        )
+    private val opplysningstypeRegister: OpplysningstypeRegister = OpplysningstypeRegister(opplysningstyper, historiskeOpplysningstyper)
 
     private val kildeRepository = KildeRepository(dbSession)
     private val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository, opplysningstypeRegister)

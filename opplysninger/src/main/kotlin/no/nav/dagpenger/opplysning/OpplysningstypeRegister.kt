@@ -6,39 +6,33 @@ package no.nav.dagpenger.opplysning
  * Brukes av infrastruktur (f.eks. repositories) for å koble persistert data tilbake
  * til typedefinisjoner i kode uten å være avhengig av global, mutable tilstand.
  *
- * Bygg én instans ved oppstart fra unionen av alle registrerte regelverk
- * og injiser den der den trengs.
+ * Konstruktøren validerer at ingen UUID brukes av flere ulike opplysningstyper.
  */
-interface OpplysningstypeRegister {
-    operator fun get(id: Opplysningstype.Id<*>): Opplysningstype<*>?
+class OpplysningstypeRegister(
+    opplysningstyper: Collection<Opplysningstype<*>>,
+    historiskeOpplysningsIder: Collection<Opplysningstype.Id<*>> = emptyList(),
+) {
+    private val byId: Map<Opplysningstype.Id<*>, Opplysningstype<*>> = opplysningstyper.associateBy { it.id }
 
-    val alle: Set<Opplysningstype<*>>
-
-    companion object {
-        val tom: OpplysningstypeRegister = av(emptySet())
-
-        fun av(opplysningstyper: Collection<Opplysningstype<*>>): OpplysningstypeRegister {
-            val typer = opplysningstyper.toSet()
-            val duplikater =
-                typer
-                    .groupBy { it.id.uuid }
-                    .filterValues { it.size > 1 }
-            check(duplikater.isEmpty()) {
-                val visning =
-                    duplikater.entries.joinToString("; ") { (uuid, typer) ->
-                        "UUID $uuid brukes av: " + typer.joinToString(", ") { "${it.navn}(${it.datatype})" }
-                    }
-                "Flere opplysningstyper deler samme UUID: $visning"
-            }
-            return InMemoryOpplysningstypeRegister(typer)
+    init {
+        val alle = opplysningstyper.map { it.id } + historiskeOpplysningsIder
+        val duplikater =
+            alle
+                .groupBy { it.uuid }
+                .filterValues { it.size > 1 }
+        check(duplikater.isEmpty()) {
+            val visning =
+                duplikater.entries.joinToString("; ") { (uuid, id) ->
+                    val type = byId.getValue(id.first())
+                    "UUID $uuid brukes av: ${type.navn}(${type.datatype})"
+                }
+            "Flere opplysningstyper deler samme UUID: $visning"
         }
     }
-}
 
-private class InMemoryOpplysningstypeRegister(
-    override val alle: Set<Opplysningstype<*>>,
-) : OpplysningstypeRegister {
-    private val byId: Map<Opplysningstype.Id<*>, Opplysningstype<*>> = alle.associateBy { it.id }
+    operator fun get(id: Opplysningstype.Id<*>): Opplysningstype<*>? = byId[id]
 
-    override fun get(id: Opplysningstype.Id<*>): Opplysningstype<*>? = byId[id]
+    companion object {
+        val tom: OpplysningstypeRegister = OpplysningstypeRegister(emptySet(), emptyList())
+    }
 }

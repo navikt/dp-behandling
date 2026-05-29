@@ -62,15 +62,14 @@ internal object TestOpplysningstyper {
             beløpB,
         )
 
-    val register: OpplysningstypeRegister = OpplysningstypeRegister.av(alle)
-
     fun opplysningerRepository(
         dataSource: DatabaseSession,
         ekstraTyper: Collection<Opplysningstype<*>> = emptyList(),
     ): OpplysningerRepositoryPostgres {
-        val testregister = OpplysningstypeRegister.av(register.alle + ekstraTyper)
+        val opplysningstyper = alle + ekstraTyper
+        val testregister = OpplysningstypeRegister(opplysningstyper)
         return OpplysningerRepositoryPostgres(dataSource, KildeRepository(dataSource), testregister).apply {
-            lagreOpplysningstyper(testregister.alle.toList())
+            lagreOpplysningstyper(opplysningstyper.toList())
         }
     }
 }

@@ -7,11 +7,8 @@ import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Tekst
 import java.util.UUID
 
-val hendelseTypeOpplysningstype =
-    Opplysningstype.tekst(
-        Opplysningstype.Id(UUID.fromString("01958ef2-e237-77c4-89e1-de91256e2e4a"), Tekst),
-        "hendelseType",
-    )
+val HendelseTypeId = Opplysningstype.Id(UUID.fromString("01958ef2-e237-77c4-89e1-de91256e2e4a"), Tekst)
+val hendelseTypeOpplysningstype = Opplysningstype.tekst(HendelseTypeId, "hendelseType")
 
 abstract class RegelverkRegistrering(
     val regelverk: Regelverk,
