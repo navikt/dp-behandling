@@ -17,8 +17,21 @@ interface OpplysningstypeRegister {
     companion object {
         val tom: OpplysningstypeRegister = av(emptySet())
 
-        fun av(opplysningstyper: Collection<Opplysningstype<*>>): OpplysningstypeRegister =
-            InMemoryOpplysningstypeRegister(opplysningstyper.toSet())
+        fun av(opplysningstyper: Collection<Opplysningstype<*>>): OpplysningstypeRegister {
+            val typer = opplysningstyper.toSet()
+            val duplikater =
+                typer
+                    .groupBy { it.id.uuid }
+                    .filterValues { it.size > 1 }
+            check(duplikater.isEmpty()) {
+                val visning =
+                    duplikater.entries.joinToString("; ") { (uuid, typer) ->
+                        "UUID $uuid brukes av: " + typer.joinToString(", ") { "${it.navn}(${it.datatype})" }
+                    }
+                "Flere opplysningstyper deler samme UUID: $visning"
+            }
+            return InMemoryOpplysningstypeRegister(typer)
+        }
     }
 }
 
