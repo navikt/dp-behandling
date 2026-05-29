@@ -10,6 +10,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import java.time.Duration
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 data class DBTestContext(
     val baseConfig: HikariConfig,
@@ -101,8 +102,10 @@ internal object Postgres {
         tilgjengeligeTestsesjoner.offer(testContext)
     }
 
+    private val isolertTeller = AtomicInteger(0)
+
     internal fun opprettIsolertTestContext(): Pair<String, DBTestContext> {
-        val databasenavn = "testdb_isolated_${System.currentTimeMillis()}"
+        val databasenavn = "testdb_isolated_${isolertTeller.getAndIncrement()}"
         return databasenavn to opprettTilkobling(databasenavn)
     }
 
