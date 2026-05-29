@@ -60,7 +60,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     }
 
     private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): LocalDate =
-        opplysninger.finnAlle(Søknadstidspunkt.prøvingsdato).minOf { it.gyldighetsperiode.fraOgMed }
+        opplysninger.finnAlle(Søknadstidspunkt.prøvingsdato).minOf { it.verdi }
 }
 
 /**

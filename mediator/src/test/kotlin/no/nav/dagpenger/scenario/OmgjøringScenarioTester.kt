@@ -1,7 +1,6 @@
 package no.nav.dagpenger.scenario
 
 import io.kotest.assertions.throwables.shouldNotThrow
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
@@ -408,9 +407,7 @@ class OmgjøringScenarioTester {
             }
 
             // Omgjøring
-            shouldThrow<IllegalStateException> {
-                saksbehandler.omgjørBehandling(27.mai(2018))
-            }
+            saksbehandler.omgjørBehandling(27.mai(2018))
         }
     }
 }
