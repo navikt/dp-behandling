@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilÅr
 import no.nav.dagpenger.opplysning.regel.dato.sisteDagIMåned
@@ -22,13 +23,17 @@ import no.nav.dagpenger.regel.OpplysningsTyper.SisteMånedId
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadsdato
+import java.time.LocalDate
 
 object Alderskrav {
     val fødselsdato = dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)
 
     private val aldersgrense = heltall(AldersgrenseId, "Aldersgrense", synlig = aldriSynlig, enhet = Enhet.År)
     private val sisteMåned = dato(SisteMånedId, "Dato søker når maks alder", synlig = aldriSynlig)
-    private val sisteDagIMåned = dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav")
+    private val sisteDagIMåned =
+        dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav", gyldighetsperiode = { a, b ->
+            GyldighetsperiodeStrategi.minsteMulige<LocalDate>().gyldighetsperiode(a, b).copy(tilOgMed = a)
+        })
 
     val kravTilAlder = boolsk(KravTilAlderId, "Oppfyller kravet til alder")
 
@@ -40,7 +45,6 @@ object Alderskrav {
             regel(aldersgrense) { somUtgangspunkt(67) }
             regel(sisteMåned) { leggTilÅr(fødselsdato, aldersgrense) }
             regel(sisteDagIMåned) { sisteDagIMåned(sisteMåned) }
-
             utfall(kravTilAlder) { førEllerLik(prøvingsdato, sisteDagIMåned) }
         }
 

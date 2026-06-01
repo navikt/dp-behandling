@@ -37,6 +37,7 @@ import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.scenario.assertions.BehandlingsresultatAssertions
 import org.approvaltests.Approvals
 import tools.jackson.databind.JsonNode
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
 
@@ -127,7 +128,7 @@ internal class SimulertDagpengerSystem(
 
     class ScenarioOptions(
         var ident: String = Random.nextLong(10000000000, 19999999999).toString(),
-        var alder: Int = 33,
+        var fødselsdato: LocalDate = LocalDate.now().minusYears(33),
         var inntektSiste12Mnd: Int = 50000,
         var permittering: Boolean = false,
         var permittertfraFiskeforedling: Boolean = false,

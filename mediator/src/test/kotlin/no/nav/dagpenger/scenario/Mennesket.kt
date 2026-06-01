@@ -32,12 +32,12 @@ internal class Mennesket(
     private val scenario: SimulertDagpengerSystem.ScenarioOptions,
 ) {
     val ident = scenario.ident
-    private val alder = scenario.alder
     private val inntektSiste12Mnd = scenario.inntektSiste12Mnd
     var antallDagerForbrukt: Int = 100
 
     private val søknader = mutableListOf<UUID>()
     private val fagsak = mutableListOf<Int>()
+    private val fødselsdato: LocalDate = scenario.fødselsdato
     private lateinit var søknadsdato: LocalDate
     private lateinit var ønskerFraDato: LocalDate
     private lateinit var meldesyklus: Meldesyklus
@@ -202,7 +202,7 @@ internal class Mennesket(
     private val løsninger: Map<String, Behovsløsning>
         get() =
             mapOf(
-                "Fødselsdato" to Behovsløsning.Statisk(søknadsdato.minusYears(alder.toLong())),
+                "Fødselsdato" to Behovsløsning.Statisk(fødselsdato),
                 Behov.Søknadsdato to Behovsløsning.Statisk(søknadsdato),
                 Behov.ØnskerDagpengerFraDato to Behovsløsning.Statisk(ønskerFraDato),
                 Behov.ØnsketArbeidstid to Behovsløsning.Statisk(40.0),

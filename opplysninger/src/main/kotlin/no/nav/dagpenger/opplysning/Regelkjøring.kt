@@ -132,6 +132,7 @@ class Regelkjøring(
     }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
+        println("EVALUERER $prøvingsdato")
         val (kjøreplan, regelresultater) = planleggOgUtfør(prøvingsdato)
 
         val kjørteRegler = regelresultater.flatten().map { it.regel }.toSet()
