@@ -2,10 +2,14 @@ package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.ProsessPlugin
-import no.nav.dagpenger.opplysning.Prosesskontekst
+import no.nav.dagpenger.opplysning.KvoteDefinisjon
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.totalKapasitet
 import java.time.LocalDate
+import kotlin.collections.first
+import kotlin.collections.map
 
 /**
  * Generell kvoteteller som teller forbruk av en kvote basert på en boolsk opplysning per dag.
@@ -15,61 +19,104 @@ import java.time.LocalDate
  * - Bortfallsdager: teller ned gjenstående bortfallsdager
  */
 class Kvoteteller(
-    private val kapasitet: Opplysningstype<Int>,
-    private val forbrukKriterium: Opplysningstype<Boolean>,
-    private val forbruktTeller: Opplysningstype<Int>,
-    private val gjenstående: Opplysningstype<Int>,
-    private val sisteDagMedForbruk: Opplysningstype<LocalDate>? = null,
-    private val sisteGjenstående: Opplysningstype<Int>? = null,
-) : ProsessPlugin {
-    override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
-        val opplysninger = kontekst.opplysninger
+    val definisjon: KvoteDefinisjon,
+) {
+    fun beregn(opplysninger: LesbarOpplysninger): Kvotetellingsresultat {
+        val totalKapasitet = definisjon.totalKapasitet(opplysninger)
+        if (totalKapasitet <= 0) return Kvotetellingsresultat()
 
-        if (!opplysninger.har(kapasitet)) return
-        val totalKapasitet = opplysninger.finnOpplysning(kapasitet).verdi
-        if (totalKapasitet <= 0) return
+        val dager = hentDagerMedForbruk(opplysninger)
+        if (dager.isEmpty()) return Kvotetellingsresultat()
 
-        val dager = opplysninger.kunEgne.finnAlle(forbrukKriterium)
+        val forbruktTeller = beregnForbruktTeller(opplysninger, dager)
+        val gjenstående = beregnGjenstående(dager, totalKapasitet, forbruktTeller)
+        return Kvotetellingsresultat(
+            forbruktTeller = forbruktTeller,
+            gjenstående = gjenstående,
+            sisteDagMedForbruk = hentSisteDagMedForbruk(dager),
+            sisteGjenstående = hentSisteGjenstående(dager, gjenstående),
+        )
+    }
 
-        if (dager.isEmpty()) return
+    private fun hentDagerMedForbruk(opplysninger: LesbarOpplysninger): List<Opplysning<Boolean>> =
+        opplysninger.kunEgne.finnAlle(definisjon.forbrukKriterium)
 
-        var utgangspunkt =
-            opplysninger
-                .finnAlle(forbruktTeller)
-                .lastOrNull {
-                    it.gyldighetsperiode.fraOgMed.isBefore(dager.first().gyldighetsperiode.fraOgMed)
-                }?.verdi ?: 0
-
-        dager.forEach {
+    private fun beregnForbruktTeller(
+        opplysninger: LesbarOpplysninger,
+        dager: List<Opplysning<Boolean>>,
+    ): List<KvotetellingsVerdi<Int>> {
+        var utgangspunkt = hentUtgangspunkt(opplysninger, dager)
+        return dager.map {
             if (it.verdi) utgangspunkt++
-            opplysninger.leggTil(Faktum(forbruktTeller, utgangspunkt, it.gyldighetsperiode))
-
-            val gjenståendeVerdi = totalKapasitet - utgangspunkt
-            require(gjenståendeVerdi >= 0) { "Gjenstående kan ikke være negativt. Har $gjenståendeVerdi igjen for ${kapasitet.navn}" }
-
-            opplysninger.leggTil(Faktum(gjenstående, gjenståendeVerdi, it.gyldighetsperiode))
-        }
-
-        if (sisteDagMedForbruk != null && sisteGjenstående != null) {
-            dager.lastOrNull { it.verdi }?.let {
-                val sisteForbruksdato = it.gyldighetsperiode.fraOgMed
-                opplysninger.leggTil(
-                    Faktum(
-                        sisteDagMedForbruk,
-                        sisteForbruksdato,
-                        Gyldighetsperiode(sisteForbruksdato),
-                    ),
-                )
-
-                val sisteForbruk = opplysninger.finnAlle(gjenstående).last().verdi
-                opplysninger.leggTil(
-                    Faktum(
-                        sisteGjenstående,
-                        sisteForbruk,
-                        Gyldighetsperiode(sisteForbruksdato),
-                    ),
-                )
-            }
+            KvotetellingsVerdi(utgangspunkt, it.gyldighetsperiode)
         }
     }
+
+    private fun beregnGjenstående(
+        dager: List<Opplysning<Boolean>>,
+        totalKapasitet: Int,
+        forbruktTeller: List<KvotetellingsVerdi<Int>>,
+    ): List<KvotetellingsVerdi<Int>> =
+        forbruktTeller.mapIndexed { indeks, verdi ->
+            val gjenståendeVerdi = totalKapasitet - verdi.verdi
+            require(gjenståendeVerdi >= 0) {
+                "Gjenstående kan ikke være negativt. Har $gjenståendeVerdi igjen for ${
+                    definisjon.kilder.joinToString(", ") { it.kapasitet.navn }
+                }"
+            }
+
+            KvotetellingsVerdi(gjenståendeVerdi, dager[indeks].gyldighetsperiode)
+        }
+
+    private fun hentUtgangspunkt(
+        opplysninger: LesbarOpplysninger,
+        dager: List<Opplysning<Boolean>>,
+    ): Int =
+        opplysninger
+            .finnAlle(definisjon.forbruktTeller)
+            .lastOrNull {
+                it.gyldighetsperiode.fraOgMed.isBefore(dager.first().gyldighetsperiode.fraOgMed)
+            }?.verdi ?: 0
+
+    private fun hentSisteDagMedForbruk(dager: List<Opplysning<Boolean>>): KvotetellingsVerdi<LocalDate>? {
+        if (definisjon.sisteDagMedForbruk == null) return null
+        val sisteForbruksdag = dager.lastOrNull { it.verdi }?.gyldighetsperiode?.fraOgMed ?: return null
+        return KvotetellingsVerdi(sisteForbruksdag, Gyldighetsperiode(sisteForbruksdag))
+    }
+
+    private fun hentSisteGjenstående(
+        dager: List<Opplysning<Boolean>>,
+        gjenstående: List<KvotetellingsVerdi<Int>>,
+    ): KvotetellingsVerdi<Int>? {
+        if (definisjon.sisteGjenstående == null) return null
+        val sisteForbruksdag = dager.lastOrNull { it.verdi }?.gyldighetsperiode?.fraOgMed ?: return null
+        val sisteGjenståendeVerdi = gjenstående.lastOrNull()?.verdi ?: return null
+        return KvotetellingsVerdi(sisteGjenståendeVerdi, Gyldighetsperiode(sisteForbruksdag))
+    }
 }
+
+class KvotetellingsSkriver(
+    private val definisjon: KvoteDefinisjon,
+) {
+    fun skriv(
+        opplysninger: Opplysninger,
+        resultat: Kvotetellingsresultat,
+    ) {
+        resultat.forbruktTeller.forEach { opplysninger.leggTil(Faktum(definisjon.forbruktTeller, it.verdi, it.gyldighetsperiode)) }
+        resultat.gjenstående.forEach { opplysninger.leggTil(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
+        resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteDagMedForbruk!!, it.verdi, it.gyldighetsperiode)) }
+        resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående!!, it.verdi, it.gyldighetsperiode)) }
+    }
+}
+
+data class Kvotetellingsresultat(
+    val forbruktTeller: List<KvotetellingsVerdi<Int>> = emptyList(),
+    val gjenstående: List<KvotetellingsVerdi<Int>> = emptyList(),
+    val sisteDagMedForbruk: KvotetellingsVerdi<LocalDate>? = null,
+    val sisteGjenstående: KvotetellingsVerdi<Int>? = null,
+)
+
+data class KvotetellingsVerdi<T : Any>(
+    val verdi: T,
+    val gyldighetsperiode: Gyldighetsperiode,
+)

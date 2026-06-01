@@ -1,16 +1,15 @@
-package no.nav.dagpenger.behandling.scenario
+package no.nav.dagpenger.scenario
 
-import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.behandling.helpers.scenario.SimulertDagpengerSystem.Companion.nyttScenario
-import no.nav.dagpenger.behandling.juli
-import no.nav.dagpenger.behandling.juni
-import no.nav.dagpenger.regel.TidsbegrensetBortfall
-import no.nav.dagpenger.regel.beregning.Beregning
+import no.nav.dagpenger.mediator.juli
+import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
+import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
 
-class BortfallScenarioTest {
+class TidsbegrensetBortfallTest {
     @Test
     fun `tidsbegrenset bortfall markerer dager og reduserer utbetaling`() {
         nyttScenario {
@@ -21,7 +20,7 @@ class BortfallScenarioTest {
             behovsløsere.løsTilForslag()
 
             // Saksbehandler ilegger tidsbegrenset bortfall på 5 dager
-            saksbehandler.endreOpplysning(TidsbegrensetBortfall.harBortfall, true)
+            saksbehandler.endreOpplysning(TidsbegrensetBortfall.harTidsbegrensetBortfall, true)
             saksbehandler.endreOpplysning(TidsbegrensetBortfall.antallBortfallsdager, 5)
 
             saksbehandler.lukkAlleAvklaringer()
@@ -42,6 +41,10 @@ class BortfallScenarioTest {
                     count { it.verdi.verdi == true } shouldBe 7
                 }
 
+                with(opplysninger(Beregning.gjenståendeBortfallsdager)) {
+                    last().verdi.verdi shouldBe 0
+                }
+
                 // 5 dager markert som bortfall (de 5 tidligste arbeidsdagene)
                 with(opplysninger(Beregning.erBortfallsdag)) {
                     count { it.verdi.verdi == true } shouldBe 5
@@ -60,19 +63,18 @@ class BortfallScenarioTest {
         nyttScenario {
             inntektSiste12Mnd = 500000
         }.test {
-            person.søkDagpenger(21.juni(2018))
-
+            person.søkDagpenger(18.juni(2018))
             behovsløsere.løsTilForslag()
 
             // Saksbehandler ilegger tidsbegrenset bortfall på 3 dager
-            saksbehandler.endreOpplysning(TidsbegrensetBortfall.harBortfall, true)
+            saksbehandler.endreOpplysning(TidsbegrensetBortfall.harTidsbegrensetBortfall, true)
             saksbehandler.endreOpplysning(TidsbegrensetBortfall.antallBortfallsdager, 3)
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat {
+            behandlingsresultat(1) {
                 rettighetsperioder.single().harRett shouldBe true
             }
 
@@ -80,9 +82,12 @@ class BortfallScenarioTest {
             person.sendInnMeldekort(1)
             meldekortBatch(true)
 
-            behandlingsresultatForslag {
+            behandlingsresultat(2) {
                 with(opplysninger(Beregning.erBortfallsdag)) {
                     count { it.verdi.verdi == true } shouldBe 3
+                }
+                with(opplysninger(Beregning.forbrukt)) {
+                    this.last().verdi.verdi shouldBe 10
                 }
                 // 4 dager med utbetaling (minus egenandel)
                 utbetalinger.count { it["utbetaling"].asInt() > 0 } shouldBeGreaterThan 0
@@ -92,18 +97,16 @@ class BortfallScenarioTest {
             person.sendInnMeldekort(2)
             meldekortBatch(true)
 
-            behandlingsresultatForslag {
+            behandlingsresultat(3) {
                 // Ingen bortfallsdager i meldekort 2
                 with(opplysninger(Beregning.erBortfallsdag)) {
-                    filter {
-                        it.gyldigFraOgMed != null &&
-                            it.gyldigFraOgMed!! >= 2.juli(2018)
-                    }.all { it.verdi.verdi == false } shouldBe true
+                    filter { it.gyldigFraOgMed != null && it.gyldigFraOgMed >= 2.juli(2018) }
+                        .all { it.verdi.verdi == false } shouldBe true
                 }
 
                 // Meldekort 2 har utbetaling > 0 (egenandel allerede brukt opp)
                 utbetalinger
-                    .filter { it["dato"].asText() >= "2018-07-02" }
+                    .filter { it["dato"].asString() >= "2018-07-02" }
                     .sumOf { it["utbetaling"].asInt() } shouldBeGreaterThan 0
             }
         }

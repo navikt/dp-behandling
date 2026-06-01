@@ -1,10 +1,11 @@
 package no.nav.dagpenger.regel.regelsett.beregning
-import io.github.oshai.kotlinlogging.KotlinLogging
+
+import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.totalKapasitet
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
-import no.nav.dagpenger.regel.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldtITide
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
@@ -23,10 +24,13 @@ class BeregningsperiodeFabrikk(
     meldeperiodeFraOgMed: LocalDate,
     meldeperiodeTilOgMed: LocalDate,
     private val opplysninger: LesbarOpplysninger,
+    private val kvoter: List<KvoteDefinisjon>,
 ) {
     private val meldeperiode = Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed)
 
-    private val logger = KotlinLogging.logger { }
+    private val logger =
+        io.github.oshai.kotlinlogging.KotlinLogging
+            .logger { }
 
     fun lagBeregningsperiode(): Beregningsperiode {
         val dager = opprettPeriode(meldeperiode)
@@ -60,21 +64,26 @@ class BeregningsperiodeFabrikk(
             ?.verdi ?: innvilgetEgenandel
     }
 
-    private fun hentGjenståendeBortfall(førsteDag: LocalDate): Int {
-        if (!opplysninger.har(TidsbegrensetBortfall.harBortfall)) return 0
-        if (!opplysninger.erSann(TidsbegrensetBortfall.harBortfall)) return 0
-        if (!opplysninger.har(TidsbegrensetBortfall.antallBortfallsdager)) return 0
-        val antallBortfallsdager = opplysninger.finnOpplysning(TidsbegrensetBortfall.antallBortfallsdager).verdi
-        if (antallBortfallsdager <= 0) return 0
+    private fun hentGjenståendeBortfall(førsteDag: LocalDate): Int =
+        kvoter
+            .filter { it.forbrukKriterium == Beregning.erBortfallsdag }
+            .sumOf { kvote -> kvote.hentGjenståendeBortfall(opplysninger, førsteDag) }
 
-        // Finn siste registrerte gjenstående bortfall før denne meldeperioden
-        val gjenstående =
-            opplysninger
-                .finnAlle(Beregning.gjenståendeBortfallsdager)
-                .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
-                ?.verdi
-        return gjenstående ?: antallBortfallsdager
+    private fun KvoteDefinisjon.hentGjenståendeBortfall(
+        opplysninger: LesbarOpplysninger,
+        førsteDag: LocalDate,
+    ): Int {
+        val sisteGjenstående = opplysninger.sisteVerdiFør(gjenstående, førsteDag)
+        return sisteGjenstående ?: totalKapasitet(opplysninger)
     }
+
+    private fun LesbarOpplysninger.sisteVerdiFør(
+        opplysningstype: no.nav.dagpenger.opplysning.Opplysningstype<Int>,
+        førsteDag: LocalDate,
+    ): Int? =
+        finnAlle(opplysningstype)
+            .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
+            ?.verdi
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }

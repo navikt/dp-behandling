@@ -2,38 +2,37 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- Fødselsdato
 - ØnskerDagpengerFraDato
+- Fødselsdato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- HelseTilAlleTyperJobb
 - Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
-- Lønnsgaranti
-- Ordinær
-- Permittert
-- PermittertFiskeforedling
-- RegistrertSomArbeidssøker
-- Verneplikt
+- HelseTilAlleTyperJobb
 - VilligTilÅBytteYrke
 - ØnsketArbeidstid
+- RegistrertSomArbeidssøker
+- Ordinær
+- Permittert
+- Lønnsgaranti
+- PermittertFiskeforedling
+- Verneplikt
 Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
 Behov:
-- AndreØkonomiskeYtelser
 - BostedslandErNorge
-- ErUtestengt
-- Foreldrepenger
+- Uføre
+- Sykepenger
+- Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
-- Pleiepenger
+- Foreldrepenger
 - Svangerskapspenger
-- Sykepenger
+- AndreØkonomiskeYtelser
 - TarUtdanningEllerOpplæring
-- Uføre
 Laget avklaring om SjekkPrøvingsdato
 Laget avklaring om BeregnetArbeidstid
 Behov:
@@ -49,73 +48,69 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- AndreØkonomiskeYtelser
+- ØnskerDagpengerFraDato
 - BarnetilleggV2
 - BostedslandErNorge
-- HelseTilAlleTyperJobb
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
-- Lønnsgaranti
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+- RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
+- Lønnsgaranti
 - PermittertFiskeforedling
-- RegistrertSomArbeidssøker
-- TarUtdanningEllerOpplæring
 - Verneplikt
-- VilligTilÅBytteYrke
-- ØnskerDagpengerFraDato
-- ØnsketArbeidstid
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- ErUtestengt
-- Foreldrepenger
+- Uføre
+- Sykepenger
+- Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
-- Pleiepenger
+- Foreldrepenger
 - Svangerskapspenger
-- Sykepenger
-- Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Laget avklaring om GjenopptakBehandling
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- AndreØkonomiskeYtelser
+- ØnskerDagpengerFraDato
 - BarnetilleggV2
 - BostedslandErNorge
-- HelseTilAlleTyperJobb
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
-- Lønnsgaranti
+- HelseTilAlleTyperJobb
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+- RegistrertSomArbeidssøker
 - Ordinær
 - Permittert
+- Lønnsgaranti
 - PermittertFiskeforedling
-- RegistrertSomArbeidssøker
-- TarUtdanningEllerOpplæring
 - Verneplikt
-- VilligTilÅBytteYrke
-- ØnskerDagpengerFraDato
-- ØnsketArbeidstid
+- AndreØkonomiskeYtelser
+- TarUtdanningEllerOpplæring
 Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
-- ErUtestengt
-- Foreldrepenger
+- Uføre
+- Sykepenger
+- Pleiepenger
 - Omsorgspenger
 - Opplæringspenger
-- Pleiepenger
+- Foreldrepenger
 - Svangerskapspenger
-- Sykepenger
-- Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
-melding: flytt_behandling
-Laget avklaring om BehandlingFlyttet
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak

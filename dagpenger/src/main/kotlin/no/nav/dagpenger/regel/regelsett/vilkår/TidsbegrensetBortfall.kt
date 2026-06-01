@@ -1,0 +1,48 @@
+package no.nav.dagpenger.regel.regelsett.vilkår
+
+import no.nav.dagpenger.opplysning.KvoteDefinisjon
+import no.nav.dagpenger.opplysning.KvoteKilde
+import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.folketrygden
+import no.nav.dagpenger.opplysning.regel.multiplikasjon
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
+import no.nav.dagpenger.regel.OpplysningsTyper
+import no.nav.dagpenger.regel.kravPåDagpenger
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.dagerIUka
+
+object TidsbegrensetBortfall {
+    val harTidsbegrensetBortfall = Opplysningstype.boolsk(OpplysningsTyper.harBortfallId, "Er ilagt tidsbegrenset bortfall av dagpenger")
+
+    val antallBortfallsuker =
+        Opplysningstype.heltall(OpplysningsTyper.antallBortfallsukerId, "Antall uker med tidsbegrenset bortfall", enhet = Enhet.Uker)
+    val antallBortfallsdager =
+        Opplysningstype.heltall(OpplysningsTyper.antallBortfallsdagerId, "Antall dager med tidsbegrenset bortfall", enhet = Enhet.Dager)
+
+    val regelsett =
+        vilkår(folketrygden.hjemmel(4, 20, "Tidsbegrenset bortfall av dagpenger", "Tidsbegrenset bortfall")) {
+            skalVurderes { kravPåDagpenger(it) }
+
+            regel(harTidsbegrensetBortfall) { somUtgangspunkt(false) }
+            regel(antallBortfallsuker) { somUtgangspunkt(18) }
+            regel(antallBortfallsdager) { multiplikasjon(antallBortfallsuker, dagerIUka) }
+
+            kvote(
+                KvoteDefinisjon(
+                    hjemmel = hjemmel,
+                    kilder = listOf(KvoteKilde(antallBortfallsdager, harTidsbegrensetBortfall)),
+                    forbrukKriterium = Beregning.erBortfallsdag,
+                    forbruktTeller = Beregning.forbruktBortfallsdager,
+                    gjenstående = Beregning.gjenståendeBortfallsdager,
+                    sisteDagMedForbruk = Beregning.sisteBortfallsdagMedForbruk,
+                    sisteGjenstående = Beregning.sisteGjenståendeBortfallsdager,
+                ),
+            )
+
+            ønsketResultat(antallBortfallsdager)
+
+            påvirkerResultat { it.erSann(harTidsbegrensetBortfall) }
+        }
+}

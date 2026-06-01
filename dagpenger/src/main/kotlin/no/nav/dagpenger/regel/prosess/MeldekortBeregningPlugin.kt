@@ -3,11 +3,16 @@ package no.nav.dagpenger.regel.prosess
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.Kvoteteller
+import no.nav.dagpenger.regel.KvotetellingsSkriver
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.erBortfallsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
@@ -15,7 +20,9 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsda
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
 
-class MeldekortBeregningPlugin : ProsessPlugin {
+class MeldekortBeregningPlugin(
+    private val kvoter: List<KvoteDefinisjon>,
+) : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
         val meldeperiode = meldeperiode(opplysninger)
@@ -43,7 +50,7 @@ class MeldekortBeregningPlugin : ProsessPlugin {
         opplysninger.leggTil(Faktum(Beregning.meldtITide, erMeldtITide, gyldighetsperiode))
 
         val resultat =
-            BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger)
+            BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger, kvoter)
                 .lagBeregningsperiode()
                 .resultat
 
@@ -63,10 +70,16 @@ class MeldekortBeregningPlugin : ProsessPlugin {
                 val dagGyldighetsperiode = dag.gyldighetsperiode
                 opplysninger.leggTil(Faktum(forbruk, dag is Forbruksdag, dagGyldighetsperiode))
                 opplysninger.leggTil(Faktum(utbetaling, dag.tilUtbetaling, dagGyldighetsperiode))
-                opplysninger.leggTil(Faktum(Beregning.erBortfallsdag, dag?.erBortfall ?: false, dagGyldighetsperiode))
+                opplysninger.leggTil(Faktum(erBortfallsdag, dag?.erBortfall ?: false, dagGyldighetsperiode))
             }
 
+        kvoter.forEach { opplysninger.lagreKvote(it) }
         return resultat
+    }
+
+    private fun Opplysninger.lagreKvote(kvote: KvoteDefinisjon) {
+        val resultat = Kvoteteller(kvote).beregn(this)
+        KvotetellingsSkriver(kvote).skriv(this, resultat)
     }
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi

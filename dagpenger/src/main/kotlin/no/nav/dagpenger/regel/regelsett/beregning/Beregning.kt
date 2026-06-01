@@ -17,10 +17,12 @@ import no.nav.dagpenger.regel.OpplysningsTyper.erBortfallsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbrukId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbruktBortfallsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbruktEgenandelId
+import no.nav.dagpenger.regel.OpplysningsTyper.forbruktSanksjonsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbrukteDagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeBortfallsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeDagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeEgenandelId
+import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeSanksjonsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.maksAntallPerioderMedIkkeTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldedatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
@@ -30,6 +32,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.sisteBortfallsdagMedForbrukId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDagMedForbrukId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendeBortfallsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendeDagerId
+import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendeSanksjonsdagerId
+import no.nav.dagpenger.regel.OpplysningsTyper.sisteSanksjonsdagMedForbrukId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumArbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumFvaId
 import no.nav.dagpenger.regel.OpplysningsTyper.taptArbeidIPeriodenId
@@ -61,8 +65,24 @@ object Beregning {
     val sisteForbruksdag = Opplysningstype.dato(sisteDagMedForbrukId, "Siste forbruksdato")
     val sisteGjenståendeDager = Opplysningstype.heltall(sisteGjenståendeDagerId, "Siste antall dager som gjenstår", enhet = Enhet.Dager)
 
-    // Bortfall (tidsbegrenset sanksjon) — per-meldeperiode opplysninger
     val erBortfallsdag = Opplysningstype.boolsk(erBortfallsdagId, "Dag med bortfall av dagpenger")
+
+    val forbruktSanksjonsdager =
+        Opplysningstype.heltall(
+            forbruktSanksjonsdagerId,
+            "Antall dager med sanksjon som er forbrukt",
+            enhet = Enhet.Dager,
+        )
+    val gjenståendeSanksjonsdager =
+        Opplysningstype.heltall(
+            gjenståendeSanksjonsdagerId,
+            "Antall dager med sanksjon som gjenstår",
+            enhet = Enhet.Dager,
+        )
+    val sisteSanksjonsdagMedForbruk = Opplysningstype.dato(sisteSanksjonsdagMedForbrukId, "Siste dag med forbruk av sanksjon")
+    val sisteGjenståendeSanksjonsdager =
+        Opplysningstype.heltall(sisteGjenståendeSanksjonsdagerId, "Siste antall dager med sanksjon som gjenstår", enhet = Enhet.Dager)
+
     val forbruktBortfallsdager =
         Opplysningstype.heltall(
             forbruktBortfallsdagerId,
@@ -136,6 +156,10 @@ object Beregning {
 
             // Bortfall (per-meldeperiode)
             regel(erBortfallsdag) { tomRegel }
+            regel(forbruktSanksjonsdager) { tomRegel }
+            regel(gjenståendeSanksjonsdager) { tomRegel }
+            regel(sisteSanksjonsdagMedForbruk) { tomRegel }
+            regel(sisteGjenståendeSanksjonsdager) { tomRegel }
             regel(forbruktBortfallsdager) { tomRegel }
             regel(gjenståendeBortfallsdager) { tomRegel }
             regel(sisteBortfallsdagMedForbruk) { tomRegel }
@@ -156,9 +180,11 @@ object Beregning {
                 erBortfallsdag,
                 forbruk,
                 forbrukt,
+                forbruktSanksjonsdager,
                 forbruktBortfallsdager,
                 forbruktEgenandel,
                 gjenståendeBortfallsdager,
+                gjenståendeSanksjonsdager,
                 gjenståendeEgenandel,
                 gjenståendeDager,
                 maksAntallPerioderMedIkkeTaptArbeidstid,

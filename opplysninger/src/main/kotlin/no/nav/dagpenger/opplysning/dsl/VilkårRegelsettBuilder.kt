@@ -55,5 +55,6 @@ class VilkårRegelsettBuilder internal constructor(
             skalRevurderes = skalRevurderes,
             påvirkerResultat = relevant,
             betingelser = vurderinger,
+            kvoter = kvoter.toList(),
         )
 }

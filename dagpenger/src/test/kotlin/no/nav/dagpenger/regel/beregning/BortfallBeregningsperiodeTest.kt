@@ -4,6 +4,9 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.timer
+import no.nav.dagpenger.regel.regelsett.beregning.Arbeidsdag
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningsperiode
+import no.nav.dagpenger.regel.regelsett.beregning.Dag
 import org.junit.jupiter.api.Test
 
 class BortfallBeregningsperiodeTest {
@@ -52,7 +55,7 @@ class BortfallBeregningsperiodeTest {
     }
 
     @Test
-    fun `bortfall konsumerer ikke egenandel`() {
+    fun `bortfall forbruker ikke egenandel`() {
         val dager = lagArbeidsdager(5)
         val gjenståendeEgenandel = Beløp(150)
 
