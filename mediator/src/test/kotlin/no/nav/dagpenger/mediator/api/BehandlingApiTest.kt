@@ -15,6 +15,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.escapeIfNeeded
+import no.nav.dagpenger.dato.april
 import no.nav.dagpenger.mediator.api.TestApplication.maskinToken
 import no.nav.dagpenger.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.mediator.api.TestApplication.withMockAuthServerAndTestApplication
@@ -42,6 +43,7 @@ import org.junit.jupiter.api.Test
 import tools.jackson.core.type.TypeReference
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.LocalDate
+import java.time.Year
 
 internal class BehandlingApiTest {
     @Test
@@ -109,7 +111,7 @@ internal class BehandlingApiTest {
     @Test
     fun `opprett kjedet behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -145,7 +147,7 @@ internal class BehandlingApiTest {
     @Test
     fun `opprett omgjøring på en gitt person`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -209,7 +211,7 @@ internal class BehandlingApiTest {
     @Test
     fun `henter person sin rettighetsstatus`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -228,7 +230,7 @@ internal class BehandlingApiTest {
     @Test
     fun `hent behandling gitt behandlingId`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
             val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/${person.behandlingId}")
@@ -258,7 +260,7 @@ internal class BehandlingApiTest {
     @Test
     fun `hent behandling v2 gitt behandlingId`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
             val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/v2/${person.behandlingId}")
@@ -296,7 +298,7 @@ internal class BehandlingApiTest {
     @Test
     fun `hent behandlingsresultat gitt behandlingId - autentisert som saksbehandler`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
             val response =
                 testContext.autentisert(
@@ -343,7 +345,7 @@ internal class BehandlingApiTest {
     @Test
     fun `hent vedtak gitt behandlingId - autentisert som maskintokern`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
             val response =
                 testContext.autentisert(
@@ -361,7 +363,7 @@ internal class BehandlingApiTest {
     @Test
     fun `hent saksbehandlers vurderinger for en gitt behandlingId`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
 
@@ -385,7 +387,7 @@ internal class BehandlingApiTest {
     @Test
     fun `lagrer saksbehandlers begrunnelse for en gitt kildeId`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
             val kildeId = saksbehandler.endreOpplysning(ReellArbeidssøker.erArbeidsfør, false)
@@ -411,7 +413,7 @@ internal class BehandlingApiTest {
     @Test
     fun `avbryt behandling gitt behandlingId`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
             val behandlingId = person.behandlingId
@@ -431,7 +433,7 @@ internal class BehandlingApiTest {
     @Test
     fun `rekjør behandling med gitt behandlingId`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
             val response =
@@ -450,7 +452,7 @@ internal class BehandlingApiTest {
     @Test
     fun `flytt behandling til ny behandling`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -481,7 +483,7 @@ internal class BehandlingApiTest {
     @Test
     fun `test overgangene for behandling mellom saksbehandler og beslutter`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
 
@@ -538,7 +540,7 @@ internal class BehandlingApiTest {
     @Disabled("Må finne ut av hvorfor denne gir 500")
     fun `kan endre alle typer opplysninger som er redigerbare`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
             val behandlingId = person.behandlingId
@@ -582,7 +584,7 @@ internal class BehandlingApiTest {
     @Test
     fun `saksbehandler kan kvittere ut avklaring`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
             val behandlingId = person.behandlingId
@@ -602,7 +604,7 @@ internal class BehandlingApiTest {
     @Test
     fun `opplysning kan ikke få tilOgMed før fraOgMed`() {
         medSikretBehandlingApi { testContext ->
-            person.søkDagpenger()
+            person.søkDagpenger(1.april(Year.now().value))
             behovsløsere.løsTilForslag()
 
             val behandlingId = person.behandlingId

@@ -242,7 +242,7 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
         val melding = inspektør.message(offset)
         when (melding["@event_name"].asString()) {
             "behov" -> {
-                meldinger.add("Behov:${melding["@behov"].joinToString("\n- ", "\n- ") { it.asString() }}")
+                meldinger.add("Behov:${melding["@behov"].values().map { it.asString() }.sorted().joinToString("\n- ", "\n- ")}")
             }
 
             "NyAvklaring" -> {
