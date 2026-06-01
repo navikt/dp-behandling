@@ -77,7 +77,7 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                                         tittel = "Bruker har blitt utmeldt av ASR utenfor dagpenger",
                                         beskrivelse =
                                             """Bruker har blitt utmeldt av ASR utenfor dagpenger, og må derfor vurderes manuelt. Sjekk 
-                                        |hvordan dette påvirker retten til dagpenger og fra hvilken dato en eventuell stans skal gjelde fra.
+                                            |hvordan dette påvirker retten til dagpenger og fra hvilken dato en eventuell stans skal gjelde fra.
                                             """.trimMargin(),
                                         kanAvbrytes = false,
                                     ),
@@ -86,12 +86,18 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                         }
 
                         // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
+                        val beskrivelse =
+                            when {
+                                avsluttetArbeidssøkerperiode.sagtNei -> "Bruker har sagt nei til å stå registrert på meldekortet"
+                                avsluttetArbeidssøkerperiode.fristBrutt -> "Bruker har ikke meldt seg innen fastsatt frist"
+                                else -> "Bruker er ikke lenger registrert som saksbehandler"
+                            }
                         add(
                             Avklaring(
                                 Avklaringkode(
                                     kode = "UtmeldtArbeidssøker",
                                     tittel = "Bruker har blitt utmeldt av arbeidssøkerregisteret",
-                                    beskrivelse = "Bruker er ikke lenger arbeidssøker. Ta stilling til om forslaget til stans er riktig.",
+                                    beskrivelse = "$beskrivelse. Ta stilling til om forslaget til stans er riktig.",
                                     kanAvbrytes = false,
                                 ),
                             ),
