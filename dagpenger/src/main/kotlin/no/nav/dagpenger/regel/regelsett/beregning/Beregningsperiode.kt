@@ -5,13 +5,14 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.timer
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 
 class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Beløp,
     private val meldedager: Set<Dag>,
     terskelstrategi: Terskelstrategi,
     private val stønadsdagerIgjen: Int,
-    private val bortfallsdagerIgjen: Int,
+    private val sanksjonsdagerIgjen: Int,
 ) {
     constructor(gjenståendeEgenandel: Beløp, dag: Set<Dag>, stønadsdagerIgjen: Int, bortfallsdagerIgjen: Int = 0) : this(
         gjenståendeEgenandel,
@@ -59,18 +60,26 @@ class Beregningsperiode private constructor(
 
         // Skill bortfallsdager fra utbetalingsdager — tidligste dager først er bortfall
         val sortert = arbeidsdager.sorted()
-        val bortfallsdager = sortert.take(bortfallsdagerIgjen).toSet()
-        val utbetalingsdager = sortert.drop(bortfallsdagerIgjen).toSet()
+        val sanksjonsdager = sortert.take(sanksjonsdagerIgjen).toSet()
+        val utbetalingsdager = sortert.drop(sanksjonsdagerIgjen).toSet()
 
         // Bortfallsdager: forbruk men 0 utbetaling, ingen egenandel
-        val bortfallForbruksdager = bortfallsdager.map { Beregningresultat.Forbruksdag(it, Beløp(0), erBortfall = true) }
+        val sanksjonForbruksdager =
+            sanksjonsdager.map {
+                Forbruksdag(
+                    dag = it,
+                    tilUtbetaling = Beløp(0),
+                    avviklerSanksjon = true,
+                )
+            }
 
         // Beregn utbetaling og egenandel kun for ikke-bortfallsdager
         if (utbetalingsdager.isEmpty()) {
             return Beregningresultat(
                 utbetaling = Beløp(0),
                 forbruktEgenandel = Beløp(0),
-                forbruksdager = bortfallForbruksdager.sortedBy { it.dag.dato },
+                forbruksdager = sanksjonForbruksdager.sortedBy { it.dag.dato },
+                meldedager = meldedager,
                 gjenståendeEgenandel = gjenståendeEgenandel,
                 oppfyllerKravTilTaptArbeidstid = true,
                 sumFva = sumFva,
@@ -96,7 +105,7 @@ class Beregningsperiode private constructor(
             }
 
         val forbruktEgenandel = Beløp(grupperMedEgenandel.sumOf { (_, egenandel) -> egenandel.verdien })
-        val alleForbruksdager = (bortfallForbruksdager + utbetalingsForbruksdager).sortedBy { it.dag.dato }
+        val alleForbruksdager = (sanksjonForbruksdager + utbetalingsForbruksdager).sortedBy { it.dag.dato }
 
         return Beregningresultat(
             utbetaling = Beløp(alleForbruksdager.sumOf { it.tilUtbetaling.verdien }),
@@ -162,7 +171,7 @@ class Beregningsperiode private constructor(
 data class Beregningresultat(
     val utbetaling: Beløp,
     val forbruktEgenandel: Beløp,
-    private val forbruksdager: List<Beregningsdag.Forbruksdag>,
+    internal val forbruksdager: List<Forbruksdag>,
     private val meldedager: Set<Dag>,
     val gjenståendeEgenandel: Beløp,
     val oppfyllerKravTilTaptArbeidstid: Boolean,
@@ -182,12 +191,13 @@ data class Beregningresultat(
         val dag: Dag
         val tilUtbetaling: Beløp
         val gyldighetsperiode get() = Gyldighetsperiode.kun(dag.dato)
+        val avviklerSanksjon: Boolean get() = false
 
         data class Forbruksdag(
             override val dag: Dag,
             override val tilUtbetaling: Beløp,
-        val erBortfall: Boolean = false,
-    ): Beregningsdag
+            override val avviklerSanksjon: Boolean = false,
+        ) : Beregningsdag
 
         data class IkkeForbruksdag(
             override val dag: Dag,
@@ -203,14 +213,17 @@ private class SatsGruppe(
     val bruttoBeløp: Beløp,
 ) {
     /** Fordeler et beløp jevnt på arbeidsdager, med eventuell øre-rest på siste dag. */
-    fun fordelPåDager(beløp: Beløp): List<Beregningresultat.Beregningsdag.Forbruksdag> {
+    fun fordelPåDager(beløp: Beløp): List<Forbruksdag> {
         if (arbeidsdager.isEmpty()) return emptyList()
         val antall = arbeidsdager.size.toBigDecimal()
         val rest = Beløp(beløp.verdien % antall)
         val dagsbeløp = (beløp - rest) / Beløp(antall)
         return arbeidsdager.mapIndexed { index, dag ->
             val erSisteDag = index == arbeidsdager.lastIndex
-            Beregningresultat.Beregningsdag.Forbruksdag(dag, if (erSisteDag) dagsbeløp + rest else dagsbeløp)
+            Forbruksdag(
+                dag = dag,
+                tilUtbetaling = if (erSisteDag) dagsbeløp + rest else dagsbeløp,
+            )
         }
     }
 }

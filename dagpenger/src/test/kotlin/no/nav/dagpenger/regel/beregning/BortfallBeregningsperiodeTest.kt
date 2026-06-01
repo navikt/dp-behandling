@@ -4,6 +4,9 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.timer
+import no.nav.dagpenger.regel.regelsett.beregning.Arbeidsdag
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningsperiode
+import no.nav.dagpenger.regel.regelsett.beregning.Dag
 import org.junit.jupiter.api.Test
 
 class BortfallBeregningsperiodeTest {
@@ -12,8 +15,8 @@ class BortfallBeregningsperiodeTest {
         val dager = lagArbeidsdager(5)
         val beregning = Beregningsperiode(Beløp(0), dager, stønadsdagerIgjen = 52, bortfallsdagerIgjen = 0)
 
-        beregning.resultat.forbruksdager.size shouldBe 5
-        beregning.resultat.forbruksdager.none { it.erBortfall } shouldBe true
+        beregning.resultat.beregningsdager.size shouldBe 5
+        beregning.resultat.beregningsdager.none { it.avviklerSanksjon } shouldBe true
         beregning.resultat.utbetaling shouldBe Beløp(500) // 5 dager * 100 kr sats * 1.0 prosentfaktor
     }
 
@@ -22,8 +25,8 @@ class BortfallBeregningsperiodeTest {
         val dager = lagArbeidsdager(5)
         val beregning = Beregningsperiode(Beløp(0), dager, stønadsdagerIgjen = 52, bortfallsdagerIgjen = 10)
 
-        beregning.resultat.forbruksdager.size shouldBe 5
-        beregning.resultat.forbruksdager.all { it.erBortfall } shouldBe true
+        beregning.resultat.beregningsdager.size shouldBe 5
+        beregning.resultat.beregningsdager.all { it.avviklerSanksjon } shouldBe true
         beregning.resultat.utbetaling shouldBe Beløp(0)
         beregning.resultat.forbruktEgenandel shouldBe Beløp(0)
     }
@@ -33,26 +36,26 @@ class BortfallBeregningsperiodeTest {
         val dager = lagArbeidsdager(5)
         val beregning = Beregningsperiode(Beløp(0), dager, stønadsdagerIgjen = 52, bortfallsdagerIgjen = 2)
 
-        val forbruksdager = beregning.resultat.forbruksdager.sortedBy { it.dag.dato }
+        val forbruksdager = beregning.resultat.beregningsdager.sortedBy { it.dag.dato }
         forbruksdager.size shouldBe 5
 
         // De 2 første dagene er bortfall
-        forbruksdager[0].erBortfall shouldBe true
+        forbruksdager[0].avviklerSanksjon shouldBe true
         forbruksdager[0].tilUtbetaling shouldBe Beløp(0)
-        forbruksdager[1].erBortfall shouldBe true
+        forbruksdager[1].avviklerSanksjon shouldBe true
         forbruksdager[1].tilUtbetaling shouldBe Beløp(0)
 
         // De 3 siste er normal utbetaling
-        forbruksdager[2].erBortfall shouldBe false
-        forbruksdager[3].erBortfall shouldBe false
-        forbruksdager[4].erBortfall shouldBe false
+        forbruksdager[2].avviklerSanksjon shouldBe false
+        forbruksdager[3].avviklerSanksjon shouldBe false
+        forbruksdager[4].avviklerSanksjon shouldBe false
 
         // Total utbetaling er kun for 3 dager
         beregning.resultat.utbetaling shouldBe Beløp(300)
     }
 
     @Test
-    fun `bortfall konsumerer ikke egenandel`() {
+    fun `bortfall forbruker ikke egenandel`() {
         val dager = lagArbeidsdager(5)
         val gjenståendeEgenandel = Beløp(150)
 

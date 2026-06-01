@@ -19,6 +19,7 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.hendelse.tilOpplysninger
 import no.nav.dagpenger.regel.prosess.MeldekortBeregningPlugin
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
@@ -135,7 +136,7 @@ class BeregningSteg : No {
     }
 
     private val beregning by lazy {
-        MeldekortBeregningPlugin().beregnForPeriode(
+        MeldekortBeregningPlugin(RegelverkDagpenger.kvoter()).beregnForPeriode(
             Prosesskontekst(opplysninger.somOpplysninger()),
             Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed),
         )

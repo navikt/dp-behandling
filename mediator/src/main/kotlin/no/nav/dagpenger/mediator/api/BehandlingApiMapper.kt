@@ -78,6 +78,8 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.sykepenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.sykepengerDagsats
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.uføre
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.uføreDagsats
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.antallSanksjonsuker
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
 import no.nav.dagpenger.regel.regelsett.vilkår.StreikOgLockout.deltarIStreikOgLockout
 import no.nav.dagpenger.regel.regelsett.vilkår.StreikOgLockout.sammeBedriftOgPåvirket
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
@@ -92,6 +94,8 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.antallBortfallsuker
+import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.harTidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelsePåKurs
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.grunnskoleopplæring
@@ -102,7 +106,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning.utestengt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import java.time.LocalDateTime
-import kotlin.collections.contains
 import kotlin.io.encoding.Base64
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
@@ -291,9 +294,15 @@ internal val redigerbareOpplysninger =
                             permitteringFiskeforedling,
                             erPermitteringenFraFiskeindustriMidlertidig,
                             godkjentÅrsakPermitteringFraFiskindustri,
+                            // 4-10 Sanksjon
+                            harSanksjon,
+                            antallSanksjonsuker,
                             // 4-19 Verneplikt
                             oppfyllerKravetTilVerneplikt,
                             skalVernepliktVurderes,
+                            // 4-20 Tidsbegrenset
+                            harTidsbegrensetBortfall,
+                            antallBortfallsuker,
                             // 4-22 Streik og lockout
                             deltarIStreikOgLockout,
                             sammeBedriftOgPåvirket,

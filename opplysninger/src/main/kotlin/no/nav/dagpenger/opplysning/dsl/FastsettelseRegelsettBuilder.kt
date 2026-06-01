@@ -26,5 +26,6 @@ class FastsettelseRegelsettBuilder internal constructor(
             skalRevurderes = skalRevurderes,
             påvirkerResultat = relevant,
             betingelser = emptyList(),
+            kvoter = kvoter.toList(),
         )
 }
