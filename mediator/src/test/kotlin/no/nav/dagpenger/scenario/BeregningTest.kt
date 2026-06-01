@@ -21,7 +21,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import kotlin.math.round
 
 class BeregningTest {
     @Test
@@ -566,6 +568,51 @@ class BeregningTest {
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
 
                 opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe false
+            }
+        }
+    }
+
+    // Dette er et behov for POPP i framtida. De trenger å vite hvor mye som er utbetalt som dagpenger ekslusive barnetillegg
+    @Test
+    @Disabled("Bare en POC for hvordan dette kan gjøres")
+    fun `beregning av hvor mye barnetillegg utgjør av utbetalt`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(18.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(true)
+            person.sendInnMeldekort(2, timer = List(14) { 2 })
+            meldekortBatch(true)
+            person.sendInnMeldekort(3, timer = List(14) { 2 })
+            meldekortBatch(true)
+            person.sendInnMeldekort(4, timer = List(14) { 2 })
+            meldekortBatch(true)
+
+            behandlingsresultat(5) {
+                val bruttoUtbetalt = opplysninger(Beregning.utbetalingForPeriode).sumOf { it.verdi.verdi as Int }
+                bruttoUtbetalt shouldBe 19659
+
+                val alleBarnetillegg = opplysninger(DagpengenesStørrelse.barnetillegg)
+                val snittBarnetillegg = alleBarnetillegg.sumOf { it.verdi.verdi as Int } / alleBarnetillegg.size
+                snittBarnetillegg shouldBe 17
+
+                val dagerMedForbruk = opplysninger(Beregning.forbruk).count { it.verdi.verdi == true }
+                val totalBarnetillegg = dagerMedForbruk * snittBarnetillegg
+                totalBarnetillegg shouldBe 680
+
+                val gradering = opplysninger(Beregning.prosentfaktor)
+                val snittGradering = gradering.sumOf { it.verdi.verdi as Double } / gradering.size
+                snittGradering shouldBe 0.7200000000000002
+
+                val andelBarnetillegg = round(totalBarnetillegg * snittGradering)
+                andelBarnetillegg shouldBe 490
             }
         }
     }
