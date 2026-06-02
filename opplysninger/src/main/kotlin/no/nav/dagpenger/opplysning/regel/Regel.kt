@@ -29,68 +29,111 @@ abstract class Regel<T : Any> internal constructor(
     ) {
         if (besøkt.contains(this)) return else besøkt.add(this)
 
-        if (opplysninger.har(produserer)) {
-            val produkt = opplysninger.finnOpplysning(produserer)
-            if (produkt.utledetAv == null) {
-                // Opplysningen er ikke utledet av noe ELLER overstyrt av saksbehandler
-                return
+        val produkt = opplysninger.finnNullableOpplysning(produserer)
+        when {
+            produkt == null -> {
+                lagPlanNårProduktMangler(opplysninger, plan, produsenter, besøkt)
             }
 
-            val (erErstattet, ikkeErstattet) = produkt.utledetAv.opplysninger.partition { opplysninger.erErstattet(listOf(it)) }
+            produkt.utledetAv != null -> {
+                lagPlanFraUtledning(produkt.utledetAv, opplysninger, plan, produsenter, besøkt)
+            }
 
+            else -> {
+                // opplysningen er ikke utledet av noe ELLER overstyrt av saksbehandler
+            }
+        }
+    }
+
+    private fun lagPlanNårProduktMangler(
+        opplysninger: LesbarOpplysninger,
+        plan: Regelplanlegger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ) {
+        val avhengigheter = opplysninger.finnFlere(avhengerAv)
+
+        if (avhengigheter.size == avhengerAv.size) {
+            plan.add(this)
+        } else {
+            avhengerAv.forEach { avhengighet ->
+                val produsent =
+                    produsenter[avhengighet]
+                if (produsent == null) {
+                    manglendeRegler.add(avhengighet)
+                    return@forEach
+                } // throw IllegalStateException("Fant ikke produsent for $avhengighet")
+                produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
+            }
+        }
+    }
+
+    private fun lagPlanNårUtledereErUtdaterte(
+        utdaterteOpplysninger: List<Opplysning<*>>,
+        opplysninger: LesbarOpplysninger,
+        plan: Regelplanlegger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ) {
+        // Minst en av opplysningene som regelen er avhengig av er utdatert, regelen skal kjøres på nytt
+        utdaterteOpplysninger.forEach { utdatert ->
+            val produsent =
+                produsenter[utdatert.opplysningstype] ?: return
+
+            produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
+        }
+    }
+
+    private fun lagPlanNårRegelenHarFåttNyeAvhengigheter(
+        opplysninger: LesbarOpplysninger,
+        plan: Regelplanlegger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ) {
+        val mangler = avhengerAv.filter { opplysninger.mangler(it) }
+
+        // Om alle avhengigheter er tilstede, skal denne regelen kjøres på nytt
+        if (mangler.isEmpty()) return plan.add(this)
+
+        // Manger vi noen avhengigheter, så kan vi ikke kjøre denne regelen på nytt enda
+        mangler.forEach { avhengighet ->
+            // Om en avhengighet mangler, må de regelene kjøres på nytt
+            val avhengigRegel = produsenter[avhengighet]
+            avhengigRegel?.lagPlan(opplysninger, plan, produsenter, besøkt)
+        }
+    }
+
+    private fun lagPlanFraUtledning(
+        utledning: Utledning,
+        opplysninger: LesbarOpplysninger,
+        plan: Regelplanlegger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ) {
+        val (erErstattet, ikkeErstattet) = utledning.opplysninger.partition { opplysninger.erErstattet(listOf(it)) }
+        val utdaterteOpplysninger = ikkeErstattet.filter { it.erUtdatert }
+
+        when {
             // Sjekk om produktet er basert på utdatert informasjon
-            val utdaterteOpplysninger = ikkeErstattet.filter { it.erUtdatert }
-            if (utdaterteOpplysninger.isNotEmpty()) {
-                // Minst en av opplysningene som regelen er avhengig av er utdatert, regelen skal kjøres på nytt
-                utdaterteOpplysninger.forEach { utdatert ->
-                    val produsent =
-                        produsenter[utdatert.opplysningstype] ?: return
-
-                    produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
-                }
-
-                return
+            utdaterteOpplysninger.isNotEmpty() -> {
+                lagPlanNårUtledereErUtdaterte(
+                    utdaterteOpplysninger,
+                    opplysninger,
+                    plan,
+                    produsenter,
+                    besøkt,
+                )
             }
 
             // Sjekk om produktet er basert på erstattet informasjon
-            if (erErstattet.isNotEmpty()) {
+            erErstattet.isNotEmpty() -> {
                 // Minst en avhengighet er erstattet, må de regelen skal kjøres på nytt
                 plan.add(this)
-                return
             }
 
             // Sjekk om regelen har fått nye avhengigheter
-            if (harRegelNyeAvhengigheter(produkt.utledetAv)) {
-                val mangler = avhengerAv.filter { opplysninger.mangler(it) }
-                if (mangler.isNotEmpty()) {
-                    mangler.forEach { avhengighet ->
-                        // Om en avhengighet mangler, må de regelene kjøres på nytt
-                        val avhengigRegel = produsenter[avhengighet]
-                        avhengigRegel?.lagPlan(opplysninger, plan, produsenter, besøkt)
-                    }
-                    // Manger vi noen avhengigheter, så kan vi ikke kjøre denne regelen på nytt enda
-                    return
-                }
-
-                // Om alle avhengigheter er tilstede, skal denne regelen kjøres på nytt
-                plan.add(this)
-                return
-            }
-        } else {
-            val avhengigheter = opplysninger.finnFlere(avhengerAv)
-
-            if (avhengigheter.size == avhengerAv.size) {
-                plan.add(this)
-            } else {
-                avhengerAv.forEach { avhengighet ->
-                    val produsent =
-                        produsenter[avhengighet]
-                    if (produsent == null) {
-                        manglendeRegler.add(avhengighet)
-                        return@forEach
-                    } // throw IllegalStateException("Fant ikke produsent for $avhengighet")
-                    produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
-                }
+            harRegelNyeAvhengigheter(utledning) -> {
+                lagPlanNårRegelenHarFåttNyeAvhengigheter(opplysninger, plan, produsenter, besøkt)
             }
         }
     }
