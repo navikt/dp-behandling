@@ -15,8 +15,6 @@ import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbrukt
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteForbruksdag
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
