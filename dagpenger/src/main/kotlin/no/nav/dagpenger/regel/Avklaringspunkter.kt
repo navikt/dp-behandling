@@ -1,5 +1,7 @@
 package no.nav.dagpenger.regel
+
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 
 @Suppress("ktlint:standard:max-line-length")
 object Avklaringspunkter {
@@ -290,6 +292,16 @@ object Avklaringspunkter {
             beskrivelse =
                 """
                 Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
+                """.trimIndent(),
+        )
+
+    val ForGammel =
+        Avklaringkode(
+            kode = "StansAlder",
+            tittel = "Bruker er over alderskravet på dagpenger",
+            beskrivelse =
+                """
+                Bruker oppfyller ikke '${kravTilAlder.navn}' i løpet av meldeperioden, vurder stans av dagpenger. 
                 """.trimIndent(),
         )
 }

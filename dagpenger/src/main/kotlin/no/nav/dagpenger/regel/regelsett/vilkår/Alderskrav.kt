@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.avklaring.Kontrollpunkt
-import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
@@ -20,7 +19,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteDagIMånedId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteMånedId
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadsdato
@@ -65,17 +64,11 @@ object Alderskrav {
     val TilleggsopplysningsKontroll = Kontrollpunkt(Avklaringspunkter.HarTilleggsopplysninger) { it.har(søknadIdOpplysningstype) }
 
     val MuligForGammel =
-        Kontrollpunkt(
-            Avklaringkode(
-                kode = "StansAlder",
-                tittel = "Bruker er over alderskravet på dagpenger",
-                beskrivelse =
-                    """
-                    Bruker oppfyller ikke '${kravTilAlder.navn}' i løpet av meldeperioden, vurder stans av dagpenger. 
-                    """.trimIndent(),
-            ),
-        ) { opplysninger ->
-            val meldeperiode = opplysninger.finnOpplysning(Beregning.meldeperiode).verdi
+        Kontrollpunkt(Avklaringspunkter.ForGammel) { opplysninger ->
+            if (opplysninger.mangler(meldeperiode)) {
+                return@Kontrollpunkt false
+            }
+            val meldeperiode = opplysninger.finnOpplysning(meldeperiode).verdi
             return@Kontrollpunkt opplysninger.har(kravTilAlder, gjelderFor = meldeperiode.tilOgMed)
         }
 }
