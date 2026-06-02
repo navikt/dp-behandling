@@ -85,13 +85,16 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                             )
                         }
 
-                        // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
+                        @Suppress("ktlint:standard:max-line-length")
                         val beskrivelse =
                             when {
                                 avsluttetArbeidssøkerperiode.sagtNei -> "Bruker har sagt nei til å stå registrert på meldekortet"
                                 avsluttetArbeidssøkerperiode.fristBrutt -> "Bruker har ikke meldt seg innen fastsatt frist"
+                                avsluttetArbeidssøkerperiode.manueltAvregistrert -> "Bruker har blitt manuelt avregistrert i arbeidssøkerregisteret"
                                 else -> "Bruker er ikke lenger registrert som saksbehandler"
                             }
+
+                        // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
                         add(
                             Avklaring(
                                 Avklaringkode(
