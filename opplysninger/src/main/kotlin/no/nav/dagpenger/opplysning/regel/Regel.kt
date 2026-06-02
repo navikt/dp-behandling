@@ -49,10 +49,6 @@ abstract class Regel<T : Any> internal constructor(
                     produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
                 }
 
-                if (this is Ekstern<*> && produkt.utledetAv.opplysninger.none { it.erUtdatert }) {
-                    plan.add(this)
-                }
-
                 return
             }
 
