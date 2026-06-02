@@ -150,6 +150,12 @@ class Opplysninger private constructor(
                 ?: throw OpplysningIkkeFunnetException("Har ikke egen opplysning med id=$opplysningId"),
         )
 
+    fun fjern(opplysningTypeId: Opplysningstype<*>) =
+        fjern(
+            egne.lastOrNull { it.id == opplysningTypeId.id.uuid }
+                ?: throw OpplysningIkkeFunnetException("Har ingen opplysning med opplysningTypeId=${opplysningTypeId.id.uuid}"),
+        )
+
     private fun fjern(
         opplysning: Opplysning<*>,
         skalOppfriske: Boolean = true,

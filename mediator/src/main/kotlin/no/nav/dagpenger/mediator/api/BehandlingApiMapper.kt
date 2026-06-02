@@ -15,7 +15,6 @@ import no.nav.dagpenger.mediator.api.models.RedigerbareOpplysningerDTO
 import no.nav.dagpenger.mediator.api.models.RegelsettDTO
 import no.nav.dagpenger.mediator.api.models.RegelsettTypeDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
-import no.nav.dagpenger.mediator.kanOppfriskes
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
@@ -27,6 +26,7 @@ import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
@@ -39,6 +39,7 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.urik
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.unntakForOpphold
@@ -99,6 +100,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning.utestengt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import java.time.LocalDateTime
+import kotlin.collections.contains
 import kotlin.io.encoding.Base64
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
@@ -143,7 +145,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         synlig = type.synlig(this.opplysninger),
                         redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                         redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
-                        kanOppfriskes = type.kanOppfriskes(),
+                        kanOppfriskes = type.kanOppfriskes(opplysninger.any { it.id in egneId }),
                         formål = type.tilFormålDTO(),
                     )
                 }),
@@ -157,6 +159,14 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             sistEndret = sistEndret,
         )
     }
+
+private val kanOppfriskes =
+    setOf(
+        inntektFraSkatt,
+        grunnbeløpForDagpengeGrunnlag,
+    )
+
+private fun Opplysningstype<*>.kanOppfriskes(finnesIEgne: Boolean): Boolean = this in kanOppfriskes && finnesIEgne
 
 private fun Pair<Behandling.TilstandType, LocalDateTime>.tilTilstandDTO() =
     when (first) {

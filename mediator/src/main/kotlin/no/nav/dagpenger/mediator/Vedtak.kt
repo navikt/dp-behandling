@@ -189,7 +189,8 @@ private fun Opplysningstype<*>.tilFormålDTO(): FormålDTO =
         Opplysningsformål.Regel -> FormålDTO.REGEL
     }
 
-fun Opplysningstype<*>.kanOppfriskes(): Boolean =
+@Deprecated("Brukes bare av VedtadkDTO. Den skal bort.")
+private fun Opplysningstype<*>.kanOppfriskes(): Boolean =
     this in
         setOf(
             inntektFraSkatt,

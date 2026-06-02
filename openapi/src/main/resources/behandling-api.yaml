@@ -781,8 +781,6 @@ paths:
 
 components:
   schemas:
-
-
     Rekjoring:
       type: object
       required:
@@ -790,10 +788,10 @@ components:
       properties:
         ident:
           $ref: '#/components/schemas/Personident'
-        opplysninger:
+        oppfrisk:
           type: array
           items:
-            $ref: '#/components/schemas/OpplysningsId'
+            $ref: '#/components/schemas/OpplysningTypeId'
 
     IdentForesporsel:
       type: object

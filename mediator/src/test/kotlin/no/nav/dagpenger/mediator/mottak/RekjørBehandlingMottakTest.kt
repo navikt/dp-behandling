@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class RekjørBehandlingMottakTest {
     private val mediator = mockk<MessageMediator>(relaxed = true)
 
-    private val rapid = TestRapid().also { RekjørBehandlingMottak(it, mediator) }
+    private val rapid = TestRapid().also { RekjørBehandlingMottak(it, mediator, emptySet()) }
 
     @Test
     fun `tar imot rekjøringer`() {

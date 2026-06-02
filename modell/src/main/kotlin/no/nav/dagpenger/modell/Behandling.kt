@@ -615,7 +615,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             hendelse.info("Mottok beskjed om rekjøring av behandling")
-            hendelse.oppfriskOpplysningIder.map {
+            hendelse.oppfriskOpplysningIder.forEach {
                 behandling.opplysninger.fjern(it)
             }
             behandling.tilstand(Redigert(), hendelse)
@@ -946,7 +946,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             hendelse.info("Mottok beskjed om rekjøring av behandling")
-            hendelse.oppfriskOpplysningIder.map {
+            hendelse.oppfriskOpplysningIder.forEach {
                 behandling.opplysninger.fjern(it)
             }
             behandling.tilstand(Redigert(), hendelse)

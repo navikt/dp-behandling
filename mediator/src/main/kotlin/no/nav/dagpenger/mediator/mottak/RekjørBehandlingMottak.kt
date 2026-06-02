@@ -15,10 +15,12 @@ import no.nav.dagpenger.mediator.MessageMediator
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
+import no.nav.dagpenger.opplysning.Opplysningstype
 
 internal class RekjørBehandlingMottak(
     rapidsConnection: RapidsConnection,
     private val messageMediator: MessageMediator,
+    private val opplysningstyper: Set<Opplysningstype<*>>,
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
@@ -46,7 +48,7 @@ internal class RekjørBehandlingMottak(
             logger.info { "Mottok hendelse om at behandlingen skal rekjøres" }
             sikkerlogg.info { "Mottok hendelse om at behandlingen skal rekjøres: ${packet.toJson()}" }
 
-            val message = RekjørBehandlingMessage(packet)
+            val message = RekjørBehandlingMessage(packet, opplysningstyper)
             message.behandle(messageMediator, context)
         }
     }
@@ -59,8 +61,15 @@ internal class RekjørBehandlingMottak(
 
 internal class RekjørBehandlingMessage(
     private val packet: JsonMessage,
+    private val opplysningstyper: Set<Opplysningstype<*>>,
 ) : HåndterbarKafkaMelding(packet) {
     override val ident get() = packet["ident"].asString()
+
+    private val oppfriskOpplysninger: List<Opplysningstype<*>> =
+        packet["oppfriskOpplysningIder"].values().map {
+            val opplysningstypeId = it.asUUID()
+            opplysningstyper.single { opplysningstype -> opplysningstype.id.uuid == opplysningstypeId }
+        }
 
     private val hendelse
         get() =
@@ -69,7 +78,7 @@ internal class RekjørBehandlingMessage(
                 ident,
                 packet["behandlingId"].asUUID(),
                 opprettet,
-                packet["oppfriskOpplysningIder"].toList().map { it.asUUID() },
+                oppfriskOpplysninger,
             )
 
     override fun behandle(

@@ -79,7 +79,7 @@ internal class MessageMediator(
         OppgaveSendtTilKontroll(rapidsConnection, this)
         OpplysningSvarMottak(rapidsConnection, this, opplysningstyper)
         PåminnelseMottak(rapidsConnection, this)
-        RekjørBehandlingMottak(rapidsConnection, this)
+        RekjørBehandlingMottak(rapidsConnection, this, opplysningstyper)
         UtbetalingStatusMottak(rapidsConnection, this)
     }
 

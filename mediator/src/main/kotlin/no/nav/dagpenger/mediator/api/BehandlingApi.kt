@@ -398,7 +398,10 @@ internal fun Application.behandlingApi(
                     post("rekjor") {
                         val rekjøring = call.receive<RekjoringDTO>()
 
-                        logger.info { "Kjører behandling på nytt, oppfrisker=${rekjøring.opplysninger}" }
+                        logger.info { "Kjører behandling på nytt, oppfrisker=${rekjøring.oppfrisk}" }
+
+                        val oppfrisk =
+                            rekjøring.oppfrisk?.map { type -> opplysningstyper.single { it.id == type } } ?: emptyList()
 
                         val hendelse =
                             RekjørBehandlingHendelse(
@@ -406,14 +409,14 @@ internal fun Application.behandlingApi(
                                 rekjøring.ident,
                                 call.behandlingId,
                                 LocalDateTime.now(),
-                                rekjøring.opplysninger ?: emptyList(),
+                                oppfrisk,
                             ).apply {
                                 info("Rekjør behandling", rekjøring.ident, call.saksbehandlerId(), AuditOperasjon.UPDATE)
                             }
 
-                        when (rekjøring.opplysninger?.isEmpty()) {
+                        when (oppfrisk.isEmpty()) {
                             // Hvis ingen opplysninger er endret kan vi kjøre synkront
-                            null, true -> {
+                            true -> {
                                 hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
                             }
 
@@ -421,7 +424,7 @@ internal fun Application.behandlingApi(
                             false -> {
                                 val behandling = hentBehandling(personRepository, call.behandlingId)
                                 // TODO: Vi bør klare å vente på alle endringene
-                                val opplysning = behandling.opplysninger().finnOpplysning(rekjøring.opplysninger!!.first())
+                                val opplysning = behandling.opplysninger().finnOpplysning(oppfrisk.last())
 
                                 apiRepositoryPostgres.endreOpplysning(call.behandlingId, opplysning.opplysningstype.behovId) {
                                     hendelseMediator.behandle(hendelse, messageContext(rekjøring.ident))
