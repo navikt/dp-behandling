@@ -15,6 +15,7 @@ import no.nav.dagpenger.mediator.api.models.RedigerbareOpplysningerDTO
 import no.nav.dagpenger.mediator.api.models.RegelsettDTO
 import no.nav.dagpenger.mediator.api.models.RegelsettTypeDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
+import no.nav.dagpenger.mediator.kanOppfriskes
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
@@ -141,6 +142,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         synlig = type.synlig(this.opplysninger),
                         redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                         redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
+                        kanOppfriskes = type.kanOppfriskes(),
                         formål = type.tilFormålDTO(),
                     )
                 }),

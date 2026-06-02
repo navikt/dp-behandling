@@ -1083,6 +1083,7 @@ components:
             - synlig
             - redigerbar
             - redigertAvSaksbehandler
+            - kanOppfriskes
             - formål
           properties:
             synlig:
@@ -1091,6 +1092,9 @@ components:
               type: boolean
             redigertAvSaksbehandler:
               type: boolean
+            kanOppfriskes:
+              type: boolean
+              description: Indikerer om opplysningen kan oppfriskes (enten hentes inn eller utledes på nytt)
             formål:
               $ref: '#/components/schemas/Formål'
 

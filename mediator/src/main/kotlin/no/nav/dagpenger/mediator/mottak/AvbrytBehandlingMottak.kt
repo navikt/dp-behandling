@@ -73,7 +73,7 @@ internal class AvbrytBehandlingMottak(
 internal class AvbrytBehandlingMessage(
     packet: JsonMessage,
 ) : HåndterbarKafkaMelding(packet) {
-    private val årsak = packet["årsak"].asText("Avbrutt av datamaskinen")
+    private val årsak = packet["årsak"].asString("Avbrutt av datamaskinen")
 
     private val hendelse
         get() = AvbrytBehandlingHendelse(id, ident, behandlingId, årsak, opprettet)

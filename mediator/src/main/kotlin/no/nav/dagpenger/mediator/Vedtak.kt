@@ -189,7 +189,7 @@ private fun Opplysningstype<*>.tilFormålDTO(): FormålDTO =
         Opplysningsformål.Regel -> FormålDTO.REGEL
     }
 
-private fun Opplysningstype<*>.kanOppfriskes(): Boolean =
+fun Opplysningstype<*>.kanOppfriskes(): Boolean =
     this in
         setOf(
             inntektFraSkatt,
