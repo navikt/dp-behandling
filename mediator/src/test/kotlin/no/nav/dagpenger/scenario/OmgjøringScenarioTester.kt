@@ -333,7 +333,7 @@ class OmgjøringScenarioTester {
                         RettighetsperiodeDTO(1.januar(2018), 24.januar(2018), true, opprinnelse = OpprinnelseDTO.ARVET),
                         RettighetsperiodeDTO(25.januar(2018), 13.februar(2018), false, opprinnelse = OpprinnelseDTO.ARVET),
                         RettighetsperiodeDTO(14.februar(2018), 18.februar(2018), false, opprinnelse = OpprinnelseDTO.NY),
-                        RettighetsperiodeDTO(19.februar(2018), null, true, opprinnelse = OpprinnelseDTO.NY),
+                        RettighetsperiodeDTO(19.februar(2018), 30.juni(2060), true, opprinnelse = OpprinnelseDTO.NY),
                     )
 
                 with(opplysninger(Beregning.forbruk)) {

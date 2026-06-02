@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
@@ -24,18 +25,31 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadsdato
 import java.time.LocalDate
+import java.time.LocalDate.MAX
 
 object Alderskrav {
     val fødselsdato = dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)
 
     private val aldersgrense = heltall(AldersgrenseId, "Aldersgrense", synlig = aldriSynlig, enhet = Enhet.År)
     private val sisteMåned = dato(SisteMånedId, "Dato søker når maks alder", synlig = aldriSynlig)
-    private val sisteDagIMåned =
-        dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav", gyldighetsperiode = { a, b ->
-            GyldighetsperiodeStrategi.minsteMulige<LocalDate>().gyldighetsperiode(a, b).copy(tilOgMed = a)
-        })
+    private val sisteDagIMåned = dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav")
 
-    val kravTilAlder = boolsk(KravTilAlderId, "Oppfyller kravet til alder")
+    // Gyldighetsperiode for kravTilAlder=true avsluttes ved sisteDagIMåned slik at
+    // harLøpendeRett ikke arver en åpen periode forbi aldersgrensen.
+    val kravTilAlder =
+        boolsk(
+            KravTilAlderId,
+            "Oppfyller kravet til alder",
+            gyldighetsperiode = { oppfyllerKravTilAlder, basertPå ->
+                val base = GyldighetsperiodeStrategi.minsteMulige<Boolean>().gyldighetsperiode(oppfyllerKravTilAlder, basertPå)
+                if (!oppfyllerKravTilAlder) {
+                    base
+                } else {
+                    val grense = basertPå.find { it.opplysningstype == sisteDagIMåned }?.verdi as? LocalDate
+                    if (grense != null && grense != MAX) Gyldighetsperiode(base.fraOgMed, minOf(base.tilOgMed, grense)) else base
+                }
+            },
+        )
 
     val regelsett =
         vilkår(
