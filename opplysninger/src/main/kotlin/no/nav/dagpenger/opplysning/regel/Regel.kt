@@ -10,6 +10,8 @@ import no.nav.dagpenger.opplysning.Regelplanlegger
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
 
+typealias Regelkø = ArrayDeque<Regel<*>>
+
 abstract class Regel<T : Any> internal constructor(
     internal val produserer: Opplysningstype<T>,
     // todo: Bør dette være et Set? Vi er ikke avhengig av rekkefølge
@@ -21,22 +23,22 @@ abstract class Regel<T : Any> internal constructor(
         }
     }
 
+    // Beslutter om denne regelen skal legges til planen,
+    // eller om avhengigheter skal legges i køen for videre evaluering.
     internal open fun lagPlan(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
+        kø: Regelkø,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
     ) {
-        if (besøkt.contains(this)) return else besøkt.add(this)
-
         val produkt = opplysninger.finnNullableOpplysning(produserer)
         when {
             produkt == null -> {
-                lagPlanNårProduktMangler(opplysninger, plan, produsenter, besøkt)
+                lagPlanNårProduktMangler(opplysninger, plan, kø, produsenter)
             }
 
             produkt.utledetAv != null -> {
-                lagPlanFraUtledning(produkt.utledetAv, opplysninger, plan, produsenter, besøkt)
+                lagPlanFraUtledning(produkt.utledetAv, opplysninger, plan, kø, produsenter)
             }
 
             else -> {
@@ -48,58 +50,49 @@ abstract class Regel<T : Any> internal constructor(
     private fun lagPlanNårProduktMangler(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
+        kø: Regelkø,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
     ) {
         val avhengigheter = opplysninger.finnFlere(avhengerAv)
-
         if (avhengigheter.size == avhengerAv.size) {
+            // Alle avhengigheter er tilstede — legg denne regelen til planen
             plan.add(this)
         } else {
+            // Minst én avhengighet mangler — kø inn produsentene
             avhengerAv.forEach { avhengighet ->
-                val produsent =
-                    produsenter[avhengighet]
+                val produsent = produsenter[avhengighet]
                 if (produsent == null) {
                     manglendeRegler.add(avhengighet)
                     return@forEach
-                } // throw IllegalStateException("Fant ikke produsent for $avhengighet")
-                produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
+                }
+                kø.add(produsent)
             }
         }
     }
 
     private fun lagPlanNårUtledereErUtdaterte(
         utdaterteOpplysninger: List<Opplysning<*>>,
-        opplysninger: LesbarOpplysninger,
-        plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
+        kø: Regelkø,
     ) {
         // Minst en av opplysningene som regelen er avhengig av er utdatert, regelen skal kjøres på nytt
         utdaterteOpplysninger.forEach { utdatert ->
             val produsent =
                 produsenter[utdatert.opplysningstype] ?: return
-
-            produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
+            kø.add(produsent)
         }
     }
 
     private fun lagPlanNårRegelenHarFåttNyeAvhengigheter(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
+        kø: Regelkø,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
     ) {
         val mangler = avhengerAv.filter { opplysninger.mangler(it) }
-
-        // Om alle avhengigheter er tilstede, skal denne regelen kjøres på nytt
         if (mangler.isEmpty()) return plan.add(this)
-
-        // Manger vi noen avhengigheter, så kan vi ikke kjøre denne regelen på nytt enda
         mangler.forEach { avhengighet ->
-            // Om en avhengighet mangler, må de regelene kjøres på nytt
-            val avhengigRegel = produsenter[avhengighet]
-            avhengigRegel?.lagPlan(opplysninger, plan, produsenter, besøkt)
+            produsenter[avhengighet]?.let { kø.add(it) }
         }
     }
 
@@ -107,8 +100,8 @@ abstract class Regel<T : Any> internal constructor(
         utledning: Utledning,
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
+        kø: Regelkø,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
     ) {
         val (erErstattet, ikkeErstattet) = utledning.opplysninger.partition { opplysninger.erErstattet(listOf(it)) }
         val utdaterteOpplysninger = ikkeErstattet.filter { it.erUtdatert }
@@ -116,13 +109,7 @@ abstract class Regel<T : Any> internal constructor(
         when {
             // Sjekk om produktet er basert på utdatert informasjon
             utdaterteOpplysninger.isNotEmpty() -> {
-                lagPlanNårUtledereErUtdaterte(
-                    utdaterteOpplysninger,
-                    opplysninger,
-                    plan,
-                    produsenter,
-                    besøkt,
-                )
+                lagPlanNårUtledereErUtdaterte(utdaterteOpplysninger, produsenter, kø)
             }
 
             // Sjekk om produktet er basert på erstattet informasjon
@@ -133,7 +120,7 @@ abstract class Regel<T : Any> internal constructor(
 
             // Sjekk om regelen har fått nye avhengigheter
             harRegelNyeAvhengigheter(utledning) -> {
-                lagPlanNårRegelenHarFåttNyeAvhengigheter(opplysninger, plan, produsenter, besøkt)
+                lagPlanNårRegelenHarFåttNyeAvhengigheter(opplysninger, plan, kø, produsenter)
             }
         }
     }

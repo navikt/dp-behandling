@@ -11,11 +11,9 @@ class TomRegel<T : Any> internal constructor(
     override fun lagPlan(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
+        kø: Regelkø,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        return
-    }
+    ) = Unit
 
     override fun kjør(opplysninger: LesbarOpplysninger): T = throw IllegalStateException("Kan ikke kjøres")
 
