@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
@@ -16,18 +17,20 @@ class TidsbegrensetBortfallTest {
             inntektSiste12Mnd = 500000
         }.test {
             person.søkDagpenger(21.juni(2018))
-
             behovsløsere.løsTilForslag()
 
             // Saksbehandler ilegger tidsbegrenset bortfall på 5 dager
             saksbehandler.endreOpplysning(TidsbegrensetBortfall.harTidsbegrensetBortfall, true)
             saksbehandler.endreOpplysning(TidsbegrensetBortfall.antallBortfallsdager, 5)
 
+            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, true)
+            saksbehandler.endreOpplysning(Sanksjonsperiode.antallSanksjonsdager, 2)
+
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat {
+            behandlingsresultat(1) {
                 rettighetsperioder.single().harRett shouldBe true
             }
 
@@ -35,7 +38,7 @@ class TidsbegrensetBortfallTest {
             person.sendInnMeldekort(1)
             meldekortBatch(true)
 
-            behandlingsresultat {
+            behandlingsresultat(2) {
                 // Stønadsdager forbrukes normalt (alle 7 arbeidsdager)
                 with(opplysninger(Beregning.forbruk)) {
                     count { it.verdi.verdi == true } shouldBe 7
@@ -44,10 +47,13 @@ class TidsbegrensetBortfallTest {
                 with(opplysninger(Beregning.gjenståendeBortfallsdager)) {
                     last().verdi.verdi shouldBe 0
                 }
+                with(opplysninger(Beregning.gjenståendeSanksjonsdager)) {
+                    last().verdi.verdi shouldBe 0
+                }
 
-                // 5 dager markert som bortfall (de 5 tidligste arbeidsdagene)
+                // 7 dager markert som bortfall (5 + 2 fra to samtidige sanksjoner)
                 with(opplysninger(Beregning.erBortfallsdag)) {
-                    count { it.verdi.verdi == true } shouldBe 5
+                    count { it.verdi.verdi == true } shouldBe 7
                 }
 
                 // Utbetaling er vesentlig lavere enn uten bortfall (5036)

@@ -28,3 +28,19 @@ fun KvoteDefinisjon.totalKapasitet(opplysninger: LesbarOpplysninger): Int =
             else -> opplysninger.finnOpplysning(kilde.kapasitet).verdi
         }
     }
+
+fun KvoteDefinisjon.gjenståendeVed(
+    opplysninger: LesbarOpplysninger,
+    førsteDag: LocalDate,
+): Int {
+    val sisteGjenstående = opplysninger.sisteVerdiFør(gjenstående, førsteDag)
+    return sisteGjenstående ?: totalKapasitet(opplysninger)
+}
+
+private fun LesbarOpplysninger.sisteVerdiFør(
+    opplysningstype: Opplysningstype<Int>,
+    førsteDag: LocalDate,
+): Int? =
+    finnAlle(opplysningstype)
+        .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
+        ?.verdi

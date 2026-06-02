@@ -2,7 +2,7 @@ package no.nav.dagpenger.regel.regelsett.beregning
 
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.totalKapasitet
+import no.nav.dagpenger.opplysning.gjenståendeVed
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
@@ -67,23 +67,7 @@ class BeregningsperiodeFabrikk(
     private fun hentGjenståendeBortfall(førsteDag: LocalDate): Int =
         kvoter
             .filter { it.forbrukKriterium == Beregning.erBortfallsdag }
-            .sumOf { kvote -> kvote.hentGjenståendeBortfall(opplysninger, førsteDag) }
-
-    private fun KvoteDefinisjon.hentGjenståendeBortfall(
-        opplysninger: LesbarOpplysninger,
-        førsteDag: LocalDate,
-    ): Int {
-        val sisteGjenstående = opplysninger.sisteVerdiFør(gjenstående, førsteDag)
-        return sisteGjenstående ?: totalKapasitet(opplysninger)
-    }
-
-    private fun LesbarOpplysninger.sisteVerdiFør(
-        opplysningstype: no.nav.dagpenger.opplysning.Opplysningstype<Int>,
-        førsteDag: LocalDate,
-    ): Int? =
-        finnAlle(opplysningstype)
-            .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
-            ?.verdi
+            .sumOf { kvote -> kvote.gjenståendeVed(opplysninger, førsteDag) }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
