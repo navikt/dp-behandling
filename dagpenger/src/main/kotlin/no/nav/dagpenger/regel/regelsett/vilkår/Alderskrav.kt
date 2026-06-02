@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
-
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Opplysningsformål

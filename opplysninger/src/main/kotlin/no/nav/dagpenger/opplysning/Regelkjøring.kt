@@ -112,9 +112,8 @@ class Regelkjøring(
             val rapport = evaluerDag(dato)
             totalRapport = totalRapport?.plus(rapport) ?: rapport
 
-            if (rapport.informasjonsbehov.isNotEmpty() || rapport.ingenFremgang) {
-                // Om en dag sier den har behov må de løses før vi kan videre til neste dag,
-                // eller om vi ikke kan gjøre fremgang (opplysninger utenfor gyldighetsperiode).
+            if (rapport.informasjonsbehov.isNotEmpty()) {
+                // Om en dag sier den har behov må de løses før vi kan videre til neste dag
                 break
             }
         }
@@ -159,7 +158,6 @@ class Regelkjøring(
             informasjonsbehov = kjøreplan.siste.informasjonsbehov(gjeldendeRegler),
             foreldreløse = opplysninger.fjernet(),
             prøvingsdato = listOf(prøvingsdato),
-            ingenFremgang = kjøreplan.ingenFremgang,
         ).also { rapport ->
             observatører.forEach { observer ->
                 val aktiveOpplysninger = opplysninger.kunEgne.forDato(prøvingsdato)
@@ -175,7 +173,6 @@ class Regelkjøring(
     private class Kjøreplan(
         val siste: Regelkjøringstilstand,
         val historikk: List<Regelkjøringstilstand> = emptyList(),
-        val ingenFremgang: Boolean = false,
     ) {
         fun skalKjøre() = siste.plan.isNotEmpty()
 
@@ -183,15 +180,9 @@ class Regelkjøring(
             siste.kjørRegelPlan(lesbarOpplysninger)
 
         fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan {
+            // loop detection
             if (regelkjøringstilstand.plan == siste.plan) {
-                // Nødvendige opplysninger er ikke tilgjengelige for prøvingsdato (f.eks. gyldighetsperiode utløpt).
-                // Stopp regelkjøring for denne dagen istedenfor å gå i loop.
-                error("Loop detektert! Vi stopper")
-                return Kjøreplan(
-                    siste = siste.copy(plan = emptySet()),
-                    historikk = historikk.plusElement(siste),
-                    ingenFremgang = true,
-                )
+                error("Går i loop! Planlegger samme plan vi har fra før")
             }
             return Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
         }
@@ -214,17 +205,6 @@ class Regelkjøring(
                 }
                 kjøreplan =
                     kjøreplan.nyPlan(aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring))
-            }
-            if (kjøreplan.ingenFremgang) {
-                logger.warn {
-                    "Regelkjøring stopper for $prøvingsdato: nødvendige opplysninger er ikke tilgjengelige " +
-                        "(gyldighetsperiode kan være utløpt). Regler som ikke ble fullført: " +
-                        kjøreplan.historikk
-                            .lastOrNull()
-                            ?.plan
-                            ?.joinToString { it.produserer.navn }
-                            .orEmpty()
-                }
             }
             return kjøreplan to regelresultater.toList()
         } catch (err: RegelkjøringException) {
@@ -431,7 +411,6 @@ data class Regelkjøringsrapport(
     val informasjonsbehov: Informasjonsbehov,
     val foreldreløse: Set<Opplysning<*>>,
     val prøvingsdato: List<LocalDate>,
-    val ingenFremgang: Boolean = false,
 ) {
     fun manglerOpplysninger(): Boolean = mangler.isNotEmpty()
 
@@ -444,7 +423,6 @@ data class Regelkjøringsrapport(
             informasjonsbehov = this.informasjonsbehov + other.informasjonsbehov,
             foreldreløse = this.foreldreløse + other.foreldreløse,
             prøvingsdato = this.prøvingsdato + other.prøvingsdato,
-            ingenFremgang = this.ingenFremgang || other.ingenFremgang,
         )
 }
 

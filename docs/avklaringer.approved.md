@@ -76,14 +76,6 @@ Søker har oppgitt arbeid fra EØS, Sveits eller Storbritannia i søknaden. <br>
 - Inntektsopplysninger
 
 ---
-## ForGammel
-- **Kode:** `ForGammel`
-- **Kan lukkes av saksbehandler:** ✅ 
-- **Lukkes automatisk når opplysningene endres:** ✅ 
-### Beskrivelse
-ForGammel beskrivelse
-
----
 ## Andre fulle ytelser etter folketrygdloven
 - **Kode:** `FulleYtelser`
 - **Kan lukkes av saksbehandler:** ✅ 
@@ -303,6 +295,14 @@ Sjekk at valgt prøvingsdato er riktig.
 
 ### Opplysninger avklaringen ser på
 - Prøvingsdato
+
+---
+## Bruker er over alderskravet på dagpenger
+- **Kode:** `StansAlder`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
+### Beskrivelse
+Bruker oppfyller ikke 'Oppfyller kravet til alder' i løpet av meldeperioden, vurder stans av dagpenger. 
 
 ---
 ## Svangerskapsrelaterte sykepenger
