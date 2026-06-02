@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+
 import no.nav.dagpenger.avklaring.Kontrollpunkt
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
@@ -8,7 +9,6 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
-import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilÅr
 import no.nav.dagpenger.opplysning.regel.dato.sisteDagIMåned
@@ -21,35 +21,19 @@ import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteDagIMånedId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteMånedId
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadsdato
-import java.time.LocalDate
-import java.time.LocalDate.MAX
 
 object Alderskrav {
     val fødselsdato = dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)
 
     private val aldersgrense = heltall(AldersgrenseId, "Aldersgrense", synlig = aldriSynlig, enhet = Enhet.År)
     private val sisteMåned = dato(SisteMånedId, "Dato søker når maks alder", synlig = aldriSynlig)
-    private val sisteDagIMåned = dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav")
+    val sisteDagIMåned = dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav")
 
-    // Gyldighetsperiode for kravTilAlder=true avsluttes ved sisteDagIMåned slik at
-    // harLøpendeRett ikke arver en åpen periode forbi aldersgrensen.
-    val kravTilAlder =
-        boolsk(
-            KravTilAlderId,
-            "Oppfyller kravet til alder",
-            gyldighetsperiode = { oppfyllerKravTilAlder, basertPå ->
-                val base = GyldighetsperiodeStrategi.minsteMulige<Boolean>().gyldighetsperiode(oppfyllerKravTilAlder, basertPå)
-                if (!oppfyllerKravTilAlder) {
-                    base
-                } else {
-                    val grense = basertPå.find { it.opplysningstype == sisteDagIMåned }?.verdi as? LocalDate
-                    if (grense != null && grense != MAX) Gyldighetsperiode(base.fraOgMed, minOf(base.tilOgMed, grense)) else base
-                }
-            },
-        )
+    val kravTilAlder = boolsk(KravTilAlderId, "Oppfyller kravet til alder")
 
     val regelsett =
         vilkår(
@@ -80,4 +64,19 @@ object Alderskrav {
         }
 
     val TilleggsopplysningsKontroll = Kontrollpunkt(Avklaringspunkter.HarTilleggsopplysninger) { it.har(søknadIdOpplysningstype) }
+
+    val MuligForGammel =
+        Kontrollpunkt(
+            Avklaringkode(
+                kode = "StansAlder",
+                tittel = "Bruker er over alderskravet på dagpenger",
+                beskrivelse =
+                    """
+                    Bruker oppfyller ikke '${kravTilAlder.navn}' i løpet av meldeperioden, vurder stans av dagpenger. 
+                    """.trimIndent(),
+            ),
+        ) { opplysninger ->
+            val meldeperiode = opplysninger.finnOpplysning(Beregning.meldeperiode).verdi
+            return@Kontrollpunkt opplysninger.har(kravTilAlder, gjelderFor = meldeperiode.tilOgMed)
+        }
 }

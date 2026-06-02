@@ -186,6 +186,7 @@ class Regelkjøring(
             if (regelkjøringstilstand.plan == siste.plan) {
                 // Nødvendige opplysninger er ikke tilgjengelige for prøvingsdato (f.eks. gyldighetsperiode utløpt).
                 // Stopp regelkjøring for denne dagen istedenfor å gå i loop.
+                error("Loop detektert! Vi stopper")
                 return Kjøreplan(
                     siste = siste.copy(plan = emptySet()),
                     historikk = historikk.plusElement(siste),

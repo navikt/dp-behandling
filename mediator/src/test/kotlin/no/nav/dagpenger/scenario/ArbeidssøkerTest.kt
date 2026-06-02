@@ -30,7 +30,7 @@ class ArbeidssøkerTest {
             behandlingsresultat {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().tilOgMed shouldBe 30.juni(2060)
+                rettighetsperioder.single().tilOgMed shouldBe null
             }
 
             person.sendInnMeldekort(1)
@@ -66,7 +66,7 @@ class ArbeidssøkerTest {
                     ),
                     RettighetsperiodeDTO(
                         fraOgMed = 19.juli(2018),
-                        tilOgMed = 30.juni(2060),
+                        tilOgMed = null,
                         harRett = false,
                         opprinnelse = OpprinnelseDTO.NY,
                     ),
@@ -91,7 +91,7 @@ class ArbeidssøkerTest {
             behandlingsresultat {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().tilOgMed shouldBe 30.juni(2060)
+                rettighetsperioder.single().tilOgMed shouldBe null
             }
 
             person.sendInnMeldekort(1)
@@ -149,7 +149,7 @@ class ArbeidssøkerTest {
             behandlingsresultat {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().tilOgMed shouldBe 30.juni(2060)
+                rettighetsperioder.single().tilOgMed shouldBe null
             }
 
             person.sendInnMeldekort(1)

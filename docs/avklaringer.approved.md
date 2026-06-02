@@ -76,6 +76,14 @@ Søker har oppgitt arbeid fra EØS, Sveits eller Storbritannia i søknaden. <br>
 - Inntektsopplysninger
 
 ---
+## ForGammel
+- **Kode:** `ForGammel`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
+### Beskrivelse
+ForGammel beskrivelse
+
+---
 ## Andre fulle ytelser etter folketrygdloven
 - **Kode:** `FulleYtelser`
 - **Kan lukkes av saksbehandler:** ✅ 
