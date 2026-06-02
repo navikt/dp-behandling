@@ -36,6 +36,7 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ikkeU
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.holderTilbake
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.unnlateråEtterkommePålegg
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.uriktigeOpplysninger
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.medlemFolketrygden
@@ -281,6 +282,8 @@ internal val redigerbareOpplysninger =
                             // 4-22 Streik og lockout
                             deltarIStreikOgLockout,
                             sammeBedriftOgPåvirket,
+                            // 4-23 Krav til alder
+                            kravTilAlder,
                             // 4-24 Fulle ytelser
                             ikkeFulleYtelser,
                             // 4-25 Samordning
