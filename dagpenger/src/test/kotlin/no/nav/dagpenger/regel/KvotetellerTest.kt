@@ -8,9 +8,9 @@ import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
-import no.nav.dagpenger.opplysning.KvoteKilde
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.sortertEtterIlagtDato
 import no.nav.dagpenger.opplysning.tomHjemmel
@@ -86,48 +86,6 @@ class KvotetellerTest {
     }
 
     @Test
-    fun `summerer aktive kvotekilder og ignorerer inaktive`() {
-        val annenKapasitet = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Annen kapasitet")
-        val inaktivKapasitet = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Inaktiv kapasitet")
-        val inaktiv = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Inaktiv")
-
-        val kvoteteller =
-            lagKvoteteller(
-                kilder =
-                    listOf(
-                        KvoteKilde(kapasitet, aktiv),
-                        KvoteKilde(annenKapasitet, aktiv),
-                        KvoteKilde(inaktivKapasitet, inaktiv),
-                    ),
-            )
-
-        val opplysninger =
-            Opplysninger().apply {
-                leggTil(Faktum(kapasitet, 2, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(annenKapasitet, 2, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(aktiv, true, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(inaktivKapasitet, 4, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(inaktiv, false, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(7.januar(2025), 7.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(8.januar(2025), 8.januar(2025))))
-            }
-
-        KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
-
-        opplysninger
-            .finnAlle(forbruktTeller)
-            .sortedBy { it.gyldighetsperiode.fraOgMed }
-            .last()
-            .verdi shouldBe 3
-        opplysninger
-            .finnAlle(gjenstående)
-            .sortedBy { it.gyldighetsperiode.fraOgMed }
-            .last()
-            .verdi shouldBe 1
-    }
-
-    @Test
     fun `kan konfigureres med generell kvotedefinisjon`() {
         val kvoteteller =
             lagKvoteteller(
@@ -138,7 +96,7 @@ class KvotetellerTest {
                         "Sanksjonsperiode ved selvforskyldt arbeidsløshet",
                         "Sanksjonsperiode",
                     ),
-                kilder = listOf(KvoteKilde(kapasitet, aktiv)),
+                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet, aktiv),
                 forbrukKriterium = forbruk,
             )
 
@@ -159,7 +117,7 @@ class KvotetellerTest {
     fun `kvoteteller er generell og type-uavhengig`() {
         val kvoteteller =
             lagKvoteteller(
-                forbrukstype = Forbrukstype.BORTFALL,
+                forbrukstype = Forbrukstype.Bortfall,
                 forbrukKriterium = forbruk,
             )
 
@@ -222,7 +180,7 @@ class KvotetellerTest {
             lagKvoteteller(
                 hjemmel = tomHjemmel("Tidsbegrenset bortfall"),
                 kapasitet = TidsbegrensetBortfall.antallBortfallsdager,
-                forbrukstype = Forbrukstype.BORTFALL,
+                forbrukstype = Forbrukstype.Bortfall,
                 forbrukKriterium = Beregning.erBortfallsdag,
                 forbruktTeller = Beregning.forbruktBortfallsdager,
                 gjenstående = Beregning.gjenståendeBortfallsdager,
@@ -258,12 +216,12 @@ class KvotetellerTest {
         val medIlagtDato =
             lagKvoteteller(
                 hjemmel = tomHjemmel("Med ilagt dato"),
-                kilder = listOf(KvoteKilde(kapasitet, aktiv)),
+                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet, aktiv),
             ).definisjon
         val utenIlagtDato =
             lagKvoteteller(
                 hjemmel = tomHjemmel("Uten ilagt dato"),
-                kilder = listOf(KvoteKilde(kapasitet)),
+                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
             ).definisjon
 
         val sortert =
@@ -285,22 +243,22 @@ class KvotetellerTest {
                 "Sanksjonsperiode",
             ),
         kapasitet: Opplysningstype<Int> = this.kapasitet,
-        forbrukstype: Forbrukstype = Forbrukstype.ORDINÆR,
+        forbrukstype: Forbrukstype = Forbrukstype.Rettighet,
         forbrukKriterium: Opplysningstype<Boolean> = forbruk,
         forbruktTeller: Opplysningstype<Int> = this.forbruktTeller,
         gjenstående: Opplysningstype<Int> = this.gjenstående,
-        kilder: List<KvoteKilde> = listOf(KvoteKilde(kapasitet)),
+        tildelingsgrunnlag: Tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
         sisteDagMedForbruk: Opplysningstype<LocalDate> = this.sisteDagMedForbruk,
         sisteGjenstående: Opplysningstype<Int> = this.sisteGjenstående,
     ) = Kvoteteller(
         KvoteDefinisjon(
             hjemmel = hjemmel,
             forbrukstype = forbrukstype,
-            kilder = kilder,
-            forbrukKriterium = forbrukKriterium,
-            forbruktTeller = forbruktTeller,
+            tildelingsgrunnlag = tildelingsgrunnlag,
+            tellesNår = forbrukKriterium,
+            forbruksteller = forbruktTeller,
             gjenstående = gjenstående,
-            sisteDagMedForbruk = sisteDagMedForbruk,
+            sisteForbruk = sisteDagMedForbruk,
             sisteGjenstående = sisteGjenstående,
         ),
     )

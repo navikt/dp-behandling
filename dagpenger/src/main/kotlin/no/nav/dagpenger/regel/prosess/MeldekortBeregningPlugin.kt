@@ -8,6 +8,9 @@ import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
+import no.nav.dagpenger.opplysning.allokeringskjede
+import no.nav.dagpenger.opplysning.erEksklusivt
+import no.nav.dagpenger.opplysning.gjenståendeVed
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Kvoteteller
@@ -102,8 +105,8 @@ class MeldekortBeregningPlugin(
             sortedBy { it.dag.dato }
                 .let { forbruksdager ->
                     mapOf(
-                        Forbrukstype.ORDINÆR to ArrayDeque(forbruksdager.filterNot { it.erBortfall }),
-                        Forbrukstype.BORTFALL to ArrayDeque(forbruksdager.filter { it.erBortfall }),
+                        Forbrukstype.Rettighet to ArrayDeque(forbruksdager.filterNot { it.erBortfall }),
+                        Forbrukstype.Bortfall to ArrayDeque(forbruksdager.filter { it.erBortfall }),
                     )
                 }
 
@@ -127,7 +130,7 @@ class MeldekortBeregningPlugin(
         meldeperiode: Periode,
         forbruksdager: List<Beregningresultat.Forbruksdag>,
     ): Kvotetellingsresultat =
-        if (erEtterfølgendeForbruk()) {
+        if (erEksklusivt()) {
             beregnMedTildelteDager(opplysninger, meldeperiode, forbruksdager)
         } else {
             Kvoteteller(this).beregn(opplysninger)

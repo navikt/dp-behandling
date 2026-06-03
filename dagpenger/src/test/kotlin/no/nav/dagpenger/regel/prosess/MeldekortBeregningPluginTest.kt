@@ -2,11 +2,11 @@ package no.nav.dagpenger.regel.prosess
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Forbruksrekkefølge
 import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosesskontekst
+import no.nav.dagpenger.opplysning.erEksklusivt
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.RegelverkDagpenger
@@ -96,12 +96,12 @@ class MeldekortBeregningPluginTest {
         val sanksjonskvoter =
             RegelverkDagpenger
                 .kvoter()
-                .filter { it.forbruksrekkefølge == Forbruksrekkefølge.ETTERFØLGENDE }
+                .filter { it.erEksklusivt() }
 
         sanksjonskvoter.map { it.navn } shouldBe listOf("Sanksjonsperiode", "Tidsbegrenset bortfall")
-        sanksjonskvoter.map { it.forbrukstype }.toSet() shouldBe setOf(Forbrukstype.BORTFALL)
-        sanksjonskvoter.flatMap { it.kilder }.all { it.aktiveresAv != null } shouldBe true
-        sanksjonskvoter.map { it.forbruksrekkefølge }.toSet() shouldBe setOf(Forbruksrekkefølge.ETTERFØLGENDE)
+        sanksjonskvoter.map { it.forbrukstype }.toSet() shouldBe setOf(Forbrukstype.Bortfall)
+        sanksjonskvoter.all { it.tildelingsgrunnlag.harAktiveringskilde() } shouldBe true
+        sanksjonskvoter.all { it.erEksklusivt() } shouldBe true
     }
 
     @Nested

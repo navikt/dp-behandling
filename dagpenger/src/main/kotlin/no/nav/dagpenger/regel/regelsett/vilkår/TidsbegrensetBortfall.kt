@@ -2,8 +2,8 @@ package no.nav.dagpenger.regel.regelsett.vilkår
 
 import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
-import no.nav.dagpenger.opplysning.KvoteKilde
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
@@ -33,14 +33,13 @@ object TidsbegrensetBortfall {
             kvote(
                 KvoteDefinisjon(
                     hjemmel = hjemmel,
-                    kilder = listOf(KvoteKilde(antallBortfallsdager, harTidsbegrensetBortfall)),
-                    forbrukKriterium = Beregning.erBortfallsdag,
-                    forbruktTeller = Beregning.forbruktBortfallsdager,
+                    tildelingsgrunnlag = Tildelingsgrunnlag(antallBortfallsdager, harTidsbegrensetBortfall),
+                    tellesNår = Beregning.erBortfallsdag,
+                    forbruksteller = Beregning.forbruktBortfallsdager,
                     gjenstående = Beregning.gjenståendeBortfallsdager,
-                    sisteDagMedForbruk = Beregning.sisteBortfallsdagMedForbruk,
+                    sisteForbruk = Beregning.sisteBortfallsdagMedForbruk,
                     sisteGjenstående = Beregning.sisteGjenståendeBortfallsdager,
-                    forbrukstype = Forbrukstype.BORTFALL,
-                    forbruksrekkefølge = no.nav.dagpenger.opplysning.Forbruksrekkefølge.ETTERFØLGENDE,
+                    forbrukstype = Forbrukstype.Bortfall,
                 ),
             )
 

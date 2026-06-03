@@ -3,14 +3,13 @@ package no.nav.dagpenger.regel.prosess
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Forbruksrekkefølge
 import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
-import no.nav.dagpenger.opplysning.KvoteKilde
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.regel.KvotetellingsVerdi
 import no.nav.dagpenger.regel.Kvotetellingsresultat
@@ -30,13 +29,13 @@ class KvoteLagringTest {
         val kvote =
             KvoteDefinisjon(
                 hjemmel = tomHjemmel("Selvbærende kvote"),
-                forbrukstype = Forbrukstype.ORDINÆR,
-                kilder = listOf(KvoteKilde(kapasitet)),
-                forbrukKriterium = no.nav.dagpenger.regel.regelsett.beregning.Beregning.erBortfallsdag,
-                forbruktTeller = no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbrukt,
-                gjenstående = no.nav.dagpenger.regel.regelsett.beregning.Beregning.gjenståendeDager,
-                sisteDagMedForbruk = no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteForbruksdag,
-                sisteGjenstående = no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager,
+                forbrukstype = Forbrukstype.Rettighet,
+                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
+                tellesNår = Beregning.erBortfallsdag,
+                forbruksteller = Beregning.forbrukt,
+                gjenstående = Beregning.gjenståendeDager,
+                sisteForbruk = Beregning.sisteForbruksdag,
+                sisteGjenstående = Beregning.sisteGjenståendeDager,
             )
 
         val resultat =
@@ -72,14 +71,13 @@ class KvoteLagringTest {
         val kvote =
             KvoteDefinisjon(
                 hjemmel = tomHjemmel("Etterfølgende kvote"),
-                kilder = listOf(KvoteKilde(kapasitet)),
-                forbrukKriterium = no.nav.dagpenger.regel.regelsett.beregning.Beregning.erBortfallsdag,
-                forbruktTeller = no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruktSanksjonsdager,
-                gjenstående = no.nav.dagpenger.regel.regelsett.beregning.Beregning.gjenståendeSanksjonsdager,
-                sisteDagMedForbruk = no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteSanksjonsdagMedForbruk,
-                sisteGjenstående = no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeSanksjonsdager,
-                forbrukstype = Forbrukstype.BORTFALL,
-                forbruksrekkefølge = Forbruksrekkefølge.ETTERFØLGENDE,
+                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
+                tellesNår = Beregning.erBortfallsdag,
+                forbruksteller = Beregning.forbruktSanksjonsdager,
+                gjenstående = Beregning.gjenståendeSanksjonsdager,
+                sisteForbruk = Beregning.sisteSanksjonsdagMedForbruk,
+                sisteGjenstående = Beregning.sisteGjenståendeSanksjonsdager,
+                forbrukstype = Forbrukstype.Bortfall,
             )
 
         val resultat =

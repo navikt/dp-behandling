@@ -1,46 +1,46 @@
 package no.nav.dagpenger.opplysning
 
 import java.time.LocalDate
-import kotlin.comparisons.nullsLast
-
-enum class Forbruksrekkefølge {
-    ETTERFØLGENDE,
-    PARALLELL,
-}
 
 enum class Forbrukstype {
-    ORDINÆR,
-    BORTFALL,
+    Rettighet,
+    Bortfall,
 }
 
 data class KvoteDefinisjon(
     val hjemmel: Hjemmel,
-    val kilder: List<KvoteKilde>,
-    val forbrukKriterium: Opplysningstype<Boolean>,
-    val forbruktTeller: Opplysningstype<Int>,
+    val tildelingsgrunnlag: Tildelingsgrunnlag,
+    val tellesNår: Opplysningstype<Boolean>,
+    val forbruksteller: Opplysningstype<Int>,
     val gjenstående: Opplysningstype<Int>,
-    val sisteDagMedForbruk: Opplysningstype<LocalDate>,
+    val sisteForbruk: Opplysningstype<LocalDate>,
     val sisteGjenstående: Opplysningstype<Int>,
-    val forbrukstype: Forbrukstype = Forbrukstype.ORDINÆR,
-    val forbruksrekkefølge: Forbruksrekkefølge = Forbruksrekkefølge.PARALLELL,
+    val forbrukstype: Forbrukstype = Forbrukstype.Rettighet,
 ) {
     val navn get() = hjemmel.kortnavn
 }
 
-data class KvoteKilde(
+data class Tildelingsgrunnlag(
     val kapasitet: Opplysningstype<Int>,
-    val aktiveresAv: Opplysningstype<Boolean>? = null,
-)
+    private val aktiveresAv: Opplysningstype<Boolean>? = null,
+) {
+    fun erAktiv(opplysninger: LesbarOpplysninger): Boolean =
+        aktiveresAv == null || (opplysninger.har(aktiveresAv) && opplysninger.erSann(aktiveresAv))
 
-fun KvoteDefinisjon.totalKapasitet(opplysninger: LesbarOpplysninger): Int =
-    kilder.sumOf { kilde ->
-        val aktiveresAv = kilde.aktiveresAv
-        when {
-            aktiveresAv != null && (!opplysninger.har(aktiveresAv) || !opplysninger.erSann(aktiveresAv)) -> 0
-            !opplysninger.har(kilde.kapasitet) -> 0
-            else -> opplysninger.finnOpplysning(kilde.kapasitet).verdi
-        }
-    }
+    fun harAktiveringskilde(): Boolean = aktiveresAv != null
+
+    fun ilagtDato(opplysninger: LesbarOpplysninger): LocalDate? =
+        aktiveresAv
+            ?.let { opplysninger.finnAlle(it) }
+            ?.filter { it.verdi }
+            ?.minOfOrNull { it.gyldighetsperiode.fraOgMed }
+}
+
+fun KvoteDefinisjon.totalKapasitet(opplysninger: LesbarOpplysninger): Int {
+    if (!tildelingsgrunnlag.erAktiv(opplysninger)) return 0
+    if (!opplysninger.har(tildelingsgrunnlag.kapasitet)) return 0
+    return opplysninger.finnOpplysning(tildelingsgrunnlag.kapasitet).verdi
+}
 
 fun KvoteDefinisjon.gjenståendeVed(
     opplysninger: LesbarOpplysninger,
@@ -50,22 +50,13 @@ fun KvoteDefinisjon.gjenståendeVed(
     return sisteGjenstående ?: totalKapasitet(opplysninger)
 }
 
-fun KvoteDefinisjon.erEtterfølgendeForbruk(): Boolean = forbruksrekkefølge == Forbruksrekkefølge.ETTERFØLGENDE
-
-fun KvoteDefinisjon.erBortfallsforbruk(): Boolean = forbrukstype == Forbrukstype.BORTFALL
+fun KvoteDefinisjon.erEksklusivt(): Boolean = forbrukstype == Forbrukstype.Bortfall
 
 fun List<KvoteDefinisjon>.allokeringskjede(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
-    filter { it.erEtterfølgendeForbruk() }.sortertEtterIlagtDato(opplysninger)
+    filter { it.erEksklusivt() }.sortertEtterIlagtDato(opplysninger)
 
-/** Første ilagte dato for en kvote, eller null når kvoten ikke har noen aktiveringskilde. */
-fun KvoteDefinisjon.ilagtDato(opplysninger: LesbarOpplysninger): LocalDate? =
-    kilder
-        .asSequence()
-        .mapNotNull { kilde -> kilde.aktiveresAv }
-        .flatMap { aktiveresAv -> opplysninger.finnAlle(aktiveresAv).asSequence() }
-        .filter { it.verdi }
-        .map { it.gyldighetsperiode.fraOgMed }
-        .minOrNull()
+/** Første ilagte dato for en kvote, basert på aktiveringsflaggets første sanne verdi. */
+fun KvoteDefinisjon.ilagtDato(opplysninger: LesbarOpplysninger): LocalDate? = tildelingsgrunnlag.ilagtDato(opplysninger)
 
 fun List<KvoteDefinisjon>.sortertEtterIlagtDato(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
     sortedWith(compareBy(nullsLast<LocalDate>()) { kvote -> kvote.ilagtDato(opplysninger) })

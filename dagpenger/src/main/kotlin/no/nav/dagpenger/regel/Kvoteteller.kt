@@ -37,7 +37,7 @@ class Kvoteteller(
     }
 
     private fun hentDagerMedForbruk(opplysninger: LesbarOpplysninger): List<Opplysning<Boolean>> =
-        opplysninger.kunEgne.finnAlle(definisjon.forbrukKriterium).sortedBy { it.gyldighetsperiode.fraOgMed }
+        opplysninger.kunEgne.finnAlle(definisjon.tellesNår).sortedBy { it.gyldighetsperiode.fraOgMed }
 
     private fun beregnForbruktTeller(
         opplysninger: LesbarOpplysninger,
@@ -59,7 +59,7 @@ class Kvoteteller(
             val gjenståendeVerdi = totalKapasitet - verdi.verdi
             require(gjenståendeVerdi >= 0) {
                 "Gjenstående kan ikke være negativt. Har $gjenståendeVerdi igjen for ${
-                    definisjon.kilder.joinToString(", ") { it.kapasitet.navn }
+                    definisjon.tildelingsgrunnlag.kapasitet.navn
                 }"
             }
 
@@ -71,7 +71,7 @@ class Kvoteteller(
         dager: List<Opplysning<Boolean>>,
     ): Int =
         opplysninger
-            .finnAlle(definisjon.forbruktTeller)
+            .finnAlle(definisjon.forbruksteller)
             .lastOrNull {
                 it.gyldighetsperiode.fraOgMed.isBefore(dager.first().gyldighetsperiode.fraOgMed)
             }?.verdi ?: 0
@@ -98,9 +98,9 @@ class KvotetellingsSkriver(
         opplysninger: Opplysninger,
         resultat: Kvotetellingsresultat,
     ) {
-        resultat.forbruktTeller.forEach { opplysninger.leggTil(Faktum(definisjon.forbruktTeller, it.verdi, it.gyldighetsperiode)) }
+        resultat.forbruktTeller.forEach { opplysninger.leggTil(Faktum(definisjon.forbruksteller, it.verdi, it.gyldighetsperiode)) }
         resultat.gjenstående.forEach { opplysninger.leggTil(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
-        resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteDagMedForbruk, it.verdi, it.gyldighetsperiode)) }
+        resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
         resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
     }
 }

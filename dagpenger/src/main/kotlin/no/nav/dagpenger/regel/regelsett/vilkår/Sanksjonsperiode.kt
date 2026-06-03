@@ -2,9 +2,9 @@ package no.nav.dagpenger.regel.regelsett.vilkår
 
 import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
-import no.nav.dagpenger.opplysning.KvoteKilde
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
@@ -39,14 +39,13 @@ object Sanksjonsperiode {
             kvote(
                 KvoteDefinisjon(
                     hjemmel = hjemmel,
-                    kilder = listOf(KvoteKilde(antallSanksjonsdager, harSanksjon)),
-                    forbrukKriterium = Beregning.erBortfallsdag,
-                    forbruktTeller = Beregning.forbruktSanksjonsdager,
+                    tildelingsgrunnlag = Tildelingsgrunnlag(antallSanksjonsdager, harSanksjon),
+                    tellesNår = Beregning.erBortfallsdag,
+                    forbruksteller = Beregning.forbruktSanksjonsdager,
                     gjenstående = Beregning.gjenståendeSanksjonsdager,
-                    sisteDagMedForbruk = Beregning.sisteSanksjonsdagMedForbruk,
+                    sisteForbruk = Beregning.sisteSanksjonsdagMedForbruk,
                     sisteGjenstående = Beregning.sisteGjenståendeSanksjonsdager,
-                    forbrukstype = Forbrukstype.BORTFALL,
-                    forbruksrekkefølge = no.nav.dagpenger.opplysning.Forbruksrekkefølge.ETTERFØLGENDE,
+                    forbrukstype = Forbrukstype.Bortfall,
                 ),
             )
 
