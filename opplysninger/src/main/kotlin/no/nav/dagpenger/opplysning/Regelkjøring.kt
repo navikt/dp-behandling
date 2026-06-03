@@ -263,13 +263,23 @@ class Regelkjøring(
                     regel.lagPlan(opplysningerPåPrøvingsdato, planlegger, kø, produsenter)
                 }
 
+                val m = Regelplanlegger()
+                val masterplan =
+                    ønsketResultat
+                        .mapNotNull { produsenter[it] }
+                        .map { it.lagPlan(opplysninger, produsenter) }
+                        .onEach {
+                            it.forEach { regel -> m.add(regel) }
+                        }
+                val (alleEkstern, alleIntern) = m.lagProduksjonsplan()
+
                 val (ekstern, intern) = planlegger.lagProduksjonsplan()
                 return Regelkjøringstilstand(
                     prøvingsdato = prøvingsdato,
                     opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
                     ønsketResultat = ønsketResultat,
-                    plan = intern,
-                    eksterneRegler = ekstern,
+                    plan = alleIntern,
+                    eksterneRegler = alleEkstern,
                 )
             }
         }

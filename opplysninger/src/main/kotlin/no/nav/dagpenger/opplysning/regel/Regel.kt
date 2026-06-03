@@ -23,6 +23,72 @@ abstract class Regel<T : Any> internal constructor(
         }
     }
 
+    /**
+     * 1. bygge tre basert på avhengighetene
+     * 2. gå gjennom tre og finn første opplysning som må produseres, enten fordi den mangler eller er utdatert
+     */
+    private data class Node(
+        val regel: Regel<*>,
+        val avhengigheter: List<Node>,
+    ) {
+        fun breadthFirstByDeepest(): List<Node> {
+            // går gjennom treet breadth-first, men gjør slik at de dypeste nodene kommer først i listen
+            val kø = mutableListOf(this)
+            val breadthFirstByDeepest = mutableListOf<Node>()
+            while (kø.isNotEmpty()) {
+                val n = kø.removeFirst()
+                breadthFirstByDeepest.addFirst(n)
+                kø.addAll(n.avhengigheter.reversed())
+            }
+            return breadthFirstByDeepest
+        }
+    }
+
+    private fun regeltre(produsenter: Map<Opplysningstype<out Any>, Regel<*>>): Node {
+        if (avhengerAv.isEmpty()) return Node(this, emptyList())
+        return Node(
+            this,
+            avhengerAv
+                .map { produsenter[it] ?: error("har ikke produsent for $it") }
+                .map { it.regeltre(produsenter) },
+        )
+    }
+
+    private fun planForRegel(
+        regeltre: Node,
+        opplysninger: LesbarOpplysninger,
+    ): Set<Regel<*>> {
+        // vi besøker de dypeste løvnodene først (de reglene som ikke avhenger av noen),
+        // før vi tar for oss nivå-for-nivå.
+        // vi gjør dette fordi planen må spesifisere hvilke regler som må kjøres før de andre, slik
+        // at opplysningene som produseres av disse reglene er tilgjengelige for reglene som kommer senere i planen.
+        val planlegger = mutableSetOf<Regel<*>>()
+        regeltre
+            .breadthFirstByDeepest()
+            .forEach { node ->
+                val produkt = opplysninger.finnNullableOpplysning(node.regel.produserer)
+                // sjekker ikke om regelen selv sin opplysning er utdatert 🤔
+                val harUtdaterteAvhengigheter = produkt?.utledetAv?.opplysninger?.any { it.erUtdatert } == true
+                // hvis en avhengighet tidligere i kjeden er planlagt skal vi også kjøre
+                val avhengighetSkalKjøre = node.avhengigheter.any { it.regel in planlegger }
+
+                if (produkt == null || harUtdaterteAvhengigheter || avhengighetSkalKjøre) {
+                    // legger til baklengs fordi produktet brukes av reglene som kommer etterpå
+                    planlegger.add(node.regel)
+                }
+            }
+        return planlegger
+    }
+
+    internal fun lagPlan(
+        opplysninger: LesbarOpplysninger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+    ): Set<Regel<*>> {
+        val regeltre = regeltre(produsenter)
+        val planForRegel = planForRegel(regeltre, opplysninger)
+        return planForRegel
+    }
+
     // Beslutter om denne regelen skal legges til planen,
     // eller om avhengigheter skal legges i køen for videre evaluering.
     internal open fun lagPlan(
