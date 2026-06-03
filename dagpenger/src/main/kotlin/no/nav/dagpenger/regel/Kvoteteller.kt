@@ -8,8 +8,6 @@ import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.totalKapasitet
 import java.time.LocalDate
-import kotlin.collections.first
-import kotlin.collections.map
 
 /**
  * Generell kvoteteller som teller forbruk av en kvote basert på en boolsk opplysning per dag.
@@ -39,7 +37,7 @@ class Kvoteteller(
     }
 
     private fun hentDagerMedForbruk(opplysninger: LesbarOpplysninger): List<Opplysning<Boolean>> =
-        opplysninger.kunEgne.finnAlle(definisjon.forbrukKriterium)
+        opplysninger.kunEgne.finnAlle(definisjon.forbrukKriterium).sortedBy { it.gyldighetsperiode.fraOgMed }
 
     private fun beregnForbruktTeller(
         opplysninger: LesbarOpplysninger,
@@ -79,7 +77,6 @@ class Kvoteteller(
             }?.verdi ?: 0
 
     private fun hentSisteDagMedForbruk(dager: List<Opplysning<Boolean>>): KvotetellingsVerdi<LocalDate>? {
-        if (definisjon.sisteDagMedForbruk == null) return null
         val sisteForbruksdag = dager.lastOrNull { it.verdi }?.gyldighetsperiode?.fraOgMed ?: return null
         return KvotetellingsVerdi(sisteForbruksdag, Gyldighetsperiode(sisteForbruksdag))
     }
@@ -88,7 +85,6 @@ class Kvoteteller(
         dager: List<Opplysning<Boolean>>,
         gjenstående: List<KvotetellingsVerdi<Int>>,
     ): KvotetellingsVerdi<Int>? {
-        if (definisjon.sisteGjenstående == null) return null
         val sisteForbruksdag = dager.lastOrNull { it.verdi }?.gyldighetsperiode?.fraOgMed ?: return null
         val sisteGjenståendeVerdi = gjenstående.lastOrNull()?.verdi ?: return null
         return KvotetellingsVerdi(sisteGjenståendeVerdi, Gyldighetsperiode(sisteForbruksdag))
@@ -104,8 +100,8 @@ class KvotetellingsSkriver(
     ) {
         resultat.forbruktTeller.forEach { opplysninger.leggTil(Faktum(definisjon.forbruktTeller, it.verdi, it.gyldighetsperiode)) }
         resultat.gjenstående.forEach { opplysninger.leggTil(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
-        resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteDagMedForbruk!!, it.verdi, it.gyldighetsperiode)) }
-        resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående!!, it.verdi, it.gyldighetsperiode)) }
+        resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteDagMedForbruk, it.verdi, it.gyldighetsperiode)) }
+        resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
     }
 }
 

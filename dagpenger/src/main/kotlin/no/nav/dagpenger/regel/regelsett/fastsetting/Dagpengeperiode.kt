@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.fastsetting
+import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.KvoteKilde
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
@@ -109,12 +110,14 @@ object Dagpengeperiode {
             kvote(
                 KvoteDefinisjon(
                     hjemmel = hjemmel,
+                    forbrukstype = Forbrukstype.ORDINÆR,
                     kilder = listOf(KvoteKilde(antallStønadsdager)),
                     forbrukKriterium = Beregning.forbruk,
                     forbruktTeller = Beregning.forbrukt,
                     gjenstående = Beregning.gjenståendeDager,
                     sisteDagMedForbruk = Beregning.sisteForbruksdag,
                     sisteGjenstående = Beregning.sisteGjenståendeDager,
+                    forbruksrekkefølge = no.nav.dagpenger.opplysning.Forbruksrekkefølge.PARALLELL,
                 ),
             )
 

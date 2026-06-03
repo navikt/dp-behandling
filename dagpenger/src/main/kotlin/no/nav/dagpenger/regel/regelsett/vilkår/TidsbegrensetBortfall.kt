@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 
+import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.KvoteKilde
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -38,6 +39,8 @@ object TidsbegrensetBortfall {
                     gjenstående = Beregning.gjenståendeBortfallsdager,
                     sisteDagMedForbruk = Beregning.sisteBortfallsdagMedForbruk,
                     sisteGjenstående = Beregning.sisteGjenståendeBortfallsdager,
+                    forbrukstype = Forbrukstype.BORTFALL,
+                    forbruksrekkefølge = no.nav.dagpenger.opplysning.Forbruksrekkefølge.ETTERFØLGENDE,
                 ),
             )
 

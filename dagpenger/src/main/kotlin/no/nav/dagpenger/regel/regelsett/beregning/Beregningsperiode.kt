@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.beregning
 
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
@@ -63,7 +62,15 @@ class Beregningsperiode private constructor(
         val utbetalingsdager = sortert.drop(bortfallsdagerIgjen).toSet()
 
         // Bortfallsdager: forbruk men 0 utbetaling, ingen egenandel
-        val bortfallForbruksdager = bortfallsdager.map { Beregningresultat.Forbruksdag(it, Beløp(0), erBortfall = true) }
+        val bortfallForbruksdager =
+            bortfallsdager.map {
+                Beregningresultat.Forbruksdag(
+                    dag = it,
+                    tilUtbetaling = Beløp(0),
+                    erBortfall = true,
+                    forbrukstype = Forbrukstype.BORTFALL,
+                )
+            }
 
         // Beregn utbetaling og egenandel kun for ikke-bortfallsdager
         if (utbetalingsdager.isEmpty()) {
@@ -187,6 +194,8 @@ data class Beregningresultat(
             override val dag: Dag,
             override val tilUtbetaling: Beløp,
         val erBortfall: Boolean = false,
+        val forbrukstype: Forbrukstype = if (erBortfall) Forbrukstype.BORTFALL else Forbrukstype.ORDINÆR,
+        val kvote: KvoteDefinisjon? = null,
     ): Beregningsdag
 
         data class IkkeForbruksdag(
@@ -210,7 +219,10 @@ private class SatsGruppe(
         val dagsbeløp = (beløp - rest) / Beløp(antall)
         return arbeidsdager.mapIndexed { index, dag ->
             val erSisteDag = index == arbeidsdager.lastIndex
-            Beregningresultat.Beregningsdag.Forbruksdag(dag, if (erSisteDag) dagsbeløp + rest else dagsbeløp)
+            Beregningresultat.Beregningsdag.Forbruksdag(
+                dag = dag,
+                tilUtbetaling = if (erSisteDag) dagsbeløp + rest else dagsbeløp,
+            )
         }
     }
 }
