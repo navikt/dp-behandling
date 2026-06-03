@@ -342,6 +342,8 @@ object OpplysningsTyper {
     // Sanksjonsperiode ved selvforskyldt arbeidsløshet
     val harSanksjonId = Opplysningstype.Id(UUID.fromString("019e82fc-04e7-7f8d-bd52-6a7041ebb15f"), Boolsk)
     val antallSanksjonsukerId = Opplysningstype.Id(UUID.fromString("019e82fd-f97c-7395-be5c-7de504871871"), Heltall)
+    val beregnetAntallSanksjonsdagerId = Opplysningstype.Id(UUID.fromString("136aeb82-2081-4dde-b443-77bd253f9c0e"), Heltall)
+    val ingenSanksjonsdagerId = Opplysningstype.Id(UUID.fromString("f13a07fe-0e18-4a3c-bd93-1e4d03d4fee9"), Heltall)
     val antallSanksjonsdagerId = Opplysningstype.Id(UUID.fromString("019e82fc-bdd6-77d8-a2bc-4bd7f1d46b25"), Heltall)
     val forbruktSanksjonsdagerId = Opplysningstype.Id(UUID.fromString("e8e28792-0ad4-4419-9cda-b166036e0fd9"), Heltall)
     val gjenståendeSanksjonsdagerId = Opplysningstype.Id(UUID.fromString("76d9c243-228b-4359-9550-1ebbb7ba5cb5"), Heltall)
@@ -351,6 +353,8 @@ object OpplysningsTyper {
     // Bortfall (tidsbegrenset sanksjon)
     val harBortfallId = Opplysningstype.Id(UUID.fromString("019df9b1-7052-72e9-9232-547f7cb6ba60"), Boolsk)
     val antallBortfallsukerId = Opplysningstype.Id(UUID.fromString("019e8300-20f7-7cba-b8dc-7bebfd86dcf3"), Heltall)
+    val beregnetAntallBortfallsdagerId = Opplysningstype.Id(UUID.fromString("022adcbd-aae7-482d-9259-1799cb1f9fbe"), Heltall)
+    val ingenBortfallsdagerId = Opplysningstype.Id(UUID.fromString("956a3057-d81c-42b0-bc49-156098556d7e"), Heltall)
     val antallBortfallsdagerId = Opplysningstype.Id(UUID.fromString("019df7d6-5156-7785-a6fd-54f5af1244be"), Heltall)
     val erBortfallsdagId = Opplysningstype.Id(UUID.fromString("019df7e6-33bc-7daa-ad4e-46ba84c3cb49"), Boolsk)
     val forbruktBortfallsdagerId = Opplysningstype.Id(UUID.fromString("019df7d6-5157-7e29-b582-d3d1dfcc30c5"), Heltall)

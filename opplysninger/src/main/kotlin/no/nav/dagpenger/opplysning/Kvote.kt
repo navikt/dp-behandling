@@ -22,22 +22,15 @@ data class KvoteDefinisjon(
 
 data class Tildelingsgrunnlag(
     val kapasitet: Opplysningstype<Int>,
-    private val aktiveresAv: Opplysningstype<Boolean>? = null,
 ) {
-    fun erAktiv(opplysninger: LesbarOpplysninger): Boolean =
-        aktiveresAv == null || (opplysninger.har(aktiveresAv) && opplysninger.erSann(aktiveresAv))
-
-    fun harAktiveringskilde(): Boolean = aktiveresAv != null
-
     fun ilagtDato(opplysninger: LesbarOpplysninger): LocalDate? =
-        aktiveresAv
-            ?.let { opplysninger.finnAlle(it) }
-            ?.filter { it.verdi }
-            ?.minOfOrNull { it.gyldighetsperiode.fraOgMed }
+        opplysninger
+            .finnAlle(kapasitet)
+            .filter { it.verdi > 0 }
+            .minOfOrNull { it.gyldighetsperiode.fraOgMed }
 }
 
 fun KvoteDefinisjon.totalKapasitet(opplysninger: LesbarOpplysninger): Int {
-    if (!tildelingsgrunnlag.erAktiv(opplysninger)) return 0
     if (!opplysninger.har(tildelingsgrunnlag.kapasitet)) return 0
     return opplysninger.finnOpplysning(tildelingsgrunnlag.kapasitet).verdi
 }
@@ -55,7 +48,7 @@ fun KvoteDefinisjon.erEksklusivt(): Boolean = forbrukstype == Forbrukstype.Bortf
 fun List<KvoteDefinisjon>.allokeringskjede(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
     filter { it.erEksklusivt() }.sortertEtterIlagtDato(opplysninger)
 
-/** Første ilagte dato for en kvote, basert på aktiveringsflaggets første sanne verdi. */
+/** Første ilagte dato for en kvote, basert på første kapasitet > 0. */
 fun KvoteDefinisjon.ilagtDato(opplysninger: LesbarOpplysninger): LocalDate? = tildelingsgrunnlag.ilagtDato(opplysninger)
 
 fun List<KvoteDefinisjon>.sortertEtterIlagtDato(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =

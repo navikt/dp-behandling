@@ -22,10 +22,10 @@ import java.time.LocalDate
 
 class KvotetellerTest {
     private val kapasitet = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Kapasitet")
+    private val kapasitet2 = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Kapasitet 2")
     private val forbruk = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Forbruk")
     private val forbruktTeller = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Forbrukt")
     private val gjenstående = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Gjenstående")
-    private val aktiv = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Aktiv")
     private val sisteDagMedForbruk =
         Opplysningstype.dato(
             Opplysningstype.Id(UUIDv7.ny(), no.nav.dagpenger.opplysning.Dato),
@@ -96,14 +96,13 @@ class KvotetellerTest {
                         "Sanksjonsperiode ved selvforskyldt arbeidsløshet",
                         "Sanksjonsperiode",
                     ),
-                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet, aktiv),
+                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
                 forbrukKriterium = forbruk,
             )
 
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(kapasitet, 2, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(aktiv, true, Gyldighetsperiode(1.januar(2025))))
                 leggTil(Faktum(forbruk, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
             }
 
@@ -216,7 +215,8 @@ class KvotetellerTest {
         val medIlagtDato =
             lagKvoteteller(
                 hjemmel = tomHjemmel("Med ilagt dato"),
-                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet, aktiv),
+                kapasitet = kapasitet2,
+                tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet2),
             ).definisjon
         val utenIlagtDato =
             lagKvoteteller(
@@ -227,7 +227,7 @@ class KvotetellerTest {
         val sortert =
             listOf(utenIlagtDato, medIlagtDato).sortertEtterIlagtDato(
                 Opplysninger().apply {
-                    leggTil(Faktum(aktiv, true, Gyldighetsperiode(1.januar(2025))))
+                    leggTil(Faktum(kapasitet2, 2, Gyldighetsperiode(1.januar(2025))))
                 },
             )
 

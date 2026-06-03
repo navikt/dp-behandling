@@ -303,9 +303,11 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
+|f13a07fe-0e18-4a3c-bd93-1e4d03d4fee9|Ingen dager med sanksjon|Heltall|int|| Dager|Utgangspunkt
 |019e82fc-04e7-7f8d-bd52-6a7041ebb15f|Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet|Boolsk|boolean|||Utgangspunkt
 |019e82fc-bdd6-77d8-a2bc-4bd7f1d46b25|Antall dager med sanksjon|Heltall|int|| Dager|Resultat
 |019e82fd-f97c-7395-be5c-7de504871871|Antall uker med sanksjon|Heltall|int|| Uker|Utgangspunkt
+|136aeb82-2081-4dde-b443-77bd253f9c0e|Beregnet antall dager med sanksjon|Heltall|int|| Dager|Intern
 ### § 4-11. Dagpengegrunnlag
 *Type:* Fastsettelse
 #### Avklaringer
@@ -466,9 +468,11 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
+|956a3057-d81c-42b0-bc49-156098556d7e|Ingen dager med tidsbegrenset bortfall|Heltall|int|| Dager|Utgangspunkt
 |019df7d6-5156-7785-a6fd-54f5af1244be|Antall dager med tidsbegrenset bortfall|Heltall|int|| Dager|Resultat
 |019df9b1-7052-72e9-9232-547f7cb6ba60|Er ilagt tidsbegrenset bortfall av dagpenger|Boolsk|boolean|||Utgangspunkt
 |019e8300-20f7-7cba-b8dc-7bebfd86dcf3|Antall uker med tidsbegrenset bortfall|Heltall|int|| Uker|Utgangspunkt
+|022adcbd-aae7-482d-9259-1799cb1f9fbe|Beregnet antall dager med tidsbegrenset bortfall|Heltall|int|| Dager|Intern
 ### § 4-22. Bortfall ved streik og lock-out
 *Type:* Vilkår
 #### Opplysninger

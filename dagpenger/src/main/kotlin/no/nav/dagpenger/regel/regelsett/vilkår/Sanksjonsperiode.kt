@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
+import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
@@ -20,6 +21,20 @@ object Sanksjonsperiode {
 
     val antallSanksjonsuker =
         Opplysningstype.heltall(OpplysningsTyper.antallSanksjonsukerId, "Antall uker med sanksjon", enhet = Enhet.Uker)
+    private val beregnetAntallSanksjonsdager =
+        Opplysningstype.heltall(
+            OpplysningsTyper.beregnetAntallSanksjonsdagerId,
+            "Beregnet antall dager med sanksjon",
+            enhet = Enhet.Dager,
+            synlig = aldriSynlig,
+        )
+    private val ingenSanksjonsdager =
+        Opplysningstype.heltall(
+            OpplysningsTyper.ingenSanksjonsdagerId,
+            "Ingen dager med sanksjon",
+            enhet = Enhet.Dager,
+            synlig = aldriSynlig,
+        )
     val antallSanksjonsdager =
         Opplysningstype.heltall(
             OpplysningsTyper.antallSanksjonsdagerId,
@@ -34,12 +49,14 @@ object Sanksjonsperiode {
 
             regel(harSanksjon) { somUtgangspunkt(false) }
             regel(antallSanksjonsuker) { somUtgangspunkt(18) }
-            regel(antallSanksjonsdager) { multiplikasjon(antallSanksjonsuker, dagerIUka) }
+            regel(beregnetAntallSanksjonsdager) { multiplikasjon(antallSanksjonsuker, dagerIUka) }
+            regel(ingenSanksjonsdager) { somUtgangspunkt(0) }
+            regel(antallSanksjonsdager) { hvisSannMedResultat(harSanksjon, beregnetAntallSanksjonsdager, ingenSanksjonsdager) }
 
             kvote(
                 KvoteDefinisjon(
                     hjemmel = hjemmel,
-                    tildelingsgrunnlag = Tildelingsgrunnlag(antallSanksjonsdager, harSanksjon),
+                    tildelingsgrunnlag = Tildelingsgrunnlag(antallSanksjonsdager),
                     tellesNår = Beregning.erBortfallsdag,
                     forbruksteller = Beregning.forbruktSanksjonsdager,
                     gjenstående = Beregning.gjenståendeSanksjonsdager,

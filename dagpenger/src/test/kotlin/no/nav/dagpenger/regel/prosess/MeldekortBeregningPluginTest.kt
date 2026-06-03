@@ -92,7 +92,7 @@ class MeldekortBeregningPluginTest {
     }
 
     @Test
-    fun `sanksjonskvoter styres av aktiveresAv og ikke typeprioritet`() {
+    fun `sanksjonskvoter styres av ilagt dato og ikke typeprioritet`() {
         val sanksjonskvoter =
             RegelverkDagpenger
                 .kvoter()
@@ -100,7 +100,6 @@ class MeldekortBeregningPluginTest {
 
         sanksjonskvoter.map { it.navn } shouldBe listOf("Sanksjonsperiode", "Tidsbegrenset bortfall")
         sanksjonskvoter.map { it.forbrukstype }.toSet() shouldBe setOf(Forbrukstype.Bortfall)
-        sanksjonskvoter.all { it.tildelingsgrunnlag.harAktiveringskilde() } shouldBe true
         sanksjonskvoter.all { it.erEksklusivt() } shouldBe true
     }
 
@@ -208,7 +207,7 @@ class MeldekortBeregningPluginTest {
         }
 
         @Test
-        fun `rekkefølge følger ilagt dato fra aktiveresAv`() {
+        fun `rekkefølge følger ilagt dato fra kapasitet`() {
             val fraOgMed = LocalDate.of(2018, 6, 18)
             val tilOgMed = LocalDate.of(2018, 7, 1)
             val meldeperiode = Periode(fraOgMed, tilOgMed)
@@ -223,7 +222,7 @@ class MeldekortBeregningPluginTest {
                     // §4-10 ilagt senere
                     leggTil(Faktum(Sanksjonsperiode.harSanksjon, true, Gyldighetsperiode(fraOgMed.plusDays(2), tilOgMed)))
                     leggTil(Faktum(Sanksjonsperiode.antallSanksjonsuker, 0, Gyldighetsperiode(fraOgMed)))
-                    leggTil(Faktum(Sanksjonsperiode.antallSanksjonsdager, 2, Gyldighetsperiode(fraOgMed)))
+                    leggTil(Faktum(Sanksjonsperiode.antallSanksjonsdager, 2, Gyldighetsperiode(fraOgMed.plusDays(2))))
 
                     // §4-20 ilagt først
                     leggTil(Faktum(TidsbegrensetBortfall.harTidsbegrensetBortfall, true, Gyldighetsperiode(fraOgMed, tilOgMed)))
