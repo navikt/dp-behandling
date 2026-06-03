@@ -24,10 +24,6 @@ class AlderskravPlugin : ProsessPlugin {
                         Gyldighetsperiode(fraOgMed = stansdato),
                     ),
                 )
-            } else {
-                kontekst.info(
-                    "Siste dag for alderskrav (${sisteDagForAldersKrav.verdi}) er ikke i meldeperioden (${meldeperiodeOpplysning.verdi}), ingen endring på ${Alderskrav.kravTilAlder.navn}",
-                )
             }
         }
     }

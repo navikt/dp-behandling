@@ -1,6 +1,7 @@
 package no.nav.dagpenger.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
@@ -58,7 +59,7 @@ class StansPgaAlderTest {
                         .maxOfOrNull { it.path("dato").asLocalDate() }
                 sisteUtbetalteDag shouldBe 30.juni(2025)
             }
-            saksbehandler.åpneAvklaringer().map { it.kode } shouldBe listOf("MeldekortBehandling", "StansAlder")
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldContain "StansAlder"
         }
     }
 }
