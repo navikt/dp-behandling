@@ -297,6 +297,14 @@ Sjekk at valgt prøvingsdato er riktig.
 - Prøvingsdato
 
 ---
+## Bruker er over alderskravet på dagpenger
+- **Kode:** `StansAlder`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
+### Beskrivelse
+Bruker oppfyller ikke 'Oppfyller kravet til alder' i løpet av meldeperioden, vurder stans av dagpenger. 
+
+---
 ## Svangerskapsrelaterte sykepenger
 - **Kode:** `SvangerskapsrelaterteSykepenger`
 - **Kan lukkes av saksbehandler:** ✅ 

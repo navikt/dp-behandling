@@ -19,16 +19,18 @@ import no.nav.dagpenger.regel.OpplysningsTyper.FødselsdatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.KravTilAlderId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteDagIMånedId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteMånedId
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadsdato
+import java.time.LocalDate
 
 object Alderskrav {
     val fødselsdato = dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)
 
     private val aldersgrense = heltall(AldersgrenseId, "Aldersgrense", synlig = aldriSynlig, enhet = Enhet.År)
     private val sisteMåned = dato(SisteMånedId, "Dato søker når maks alder", synlig = aldriSynlig)
-    private val sisteDagIMåned = dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav")
+    val sisteDagIMåned = dato(SisteDagIMånedId, "Siste mulige dag bruker kan oppfylle alderskrav")
 
     val kravTilAlder = boolsk(KravTilAlderId, "Oppfyller kravet til alder")
 
@@ -40,7 +42,6 @@ object Alderskrav {
             regel(aldersgrense) { somUtgangspunkt(67) }
             regel(sisteMåned) { leggTilÅr(fødselsdato, aldersgrense) }
             regel(sisteDagIMåned) { sisteDagIMåned(sisteMåned) }
-
             utfall(kravTilAlder) { førEllerLik(prøvingsdato, sisteDagIMåned) }
         }
 
@@ -62,4 +63,12 @@ object Alderskrav {
         }
 
     val TilleggsopplysningsKontroll = Kontrollpunkt(Avklaringspunkter.HarTilleggsopplysninger) { it.har(søknadIdOpplysningstype) }
+
+    val StansAlderKontroll =
+        Kontrollpunkt(Avklaringspunkter.StansAlder) { opplysninger ->
+            if (opplysninger.mangler(meldeperiode)) {
+                return@Kontrollpunkt false
+            }
+            return@Kontrollpunkt opplysninger.har(kravTilAlder, gjelderFor = LocalDate.MAX)
+        }
 }

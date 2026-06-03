@@ -1,5 +1,7 @@
 package no.nav.dagpenger.regel
+
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 
 @Suppress("ktlint:standard:max-line-length")
 object Avklaringspunkter {
@@ -290,6 +292,16 @@ object Avklaringspunkter {
             beskrivelse =
                 """
                 Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
+                """.trimIndent(),
+        )
+
+    val StansAlder =
+        Avklaringkode(
+            kode = "StansAlder",
+            tittel = "Bortfall på grunn av alder",
+            beskrivelse =
+                """
+                Retten til dagpenger faller bort ved utgangen av den måneden bruker fyller 67 år, vurder stans av dagpenger. 
                 """.trimIndent(),
         )
 }

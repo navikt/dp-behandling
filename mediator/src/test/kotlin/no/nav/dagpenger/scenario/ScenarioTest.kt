@@ -12,6 +12,7 @@ import io.kotest.matchers.string.shouldContain
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
+import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.mediator.november
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
@@ -49,7 +50,7 @@ class ScenarioTest {
     @Test
     fun `tester avslag ved for høy alder`() {
         nyttScenario {
-            alder = 88
+            fødselsdato = 1.mars(1930)
             inntektSiste12Mnd = 500000
         }.test {
             person.søkDagpenger(21.juni(2018))

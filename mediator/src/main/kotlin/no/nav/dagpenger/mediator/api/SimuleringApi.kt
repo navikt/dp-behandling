@@ -37,6 +37,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStøna
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel.egenandel
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.uuid.UUIDv7
@@ -127,6 +128,7 @@ private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysnin
     val antDager = beregningRequestDTO.antallMeldekortdager?.toLong() ?: 14
     val antUker = beregningRequestDTO.stønadsperiode.uker
     val meldekortTom = meldekortFom.plusDays(antDager - 1)
+    val stansDato = beregningRequestDTO.stønadsperiode.fom.plusMonths(3)
     val terskel =
         beregningRequestDTO.terskel.map { terskel ->
             Faktum(
@@ -144,6 +146,7 @@ private fun simuleringsdata(beregningRequestDTO: BeregningRequestDTO): Opplysnin
                 Gyldighetsperiode(sats.fom ?: stønadsperiodeFom, sats.tom ?: LocalDate.MAX),
             )
         }
+    opplysninger.add(Faktum(Alderskrav.sisteDagIMåned, stansDato))
     opplysninger.add(Faktum(harLøpendeRett, true, Gyldighetsperiode(stønadsperiodeFom, LocalDate.MAX)))
     opplysninger.addAll(terskel)
     opplysninger.add(Faktum(egenandel, Beløp(beregningRequestDTO.egenandel)))
