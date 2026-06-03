@@ -444,8 +444,6 @@ internal class BehandlingApiTest {
                 )
             response.status shouldBe HttpStatusCode.Created
             response.bodyAsText().shouldBeEmpty()
-
-            // TODO: Assertions
         }
     }
 

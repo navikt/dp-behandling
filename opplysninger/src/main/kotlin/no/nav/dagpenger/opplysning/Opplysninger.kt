@@ -152,7 +152,7 @@ class Opplysninger private constructor(
 
     fun fjern(opplysningTypeId: Opplysningstype<*>) =
         fjern(
-            egne.lastOrNull { it.id == opplysningTypeId.id.uuid }
+            egne.lastOrNull { it.opplysningstype.id.uuid == opplysningTypeId.id.uuid }
                 ?: throw OpplysningIkkeFunnetException("Har ingen opplysning med opplysningTypeId=${opplysningTypeId.id.uuid}"),
         )
 

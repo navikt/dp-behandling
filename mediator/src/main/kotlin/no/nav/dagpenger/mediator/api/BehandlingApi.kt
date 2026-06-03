@@ -401,7 +401,7 @@ internal fun Application.behandlingApi(
                         logger.info { "Kjører behandling på nytt, oppfrisker=${rekjøring.oppfrisk}" }
 
                         val oppfrisk =
-                            rekjøring.oppfrisk?.map { type -> opplysningstyper.single { it.id == type } } ?: emptyList()
+                            rekjøring.oppfrisk?.map { type -> opplysningstyper.single { it.id.uuid == type } } ?: emptyList()
 
                         val hendelse =
                             RekjørBehandlingHendelse(
