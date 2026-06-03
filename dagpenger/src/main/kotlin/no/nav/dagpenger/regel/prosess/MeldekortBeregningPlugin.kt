@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.prosess
 
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -99,8 +100,12 @@ class MeldekortBeregningPlugin(
 
         val forbruksdagerPerType =
             sortedBy { it.dag.dato }
-                .groupBy { it.forbrukstype }
-                .mapValues { ArrayDeque(it.value) }
+                .let { forbruksdager ->
+                    mapOf(
+                        Forbrukstype.ORDINÆR to ArrayDeque(forbruksdager.filterNot { it.erBortfall }),
+                        Forbrukstype.BORTFALL to ArrayDeque(forbruksdager.filter { it.erBortfall }),
+                    )
+                }
 
         val kvotePerDato = mutableMapOf<LocalDate, KvoteDefinisjon>()
         allokeringskjede.forEach { kvote ->
@@ -112,8 +117,8 @@ class MeldekortBeregningPlugin(
         }
 
         return sortedBy { it.dag.dato }.map { forbruksdag ->
-            val kvote = kvotePerDato[forbruksdag.dag.dato]
-            if (kvote == null) forbruksdag else forbruksdag.copy(kvote = kvote)
+            val tildeltKvote = kvotePerDato[forbruksdag.dag.dato]
+            if (tildeltKvote == null) forbruksdag else forbruksdag.copy(tildeltKvote = tildeltKvote)
         }
     }
 
@@ -133,7 +138,7 @@ class MeldekortBeregningPlugin(
         meldeperiode: Periode,
         forbruksdager: List<Beregningresultat.Forbruksdag>,
     ): Kvotetellingsresultat {
-        val kvotedager = forbruksdager.filter { it.kvote == this }.map { it.dag.dato }.toSet()
+        val kvotedager = forbruksdager.filter { it.tildeltKvote == this }.map { it.dag.dato }.toSet()
         if (kvotedager.isEmpty()) return Kvotetellingsresultat()
 
         val opplysningerForKvote =

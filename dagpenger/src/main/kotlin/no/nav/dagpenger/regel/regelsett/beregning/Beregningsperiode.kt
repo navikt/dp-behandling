@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.beregning
 
+import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
@@ -68,7 +69,6 @@ class Beregningsperiode private constructor(
                     dag = it,
                     tilUtbetaling = Beløp(0),
                     erBortfall = true,
-                    forbrukstype = Forbrukstype.BORTFALL,
                 )
             }
 
@@ -194,8 +194,7 @@ data class Beregningresultat(
             override val dag: Dag,
             override val tilUtbetaling: Beløp,
         val erBortfall: Boolean = false,
-        val forbrukstype: Forbrukstype = if (erBortfall) Forbrukstype.BORTFALL else Forbrukstype.ORDINÆR,
-        val kvote: KvoteDefinisjon? = null,
+        val tildeltKvote: KvoteDefinisjon? = null,
     ): Beregningsdag
 
         data class IkkeForbruksdag(
