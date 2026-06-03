@@ -6,7 +6,7 @@ import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.totalKapasitet
+import no.nav.dagpenger.opplysning.tildeltKapasitet
 import java.time.LocalDate
 
 /**
@@ -20,7 +20,7 @@ class Kvoteteller(
     val definisjon: KvoteDefinisjon,
 ) {
     fun beregn(opplysninger: LesbarOpplysninger): Kvotetellingsresultat {
-        val totalKapasitet = definisjon.totalKapasitet(opplysninger)
+        val totalKapasitet = definisjon.tildeltKapasitet(opplysninger)
         if (totalKapasitet <= 0) return Kvotetellingsresultat()
 
         val dager = hentDagerMedForbruk(opplysninger)

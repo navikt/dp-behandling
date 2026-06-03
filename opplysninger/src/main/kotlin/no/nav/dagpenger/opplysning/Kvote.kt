@@ -30,7 +30,7 @@ data class Tildelingsgrunnlag(
             .minOfOrNull { it.gyldighetsperiode.fraOgMed }
 }
 
-fun KvoteDefinisjon.totalKapasitet(opplysninger: LesbarOpplysninger): Int {
+fun KvoteDefinisjon.tildeltKapasitet(opplysninger: LesbarOpplysninger): Int {
     if (!opplysninger.har(tildelingsgrunnlag.kapasitet)) return 0
     return opplysninger.finnOpplysning(tildelingsgrunnlag.kapasitet).verdi
 }
@@ -40,7 +40,7 @@ fun KvoteDefinisjon.gjenståendeVed(
     førsteDag: LocalDate,
 ): Int {
     val sisteGjenstående = opplysninger.sisteVerdiFør(gjenstående, førsteDag)
-    return sisteGjenstående ?: totalKapasitet(opplysninger)
+    return sisteGjenstående ?: tildeltKapasitet(opplysninger)
 }
 
 fun KvoteDefinisjon.erEksklusivt(): Boolean = forbrukstype == Forbrukstype.Bortfall
@@ -48,11 +48,8 @@ fun KvoteDefinisjon.erEksklusivt(): Boolean = forbrukstype == Forbrukstype.Bortf
 fun List<KvoteDefinisjon>.allokeringskjede(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
     filter { it.erEksklusivt() }.sortertEtterIlagtDato(opplysninger)
 
-/** Første ilagte dato for en kvote, basert på første kapasitet > 0. */
-fun KvoteDefinisjon.ilagtDato(opplysninger: LesbarOpplysninger): LocalDate? = tildelingsgrunnlag.ilagtDato(opplysninger)
-
 fun List<KvoteDefinisjon>.sortertEtterIlagtDato(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
-    sortedWith(compareBy(nullsLast<LocalDate>()) { kvote -> kvote.ilagtDato(opplysninger) })
+    sortedWith(compareBy(nullsLast()) { kvote -> kvote.tildelingsgrunnlag.ilagtDato(opplysninger) })
 
 private fun LesbarOpplysninger.sisteVerdiFør(
     opplysningstype: Opplysningstype<Int>,
