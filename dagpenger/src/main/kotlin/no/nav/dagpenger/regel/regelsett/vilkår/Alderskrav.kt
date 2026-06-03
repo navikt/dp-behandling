@@ -23,6 +23,7 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadsdato
+import java.time.LocalDate
 
 object Alderskrav {
     val fødselsdato = dato(FødselsdatoId, "Fødselsdato", Opplysningsformål.Bruker)
@@ -68,7 +69,6 @@ object Alderskrav {
             if (opplysninger.mangler(meldeperiode)) {
                 return@Kontrollpunkt false
             }
-            val meldeperiode = opplysninger.finnOpplysning(meldeperiode).verdi
-            return@Kontrollpunkt opplysninger.har(kravTilAlder, gjelderFor = meldeperiode.tilOgMed)
+            return@Kontrollpunkt opplysninger.har(kravTilAlder, gjelderFor = LocalDate.MAX)
         }
 }
