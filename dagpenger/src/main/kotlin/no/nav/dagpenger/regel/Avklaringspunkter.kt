@@ -295,13 +295,13 @@ object Avklaringspunkter {
                 """.trimIndent(),
         )
 
-    val ForGammel =
+    val StansAlder =
         Avklaringkode(
             kode = "StansAlder",
-            tittel = "Bruker er over alderskravet på dagpenger",
+            tittel = "Bortfall på grunn av alder",
             beskrivelse =
                 """
-                Bruker oppfyller ikke '${kravTilAlder.navn}' i løpet av meldeperioden, vurder stans av dagpenger. 
+                Retten til dagpenger faller bort ved utgangen av den måneden bruker fyller 67 år, vurder stans av dagpenger. 
                 """.trimIndent(),
         )
 }

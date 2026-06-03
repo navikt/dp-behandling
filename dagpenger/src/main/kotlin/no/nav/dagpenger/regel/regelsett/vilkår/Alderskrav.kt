@@ -64,8 +64,8 @@ object Alderskrav {
 
     val TilleggsopplysningsKontroll = Kontrollpunkt(Avklaringspunkter.HarTilleggsopplysninger) { it.har(søknadIdOpplysningstype) }
 
-    val MuligForGammel =
-        Kontrollpunkt(Avklaringspunkter.ForGammel) { opplysninger ->
+    val StansAlderKontroll =
+        Kontrollpunkt(Avklaringspunkter.StansAlder) { opplysninger ->
             if (opplysninger.mangler(meldeperiode)) {
                 return@Kontrollpunkt false
             }

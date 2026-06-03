@@ -44,7 +44,7 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun kontrollpunkter(): List<IKontrollpunkt> =
         listOf(
-            Alderskrav.MuligForGammel,
+            Alderskrav.StansAlderKontroll,
         )
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
