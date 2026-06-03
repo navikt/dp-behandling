@@ -1,7 +1,6 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Avklaringkode
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 
 @Suppress("ktlint:standard:max-line-length")
 object Avklaringspunkter {

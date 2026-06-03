@@ -297,12 +297,12 @@ Sjekk at valgt prøvingsdato er riktig.
 - Prøvingsdato
 
 ---
-## Bruker er over alderskravet på dagpenger
+## Bortfall på grunn av alder
 - **Kode:** `StansAlder`
 - **Kan lukkes av saksbehandler:** ✅ 
 - **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
-Bruker oppfyller ikke 'Oppfyller kravet til alder' i løpet av meldeperioden, vurder stans av dagpenger. 
+Retten til dagpenger faller bort ved utgangen av den måneden bruker fyller 67 år, vurder stans av dagpenger. 
 
 ---
 ## Svangerskapsrelaterte sykepenger
