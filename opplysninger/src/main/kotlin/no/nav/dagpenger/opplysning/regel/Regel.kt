@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelplanlegger
+import no.nav.dagpenger.opplysning.TreNode
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
 
@@ -21,30 +22,9 @@ abstract class Regel<T : Any> internal constructor(
         }
     }
 
-    /**
-     * 1. bygge tre basert på avhengighetene
-     * 2. gå gjennom tre og finn første opplysning som må produseres, enten fordi den mangler eller er utdatert
-     */
-    private data class Node(
-        val regel: Regel<*>,
-        val avhengigheter: List<Node>,
-    ) {
-        fun breadthFirstByDeepest(): List<Node> {
-            // går gjennom treet breadth-first, men gjør slik at de dypeste nodene kommer først i listen
-            val kø = mutableListOf(this)
-            val breadthFirstByDeepest = mutableListOf<Node>()
-            while (kø.isNotEmpty()) {
-                val n = kø.removeFirst()
-                breadthFirstByDeepest.addFirst(n)
-                kø.addAll(n.avhengigheter.reversed())
-            }
-            return breadthFirstByDeepest
-        }
-    }
-
-    private fun regeltre(produsenter: Map<Opplysningstype<out Any>, Regel<*>>): Node {
-        if (avhengerAv.isEmpty()) return Node(this, emptyList())
-        return Node(
+    private fun regeltre(produsenter: Map<Opplysningstype<out Any>, Regel<*>>): TreNode<Regel<*>> {
+        if (avhengerAv.isEmpty()) return TreNode(this, emptyList())
+        return TreNode(
             this,
             avhengerAv
                 .map { produsenter[it] ?: error("har ikke produsent for $it") }
@@ -53,7 +33,7 @@ abstract class Regel<T : Any> internal constructor(
     }
 
     private fun planForRegel(
-        regeltre: Node,
+        regeltre: TreNode<Regel<*>>,
         opplysninger: LesbarOpplysninger,
     ): Set<Regel<*>> {
         // vi besøker de dypeste løvnodene først (de reglene som ikke avhenger av noen),
@@ -62,16 +42,16 @@ abstract class Regel<T : Any> internal constructor(
         // at opplysningene som produseres av disse reglene er tilgjengelige for reglene som kommer senere i planen.
         val planlegger = mutableSetOf<Regel<*>>()
         regeltre
-            .breadthFirstByDeepest()
+            .topologisk()
             .forEach { node ->
-                val produkt = opplysninger.finnNullableOpplysning(node.regel.produserer)
+                val produkt = opplysninger.finnNullableOpplysning(node.verdi.produserer)
                 // sjekker ikke om regelen selv sin opplysning er utdatert 🤔
                 val harUtdaterteAvhengigheter = produkt?.utledetAv?.opplysninger?.any { it.erUtdatert } == true
                 // hvis en avhengighet tidligere i kjeden er planlagt skal vi også kjøre
-                val avhengighetSkalKjøre = node.avhengigheter.any { it.regel in planlegger }
+                val avhengighetSkalKjøre = node.avhengigheter.any { it.verdi in planlegger }
 
                 if (produkt == null || harUtdaterteAvhengigheter || avhengighetSkalKjøre) {
-                    planlegger.add(node.regel)
+                    planlegger.add(node.verdi)
                 }
             }
         return planlegger
