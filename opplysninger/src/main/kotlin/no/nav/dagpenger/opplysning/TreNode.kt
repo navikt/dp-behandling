@@ -36,16 +36,20 @@ data class TreNode<T>(
 
 internal fun <T> TreNode<T>.mermaid(): String {
     val nodes = bfs()
-    val nodeId = nodes.associateWith { node -> "N_${nodes.indexOf(node) + 1}" }
+    val values = nodes.map { it.verdi }.toSet()
+    val valueId =
+        values.associateWith { value ->
+            "N_${values.indexOf(value) + 1}"
+        }
 
-    fun TreNode<T>.id(): String = nodeId.getValue(this)
+    fun TreNode<T>.id(): String = valueId.getValue(this.verdi)
 
     val indent = "    "
 
     // definer alle nodene først
     val definitions =
-        nodes.joinToString("\n") {
-            "$indent${it.id()}((${it.verdi}))"
+        valueId.entries.joinToString("\n") { (verdi, nodeId) ->
+            "${indent}$nodeId(($verdi))"
         }
     val connections =
         nodes.joinToString("\n") { node ->

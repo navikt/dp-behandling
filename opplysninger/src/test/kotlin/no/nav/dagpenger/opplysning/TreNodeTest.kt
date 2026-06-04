@@ -49,4 +49,31 @@ class TreNodeTest {
 
         tre.mermaid() shouldBe expected
     }
+
+    @Test
+    fun `mermaid med like verdier i treet`() {
+        val tre =
+            TreNode(
+                "roten",
+                listOf(
+                    TreNode("barn1", listOf(TreNode("felles"))),
+                    TreNode("barn2", listOf(TreNode("felles"))),
+                ),
+            )
+        val expected =
+            """
+            flowchart BT 
+                N_1((roten))
+                N_2((barn1))
+                N_3((barn2))
+                N_4((felles))
+            
+                N_1 --> N_2
+                N_1 --> N_3
+                N_2 --> N_4
+                N_3 --> N_4
+            """.trimIndent()
+
+        tre.mermaid() shouldBe expected
+    }
 }
