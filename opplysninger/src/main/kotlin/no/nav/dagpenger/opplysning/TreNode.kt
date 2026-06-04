@@ -4,15 +4,60 @@ data class TreNode<T>(
     val verdi: T,
     val avhengigheter: List<TreNode<T>> = emptyList(),
 ) {
-    fun topologisk(): List<TreNode<T>> {
-        // går gjennom treet breadth-first, men gjør slik at de dypeste nodene kommer først i listen
+    fun topologisk() = iterate(Ordering.TOPOLOGISK)
+
+    fun bfs() = iterate(Ordering.BFS)
+
+    private fun iterate(ordering: Ordering): List<TreNode<T>> {
         val kø = mutableListOf(this)
-        val topologisk = mutableListOf<TreNode<T>>()
+        val result = mutableListOf<TreNode<T>>()
         while (kø.isNotEmpty()) {
             val n = kø.removeFirst()
-            topologisk.addFirst(n)
-            kø.addAll(n.avhengigheter.reversed())
+            when (ordering) {
+                Ordering.TOPOLOGISK -> {
+                    result.addFirst(n)
+                    kø.addAll(n.avhengigheter.reversed())
+                }
+
+                Ordering.BFS -> {
+                    result.add(n)
+                    kø.addAll(n.avhengigheter)
+                }
+            }
         }
-        return topologisk
+        return result
     }
+
+    private enum class Ordering {
+        TOPOLOGISK,
+        BFS,
+    }
+}
+
+internal fun <T> TreNode<T>.mermaid(): String {
+    val nodes = bfs()
+    val nodeId = nodes.associateWith { node -> "N_${nodes.indexOf(node) + 1}" }
+
+    fun TreNode<T>.id(): String = nodeId.getValue(this)
+
+    val indent = "    "
+
+    // definer alle nodene først
+    val definitions =
+        nodes.joinToString("\n") {
+            "$indent${it.id()}((${it.verdi}))"
+        }
+    val connections =
+        nodes.joinToString("\n") { node ->
+            node.avhengigheter.joinToString("\n") { avhengighet ->
+                "$indent${node.id()} --> ${avhengighet.id()}"
+            }
+        }
+
+    return """
+        |flowchart BT 
+        |$definitions
+        |
+        |$connections
+        """.trimMargin().trimEnd()
 }

@@ -17,4 +17,36 @@ class TreNodeTest {
     fun topologisk() {
         tre.topologisk() shouldBe listOf(a6, a7, a4, a5, a3, a1, a2, tre)
     }
+
+    @Test
+    fun bfs() {
+        tre.bfs() shouldBe listOf(tre, a1, a2, a4, a5, a3, a6, a7)
+    }
+
+    @Test
+    fun mermaid() {
+        val expected =
+            """
+            flowchart BT 
+                N_1((Rot))
+                N_2((a1))
+                N_3((a2))
+                N_4((a4))
+                N_5((a5))
+                N_6((a3))
+                N_7((a6))
+                N_8((a7))
+            
+                N_1 --> N_2
+                N_1 --> N_3
+                N_2 --> N_4
+                N_2 --> N_5
+                N_3 --> N_6
+            
+                N_5 --> N_7
+                N_5 --> N_8
+            """.trimIndent()
+
+        tre.mermaid() shouldBe expected
+    }
 }
