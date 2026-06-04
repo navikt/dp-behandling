@@ -1,9 +1,10 @@
 package no.nav.dagpenger.opplysning
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.dagpenger.opplysning.Regelkjøring.Regelkjøringstilstand.Companion.aktiver
+import no.nav.dagpenger.opplysning.Regelkjøring.Regelkjøringstilstand.Companion.lagKjøreplan
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
+import no.nav.dagpenger.opplysning.regel.TomRegel
 import java.time.LocalDate
 
 // Regelverksdato: Datoen regelverket gjelder fra. Som hovedregel tidspunktet søknaden ble fremmet.
@@ -170,41 +171,50 @@ class Regelkjøring(
         }
     }
 
-    private class Kjøreplan(
+    private data class Kjøreplan(
         val siste: Regelkjøringstilstand,
         val historikk: List<Regelkjøringstilstand> = emptyList(),
     ) {
-        fun skalKjøre() = siste.plan.isNotEmpty()
+        fun skalKjøre() = siste.kjørbarPlan.isNotEmpty()
 
-        fun kjørPlan(lesbarOpplysninger: LesbarOpplysninger): List<Regelkjøringstilstand.Regelkjøringutfall<*>> =
-            siste.kjørRegelPlan(lesbarOpplysninger)
+        fun kjørPlan(
+            opplysninger: Opplysninger,
+            lesbarOpplysninger: LesbarOpplysninger,
+        ): List<Regelkjøringstilstand.Regelkjøringutfall<*>> = siste.kjørRegelPlan(opplysninger, lesbarOpplysninger)
 
         fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan {
             // loop detection
             if (regelkjøringstilstand.plan == siste.plan) {
                 error("Går i loop! Planlegger samme plan vi har fra før")
             }
-            return Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
+            return copy(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
         }
     }
 
     // Itererer plan -> kjør -> ny plan helt til ingen flere regler står for tur.
     // Den eneste muteringspunktet for `opplysninger` i regelkjøringen.
     private fun planleggOgUtfør(prøvingsdato: LocalDate): Pair<Kjøreplan, List<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>> {
-        var kjøreplan =
-            Kjøreplan(
-                siste = aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring),
-            )
+        var kjøreplan = lagKjøreplan(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring)
         val regelresultater = mutableListOf<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>()
         try {
             while (kjøreplan.skalKjøre()) {
-                val resultater = kjøreplan.kjørPlan(opplysninger.kunEgne)
+                val resultater = kjøreplan.kjørPlan(opplysninger, opplysninger.kunEgne)
                 regelresultater.add(resultater)
-                resultater.forEach { (_, opplysning) ->
-                    opplysninger.leggTilUtledet(opplysning)
+
+                val opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
+                val reglerSomIkkeSkalKjøres = forretningsprosess.reglerSomIkkeSkalKjøres(opplysningerPåPrøvingsdato)
+
+                val nyPlan =
+                    kjøreplan.siste.copy(
+                        opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
+                        blokkerteRegler = reglerSomIkkeSkalKjøres,
+                    )
+
+                if (nyPlan.blokkerteRegler.any { regel -> regel !in kjøreplan.siste.blokkerteRegler }) {
+                    val b = "en regel som før ikke var blokkert, er nå blitt det. SUS?"
                 }
-                kjøreplan =
-                    kjøreplan.nyPlan(aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring))
+
+                kjøreplan = kjøreplan.nyPlan(nyPlan)
             }
             return kjøreplan to regelresultater.toList()
         } catch (err: RegelkjøringException) {
@@ -236,51 +246,109 @@ class Regelkjøring(
         val prøvingsdato: LocalDate,
         val opplysningerPåPrøvingsdato: LesbarOpplysninger,
         val ønsketResultat: Set<Opplysningstype<*>>,
-        val plan: Set<Regel<*>>,
-        val eksterneRegler: Set<Regel<*>>,
+        val regeltre: Set<TreNode<Regel<*>>>,
+        val blokkerteRegler: Set<Regel<*>>,
     ) {
-        val trenger: Set<Opplysningstype<*>> = eksterneRegler.map { it.produserer }.toSet()
+        val plan =
+            regeltre.flatMap { regeltre ->
+                planForRegeltre(regeltre, opplysningerPåPrøvingsdato)
+            }
+        val eksterneRegler: Set<Regel<*>> =
+            plan
+                .filterIsInstance<Ekstern<*>>()
+                .toSet()
+
+        val blokkert: Set<Opplysningstype<*>> =
+            buildSet {
+                // alle behov blokkerer videre kjøring
+                addAll(eksterneRegler.map { it.produserer })
+                // alle blokkerte regler hindrer videre kjøring
+                addAll(blokkerteRegler.map { it.produserer })
+                // alle regler som er transitiv avhengig av et behov blir blokkert
+                plan.forEach { regel ->
+                    regel.avhengerAv.any { it in this }.also {
+                        if (it) this.add(regel.produserer)
+                    }
+                }
+            }
+
+        val ikkeKjørbare = plan.filter { it is Ekstern<*> || it is TomRegel<*> }
+
+        val trenger: Set<Opplysningstype<*>> =
+            eksterneRegler
+                // bare behov som ikke selv er blokkert
+                .filter { it !in blokkerteRegler }
+                .filter { regel -> regel.avhengerAv.none { avhengighet -> avhengighet in blokkert } }
+                .map { it.produserer }
+                .toSet()
+
+        val kjørbarPlan: Set<Regel<*>> =
+            plan
+                .filterNot { it is TomRegel<*> }
+                .filterNot { regel -> regel.produserer in blokkert }
+                .toSet()
 
         companion object {
-            fun aktiver(
+            fun lagKjøreplan(
                 prøvingsdato: LocalDate,
                 regelverksdato: LocalDate,
                 opplysninger: Opplysninger,
                 forretningsprosess: Forretningsprosess,
                 opplysningerTilRegelkjøring: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger,
-            ): Regelkjøringstilstand {
+            ): Kjøreplan {
+                val produsenter = forretningsprosess.produsenter(regelverksdato)
                 val opplysningerPåPrøvingsdato = opplysninger.opplysningerTilRegelkjøring(prøvingsdato)
-                val produsenter = forretningsprosess.produsenter(regelverksdato, opplysningerPåPrøvingsdato)
+
                 val ønsketResultat = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
 
-                val planlegger = Regelplanlegger()
-                val besøkt = mutableSetOf<Regel<*>>()
-
-                // Kjør de reglene som skal kjøres
-                ønsketResultat
-                    .mapNotNull { produsenter[it] }
-                    .forEach { produsent ->
-                        produsent.lagPlan(opplysningerPåPrøvingsdato, planlegger, produsenter, besøkt)
-                    }
-
-                val m = Regelplanlegger()
-                val masterplan =
+                val regeltre =
                     ønsketResultat
-                        .mapNotNull { produsenter[it] }
-                        .map { it.lagPlan(opplysninger, produsenter) }
-                        .onEach {
-                            it.forEach { regel -> m.add(regel) }
-                        }
-                val (alleEkstern, alleIntern) = m.lagProduksjonsplan()
+                        .map { produsenter[it] ?: error("Har ikke produsent for ønsket resultat: $it") }
+                        .map { it.regeltre(produsenter) }
+                        .toSet()
 
-                val (ekstern, intern) = planlegger.lagProduksjonsplan()
-                return Regelkjøringstilstand(
-                    prøvingsdato = prøvingsdato,
-                    opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
-                    ønsketResultat = ønsketResultat,
-                    plan = alleIntern,
-                    eksterneRegler = alleEkstern,
+                val reglerSomIkkeSkalKjøres = forretningsprosess.reglerSomIkkeSkalKjøres(opplysningerPåPrøvingsdato)
+
+                return Kjøreplan(
+                    siste =
+                        Regelkjøringstilstand(
+                            prøvingsdato = prøvingsdato,
+                            opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
+                            ønsketResultat = ønsketResultat,
+                            regeltre = regeltre,
+                            blokkerteRegler = reglerSomIkkeSkalKjøres,
+                        ),
                 )
+            }
+
+            private fun planForRegeltre(
+                regeltre: TreNode<Regel<*>>,
+                opplysninger: LesbarOpplysninger,
+            ): Set<Regel<*>> {
+                // vi besøker de dypeste løvnodene først (de reglene som ikke avhenger av noen),
+                // før vi tar for oss nivå-for-nivå.
+                // vi gjør dette fordi planen må spesifisere hvilke regler som må kjøres før de andre, slik
+                // at opplysningene som produseres av disse reglene er tilgjengelige for reglene som kommer senere i planen.
+                val planlegger = mutableSetOf<Regel<*>>()
+                regeltre
+                    .topologisk()
+                    .forEach { node ->
+                        val produkt = opplysninger.finnNullableOpplysning(node.verdi.produserer)
+                        val opplysningerUtledetAv = produkt?.utledetAv?.opplysninger
+                        // sjekker ikke om regelen selv sin opplysning er utdatert 🤔
+                        val harUtdaterteAvhengigheter = opplysningerUtledetAv?.any { it.erUtdatert } == true
+                        // hvis en avhengighet tidligere i kjeden er planlagt skal vi også kjøre
+                        val avhengighetSkalKjøre = node.avhengigheter.any { it.verdi in planlegger }
+
+                        val harFåttNyeAvhengigheterIKode =
+                            opplysningerUtledetAv != null &&
+                                node.verdi.avhengerAv.toSet() != opplysningerUtledetAv.map { it.opplysningstype }.toSet()
+
+                        if (produkt == null || harUtdaterteAvhengigheter || avhengighetSkalKjøre || harFåttNyeAvhengigheterIKode) {
+                            planlegger.add(node.verdi)
+                        }
+                    }
+                return planlegger
             }
         }
 
@@ -297,11 +365,18 @@ class Regelkjøring(
                     avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }.toSet()
                 }
 
-        fun kjørRegelPlan(egneOpplysninger: LesbarOpplysninger): List<Regelkjøringutfall<*>> =
-            plan.map { regel ->
+        fun kjørRegelPlan(
+            opplysninger: Opplysninger,
+            egneOpplysninger: LesbarOpplysninger,
+        ): List<Regelkjøringutfall<*>> =
+            kjørbarPlan.map { regel ->
                 try {
-                    regel.kjørRegel(egneOpplysninger)
-                } catch (e: IllegalArgumentException) {
+                    regel.kjørRegel(egneOpplysninger).also {
+                        // XXX: MUTERING PÅGÅR
+                        opplysninger.leggTilUtledet(it.produkt)
+                        // XXX: MUTERING FERDIG
+                    }
+                } catch (e: RuntimeException) {
                     throw RegelkjøringException(regel, e)
                 }
             }
@@ -375,11 +450,6 @@ class Regelkjøring(
         override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
             TODO("Not yet implemented")
         }
-
-        override fun produsenter(
-            regelverksdato: LocalDate,
-            opplysningerPåPrøvingsdato: LesbarOpplysninger,
-        ) = regelsett.flatMap { it.regler(regelverksdato) }.associateBy { it.produserer }
 
         override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> = opplysningstypes
     }

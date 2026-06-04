@@ -19,9 +19,9 @@ abstract class Forretningsprosess(
     abstract fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate
 
     open fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> =
-        regelverk.regelsett.filter { it.skalKjøres(opplysninger) }.flatMapTo(mutableSetOf()) {
-            it.ønsketInformasjon
-        }
+        regelverk.regelsett
+            //.filter { it.skalKjøres(opplysninger) }
+            .flatMapTo(mutableSetOf()) { it.ønsketInformasjon }
 
     open fun kontrollpunkter(): List<IKontrollpunkt> = emptyList()
 
@@ -39,15 +39,19 @@ abstract class Forretningsprosess(
 
     fun kjørRegelkjøringFerdig(kontekst: Prosesskontekst) = plugins.forEach { it.regelkjøringFerdig(kontekst) }
 
-    open fun produsenter(
-        regelverksdato: LocalDate,
-        opplysningerPåPrøvingsdato: LesbarOpplysninger,
-    ): Map<Opplysningstype<out Any>, Regel<*>> =
-        regelverk.regelsett
-            .filter { it.skalKjøres(opplysningerPåPrøvingsdato) }
-            .filter { it.skalRevurderes(opplysningerPåPrøvingsdato) }
+    fun produsenter(regelverksdato: LocalDate): Map<Opplysningstype<out Any>, Regel<*>> =
+        regelverk
+            .regelsett
             .flatMap { it.regler(regelverksdato) }
             .associateBy { it.produserer }
+
+    fun reglerSomIkkeSkalKjøres(opplysningerPåPrøvingsdato: LesbarOpplysninger): Set<Regel<*>> {
+        val regelsettSomIkkeSkalKjøres =
+            regelverk
+                .regelsett
+                .filterNot { it.skalKjøres(opplysningerPåPrøvingsdato) && it.skalRevurderes(opplysningerPåPrøvingsdato) }
+        return regelsettSomIkkeSkalKjøres.flatMap { it.regler() }.toSet()
+    }
 }
 
 interface ProsessPlugin : Aktivitetskontekst {

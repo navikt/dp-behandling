@@ -22,48 +22,18 @@ abstract class Regel<T : Any> internal constructor(
         }
     }
 
-    private fun regeltre(produsenter: Map<Opplysningstype<out Any>, Regel<*>>): TreNode<Regel<*>> {
+    private class ManglerProdusentException(
+        val opplysningstype: Opplysningstype<*>,
+        val regel: Regel<*>,
+    ) : RuntimeException("Finner ikke produsent for $opplysningstype for regel <$regel> (${regel::class.simpleName})")
+
+    internal fun regeltre(produsenter: Map<Opplysningstype<out Any>, Regel<*>>): TreNode<Regel<*>> {
         if (avhengerAv.isEmpty()) return TreNode(this, emptyList())
         return TreNode(
             this,
             avhengerAv
-                .map { produsenter[it] ?: error("har ikke produsent for $it") }
-                .map { it.regeltre(produsenter) },
+                .map { produsenter[it]?.regeltre(produsenter) ?: throw ManglerProdusentException(it, this) },
         )
-    }
-
-    private fun planForRegel(
-        regeltre: TreNode<Regel<*>>,
-        opplysninger: LesbarOpplysninger,
-    ): Set<Regel<*>> {
-        // vi besøker de dypeste løvnodene først (de reglene som ikke avhenger av noen),
-        // før vi tar for oss nivå-for-nivå.
-        // vi gjør dette fordi planen må spesifisere hvilke regler som må kjøres før de andre, slik
-        // at opplysningene som produseres av disse reglene er tilgjengelige for reglene som kommer senere i planen.
-        val planlegger = mutableSetOf<Regel<*>>()
-        regeltre
-            .topologisk()
-            .forEach { node ->
-                val produkt = opplysninger.finnNullableOpplysning(node.verdi.produserer)
-                // sjekker ikke om regelen selv sin opplysning er utdatert 🤔
-                val harUtdaterteAvhengigheter = produkt?.utledetAv?.opplysninger?.any { it.erUtdatert } == true
-                // hvis en avhengighet tidligere i kjeden er planlagt skal vi også kjøre
-                val avhengighetSkalKjøre = node.avhengigheter.any { it.verdi in planlegger }
-
-                if (produkt == null || harUtdaterteAvhengigheter || avhengighetSkalKjøre) {
-                    planlegger.add(node.verdi)
-                }
-            }
-        return planlegger
-    }
-
-    internal fun lagPlan(
-        opplysninger: LesbarOpplysninger,
-        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-    ): Set<Regel<*>> {
-        val regeltre = regeltre(produsenter)
-        val planForRegel = planForRegel(regeltre, opplysninger)
-        return planForRegel
     }
 
     internal open fun lagPlan(
