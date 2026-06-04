@@ -14,6 +14,8 @@ import no.nav.dagpenger.mediator.mottak.BehovsløserForbruksdagerMottak
 import no.nav.dagpenger.mediator.mottak.BeregnMeldekortMottak
 import no.nav.dagpenger.mediator.mottak.FjernOpplysningMessage
 import no.nav.dagpenger.mediator.mottak.FjernOpplysningMottak
+import no.nav.dagpenger.mediator.mottak.FlyttBehandlingMottak
+import no.nav.dagpenger.mediator.mottak.FlyttBehandlingMottak.FlyttBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.GodkjennBehandlingMottak
 import no.nav.dagpenger.mediator.mottak.InnsendingFerdigstiltMottak
@@ -37,6 +39,7 @@ import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.modell.hendelser.FjernOpplysningHendelse
+import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.ForslagGodkjentHendelse
 import no.nav.dagpenger.modell.hendelser.LåsHendelse
 import no.nav.dagpenger.modell.hendelser.LåsOppHendelse
@@ -68,12 +71,13 @@ internal class MessageMediator(
         // Generiske mottak
         AvbrytBehandlingMottak(rapidsConnection, this)
         AvklaringIkkeRelevantMottak(rapidsConnection, this)
+        BehovsløserForbruksdagerMottak(rapidsConnection, personRepository)
         BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
         FjernOpplysningMottak(rapidsConnection, this, opplysningstyper)
+        FlyttBehandlingMottak(rapidsConnection, this)
         GodkjennBehandlingMottak(rapidsConnection, this)
         InnsendingFerdigstiltMottak(rapidsConnection)
         MeldekortInnsendtMottak(rapidsConnection, this)
-        BehovsløserForbruksdagerMottak(rapidsConnection, personRepository)
         OmgjøringMottak(rapidsConnection, this, meldekortRepository)
         OppgaveReturnertTilSaksbehandler(rapidsConnection, this)
         OppgaveSendtTilKontroll(rapidsConnection, this)
@@ -213,6 +217,16 @@ internal class MessageMediator(
         }
     }
 
+    override fun behandle(
+        hendelse: FlyttBehandlingHendelse,
+        message: FlyttBehandlingMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+        }
+    }
+
     private fun <HENDELSE : PersonHendelse> behandle(
         hendelse: HENDELSE,
         message: KafkaMelding,
@@ -302,6 +316,12 @@ internal interface IMessageMediator : HendelseMottaker {
     fun behandle(
         hendelse: UtbetalingStatus,
         message: UtbetalingStatusMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: FlyttBehandlingHendelse,
+        message: FlyttBehandlingMessage,
         context: MessageContext,
     )
 }

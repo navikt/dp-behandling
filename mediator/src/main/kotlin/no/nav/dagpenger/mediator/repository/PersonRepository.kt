@@ -79,6 +79,8 @@ interface BehandlingRepository :
         tilOgMed: LocalDate,
         block: (Behandling) -> Unit,
     )
+
+    fun finnSøsken(behandlingId: UUID): List<UUID>
 }
 
 interface PersonRepository : BehandlingRepository {

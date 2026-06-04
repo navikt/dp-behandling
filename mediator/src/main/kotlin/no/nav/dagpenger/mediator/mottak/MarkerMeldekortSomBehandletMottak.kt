@@ -23,7 +23,6 @@ class MarkerMeldekortSomBehandletMottak(
         River(rapidsConnection)
             .apply {
                 precondition {
-                    // TODO: Lytte på behandlingsresultat i stedenfor vedtak_fattet
                     it.requireAny("@event_name", listOf("behandlingsresultat", "behandling_avbrutt"))
                     it.requireValue("behandletHendelse.type", "Meldekort")
                 }

@@ -1,4 +1,5 @@
 package no.nav.dagpenger.scenario
+
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -157,6 +158,7 @@ class KjedescenarioTest {
         }
     }
 
+    // TODO: Denne testen bør feile, dette skal ikke være lov
     @Test
     fun `behandling kan flyttes fra ny til eksisterende kjede`() {
         nyttScenario {
@@ -164,7 +166,6 @@ class KjedescenarioTest {
         }.test {
             // Behandling 1
             person.søkDagpenger(20.juni(2014))
-
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -175,7 +176,6 @@ class KjedescenarioTest {
 
             // Behandling 2
             person.søkDagpenger(21.juni(2015))
-
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()

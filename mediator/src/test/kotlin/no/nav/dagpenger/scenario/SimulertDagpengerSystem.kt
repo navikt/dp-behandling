@@ -203,14 +203,21 @@ internal class SimulertDagpengerSystem(
 
     val meldekortkø = runtime.meldekortBehandlingskø(TestRapidMessageContext(rapid))
 
-    fun meldekortBatch(avklar: Boolean = false) {
+    fun meldekortBatch(
+        avklar: Boolean = false,
+        markerFerdig: Boolean = true,
+    ) {
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()
 
         if (avklar) {
             påbegynteMeldekort.forEach { eksternMeldekortId ->
                 saksbehandler.lukkAlleAvklaringer()
                 saksbehandler.godkjenn()
+            }
+        }
 
+        if (avklar || markerFerdig) {
+            påbegynteMeldekort.forEach { eksternMeldekortId ->
                 // Marker som ferdig (vi klarer ikke å fange det i VedtakFattetMottak)
                 runtime.meldekortRepository.markerSomFerdig(eksternMeldekortId)
             }

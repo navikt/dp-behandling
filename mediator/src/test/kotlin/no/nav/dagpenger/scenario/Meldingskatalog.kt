@@ -130,7 +130,8 @@ internal object Meldingskatalog {
         .newMessage(
             "avsluttet_arbeidssokerperiode",
             buildMap {
-                put("periodeId", UUID.randomUUID())
+                val periodeId = UUID.randomUUID()
+                put("periodeId", periodeId)
                 put("ident", ident)
                 put("fastsattMeldedato", fastsattMeldedato)
                 put("avregistrertTidspunkt", avregistrertTidspunkt)

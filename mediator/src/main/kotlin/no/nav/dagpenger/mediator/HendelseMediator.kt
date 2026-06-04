@@ -134,9 +134,11 @@ internal class HendelseMediator(
         try {
             val personMediator = PersonMediator()
             val oppdateringObserver = OppdateringObserver()
+            val flyttSøskenObserver = FlyttSøskenObserver(personRepository)
             person(ident) { person ->
                 person.registrer(personMediator)
                 person.registrer(oppdateringObserver)
+                person.registrer(flyttSøskenObserver)
                 observatører.forEach { observatør -> person.registrer(observatør) }
                 tidBruktPerHendelse.labelValues(hendelse.javaClass.simpleName).time {
                     handler(person)
@@ -144,6 +146,7 @@ internal class HendelseMediator(
                 hendelseTeller.labelValues(hendelse.javaClass.simpleName).inc()
             }
             ferdigstill(context, personMediator, oppdateringObserver, hendelse)
+            flyttSøskenObserver.ferdigstill(context)
         } catch (aktivitetException: Aktivitetslogg.AktivitetException) {
             sikkerlogg.error(
                 aktivitetException,

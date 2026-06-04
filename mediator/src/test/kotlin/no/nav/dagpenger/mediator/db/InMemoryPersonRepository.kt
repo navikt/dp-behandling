@@ -58,6 +58,10 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
+    override fun finnSøsken(behandlingId: UUID): List<UUID> {
+        TODO("Not yet implemented")
+    }
+
     override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> {
         TODO("Not yet implemented")
     }

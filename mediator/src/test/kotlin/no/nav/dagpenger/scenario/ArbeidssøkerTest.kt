@@ -1,17 +1,24 @@
 package no.nav.dagpenger.scenario
 
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
+import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse.Companion.behandlingFlyttetAvklaring
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.util.UUID
 
 class ArbeidssøkerTest {
     // Scenario 2
@@ -187,6 +194,71 @@ class ArbeidssøkerTest {
                 rettighetsperioder[0].tilOgMed shouldBe 15.juli(2018)
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 16.juli(2018)
+            }
+        }
+    }
+
+    @Test
+    @Disabled("Denne gir ikke verdi før meldekort kan gå automatisk")
+    fun `blir avregistrert i ASR og sender meldekort`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder.single().tilOgMed shouldBe null
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            behandlingsresultat(2) {}
+
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+            behandlingsresultat(3) {}
+
+            person.sendInnMeldekort(3)
+            val fastsattMeldedato = person.fastsattMeldedato(3)
+
+            // Sier nei på meldekort
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = fastsattMeldedato,
+                avsluttetTidspunkt = fastsattMeldedato.plusDays(3).atTime(12, 21),
+            )
+
+            var stansId: UUID? = null
+            behandlingsresultatForslag(3) {
+                behandletHendelse["type"].asString() shouldBe "Arbeidssøkerperiode"
+                stansId = behandletHendelse["id"].asUUID()
+            }
+            saksbehandler.lukkAlleAvklaringer(stansId!!)
+
+            meldekortBatch(markerFerdig = true)
+            var sisteForbrukteDag: LocalDate? = null
+            behandlingsresultat(4) {
+                behandletHendelse["type"].asString() shouldBe "Meldekort"
+                sisteForbrukteDag = opplysninger(Beregning.forbruk).last().gyldigFraOgMed
+            }
+
+            // Simulerer at vi tar imot flytt_behandling og flytter søsken
+            val flytt = rapidInspektør.sisteMelding("flytt_behandling").second
+            saksbehandler.flyttBehandlingTilNyKjede(flytt["behandlingId"].asUUID(), flytt["nyBasertPåId"].asUUID())
+
+            // Sjekk at behandlingene som godkjennes får en avklaring som viser at det har skjedd
+            saksbehandler.lukkAlleAvklaringer(stansId) shouldContain behandlingFlyttetAvklaring
+
+            saksbehandler.godkjenn(stansId)
+            behandlingsresultat(5) {
+                behandletHendelse["type"].asString() shouldBe "Arbeidssøkerperiode"
+
+                opplysninger(Beregning.forbruk).last().gyldigFraOgMed shouldBe sisteForbrukteDag
             }
         }
     }

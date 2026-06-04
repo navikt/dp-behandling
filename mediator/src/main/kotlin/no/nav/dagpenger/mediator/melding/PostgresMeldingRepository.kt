@@ -10,6 +10,7 @@ import no.nav.dagpenger.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
 import no.nav.dagpenger.mediator.mottak.FjernOpplysningMessage
+import no.nav.dagpenger.mediator.mottak.FlyttBehandlingMottak.FlyttBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.mediator.mottak.OmgjøringMessage
@@ -163,6 +164,10 @@ internal class PostgresMeldingRepository(
                 MeldingTypeDTO.UTBETALING_STATUS
             }
 
+            is FlyttBehandlingMessage -> {
+                MeldingTypeDTO.FLYTT_BEHANDLING
+            }
+
             else -> {
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
@@ -184,6 +189,7 @@ private enum class MeldingTypeDTO {
     BEREGN_MELDEKORT,
     FERIETILLEGG,
     FJERN_OPPLYSNING,
+    FLYTT_BEHANDLING,
     MANUELL_BEHANDLING_AVKLART,
     MELDEKORT_INNSENDT,
     OMGJØRING,

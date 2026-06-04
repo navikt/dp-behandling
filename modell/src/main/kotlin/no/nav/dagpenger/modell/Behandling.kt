@@ -636,18 +636,7 @@ class Behandling private constructor(
             hendelse: FlyttBehandlingHendelse,
         ) {
             hendelse.info("Flytter behandlingen ${behandling.behandlingId} til ${hendelse.nyBasertPåId ?: "ny kjede"}")
-
-            val egneOpplysninger = behandling.opplysninger.somListe()
-            behandling.opplysninger.fjernHvis { opplysning ->
-                val utledetAvOpplysninger = opplysning.utledetAv?.opplysninger ?: return@fjernHvis false
-                // Fjern opplysning hvis det finnes noen opplysninger i utledetAv er basert på opplysninger fra tidligere behandlinger
-                utledetAvOpplysninger.any { it !in egneOpplysninger }
-            }
-
-            // Legg til ekstra opplysninger som er nødvendige for å starte ny kjede
-            hendelse.leggTilOpplysninger(behandling.opplysninger)
-
-            behandling.tilstand(Redigert(), hendelse)
+            behandling.flyttBehandling(hendelse)
         }
     }
 
@@ -957,18 +946,7 @@ class Behandling private constructor(
             hendelse: FlyttBehandlingHendelse,
         ) {
             hendelse.info("Flytter behandlingen ${behandling.behandlingId} til ${hendelse.nyBasertPåId ?: "ny kjede"}")
-
-            val egneOpplysninger = behandling.opplysninger.somListe()
-            behandling.opplysninger.fjernHvis { opplysning ->
-                val utledetAvOpplysninger = opplysning.utledetAv?.opplysninger ?: return@fjernHvis false
-                // Fjern opplysning hvis det finnes noen opplysninger i utledetAv er basert på opplysninger fra tidligere behandlinger
-                utledetAvOpplysninger.any { it !in egneOpplysninger }
-            }
-
-            // Legg til ekstra opplysninger som er nødvendige for å starte ny kjede
-            hendelse.leggTilOpplysninger(behandling.opplysninger)
-
-            behandling.tilstand(Redigert(), hendelse)
+            behandling.flyttBehandling(hendelse)
         }
     }
 
@@ -1020,6 +998,24 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Behandlingen er låst, ignorerer opplysningssvar")
         }
+    }
+
+    private fun flyttBehandling(hendelse: FlyttBehandlingHendelse) {
+        val egneOpplysninger = opplysninger.somListe()
+        opplysninger.fjernHvis { opplysning ->
+            val utledetAvOpplysninger = opplysning.utledetAv?.opplysninger ?: return@fjernHvis false
+            // Fjern opplysning hvis det finnes noen opplysninger i utledetAv er basert på opplysninger fra tidligere behandlinger
+            utledetAvOpplysninger.any { it !in egneOpplysninger }
+        }
+
+        // Legg til ekstra opplysninger som er nødvendige for å starte ny kjede
+        hendelse.leggTilOpplysninger(opplysninger)
+
+        // Legg til avklaring om at behandlingen har blitt flyttet
+        hendelse.leggTilAvklaring(avklaringer)
+
+        // Emit hendelse om at behandlingen har blitt flyttet))
+        tilstand(Redigert(), hendelse)
     }
 
     // Kjører alle regler, logger hvilke regler som er kjørt , sender ut behov, og avgjør neste tilstand

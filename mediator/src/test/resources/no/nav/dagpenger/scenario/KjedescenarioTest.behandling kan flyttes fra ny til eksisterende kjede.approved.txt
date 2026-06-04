@@ -112,5 +112,6 @@ Behov:
 - Sykepenger
 - Uføre
 Behandling endret tilstand til: ForslagTilVedtak
+Laget avklaring om BehandlingFlyttet
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak

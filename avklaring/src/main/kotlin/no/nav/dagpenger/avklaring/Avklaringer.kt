@@ -19,6 +19,8 @@ class Avklaringer(
 
     fun måAvklares() = avklaringer.filter { it.måAvklares() }
 
+    fun leggTil(avklaring: Avklaring) = avklaringer.add(avklaring)
+
     override fun evaluert(
         rapport: Regelkjøringsrapport,
         alleOpplysninger: LesbarOpplysninger,

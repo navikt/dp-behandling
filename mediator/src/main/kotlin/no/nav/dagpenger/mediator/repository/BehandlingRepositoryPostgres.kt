@@ -8,6 +8,9 @@ import no.nav.dagpenger.mediator.db.DatabaseSession
 import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.modell.Arbeidssteg
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Behandling.TilstandType.Avbrutt
+import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
+import no.nav.dagpenger.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.modell.Behandlingkjede
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.hendelser.EksternId
@@ -20,9 +23,6 @@ import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.groupBy
 
 internal class BehandlingRepositoryPostgres(
     private val dbSession: DatabaseSession,
@@ -63,6 +63,23 @@ internal class BehandlingRepositoryPostgres(
         }
     }
 
+    override fun finnSøsken(behandlingId: UUID): List<UUID> =
+        dbSession.session { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT behandling_id
+                    FROM behandling
+                    WHERE basert_på_behandling_id = (SELECT basert_på_behandling_id FROM behandling WHERE behandling_id = :behandlingId)
+                      AND behandling_id != :behandlingId
+                      AND behandling.tilstand NOT IN ('$Avbrutt', '$TilBeslutning', '$Ferdig')
+                    """.trimIndent(),
+                    mapOf("behandlingId" to behandlingId),
+                ).map { it.uuid("behandling_id") }.asList,
+            )
+        }
+
     private fun Session.hentBehandling(behandlingId: UUID): Behandling? {
         // når vi henter en enkelt behandling så får vi maksimalt én kjede tilbake
         val kjede = hentBehandlinger(HentBehandling.Behandling(behandlingId)).singleOrNull() ?: return null
@@ -73,24 +90,24 @@ internal class BehandlingRepositoryPostgres(
         // language=PostgreSQL
         val cte =
             """
-            with recursive 
-            personens_behandlinger as (
-                select b.behandling_id, b.basert_på_behandling_id
-                from behandling b
-                inner join person_behandling pb on pb.behandling_id = b.behandling_id 
-                where pb.ident = ANY(:identer)
+            WITH RECURSIVE 
+            personens_behandlinger AS (
+                SELECT b.behandling_id, b.basert_på_behandling_id
+                FROM behandling b
+                INNER JOIN person_behandling pb ON pb.behandling_id = b.behandling_id 
+                WHERE pb.ident = ANY(:identer)
             ), 
-            behandlingkjede as (
+            behandlingkjede AS (
                 -- rotbehandlinger, de som ikke peker på noen andre
-                select b.behandling_id, b.basert_på_behandling_id, 0 as dybde
-                from personens_behandlinger b
-                where b.basert_på_behandling_id is null
+                SELECT b.behandling_id, b.basert_på_behandling_id, 0 AS dybde
+                FROM personens_behandlinger b
+                WHERE b.basert_på_behandling_id IS NULL
                 
-                union all
+                UNION ALL
                 -- rekursive behandlinger. avstanden øker jo lenger fremover i kjeden vi går
-                select r.behandling_id, r.basert_på_behandling_id, bk.dybde + 1
-                from personens_behandlinger r
-                join behandlingkjede bk on bk.behandling_id = r.basert_på_behandling_id
+                SELECT r.behandling_id, r.basert_på_behandling_id, bk.dybde + 1
+                FROM personens_behandlinger r
+                JOIN behandlingkjede bk ON bk.behandling_id = r.basert_på_behandling_id
             )
             """.trimIndent()
 
@@ -101,17 +118,17 @@ internal class BehandlingRepositoryPostgres(
         // language=PostgreSQL
         val cte =
             """
-            with recursive behandlingkjede as (
-                select behandling_id, basert_på_behandling_id, 0 as dybde
-                from behandling
-                where behandling_id = :behandlingId
+            WITH RECURSIVE behandlingkjede AS (
+                SELECT behandling_id, basert_på_behandling_id, 0 AS dybde
+                FROM behandling
+                WHERE behandling_id = :behandlingId
             
-                union all
+                UNION ALL
             
                 -- rekursive behandlinger. avstanden minsker jo lenger bakover i kjeden vi beveger oss, slik at roten har lavest dybde
-                select r.behandling_id, r.basert_på_behandling_id, bk.dybde - 1
-                from behandling r
-                join behandlingkjede bk on bk.basert_på_behandling_id = r.behandling_id
+                SELECT r.behandling_id, r.basert_på_behandling_id, bk.dybde - 1
+                FROM behandling r
+                JOIN behandlingkjede bk ON bk.basert_på_behandling_id = r.behandling_id
             )
             """.trimIndent()
         return cte to mapOf("behandlingId" to behandlingId)
@@ -381,20 +398,27 @@ internal class BehandlingRepositoryPostgres(
             arbeidsstegene
                 .mapNotNull { (behandling, arbeidssteg) ->
                     when (arbeidssteg.tilstandType) {
-                        Arbeidssteg.TilstandType.IkkeUtført ->
+                        Arbeidssteg.TilstandType.IkkeUtført -> {
                             mapOf(
                                 "behandling_id" to behandling.behandlingId,
                                 "oppgave" to arbeidssteg.oppgave.name,
                             )
-                        Arbeidssteg.TilstandType.Utført -> null
+                        }
+
+                        Arbeidssteg.TilstandType.Utført -> {
+                            null
+                        }
                     }
                 }
         val insertParams =
             arbeidsstegene
                 .mapNotNull { (behandling, arbeidssteg) ->
                     when (arbeidssteg.tilstandType) {
-                        Arbeidssteg.TilstandType.IkkeUtført -> null
-                        Arbeidssteg.TilstandType.Utført ->
+                        Arbeidssteg.TilstandType.IkkeUtført -> {
+                            null
+                        }
+
+                        Arbeidssteg.TilstandType.Utført -> {
                             mapOf(
                                 "behandling_id" to behandling.behandlingId,
                                 "oppgave" to arbeidssteg.oppgave.name,
@@ -402,6 +426,7 @@ internal class BehandlingRepositoryPostgres(
                                 "utfort_av" to arbeidssteg.utførtAv.ident,
                                 "utfort" to arbeidssteg.utført,
                             )
+                        }
                     }
                 }
 
