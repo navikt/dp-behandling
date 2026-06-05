@@ -35,9 +35,9 @@ class FlyttBehandlingHendelse(
         val behandlingFlyttetAvklaring =
             Avklaringkode(
                 kode = "BehandlingFlyttet",
-                tittel = "Det har blitt utført nye behandlinger siden behandlingen ble opprettet",
+                tittel = "Det har blitt fullført andre behandlinger siden behandlingen ble opprettet",
                 beskrivelse =
-                    "Det har blitt utført endringer siden behandlingen ble påbegynt. Vurder om nye opplysninger påvirker denne behandlingen",
+                    "Det har blitt fullført andre behandlinger siden behandlingen ble opprettet. Vurder om nye opplysninger påvirker denne behandlingen.",
                 kanKvitteres = true,
                 kanAvbrytes = false,
             )
