@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.regel.TomRegel
 import java.time.LocalDate
+import java.util.concurrent.atomic.AtomicInteger
 
 // Regelverksdato: Datoen regelverket gjelder fra. Som hovedregel tidspunktet søknaden ble fremmet.
 
@@ -85,6 +86,7 @@ class Regelkjøring(
     )
 
     companion object {
+        val regelkjøringteller = AtomicInteger()
         private val logger = KotlinLogging.logger { }
     }
 
@@ -196,6 +198,7 @@ class Regelkjøring(
     private fun planleggOgUtfør(prøvingsdato: LocalDate): Pair<Kjøreplan, List<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>> {
         var kjøreplan = lagKjøreplan(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring)
         val regelresultater = mutableListOf<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>()
+        val kjøringtelling = regelkjøringteller.incrementAndGet()
         try {
             while (kjøreplan.skalKjøre()) {
                 val resultater = kjøreplan.kjørPlan(opplysninger, opplysninger.kunEgne)
@@ -225,7 +228,7 @@ class Regelkjøring(
                 """
                 Feil for med regel: ${err.regel.produserer.navn}
                 Skal kjøre: 
-                ${kjøreplan.siste.plan.joinToString("\n") { it.produserer.navn }}
+                ${kjøreplan.siste.kjørbarPlan.joinToString("\n") { it.produserer.navn }}
                 Har kjørt: 
                 ${regelresultater.flatten().joinToString("\n") { it.regel.produserer.navn }}
                 """.trimIndent()
@@ -252,15 +255,24 @@ class Regelkjøring(
         val regeltre: Set<TreNode<Regel<*>>>,
         val blokkerteRegler: Set<Regel<*>>,
     ) {
+        /**
+         * gitt at en regel skal kjøre, da må vi først kjøre alle avhengighetene dens.
+         * planen er derfor et supersett av alle mulige regler som kan kjøre.
+         */
         val plan =
-            regeltre.flatMap { regeltre ->
-                planForRegeltre(regeltre, opplysningerPåPrøvingsdato)
-            }
+            regeltre
+                .flatMap { regeltre -> planForRegeltre(regeltre, opplysningerPåPrøvingsdato) }
+
+        val regler = plan.map { it.verdi }
         val eksterneRegler: Set<Regel<*>> =
-            plan
+            regler
                 .filterIsInstance<Ekstern<*>>()
                 .toSet()
 
+        /**
+         * en regel kan ikke kjøre dersom den må få data eksternt (den er avhengig av en Ekstern regel),
+         * eller dersom regelsettet ikke skal vurderes
+         */
         val blokkert: Set<Opplysningstype<*>> =
             buildSet {
                 // alle behov blokkerer videre kjøring
@@ -268,14 +280,15 @@ class Regelkjøring(
                 // alle blokkerte regler hindrer videre kjøring
                 addAll(blokkerteRegler.map { it.produserer })
                 // alle regler som er transitiv avhengig av et behov blir blokkert
-                plan.forEach { regel ->
-                    regel.avhengerAv.any { it in this }.also {
-                        if (it) this.add(regel.produserer)
+                plan.forEach { node ->
+                    // sjekker avhengigheter på trenoden da den er renset for unødvendige avhengigheter
+                    node.avhengigheter.any { it.verdi.produserer in this }.also {
+                        if (it) this.add(node.verdi.produserer)
                     }
                 }
             }
 
-        val ikkeKjørbare = plan.filter { it is Ekstern<*> || it is TomRegel<*> }
+        val ikkeKjørbare = regler.filter { it is Ekstern<*> || it is TomRegel<*> }
 
         val trenger: Set<Opplysningstype<*>> =
             eksterneRegler
@@ -286,7 +299,7 @@ class Regelkjøring(
                 .toSet()
 
         val kjørbarPlan: Set<Regel<*>> =
-            plan
+            regler
                 .filterNot { it is TomRegel<*> }
                 .filterNot { regel -> regel.produserer in blokkert }
                 .toSet()
@@ -327,13 +340,14 @@ class Regelkjøring(
             private fun planForRegeltre(
                 regeltre: TreNode<Regel<*>>,
                 opplysninger: LesbarOpplysninger,
-            ): Set<Regel<*>> {
+            ): Set<TreNode<Regel<*>>> {
                 // vi besøker de dypeste løvnodene først (de reglene som ikke avhenger av noen),
                 // før vi tar for oss nivå-for-nivå.
                 // vi gjør dette fordi planen må spesifisere hvilke regler som må kjøres før de andre, slik
                 // at opplysningene som produseres av disse reglene er tilgjengelige for reglene som kommer senere i planen.
-                val planlegger = mutableSetOf<Regel<*>>()
+                val planlegger = mutableSetOf<TreNode<Regel<*>>>()
                 regeltre
+                    .medFaktiskeAvhengigheter(opplysninger)
                     .topologisk()
                     .forEach { node ->
                         val produkt = opplysninger.finnNullableOpplysning(node.verdi.produserer)
@@ -341,17 +355,29 @@ class Regelkjøring(
                         // sjekker ikke om regelen selv sin opplysning er utdatert 🤔
                         val harUtdaterteAvhengigheter = opplysningerUtledetAv?.any { it.erUtdatert } == true
                         // hvis en avhengighet tidligere i kjeden er planlagt skal vi også kjøre
-                        val avhengighetSkalKjøre = node.avhengigheter.any { it.verdi in planlegger }
+                        val avhengighetSkalKjøre = node.avhengigheter.any { it in planlegger }
 
                         val harFåttNyeAvhengigheterIKode =
                             opplysningerUtledetAv != null &&
                                 node.verdi.avhengerAv.toSet() != opplysningerUtledetAv.map { it.opplysningstype }.toSet()
 
                         if (produkt == null || harUtdaterteAvhengigheter || avhengighetSkalKjøre || harFåttNyeAvhengigheterIKode) {
-                            planlegger.add(node.verdi)
+                            planlegger.add(node)
                         }
                     }
                 return planlegger
+            }
+
+            /**
+             * trimmer avhengighetsgreiner som ikke trengs (HvisSannMedResultat)
+             */
+            private fun TreNode<Regel<*>>.medFaktiskeAvhengigheter(opplysninger: LesbarOpplysninger): TreNode<Regel<*>> {
+                val effektive = verdi.effektiveAvhengigheter(opplysninger).toSet()
+                val filtrerteBarn =
+                    avhengigheter
+                        .filter { it.verdi.produserer in effektive }
+                        .map { it.medFaktiskeAvhengigheter(opplysninger) }
+                return copy(avhengigheter = filtrerteBarn)
             }
         }
 

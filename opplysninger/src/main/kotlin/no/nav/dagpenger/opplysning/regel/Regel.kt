@@ -156,6 +156,8 @@ abstract class Regel<T : Any> internal constructor(
     private fun harRegelNyeAvhengigheter(utledetAv: Utledning) =
         avhengerAv.toSet() != utledetAv.opplysninger.map { it.opplysningstype }.toSet()
 
+    internal open fun effektiveAvhengigheter(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> = avhengerAv
+
     abstract override fun toString(): String
 
     protected abstract fun kjør(opplysninger: LesbarOpplysninger): T

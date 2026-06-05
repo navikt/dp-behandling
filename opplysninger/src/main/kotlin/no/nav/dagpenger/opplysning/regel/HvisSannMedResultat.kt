@@ -40,6 +40,14 @@ class HvisSannMedResultat<T : Any>(
         }
     }
 
+    override fun effektiveAvhengigheter(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> {
+        if (opplysninger.mangler(sjekk)) {
+            return listOf(sjekk)
+        }
+        val neste = if (opplysninger.finnOpplysning(sjekk).verdi) hvisSann else hvisUsann
+        return listOf(sjekk, neste)
+    }
+
     override fun kjør(opplysninger: LesbarOpplysninger): T {
         val sjekk = opplysninger.finnOpplysning(sjekk).verdi
 
