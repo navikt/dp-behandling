@@ -12,7 +12,9 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.erBortfallsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.oppfyllerKravTilTaptArbeidstidIPerioden
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetaling
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetalingForPeriode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk
@@ -22,7 +24,7 @@ class MeldekortBeregningPlugin(
     private val kvoter: List<KvoteDefinisjon>,
 ) : ProsessPlugin {
     private val kvoteLagring = KvoteLagring()
-    private val kvoteOppgjørService = KvoteOppgjørService(kvoter)
+    private val meldeperiodeKvoteteller = MeldeperiodeKvoteteller(kvoter)
 
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
@@ -39,31 +41,15 @@ class MeldekortBeregningPlugin(
         val gyldighetsperiode = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed)
         kontekst.info("Beregner meldeperiode: ${gyldighetsperiode.fraOgMed} til ${gyldighetsperiode.tilOgMed}")
 
-        val terskelForAntallDagerEnIkkeKanVæreMeldt = TerskelTrekkForSenMelding.forDato(meldeperiode.fraOgMed)
-        val antallIkkeMeldtDager =
-            opplysninger
-                .finnAlle(Beregning.meldt)
-                .filter { it.gyldighetsperiode.overlapper(gyldighetsperiode) }
-                .filterNot { it.verdi }
-                .size
-        val erMeldtITide = antallIkkeMeldtDager < terskelForAntallDagerEnIkkeKanVæreMeldt
-
-        opplysninger.leggTil(Faktum(Beregning.meldtITide, erMeldtITide, gyldighetsperiode))
+        opplysninger.fastsettMeldtITide(meldeperiode, gyldighetsperiode)
 
         val resultat =
             BeregningsperiodeFabrikk(meldeperiode.fraOgMed, meldeperiode.tilOgMed, opplysninger, kvoter)
                 .lagBeregningsperiode()
                 .resultat
 
-        opplysninger.leggTil(Faktum(Beregning.forbruktEgenandel, resultat.forbruktEgenandel, gyldighetsperiode))
-        opplysninger.leggTil(Faktum(Beregning.utbetalingForPeriode, resultat.utbetaling, gyldighetsperiode))
-        opplysninger.leggTil(Faktum(Beregning.gjenståendeEgenandel, resultat.gjenståendeEgenandel, gyldighetsperiode))
-        opplysninger.leggTil(
-            Faktum(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden, resultat.oppfyllerKravTilTaptArbeidstid, gyldighetsperiode),
-        )
-        opplysninger.leggTil(Faktum(Beregning.sumFva, resultat.sumFva.timer, gyldighetsperiode))
-        opplysninger.leggTil(Faktum(Beregning.sumArbeidstimer, resultat.sumArbeidstimer.timer, gyldighetsperiode))
-        opplysninger.leggTil(Faktum(Beregning.prosentfaktor, resultat.prosentfaktor, gyldighetsperiode))
+        opplysninger.lagreEgenandel(resultat, gyldighetsperiode)
+        opplysninger.lagreBeregningsverdier(resultat, gyldighetsperiode)
 
         val forbruksdager = resultat.beregningsdager
         forbruksdager
@@ -74,8 +60,41 @@ class MeldekortBeregningPlugin(
                 opplysninger.leggTil(Faktum(erBortfallsdag, dag?.erBortfall ?: false, dagGyldighetsperiode))
             }
 
+        val kvoteOppgjør = meldeperiodeKvoteteller.oppgjør(resultat.forbruksdager, opplysninger, meldeperiode)
         kvoteLagring.lagre(opplysninger, kvoteOppgjør.kvotetellinger)
         return resultat
+    }
+
+    private fun Opplysninger.lagreEgenandel(
+        resultat: Beregningresultat,
+        gyldighetsperiode: Gyldighetsperiode,
+    ) {
+        leggTil(Faktum(Beregning.forbruktEgenandel, resultat.forbruktEgenandel, gyldighetsperiode))
+        leggTil(Faktum(Beregning.gjenståendeEgenandel, resultat.gjenståendeEgenandel, gyldighetsperiode))
+    }
+
+    private fun Opplysninger.lagreBeregningsverdier(
+        resultat: Beregningresultat,
+        gyldighetsperiode: Gyldighetsperiode,
+    ) {
+        leggTil(Faktum(Beregning.sumFva, resultat.sumFva.timer, gyldighetsperiode))
+        leggTil(Faktum(Beregning.sumArbeidstimer, resultat.sumArbeidstimer.timer, gyldighetsperiode))
+        leggTil(Faktum(Beregning.prosentfaktor, resultat.prosentfaktor, gyldighetsperiode))
+    }
+
+    private fun Opplysninger.fastsettMeldtITide(
+        meldeperiode: Periode,
+        gyldighetsperiode: Gyldighetsperiode,
+    ) {
+        val terskelForAntallDagerEnIkkeKanVæreMeldt = TerskelTrekkForSenMelding.forDato(meldeperiode.fraOgMed)
+        val antallIkkeMeldtDager =
+            finnAlle(Beregning.meldt)
+                .filter { it.gyldighetsperiode.overlapper(gyldighetsperiode) }
+                .filterNot { it.verdi }
+                .size
+        val erMeldtITide = antallIkkeMeldtDager < terskelForAntallDagerEnIkkeKanVæreMeldt
+
+        leggTil(Faktum(Beregning.meldtITide, erMeldtITide, gyldighetsperiode))
     }
 
     private fun meldeperiode(opplysninger: Opplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi
