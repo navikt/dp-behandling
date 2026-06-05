@@ -11,6 +11,7 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.prosess.Stansprosess
@@ -46,13 +47,15 @@ class AvsluttetArbeidssøkerperiodeHendelse(
     ) {
     override val forretningsprosess = Stansprosess()
 
+    val kilde = Systemkilde(meldingsreferanseId, opprettet)
+
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): StartHendelseResultat {
-        requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
-
-        val kilde = Systemkilde(meldingsreferanseId, opprettet)
+        if (forrigeBehandling == null) {
+            return StartHendelseResultat.OppdaterBehandling("Fant ingen behandling å kjede på")
+        }
 
         return Opprettet(
             Behandling(
@@ -144,6 +147,34 @@ class AvsluttetArbeidssøkerperiodeHendelse(
             },
         )
     }
+
+    override val opplysninger =
+        Opplysninger.med(
+            buildList {
+                // Marker bruker som ikke lenger registrert fra og med avsluttetTidspunkt.
+                add(
+                    Faktum(
+                        registrertArbeidssøker,
+                        false,
+                        Gyldighetsperiode(fraOgMed = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate()),
+                        kilde = kilde,
+                    ),
+                )
+
+                // Om meldekort sendes inn etter 21-dagers fristen skal også få stans på § 4-8
+                if (avsluttetArbeidssøkerperiode.fristBrutt) {
+                    val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
+                    add(
+                        Faktum(
+                            oppfyllerMeldeplikt,
+                            false,
+                            Gyldighetsperiode(fraOgMed = meldingsdag),
+                            kilde = kilde,
+                        ),
+                    )
+                }
+            },
+        )
 
     companion object {
         private val logger = KotlinLogging.logger {}

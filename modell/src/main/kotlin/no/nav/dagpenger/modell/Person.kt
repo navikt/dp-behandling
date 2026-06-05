@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.modell.Behandling.Companion.finn
+import no.nav.dagpenger.modell.Behandling.TilstandType.Avbrutt
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingFerdig
@@ -116,6 +117,24 @@ class Person(
 
                 is StartHendelseResultat.Opprettet -> {
                     resultat.behandling
+                }
+
+                is StartHendelseResultat.OppdaterBehandling -> {
+                    val eldsteAktiveBehandling =
+                        behandlingkjeder
+                            .filter { it.rot.regelverk == hendelse.forretningsprosess.regelverk.navn }
+                            .filterNot { it.rot.harTilstand(Ferdig) || it.rot.harTilstand(Avbrutt) }
+                            .minByOrNull { it.rot.behandlingId }
+                            ?.rot
+
+                    if (eldsteAktiveBehandling == null) {
+                        val melding = "Fant ikke en aktiv behandling å legge til oppylysninger i"
+                        hendelse.varsel(melding)
+                        logger.info { melding }
+                        return
+                    }
+
+                    eldsteAktiveBehandling
                 }
             }
 

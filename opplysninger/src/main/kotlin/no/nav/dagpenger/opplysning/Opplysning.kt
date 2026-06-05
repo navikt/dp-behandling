@@ -64,6 +64,8 @@ sealed class Opplysning<T : Any>(
     }
 
     abstract fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode): Opplysning<T>
+
+    abstract fun medNyId(): Opplysning<T>
 }
 
 class Hypotese<T : Any>(
@@ -111,6 +113,18 @@ class Hypotese<T : Any>(
             opprettet,
             erstatter,
         )
+
+    override fun medNyId(): Opplysning<T> =
+        Hypotese(
+            UUIDv7.ny(),
+            opplysningstype,
+            verdi,
+            gyldighetsperiode,
+            utledetAv,
+            kilde,
+            opprettet,
+            erstatter,
+        )
 }
 
 class Faktum<T : Any>(
@@ -150,6 +164,18 @@ class Faktum<T : Any>(
     override fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode) =
         Faktum(
             id,
+            opplysningstype,
+            verdi,
+            gyldighetsperiode,
+            utledetAv,
+            kilde,
+            opprettet,
+            erstatter,
+        )
+
+    override fun medNyId(): Opplysning<T> =
+        Faktum(
+            UUIDv7.ny(),
             opplysningstype,
             verdi,
             gyldighetsperiode,

@@ -36,7 +36,13 @@ internal class TestSaksbehandler2(
     private val personRepository: PersonRepository,
     private val rapid: TestRapid,
 ) {
-    fun beslutt() {
+    fun beslutt(eksternHendelseId: UUID? = null) {
+        val behandlingId =
+            if (eksternHendelseId != null) {
+                finnBehandlingBasertEllerSiste(eksternHendelseId).behandlingId
+            } else {
+                testPerson.behandlingId
+            }
         hendelseMediator.behandle(
             BesluttBehandlingHendelse(
                 meldingsreferanseId = UUIDv7.ny(),

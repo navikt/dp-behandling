@@ -3,6 +3,7 @@ package no.nav.dagpenger.modell.hendelser
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.opplysning.Forretningsprosess
+import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -11,6 +12,10 @@ import java.util.UUID
 sealed class StartHendelseResultat {
     data class Opprettet(
         val behandling: Behandling,
+    ) : StartHendelseResultat()
+
+    data class OppdaterBehandling(
+        val årsak: String,
     ) : StartHendelseResultat()
 
     data class IkkeOpprettet(
@@ -41,4 +46,6 @@ abstract class StartHendelse(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): StartHendelseResultat
+
+    open val opplysninger: Opplysninger = Opplysninger()
 }

@@ -262,4 +262,42 @@ class ArbeidssøkerTest {
             }
         }
     }
+
+    @Test
+    fun `stanses mens søknaden fortsatt er under behandling`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            // Sier nei i meldekort
+            val fastsattMeldedato = person.fastsattMeldedato(2)
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = fastsattMeldedato,
+                avsluttetTidspunkt = fastsattMeldedato.plusDays(4).atTime(12, 21),
+            )
+
+            // Lukker avklaringen som tvinger alle stans til manuell behandling
+            saksbehandler.lukkAlleAvklaringer(person.sisteSøknadId)
+            saksbehandler.godkjenn(person.sisteSøknadId)
+            saksbehandler.beslutt(person.sisteSøknadId)
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+                with(rettighetsperioder.single()) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 21.juni(2018)
+                    tilOgMed shouldBe 5.juli(2018)
+                }
+
+                with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {
+                    this shouldHaveSize 2
+
+                    this[0].gyldigFraOgMed shouldBe 21.juni(2018)
+                    this[1].gyldigFraOgMed shouldBe 6.juli(2018)
+                }
+            }
+        }
+    }
 }

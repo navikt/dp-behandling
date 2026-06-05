@@ -244,18 +244,6 @@ class Opplysninger private constructor(
 
     fun inneholder(opplysning: Opplysning<*>): Boolean = alleOpplysninger.contains(opplysning)
 
-    private fun Opplysning<*>.forkortetTil(utfordrer: Opplysning<*>): Opplysning<*> {
-        val segmenter = gyldighetsperiode - utfordrer.gyldighetsperiode
-        val forkortetPeriode =
-            segmenter.firstOrNull { it.erFør(utfordrer.gyldighetsperiode) }
-                ?: throw IllegalArgumentException(
-                    "Kan ikke forkorte $gyldighetsperiode fram til ${utfordrer.gyldighetsperiode}",
-                )
-        return medGyldighetsperiode(forkortetPeriode).apply {
-            erUtdatert = utfordrer.erUtdatert
-        }
-    }
-
     // Interne hjelpemetoder for OpplysningerView
     internal fun hentOpplysninger(bareEgne: Boolean): List<Opplysning<*>> =
         if (bareEgne) egne.utenErstattet() else alleOpplysninger.toList()
@@ -297,6 +285,18 @@ class Opplysninger private constructor(
             id: UUID,
             opplysninger: List<Opplysning<*>>,
         ) = Opplysninger(id, opplysninger, null)
+
+        fun Opplysning<*>.forkortetTil(utfordrer: Opplysning<*>): Opplysning<*> {
+            val segmenter = gyldighetsperiode - utfordrer.gyldighetsperiode
+            val forkortetPeriode =
+                segmenter.firstOrNull { it.erFør(utfordrer.gyldighetsperiode) }
+                    ?: throw IllegalArgumentException(
+                        "Kan ikke forkorte $gyldighetsperiode fram til ${utfordrer.gyldighetsperiode}",
+                    )
+            return medGyldighetsperiode(forkortetPeriode).apply {
+                erUtdatert = utfordrer.erUtdatert
+            }
+        }
     }
 }
 

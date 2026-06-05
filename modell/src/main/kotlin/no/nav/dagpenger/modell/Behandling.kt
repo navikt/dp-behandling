@@ -38,6 +38,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysninger.Companion.forkortetTil
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.OpplysningstypeKategori
 import no.nav.dagpenger.opplysning.Prosesskontekst
@@ -542,6 +543,24 @@ class Behandling private constructor(
 
         override fun håndter(
             behandling: Behandling,
+            hendelse: StartHendelse,
+        ) {
+            hendelse.kontekst(this)
+            hendelse.info("Legger til opplysninger fra en annen starthendelse")
+
+            hendelse.opplysninger.somListe().forEach { nyOpplysning ->
+                val opplysning = behandling.opplysninger.finnOpplysning(nyOpplysning.opplysningstype)
+
+                val forkortet = opplysning.forkortetTil(nyOpplysning)
+                behandling.opplysninger.leggTil(forkortet.medNyId())
+                behandling.opplysninger.leggTil(nyOpplysning.medNyId())
+            }
+
+            behandling.tilstand(Redigert(), hendelse)
+        }
+
+        override fun håndter(
+            behandling: Behandling,
             hendelse: LåsHendelse,
         ) {
             hendelse.kontekst(this)
@@ -866,6 +885,24 @@ class Behandling private constructor(
 
             hendelse.info("Krever totrinnskontroll")
             behandling.tilstand(TilBeslutning(), hendelse)
+        }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: StartHendelse,
+        ) {
+            hendelse.kontekst(this)
+            hendelse.info("Legger til opplysninger fra en annen starthendelse")
+
+            hendelse.opplysninger.somListe().forEach { nyOpplysning ->
+                val opplysning = behandling.opplysninger.finnOpplysning(nyOpplysning.opplysningstype)
+
+                val forkortet = opplysning.forkortetTil(nyOpplysning)
+                behandling.opplysninger.leggTil(forkortet.medNyId())
+                behandling.opplysninger.leggTil(nyOpplysning.medNyId())
+            }
+
+            behandling.tilstand(Redigert(), hendelse)
         }
 
         override fun håndter(
