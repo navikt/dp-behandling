@@ -20,7 +20,7 @@ abstract class Forretningsprosess(
 
     open fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> =
         regelverk.regelsett
-            //.filter { it.skalKjøres(opplysninger) }
+            // .filter { it.skalKjøres(opplysninger) }
             .flatMapTo(mutableSetOf()) { it.ønsketInformasjon }
 
     open fun kontrollpunkter(): List<IKontrollpunkt> = emptyList()

@@ -216,6 +216,9 @@ class Regelkjøring(
 
                 kjøreplan = kjøreplan.nyPlan(nyPlan)
             }
+            if (kjøreplan.siste.plan.isNotEmpty() && kjøreplan.siste.trenger.isEmpty()) {
+                // error("Planen er fremdeles ikke kjørt ferdig, men vi har likevel nådd veiens ende!")
+            }
             return kjøreplan to regelresultater.toList()
         } catch (err: RegelkjøringException) {
             logger.info {
