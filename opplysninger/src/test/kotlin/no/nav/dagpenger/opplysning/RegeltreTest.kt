@@ -1,6 +1,8 @@
 package no.nav.dagpenger.opplysning
 
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.opplysning.regel.Ekstern
+import no.nav.dagpenger.opplysning.regel.Multiplikasjon
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.regel.Utgangspunkt
 import no.nav.dagpenger.uuid.UUIDv7
@@ -102,6 +104,40 @@ class RegeltreTest {
         plan shouldBe emptySet()
     }
 
+    @Test
+    fun `ekstern regel hindrer at de som er avhengig av den kan kjøre`() {
+        val antallEpletrærType =
+            Opplysningstype.heltall(
+                id = Opplysningstype.Id(UUIDv7.ny(), Heltall),
+                beskrivelse = "Antall epletrær",
+            )
+        val antallEplerPerTreType =
+            Opplysningstype.heltall(
+                id = Opplysningstype.Id(UUIDv7.ny(), Heltall),
+                beskrivelse = "Antall epler per tre",
+            )
+
+        val antallEplerPerTre = 1
+        val antallEpletrærRegel = Ekstern(antallEpletrærType, listOf())
+        val antallEplerPerTreRegel = Utgangspunkt(antallEplerPerTreType, antallEplerPerTre)
+        val antallEplerRegel = Multiplikasjon(antallEplerType, antallEpletrærType, antallEplerPerTreType, Int::times)
+
+        val opplysningstypeTilRegel: Map<Opplysningstype<*>, Regel<*>> =
+            mapOf(
+                antallEpletrærType to antallEpletrærRegel,
+                antallEplerPerTreType to antallEplerPerTreRegel,
+                antallEplerType to antallEplerRegel,
+                antallBananerType to antallBananerRegel,
+                antallFruktType to antallFruktRegel,
+            )
+
+        val regeltre = antallFruktRegel.regeltre(opplysningstypeTilRegel)
+
+        val opplysninger = Opplysninger()
+        val plan = regeltre.lagPlan(opplysninger)
+        plan shouldBe setOf(antallEplerPerTreRegel, antallBananerRegel)
+    }
+
     private fun TreNode<Regel<*>>.lagPlan(
         opplysninger: Opplysninger,
         blokkerteRegler: Collection<Regel<*>> = emptyList(),
@@ -114,7 +150,7 @@ class RegeltreTest {
             .takeIf { it.verdi.kanKjøre }
             ?.topologisk()
             // kun de som må kjøres, er ikke gitt at hele treet skal kjøres
-            ?.filter { it.verdi.kanKjøre }
+            ?.filter { it.verdi.kanKjøringGjennomføres }
             ?.map { it.verdi.regel }
             ?.toSet()
             ?: emptySet()
@@ -157,23 +193,26 @@ class RegeltreTest {
 
         // hvis en avhengighet tidligere i kjeden er planlagt skal vi også kjøre
         val avhengighetSkalKjøre = avhengigheter.any { it.måKjøre() }
+        val avhengighetAvventerData = avhengigheter.any { it.verdi.avventerData }
 
         val harFåttNyeAvhengigheterIKode =
             opplysningerUtledetAv != null &&
                 this.verdi.regel.avhengerAv
                     .toSet() != opplysningerUtledetAv.map { it.opplysningstype }.toSet()
 
+        val kjøreflagg =
+            when {
+                produkt == null -> Regelnode.Kjøreflagg.MANGLER_PRODUKT
+                harUtdaterteAvhengigheter -> Regelnode.Kjøreflagg.HAR_UTDATERT_AVHENGIGHET
+                avhengighetSkalKjøre -> Regelnode.Kjøreflagg.AVHENGIGHET_MÅ_KJØRE
+                harFåttNyeAvhengigheterIKode -> Regelnode.Kjøreflagg.HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE
+                else -> Regelnode.Kjøreflagg.INGEN_KJØRING_NØDVENDIG
+            }
         return copy(
             verdi =
                 verdi.copy(
-                    kjøreflagg =
-                        when {
-                            produkt == null -> Regelnode.Kjøreflagg.MANGLER_PRODUKT
-                            harUtdaterteAvhengigheter -> Regelnode.Kjøreflagg.HAR_UTDATERT_AVHENGIGHET
-                            avhengighetSkalKjøre -> Regelnode.Kjøreflagg.AVHENGIGHET_MÅ_KJØRE
-                            harFåttNyeAvhengigheterIKode -> Regelnode.Kjøreflagg.HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE
-                            else -> Regelnode.Kjøreflagg.INGEN_KJØRING_NØDVENDIG
-                        },
+                    avventerData = this.verdi.regel is Ekstern || avhengighetAvventerData,
+                    kjøreflagg = kjøreflagg,
                 ),
             avhengigheter = avhengigheter,
         )
@@ -182,9 +221,11 @@ class RegeltreTest {
     private data class Regelnode(
         val regel: Regel<*>,
         val erBlokkert: Boolean = false,
+        val avventerData: Boolean = false,
         val kjøreflagg: Kjøreflagg = Kjøreflagg.INGEN_KJØRING_NØDVENDIG,
     ) {
         val kanKjøre = kjøreflagg.måKjøres() && !erBlokkert
+        val kanKjøringGjennomføres = kanKjøre && !avventerData
 
         enum class Kjøreflagg {
             INGEN_KJØRING_NØDVENDIG,
