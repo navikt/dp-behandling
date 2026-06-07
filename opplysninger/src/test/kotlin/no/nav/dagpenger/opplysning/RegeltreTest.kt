@@ -1,81 +1,75 @@
 package no.nav.dagpenger.opplysning
 
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.opplysning.regel.Regel
+import no.nav.dagpenger.opplysning.regel.Utgangspunkt
+import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 
 class RegeltreTest {
+    private val antallFruktType =
+        Opplysningstype.heltall(
+            id = Opplysningstype.Id(UUIDv7.ny(), Heltall),
+            beskrivelse = "Summen av antall epler og antall bananer",
+        )
+    private val antallEplerType =
+        Opplysningstype.heltall(
+            id = Opplysningstype.Id(UUIDv7.ny(), Heltall),
+            beskrivelse = "Antall epler",
+        )
+    private val antallBananerType =
+        Opplysningstype.heltall(
+            id = Opplysningstype.Id(UUIDv7.ny(), Heltall),
+            beskrivelse = "Antall bananer",
+        )
+
+    private val antallEpler = 10
+    private val antallBananer = 22
+
+    private val antallFruktRegel = AddereHeltall(antallFruktType, listOf(antallEplerType, antallBananerType))
+    private val antallEplerRegel = Utgangspunkt(antallEplerType, antallEpler)
+    private val antallBananerRegel = Utgangspunkt(antallBananerType, antallBananer)
+
+    private val opplysningstypeTilRegel: Map<Opplysningstype<*>, Regel<*>> =
+        mapOf(
+            antallEplerType to antallEplerRegel,
+            antallBananerType to antallBananerRegel,
+            antallFruktType to antallFruktRegel,
+        )
+
+    private val regeltre = antallFruktRegel.regeltre(opplysningstypeTilRegel)
+
     @Test
-    fun foo() {
-        val tre =
-            Node(
-                name = "Rot",
-                children =
+    fun `sjekke at treet er riktig`() {
+        regeltre shouldBe
+            TreNode(
+                verdi = antallFruktRegel,
+                avhengigheter =
                     listOf(
-                        Node(
-                            name = "a1",
-                            children =
-                                listOf(
-                                    Node(
-                                        name = "a4",
-                                    ),
-                                    Node(
-                                        name = "a5",
-                                        children =
-                                            listOf(
-                                                Node(name = "a6"),
-                                                Node(name = "a7"),
-                                            ),
-                                    ),
-                                ),
-                        ),
-                        Node(
-                            name = "a2",
-                            children =
-                                listOf(
-                                    Node("a3"),
-                                ),
-                        ),
+                        TreNode(antallEplerRegel),
+                        TreNode(antallBananerRegel),
                     ),
             )
-
-        tre.sti() shouldBe "Rot, a1, a2, a4, a5, a3, a6, a7"
-        tre.stiRev() shouldBe "a6, a7, a4, a5, a3, a1, a2, Rot"
     }
 
-    private data class Node(
-        val name: String,
-        val children: List<Node> = emptyList(),
-    ) {
-        fun breadthFirst(): List<String> {
-            // gå gjennom regeltreet dybde først
-            val kø = mutableListOf(Pair(this, emptyList<String>()))
-            val rekkefølge = mutableListOf<String>()
-            while (kø.isNotEmpty()) {
-                val (n, sti) = kø.removeFirst()
+    @Test
+    fun `hvis ingen regler har produsert resultat må alle regler må kjøre`() {
+        val opplysninger = Opplysninger()
+        val plan = regeltre.lagPlan(opplysninger)
+        plan shouldBe setOf(antallEplerRegel, antallBananerRegel, antallFruktRegel)
+    }
 
-                println("Hvis ${n.name} var dirty ville jeg planlagt følgende regler: ${(sti.plusElement(n.name)).joinToString(" -> ")}")
+    private fun TreNode<Regel<*>>.lagPlan(opplysninger: Opplysninger): Set<Regel<*>> = this.topologisk().map { it.verdi }.toSet()
 
-                rekkefølge.add(n.name)
-                kø.addAll(n.children.map { Pair(it, sti.plusElement(n.name)) })
-            }
-            return rekkefølge
+    class AddereHeltall(
+        produserer: Opplysningstype<Int>,
+        private val ledd: List<Opplysningstype<Int>>,
+    ) : Regel<Int>(produserer, ledd) {
+        override fun kjør(opplysninger: LesbarOpplysninger): Int {
+            val verdier = ledd.map { opplysninger.finnOpplysning(it).verdi }
+            return verdier.sumOf { it }
         }
 
-        fun sti(): String = breadthFirst().joinToString(", ")
-
-        fun stiRev(): String {
-            // gå gjennom regeltreet dybde først
-            val kø = mutableListOf(Pair(this, emptyList<String>()))
-            val rekkefølge = mutableListOf<String>()
-            while (kø.isNotEmpty()) {
-                val (n, sti) = kø.removeFirst()
-
-                println("Hvis ${n.name} var dirty ville jeg planlagt følgende regler: ${(sti.plusElement(n.name)).joinToString(" -> ")}")
-
-                rekkefølge.addFirst(n.name)
-                kø.addAll(n.children.reversed().map { Pair(it, sti.plusElement(n.name)) })
-            }
-            return rekkefølge.joinToString(", ")
-        }
+        override fun toString(): String = "Beregner $produserer ved å legge sammen ${ledd.joinToString(" + ")}"
     }
 }
