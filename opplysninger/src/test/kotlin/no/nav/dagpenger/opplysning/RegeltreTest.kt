@@ -88,15 +88,33 @@ class RegeltreTest {
         plan shouldBe setOf(antallEplerRegel, antallFruktRegel)
     }
 
-    private fun TreNode<Regel<*>>.lagPlan(opplysninger: Opplysninger): Set<Regel<*>> =
+    @Test
+    fun `rotregelen er blokkert`() {
+        val opplysninger = Opplysninger()
+        val plan = regeltre.lagPlan(opplysninger, setOf(antallFruktRegel))
+        plan shouldBe emptySet()
+    }
+
+    @Test
+    fun `avhengighet er blokkert`() {
+        val opplysninger = Opplysninger()
+        val plan = regeltre.lagPlan(opplysninger, setOf(antallEplerRegel))
+        plan shouldBe emptySet()
+    }
+
+    private fun TreNode<Regel<*>>.lagPlan(
+        opplysninger: Opplysninger,
+        blokkerteRegler: Collection<Regel<*>> = emptyList(),
+    ): Set<Regel<*>> =
         this
             .somRegelnode()
             .flaggReglerSomMåKjøres(opplysninger)
-            // trenger kun kjøre hele treeet hvis roten må kjøre, ellers er det ikke vits
-            .takeIf { it.verdi.kjøreflagg.måKjøres() }
+            .flaggReglerSomErBlokkert(blokkerteRegler)
+            // trenger kun kjøre hele treet hvis roten må kjøre, ellers er det ikke vits
+            .takeIf { it.verdi.kanKjøre }
             ?.topologisk()
             // kun de som må kjøres, er ikke gitt at hele treet skal kjøres
-            ?.filter { it.verdi.kjøreflagg.måKjøres() }
+            ?.filter { it.verdi.kanKjøre }
             ?.map { it.verdi.regel }
             ?.toSet()
             ?: emptySet()
@@ -109,6 +127,20 @@ class RegeltreTest {
                     it.somRegelnode()
                 },
         )
+
+    private fun TreNode<Regelnode>.flaggReglerSomErBlokkert(blokkerteRegler: Collection<Regel<*>>): TreNode<Regelnode> {
+        fun TreNode<Regelnode>.erBlokkert(): Boolean {
+            if (this.verdi.erBlokkert) return true
+            return this.avhengigheter.any { it.erBlokkert() }
+        }
+
+        val avhengigheter = avhengigheter.map { it.flaggReglerSomErBlokkert(blokkerteRegler) }
+        val harBlokkertAvhengighet = avhengigheter.any { it.erBlokkert() }
+        return copy(
+            verdi = verdi.copy(erBlokkert = blokkerteRegler.contains(verdi.regel) || harBlokkertAvhengighet),
+            avhengigheter = avhengigheter,
+        )
+    }
 
     private fun TreNode<Regelnode>.flaggReglerSomMåKjøres(opplysninger: Opplysninger): TreNode<Regelnode> {
         val avhengigheter = avhengigheter.map { it.flaggReglerSomMåKjøres(opplysninger) }
@@ -152,6 +184,8 @@ class RegeltreTest {
         val erBlokkert: Boolean = false,
         val kjøreflagg: Kjøreflagg = Kjøreflagg.INGEN_KJØRING_NØDVENDIG,
     ) {
+        val kanKjøre = kjøreflagg.måKjøres() && !erBlokkert
+
         enum class Kjøreflagg {
             INGEN_KJØRING_NØDVENDIG,
             MANGLER_PRODUKT,
