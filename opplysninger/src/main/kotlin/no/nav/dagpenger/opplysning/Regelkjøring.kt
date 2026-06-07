@@ -514,6 +514,127 @@ class Regelkjøring(
     }
 }
 
+internal fun TreNode<Regel<*>>.lagPlan(
+    opplysninger: LesbarOpplysninger,
+    blokkerteRegler: Collection<Regel<*>> = emptyList(),
+): Kjøreplanresultat =
+    this
+        .somRegelnode()
+        .flaggReglerSomMåKjøres(opplysninger)
+        .flaggReglerSomErBlokkert(blokkerteRegler)
+        // trenger kun kjøre hele treet hvis roten må kjøre, ellers er det ikke vits
+        .takeIf { it.verdi.kanKjøre }
+        ?.topologisk()
+        // kun de som må kjøres, er ikke gitt at hele treet skal kjøres
+        ?.filter { it.verdi.kanKjøre }
+        ?.let {
+            val (kjørbareRegler, reglerAvventendeData) = it.partition { it.verdi.kanKjøringGjennomføres }
+            Kjøreplanresultat(
+                kjørbareRegler = kjørbareRegler.map { it.verdi.regel }.toSet(),
+                reglerAvventendeData = reglerAvventendeData.map { it.verdi.regel }.toSet(),
+            )
+        }
+        ?: Kjøreplanresultat(emptySet(), emptySet())
+
+data class Kjøreplanresultat(
+    val kjørbareRegler: Set<Regel<*>>,
+    val reglerAvventendeData: Set<Regel<*>>,
+)
+
+private fun TreNode<Regel<*>>.somRegelnode(): TreNode<Regelnode> =
+    TreNode(
+        Regelnode(verdi),
+        avhengigheter =
+            avhengigheter.map {
+                it.somRegelnode()
+            },
+    )
+
+private fun TreNode<Regelnode>.flaggReglerSomErBlokkert(blokkerteRegler: Collection<Regel<*>>): TreNode<Regelnode> {
+    fun TreNode<Regelnode>.erBlokkert(): Boolean {
+        if (this.verdi.erBlokkert) return true
+        return this.avhengigheter.any { it.erBlokkert() }
+    }
+
+    val avhengigheter = avhengigheter.map { it.flaggReglerSomErBlokkert(blokkerteRegler) }
+    val harBlokkertAvhengighet = avhengigheter.any { it.erBlokkert() }
+    return copy(
+        verdi = verdi.copy(erBlokkert = blokkerteRegler.contains(verdi.regel) || harBlokkertAvhengighet),
+        avhengigheter = avhengigheter,
+    )
+}
+
+private fun TreNode<Regelnode>.flaggReglerSomMåKjøres(opplysninger: LesbarOpplysninger): TreNode<Regelnode> {
+    val avhengigheter = avhengigheter.map { it.flaggReglerSomMåKjøres(opplysninger) }
+
+    val produkt = opplysninger.finnNullableOpplysning(verdi.regel.produserer)
+    val opplysningerUtledetAv = produkt?.utledetAv?.opplysninger
+    // sjekker ikke om regelen selv sin opplysning er utdatert 🤔
+    val harUtdaterteAvhengigheter = opplysningerUtledetAv?.any { it.erUtdatert } == true
+
+    fun TreNode<Regelnode>.måKjøre(): Boolean {
+        if (this.verdi.kjøreflagg.måKjøres()) return true
+        return this.avhengigheter.any { it.måKjøre() }
+    }
+
+    // hvis en avhengighet tidligere i kjeden er planlagt skal vi også kjøre
+    val avhengighetSkalKjøre = avhengigheter.any { it.måKjøre() }
+    val avhengighetAvventerData = avhengigheter.any { it.verdi.avventerData }
+
+    val harFåttNyeAvhengigheterIKode =
+        opplysningerUtledetAv != null &&
+            this.verdi.regel.avhengerAv
+                .toSet() != opplysningerUtledetAv.map { it.opplysningstype }.toSet()
+
+    val kjøreflagg =
+        when {
+            verdi.regel is TomRegel -> Regelnode.Kjøreflagg.INGEN_KJØRING_NØDVENDIG
+            produkt == null -> Regelnode.Kjøreflagg.MANGLER_PRODUKT
+            harUtdaterteAvhengigheter -> Regelnode.Kjøreflagg.HAR_UTDATERT_AVHENGIGHET
+            avhengighetSkalKjøre -> Regelnode.Kjøreflagg.AVHENGIGHET_MÅ_KJØRE
+            harFåttNyeAvhengigheterIKode -> Regelnode.Kjøreflagg.HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE
+            else -> Regelnode.Kjøreflagg.INGEN_KJØRING_NØDVENDIG
+        }
+    return copy(
+        verdi =
+            verdi.copy(
+                avventerData = (this.verdi.regel is Ekstern && kjøreflagg.måKjøres()) || avhengighetAvventerData,
+                kjøreflagg = kjøreflagg,
+            ),
+        avhengigheter = avhengigheter,
+    )
+}
+
+private data class Regelnode(
+    val regel: Regel<*>,
+    val erBlokkert: Boolean = false,
+    val avventerData: Boolean = false,
+    val kjøreflagg: Kjøreflagg = Kjøreflagg.INGEN_KJØRING_NØDVENDIG,
+) {
+    val kanKjøre = kjøreflagg.måKjøres() && !erBlokkert
+    val kanKjøringGjennomføres = kanKjøre && !avventerData
+
+    enum class Kjøreflagg {
+        INGEN_KJØRING_NØDVENDIG,
+        MANGLER_PRODUKT,
+        HAR_UTDATERT_AVHENGIGHET,
+        AVHENGIGHET_MÅ_KJØRE,
+        HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE,
+        ;
+
+        fun måKjøres() =
+            when (this) {
+                INGEN_KJØRING_NØDVENDIG -> false
+
+                MANGLER_PRODUKT,
+                HAR_UTDATERT_AVHENGIGHET,
+                AVHENGIGHET_MÅ_KJØRE,
+                HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE,
+                -> true
+            }
+    }
+}
+
 data class Regelkjøringsrapport(
     val kjørteRegler: Set<Regel<*>>,
     val mangler: Set<Opplysningstype<*>>,
