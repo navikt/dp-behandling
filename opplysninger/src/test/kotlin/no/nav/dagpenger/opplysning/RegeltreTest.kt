@@ -145,6 +145,17 @@ class RegeltreTest {
             )
     }
 
+    @Test
+    fun `ekstern regel hindrer ikke at de som er avhengig av den kan kjøre hvis regelen har produsert tidligere`() {
+        val opplysninger = Opplysninger.med(Faktum(antallEpletrærType, antallEpletrær))
+        val plan = regeltreMedEksternRegel.lagPlan(opplysninger)
+        plan shouldBe
+            Kjøreplanresultat(
+                setOf(antallEplerPerTreRegel, antallEplerMedEksternAvhengighetRegel, antallBananerRegel, antallFruktRegel),
+                emptySet(),
+            )
+    }
+
     class AddereHeltall(
         produserer: Opplysningstype<Int>,
         private val ledd: List<Opplysningstype<Int>>,
