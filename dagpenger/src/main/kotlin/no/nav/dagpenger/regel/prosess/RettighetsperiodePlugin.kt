@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.prosess
+
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
@@ -54,8 +55,6 @@ class RettighetsperiodePlugin(
                 .filter { it.opplysningstype in vilkår }
                 .filterIsInstance<Opplysning<Boolean>>()
 
-        loggVilkårsvurdering(vilkår, utfall, kontekst)
-
         // Fjern gamle perioder før vi legger til nye
         egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
             opplysninger.fjern(it.id)
@@ -78,6 +77,8 @@ class RettighetsperiodePlugin(
                 if (overskrivingsStrategi.skalIkkeLeggesTil(eksisterende, gyldighetsperiode, periode)) {
                     return@forEach
                 }
+
+                loggVilkårsvurdering(vilkår, utfall, kontekst)
 
                 opplysninger.leggTil(
                     Faktum(
