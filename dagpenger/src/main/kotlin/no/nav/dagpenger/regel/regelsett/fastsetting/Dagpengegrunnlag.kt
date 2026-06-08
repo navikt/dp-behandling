@@ -134,7 +134,7 @@ object Dagpengegrunnlag {
         fastsettelse(
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
         ) {
-            skalVurderes { (kravPåDagpenger(it) || it.erSann(skalVernepliktVurderes)) }
+            skalVurderes { (kravPåDagpenger(it, this@Dagpengegrunnlag::class) || it.erSann(skalVernepliktVurderes)) }
             skalRevurderes {
                 // TODO: Må være ekte vurdering av om grunnlag skal fastsettes
                 // TODO: bruktBeregningsregel er en hack for å få kjørt på nytt når utfall har endret seg

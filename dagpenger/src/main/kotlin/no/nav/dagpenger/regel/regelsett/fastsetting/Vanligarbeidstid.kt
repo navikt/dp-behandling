@@ -23,7 +23,7 @@ object Vanligarbeidstid {
         fastsettelse(
             folketrygden.hjemmel(4, 3, "Fastsettelse av arbeidstid", "Fastsettelse av arbeidstid"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it, this@Vanligarbeidstid::class) }
 
             regel(fastsattVanligArbeidstid) {
                 minstAv(

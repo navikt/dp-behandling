@@ -48,6 +48,9 @@ class HvisSannMedResultat<T : Any>(
         return listOf(sjekk, neste)
     }
 
+    override fun uavklarteAvhengigheter(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> =
+        if (opplysninger.mangler(sjekk)) listOf(hvisSann, hvisUsann) else emptyList()
+
     override fun kjør(opplysninger: LesbarOpplysninger): T {
         val sjekk = opplysninger.finnOpplysning(sjekk).verdi
 

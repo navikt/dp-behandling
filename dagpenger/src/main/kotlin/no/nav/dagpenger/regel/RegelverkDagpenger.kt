@@ -43,6 +43,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
+import kotlin.reflect.KClass
 
 val RegelverkDagpenger =
     Regelverk(
@@ -88,12 +89,21 @@ val RegelverkDagpenger =
 fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
     opplysninger.erSann(minsteinntekt) || opplysninger.erSann(oppfyllerKravetTilVerneplikt)
 
-fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
+fun kravPåDagpenger(
+    opplysninger: LesbarOpplysninger,
+    klasse: KClass<*>? = null,
+): Boolean =
     RegelverkDagpenger
         .relevanteVilkår(opplysninger)
         .asSequence()
         .flatMap { it.betingelser.asSequence() }
-        .all { opplysninger.erSann(it) }
+        .all {
+            opplysninger.erSann(it).also { bool ->
+                if (!bool && klasse != null) {
+                    println("kravPåDagpenger = FALSE fordi $it er FALSE i ${klasse.simpleName}")
+                }
+            }
+        }
 
 private fun dagpengerRettighetsperioder(opplysninger: LesbarOpplysninger): List<Rettighetsperiode> {
     val egne = opplysninger.somListe(Egne)

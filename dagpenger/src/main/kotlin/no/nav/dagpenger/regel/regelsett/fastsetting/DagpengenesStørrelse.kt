@@ -117,7 +117,7 @@ object DagpengenesStørrelse {
         fastsettelse(
             folketrygden.hjemmel(4, 12, "Dagpengenes størrelse", "Sats og barnetillegg"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it, this@DagpengenesStørrelse::class) }
 
             regel(barn) { innhentMed(søknadIdOpplysningstype) }
             regel(antallBarn) { antallAv(barn) { kvalifiserer } }

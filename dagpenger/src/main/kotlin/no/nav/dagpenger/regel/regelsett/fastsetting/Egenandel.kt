@@ -30,7 +30,7 @@ object Egenandel {
         fastsettelse(
             folketrygden.hjemmel(4, 9, "Egenandel", "Egenandel"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it, this@Egenandel::class) }
             skalRevurderes { it.mangler(egenandel) }
 
             regel(antallDagsatsIEgenandel) { oppslag(prøvingsdato) { 3.0 } }

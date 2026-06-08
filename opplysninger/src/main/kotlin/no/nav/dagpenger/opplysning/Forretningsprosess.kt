@@ -49,9 +49,44 @@ abstract class Forretningsprosess(
         val regelsettSomIkkeSkalKjøres =
             regelverk
                 .regelsett
-                .filterNot { it.skalKjøres(opplysningerPåPrøvingsdato) && it.skalRevurderes(opplysningerPåPrøvingsdato) }
+                .filterNot {
+                    it.skalKjøres(opplysningerPåPrøvingsdato).also { bool ->
+                        if (!bool) println("skalKjøres er FALSE for regelsett $it")
+                    } &&
+                        it.skalRevurderes(opplysningerPåPrøvingsdato).also { bool ->
+                            if (!bool) println("skalKjøres er TRUE,  men skalRevurderes er FALSE for regelsett $it")
+                        }
+                }
+
+        regelverk
+            .regelsett
+            .map { Triple(it.navn, it.skalKjøres(opplysningerPåPrøvingsdato), it.skalRevurderes(opplysningerPåPrøvingsdato)) }
+            .printTabell()
+
         return regelsettSomIkkeSkalKjøres.flatMap { it.regler() }.toSet()
     }
+}
+
+fun List<Triple<String, Boolean, Boolean>>.printTabell() {
+    val headers = listOf("Regelsett", "Skal kjøres", "Skal revurderes")
+    val rows =
+        map { (navn, skalKjøres, skalRevurderes) ->
+            listOf(navn, if (skalKjøres) "✅" else "❌", if (skalRevurderes) "✅" else "❌")
+        }
+    val widths =
+        headers.indices.map { col ->
+            maxOf(headers[col].length, rows.maxOfOrNull { it[col].length } ?: 0)
+        }
+
+    fun linje() = "+-" + widths.joinToString("-+-") { "-".repeat(it) } + "-+"
+
+    fun rad(celler: List<String>) = "| " + celler.mapIndexed { i, v -> v.padEnd(widths[i]) }.joinToString(" | ") + " |"
+
+    println(linje())
+    println(rad(headers))
+    println(linje())
+    rows.forEach { println(rad(it)) }
+    println(linje())
 }
 
 interface ProsessPlugin : Aktivitetskontekst {
