@@ -565,7 +565,14 @@ private fun TreNode<Regelnode>.flaggReglerSomErBlokkert(blokkerteRegler: Collect
 }
 
 private fun TreNode<Regelnode>.flaggReglerSomMåKjøres(opplysninger: LesbarOpplysninger): TreNode<Regelnode> {
-    val avhengigheter = avhengigheter.map { it.flaggReglerSomMåKjøres(opplysninger) }
+    val faktiskeAvhengigheter = verdi.regel.effektiveAvhengigheter(opplysninger).toSet()
+    val uavklarteTyper = verdi.regel.uavklarteAvhengigheter(opplysninger).toSet()
+
+    val uavklarteAvhengigheter = avhengigheter.filter { it.verdi.regel.produserer in uavklarteTyper }
+    val avhengigheter =
+        avhengigheter
+            .filter { it.verdi.regel.produserer in faktiskeAvhengigheter }
+            .map { it.flaggReglerSomMåKjøres(opplysninger) }
 
     val produkt = opplysninger.finnNullableOpplysning(verdi.regel.produserer)
     val opplysningerUtledetAv = produkt?.utledetAv?.opplysninger
@@ -595,11 +602,17 @@ private fun TreNode<Regelnode>.flaggReglerSomMåKjøres(opplysninger: LesbarOppl
             harFåttNyeAvhengigheterIKode -> Regelnode.Kjøreflagg.HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE
             else -> Regelnode.Kjøreflagg.INGEN_KJØRING_NØDVENDIG
         }
+    val avventerData =
+        when (verdi.regel) {
+            is Ekstern<*> -> kjøreflagg.måKjøres()
+            else -> avhengighetAvventerData || uavklarteAvhengigheter.isNotEmpty()
+        }
     return copy(
         verdi =
             verdi.copy(
-                avventerData = (this.verdi.regel is Ekstern && kjøreflagg.måKjøres()) || avhengighetAvventerData,
+                avventerData = avventerData,
                 kjøreflagg = kjøreflagg,
+                uavklarteAvhengigheter = uavklarteAvhengigheter.map { it.verdi.regel }.toSet(),
             ),
         avhengigheter = avhengigheter,
     )
@@ -610,6 +623,7 @@ private data class Regelnode(
     val erBlokkert: Boolean = false,
     val avventerData: Boolean = false,
     val kjøreflagg: Kjøreflagg = Kjøreflagg.INGEN_KJØRING_NØDVENDIG,
+    val uavklarteAvhengigheter: Set<Regel<*>> = emptySet(),
 ) {
     val kanKjøre = kjøreflagg.måKjøres() && !erBlokkert
     val kanKjøringGjennomføres = kanKjøre && !avventerData

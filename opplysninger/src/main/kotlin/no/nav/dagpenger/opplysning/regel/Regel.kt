@@ -158,6 +158,8 @@ abstract class Regel<T : Any> internal constructor(
 
     internal open fun effektiveAvhengigheter(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> = avhengerAv
 
+    internal open fun uavklarteAvhengigheter(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> = emptyList()
+
     abstract override fun toString(): String
 
     protected abstract fun kjør(opplysninger: LesbarOpplysninger): T

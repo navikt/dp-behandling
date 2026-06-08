@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.regel.Ekstern
+import no.nav.dagpenger.opplysning.regel.HvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.Multiplikasjon
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.regel.Utgangspunkt
@@ -35,6 +36,11 @@ class RegeltreTest {
             id = Opplysningstype.Id(UUIDv7.ny(), Heltall),
             beskrivelse = "Antall epler per tre",
         )
+    val skalSjekkeEplerType =
+        Opplysningstype.boolsk(
+            id = Opplysningstype.Id(UUIDv7.ny(), Boolsk),
+            beskrivelse = "Hvorvidt vi skal sjekke antall epler eller ikke",
+        )
 
     private val antallEplerPerTre = 1
     private val antallEpletrær = 4
@@ -50,6 +56,8 @@ class RegeltreTest {
     private val antallEplerRegel = Utgangspunkt(antallEplerType, antallEpler)
 
     private val antallBananerRegel = Utgangspunkt(antallBananerType, antallBananer)
+
+    val skalSjekkeEplerRegel = Utgangspunkt(skalSjekkeEplerType, true)
 
     private val opplysningstypeTilRegel: Map<Opplysningstype<*>, Regel<*>> =
         mapOf(
@@ -68,6 +76,18 @@ class RegeltreTest {
                 antallEplerType to antallEplerMedEksternAvhengighetRegel,
                 antallBananerType to antallBananerRegel,
                 antallFruktType to antallFruktRegel,
+            ),
+        )
+
+    val antallFruktMedSjekkRegel = HvisSannMedResultat(antallFruktType, skalSjekkeEplerType, antallEplerType, antallBananerType)
+
+    val regeltreMedAvhengighetSomMåSjekkesFørst =
+        antallFruktMedSjekkRegel.regeltre(
+            mapOf(
+                skalSjekkeEplerType to skalSjekkeEplerRegel,
+                antallEplerType to antallEplerRegel,
+                antallBananerType to antallBananerRegel,
+                antallFruktType to antallFruktMedSjekkRegel,
             ),
         )
 
@@ -152,6 +172,28 @@ class RegeltreTest {
         plan shouldBe
             Kjøreplanresultat(
                 setOf(antallEplerPerTreRegel, antallEplerMedEksternAvhengighetRegel, antallBananerRegel, antallFruktRegel),
+                emptySet(),
+            )
+    }
+
+    @Test
+    fun `regel som er avhengig av et utfall for å avgjøre faktisk avhengighet blokkerer hvis sjekken er uavklart`() {
+        val opplysninger = Opplysninger()
+        val plan = regeltreMedAvhengighetSomMåSjekkesFørst.lagPlan(opplysninger)
+        plan shouldBe
+            Kjøreplanresultat(
+                setOf(skalSjekkeEplerRegel),
+                setOf(antallFruktMedSjekkRegel),
+            )
+    }
+
+    @Test
+    fun `regel som er avhengig av et utfall for å avgjøre faktisk avhengighet blokkerer ikke hvis sjekken er avklart`() {
+        val opplysninger = Opplysninger.med(Faktum(skalSjekkeEplerType, true))
+        val plan = regeltreMedAvhengighetSomMåSjekkesFørst.lagPlan(opplysninger)
+        plan shouldBe
+            Kjøreplanresultat(
+                setOf(antallEplerRegel, antallFruktMedSjekkRegel),
                 emptySet(),
             )
     }
