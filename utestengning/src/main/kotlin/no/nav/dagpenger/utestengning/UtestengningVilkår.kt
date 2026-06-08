@@ -2,12 +2,17 @@ package no.nav.dagpenger.utestengning
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.dsl.vilkår
-import no.nav.dagpenger.opplysning.regel.tomRegel
+import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.tomHjemmel
+import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.utestengning.OpplysningsTyper.erUtestengtId
 import no.nav.dagpenger.utestengning.OpplysningsTyper.utestengningFraOgMedId
 import no.nav.dagpenger.utestengning.OpplysningsTyper.utestengningTilOgMedId
+import no.nav.dagpenger.utestengning.OpplysningsTyper.utestengtLengdeId
+import java.time.LocalDate
 
 /**
  * Regelsett for utestengning.
@@ -15,6 +20,7 @@ import no.nav.dagpenger.utestengning.OpplysningsTyper.utestengningTilOgMedId
  */
 object UtestengningVilkår {
     val erUtestengt = boolsk(erUtestengtId, "Er personen utestengt")
+    val utestengtLengde = heltall(utestengtLengdeId, "Hvor mange uker skal utesteningen vare", enhet = Enhet.Uker)
     val fraOgMed = dato(utestengningFraOgMedId, "Utestengning gjelder fra og med")
     val tilOgMed = dato(utestengningTilOgMedId, "Utestengning gjelder til og med")
 
@@ -22,11 +28,10 @@ object UtestengningVilkår {
         vilkår(
             tomHjemmel("Utestengning"),
         ) {
-            // TODO: Legg til regler for å bestemme erUtestengt, fraOgMed og tilOgMed
-            regel(erUtestengt) { tomRegel }
-            regel(fraOgMed) { tomRegel }
-            regel(tilOgMed) { tomRegel }
+            regel(utestengtLengde) { somUtgangspunkt(12) }
+            regel(fraOgMed) { somUtgangspunkt(LocalDate.now()) }
+            regel(tilOgMed) { leggTilUker(fraOgMed, utestengtLengde) }
 
-            utfall(erUtestengt) { tomRegel }
+            utfall(erUtestengt) { somUtgangspunkt(true) }
         }
 }
