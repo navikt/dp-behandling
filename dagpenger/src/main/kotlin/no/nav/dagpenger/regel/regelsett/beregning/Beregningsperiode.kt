@@ -47,7 +47,7 @@ class Beregningsperiode private constructor(
 
     private fun beregnProsentfaktor(dager: Set<Dag>): Double {
         val timerArbeidet: Timer = dager.mapNotNull { it.timerArbeidet }.summer()
-        return ((sumFva - timerArbeidet) / sumFva).timer
+        return maxOf(0.0, ((sumFva - timerArbeidet) / sumFva).timer)
     }
 
     private fun beregnUtbetaling(): Beregningresultat {

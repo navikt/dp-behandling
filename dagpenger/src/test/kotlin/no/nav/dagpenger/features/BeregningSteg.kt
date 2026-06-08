@@ -83,6 +83,9 @@ class BeregningSteg : No {
                 opplysninger.add(Faktum(forbruk, true, Gyldighetsperiode(it.dag.dato, it.dag.dato)))
             }
         }
+        Så("terskel er {double} prosent") { terskel: Double ->
+            beregning.prosentfaktor shouldBe terskel
+        }
         Så("utbetales {double} kroner på dag {int}") { utbetaling: Double, dag: Int ->
             beregning.forbruksdager[dag - 1]
                 .tilUtbetaling

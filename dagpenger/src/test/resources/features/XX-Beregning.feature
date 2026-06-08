@@ -530,7 +530,7 @@ Egenskap: Beregning av meldekort
       | Søndag  | Arbeidstimer | 20    |
       | Mandag  | Arbeidstimer | 0     |
       | Tirsdag | Arbeidstimer | 0     |
-      | Onsdag  | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 500   |
       | Torsdag | Arbeidstimer | 0     |
       | Fredag  | Arbeidstimer | 0     |
       | Lørdag  | Arbeidstimer | 20    |
@@ -538,6 +538,8 @@ Egenskap: Beregning av meldekort
     Så skal kravet til tapt arbeidstid ikke være oppfylt
     Og utbetales 0 kroner
     Og det forbrukes 0 dager
+    # Uten maxOf() i beregning kan vi lage en negativ terskel.
+    Og terskel er 0,0 prosent
 
 
   Scenario: Kombinerer aktiviteter på samme dag
