@@ -94,7 +94,7 @@ class OmgjøringScenarioTester {
 
             // Send inn og behandle meldekort
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             // Verifiser opprinnelig utbetaling
             behandlingsresultat {
@@ -152,9 +152,9 @@ class OmgjøringScenarioTester {
 
             // Send inn og behandle meldekort for flere perioder
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(2)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             // Stans
             saksbehandler.lagBehandling(11.juli(2018))
@@ -185,9 +185,9 @@ class OmgjøringScenarioTester {
             }
 
             person.sendInnMeldekort(3)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(4)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 21403
@@ -224,7 +224,7 @@ class OmgjøringScenarioTester {
             }
 
             person.sendInnMeldekort(5)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeGreaterThan 27698
@@ -252,7 +252,7 @@ class OmgjøringScenarioTester {
 
             // Send inn og behandle meldekort for flere perioder
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(2)
 
             // Stans
@@ -263,7 +263,7 @@ class OmgjøringScenarioTester {
             saksbehandler.beslutt()
 
             // Beregn meldekort etter stans
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 rettighetsperioder shouldHaveSize 2
@@ -287,9 +287,9 @@ class OmgjøringScenarioTester {
             saksbehandler.beslutt()
 
             person.sendInnMeldekort(3)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(4)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27991
@@ -367,9 +367,9 @@ class OmgjøringScenarioTester {
             person.sendInnMeldekort(3)
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
-            meldekortBatch(true)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = true)
 
             // Send inn korrigering av forrige meldekort
             person.sendInnMeldekort(2, korrigeringAv = meldekortId, timer = List(14) { 7 })

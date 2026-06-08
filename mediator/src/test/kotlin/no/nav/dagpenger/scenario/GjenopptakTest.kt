@@ -51,7 +51,7 @@ class GjenopptakTest {
 
             // Må ha startet forbruk for å kunne gjenoppta
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
@@ -359,7 +359,7 @@ class GjenopptakTest {
 
             // Må ha startet forbruk for å kunne gjenoppta
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             // Gjenoppta
             person.søkGjenopptak(23.august(2018))

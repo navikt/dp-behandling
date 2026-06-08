@@ -210,7 +210,7 @@ internal class SimulertDagpengerSystem(
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()
 
         if (avklar) {
-            påbegynteMeldekort.forEach { eksternMeldekortId ->
+            påbegynteMeldekort.forEach { _ ->
                 saksbehandler.lukkAlleAvklaringer()
                 saksbehandler.godkjenn()
             }

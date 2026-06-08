@@ -46,9 +46,9 @@ class BeregningTest {
             person.sendInnMeldekort(1)
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 rettighetsperioder.single().harRett shouldBe true
 
                 with(opplysninger(Beregning.forbruk)) {
@@ -95,9 +95,9 @@ class BeregningTest {
             person.sendInnMeldekort(1)
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch()
+            meldekortBatch(markerFerdig = true)
 
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 5036
 
                 with(opplysninger(Beregning.forbrukt)) {
@@ -148,10 +148,10 @@ class BeregningTest {
             person.sendInnMeldekort(4)
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
-            meldekortBatch(true)
-            meldekortBatch(true)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 42806
@@ -189,9 +189,9 @@ class BeregningTest {
             person.sendInnMeldekort(2)
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 14
 
@@ -207,10 +207,10 @@ class BeregningTest {
             }
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch()
+            meldekortBatch(markerFerdig = true)
 
             // Vi lager et forslag om beregning for hele meldeperioden
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 28
                     this.count { it.verdi.verdi == true } shouldBe 17
@@ -225,6 +225,8 @@ class BeregningTest {
                     this.last { it.verdi.verdi == true }.gyldigFraOgMed shouldBe 13.juli(2018)
                 }
             }
+
+            saksbehandler.omgjørBehandling(6.juli(2018))
 
             // Vilkår blir vurderte som ikke oppfylt
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "", Gyldighetsperiode(8.juli(2018)))
@@ -253,7 +255,7 @@ class BeregningTest {
                     this.count { it.verdi.verdi == true } shouldBe 12 // Dagene på slutten er ikke forbruksdager lengre
 
                     // Første dag i ny meldeperiode
-                    this.first { it.opprinnelse != Opplysningsperiode.Periodestatus.Arvet }.gyldigFraOgMed shouldBe 2.juli(2018)
+                    this.first().gyldigFraOgMed shouldBe 18.juni(2018)
 
                     // Siste dag i ny meldeperiode
                     this.last().gyldigFraOgMed shouldBe 15.juli(2018)
@@ -277,7 +279,7 @@ class BeregningTest {
             person.sendInnMeldekort(Periode(11.juni(2018), 24.juni(2018)))
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch()
+            meldekortBatch(markerFerdig = true)
 
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
@@ -290,8 +292,8 @@ class BeregningTest {
             person.sendInnMeldekort(Periode(25.juni(2018), 8.juli(2018)))
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = true)
         }
     }
 
@@ -313,10 +315,7 @@ class BeregningTest {
             val meldekortId = person.sendInnMeldekort(1)
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
-
-            // Verifiser at vi lager en avklaring om meldekort (så de ikke går automatisk i testfasen)
-            person.avklaringer.first().kode shouldBe "MeldekortBehandling"
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 with(opplysninger(Beregning.forbruk)) {
@@ -409,9 +408,9 @@ class BeregningTest {
             person.sendInnMeldekort(3)
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(true)
-            meldekortBatch(true)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 with(opplysninger(Beregning.forbruk)) {
@@ -441,7 +440,7 @@ class BeregningTest {
             person.sendInnMeldekort(2, korrigeringAv = meldekortId, timer = List(14) { 7 })
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch()
+            meldekortBatch(markerFerdig = true)
 
             person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
 
@@ -487,16 +486,17 @@ class BeregningTest {
             person.sendInnMeldekort(1)
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch()
+            meldekortBatch(markerFerdig = true)
 
             // Verifiser gammel sats
-            behandlingsresultatForslag {
+            behandlingsresultat {
                 val satsPerDag = utbetalinger.toList().map { it["sats"].asInt() }
                 val utbetalingPerDag = utbetalinger.toList().map { it["utbetaling"].asInt() }
                 satsPerDag.shouldContainExactly(762, 762, 762, 762, 762, 762, 762, 762, 762, 762, 762)
                 utbetalingPerDag.shouldContainExactly(435, 435, 0, 0, 435, 435, 435, 435, 438, 0, 0)
             }
 
+            saksbehandler.omgjørBehandling(22.juni(2018))
             // Endre barnetillegg midt i meldekortbehandlingen
             saksbehandler.endreOpplysning(
                 DagpengenesStørrelse.barnetilleggetsStørrelse,
@@ -529,19 +529,19 @@ class BeregningTest {
 
             // Send inn meldekort
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             // Send inn meldekort hvor en har jobbet for mye
             person.sendInnMeldekort(2, timer = List(14) { 7 })
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             // Send inn meldekort hvor en har jobbet for mye
             person.sendInnMeldekort(3, timer = List(14) { 7 })
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             // Send inn meldekort hvor en har jobbet for mye
             person.sendInnMeldekort(4, timer = List(14) { 7 })
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 rettighetsperioder[0].harRett shouldBe true
@@ -587,13 +587,13 @@ class BeregningTest {
 
             // Send inn meldekort
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(2, timer = List(14) { 2 })
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(3, timer = List(14) { 2 })
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(4, timer = List(14) { 2 })
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(5) {
                 val bruttoUtbetalt = opplysninger(Beregning.utbetalingForPeriode).sumOf { it.verdi.verdi as Int }
