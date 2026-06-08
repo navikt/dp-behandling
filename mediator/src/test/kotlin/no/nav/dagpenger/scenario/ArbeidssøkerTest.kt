@@ -41,9 +41,9 @@ class ArbeidssøkerTest {
             }
 
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(2)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             val fastsattMeldedato = person.fastsattMeldedato(3)
 
@@ -102,9 +102,9 @@ class ArbeidssøkerTest {
             }
 
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(2)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             val fastsattMeldedato = person.fastsattMeldedato(3)
 
@@ -160,9 +160,9 @@ class ArbeidssøkerTest {
             }
 
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(2)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             val fastsattMeldedato = person.fastsattMeldedato(3)
 

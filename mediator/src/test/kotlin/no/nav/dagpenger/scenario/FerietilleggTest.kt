@@ -87,9 +87,7 @@ class FerietilleggTest {
             // Nå har vi to kjeder, en med vanlig dagpenger og en ferietillegg
             // Vi sender inn et meldekort som skal kjede seg på dagpenger behandlingen
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
-
-            val meldekortBehandlingId = person.behandlingId
+            meldekortBatch(markerFerdig = true)
             person.behandling.basertPå shouldBe dagpengerBehandlingId
 
             // Vi lager en ferietillegg behandling til som baserer seg på den forrige ferietillegg

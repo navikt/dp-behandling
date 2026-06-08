@@ -107,17 +107,6 @@ class BeregnMeldekortHendelse(
                                     ),
                                 )
                             }
-                        } else {
-                            add(
-                                Avklaring(
-                                    Avklaringkode(
-                                        kode = "MeldekortBehandling",
-                                        tittel = "Beregning av meldekort",
-                                        beskrivelse = "Behandlingen er opprettet av meldekort og kan ikke automatisk behandles",
-                                        kanAvbrytes = false,
-                                    ),
-                                ),
-                            )
                         }
 
                         val aktiviteter = meldekort.dager.flatMap { it.aktiviteter }

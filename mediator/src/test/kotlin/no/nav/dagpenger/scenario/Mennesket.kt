@@ -13,9 +13,6 @@ import no.nav.dagpenger.mediator.tilJsonNode
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
-import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.kanJobbeDeltid
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.uuid.UUIDv7
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
@@ -126,7 +123,7 @@ internal class Mennesket(
     fun behandling(behandlingId: UUID): BehandlingsresultatDTO {
         for (offset in rapid.inspektør.size - 1 downTo 0) {
             val message = rapid.inspektør.message(offset)
-            if (message["@event_name"].asString() == "forslag_til_behandlingsresultat" &&
+            if ((message.erBehandlingsResultatforslag() || message.erBehandlingsResultat()) &&
                 message["behandlingId"].asUUID() == behandlingId
             ) {
                 return objectMapper.convertValue(message, BehandlingsresultatDTO::class.java)
@@ -134,6 +131,10 @@ internal class Mennesket(
         }
         throw NoSuchElementException("Fant ingen behandling med UUID=$behandlingId")
     }
+
+    private fun JsonNode.erBehandlingsResultatforslag() = this["@event_name"].asString() == "forslag_til_behandlingsresultat"
+
+    private fun JsonNode.erBehandlingsResultat() = this["@event_name"].asString() == "behandlingsresultat"
 
     fun opprettBehandling(fraDato: LocalDate) {
         rapid.sendTestMessage(
