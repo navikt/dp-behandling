@@ -27,6 +27,7 @@ Laget avklaring om Verneplikt
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger

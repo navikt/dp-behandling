@@ -1,16 +1,24 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.ikke
-import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.opplysning.regel.innhentMed
+import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.OpplysningsTyper.brukerErUtestengtFraDagpengerId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravTilIkkeUtestengtId
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
 object Utestengning {
-    val utestengt = Opplysningstype.boolsk(brukerErUtestengtFraDagpengerId, "Bruker er utestengt fra dagpenger")
+    val utestengt =
+        Opplysningstype.boolsk(
+            brukerErUtestengtFraDagpengerId,
+            "Bruker er utestengt fra dagpenger",
+            behovId = Behov.ErUtestengt,
+        )
     val oppfyllerKravetTilIkkeUtestengt =
         Opplysningstype.boolsk(
             oppfyllerKravTilIkkeUtestengtId,
@@ -24,7 +32,7 @@ object Utestengning {
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
-            regel(utestengt) { somUtgangspunkt(false) }
+            regel(utestengt) { innhentMed(prøvingsdato) }
             utfall(oppfyllerKravetTilIkkeUtestengt) { ikke(utestengt) }
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }

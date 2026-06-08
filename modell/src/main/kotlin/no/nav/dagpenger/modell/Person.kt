@@ -27,6 +27,7 @@ import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.util.UUID
@@ -46,15 +47,22 @@ class Person(
     val ident: Ident,
     behandlinger: List<Behandlingkjede>,
     private val rettighetstatus: TemporalCollection<Rettighetstatus> = TemporalCollection(),
+    utestengninger: List<Utestengningsperiode> = emptyList(),
 ) : Aktivitetskontekst,
     PersonHåndter,
     PersonObservatør {
     private val observatører =
         mutableSetOf<PersonObservatør>()
 
+    private val utestengninger = utestengninger.toMutableList()
+
     fun rettighethistorikk() = rettighetstatus.contents()
 
     fun harRettighet(dato: LocalDate) = runCatching { rettighetstatus.get(dato).utfall }.getOrElse { false }
+
+    fun utestengninghistorikk(): List<Utestengningsperiode> = utestengninger.toList()
+
+    fun erUtestengt(dato: LocalDate): Boolean = utestengninger.any { dato in it.fraOgMed..it.tilOgMed }
 
     private val behandlingkjeder = behandlinger.toMutableList()
 
@@ -65,6 +73,15 @@ class Person(
     }
 
     override fun ferdig(event: BehandlingFerdig) {
+        if (event.regelverk == RegelverkType("Utestengning")) {
+            event.rettighetsperioder.filter { it.harRett }.forEach {
+                utestengninger.add(
+                    Utestengningsperiode(it.fraOgMed, it.tilOgMed, event.behandlingId, event.behandlingskjedeId),
+                )
+            }
+            return
+        }
+
         // Unngår å opprette rettighetshistorikk ved avslag
         // Da vet vi hvilke saker vi "eier" i ny løsning
         // TODO: Skal fjernes når vi skal eie avslag også (her venter vi på automatiske brev ved avslag)

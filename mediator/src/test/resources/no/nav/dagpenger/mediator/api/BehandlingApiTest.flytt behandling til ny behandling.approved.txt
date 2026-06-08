@@ -25,6 +25,7 @@ Laget avklaring om JobbetUtenforNorge
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger
@@ -68,6 +69,7 @@ Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger
@@ -101,6 +103,7 @@ Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger

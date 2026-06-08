@@ -46,6 +46,8 @@ object Behov {
 
     val BostedslandErNorge by StringConstant()
     val OppholdINorge by StringConstant()
+
+    val ErUtestengt by StringConstant()
 }
 
 class StringConstant {

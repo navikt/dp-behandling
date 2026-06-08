@@ -255,6 +255,7 @@ internal class Mennesket(
                 Behov.OppgittAndreYtelserUtenforNav to Behovsløsning.Statisk(false),
                 Behov.AndreØkonomiskeYtelser to Behovsløsning.Statisk(false),
                 Behov.Uføre to Behovsløsning.Statisk(false),
+                Behov.ErUtestengt to Behovsløsning.Statisk(false),
                 FerietilleggBehov.AntallDagerForbrukt to
                     Behovsløsning.Statisk(
                         mapOf(

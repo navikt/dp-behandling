@@ -1,0 +1,30 @@
+package no.nav.dagpenger.utestengning
+
+import no.nav.dagpenger.opplysning.Forretningsprosess
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
+import java.time.LocalDate
+
+class Utestengningsprosess : Forretningsprosess(RegelverkUtestengning) {
+    override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
+        val regelverksdato = LocalDate.now()
+        return Regelkjøring(
+            regelverksdato = regelverksdato,
+            prøvingsperiode = prøvingsperiode(opplysninger),
+            opplysninger = opplysninger,
+            forretningsprosess = this,
+        )
+    }
+
+    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = LocalDate.now()
+
+    private fun prøvingsperiode(opplysninger: LesbarOpplysninger): Regelkjøring.Periode {
+        val skjedde =
+            opplysninger.kunEgne
+                .finnOpplysning(hendelseTypeOpplysningstype)
+                .gyldighetsperiode.fraOgMed
+        return Regelkjøring.Periode(skjedde)
+    }
+}

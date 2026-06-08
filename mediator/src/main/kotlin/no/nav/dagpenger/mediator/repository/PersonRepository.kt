@@ -116,6 +116,12 @@ interface PersonRepository : BehandlingRepository {
     fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus>
 
     @WithSpan
+    fun erUtestengt(
+        ident: Ident,
+        dato: LocalDate,
+    ): Boolean
+
+    @WithSpan
     fun harIdent(ident: Ident): Boolean
 
     private fun medSpan(

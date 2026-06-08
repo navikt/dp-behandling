@@ -26,6 +26,7 @@ Laget avklaring om HarOppgittPermittering
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger
