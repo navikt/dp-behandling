@@ -155,6 +155,16 @@ class RegeltreTest {
     }
 
     @Test
+    fun `avhengighet er blokkert, men har produsert resultat tidligere`() {
+        val opplysninger =
+            Opplysninger.med(
+                Faktum(antallEplerType, antallEpler),
+            )
+        val plan = regeltre.lagPlan(opplysninger, setOf(antallEplerRegel))
+        plan shouldBe Kjøreplanresultat(setOf(antallBananerRegel, antallFruktRegel), emptySet())
+    }
+
+    @Test
     fun `ekstern regel hindrer at de som er avhengig av den kan kjøre`() {
         val opplysninger = Opplysninger()
         val plan = regeltreMedEksternRegel.lagPlan(opplysninger)

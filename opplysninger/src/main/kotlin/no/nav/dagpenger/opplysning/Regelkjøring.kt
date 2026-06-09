@@ -479,8 +479,9 @@ private fun TreNode<Regel<*>>.somRegelnode(): TreNode<Regelnode> =
 private fun TreNode<Regelnode>.flaggReglerSomErBlokkert(blokkerteRegler: Collection<Regel<*>>): TreNode<Regelnode> {
     val avhengigheter = avhengigheter.map { it.flaggReglerSomErBlokkert(blokkerteRegler) }
     val harBlokkertAvhengighet = avhengigheter.any { it.verdi.erBlokkert }
+    val erBlokkertSelv = blokkerteRegler.contains(verdi.regel) && verdi.kjøreflagg.måKjøres()
     return copy(
-        verdi = verdi.copy(erBlokkert = blokkerteRegler.contains(verdi.regel) || harBlokkertAvhengighet),
+        verdi = verdi.copy(erBlokkert = erBlokkertSelv || harBlokkertAvhengighet),
         avhengigheter = avhengigheter,
     )
 }
