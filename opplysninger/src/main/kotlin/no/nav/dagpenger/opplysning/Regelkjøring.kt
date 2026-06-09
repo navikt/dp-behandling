@@ -477,13 +477,8 @@ private fun TreNode<Regel<*>>.somRegelnode(): TreNode<Regelnode> =
     )
 
 private fun TreNode<Regelnode>.flaggReglerSomErBlokkert(blokkerteRegler: Collection<Regel<*>>): TreNode<Regelnode> {
-    fun TreNode<Regelnode>.erBlokkert(): Boolean {
-        if (this.verdi.erBlokkert) return true
-        return this.avhengigheter.any { it.erBlokkert() }
-    }
-
     val avhengigheter = avhengigheter.map { it.flaggReglerSomErBlokkert(blokkerteRegler) }
-    val harBlokkertAvhengighet = avhengigheter.any { it.erBlokkert() }
+    val harBlokkertAvhengighet = avhengigheter.any { it.verdi.erBlokkert }
     return copy(
         verdi = verdi.copy(erBlokkert = blokkerteRegler.contains(verdi.regel) || harBlokkertAvhengighet),
         avhengigheter = avhengigheter,
@@ -506,13 +501,8 @@ private fun TreNode<Regelnode>.flaggReglerSomMåKjøres(opplysninger: LesbarOppl
     val harUtdaterteAvhengigheter = opplysningerUtledetAv?.any { it.erUtdatert } == true
     val harErstattetAvhengighet = opplysninger.erErstattet(opplysningerUtledetAv ?: emptyList())
 
-    fun TreNode<Regelnode>.måKjøre(): Boolean {
-        if (this.verdi.kjøreflagg.måKjøres()) return true
-        return this.avhengigheter.any { it.måKjøre() }
-    }
-
     // hvis en avhengighet tidligere i kjeden er planlagt skal vi også kjøre
-    val avhengighetSkalKjøre = avhengigheter.any { it.måKjøre() }
+    val avhengighetSkalKjøre = avhengigheter.any { it.verdi.kjøreflagg.måKjøres() }
     val avhengighetAvventerData = avhengigheter.any { it.verdi.avventerData }
 
     val harFåttNyeAvhengigheterIKode =
