@@ -198,6 +198,18 @@ class RegeltreTest {
             )
     }
 
+    @Test
+    fun `ingen regler kjører om alle har produsert`() {
+        val opplysninger =
+            Opplysninger.med(
+                Faktum(antallEplerType, antallEpler),
+                Faktum(antallBananerType, antallBananer),
+                Faktum(antallFruktType, antallEpler + antallBananer),
+            )
+        val plan = regeltre.lagPlan(opplysninger)
+        plan shouldBe Kjøreplanresultat(emptySet(), emptySet())
+    }
+
     class AddereHeltall(
         produserer: Opplysningstype<Int>,
         private val ledd: List<Opplysningstype<Int>>,
