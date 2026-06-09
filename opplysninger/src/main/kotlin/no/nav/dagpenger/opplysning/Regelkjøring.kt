@@ -504,6 +504,7 @@ private fun TreNode<Regelnode>.flaggReglerSomMåKjøres(opplysninger: LesbarOppl
     val opplysningerUtledetAv = produkt?.utledetAv?.opplysninger
     // sjekker ikke om regelen selv sin opplysning er utdatert 🤔
     val harUtdaterteAvhengigheter = opplysningerUtledetAv?.any { it.erUtdatert } == true
+    val harErstattetAvhengighet = opplysninger.erErstattet(opplysningerUtledetAv ?: emptyList())
 
     fun TreNode<Regelnode>.måKjøre(): Boolean {
         if (this.verdi.kjøreflagg.måKjøres()) return true
@@ -524,6 +525,7 @@ private fun TreNode<Regelnode>.flaggReglerSomMåKjøres(opplysninger: LesbarOppl
             verdi.regel is TomRegel -> Regelnode.Kjøreflagg.INGEN_KJØRING_NØDVENDIG
             produkt == null -> Regelnode.Kjøreflagg.MANGLER_PRODUKT
             harUtdaterteAvhengigheter -> Regelnode.Kjøreflagg.HAR_UTDATERT_AVHENGIGHET
+            harErstattetAvhengighet -> Regelnode.Kjøreflagg.HAR_ERSTATTET_AVHENGIGHET
             avhengighetSkalKjøre -> Regelnode.Kjøreflagg.AVHENGIGHET_MÅ_KJØRE
             // harFåttNyeAvhengigheterIKode -> Regelnode.Kjøreflagg.HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE
             else -> Regelnode.Kjøreflagg.INGEN_KJØRING_NØDVENDIG
@@ -558,6 +560,7 @@ private data class Regelnode(
         INGEN_KJØRING_NØDVENDIG,
         MANGLER_PRODUKT,
         HAR_UTDATERT_AVHENGIGHET,
+        HAR_ERSTATTET_AVHENGIGHET,
         AVHENGIGHET_MÅ_KJØRE,
         HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE,
         ;
@@ -568,6 +571,7 @@ private data class Regelnode(
 
                 MANGLER_PRODUKT,
                 HAR_UTDATERT_AVHENGIGHET,
+                HAR_ERSTATTET_AVHENGIGHET,
                 AVHENGIGHET_MÅ_KJØRE,
                 HAR_FÅTT_ENDRET_AVHENGIGHETER_I_KODE,
                 -> true
