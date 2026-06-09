@@ -835,6 +835,8 @@ components:
       properties:
         behandlingstype:
           $ref: '#/components/schemas/Behandlingstype'
+        regelverk:
+          $ref: '#/components/schemas/RegelverkType'
         ident:
           $ref: '#/components/schemas/Personident'
         begrunnelse:
@@ -853,6 +855,14 @@ components:
       enum:
         - Revurdering
         - Manuell
+
+    RegelverkType:
+      type: string
+      description: Hvilket regelverk behandlingen skal kjøre under. Dagpenger er default.
+      enum:
+        - Dagpenger
+        - Ferietillegg
+        - Utestengning
 
     NyOpplysning:
       type: object

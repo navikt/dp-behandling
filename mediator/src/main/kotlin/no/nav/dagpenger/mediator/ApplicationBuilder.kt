@@ -26,6 +26,7 @@ import no.nav.dagpenger.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
+import no.nav.dagpenger.utestengning.UtestengningRegistrering
 import no.nav.helse.rapids_rivers.RapidApplication
 
 internal class ApplicationBuilder(
@@ -43,7 +44,8 @@ internal class ApplicationBuilder(
             )
     }
 
-    private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
+    private val regelverk: List<RegelverkRegistrering> =
+        listOf(DagpengerRegistrering(), FerietilleggRegistrering(), UtestengningRegistrering())
 
     private val postgresDataSourceBuilder = PostgresDataSourceBuilder()
 

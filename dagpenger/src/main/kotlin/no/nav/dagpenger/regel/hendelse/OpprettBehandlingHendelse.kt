@@ -13,6 +13,7 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -30,8 +31,9 @@ class OpprettBehandlingHendelse(
     private val begrunnelse: String? = null,
     opprettet: LocalDateTime,
     private val startNyKjede: Boolean = true,
+    prosess: Forretningsprosess = Manuellprosess(),
 ) : StartHendelse(meldingsreferanseId, ident, eksternId, gjelderDato, opprettet) {
-    override val forretningsprosess = Manuellprosess()
+    override val forretningsprosess = prosess
 
     override fun behandling(
         forrigeBehandling: Behandling?,

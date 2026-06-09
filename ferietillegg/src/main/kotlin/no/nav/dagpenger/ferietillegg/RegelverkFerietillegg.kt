@@ -49,6 +49,7 @@ private fun ferietilleggAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørel
 }
 
 private fun ferietilleggUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
+    if (opplysninger.mangler(FerietilleggBeløp.ferietilleggBeløp)) return emptyList()
     val ferietilleggBeløp = opplysninger.finnOpplysning(FerietilleggBeløp.ferietilleggBeløp)
     val opptjeningsår = opplysninger.finnOpplysning(KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor).verdi
 

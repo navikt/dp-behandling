@@ -35,6 +35,7 @@ import no.nav.dagpenger.modell.Person
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.scenario.assertions.BehandlingsresultatAssertions
+import no.nav.dagpenger.utestengning.UtestengningRegistrering
 import org.approvaltests.Approvals
 import tools.jackson.databind.JsonNode
 import java.time.LocalDate
@@ -50,7 +51,8 @@ internal class SimulertDagpengerSystem(
     }
 
     private val rapid = TestRapid()
-    private val regelverk: List<RegelverkRegistrering> = listOf(DagpengerRegistrering(), FerietilleggRegistrering())
+    private val regelverk: List<RegelverkRegistrering> =
+        listOf(DagpengerRegistrering(), FerietilleggRegistrering(), UtestengningRegistrering())
 
     val auditlogg = TestAuditlogg()
     private val authFactory =

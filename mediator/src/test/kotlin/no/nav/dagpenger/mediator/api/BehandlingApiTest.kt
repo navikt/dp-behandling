@@ -109,6 +109,42 @@ internal class BehandlingApiTest {
     }
 
     @Test
+    fun `opprett behandling med Ferietillegg regelverk`() {
+        medSikretBehandlingApi { testContext ->
+            val response =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body = """{"ident":"${person.ident}", "regelverk": "Ferietillegg"}""",
+                )
+            response.status shouldBe HttpStatusCode.OK
+
+            person.behandlingId.shouldNotBeNull()
+            person.avklaringer.single().kode shouldBe "ManuellBehandling"
+
+            val behandling = objectMapper.readTree(response.bodyAsText())
+            behandling["vilkår"][0]["hjemmel"]["paragraf"].asText() shouldBe "14"
+        }
+    }
+
+    @Test
+    fun `opprett behandling med Utestengning regelverk`() {
+        medSikretBehandlingApi { testContext ->
+            val response =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body = """{"ident":"${person.ident}", "regelverk": "Utestengning"}""",
+                )
+            response.status shouldBe HttpStatusCode.OK
+
+            person.behandlingId.shouldNotBeNull()
+            person.avklaringer.single().kode shouldBe "ManuellBehandling"
+
+            val behandling = objectMapper.readTree(response.bodyAsText())
+            // behandling["vilkår"][0]["hjemmel"]["kilde"]["tittel"].asString() shouldBe "Utestengning"
+        }
+    }
+
+    @Test
     fun `opprett kjedet behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger(1.april(LocalDate.now().year))

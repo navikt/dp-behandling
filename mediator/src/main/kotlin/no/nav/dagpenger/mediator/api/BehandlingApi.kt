@@ -26,6 +26,7 @@ import io.ktor.server.util.getOrFail
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.delay
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
+import no.nav.dagpenger.ferietillegg.Ferietilleggprosess
 import no.nav.dagpenger.mediator.IHendelseMediator
 import no.nav.dagpenger.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.mediator.api.auth.AuthFactory
@@ -44,6 +45,7 @@ import no.nav.dagpenger.mediator.api.models.KvitteringDTO
 import no.nav.dagpenger.mediator.api.models.NyBehandlingDTO
 import no.nav.dagpenger.mediator.api.models.NyOpplysningDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
+import no.nav.dagpenger.mediator.api.models.RegelverkTypeDTO
 import no.nav.dagpenger.mediator.api.models.RekjoringDTO
 import no.nav.dagpenger.mediator.api.models.RettighetsstatusDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlerbegrunnelseDTO
@@ -84,8 +86,10 @@ import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
+import no.nav.dagpenger.regel.prosess.Manuellprosess
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.utestengning.Utestengningsprosess
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -212,6 +216,12 @@ internal fun Application.behandlingApi(
                             }
 
                             else -> {
+                                val prosess =
+                                    when (nyBehandlingDto.regelverk) {
+                                        RegelverkTypeDTO.FERIETILLEGG -> Ferietilleggprosess()
+                                        RegelverkTypeDTO.UTESTENGNING -> Utestengningsprosess()
+                                        else -> Manuellprosess()
+                                    }
                                 OpprettBehandlingHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
@@ -219,6 +229,7 @@ internal fun Application.behandlingApi(
                                     gjelderDato = skjedde,
                                     begrunnelse = nyBehandlingDto.begrunnelse,
                                     opprettet = LocalDateTime.now(),
+                                    prosess = prosess,
                                 )
                             }
                         }
