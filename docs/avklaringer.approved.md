@@ -347,6 +347,19 @@ Kun én beregningsregel kan være gyldig til enhver tid. <br>Velg en av "Arbeids
 - Beregnet vanlig arbeidstid per uke før tap
 
 ---
+## Bruker er utestengt
+- **Kode:** `Utestengt`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
+### Beskrivelse
+Bruker er utestengt. Sjekk at dette stemmer.
+
+### Tilknyttet regelsett
+- [§ 4-28. Utestengning](./opplysninger.approved.md#-4-28-utestengning)
+### Opplysninger avklaringen ser på
+- Bruker er utestengt fra dagpenger
+
+---
 ## Verneplikt
 - **Kode:** `Verneplikt`
 - **Kan lukkes av saksbehandler:** ✅ 

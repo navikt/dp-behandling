@@ -539,6 +539,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-942f-7bde-ab16-68ffd19e9a33|Dagsats uten barnetillegg samordnet|Penger|Beløp|||Resultat
 ### § 4-28. Utestengning
 *Type:* Vilkår
+#### Avklaringer
+- Utestengt - [Bruker er utestengt](./avklaringer.approved.md#bruker-er-utestengt)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
