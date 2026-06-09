@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.prosess
+
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
@@ -23,7 +24,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.JobbetUtenforNorge
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.ManueltRedigertKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.PrøverEtterRapporteringsfristKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.SvangerskapsrelaterteSykepengerKontroll
-import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.BostedslandKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.PermitteringKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien.PermitteringFiskKontroll
@@ -35,6 +35,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.SjekkPrøvings
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstidKontroll
+import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning.utestengtKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.VernepliktKontroll
 import java.time.LocalDate
 
@@ -75,9 +76,9 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
             HattLukkedeSakerSiste8UkerKontroll,
             IkkeRegistrertSomArbeidsøkerKontroll,
             InntektNesteKalendermånedKontroll,
-            ManueltRedigertKontroll,
             JobbetUtenforNorgeKontroll,
             ManglerReellArbeidssøkerKontroll,
+            ManueltRedigertKontroll,
             MuligGjenopptakKontroll,
             NyttGrunnbeløpForGrunnlag,
             PermitteringFiskKontroll,
@@ -94,6 +95,7 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
             VirkningstidspunktForLangtFremITid,
             YtelserUtenforFolketrygdenKontroll,
             beregnetArbeidstidKontroll,
+            utestengtKontroll,
         )
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {

@@ -303,4 +303,11 @@ object Avklaringspunkter {
                 Retten til dagpenger faller bort ved utgangen av den måneden bruker fyller 67 år, vurder stans av dagpenger. 
                 """.trimIndent(),
         )
+
+    val Utestengt =
+        Avklaringkode(
+            kode = "Utestengt",
+            tittel = "Bruker er utestengt",
+            beskrivelse = "Bruker er utestengt. Sjekk at dette stemmer.",
+        )
 }
