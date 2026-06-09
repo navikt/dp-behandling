@@ -44,7 +44,7 @@ object Opptjeningstid {
             aOpplynsingsLoven.hjemmel(1, 2, "Frist for levering av opplysninger", "Opptjeningsperiode"),
         ) {
             skalVurderes { it.oppfyller(kravTilAlder) }
-            // skalRevurderes { !it.har(inntektFraSkatt) || it.erSann(Gjenopptak.oppholdMedArbeidI12ukerEllerMer) }
+            skalRevurderes { !it.har(inntektFraSkatt) || it.erSann(Gjenopptak.oppholdMedArbeidI12ukerEllerMer) }
 
             regel(pliktigRapporteringsfrist) { oppslag(prøvingsdato) { Aordningen.rapporteringsfrist(it) } }
             regel(justertRapporteringsfrist) { førsteArbeidsdag(pliktigRapporteringsfrist) }

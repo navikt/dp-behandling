@@ -49,14 +49,7 @@ abstract class Forretningsprosess(
         val regelsettSomIkkeSkalKjøres =
             regelverk
                 .regelsett
-                .filterNot {
-                    it.skalKjøres(opplysningerPåPrøvingsdato).also { bool ->
-                        if (!bool) println("skalKjøres er FALSE for regelsett $it")
-                    } &&
-                        it.skalRevurderes(opplysningerPåPrøvingsdato).also { bool ->
-                            if (!bool) println("skalKjøres er TRUE,  men skalRevurderes er FALSE for regelsett $it")
-                        }
-                }
+                .filterNot { it.skalKjøres(opplysningerPåPrøvingsdato) && it.skalRevurderes(opplysningerPåPrøvingsdato) }
 
         regelverk
             .regelsett
