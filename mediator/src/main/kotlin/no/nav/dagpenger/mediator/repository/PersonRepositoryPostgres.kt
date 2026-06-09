@@ -12,6 +12,7 @@ import no.nav.dagpenger.mediator.db.DatabaseSession
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.Person
 import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Utestengningsperiode
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import kotlin.time.DurationUnit
@@ -41,10 +42,11 @@ class PersonRepositoryPostgres(
                     ).map { row ->
                         val dbIdent = Ident(row.string("ident"))
                         val rettighetstatuser = session.rettighetstatusFor(dbIdent)
+                        val utestengninger = session.utestengningerFor(dbIdent)
                         val behandlinger = behandlingRepository.hentBehandlinger(dbIdent)
                         logger.info { "Hentet person med ${behandlinger.size} behandlinger" }
                         Metrikk.registrerAntallBehandlinger(behandlinger.size)
-                        Person(dbIdent, behandlinger, rettighetstatuser)
+                        Person(dbIdent, behandlinger, rettighetstatuser, utestengninger)
                     }.asSingle,
                 )?.also {
                     val antallBehandlinger = it.behandlinger().size.toString()
@@ -65,6 +67,25 @@ class PersonRepositoryPostgres(
     @WithSpan
     override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         dbSession.session { session -> session.rettighetstatusFor(ident) }
+
+    @WithSpan
+    override fun erUtestengt(
+        ident: Ident,
+        dato: LocalDate,
+    ): Boolean =
+        dbSession.session { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT 1 FROM utestengning
+                    WHERE ident = :ident AND fra_og_med <= :dato AND til_og_med >= :dato
+                    LIMIT 1
+                    """.trimIndent(),
+                    mapOf("ident" to ident.identifikator(), "dato" to dato),
+                ).map { 1 }.asSingle,
+            ) == 1
+        }
 
     @WithSpan
     override fun harIdent(ident: Ident): Boolean =
@@ -104,6 +125,25 @@ class PersonRepositoryPostgres(
                 }
             }
 
+    private fun Session.utestengningerFor(ident: Ident): List<Utestengningsperiode> =
+        this
+            .run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT * FROM utestengning WHERE ident = :ident ORDER BY fra_og_med
+                    """.trimIndent(),
+                    mapOf("ident" to ident.identifikator()),
+                ).map { row ->
+                    Utestengningsperiode(
+                        fraOgMed = row.localDate("fra_og_med"),
+                        tilOgMed = row.localDate("til_og_med"),
+                        behandlingId = row.uuid("behandling_id"),
+                        behandlingskjedeId = row.uuid("behandlingskjede_id"),
+                    )
+                }.asList,
+            )
+
     override fun lagre(person: Person) {
         lagrePersonMetrikk.time {
             dbSession.transaction {
@@ -134,6 +174,7 @@ class PersonRepositoryPostgres(
         )
 
         lagreRettighetshistorikk(unitOfWork, person.ident.identifikator(), person.rettighethistorikk())
+        lagreUtestengninger(unitOfWork, person.ident.identifikator(), person.utestengninghistorikk())
 
         behandlingRepository.lagre(person.ident, person.behandlinger(), unitOfWork)
     }
@@ -197,5 +238,32 @@ class PersonRepositoryPostgres(
                 """.trimIndent(),
                 params,
             ).krevAtAntallRaderErNøyaktigLik(params.size)
+    }
+
+    private fun lagreUtestengninger(
+        unitOfWork: PostgresUnitOfWork,
+        ident: String,
+        utestengninger: List<Utestengningsperiode>,
+    ) {
+        if (utestengninger.isEmpty()) return
+        val params =
+            utestengninger.map {
+                mapOf(
+                    "ident" to ident,
+                    "behandlingId" to it.behandlingId,
+                    "behandlingskjedeId" to it.behandlingskjedeId,
+                    "fraOgMed" to it.fraOgMed,
+                    "tilOgMed" to it.tilOgMed,
+                )
+            }
+        unitOfWork.session.batchPreparedNamedStatement(
+            //language=PostgreSQL
+            """
+            INSERT INTO utestengning (ident, behandling_id, behandlingskjede_id, fra_og_med, til_og_med)
+            VALUES (:ident, :behandlingId, :behandlingskjedeId, :fraOgMed, :tilOgMed)
+            ON CONFLICT (ident, behandling_id) DO NOTHING
+            """.trimIndent(),
+            params,
+        )
     }
 }

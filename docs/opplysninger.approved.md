@@ -539,10 +539,12 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-942f-7bde-ab16-68ffd19e9a33|Dagsats uten barnetillegg samordnet|Penger|Beløp|||Resultat
 ### § 4-28. Utestengning
 *Type:* Vilkår
+#### Avhenger på data fra
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|0194881f-9447-7e36-a569-3e9f42bff9f6|Bruker er utestengt fra dagpenger|Boolsk|boolean|||Utgangspunkt
+|0194881f-9447-7e36-a569-3e9f42bff9f6|Bruker er utestengt fra dagpenger|Boolsk|boolean|ErUtestengt||Ekstern
 |0194881f-9447-7e36-a569-3e9f42bff9f7|Oppfyller krav til ikke utestengt|Boolsk|boolean|||Resultat
 ### § 6-35. Omgjøring av vedtak uten klage
 *Type:* Prosess

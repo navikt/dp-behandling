@@ -66,6 +66,11 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
+    override fun erUtestengt(
+        ident: Ident,
+        dato: LocalDate,
+    ): Boolean = persondb[ident]?.erUtestengt(dato) ?: false
+
     override fun harIdent(ident: Ident) = persondb[ident] != null
 
     override fun lagreAvklaringer(

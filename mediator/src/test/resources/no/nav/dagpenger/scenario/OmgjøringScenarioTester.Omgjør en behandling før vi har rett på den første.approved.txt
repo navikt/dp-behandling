@@ -25,6 +25,7 @@ Laget avklaring om JobbetUtenforNorge
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger
@@ -69,6 +70,7 @@ Laget avklaring om JobbetUtenforNorge
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger

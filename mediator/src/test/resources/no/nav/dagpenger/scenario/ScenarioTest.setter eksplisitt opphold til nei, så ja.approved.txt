@@ -25,6 +25,7 @@ Laget avklaring om JobbetUtenforNorge
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger
@@ -46,6 +47,7 @@ Behandling endret tilstand til: Redigert
 Behov:
 - Inntekt
 Behov:
+- ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
 - Opplæringspenger

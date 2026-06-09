@@ -8,7 +8,7 @@ class PostgresMigrationTest {
     fun `Migration scripts are applied successfully`() {
         withIsolatedDb {
             val migrations = runMigration()
-            migrations shouldBeExactly 27
+            migrations shouldBeExactly 28
         }
     }
 }
