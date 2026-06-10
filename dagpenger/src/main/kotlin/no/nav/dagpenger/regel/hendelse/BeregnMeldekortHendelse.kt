@@ -68,19 +68,6 @@ class BeregnMeldekortHendelse(
                 avklaringer =
                     buildList {
                         if (meldekort.korrigeringAv != null) {
-                            add(
-                                Avklaring(
-                                    Avklaringkode(
-                                        kode = "KorrigertMeldekortBehandling",
-                                        tittel = "Beregning av korrigert meldekort",
-                                        beskrivelse =
-                                            "Behandlingen er korrigering av et tidligere meldekort " +
-                                                "og kan ikke automatisk behandles",
-                                        kanAvbrytes = false,
-                                    ),
-                                ),
-                            )
-
                             val sisteBeregnedeDato =
                                 forrigeBehandling
                                     .opplysninger
