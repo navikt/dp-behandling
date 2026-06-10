@@ -171,6 +171,122 @@ flowchart LR
 - **Forbruk**: settes per dag basert på `forbruksdager` fra `Beregningresultat`.
 - **Stans ved manglende tapt arbeidstid**: hvis antall siste påfølgende perioder uten tapt arbeidstid er større eller lik terskel (`maksAntallPerioderMedIkkeTaptArbeidstid`), legges `kravTilTaptArbeidstid=false` fra første periode i rekken og prosessen ber om rekjøring.
 
+## Avrunding og øreslipping
+
+### Avrundingsstrategi
+
+Systemet bruker **HALF_UP**-avrunding (standard bankrunding) til hele øre (0 desimaler). Dette betyr:
+- 12,4 kr → 12 kr (avrund ned)
+- 12,5 kr → 13 kr (avrund opp)
+- 12,6 kr → 13 kr (avrund opp)
+
+### Hvor avrunding skjer
+
+1. **Egenandel per satsgruppe** (Beregningsperiode.kt, linje 98)
+   ```kotlin
+   val beregnetEgenandel = Beløp(gjenståendeEgenandel.verdien * andel).avrundetBeløp
+   ```
+   Når gjenstående egenandel fordeles proporsjonalt på flere satsgrupper.
+
+2. **Netto per satsgruppe** (Beregningsperiode.kt, linje 73)
+   ```kotlin
+   val netto = (gruppe.bruttoBeløp - egenandelForGruppe).avrundetBeløp
+   ```
+   Brutto minus egenandel avrundet før fordeling på dager.
+
+### Øreslipping (rest-fordeling)
+
+Når ett beløp fordeles på flere dager, blir resten av avrundingen lagt på **siste dag i gruppen**:
+
+```kotlin
+fun fordelPåDager(beløp: Beløp): List<Beregningresultat.Forbruksdag> {
+    val antall = arbeidsdager.size.toBigDecimal()
+    val rest = Beløp(beløp.verdien % antall)          // Beregn rest (øre)
+    val dagsbeløp = (beløp - rest) / Beløp(antall)   // Del ut likt, minus rest
+    return arbeidsdager.mapIndexed { index, dag ->
+        val erSisteDag = index == arbeidsdager.lastIndex
+        // Siste dag får sitt dagsbeløp PLUSS resten
+        Beløp(if (erSisteDag) dagsbeløp + rest else dagsbeløp)
+    }
+}
+```
+
+### Eksempel
+
+Gitt en satsgruppe med 12 kr total og 5 arbeidsdager:
+- Rest: 12 % 5 = 2 kr
+- Dagsbeløp per dag: (12 - 2) / 5 = 2 kr
+- Dag 1-4: 2 kr hver = 8 kr
+- Dag 5 (siste): 2 kr + 2 kr (rest) = 4 kr
+- **Totalt**: 8 + 4 = 12 kr ✓
+
+### Presisjon før avrunding
+
+Alle melomberegninger foretas med ubegrenset presisjon (`MathContext.UNLIMITED` i Beløp-klassen) for å sikre nøyaktighet. Avrunding gjøres kun når beløpene skal legges til behandlinger og registreres.
+
+### Scenario 1: Satsendring midt i periode
+
+**Situasjon:** Sats skifter fra 1516 kr til 1517 kr den 01.01.2026 (barnetillegg justeres ved nyttår).
+
+| Parameter | Verdi |
+|-----------|-------|
+| Periode | 22.12.2025 – 04.01.2026 |
+| Terskel | 50% |
+| FVA | 37,5 t/uke = 7,5 t/dag |
+| Arbeidsdager | 10 (8 dager med sats 1516, 2 dager med sats 1517) |
+| Arbeid | 22 timer totalt (8.5t + 7.5t + 6.0t på helgedag) |
+| Egenandel | 0 kr |
+
+**Beregning:**
+1. **Terskelsjekk**: 22,0 / 75,0 = 29,3% ≤ 50% ✓
+2. **Prosentfaktor**: (75 − 22) / 75 = 70,67%
+3. **Bøtte 1** (sats 1516, 8 dager): 1516 × 8 × 0,7067 = 8570 kr
+4. **Bøtte 2** (sats 1517, 2 dager): 1517 × 2 × 0,7067 = 2144 kr
+5. **Fordeling Bøtte 1**: 8570 % 8 = 2 kr rest → 7 dager × 1071 kr + 1 dag × 1073 kr
+6. **Fordeling Bøtte 2**: 2144 % 2 = 0 kr rest → 2 dager × 1072 kr
+
+**Resultat:**
+
+| Dato | Sats | Utbetaling |
+|------|------|-----------|
+| 22.12–30.12 (dager 1–7) | 1516 | 1 071 kr |
+| 31.12 (siste dag, bøtte 1) | 1516 | 1 073 kr ← +2 kr rest |
+| 01.01–02.01 (bøtte 2) | 1517 | 1 072 kr |
+| **Totalt** | — | **10 714 kr** |
+
+**Nøkkelpoeng:** Resten (2 kr) fra bøtte 1 havner på **31.12** (siste dag i bøtten), ikke på 01.01 eller senere.
+
+### Scenario 2: Desimaltall og reminder-fordeling
+
+**Situasjon:** 903 kr × 10 dager × prosentfaktor gir desimaltall som må rettes.
+
+| Parameter | Verdi |
+|-----------|-------|
+| Periode | 06.01.2020 – 17.01.2020 |
+| Terskel | 50% |
+| FVA | 37,5 t/uke = 7,5 t/dag |
+| Arbeidsdager | 10 |
+| Arbeid | 7 timer totalt (3t + 2t + 2t) |
+| Egenandel | 0 kr |
+
+**Beregning:**
+1. **Terskelsjekk**: 7,0 / 75,0 = 9,3% ≤ 50% ✓
+2. **Prosentfaktor**: (75 − 7) / 75 = 90,67%
+3. **Brutto**: 903 × 10 × 0,9067 = 8187,20 kr → avrund → 8187 kr
+4. **Fordeling**: 8187 % 10 = 7 kr rest → 9 dager × 818 kr + 1 dag × 825 kr
+
+**Resultat:**
+
+| Dag | Dato | Utbetaling |
+|-----|------|-----------|
+| 1–9 | 06.01–16.01 | 818 kr |
+| 10 | 17.01 | 825 kr ← +7 kr rest |
+| **Totalt** | — | **8 187 kr** |
+
+**Nøkkelpoeng:** 903 × 10 × 68/75 = 8187,20 → 8187 kr, og de 7 kr av resten legges på siste dag.
+
+---
+
 ## Referanser til kode
 
 | Konsept | Kodefil |
