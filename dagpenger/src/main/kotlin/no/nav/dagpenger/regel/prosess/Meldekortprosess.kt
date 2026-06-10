@@ -17,7 +17,7 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbrukt
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import java.time.LocalDate
 
 class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
@@ -30,8 +30,8 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        val innvilgelsesdato = innvilgelsesdato(opplysninger)
         val meldeperiode = meldeperiode(opplysninger)
+        val innvilgelsesdato = innvilgelsesdato(opplysninger).maxBy { it <= meldeperiode.fraOgMed }
         val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
 
         return Regelkjøring(
@@ -52,8 +52,8 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = meldeperiode(opplysninger).tilOgMed
 
-    private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): LocalDate =
-        opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
+    private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): List<LocalDate> =
+        opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode.fraOgMed }
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi
 }
@@ -109,4 +109,17 @@ class Kvotetelling : ProsessPlugin {
     }
 
     override fun toSpesifikkKontekst() = SpesifikkKontekst("Kvotetelling")
+}
+
+fun main() {
+    val innvilgelsesdato = LocalDate.parse("2026-01-26")
+    val fraOgMed = LocalDate.parse("2026-02-16")
+    val tilOgMed = LocalDate.parse("2026-03-01")
+    val meldeperiode =
+        no.nav.dagpenger.opplysning.verdier
+            .Periode(fraOgMed, tilOgMed)
+    val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
+    Periode(førsteDagMedRett, meldeperiode.tilOgMed).also {
+        println(it)
+    }
 }

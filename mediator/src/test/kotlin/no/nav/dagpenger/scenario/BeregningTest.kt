@@ -8,6 +8,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.mediator.februar
+import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
@@ -568,6 +570,74 @@ class BeregningTest {
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
 
                 opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe false
+            }
+        }
+    }
+
+    @Test
+    fun `Beregne meldekort etter stans og gjenopptak der meldekortet treffer perioden etter stansen og før gjenopptaket`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(1.januar(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                utbetalinger.shouldHaveSize(28)
+            }
+
+            saksbehandler.lagBehandling(1.februar(2018))
+            saksbehandler.endreOpplysning(
+                Opphold.oppholdINorge,
+                false,
+                "test",
+                Gyldighetsperiode(1.februar(2018)),
+            )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+            behandlingsresultat {
+                rettighetsperioder.size shouldBe 2
+            }
+
+            person.søkGjenopptak(12.februar(2018))
+            saksbehandler.endreOpplysning(
+                Opphold.oppholdINorge,
+                true,
+                "test",
+                Gyldighetsperiode(12.februar(2018)),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.size shouldBe 3
+                rettighetsperioder.last().harRett shouldBe true
+            }
+
+            person.sendInnMeldekort(3)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                utbetalinger.shouldHaveSize(31)
+            }
+
+            person.sendInnMeldekort(4)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                utbetalinger.shouldHaveSize(45)
             }
         }
     }

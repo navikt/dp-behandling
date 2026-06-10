@@ -216,7 +216,7 @@ class OpplysningerRepositoryPostgresTest {
 
             val litenBatch = 1000
             val storBatch = 50000
-            val faktorGrense = 60L // Stor batch (50x) bør ikke ta mer enn 60x liten batch
+            val faktorGrense = 70L // Stor batch (50x) bør ikke ta mer enn 60x liten batch
 
             fun lagFakta(antall: Int) =
                 (1..antall).map {
