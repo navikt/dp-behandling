@@ -254,22 +254,32 @@ class Regelkjøring(
                 val ønsketResultat = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
 
                 val planlegger = Regelplanlegger()
+                val kø = ArrayDeque(ønsketResultat.mapNotNull { produsenter[it] })
                 val besøkt = mutableSetOf<Regel<*>>()
 
-                // Kjør de reglene som skal kjøres
-                ønsketResultat
-                    .mapNotNull { produsenter[it] }
-                    .forEach { produsent ->
-                        produsent.lagPlan(opplysningerPåPrøvingsdato, planlegger, produsenter, besøkt)
-                    }
+                while (kø.isNotEmpty()) {
+                    val regel = kø.removeFirst()
+                    if (!besøkt.add(regel)) continue
+                    regel.lagPlan(opplysningerPåPrøvingsdato, planlegger, kø, produsenter)
+                }
+
+                val m = Regelplanlegger()
+                val masterplan =
+                    ønsketResultat
+                        .mapNotNull { produsenter[it] }
+                        .map { it.lagPlan(opplysninger, produsenter) }
+                        .onEach {
+                            it.forEach { regel -> m.add(regel) }
+                        }
+                val (alleEkstern, alleIntern) = m.lagProduksjonsplan()
 
                 val (ekstern, intern) = planlegger.lagProduksjonsplan()
                 return Regelkjøringstilstand(
                     prøvingsdato = prøvingsdato,
                     opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
                     ønsketResultat = ønsketResultat,
-                    plan = intern,
-                    eksterneRegler = ekstern,
+                    plan = alleIntern,
+                    eksterneRegler = alleEkstern,
                 )
             }
         }

@@ -14,19 +14,16 @@ class HvisSannMedResultat<T : Any>(
     override fun lagPlan(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
+        kø: Regelkø,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
     ) {
-        if (besøkt.contains(this)) return else besøkt.add(this)
-
         if (opplysninger.har(produserer)) {
-            // Deleger til Regel sin logikk for endringer
-            besøkt.remove(this)
-            return super.lagPlan(opplysninger, plan, produsenter, besøkt)
+            // Produktet finnes — deleger til Regel sin logikk for å håndtere endringer
+            return super.lagPlan(opplysninger, plan, kø, produsenter)
         }
 
         if (opplysninger.mangler(sjekk)) {
-            produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter, besøkt)
+            kø.add(produsenter.finn(sjekk))
             return
         }
 
@@ -34,7 +31,7 @@ class HvisSannMedResultat<T : Any>(
         val neste = if (sjekkVerdi) hvisSann else hvisUsann
 
         if (opplysninger.mangler(neste)) {
-            produsenter.finn(neste).lagPlan(opplysninger, plan, produsenter, besøkt)
+            kø.add(produsenter.finn(neste))
         } else {
             plan.add(this)
         }
