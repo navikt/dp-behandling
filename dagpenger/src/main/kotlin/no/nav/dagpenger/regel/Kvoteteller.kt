@@ -18,17 +18,18 @@ class Kvoteteller(
         return Kvotetelling.tell(kapasitet, utgangspunkt, telledager)
     }
 
-    private fun lesTelledager(opplysninger: LesbarOpplysninger): List<Forbruksdagverdi> =
+    private fun lesTelledager(opplysninger: LesbarOpplysninger): List<LocalDate> =
         opplysninger.kunEgne
             .finnAlle(definisjon.tellesNår)
+            .filter { it.verdi }
             .sortedBy { it.gyldighetsperiode.fraOgMed }
-            .map { Forbruksdagverdi(it.gyldighetsperiode.fraOgMed, it.verdi) }
+            .map { it.gyldighetsperiode.fraOgMed }
 
     private fun lesUtgangspunkt(
         opplysninger: LesbarOpplysninger,
-        telledager: List<Forbruksdagverdi>,
+        telledager: List<LocalDate>,
     ): Int {
-        val førsteDag = telledager.firstOrNull()?.dato ?: return 0
+        val førsteDag = telledager.firstOrNull() ?: return 0
         return opplysninger
             .finnAlle(definisjon.forbruksteller)
             .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
@@ -36,26 +37,22 @@ class Kvoteteller(
     }
 }
 
-data class Forbruksdagverdi(
-    val dato: LocalDate,
-    val forbruk: Boolean,
-)
-
 object Kvotetelling {
+    /** Teller forbruk. Alle datoer i [dager] teller som +1. */
     fun tell(
         kapasitet: Int,
         utgangspunkt: Int,
-        dager: List<Forbruksdagverdi>,
+        dager: List<LocalDate>,
     ): Kvotetellingsresultat {
         if (kapasitet <= 0) return Kvotetellingsresultat()
-        val sortert = dager.sortedBy { it.dato }
+        val sortert = dager.sorted()
         if (sortert.isEmpty()) return Kvotetellingsresultat()
 
         var teller = utgangspunkt
         val forbruktTeller =
-            sortert.map { dag ->
-                if (dag.forbruk) teller++
-                KvotetellingsVerdi(teller, Gyldighetsperiode(dag.dato, dag.dato))
+            sortert.map { dato ->
+                teller++
+                KvotetellingsVerdi(teller, Gyldighetsperiode(dato, dato))
             }
         val gjenstående =
             forbruktTeller.map {
@@ -65,15 +62,12 @@ object Kvotetelling {
                 }
                 KvotetellingsVerdi(g, it.gyldighetsperiode)
             }
-        val sisteForbruksdato = sortert.lastOrNull { it.forbruk }?.dato
+        val sisteForbruksdato = sortert.last()
         return Kvotetellingsresultat(
             forbruktTeller = forbruktTeller,
             gjenstående = gjenstående,
-            sisteDagMedForbruk = sisteForbruksdato?.let { KvotetellingsVerdi(it, Gyldighetsperiode(it)) },
-            sisteGjenstående =
-                sisteForbruksdato?.let {
-                    KvotetellingsVerdi(gjenstående.last().verdi, Gyldighetsperiode(it))
-                },
+            sisteDagMedForbruk = KvotetellingsVerdi(sisteForbruksdato, Gyldighetsperiode(sisteForbruksdato)),
+            sisteGjenstående = KvotetellingsVerdi(gjenstående.last().verdi, Gyldighetsperiode(sisteForbruksdato)),
         )
     }
 }

@@ -48,17 +48,14 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
 
+        // Kun true-dager skrives — false-dagen (8. jan) gir ingen ny opplysning
         val forbrukVerdier = opplysninger.finnAlle(forbruktTeller).sortedBy { it.gyldighetsperiode.fraOgMed }
-        forbrukVerdier[0].verdi shouldBe 1
-        forbrukVerdier[1].verdi shouldBe 2
-        forbrukVerdier[2].verdi shouldBe 2 // false dag - ikke inkrementert
-        forbrukVerdier[3].verdi shouldBe 3
+        forbrukVerdier.map { it.verdi } shouldBe listOf(1, 2, 3)
+        forbrukVerdier.map { it.gyldighetsperiode.fraOgMed } shouldBe
+            listOf(6.januar(2025), 7.januar(2025), 9.januar(2025))
 
         val gjenståendeVerdier = opplysninger.finnAlle(gjenstående).sortedBy { it.gyldighetsperiode.fraOgMed }
-        gjenståendeVerdier[0].verdi shouldBe 9
-        gjenståendeVerdier[1].verdi shouldBe 8
-        gjenståendeVerdier[2].verdi shouldBe 8
-        gjenståendeVerdier[3].verdi shouldBe 7
+        gjenståendeVerdier.map { it.verdi } shouldBe listOf(9, 8, 7)
     }
 
     @Test
@@ -130,8 +127,9 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
 
-        opplysninger.finnAlle(forbruktTeller).map { it.verdi } shouldBe listOf(1, 1, 2)
-        opplysninger.finnAlle(gjenstående).map { it.verdi } shouldBe listOf(2, 2, 1)
+        // False-dag (7. jan) gir ingen opplysning — kun 2 true-dager
+        opplysninger.finnAlle(forbruktTeller).map { it.verdi } shouldBe listOf(1, 2)
+        opplysninger.finnAlle(gjenstående).map { it.verdi } shouldBe listOf(2, 1)
     }
 
     @Test

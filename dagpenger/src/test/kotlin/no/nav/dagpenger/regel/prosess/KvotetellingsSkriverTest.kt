@@ -11,21 +11,18 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.tomHjemmel
+import no.nav.dagpenger.regel.KvotetellingsSkriver
 import no.nav.dagpenger.regel.KvotetellingsVerdi
 import no.nav.dagpenger.regel.Kvotetellingsresultat
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 
-class KvoteLagringTest {
+class KvotetellingsSkriverTest {
     private val kapasitet = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Kapasitet")
 
     @Test
-    fun `skriver ferdig kvotetelling uten å tolke dager`() {
-        val opplysninger =
-            Opplysninger().apply {
-                leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025))))
-            }
+    fun `skriver rettighetskvote`() {
         val kvote =
             KvoteDefinisjon(
                 hjemmel = tomHjemmel("Selvbærende kvote"),
@@ -37,7 +34,6 @@ class KvoteLagringTest {
                 sisteForbruk = Beregning.sisteForbruksdag,
                 sisteGjenstående = Beregning.sisteGjenståendeDager,
             )
-
         val resultat =
             Kvotetellingsresultat(
                 forbruktTeller =
@@ -53,8 +49,9 @@ class KvoteLagringTest {
                 sisteDagMedForbruk = KvotetellingsVerdi(7.januar(2025), Gyldighetsperiode(7.januar(2025))),
                 sisteGjenstående = KvotetellingsVerdi(1, Gyldighetsperiode(7.januar(2025), 7.januar(2025))),
             )
+        val opplysninger = Opplysninger().apply { leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025)))) }
 
-        KvoteLagring().lagre(opplysninger, listOf(KvoteTelling(kvote, resultat)))
+        KvotetellingsSkriver(kvote).skriv(opplysninger, resultat)
 
         opplysninger.finnAlle(Beregning.forbrukt).last().verdi shouldBe 2
         opplysninger.finnAlle(Beregning.gjenståendeDager).last().verdi shouldBe 1
@@ -63,11 +60,7 @@ class KvoteLagringTest {
     }
 
     @Test
-    fun `skriver etterfølgende sanksjon uten å hente noe fra dager`() {
-        val opplysninger =
-            Opplysninger().apply {
-                leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025))))
-            }
+    fun `skriver sanksjonskvote`() {
         val kvote =
             KvoteDefinisjon(
                 hjemmel = tomHjemmel("Etterfølgende kvote"),
@@ -79,7 +72,6 @@ class KvoteLagringTest {
                 sisteGjenstående = Beregning.sisteGjenståendeSanksjonsdager,
                 forbrukstype = Forbrukstype.Bortfall,
             )
-
         val resultat =
             Kvotetellingsresultat(
                 forbruktTeller =
@@ -95,8 +87,9 @@ class KvoteLagringTest {
                 sisteDagMedForbruk = KvotetellingsVerdi(7.januar(2025), Gyldighetsperiode(7.januar(2025))),
                 sisteGjenstående = KvotetellingsVerdi(1, Gyldighetsperiode(7.januar(2025), 7.januar(2025))),
             )
+        val opplysninger = Opplysninger().apply { leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025)))) }
 
-        KvoteLagring().lagre(opplysninger, listOf(KvoteTelling(kvote, resultat)))
+        KvotetellingsSkriver(kvote).skriv(opplysninger, resultat)
 
         opplysninger.finnAlle(Beregning.forbruktSanksjonsdager).map { it.verdi } shouldBe listOf(1, 2)
         opplysninger.finnAlle(Beregning.gjenståendeSanksjonsdager).last().verdi shouldBe 1

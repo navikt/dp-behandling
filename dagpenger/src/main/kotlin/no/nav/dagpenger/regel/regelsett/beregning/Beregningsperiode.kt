@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.beregning
 
-import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
@@ -194,7 +193,6 @@ data class Beregningresultat(
             override val dag: Dag,
             override val tilUtbetaling: Beløp,
         val erBortfall: Boolean = false,
-        val tildeltKvote: KvoteDefinisjon? = null,
     ): Beregningsdag
 
         data class IkkeForbruksdag(

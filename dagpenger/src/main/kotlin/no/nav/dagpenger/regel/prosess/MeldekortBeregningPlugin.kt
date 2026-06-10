@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.KvotetellingsSkriver
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.erBortfallsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
@@ -23,9 +24,6 @@ import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
 class MeldekortBeregningPlugin(
     private val kvoter: List<KvoteDefinisjon>,
 ) : ProsessPlugin {
-    private val kvoteLagring = KvoteLagring()
-    private val meldeperiodeKvoteteller = MeldeperiodeKvoteteller(kvoter)
-
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
         val meldeperiode = meldeperiode(opplysninger)
@@ -60,8 +58,10 @@ class MeldekortBeregningPlugin(
                 opplysninger.leggTil(Faktum(erBortfallsdag, dag?.erBortfall ?: false, dagGyldighetsperiode))
             }
 
-        val kvoteOppgjør = meldeperiodeKvoteteller.oppgjør(resultat.forbruksdager, opplysninger, meldeperiode)
-        kvoteLagring.lagre(opplysninger, kvoteOppgjør.kvotetellinger)
+        val kategoriserteDager = resultat.forbruksdager.kategoriser()
+        KvotetellerOrkestrering(kvoter)
+            .beregn(kategoriserteDager, opplysninger, meldeperiode.fraOgMed)
+            .forEach { (kvote, kvoteresultat) -> KvotetellingsSkriver(kvote).skriv(opplysninger, kvoteresultat) }
         return resultat
     }
 

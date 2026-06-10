@@ -93,7 +93,8 @@ class TidsbegrensetBortfallTest {
                     count { it.verdi.verdi == true } shouldBe 3
                 }
                 with(opplysninger(Beregning.forbrukt)) {
-                    this.last().verdi.verdi shouldBe 10
+                    // Bortfall-dager telles ikke mot rettighets-kvoten — kun 7 rettighetsdager telles
+                    this.last().verdi.verdi shouldBe 7
                 }
                 // 4 dager med utbetaling (minus egenandel)
                 utbetalinger.count { it["utbetaling"].asInt() > 0 } shouldBeGreaterThan 0
