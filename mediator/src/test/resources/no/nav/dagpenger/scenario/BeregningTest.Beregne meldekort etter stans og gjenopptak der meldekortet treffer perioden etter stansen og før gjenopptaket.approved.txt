@@ -50,10 +50,52 @@ Behandling endret tilstand til: Ferdig
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: Ferdig
-Laget avklaring om KorrigeringUtbetaltPeriode
+Laget avklaring om ManuellBehandling
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig
+Laget avklaring om GjenopptakBehandling
+Laget avklaring om HarTilleggsopplysninger
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behov:
+- AndreØkonomiskeYtelser
+- HelseTilAlleTyperJobb
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- Lønnsgaranti
+- Ordinær
+- Permittert
+- PermittertFiskeforedling
+- RegistrertSomArbeidssøker
+- TarUtdanningEllerOpplæring
+- Verneplikt
+- VilligTilÅBytteYrke
+- ØnskerDagpengerFraDato
+- ØnsketArbeidstid
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
+Behov:
+- ErUtestengt
+- Foreldrepenger
+- Omsorgspenger
+- Opplæringspenger
+- Pleiepenger
+- Svangerskapspenger
+- Sykepenger
+- Uføre
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig

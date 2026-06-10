@@ -73,11 +73,11 @@ class BeregnMeldekortHendelse(
                                     .opplysninger
                                     .finnAlle(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)
                                     .lastOrNull()
-                            harBeregnetPeriodenEtterDenne =
-                                sisteBeregnedeDato
                                     ?.gyldighetsperiode
                                     ?.tilOgMed
-                                    ?.isAfter(meldekort.tom) == true
+                            harBeregnetPeriodenEtterDenne =
+                                sisteBeregnedeDato != null &&
+                                (sisteBeregnedeDato.isAfter(meldekort.tom) || sisteBeregnedeDato == meldekort.tom)
 
                             if (harBeregnetPeriodenEtterDenne) {
                                 logger.error {

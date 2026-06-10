@@ -358,7 +358,7 @@ class BeregningTest {
             meldekortBatch()
 
             // Verifiser at vi lager en avklaring om korrigert meldekort
-            person.avklaringer.first().kode shouldBe "KorrigertMeldekortBehandling"
+            person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
 
             // Vi lager et forslag om reberegning av forrige periode
             behandlingsresultatForslag {

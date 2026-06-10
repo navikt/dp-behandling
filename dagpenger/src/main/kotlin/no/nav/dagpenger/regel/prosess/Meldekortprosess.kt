@@ -110,16 +110,3 @@ class Kvotetelling : ProsessPlugin {
 
     override fun toSpesifikkKontekst() = SpesifikkKontekst("Kvotetelling")
 }
-
-fun main() {
-    val innvilgelsesdato = LocalDate.parse("2026-01-26")
-    val fraOgMed = LocalDate.parse("2026-02-16")
-    val tilOgMed = LocalDate.parse("2026-03-01")
-    val meldeperiode =
-        no.nav.dagpenger.opplysning.verdier
-            .Periode(fraOgMed, tilOgMed)
-    val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
-    Periode(førsteDagMedRett, meldeperiode.tilOgMed).also {
-        println(it)
-    }
-}
