@@ -141,7 +141,7 @@ class Regelkjøring(
         // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
         // ønsketResultat kan være ufullstendig (regelsett med skalKjøres=false pga manglende data).
         if (kjøreplan.siste.trenger.isEmpty()) {
-            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, kjøreplan.siste.ønsketResultat)
+            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, kjøreplan.siste.ønsketResultatSkalKjøres)
             opplysninger.fjernHvis {
                 val ikkeGjortAvSaksbehandler = it.kilde !is Saksbehandlerkilde
                 val trengsIkke = it.opplysningstype !in brukteOpplysninger
@@ -242,6 +242,7 @@ class Regelkjøring(
         val prøvingsdato: LocalDate,
         val opplysningerPåPrøvingsdato: LesbarOpplysninger,
         val ønsketResultat: Set<Opplysningstype<*>>,
+        val ønsketResultatSkalKjøres: Set<Opplysningstype<*>>,
         val regeltre: Set<TreNode<Regel<*>>>,
         val blokkerteRegler: Set<Regel<*>>,
     ) {
@@ -288,6 +289,13 @@ class Regelkjøring(
                             prøvingsdato = prøvingsdato,
                             opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
                             ønsketResultat = ønsketResultat,
+                            ønsketResultatSkalKjøres =
+                                ønsketResultat
+                                    .filter { op ->
+                                        forretningsprosess.regelverk.regelsett
+                                            .filter { it.skalKjøres(opplysningerPåPrøvingsdato) }
+                                            .any { op in it.ønsketInformasjon }
+                                    }.toSet(),
                             regeltre = regeltre,
                             blokkerteRegler = reglerSomIkkeSkalKjøres,
                         ),
