@@ -922,6 +922,7 @@ components:
       required:
         - behandlingId
         - behandletHendelse
+        - regelverk
         - behandlingskjedeId
         - automatisk
         - ident
@@ -934,6 +935,9 @@ components:
         behandletHendelse:
           description: Hvilken hendelse som utløste behandlingen
           $ref: '#/components/schemas/Hendelse'
+        regelverk:
+          description: Hvilket regelverk behandlingen kjører under. Dagpenger er default.
+          type: string
         behandlingskjedeId:
           $ref: '#/components/schemas/BehandlingId'
           description: Hvilken behandlingskjede denne behandlingen tilhører. Dette tilsvarer en sammenhengende rettighetsperiode eller sak om du vil.

@@ -12,7 +12,6 @@ import no.nav.dagpenger.mediator.api.models.UtbetalingDTODagpengeTypeDTO.ORDINÆ
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
-import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Ytelsestype
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
@@ -25,6 +24,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
             ident = ident,
             automatisk = automatiskBehandlet,
             basertPå = basertPåBehandling,
+            regelverk = regelverk.navn,
             behandlingskjedeId = behandlingskjedeId,
             behandletHendelse = behandlingAv.tilHendelseDTO(),
             rettighetsperioder = rettighetsperioder(),

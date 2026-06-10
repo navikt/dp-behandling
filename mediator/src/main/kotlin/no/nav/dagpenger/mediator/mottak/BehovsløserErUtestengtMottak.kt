@@ -47,10 +47,10 @@ internal class BehovsløserErUtestengtMottak(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
     ) {
-        val ident = packet["ident"].asText()
+        val ident = packet["ident"].asString()
         val dato = packet[DATO_KEY].asLocalDate()
 
-        withLoggingContext("behovId" to packet["@behovId"].asText()) {
+        withLoggingContext("behovId" to packet["@behovId"].asString()) {
             log.info { "Skal løse behov '$BEHOV'" }
 
             val erUtestengt = personRepository.erUtestengt(Ident(ident), dato)

@@ -122,7 +122,7 @@ internal class BehandlingApiTest {
             person.avklaringer.single().kode shouldBe "ManuellBehandling"
 
             val behandling = objectMapper.readTree(response.bodyAsText())
-            behandling["vilkår"][0]["hjemmel"]["paragraf"].asText() shouldBe "14"
+            behandling["vilkår"][0]["hjemmel"]["paragraf"].asString() shouldBe "14"
         }
     }
 

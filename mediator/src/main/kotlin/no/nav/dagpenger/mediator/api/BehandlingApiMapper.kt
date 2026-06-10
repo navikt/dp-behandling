@@ -115,6 +115,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             ident = behandler.ident,
             automatisk = behandlingsresultat.automatiskBehandlet,
             basertPå = behandlingsresultat.basertPåBehandling,
+            regelverk = regelverk.navn,
             behandlingskjedeId = behandlingskjedeId,
             behandletHendelse = behandler.tilHendelseDTO(),
             rettighetsperioder = behandlingsresultat.rettighetsperioder(),
