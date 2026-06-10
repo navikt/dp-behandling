@@ -3,39 +3,8 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
-import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.tildeltKapasitet
 import java.time.LocalDate
-
-class Kvoteteller(
-    val definisjon: KvoteDefinisjon,
-) {
-    fun beregn(opplysninger: LesbarOpplysninger): Kvotetellingsresultat {
-        val kapasitet = definisjon.tildeltKapasitet(opplysninger)
-        val telledager = lesTelledager(opplysninger)
-        val utgangspunkt = lesUtgangspunkt(opplysninger, telledager)
-        return Kvotetelling.tell(kapasitet, utgangspunkt, telledager)
-    }
-
-    private fun lesTelledager(opplysninger: LesbarOpplysninger): List<LocalDate> =
-        opplysninger.kunEgne
-            .finnAlle(definisjon.tellesNår)
-            .filter { it.verdi }
-            .sortedBy { it.gyldighetsperiode.fraOgMed }
-            .map { it.gyldighetsperiode.fraOgMed }
-
-    private fun lesUtgangspunkt(
-        opplysninger: LesbarOpplysninger,
-        telledager: List<LocalDate>,
-    ): Int {
-        val førsteDag = telledager.firstOrNull() ?: return 0
-        return opplysninger
-            .finnAlle(definisjon.forbruksteller)
-            .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
-            ?.verdi ?: 0
-    }
-}
 
 object Kvotetelling {
     /** Teller forbruk. Alle datoer i [dager] teller som +1. */

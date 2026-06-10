@@ -2,8 +2,7 @@ package no.nav.dagpenger.regel.regelsett.beregning
 
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.allokeringskjede
-import no.nav.dagpenger.opplysning.gjenståendeVed
+import no.nav.dagpenger.opplysning.sanksjonerSortert
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
@@ -65,15 +64,8 @@ class BeregningsperiodeFabrikk(
             ?.verdi ?: innvilgetEgenandel
     }
 
-    private fun hentGjenståendeBortfall(førsteDag: LocalDate): Int {
-        /**
-         * Sanksjonshierarki etter Dagpengeloven:
-         * Sanksjonsperiode (§ 4-10) og Tidsbegrenset bortfall (§ 4-20) er ETTERFØLGENDE kvoter.
-         * De forbrukes sekvensielt i ilagt-rekkefølge.
-         * Ilagt-dato hentes fra aktiveringsopplysningen i kvotekilde.
-         */
-        return kvoter.allokeringskjede(opplysninger).sumOf { kvote -> kvote.gjenståendeVed(opplysninger, førsteDag) }
-    }
+    private fun hentGjenståendeBortfall(førsteDag: LocalDate): Int =
+        kvoter.sanksjonerSortert(opplysninger).sumOf { kvote -> kvote.gjenståendeVed(opplysninger, førsteDag) }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }

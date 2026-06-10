@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import no.nav.dagpenger.opplysning.Forbrukstype.Bortfall
 import java.time.LocalDate
 
 enum class Forbrukstype {
@@ -18,6 +19,34 @@ data class KvoteDefinisjon(
     val forbrukstype: Forbrukstype = Forbrukstype.Rettighet,
 ) {
     val navn get() = hjemmel.kortnavn
+
+    fun teller(type: Forbrukstype) = type == forbrukstype
+
+    fun tildeltKapasitet(opplysninger: LesbarOpplysninger): Int {
+        if (!opplysninger.har(tildelingsgrunnlag.kapasitet)) return 0
+        return opplysninger.finnOpplysning(tildelingsgrunnlag.kapasitet).verdi
+    }
+
+    fun gjenståendeVed(
+        opplysninger: LesbarOpplysninger,
+        førsteDag: LocalDate,
+    ): Int {
+        val sisteGjenståendeVerdi =
+            opplysninger
+                .finnAlle(gjenstående)
+                .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
+                ?.verdi
+        return sisteGjenståendeVerdi ?: tildeltKapasitet(opplysninger)
+    }
+
+    fun forrigeForbruk(
+        opplysninger: LesbarOpplysninger,
+        før: LocalDate,
+    ): Int =
+        opplysninger
+            .finnAlle(forbruksteller)
+            .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(før) }
+            ?.verdi ?: 0
 }
 
 data class Tildelingsgrunnlag(
@@ -30,31 +59,8 @@ data class Tildelingsgrunnlag(
             .minOfOrNull { it.gyldighetsperiode.fraOgMed }
 }
 
-fun KvoteDefinisjon.tildeltKapasitet(opplysninger: LesbarOpplysninger): Int {
-    if (!opplysninger.har(tildelingsgrunnlag.kapasitet)) return 0
-    return opplysninger.finnOpplysning(tildelingsgrunnlag.kapasitet).verdi
-}
-
-fun KvoteDefinisjon.gjenståendeVed(
-    opplysninger: LesbarOpplysninger,
-    førsteDag: LocalDate,
-): Int {
-    val sisteGjenstående = opplysninger.sisteVerdiFør(gjenstående, førsteDag)
-    return sisteGjenstående ?: tildeltKapasitet(opplysninger)
-}
-
-fun KvoteDefinisjon.erEksklusivt(): Boolean = forbrukstype == Forbrukstype.Bortfall
-
-fun List<KvoteDefinisjon>.allokeringskjede(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
-    filter { it.erEksklusivt() }.sortertEtterIlagtDato(opplysninger)
+fun List<KvoteDefinisjon>.sanksjonerSortert(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
+    filter { it.teller(Bortfall) }.sortertEtterIlagtDato(opplysninger)
 
 fun List<KvoteDefinisjon>.sortertEtterIlagtDato(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
     sortedWith(compareBy(nullsLast()) { kvote -> kvote.tildelingsgrunnlag.ilagtDato(opplysninger) })
-
-private fun LesbarOpplysninger.sisteVerdiFør(
-    opplysningstype: Opplysningstype<Int>,
-    førsteDag: LocalDate,
-): Int? =
-    finnAlle(opplysningstype)
-        .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
-        ?.verdi

@@ -6,7 +6,6 @@ import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosesskontekst
-import no.nav.dagpenger.opplysning.erEksklusivt
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.RegelverkDagpenger
@@ -96,11 +95,10 @@ class MeldekortBeregningPluginTest {
         val sanksjonskvoter =
             RegelverkDagpenger
                 .kvoter()
-                .filter { it.erEksklusivt() }
+                .filter { it.teller(Forbrukstype.Bortfall) }
 
         sanksjonskvoter.map { it.navn } shouldBe listOf("Sanksjonsperiode", "Tidsbegrenset bortfall")
         sanksjonskvoter.map { it.forbrukstype }.toSet() shouldBe setOf(Forbrukstype.Bortfall)
-        sanksjonskvoter.all { it.erEksklusivt() } shouldBe true
     }
 
     @Nested

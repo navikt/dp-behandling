@@ -58,9 +58,8 @@ class MeldekortBeregningPlugin(
                 opplysninger.leggTil(Faktum(erBortfallsdag, dag?.erBortfall ?: false, dagGyldighetsperiode))
             }
 
-        val kategoriserteDager = resultat.forbruksdager.kategoriser()
-        KvotetellerOrkestrering(kvoter)
-            .beregn(kategoriserteDager, opplysninger, meldeperiode.fraOgMed)
+        Kvoteteller(kvoter, resultat.forbruksdager)
+            .beregn(opplysninger, meldeperiode.fraOgMed)
             .forEach { (kvote, kvoteresultat) -> KvotetellingsSkriver(kvote).skriv(opplysninger, kvoteresultat) }
         return resultat
     }

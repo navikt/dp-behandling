@@ -35,20 +35,18 @@ class KvotetellerTest {
 
     @Test
     fun `teller forbruk per dag`() {
-        val kvoteteller = lagKvoteteller()
-
+        val kvote = lagKvoteDef()
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(kapasitet, 10, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(7.januar(2025), 7.januar(2025))))
-                leggTil(Faktum(forbruk, false, Gyldighetsperiode(8.januar(2025), 8.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(9.januar(2025), 9.januar(2025))))
             }
+        val dager = listOf(6.januar(2025), 7.januar(2025), 9.januar(2025))
 
-        KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+        )
 
-        // Kun true-dager skrives — false-dagen (8. jan) gir ingen ny opplysning
         val forbrukVerdier = opplysninger.finnAlle(forbruktTeller).sortedBy { it.gyldighetsperiode.fraOgMed }
         forbrukVerdier.map { it.verdi } shouldBe listOf(1, 2, 3)
         forbrukVerdier.map { it.gyldighetsperiode.fraOgMed } shouldBe
@@ -60,22 +58,21 @@ class KvotetellerTest {
 
     @Test
     fun `bruker utgangspunkt fra forrige periode`() {
-        val kvoteteller = lagKvoteteller()
-
+        val kvote = lagKvoteDef()
+        val fraOgMed = 6.januar(2025)
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(kapasitet, 10, Gyldighetsperiode(1.januar(2025))))
-                // Forrige periode hadde forbrukt 5
                 leggTil(Faktum(forbruktTeller, 5, Gyldighetsperiode(3.januar(2025), 3.januar(2025))))
-                // Denne periodens dager
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(7.januar(2025), 7.januar(2025))))
             }
+        val dager = listOf(6.januar(2025), 7.januar(2025))
 
-        KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, fraOgMed), dager),
+        )
 
         val forbrukVerdier = opplysninger.finnAlle(forbruktTeller).sortedBy { it.gyldighetsperiode.fraOgMed }
-        // Siste verdi skal være 5 (utgangspunkt) + 2 (nye) = 7
         forbrukVerdier.last().verdi shouldBe 7
 
         val gjenståendeVerdier = opplysninger.finnAlle(gjenstående).sortedBy { it.gyldighetsperiode.fraOgMed }
@@ -84,8 +81,8 @@ class KvotetellerTest {
 
     @Test
     fun `kan konfigureres med generell kvotedefinisjon`() {
-        val kvoteteller =
-            lagKvoteteller(
+        val kvote =
+            lagKvoteDef(
                 hjemmel =
                     folketrygden.hjemmel(
                         4,
@@ -96,14 +93,16 @@ class KvotetellerTest {
                 tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
                 forbrukKriterium = forbruk,
             )
-
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(kapasitet, 2, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
             }
+        val dager = listOf(6.januar(2025))
 
-        KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+        )
 
         opplysninger.finnAlle(forbruktTeller).last().verdi shouldBe 1
         opplysninger.finnAlle(gjenstående).last().verdi shouldBe 1
@@ -111,37 +110,32 @@ class KvotetellerTest {
 
     @Test
     fun `kvoteteller er generell og type-uavhengig`() {
-        val kvoteteller =
-            lagKvoteteller(
-                forbrukstype = Forbrukstype.Bortfall,
-                forbrukKriterium = forbruk,
-            )
-
+        val kvote = lagKvoteDef(forbrukstype = Forbrukstype.Bortfall)
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
-                leggTil(Faktum(forbruk, false, Gyldighetsperiode(7.januar(2025), 7.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(8.januar(2025), 8.januar(2025))))
             }
+        val dager = listOf(6.januar(2025), 8.januar(2025))
 
-        KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+        )
 
-        // False-dag (7. jan) gir ingen opplysning — kun 2 true-dager
         opplysninger.finnAlle(forbruktTeller).map { it.verdi } shouldBe listOf(1, 2)
         opplysninger.finnAlle(gjenstående).map { it.verdi } shouldBe listOf(2, 1)
     }
 
     @Test
     fun `gjør ingenting når kapasitet ikke finnes`() {
-        val kvoteteller = lagKvoteteller()
+        val kvote = lagKvoteDef()
+        val opplysninger = Opplysninger()
+        val dager = listOf(6.januar(2025))
 
-        val opplysninger =
-            Opplysninger().apply {
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
-            }
-
-        KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+        )
 
         opplysninger.finnAlle(forbruktTeller) shouldBe emptyList()
     }
@@ -150,22 +144,17 @@ class KvotetellerTest {
     fun `skriver siste dag med forbruk og siste gjenstående`() {
         val sisteDag = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), no.nav.dagpenger.opplysning.Dato), "Siste dag")
         val sisteGjenstående = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Siste gjenstående")
-
-        val kvoteteller =
-            lagKvoteteller(
-                sisteDagMedForbruk = sisteDag,
-                sisteGjenstående = sisteGjenstående,
-            )
-
+        val kvote = lagKvoteDef(sisteDagMedForbruk = sisteDag, sisteGjenstående = sisteGjenstående)
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(kapasitet, 10, Gyldighetsperiode(1.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
-                leggTil(Faktum(forbruk, false, Gyldighetsperiode(7.januar(2025), 7.januar(2025))))
-                leggTil(Faktum(forbruk, true, Gyldighetsperiode(8.januar(2025), 8.januar(2025))))
             }
+        val dager = listOf(6.januar(2025), 8.januar(2025))
 
-        KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+        )
 
         opplysninger.finnAlle(sisteDag).last().verdi shouldBe 8.januar(2025)
         opplysninger.finnAlle(sisteGjenstående).last().verdi shouldBe 8
@@ -173,8 +162,8 @@ class KvotetellerTest {
 
     @Test
     fun `bortfallsdager fortsetter fifo fra forrige periode`() {
-        val kvoteteller =
-            lagKvoteteller(
+        val kvote =
+            lagKvoteDef(
                 hjemmel = tomHjemmel("Tidsbegrenset bortfall"),
                 kapasitet = TidsbegrensetBortfall.antallBortfallsdager,
                 forbrukstype = Forbrukstype.Bortfall,
@@ -182,22 +171,23 @@ class KvotetellerTest {
                 forbruktTeller = Beregning.forbruktBortfallsdager,
                 gjenstående = Beregning.gjenståendeBortfallsdager,
             )
-
+        val fraOgMed = 6.januar(2025)
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(TidsbegrensetBortfall.antallBortfallsdager, 5, Gyldighetsperiode(1.januar(2025))))
                 leggTil(Faktum(Beregning.forbruktBortfallsdager, 2, Gyldighetsperiode(3.januar(2025), 3.januar(2025))))
-                leggTil(Faktum(Beregning.erBortfallsdag, true, Gyldighetsperiode(6.januar(2025), 6.januar(2025))))
-                leggTil(Faktum(Beregning.erBortfallsdag, true, Gyldighetsperiode(7.januar(2025), 7.januar(2025))))
-                leggTil(Faktum(Beregning.erBortfallsdag, true, Gyldighetsperiode(8.januar(2025), 8.januar(2025))))
             }
+        val dager = listOf(6.januar(2025), 7.januar(2025), 8.januar(2025))
 
-        KvotetellingsSkriver(kvoteteller.definisjon).skriv(opplysninger, kvoteteller.beregn(opplysninger))
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, fraOgMed), dager),
+        )
 
         val forbruktBortfallsdager =
             opplysninger
                 .finnAlle(Beregning.forbruktBortfallsdager)
-                .filter { it.gyldighetsperiode.fraOgMed >= 6.januar(2025) }
+                .filter { it.gyldighetsperiode.fraOgMed >= fraOgMed }
                 .sortedBy { it.gyldighetsperiode.fraOgMed }
         forbruktBortfallsdager.map { it.verdi } shouldBe listOf(3, 4, 5)
 
@@ -211,16 +201,16 @@ class KvotetellerTest {
     @Test
     fun `kvoter uten ilagt dato sorteres sist`() {
         val medIlagtDato =
-            lagKvoteteller(
+            lagKvoteDef(
                 hjemmel = tomHjemmel("Med ilagt dato"),
                 kapasitet = kapasitet2,
                 tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet2),
-            ).definisjon
+            )
         val utenIlagtDato =
-            lagKvoteteller(
+            lagKvoteDef(
                 hjemmel = tomHjemmel("Uten ilagt dato"),
                 tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
-            ).definisjon
+            )
 
         val sortert =
             listOf(utenIlagtDato, medIlagtDato).sortertEtterIlagtDato(
@@ -232,7 +222,7 @@ class KvotetellerTest {
         sortert.map { it.navn } shouldBe listOf("Med ilagt dato", "Uten ilagt dato")
     }
 
-    private fun lagKvoteteller(
+    private fun lagKvoteDef(
         hjemmel: no.nav.dagpenger.opplysning.Hjemmel =
             folketrygden.hjemmel(
                 4,
@@ -248,16 +238,14 @@ class KvotetellerTest {
         tildelingsgrunnlag: Tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
         sisteDagMedForbruk: Opplysningstype<LocalDate> = this.sisteDagMedForbruk,
         sisteGjenstående: Opplysningstype<Int> = this.sisteGjenstående,
-    ) = Kvoteteller(
-        KvoteDefinisjon(
-            hjemmel = hjemmel,
-            forbrukstype = forbrukstype,
-            tildelingsgrunnlag = tildelingsgrunnlag,
-            tellesNår = forbrukKriterium,
-            forbruksteller = forbruktTeller,
-            gjenstående = gjenstående,
-            sisteForbruk = sisteDagMedForbruk,
-            sisteGjenstående = sisteGjenstående,
-        ),
+    ) = KvoteDefinisjon(
+        hjemmel = hjemmel,
+        forbrukstype = forbrukstype,
+        tildelingsgrunnlag = tildelingsgrunnlag,
+        tellesNår = forbrukKriterium,
+        forbruksteller = forbruktTeller,
+        gjenstående = gjenstående,
+        sisteForbruk = sisteDagMedForbruk,
+        sisteGjenstående = sisteGjenstående,
     )
 }
