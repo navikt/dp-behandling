@@ -33,6 +33,7 @@ fun interface PeriodeOverskrivingsStrategi {
 class RettighetsperiodePlugin(
     private val regelverk: Regelverk,
     private val overskrivingsStrategi: PeriodeOverskrivingsStrategi = PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
+    private val slåSammenLike: Boolean = true,
 ) : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         kontekst.kontekst(this)
@@ -62,7 +63,7 @@ class RettighetsperiodePlugin(
 
         val eksisterende = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
         return TidslinjeBygger(utfall)
-            .lagPeriode { påDato ->
+            .lagPeriode(slåSammenLike) { påDato ->
                 val harVurdertAlle = påDato.map { it.opplysningstype }.containsAll(vilkår)
                 if (!harVurdertAlle) return@lagPeriode null
 

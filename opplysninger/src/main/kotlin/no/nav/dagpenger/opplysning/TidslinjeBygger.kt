@@ -19,7 +19,10 @@ class TidslinjeBygger<T : Any>(
 
     fun medLikVerdi(default: T? = null) = lagPeriode { opplysninger -> opplysninger.singleOrNull()?.verdi ?: default }
 
-    fun lagPeriode(evaluerVerdi: (Collection<Opplysning<T>>) -> T?): Tidslinje<T> {
+    fun lagPeriode(
+        slåSammen: Boolean = true,
+        evaluerVerdi: (Collection<Opplysning<T>>) -> T?,
+    ): Tidslinje<T> {
         if (opplysninger.isEmpty()) return emptyList()
 
         val perioder: Sequence<PeriodisertVerdi<T>> =
@@ -31,7 +34,11 @@ class TidslinjeBygger<T : Any>(
                 PeriodisertVerdi(start, sluttdato, verdi)
             }
 
-        return slåSammenLike(perioder)
+        return if (slåSammen) {
+            slåSammenLike(perioder)
+        } else {
+            perioder.toList()
+        }
     }
 
     private fun verdierPåSkjæringsdato(start: LocalDate): List<Opplysning<T>> =

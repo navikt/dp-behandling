@@ -39,12 +39,8 @@ private fun ferietilleggAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørel
     val (nye, arvede) = perioder.partition { it.endret }
 
     return when {
-        arvede.isEmpty() -> if (nye.any { it.harRett }) Avgjørelse.Innvilgelse(perioder) else Avgjørelse.Avslag
-        nye.isEmpty() -> Avgjørelse.Endring(perioder)
-        arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Stans(perioder)
-        !arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Avslag
-        !arvede.last().harRett && nye.any { it.harRett } -> Avgjørelse.Gjenopptak(perioder)
-        else -> Avgjørelse.Endring(perioder)
+        arvede.isEmpty() -> if (nye.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
+        else -> Avgjørelse.Endring
     }
 }
 

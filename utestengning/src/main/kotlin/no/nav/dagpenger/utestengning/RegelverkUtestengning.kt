@@ -40,7 +40,7 @@ private fun utestengningAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørel
     if (perioder.isEmpty()) return Avgjørelse.Uavklart
 
     return if (perioder.any { it.harRett }) {
-        Avgjørelse.Innvilgelse(perioder)
+        Avgjørelse.Innvilgelse
     } else {
         Avgjørelse.Avslag
     }

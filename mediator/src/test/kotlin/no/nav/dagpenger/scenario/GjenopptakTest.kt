@@ -315,12 +315,15 @@ class GjenopptakTest {
                     this[2].verdi.verdi shouldBe false
                 }
 
-                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
 
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
+
+                rettighetsperioder[2].harRett shouldBe false
+                rettighetsperioder[2].fraOgMed shouldBe 23.august(2018)
 
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 3

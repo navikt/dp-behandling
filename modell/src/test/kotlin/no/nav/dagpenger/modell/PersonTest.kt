@@ -120,7 +120,7 @@ class PersonTest {
             behandlingskjedeId = behandlingId,
             regelverk = RegelverkType("Dagpenger"),
             rettighetsperioder = perioder,
-            avgjørelse = if (perioder.any { it.harRett }) Avgjørelse.Innvilgelse(perioder) else Avgjørelse.Avslag,
+            avgjørelse = if (perioder.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag,
             virkningsdato = virkningsdato,
             behandlingAv = TestHendelse(),
             opplysninger = Opplysninger(),

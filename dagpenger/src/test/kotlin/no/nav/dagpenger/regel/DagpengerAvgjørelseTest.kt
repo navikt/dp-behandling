@@ -26,8 +26,6 @@ class DagpengerAvgjørelseTest {
             }
         val avgjørelse = RegelverkDagpenger.avgjørelse(opplysninger)
         avgjørelse.shouldBeInstanceOf<Avgjørelse.Innvilgelse>()
-        avgjørelse.perioder.size shouldBe 1
-        avgjørelse.perioder.first().harRett shouldBe true
     }
 
     @Test
@@ -117,7 +115,7 @@ class DagpengerAvgjørelseTest {
     }
 
     @Test
-    fun `etter stans gir neste behandling avslag`() {
+    fun `etter stans gir neste behandling endring`() {
         // Første behandling: innvilget
         val første =
             Opplysninger().apply {
@@ -135,6 +133,6 @@ class DagpengerAvgjørelseTest {
         val tredje = Opplysninger.basertPå(andre)
 
         // Siste arvede periode har ikke rett, ingen nye perioder = avslag
-        RegelverkDagpenger.avgjørelse(tredje) shouldBe Avgjørelse.Avslag
+        RegelverkDagpenger.avgjørelse(tredje) shouldBe Avgjørelse.Endring
     }
 }

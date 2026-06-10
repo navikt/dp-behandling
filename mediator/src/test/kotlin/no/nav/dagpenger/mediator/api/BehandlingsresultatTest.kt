@@ -202,7 +202,7 @@ class BehandlingsresultatTest {
             behandlingskjedeId = behandlingId,
             regelverk = RegelverkType("Dagpenger"),
             rettighetsperioder = listOf(Rettighetsperiode(MIN, MAX, true, true)),
-            avgjørelse = Avgjørelse.Innvilgelse(listOf(Rettighetsperiode(MIN, MAX, true, true))),
+            avgjørelse = Avgjørelse.Innvilgelse,
             virkningsdato = LocalDate.now(),
             behandlingAv =
                 SøknadInnsendtHendelse(

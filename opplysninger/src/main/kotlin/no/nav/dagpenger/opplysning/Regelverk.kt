@@ -13,31 +13,23 @@ value class RegelverkType(
 }
 
 sealed class Avgjørelse {
-    data class Innvilgelse(
-        val perioder: List<Rettighetsperiode>,
-    ) : Avgjørelse() {
-        override fun toString() = "Innvilgelse (${perioder.filter { it.harRett }.joinToString { "${it.fraOgMed} til ${it.tilOgMed}" }})"
+    data object Innvilgelse : Avgjørelse() {
+        override fun toString() = "Innvilgelse"
     }
 
     data object Avslag : Avgjørelse() {
         override fun toString() = "Avslag"
     }
 
-    data class Stans(
-        val perioder: List<Rettighetsperiode>,
-    ) : Avgjørelse() {
+    data object Stans : Avgjørelse() {
         override fun toString() = "Stans"
     }
 
-    data class Gjenopptak(
-        val perioder: List<Rettighetsperiode>,
-    ) : Avgjørelse() {
-        override fun toString() = "Gjenopptak (${perioder.filter { it.harRett }.joinToString { "${it.fraOgMed} til ${it.tilOgMed}" }})"
+    data object Gjenopptak : Avgjørelse() {
+        override fun toString() = "Gjenopptak"
     }
 
-    data class Endring(
-        val perioder: List<Rettighetsperiode>,
-    ) : Avgjørelse() {
+    data object Endring : Avgjørelse() {
         override fun toString() = "Endring"
     }
 

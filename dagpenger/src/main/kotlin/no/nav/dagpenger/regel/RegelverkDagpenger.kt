@@ -114,13 +114,12 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     val (nye, arvede) = perioder.partition { it.endret }
 
     return when {
-        arvede.isEmpty() -> if (nye.any { it.harRett }) Avgjørelse.Innvilgelse(perioder) else Avgjørelse.Avslag
-        nye.isEmpty() && arvede.last().harRett -> Avgjørelse.Endring(perioder)
-        nye.isEmpty() && !arvede.last().harRett -> Avgjørelse.Avslag
-        arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Stans(perioder)
+        nye.isEmpty() -> Avgjørelse.Endring
+        arvede.isEmpty() -> if (nye.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
+        arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Stans
         !arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Avslag
-        !arvede.last().harRett && nye.any { it.harRett } -> Avgjørelse.Gjenopptak(perioder)
-        else -> Avgjørelse.Endring(perioder)
+        !arvede.last().harRett && nye.any { it.harRett } -> Avgjørelse.Gjenopptak
+        else -> Avgjørelse.Endring
     }
 }
 

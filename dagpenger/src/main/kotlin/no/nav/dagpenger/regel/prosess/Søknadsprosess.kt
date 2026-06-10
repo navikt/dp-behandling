@@ -41,7 +41,7 @@ import java.time.LocalDate
 
 class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     init {
-        registrer(RettighetsperiodePlugin(regelverk))
+        registrer(RettighetsperiodePlugin(regelverk, slåSammenLike = false))
         // Denne flytter prøvinsgdato når rettighetsperiode endres. Det fører til at opptjeningstid og andre tidssensitive behov blir løst på nytt
         registrer(PrøvingsdatoPlugin())
     }
