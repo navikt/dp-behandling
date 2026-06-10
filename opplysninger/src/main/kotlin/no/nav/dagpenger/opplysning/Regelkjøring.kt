@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Regelkjøring.Regelkjøringstilstand.Companion.aktiver
 import no.nav.dagpenger.opplysning.regel.Ekstern
+import no.nav.dagpenger.opplysning.regel.Plannode
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
 
@@ -254,16 +255,19 @@ class Regelkjøring(
                 val ønsketResultat = forretningsprosess.ønsketResultat(opplysningerPåPrøvingsdato)
 
                 val planlegger = Regelplanlegger()
-                val besøkt = mutableSetOf<Regel<*>>()
 
                 // Kjør de reglene som skal kjøres
-                ønsketResultat
-                    .mapNotNull { produsenter[it] }
-                    .forEach { produsent ->
-                        produsent.lagPlan(opplysningerPåPrøvingsdato, planlegger, produsenter, besøkt)
-                    }
+                val plan =
+                    ønsketResultat
+                        .mapNotNull { produsenter[it] }
+                        .mapNotNull { produsent ->
+                            produsent.lagPlan(opplysningerPåPrøvingsdato, planlegger, produsenter)
+                        }
 
                 val (ekstern, intern) = planlegger.lagProduksjonsplan()
+
+                sammenlignNyOgGammelPlan(plan, ekstern, intern)
+
                 return Regelkjøringstilstand(
                     prøvingsdato = prøvingsdato,
                     opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
@@ -271,6 +275,34 @@ class Regelkjøring(
                     plan = intern,
                     eksterneRegler = ekstern,
                 )
+            }
+
+            private fun sammenlignNyOgGammelPlan(
+                plan: List<TreNode<Plannode>>,
+                ekstern: Set<Regel<*>>,
+                intern: Set<Regel<*>>,
+            ) {
+                fun bekreftLiket(
+                    ny: Collection<Plannode>,
+                    forventet: Collection<Regel<*>>,
+                ) {
+                    check(ny.size == forventet.size) {
+                        "Ulikhet mellom planene. Gammel plan: ${forventet.size} stk vs. Ny plan ${ny.size} stk"
+                    }
+                    ny.zip(forventet).forEachIndexed { index, (a, b) ->
+                        check(a.regel == b) {
+                            "Forventer at elementer for indeks $index skal være like"
+                        }
+                    }
+                }
+                plan
+                    .flatMap { it.løvnoder() }
+                    .toSet()
+                    .also { nyPlan ->
+                        val (nyEkstern, nyIntern) = nyPlan.partition { it.regel is Ekstern<*> }
+                        bekreftLiket(nyIntern, intern)
+                        bekreftLiket(nyEkstern, ekstern)
+                    }
             }
         }
 

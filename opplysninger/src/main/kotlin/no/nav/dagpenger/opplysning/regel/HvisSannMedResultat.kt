@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelplanlegger
+import no.nav.dagpenger.opplysning.TreNode
 import no.nav.dagpenger.opplysning.finn
 
 class HvisSannMedResultat<T : Any>(
@@ -15,28 +16,26 @@ class HvisSannMedResultat<T : Any>(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        if (besøkt.contains(this)) return else besøkt.add(this)
-
+    ): TreNode<Plannode>? {
         if (opplysninger.har(produserer)) {
             // Deleger til Regel sin logikk for endringer
-            besøkt.remove(this)
-            return super.lagPlan(opplysninger, plan, produsenter, besøkt)
+            return super.lagPlan(opplysninger, plan, produsenter)
         }
 
         if (opplysninger.mangler(sjekk)) {
-            produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter, besøkt)
-            return
+            val avhengighet = produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter) ?: error("Forventer ikke dette")
+            return TreNode(Plannode(this, Plannode.Årsak.MANGLER_PRODUKT), listOfNotNull(avhengighet))
         }
 
         val sjekkVerdi = opplysninger.finnOpplysning(sjekk).verdi
         val neste = if (sjekkVerdi) hvisSann else hvisUsann
 
         if (opplysninger.mangler(neste)) {
-            produsenter.finn(neste).lagPlan(opplysninger, plan, produsenter, besøkt)
+            val avhengighet = produsenter.finn(neste).lagPlan(opplysninger, plan, produsenter) ?: error("Forventer ikke dette")
+            return TreNode(Plannode(this, Plannode.Årsak.MANGLER_PRODUKT), listOfNotNull(avhengighet))
         } else {
             plan.add(this)
+            return TreNode(Plannode(this, Plannode.Årsak.MANGLER_PRODUKT), emptyList())
         }
     }
 

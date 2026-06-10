@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning.regel
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelplanlegger
+import no.nav.dagpenger.opplysning.TreNode
 
 class TomRegel<T : Any> internal constructor(
     produserer: Opplysningstype<T>,
@@ -12,10 +13,7 @@ class TomRegel<T : Any> internal constructor(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        return
-    }
+    ): TreNode<Plannode>? = null
 
     override fun kjør(opplysninger: LesbarOpplysninger): T = throw IllegalStateException("Kan ikke kjøres")
 

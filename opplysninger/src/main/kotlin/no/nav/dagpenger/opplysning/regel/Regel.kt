@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelplanlegger
+import no.nav.dagpenger.opplysning.TreNode
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
 
@@ -25,22 +26,20 @@ abstract class Regel<T : Any> internal constructor(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        if (besøkt.contains(this)) return else besøkt.add(this)
-
+    ): TreNode<Plannode>? {
         val produkt = opplysninger.finnNullableOpplysning(produserer)
-        when {
+        return when {
             produkt == null -> {
-                lagPlanNårProduktMangler(opplysninger, plan, produsenter, besøkt)
+                lagPlanNårProduktMangler(opplysninger, plan, produsenter)
             }
 
             produkt.utledetAv != null -> {
-                lagPlanFraUtledning(produkt.utledetAv, opplysninger, plan, produsenter, besøkt)
+                lagPlanFraUtledning(produkt.utledetAv, opplysninger, plan, produsenter)
             }
 
             else -> {
                 // opplysningen er ikke utledet av noe ELLER overstyrt av saksbehandler
+                null
             }
         }
     }
@@ -49,23 +48,21 @@ abstract class Regel<T : Any> internal constructor(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
+    ): TreNode<Plannode>? {
         val avhengigheter = opplysninger.finnFlere(avhengerAv)
 
         if (avhengigheter.size == avhengerAv.size) {
             plan.add(this)
-        } else {
-            avhengerAv.forEach { avhengighet ->
-                val produsent =
-                    produsenter[avhengighet]
-                if (produsent == null) {
-                    manglendeRegler.add(avhengighet)
-                    return@forEach
-                } // throw IllegalStateException("Fant ikke produsent for $avhengighet")
-                produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
-            }
+            return TreNode(Plannode(this, Plannode.Årsak.MANGLER_PRODUKT), emptyList())
         }
+        val avhengigheternoder =
+            avhengerAv
+                .mapNotNull { produsenter[it] }
+                .mapNotNull { it.lagPlan(opplysninger, plan, produsenter) }
+        if (avhengigheternoder.isEmpty()) {
+            return null
+        }
+        return TreNode(Plannode(this, Plannode.Årsak.MANGLER_PRODUKT), avhengigheternoder)
     }
 
     private fun lagPlanNårUtledereErUtdaterte(
@@ -73,34 +70,42 @@ abstract class Regel<T : Any> internal constructor(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
+    ): TreNode<Plannode>? {
         // Minst en av opplysningene som regelen er avhengig av er utdatert, regelen skal kjøres på nytt
-        utdaterteOpplysninger.forEach { utdatert ->
-            val produsent =
-                produsenter[utdatert.opplysningstype] ?: return
-
-            produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
-        }
+        val avhengigheter =
+            utdaterteOpplysninger
+                // avhengigheter som er blokkert hoppes over
+                .mapNotNull { utdatert -> produsenter[utdatert.opplysningstype] }
+                .mapNotNull { it.lagPlan(opplysninger, plan, produsenter) }
+        if (avhengigheter.isEmpty()) return null
+        return TreNode(Plannode(this, Plannode.Årsak.UTDATERT), avhengigheter)
     }
 
     private fun lagPlanNårRegelenHarFåttNyeAvhengigheter(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
+    ): TreNode<Plannode>? {
         val mangler = avhengerAv.filter { opplysninger.mangler(it) }
 
         // Om alle avhengigheter er tilstede, skal denne regelen kjøres på nytt
-        if (mangler.isEmpty()) return plan.add(this)
+        if (mangler.isEmpty()) {
+            plan.add(this)
+            return TreNode(Plannode(this, Plannode.Årsak.NY_AVHENGIGHET_I_KODE), emptyList())
+        }
 
         // Manger vi noen avhengigheter, så kan vi ikke kjøre denne regelen på nytt enda
-        mangler.forEach { avhengighet ->
-            // Om en avhengighet mangler, må de regelene kjøres på nytt
-            val avhengigRegel = produsenter[avhengighet]
-            avhengigRegel?.lagPlan(opplysninger, plan, produsenter, besøkt)
+        val avhengigheter =
+            mangler
+                // Om en avhengighet mangler, må de regelene kjøres på nytt
+                // hopper over avhengigheter som ikke finnes
+                .mapNotNull { avhengighet -> produsenter[avhengighet] }
+                .mapNotNull { it.lagPlan(opplysninger, plan, produsenter) }
+
+        if (avhengigheter.isEmpty()) {
+            return null
         }
+        return TreNode(Plannode(this, Plannode.Årsak.NY_AVHENGIGHET_I_KODE), avhengigheter)
     }
 
     private fun lagPlanFraUtledning(
@@ -108,12 +113,11 @@ abstract class Regel<T : Any> internal constructor(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
+    ): TreNode<Plannode>? {
         val (erErstattet, ikkeErstattet) = utledning.opplysninger.partition { opplysninger.erErstattet(listOf(it)) }
         val utdaterteOpplysninger = ikkeErstattet.filter { it.erUtdatert }
 
-        when {
+        return when {
             // Sjekk om produktet er basert på utdatert informasjon
             utdaterteOpplysninger.isNotEmpty() -> {
                 lagPlanNårUtledereErUtdaterte(
@@ -121,7 +125,6 @@ abstract class Regel<T : Any> internal constructor(
                     opplysninger,
                     plan,
                     produsenter,
-                    besøkt,
                 )
             }
 
@@ -129,11 +132,16 @@ abstract class Regel<T : Any> internal constructor(
             erErstattet.isNotEmpty() -> {
                 // Minst en avhengighet er erstattet, må de regelen skal kjøres på nytt
                 plan.add(this)
+                TreNode(Plannode(this, Plannode.Årsak.ERSTATTET), emptyList())
             }
 
             // Sjekk om regelen har fått nye avhengigheter
             harRegelNyeAvhengigheter(utledning) -> {
-                lagPlanNårRegelenHarFåttNyeAvhengigheter(opplysninger, plan, produsenter, besøkt)
+                lagPlanNårRegelenHarFåttNyeAvhengigheter(opplysninger, plan, produsenter)
+            }
+
+            else -> {
+                null
             }
         }
     }
@@ -196,4 +204,9 @@ fun interface GyldighetsperiodeStrategi<T> {
     ): Gyldighetsperiode
 }
 
-val manglendeRegler = mutableSetOf<Opplysningstype<*>>()
+data class Plannode(
+    val regel: Regel<*>,
+    val årsak: Årsak,
+) {
+    enum class Årsak { MANGLER_PRODUKT, UTDATERT, ERSTATTET, NY_AVHENGIGHET_I_KODE }
+}
