@@ -6,12 +6,12 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
-import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
 
@@ -57,14 +57,12 @@ class MeldekortBeregningPlugin : ProsessPlugin {
         opplysninger.leggTil(Faktum(Beregning.sumArbeidstimer, resultat.sumArbeidstimer.timer, gyldighetsperiode))
         opplysninger.leggTil(Faktum(Beregning.prosentfaktor, resultat.prosentfaktor, gyldighetsperiode))
 
-        val forbruksdager = resultat.forbruksdager
-        meldeperiode
-            .forEach { dato ->
-                val forbruksdag = forbruksdager.singleOrNull { it.dag.dato.isEqual(dato) }
-                val dagGyldighetsperiode = Gyldighetsperiode(dato, dato)
-
-                opplysninger.leggTil(Faktum(forbruk, forbruksdag != null, dagGyldighetsperiode))
-                opplysninger.leggTil(Faktum(utbetaling, forbruksdag?.tilUtbetaling ?: Beløp(0), dagGyldighetsperiode))
+        val forbruksdager = resultat.beregningsdager
+        forbruksdager
+            .forEach { dag ->
+                val dagGyldighetsperiode = dag.gyldighetsperiode
+                opplysninger.leggTil(Faktum(forbruk, dag is Forbruksdag, dagGyldighetsperiode))
+                opplysninger.leggTil(Faktum(utbetaling, dag.tilUtbetaling, dagGyldighetsperiode))
             }
 
         return resultat

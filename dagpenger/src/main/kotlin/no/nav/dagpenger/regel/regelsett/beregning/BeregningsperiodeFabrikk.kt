@@ -28,9 +28,8 @@ class BeregningsperiodeFabrikk(
     private val logger = KotlinLogging.logger { }
 
     fun lagBeregningsperiode(): Beregningsperiode {
-        val dager = hentMeldekortDagerMedRett()
+        val dager = opprettPeriode(meldeperiode)
         logger.info { "Meldekort dager med rett: ${dager.joinToString("\n") { it.toString() }}" }
-        val periode = opprettPeriode(dager)
         val stønadsdagerIgjen =
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
                 opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
@@ -41,10 +40,10 @@ class BeregningsperiodeFabrikk(
             Oppretter beregningsperiode med:
             - gjenståendeEgenandel = $gjenståendeEgenandel, 
             - stønadsdagerIgjen = $stønadsdagerIgjen, 
-            - periode = ${periode.joinToString("|") { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ")" }}
+            - periode = ${dager.joinToString("|") { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ")" }}
             """.trimIndent()
         }
-        return Beregningsperiode(gjenståendeEgenandel, periode, stønadsdagerIgjen)
+        return Beregningsperiode(gjenståendeEgenandel, dager, stønadsdagerIgjen)
     }
 
     private fun hentGjenståendeEgenandel(førsteDag: LocalDate): Beløp {
@@ -71,10 +70,15 @@ class BeregningsperiodeFabrikk(
         }
     }
 
-    private fun opprettPeriode(dager: List<LocalDate>): Set<Dag> =
-        dager
+    private fun opprettPeriode(meldeperiode: Periode): Set<Dag> {
+        val dagerMedRett = hentMeldekortDagerMedRett()
+        return meldeperiode
             .map { dato ->
+                if (dato !in dagerMedRett) {
+                    return@map IkkeRettighetDag(dato)
+                }
                 val gjeldendeOpplysninger = opplysninger.forDato(dato)
+
                 when (dato.dagstype) {
                     Hverdag -> {
                         opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
@@ -88,6 +92,7 @@ class BeregningsperiodeFabrikk(
                     }
                 }
             }.toSortedSet()
+    }
 
     private fun opprettArbeidsdagEllerFraværsdag(
         dato: LocalDate,

@@ -4,6 +4,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningsperiode
 import no.nav.dagpenger.regel.regelsett.beregning.Fraværsdag
 import org.junit.jupiter.api.Test
@@ -22,7 +23,9 @@ class BeregningsperiodeTest {
         val fraværsdager = (1..14).map { dato -> Fraværsdag(dato.januar(2025)) }.toSet()
         val beregning = Beregningsperiode(Beløp(0.0), fraværsdager, 52)
 
-        beregning.resultat.forbruksdager.shouldBeEmpty()
+        beregning.resultat.beregningsdager
+            .filterIsInstance<Forbruksdag>()
+            .shouldBeEmpty()
         beregning.resultat.utbetaling shouldBe Beløp(0.0)
         beregning.resultat.oppfyllerKravTilTaptArbeidstid shouldBe true
     }

@@ -152,6 +152,13 @@ internal class Mennesket(
         timer: List<Int> = emptyList(),
     ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, timer)
 
+    @JvmName("sendInnMeldekortMedAktiviteter")
+    fun sendInnMeldekort(
+        nummer: Int,
+        korrigeringAv: UUID? = null,
+        aktiviteter: List<MeldekortAktivitet>,
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, aktiviteter)
+
     fun fastsattMeldedato(nummer: Int) = meldesyklus.periode(nummer).fraOgMed
 
     fun sendInnMeldekort(
@@ -161,6 +168,18 @@ internal class Mennesket(
     ): UUID {
         val meldekortId = UUIDv7.ny()
         val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, timer)
+        rapid.sendTestMessage(message)
+        return meldekortId
+    }
+
+    @JvmName("sendInnMeldekortMedAktiviteter")
+    fun sendInnMeldekort(
+        periode: Periode,
+        korrigeringAv: UUID? = null,
+        aktiviteter: List<MeldekortAktivitet?>,
+    ): UUID {
+        val meldekortId = UUIDv7.ny()
+        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, aktiviteter)
         rapid.sendTestMessage(message)
         return meldekortId
     }

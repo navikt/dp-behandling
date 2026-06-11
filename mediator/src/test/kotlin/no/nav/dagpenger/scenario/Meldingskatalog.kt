@@ -1,9 +1,25 @@
 package no.nav.dagpenger.scenario
+
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.concurrent.timer
+
+internal sealed class MeldekortAktivitet {
+    data class Arbeid(
+        val timer: Int,
+    ) : MeldekortAktivitet()
+
+    data object Syk : MeldekortAktivitet()
+
+    data object Fravær : MeldekortAktivitet()
+
+    data class Utdanning(
+        val timer: Int,
+    ) : MeldekortAktivitet()
+}
 
 internal object Meldingskatalog {
     fun søknadInnsendt(
@@ -50,12 +66,28 @@ internal object Meldingskatalog {
             ),
         ).toJson()
 
+    @JvmName("meldekortInnsendtMedArbeidstimer")
     fun meldekortInnsendt(
         ident: String,
         meldekortId: UUID,
         meldeperiode: Periode,
         korrigeringAv: UUID? = null,
         arbeidstimer: List<Int> = emptyList(),
+    ): String =
+        meldekortInnsendt(
+            ident = ident,
+            meldekortId = meldekortId,
+            meldeperiode = meldeperiode,
+            korrigeringAv = korrigeringAv,
+            aktiviteter = arbeidstimer.map { MeldekortAktivitet.Arbeid(it) },
+        )
+
+    fun meldekortInnsendt(
+        ident: String,
+        meldekortId: UUID,
+        meldeperiode: Periode,
+        korrigeringAv: UUID? = null,
+        aktiviteter: List<MeldekortAktivitet?> = emptyList(),
     ): String =
         JsonMessage
             .newMessage(
@@ -72,14 +104,32 @@ internal object Meldingskatalog {
                                 ),
                             "dager" to
                                 meldeperiode.mapIndexed { index, meldedag ->
-                                    val timer = arbeidstimer.getOrElse(index) { 0 }
+                                    val aktivitet = aktiviteter.getOrElse(index) { MeldekortAktivitet.Arbeid(0) }
                                     mapOf(
                                         "dato" to meldedag,
                                         "meldt" to true,
                                         "aktiviteter" to
-                                            listOf(
-                                                mapOf("type" to "Arbeid", "timer" to "PT${timer}H"),
-                                            ),
+                                            when (aktivitet) {
+                                                is MeldekortAktivitet.Arbeid -> {
+                                                    listOf(mapOf("type" to "Arbeid", "timer" to "PT${aktivitet.timer}H"))
+                                                }
+
+                                                is MeldekortAktivitet.Syk -> {
+                                                    listOf(mapOf("type" to "Syk"))
+                                                }
+
+                                                is MeldekortAktivitet.Fravær -> {
+                                                    listOf(mapOf("type" to "Fravaer"))
+                                                }
+
+                                                is MeldekortAktivitet.Utdanning -> {
+                                                    listOf(mapOf("type" to "Utdanning", "timer" to "PT${aktivitet.timer}H"))
+                                                }
+
+                                                null -> {
+                                                    listOf(mapOf("type" to "Arbeid", "timer" to "PT0H"))
+                                                }
+                                            },
                                     )
                                 },
                             "kilde" to

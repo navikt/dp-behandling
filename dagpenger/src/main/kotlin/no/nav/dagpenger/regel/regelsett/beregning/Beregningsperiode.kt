@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.beregning
 
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
@@ -7,7 +8,7 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.timer
 
 class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Beløp,
-    dager: Set<Dag>,
+    private val meldedager: Set<Dag>,
     terskelstrategi: Terskelstrategi,
     private val stønadsdagerIgjen: Int,
 ) {
@@ -19,7 +20,7 @@ class Beregningsperiode private constructor(
     )
 
     init {
-        require(dager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
+        require(meldedager.size <= 14) { "En beregningsperiode kan maksimalt inneholde 14 dager" }
     }
 
     /***
@@ -31,11 +32,11 @@ class Beregningsperiode private constructor(
      * ·       Dersom «ja» finner vi den dagen og denne har opplysning om hvor mange dager med rettighet som gjenstår etter.
      */
 
-    private val sumFva = dager.mapNotNull { it.fva }.summer()
-    private val arbeidsdager = arbeidsdager(dager) // todo: Endre til stønadsdager
-    private val prosentfaktor = beregnProsentfaktor(dager)
+    private val sumFva = meldedager.mapNotNull { it.fva }.summer()
+    private val arbeidsdager = arbeidsdager(meldedager) // todo: Endre til stønadsdager
+    private val prosentfaktor = beregnProsentfaktor(meldedager)
 
-    private val timerArbeidet = dager.mapNotNull { it.timerArbeidet }.summer()
+    private val timerArbeidet = meldedager.mapNotNull { it.timerArbeidet }.summer()
     private val terskel = (100 - terskelstrategi.beregnTerskel(arbeidsdager)) / 100
     val oppfyllerKravTilTaptArbeidstid = (timerArbeidet / sumFva).timer <= terskel
     val resultat = beregnUtbetaling()
@@ -80,6 +81,7 @@ class Beregningsperiode private constructor(
             utbetaling = Beløp(forbruksdager.sumOf { it.tilUtbetaling.verdien }),
             forbruktEgenandel = forbruktEgenandel,
             forbruksdager = forbruksdager,
+            meldedager = meldedager,
             gjenståendeEgenandel = gjenståendeEgenandel - forbruktEgenandel,
             oppfyllerKravTilTaptArbeidstid = true,
             sumFva = sumFva,
@@ -105,6 +107,7 @@ class Beregningsperiode private constructor(
                 utbetaling = Beløp(verdi = 0),
                 forbruktEgenandel = Beløp(0),
                 forbruksdager = emptyList(),
+                meldedager = meldedager,
                 gjenståendeEgenandel = gjenståendeEgenandel,
                 oppfyllerKravTilTaptArbeidstid = true,
                 sumFva = 0.0.timer,
@@ -118,6 +121,7 @@ class Beregningsperiode private constructor(
                 utbetaling = Beløp(verdi = 0),
                 forbruktEgenandel = Beløp(0),
                 forbruksdager = emptyList(),
+                meldedager = meldedager,
                 gjenståendeEgenandel = gjenståendeEgenandel,
                 oppfyllerKravTilTaptArbeidstid = false,
                 sumFva = sumFva,
@@ -137,17 +141,38 @@ class Beregningsperiode private constructor(
 data class Beregningresultat(
     val utbetaling: Beløp,
     val forbruktEgenandel: Beløp,
-    val forbruksdager: List<Forbruksdag>,
+    private val forbruksdager: List<Beregningsdag.Forbruksdag>,
+    private val meldedager: Set<Dag>,
     val gjenståendeEgenandel: Beløp,
     val oppfyllerKravTilTaptArbeidstid: Boolean,
     val sumFva: Timer,
     val sumArbeidstimer: Timer,
     val prosentfaktor: Double,
 ) {
-    data class Forbruksdag(
-        val dag: Dag,
-        val tilUtbetaling: Beløp,
-    )
+    val beregningsdager: List<Beregningsdag>
+        get() {
+            val forbruktDager = forbruksdager.map { it.dag.dato to it }.toMap()
+            return meldedager.map { dag ->
+                forbruktDager[dag.dato] ?: Beregningsdag.IkkeForbruksdag(dag)
+            }
+        }
+
+    sealed interface Beregningsdag {
+        val dag: Dag
+        val tilUtbetaling: Beløp
+        val gyldighetsperiode get() = Gyldighetsperiode.kun(dag.dato)
+
+        data class Forbruksdag(
+            override val dag: Dag,
+            override val tilUtbetaling: Beløp,
+        ) : Beregningsdag
+
+        data class IkkeForbruksdag(
+            override val dag: Dag,
+        ) : Beregningsdag {
+            override val tilUtbetaling: Beløp = Beløp(0.0)
+        }
+    }
 }
 
 /** Arbeidsdager med lik dagsats, med beregnet brutto utbetaling (sats × antall dager × prosentfaktor). */
@@ -156,14 +181,14 @@ private class SatsGruppe(
     val bruttoBeløp: Beløp,
 ) {
     /** Fordeler et beløp jevnt på arbeidsdager, med eventuell øre-rest på siste dag. */
-    fun fordelPåDager(beløp: Beløp): List<Beregningresultat.Forbruksdag> {
+    fun fordelPåDager(beløp: Beløp): List<Beregningresultat.Beregningsdag.Forbruksdag> {
         if (arbeidsdager.isEmpty()) return emptyList()
         val antall = arbeidsdager.size.toBigDecimal()
         val rest = Beløp(beløp.verdien % antall)
         val dagsbeløp = (beløp - rest) / Beløp(antall)
         return arbeidsdager.mapIndexed { index, dag ->
             val erSisteDag = index == arbeidsdager.lastIndex
-            Beregningresultat.Forbruksdag(dag, if (erSisteDag) dagsbeløp + rest else dagsbeløp)
+            Beregningresultat.Beregningsdag.Forbruksdag(dag, if (erSisteDag) dagsbeløp + rest else dagsbeløp)
         }
     }
 }

@@ -642,6 +642,60 @@ class BeregningTest {
         }
     }
 
+    @Test
+    fun `Korrigerer fra arbeid til syk`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(1.januar(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Originalt meldekort: Ingen aktivitet
+            val meldekortId = person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    // Første dag i meldekort
+                    this.first().gyldigFraOgMed shouldBe 1.januar(2018)
+
+                    // Alle forbruksdager siden det ikke er meldt noen aktivitet
+                    this.count { it.verdi.verdi == true } shouldBe 10
+
+                    // Siste dag i meldekort
+                    this.last().gyldigFraOgMed shouldBe 14.januar(2018)
+                }
+            }
+
+            // Korrigering: dag 1 endres fra arbeid til syk
+            val korrigerteAktiviteter = MutableList<MeldekortAktivitet>(14) { MeldekortAktivitet.Arbeid(0) }
+            korrigerteAktiviteter[0] = MeldekortAktivitet.Syk
+            person.sendInnMeldekort(1, korrigeringAv = meldekortId, aktiviteter = korrigerteAktiviteter)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    // Første dag i meldekort
+                    this.first().gyldigFraOgMed shouldBe 1.januar(2018)
+
+                    // Alle bortsett fra sykedagen skal være forbruksdager
+                    this.count { it.verdi.verdi == true } shouldBe 9
+
+                    // Siste dag i meldekort
+                    this.last().gyldigFraOgMed shouldBe 14.januar(2018)
+                }
+            }
+        }
+    }
+
     // Dette er et behov for POPP i framtida. De trenger å vite hvor mye som er utbetalt som dagpenger ekslusive barnetillegg
     @Test
     @Disabled("Bare en POC for hvordan dette kan gjøres")

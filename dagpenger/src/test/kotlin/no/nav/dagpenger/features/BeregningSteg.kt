@@ -23,6 +23,7 @@ import no.nav.dagpenger.regel.hendelse.tilOpplysninger
 import no.nav.dagpenger.regel.prosess.MeldekortBeregningPlugin
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.terskel
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
@@ -47,6 +48,8 @@ class BeregningSteg : No {
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.getDefault())
     }
 
+    private val forbruksdager get() = beregning.beregningsdager.filterIsInstance<Forbruksdag>()
+
     init {
         Gitt("at terskel er satt til {double}") { terskelVerdi: Double ->
             opplysninger.add(Faktum(terskel, terskelVerdi))
@@ -67,19 +70,20 @@ class BeregningSteg : No {
         Så("skal kravet til tapt arbeidstid være oppfylt") {
             beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
         }
+
         Så("utbetales {double} kroner") { utbetaling: Double ->
             beregning.utbetaling.verdien
                 .toDouble() shouldBe utbetaling
-            beregning.forbruksdager
+            forbruksdager
                 .map { it.tilUtbetaling }
                 .fold(Beløp(0)) { acc, beløp -> acc + beløp }
                 .verdien
                 .toDouble() shouldBe utbetaling
         }
         Så("det forbrukes {int} dager") { dager: Int ->
-            beregning.forbruksdager.size shouldBe dager
+            forbruksdager.size shouldBe dager
             // TODO: Bruk attpåklatten !
-            beregning.forbruksdager.forEach {
+            forbruksdager.forEach {
                 opplysninger.add(Faktum(forbruk, true, Gyldighetsperiode(it.dag.dato, it.dag.dato)))
             }
         }
@@ -87,20 +91,21 @@ class BeregningSteg : No {
             beregning.prosentfaktor shouldBe terskel
         }
         Så("utbetales {double} kroner på dag {int}") { utbetaling: Double, dag: Int ->
-            beregning.forbruksdager[dag - 1]
+            forbruksdager[dag - 1]
                 .tilUtbetaling
                 .verdien
                 .toDouble() shouldBe utbetaling
         }
         Så("utbetales {int} kroner etter avrunding på dag {int}") { utbetaling: Int, dag: Int ->
-            beregning.forbruksdager[dag - 1]
+            forbruksdager[dag - 1]
                 .tilUtbetaling.verdien
                 .toInt() shouldBe utbetaling
         }
 
         Så("utbetales {int} kroner etter avrunding på dag {int} til {int}") { utbetaling: Int, fraDagNr: Int, tilDagNr: Int ->
             (fraDagNr until tilDagNr).forEach { dag ->
-                beregning.forbruksdager[dag - 1]
+                forbruksdager
+                    .filterIsInstance<Forbruksdag>()[dag - 1]
                     .tilUtbetaling.verdien
                     .toInt() shouldBe utbetaling
             }
@@ -198,7 +203,7 @@ class BeregningSteg : No {
                                         )
                                     }
 
-                                    "Sykdom" -> {
+                                    "Syk", "Sykdom" -> {
                                         MeldekortAktivitet(
                                             type = Syk,
                                             timer = null,

@@ -40,3 +40,11 @@ internal class Helgedag(
     override val sats = null
     override val fva = null
 }
+
+internal class IkkeRettighetDag(
+    override val dato: LocalDate,
+) : Dag {
+    override val sats = null
+    override val fva = null
+    override val timerArbeidet = null
+}
