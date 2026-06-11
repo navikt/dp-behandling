@@ -20,6 +20,13 @@ class Systemkilde(
     registrert: LocalDateTime = LocalDateTime.now(),
 ) : Kilde(meldingsreferanseId, id, registrert, opprettet)
 
+class Behovsløserkilde(
+    meldingsreferanseId: UUID,
+    opprettet: LocalDateTime,
+    id: UUID = UUIDv7.ny(),
+    registrert: LocalDateTime = LocalDateTime.now(),
+) : Kilde(meldingsreferanseId, id, registrert, opprettet)
+
 class Saksbehandlerkilde(
     meldingsreferanseId: UUID,
     val saksbehandler: Saksbehandler,

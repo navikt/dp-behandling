@@ -661,7 +661,7 @@ class BeregningTest {
             val meldekortId = person.sendInnMeldekort(1)
             meldekortBatch(markerFerdig = true)
 
-            behandlingsresultat {
+            behandlingsresultat(2) {
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 14
 
@@ -682,7 +682,10 @@ class BeregningTest {
             person.sendInnMeldekort(1, korrigeringAv = meldekortId, aktiviteter = korrigerteAktiviteter)
             meldekortBatch(markerFerdig = true)
 
-            behandlingsresultatForslag {
+            behandlingsresultatForslag(3) {
+                with(opplysninger(Beregning.arbeidsdag)) {
+                    this.count { it.verdi.verdi == false } shouldBe 1
+                }
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 14
 

@@ -312,6 +312,15 @@ paths:
         201:
           description: OK
           content: { }
+        409:
+          description: Behandlingen er ikke i korrekt tilstand for godkjenning
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+              examples:
+                ugyldigTilstand:
+                  $ref: '#/components/examples/UgyldigBehandlingstilstandProblem'
         default:
           description: Feil ved godkjenn av behandling
           content:
@@ -445,6 +454,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/Kvittering'
           description: OK
+        409:
+          description: Behandlingen er ikke i riktig tilstand for fjerning av opplysning
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+              examples:
+                redigeringPagar:
+                  $ref: '#/components/examples/RedigeringPågårProblem'
+                ikkeRedigerbar:
+                  $ref: '#/components/examples/BehandlingIkkeRedigerbaresProblem'
+                pafolgende:
+                  $ref: '#/components/examples/PåfølgendePeriodeMåFjernesFørstProblem'
+        422:
+          description: Opplysningen kan ikke redigeres
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+              examples:
+                ikkeRedigerbarOpplysning:
+                  $ref: '#/components/examples/OpplysningIkkeRedigerbaresProblem'
         default:
           description: Feil ved fjerning av opplysning
           content:
@@ -481,6 +512,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/Kvittering'
           description: OK
+        409:
+          description: Behandlingen er ikke i riktig tilstand for redigering
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+              examples:
+                redigeringPagar:
+                  $ref: '#/components/examples/RedigeringPågårProblem'
+                ikkeRedigerbar:
+                  $ref: '#/components/examples/BehandlingIkkeRedigerbaresProblem'
+        422:
+          description: Opplysningen kan ikke legges til
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+              examples:
+                ikkeRedigerbarOpplysning:
+                  $ref: '#/components/examples/OpplysningIkkeRedigerbaresProblem'
+                ugyldigPeriode:
+                  $ref: '#/components/examples/UgyldigPeriodeProblem'
+                kanIkkeEndrePrøvingsdato:
+                  $ref: '#/components/examples/KanIkkeEndrePrøvingsdatoProblem'
+                prøvingsdatoFørSøknadsdato:
+                  $ref: '#/components/examples/PrøvingsdatoFørSøknadsdatoProblem'
         default:
           description: Feil ved redigering av opplysninger
           content:
@@ -560,6 +617,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+        409:
+          description: Behandlingen har en pågående redigering
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+              examples:
+                redigeringPagar:
+                  $ref: '#/components/examples/RedigeringPågårProblem'
 
   /behandling/{behandlingId}/behandlingsresultat:
     parameters:
@@ -1553,7 +1619,7 @@ components:
       properties:
         type:
           type: string
-          enum: [ "Saksbehandler", "System" ]
+          enum: [ "Saksbehandler", "System", "Behovsløser" ]
         registrert:
           type: string
           format: date-time
@@ -2118,6 +2184,72 @@ components:
         - Tap av arbeidstid er minst terskel
         - Utfall etter samordning
         - Oppfyller kravet for gjenopptak av stønadsperiode
+
+  examples:
+    UgyldigBehandlingstilstandProblem:
+      summary: Behandlingen er ikke i korrekt tilstand for operasjonen
+      value:
+        type: urn:error:behandling:ugyldig_tilstand
+        title: Behandlingen er ikke i korrekt tilstand for denne operasjonen
+        status: 409
+        nåværendeTilstand: ForslagTilVedtak
+        operasjon: godkjenn
+
+    RedigeringPågårProblem:
+      summary: Behandlingen har en pågående redigering
+      value:
+        type: urn:error:behandling:redigering_pagar
+        title: Behandlingen har en pågående redigering
+        status: 409
+        nåværendeTilstand: Redigert
+
+    BehandlingIkkeRedigerbaresProblem:
+      summary: Behandlingen er ikke i redigerbar tilstand
+      value:
+        type: urn:error:behandling:ikke_redigerbar
+        title: Behandlingen er ikke i redigerbar tilstand
+        status: 409
+        nåværendeTilstand: UnderOpprettelse
+
+    OpplysningIkkeRedigerbaresProblem:
+      summary: Opplysningstypen kan ikke redigeres
+      value:
+        type: urn:error:behandling:opplysning_ikke_redigerbar
+        title: Opplysningstypen kan ikke redigeres
+        status: 422
+        opplysningstype: Prøvingsdato
+
+    UgyldigPeriodeProblem:
+      summary: Til og med dato er før fra og med dato
+      value:
+        type: urn:error:behandling:ugyldig_periode
+        title: Til og med dato kan ikke være før fra og med dato
+        status: 422
+        gyldigFraOgMed: "2024-01-01"
+        gyldigTilOgMed: "2023-01-01"
+
+    PåfølgendePeriodeMåFjernesFørstProblem:
+      summary: Påfølgende perioder må fjernes først
+      value:
+        type: urn:error:behandling:pafolgende_periode_ma_fjernes_forst
+        title: De påfølgende periodene må fjernes først
+        status: 409
+
+    KanIkkeEndrePrøvingsdatoProblem:
+      summary: Kan ikke endre prøvingsdato på behandling basert på tidligere behandling
+      value:
+        type: urn:error:behandling:kan_ikke_endre_provingsdato
+        title: Kan ikke endre prøvingsdato på en behandling som er basert på en tidligere behandling
+        status: 422
+
+    PrøvingsdatoFørSøknadsdatoProblem:
+      summary: Prøvingsdato kan ikke settes før søknadsdato
+      value:
+        type: urn:error:behandling:provingsdato_for_soknadsdato
+        title: Prøvingsdato kan ikke settes før søknadsdato
+        status: 422
+        prøvingsdato: "2024-01-01"
+        søknadsdato: "2024-02-01"
 
   securitySchemes:
     azureAd:
