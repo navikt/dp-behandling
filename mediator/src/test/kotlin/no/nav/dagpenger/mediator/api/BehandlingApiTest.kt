@@ -652,9 +652,11 @@ internal class BehandlingApiTest {
                     }","verdi":"true","begrunnelse":"tekst", "gyldigFraOgMed": "2024-01-01", "gyldigTilOgMed": "2023-01-01" }""",
                 )
 
-            response.status shouldBe HttpStatusCode.BadRequest
+            response.status shouldBe HttpStatusCode.UnprocessableEntity
             val bodyAsText = response.bodyAsText()
-            bodyAsText shouldContain """Til og med dato \"2023-01-01\" kan ikke være før fra og med dato \"2024-01-01\""""
+            bodyAsText shouldContain "urn:error:behandling:ugyldig_periode"
+            bodyAsText shouldContain "2024-01-01"
+            bodyAsText shouldContain "2023-01-01"
         }
     }
 

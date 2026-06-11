@@ -324,8 +324,9 @@ internal fun Application.behandlingApi(
 
                         // TODO: La dette egentlig komme fra modellen
                         if (!behandling.harTilstand(TilGodkjenning)) {
-                            throw BadRequestException(
-                                "Behandlingen er ikke klar til å godkjennes. Er i status ${behandling.tilstand().first}",
+                            throw UgyldigBehandlingstilstandException(
+                                nåværendeTilstand = behandling.tilstand().first.name,
+                                operasjon = "godkjenn",
                             )
                         }
 
@@ -478,26 +479,22 @@ internal fun Application.behandlingApi(
                             val behandling = hentBehandling(personRepository, behandlingId)
 
                             if (behandling.harTilstand(Redigert)) {
-                                throw BadRequestException("Kan ikke fjerne opplysning før forrige redigering er ferdig")
+                                throw RedigeringPågårException()
                             }
 
                             if (!behandling.kanRedigeres()) {
-                                throw BadRequestException(
-                                    "Kan ikke fjerne opplysning fordi behandlingen er ikke i redigerbar tilstand",
-                                )
+                                throw BehandlingIkkeRedigerbareException(behandling.tilstand().first.name)
                             }
 
                             val kunEgne = behandling.opplysninger().kunEgne
                             val opplysning = kunEgne.finnOpplysning(opplysningId)
                             if (!redigerbareOpplysninger.kanRedigere(opplysning.opplysningstype)) {
-                                throw BadRequestException("Opplysningstype ${opplysning.opplysningstype} kan ikke redigeres")
+                                throw OpplysningIkkeRedigerbareException(opplysning.opplysningstype.toString())
                             }
 
                             val perioder = kunEgne.finnAlle(opplysning.opplysningstype)
                             if (perioder.size > 1 && perioder.singleOrNull { it.erstatter != null }?.id == opplysningId) {
-                                throw BadRequestException(
-                                    "Kan ikke fjerne denne opplysningen, de påfølgende periodene må fjernes først",
-                                )
+                                throw PåfølgendePeriodeMåFjernesFørstException()
                             }
 
                             logger.info {
@@ -540,23 +537,20 @@ internal fun Application.behandlingApi(
                             val behandling = hentBehandling(personRepository, behandlingId)
 
                             if (behandling.harTilstand(Redigert)) {
-                                throw BadRequestException("Kan ikke redigere opplysninger før forrige redigering er ferdig")
+                                throw RedigeringPågårException()
                             }
 
                             if (!behandling.kanRedigeres()) {
-                                throw BadRequestException(
-                                    "Kan ikke redigere opplysning fordi behandlingen er ikke i redigerbar tilstand",
-                                )
+                                throw BehandlingIkkeRedigerbareException(behandling.tilstand().first.name)
                             }
 
                             val erTilOgMedFørFraOgMed =
                                 nyOpplysningDTO.gyldigFraOgMed != null &&
                                     nyOpplysningDTO.gyldigTilOgMed?.isBefore(nyOpplysningDTO.gyldigFraOgMed) == true
                             if (erTilOgMedFørFraOgMed) {
-                                throw BadRequestException(
-                                    """
-                                        |Til og med dato "${nyOpplysningDTO.gyldigTilOgMed}" kan ikke være før fra og med dato "${nyOpplysningDTO.gyldigFraOgMed}"
-                                    """.trimMargin(),
+                                throw UgyldigPeriodeException(
+                                    gyldigFraOgMed = nyOpplysningDTO.gyldigFraOgMed?.toString(),
+                                    gyldigTilOgMed = nyOpplysningDTO.gyldigTilOgMed?.toString(),
                                 )
                             }
 
@@ -565,21 +559,22 @@ internal fun Application.behandlingApi(
                                     ?: throw NotFoundException("Opplysningstype med id ${nyOpplysningDTO.opplysningstype} ikke funnet")
 
                             if (!redigerbareOpplysninger.kanRedigere(opplysningstype)) {
-                                throw BadRequestException("Opplysningstype $opplysningstype kan ikke redigeres")
+                                throw OpplysningIkkeRedigerbareException(opplysningstype.toString())
                             }
 
                             if (opplysningstype.er(prøvingsdato)) {
                                 if (behandling.opplysninger.kunEgne.finnNullableOpplysning(prøvingsdato) == null) {
-                                    throw BadRequestException(
-                                        "Kan ikke endre prøvingsdato på en behandling som er basert på en tidligere behandling",
-                                    )
+                                    throw KanIkkeEndrePrøvingsdatoException()
                                 }
                                 val søknadId = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
                                 if (søknadId != null) {
                                     val nyPrøvingsdato = LocalDate.parse(nyOpplysningDTO.verdi)
 
                                     if (nyPrøvingsdato.isBefore(søknadId.gyldighetsperiode.fraOgMed)) {
-                                        throw BadRequestException("Prøvingsdato kan ikke settes før søknadsdato")
+                                        throw PrøvingsdatoFørSøknadsdatoException(
+                                            prøvingsdato = nyPrøvingsdato.toString(),
+                                            søknadsdato = søknadId.gyldighetsperiode.fraOgMed.toString(),
+                                        )
                                     }
                                 }
                             }
@@ -642,7 +637,9 @@ internal fun Application.behandlingApi(
                             val kvitteringDTO = call.receive<AvklaringKvitteringDTO>()
                             val behandling = hentBehandling(personRepository, behandlingId)
 
-                            require(!behandling.harTilstand(Redigert)) { "Kan ikke avklare om behandling står i tilstanden Redigert" }
+                            if (behandling.harTilstand(Redigert)) {
+                                throw RedigeringPågårException()
+                            }
 
                             val avklaring =
                                 behandling.avklaringer().singleOrNull { it.id == avklaringId }

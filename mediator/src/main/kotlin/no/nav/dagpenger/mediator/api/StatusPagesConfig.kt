@@ -17,6 +17,25 @@ import no.nav.dagpenger.mediator.api.models.HttpProblemDTO
 import java.net.URI
 
 fun StatusPagesConfig.statusPagesConfig() {
+    exception<BehandlingException> { call, cause ->
+        call.application.log.warn("domenefeil: ${cause.message}. svarer med ${cause.httpStatus} og HttpProblem", cause)
+        call.response.header("Content-Type", ContentType.Application.ProblemJson.toString())
+        call.respond(
+            cause.httpStatus,
+            HttpProblemDTO(
+                type = cause.type,
+                title = cause.title,
+                status = cause.httpStatus.value,
+                detail = cause.message,
+                instance = URI(call.request.uri),
+                properties =
+                    cause.extensions
+                        .filterValues { it != null }
+                        .mapValues { it.value!! }
+                        .toMutableMap(),
+            ),
+        )
+    }
     exception<BadRequestException> { call, cause ->
         call.application.log.warn("bad request: ${cause.message}. svarer med BadRequest og en feilmelding i JSON", cause)
         call.response.header("Content-Type", ContentType.Application.ProblemJson.toString())

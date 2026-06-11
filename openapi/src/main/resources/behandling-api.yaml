@@ -1685,6 +1685,7 @@ components:
           type: string
           format: uri
           description: A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced
+      additionalProperties: true
 
     Vedtak:
       type: object
