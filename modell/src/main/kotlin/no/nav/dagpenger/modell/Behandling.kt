@@ -1082,7 +1082,9 @@ class Behandling private constructor(
                         "${sortert.first()} til ${sortert.last()} (${sortert.size} dager)"
                     }
                 }
-            hendelse.info("Regelkjøring: ${rapport.kjørteRegler.size} regler kjørt for $datoer, ${rapport.mangler.size} mangler gjenstår")
+            hendelse.info(
+                "Regelkjøring: ${rapport.kjørteRegler.size} regler kjørt for $datoer, ${rapport.mangler.size} mangler gjenstår, fjernet ${rapport.fjernet.size}",
+            )
         }
 
         // Logger avklaringsendringer

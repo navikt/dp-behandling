@@ -156,7 +156,7 @@ class Regelkjøring(
             kjørteRegler = kjørteRegler,
             mangler = kjøreplan.siste.trenger,
             informasjonsbehov = kjøreplan.siste.informasjonsbehov(gjeldendeRegler),
-            foreldreløse = opplysninger.fjernet(),
+            fjernet = opplysninger.fjernet(),
             prøvingsdato = listOf(prøvingsdato),
         ).also { rapport ->
             observatører.forEach { observer ->
@@ -409,7 +409,7 @@ data class Regelkjøringsrapport(
     val kjørteRegler: Set<Regel<*>>,
     val mangler: Set<Opplysningstype<*>>,
     val informasjonsbehov: Informasjonsbehov,
-    val foreldreløse: Set<Opplysning<*>>,
+    val fjernet: Set<Opplysning<*>>,
     val prøvingsdato: List<LocalDate>,
 ) {
     fun manglerOpplysninger(): Boolean = mangler.isNotEmpty()
@@ -421,7 +421,7 @@ data class Regelkjøringsrapport(
             kjørteRegler = this.kjørteRegler + other.kjørteRegler,
             mangler = this.mangler + other.mangler,
             informasjonsbehov = this.informasjonsbehov + other.informasjonsbehov,
-            foreldreløse = this.foreldreløse + other.foreldreløse,
+            fjernet = this.fjernet + other.fjernet,
             prøvingsdato = this.prøvingsdato + other.prøvingsdato,
         )
 }
