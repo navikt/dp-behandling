@@ -24,6 +24,11 @@ class TreNodeTest {
     }
 
     @Test
+    fun løvnoder() {
+        tre.løvnoder() shouldBe listOf(a4, a6, a7, a3).map { it.verdi }
+    }
+
+    @Test
     fun mermaid() {
         val expected =
             """

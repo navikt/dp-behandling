@@ -8,6 +8,13 @@ data class TreNode<T>(
 
     fun bfs() = iterate(Ordering.BFS)
 
+    fun løvnoder(): List<T> =
+        if (avhengigheter.isEmpty()) {
+            listOf(this.verdi)
+        } else {
+            avhengigheter.flatMap { it.løvnoder() }
+        }
+
     private fun iterate(ordering: Ordering): List<TreNode<T>> {
         val kø = mutableListOf(this)
         val result = mutableListOf<TreNode<T>>()
