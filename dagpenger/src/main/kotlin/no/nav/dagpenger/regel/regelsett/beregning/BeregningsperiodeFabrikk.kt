@@ -29,7 +29,6 @@ class BeregningsperiodeFabrikk(
 
     fun lagBeregningsperiode(): Beregningsperiode {
         val dager = opprettPeriode(meldeperiode)
-        logger.info { "Meldekort dager med rett: ${dager.joinToString("\n") { it.toString() }}" }
         val stønadsdagerIgjen =
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
                 opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
@@ -40,7 +39,9 @@ class BeregningsperiodeFabrikk(
             Oppretter beregningsperiode med:
             - gjenståendeEgenandel = $gjenståendeEgenandel, 
             - stønadsdagerIgjen = $stønadsdagerIgjen, 
-            - periode = ${dager.joinToString("|") { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ")" }}
+            - periode = ${dager.joinToString(
+                "|",
+            ) { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ", " + it.javaClass.simpleName + ")" }}
             """.trimIndent()
         }
         return Beregningsperiode(gjenståendeEgenandel, dager, stønadsdagerIgjen)

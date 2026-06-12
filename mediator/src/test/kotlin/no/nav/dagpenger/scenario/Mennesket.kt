@@ -176,7 +176,7 @@ internal class Mennesket(
     fun sendInnMeldekort(
         periode: Periode,
         korrigeringAv: UUID? = null,
-        aktiviteter: List<MeldekortAktivitet?>,
+        aktiviteter: List<MeldekortAktivitet>,
     ): UUID {
         val meldekortId = UUIDv7.ny()
         val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, aktiviteter)

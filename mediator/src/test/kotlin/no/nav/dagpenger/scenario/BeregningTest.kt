@@ -674,7 +674,7 @@ class BeregningTest {
             }
 
             // Korrigering: dag 1 endres fra arbeid til syk
-            val korrigerteAktiviteter = MutableList<MeldekortAktivitet>(14) { MeldekortAktivitet.Arbeid(0) }
+            val korrigerteAktiviteter = MutableList<MeldekortAktivitet>(14) { MeldekortAktivitet.IngenAktivitet }
             korrigerteAktiviteter[0] = MeldekortAktivitet.Syk
             person.sendInnMeldekort(1, korrigeringAv = meldekortId, aktiviteter = korrigerteAktiviteter)
             meldekortBatch(markerFerdig = true)

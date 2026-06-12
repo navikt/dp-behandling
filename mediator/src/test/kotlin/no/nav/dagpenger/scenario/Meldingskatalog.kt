@@ -19,6 +19,8 @@ internal sealed class MeldekortAktivitet {
     data class Utdanning(
         val timer: Int,
     ) : MeldekortAktivitet()
+
+    data object IngenAktivitet : MeldekortAktivitet()
 }
 
 internal object Meldingskatalog {
@@ -87,7 +89,7 @@ internal object Meldingskatalog {
         meldekortId: UUID,
         meldeperiode: Periode,
         korrigeringAv: UUID? = null,
-        aktiviteter: List<MeldekortAktivitet?> = emptyList(),
+        aktiviteter: List<MeldekortAktivitet> = emptyList(),
     ): String =
         JsonMessage
             .newMessage(
@@ -104,7 +106,7 @@ internal object Meldingskatalog {
                                 ),
                             "dager" to
                                 meldeperiode.mapIndexed { index, meldedag ->
-                                    val aktivitet = aktiviteter.getOrElse(index) { MeldekortAktivitet.Arbeid(0) }
+                                    val aktivitet = aktiviteter.getOrElse(index) { MeldekortAktivitet.IngenAktivitet }
                                     mapOf(
                                         "dato" to meldedag,
                                         "meldt" to true,
@@ -126,8 +128,8 @@ internal object Meldingskatalog {
                                                     listOf(mapOf("type" to "Utdanning", "timer" to "PT${aktivitet.timer}H"))
                                                 }
 
-                                                null -> {
-                                                    listOf(mapOf("type" to "Arbeid", "timer" to "PT0H"))
+                                                is MeldekortAktivitet.IngenAktivitet -> {
+                                                    emptyList<Map<String, Any>>()
                                                 }
                                             },
                                     )
