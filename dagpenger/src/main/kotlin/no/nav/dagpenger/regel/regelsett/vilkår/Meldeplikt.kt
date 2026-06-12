@@ -16,6 +16,6 @@ object Meldeplikt {
 
             utfall(oppfyllerMeldeplikt) { tomRegel }
 
-            påvirkerResultat { it.har(oppfyllerMeldeplikt) }
+            påvirkerResultat { it.har(oppfyllerMeldeplikt) && !it.erSann(oppfyllerMeldeplikt) }
         }
 }

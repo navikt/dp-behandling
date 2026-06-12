@@ -144,7 +144,7 @@ object ReellArbeidssøker {
     val ReellArbeidssøkerKontroll =
         Kontrollpunkt(ReellArbeidssøkerUnntak) {
             if (it.har(kravetReellArbeidsøkerSkalVurderes) && !it.erSann(kravetReellArbeidsøkerSkalVurderes)) {
-                // return@Kontrollpunkt false
+                return@Kontrollpunkt false
             }
             if (it.erSann(godkjentDeltidssøker) ||
                 it.erSann(godkjentLokalArbeidssøker) ||
