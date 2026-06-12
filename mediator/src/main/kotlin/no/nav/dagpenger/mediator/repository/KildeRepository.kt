@@ -66,7 +66,7 @@ internal class KildeRepository(
                         }
 
                         Behovsløserkilde::class.java.simpleName -> {
-                            Systemkilde(
+                            Behovsløserkilde(
                                 row.uuid("system_melding_id"),
                                 opprettet,
                                 kildeId,
