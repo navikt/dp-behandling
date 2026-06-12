@@ -74,5 +74,7 @@ internal val dagpengerRegeltreDokumentasjonOppsett =
                 "@regel-uriktig-eller-mangelfulle-opplysninger" to Uriktigeopplysninger.regelsett,
                 "@regel-omgjøring-uten-klage" to OmgjøringUtenKlage.regelsett,
                 "@regel-gjenopptak" to Gjenopptak.regelsett,
-            ),
+            ).map {
+                it.key to listOf(it.value)
+            }.toMap(),
     )

@@ -23,7 +23,6 @@ internal val ferietilleggRegeltreDokumentasjonOppsett =
         dokumentasjonskatalog = "regler",
         regelsettPerTag =
             mapOf(
-                "@regel-ferietillegg-krav" to KravPåFerietillegg.regelsett,
-                "@regel-ferietillegg-belop" to FerietilleggBeløp.regelsett,
+                "@regel-ferietillegg-krav" to listOf(KravPåFerietillegg.regelsett, FerietilleggBeløp.regelsett),
             ),
     )

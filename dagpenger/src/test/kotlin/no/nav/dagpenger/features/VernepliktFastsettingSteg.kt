@@ -5,7 +5,6 @@ import io.cucumber.java.BeforeStep
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.mai
-import no.nav.dagpenger.features.utils.tilBeløp
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -23,6 +22,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntekt36
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.testsupport.tilBeløp
 
 class VernepliktFastsettingSteg : No {
     private val fraDato = 10.mai(2022)

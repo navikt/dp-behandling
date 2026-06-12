@@ -2,7 +2,6 @@ package no.nav.dagpenger.features
 
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.features.utils.somLocalDate
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
@@ -13,6 +12,7 @@ import no.nav.dagpenger.regel.prosess.TaptArbeidstidStans
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
+import no.nav.dagpenger.testsupport.somLocalDate
 
 class TaptArbeidstidStansSteg : No {
     private val opplysninger = mutableListOf<Opplysning<*>>()

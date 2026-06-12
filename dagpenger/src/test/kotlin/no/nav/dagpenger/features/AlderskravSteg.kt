@@ -3,13 +3,13 @@ package no.nav.dagpenger.features
 import io.cucumber.java.BeforeStep
 import io.cucumber.java8.No
 import no.nav.dagpenger.dato.mai
-import no.nav.dagpenger.features.utils.somLocalDate
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.testsupport.somLocalDate
 import org.junit.jupiter.api.Assertions
 import java.time.LocalDate
 

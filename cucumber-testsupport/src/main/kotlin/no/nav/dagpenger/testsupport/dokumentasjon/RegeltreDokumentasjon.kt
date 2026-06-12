@@ -18,7 +18,7 @@ import java.nio.file.Paths
 
 data class RegeltreDokumentasjonOppsett(
     val dokumentasjonskatalog: String = "regler",
-    val regelsettPerTag: Map<String, Regelsett>,
+    val regelsettPerTag: Map<String, List<Regelsett>>,
 )
 
 abstract class RegeltreDokumentasjonPlugin(
@@ -107,7 +107,7 @@ fun dokumenterRegeltre(
         requireNotNull(oppsett.regelsettPerTag[test]) {
             "Fant ikke regelsett for $test, det må mappes i RegeltreDokumentasjonOppsett"
         }
-    val regeltre = RegeltreBygger(regelsett)
+    val regeltre = RegeltreBygger(*regelsett.toTypedArray())
     val tre = MermaidPrinter(regeltre.dag()).toPrint()
     scenario.attach(tre, "text/markdown", "regeltre.md")
 }

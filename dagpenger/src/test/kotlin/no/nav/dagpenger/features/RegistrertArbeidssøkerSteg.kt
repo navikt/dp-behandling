@@ -3,7 +3,6 @@ package no.nav.dagpenger.features
 import io.cucumber.java8.No
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.features.utils.somLocalDate
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
@@ -12,6 +11,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.testsupport.somLocalDate
 import org.junit.jupiter.api.Assertions.assertTrue
 
 class RegistrertArbeidssøkerSteg : No {

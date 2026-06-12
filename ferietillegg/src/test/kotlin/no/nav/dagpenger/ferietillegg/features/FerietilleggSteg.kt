@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.testsupport.tilBeløp
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -36,16 +37,12 @@ class FerietilleggSteg : No {
             regelkjøring.evaluer()
         }
 
-        Så("har søker krav på ferietillegg") {
-            opplysninger.finnOpplysning(KravPåFerietillegg.harKravpåFerietillegg).verdi shouldBe true
-        }
-
-        Så("har søker ikke krav på ferietillegg") {
-            opplysninger.finnOpplysning(KravPåFerietillegg.harKravpåFerietillegg).verdi shouldBe false
+        Så("har søker {boolsk}") { harKravPåFerietillegg: Boolean ->
+            opplysninger.finnOpplysning(KravPåFerietillegg.harKravpåFerietillegg).verdi shouldBe harKravPåFerietillegg
         }
 
         Så("er ferietillegget {string} kroner") { beløp: String ->
-            opplysninger.finnOpplysning(FerietilleggBeløp.ferietilleggBeløp).verdi shouldBe Beløp(BigDecimal(beløp))
+            opplysninger.finnOpplysning(FerietilleggBeløp.ferietilleggBeløp).verdi shouldBe beløp.tilBeløp()
         }
     }
 }
