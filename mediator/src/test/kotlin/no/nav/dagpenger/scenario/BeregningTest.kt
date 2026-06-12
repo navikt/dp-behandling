@@ -8,11 +8,13 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.dato.april
 import no.nav.dagpenger.mediator.februar
 import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
+import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
@@ -21,6 +23,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled
@@ -691,6 +694,141 @@ class BeregningTest {
 
                     // Siste dag i meldekort
                     this.last().gyldigFraOgMed shouldBe 14.januar(2018)
+                }
+            }
+        }
+    }
+
+    @Test
+    @Disabled
+    fun `Korrigerer fra arbeid til syk med korrigering og gjennopptak`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(30.mars(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+                false,
+                "test",
+                Gyldighetsperiode(
+                    30.mars(2026),
+                    12.april(2026),
+                ),
+            )
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+                true,
+                "test",
+                Gyldighetsperiode(
+                    13.april(2026),
+                    26.april(2026),
+                ),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+                false,
+                "test",
+                Gyldighetsperiode(
+                    27.april(2026),
+                    24.mai(2026),
+                ),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+                true,
+                "test",
+                Gyldighetsperiode(
+                    25.mai(2026),
+                ),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.size shouldBe 4
+            }
+
+            // Originalt meldekort: Ingen aktivitet
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+            val meldekortId = person.sendInnMeldekort(4) // Bruker har ikke sendt inn meldekort
+            meldekortBatch(markerFerdig = true)
+
+            saksbehandler.lukkAlleAvklaringer()
+
+            behandlingsresultat(3) {
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 28
+
+                    // Første dag i meldekort
+                    this.first().gyldigFraOgMed shouldBe 30.mars(2026)
+
+                    // Alle forbruksdager siden det ikke er meldt noen aktivitet
+                    this.count { it.verdi.verdi == true } shouldBe 20
+
+                    // Siste dag i meldekort
+                    this.last().gyldigFraOgMed shouldBe 24.mai(2026)
+                }
+            }
+
+            person.søkGjenopptak(11.juni(2026))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+                false,
+                "test",
+                Gyldighetsperiode(
+                    11.juni(2026),
+                    11.juni(2026),
+                ),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+                true,
+                "test",
+                Gyldighetsperiode(
+                    12.juni(2026),
+                ),
+            )
+
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                rettighetsperioder.size shouldBe 6
+            }
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Korrigering: dag 1 endres fra arbeid til syk
+            val korrigerteAktiviteter = MutableList<MeldekortAktivitet>(14) { MeldekortAktivitet.IngenAktivitet }
+            korrigerteAktiviteter[0] = MeldekortAktivitet.Syk
+            person.sendInnMeldekort(4, korrigeringAv = meldekortId, aktiviteter = korrigerteAktiviteter)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 28
+                    // Første dag i meldekort
+                    this.first().gyldigFraOgMed shouldBe 30.mars(2026)
+
+                    // Alle bortsett fra sykedagen skal være forbruksdager
+                    this.count { it.verdi.verdi == true } shouldBe 19
+                    // Siste dag i meldekort
+                    this.last().gyldigFraOgMed shouldBe 24.mai(2026)
                 }
             }
         }
