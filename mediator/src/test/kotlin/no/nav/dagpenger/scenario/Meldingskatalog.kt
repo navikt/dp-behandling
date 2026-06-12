@@ -2,7 +2,6 @@ package no.nav.dagpenger.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import no.nav.dagpenger.opplysning.verdier.Periode
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldedato
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
