@@ -180,7 +180,7 @@ Følgende dokumentasjon genereres automatisk fra Kotlin-testkode via ApprovalTes
   - `behov.approved.md` — Behov for opplysninger
   - `avklaringer.approved.md` — Avklaringspunkter
 
-- **`docs/regler/*.approved.md`** — Generert av `RegeltreDokumentasjonPlugin.kt` (`dagpenger/src/test/kotlin/no/nav/dagpenger/features/utils/RegeltreDokumentasjonPlugin.kt`). Cucumber-tester med `@dokumentasjon`-tag genererer regeltre-diagrammer og akseptansetester per paragraf.
+- **`docs/regler/*.approved.md`** — Generert av den delte støttemodulen i `cucumber-testsupport/src/main/kotlin/no/nav/dagpenger/testsupport/dokumentasjon/RegeltreDokumentasjon.kt`, med modulspesifikke oppsett i `dagpenger/src/test/kotlin/no/nav/dagpenger/features/dokumentasjon/DagpengerRegeltreDokumentasjonPlugin.kt` og `ferietillegg/src/test/kotlin/no/nav/dagpenger/ferietillegg/features/dokumentasjon/FerietilleggRegeltreDokumentasjonPlugin.kt`. Cucumber-tester med `@dokumentasjon`-tag genererer regeltre-diagrammer og akseptansetester per paragraf.
 
 For å oppdatere autogenerert dokumentasjon, kjør testene i stedet:
 ```bash

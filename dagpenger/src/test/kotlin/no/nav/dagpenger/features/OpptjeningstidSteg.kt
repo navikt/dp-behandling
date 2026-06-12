@@ -3,7 +3,6 @@ package no.nav.dagpenger.features
 import io.cucumber.java8.No
 import io.kotest.matchers.equals.shouldBeEqual
 import no.nav.dagpenger.dato.mai
-import no.nav.dagpenger.features.utils.opplysningerTilRegelkjøring
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
