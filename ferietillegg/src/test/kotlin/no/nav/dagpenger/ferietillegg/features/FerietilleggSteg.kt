@@ -36,10 +36,6 @@ class FerietilleggSteg : No {
             regelkjøring.evaluer()
         }
 
-        Når("reglene kjøres") {
-            regelkjøring.evaluer()
-        }
-
         Så("har søker krav på ferietillegg") {
             opplysninger.finnOpplysning(KravPåFerietillegg.harKravpåFerietillegg).verdi shouldBe true
         }
