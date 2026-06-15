@@ -1,16 +1,20 @@
 package no.nav.dagpenger.opplysning.regel
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.a
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 internal class HvisSannMedResultatTest {
@@ -96,5 +100,60 @@ internal class HvisSannMedResultatTest {
         // Ingen regler skal kjøre på nytt – alt er stabilt
         rapport.kjørteRegler.size shouldBe 1
         opplysninger.finnOpplysning(resultat).verdi shouldBe 100.0
+    }
+
+    @Test
+    @Disabled
+    fun `re-evaluerer korrekt ved omgjøring når hvisSann er endret til ny mellomberegning (reproduserer erErstattet-bug)`() {
+        // Simluerer et scenario der koden endres mellom to evalueringer:
+        // Gammelt regelsett: resultat = hvisSannMedResultat(a, direkteBeløp, nullBeløp)
+        // Nytt regelsett:    resultat = hvisSannMedResultat(a, avrundtBeløp, nullBeløp)
+        //                    der avrundtBeløp er en ny mellomberegning (avrund) av direkteBeløp
+        //
+        // Uten fiksen: når direkteBeløp erstattes i omgjøring, legger Regel.lagPlanFraUtledning
+        // HvisSannMedResultat direkte i planen (erErstattet-caset) uten å sjekke at
+        // avrundtBeløp (ny hvisSann) finnes — og kjør() kaster IllegalStateException.
+
+        val direkteBeløp = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "DirekteBelop")
+        val nullBeløp = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "NullBelop")
+        val beløpResultat = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "BelopResultat")
+
+        // Gammelt regelsett: beløpResultat bruker direkteBeløp som hvisSann
+        val gammeltRegelsett =
+            vilkår("TestGammelt") {
+                regel(a) { innhentes }
+                regel(direkteBeløp) { innhentes }
+                regel(nullBeløp) { somUtgangspunkt(Beløp(0)) }
+                regel(beløpResultat) { hvisSannMedResultat(a, direkteBeløp, nullBeløp) }
+            }
+
+        val opplysninger = Opplysninger()
+        val gammelRegelkjøring = Regelkjøring(23.mai(2024), opplysninger, gammeltRegelsett)
+        opplysninger.leggTil(Faktum(a, true))
+        opplysninger.leggTil(Faktum(direkteBeløp, Beløp(100)))
+        gammelRegelkjøring.evaluer()
+        opplysninger.finnOpplysning(beløpResultat).verdi shouldBe Beløp(100)
+
+        val avrundtBeløp = Opplysningstype.beløp(Opplysningstype.Id(UUIDv7.ny(), Penger), "AvrundtBelop")
+        // Nytt regelsett: beløpResultat bruker avrundtBeløp (ny mellomberegning) som hvisSann
+        val nyttRegelsett =
+            vilkår("TestNytt") {
+                regel(a) { innhentes }
+                regel(direkteBeløp) { innhentes }
+                regel(nullBeløp) { somUtgangspunkt(Beløp(0)) }
+                regel(avrundtBeløp) { avrund(direkteBeløp) }
+                regel(beløpResultat) { hvisSannMedResultat(a, avrundtBeløp, nullBeløp) }
+            }
+
+        // "Omgjøring"
+        val nyeOpplysninger = Opplysninger.basertPå(opplysninger)
+
+        nyeOpplysninger.leggTil(Faktum(direkteBeløp, Beløp(150.5)))
+        val nyRegelkjøring = Regelkjøring(23.mai(2024), nyeOpplysninger, nyttRegelsett)
+
+        // kaster IllegalStateException("Har ikke opplysning AvrundtBelop som er gyldig")
+        shouldNotThrowAny { nyRegelkjøring.evaluer() }
+
+        nyeOpplysninger.finnOpplysning(beløpResultat).verdi shouldBe Beløp(151)
     }
 }
