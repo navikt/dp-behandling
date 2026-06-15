@@ -23,11 +23,17 @@ internal class BehandlingsresultatAssertions(
 
     val utfall get() = rettighetsperioder.last().harRett
 
-    fun opplysninger(opplysningstype: Opplysningstype<*>): List<Opplysningsperiode> {
+    fun opplysninger(
+        opplysningstype: Opplysningstype<*>,
+        block: List<Opplysningsperiode>.() -> Unit = {},
+    ): List<Opplysningsperiode> {
         val opplysninger =
             klump["opplysninger"].singleOrNull { it["opplysningTypeId"].asUUID() == opplysningstype.id.uuid } ?: return emptyList()
 
-        return objectMapper.treeToValue(opplysninger["perioder"])
+        val opplysningsperioder = objectMapper.treeToValue<List<Opplysningsperiode>>(opplysninger["perioder"])
+
+        block(opplysningsperioder)
+        return opplysningsperioder
     }
 }
 

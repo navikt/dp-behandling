@@ -56,7 +56,7 @@ class ArbeidssøkerTest {
 
             behandlingsresultatForslag {
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
-                    this shouldHaveSize 0
+                    this shouldHaveSize 2
                 }
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
                     this shouldHaveSize 2
@@ -121,9 +121,10 @@ class ArbeidssøkerTest {
 
             behandlingsresultat {
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
-                    this shouldHaveSize 1
-                    this.single().verdi.verdi shouldBe false
-                    this.single().gyldigFraOgMed shouldBe 16.juli(2018)
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe true
+                    this[1].verdi.verdi shouldBe false
+                    this[1].gyldigFraOgMed shouldBe 16.juli(2018)
                 }
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
                     this shouldHaveSize 2
@@ -131,11 +132,11 @@ class ArbeidssøkerTest {
                     this[1].gyldigFraOgMed shouldBe 1.august(2018)
                 }
 
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].tilOgMed shouldBe 15.juli(2018)
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 16.juli(2018)
+                rettighetsperioder shouldHaveSize 3
+                rettighetsperioder[1].harRett shouldBe true
+                rettighetsperioder[1].tilOgMed shouldBe 15.juli(2018)
+                rettighetsperioder[2].harRett shouldBe false
+                rettighetsperioder[2].fraOgMed shouldBe 16.juli(2018)
             }
         }
     }
@@ -153,7 +154,7 @@ class ArbeidssøkerTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat {
+            behandlingsresultat(1) {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder.single().harRett shouldBe true
                 rettighetsperioder.single().tilOgMed shouldBe null
@@ -161,8 +162,19 @@ class ArbeidssøkerTest {
 
             person.sendInnMeldekort(1)
             meldekortBatch(markerFerdig = true)
+            behandlingsresultat(2) {
+                opplysninger(Meldeplikt.oppfyllerMeldeplikt) {
+                    this shouldHaveSize 1
+                }
+            }
+
             person.sendInnMeldekort(2)
             meldekortBatch(markerFerdig = true)
+            behandlingsresultat(3) {
+                opplysninger(Meldeplikt.oppfyllerMeldeplikt) {
+                    this shouldHaveSize 2
+                }
+            }
 
             val fastsattMeldedato = person.fastsattMeldedato(3)
 
@@ -178,7 +190,7 @@ class ArbeidssøkerTest {
 
             behandlingsresultat(nummer = 4) {
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
-                    this shouldHaveSize 0
+                    this shouldHaveSize 2
                 }
                 with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {
                     this shouldHaveSize 2
@@ -190,6 +202,7 @@ class ArbeidssøkerTest {
                 }
 
                 rettighetsperioder shouldHaveSize 2
+
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].tilOgMed shouldBe 15.juli(2018)
                 rettighetsperioder[1].harRett shouldBe false

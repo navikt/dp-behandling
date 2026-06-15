@@ -42,6 +42,7 @@ import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.BarnDatatype
+import no.nav.dagpenger.opplysning.Behovsløserkilde
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Dato
@@ -130,6 +131,14 @@ internal fun Opplysning<*>.tilOpplysningskildeDTO(): OpplysningskildeDTO? =
             is Systemkilde -> {
                 OpplysningskildeDTO(
                     OpplysningskildeDTOTypeDTO.SYSTEM,
+                    meldingId = it.meldingsreferanseId,
+                    registrert = registrert,
+                )
+            }
+
+            is Behovsløserkilde -> {
+                OpplysningskildeDTO(
+                    OpplysningskildeDTOTypeDTO.BEHOVSLØSER,
                     meldingId = it.meldingsreferanseId,
                     registrert = registrert,
                 )

@@ -5,7 +5,6 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.concurrent.timer
 
 internal sealed class MeldekortAktivitet {
     data class Arbeid(
@@ -90,6 +89,7 @@ internal object Meldingskatalog {
         meldeperiode: Periode,
         korrigeringAv: UUID? = null,
         aktiviteter: List<MeldekortAktivitet> = emptyList(),
+        meldedato: LocalDate = meldeperiode.tilOgMed.plusDays(1),
     ): String =
         JsonMessage
             .newMessage(
@@ -139,6 +139,7 @@ internal object Meldingskatalog {
                                     "rolle" to "Søker",
                                     "ident" to ident,
                                 ),
+                            "meldedato" to meldedato,
                             "innsendtTidspunkt" to LocalDateTime.now(),
                         ),
                     )
@@ -147,18 +148,6 @@ internal object Meldingskatalog {
                     }
                 },
             ).toJson()
-
-    fun beregnMeldekort(
-        ident: String,
-        meldekortId: UUID,
-    ) = JsonMessage
-        .newMessage(
-            "beregn_meldekort",
-            mapOf(
-                "meldekortId" to meldekortId,
-                "ident" to ident,
-            ),
-        ).toJson()
 
     fun omgjørBehandling(
         ident: String,

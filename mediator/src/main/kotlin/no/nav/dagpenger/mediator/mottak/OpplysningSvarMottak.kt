@@ -24,6 +24,7 @@ import no.nav.dagpenger.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.modell.hendelser.OpplysningSvar.Tilstand
 import no.nav.dagpenger.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.opplysning.BarnDatatype
+import no.nav.dagpenger.opplysning.Behovsløserkilde
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
 import no.nav.dagpenger.opplysning.Dato
@@ -39,7 +40,6 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -160,7 +160,7 @@ internal class OpplysningSvarMessage(
                         }
 
                         false -> {
-                            Systemkilde(
+                            Behovsløserkilde(
                                 meldingsreferanseId = packet["@id"].asUUID(),
                                 opprettet = packet["@opprettet"].asLocalDateTime(),
                             )

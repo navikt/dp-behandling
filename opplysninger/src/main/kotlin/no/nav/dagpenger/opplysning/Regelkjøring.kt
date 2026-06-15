@@ -142,11 +142,14 @@ class Regelkjøring(
         if (kjøreplan.siste.eksterneRegler.isEmpty()) {
             val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, kjøreplan.siste.ønsketResultat)
             opplysninger.fjernHvis {
-                val ikkeGjortAvSaksbehandler = it.kilde !is Saksbehandlerkilde
+                val opplysningFraSaksbehandler = it.kilde is Saksbehandlerkilde
+                val opplysningFraHendelse = it.kilde is Systemkilde
                 val trengsIkke = it.opplysningstype !in brukteOpplysninger
                 val tilhørerDenneRegelkjøringen = it.gyldighetsperiode.fraOgMed >= prøvingsdato || it.behandletVed == prøvingsdato
 
-                ikkeGjortAvSaksbehandler && trengsIkke && tilhørerDenneRegelkjøringen
+                if (opplysningFraSaksbehandler || opplysningFraHendelse) return@fjernHvis false
+
+                trengsIkke && tilhørerDenneRegelkjøringen
             }
         }
 

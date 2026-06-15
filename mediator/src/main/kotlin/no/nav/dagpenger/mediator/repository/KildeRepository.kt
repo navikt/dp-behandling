@@ -4,6 +4,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.dagpenger.mediator.db.DatabaseSession
+import no.nav.dagpenger.opplysning.Behovsløserkilde
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
@@ -55,15 +56,25 @@ internal class KildeRepository(
                     val opprettet = row.localDateTime("opprettet")
                     val registrert = row.localDateTime("registrert")
                     when (kildeType) {
-                        Systemkilde::class.java.simpleName ->
+                        Systemkilde::class.java.simpleName -> {
                             Systemkilde(
                                 row.uuid("system_melding_id"),
                                 opprettet,
                                 kildeId,
                                 registrert,
                             )
+                        }
 
-                        Saksbehandlerkilde::class.java.simpleName ->
+                        Behovsløserkilde::class.java.simpleName -> {
+                            Behovsløserkilde(
+                                row.uuid("system_melding_id"),
+                                opprettet,
+                                kildeId,
+                                registrert,
+                            )
+                        }
+
+                        Saksbehandlerkilde::class.java.simpleName -> {
                             Saksbehandlerkilde(
                                 meldingsreferanseId = row.uuid("saksbehandler_melding_id"),
                                 saksbehandler = Saksbehandler(row.string("saksbehandler_ident")),
@@ -75,8 +86,11 @@ internal class KildeRepository(
                                 id = kildeId,
                                 registrert = registrert,
                             )
+                        }
 
-                        else -> throw IllegalStateException("Ukjent kilde")
+                        else -> {
+                            throw IllegalStateException("Ukjent kilde")
+                        }
                     }
                 }.asList,
             ).associateBy { it.id }
@@ -93,8 +107,9 @@ internal class KildeRepository(
         tx: Session,
     ) {
         batchKilde(kilder).run(tx)
-        require(kilder.all { it is Systemkilde || it is Saksbehandlerkilde }) { "Mangler lagring av kildetypen" }
+        require(kilder.all { it is Systemkilde || it is Saksbehandlerkilde || it is Behovsløserkilde }) { "Mangler lagring av kildetypen" }
         batchKildeSystem(kilder.filterIsInstance<Systemkilde>()).run(tx)
+        batchKildeBehovskilde(kilder.filterIsInstance<Behovsløserkilde>()).run(tx)
         batchKildeSaksbehandler(kilder.filterIsInstance<Saksbehandlerkilde>()).run(tx)
     }
 
@@ -117,6 +132,22 @@ internal class KildeRepository(
         )
 
     private fun batchKildeSystem(kilder: List<Systemkilde>) =
+        BatchStatement(
+            // language=PostgreSQL
+            """
+            INSERT INTO kilde_system (kilde_id, melding_id) 
+            VALUES (:kildeId, :meldingId)
+            ON CONFLICT DO NOTHING
+            """.trimIndent(),
+            kilder.map { kilde ->
+                mapOf(
+                    "kildeId" to kilde.id,
+                    "meldingId" to kilde.meldingsreferanseId,
+                )
+            },
+        )
+
+    private fun batchKildeBehovskilde(kilder: List<Behovsløserkilde>) =
         BatchStatement(
             // language=PostgreSQL
             """
