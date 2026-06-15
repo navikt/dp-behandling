@@ -16,7 +16,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
+import no.nav.dagpenger.regelverk.HendelseTypeId
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
 import java.util.UUID
@@ -109,9 +109,7 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         private val nyePerioder: List<NyPeriode> by lazy {
             packet["opplysninger"]
                 .toList()
-                .filterNot {
-                    it["opplysningTypeId"].asString() == hendelseTypeOpplysningstype.id.uuid.toString()
-                }.flatMap { opplysning ->
+                .flatMap { opplysning ->
                     val opplysningTypeId = opplysning["opplysningTypeId"].asUUIDOrNull() ?: return@flatMap emptyList()
                     opplysning["perioder"]
                         .toList()
@@ -123,8 +121,8 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         private fun NyPeriode.er(opplysningTypeId: Opplysningstype.Id<*>) = this.opplysningTypeId == opplysningTypeId.uuid
 
         private companion object {
-            private val ekstraOpplysninger = setOf(oppfyllerMeldeplikt)
-            private val beregningOpplysningTypeIder =
+            private val ekstraOpplysninger: Set<UUID> = setOf(oppfyllerMeldeplikt.id.uuid, HendelseTypeId.uuid)
+            private val beregningOpplysningTypeIder: Set<UUID> =
                 Beregning.regelsett.produserer
                     .map { it.id.uuid }
                     .toSet() + ekstraOpplysninger
