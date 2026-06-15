@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.uuid.UUIDv7
 import java.util.UUID
 
 object OpplysningsTyper {
@@ -16,5 +17,10 @@ object OpplysningsTyper {
     val antallDagerForbrukId = Opplysningstype.Id(UUID.fromString("019d7231-ddc0-7059-a631-7d4d06b974de"), Heltall)
     val ferietilleggTerskelId = Opplysningstype.Id(UUID.fromString("019d7232-0fe1-79fa-8a87-b6937fe67079"), Heltall)
     val foreløpigBeregnetBeløpId = Opplysningstype.Id(UUID.fromString("019e4990-483e-775f-9b29-73211ef6ea17"), Penger)
+    val beregnetBeløpId = Opplysningstype.Id(UUID.fromString("019eca38-c812-7717-b793-d7360c5c7690"), Penger)
     val nullBeløpId = Opplysningstype.Id(UUID.fromString("019e4990-791e-7309-a159-de4f30bc721d"), Penger)
+}
+
+fun main() {
+    println(UUIDv7.ny())
 }

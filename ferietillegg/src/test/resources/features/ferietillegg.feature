@@ -8,9 +8,9 @@ Egenskap: § 4-14. Ferietillegg
     Så har søker <krav på ferietillegg>
     Så er ferietillegget <utbetalt> kroner
     Eksempler:
-      | antall dager | krav på ferietillegg | penger         | utbetalt         |
-      | 100          | Ja                   | "500000"       | "47500"          |
-      | 41           | Ja                   | "5442459.5555" | "517033.6577725" |
-      | 40           | Nei                  | "10000"        | "0"              |
-      | 10           | Nei                  | "0"            | "0"              |
+      | antall dager | krav på ferietillegg | penger         | utbetalt |
+      | 100          | Ja                   | "500000"       | "47500"  |
+      | 41           | Ja                   | "5442459.5555" | "517034" |
+      | 40           | Nei                  | "10000"        | "0"      |
+      | 10           | Nei                  | "0"            | "0"      |
 

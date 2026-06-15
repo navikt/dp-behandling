@@ -3,15 +3,18 @@ package no.nav.dagpenger.ferietillegg
 import no.nav.dagpenger.ferietillegg.Behov.OpptjeningsBeløp
 import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.harKravpåFerietillegg
 import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor
+import no.nav.dagpenger.ferietillegg.OpplysningsTyper.beregnetBeløpId
 import no.nav.dagpenger.ferietillegg.OpplysningsTyper.ferietilleggBeløpId
 import no.nav.dagpenger.ferietillegg.OpplysningsTyper.ferietilleggProsentId
 import no.nav.dagpenger.ferietillegg.OpplysningsTyper.foreløpigBeregnetBeløpId
 import no.nav.dagpenger.ferietillegg.OpplysningsTyper.nullBeløpId
 import no.nav.dagpenger.ferietillegg.OpplysningsTyper.sumUtbetaltForÅrId
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
+import no.nav.dagpenger.opplysning.regel.avrund
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.prosentAv
@@ -20,8 +23,9 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 
 object FerietilleggBeløp {
     val ferietilleggBeløp = beløp(ferietilleggBeløpId, "Beløp på ferietillegg")
-    val foreløpigBeregnetBeløp = beløp(foreløpigBeregnetBeløpId, "Foreløpig beregnet beløp på ferietillegg")
-    val nullBeløp = beløp(nullBeløpId, "Ferietillegg beløp hvis du ikke har krav")
+    val foreløpigBeregnetBeløp = beløp(foreløpigBeregnetBeløpId, "Foreløpig beregnet beløp på ferietillegg", synlig = aldriSynlig)
+    val beregnetBeløp = beløp(beregnetBeløpId, "Beregnet beløp på ferietillegg")
+    val nullBeløp = beløp(nullBeløpId, "Ferietillegg beløp hvis du ikke har krav", synlig = aldriSynlig)
     val sumUtbetaltForÅr = beløp(sumUtbetaltForÅrId, "Sum utbetalt for et år", behovId = OpptjeningsBeløp)
     val ferietilleggProsent = desimaltall(ferietilleggProsentId, "Prosent for ferietillegg")
 
@@ -38,8 +42,9 @@ object FerietilleggBeløp {
             // husk å bruke terskel eller dele på hundre
             regel(ferietilleggProsent) { somUtgangspunkt(9.5) }
             regel(foreløpigBeregnetBeløp) { prosentAv(sumUtbetaltForÅr, ferietilleggProsent) }
+            regel(beregnetBeløp) { avrund(foreløpigBeregnetBeløp) }
             regel(nullBeløp) { somUtgangspunkt(Beløp(0)) }
-            regel(ferietilleggBeløp) { hvisSannMedResultat(harKravpåFerietillegg, foreløpigBeregnetBeløp, nullBeløp) }
+            regel(ferietilleggBeløp) { hvisSannMedResultat(harKravpåFerietillegg, beregnetBeløp, nullBeløp) }
 
             ønsketResultat(ferietilleggBeløp)
             påvirkerResultat { it.har(harKravpåFerietillegg) }
