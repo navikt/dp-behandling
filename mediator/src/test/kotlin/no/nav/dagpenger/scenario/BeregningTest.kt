@@ -703,7 +703,6 @@ class BeregningTest {
     }
 
     @Test
-    @Disabled
     fun `Korrigerer fra arbeid til syk med korrigering og gjennopptak`() {
         nyttScenario {
             inntektSiste12Mnd = 300000
