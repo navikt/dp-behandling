@@ -89,12 +89,12 @@ Sjekk om søker har andre fulle ytelser. <br>Om søker har andre fulle ytelser, 
 - Medlem har reduserte ytelser fra folketrygden (Samordning)
 
 ---
-## !! Behandles som gjenopptak i ny løsning. Disse støtter vi ikke, så IKKE RØR 😬
+## Behandles som gjenopptak i ny løsning
 - **Kode:** `GjenopptakBehandling`
 - **Kan lukkes av saksbehandler:** ✅ 
-- **Lukkes automatisk når opplysningene endres:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
 ### Beskrivelse
-Denne saken har en innvilget behandling i ny løsning. og det må vurderes om den skal gjenopptas.
+Denne saken har en innvilget behandling og det må vurderes om retten skal gjenopptas.
 
 ---
 ## Permittering
@@ -326,12 +326,12 @@ Søker har fått utbetalt sykepenger. Sjekk om sykepengene er svangerskapsrelate
 Søknadstidspunktet ligger mer enn 14 dager fram i tid.
 
 ---
-## Søkt gjenopptak
+## Søkt gjenopptak, men har ikke noe historikk å ta utgangspunkt i.
 - **Kode:** `SøktGjenopptak`
 - **Kan lukkes av saksbehandler:** ✅ 
-- **Lukkes automatisk når opplysningene endres:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
 ### Beskrivelse
-Søker har søkt om gjenopptak. Saker som skal gjenopptas må håndteres i Arena.
+Søker har søkt om gjenopptak.
 
 ---
 ## Du må velge kun én beregningsregel for tap av arbeidsinntekt og arbeidstid

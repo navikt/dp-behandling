@@ -3,12 +3,10 @@ package no.nav.dagpenger.mediator.mottak
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
-import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerMeldepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.maksimalVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
-import no.nav.dagpenger.regelverk.HendelseTypeId
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
