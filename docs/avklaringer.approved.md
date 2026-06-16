@@ -203,6 +203,14 @@ Søker har inntekt som tilhører neste kalendermåned. <br>Sjekk om det er tilst
 - Inntektsopplysninger
 
 ---
+## Stans av dagpenger ved manglende tapt arbeidstid over flere meldeperioder
+- **Kode:** `JobbetOverTerskel`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Bruker ikke oppfyller kravet til tapt arbeidstid i 3 påfølgende meldeperioder, oppfylles ikke lenger vilkåret om tap av arbeidstid (§ 4-3), og dagpengene stanses fra og med den første meldeperioden som ikke oppfylte kravet
+
+---
 ## Arbeid utenfor Norge
 - **Kode:** `JobbetUtenforNorge`
 - **Kan lukkes av saksbehandler:** ✅ 
