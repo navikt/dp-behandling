@@ -3,6 +3,7 @@ package no.nav.dagpenger.scenario
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveAtMostSize
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
@@ -757,6 +758,45 @@ class ScenarioTest {
             behandlingsresultatForslag {
                 rettighetsperioder.size shouldBe 1
                 rettighetsperioder.first().fraOgMed shouldBe 15.mai(2026)
+            }
+        }
+    }
+
+    @Test
+    fun `tester stans og gjenopptak på samme dag`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+            }
+
+            person.avsluttArbeidssøkerperiode(22.juni(2018), 22.juni(2018).atTime(14, 2))
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            behandlingsresultat(2) {
+                rettighetsperioder shouldHaveSize 2
+            }
+
+            person.søkGjenopptak(22.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldContainAll listOf("GjenopptakBehandling")
+
+            behandlingsresultatForslag(5) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe true
+
+                // TODO: Fordi de to siste rettighetsperiodene ligger "oppå" hverandre blir ikke dette riktig
+                // førteTil shouldBe "Gjenopptak"
             }
         }
     }

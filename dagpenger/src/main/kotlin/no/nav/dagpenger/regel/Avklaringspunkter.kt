@@ -139,8 +139,9 @@ object Avklaringspunkter {
     val SøktGjenopptak =
         Avklaringkode(
             kode = "SøktGjenopptak",
-            tittel = "Søkt gjenopptak",
-            beskrivelse = "Søker har søkt om gjenopptak. Saker som skal gjenopptas må håndteres i Arena.",
+            tittel = "Søkt gjenopptak, men har ikke noe historikk å ta utgangspunkt i.",
+            beskrivelse = "Søker har søkt om gjenopptak.",
+            kanAvbrytes = false,
         )
 
     val MuligGjenopptak =
@@ -153,8 +154,9 @@ object Avklaringspunkter {
     val GjenopptakBehandling =
         Avklaringkode(
             kode = "GjenopptakBehandling",
-            tittel = "!! Behandles som gjenopptak i ny løsning. Disse støtter vi ikke, så IKKE RØR 😬",
-            beskrivelse = "Denne saken har en innvilget behandling i ny løsning. og det må vurderes om den skal gjenopptas.",
+            tittel = "Behandles som gjenopptak i ny løsning",
+            beskrivelse = "Denne saken har en innvilget behandling og det må vurderes om retten skal gjenopptas.",
+            kanAvbrytes = false,
         )
 
     val InntektNesteKalendermåned =
