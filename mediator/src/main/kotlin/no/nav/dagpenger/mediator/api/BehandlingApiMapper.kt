@@ -342,7 +342,7 @@ internal val redigerbareOpplysninger =
 
                     // 4-5 Registrert arbeidssøker
                     // TODO: Verifiser at denne faktisk ikke skal være redigerbar
-                    //  add(RegistrertArbeidssøker.registrertArbeidssøker)
+                    add(RegistrertArbeidssøker.registrertArbeidssøker)
                     add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
 
                     // Redigering for å kunne tilbakedatere søknader i dev
