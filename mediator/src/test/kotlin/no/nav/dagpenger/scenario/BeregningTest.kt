@@ -18,6 +18,7 @@ import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.Avklaringspunkter.JobbetOverTerskel
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
@@ -548,7 +549,9 @@ class BeregningTest {
             person.sendInnMeldekort(4, timer = List(14) { 7 })
             meldekortBatch(markerFerdig = true)
 
-            behandlingsresultat {
+            saksbehandler.åpneAvklaringer().first().kode shouldBe JobbetOverTerskel.kode
+
+            behandlingsresultatForslag {
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
 
@@ -557,6 +560,8 @@ class BeregningTest {
 
                 opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe true
             }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
             // Verifiser at vi kan håndtere melding om avsluttet arbeidssøkerperiode etter stans
             person.avsluttArbeidssøkerperiode(

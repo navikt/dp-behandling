@@ -103,6 +103,17 @@ object Avklaringspunkter {
                 """.trimIndent(),
         )
 
+    val JobbetOverTerskel =
+        Avklaringkode(
+            kode = "JobbetOverTerskel",
+            tittel = "Stans av dagpenger ved manglende tapt arbeidstid over flere meldeperioder",
+            beskrivelse =
+                """
+                Bruker ikke oppfyller kravet til tapt arbeidstid i 3 påfølgende meldeperioder, oppfylles ikke lenger vilkåret om tap av arbeidstid (§ 4-3), og dagpengene stanses fra og med den første meldeperioden som ikke oppfylte kravet
+                """.trimIndent(),
+            kanAvbrytes = false,
+        )
+
     val JobbetUtenforNorge =
         Avklaringkode(
             kode = "JobbetUtenforNorge",
