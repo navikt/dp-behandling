@@ -26,6 +26,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.svartNeiPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.tarUtdanningEllerOpplæringId
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.oppfyllerKravetPåUnntak
 
 object Utdanning {
     private val hvisTarUtdanning: (LesbarOpplysninger) -> Boolean = { it.erSann(tarUtdanning) }
@@ -38,7 +39,7 @@ object Utdanning {
             Bruker,
             behovId = TarUtdanningEllerOpplæring,
         )
-    internal val godkjentUnntakForUtdanning =
+    val godkjentUnntakForUtdanning =
         boolsk(
             godkjentUnntakForUtdanningId,
             "Godkjent unntak for utdanning eller opplæring?",
@@ -117,7 +118,6 @@ object Utdanning {
 
             regel(tarUtdanning) { innhentMed(søknadIdOpplysningstype) }
 
-            // TODO: Legg til regler for å om kravet til utdanning skal vurderes
             regel(deltakelseIArbeidsmarkedstiltak) { somUtgangspunkt(false) }
             regel(opplæringForInnvandrere) { somUtgangspunkt(false) }
             regel(grunnskoleopplæring) { somUtgangspunkt(false) }
@@ -141,6 +141,6 @@ object Utdanning {
 
             utfall(kravTilUtdanning) { enAv(oppfyllerKravetPåUnntak, svartNeiPåUtdanning) }
 
-            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { !it.erSann(kravTilUtdanning) }
         }
 }

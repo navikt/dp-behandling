@@ -247,7 +247,7 @@ internal class Mennesket(
                 // Verneplikt
                 Behov.Verneplikt to Behovsløsning.Statisk(scenario.verneplikt),
                 BostedslandErNorge to Behovsløsning.Statisk(true),
-                Behov.TarUtdanningEllerOpplæring to Behovsløsning.Statisk(false),
+                Behov.TarUtdanningEllerOpplæring to Behovsløsning.Statisk(scenario.oppgirUtdanning),
                 Behov.BarnetilleggV2 to
                     Behovsløsning.Statisk(
                         mapOf(

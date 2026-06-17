@@ -137,6 +137,7 @@ internal class SimulertDagpengerSystem(
         val ordinær: Boolean = false,
         var verneplikt: Boolean = false,
         var kanJobbeDeltid: Boolean = true,
+        var oppgirUtdanning: Boolean = false,
         var saksbehandlerGruppe: String = "dagpenger-saksbehandler",
         var adminGrupper: List<String> = listOf("enkel-admin"),
         var maskintilgangnavn: String = "test-app",

@@ -2,9 +2,11 @@ package no.nav.dagpenger.scenario
 
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldBeMonotonicallyIncreasing
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -25,6 +27,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled
@@ -883,6 +886,64 @@ class BeregningTest {
                 val andelBarnetillegg = round(totalBarnetillegg * snittGradering)
                 andelBarnetillegg shouldBe 490
             }
+        }
+    }
+
+    @Test
+    fun `meldekort med utdanning uten godkjent utdanning gir avklaring som gir stans`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(11.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultatForslag(3) {
+                rettighetsperioder shouldHaveSize 2
+                // Første mandag i meldekort 2 er 25.juni
+                rettighetsperioder.last().fraOgMed shouldBe 25.juni(2018)
+                rettighetsperioder.last().harRett shouldBe false
+                opplysninger(Beregning.forbruk) {
+                    filter { it.verdi.verdi == true } shouldHaveSize 10
+                }
+            }
+
+            person.avklaringer.map { it.kode } shouldContain "MeldekortMedUtdanning"
+        }
+    }
+
+    @Test
+    fun `meldekort med utdanning og godkjent utdanning går automatisk`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+            oppgirUtdanning = true
+        }.test {
+            person.søkDagpenger(18.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(godkjentUnntakForUtdanning, true, "Ser topp ut", Gyldighetsperiode(18.juni(2018)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat(2) {
+                opplysninger(Beregning.forbruk) {
+                    this shouldHaveSize 14
+                }
+            }
+            person.avklaringer.map { it.kode } shouldNotContain "MeldekortMedUtdanning"
         }
     }
 }

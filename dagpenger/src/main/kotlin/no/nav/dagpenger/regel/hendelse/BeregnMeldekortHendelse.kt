@@ -18,6 +18,8 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.prosess.Meldekortprosess
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDateTime
 import java.util.UUID
@@ -96,8 +98,28 @@ class BeregnMeldekortHendelse(
                             }
                         }
 
-                        val aktiviteter = meldekort.dager.flatMap { it.aktiviteter }
-                        if (aktiviteter.any { aktivitet -> aktivitet.type == AktivitetType.Utdanning }) {
+                        val måAvklareUtdanning =
+                            meldekort.dager.any {
+                                val harMeldtUtdanning = it.aktiviteter.any { aktivitet -> aktivitet.type == AktivitetType.Utdanning }
+                                val harGodkjentUtdanning =
+                                    forrigeBehandling
+                                        .opplysninger()
+                                        .forDato(it.dato)
+                                        .finnNullableOpplysning(godkjentUnntakForUtdanning)
+                                        ?.verdi
+                                        ?: false
+
+                                harMeldtUtdanning && !harGodkjentUtdanning
+                            }
+
+                        if (måAvklareUtdanning) {
+                            val førsteDagMedUtdanning =
+                                meldekort.dager
+                                    .first { dag -> dag.aktiviteter.any { it.type == AktivitetType.Utdanning } }
+                                    .dato
+                            opplysninger.leggTil(
+                                Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanning), kilde = kilde),
+                            )
                             add(
                                 Avklaring(
                                     Avklaringkode(
@@ -114,6 +136,16 @@ class BeregnMeldekortHendelse(
                         }
                     },
             ).apply {
+                val førsteDagMedUtdanning =
+                    meldekort.dager
+                        .firstOrNull { dag -> dag.aktiviteter.any { it.type == AktivitetType.Utdanning } }
+                        ?.dato
+                if (førsteDagMedUtdanning != null) {
+                    this.opplysninger.leggTil(
+                        Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanning), kilde = kilde),
+                    )
+                }
+
                 val meldekortOpplysninger = meldekort.tilOpplysninger(kilde)
                 meldekortOpplysninger.forEach { this.opplysninger.leggTil(it) }
             }
