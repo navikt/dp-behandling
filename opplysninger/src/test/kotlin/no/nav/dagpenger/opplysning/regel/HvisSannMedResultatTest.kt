@@ -14,7 +14,6 @@ import no.nav.dagpenger.opplysning.mai
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 internal class HvisSannMedResultatTest {
@@ -103,7 +102,6 @@ internal class HvisSannMedResultatTest {
     }
 
     @Test
-    @Disabled
     fun `re-evaluerer korrekt ved omgjøring når hvisSann er endret til ny mellomberegning (reproduserer erErstattet-bug)`() {
         // Simluerer et scenario der koden endres mellom to evalueringer:
         // Gammelt regelsett: resultat = hvisSannMedResultat(a, direkteBeløp, nullBeløp)
@@ -130,6 +128,8 @@ internal class HvisSannMedResultatTest {
         val opplysninger = Opplysninger()
         val gammelRegelkjøring = Regelkjøring(23.mai(2024), opplysninger, gammeltRegelsett)
         opplysninger.leggTil(Faktum(a, true))
+        // DENNE BLIR MED OM DEN FINNES; IKKE OM DEN IKKE FINNES. Det burde nok vært determnisitisk
+        // opplysninger.leggTil(Faktum(nullBeløp, Beløp(0)))
         opplysninger.leggTil(Faktum(direkteBeløp, Beløp(100)))
         gammelRegelkjøring.evaluer()
         opplysninger.finnOpplysning(beløpResultat).verdi shouldBe Beløp(100)

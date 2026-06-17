@@ -127,8 +127,7 @@ abstract class Regel<T : Any> internal constructor(
 
             // Sjekk om produktet er basert på erstattet informasjon
             erErstattet.isNotEmpty() -> {
-                // Minst en avhengighet er erstattet, må de regelen skal kjøres på nytt
-                plan.add(this)
+                lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
             }
 
             // Sjekk om regelen har fått nye avhengigheter
@@ -140,6 +139,15 @@ abstract class Regel<T : Any> internal constructor(
 
     private fun harRegelNyeAvhengigheter(utledetAv: Utledning) =
         avhengerAv.toSet() != utledetAv.opplysninger.map { it.opplysningstype }.toSet()
+
+    protected open fun lagPlanNårAvhengerErErstattet(
+        opplysninger: LesbarOpplysninger,
+        plan: Regelplanlegger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ) {
+        plan.add(this)
+    }
 
     abstract override fun toString(): String
 
