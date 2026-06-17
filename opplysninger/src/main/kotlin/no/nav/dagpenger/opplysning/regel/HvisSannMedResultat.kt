@@ -50,6 +50,28 @@ class HvisSannMedResultat<T : Any>(
         }
     }
 
+    override fun lagPlanNårAvhengerErErstattet(
+        opplysninger: LesbarOpplysninger,
+        plan: Regelplanlegger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ) {
+        if (opplysninger.mangler(sjekk)) {
+            produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter, besøkt)
+            return
+        }
+
+        val sjekkVerdi = opplysninger.finnOpplysning(sjekk).verdi
+        val valgtGren = if (sjekkVerdi) hvisSann else hvisUsann
+
+        if (opplysninger.mangler(valgtGren)) {
+            produsenter.finn(valgtGren).lagPlan(opplysninger, plan, produsenter, besøkt)
+            return
+        }
+
+        plan.add(this)
+    }
+
     override fun toString() = "Hvis $sjekk er sann, returner $hvisSann, ellers returner $hvisUsann"
 }
 
