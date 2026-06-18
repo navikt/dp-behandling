@@ -25,19 +25,7 @@ class HvisSannMedResultat<T : Any>(
             return super.lagPlan(opplysninger, plan, produsenter, besøkt)
         }
 
-        if (opplysninger.mangler(sjekk)) {
-            produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter, besøkt)
-            return
-        }
-
-        val sjekkVerdi = opplysninger.finnOpplysning(sjekk).verdi
-        val neste = if (sjekkVerdi) hvisSann else hvisUsann
-
-        if (opplysninger.mangler(neste)) {
-            produsenter.finn(neste).lagPlan(opplysninger, plan, produsenter, besøkt)
-        } else {
-            plan.add(this)
-        }
+        lagPlanForValgtGren(opplysninger, plan, produsenter, besøkt)
     }
 
     override fun kjør(opplysninger: LesbarOpplysninger): T {
@@ -51,6 +39,15 @@ class HvisSannMedResultat<T : Any>(
     }
 
     override fun lagPlanNårAvhengerErErstattet(
+        opplysninger: LesbarOpplysninger,
+        plan: Regelplanlegger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ) {
+        lagPlanForValgtGren(opplysninger, plan, produsenter, besøkt)
+    }
+
+    private fun lagPlanForValgtGren(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
