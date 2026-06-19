@@ -84,7 +84,7 @@ class ScenarioTest {
             saksbehandler.godkjenn()
 
             // En etterslenger for å verifisere at vi sender ut vedtak_fattet for avslag
-            rapidInspektør.message(16)["@event_name"].asString() shouldBe "vedtak_fattet"
+            rapidInspektør.message(17)["@event_name"].asString() shouldBe "vedtak_fattet"
 
             behandlingsresultat {
                 rettighetsperioder.single().harRett shouldBe false
@@ -111,14 +111,14 @@ class ScenarioTest {
             // Avklaring om reell arbeidssøker dukker opp
             with(saksbehandler.åpneAvklaringer()) {
                 map { it.kode } shouldContain "ReellArbeidssøkerUnntak"
-                this shouldHaveSize 7
+                this shouldHaveSize 8
             }
 
             saksbehandler.endreOpplysning(kravetReellArbeidsøkerSkalVurderes, false)
             with(saksbehandler.lukkAlleAvklaringer()) {
                 // Avklaringen for reell arbeidssøker forsvinner automatisk om det ikke skal vurderes
                 map { it.kode } shouldNotContain "ReellArbeidssøkerUnntak"
-                this shouldHaveAtMostSize 6
+                this shouldHaveAtMostSize 7
             }
             saksbehandler.godkjenn()
 

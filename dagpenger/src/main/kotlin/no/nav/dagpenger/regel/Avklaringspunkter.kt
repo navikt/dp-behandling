@@ -180,6 +180,18 @@ object Avklaringspunkter {
                 """.trimIndent(),
         )
 
+    val Inntektsjekk =
+        Avklaringkode(
+            kode = "Inntektsjekk",
+            tittel = "Minsteinntekt - inntekter må kontrolleres",
+            beskrivelse =
+                """
+                Registeropplysninger om inntekter indikerer at brukeren ikke oppfyller kravet til minste arbeidsinntekt. 
+                Som følge av vansker med å rapportere i A-inntekt etter den 15.juni 2026, kan det være at vi ikke har alle nødvendige registeropplysninger. 
+                Kontroller A-inntekt før saken behandles ferdig.
+                """.trimIndent(),
+        )
+
     val SvangerskapsrelaterteSykepenger =
         Avklaringkode(
             kode = "SvangerskapsrelaterteSykepenger",

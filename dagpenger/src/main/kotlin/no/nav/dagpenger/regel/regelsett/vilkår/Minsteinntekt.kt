@@ -156,4 +156,9 @@ object Minsteinntekt {
 
             prøvingsdato > rapporteringsfrist && behandlingstidspunkt <= rapporteringsfrist
         }
+
+    val InntektsjekkKontroll =
+        Kontrollpunkt(Avklaringspunkter.Inntektsjekk) {
+            it.har(inntektFraSkatt) && it.finnNullableOpplysning(minsteinntekt)?.verdi == false
+        }
 }
