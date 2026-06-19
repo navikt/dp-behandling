@@ -131,6 +131,18 @@ interface PersonRepository : BehandlingRepository {
     @WithSpan
     fun harIdent(ident: Ident): Boolean
 
+    @WithSpan
+    fun merge(
+        winner: Ident,
+        loser: Ident,
+    )
+
+    @WithSpan
+    fun split(
+        loserIdent: Ident,
+        fraIdent: Ident,
+    )
+
     private fun medSpan(
         string: String,
         block: () -> Unit,
