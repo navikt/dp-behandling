@@ -141,6 +141,6 @@ object Utdanning {
 
             utfall(kravTilUtdanning) { enAv(oppfyllerKravetPåUnntak, svartNeiPåUtdanning) }
 
-            påvirkerResultat { !it.erSann(kravTilUtdanning) }
+            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
         }
 }

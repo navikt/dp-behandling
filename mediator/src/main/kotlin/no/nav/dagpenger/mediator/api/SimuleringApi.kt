@@ -29,7 +29,7 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.hendelse.tilOpplysninger
-import no.nav.dagpenger.regel.prosess.Meldekortprosess
+import no.nav.dagpenger.regel.prosess.MeldekortBeregningPlugin
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruktEgenandel
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -54,9 +54,9 @@ internal fun Application.simuleringApi() {
                 val beregningRequestDTO = call.receive<BeregningRequestDTO>()
                 val opplysninger = simuleringsdata(beregningRequestDTO)
                 try {
-                    val meldekortprosess = Meldekortprosess()
-                    meldekortprosess.kjørUnderOpprettelse(Prosesskontekst(opplysninger))
-                    meldekortprosess.kjørRegelkjøringFerdig(Prosesskontekst(opplysninger))
+                    MeldekortBeregningPlugin().also {
+                        it.regelkjøringFerdig(Prosesskontekst(opplysninger))
+                    }
                     val forbruktEgenandel =
                         opplysninger
                             .finnAlle(forbruktEgenandel)

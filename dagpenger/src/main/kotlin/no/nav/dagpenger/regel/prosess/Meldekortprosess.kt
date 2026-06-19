@@ -23,10 +23,9 @@ import java.time.LocalDate
 class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
     init {
         registrer(AlderskravPlugin())
-        // registrer(RettighetsperiodePlugin(this.regelverk))
+        registrer(RettighetsperiodePlugin(this.regelverk))
         registrer(MeldekortBeregningPlugin())
         registrer(Kvotetelling())
-        registrer(RettighetsperiodePlugin(this.regelverk))
         registrer(TaptArbeidstidStans())
     }
 
