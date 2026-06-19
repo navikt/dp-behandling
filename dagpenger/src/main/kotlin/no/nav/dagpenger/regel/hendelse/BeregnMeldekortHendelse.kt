@@ -5,6 +5,7 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.AktivitetType
+import no.nav.dagpenger.modell.hendelser.Dag
 import no.nav.dagpenger.modell.hendelser.Meldekort
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
@@ -98,24 +99,12 @@ class BeregnMeldekortHendelse(
                             }
                         }
 
-                        val måAvklareUtdanning =
-                            meldekort.dager.any {
-                                val harMeldtUtdanning = it.aktiviteter.any { aktivitet -> aktivitet.type == AktivitetType.Utdanning }
-                                val harGodkjentUtdanning =
-                                    forrigeBehandling
-                                        .opplysninger()
-                                        .forDato(it.dato)
-                                        .finnNullableOpplysning(godkjentUnntakForUtdanning)
-                                        ?.verdi
-                                        ?: false
-
-                                harMeldtUtdanning && !harGodkjentUtdanning
-                            }
+                        val måAvklareUtdanning = meldekort.dager.any { harMeldtUtdanningUtenGodkjenning(it, forrigeBehandling) }
 
                         if (måAvklareUtdanning) {
                             val førsteDagMedUtdanning =
                                 meldekort.dager
-                                    .first { dag -> dag.aktiviteter.any { it.type == AktivitetType.Utdanning } }
+                                    .first { dag -> harMeldtUtdanningUtenGodkjenning(dag, forrigeBehandling) }
                                     .dato
                             opplysninger.leggTil(
                                 Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanning), kilde = kilde),
@@ -155,5 +144,20 @@ class BeregnMeldekortHendelse(
 
     companion object {
         private val logger = KotlinLogging.logger {}
+    }
+
+    private fun harMeldtUtdanningUtenGodkjenning(
+        dag: Dag,
+        forrigeBehandling: Behandling,
+    ): Boolean {
+        val harMeldtUtdanning = dag.aktiviteter.any { it.type == AktivitetType.Utdanning }
+        val harGodkjentUtdanning =
+            forrigeBehandling
+                .opplysninger()
+                .forDato(dag.dato)
+                .finnNullableOpplysning(godkjentUnntakForUtdanning)
+                ?.verdi
+                ?: false
+        return harMeldtUtdanning && !harGodkjentUtdanning
     }
 }
