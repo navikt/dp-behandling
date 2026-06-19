@@ -136,9 +136,7 @@ object Dagpengegrunnlag {
         ) {
             skalVurderes { (kravPåDagpenger(it) || it.erSann(skalVernepliktVurderes)) }
             skalRevurderes {
-                // TODO: Må være ekte vurdering av om grunnlag skal fastsettes
-                // TODO: bruktBeregningsregel er en hack for å få kjørt på nytt når utfall har endret seg
-                // /!it.har(grunnlag) || it.mangler(bruktBeregningsregel)
+                // Om *denne* behandlingen har inntekter må grunnlag fastsettes på nytt
                 it.kunEgne.har(inntektFraSkatt)
             }
 
