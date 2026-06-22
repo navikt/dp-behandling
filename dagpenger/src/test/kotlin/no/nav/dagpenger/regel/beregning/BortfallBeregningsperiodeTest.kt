@@ -15,8 +15,8 @@ class BortfallBeregningsperiodeTest {
         val dager = lagArbeidsdager(5)
         val beregning = Beregningsperiode(Beløp(0), dager, stønadsdagerIgjen = 52, bortfallsdagerIgjen = 0)
 
-        beregning.resultat.forbruksdager.size shouldBe 5
-        beregning.resultat.forbruksdager.none { it.erBortfall } shouldBe true
+        beregning.resultat.beregningsdager.size shouldBe 5
+        beregning.resultat.beregningsdager.none { it.erBortfall } shouldBe true
         beregning.resultat.utbetaling shouldBe Beløp(500) // 5 dager * 100 kr sats * 1.0 prosentfaktor
     }
 
@@ -25,8 +25,8 @@ class BortfallBeregningsperiodeTest {
         val dager = lagArbeidsdager(5)
         val beregning = Beregningsperiode(Beløp(0), dager, stønadsdagerIgjen = 52, bortfallsdagerIgjen = 10)
 
-        beregning.resultat.forbruksdager.size shouldBe 5
-        beregning.resultat.forbruksdager.all { it.erBortfall } shouldBe true
+        beregning.resultat.beregningsdager.size shouldBe 5
+        beregning.resultat.beregningsdager.all { it.erBortfall } shouldBe true
         beregning.resultat.utbetaling shouldBe Beløp(0)
         beregning.resultat.forbruktEgenandel shouldBe Beløp(0)
     }
@@ -36,7 +36,7 @@ class BortfallBeregningsperiodeTest {
         val dager = lagArbeidsdager(5)
         val beregning = Beregningsperiode(Beløp(0), dager, stønadsdagerIgjen = 52, bortfallsdagerIgjen = 2)
 
-        val forbruksdager = beregning.resultat.forbruksdager.sortedBy { it.dag.dato }
+        val forbruksdager = beregning.resultat.beregningsdager.sortedBy { it.dag.dato }
         forbruksdager.size shouldBe 5
 
         // De 2 første dagene er bortfall

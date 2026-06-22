@@ -6,8 +6,9 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.sanksjonerSortert
 import no.nav.dagpenger.regel.Kvotetelling
 import no.nav.dagpenger.regel.Kvotetellingsresultat
-import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag
 import java.time.LocalDate
+import kotlin.collections.filter
 
 internal fun KvoteDefinisjon.tell(
     opplysninger: LesbarOpplysninger,
@@ -20,7 +21,7 @@ internal class Kvoteteller private constructor(
     private val rettighetsdager: List<LocalDate>,
     private val bortfallsdager: List<LocalDate>,
 ) {
-    constructor(kvoter: List<KvoteDefinisjon>, forbruksdager: List<Beregningresultat.Forbruksdag>) : this(
+    constructor(kvoter: List<KvoteDefinisjon>, forbruksdager: List<Beregningsdag>) : this(
         kvoter,
         rettighetsdager = forbruksdager.filter { !it.erBortfall }.map { it.dag.dato },
         bortfallsdager = forbruksdager.filter { it.erBortfall }.map { it.dag.dato }.sorted(),

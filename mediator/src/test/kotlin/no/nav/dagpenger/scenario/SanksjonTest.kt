@@ -32,7 +32,7 @@ class SanksjonTest {
 
             // Meldekort 1 (18.juni - 1.juli): 01 arbeidsdager med rett
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
                 // Stønadsdager forbrukes normalt (alle 10 arbeidsdager)
@@ -74,7 +74,7 @@ class SanksjonTest {
 
             // Meldekort 1: 3 bortfallsdager, 4 normale dager
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(2) {
                 with(opplysninger(Beregning.erBortfallsdag)) {
@@ -90,7 +90,7 @@ class SanksjonTest {
 
             // Meldekort 2: bortfall er brukt opp, alle dager normalt
             person.sendInnMeldekort(2)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(3) {
                 // Ingen bortfallsdager i meldekort 2
@@ -120,9 +120,9 @@ class SanksjonTest {
             saksbehandler.beslutt()
 
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
-            behandlingsresultatForslag {
+            behandlingsresultat(2) {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
             }
         }

@@ -7,7 +7,6 @@ import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
-import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KvotetellingsSkriver
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -49,13 +48,16 @@ class MeldekortBeregningPlugin(
         opplysninger.lagreEgenandel(resultat, gyldighetsperiode)
         opplysninger.lagreBeregningsverdier(resultat, gyldighetsperiode)
 
+        opplysninger.leggTil(Faktum(utbetalingForPeriode, resultat.utbetaling, gyldighetsperiode))
+        opplysninger.leggTil(Faktum(oppfyllerKravTilTaptArbeidstidIPerioden, resultat.oppfyllerKravTilTaptArbeidstid, gyldighetsperiode))
+
         val forbruksdager = resultat.beregningsdager
         forbruksdager
             .forEach { dag ->
                 val dagGyldighetsperiode = dag.gyldighetsperiode
                 opplysninger.leggTil(Faktum(forbruk, dag is Forbruksdag, dagGyldighetsperiode))
                 opplysninger.leggTil(Faktum(utbetaling, dag.tilUtbetaling, dagGyldighetsperiode))
-                opplysninger.leggTil(Faktum(erBortfallsdag, dag?.erBortfall ?: false, dagGyldighetsperiode))
+                opplysninger.leggTil(Faktum(erBortfallsdag, dag.erBortfall, dagGyldighetsperiode))
             }
 
         Kvoteteller(kvoter, resultat.forbruksdager)

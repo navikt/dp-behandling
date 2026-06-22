@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.beregning
 
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
@@ -64,7 +65,7 @@ class Beregningsperiode private constructor(
         // Bortfallsdager: forbruk men 0 utbetaling, ingen egenandel
         val bortfallForbruksdager =
             bortfallsdager.map {
-                Beregningresultat.Forbruksdag(
+                Beregningresultat.Beregningsdag.Forbruksdag(
                     dag = it,
                     tilUtbetaling = Beløp(0),
                     erBortfall = true,
@@ -77,6 +78,7 @@ class Beregningsperiode private constructor(
                 utbetaling = Beløp(0),
                 forbruktEgenandel = Beløp(0),
                 forbruksdager = bortfallForbruksdager.sortedBy { it.dag.dato },
+                meldedager = meldedager,
                 gjenståendeEgenandel = gjenståendeEgenandel,
                 oppfyllerKravTilTaptArbeidstid = true,
                 sumFva = sumFva,
@@ -168,7 +170,7 @@ class Beregningsperiode private constructor(
 data class Beregningresultat(
     val utbetaling: Beløp,
     val forbruktEgenandel: Beløp,
-    private val forbruksdager: List<Beregningsdag.Forbruksdag>,
+    internal val forbruksdager: List<Beregningsdag.Forbruksdag>,
     private val meldedager: Set<Dag>,
     val gjenståendeEgenandel: Beløp,
     val oppfyllerKravTilTaptArbeidstid: Boolean,
@@ -188,12 +190,13 @@ data class Beregningresultat(
         val dag: Dag
         val tilUtbetaling: Beløp
         val gyldighetsperiode get() = Gyldighetsperiode.kun(dag.dato)
+        val erBortfall: Boolean get() = false
 
         data class Forbruksdag(
             override val dag: Dag,
             override val tilUtbetaling: Beløp,
-        val erBortfall: Boolean = false,
-    ): Beregningsdag
+            override val erBortfall: Boolean = false,
+        ) : Beregningsdag
 
         data class IkkeForbruksdag(
             override val dag: Dag,

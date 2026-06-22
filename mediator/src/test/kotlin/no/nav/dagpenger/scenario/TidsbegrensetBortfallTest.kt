@@ -36,7 +36,7 @@ class TidsbegrensetBortfallTest {
 
             // Meldekort 1 (18.juni - 1.juli): 7 arbeidsdager med rett
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(2) {
                 // Stønadsdager forbrukes normalt (alle 7 arbeidsdager)
@@ -86,7 +86,7 @@ class TidsbegrensetBortfallTest {
 
             // Meldekort 1: 3 bortfallsdager, 4 normale dager
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(2) {
                 with(opplysninger(Beregning.erBortfallsdag)) {
@@ -102,7 +102,7 @@ class TidsbegrensetBortfallTest {
 
             // Meldekort 2: bortfall er brukt opp, alle dager normalt
             person.sendInnMeldekort(2)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(3) {
                 // Ingen bortfallsdager i meldekort 2
@@ -132,9 +132,9 @@ class TidsbegrensetBortfallTest {
             saksbehandler.beslutt()
 
             person.sendInnMeldekort(1)
-            meldekortBatch(true)
+            meldekortBatch(markerFerdig = true)
 
-            behandlingsresultatForslag {
+            behandlingsresultat(2) {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
             }
         }

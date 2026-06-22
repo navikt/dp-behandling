@@ -14,6 +14,7 @@ object Kvotetelling {
         dager: List<LocalDate>,
     ): Kvotetellingsresultat {
         if (kapasitet <= 0) return Kvotetellingsresultat()
+        if (dager.isEmpty()) return Kvotetellingsresultat()
         val sortert = dager.sorted()
         if (sortert.isEmpty()) return Kvotetellingsresultat()
 

@@ -69,10 +69,10 @@ class MeldekortBeregningPluginTest {
 
         val resultat = MeldekortBeregningPlugin(RegelverkDagpenger.kvoter()).beregnForPeriode(Prosesskontekst(opplysninger), meldeperiode)
 
-        resultat.forbruksdager shouldBe resultat.forbruksdager.sortedBy { it.dag.dato }
-        resultat.forbruksdager.size shouldBe 10
-        resultat.forbruksdager.count { it.erBortfall } shouldBe 2
-        resultat.forbruksdager.filter { it.erBortfall }.map { it.tilUtbetaling } shouldBe listOf(Beløp(0), Beløp(0))
+        resultat.beregningsdager shouldBe resultat.beregningsdager.sortedBy { it.dag.dato }
+        resultat.beregningsdager.size shouldBe 14
+        resultat.beregningsdager.count { it.erBortfall } shouldBe 2
+        resultat.beregningsdager.filter { it.erBortfall }.map { it.tilUtbetaling } shouldBe listOf(Beløp(0), Beløp(0))
         resultat.utbetaling shouldBe Beløp(800)
         resultat.forbruktEgenandel shouldBe Beløp(0)
         resultat.gjenståendeEgenandel shouldBe Beløp(0)
@@ -161,7 +161,7 @@ class MeldekortBeregningPluginTest {
                 ).beregnForPeriode(Prosesskontekst(opplysninger), meldeperiode)
 
             // Totalt 5 bortfallsdager (3 fra sanksjon + 2 fra bortfall)
-            resultat.forbruksdager.count { it.erBortfall } shouldBe 5
+            resultat.beregningsdager.count { it.erBortfall } shouldBe 5
 
             val forbrukteSanksjonsdager =
                 opplysninger
