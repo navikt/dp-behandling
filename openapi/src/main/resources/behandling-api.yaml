@@ -1594,6 +1594,12 @@ components:
     BarnVerdi:
       type: object
       properties:
+        kilde:
+          type: string
+          enum: [ "Register", "Søknad", "Saksbehandler" ]
+        ident:
+          type: string
+          description: Fødselsnummer eller D-nummer for barn fra Folkeregisteret
         fødselsdato:
           type: string
           format: date
@@ -1603,10 +1609,20 @@ components:
           type: string
         statsborgerskap:
           type: string
+          deprecated: true
+        oppholdsland:
+          type: string
+        forsørgeransvar:
+          type: boolean
         kvalifiserer:
           type: boolean
+        begrunnelse:
+          type: string
       required:
         - fødselsdato
+        #- oppholdsland
+        - forsørgeransvar
+        #- begrunnelse
         - kvalifiserer
 
     Opplysningskilde:
