@@ -1,11 +1,11 @@
 package no.nav.dagpenger.opplysning
 
-import no.nav.dagpenger.opplysning.Forbrukstype.Bortfall
+import no.nav.dagpenger.opplysning.Forbrukstype.Sanksjon
 import java.time.LocalDate
 
 enum class Forbrukstype {
     Rettighet,
-    Bortfall,
+    Sanksjon,
 }
 
 data class KvoteDefinisjon(
@@ -60,7 +60,7 @@ data class Tildelingsgrunnlag(
 }
 
 fun List<KvoteDefinisjon>.sanksjonerSortert(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
-    filter { it.teller(Bortfall) }.sortertEtterIlagtDato(opplysninger)
+    filter { it.teller(Sanksjon) }.sortertEtterIlagtDato(opplysninger)
 
 fun List<KvoteDefinisjon>.sortertEtterIlagtDato(opplysninger: LesbarOpplysninger): List<KvoteDefinisjon> =
     sortedWith(compareBy(nullsLast()) { kvote -> kvote.tildelingsgrunnlag.ilagtDato(opplysninger) })

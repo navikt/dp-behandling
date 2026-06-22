@@ -70,7 +70,7 @@ class KvotetellingsSkriverTest {
                 gjenstående = Beregning.gjenståendeSanksjonsdager,
                 sisteForbruk = Beregning.sisteSanksjonsdagMedForbruk,
                 sisteGjenstående = Beregning.sisteGjenståendeSanksjonsdager,
-                forbrukstype = Forbrukstype.Bortfall,
+                forbrukstype = Forbrukstype.Sanksjon,
             )
         val resultat =
             Kvotetellingsresultat(

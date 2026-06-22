@@ -110,7 +110,7 @@ class KvotetellerTest {
 
     @Test
     fun `kvoteteller er generell og type-uavhengig`() {
-        val kvote = lagKvoteDef(forbrukstype = Forbrukstype.Bortfall)
+        val kvote = lagKvoteDef(forbrukstype = Forbrukstype.Sanksjon)
         val opplysninger =
             Opplysninger().apply {
                 leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025))))
@@ -166,7 +166,7 @@ class KvotetellerTest {
             lagKvoteDef(
                 hjemmel = tomHjemmel("Tidsbegrenset bortfall"),
                 kapasitet = TidsbegrensetBortfall.antallBortfallsdager,
-                forbrukstype = Forbrukstype.Bortfall,
+                forbrukstype = Forbrukstype.Sanksjon,
                 forbrukKriterium = Beregning.erBortfallsdag,
                 forbruktTeller = Beregning.forbruktBortfallsdager,
                 gjenstående = Beregning.gjenståendeBortfallsdager,

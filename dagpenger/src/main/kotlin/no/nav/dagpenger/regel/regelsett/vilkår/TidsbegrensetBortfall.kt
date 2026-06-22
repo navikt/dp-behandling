@@ -59,7 +59,7 @@ object TidsbegrensetBortfall {
                     gjenstående = Beregning.gjenståendeBortfallsdager,
                     sisteForbruk = Beregning.sisteBortfallsdagMedForbruk,
                     sisteGjenstående = Beregning.sisteGjenståendeBortfallsdager,
-                    forbrukstype = Forbrukstype.Bortfall,
+                    forbrukstype = Forbrukstype.Sanksjon,
                 ),
             )
 

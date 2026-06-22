@@ -57,7 +57,7 @@ class MeldekortBeregningPlugin(
                 val dagGyldighetsperiode = dag.gyldighetsperiode
                 opplysninger.leggTil(Faktum(forbruk, dag is Forbruksdag, dagGyldighetsperiode))
                 opplysninger.leggTil(Faktum(utbetaling, dag.tilUtbetaling, dagGyldighetsperiode))
-                opplysninger.leggTil(Faktum(erBortfallsdag, dag.erBortfall, dagGyldighetsperiode))
+                opplysninger.leggTil(Faktum(erBortfallsdag, dag.avvilkerSanksjon, dagGyldighetsperiode))
             }
 
         Kvoteteller(kvoter, resultat.forbruksdager)

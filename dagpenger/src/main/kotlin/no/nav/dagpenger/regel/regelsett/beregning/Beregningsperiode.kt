@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.timer
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 
 class Beregningsperiode private constructor(
     private val gjenståendeEgenandel: Beløp,
@@ -65,10 +66,10 @@ class Beregningsperiode private constructor(
         // Bortfallsdager: forbruk men 0 utbetaling, ingen egenandel
         val bortfallForbruksdager =
             bortfallsdager.map {
-                Beregningresultat.Beregningsdag.Forbruksdag(
+                Forbruksdag(
                     dag = it,
                     tilUtbetaling = Beløp(0),
-                    erBortfall = true,
+                    avvilkerSanksjon = true,
                 )
             }
 
@@ -170,7 +171,7 @@ class Beregningsperiode private constructor(
 data class Beregningresultat(
     val utbetaling: Beløp,
     val forbruktEgenandel: Beløp,
-    internal val forbruksdager: List<Beregningsdag.Forbruksdag>,
+    internal val forbruksdager: List<Forbruksdag>,
     private val meldedager: Set<Dag>,
     val gjenståendeEgenandel: Beløp,
     val oppfyllerKravTilTaptArbeidstid: Boolean,
@@ -190,12 +191,12 @@ data class Beregningresultat(
         val dag: Dag
         val tilUtbetaling: Beløp
         val gyldighetsperiode get() = Gyldighetsperiode.kun(dag.dato)
-        val erBortfall: Boolean get() = false
+        val avvilkerSanksjon: Boolean get() = false
 
         data class Forbruksdag(
             override val dag: Dag,
             override val tilUtbetaling: Beløp,
-            override val erBortfall: Boolean = false,
+            override val avvilkerSanksjon: Boolean = false,
         ) : Beregningsdag
 
         data class IkkeForbruksdag(
@@ -212,14 +213,14 @@ private class SatsGruppe(
     val bruttoBeløp: Beløp,
 ) {
     /** Fordeler et beløp jevnt på arbeidsdager, med eventuell øre-rest på siste dag. */
-    fun fordelPåDager(beløp: Beløp): List<Beregningresultat.Beregningsdag.Forbruksdag> {
+    fun fordelPåDager(beløp: Beløp): List<Forbruksdag> {
         if (arbeidsdager.isEmpty()) return emptyList()
         val antall = arbeidsdager.size.toBigDecimal()
         val rest = Beløp(beløp.verdien % antall)
         val dagsbeløp = (beløp - rest) / Beløp(antall)
         return arbeidsdager.mapIndexed { index, dag ->
             val erSisteDag = index == arbeidsdager.lastIndex
-            Beregningresultat.Beregningsdag.Forbruksdag(
+            Forbruksdag(
                 dag = dag,
                 tilUtbetaling = if (erSisteDag) dagsbeløp + rest else dagsbeløp,
             )

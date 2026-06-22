@@ -6,7 +6,6 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
-import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
 
@@ -35,6 +34,10 @@ class SanksjonTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
+                // Forbruker ikke egenandel før sanksjon er avviklet
+                opplysninger(Beregning.forbruktEgenandel) {
+                    this.sumOf { it.verdi.verdi as Int } shouldBe 0
+                }
                 // Stønadsdager forbrukes normalt (alle 10 arbeidsdager)
                 with(opplysninger(Beregning.forbruk)) {
                     count { it.verdi.verdi == true } shouldBe 10
@@ -60,9 +63,9 @@ class SanksjonTest {
             person.søkDagpenger(18.juni(2018))
             behovsløsere.løsTilForslag()
 
-            // Saksbehandler ilegger tidsbegrenset bortfall på 3 dager
-            saksbehandler.endreOpplysning(TidsbegrensetBortfall.harTidsbegrensetBortfall, true)
-            saksbehandler.endreOpplysning(TidsbegrensetBortfall.antallBortfallsdager, 3)
+            // Bruker har 3 dager med sanksjon igjen
+            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, true)
+            saksbehandler.endreOpplysning(Sanksjonsperiode.antallSanksjonsdager, 3)
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()

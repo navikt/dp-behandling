@@ -16,7 +16,7 @@ class BortfallBeregningsperiodeTest {
         val beregning = Beregningsperiode(Beløp(0), dager, stønadsdagerIgjen = 52, bortfallsdagerIgjen = 0)
 
         beregning.resultat.beregningsdager.size shouldBe 5
-        beregning.resultat.beregningsdager.none { it.erBortfall } shouldBe true
+        beregning.resultat.beregningsdager.none { it.avvilkerSanksjon } shouldBe true
         beregning.resultat.utbetaling shouldBe Beløp(500) // 5 dager * 100 kr sats * 1.0 prosentfaktor
     }
 
@@ -26,7 +26,7 @@ class BortfallBeregningsperiodeTest {
         val beregning = Beregningsperiode(Beløp(0), dager, stønadsdagerIgjen = 52, bortfallsdagerIgjen = 10)
 
         beregning.resultat.beregningsdager.size shouldBe 5
-        beregning.resultat.beregningsdager.all { it.erBortfall } shouldBe true
+        beregning.resultat.beregningsdager.all { it.avvilkerSanksjon } shouldBe true
         beregning.resultat.utbetaling shouldBe Beløp(0)
         beregning.resultat.forbruktEgenandel shouldBe Beløp(0)
     }
@@ -40,15 +40,15 @@ class BortfallBeregningsperiodeTest {
         forbruksdager.size shouldBe 5
 
         // De 2 første dagene er bortfall
-        forbruksdager[0].erBortfall shouldBe true
+        forbruksdager[0].avvilkerSanksjon shouldBe true
         forbruksdager[0].tilUtbetaling shouldBe Beløp(0)
-        forbruksdager[1].erBortfall shouldBe true
+        forbruksdager[1].avvilkerSanksjon shouldBe true
         forbruksdager[1].tilUtbetaling shouldBe Beløp(0)
 
         // De 3 siste er normal utbetaling
-        forbruksdager[2].erBortfall shouldBe false
-        forbruksdager[3].erBortfall shouldBe false
-        forbruksdager[4].erBortfall shouldBe false
+        forbruksdager[2].avvilkerSanksjon shouldBe false
+        forbruksdager[3].avvilkerSanksjon shouldBe false
+        forbruksdager[4].avvilkerSanksjon shouldBe false
 
         // Total utbetaling er kun for 3 dager
         beregning.resultat.utbetaling shouldBe Beløp(300)
