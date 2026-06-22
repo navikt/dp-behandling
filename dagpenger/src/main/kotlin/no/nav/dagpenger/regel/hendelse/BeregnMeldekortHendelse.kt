@@ -113,10 +113,11 @@ class BeregnMeldekortHendelse(
                                 Avklaring(
                                     Avklaringkode(
                                         kode = "MeldekortMedUtdanning",
-                                        tittel = "Meldekort med utdanning",
+                                        tittel = "Meldekort med utdanning eller tiltak",
                                         beskrivelse =
-                                            "Bruker har krysset av for utdanning eller tiltak på meldekortet. " +
-                                                "Må vurderes manuelt.",
+                                            """Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. 
+                                            |Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
+                                            """.trimMargin(),
                                         kanAvbrytes = false,
                                         kanKvitteres = true,
                                     ),
