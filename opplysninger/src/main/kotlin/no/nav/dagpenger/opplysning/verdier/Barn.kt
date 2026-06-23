@@ -33,7 +33,7 @@ data class Barn(
     override fun compareTo(other: Barn): Int = this.fødselsdato.compareTo(other.fødselsdato)
 
     override fun toString() =
-        """Barn(fødselsdato=$fødselsdato, fornavnOgMellomnavn=$fornavnOgMellomnavn, 
-        |etternavn=$etternavn, statsborgerskap=$statsborgerskap, kvalifiserer=$kvalifiserer)
+        """Barn(kilde=$kilde, fødselsdato=$fødselsdato, fornavnOgMellomnavn=$fornavnOgMellomnavn, 
+        |etternavn=$etternavn, oppholdsland=$oppholdsland, kvalifiserer=$kvalifiserer)
         """.trimMargin()
 }
