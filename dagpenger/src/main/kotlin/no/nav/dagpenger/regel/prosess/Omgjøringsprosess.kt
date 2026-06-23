@@ -1,9 +1,12 @@
 package no.nav.dagpenger.regel.prosess
+
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysninger.Companion.sisteEndring
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -39,7 +42,9 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
                 ?: førsteDagMedRett
 
         val sistehendelseDato = opplysninger.kunEgne.finnAlle(hendelseTypeOpplysningstype).maxOf { it.gyldighetsperiode.tilOgMed }
-        val regelkjøringSluttDato = maxOf(sisteMeldeperiode, sistehendelseDato)
+        val sisteEndring = opplysninger.somListe(Egne).sisteEndring()
+
+        val regelkjøringSluttDato = maxOf(sisteMeldeperiode, sistehendelseDato, sisteEndring)
 
         return Regelkjøring(
             regelverksdato = førsteDagMedRett,
