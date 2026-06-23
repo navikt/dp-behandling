@@ -26,10 +26,9 @@ import no.nav.dagpenger.regel.OpplysningsTyper.svartNeiPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.tarUtdanningEllerOpplæringId
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
-import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.oppfyllerKravetPåUnntak
 
 object Utdanning {
-    private val hvisTarUtdanning: (LesbarOpplysninger) -> Boolean = { it.erSann(tarUtdanning) }
+    private val hvisTarUtdanning: (LesbarOpplysninger) -> Boolean = { opplysninger -> opplysninger.finnAlle(tarUtdanning).any { it.verdi } }
 
     // § 4-6 første og andre avsnitt, Utdanning
     val tarUtdanning =
