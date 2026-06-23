@@ -15,7 +15,6 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
@@ -212,7 +211,6 @@ class ArbeidssøkerTest {
     }
 
     @Test
-    @Disabled("Denne gir ikke verdi før meldekort kan gå automatisk")
     fun `blir avregistrert i ASR og sender meldekort`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -260,7 +258,7 @@ class ArbeidssøkerTest {
                 sisteForbrukteDag = opplysninger(Beregning.forbruk).last().gyldigFraOgMed
             }
 
-            // Simulerer at vi tar imot flytt_behandling og flytter søsken
+            // Simulerer at vi tar imot flytt_behandling og flytter søsken (dette løses automatisk av behovsløsere)
             val flytt = rapidInspektør.sisteMelding("flytt_behandling").second
             saksbehandler.flyttBehandlingTilNyKjede(flytt["behandlingId"].asUUID(), flytt["nyBasertPåId"].asUUID())
 

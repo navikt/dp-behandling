@@ -50,17 +50,53 @@ Behandling endret tilstand til: Ferdig
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
-Laget avklaring om UtmeldtArbeidssøker
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Laget avklaring om MeldekortMedUtdanning
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: Ferdig
+Laget avklaring om HarSvartPåOmgjøringUtenKlage
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: Ferdig
-melding: flytt_behandling
-Laget avklaring om BehandlingFlyttet
+Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: TilGodkjenning
-Behandling endret tilstand til: Ferdig
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak

@@ -297,6 +297,12 @@ class Opplysninger private constructor(
                 erUtdatert = utfordrer.erUtdatert
             }
         }
+
+        fun Collection<Opplysning<*>>.sisteEndring() =
+            this
+                .flatMap { listOf(it.gyldighetsperiode.fraOgMed, it.gyldighetsperiode.tilOgMed) }
+                .filterNot { it == LocalDate.MIN || it == LocalDate.MAX }
+                .max()
     }
 }
 

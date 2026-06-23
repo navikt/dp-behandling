@@ -15,6 +15,7 @@ import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
+import no.nav.dagpenger.mediator.november
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -27,6 +28,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.kravTilUtdanning
+import no.nav.dagpenger.scenario.MeldekortAktivitet.Arbeid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -408,6 +412,92 @@ class OmgjøringScenarioTester {
 
             // Omgjøring
             saksbehandler.omgjørBehandling(27.mai(2018))
+        }
+    }
+
+    @Test
+    fun `omgjøring av stans etter utdanning på meldekort`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.november(2025))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 21.november(2025)
+            }
+
+            repeat(14) {
+                person.sendInnMeldekort(1)
+                meldekortBatch(markerFerdig = true)
+            }
+
+            person.sendInnMeldekort(
+                15,
+                aktiviteter =
+                    listOf(
+                        Arbeid(0),
+                        Arbeid(0),
+                        Arbeid(0),
+                        Arbeid(0),
+                        Arbeid(0),
+                        Arbeid(0),
+                        Arbeid(0),
+                        MeldekortAktivitet.Utdanning(0),
+                    ),
+            )
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultatForslag(3) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder.last().fraOgMed shouldBe 8.juni(2026)
+            }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            behandlingsresultat(16) {
+                opplysninger(Utdanning.tarUtdanning) {
+                    this[0].verdi.verdi shouldBe false
+                    this[1].verdi.verdi shouldBe true
+                    this[1].gyldigFraOgMed shouldBe 8.juni(2026)
+                }
+            }
+
+            // Omgjøring
+            saksbehandler.omgjørBehandling(22.juni(2026))
+            saksbehandler.endreOpplysning(
+                Utdanning.deltakelseIArbeidsmarkedstiltak,
+                true,
+                "Har litt tiltak",
+                Gyldighetsperiode(8.juni(2026), 3.juli(2026)),
+            )
+            saksbehandler.endreOpplysning(
+                Utdanning.tarUtdanning,
+                false,
+                "Tiltak er ferdig",
+                Gyldighetsperiode(4.juli(2026)),
+            )
+
+            behandlingsresultatForslag(7) {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe true
+
+                opplysninger(kravTilUtdanning) {
+                    this shouldHaveSize 3
+                    this[0].verdi.verdi shouldBe true
+                    this[0].gyldigFraOgMed shouldBe 21.november(2025)
+
+                    this[1].verdi.verdi shouldBe true
+                    this[1].gyldigFraOgMed shouldBe 8.juni(2026)
+
+                    this[2].verdi.verdi shouldBe true
+                    this[2].gyldigFraOgMed shouldBe 4.juli(2026)
+                }
+            }
         }
     }
 }
