@@ -149,9 +149,9 @@ object TapAvArbeidsinntektOgArbeidstid {
             }
 
             // TODO: Dette bør bli en ENUM en gang i framtiden
-            regel(beregningsregel6mnd) { somUtgangspunkt(true) }
-            regel(beregningsregel12mnd) { somUtgangspunkt(false) }
-            regel(beregningsregel36mnd) { somUtgangspunkt(false) }
+            regel(beregningsregel6mnd) { somUtgangspunkt(true, beregnetArbeidstid) }
+            regel(beregningsregel12mnd) { somUtgangspunkt(false, beregnetArbeidstid) }
+            regel(beregningsregel36mnd) { somUtgangspunkt(false, beregnetArbeidstid) }
 
             // TODO: Bør hentes fra noe, f.eks. innbyggerflate
             regel(beregnetArbeidstid) { somUtgangspunkt(37.5) }

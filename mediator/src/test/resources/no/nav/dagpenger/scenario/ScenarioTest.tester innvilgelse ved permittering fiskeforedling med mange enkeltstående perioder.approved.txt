@@ -23,6 +23,7 @@ Laget avklaring om EØSArbeid
 Laget avklaring om InntektNesteKalendermåned
 Laget avklaring om JobbetUtenforNorge
 Laget avklaring om HarOppgittPermittering
+Laget avklaring om BeregnetArbeidstid
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
@@ -36,7 +37,6 @@ Behov:
 - TarUtdanningEllerOpplæring
 - Uføre
 Laget avklaring om SjekkPrøvingsdato
-Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav

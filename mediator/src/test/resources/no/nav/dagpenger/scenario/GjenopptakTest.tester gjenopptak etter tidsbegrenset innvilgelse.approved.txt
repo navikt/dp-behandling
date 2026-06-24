@@ -41,16 +41,23 @@ Behov:
 - OppgittAndreYtelserUtenforNav
 Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
 Laget avklaring om GjenopptakBehandling
 Laget avklaring om HarTilleggsopplysninger
+Laget avklaring om BeregnetArbeidstid
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
 - AndreØkonomiskeYtelser
-- BarnetilleggV2
 - BostedslandErNorge
 - HelseTilAlleTyperJobb
 - KanJobbeDeltid
@@ -65,7 +72,6 @@ Behov:
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
-Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
@@ -78,3 +84,17 @@ Behov:
 - Sykepenger
 - Uføre
 Behandling endret tilstand til: ForslagTilVedtak
+Laget avklaring om ReellArbeidssøkerUnntak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig

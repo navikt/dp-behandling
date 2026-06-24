@@ -25,6 +25,7 @@ Laget avklaring om JobbetUtenforNorge
 Laget avklaring om HarOppgittPermitteringFiskeindustri
 Laget avklaring om Inntektsjekk
 Laget avklaring om Verneplikt
+Laget avklaring om BeregnetArbeidstid
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
@@ -38,7 +39,6 @@ Behov:
 - TarUtdanningEllerOpplæring
 - Uføre
 Laget avklaring om SjekkPrøvingsdato
-Laget avklaring om BeregnetArbeidstid
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav

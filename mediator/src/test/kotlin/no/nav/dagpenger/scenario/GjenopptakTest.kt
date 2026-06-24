@@ -3,10 +3,13 @@ package no.nav.dagpenger.scenario
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.mediator.mai
+import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -19,8 +22,11 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
+import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode.Periodestatus
 import org.junit.jupiter.api.Test
@@ -382,6 +388,70 @@ class GjenopptakTest {
                     this[0].verdi.verdi shouldBe false
                     this[1].verdi.verdi shouldBe true
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `tester gjenopptak etter tidsbegrenset innvilgelse med tidsbegrenset FVA`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(18.mai(2026), ønskerFraDato = 1.mars(2026))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(ReellArbeidssøker.erArbeidsfør, true, "Noe syk", Gyldighetsperiode(18.mai(2026), 31.mai(2026)))
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid,
+                26.5,
+                "70% stilling",
+                Gyldighetsperiode(18.mai(2026), 31.mai(2026)),
+            )
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe "Innvilgelse"
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 18.mai(2026)
+                rettighetsperioder[0].tilOgMed shouldBe 31.mai(2026)
+            }
+
+            // Må ha startet forbruk for å kunne gjenoppta
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            // Gjenoppta
+            val gjenopptaksdato = 18.juni(2026)
+            person.søkGjenopptak(gjenopptaksdato)
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(ReellArbeidssøker.erArbeidsfør, false, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.endreOpplysning(ReellArbeidssøker.godkjentArbeidsufør, true, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.endreOpplysning(ReellArbeidssøker.godkjentLokalArbeidssøker, true, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.endreOpplysning(ReellArbeidssøker.godkjentDeltidssøker, true, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.endreOpplysning(ønsketArbeidstid, 19.0, "", Gyldighetsperiode(gjenopptaksdato))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(3) {
+                // TODO: Blir endring, burde være gjenopptak
+                // førteTil shouldBe "Gjenopptak"
+
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 18.mai(2026)
+                rettighetsperioder[0].tilOgMed shouldBe 31.mai(2026)
+
+                rettighetsperioder[1].harRett shouldBe true
+                rettighetsperioder[1].fraOgMed shouldBe gjenopptaksdato
+                rettighetsperioder[1].tilOgMed.shouldBeNull()
             }
         }
     }
