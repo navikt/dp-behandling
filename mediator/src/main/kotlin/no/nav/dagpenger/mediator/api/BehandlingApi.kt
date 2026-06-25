@@ -493,6 +493,10 @@ internal fun Application.behandlingApi(
                                 throw OpplysningIkkeRedigerbareException(opplysning.opplysningstype.toString())
                             }
 
+                            if (opplysning.opplysningstype.er(søknadIdOpplysningstype)) {
+                                throw OpplysningIkkeRedigerbareException(opplysning.opplysningstype.toString())
+                            }
+
                             val perioder = kunEgne.finnAlle(opplysning.opplysningstype)
                             if (perioder.size > 1 && perioder.singleOrNull { it.erstatter != null }?.id == opplysningId) {
                                 throw PåfølgendePeriodeMåFjernesFørstException()
