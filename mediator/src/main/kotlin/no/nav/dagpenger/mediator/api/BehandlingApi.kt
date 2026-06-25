@@ -5,6 +5,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.parameters
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.createApplicationPlugin
@@ -560,6 +561,16 @@ internal fun Application.behandlingApi(
 
                             if (!redigerbareOpplysninger.kanRedigere(opplysningstype)) {
                                 throw OpplysningIkkeRedigerbareException(opplysningstype.toString())
+                            }
+
+                            if (opplysningstype.er(søknadIdOpplysningstype)) {
+                                val forrigeVerdi = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
+
+                                if (forrigeVerdi != null) {
+                                    require(nyOpplysningDTO.verdi == forrigeVerdi.verdi) { "Kan ikke endre verdi for søknadId" }
+                                }
+
+                                require(nyOpplysningDTO.gyldigTilOgMed == null) { "Kan ikke sette til og med-dato for søknadId" }
                             }
 
                             if (opplysningstype.er(prøvingsdato)) {
