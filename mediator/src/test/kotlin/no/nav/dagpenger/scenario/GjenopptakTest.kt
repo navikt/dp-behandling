@@ -442,7 +442,7 @@ class GjenopptakTest {
 
             behandlingsresultat(3) {
                 // TODO: Blir endring, burde være gjenopptak
-                // førteTil shouldBe "Gjenopptak"
+                førteTil shouldBe "Gjenopptak"
 
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true

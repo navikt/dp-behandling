@@ -43,6 +43,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
+import java.time.Period
 
 val RegelverkDagpenger =
     Regelverk(
@@ -115,13 +116,27 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
 
     return when {
         nye.isEmpty() -> Avgjørelse.Endring
+
         arvede.isEmpty() -> if (nye.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
+
         arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Stans
+
         !arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Avslag
+
         !arvede.last().harRett && nye.any { it.harRett } -> Avgjørelse.Gjenopptak
+
+        arvede.last().harRett &&
+            nye.any { it.harRett } &&
+            harDagerMellomRettighetsperiodene(arvede, nye) -> Avgjørelse.Gjenopptak
+
         else -> Avgjørelse.Endring
     }
 }
+
+private fun harDagerMellomRettighetsperiodene(
+    arvede: List<Rettighetsperiode>,
+    nye: List<Rettighetsperiode>,
+): Boolean = Period.between(arvede.last().tilOgMed, nye.first().fraOgMed).days > 0
 
 private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
     val meldeperioder = opplysninger.finnAlle(Beregning.meldeperiode)
