@@ -115,16 +115,22 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     val (nye, arvede) = perioder.partition { it.endret }
 
     return when {
+        // Ingen endring i rettighetsperiode
         nye.isEmpty() -> Avgjørelse.Endring
 
+        // Første rettighetsperiode
         arvede.isEmpty() -> if (nye.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
 
+        // Går fra å ha rett til ny periode uten rett
         arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Stans
 
+        // Går fra å ikke ha rett til å fortsatt ikke ha rett
         !arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Avslag
 
+        // Går fra å ikke ha rett til å ha ny rett
         !arvede.last().harRett && nye.any { it.harRett } -> Avgjørelse.Gjenopptak
 
+        // Går fra å ha hatt rett til ny rett uten at de ligger kant-i-kant
         arvede.last().harRett &&
             nye.any { it.harRett } &&
             harDagerMellomRettighetsperiodene(arvede, nye) -> Avgjørelse.Gjenopptak
