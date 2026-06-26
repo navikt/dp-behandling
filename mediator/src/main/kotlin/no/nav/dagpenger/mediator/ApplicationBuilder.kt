@@ -17,6 +17,7 @@ import io.prometheus.metrics.tracer.initializer.SpanContextSupplier
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.mediator.api.ApiMessageContext
 import no.nav.dagpenger.mediator.api.auth.AuthFactory
+import no.nav.dagpenger.mediator.api.generellSimuleringApi
 import no.nav.dagpenger.mediator.api.simuleringApi
 import no.nav.dagpenger.mediator.api.statusPagesConfig
 import no.nav.dagpenger.mediator.audit.ApiAuditlogg
@@ -24,6 +25,7 @@ import no.nav.dagpenger.mediator.db.PostgresDataSourceBuilder
 import no.nav.dagpenger.mediator.jobber.BehandleMeldekort
 import no.nav.dagpenger.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.mediator.repository.VaktmesterPostgresRepo
+import no.nav.dagpenger.mediator.simulering.RegelsettRegister
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.utestengning.UtestengningRegistrering
@@ -47,6 +49,8 @@ internal class ApplicationBuilder(
     private val regelverk: List<RegelverkRegistrering> =
         listOf(DagpengerRegistrering(), FerietilleggRegistrering(), UtestengningRegistrering())
 
+    private val regelsettRegister = RegelsettRegister(regelverk)
+
     private val postgresDataSourceBuilder = PostgresDataSourceBuilder()
 
     private lateinit var runtime: BehandlingRuntime
@@ -64,6 +68,7 @@ internal class ApplicationBuilder(
                     }
                     runtime.api(this)
                     simuleringApi()
+                    generellSimuleringApi(regelsettRegister)
                 }
             },
             meterRegistry = meterRegistry,
