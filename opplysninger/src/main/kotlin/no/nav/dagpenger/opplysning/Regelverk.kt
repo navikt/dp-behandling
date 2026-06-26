@@ -115,6 +115,23 @@ class Regelverk(
             .flatMap { it.betingelser }
     }
 
+    fun upstream(regelsett: Regelsett): List<Regelsett> =
+        this.regelsett.filter { candidate ->
+            candidate != regelsett && candidate.produserer.any { it in regelsett.avhengerAv }
+        }
+
+    fun downstream(regelsett: Regelsett): List<Regelsett> =
+        this.regelsett.filter { candidate ->
+            candidate != regelsett && candidate.avhengerAv.any { it in regelsett.produserer }
+        }
+
+    fun koblerTil(
+        fra: Regelsett,
+        til: Regelsett,
+    ): Set<Opplysningstype<*>> = fra.produserer.intersect(til.avhengerAv)
+
+    fun finnRegelsett(navn: String): Regelsett? = regelsett.firstOrNull { it.navn == navn }
+
     // Bruker Breadth-First Search (BFS) til å traversere regelsettene
     private fun traverseOpplysningstyper(
         start: Opplysningstype<*>,
