@@ -12,6 +12,122 @@ servers:
     description: prod
 
 paths:
+  /simulering/regelverk:
+    get:
+      description: Henter alle tilgjengelige regelverk
+      operationId: hentRegelverk
+      tags:
+        - Regelverk
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegelverkOversikt'
+
+  /simulering/regelverk/{regelverk}:
+    get:
+      description: Henter graf over alle regelsett i et regelverk
+      operationId: hentRegelverkGraf
+      tags:
+        - Regelverk
+      parameters:
+        - name: regelverk
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegelverkGraf'
+        404:
+          description: Regelverk ikke funnet
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /simulering/regelverk/{regelverk}/regelsett/{regelsett}:
+    get:
+      description: Henter schema (inndata og produserte opplysninger) for et regelsett
+      operationId: hentRegelsettSkjema
+      tags:
+        - Regelsett
+      parameters:
+        - name: regelverk
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: regelsett
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegelsettSkjema'
+        404:
+          description: Regelsett ikke funnet
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /simulering/regelverk/{regelverk}/regelsett/{regelsett}/evaluer:
+    post:
+      description: Evaluerer et regelsett med gitte inndata og returnerer evalueringstre
+      operationId: evaluerRegelsett
+      tags:
+        - Regelsett
+      parameters:
+        - name: regelverk
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: regelsett
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluerRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluerResultat'
+        400:
+          description: Ugyldig input eller manglende opplysninger
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+        404:
+          description: Regelsett ikke funnet
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
   /simulering/beregning:
     put:
       description: Simulerer beregning av et meldekort
@@ -233,6 +349,194 @@ components:
           type: string
           format: uri
           description: A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced
+
+    RegelverkOversikt:
+      type: object
+      required:
+        - navn
+        - href
+      properties:
+        navn:
+          type: string
+        href:
+          type: string
+          format: uri
+
+    RegelverkGraf:
+      type: object
+      required:
+        - navn
+        - regelsett
+      properties:
+        navn:
+          type: string
+        regelsett:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegelsettRef'
+
+    RegelsettRef:
+      type: object
+      required:
+        - navn
+        - href
+      properties:
+        navn:
+          type: string
+        type:
+          type: string
+          enum: [Vilkår, Fastsettelse, Prosess]
+        href:
+          type: string
+          format: uri
+
+    RegelsettSkjema:
+      type: object
+      required:
+        - navn
+        - type
+        - inndata
+        - produserer
+        - upstream
+        - downstream
+      properties:
+        navn:
+          type: string
+        hjemmel:
+          type: string
+        type:
+          type: string
+          enum: [Vilkår, Fastsettelse, Prosess]
+        inndata:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningstypeSkjema'
+        produserer:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningstypeSkjema'
+        upstream:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegelsettKobling'
+        downstream:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegelsettKobling'
+
+    OpplysningstypeSkjema:
+      type: object
+      required:
+        - id
+        - navn
+        - behovId
+        - datatype
+        - formål
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        behovId:
+          type: string
+        datatype:
+          type: string
+          enum: [Dato, Desimaltall, Heltall, Boolsk, Tekst, Penger, Periode, Inntekt, Barn, ULID]
+        formål:
+          type: string
+          enum: [Legacy, Bruker, Register, Regel]
+        enhet:
+          type: string
+
+    RegelsettKobling:
+      type: object
+      required:
+        - navn
+        - href
+        - kobler
+      properties:
+        navn:
+          type: string
+        href:
+          type: string
+          format: uri
+        kobler:
+          type: array
+          description: Opplysningstyper som kobler dette regelsett til naboen
+          items:
+            type: string
+
+    EvaluerRequest:
+      type: object
+      required:
+        - dato
+        - opplysninger
+      properties:
+        dato:
+          type: string
+          format: date
+          description: Punkt i tid som simuleringen gjelder for
+        opplysninger:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningInput'
+
+    OpplysningInput:
+      type: object
+      required:
+        - behovId
+        - verdi
+      properties:
+        behovId:
+          type: string
+        verdi: {}
+
+    EvaluerResultat:
+      type: object
+      required:
+        - opplysninger
+        - mangler
+      properties:
+        opplysninger:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningNode'
+        mangler:
+          type: array
+          description: Opplysningstyper som manglet for å fullføre evalueringen
+          items:
+            type: string
+
+    OpplysningNode:
+      type: object
+      required:
+        - navn
+        - datatype
+        - verdi
+      properties:
+        navn:
+          type: string
+        behovId:
+          type: string
+        datatype:
+          type: string
+        verdi: {}
+        utledetAv:
+          $ref: '#/components/schemas/Utledning'
+
+    Utledning:
+      type: object
+      required:
+        - regel
+        - avhengigheter
+      properties:
+        regel:
+          type: string
+        avhengigheter:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningNode'
 
   securitySchemes:
     azureAd:
