@@ -15,12 +15,7 @@ object FulleYtelser {
 
     val regelsett =
         vilkår(
-            folketrygden.hjemmel(
-                4,
-                24,
-                "Medlem som har fulle ytelser etter folketrygdloven eller avtalefestet pensjon",
-                "Fulle ytelser",
-            ),
+            folketrygden.hjemmel(4, 24, "Medlem som har fulle ytelser etter folketrygdloven eller avtalefestet pensjon", "Fulle ytelser"),
         ) {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 

@@ -179,7 +179,7 @@ class Regelkjøring(
     ) {
         fun skalKjøre() = siste.plan.isNotEmpty()
 
-        fun kjørPlan(lesbarOpplysninger: LesbarOpplysninger) = siste.kjørRegelPlan(lesbarOpplysninger)
+        fun kjørPlan() = siste.kjørRegelPlan()
 
         fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan {
             // loop detection
@@ -200,7 +200,7 @@ class Regelkjøring(
         val regelresultater = mutableListOf<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>()
         try {
             while (kjøreplan.skalKjøre()) {
-                val resultater = kjøreplan.kjørPlan(opplysninger.kunEgne)
+                val resultater = kjøreplan.kjørPlan()
                 regelresultater.add(resultater)
                 resultater.forEach { (_, opplysning) ->
                     opplysninger.leggTilUtledet(opplysning)
@@ -293,20 +293,20 @@ class Regelkjøring(
                     avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }.toSet()
                 }
 
-        fun kjørRegelPlan(egneOpplysninger: LesbarOpplysninger): List<Regelkjøringutfall<*>> =
+        fun kjørRegelPlan(): List<Regelkjøringutfall<*>> =
             plan.map { regel ->
                 try {
-                    regel.kjørRegel(egneOpplysninger)
+                    regel.kjørRegel()
                 } catch (e: IllegalArgumentException) {
                     throw RegelkjøringException(regel, e)
                 }
             }
 
-        private fun <T : Any> Regel<T>.kjørRegel(egneOpplysninger: LesbarOpplysninger): Regelkjøringutfall<T> {
+        private fun <T : Any> Regel<T>.kjørRegel(): Regelkjøringutfall<T> {
             val produkt =
                 this
                     .lagProdukt(opplysningerPåPrøvingsdato)
-                    .medGyldighetsperiode(this, egneOpplysninger)
+                    .medGyldighetsperiode(prøvingsdato)
 
             return Regelkjøringutfall(
                 regel = this,
@@ -315,36 +315,14 @@ class Regelkjøring(
         }
 
         // Produserer en opplysning med riktig gyldighetsperiode.
-        // Utgangspunkt-regler (og andre uten avhengigheter) produserer ubegrensede MIN..MAX perioder.
-        // Disse begrenses alltid til å starte fra prøvingsdatoen — det finnes ingen gyldige caser
-        // for at en Utgangspunkt-opplysning skal gjelde fra begynnelsen av tid.
-        private fun <T : Any> Opplysning<T>.medGyldighetsperiode(
-            regel: Regel<T>,
-            egneOpplysninger: LesbarOpplysninger,
-        ): Opplysning<T> {
-            // Begrens ubegrensede perioder til å starte fra prøvingsdatoen.
-            // Gjøres alltid, uavhengig av om det finnes eksisterende perioder.
-            val begrensetProdukt =
-                if (this.gyldighetsperiode.erUbegrenset) {
-                    this.medGyldighetsperiode(Gyldighetsperiode(prøvingsdato))
-                } else {
-                    this
-                }
-
-            // Trim den nye perioden slik at den ikke overlapper med perioder i samme behandling.
-            // Velg segmentet som inneholder prøvingsdatoen — det er den datoen vi evaluerer for.
-            val eksisterendePerioder = egneOpplysninger.finnAlle(regel.produserer).map { it.gyldighetsperiode }
-            if (eksisterendePerioder.isEmpty()) return begrensetProdukt
-
-            val ledigePerioder =
-                begrensetProdukt.gyldighetsperiode.minus(eksisterendePerioder).filter {
-                    // Vi ønsker kun å fylle hull når perioden er etter prøvingsdato
-                    it.fraOgMed.isAfter(begrensetProdukt.gyldighetsperiode.tilOgMed)
-                }
-            val passendePeriode = ledigePerioder.firstOrNull { it.inneholder(prøvingsdato) }
-
-            return passendePeriode?.let { begrensetProdukt.medGyldighetsperiode(it) } ?: begrensetProdukt
-        }
+        // Ubegrensede perioder (f.eks. fra Utgangspunkt-regler) begrenses alltid til å starte fra prøvingsdatoen.
+        // Overlapp med eksisterende perioder håndteres av utenErstattet ved lesing.
+        private fun <T : Any> Opplysning<T>.medGyldighetsperiode(prøvingsdato: LocalDate): Opplysning<T> =
+            if (this.gyldighetsperiode.erUbegrenset) {
+                this.medGyldighetsperiode(Gyldighetsperiode(prøvingsdato))
+            } else {
+                this
+            }
 
         data class Regelkjøringutfall<T : Any>(
             val regel: Regel<T>,
