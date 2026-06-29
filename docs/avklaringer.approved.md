@@ -214,12 +214,12 @@ Registeropplysninger om inntekter indikerer at brukeren ikke oppfyller kravet ti
 - Inntektsopplysninger
 
 ---
-## Stans av dagpenger ved manglende tapt arbeidstid over flere meldeperioder
+## Stans av dagpenger på grunn av arbeid
 - **Kode:** `JobbetOverTerskel`
 - **Kan lukkes av saksbehandler:** ✅ 
 - **Lukkes automatisk når opplysningene endres:** ❌ 
 ### Beskrivelse
-Bruker ikke oppfyller kravet til tapt arbeidstid i 3 påfølgende meldeperioder, oppfylles ikke lenger vilkåret om tap av arbeidstid (§ 4-3), og dagpengene stanses fra og med den første meldeperioden som ikke oppfylte kravet
+På de siste tre meldekortene har bruker ført jobb som utgjør mer enn 50 prosent av sin vanlige arbeidstid. Vilkåret om tap av arbeidstid etter folketrygdloven § 4-3 er ikke oppfylt og dagpenger skal stanses fra og med mandag etter siste innsendte meldekort.
 
 ---
 ## Arbeid utenfor Norge
