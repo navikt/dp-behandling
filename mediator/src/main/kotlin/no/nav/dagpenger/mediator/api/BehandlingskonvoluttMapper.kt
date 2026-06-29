@@ -155,11 +155,16 @@ internal fun Opplysning<*>.tilOpplysningsverdiDTO(): OpplysningsverdiDTO =
                     verdi =
                         barn.map {
                             BarnVerdiDTO(
-                                it.fødselsdato,
-                                it.fornavnOgMellomnavn,
-                                it.etternavn,
-                                it.statsborgerskap,
-                                it.kvalifiserer,
+                                kilde = null,
+                                ident = null,
+                                fødselsdato = it.fødselsdato,
+                                fornavnOgMellomnavn = it.fornavnOgMellomnavn,
+                                etternavn = it.etternavn,
+                                statsborgerskap = it.statsborgerskap,
+                                oppholdsland = it.oppholdsland,
+                                forsørgeransvar = it.forsørgeransvar,
+                                kvalifiserer = it.kvalifiserer,
+                                begrunnelse = it.begrunnelse,
                             )
                         },
                 )

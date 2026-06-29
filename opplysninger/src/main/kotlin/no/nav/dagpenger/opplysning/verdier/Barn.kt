@@ -12,17 +12,28 @@ data class BarnListe(
     override fun compareTo(other: BarnListe) = 0
 }
 
+enum class Barnekilde {
+    Register,
+    Søknad,
+    Saksbehandler,
+}
+
 data class Barn(
+    val kilde: Barnekilde? = null,
+    val ident: String? = null,
     val fødselsdato: LocalDate,
     val fornavnOgMellomnavn: String? = null,
     val etternavn: String? = null,
     val statsborgerskap: String? = null,
+    val oppholdsland: String? = statsborgerskap,
     val kvalifiserer: Boolean,
+    val forsørgeransvar: Boolean = kvalifiserer,
+    val begrunnelse: String? = null,
 ) : Comparable<Barn> {
     override fun compareTo(other: Barn): Int = this.fødselsdato.compareTo(other.fødselsdato)
 
     override fun toString() =
-        """Barn(fødselsdato=$fødselsdato, fornavnOgMellomnavn=$fornavnOgMellomnavn, 
-            |etternavn=$etternavn, statsborgerskap=$statsborgerskap, kvalifiserer=$kvalifiserer)
+        """Barn(kilde=$kilde, fødselsdato=$fødselsdato, fornavnOgMellomnavn=$fornavnOgMellomnavn, 
+        |etternavn=$etternavn, oppholdsland=$oppholdsland, kvalifiserer=$kvalifiserer)
         """.trimMargin()
 }

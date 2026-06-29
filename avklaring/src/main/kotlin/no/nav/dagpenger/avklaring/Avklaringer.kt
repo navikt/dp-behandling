@@ -66,7 +66,6 @@ class Avklaringer(
             }.forEach { it.gjenåpne() }
 
         // Legg til nye avklaringer
-        // TODO: Vi bør nok kun lage nye avklaringer for de som ikke allerede er i listen (her løser Set det for oss)
         avklaringer.addAll(aktiveAvklaringer.map { Avklaring(it.avklaringkode) })
 
         return avklaringer.toList()
