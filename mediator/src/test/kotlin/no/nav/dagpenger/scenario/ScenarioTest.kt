@@ -45,7 +45,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 class ScenarioTest {
@@ -472,14 +471,6 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             saksbehandler.endreOpplysning(
-                oppyllerKravTilRegistrertArbeidssøker,
-                true,
-                "Søkte for lenge siden",
-                Gyldighetsperiode(1.juni(2018)),
-            )
-            behovsløsere.løsTilForslag()
-
-            saksbehandler.endreOpplysning(
                 ønsketdato,
                 1.juni(2018),
                 "Søkte for lenge siden",
@@ -487,7 +478,24 @@ class ScenarioTest {
             )
             behovsløsere.løsTilForslag()
 
-            behandlingsresultatForslag(4) {
+            saksbehandler.endreOpplysning(
+                oppyllerKravTilRegistrertArbeidssøker,
+                true,
+                "Søkte for lenge siden",
+                Gyldighetsperiode(1.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            // Manuelt sett prøvingsdato tilbake i tid
+            saksbehandler.endreOpplysning(
+                prøvingsdato,
+                1.juni(2018),
+                "Søkte for lenge siden",
+                Gyldighetsperiode(1.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag(5) {
                 with(rettighetsperioder) {
                     this shouldHaveSize 1
                     this[0].fraOgMed shouldBe 1.juni(2018)
@@ -514,17 +522,14 @@ class ScenarioTest {
             )
             behovsløsere.løsTilForslag()
 
-            // Tester at vi ikke kan legge til opplysninger som ikke er dekket innenfor perioden  du har rett på dagpenger for uten at vilkårene for perioden er oppfylt
-            assertThrows<IllegalArgumentException> {
-                saksbehandler.endreOpplysning(
-                    antallBarn,
-                    22,
-                    "Fikk en haug med barn",
-                    Gyldighetsperiode(5.juni(2018)),
-                )
-            }
+            saksbehandler.endreOpplysning(
+                antallBarn,
+                22,
+                "Fikk en haug med barn",
+                Gyldighetsperiode(5.juni(2018)),
+            )
 
-            behandlingsresultatForslag(2) {
+            behandlingsresultatForslag(3) {
                 with(rettighetsperioder) {
                     this shouldHaveSize 1
                     this[0].fraOgMed shouldBe 27.november(2018)
@@ -664,7 +669,7 @@ class ScenarioTest {
 
             behandlingsresultatForslag(7) {
                 // Det er nå en ekstra periode mellom 10 og 20. juni som ikke var nødvendig før det ble lagt til instanser av kanJobbeHvorSomHelst i hullet
-                opplysninger(oppholdINorge) shouldHaveSize 3
+                opplysninger(oppholdINorge) shouldHaveSize 1
 
                 opplysninger(kanJobbeHvorSomHelst) shouldHaveSize 2
             }
@@ -795,8 +800,7 @@ class ScenarioTest {
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder.last().harRett shouldBe true
 
-                // TODO: Fordi de to siste rettighetsperiodene ligger "oppå" hverandre blir ikke dette riktig
-                // førteTil shouldBe "Gjenopptak"
+                førteTil shouldBe "Gjenopptak"
             }
         }
     }

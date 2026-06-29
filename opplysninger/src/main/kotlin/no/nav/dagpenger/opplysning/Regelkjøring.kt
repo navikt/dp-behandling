@@ -124,8 +124,8 @@ class Regelkjøring(
             }
             logger.info {
                 """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
-                        |Regler:
-                        |${it.kjørteRegler.joinToString("\n") { "- $it" }}
+                |Regler:
+                |${it.kjørteRegler.joinToString("\n") { "- $it" }}
                 """.trimMargin()
             }
         }
@@ -179,8 +179,7 @@ class Regelkjøring(
     ) {
         fun skalKjøre() = siste.plan.isNotEmpty()
 
-        fun kjørPlan(lesbarOpplysninger: LesbarOpplysninger): List<Regelkjøringstilstand.Regelkjøringutfall<*>> =
-            siste.kjørRegelPlan(lesbarOpplysninger)
+        fun kjørPlan(lesbarOpplysninger: LesbarOpplysninger) = siste.kjørRegelPlan(lesbarOpplysninger)
 
         fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan {
             // loop detection
@@ -231,8 +230,12 @@ class Regelkjøring(
         if (påDato == null || påDato == LocalDate.MIN) return true
         val regelsett = forretningsprosess.regelsett()
         val produserende = regelsett.single { it.produserer.contains(opplysningstype) }
+        val forDato = opplysninger.forDato(påDato)
 
-        return produserende.skalKjøres(opplysninger.forDato(påDato))
+        val regelsettKanKjøres = produserende.skalKjøres(forDato)
+        val kanEndreEksisterende = forDato.har(opplysningstype)
+
+        return regelsettKanKjøres || kanEndreEksisterende
     }
 
     private data class Regelkjøringstilstand(
@@ -311,18 +314,16 @@ class Regelkjøring(
             )
         }
 
-        // Produserer en opplysning med riktig gyldighetsperiode basert på hva som allerede finnes.
+        // Produserer en opplysning med riktig gyldighetsperiode.
+        // Utgangspunkt-regler (og andre uten avhengigheter) produserer ubegrensede MIN..MAX perioder.
+        // Disse begrenses alltid til å starte fra prøvingsdatoen — det finnes ingen gyldige caser
+        // for at en Utgangspunkt-opplysning skal gjelde fra begynnelsen av tid.
         private fun <T : Any> Opplysning<T>.medGyldighetsperiode(
             regel: Regel<T>,
             egneOpplysninger: LesbarOpplysninger,
         ): Opplysning<T> {
-            // Sjekk om vi har perioder av denne opplysningstypen i samme behandling fra før
-            val eksisterendePerioder = egneOpplysninger.finnAlle(regel.produserer).map { it.gyldighetsperiode }
-            if (eksisterendePerioder.isEmpty()) return this
-
-            // Regler uten avhengigheter (f.eks. somUtgangspunkt) produserer opplysninger med MIN..MAX periode.
-            // Begrens perioden til å starte fra prøvingsdatoen for å unngå å overskrive eksisterende
-            // opplysninger med smalere gyldighetsperioder (f.eks. satt av saksbehandler).
+            // Begrens ubegrensede perioder til å starte fra prøvingsdatoen.
+            // Gjøres alltid, uavhengig av om det finnes eksisterende perioder.
             val begrensetProdukt =
                 if (this.gyldighetsperiode.erUbegrenset) {
                     this.medGyldighetsperiode(Gyldighetsperiode(prøvingsdato))
@@ -330,9 +331,16 @@ class Regelkjøring(
                     this
                 }
 
-            // Trim den nye perioden slik at den ikke overlapper med eksisterende perioder.
+            // Trim den nye perioden slik at den ikke overlapper med perioder i samme behandling.
             // Velg segmentet som inneholder prøvingsdatoen — det er den datoen vi evaluerer for.
-            val ledigePerioder = begrensetProdukt.gyldighetsperiode.minus(eksisterendePerioder)
+            val eksisterendePerioder = egneOpplysninger.finnAlle(regel.produserer).map { it.gyldighetsperiode }
+            if (eksisterendePerioder.isEmpty()) return begrensetProdukt
+
+            val ledigePerioder =
+                begrensetProdukt.gyldighetsperiode.minus(eksisterendePerioder).filter {
+                    // Vi ønsker kun å fylle hull når perioden er etter prøvingsdato
+                    it.fraOgMed.isAfter(begrensetProdukt.gyldighetsperiode.tilOgMed)
+                }
             val passendePeriode = ledigePerioder.firstOrNull { it.inneholder(prøvingsdato) }
 
             return passendePeriode?.let { begrensetProdukt.medGyldighetsperiode(it) } ?: begrensetProdukt
