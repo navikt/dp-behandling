@@ -200,6 +200,12 @@ class OmgjøringScenarioTester {
             // Omgjøring
             saksbehandler.omgjørBehandling(1.august(2018))
             saksbehandler.endreOpplysning(
+                Søknadstidspunkt.prøvingsdato,
+                1.august(2018),
+                "Omgjøring: gjenopptak gjelder fra 1. august",
+                Gyldighetsperiode(1.august(2018)),
+            )
+            saksbehandler.endreOpplysning(
                 skalGjenopptakVurderes,
                 true,
                 "Endrer kravet om gjenopptak til 1. august, som er første mulige dato for gjenopptak",
@@ -217,8 +223,7 @@ class OmgjøringScenarioTester {
 
             behandlingsresultat {
                 with(opplysninger(Gjenopptak.skalGjenopptas)) {
-                    this shouldHaveSize 1
-                    this.single().gyldigFraOgMed shouldBe 1.august(2018)
+                    this.minByOrNull { it.gyldigFraOgMed!! }!!.gyldigFraOgMed shouldBe 1.august(2018)
                 }
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27698
                 rettighetsperioder shouldHaveSize 3

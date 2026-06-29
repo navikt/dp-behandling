@@ -42,35 +42,13 @@ Behov:
 Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behov:
-- ØnskerDagpengerFraDato
-Behov:
-- HelseTilAlleTyperJobb
-- Inntekt
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- Lønnsgaranti
-- Ordinær
-- Permittert
-- PermittertFiskeforedling
-- RegistrertSomArbeidssøker
-- Verneplikt
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
-Behov:
-- AndreØkonomiskeYtelser
-- BostedslandErNorge
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- TarUtdanningEllerOpplæring
-- Uføre
-Behov:
-- BarnetilleggV2
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig
+Laget avklaring om ManuellBehandling
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
