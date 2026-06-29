@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveAtMostSize
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -471,6 +472,14 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             saksbehandler.endreOpplysning(
+                oppyllerKravTilRegistrertArbeidssøker,
+                true,
+                "Søkte for lenge siden",
+                Gyldighetsperiode(1.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
                 ønsketdato,
                 1.juni(2018),
                 "Søkte for lenge siden",
@@ -478,20 +487,11 @@ class ScenarioTest {
             )
             behovsløsere.løsTilForslag()
 
-            // Tester at vi ikke kan legge til opplysninger som ikke er dekket innenfor perioden  du har rett på dagpenger for uten at vilkårene for perioden er oppfylt
-            assertThrows<IllegalArgumentException> {
-                saksbehandler.endreOpplysning(
-                    oppyllerKravTilRegistrertArbeidssøker,
-                    true,
-                    "Søkte for lenge siden",
-                    Gyldighetsperiode(1.juni(2018)),
-                )
-            }
-
-            behandlingsresultatForslag(3) {
+            behandlingsresultatForslag(4) {
                 with(rettighetsperioder) {
                     this shouldHaveSize 1
-                    this[0].fraOgMed shouldBe 27.november(2018)
+                    this[0].fraOgMed shouldBe 1.juni(2018)
+                    this[0].tilOgMed.shouldBeNull()
                     this[0].harRett shouldBe true
                 }
             }
