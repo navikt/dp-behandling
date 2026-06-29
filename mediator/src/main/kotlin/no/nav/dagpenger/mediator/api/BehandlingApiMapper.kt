@@ -90,6 +90,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelsePåKurs
@@ -256,6 +257,7 @@ internal val redigerbareOpplysninger =
                             unntakForOpphold,
                             medlemFolketrygden,
                             // 4-3
+                            kravTilTaptArbeidstid,
                             kravPåLønn,
                             kravTilArbeidstidsreduksjon,
                             beregningsregel6mnd,
