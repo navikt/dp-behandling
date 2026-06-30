@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.forskriftTilFolketrygden
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.egenVerdi
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.fraOgMed
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -37,7 +38,7 @@ object Søknadstidspunkt {
             behovId = InnhentFraOgMed,
         )
 
-    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato)
+    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato, gyldighetsperiode = egenVerdi)
     val søknadIdOpplysningstype = Opplysningstype.tekst(søknadId, "søknadId")
 
     val regelsett =
