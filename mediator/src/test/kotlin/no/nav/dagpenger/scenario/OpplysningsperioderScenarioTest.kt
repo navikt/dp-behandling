@@ -6,7 +6,6 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
-import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode.Periodestatus

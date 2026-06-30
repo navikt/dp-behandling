@@ -46,6 +46,7 @@ internal class Mennesket(
     fun søkDagpenger(
         dato: LocalDate = LocalDate.now(),
         ønskerFraDato: LocalDate = dato,
+        søknadId: UUID = søknader.ny(),
     ) {
         this.søknadsdato = dato
         this.ønskerFraDato = ønskerFraDato
@@ -57,7 +58,7 @@ internal class Mennesket(
                 ident = ident,
                 innsendt = søknadsdato.atStartOfDay(),
                 fagsakId = fagsak.ny(),
-                søknadId = søknader.ny(),
+                søknadId = søknadId,
             ),
             ident,
         )

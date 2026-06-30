@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-import no.nav.dagpenger.scenario.SimulertDagpengerSystem
 import org.junit.jupiter.api.Test
 
 class RedigeringTest {
