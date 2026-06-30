@@ -54,7 +54,13 @@ internal class AvklaringRepositoryPostgres(
                                        'endret', ae.endret,
                                        'type', ae.type,
                                        'kilde_id', ae.kilde_id,
-                                       'begrunnelse', ae.begrunnelse
+                                       'begrunnelse', ae.begrunnelse,
+                                       'grunnlag', COALESCE(
+                                           (SELECT JSON_AGG(aeg.opplysning_id)
+                                            FROM avklaring_endring_grunnlag aeg
+                                            WHERE aeg.endring_id = ae.endring_id),
+                                           '[]'::json
+                                       )
                                )
                                ORDER BY ae.endret
                                        ) FILTER (WHERE ae.endring_id IS NOT NULL) AS endringer
@@ -214,6 +220,40 @@ internal class AvklaringRepositoryPostgres(
                 alleEndringer,
             ).run(unitOfWork.session)
         }
+
+        lagreGrunnlag(avklaringer, unitOfWork)
+    }
+
+    private fun lagreGrunnlag(
+        avklaringer: Collection<Avklaring>,
+        unitOfWork: PostgresUnitOfWork,
+    ) {
+        val grunnlagRader =
+            avklaringer.flatMap { avklaring ->
+                avklaring.nyeEndringer
+                    .filterIsInstance<UnderBehandling>()
+                    .filter { it.grunnlag.isNotEmpty() }
+                    .flatMap { endring ->
+                        endring.grunnlag.map { opplysningId ->
+                            mapOf(
+                                "endring_id" to endring.id,
+                                "opplysning_id" to opplysningId,
+                            )
+                        }
+                    }
+            }
+
+        if (grunnlagRader.isNotEmpty()) {
+            BatchStatement(
+                // language=PostgreSQL
+                """
+                INSERT INTO avklaring_endring_grunnlag (endring_id, opplysning_id)
+                VALUES (:endring_id, :opplysning_id)
+                ON CONFLICT DO NOTHING
+                """.trimIndent(),
+                grunnlagRader,
+            ).run(unitOfWork.session)
+        }
     }
 
     private data class RawEndringJson(
@@ -222,10 +262,11 @@ internal class AvklaringRepositoryPostgres(
         val type: String,
         val kilde_id: UUID?,
         val begrunnelse: String?,
+        val grunnlag: List<UUID> = emptyList(),
     ) {
         fun somHistorikk(kilder: Map<UUID, Kilde>) =
             when (EndringType.valueOf(type)) {
-                EndringType.UnderBehandling -> UnderBehandling(endring_id, endret)
+                EndringType.UnderBehandling -> UnderBehandling(endring_id, endret, grunnlag.toSet())
                 EndringType.Avbrutt -> Avbrutt(endring_id, endret)
                 EndringType.Avklart -> {
                     val kilde = kilder[kilde_id!!] ?: Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("DIGIDAG"))

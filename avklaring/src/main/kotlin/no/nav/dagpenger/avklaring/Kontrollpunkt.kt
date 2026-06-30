@@ -19,7 +19,7 @@ class Kontrollpunkt(
             kontroll.kjør(opplysningerMedLogg) ->
                 IKontrollpunkt.Kontrollresultat.KreverAvklaring(
                     avklaringkode,
-                    opplysningerMedLogg.sistBrukteOpplysning,
+                    opplysningerMedLogg.brukteOpplysninger,
                 )
 
             else -> IKontrollpunkt.Kontrollresultat.OK

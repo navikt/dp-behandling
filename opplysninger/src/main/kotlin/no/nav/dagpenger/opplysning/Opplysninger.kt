@@ -71,6 +71,8 @@ class Opplysninger private constructor(
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
 
+    override fun erErstattet(opplysningId: UUID) = opplysningId in erstattet || fjernet.any { it.id == opplysningId }
+
     internal fun <T : Any> leggTilUtledet(opplysning: Opplysning<T>) {
         leggTil(opplysning)
         opplysning.behandlet = true

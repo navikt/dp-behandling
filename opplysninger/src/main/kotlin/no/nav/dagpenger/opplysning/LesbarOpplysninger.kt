@@ -47,6 +47,8 @@ interface LesbarOpplysninger {
 
     fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean
 
+    fun erErstattet(opplysningId: UUID): Boolean
+
     fun somListe(filter: Filter = Filter.Alle): List<Opplysning<*>>
 
     companion object {

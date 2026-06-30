@@ -1,7 +1,6 @@
 package no.nav.dagpenger.avklaring
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.avklaring.TestAvklaringer.ArbeidIEØS
@@ -92,7 +91,6 @@ class KontrollpunktTest {
             avklaringer.size shouldBe 1
             avklaringer.all { it.måAvklares() } shouldBe true
             avklaringer.all { it.kode == TestIkke123 } shouldBe true
-            avklaringer.first().sistEndret.shouldBeAfter(endretOpplysning.opprettet)
         }
     }
 

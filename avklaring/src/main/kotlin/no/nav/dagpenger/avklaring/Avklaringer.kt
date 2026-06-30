@@ -26,7 +26,7 @@ class Avklaringer(
         alleOpplysninger: LesbarOpplysninger,
         aktiveOpplysninger: LesbarOpplysninger,
     ) {
-        vurderAvklaringer(aktiveOpplysninger)
+        vurderAvklaringer(alleOpplysninger, aktiveOpplysninger)
     }
 
     fun gjenåpne(avklaringId: UUID): Boolean = avklaringer.find { it.id == avklaringId }?.gjenåpne() ?: false
@@ -42,10 +42,13 @@ class Avklaringer(
         begrunnelse: String,
     ): Boolean = avklaringer.find { it.id == avklaringId }?.kvitter(kilde, begrunnelse) ?: false
 
-    private fun vurderAvklaringer(opplysninger: LesbarOpplysninger): List<Avklaring> {
+    private fun vurderAvklaringer(
+        alleOpplysninger: LesbarOpplysninger,
+        aktiveOpplysninger: LesbarOpplysninger,
+    ): List<Avklaring> {
         val aktiveAvklaringer: List<KreverAvklaring> =
             kontrollpunkter
-                .map { it.evaluer(opplysninger) }
+                .map { it.evaluer(aktiveOpplysninger) }
                 .filterIsInstance<KreverAvklaring>()
 
         // Avbryt alle avklaringer som ikke lenger er aktive
@@ -54,20 +57,20 @@ class Avklaringer(
             .filter { it.kode.kanAvbrytes }
             .forEach { it.avbryt() }
 
-        // Gjenåpne avklaringer som er aktive igjen, men har blitt avbrutt tidligere
-        // Avklaringer som er kvittert skal ikke gjenåpnes
-        aktiveAvklaringer
-            .mapNotNull { aktiv ->
-                avklaringer.find { eksisterendeAvklaring ->
-                    eksisterendeAvklaring.kode == aktiv.avklaringkode &&
-                        eksisterendeAvklaring.erAvbrutt() &&
-                        eksisterendeAvklaring.sistEndret.isBefore(aktiv.sisteOpplysning)
-                }
-            }.forEach { it.gjenåpne() }
+        // Gjenåpne avklaringer som er aktive igjen, men har blitt avbrutt tidligere,
+        // og der minst én av de opplysningene som trigget siste åpning er erstattet.
+        // Avklaringer som er kvittert skal ikke gjenåpnes.
+        aktiveAvklaringer.forEach { aktiv ->
+            avklaringer
+                .find { eksisterende ->
+                    eksisterende.kode == aktiv.avklaringkode &&
+                        eksisterende.erAvbrutt() &&
+                        eksisterende.erGrunnlagetEndret(alleOpplysninger)
+                }?.gjenåpne(aktiv.grunnlag)
+        }
 
         // Legg til nye avklaringer
-        // TODO: Vi bør nok kun lage nye avklaringer for de som ikke allerede er i listen (her løser Set det for oss)
-        avklaringer.addAll(aktiveAvklaringer.map { Avklaring(it.avklaringkode) })
+        avklaringer.addAll(aktiveAvklaringer.map { Avklaring(it.avklaringkode, it.grunnlag) })
 
         return avklaringer.toList()
     }

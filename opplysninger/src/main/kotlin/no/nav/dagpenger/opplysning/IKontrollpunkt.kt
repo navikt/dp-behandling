@@ -1,6 +1,6 @@
 package no.nav.dagpenger.opplysning
 
-import java.time.LocalDateTime
+import java.util.UUID
 
 interface IKontrollpunkt {
     fun evaluer(opplysninger: LesbarOpplysninger): Kontrollresultat
@@ -10,7 +10,7 @@ interface IKontrollpunkt {
 
         data class KreverAvklaring(
             val avklaringkode: Avklaringkode,
-            val sisteOpplysning: LocalDateTime,
+            val grunnlag: Set<UUID>,
         ) : Kontrollresultat()
     }
 }

@@ -1,7 +1,6 @@
 package no.nav.dagpenger.opplysning
 
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 // Sporer hvilke opplysninger som har vært i bruk
@@ -12,10 +11,8 @@ class LesbarOpplysningerMedLogg(
 
     override val id get() = opplysninger.id
 
-    val sistBrukteOpplysning: LocalDateTime
-        get() =
-            oppslag.maxOfOrNull { it.opprettet }
-                ?: throw IllegalStateException("Ingen opplysninger har blitt brukt")
+    val brukteOpplysninger: Set<UUID>
+        get() = oppslag.map { it.id }.toSet()
 
     override fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>) =
         opplysninger.finnOpplysning(opplysningstype).apply {
@@ -71,13 +68,15 @@ class LesbarOpplysningerMedLogg(
         }
     }
 
+    override fun erErstattet(opplysninger: List<Opplysning<*>>) = this.opplysninger.erErstattet(opplysninger)
+
+    override fun erErstattet(opplysningId: UUID) = opplysninger.erErstattet(opplysningId)
+
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) = TODO("Not yet implemented")
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = TODO("Not yet implemented")
 
     override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) = TODO("Not yet implemented")
-
-    override fun erErstattet(opplysninger: List<Opplysning<*>>) = TODO("Not yet implemented")
 
     override val kunEgne: LesbarOpplysninger get() = TODO("Not yet implemented")
 

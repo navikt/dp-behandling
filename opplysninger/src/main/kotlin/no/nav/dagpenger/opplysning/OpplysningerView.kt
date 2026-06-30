@@ -63,6 +63,12 @@ internal class OpplysningerView(
         return opplysninger.any { it.id in erstattetIder }
     }
 
+    override fun erErstattet(opplysningId: UUID): Boolean {
+        val filtrert = hentBaseListe()
+        val erstattetIder = filtrert.mapNotNull { it.erstatter }.map { it.id }.toSet()
+        return opplysningId in erstattetIder
+    }
+
     override fun somListe(filter: LesbarOpplysninger.Filter): List<Opplysning<*>> {
         val effektivFilter =
             if (bareEgne) LesbarOpplysninger.Filter.Egne else filter
