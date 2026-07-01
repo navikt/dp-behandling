@@ -23,7 +23,7 @@ internal class Kvoteteller private constructor(
 ) {
     constructor(kvoter: List<KvoteDefinisjon>, forbruksdager: List<Beregningsdag>) : this(
         kvoter,
-        rettighetsdager = forbruksdager.filter { !it.avviklerSanksjon }.map { it.dag.dato },
+        rettighetsdager = forbruksdager.filterIsInstance<Beregningsdag.Forbruksdag>().map { it.dag.dato },
         sanksjonsdager = forbruksdager.filter { it.avviklerSanksjon }.map { it.dag.dato }.sorted(),
     )
 

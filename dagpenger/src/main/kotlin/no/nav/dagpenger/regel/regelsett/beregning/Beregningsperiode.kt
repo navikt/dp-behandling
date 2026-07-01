@@ -96,6 +96,8 @@ class Beregningsperiode private constructor(
             }
 
         val totalBrutto = Beløp(satsgrupper.sumOf { it.bruttoBeløp.verdien })
+
+        // Beregn egenandel per satsgruppe én gang og gjenbruk ved fordeling og summering
         val grupperMedEgenandel = satsgrupper.map { it to egenandelForPeriode(it.bruttoBeløp, totalBrutto) }
 
         val utbetalingsForbruksdager =

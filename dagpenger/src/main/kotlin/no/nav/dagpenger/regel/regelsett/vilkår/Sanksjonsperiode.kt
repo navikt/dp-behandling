@@ -47,7 +47,7 @@ object Sanksjonsperiode {
         vilkår(folketrygden.hjemmel(4, 10, "Sanksjonsperiode ved selvforskyldt arbeidsløshet", "Sanksjonsperiode")) {
             skalVurderes { kravPåDagpenger(it) }
 
-            regel(harSanksjon) { somUtgangspunkt(false) }
+            utfall(harSanksjon) { somUtgangspunkt(false) }
             regel(antallSanksjonsuker) { somUtgangspunkt(18) }
             regel(beregnetAntallSanksjonsdager) { multiplikasjon(antallSanksjonsuker, dagerIUka) }
             regel(ingenSanksjonsdager) { somUtgangspunkt(0) }

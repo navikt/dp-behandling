@@ -61,10 +61,12 @@ import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.StreikOgLockout
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknad
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
@@ -258,6 +260,8 @@ internal val opplysningTilVilkårMap =
             VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_IKKE_GI_MANGELFULL_INFORMASJON,
         Søknad.oppfyllerKravetTilSøknad to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_FRAMSATT_SØKNAD,
         Gjenopptak.skalGjenopptas to VilkaarNavnDTO.OPPFYLLER_KRAVET_FOR_GJENOPPTAK_AV_STØNADSPERIODE,
+        Sanksjonsperiode.harSanksjon to VilkaarNavnDTO.ER_ILAGT_SANSKJONSPERIODE_VED_SELVFORSKYLDT_ARBEIDSLØSHET,
+        TidsbegrensetBortfall.harTidsbegrensetBortfall to VilkaarNavnDTO.ER_ILAGT_TIDSBEGRENSET_BORTFALL_AV_DAGPENGER,
     )
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")

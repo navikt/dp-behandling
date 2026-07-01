@@ -154,17 +154,6 @@ object Beregning {
             regel(sisteGjenståendeDager) { høyesteAv(antallStønadsdager) }
             regel(maksAntallPerioderMedIkkeTaptArbeidstid) { somUtgangspunkt(3) }
 
-            // Bortfall (per-meldeperiode)
-            regel(erSanksjonsdag) { tomRegel }
-            regel(forbruktSanksjonsdager) { tomRegel }
-            regel(gjenståendeSanksjonsdager) { tomRegel }
-            regel(sisteSanksjonsdagMedForbruk) { tomRegel }
-            regel(sisteGjenståendeSanksjonsdager) { tomRegel }
-            regel(forbruktBortfallsdager) { tomRegel }
-            regel(gjenståendeBortfallsdager) { tomRegel }
-            regel(sisteBortfallsdagMedForbruk) { tomRegel }
-            regel(sisteGjenståendeBortfallsdager) { tomRegel }
-
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
             regel(meldtITide) { tomRegel }
@@ -173,6 +162,21 @@ object Beregning {
             regel(sumFva) { tomRegel }
             regel(sumArbeidstimer) { tomRegel }
             regel(prosentfaktor) { tomRegel }
+
+            // Sanksjondag – felles for både sanksjon og tidsbegrenset bortfall
+            regel(erSanksjonsdag) { tomRegel }
+
+            // Tellere for sanksjon
+            regel(forbruktSanksjonsdager) { tomRegel }
+            regel(gjenståendeSanksjonsdager) { tomRegel }
+            regel(sisteSanksjonsdagMedForbruk) { tomRegel }
+            regel(sisteGjenståendeSanksjonsdager) { tomRegel }
+
+            // Tellere for tidsbegrenset bortfall
+            regel(forbruktBortfallsdager) { tomRegel }
+            regel(gjenståendeBortfallsdager) { tomRegel }
+            regel(sisteBortfallsdagMedForbruk) { tomRegel }
+            regel(sisteGjenståendeBortfallsdager) { tomRegel }
 
             ønsketResultat(
                 arbeidsdag,

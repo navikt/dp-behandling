@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
@@ -38,12 +39,23 @@ class SanksjonTest {
                 opplysninger(Beregning.forbruktEgenandel) {
                     this.sumOf { it.verdi.verdi as Int } shouldBe 0
                 }
+
                 // Stønadsdager forbrukes normalt (alle 10 arbeidsdager)
                 with(opplysninger(Beregning.forbruk)) {
                     count { it.verdi.verdi == true } shouldBe 10
                 }
 
-                // 10 dager markert som bortfall
+                // Teller forbruk
+                with(opplysninger(Beregning.forbrukt)) {
+                    this.last().verdi.verdi shouldBe 10
+                }
+
+                // Teller gjenstående
+                with(opplysninger(Beregning.sisteGjenståendeDager)) {
+                    this.last().verdi.verdi shouldBe 510
+                }
+
+                // 10 dager markert som sanksjon
                 with(opplysninger(Beregning.erSanksjonsdag)) {
                     count { it.verdi.verdi == true } shouldBe 10
                 }
@@ -84,8 +96,8 @@ class SanksjonTest {
                     count { it.verdi.verdi == true } shouldBe 3
                 }
                 with(opplysninger(Beregning.forbrukt)) {
-                    // Sanksjons-dager telles ikke mot rettighets-kvoten — kun 7 rettighetsdager telles
-                    this.last().verdi.verdi shouldBe 7
+                    // Sanksjons-dager telles mot rettighets-kvoten
+                    this.last().verdi.verdi shouldBe 10
                 }
                 // 4 dager med utbetaling (minus egenandel)
                 utbetalinger.count { it["utbetaling"].asInt() > 0 } shouldBeGreaterThan 0

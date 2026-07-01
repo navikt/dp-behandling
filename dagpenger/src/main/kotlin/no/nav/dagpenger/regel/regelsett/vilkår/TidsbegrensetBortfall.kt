@@ -42,7 +42,7 @@ object TidsbegrensetBortfall {
         vilkår(folketrygden.hjemmel(4, 20, "Tidsbegrenset bortfall av dagpenger", "Tidsbegrenset bortfall")) {
             skalVurderes { kravPåDagpenger(it) }
 
-            regel(harTidsbegrensetBortfall) { somUtgangspunkt(false) }
+            utfall(harTidsbegrensetBortfall) { somUtgangspunkt(false) }
             regel(antallBortfallsuker) { somUtgangspunkt(18) }
             regel(beregnetAntallBortfallsdager) { multiplikasjon(antallBortfallsuker, dagerIUka) }
             regel(ingenBortfallsdager) { somUtgangspunkt(0) }
