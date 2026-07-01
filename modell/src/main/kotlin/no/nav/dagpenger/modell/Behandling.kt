@@ -36,6 +36,7 @@ import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysninger.Companion.forkortetTil
@@ -1038,7 +1039,7 @@ class Behandling private constructor(
     }
 
     private fun flyttBehandling(hendelse: FlyttBehandlingHendelse) {
-        val egneOpplysninger = opplysninger.somListe()
+        val egneOpplysninger = opplysninger.somListe(Egne)
         opplysninger.fjernHvis { opplysning ->
             val utledetAvOpplysninger = opplysning.utledetAv?.opplysninger ?: return@fjernHvis false
             // Fjern opplysning hvis det finnes noen opplysninger i utledetAv er basert på opplysninger fra tidligere behandlinger

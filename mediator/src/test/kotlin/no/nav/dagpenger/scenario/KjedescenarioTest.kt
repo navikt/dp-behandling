@@ -6,11 +6,13 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode.Periodestatus.Arvet
 import org.junit.jupiter.api.Test
@@ -318,6 +320,51 @@ class KjedescenarioTest {
 
             behandlingsresultatForslag {
                 basertPå shouldBe behandlingIdInnvilgelse
+            }
+        }
+    }
+
+    @Test
+    fun `får stans før meldekort`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Melding om "nei" kommer først
+            var opprinneligUUIDs: List<UUID>? = null
+            person.avsluttArbeidssøkerperiode(24.juni(2018))
+            behandlingsresultatForslag(3) {
+                opprinneligUUIDs = opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.id }
+            }
+
+            // Meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            // Simulerer at behandlingen flyttes på
+            rapidInspektør.sisteMelding("flytt_behandling").second.run {
+                saksbehandler.flyttBehandlingTilNyKjede(this["behandlingId"].asUUID(), this["nyBasertPåId"].asUUID())
+            }
+
+            // Stans på grunn av "nei" har blitt flyttet
+            behandlingsresultatForslag(4) {
+                behandletHendelse["type"].asString() shouldBe "Arbeidssøkerperiode"
+
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe false
+
+                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker) {
+                    this shouldHaveSize 2
+                    this.last().verdi.verdi shouldBe false
+
+                    map { it.id } shouldBe opprinneligUUIDs
+                }
             }
         }
     }
