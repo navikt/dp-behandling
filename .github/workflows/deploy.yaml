@@ -60,6 +60,11 @@ jobs:
     permissions:
       id-token: "write"
     steps:
+      - name: NAIS login
+        uses: nais/login@v0
+        id: login
+        with:
+          team: teamdagpenger
       - id: attest-sign
         uses: nais/attest-sign@v2
         with:
