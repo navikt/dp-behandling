@@ -60,11 +60,10 @@ jobs:
     permissions:
       id-token: "write"
     steps:
-      - uses: navikt/dagpenger/actions/attest-sign@master
+      - id: attest-sign
+        uses: nais/attest-sign@v2
         with:
-          image: ${{ needs.build.outputs.image }}
-          digest: ${{ needs.build.outputs.digest }}
-          team: teamdagpenger
+          image_ref: ${{ needs.build.outputs.image }}
 
   deploy-dev:
     name: Deploy to dev
