@@ -816,6 +816,8 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
             behandlingsresultatForslag {
                 rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 15.juni(2026)
                 with(opplysninger(fastsattVanligArbeidstid)) {
                     this shouldHaveSize 1
                 }
@@ -825,14 +827,28 @@ class ScenarioTest {
                 verdi = false,
                 gyldighetsperiode = Gyldighetsperiode(15.juni(2026), 21.juni(2026)),
             )
-
             behovsløsere.løsTilForslag()
+
             saksbehandler.endreOpplysning(
                 kravTilTaptArbeidstid,
                 verdi = true,
                 gyldighetsperiode = Gyldighetsperiode(22.juni(2026)),
             )
             behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
+                with(opplysninger(kravTilTaptArbeidstid)) {
+                    this shouldHaveSize 2
+                }
+                with(opplysninger(fastsattVanligArbeidstid)) {
+                    this shouldHaveSize 1
+                    this.first().gyldigFraOgMed shouldBe 22.juni(2026)
+                    this.first().verdi.verdi shouldBe 37.5
+                }
+            }
 
             saksbehandler.endreOpplysning(
                 beregnetArbeidstid,
@@ -861,6 +877,8 @@ class ScenarioTest {
                 rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
                 with(opplysninger(fastsattVanligArbeidstid)) {
                     this shouldHaveSize 1
+                    this.first().gyldigFraOgMed shouldBe 22.juni(2026)
+                    this.first().verdi.verdi shouldBe 23.5
                 }
             }
         }
