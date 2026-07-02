@@ -21,14 +21,13 @@ import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
 class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
-    private val meldekortBeregningPlugin = MeldekortBeregningPlugin()
-    private val kvotetelling = Kvotetelling()
+    private val meldekortBeregningPlugin = MeldekortBeregningPlugin(regelverk.kvoter())
 
     init {
         registrer(RettighetsperiodePlugin(this.regelverk, OVERSKRIV_ALLTID))
         // TODO: Sjekk at dette faktisk er lurt
         // registrer(PrøvingsdatoPlugin())
-        registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin, kvotetelling))
+        registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin))
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
@@ -73,7 +72,6 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
  */
 class OmgjøringBeregningPlugin(
     private val meldekortBeregningPlugin: MeldekortBeregningPlugin,
-    private val kvotetelling: Kvotetelling,
 ) : ProsessPlugin,
     Aktivitetskontekst {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
@@ -91,9 +89,6 @@ class OmgjøringBeregningPlugin(
         meldeperioder.forEach { periode ->
             meldekortBeregningPlugin.beregnForPeriode(kontekst, periode)
         }
-
-        // Kjør kvotetelling etter at alle perioder er beregnet
-        kvotetelling.regelkjøringFerdig(kontekst)
     }
 
     override fun toSpesifikkKontekst() = SpesifikkKontekst("OmgjøringBeregningPlugin")

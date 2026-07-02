@@ -66,6 +66,8 @@ class Regelverk(
         forDato: LocalDate = LocalDate.MIN,
     ): List<Any> = regelsettFor(opplysningstype).flatMap { it.regler(forDato) }
 
+    fun kvoter() = regelsett.flatMap { it.kvoter }
+
     fun regelsettAvType(type: RegelsettType) = regelsett.filter { it.type == type }
 
     fun regelsettFor(opplysningstype: Opplysningstype<*>): Set<Regelsett> {

@@ -13,18 +13,27 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
+import no.nav.dagpenger.regel.OpplysningsTyper.erSanksjonsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbrukId
+import no.nav.dagpenger.regel.OpplysningsTyper.forbruktBortfallsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbruktEgenandelId
+import no.nav.dagpenger.regel.OpplysningsTyper.forbruktSanksjonsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbrukteDagerId
+import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeBortfallsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeDagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeEgenandelId
+import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendeSanksjonsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.maksAntallPerioderMedIkkeTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldedatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldeperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.meldtId
 import no.nav.dagpenger.regel.OpplysningsTyper.prosentfaktorId
+import no.nav.dagpenger.regel.OpplysningsTyper.sisteBortfallsdagMedForbrukId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDagMedForbrukId
+import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendeBortfallsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendeDagerId
+import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendeSanksjonsdagerId
+import no.nav.dagpenger.regel.OpplysningsTyper.sisteSanksjonsdagMedForbrukId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumArbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumFvaId
 import no.nav.dagpenger.regel.OpplysningsTyper.taptArbeidIPeriodenId
@@ -55,6 +64,40 @@ object Beregning {
 
     val sisteForbruksdag = Opplysningstype.dato(sisteDagMedForbrukId, "Siste forbruksdato")
     val sisteGjenståendeDager = Opplysningstype.heltall(sisteGjenståendeDagerId, "Siste antall dager som gjenstår", enhet = Enhet.Dager)
+
+    val erSanksjonsdag = Opplysningstype.boolsk(erSanksjonsdagId, "Dag med sanksjon av dagpenger")
+
+    val forbruktSanksjonsdager =
+        Opplysningstype.heltall(
+            forbruktSanksjonsdagerId,
+            "Antall dager med sanksjon som er forbrukt",
+            enhet = Enhet.Dager,
+        )
+    val gjenståendeSanksjonsdager =
+        Opplysningstype.heltall(
+            gjenståendeSanksjonsdagerId,
+            "Antall dager med sanksjon som gjenstår",
+            enhet = Enhet.Dager,
+        )
+    val sisteSanksjonsdagMedForbruk = Opplysningstype.dato(sisteSanksjonsdagMedForbrukId, "Siste dag med forbruk av sanksjon")
+    val sisteGjenståendeSanksjonsdager =
+        Opplysningstype.heltall(sisteGjenståendeSanksjonsdagerId, "Siste antall dager med sanksjon som gjenstår", enhet = Enhet.Dager)
+
+    val forbruktBortfallsdager =
+        Opplysningstype.heltall(
+            forbruktBortfallsdagerId,
+            "Antall bortfallsdager som er forbrukt",
+            enhet = Enhet.Dager,
+        )
+    val gjenståendeBortfallsdager =
+        Opplysningstype.heltall(
+            gjenståendeBortfallsdagerId,
+            "Antall bortfallsdager som gjenstår",
+            enhet = Enhet.Dager,
+        )
+    val sisteBortfallsdagMedForbruk = Opplysningstype.dato(sisteBortfallsdagMedForbrukId, "Siste dag med forbruk av bortfall")
+    val sisteGjenståendeBortfallsdager =
+        Opplysningstype.heltall(sisteGjenståendeBortfallsdagerId, "Siste antall bortfallsdager som gjenstår", enhet = Enhet.Dager)
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
     val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
@@ -120,12 +163,32 @@ object Beregning {
             regel(sumArbeidstimer) { tomRegel }
             regel(prosentfaktor) { tomRegel }
 
+            // Sanksjondag – felles for både sanksjon og tidsbegrenset bortfall
+            regel(erSanksjonsdag) { tomRegel }
+
+            // Tellere for sanksjon
+            regel(forbruktSanksjonsdager) { tomRegel }
+            regel(gjenståendeSanksjonsdager) { tomRegel }
+            regel(sisteSanksjonsdagMedForbruk) { tomRegel }
+            regel(sisteGjenståendeSanksjonsdager) { tomRegel }
+
+            // Tellere for tidsbegrenset bortfall
+            regel(forbruktBortfallsdager) { tomRegel }
+            regel(gjenståendeBortfallsdager) { tomRegel }
+            regel(sisteBortfallsdagMedForbruk) { tomRegel }
+            regel(sisteGjenståendeBortfallsdager) { tomRegel }
+
             ønsketResultat(
                 arbeidsdag,
                 arbeidstimer,
+                erSanksjonsdag,
                 forbruk,
                 forbrukt,
+                forbruktSanksjonsdager,
+                forbruktBortfallsdager,
                 forbruktEgenandel,
+                gjenståendeBortfallsdager,
+                gjenståendeSanksjonsdager,
                 gjenståendeEgenandel,
                 gjenståendeDager,
                 maksAntallPerioderMedIkkeTaptArbeidstid,

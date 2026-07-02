@@ -80,22 +80,16 @@ class BeregningTest {
 
                 with(opplysninger(Beregning.forbrukt)) {
                     none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
-                    map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
+                    // Kun forbruksdager skrives — ikke-forbruksdager (helg, dager før virkningstidspunkt) gir ingen fakta
+                    map { it.verdi.verdi }.shouldContainExactly(1, 2, 3, 4, 5, 6, 7)
                     map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
-                        "2018-06-18",
-                        "2018-06-19",
-                        "2018-06-20",
                         "2018-06-21",
                         "2018-06-22",
-                        "2018-06-23",
-                        "2018-06-24",
                         "2018-06-25",
                         "2018-06-26",
                         "2018-06-27",
                         "2018-06-28",
                         "2018-06-29",
-                        "2018-06-30",
-                        "2018-07-01",
                     )
                 }
             }
@@ -112,22 +106,16 @@ class BeregningTest {
                 with(opplysninger(Beregning.forbrukt)) {
                     forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
 
-                    map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
+                    // Kun forbruksdager skrives — ikke-forbruksdager (helg, dager før virkningstidspunkt) gir ingen fakta
+                    map { it.verdi.verdi }.shouldContainExactly(1, 2, 3, 4, 5, 6, 7)
                     map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
-                        "2018-06-18",
-                        "2018-06-19",
-                        "2018-06-20",
                         "2018-06-21",
                         "2018-06-22",
-                        "2018-06-23",
-                        "2018-06-24",
                         "2018-06-25",
                         "2018-06-26",
                         "2018-06-27",
                         "2018-06-28",
                         "2018-06-29",
-                        "2018-06-30",
-                        "2018-07-01",
                     )
                 }
             }
@@ -172,7 +160,8 @@ class BeregningTest {
                     val forbruksdager = map { it.verdi.verdi as Int }
                     forbruksdager.shouldBeMonotonicallyIncreasing()
 
-                    forbruksdager.shouldStartWith(0)
+                    // Kun forbruksdager skrives — første er alltid 1 (ikke 0)
+                    forbruksdager.shouldStartWith(1)
                     forbruksdager.shouldEndWith(37)
                 }
             }

@@ -1,6 +1,8 @@
 package no.nav.dagpenger.regel.regelsett.beregning
-import io.github.oshai.kotlinlogging.KotlinLogging
+
+import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.sanksjonerSortert
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
@@ -22,10 +24,13 @@ class BeregningsperiodeFabrikk(
     meldeperiodeFraOgMed: LocalDate,
     meldeperiodeTilOgMed: LocalDate,
     private val opplysninger: LesbarOpplysninger,
+    private val kvoter: List<KvoteDefinisjon>,
 ) {
     private val meldeperiode = Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed)
 
-    private val logger = KotlinLogging.logger { }
+    private val logger =
+        io.github.oshai.kotlinlogging.KotlinLogging
+            .logger { }
 
     fun lagBeregningsperiode(): Beregningsperiode {
         val dager = opprettPeriode(meldeperiode)
@@ -33,18 +38,20 @@ class BeregningsperiodeFabrikk(
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
                 opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
         val gjenståendeEgenandel = hentGjenståendeEgenandel(meldeperiode.fraOgMed)
+        val sanksjonsdagerIgjen = hentGjenståendeBortfall(meldeperiode.fraOgMed)
 
         logger.info {
             """
             Oppretter beregningsperiode med:
             - gjenståendeEgenandel = $gjenståendeEgenandel, 
             - stønadsdagerIgjen = $stønadsdagerIgjen, 
+            - sanksjonsdagerIgjen = $sanksjonsdagerIgjen,
             - periode = ${dager.joinToString(
                 "|",
             ) { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ", " + it.javaClass.simpleName + ")" }}
             """.trimIndent()
         }
-        return Beregningsperiode(gjenståendeEgenandel, dager, stønadsdagerIgjen)
+        return Beregningsperiode(gjenståendeEgenandel, dager, stønadsdagerIgjen, sanksjonsdagerIgjen)
     }
 
     private fun hentGjenståendeEgenandel(førsteDag: LocalDate): Beløp {
@@ -56,6 +63,9 @@ class BeregningsperiodeFabrikk(
             .lastOrNull { it.gyldighetsperiode.tilOgMed.isBefore(førsteDag) }
             ?.verdi ?: innvilgetEgenandel
     }
+
+    private fun hentGjenståendeBortfall(førsteDag: LocalDate): Int =
+        kvoter.sanksjonerSortert(opplysninger).sumOf { kvote -> kvote.gjenståendeVed(opplysninger, førsteDag) }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
         val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }

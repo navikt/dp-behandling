@@ -22,6 +22,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegru
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
@@ -803,6 +804,35 @@ class ScenarioTest {
                 rettighetsperioder.last().harRett shouldBe true
 
                 førteTil shouldBe "Gjenopptak"
+            }
+        }
+    }
+
+    @Test
+    fun `tester automatisk stans etter oppbrukt periode`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            // Simuler siste ende på perioden
+            saksbehandler.endreOpplysning(antallStønadsdager, 5)
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            behandlingsresultat(2) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder.last().fraOgMed shouldBe 28.juni(2018)
             }
         }
     }

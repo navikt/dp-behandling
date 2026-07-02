@@ -30,5 +30,6 @@ class ProsessRegelsettBuilder internal constructor(
             skalRevurderes = skalRevurderes,
             påvirkerResultat = relevant,
             betingelser = emptyList(),
+            kvoter = kvoter.toList(),
         )
 }

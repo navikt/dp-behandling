@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel
+
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
@@ -35,10 +36,12 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.StreikOgLockout
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknad
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
@@ -62,9 +65,9 @@ val RegelverkDagpenger =
         KravPåDagpenger.regelsett,
         Meldeplikt.regelsett,
         Minsteinntekt.regelsett,
+        OmgjøringUtenKlage.regelsett,
         Opphold.regelsett,
         Opptjeningstid.regelsett,
-        OmgjøringUtenKlage.regelsett,
         Permittering.regelsett,
         PermitteringFastsetting.regelsett,
         PermitteringFraFiskeindustrien.regelsett,
@@ -74,10 +77,12 @@ val RegelverkDagpenger =
         Rettighetstype.regelsett,
         SamordingUtenforFolketrygden.regelsett,
         Samordning.regelsett,
+        Sanksjonsperiode.regelsett,
         StreikOgLockout.regelsett,
         Søknad.regelsett,
         Søknadstidspunkt.regelsett,
         TapAvArbeidsinntektOgArbeidstid.regelsett,
+        TidsbegrensetBortfall.regelsett,
         Uriktigeopplysninger.regelsett,
         Utdanning.regelsett,
         Utestengning.regelsett,

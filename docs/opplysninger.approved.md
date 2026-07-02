@@ -15,6 +15,8 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
+|e8e28792-0ad4-4419-9cda-b166036e0fd9|Antall dager med sanksjon som er forbrukt|Heltall|int|| Dager|Resultat
+|fba5f0fb-4510-4c0b-8a78-4ead6111840e|Siste dag med forbruk av sanksjon|Dato|LocalDate|||Utgangspunkt
 |01948ea0-36e8-72cc-aa4f-16bc446ed3bd|Arbeidsdag|Boolsk|boolean|||Resultat
 |01948ea0-e25c-7c47-8429-a05045d80eca|Arbeidstimer på en arbeidsdag|Desimaltall|double|| Timer|Resultat
 |01948ea0-ffdc-7964-ab55-52a7e35e1020|Dag som fører til forbruk av dagpengeperiode|Boolsk|boolean|||Resultat
@@ -36,6 +38,13 @@ Dette er opplysninger som blir brukt av regelverket.
 |019cf5f9-b3ef-7464-8be7-a0f8c3d8f7b2|Siste forbruksdato|Dato|LocalDate|||Utgangspunkt
 |019d007f-8696-7409-bd51-f4fbfc4babb4|Siste antall dager som gjenstår|Heltall|int|| Dager|Intern
 |019d7244-fa9a-71e6-89b3-a2acef856ef5|Maks antall perioder en kan ha påfølgende tap av arbeidstid|Heltall|int|||Resultat
+|019df7d6-5157-7e29-b582-d3d1dfcc30c5|Antall bortfallsdager som er forbrukt|Heltall|int|| Dager|Resultat
+|019df7d6-5159-7290-b8a1-9fc9edc58579|Antall bortfallsdager som gjenstår|Heltall|int|| Dager|Resultat
+|019df7d6-515a-7458-bdc1-8fa2ef530152|Siste dag med forbruk av bortfall|Dato|LocalDate|||Utgangspunkt
+|019df7d6-515b-79c5-9c80-6ee2bc4b951b|Siste antall bortfallsdager som gjenstår|Heltall|int|| Dager|Utgangspunkt
+|019df7e6-33bc-7daa-ad4e-46ba84c3cb49|Dag med sanksjon av dagpenger|Boolsk|boolean|||Resultat
+|17ca728c-1994-438d-acbf-4098bc1c0dcd|Siste antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Utgangspunkt
+|76d9c243-228b-4359-9550-1ebbb7ba5cb5|Antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Resultat
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger
@@ -287,6 +296,18 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943f-78d9-b874-00a4944c54f0|Antall dagsats for egenandel|Desimaltall|double|| Dager|Intern
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Penger|Beløp|||Intern
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Penger|Beløp|||Utgangspunkt
+### § 4-10. Sanksjonsperiode ved selvforskyldt arbeidsløshet
+*Type:* Vilkår
+#### Avhenger på data fra
+- [§ 4-15. Antall stønadsuker (stønadsperiode)](#-4-15-antall-stønadsuker-(stønadsperiode))
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|f13a07fe-0e18-4a3c-bd93-1e4d03d4fee9|Ingen dager med sanksjon|Heltall|int|| Dager|Utgangspunkt
+|019e82fc-04e7-7f8d-bd52-6a7041ebb15f|Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet|Boolsk|boolean|||Resultat
+|019e82fc-bdd6-77d8-a2bc-4bd7f1d46b25|Antall dager med sanksjon|Heltall|int|| Dager|Resultat
+|019e82fd-f97c-7395-be5c-7de504871871|Antall uker med sanksjon|Heltall|int|| Uker|Utgangspunkt
+|136aeb82-2081-4dde-b443-77bd253f9c0e|Beregnet antall dager med sanksjon|Heltall|int|| Dager|Intern
 ### § 4-11. Dagpengegrunnlag
 *Type:* Fastsettelse
 #### Avklaringer
@@ -440,6 +461,18 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9421-766c-9dc6-41fe6c9a1e00|Grunnlag som gis ved verneplikt|Penger|Beløp|||Resultat
 |0194881f-9421-766c-9dc6-41fe6c9a1e01|Periode som gis ved verneplikt|Heltall|int|| Uker|Resultat
 |0194881f-9421-766c-9dc6-41fe6c9a1e02|Fastsatt vanlig arbeidstid for verneplikt|Desimaltall|double|| Timer|Resultat
+### § 4-20. Tidsbegrenset bortfall av dagpenger
+*Type:* Vilkår
+#### Avhenger på data fra
+- [§ 4-15. Antall stønadsuker (stønadsperiode)](#-4-15-antall-stønadsuker-(stønadsperiode))
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|956a3057-d81c-42b0-bc49-156098556d7e|Ingen dager med tidsbegrenset bortfall|Heltall|int|| Dager|Utgangspunkt
+|019df7d6-5156-7785-a6fd-54f5af1244be|Antall dager med tidsbegrenset bortfall|Heltall|int|| Dager|Resultat
+|019df9b1-7052-72e9-9232-547f7cb6ba60|Er ilagt tidsbegrenset bortfall av dagpenger|Boolsk|boolean|||Resultat
+|019e8300-20f7-7cba-b8dc-7bebfd86dcf3|Antall uker med tidsbegrenset bortfall|Heltall|int|| Uker|Utgangspunkt
+|022adcbd-aae7-482d-9259-1799cb1f9fbe|Beregnet antall dager med tidsbegrenset bortfall|Heltall|int|| Dager|Intern
 ### § 4-22. Bortfall ved streik og lock-out
 *Type:* Vilkår
 #### Opplysninger

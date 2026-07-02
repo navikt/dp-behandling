@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.dsl
 
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Hjemmel
+import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
@@ -11,17 +12,22 @@ import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
 
 abstract class RegelsettBuilderBase(
-    protected val hjemmel: Hjemmel,
+    val hjemmel: Hjemmel,
     protected val type: RegelsettType,
 ) {
     protected val regler: MutableMap<Opplysningstype<*>, TemporalCollection<Regel<*>>> = mutableMapOf()
     protected val avklaringer: MutableSet<Avklaringkode> = mutableSetOf()
+    protected val kvoter: MutableList<KvoteDefinisjon> = mutableListOf()
     protected var skalVurderes: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
     protected var skalRevurderes: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
     protected var relevant: (opplysninger: LesbarOpplysninger) -> Boolean = { true }
 
     fun avklaring(avklaringkode: Avklaringkode) {
         avklaringer.add(avklaringkode)
+    }
+
+    fun kvote(kvote: KvoteDefinisjon) {
+        kvoter.add(kvote)
     }
 
     fun skalVurderes(block: (opplysninger: LesbarOpplysninger) -> Boolean) {

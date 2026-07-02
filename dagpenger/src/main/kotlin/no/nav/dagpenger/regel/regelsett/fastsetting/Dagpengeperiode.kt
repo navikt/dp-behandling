@@ -1,9 +1,12 @@
 package no.nav.dagpenger.regel.regelsett.fastsetting
+import no.nav.dagpenger.opplysning.Forbrukstype
+import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.beløp
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
+import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.divisjon
@@ -32,12 +35,14 @@ import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor36Id
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.antallÅrI36Måneder
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
 object Dagpengeperiode {
-    private val dagerIUka = heltall(DagerIUkaId, "Antall dager som skal regnes med i hver uke", synlig = aldriSynlig, enhet = Enhet.Dager)
+    val dagerIUka = heltall(DagerIUkaId, "Antall dager som skal regnes med i hver uke", synlig = aldriSynlig, enhet = Enhet.Dager)
 
     private val kortPeriode = heltall(KortPeriodeId, "Kort dagpengeperiode", synlig = aldriSynlig, enhet = Enhet.Uker)
     private val langPeriode = heltall(LangPeriodeId, "Lang dagpengeperiode", synlig = aldriSynlig, enhet = Enhet.Uker)
@@ -63,7 +68,6 @@ object Dagpengeperiode {
 
     private val antallStønadsuker = heltall(AntallStønadsukerId, "Antall stønadsuker", synlig = aldriSynlig, enhet = Enhet.Uker)
     val antallStønadsdager = heltall(GjenståendeStønadsdagerId, "Antall stønadsdager", synlig = aldriSynlig, enhet = Enhet.Dager)
-
     private val ingenOrdinærPeriode =
         heltall(
             IngenOrdinærPeriodeId,
@@ -103,6 +107,20 @@ object Dagpengeperiode {
 
             regel(dagerIUka) { oppslag(prøvingsdato) { 5 } }
             regel(antallStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
+
+            kvote(
+                KvoteDefinisjon(
+                    hjemmel = hjemmel,
+                    forbrukstype = Forbrukstype.Rettighet,
+                    tildelingsgrunnlag = Tildelingsgrunnlag(antallStønadsdager),
+                    tellesNår = Beregning.forbruk,
+                    forbruksteller = Beregning.forbrukt,
+                    gjenstående = Beregning.gjenståendeDager,
+                    sisteForbruk = Beregning.sisteForbruksdag,
+                    sisteGjenstående = Beregning.sisteGjenståendeDager,
+                    utløsendeBetingelse = KravPåDagpenger.harLøpendeRett,
+                ),
+            )
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
