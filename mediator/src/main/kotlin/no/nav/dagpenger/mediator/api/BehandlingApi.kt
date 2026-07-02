@@ -267,7 +267,11 @@ internal fun Application.behandlingApi(
 
                     call.respond(
                         HttpStatusCode.OK,
-                        person.behandlinger().map { it.tilBehandlingDTO() }.sortedByDescending { it.sistEndret },
+                        person
+                            .behandlinger()
+                            .map { it.tilBehandlingDTO() }
+                            // TODO: Sorter etter basertPå/behandlingskjede
+                            .sortedByDescending { it.sistEndret },
                     )
                 }
                 get("v2/{behandlingId}") {
