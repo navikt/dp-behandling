@@ -24,8 +24,10 @@ import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.StreikOgLockout
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
@@ -74,6 +76,8 @@ internal val dagpengerRegeltreDokumentasjonOppsett =
                 "@regel-uriktig-eller-mangelfulle-opplysninger" to Uriktigeopplysninger.regelsett,
                 "@regel-omgjøring-uten-klage" to OmgjøringUtenKlage.regelsett,
                 "@regel-gjenopptak" to Gjenopptak.regelsett,
+                "@regel-sanksjon" to Sanksjonsperiode.regelsett,
+                "@regel-tidsbegrenset-bortfall" to TidsbegrensetBortfall.regelsett,
             ).map {
                 it.key to listOf(it.value)
             }.toMap(),
