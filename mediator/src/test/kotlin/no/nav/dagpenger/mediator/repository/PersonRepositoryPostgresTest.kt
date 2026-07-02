@@ -89,6 +89,54 @@ class PersonRepositoryPostgresTest {
             personRepositoryPostgres.lagre(person)
         }
 
+    @Test
+    fun `hent finner person via alias-ident etter merge`() =
+        personTest {
+            val vinner = Ident("12345678901")
+            val taper = Ident("10987654321")
+
+            personRepositoryPostgres.lagre(Person(vinner))
+            personRepositoryPostgres.lagre(Person(taper))
+
+            personRepositoryPostgres.merge(winner = vinner, loser = taper)
+
+            val funnetViaVinner = personRepositoryPostgres.hent(vinner)
+            val funnetViaTaper = personRepositoryPostgres.hent(taper)
+
+            // Begge peker på samme kanoniske ident (vinner) etter merge
+            funnetViaVinner?.ident?.identifikator() shouldBe vinner.identifikator()
+            funnetViaTaper?.ident?.identifikator() shouldBe vinner.identifikator()
+            funnetViaVinner?.ident?.alleIdentifikatorer()!! shouldContain taper.identifikator()
+        }
+
+    @Test
+    fun `harIdent returnerer true for både vinner og taper etter merge`() =
+        personTest {
+            val vinner = Ident("12345678901")
+            val taper = Ident("10987654321")
+
+            personRepositoryPostgres.lagre(Person(vinner))
+            personRepositoryPostgres.lagre(Person(taper))
+            personRepositoryPostgres.merge(winner = vinner, loser = taper)
+
+            personRepositoryPostgres.harIdent(vinner) shouldBe true
+            personRepositoryPostgres.harIdent(taper) shouldBe true
+        }
+
+    @Test
+    fun `merge er idempotent`() =
+        personTest {
+            val vinner = Ident("12345678901")
+            val taper = Ident("10987654321")
+
+            personRepositoryPostgres.lagre(Person(vinner))
+            personRepositoryPostgres.lagre(Person(taper))
+            personRepositoryPostgres.merge(winner = vinner, loser = taper)
+            personRepositoryPostgres.merge(winner = vinner, loser = taper)
+
+            personRepositoryPostgres.hent(taper)?.ident?.identifikator() shouldBe vinner.identifikator()
+        }
+
     private fun personTest(block: Persontest.() -> Unit) {
         withMigratedDb {
             val fnr = "12345678901"

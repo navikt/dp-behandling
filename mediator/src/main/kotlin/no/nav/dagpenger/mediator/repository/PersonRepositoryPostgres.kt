@@ -1,6 +1,8 @@
 package no.nav.dagpenger.mediator.repository
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.NotFoundException
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import io.prometheus.metrics.model.snapshots.Labels
 import kotliquery.Session
@@ -15,6 +17,7 @@ import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.Utestengningsperiode
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
+import java.util.UUID
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
@@ -36,11 +39,21 @@ class PersonRepositoryPostgres(
                     queryOf(
                         //language=PostgreSQL
                         """
-                        SELECT * FROM person WHERE ident = :ident FOR UPDATE
+                        SELECT p.ident, (
+                            SELECT array_agg(pi_all.ident)
+                            FROM person_ident pi_all
+                            WHERE pi_all.person_id = p.person_id
+                        ) AS alle_identer
+                        FROM person p
+                        INNER JOIN person_ident pi ON pi.ident = :ident AND pi.person_id = p.person_id
+                        FOR UPDATE OF p
                         """.trimIndent(),
                         mapOf("ident" to ident.identifikator()),
                     ).map { row ->
-                        val dbIdent = Ident(row.string("ident"))
+                        val kanoniskIdent = row.string("ident")
+                        val alleIdenter = row.array<String>("alle_identer").toList()
+                        val aliaser = alleIdenter.filter { it != kanoniskIdent }
+                        val dbIdent = Ident(kanoniskIdent, aliaser)
                         val rettighetstatuser = session.rettighetstatusFor(dbIdent)
                         val utestengninger = session.utestengningerFor(dbIdent)
                         val behandlinger = behandlingRepository.hentBehandlinger(dbIdent)
@@ -78,8 +91,14 @@ class PersonRepositoryPostgres(
                 queryOf(
                     //language=PostgreSQL
                     """
-                    SELECT 1 FROM utestengning
-                    WHERE ident = :ident AND fra_og_med <= :dato AND til_og_med >= :dato
+                    SELECT 1 FROM utestengning u
+                    WHERE u.ident = ANY(
+                        SELECT pi.ident FROM person_ident pi
+                        WHERE pi.person_id = (
+                            SELECT pi2.person_id FROM person_ident pi2 WHERE pi2.ident = :ident
+                        )
+                    )
+                    AND u.fra_og_med <= :dato AND u.til_og_med >= :dato
                     LIMIT 1
                     """.trimIndent(),
                     mapOf("ident" to ident.identifikator(), "dato" to dato),
@@ -95,12 +114,213 @@ class PersonRepositoryPostgres(
                     queryOf(
                         //language=PostgreSQL
                         """
-                        SELECT 1 FROM person WHERE ident = :ident
+                        SELECT 1 FROM person_ident WHERE ident = :ident
                         """.trimIndent(),
                         mapOf("ident" to ident.identifikator()),
                     ).map { row -> row.intOrNull(1) ?: 0 }.asSingle,
                 ) == 1
         }
+
+    @WithSpan
+    override fun merge(
+        winner: Ident,
+        loser: Ident,
+    ) {
+        dbSession.transaction {
+            val winnerPersonId = session.finnPersonId(winner) ?: throw NotFoundException("Vinner-ident finnes ikke")
+            val loserPersonId = session.finnPersonId(loser) ?: throw NotFoundException("Taper-ident finnes ikke")
+            if (winnerPersonId == loserPersonId) {
+                logger.info { "Merge no-op: $winnerPersonId og $loserPersonId peker allerede på samme person" }
+                return@transaction
+            }
+
+            val winnerIdent = session.finnKanoniskIdent(winnerPersonId)
+            val loserIdenter = session.finnAlleIdenter(loserPersonId)
+
+            logger.info { "Merger person $loserPersonId inn i $winnerPersonId" }
+
+            // Flytt alle loser-identer til winner sin person_id
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    "UPDATE person_ident SET person_id = :winner, er_gjeldende = FALSE WHERE person_id = :loser",
+                    mapOf("winner" to winnerPersonId, "loser" to loserPersonId),
+                ).asUpdate,
+            )
+
+            // Flytt alle FK-koblinger fra loser-identer til winner-identen
+            loserIdenter.forEach { loserIdentStr ->
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        INSERT INTO person_behandling (ident, behandling_id)
+                        SELECT :winner, behandling_id FROM person_behandling WHERE ident = :loser
+                        ON CONFLICT DO NOTHING
+                        """.trimIndent(),
+                        mapOf("winner" to winnerIdent, "loser" to loserIdentStr),
+                    ).asUpdate,
+                )
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        "DELETE FROM person_behandling WHERE ident = :loser",
+                        mapOf("loser" to loserIdentStr),
+                    ).asUpdate,
+                )
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        "UPDATE rettighetstatus SET ident = :winner WHERE ident = :loser",
+                        mapOf("winner" to winnerIdent, "loser" to loserIdentStr),
+                    ).asUpdate,
+                )
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        "UPDATE utestengning SET ident = :winner WHERE ident = :loser",
+                        mapOf("winner" to winnerIdent, "loser" to loserIdentStr),
+                    ).asUpdate,
+                )
+            }
+
+            // Beholder loser sin person-rad som anker for FK-integritet (meldekort_hendelse etc.)
+            // Loser-raden er ikke lenger nåbar via person_ident (alle peker til winner)
+        }
+    }
+
+    @WithSpan
+    override fun split(
+        loserIdent: Ident,
+        fraIdent: Ident,
+    ) {
+        dbSession.transaction {
+            val fraPersonId = session.finnPersonId(fraIdent) ?: throw NotFoundException("Fra-ident finnes ikke")
+            val loserPersonId = session.finnPersonId(loserIdent) ?: throw NotFoundException("Loser-ident finnes ikke")
+            if (loserPersonId != fraPersonId) {
+                throw BadRequestException("Loser-ident tilhører ikke fra-personen — er de allerede splittet?")
+            }
+            val fraKanoniskIdent = session.finnKanoniskIdent(fraPersonId)
+
+            // Finn behandlinger initiert av loserIdent (provenance via behandler_hendelse)
+            val loserBehandlingIds =
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT DISTINCT pb.behandling_id
+                        FROM person_behandling pb
+                        INNER JOIN behandler_hendelse_behandling bhb ON bhb.behandling_id = pb.behandling_id
+                        INNER JOIN behandler_hendelse bh ON bh.melding_id = bhb.melding_id
+                        WHERE bh.ident = :loserIdent AND pb.ident = :fraIdent
+                        """.trimIndent(),
+                        mapOf("loserIdent" to loserIdent.identifikator(), "fraIdent" to fraKanoniskIdent),
+                    ).map { row -> row.uuid("behandling_id") }.asList,
+                )
+
+            logger.info { "Splitter loser fra person $fraPersonId med ${loserBehandlingIds.size} behandlinger" }
+
+            // Opprett ny person-rad for loser-identen (kan allerede eksistere fra før merge)
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    "INSERT INTO person (ident) VALUES (:ident) ON CONFLICT (ident) DO NOTHING",
+                    mapOf("ident" to loserIdent.identifikator()),
+                ).asUpdate,
+            )
+            // Les person_id direkte fra person-tabellen — person_ident peker fortsatt til winner
+            val nyPersonId =
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        "SELECT person_id FROM person WHERE ident = :ident",
+                        mapOf("ident" to loserIdent.identifikator()),
+                    ).map { row -> row.uuid("person_id") }.asSingle,
+                ) ?: error("Kunne ikke opprette person for loser-ident")
+
+            // Flytt loser-identen til sin nye person_id
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    "UPDATE person_ident SET person_id = :nyPersonId, er_gjeldende = TRUE WHERE ident = :ident",
+                    mapOf("nyPersonId" to nyPersonId, "ident" to loserIdent.identifikator()),
+                ).asUpdate,
+            )
+
+            if (loserBehandlingIds.isNotEmpty()) {
+                val behandlingsArray = loserBehandlingIds.toTypedArray()
+
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        INSERT INTO person_behandling (ident, behandling_id)
+                        SELECT :loser, behandling_id FROM person_behandling
+                        WHERE ident = :fra AND behandling_id = ANY(:behandlinger)
+                        ON CONFLICT DO NOTHING
+                        """.trimIndent(),
+                        mapOf("loser" to loserIdent.identifikator(), "fra" to fraKanoniskIdent, "behandlinger" to behandlingsArray),
+                    ).asUpdate,
+                )
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        "DELETE FROM person_behandling WHERE ident = :fra AND behandling_id = ANY(:behandlinger)",
+                        mapOf("fra" to fraKanoniskIdent, "behandlinger" to behandlingsArray),
+                    ).asUpdate,
+                )
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        "UPDATE rettighetstatus SET ident = :loser WHERE ident = :fra AND behandling_id = ANY(:behandlinger)",
+                        mapOf("loser" to loserIdent.identifikator(), "fra" to fraKanoniskIdent, "behandlinger" to behandlingsArray),
+                    ).asUpdate,
+                )
+                session.run(
+                    queryOf(
+                        //language=PostgreSQL
+                        "UPDATE utestengning SET ident = :loser WHERE ident = :fra AND behandling_id = ANY(:behandlinger)",
+                        mapOf("loser" to loserIdent.identifikator(), "fra" to fraKanoniskIdent, "behandlinger" to behandlingsArray),
+                    ).asUpdate,
+                )
+            }
+        }
+    }
+
+    private fun Session.finnPersonId(ident: Ident): UUID? =
+        run(
+            queryOf(
+                //language=PostgreSQL
+                "SELECT person_id FROM person_ident WHERE ident = :ident",
+                mapOf("ident" to ident.identifikator()),
+            ).map { it.uuid("person_id") }.asSingle,
+        )
+
+    private fun Session.finnKanoniskIdent(personId: UUID): String =
+        run(
+            queryOf(
+                //language=PostgreSQL
+                "SELECT ident FROM person WHERE person_id = :personId",
+                mapOf("personId" to personId),
+            ).map { it.string("ident") }.asSingle,
+        ) ?: error("Fant ingen kanonisk ident for person_id $personId")
+
+    private fun Session.finnAlleIdenter(personId: UUID): List<String> =
+        run(
+            queryOf(
+                //language=PostgreSQL
+                "SELECT ident FROM person_ident WHERE person_id = :personId",
+                mapOf("personId" to personId),
+            ).map { it.string("ident") }.asList,
+        )
+
+    // Private hjelpere for aliasoppslag
+    //
+    // Disse kalles alltid fra hent(), der Ident allerede er lastet med alle aliaser fra DB.
+    // De bruker alleIdentifikatorer() direkte — ingen ekstra DB-rundtur.
+    //
+    // Offentlige metoder (erUtestengt, rettighetstatusFor) kan motta en Ident uten aliaser,
+    // og gjør derfor et friskt oppslag via person_ident-subquery.
 
     private fun Session.rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
         this
@@ -108,9 +328,9 @@ class PersonRepositoryPostgres(
                 queryOf(
                     //language=PostgreSQL
                     """
-                    SELECT * FROM rettighetstatus WHERE ident = :ident ORDER BY opprettet
+                    SELECT * FROM rettighetstatus WHERE ident = ANY(:identer) ORDER BY opprettet
                     """.trimIndent(),
-                    mapOf("ident" to ident.identifikator()),
+                    mapOf("identer" to ident.alleIdentifikatorer().toTypedArray()),
                 ).map { row ->
                     val gjelderFra = row.localDate("gjelder_fra")
                     val virkningsdato = row.localDate("virkningsdato")
@@ -131,9 +351,9 @@ class PersonRepositoryPostgres(
                 queryOf(
                     //language=PostgreSQL
                     """
-                    SELECT * FROM utestengning WHERE ident = :ident ORDER BY fra_og_med
+                    SELECT * FROM utestengning WHERE ident = ANY(:identer) ORDER BY fra_og_med
                     """.trimIndent(),
-                    mapOf("ident" to ident.identifikator()),
+                    mapOf("identer" to ident.alleIdentifikatorer().toTypedArray()),
                 ).map { row ->
                     Utestengningsperiode(
                         fraOgMed = row.localDate("fra_og_med"),
@@ -161,6 +381,18 @@ class PersonRepositoryPostgres(
                 //language=PostgreSQL
                 """
                 INSERT INTO person (ident) VALUES (:ident) ON CONFLICT DO NOTHING
+                """.trimIndent(),
+                mapOf("ident" to person.ident.identifikator()),
+            ).asUpdate,
+        )
+        // Sørg for at person_ident-raden finnes for nye personer
+        unitOfWork.session.run(
+            queryOf(
+                //language=PostgreSQL
+                """
+                INSERT INTO person_ident (ident, person_id)
+                SELECT :ident, person_id FROM person WHERE ident = :ident
+                ON CONFLICT DO NOTHING
                 """.trimIndent(),
                 mapOf("ident" to person.ident.identifikator()),
             ).asUpdate,
