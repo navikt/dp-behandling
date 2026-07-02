@@ -199,6 +199,49 @@ class KvotetellerTest {
     }
 
     @Test
+    fun `setter utløsende betingelse til false fra dagen etter kvoten er brukt opp`() {
+        val betingelse = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Sanksjon aktiv")
+        val kvote = lagKvoteDef(forbrukstype = Forbrukstype.Sanksjon, utløsendeBetingelse = betingelse)
+        val opplysninger =
+            Opplysninger().apply {
+                leggTil(Faktum(kapasitet, 2, Gyldighetsperiode(1.januar(2025))))
+                leggTil(Faktum(betingelse, true, Gyldighetsperiode(1.januar(2025))))
+            }
+        val dager = listOf(6.januar(2025), 7.januar(2025))
+
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+        )
+
+        opplysninger.finnAlle(gjenstående).last().verdi shouldBe 0
+        val betingelseVerdier = opplysninger.finnAlle(betingelse).sortedBy { it.gyldighetsperiode.fraOgMed }
+        betingelseVerdier.last().verdi shouldBe false
+        betingelseVerdier.last().gyldighetsperiode.fraOgMed shouldBe 8.januar(2025) // dagen etter siste forbruksdag
+    }
+
+    @Test
+    fun `setter ikke utløsende betingelse til false når kvoten ikke er brukt opp`() {
+        val betingelse = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Sanksjon aktiv")
+        val kvote = lagKvoteDef(forbrukstype = Forbrukstype.Sanksjon, utløsendeBetingelse = betingelse)
+        val opplysninger =
+            Opplysninger().apply {
+                leggTil(Faktum(kapasitet, 5, Gyldighetsperiode(1.januar(2025))))
+                leggTil(Faktum(betingelse, true, Gyldighetsperiode(1.januar(2025))))
+            }
+        val dager = listOf(6.januar(2025), 7.januar(2025))
+
+        KvotetellingsSkriver(kvote).skriv(
+            opplysninger,
+            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+        )
+
+        opplysninger.finnAlle(gjenstående).last().verdi shouldBe 3
+        // Betingelsen skal ikke endres — kun én verdi (den originale true)
+        opplysninger.finnAlle(betingelse).single().verdi shouldBe true
+    }
+
+    @Test
     fun `kvoter uten ilagt dato sorteres sist`() {
         val medIlagtDato =
             lagKvoteDef(
@@ -238,6 +281,7 @@ class KvotetellerTest {
         tildelingsgrunnlag: Tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
         sisteDagMedForbruk: Opplysningstype<LocalDate> = this.sisteDagMedForbruk,
         sisteGjenstående: Opplysningstype<Int> = this.sisteGjenstående,
+        utløsendeBetingelse: Opplysningstype<Boolean> = forbruk,
     ) = KvoteDefinisjon(
         hjemmel = hjemmel,
         forbrukstype = forbrukstype,
@@ -247,5 +291,6 @@ class KvotetellerTest {
         gjenstående = gjenstående,
         sisteForbruk = sisteDagMedForbruk,
         sisteGjenstående = sisteGjenstående,
+        utløsendeBetingelse = utløsendeBetingelse,
     )
 }

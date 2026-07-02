@@ -17,6 +17,7 @@ data class KvoteDefinisjon(
     val sisteForbruk: Opplysningstype<LocalDate>,
     val sisteGjenstående: Opplysningstype<Int>,
     val forbrukstype: Forbrukstype = Forbrukstype.Rettighet,
+    val utløsendeBetingelse: Opplysningstype<Boolean>,
 ) {
     val navn get() = hjemmel.kortnavn
 

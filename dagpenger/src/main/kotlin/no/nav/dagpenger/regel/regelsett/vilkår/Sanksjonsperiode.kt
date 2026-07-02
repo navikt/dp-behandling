@@ -63,6 +63,7 @@ object Sanksjonsperiode {
                     sisteForbruk = Beregning.sisteSanksjonsdagMedForbruk,
                     sisteGjenstående = Beregning.sisteGjenståendeSanksjonsdager,
                     forbrukstype = Forbrukstype.Sanksjon,
+                    utløsendeBetingelse = harSanksjon,
                 ),
             )
 

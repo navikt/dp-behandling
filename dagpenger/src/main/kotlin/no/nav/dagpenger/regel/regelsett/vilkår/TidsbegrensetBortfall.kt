@@ -60,6 +60,7 @@ object TidsbegrensetBortfall {
                     sisteForbruk = Beregning.sisteBortfallsdagMedForbruk,
                     sisteGjenstående = Beregning.sisteGjenståendeBortfallsdager,
                     forbrukstype = Forbrukstype.Sanksjon,
+                    utløsendeBetingelse = harTidsbegrensetBortfall,
                 ),
             )
 

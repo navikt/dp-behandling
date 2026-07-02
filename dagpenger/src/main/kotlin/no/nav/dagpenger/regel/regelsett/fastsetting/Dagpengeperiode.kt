@@ -37,6 +37,7 @@ import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.antallÅrI36Måneder
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
@@ -117,6 +118,7 @@ object Dagpengeperiode {
                     gjenstående = Beregning.gjenståendeDager,
                     sisteForbruk = Beregning.sisteForbruksdag,
                     sisteGjenstående = Beregning.sisteGjenståendeDager,
+                    utløsendeBetingelse = KravPåDagpenger.harLøpendeRett,
                 ),
             )
 

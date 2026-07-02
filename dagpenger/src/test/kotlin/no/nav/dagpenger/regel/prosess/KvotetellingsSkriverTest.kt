@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.prosess
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
+import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test
 
 class KvotetellingsSkriverTest {
     private val kapasitet = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Kapasitet")
+    private val aktiv = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Aktiv")
 
     @Test
     fun `skriver rettighetskvote`() {
@@ -33,6 +35,7 @@ class KvotetellingsSkriverTest {
                 gjenstående = Beregning.gjenståendeDager,
                 sisteForbruk = Beregning.sisteForbruksdag,
                 sisteGjenstående = Beregning.sisteGjenståendeDager,
+                utløsendeBetingelse = aktiv,
             )
         val resultat =
             Kvotetellingsresultat(
@@ -71,6 +74,7 @@ class KvotetellingsSkriverTest {
                 sisteForbruk = Beregning.sisteSanksjonsdagMedForbruk,
                 sisteGjenstående = Beregning.sisteGjenståendeSanksjonsdager,
                 forbrukstype = Forbrukstype.Sanksjon,
+                utløsendeBetingelse = aktiv,
             )
         val resultat =
             Kvotetellingsresultat(

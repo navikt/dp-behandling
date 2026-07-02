@@ -53,6 +53,11 @@ class KvotetellingsSkriver(
         resultat.gjenstående.forEach { opplysninger.leggTil(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
         resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
         resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
+
+        if (resultat.sisteGjenstående?.verdi == 0) {
+            val sisteDag = resultat.sisteDagMedForbruk!!.verdi
+            opplysninger.leggTil(Faktum(definisjon.utløsendeBetingelse, false, Gyldighetsperiode(sisteDag.plusDays(1))))
+        }
     }
 }
 
