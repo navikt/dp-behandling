@@ -22,11 +22,9 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegru
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
-import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
-import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.fødselsdato
@@ -42,6 +40,10 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
@@ -360,11 +362,11 @@ class ScenarioTest {
                     size shouldBe 1
                     first().verdi.verdi shouldBe true
                 }
-                with(opplysninger(Dagpengeperiode.ordinærPeriode)) {
+                with(opplysninger(ordinærPeriode)) {
                     size shouldBe 1
                     first().verdi.verdi shouldBe 0
                 }
-                with(opplysninger(VernepliktFastsetting.vernepliktPeriode)) {
+                with(opplysninger(vernepliktPeriode)) {
                     size shouldBe 1
                     first().verdi.verdi shouldBe 26
                 }
@@ -801,6 +803,65 @@ class ScenarioTest {
                 rettighetsperioder.last().harRett shouldBe true
 
                 førteTil shouldBe "Gjenopptak"
+            }
+        }
+    }
+
+    @Test
+    fun `mangler fastsettelse av arbeidstid `() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(8.juni(2026), ønskerFraDato = 15.juni(2026))
+            behovsløsere.løsTilForslag()
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 1
+                with(opplysninger(fastsattVanligArbeidstid)) {
+                    this shouldHaveSize 1
+                }
+            }
+            saksbehandler.endreOpplysning(
+                kravTilTaptArbeidstid,
+                verdi = false,
+                gyldighetsperiode = Gyldighetsperiode(15.juni(2026), 21.juni(2026)),
+            )
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                kravTilTaptArbeidstid,
+                verdi = true,
+                gyldighetsperiode = Gyldighetsperiode(22.juni(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                beregnetArbeidstid,
+                verdi = 23.5,
+                gyldighetsperiode = Gyldighetsperiode(22.juni(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                beregningsregel6mnd,
+                verdi = false,
+                gyldighetsperiode = Gyldighetsperiode(22.juni(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                beregningsregel12mnd,
+                verdi = true,
+                gyldighetsperiode = Gyldighetsperiode(22.juni(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
+                with(opplysninger(fastsattVanligArbeidstid)) {
+                    this shouldHaveSize 1
+                }
             }
         }
     }
