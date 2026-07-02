@@ -35,6 +35,7 @@ import no.nav.dagpenger.mediator.api.auth.saksbehandlerIdOrNull
 import no.nav.dagpenger.mediator.api.melding.FjernOpplysning
 import no.nav.dagpenger.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.mediator.api.models.AvklaringKvitteringDTO
+import no.nav.dagpenger.mediator.api.models.BehandlingDTO
 import no.nav.dagpenger.mediator.api.models.BehandlingstypeDTO
 import no.nav.dagpenger.mediator.api.models.DataTypeDTO
 import no.nav.dagpenger.mediator.api.models.DatalastKvitteringDTO
@@ -71,6 +72,7 @@ import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.modell.somKjede
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Datatype
@@ -230,6 +232,7 @@ internal fun Application.behandlingApi(
                                     begrunnelse = nyBehandlingDto.begrunnelse,
                                     opprettet = LocalDateTime.now(),
                                     prosess = prosess,
+                                    // TODO: Legg til sporing av hvem som gjør dette
                                 )
                             }
                         }
@@ -265,13 +268,16 @@ internal fun Application.behandlingApi(
 
                     auditlogg.les("Listet ut behandlinger", ident, call.saksbehandlerId())
 
+                    val behandlinger = person.behandlinger()
+
+                    if (behandlinger.isEmpty()) {
+                        call.respond(HttpStatusCode.OK, emptyList<BehandlingDTO>())
+                        return@post
+                    }
+
                     call.respond(
                         HttpStatusCode.OK,
-                        person
-                            .behandlinger()
-                            .map { it.tilBehandlingDTO() }
-                            // TODO: Sorter etter basertPå/behandlingskjede
-                            .sortedByDescending { it.sistEndret },
+                        behandlinger.somKjede().map { it.tilBehandlingDTO() }.reversed(),
                     )
                 }
                 get("v2/{behandlingId}") {

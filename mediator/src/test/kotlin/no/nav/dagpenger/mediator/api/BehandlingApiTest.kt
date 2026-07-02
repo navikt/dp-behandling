@@ -2,6 +2,7 @@ package no.nav.dagpenger.mediator.api
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -9,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeEmpty
+import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -28,6 +30,8 @@ import no.nav.dagpenger.mediator.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
+import no.nav.dagpenger.mediator.asUUID
+import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
@@ -36,6 +40,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.scenario.sisteMelding
 import no.nav.dagpenger.uuid.UUIDv7
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Disabled
@@ -233,6 +238,41 @@ internal class BehandlingApiTest {
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText() shouldBe "[]"
             auditlogg.aktivitet shouldContainExactly listOf("les")
+        }
+    }
+
+    @Test
+    fun `hent behandlinger sortert i riktig rekkefølge`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.januar(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Opprett behandling for arbeidssøkerperiode (denne har avklaring
+            person.avsluttArbeidssøkerperiode(5.januar(2018))
+
+            // Send inn meldekort, den blir automatisk ferdig med engang
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            // Simulerer at arbeidssøkerperiode behandlingen flyttes på
+            rapidInspektør.sisteMelding("flytt_behandling").second.run {
+                saksbehandler.flyttBehandlingTilNyKjede(this["behandlingId"].asUUID(), this["nyBasertPåId"].asUUID())
+            }
+
+            val response = testContext.autentisert(endepunkt = "/behandling", body = """{"ident":"${person.ident}"}""")
+            response.status shouldBe HttpStatusCode.OK
+
+            val behandlinger = response.body<List<BehandlingDTO>>()
+
+            behandlinger.map { it.behandletHendelse.type } shouldContainInOrder
+                listOf(
+                    HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE,
+                    HendelseDTOTypeDTO.MELDEKORT,
+                    HendelseDTOTypeDTO.SØKNAD,
+                )
         }
     }
 
