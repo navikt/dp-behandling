@@ -5,7 +5,6 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.parameters
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.createApplicationPlugin
@@ -266,7 +265,10 @@ internal fun Application.behandlingApi(
 
                     auditlogg.les("Listet ut behandlinger", ident, call.saksbehandlerId())
 
-                    call.respond(HttpStatusCode.OK, person.behandlinger().map { it.tilBehandlingDTO() })
+                    call.respond(
+                        HttpStatusCode.OK,
+                        person.behandlinger().map { it.tilBehandlingDTO() }.sortedByDescending { it.sistEndret },
+                    )
                 }
                 get("v2/{behandlingId}") {
                     val behandling = hentBehandling(personRepository, call.behandlingId)
