@@ -37,18 +37,17 @@ internal class Avhengighetsgraf(
 
     /**
      * Legger rekursivt til avhengigheter for en gitt regel i mengden av nødvendige opplysninger.
+     * Avhengigheter uten regel behandles som terminale noder (ekstern inndata) — de legges til men
+     * det rekurseres ikke videre.
      */
     private fun leggTilAvhengigheter(
         regel: Regel<*>,
         nødvendigeOpplysninger: MutableSet<Opplysningstype<*>>,
     ) {
         for (avhengighet in regel.avhengerAv) {
-            if (avhengighet in nødvendigeOpplysninger) continue
-            val avhengigRegel = reglerEtterOutput[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
-
-            if (nødvendigeOpplysninger.add(avhengigRegel.produserer)) {
-                leggTilAvhengigheter(avhengigRegel, nødvendigeOpplysninger)
-            }
+            if (!nødvendigeOpplysninger.add(avhengighet)) continue
+            val avhengigRegel = reglerEtterOutput[avhengighet] ?: continue
+            leggTilAvhengigheter(avhengigRegel, nødvendigeOpplysninger)
         }
     }
 }
