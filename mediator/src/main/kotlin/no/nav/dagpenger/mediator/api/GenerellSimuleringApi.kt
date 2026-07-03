@@ -122,19 +122,19 @@ private fun Regelsett.tilSkjema(rv: Regelverk): Map<String, Any> {
         "inndata" to avhengerAv.map { it.tilSkjema() },
         "produserer" to produserer.map { it.tilSkjema() },
         "upstream" to
-            rv.upstream(this).map { opp ->
+            rv.avhengigheterFor(this).map { opp ->
                 mapOf(
                     "navn" to opp.navn,
                     "href" to "/simulering/regelverk/$regelverkNavn/regelsett/${opp.navn}",
-                    "kobler" to rv.koblerTil(opp, this).map { it.behovId },
+                    "kobler" to rv.grensesnittMellom(opp, this).map { it.behovId },
                 )
             },
         "downstream" to
-            rv.downstream(this).map { ned ->
+            rv.konsumenterAv(this).map { ned ->
                 mapOf(
                     "navn" to ned.navn,
                     "href" to "/simulering/regelverk/$regelverkNavn/regelsett/${ned.navn}",
-                    "kobler" to rv.koblerTil(this, ned).map { it.behovId },
+                    "kobler" to rv.grensesnittMellom(this, ned).map { it.behovId },
                 )
             },
     )
