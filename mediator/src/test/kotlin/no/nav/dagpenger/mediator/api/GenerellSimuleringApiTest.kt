@@ -77,8 +77,8 @@ internal class GenerellSimuleringApiTest {
             inndata.shouldNotBeEmpty()
             val produserer = body["produserer"] as List<*>
             produserer.shouldNotBeEmpty()
-            body shouldContainKey "upstream"
-            body shouldContainKey "downstream"
+            body shouldContainKey "avhengigheterFor"
+            body shouldContainKey "konsumenterAv"
         }
     }
 

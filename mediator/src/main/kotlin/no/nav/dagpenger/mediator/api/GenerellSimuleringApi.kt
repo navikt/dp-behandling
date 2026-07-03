@@ -121,7 +121,7 @@ private fun Regelsett.tilSkjema(rv: Regelverk): Map<String, Any> {
         "type" to type.name,
         "inndata" to avhengerAv.map { it.tilSkjema() },
         "produserer" to produserer.map { it.tilSkjema() },
-        "upstream" to
+        "avhengigheterFor" to
             rv.avhengigheterFor(this).map { opp ->
                 mapOf(
                     "navn" to opp.navn,
@@ -129,7 +129,7 @@ private fun Regelsett.tilSkjema(rv: Regelverk): Map<String, Any> {
                     "kobler" to rv.grensesnittMellom(opp, this).map { it.behovId },
                 )
             },
-        "downstream" to
+        "konsumenterAv" to
             rv.konsumenterAv(this).map { ned ->
                 mapOf(
                     "navn" to ned.navn,

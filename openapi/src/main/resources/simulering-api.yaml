@@ -397,8 +397,8 @@ components:
         - type
         - inndata
         - produserer
-        - upstream
-        - downstream
+        - avhengigheterFor
+        - konsumenterAv
       properties:
         navn:
           type: string
@@ -415,11 +415,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpplysningstypeSkjema'
-        upstream:
+        avhengigheterFor:
           type: array
           items:
             $ref: '#/components/schemas/RegelsettKobling'
-        downstream:
+        konsumenterAv:
           type: array
           items:
             $ref: '#/components/schemas/RegelsettKobling'
