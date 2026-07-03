@@ -13,11 +13,27 @@ import no.nav.dagpenger.mediator.simulering.OpplysningNode
 import no.nav.dagpenger.mediator.simulering.RegelsettRegister
 import no.nav.dagpenger.mediator.simulering.SimuleringsEvaluering
 import no.nav.dagpenger.mediator.simulering.UtledningNode
+import no.nav.dagpenger.mediator.simulering.api.models.EvaluerRequestDTO
+import no.nav.dagpenger.mediator.simulering.api.models.EvaluerResultatDTO
+import no.nav.dagpenger.mediator.simulering.api.models.HttpProblemDTO
+import no.nav.dagpenger.mediator.simulering.api.models.OpplysningNodeDTO
+import no.nav.dagpenger.mediator.simulering.api.models.OpplysningstypeSkjemaDTO
+import no.nav.dagpenger.mediator.simulering.api.models.OpplysningstypeSkjemaDTODatatypeDTO
+import no.nav.dagpenger.mediator.simulering.api.models.OpplysningstypeSkjemaDTOFormålDTO
+import no.nav.dagpenger.mediator.simulering.api.models.RegelsettKoblingDTO
+import no.nav.dagpenger.mediator.simulering.api.models.RegelsettRefDTO
+import no.nav.dagpenger.mediator.simulering.api.models.RegelsettRefDTOTypeDTO
+import no.nav.dagpenger.mediator.simulering.api.models.RegelsettSkjemaDTO
+import no.nav.dagpenger.mediator.simulering.api.models.RegelsettSkjemaDTOTypeDTO
+import no.nav.dagpenger.mediator.simulering.api.models.RegelverkGrafDTO
+import no.nav.dagpenger.mediator.simulering.api.models.RegelverkOversiktDTO
+import no.nav.dagpenger.mediator.simulering.api.models.UtledningDTO
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.Regelverk
 import java.net.URI
-import java.time.LocalDate
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 internal fun Application.generellSimuleringApi(register: RegelsettRegister) {
     val evaluering = SimuleringsEvaluering()
@@ -27,9 +43,9 @@ internal fun Application.generellSimuleringApi(register: RegelsettRegister) {
             get("regelverk") {
                 val regelverk =
                     register.alleRegelverk().map { rv ->
-                        mapOf(
-                            "navn" to rv.navn.navn,
-                            "href" to "/simulering/regelverk/${rv.navn.navn}",
+                        RegelverkOversiktDTO(
+                            navn = rv.navn.navn,
+                            href = URI("/simulering/regelverk/${rv.navn.navn.urlEnkod()}"),
                         )
                     }
                 call.respond(HttpStatusCode.OK, regelverk)
@@ -46,14 +62,14 @@ internal fun Application.generellSimuleringApi(register: RegelsettRegister) {
                             )
 
                     val respons =
-                        mapOf(
-                            "navn" to rv.navn.navn,
-                            "regelsett" to
+                        RegelverkGrafDTO(
+                            navn = rv.navn.navn,
+                            regelsett =
                                 rv.regelsett.map { rs ->
-                                    mapOf(
-                                        "navn" to rs.navn,
-                                        "type" to rs.type.name,
-                                        "href" to "/simulering/regelverk/$regelverkNavn/regelsett/${rs.navn}",
+                                    RegelsettRefDTO(
+                                        navn = rs.navn,
+                                        type = RegelsettRefDTOTypeDTO.fromValue(rs.type.name),
+                                        href = URI("/simulering/regelverk/$regelverkNavn/regelsett/${rs.navn.urlEnkod()}"),
                                     )
                                 },
                         )
@@ -63,12 +79,12 @@ internal fun Application.generellSimuleringApi(register: RegelsettRegister) {
                 route("regelsett/{regelsett}") {
                     get {
                         val (rv, rs) = finnRegelsettEllerResponder(register) ?: return@get
-                        call.respond(HttpStatusCode.OK, rs.tilSkjema(rv))
+                        call.respond(HttpStatusCode.OK, rs.tilSkjemaDTO(rv))
                     }
 
                     post("evaluer") {
-                        val (rv, rs) = finnRegelsettEllerResponder(register) ?: return@post
-                        val request = call.receive<EvaluerRequest>()
+                        val (_, rs) = finnRegelsettEllerResponder(register) ?: return@post
+                        val request = call.receive<EvaluerRequestDTO>()
 
                         val resultat =
                             runCatching {
@@ -76,11 +92,11 @@ internal fun Application.generellSimuleringApi(register: RegelsettRegister) {
                             }.getOrElse { e ->
                                 return@post call.respond(
                                     HttpStatusCode.BadRequest,
-                                    problemJson("Evalueringsfeil: ${e.message}"),
+                                    problemJson("Evalueringsfeil: ${e.message}", status = 400),
                                 )
                             }
 
-                        call.respond(HttpStatusCode.OK, resultat.tilRespons())
+                        call.respond(HttpStatusCode.OK, resultat.tilDTO())
                     }
                 }
             }
@@ -92,7 +108,7 @@ private suspend fun io.ktor.server.routing.RoutingContext.finnRegelsettEllerResp
     register: RegelsettRegister,
 ): Pair<Regelverk, Regelsett>? {
     val regelverkNavn = call.parameters["regelverk"]!!
-    val regelsettNavn = call.parameters["regelsett"]!!
+    val regelsettNavn = call.parameters["regelsett"]!!.urlDekod()
     return register.finnRegelsett(regelverkNavn, regelsettNavn)
         ?: run {
             call.respond(
@@ -103,80 +119,74 @@ private suspend fun io.ktor.server.routing.RoutingContext.finnRegelsettEllerResp
         }
 }
 
+private fun String.urlEnkod() = URLEncoder.encode(this, StandardCharsets.UTF_8)
+
+private fun String.urlDekod() = java.net.URLDecoder.decode(this, StandardCharsets.UTF_8)
+
 private fun problemJson(
     detail: String,
     status: Int = 404,
-) = mapOf(
-    "type" to URI("urn:nav:no:dp:simulering:feil"),
-    "title" to "Feil ved simulering",
-    "status" to status,
-    "detail" to detail,
+) = HttpProblemDTO(
+    type = URI("urn:nav:no:dp:simulering:feil"),
+    title = "Feil ved simulering",
+    status = status,
+    detail = detail,
 )
 
-private fun Regelsett.tilSkjema(rv: Regelverk): Map<String, Any> {
+private fun Regelsett.tilSkjemaDTO(rv: Regelverk): RegelsettSkjemaDTO {
     val regelverkNavn = rv.navn.navn
-    return mapOf(
-        "navn" to navn,
-        "hjemmel" to hjemmel.kortnavn,
-        "type" to type.name,
-        "inndata" to avhengerAv.map { it.tilSkjema() },
-        "produserer" to produserer.map { it.tilSkjema() },
-        "avhengigheterFor" to
+    return RegelsettSkjemaDTO(
+        navn = navn,
+        hjemmel = hjemmel.kortnavn,
+        type = RegelsettSkjemaDTOTypeDTO.fromValue(type.name)!!,
+        inndata = avhengerAv.map { it.tilDTO() },
+        produserer = produserer.map { it.tilDTO() },
+        avhengigheterFor =
             rv.avhengigheterFor(this).map { opp ->
-                mapOf(
-                    "navn" to opp.navn,
-                    "href" to "/simulering/regelverk/$regelverkNavn/regelsett/${opp.navn}",
-                    "kobler" to rv.grensesnittMellom(opp, this).map { it.behovId },
+                RegelsettKoblingDTO(
+                    navn = opp.navn,
+                    href = URI("/simulering/regelverk/$regelverkNavn/regelsett/${opp.navn.urlEnkod()}"),
+                    kobler = rv.grensesnittMellom(opp, this).map { it.behovId },
                 )
             },
-        "konsumenterAv" to
+        konsumenterAv =
             rv.konsumenterAv(this).map { ned ->
-                mapOf(
-                    "navn" to ned.navn,
-                    "href" to "/simulering/regelverk/$regelverkNavn/regelsett/${ned.navn}",
-                    "kobler" to rv.grensesnittMellom(this, ned).map { it.behovId },
+                RegelsettKoblingDTO(
+                    navn = ned.navn,
+                    href = URI("/simulering/regelverk/$regelverkNavn/regelsett/${ned.navn.urlEnkod()}"),
+                    kobler = rv.grensesnittMellom(this, ned).map { it.behovId },
                 )
             },
     )
 }
 
-private fun Opplysningstype<*>.tilSkjema(): Map<String, Any?> =
-    mapOf(
-        "id" to id.uuid,
-        "navn" to navn,
-        "behovId" to behovId,
-        "datatype" to datatype.navn(),
-        "formål" to formål.name,
-        "enhet" to enhet?.name,
+private fun Opplysningstype<*>.tilDTO(): OpplysningstypeSkjemaDTO =
+    OpplysningstypeSkjemaDTO(
+        id = id.uuid,
+        navn = navn,
+        behovId = behovId,
+        datatype = OpplysningstypeSkjemaDTODatatypeDTO.fromValue(datatype.navn())!!,
+        formål = OpplysningstypeSkjemaDTOFormålDTO.fromValue(formål.name)!!,
+        enhet = enhet?.name,
     )
 
-private data class EvaluerRequest(
-    val dato: LocalDate,
-    val opplysninger: List<OpplysningInput>,
-)
-
-private data class OpplysningInput(
-    val behovId: String,
-    val verdi: Any?,
-)
-
-private fun EvalueringsResultat.tilRespons(): Map<String, Any> =
-    mapOf(
-        "opplysninger" to opplysninger.map { it.tilRespons() },
-        "mangler" to mangler.toList(),
+private fun EvalueringsResultat.tilDTO(): EvaluerResultatDTO =
+    EvaluerResultatDTO(
+        opplysninger = opplysninger.map { it.tilDTO() },
+        mangler = mangler.toList(),
     )
 
-private fun OpplysningNode.tilRespons(): Map<String, Any?> =
-    mapOf(
-        "navn" to navn,
-        "behovId" to behovId,
-        "datatype" to datatype,
-        "verdi" to verdi,
-        "utledetAv" to utledetAv?.tilRespons(),
+private fun OpplysningNode.tilDTO(): OpplysningNodeDTO =
+    OpplysningNodeDTO(
+        navn = navn,
+        behovId = behovId,
+        datatype = datatype,
+        verdi = verdi,
+        utledetAv = utledetAv?.tilDTO(),
     )
 
-private fun UtledningNode.tilRespons(): Map<String, Any> =
-    mapOf(
-        "regel" to regel,
-        "avhengigheter" to avhengigheter.map { it.tilRespons() },
+private fun UtledningNode.tilDTO(): UtledningDTO =
+    UtledningDTO(
+        regel = regel,
+        avhengigheter = avhengigheter.map { it.tilDTO() },
     )
