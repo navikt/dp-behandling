@@ -922,4 +922,39 @@ class ScenarioTest {
             }
         }
     }
+
+    @Test
+    fun `revurdering hvor det skal legges inn en stans fordi bruker ikke var registrert en periode`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(15.juni(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 15.juni(2026)
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            saksbehandler.omgjørBehandling(3.juli(2026))
+            saksbehandler.endreOpplysning(oppyllerKravTilRegistrertArbeidssøker, true, "C", Gyldighetsperiode(3.juli(2026)))
+            saksbehandler.endreOpplysning(oppyllerKravTilRegistrertArbeidssøker, false, "B", Gyldighetsperiode(22.juni(2026), 2.juli(2026)))
+
+            behandlingsresultatForslag(5) {
+                opplysninger(oppyllerKravTilRegistrertArbeidssøker) shouldHaveSize 3
+                rettighetsperioder shouldHaveSize 3
+
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[2].harRett shouldBe true
+            }
+        }
+    }
 }
