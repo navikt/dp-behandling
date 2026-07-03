@@ -16,6 +16,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
+import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.regelverk.HendelseTypeId
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
@@ -122,10 +124,15 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
 
         private companion object {
             private val ekstraOpplysninger: Set<UUID> = setOf(oppfyllerMeldeplikt.id.uuid, HendelseTypeId.uuid)
+            private val nyeRegelsett: Set<UUID> =
+                listOf(Sanksjonsperiode.regelsett, TidsbegrensetBortfall.regelsett)
+                    .flatMap { it.produserer }
+                    .map { it.id.uuid }
+                    .toSet()
             private val beregningOpplysningTypeIder: Set<UUID> =
                 Beregning.regelsett.produserer
                     .map { it.id.uuid }
-                    .toSet() + ekstraOpplysninger
+                    .toSet() + ekstraOpplysninger + nyeRegelsett
 
             private fun JsonNode.erNyPeriode() = this["opprinnelse"].er(OpprinnelseDTO.NY)
 
