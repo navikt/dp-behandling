@@ -23,7 +23,7 @@ object Vanligarbeidstid {
         fastsettelse(
             folketrygden.hjemmel(4, 3, "Fastsettelse av arbeidstid", "Fastsettelse av arbeidstid"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            skalVurderes { kravPåDagpenger(it) && it.mangler(fastsattVanligArbeidstid) }
 
             regel(fastsattVanligArbeidstid) {
                 minstAv(
@@ -33,9 +33,11 @@ object Vanligarbeidstid {
                     ønsketArbeidstid,
                 )
             }
-            påvirkerResultat {
-                oppfyllerKravetTilMinsteinntektEllerVerneplikt(it)
-            }
+
+            // TODO: Midlertid fiks for behandlingskjeder som mangler disse fordi kravTilTaptArbeidstid var redigerbar
+            ønsketResultat(fastsattVanligArbeidstid)
+
+            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
         }
     }
 }
