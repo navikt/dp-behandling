@@ -935,4 +935,64 @@ class BeregningTest {
             person.avklaringer.map { it.kode } shouldNotContain "MeldekortMedUtdanning"
         }
     }
+
+    @Test
+    fun `stanses fram i tid for siste meldekort`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+                with(rettighetsperioder.single()) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 21.juni(2018)
+                    tilOgMed shouldBe null
+                }
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            val fastsattMeldedato = person.fastsattMeldedato(2)
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = fastsattMeldedato,
+                avsluttetTidspunkt = fastsattMeldedato.plusDays(5).atTime(12, 21),
+                manueltAvregistrert = true,
+            )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            behandlingsresultat(3) {
+                rettighetsperioder shouldHaveSize 2
+
+                førteTil shouldBe "Stans"
+
+                with(rettighetsperioder[0]) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 21.juni(2018)
+                    tilOgMed shouldBe 6.juli(2018)
+                }
+                with(rettighetsperioder[1]) {
+                    harRett shouldBe false
+                    fraOgMed shouldBe 7.juli(2018)
+                    tilOgMed shouldBe null
+                }
+            }
+
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat(4) {
+                rettighetsperioder shouldHaveSize 2
+
+                førteTil shouldBe "Endring"
+            }
+        }
+    }
 }
