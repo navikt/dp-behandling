@@ -72,7 +72,7 @@ internal fun Application.generellSimuleringApi(register: RegelsettRegister) {
 
                         val resultat =
                             runCatching {
-                                evaluering.evaluer(rs, request.dato, request.opplysninger)
+                                evaluering.evaluer(rs, request.dato, request.opplysninger.associate { it.behovId to it.verdi })
                             }.getOrElse { e ->
                                 return@post call.respond(
                                     HttpStatusCode.BadRequest,
@@ -152,7 +152,12 @@ private fun Opplysningstype<*>.tilSkjema(): Map<String, Any?> =
 
 private data class EvaluerRequest(
     val dato: LocalDate,
-    val opplysninger: Map<String, Any?>,
+    val opplysninger: List<OpplysningInput>,
+)
+
+private data class OpplysningInput(
+    val behovId: String,
+    val verdi: Any?,
 )
 
 private fun EvalueringsResultat.tilRespons(): Map<String, Any> =

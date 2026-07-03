@@ -102,10 +102,10 @@ internal class GenerellSimuleringApiTest {
                 """
                 {
                   "dato": "2024-06-19",
-                  "opplysninger": {
-                    "Fødselsdato": "1980-01-01",
-                    "Prøvingsdato": "2024-06-19"
-                  }
+                  "opplysninger": [
+                    { "behovId": "Fødselsdato", "verdi": "1980-01-01" },
+                    { "behovId": "Prøvingsdato", "verdi": "2024-06-19" }
+                  ]
                 }
                 """.trimIndent()
 
@@ -132,7 +132,7 @@ internal class GenerellSimuleringApiTest {
                 """
                 {
                   "dato": "2024-06-19",
-                  "opplysninger": {}
+                  "opplysninger": []
                 }
                 """.trimIndent()
 
