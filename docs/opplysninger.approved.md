@@ -150,7 +150,7 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|0194881f-9435-72a8-b1ce-9575cbc2a76a|Fastsatt arbeidstid per uke før tap|Desimaltall|double|| Timer|Resultat
+|0194881f-9435-72a8-b1ce-9575cbc2a76a|Fastsatt arbeidstid per uke før tap|Desimaltall|double|| Timer|Intern
 ### § 4-4. Krav til minsteinntekt
 *Type:* Vilkår
 #### Avklaringer

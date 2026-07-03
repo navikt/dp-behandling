@@ -44,7 +44,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
@@ -853,15 +855,15 @@ class ScenarioTest {
                 }
             }
             saksbehandler.endreOpplysning(
-                kravTilTaptArbeidstid,
-                verdi = false,
+                nyArbeidstid,
+                verdi = 37.5,
                 gyldighetsperiode = Gyldighetsperiode(15.juni(2026), 21.juni(2026)),
             )
             behovsløsere.løsTilForslag()
 
             saksbehandler.endreOpplysning(
-                kravTilTaptArbeidstid,
-                verdi = true,
+                nyArbeidstid,
+                verdi = 0.0,
                 gyldighetsperiode = Gyldighetsperiode(22.juni(2026)),
             )
             behovsløsere.løsTilForslag()
@@ -871,7 +873,10 @@ class ScenarioTest {
                 rettighetsperioder.last().harRett shouldBe true
                 rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
                 with(opplysninger(kravTilTaptArbeidstid)) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
+                }
+                with(opplysninger(kravTilArbeidstidsreduksjon)) {
+                    size shouldBe 1
                 }
                 with(opplysninger(fastsattVanligArbeidstid)) {
                     this shouldHaveSize 1
@@ -909,6 +914,10 @@ class ScenarioTest {
                     this shouldHaveSize 1
                     this.first().gyldigFraOgMed shouldBe 22.juni(2026)
                     this.first().verdi.verdi shouldBe 23.5
+                }
+
+                with(opplysninger(kravTilArbeidstidsreduksjon)) {
+                    size shouldBe 1
                 }
             }
         }

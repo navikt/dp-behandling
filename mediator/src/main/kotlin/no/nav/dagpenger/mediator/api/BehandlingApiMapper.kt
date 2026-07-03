@@ -92,7 +92,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
-import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.antallBortfallsuker
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.harTidsbegrensetBortfall
@@ -260,7 +259,6 @@ internal val redigerbareOpplysninger =
                             unntakForOpphold,
                             medlemFolketrygden,
                             // 4-3
-                            kravTilTaptArbeidstid,
                             kravPåLønn,
                             kravTilArbeidstidsreduksjon,
                             beregningsregel6mnd,
