@@ -1,26 +1,41 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 
+import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
+import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
+import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
+import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
+import no.nav.dagpenger.regel.Avklaringspunkter.OppgirSelvforskyldtArbeidsløshet
+import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.dagerIUka
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Sanksjonsperiode {
     val harSanksjon = Opplysningstype.boolsk(OpplysningsTyper.harSanksjonId, "Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet")
 
     val antallSanksjonsuker =
         Opplysningstype.heltall(OpplysningsTyper.antallSanksjonsukerId, "Antall uker med sanksjon", enhet = Enhet.Uker)
+
+    private val oppgirSelvforskyldtArbeidsløshet =
+        Opplysningstype.boolsk(
+            OpplysningsTyper.oppgirSelvforskyldtArbeidsløshetId,
+            "Bruker oppgir selvforskyldt arbeidsløshet",
+            formål = Opplysningsformål.Bruker,
+            behovId = Behov.Sanksjon,
+        )
     private val beregnetAntallSanksjonsdager =
         Opplysningstype.heltall(
             OpplysningsTyper.beregnetAntallSanksjonsdagerId,
@@ -47,7 +62,9 @@ object Sanksjonsperiode {
         vilkår(folketrygden.hjemmel(4, 10, "Sanksjonsperiode ved selvforskyldt arbeidsløshet", "Sanksjonsperiode")) {
             skalVurderes { kravPåDagpenger(it) }
 
-            utfall(harSanksjon) { somUtgangspunkt(false) }
+            regel(oppgirSelvforskyldtArbeidsløshet) { innhentMed(søknadIdOpplysningstype) }
+
+            utfall(harSanksjon) { erSann(oppgirSelvforskyldtArbeidsløshet) }
             regel(antallSanksjonsuker) { somUtgangspunkt(18) }
             regel(beregnetAntallSanksjonsdager) { multiplikasjon(antallSanksjonsuker, dagerIUka) }
             regel(ingenSanksjonsdager) { somUtgangspunkt(0) }
@@ -69,6 +86,13 @@ object Sanksjonsperiode {
 
             ønsketResultat(antallSanksjonsdager)
 
+            avklaring(OppgirSelvforskyldtArbeidsløshet)
+
             påvirkerResultat { it.erSann(harSanksjon) }
+        }
+
+    val SelvforskyldtArbeidsløshetKontroll =
+        Kontrollpunkt(OppgirSelvforskyldtArbeidsløshet) {
+            it.erSann(oppgirSelvforskyldtArbeidsløshet)
         }
 }

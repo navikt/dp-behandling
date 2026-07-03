@@ -268,6 +268,19 @@ Prøvingsdatoen er 1. mai eller senere. Grunnbeløpet for inneværende år var i
 - Grunnbeløp for grunnlag
 
 ---
+## Bruker oppgir selvforskyldt arbeidsløshet
+- **Kode:** `OppgirSelvforskyldtArbeidsløshet`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
+### Beskrivelse
+Bruker oppgir selvforskyldt arbeidsløshet i søknaden. Sjekk at dette stemmer.
+
+### Tilknyttet regelsett
+- [§ 4-10. Sanksjonsperiode ved selvforskyldt arbeidsløshet](./opplysninger.approved.md#-4-10-sanksjonsperiode-ved-selvforskyldt-arbeidsløshet)
+### Opplysninger avklaringen ser på
+- Bruker oppgir selvforskyldt arbeidsløshet
+
+---
 ## Prøvingsdato er etter rapporteringsfrist
 - **Kode:** `PrøvingsdatoEtterRapporteringsfrist`
 - **Kan lukkes av saksbehandler:** ✅ 

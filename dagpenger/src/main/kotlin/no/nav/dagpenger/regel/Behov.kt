@@ -48,6 +48,8 @@ object Behov {
     val OppholdINorge by StringConstant()
 
     val ErUtestengt by StringConstant()
+
+    val Sanksjon by StringConstant()
 }
 
 class StringConstant {

@@ -39,6 +39,7 @@ Laget avklaring om SjekkPrøvingsdato
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
+- Sanksjon
 Laget avklaring om BarnMåGodkjennes
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Avbrutt

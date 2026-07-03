@@ -23,6 +23,7 @@ Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De 
 |PermittertFiskeforedling | Permittert fra fiskeindustrien | Boolsk|boolean|
 |Pleiepenger | Pleiepenger etter lovens kapittel 9 | Boolsk|boolean|
 |RegistrertSomArbeidssøker | Registrert som arbeidssøker | Boolsk|boolean|
+|Sanksjon | Bruker oppgir selvforskyldt arbeidsløshet | Boolsk|boolean|
 |Svangerskapspenger | Svangerskapspenger etter lovens kapittel 14 | Boolsk|boolean|
 |Sykepenger | Sykepenger etter lovens kapittel 8 | Boolsk|boolean|
 |TarUtdanningEllerOpplæring | Brukeren er under utdanning eller opplæring | Boolsk|boolean|

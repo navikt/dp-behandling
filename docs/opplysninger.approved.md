@@ -298,7 +298,10 @@ Dette er opplysninger som blir brukt av regelverket.
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Penger|Beløp|||Utgangspunkt
 ### § 4-10. Sanksjonsperiode ved selvforskyldt arbeidsløshet
 *Type:* Vilkår
+#### Avklaringer
+- OppgirSelvforskyldtArbeidsløshet - [Bruker oppgir selvforskyldt arbeidsløshet](./avklaringer.approved.md#bruker-oppgir-selvforskyldt-arbeidsløshet)
 #### Avhenger på data fra
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-15. Antall stønadsuker (stønadsperiode)](#-4-15-antall-stønadsuker-(stønadsperiode))
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
@@ -307,6 +310,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019e82fc-04e7-7f8d-bd52-6a7041ebb15f|Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet|Boolsk|boolean|||Resultat
 |019e82fc-bdd6-77d8-a2bc-4bd7f1d46b25|Antall dager med sanksjon|Heltall|int|| Dager|Resultat
 |019e82fd-f97c-7395-be5c-7de504871871|Antall uker med sanksjon|Heltall|int|| Uker|Utgangspunkt
+|019f26ec-f7e4-791a-af42-6cb632466cfa|Bruker oppgir selvforskyldt arbeidsløshet|Boolsk|boolean|Sanksjon||Ekstern
 |136aeb82-2081-4dde-b443-77bd253f9c0e|Beregnet antall dager med sanksjon|Heltall|int|| Dager|Intern
 ### § 4-11. Dagpengegrunnlag
 *Type:* Fastsettelse

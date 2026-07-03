@@ -4,11 +4,13 @@
 
 ```mermaid
 graph RL
-  A["Beregnet antall dager med sanksjon"] -->|"Multiplikasjon"| B["Antall uker med sanksjon"]
-  A["Beregnet antall dager med sanksjon"] -->|"Multiplikasjon"| C["Antall dager som skal regnes med i hver uke"]
-  D["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| E["Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet"]
-  D["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| A["Beregnet antall dager med sanksjon"]
-  D["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| F["Ingen dager med sanksjon"]
+  A["Bruker oppgir selvforskyldt arbeidsløshet"] -->|"Ekstern"| B["søknadId"]
+  C["Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet"] -->|"ErSann"| A["Bruker oppgir selvforskyldt arbeidsløshet"]
+  D["Beregnet antall dager med sanksjon"] -->|"Multiplikasjon"| E["Antall uker med sanksjon"]
+  D["Beregnet antall dager med sanksjon"] -->|"Multiplikasjon"| F["Antall dager som skal regnes med i hver uke"]
+  G["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| C["Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet"]
+  G["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| D["Beregnet antall dager med sanksjon"]
+  G["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| H["Ingen dager med sanksjon"]
 ```
 
 ## Akseptansetester

@@ -335,4 +335,11 @@ object Avklaringspunkter {
             tittel = "Bruker er utestengt",
             beskrivelse = "Bruker er utestengt. Sjekk at dette stemmer.",
         )
+
+    val OppgirSelvforskyldtArbeidsløshet =
+        Avklaringkode(
+            kode = "OppgirSelvforskyldtArbeidsløshet",
+            tittel = "Bruker oppgir selvforskyldt arbeidsløshet",
+            beskrivelse = "Bruker oppgir selvforskyldt arbeidsløshet i søknaden. Sjekk at dette stemmer.",
+        )
 }

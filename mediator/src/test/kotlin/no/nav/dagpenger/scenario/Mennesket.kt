@@ -290,6 +290,7 @@ internal class Mennesket(
                             "gyldigFraOgMed" to LocalDate.of(søknadsdato.year, 1, 1),
                         ),
                     ),
+                Behov.Sanksjon to Behovsløsning.Statisk(false),
             )
 
     internal sealed class Behovsløsning {

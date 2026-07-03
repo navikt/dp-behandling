@@ -349,6 +349,7 @@ object OpplysningsTyper {
     val gjenståendeSanksjonsdagerId = Opplysningstype.Id(UUID.fromString("76d9c243-228b-4359-9550-1ebbb7ba5cb5"), Heltall)
     val sisteSanksjonsdagMedForbrukId = Opplysningstype.Id(UUID.fromString("fba5f0fb-4510-4c0b-8a78-4ead6111840e"), Dato)
     val sisteGjenståendeSanksjonsdagerId = Opplysningstype.Id(UUID.fromString("17ca728c-1994-438d-acbf-4098bc1c0dcd"), Heltall)
+    val oppgirSelvforskyldtArbeidsløshetId = Opplysningstype.Id(UUID.fromString("019f26ec-f7e4-791a-af42-6cb632466cfa"), Boolsk)
 
     // Bortfall (tidsbegrenset sanksjon)
     val harBortfallId = Opplysningstype.Id(UUID.fromString("019df9b1-7052-72e9-9232-547f7cb6ba60"), Boolsk)

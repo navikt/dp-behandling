@@ -32,6 +32,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ReellArbeidss
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.IkkeRegistrertSomArbeidsøkerKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.ManglerReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.SkalSamordnes
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.SelvforskyldtArbeidsløshetKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.SjekkPrøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
@@ -98,6 +99,7 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
             YtelserUtenforFolketrygdenKontroll,
             beregnetArbeidstidKontroll,
             utestengtKontroll,
+            SelvforskyldtArbeidsløshetKontroll,
         )
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
