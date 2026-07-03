@@ -43,6 +43,7 @@ internal class Avhengighetsgraf(
         nødvendigeOpplysninger: MutableSet<Opplysningstype<*>>,
     ) {
         for (avhengighet in regel.avhengerAv) {
+            if (avhengighet in nødvendigeOpplysninger) continue
             val avhengigRegel = reglerEtterOutput[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
 
             if (nødvendigeOpplysninger.add(avhengigRegel.produserer)) {

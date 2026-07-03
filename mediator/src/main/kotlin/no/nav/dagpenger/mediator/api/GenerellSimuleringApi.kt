@@ -139,7 +139,7 @@ private fun Regelsett.tilSkjemaDTO(rv: Regelverk): RegelsettSkjemaDTO {
         navn = navn,
         hjemmel = hjemmel.kortnavn,
         type = RegelsettSkjemaDTOTypeDTO.fromValue(type.name)!!,
-        inndata = avhengerAv.map { it.tilDTO() },
+        inndata = (avhengerAv + behov).map { it.tilDTO() },
         produserer = produserer.map { it.tilDTO() },
         avhengigheterFor =
             rv.avhengigheterFor(this).map { opp ->

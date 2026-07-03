@@ -67,7 +67,7 @@ class SimuleringsEvaluering {
         dato: LocalDate,
         inndata: Map<String, Any?>,
     ): Opplysninger {
-        val typePerBehovId = regelsett.avhengerAv.associateBy { it.behovId }
+        val typePerBehovId = (regelsett.avhengerAv + regelsett.behov).associateBy { it.behovId }
         val opplysningsliste =
             inndata.mapNotNull { (behovId, verdi) ->
                 val type = typePerBehovId[behovId] ?: return@mapNotNull null
