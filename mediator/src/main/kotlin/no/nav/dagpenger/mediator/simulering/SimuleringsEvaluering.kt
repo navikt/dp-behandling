@@ -56,10 +56,25 @@ class SimuleringsEvaluering {
                         .finnNullableOpplysning(type)
                 }.map { it.tilNode() }
 
+        val manglerFraEkstern = rapport.mangler.map { it.behovId }.toSet()
+        val manglerFraAvhengigheter = ikkeOppgitteAvhengigheter(regelsett, opplysninger, dato)
+
         return EvalueringsResultat(
             opplysninger = produserte,
-            mangler = rapport.mangler.map { it.behovId }.toSet(),
+            mangler = manglerFraEkstern + manglerFraAvhengigheter,
         )
+    }
+
+    private fun ikkeOppgitteAvhengigheter(
+        regelsett: Regelsett,
+        opplysninger: Opplysninger,
+        dato: LocalDate,
+    ): Set<String> {
+        val tilgjengelige = opplysninger.kunEgne.forDato(dato)
+        return (regelsett.avhengerAv + regelsett.behov)
+            .filterNot { tilgjengelige.har(it) }
+            .map { it.behovId }
+            .toSet()
     }
 
     private fun byggOpplysninger(
