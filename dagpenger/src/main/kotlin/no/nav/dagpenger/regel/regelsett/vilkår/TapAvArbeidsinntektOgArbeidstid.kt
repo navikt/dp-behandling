@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
-
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
@@ -148,9 +147,6 @@ object TapAvArbeidsinntektOgArbeidstid {
                     ordinærtKravTilTaptArbeidstid,
                 )
             }
-
-            // TODO: Midlertid fiks for behandlingskjeder som mangler disse fordi kravTilTaptArbeidstid var redigerbar
-            ønsketResultat(ordinærtKravTilTaptArbeidstid, kravTilArbeidstidsreduksjon)
 
             // TODO: Dette bør bli en ENUM en gang i framtiden
             regel(beregningsregel6mnd) { somUtgangspunkt(true, beregnetArbeidstid) }
