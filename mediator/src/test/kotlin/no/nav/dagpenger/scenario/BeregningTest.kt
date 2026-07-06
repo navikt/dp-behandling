@@ -26,6 +26,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
@@ -92,6 +93,9 @@ class BeregningTest {
                         "2018-06-29",
                     )
                 }
+
+                opplysninger(Sanksjonsperiode.harSanksjon).single().verdi.verdi shouldBe false
+                opplysninger(Beregning.forbruktSanksjonsdager) shouldHaveSize 0
             }
 
             // Send inn meldekort

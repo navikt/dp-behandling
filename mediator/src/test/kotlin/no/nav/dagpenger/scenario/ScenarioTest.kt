@@ -732,7 +732,7 @@ class ScenarioTest {
                 "Endres",
                 Gyldighetsperiode(fraOgMed = 10.juni(2018)),
             )
-            behovsløsere.løsTilForslag() shouldHaveSize 10
+            behovsløsere.løsTilForslag() shouldHaveSize 9
 
             behandlingsresultatForslag(3) {
                 with(opplysninger(oppholdINorge)) {

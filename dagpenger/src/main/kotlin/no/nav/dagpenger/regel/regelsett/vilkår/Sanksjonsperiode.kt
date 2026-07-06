@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
-import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
@@ -64,7 +63,8 @@ object Sanksjonsperiode {
 
             regel(oppgirSelvforskyldtArbeidsløshet) { innhentMed(søknadIdOpplysningstype) }
 
-            utfall(harSanksjon) { erSann(oppgirSelvforskyldtArbeidsløshet) }
+            // Default false fordi mange er innvilget etter å ha oppgitt selvforskyldt arbeidsløshet
+            utfall(harSanksjon) { somUtgangspunkt(false) }
             regel(antallSanksjonsuker) { somUtgangspunkt(18) }
             regel(beregnetAntallSanksjonsdager) { multiplikasjon(antallSanksjonsuker, dagerIUka) }
             regel(ingenSanksjonsdager) { somUtgangspunkt(0) }

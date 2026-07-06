@@ -14,7 +14,6 @@ class VilkårRegelsettBuilder internal constructor(
     private var vurderinger: MutableList<Opplysningstype<Boolean>> = mutableListOf()
     private val ønsketResultat: MutableList<Opplysningstype<*>> = mutableListOf()
 
-    // TODO: Dette trengs kun av samordning. Kan vi endre noe her?
     fun ønsketResultat(vararg opplysningstype: Opplysningstype<*>) {
         ønsketResultat += opplysningstype.toList()
     }
