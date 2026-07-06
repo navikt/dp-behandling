@@ -23,7 +23,13 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
         val meldeperiode = meldeperiode(opplysninger)
-        val innvilgelsesdato = innvilgelsesdato(opplysninger).maxBy { it <= meldeperiode.fraOgMed }
+
+        val innvilgelsesdato =
+            innvilgelsesdato(opplysninger).maxByOrNull { it <= meldeperiode.fraOgMed }
+                ?: opplysninger.kunEgne
+                    .finnAlle(KravPåDagpenger.harLøpendeRett)
+                    .map { it.gyldighetsperiode.fraOgMed }
+                    .maxBy { it <= meldeperiode.fraOgMed }
         val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
 
         return Regelkjøring(
