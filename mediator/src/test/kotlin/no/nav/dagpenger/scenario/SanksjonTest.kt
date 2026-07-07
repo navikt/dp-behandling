@@ -6,7 +6,9 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruktSanksjonsdager
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.gjenståendeSanksjonsdager
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeSanksjonsdager
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
@@ -230,11 +232,25 @@ class SanksjonTest {
                     count { it.verdi.verdi == true } shouldBe 0
                 }
 
+                // Sanksjonsdager skal være nullstilt etter omgjøring
                 with(opplysninger(forbruktSanksjonsdager)) {
-                    size shouldBe 1
+                    size shouldBe 14
+                    all { it.verdi.verdi == 0 } shouldBe true
                 }
 
-                // All utbetaling faller bort på grunn av bortfall
+                // Gjenstående sanksjonsdager skal være nullstilt etter omgjøring
+                with(opplysninger(gjenståendeSanksjonsdager)) {
+                    size shouldBe 14
+                    all { it.verdi.verdi == 0 } shouldBe true
+                }
+
+                // Siste Gjenstående sanksjonsdag skal være nullstilt etter omgjøring
+                with(opplysninger(sisteGjenståendeSanksjonsdager)) {
+                    size shouldBe 1
+                    all { it.verdi.verdi == 0 } shouldBe true
+                }
+
+                // Det skal bli utbetalt
                 val totalUtbetaling = utbetalinger.sumOf { it["utbetaling"].asInt() }
                 totalUtbetaling shouldBeGreaterThan 0
             }

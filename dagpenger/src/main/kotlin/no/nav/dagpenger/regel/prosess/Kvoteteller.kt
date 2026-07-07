@@ -14,25 +14,28 @@ internal fun KvoteDefinisjon.tell(
     opplysninger: LesbarOpplysninger,
     fraOgMed: LocalDate,
     dager: List<LocalDate>,
-): Kvotetellingsresultat = Kvotetelling.tell(tildeltKapasitet(opplysninger), forrigeForbruk(opplysninger, fraOgMed), dager, fraOgMed)
+    beregningsdager: List<Beregningsdag>,
+): Kvotetellingsresultat = Kvotetelling.tell(tildeltKapasitet(opplysninger), forrigeForbruk(opplysninger, fraOgMed), dager, beregningsdager)
 
 internal class Kvoteteller private constructor(
     private val kvoter: List<KvoteDefinisjon>,
+    private val beregningsdager: List<Beregningsdag>,
     private val rettighetsdager: List<LocalDate>,
     private val sanksjonsdager: List<LocalDate>,
 ) {
-    constructor(kvoter: List<KvoteDefinisjon>, forbruksdager: List<Beregningsdag>) : this(
+    constructor(kvoter: List<KvoteDefinisjon>, beregningsdager: List<Beregningsdag>) : this(
         kvoter,
-        rettighetsdager = forbruksdager.filterIsInstance<Beregningsdag.Forbruksdag>().map { it.dag.dato },
-        sanksjonsdager = forbruksdager.filter { it.avviklerSanksjon }.map { it.dag.dato }.sorted(),
+        beregningsdager,
+        rettighetsdager = beregningsdager.filterIsInstance<Beregningsdag.Forbruksdag>().map { it.dag.dato },
+        sanksjonsdager = beregningsdager.filter { it.avviklerSanksjon }.map { it.dag.dato }.sorted(),
     )
 
     fun beregn(
         opplysninger: LesbarOpplysninger,
         fraOgMed: LocalDate,
     ): Map<KvoteDefinisjon, Kvotetellingsresultat> =
-        fordelDagerPåKvoter(opplysninger, fraOgMed).mapValues { (kvote, dager) ->
-            kvote.tell(opplysninger, fraOgMed, dager)
+        fordelDagerPåKvoter(opplysninger, fraOgMed).mapValues { (kvote, telledager) ->
+            kvote.tell(opplysninger, fraOgMed, telledager, beregningsdager)
         }
 
     private fun fordelDagerPåKvoter(

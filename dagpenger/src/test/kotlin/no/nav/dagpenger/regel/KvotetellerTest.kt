@@ -14,7 +14,10 @@ import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.sortertEtterIlagtDato
 import no.nav.dagpenger.opplysning.tomHjemmel
+import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
@@ -33,6 +36,22 @@ class KvotetellerTest {
         )
     private val sisteGjenstående = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Siste gjenstående")
 
+    private fun List<LocalDate>.tilBeregningdager() =
+        this.map {
+            Beregningresultat.Beregningsdag.Forbruksdag(
+                dag =
+                    no.nav.dagpenger.regel.regelsett.beregning.Arbeidsdag(
+                        it,
+                        Beløp(10),
+                        Timer(0),
+                        Timer(0),
+                        0.toBigDecimal(),
+                    ),
+                tilUtbetaling = Beløp(10),
+                avviklerSanksjon = false,
+            )
+        }
+
     @Test
     fun `teller forbruk per dag`() {
         val kvote = lagKvoteDef()
@@ -48,7 +67,7 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 
@@ -78,7 +97,7 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, fraOgMed),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 
@@ -115,7 +134,7 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 
@@ -138,7 +157,7 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 
@@ -158,11 +177,11 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 
-        opplysninger.finnAlle(forbruktTeller) shouldBe emptyList()
+        opplysninger.finnAlle(forbruktTeller).first().verdi shouldBe 0
     }
 
     @Test
@@ -182,7 +201,7 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 
@@ -215,7 +234,7 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, fraOgMed),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 
@@ -250,7 +269,7 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 
@@ -277,7 +296,7 @@ class KvotetellerTest {
                 kvote.tildeltKapasitet(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
-                fraOgMed,
+                dager.tilBeregningdager(),
             ),
         )
 

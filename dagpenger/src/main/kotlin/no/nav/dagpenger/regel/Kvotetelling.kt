@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
 import java.time.LocalDate
 
 object Kvotetelling {
@@ -12,41 +13,40 @@ object Kvotetelling {
         kapasitet: Int,
         utgangspunkt: Int,
         dager: List<LocalDate>,
-        fraOgMed: LocalDate,
+        beregningsdager: List<Beregningresultat.Beregningsdag>,
     ): Kvotetellingsresultat {
-        if (kapasitet <= 0) {
-            return Kvotetellingsresultat(
-                forbruktTeller = listOf(KvotetellingsVerdi(0, Gyldighetsperiode(fraOgMed))),
-                gjenstående = listOf(KvotetellingsVerdi(0, Gyldighetsperiode(fraOgMed))),
-                sisteDagMedForbruk = KvotetellingsVerdi(fraOgMed, Gyldighetsperiode(fraOgMed)),
-                sisteGjenstående = KvotetellingsVerdi(0, Gyldighetsperiode(fraOgMed)),
-            )
-        }
-        if (dager.isEmpty()) return Kvotetellingsresultat()
-        val sortert = dager.sorted()
-        if (sortert.isEmpty()) return Kvotetellingsresultat()
+        val sortert = beregningsdager.sortedBy { it.dag.dato }
         var teller = utgangspunkt
         val forbruktTeller =
-            sortert.map { dato ->
-                teller++
-                KvotetellingsVerdi(teller, Gyldighetsperiode(dato, dato))
+            sortert.map { beregningsdag ->
+                val dato = beregningsdag.dag.dato
+                if (dato in dager) teller++
+                KvotetellingsVerdi(minOf(teller, kapasitet), Gyldighetsperiode(dato, dato))
             }
         val gjenstående =
             forbruktTeller.map {
-                val g = kapasitet - it.verdi
+                val g = maxOf(kapasitet - it.verdi, 0)
                 require(g >= 0) {
                     "Gjenstående kan ikke være negativt. Har $g igjen"
                 }
                 KvotetellingsVerdi(g, it.gyldighetsperiode)
             }
 
-        val sisteForbruksdato = sortert.last()
+        val sisteForbruksdato = dager.lastOrNull()
 
         return Kvotetellingsresultat(
             forbruktTeller = forbruktTeller,
             gjenstående = gjenstående,
-            sisteDagMedForbruk = KvotetellingsVerdi(sisteForbruksdato, Gyldighetsperiode(sisteForbruksdato)),
-            sisteGjenstående = KvotetellingsVerdi(gjenstående.last().verdi, Gyldighetsperiode(sisteForbruksdato)),
+            sisteDagMedForbruk =
+                KvotetellingsVerdi(
+                    sisteForbruksdato ?: beregningsdager.last().dag.dato,
+                    Gyldighetsperiode(beregningsdager.last().dag.dato),
+                ),
+            sisteGjenstående =
+                KvotetellingsVerdi(
+                    gjenstående.lastOrNull()?.verdi ?: kapasitet,
+                    Gyldighetsperiode(beregningsdager.last().dag.dato),
+                ),
         )
     }
 }
@@ -63,7 +63,7 @@ class KvotetellingsSkriver(
         resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
         resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
 
-        if (resultat.sisteGjenstående?.verdi == 0) {
+        if (resultat.sisteGjenstående?.verdi == 0 && resultat.gjenstående.any { it.verdi != 0 }) {
             val sisteDag = resultat.sisteDagMedForbruk!!.verdi
             opplysninger.leggTil(Faktum(definisjon.utløsendeBetingelse, false, Gyldighetsperiode(sisteDag.plusDays(1))))
         }

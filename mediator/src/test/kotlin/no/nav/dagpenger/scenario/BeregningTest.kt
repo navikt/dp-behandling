@@ -82,20 +82,11 @@ class BeregningTest {
                 with(opplysninger(Beregning.forbrukt)) {
                     none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
                     // Kun forbruksdager skrives — ikke-forbruksdager (helg, dager før virkningstidspunkt) gir ingen fakta
-                    map { it.verdi.verdi }.shouldContainExactly(1, 2, 3, 4, 5, 6, 7)
-                    map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
-                        "2018-06-21",
-                        "2018-06-22",
-                        "2018-06-25",
-                        "2018-06-26",
-                        "2018-06-27",
-                        "2018-06-28",
-                        "2018-06-29",
-                    )
+                    map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                 }
 
                 opplysninger(Sanksjonsperiode.harSanksjon).single().verdi.verdi shouldBe false
-                opplysninger(Beregning.forbruktSanksjonsdager) shouldHaveSize 0
+                opplysninger(Beregning.forbruktSanksjonsdager) shouldHaveSize 14
             }
 
             // Send inn meldekort
@@ -110,17 +101,8 @@ class BeregningTest {
                 with(opplysninger(Beregning.forbrukt)) {
                     forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
 
-                    // Kun forbruksdager skrives — ikke-forbruksdager (helg, dager før virkningstidspunkt) gir ingen fakta
-                    map { it.verdi.verdi }.shouldContainExactly(1, 2, 3, 4, 5, 6, 7)
-                    map { it.gyldigFraOgMed.toString() }.shouldContainExactly(
-                        "2018-06-21",
-                        "2018-06-22",
-                        "2018-06-25",
-                        "2018-06-26",
-                        "2018-06-27",
-                        "2018-06-28",
-                        "2018-06-29",
-                    )
+                    // Alle dager telles med verdi (0 eller faktisk forbrukt)
+                    map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                 }
             }
         }
@@ -164,8 +146,8 @@ class BeregningTest {
                     val forbruksdager = map { it.verdi.verdi as Int }
                     forbruksdager.shouldBeMonotonicallyIncreasing()
 
-                    // Kun forbruksdager skrives — første er alltid 1 (ikke 0)
-                    forbruksdager.shouldStartWith(1)
+                    // Alle dager telles med verdi - 0 == ikke forbrukt
+                    forbruksdager.shouldStartWith(0)
                     forbruksdager.shouldEndWith(37)
                 }
             }
@@ -996,6 +978,33 @@ class BeregningTest {
                 rettighetsperioder shouldHaveSize 2
 
                 førteTil shouldBe "Endring"
+            }
+        }
+    }
+
+    @Test
+    fun `alle dager er fravær`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+            val aktiviteter = MutableList<MeldekortAktivitet>(14) { MeldekortAktivitet.Fravær }
+            person.sendInnMeldekort(1, aktiviteter = aktiviteter)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                opplysninger(Beregning.forbruk) {
+                    this shouldHaveSize 14
+                    all { it.verdi.verdi as Boolean } shouldBe false
+                }
+                opplysninger(Beregning.sisteForbruksdag) {
+                    this shouldHaveSize 1
+                    first().verdi.verdi shouldBe 10.juni(2018).toString()
+                }
             }
         }
     }

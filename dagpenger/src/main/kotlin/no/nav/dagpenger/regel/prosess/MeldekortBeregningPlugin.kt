@@ -60,7 +60,7 @@ class MeldekortBeregningPlugin(
                 opplysninger.leggTil(Faktum(erSanksjonsdag, dag.avviklerSanksjon, dagGyldighetsperiode))
             }
 
-        Kvoteteller(kvoter, resultat.forbruksdager)
+        Kvoteteller(kvoter, resultat.beregningsdager)
             .beregn(opplysninger, meldeperiode.fraOgMed)
             .forEach { (kvote, kvoteresultat) -> KvotetellingsSkriver(kvote).skriv(opplysninger, kvoteresultat) }
         return resultat

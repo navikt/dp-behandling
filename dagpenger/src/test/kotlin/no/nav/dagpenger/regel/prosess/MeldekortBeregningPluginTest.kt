@@ -343,8 +343,8 @@ class MeldekortBeregningPluginTest {
             val gjenståendeBortfall =
                 opplysninger
                     .finnAlle(Beregning.gjenståendeBortfallsdager)
-            gjenståendeBortfall.last().verdi shouldBe 2
-            gjenståendeBortfall.count { it.gyldighetsperiode.overlapper(Gyldighetsperiode(fraOgMed, tilOgMed)) } shouldBe 0
+            gjenståendeBortfall.last().verdi shouldBe 5
+            gjenståendeBortfall.count { it.gyldighetsperiode.overlapper(Gyldighetsperiode(fraOgMed, tilOgMed)) } shouldBe 14
         }
     }
 
