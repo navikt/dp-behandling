@@ -12,12 +12,19 @@ object Kvotetelling {
         kapasitet: Int,
         utgangspunkt: Int,
         dager: List<LocalDate>,
+        fraOgMed: LocalDate,
     ): Kvotetellingsresultat {
-        if (kapasitet <= 0) return Kvotetellingsresultat()
+        if (kapasitet <= 0) {
+            return Kvotetellingsresultat(
+                forbruktTeller = listOf(KvotetellingsVerdi(0, Gyldighetsperiode(fraOgMed))),
+                gjenstående = listOf(KvotetellingsVerdi(0, Gyldighetsperiode(fraOgMed))),
+                sisteDagMedForbruk = KvotetellingsVerdi(fraOgMed, Gyldighetsperiode(fraOgMed)),
+                sisteGjenstående = KvotetellingsVerdi(0, Gyldighetsperiode(fraOgMed)),
+            )
+        }
         if (dager.isEmpty()) return Kvotetellingsresultat()
         val sortert = dager.sorted()
         if (sortert.isEmpty()) return Kvotetellingsresultat()
-
         var teller = utgangspunkt
         val forbruktTeller =
             sortert.map { dato ->
@@ -32,7 +39,9 @@ object Kvotetelling {
                 }
                 KvotetellingsVerdi(g, it.gyldighetsperiode)
             }
+
         val sisteForbruksdato = sortert.last()
+
         return Kvotetellingsresultat(
             forbruktTeller = forbruktTeller,
             gjenstående = gjenstående,

@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruktSanksjonsdager
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
@@ -139,6 +140,103 @@ class SanksjonTest {
 
             behandlingsresultat(2) {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
+            }
+        }
+    }
+
+    @Test
+    fun `ilegges sanksjonsperiode ved selvforskyldt arbeidsløshet med revurderes og lages et omgjøringsvedtak`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(18.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            // Saksbehandler ilegger sanksjonsperiode
+            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, true)
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder.single().harRett shouldBe true
+            }
+
+            // Meldekort 1 (18.juni - 1.juli): 01 arbeidsdager med rett
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                // Forbruker ikke egenandel før sanksjon er avviklet
+                opplysninger(Beregning.forbruktEgenandel) {
+                    this.sumOf { it.verdi.verdi as Int } shouldBe 0
+                }
+
+                // Stønadsdager forbrukes normalt (alle 10 arbeidsdager)
+                with(opplysninger(Beregning.forbruk)) {
+                    count { it.verdi.verdi == true } shouldBe 10
+                }
+
+                // Teller forbruk
+                with(opplysninger(Beregning.forbrukt)) {
+                    this.last().verdi.verdi shouldBe 10
+                }
+
+                // Teller gjenstående
+                with(opplysninger(Beregning.sisteGjenståendeDager)) {
+                    this.last().verdi.verdi shouldBe 510
+                }
+
+                // 10 dager markert som sanksjon
+                with(opplysninger(Beregning.erSanksjonsdag)) {
+                    count { it.verdi.verdi == true } shouldBe 10
+                }
+
+                // All utbetaling faller bort på grunn av bortfall
+                val totalUtbetaling = utbetalinger.sumOf { it["utbetaling"].asInt() }
+                totalUtbetaling shouldBe 0
+            }
+
+            saksbehandler.omgjørBehandling(30.juni(2018))
+            // Saksbehandler ilegger sanksjonsperiode
+            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, false)
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                rettighetsperioder.single().harRett shouldBe true
+                // Forbruker ikke egenandel før sanksjon er avviklet
+                opplysninger(Beregning.forbruktEgenandel) {
+                    this.sumOf { it.verdi.verdi as Int } shouldBeGreaterThan 0
+                }
+
+                // Stønadsdager forbrukes normalt (alle 10 arbeidsdager)
+                with(opplysninger(Beregning.forbruk)) {
+                    count { it.verdi.verdi == true } shouldBe 10
+                }
+
+                // Teller forbruk
+                with(opplysninger(Beregning.forbrukt)) {
+                    this.last().verdi.verdi shouldBe 10
+                }
+
+                // Teller gjenstående
+                with(opplysninger(Beregning.sisteGjenståendeDager)) {
+                    this.last().verdi.verdi shouldBe 510
+                }
+
+                // 0 dager markert som sanksjon
+                with(opplysninger(Beregning.erSanksjonsdag)) {
+                    count { it.verdi.verdi == true } shouldBe 0
+                }
+
+                with(opplysninger(forbruktSanksjonsdager)) {
+                    size shouldBe 1
+                }
+
+                // All utbetaling faller bort på grunn av bortfall
+                val totalUtbetaling = utbetalinger.sumOf { it["utbetaling"].asInt() }
+                totalUtbetaling shouldBeGreaterThan 0
             }
         }
     }

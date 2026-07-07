@@ -44,7 +44,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, dager.first()),
+                dager,
+                fraOgMed,
+            ),
         )
 
         val forbrukVerdier = opplysninger.finnAlle(forbruktTeller).sortedBy { it.gyldighetsperiode.fraOgMed }
@@ -69,7 +74,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, fraOgMed), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, fraOgMed),
+                dager,
+                fraOgMed,
+            ),
         )
 
         val forbrukVerdier = opplysninger.finnAlle(forbruktTeller).sortedBy { it.gyldighetsperiode.fraOgMed }
@@ -101,7 +111,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, dager.first()),
+                dager,
+                fraOgMed,
+            ),
         )
 
         opplysninger.finnAlle(forbruktTeller).last().verdi shouldBe 1
@@ -119,7 +134,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, dager.first()),
+                dager,
+                fraOgMed,
+            ),
         )
 
         opplysninger.finnAlle(forbruktTeller).map { it.verdi } shouldBe listOf(1, 2)
@@ -134,7 +154,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, dager.first()),
+                dager,
+                fraOgMed,
+            ),
         )
 
         opplysninger.finnAlle(forbruktTeller) shouldBe emptyList()
@@ -153,7 +178,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, dager.first()),
+                dager,
+                fraOgMed,
+            ),
         )
 
         opplysninger.finnAlle(sisteDag).last().verdi shouldBe 8.januar(2025)
@@ -181,7 +211,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, fraOgMed), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, fraOgMed),
+                dager,
+                fraOgMed,
+            ),
         )
 
         val forbruktBortfallsdager =
@@ -211,7 +246,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, dager.first()),
+                dager,
+                fraOgMed,
+            ),
         )
 
         opplysninger.finnAlle(gjenstående).last().verdi shouldBe 0
@@ -233,7 +273,12 @@ class KvotetellerTest {
 
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
-            Kvotetelling.tell(kvote.tildeltKapasitet(opplysninger), kvote.forrigeForbruk(opplysninger, dager.first()), dager),
+            Kvotetelling.tell(
+                kvote.tildeltKapasitet(opplysninger),
+                kvote.forrigeForbruk(opplysninger, dager.first()),
+                dager,
+                fraOgMed,
+            ),
         )
 
         opplysninger.finnAlle(gjenstående).last().verdi shouldBe 3
