@@ -32,9 +32,21 @@ object Kvotetelling {
                 KvotetellingsVerdi(g, it.gyldighetsperiode)
             }
 
+        val sisteForbruksdato = dager.lastOrNull()
+
         return Kvotetellingsresultat(
             forbruktTeller = forbruktTeller,
             gjenstående = gjenstående,
+            sisteDagMedForbruk =
+                KvotetellingsVerdi(
+                    sisteForbruksdato ?: beregningsdager.last().dag.dato,
+                    Gyldighetsperiode(beregningsdager.last().dag.dato),
+                ),
+            sisteGjenstående =
+                KvotetellingsVerdi(
+                    gjenstående.lastOrNull()?.verdi ?: kapasitet,
+                    Gyldighetsperiode(beregningsdager.last().dag.dato),
+                ),
         )
     }
 }
@@ -48,15 +60,12 @@ class KvotetellingsSkriver(
     ) {
         resultat.forbruktTeller.forEach { opplysninger.leggTil(Faktum(definisjon.forbruksteller, it.verdi, it.gyldighetsperiode)) }
         resultat.gjenstående.forEach { opplysninger.leggTil(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
-        val gjenstående = resultat.gjenstående.firstOrNull { it.verdi == 0 }
-        gjenstående?.let {
-            opplysninger.leggTil(
-                Faktum(
-                    definisjon.utløsendeBetingelse,
-                    false,
-                    Gyldighetsperiode(it.gyldighetsperiode.fraOgMed.plusDays(1)),
-                ),
-            )
+        resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
+        resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
+
+        if (resultat.sisteGjenstående?.verdi == 0 && resultat.gjenstående.any { it.verdi != 0 }) {
+            val sisteDag = resultat.sisteDagMedForbruk!!.verdi
+            opplysninger.leggTil(Faktum(definisjon.utløsendeBetingelse, false, Gyldighetsperiode(sisteDag.plusDays(1))))
         }
     }
 }
@@ -64,6 +73,8 @@ class KvotetellingsSkriver(
 data class Kvotetellingsresultat(
     val forbruktTeller: List<KvotetellingsVerdi<Int>> = emptyList(),
     val gjenstående: List<KvotetellingsVerdi<Int>> = emptyList(),
+    val sisteDagMedForbruk: KvotetellingsVerdi<LocalDate>? = null,
+    val sisteGjenstående: KvotetellingsVerdi<Int>? = null,
 )
 
 data class KvotetellingsVerdi<T : Any>(

@@ -14,6 +14,8 @@ data class KvoteDefinisjon(
     val tellesNår: Opplysningstype<Boolean>,
     val forbruksteller: Opplysningstype<Int>,
     val gjenstående: Opplysningstype<Int>,
+    val sisteForbruk: Opplysningstype<LocalDate>,
+    val sisteGjenstående: Opplysningstype<Int>,
     val forbrukstype: Forbrukstype = Forbrukstype.Rettighet,
     val utløsendeBetingelse: Opplysningstype<Boolean>,
 ) {

@@ -49,12 +49,6 @@ Behandling endret tilstand til: Ferdig
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: Ferdig
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: Ferdig
 Laget avklaring om HarSvartPåOmgjøringUtenKlage
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling

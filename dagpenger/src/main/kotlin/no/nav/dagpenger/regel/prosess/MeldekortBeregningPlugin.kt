@@ -12,10 +12,7 @@ import no.nav.dagpenger.regel.KvotetellingsSkriver
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.erSanksjonsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning.gjenståendeDager
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.oppfyllerKravTilTaptArbeidstidIPerioden
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteForbruksdag
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetalingForPeriode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
@@ -66,28 +63,6 @@ class MeldekortBeregningPlugin(
         Kvoteteller(kvoter, resultat.beregningsdager)
             .beregn(opplysninger, meldeperiode.fraOgMed)
             .forEach { (kvote, kvoteresultat) -> KvotetellingsSkriver(kvote).skriv(opplysninger, kvoteresultat) }
-
-        val sisteDatoMedForbruk = opplysninger.finnAlle(forbruk).filter { it.verdi }.maxByOrNull { it.gyldighetsperiode.fraOgMed }
-        sisteDatoMedForbruk?.let {
-            opplysninger.leggTil(
-                Faktum(
-                    sisteForbruksdag,
-                    it.gyldighetsperiode.fraOgMed,
-                    Gyldighetsperiode(fraOgMed = it.gyldighetsperiode.fraOgMed),
-                ),
-            )
-        }
-        val sisteDagFrobruksdag = opplysninger.finnAlle(gjenståendeDager).maxByOrNull { it.gyldighetsperiode.fraOgMed }
-        sisteDagFrobruksdag?.let {
-            opplysninger.leggTil(
-                Faktum(
-                    sisteGjenståendeDager,
-                    it.verdi,
-                    Gyldighetsperiode(fraOgMed = it.gyldighetsperiode.fraOgMed),
-                ),
-            )
-        }
-
         return resultat
     }
 

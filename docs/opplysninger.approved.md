@@ -16,7 +16,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
 |e8e28792-0ad4-4419-9cda-b166036e0fd9|Antall dager med sanksjon som er forbrukt|Heltall|int|| Dager|Resultat
-|fba5f0fb-4510-4c0b-8a78-4ead6111840e|Siste dag med forbruk av sanksjon|Dato|LocalDate|||Resultat
+|fba5f0fb-4510-4c0b-8a78-4ead6111840e|Siste dag med forbruk av sanksjon|Dato|LocalDate|||Utgangspunkt
 |01948ea0-36e8-72cc-aa4f-16bc446ed3bd|Arbeidsdag|Boolsk|boolean|||Resultat
 |01948ea0-e25c-7c47-8429-a05045d80eca|Arbeidstimer på en arbeidsdag|Desimaltall|double|| Timer|Resultat
 |01948ea0-ffdc-7964-ab55-52a7e35e1020|Dag som fører til forbruk av dagpengeperiode|Boolsk|boolean|||Resultat
@@ -40,10 +40,10 @@ Dette er opplysninger som blir brukt av regelverket.
 |019d7244-fa9a-71e6-89b3-a2acef856ef5|Maks antall perioder en kan ha påfølgende tap av arbeidstid|Heltall|int|||Resultat
 |019df7d6-5157-7e29-b582-d3d1dfcc30c5|Antall bortfallsdager som er forbrukt|Heltall|int|| Dager|Resultat
 |019df7d6-5159-7290-b8a1-9fc9edc58579|Antall bortfallsdager som gjenstår|Heltall|int|| Dager|Resultat
-|019df7d6-515a-7458-bdc1-8fa2ef530152|Siste dag med forbruk av bortfall|Dato|LocalDate|||Resultat
+|019df7d6-515a-7458-bdc1-8fa2ef530152|Siste dag med forbruk av bortfall|Dato|LocalDate|||Utgangspunkt
 |019df7d6-515b-79c5-9c80-6ee2bc4b951b|Siste antall bortfallsdager som gjenstår|Heltall|int|| Dager|Utgangspunkt
 |019df7e6-33bc-7daa-ad4e-46ba84c3cb49|Dag med sanksjon av dagpenger|Boolsk|boolean|||Resultat
-|17ca728c-1994-438d-acbf-4098bc1c0dcd|Siste antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Resultat
+|17ca728c-1994-438d-acbf-4098bc1c0dcd|Siste antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Utgangspunkt
 |76d9c243-228b-4359-9550-1ebbb7ba5cb5|Antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Resultat
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
