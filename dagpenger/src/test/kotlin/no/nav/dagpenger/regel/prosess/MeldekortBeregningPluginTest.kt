@@ -198,10 +198,6 @@ class MeldekortBeregningPluginTest {
             // Regel 4: intern allokering oversettes til forbrukt/gjenstående/siste-verdier
             opplysninger.finnAlle(Beregning.gjenståendeSanksjonsdager).last().verdi shouldBe 0
             opplysninger.finnAlle(Beregning.gjenståendeBortfallsdager).last().verdi shouldBe 0
-            opplysninger.finnAlle(Beregning.sisteSanksjonsdagMedForbruk).last().verdi shouldBe fraOgMed.plusDays(2)
-            opplysninger.finnAlle(Beregning.sisteBortfallsdagMedForbruk).last().verdi shouldBe fraOgMed.plusDays(4)
-            opplysninger.finnAlle(Beregning.sisteGjenståendeSanksjonsdager).last().verdi shouldBe 0
-            opplysninger.finnAlle(Beregning.sisteGjenståendeBortfallsdager).last().verdi shouldBe 0
         }
 
         @Test

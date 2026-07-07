@@ -33,8 +33,6 @@ class KvotetellingsSkriverTest {
                 tellesNår = Beregning.erSanksjonsdag,
                 forbruksteller = Beregning.forbrukt,
                 gjenstående = Beregning.gjenståendeDager,
-                sisteForbruk = Beregning.sisteForbruksdag,
-                sisteGjenstående = Beregning.sisteGjenståendeDager,
                 utløsendeBetingelse = aktiv,
             )
         val resultat =
@@ -49,8 +47,6 @@ class KvotetellingsSkriverTest {
                         KvotetellingsVerdi(2, Gyldighetsperiode(6.januar(2025), 6.januar(2025))),
                         KvotetellingsVerdi(1, Gyldighetsperiode(7.januar(2025), 7.januar(2025))),
                     ),
-                sisteDagMedForbruk = KvotetellingsVerdi(7.januar(2025), Gyldighetsperiode(7.januar(2025))),
-                sisteGjenstående = KvotetellingsVerdi(1, Gyldighetsperiode(7.januar(2025), 7.januar(2025))),
             )
         val opplysninger = Opplysninger().apply { leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025)))) }
 
@@ -58,8 +54,6 @@ class KvotetellingsSkriverTest {
 
         opplysninger.finnAlle(Beregning.forbrukt).last().verdi shouldBe 2
         opplysninger.finnAlle(Beregning.gjenståendeDager).last().verdi shouldBe 1
-        opplysninger.finnAlle(Beregning.sisteForbruksdag).last().verdi shouldBe 7.januar(2025)
-        opplysninger.finnAlle(Beregning.sisteGjenståendeDager).last().verdi shouldBe 1
     }
 
     @Test
@@ -71,8 +65,6 @@ class KvotetellingsSkriverTest {
                 tellesNår = Beregning.erSanksjonsdag,
                 forbruksteller = Beregning.forbruktSanksjonsdager,
                 gjenstående = Beregning.gjenståendeSanksjonsdager,
-                sisteForbruk = Beregning.sisteSanksjonsdagMedForbruk,
-                sisteGjenstående = Beregning.sisteGjenståendeSanksjonsdager,
                 forbrukstype = Forbrukstype.Sanksjon,
                 utløsendeBetingelse = aktiv,
             )
@@ -88,8 +80,6 @@ class KvotetellingsSkriverTest {
                         KvotetellingsVerdi(2, Gyldighetsperiode(6.januar(2025), 6.januar(2025))),
                         KvotetellingsVerdi(1, Gyldighetsperiode(7.januar(2025), 7.januar(2025))),
                     ),
-                sisteDagMedForbruk = KvotetellingsVerdi(7.januar(2025), Gyldighetsperiode(7.januar(2025))),
-                sisteGjenstående = KvotetellingsVerdi(1, Gyldighetsperiode(7.januar(2025), 7.januar(2025))),
             )
         val opplysninger = Opplysninger().apply { leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025)))) }
 
@@ -97,6 +87,5 @@ class KvotetellingsSkriverTest {
 
         opplysninger.finnAlle(Beregning.forbruktSanksjonsdager).map { it.verdi } shouldBe listOf(1, 2)
         opplysninger.finnAlle(Beregning.gjenståendeSanksjonsdager).last().verdi shouldBe 1
-        opplysninger.finnAlle(Beregning.sisteSanksjonsdagMedForbruk).last().verdi shouldBe 7.januar(2025)
     }
 }

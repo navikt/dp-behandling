@@ -29,12 +29,6 @@ class KvotetellerTest {
     private val forbruk = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Forbruk")
     private val forbruktTeller = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Forbrukt")
     private val gjenstående = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Gjenstående")
-    private val sisteDagMedForbruk =
-        Opplysningstype.dato(
-            Opplysningstype.Id(UUIDv7.ny(), no.nav.dagpenger.opplysning.Dato),
-            "Siste dag med forbruk",
-        )
-    private val sisteGjenstående = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Siste gjenstående")
 
     private fun List<LocalDate>.tilBeregningdager() =
         this.map {
@@ -185,31 +179,6 @@ class KvotetellerTest {
     }
 
     @Test
-    fun `skriver siste dag med forbruk og siste gjenstående`() {
-        val sisteDag = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), no.nav.dagpenger.opplysning.Dato), "Siste dag")
-        val sisteGjenstående = Opplysningstype.heltall(Opplysningstype.Id(UUIDv7.ny(), Heltall), "Siste gjenstående")
-        val kvote = lagKvoteDef(sisteDagMedForbruk = sisteDag, sisteGjenstående = sisteGjenstående)
-        val opplysninger =
-            Opplysninger().apply {
-                leggTil(Faktum(kapasitet, 10, Gyldighetsperiode(1.januar(2025))))
-            }
-        val dager = listOf(6.januar(2025), 8.januar(2025))
-
-        KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
-            Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
-                kvote.forrigeForbruk(opplysninger, dager.first()),
-                dager,
-                dager.tilBeregningdager(),
-            ),
-        )
-
-        opplysninger.finnAlle(sisteDag).last().verdi shouldBe 8.januar(2025)
-        opplysninger.finnAlle(sisteGjenstående).last().verdi shouldBe 8
-    }
-
-    @Test
     fun `bortfallsdager fortsetter fifo fra forrige periode`() {
         val kvote =
             lagKvoteDef(
@@ -343,8 +312,6 @@ class KvotetellerTest {
         forbruktTeller: Opplysningstype<Int> = this.forbruktTeller,
         gjenstående: Opplysningstype<Int> = this.gjenstående,
         tildelingsgrunnlag: Tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
-        sisteDagMedForbruk: Opplysningstype<LocalDate> = this.sisteDagMedForbruk,
-        sisteGjenstående: Opplysningstype<Int> = this.sisteGjenstående,
         utløsendeBetingelse: Opplysningstype<Boolean> = forbruk,
     ) = KvoteDefinisjon(
         hjemmel = hjemmel,
@@ -353,8 +320,6 @@ class KvotetellerTest {
         tellesNår = forbrukKriterium,
         forbruksteller = forbruktTeller,
         gjenstående = gjenstående,
-        sisteForbruk = sisteDagMedForbruk,
-        sisteGjenstående = sisteGjenstående,
         utløsendeBetingelse = utløsendeBetingelse,
     )
 }

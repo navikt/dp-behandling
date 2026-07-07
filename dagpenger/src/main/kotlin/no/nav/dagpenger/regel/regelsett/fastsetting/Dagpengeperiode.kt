@@ -116,8 +116,8 @@ object Dagpengeperiode {
                     tellesNår = Beregning.forbruk,
                     forbruksteller = Beregning.forbrukt,
                     gjenstående = Beregning.gjenståendeDager,
-                    sisteForbruk = Beregning.sisteForbruksdag,
-                    sisteGjenstående = Beregning.sisteGjenståendeDager,
+                    //  sisteForbruk = Beregning.sisteForbruksdag,
+                    //  sisteGjenstående = Beregning.sisteGjenståendeDager,
                     utløsendeBetingelse = KravPåDagpenger.harLøpendeRett,
                 ),
             )
