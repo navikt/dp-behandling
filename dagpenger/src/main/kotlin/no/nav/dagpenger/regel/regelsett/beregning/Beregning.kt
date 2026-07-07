@@ -62,8 +62,9 @@ object Beregning {
     val forbrukt = Opplysningstype.heltall(forbrukteDagerId, "Antall dager som er forbrukt", enhet = Enhet.Dager)
     val gjenståendeDager = Opplysningstype.heltall(gjenståendeDagerId, "Antall dager som gjenstår", enhet = Enhet.Dager)
 
-    val sisteForbruksdag = Opplysningstype.dato(sisteDagMedForbrukId, "Siste forbruksdato")
-    val sisteGjenståendeDager = Opplysningstype.heltall(sisteGjenståendeDagerId, "Siste antall dager som gjenstår", enhet = Enhet.Dager)
+    val sisteForbruksdag = Opplysningstype.dato(sisteDagMedForbrukId, "Siste forbruksdato", synlig = aldriSynlig)
+    val sisteGjenståendeDager =
+        Opplysningstype.heltall(sisteGjenståendeDagerId, "Siste antall dager som gjenstår", enhet = Enhet.Dager, synlig = aldriSynlig)
 
     val erSanksjonsdag = Opplysningstype.boolsk(erSanksjonsdagId, "Dag med sanksjon av dagpenger")
 
@@ -79,9 +80,15 @@ object Beregning {
             "Antall dager med sanksjon som gjenstår",
             enhet = Enhet.Dager,
         )
-    val sisteSanksjonsdagMedForbruk = Opplysningstype.dato(sisteSanksjonsdagMedForbrukId, "Siste dag med forbruk av sanksjon")
+    val sisteSanksjonsdagMedForbruk =
+        Opplysningstype.dato(sisteSanksjonsdagMedForbrukId, "Siste dag med forbruk av sanksjon", synlig = aldriSynlig)
     val sisteGjenståendeSanksjonsdager =
-        Opplysningstype.heltall(sisteGjenståendeSanksjonsdagerId, "Siste antall dager med sanksjon som gjenstår", enhet = Enhet.Dager)
+        Opplysningstype.heltall(
+            sisteGjenståendeSanksjonsdagerId,
+            "Siste antall dager med sanksjon som gjenstår",
+            enhet = Enhet.Dager,
+            synlig = aldriSynlig,
+        )
 
     val forbruktBortfallsdager =
         Opplysningstype.heltall(
@@ -95,9 +102,15 @@ object Beregning {
             "Antall bortfallsdager som gjenstår",
             enhet = Enhet.Dager,
         )
-    val sisteBortfallsdagMedForbruk = Opplysningstype.dato(sisteBortfallsdagMedForbrukId, "Siste dag med forbruk av bortfall")
+    val sisteBortfallsdagMedForbruk =
+        Opplysningstype.dato(sisteBortfallsdagMedForbrukId, "Siste dag med forbruk av bortfall", synlig = aldriSynlig)
     val sisteGjenståendeBortfallsdager =
-        Opplysningstype.heltall(sisteGjenståendeBortfallsdagerId, "Siste antall bortfallsdager som gjenstår", enhet = Enhet.Dager)
+        Opplysningstype.heltall(
+            sisteGjenståendeBortfallsdagerId,
+            "Siste antall bortfallsdager som gjenstår",
+            enhet = Enhet.Dager,
+            synlig = aldriSynlig,
+        )
 
     val meldedato = Opplysningstype.dato(meldedatoId, "Meldedato")
     val meldtITide = Opplysningstype.boolsk(trekkVedForsenMeldingId, "Har meldt seg i tide")
