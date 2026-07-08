@@ -12,6 +12,8 @@ dependencies {
     api("no.nav.dagpenger:dp-grunnbelop:20260109.219.701e55")
     api(libs.kotlin.logging)
     api("no.nav.dagpenger:aktivitetslogg:20251016.40.a3c526")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.1.0")
+    implementation("io.opentelemetry:opentelemetry-api:1.36.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter-params:${libs.versions.junit.get()}")
     testImplementation(libs.kotest.assertions.core)

@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -23,6 +24,7 @@ import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
 class MeldekortBeregningPlugin(
     private val kvoter: List<KvoteDefinisjon>,
 ) : ProsessPlugin {
+    @WithSpan("MeldekortBeregningPlugin.regelkjøringFerdig")
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
         val meldeperiode = meldeperiode(opplysninger)

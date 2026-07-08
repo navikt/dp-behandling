@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.opentelemetry.api.GlobalOpenTelemetry
 import no.nav.dagpenger.opplysning.Regelkjøring.Regelkjøringstilstand.Companion.aktiver
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
@@ -85,6 +86,24 @@ class Regelkjøring(
 
     companion object {
         private val logger = KotlinLogging.logger { }
+        private val tracer = GlobalOpenTelemetry.getTracer(Regelkjøring::class.java.name)
+
+        private fun <T> medSpan(
+            navn: String,
+            attributter: Map<String, String> = emptyMap(),
+            block: (io.opentelemetry.api.trace.Span) -> T,
+        ): T {
+            val span =
+                tracer
+                    .spanBuilder(navn)
+                    .apply { attributter.forEach { (k, v) -> setAttribute(k, v) } }
+                    .startSpan()
+            return try {
+                span.makeCurrent().use { block(span) }
+            } finally {
+                span.end()
+            }
+        }
     }
 
     private val observatører: MutableSet<RegelkjøringObserver> = mutableSetOf()
@@ -106,72 +125,77 @@ class Regelkjøring(
         observatører.add(observer)
     }
 
-    fun evaluer(): Regelkjøringsrapport {
-        var totalRapport: Regelkjøringsrapport? = null
-        for (dato in prøvingsperiode) {
-            val rapport = evaluerDag(dato)
-            totalRapport = totalRapport?.plus(rapport) ?: rapport
+    fun evaluer(): Regelkjøringsrapport =
+        medSpan("regelkjøring.evaluer", mapOf("regelverksdato" to regelverksdato.toString())) { span ->
+            var totalRapport: Regelkjøringsrapport? = null
+            for (dato in prøvingsperiode) {
+                val rapport = evaluerDag(dato)
+                totalRapport = totalRapport?.plus(rapport) ?: rapport
 
-            if (rapport.informasjonsbehov.isNotEmpty()) {
-                // Om en dag sier den har behov må de løses før vi kan videre til neste dag
-                break
+                if (rapport.informasjonsbehov.isNotEmpty()) {
+                    // Om en dag sier den har behov må de løses før vi kan videre til neste dag
+                    break
+                }
+            }
+
+            totalRapport!!.also { rapport ->
+                span.setAttribute("kjørteRegler", rapport.kjørteRegler.size.toLong())
+                span.setAttribute("antallDatoer", rapport.prøvingsdato.size.toLong())
+                span.setAttribute("mangler", rapport.mangler.size.toLong())
+                span.setAttribute("fjernet", rapport.fjernet.size.toLong())
+                if (rapport.prøvingsdato.size > 365) {
+                    logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${rapport.prøvingsdato.size}" }
+                }
+                logger.info {
+                    """Kjørte ${rapport.kjørteRegler.size} regler for følgende datoer: ${rapport.prøvingsdato.joinToString(", ")}
+                    |Regler:
+                    |${rapport.kjørteRegler.joinToString("\n") { "- $it" }}
+                    """.trimMargin()
+                }
             }
         }
 
-        return totalRapport!!.also {
-            if (it.prøvingsdato.size > 365) {
-                logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${it.prøvingsdato.size}" }
+    private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport =
+        medSpan("regelkjøring.evaluerDag", mapOf("prøvingsdato" to prøvingsdato.toString())) { span ->
+            val (kjøreplan, regelresultater) = planleggOgUtfør(prøvingsdato)
+
+            val kjørteRegler = regelresultater.flatten().map { it.regel }.toSet()
+
+            // Fjern utledede opplysninger som ikke brukes for å produsere ønsket resultat.
+            // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
+            // ønsketResultat kan være ufullstendig (regelsett med skalKjøres=false pga manglende data).
+            if (kjøreplan.siste.eksterneRegler.isEmpty()) {
+                val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, kjøreplan.siste.ønsketResultat)
+                opplysninger.fjernHvis {
+                    val opplysningFraSaksbehandler = it.kilde is Saksbehandlerkilde
+                    val opplysningFraHendelse = it.kilde is Systemkilde
+                    val trengsIkke = it.opplysningstype !in brukteOpplysninger
+                    val tilhørerDenneRegelkjøringen = it.gyldighetsperiode.fraOgMed >= prøvingsdato || it.behandletVed == prøvingsdato
+
+                    if (opplysningFraSaksbehandler || opplysningFraHendelse) return@fjernHvis false
+
+                    trengsIkke && tilhørerDenneRegelkjøringen
+                }
             }
-            logger.info {
-                """Kjørte ${it.kjørteRegler.size} regler for følgende datoer: ${it.prøvingsdato.joinToString(", ")}
-                |Regler:
-                |${it.kjørteRegler.joinToString("\n") { "- $it" }}
-                """.trimMargin()
-            }
-        }
-    }
 
-    private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
-        val (kjøreplan, regelresultater) = planleggOgUtfør(prøvingsdato)
+            opplysninger.markerBehandlet(prøvingsdato)
 
-        val kjørteRegler = regelresultater.flatten().map { it.regel }.toSet()
+            span.setAttribute("kjørteRegler", kjørteRegler.size.toLong())
+            span.setAttribute("iterasjoner", regelresultater.size.toLong())
 
-        // Fjern utledede opplysninger som ikke brukes for å produsere ønsket resultat.
-        // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
-        // ønsketResultat kan være ufullstendig (regelsett med skalKjøres=false pga manglende data).
-        if (kjøreplan.siste.eksterneRegler.isEmpty()) {
-            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, kjøreplan.siste.ønsketResultat)
-            opplysninger.fjernHvis {
-                val opplysningFraSaksbehandler = it.kilde is Saksbehandlerkilde
-                val opplysningFraHendelse = it.kilde is Systemkilde
-                val trengsIkke = it.opplysningstype !in brukteOpplysninger
-                val tilhørerDenneRegelkjøringen = it.gyldighetsperiode.fraOgMed >= prøvingsdato || it.behandletVed == prøvingsdato
-
-                if (opplysningFraSaksbehandler || opplysningFraHendelse) return@fjernHvis false
-
-                trengsIkke && tilhørerDenneRegelkjøringen
-            }
-        }
-
-        opplysninger.markerBehandlet(prøvingsdato)
-
-        return Regelkjøringsrapport(
-            kjørteRegler = kjørteRegler,
-            mangler = kjøreplan.siste.trenger,
-            informasjonsbehov = kjøreplan.siste.informasjonsbehov(gjeldendeRegler),
-            fjernet = opplysninger.fjernet(),
-            prøvingsdato = listOf(prøvingsdato),
-        ).also { rapport ->
-            observatører.forEach { observer ->
-                val aktiveOpplysninger = opplysninger.kunEgne.forDato(prøvingsdato)
-                observer.evaluert(
-                    rapport,
-                    opplysninger,
-                    aktiveOpplysninger,
-                )
+            Regelkjøringsrapport(
+                kjørteRegler = kjørteRegler,
+                mangler = kjøreplan.siste.trenger,
+                informasjonsbehov = kjøreplan.siste.informasjonsbehov(gjeldendeRegler),
+                fjernet = opplysninger.fjernet(),
+                prøvingsdato = listOf(prøvingsdato),
+            ).also { rapport ->
+                observatører.forEach { observer ->
+                    val aktiveOpplysninger = opplysninger.kunEgne.forDato(prøvingsdato)
+                    observer.evaluert(rapport, opplysninger, aktiveOpplysninger)
+                }
             }
         }
-    }
 
     private class Kjøreplan(
         val siste: Regelkjøringstilstand,

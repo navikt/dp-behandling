@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel.prosess
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -35,6 +36,7 @@ class RettighetsperiodePlugin(
     private val overskrivingsStrategi: PeriodeOverskrivingsStrategi = PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
     private val slåSammenLike: Boolean = true,
 ) : ProsessPlugin {
+    @WithSpan("RettighetsperiodePlugin.regelkjøringFerdig")
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         kontekst.kontekst(this)
         val opplysninger = kontekst.opplysninger
