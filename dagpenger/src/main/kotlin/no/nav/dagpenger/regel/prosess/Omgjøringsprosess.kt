@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Forretningsprosess
@@ -74,6 +75,7 @@ class OmgjøringBeregningPlugin(
     private val meldekortBeregningPlugin: MeldekortBeregningPlugin,
 ) : ProsessPlugin,
     Aktivitetskontekst {
+    @WithSpan("OmgjøringBeregningPlugin.regelkjøringFerdig")
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         kontekst.kontekst(this)
         val opplysninger = kontekst.opplysninger

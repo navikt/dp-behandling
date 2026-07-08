@@ -4,6 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
+import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
@@ -60,6 +61,7 @@ internal class HendelseMediator(
     private companion object {
         val logger = KotlinLogging.logger { }
         val sikkerlogg = KotlinLogging.logger("tjenestekall.HendelseMediator")
+        val tracer = GlobalOpenTelemetry.getTracer(HendelseMediator::class.java.name)
     }
 
     fun håndter(
@@ -140,9 +142,22 @@ internal class HendelseMediator(
                 person.registrer(oppdateringObserver)
                 person.registrer(flyttSøskenObserver)
                 observatører.forEach { observatør -> person.registrer(observatør) }
-                tidBruktPerHendelse.labelValues(hendelse.javaClass.simpleName).time {
-                    handler(person)
+
+                val hendelsesSpan =
+                    tracer
+                        .spanBuilder("person.håndter.hendelse")
+                        .setAttribute("hendelse", hendelse.javaClass.simpleName)
+                        .startSpan()
+                try {
+                    hendelsesSpan.makeCurrent().use {
+                        tidBruktPerHendelse.labelValues(hendelse.javaClass.simpleName).time {
+                            handler(person)
+                        }
+                    }
+                } finally {
+                    hendelsesSpan.end()
                 }
+
                 hendelseTeller.labelValues(hendelse.javaClass.simpleName).inc()
             }
             ferdigstill(context, personMediator, oppdateringObserver, hendelse)
