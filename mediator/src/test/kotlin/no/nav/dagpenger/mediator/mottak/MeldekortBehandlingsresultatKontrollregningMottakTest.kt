@@ -7,6 +7,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.maksimalVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -21,7 +23,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
     fun `publiserer kontrollregningbehov ved for sen melding og stans`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                førteTil = "STANS",
+                endretPeriode = true,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -42,13 +44,47 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
         message["detaljer"].has("meldekortMedInnhold") shouldBe false
         message["detaljer"].has("harEndring") shouldBe false
         message["detaljer"]["nyOpplysningUtenforBeregning"].asBoolean() shouldBe false
+        message["detaljer"]["ileggesSanksjon"].asBoolean() shouldBe false
     }
 
     @Test
-    fun `publiserer kontrollregningbehov ved arbeidsdag false og ny opplysning utenfor beregning`() {
+    fun `publiserer kontrollregningbehov ved for sen melding og sanksjon`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                førteTil = "ENDRING",
+                endretPeriode = true,
+                opplysninger =
+                    listOf(
+                        opplysning(
+                            opplysningTypeId = trekkVedForsenMeldingId.uuid,
+                            opprinnelse = "NY",
+                            verdi = "false",
+                        ),
+                        opplysning(
+                            opplysningTypeId = harSanksjon.id.uuid,
+                            opprinnelse = "NY",
+                            verdi = "true",
+                        ),
+                    ),
+            ),
+        )
+
+        rapid.inspektør.size shouldBeExactly 1
+        val message = rapid.inspektør.message(0)
+        message["@event_name"].asString() shouldBe "meldekortberegning_trenger_kontrollregning"
+        message["behandlingId"].asString() shouldBe "12345678-1234-1234-1234-123456789012"
+        message["detaljer"]["trekkVedForsenMelding"].asBoolean() shouldBe true
+        message["detaljer"]["avgjorelseStans"].asBoolean() shouldBe true
+        message["detaljer"].has("meldekortMedInnhold") shouldBe false
+        message["detaljer"].has("harEndring") shouldBe false
+        message["detaljer"]["nyOpplysningUtenforBeregning"].asBoolean() shouldBe false
+        message["detaljer"]["ileggesSanksjon"].asBoolean() shouldBe true
+    }
+
+    @Test
+    fun `publiserer ikke kontrollregningbehov ved arbeidsdag false og ny opplysning utenfor beregning`() {
+        rapid.sendTestMessage(
+            behandlingsresultat(
+                endretPeriode = false,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -65,19 +101,14 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
             ),
         )
 
-        rapid.inspektør.size shouldBeExactly 1
-        with(rapid.inspektør.message(0)) {
-            this["@event_name"].asString() shouldBe "meldekortberegning_trenger_kontrollregning"
-            this["detaljer"]["arbeidsdagUtenArbeid"].asBoolean() shouldBe true
-            this["detaljer"]["nyOpplysningUtenforBeregning"].asBoolean() shouldBe true
-        }
+        rapid.inspektør.size shouldBeExactly 0
     }
 
     @Test
     fun `publiserer kontrollregningbehov når meldekort har innhold og endring uten stans`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                førteTil = "ENDRING",
+                endretPeriode = false,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -86,7 +117,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
                             verdi = "7.5",
                         ),
                         opplysning(
-                            opplysningTypeId = maksimalVanligArbeidstidId.uuid,
+                            opplysningTypeId = fastsattVanligArbeidstid.id.uuid,
                             opprinnelse = "NY",
                             verdi = "0",
                         ),
@@ -101,7 +132,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
     fun `publiserer ikke kontrollregningbehov når meldekort har innhold men ingen endring og ingen stans`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                førteTil = "ENDRING",
+                endretPeriode = false,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -121,7 +152,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
         rapid.sendTestMessage(
             behandlingsresultat(
                 hendelseType = "Søknad",
-                førteTil = "STANS",
+                endretPeriode = true,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -138,21 +169,25 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
 
     private fun behandlingsresultat(
         hendelseType: String = "Meldekort",
-        førteTil: String,
+        endretPeriode: Boolean,
         opplysninger: List<String>,
-    ) = """
-        {
-          "@event_name": "behandlingsresultat",
-          "ident": "12345678901",
-          "behandlingId": "12345678-1234-1234-1234-123456789012",
-          "behandletHendelse": {
-            "type": "$hendelseType",
-            "id": "meldekort-1"
-          },
-          "førteTil": "$førteTil",
-          "opplysninger": [${opplysninger.joinToString(",")}]
-        }
-        """.trimIndent()
+    ): String {
+        val opprinnelse = if (endretPeriode) "Ny" else "Arvet"
+        val opplysninger = opplysninger.joinToString(",")
+        return """
+            {
+              "@event_name": "behandlingsresultat",
+              "ident": "12345678901",
+              "behandlingId": "12345678-1234-1234-1234-123456789012",
+              "behandletHendelse": {
+                "type": "$hendelseType",
+                "id": "meldekort-1"
+              },
+              "rettighetsperioder": [{"opprinnelse": "$opprinnelse"}],
+              "opplysninger": [$opplysninger]
+            }
+            """.trimIndent()
+    }
 
     private fun opplysning(
         opplysningTypeId: UUID,

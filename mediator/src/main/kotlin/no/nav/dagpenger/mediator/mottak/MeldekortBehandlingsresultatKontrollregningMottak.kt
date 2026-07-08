@@ -8,17 +8,15 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.dagpenger.mediator.api.models.AvgjørelseDTO
 import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning
-import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
-import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
-import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
-import no.nav.dagpenger.regelverk.HendelseTypeId
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
 import java.util.UUID
@@ -33,7 +31,15 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
                     it.requireValue("@event_name", "behandlingsresultat")
                     it.requireValue("behandletHendelse.type", "Meldekort")
                 }
-                validate { it.requireKey("ident", "behandlingId", "behandletHendelse", "opplysninger", "førteTil") }
+                validate {
+                    it.requireKey(
+                        "ident",
+                        "behandlingId",
+                        "behandletHendelse",
+                        "opplysninger",
+                        "rettighetsperioder",
+                    )
+                }
             }.register(this)
     }
 
@@ -52,7 +58,7 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
                         "meldekortMedInnhold=${kontrollbehov.meldekortMedInnhold}, " +
                         "trekkVedForSenMelding=${kontrollbehov.harTrekkVedForSenMelding}, " +
                         "harEndring=${kontrollbehov.harEndring}, " +
-                        "harStans=${kontrollbehov.harStans}"
+                        "harEndretRettighetsperiode=${kontrollbehov.harEndretRettighetsperiode}"
                 }
                 return
             }
@@ -84,7 +90,7 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
                 nyePerioder.any {
                     it.er(arbeidstimerId) && !it.periode.desimaltallVerdi(erLik = BigDecimal.ZERO)
                 }
-        val harNyOpplysningUtenforBeregning get() = nyePerioder.any { it.opplysningTypeId !in beregningOpplysningTypeIder }
+        val harNyeOpplysningerSomPåvirkerBeregning get() = nyePerioder.any { it.opplysningTypeId in endringInnIBeregning }
 
         val harTrekkVedForSenMelding
             get() =
@@ -94,18 +100,22 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         val meldekortMedInnhold
             get() = harArbeidsdagMedFalse || harArbeidstimerIkkeNull
 
-        val harEndring get() = harNyOpplysningUtenforBeregning
-        val harStans get() = packet["førteTil"].er(AvgjørelseDTO.STANS)
+        val ileggesSanksjon get() = nyePerioder.filter { it.er(harSanksjon.id) }.any { it.periode.boolskVerdi(erLik = true) }
 
-        val harKontrollbehov get() = (harTrekkVedForSenMelding || meldekortMedInnhold) && (harEndring || harStans)
+        val harEndring get() = harNyeOpplysningerSomPåvirkerBeregning
+
+        val harEndretRettighetsperiode get() = packet["rettighetsperioder"].any { it["opprinnelse"].asString() == "Ny" }
+
+        val harKontrollbehov get() = (harTrekkVedForSenMelding || meldekortMedInnhold) && (harEndring || harEndretRettighetsperiode)
 
         fun kontrollbehovDetaljer() =
             mapOf(
                 "trekkVedForsenMelding" to harTrekkVedForSenMelding,
                 "arbeidsdagUtenArbeid" to harArbeidsdagMedFalse,
                 "arbeidstimerIkkeNull" to harArbeidstimerIkkeNull,
-                "avgjorelseStans" to harStans,
-                "nyOpplysningUtenforBeregning" to harNyOpplysningUtenforBeregning,
+                "avgjorelseStans" to harEndretRettighetsperiode,
+                "nyOpplysningUtenforBeregning" to harNyeOpplysningerSomPåvirkerBeregning,
+                "ileggesSanksjon" to ileggesSanksjon,
             )
 
         private val nyePerioder: List<NyPeriode> by lazy {
@@ -123,16 +133,15 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         private fun NyPeriode.er(opplysningTypeId: Opplysningstype.Id<*>) = this.opplysningTypeId == opplysningTypeId.uuid
 
         private companion object {
-            private val ekstraOpplysninger: Set<UUID> = setOf(oppfyllerMeldeplikt.id.uuid, HendelseTypeId.uuid)
-            private val nyeRegelsett: Set<UUID> =
-                listOf(Sanksjonsperiode.regelsett, TidsbegrensetBortfall.regelsett)
-                    .flatMap { it.produserer }
-                    .map { it.id.uuid }
-                    .toSet()
-            private val beregningOpplysningTypeIder: Set<UUID> =
-                Beregning.regelsett.produserer
-                    .map { it.id.uuid }
-                    .toSet() + ekstraOpplysninger + nyeRegelsett
+            private val endringInnIBeregning: Set<UUID> =
+                setOf(
+                    // Endring i sats (eks barnetillegg eller samordning)
+                    dagsatsEtterSamordningMedBarnetillegg.id.uuid,
+                    // Endring i arbeidstid (bruker godkjennes som deltidsarbeidssøker eller samordning)
+                    fastsattVanligArbeidstid.id.uuid,
+                    // Endring i terskel (fiskepermittering)
+                    kravTilArbeidstidsreduksjon.id.uuid,
+                )
 
             private fun JsonNode.erNyPeriode() = this["opprinnelse"].er(OpprinnelseDTO.NY)
 
