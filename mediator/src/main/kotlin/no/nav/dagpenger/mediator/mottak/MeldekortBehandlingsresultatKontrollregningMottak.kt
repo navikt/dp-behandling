@@ -10,9 +10,9 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
-import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
-import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.arbeidsdag
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.arbeidstimer
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldtITide
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
@@ -52,17 +52,6 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         val kontrollbehov = MeldekortberegningKontrollbehov(packet)
 
         withLoggingContext("behandlingId" to packet["behandlingId"].asString()) {
-            if (!kontrollbehov.harKontrollbehov) {
-                logger.info {
-                    "Ingen kontrollbehov: " +
-                        "meldekortMedInnhold=${kontrollbehov.meldekortMedInnhold}, " +
-                        "trekkVedForSenMelding=${kontrollbehov.harTrekkVedForSenMelding}, " +
-                        "harEndring=${kontrollbehov.harEndring}, " +
-                        "harEndretRettighetsperiode=${kontrollbehov.harEndretRettighetsperiode}"
-                }
-                return
-            }
-
             val detaljer = kontrollbehov.kontrollbehovDetaljer()
             context.publish(
                 packet["ident"].asString(),
@@ -84,39 +73,57 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
     private class MeldekortberegningKontrollbehov(
         private val packet: JsonMessage,
     ) {
-        val harArbeidsdagMedFalse get() = nyePerioder.any { it.er(arbeidsdagId) && it.periode.boolskVerdi(erLik = false) }
-        val harArbeidstimerIkkeNull
+        val harKontrollbehov get() = (meldekortSendtForSent || meldekortDerNoeErMeldt) && harEndring
+
+        private val meldekortSendtForSent get() = nyePerioder(meldtITide).any { it.medVerdi(false) }
+        private val meldekortDerNoeErMeldt get() = harArbeidsdagMedFalse || harMeldtArbeidstimer
+
+        private val harEndring
             get() =
-                nyePerioder.any {
-                    it.er(arbeidstimerId) && !it.periode.desimaltallVerdi(erLik = BigDecimal.ZERO)
-                }
-        val harNyeOpplysningerSomPåvirkerBeregning get() = nyePerioder.any { it.opplysningTypeId in endringInnIBeregning }
-
-        val harTrekkVedForSenMelding
-            get() =
-                nyePerioder.any {
-                    it.er(trekkVedForsenMeldingId) && it.periode.boolskVerdi(erLik = false)
-                }
-        val meldekortMedInnhold
-            get() = harArbeidsdagMedFalse || harArbeidstimerIkkeNull
-
-        val ileggesSanksjon get() = nyePerioder.filter { it.er(harSanksjon.id) }.any { it.periode.boolskVerdi(erLik = true) }
-
-        val harEndring get() = harNyeOpplysningerSomPåvirkerBeregning
-
-        val harEndretRettighetsperiode get() = packet["rettighetsperioder"].any { it["opprinnelse"].asString() == "Ny" }
-
-        val harKontrollbehov get() = (harTrekkVedForSenMelding || meldekortMedInnhold) && (harEndring || harEndretRettighetsperiode)
+                // Endring i sats (eks barnetillegg eller samordning)
+                harEndringISats ||
+                    // Endring i arbeidstid (bruker godkjennes som deltidsarbeidssøker eller samordning)
+                    harEndringiArbeidstid ||
+                    // Endring i terskel (fiskepermittering)
+                    harEndringITerskel ||
+                    // Ileggelse av sanksjon i løpende sak
+                    ileggesSanksjon ||
+                        /*
+                         * Stans av dagpengesak som følge av manuell behandling (bruker opplyser for eksempel i modia at hen har startet i jobb)
+                         * Stans av dagpengesak (automatisk) som følge av at bruker krysser nei på spørsmål om videre tilmelding
+                         * Stans av dagpengesak (automatisk) som følge av manglende innsending av meldekort
+                         * Stans av dagpengesak (automatisk) som følge av maksimal stønadsperiode nådd
+                         * Gjenopptak i samme periode som man har fått stansvedtak
+                         */
+                    harEndretRettighetsperiode
 
         fun kontrollbehovDetaljer() =
             mapOf(
-                "trekkVedForsenMelding" to harTrekkVedForSenMelding,
-                "arbeidsdagUtenArbeid" to harArbeidsdagMedFalse,
-                "arbeidstimerIkkeNull" to harArbeidstimerIkkeNull,
-                "avgjorelseStans" to harEndretRettighetsperiode,
-                "nyOpplysningUtenforBeregning" to harNyeOpplysningerSomPåvirkerBeregning,
+                "meldekortSendtForSent" to meldekortSendtForSent,
+                "harMeldtAnnenAktivitet" to harArbeidsdagMedFalse,
+                "harMeldtArbeidstimer" to harMeldtArbeidstimer,
+                "harEndringISats" to harEndringISats,
+                "harEndringiArbeidstid" to harEndringiArbeidstid,
+                "harEndringITerskel" to harEndringITerskel,
                 "ileggesSanksjon" to ileggesSanksjon,
+                "harEndretRettighetsperiode" to harEndretRettighetsperiode,
             )
+
+        // Endring i sats (eks barnetillegg eller samordning)
+        private val harEndringISats get() = nyePerioder.any { it.er(dagsatsEtterSamordningMedBarnetillegg) }
+
+        // Endring i arbeidstid (bruker godkjennes som deltidsarbeidssøker eller samordning)
+        private val harEndringiArbeidstid get() = nyePerioder.any { it.er(fastsattVanligArbeidstid) }
+
+        // Endring i terskel (fiskepermittering)
+        private val harEndringITerskel get() = nyePerioder.any { it.er(kravTilArbeidstidsreduksjon) }
+
+        private val harArbeidsdagMedFalse get() = nyePerioder(arbeidsdag).any { it.medVerdi(false) }
+        private val harMeldtArbeidstimer get() = nyePerioder(arbeidstimer).any { !it.medVerdi(BigDecimal.ZERO) }
+
+        private val ileggesSanksjon get() = nyePerioder(harSanksjon).any { it.medVerdi(true) }
+
+        private val harEndretRettighetsperiode get() = packet["rettighetsperioder"].any { it["opprinnelse"].asString() == "Ny" }
 
         private val nyePerioder: List<NyPeriode> by lazy {
             packet["opplysninger"]
@@ -130,56 +137,38 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
                 }
         }
 
-        private fun NyPeriode.er(opplysningTypeId: Opplysningstype.Id<*>) = this.opplysningTypeId == opplysningTypeId.uuid
+        private fun nyePerioder(opplysningstype: Opplysningstype<*>) = nyePerioder.filter { it.er(opplysningstype) }
 
         private companion object {
-            private val endringInnIBeregning: Set<UUID> =
-                setOf(
-                    // Endring i sats (eks barnetillegg eller samordning)
-                    dagsatsEtterSamordningMedBarnetillegg.id.uuid,
-                    // Endring i arbeidstid (bruker godkjennes som deltidsarbeidssøker eller samordning)
-                    fastsattVanligArbeidstid.id.uuid,
-                    // Endring i terskel (fiskepermittering)
-                    kravTilArbeidstidsreduksjon.id.uuid,
-                )
-
-            private fun JsonNode.erNyPeriode() = this["opprinnelse"].er(OpprinnelseDTO.NY)
-
-            private fun JsonNode.er(enumVerdi: Enum<*>) =
-                this.asString().let { råverdi ->
-                    råverdi.equals(enumVerdi.name, ignoreCase = true) || råverdi.equals(enumVerdi.toString(), ignoreCase = true)
+            private fun JsonNode.erNyPeriode() =
+                this["opprinnelse"].asString().let { råverdi ->
+                    råverdi.equals(OpprinnelseDTO.NY.name, ignoreCase = true) ||
+                        råverdi.equals(OpprinnelseDTO.NY.toString(), ignoreCase = true)
                 }
-
-            private fun JsonNode.boolskVerdi(erLik: Boolean): Boolean {
-                val verdiNode = this["verdi"]["verdi"]
-                val verdi =
-                    when {
-                        verdiNode.isBoolean -> verdiNode.asBoolean()
-                        else -> verdiNode.asString().toBooleanStrictOrNull()
-                    }
-
-                return verdi == erLik
-            }
-
-            private fun JsonNode.desimaltallVerdi(erLik: BigDecimal): Boolean {
-                val verdiNode = this["verdi"]["verdi"]
-                val verdi =
-                    when {
-                        verdiNode.isNumber -> verdiNode.decimalValue()
-                        else -> verdiNode.asString().toBigDecimalOrNull()
-                    }
-
-                return verdi?.compareTo(erLik) == 0
-            }
 
             private fun JsonNode.asUUIDOrNull() = this.asString().let { runCatching { UUID.fromString(it) }.getOrNull() }
         }
     }
 
     private data class NyPeriode(
-        val opplysningTypeId: UUID,
+        private val opplysningTypeId: UUID,
         val periode: JsonNode,
-    )
+    ) {
+        fun er(opplysningType: Opplysningstype<*>) = opplysningTypeId == opplysningType.id.uuid
+
+        fun medVerdi(verdi: Boolean) = periode["verdi"]["verdi"].asBoolean() == verdi
+
+        fun medVerdi(erLik: BigDecimal): Boolean {
+            val verdiNode = periode["verdi"]["verdi"]
+            val verdi =
+                when {
+                    verdiNode.isNumber -> verdiNode.decimalValue()
+                    else -> verdiNode.asString().toBigDecimalOrNull()
+                }
+
+            return verdi?.compareTo(erLik) == 0
+        }
+    }
 
     private companion object {
         private val logger = KotlinLogging.logger {}

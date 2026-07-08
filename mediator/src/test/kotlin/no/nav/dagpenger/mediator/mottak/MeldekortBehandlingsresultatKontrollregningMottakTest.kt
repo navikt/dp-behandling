@@ -23,7 +23,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
     fun `publiserer kontrollregningbehov ved for sen melding og stans`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                endretPeriode = true,
+                endretRettighetsperiode = true,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -39,19 +39,21 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
         val message = rapid.inspektør.message(0)
         message["@event_name"].asString() shouldBe "meldekortberegning_trenger_kontrollregning"
         message["behandlingId"].asString() shouldBe "12345678-1234-1234-1234-123456789012"
-        message["detaljer"]["trekkVedForsenMelding"].asBoolean() shouldBe true
-        message["detaljer"]["avgjorelseStans"].asBoolean() shouldBe true
-        message["detaljer"].has("meldekortMedInnhold") shouldBe false
-        message["detaljer"].has("harEndring") shouldBe false
-        message["detaljer"]["nyOpplysningUtenforBeregning"].asBoolean() shouldBe false
+        message["detaljer"]["meldekortSendtForSent"].asBoolean() shouldBe true
+        message["detaljer"]["harMeldtAnnenAktivitet"].asBoolean() shouldBe false
+        message["detaljer"]["harMeldtArbeidstimer"].asBoolean() shouldBe false
+        message["detaljer"]["harEndringISats"].asBoolean() shouldBe false
+        message["detaljer"]["harEndringiArbeidstid"].asBoolean() shouldBe false
+        message["detaljer"]["harEndringITerskel"].asBoolean() shouldBe false
         message["detaljer"]["ileggesSanksjon"].asBoolean() shouldBe false
+        message["detaljer"]["harEndretRettighetsperiode"].asBoolean() shouldBe true
     }
 
     @Test
     fun `publiserer kontrollregningbehov ved for sen melding og sanksjon`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                endretPeriode = true,
+                endretRettighetsperiode = false,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -72,19 +74,21 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
         val message = rapid.inspektør.message(0)
         message["@event_name"].asString() shouldBe "meldekortberegning_trenger_kontrollregning"
         message["behandlingId"].asString() shouldBe "12345678-1234-1234-1234-123456789012"
-        message["detaljer"]["trekkVedForsenMelding"].asBoolean() shouldBe true
-        message["detaljer"]["avgjorelseStans"].asBoolean() shouldBe true
-        message["detaljer"].has("meldekortMedInnhold") shouldBe false
-        message["detaljer"].has("harEndring") shouldBe false
-        message["detaljer"]["nyOpplysningUtenforBeregning"].asBoolean() shouldBe false
+        message["detaljer"]["meldekortSendtForSent"].asBoolean() shouldBe true
+        message["detaljer"]["harMeldtAnnenAktivitet"].asBoolean() shouldBe false
+        message["detaljer"]["harMeldtArbeidstimer"].asBoolean() shouldBe false
+        message["detaljer"]["harEndringISats"].asBoolean() shouldBe false
+        message["detaljer"]["harEndringiArbeidstid"].asBoolean() shouldBe false
+        message["detaljer"]["harEndringITerskel"].asBoolean() shouldBe false
         message["detaljer"]["ileggesSanksjon"].asBoolean() shouldBe true
+        message["detaljer"]["harEndretRettighetsperiode"].asBoolean() shouldBe false
     }
 
     @Test
     fun `publiserer ikke kontrollregningbehov ved arbeidsdag false og ny opplysning utenfor beregning`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                endretPeriode = false,
+                endretRettighetsperiode = false,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -108,7 +112,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
     fun `publiserer kontrollregningbehov når meldekort har innhold og endring uten stans`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                endretPeriode = false,
+                endretRettighetsperiode = false,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -126,13 +130,22 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
         )
 
         rapid.inspektør.size shouldBeExactly 1
+        val message = rapid.inspektør.message(0)
+        message["detaljer"]["meldekortSendtForSent"].asBoolean() shouldBe false
+        message["detaljer"]["harMeldtAnnenAktivitet"].asBoolean() shouldBe false
+        message["detaljer"]["harMeldtArbeidstimer"].asBoolean() shouldBe true
+        message["detaljer"]["harEndringISats"].asBoolean() shouldBe false
+        message["detaljer"]["harEndringiArbeidstid"].asBoolean() shouldBe true
+        message["detaljer"]["harEndringITerskel"].asBoolean() shouldBe false
+        message["detaljer"]["ileggesSanksjon"].asBoolean() shouldBe false
+        message["detaljer"]["harEndretRettighetsperiode"].asBoolean() shouldBe false
     }
 
     @Test
     fun `publiserer ikke kontrollregningbehov når meldekort har innhold men ingen endring og ingen stans`() {
         rapid.sendTestMessage(
             behandlingsresultat(
-                endretPeriode = false,
+                endretRettighetsperiode = false,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -152,7 +165,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
         rapid.sendTestMessage(
             behandlingsresultat(
                 hendelseType = "Søknad",
-                endretPeriode = true,
+                endretRettighetsperiode = true,
                 opplysninger =
                     listOf(
                         opplysning(
@@ -169,10 +182,10 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
 
     private fun behandlingsresultat(
         hendelseType: String = "Meldekort",
-        endretPeriode: Boolean,
+        endretRettighetsperiode: Boolean,
         opplysninger: List<String>,
     ): String {
-        val opprinnelse = if (endretPeriode) "Ny" else "Arvet"
+        val opprinnelse = if (endretRettighetsperiode) "Ny" else "Arvet"
         val opplysninger = opplysninger.joinToString(",")
         return """
             {
