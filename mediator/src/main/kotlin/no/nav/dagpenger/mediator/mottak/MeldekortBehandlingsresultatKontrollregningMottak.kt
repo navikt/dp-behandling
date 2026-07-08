@@ -51,6 +51,8 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
     ) {
         val kontrollbehov = MeldekortberegningKontrollbehov(packet)
 
+        if (!kontrollbehov.harKontrollbehov) return
+
         withLoggingContext("behandlingId" to packet["behandlingId"].asString()) {
             val detaljer = kontrollbehov.kontrollbehovDetaljer()
             context.publish(
