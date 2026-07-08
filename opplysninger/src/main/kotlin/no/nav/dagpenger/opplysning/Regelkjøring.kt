@@ -87,23 +87,6 @@ class Regelkjøring(
     companion object {
         private val logger = KotlinLogging.logger { }
         private val tracer = GlobalOpenTelemetry.getTracer(Regelkjøring::class.java.name)
-
-        private fun <T> medSpan(
-            navn: String,
-            attributter: Map<String, String> = emptyMap(),
-            block: (io.opentelemetry.api.trace.Span) -> T,
-        ): T {
-            val span =
-                tracer
-                    .spanBuilder(navn)
-                    .apply { attributter.forEach { (k, v) -> setAttribute(k, v) } }
-                    .startSpan()
-            return try {
-                span.makeCurrent().use { block(span) }
-            } finally {
-                span.end()
-            }
-        }
     }
 
     private val observatører: MutableSet<RegelkjøringObserver> = mutableSetOf()
@@ -126,7 +109,7 @@ class Regelkjøring(
     }
 
     fun evaluer(): Regelkjøringsrapport =
-        medSpan("regelkjøring.evaluer", mapOf("regelverksdato" to regelverksdato.toString())) { span ->
+        tracer.medSpan("regelkjøring.evaluer", mapOf("regelverksdato" to regelverksdato.toString())) { span ->
             var totalRapport: Regelkjøringsrapport? = null
             for (dato in prøvingsperiode) {
                 val rapport = evaluerDag(dato)
@@ -156,7 +139,7 @@ class Regelkjøring(
         }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport =
-        medSpan("regelkjøring.evaluerDag", mapOf("prøvingsdato" to prøvingsdato.toString())) { span ->
+        tracer.medSpan("regelkjøring.evaluerDag", mapOf("prøvingsdato" to prøvingsdato.toString())) { span ->
             val (kjøreplan, regelresultater) = planleggOgUtfør(prøvingsdato)
 
             val kjørteRegler = regelresultater.flatten().map { it.regel }.toSet()

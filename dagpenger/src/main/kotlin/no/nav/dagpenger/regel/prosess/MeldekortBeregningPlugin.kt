@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.prosess
 
-import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -8,6 +7,7 @@ import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
+import no.nav.dagpenger.opplysning.medSpan
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KvotetellingsSkriver
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -24,7 +24,6 @@ import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
 class MeldekortBeregningPlugin(
     private val kvoter: List<KvoteDefinisjon>,
 ) : ProsessPlugin {
-    @WithSpan("MeldekortBeregningPlugin.regelkjøringFerdig")
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
         val opplysninger = kontekst.opplysninger
         val meldeperiode = meldeperiode(opplysninger)
@@ -32,6 +31,17 @@ class MeldekortBeregningPlugin(
     }
 
     fun beregnForPeriode(
+        kontekst: Prosesskontekst,
+        meldeperiode: Periode,
+    ): Beregningresultat =
+        telemetri.medSpan(
+            "MeldekortBeregningPlugin.beregnForPeriode",
+            mapOf("fraOgMed" to meldeperiode.fraOgMed.toString(), "tilOgMed" to meldeperiode.tilOgMed.toString()),
+        ) {
+            beregnForPeriodeIntern(kontekst, meldeperiode)
+        }
+
+    private fun beregnForPeriodeIntern(
         kontekst: Prosesskontekst,
         meldeperiode: Periode,
     ): Beregningresultat {

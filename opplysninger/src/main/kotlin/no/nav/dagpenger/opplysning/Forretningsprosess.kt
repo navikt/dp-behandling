@@ -35,13 +35,19 @@ abstract class Forretningsprosess(
     fun registrer(handler: ProsessPlugin) = plugins.add(handler)
 
     fun kjørUnderOpprettelse(kontekst: Prosesskontekst) =
-        medSpan("forretningsprosess.kjørUnderOpprettelse", navn) { plugins.forEach { it.underOpprettelse(kontekst) } }
+        tracer.medSpan("forretningsprosess.kjørUnderOpprettelse", mapOf("prosess" to navn)) {
+            plugins.forEach { it.underOpprettelse(kontekst) }
+        }
 
     fun kjørEtterRegelkjøring(kontekst: Prosesskontekst) =
-        medSpan("forretningsprosess.kjørEtterRegelkjøring", navn) { plugins.forEach { it.etterRegelkjøring(kontekst) } }
+        tracer.medSpan("forretningsprosess.kjørEtterRegelkjøring", mapOf("prosess" to navn)) {
+            plugins.forEach { it.etterRegelkjøring(kontekst) }
+        }
 
     fun kjørRegelkjøringFerdig(kontekst: Prosesskontekst) =
-        medSpan("forretningsprosess.kjørRegelkjøringFerdig", navn) { plugins.forEach { it.regelkjøringFerdig(kontekst) } }
+        tracer.medSpan("forretningsprosess.kjørRegelkjøringFerdig", mapOf("prosess" to navn)) {
+            plugins.forEach { it.regelkjøringFerdig(kontekst) }
+        }
 
     open fun produsenter(
         regelverksdato: LocalDate,
@@ -55,19 +61,6 @@ abstract class Forretningsprosess(
 
     private companion object {
         private val tracer = GlobalOpenTelemetry.getTracer(Forretningsprosess::class.java.name)
-
-        private fun medSpan(
-            spanNavn: String,
-            prosessNavn: String,
-            block: () -> Unit,
-        ) {
-            val span = tracer.spanBuilder(spanNavn).setAttribute("prosess", prosessNavn).startSpan()
-            try {
-                span.makeCurrent().use { block() }
-            } finally {
-                span.end()
-            }
-        }
     }
 }
 

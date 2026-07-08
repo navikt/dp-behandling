@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
@@ -85,7 +86,7 @@ class OmgjøringBeregningPlugin(
                 .map { it.verdi }
                 .sortedBy { it.fraOgMed }
 
-        // Kjør beregning for hver meldeperiode i kronologisk rekkefølge
+        Span.current().setAttribute("antallMeldeperioder", meldeperioder.size.toLong())
 
         kontekst.info("Start re-beregning for ${meldeperioder.size} meldeperioder ved omgjøring.")
         meldeperioder.forEach { periode ->
