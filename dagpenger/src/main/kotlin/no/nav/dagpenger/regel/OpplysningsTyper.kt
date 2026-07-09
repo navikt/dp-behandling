@@ -324,6 +324,13 @@ object OpplysningsTyper {
     val utbetalingForPeriodeId = Opplysningstype.Id(UUID.fromString("01994cfd-9a27-762e-81fa-61f550467c95"), Penger)
     val meldedatoId = Opplysningstype.Id(UUID.fromString("019a9b47-2442-7533-bc71-a71a4600c49a"), Dato)
 
+    // Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid § 10-4 annet ledd
+    val OppfyllerKravetTilTreMeldeperioderUtenTilstrekkeligTapAvArbeidstidId =
+        Opplysningstype.Id(
+            UUID.fromString("019f45da-6f59-7155-bda1-e219a5f3dd89"),
+            Boolsk,
+        )
+
     // Hendelser
     val skalUføreSamordnesId = Opplysningstype.Id(UUID.fromString("0196afaf-afbd-7079-b2cf-3669ad9d86aa"), Boolsk)
     val uføreBeløpSomSkalSamordnesId = Opplysningstype.Id(UUID.fromString("0196afbf-e32d-775a-ad10-f476e26dcb6f"), Penger)

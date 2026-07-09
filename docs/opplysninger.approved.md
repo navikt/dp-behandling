@@ -173,6 +173,16 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9413-77ce-92ec-d29700f0424a|Arbeidsinntekt er over kravet for siste 12 måneder|Boolsk|boolean|||Intern
 |0194881f-9413-77ce-92ec-d29700f0424b|Arbeidsinntekt er over kravet for siste 36 måneder|Boolsk|boolean|||Intern
 |0194881f-9413-77ce-92ec-d29700f0424c|Oppfyller kravet til minsteinntekt|Boolsk|boolean|||Resultat
+### § 10-4. Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid § 10-4 annet ledd
+*Type:* Vilkår
+#### Avklaringer
+- JobbetOverTerskel - [Stans av dagpenger på grunn av arbeid](./avklaringer.approved.md#stans-av-dagpenger-på-grunn-av-arbeid)
+#### Avhenger på data fra
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|019f45da-6f59-7155-bda1-e219a5f3dd89|Oppfyller kravene til tre meldeperioder uten tilstrekkelig tap av arbeidstid|Boolsk|boolean|||Resultat
 ### § 4-5. Reelle arbeidssøkere
 *Type:* Vilkår
 #### Avklaringer

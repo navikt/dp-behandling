@@ -67,6 +67,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknad
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
+import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
@@ -262,6 +263,8 @@ internal val opplysningTilVilkårMap =
         Gjenopptak.skalGjenopptas to VilkaarNavnDTO.OPPFYLLER_KRAVET_FOR_GJENOPPTAK_AV_STØNADSPERIODE,
         Sanksjonsperiode.harSanksjon to VilkaarNavnDTO.ER_ILAGT_SANSKJONSPERIODE_VED_SELVFORSKYLDT_ARBEIDSLØSHET,
         TidsbegrensetBortfall.harTidsbegrensetBortfall to VilkaarNavnDTO.ER_ILAGT_TIDSBEGRENSET_BORTFALL_AV_DAGPENGER,
+        TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap to
+            VilkaarNavnDTO.TRE_PÅFØLGENDE_MELDEPERIODER_UTEN_TILSTREKKELIG_TAP_AV_ARBEIDSTID___10_4_ANNET_LEDD,
     )
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")

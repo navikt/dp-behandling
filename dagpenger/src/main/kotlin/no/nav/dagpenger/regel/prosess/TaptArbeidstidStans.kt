@@ -7,7 +7,7 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
-import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap
 
 /**
  * Stans av dagpenger ved manglende tapt arbeidstid over flere meldeperioder.
@@ -42,8 +42,9 @@ class TaptArbeidstidStans : ProsessPlugin {
                 "Bruker har ikke oppfylt kravet til tapt arbeidstid i ${påfølgendeUtenTapt.size} påfølgende perioder. Stans av dagpenger fra og med $stansFraOgMed.",
             )
 
+            val utledetAv = opplysninger.finnOpplysning(trePåfølgendePerioderUtenTilstrekkeligTap).utledetAv
             opplysninger.leggTil(
-                Faktum(TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid, false, stansperiode),
+                Faktum(trePåfølgendePerioderUtenTilstrekkeligTap, false, stansperiode, utledetAv),
             )
 
             kontekst.beOmRekjøring()
