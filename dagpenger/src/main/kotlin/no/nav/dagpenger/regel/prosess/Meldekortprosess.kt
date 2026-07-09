@@ -11,6 +11,7 @@ import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
+import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
 import java.time.LocalDate
 
 class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
@@ -43,7 +44,7 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
     override fun kontrollpunkter(): List<IKontrollpunkt> =
         listOf(
             Alderskrav.StansAlderKontroll,
-            Beregning.OverTerskelKontroll,
+            TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.OverTerskelKontroll,
         )
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =

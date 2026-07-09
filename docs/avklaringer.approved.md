@@ -221,6 +221,8 @@ Registeropplysninger om inntekter indikerer at brukeren ikke oppfyller kravet ti
 ### Beskrivelse
 På de siste tre meldekortene har bruker ført jobb som utgjør mer enn 50 prosent av sin vanlige arbeidstid. Vilkåret om tap av arbeidstid etter folketrygdloven § 4-3 er ikke oppfylt og dagpenger skal stanses fra og med mandag etter siste innsendte meldekort.
 
+### Tilknyttet regelsett
+- [§ 10-4. Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid § 10-4 annet ledd](./opplysninger.approved.md#-10-4-tre-påfølgende-meldeperioder-uten-tilstrekkelig-tap-av-arbeidstid--10-4-annet-ledd)
 ---
 ## Arbeid utenfor Norge
 - **Kode:** `JobbetUtenforNorge`

@@ -42,6 +42,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknad
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
+import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
@@ -78,6 +79,7 @@ val RegelverkDagpenger =
         SamordingUtenforFolketrygden.regelsett,
         Samordning.regelsett,
         Sanksjonsperiode.regelsett,
+        TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.regelsett,
         StreikOgLockout.regelsett,
         Søknad.regelsett,
         Søknadstidspunkt.regelsett,

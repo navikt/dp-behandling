@@ -11,7 +11,8 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.regel.prosess.TaptArbeidstidStans
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
-import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap
 import no.nav.dagpenger.testsupport.somLocalDate
 
 class TaptArbeidstidStansSteg : No {
@@ -21,6 +22,7 @@ class TaptArbeidstidStansSteg : No {
     init {
         Gitt("at bruker har løpende rett fra og med {string}") { fraOgMed: String ->
             opplysninger.add(Faktum(harLøpendeRett, true, Gyldighetsperiode(fraOgMed.somLocalDate())))
+            opplysninger.add(Faktum(trePåfølgendePerioderUtenTilstrekkeligTap, true, Gyldighetsperiode(fraOgMed.somLocalDate())))
         }
 
         Gitt("at grenseverdien er {int} påfølgende perioder uten tapt arbeidstid") { antall: Int ->
@@ -46,13 +48,13 @@ class TaptArbeidstidStansSteg : No {
 
         Så("skal dagpengene stanses fra og med {string}") { stansDato: String ->
             resultatOpplysninger
-                .finnAlle(kravTilTaptArbeidstid)
+                .finnAlle(TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap)
                 .any { !it.verdi && it.gyldighetsperiode.fraOgMed == stansDato.somLocalDate() } shouldBe true
         }
 
         Så("skal dagpengene ikke stanses") {
             resultatOpplysninger
-                .finnAlle(kravTilTaptArbeidstid)
+                .finnAlle(TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap)
                 .none { !it.verdi } shouldBe true
         }
     }

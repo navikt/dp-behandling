@@ -117,7 +117,15 @@ class RettighetsperiodePlugin(
                     append(", alle oppfylt")
                 } else {
                     if (antallOppfylt > 0) append(", $antallOppfylt oppfylt")
-                    if (antallIkkeOppfylt > 0) append(", $antallIkkeOppfylt ikke oppfylt")
+                    if (antallIkkeOppfylt > 0) {
+                        append(
+                            ", $antallIkkeOppfylt ikke oppfylt. Vilkår som ikke er oppfyllt(${
+                                vurderte.filter { !it.value.verdi }.keys.joinToString(
+                                    ", ",
+                                )
+                            }).",
+                        )
+                    }
                     if (antallMangler > 0) append(", $antallMangler mangler vurdering")
                 }
             }

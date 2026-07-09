@@ -11,6 +11,7 @@ import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.april
+import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.februar
 import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.juli
@@ -556,6 +557,38 @@ class BeregningTest {
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
 
                 opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe false
+            }
+
+            person.søkDagpenger(13.august(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
+                true,
+                "test",
+                Gyldighetsperiode(13.august(2018)),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.size shouldBe 4
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].tilOgMed shouldBe 1.juli(2018)
+
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
+                rettighetsperioder[1].tilOgMed shouldBe 3.juli(2018)
+
+                rettighetsperioder[2].harRett shouldBe false
+                rettighetsperioder[2].fraOgMed shouldBe 4.juli(2018)
+                rettighetsperioder[2].tilOgMed shouldBe 12.august(2018)
+
+                rettighetsperioder[3].harRett shouldBe true
+                rettighetsperioder[3].fraOgMed shouldBe 13.august(2018)
+                rettighetsperioder[3].tilOgMed shouldBe null
             }
         }
     }

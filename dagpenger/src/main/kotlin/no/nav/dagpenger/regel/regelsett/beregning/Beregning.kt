@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.beregning
 
-import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -10,7 +9,6 @@ import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
-import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.erSanksjonsdagId
@@ -42,7 +40,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingForPeriodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
-import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import java.time.LocalDate
 
 object Beregning {
@@ -217,14 +214,6 @@ object Beregning {
                 utbetaling,
                 utbetalingForPeriode,
             )
-        }
-
-    val OverTerskelKontroll =
-        Kontrollpunkt(Avklaringspunkter.JobbetOverTerskel) {
-            it.har(
-                TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid,
-            ) &&
-                !it.oppfyller(TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid)
         }
 }
 
