@@ -15,6 +15,8 @@ tags:
     description: Operasjoner på opplysningstyper.
   - name: Person
     description: Operasjoner på person.
+  - name: Sak
+    description: Operasjoner på saker (behandlingskjeder).
   - name: Behandling
     description: Operasjoner på behandlinger.
   - name: Avklaring
@@ -93,6 +95,35 @@ paths:
                 $ref: '#/components/schemas/Behandling'
         default:
           description: Feil ved oppretting av behandling
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /sak/{sakId}:
+    parameters:
+      - name: sakId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Sakens id. Dette tilsvarer behandlingskjedeId, altså en sammenhengende rettighetsperiode.
+    get:
+      summary: Hent status og behandlingshistorikk for en sak
+      security:
+        - azureAd: [ ]
+      tags:
+        - Sak
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sak'
+          description: OK
+        default:
+          description: Feil ved henting av sak
           content:
             application/problem+json:
               schema:
@@ -2170,6 +2201,75 @@ components:
           $ref: '#/components/schemas/BehandlingId'
         behandlingskjedeId:
           $ref: '#/components/schemas/BehandlingId'
+
+    Sak:
+      description: En sak, det vil si en sammenhengende behandlingskjede med tilhørende status og behandlingshistorikk
+      type: object
+      required:
+        - sakId
+        - status
+        - behandlinger
+      properties:
+        sakId:
+          $ref: '#/components/schemas/BehandlingId'
+        status:
+          $ref: '#/components/schemas/SakStatus'
+        behandlinger:
+          description: Alle behandlinger i saken, i kjedet rekkefølge (nyeste først)
+          type: array
+          items:
+            $ref: '#/components/schemas/BehandlingSammendrag'
+
+    SakStatus:
+      description: Gjeldende status for saken, basert på siste ferdigstilte behandling
+      type: object
+      required:
+        - harLøpendeRett
+      properties:
+        harLøpendeRett:
+          description: Om bruker har en løpende rett på dagpenger i dag
+          type: boolean
+        fraOgMed:
+          description: Fra og med dato for gjeldende rettighetsperiode
+          type: string
+          format: date
+        tilOgMed:
+          description: Til og med dato for gjeldende rettighetsperiode, hvis den er avsluttet
+          type: string
+          format: date
+        sisteMeldeperiode:
+          $ref: '#/components/schemas/Periode'
+        gjenståendeDager:
+          description: Antall gjenstående dager med rett på dagpenger
+          type: integer
+        sistEndret:
+          description: Tidspunktet siste ferdigstilte behandling i saken ble ferdig
+          type: string
+          format: date-time
+
+    BehandlingSammendrag:
+      description: En tynn representasjon av en behandling i en behandlingskjede
+      type: object
+      required:
+        - behandlingId
+        - opprettet
+        - behandletHendelse
+      properties:
+        behandlingId:
+          $ref: '#/components/schemas/BehandlingId'
+        opprettet:
+          type: string
+          format: date-time
+        ferdigstilt:
+          description: Tidspunktet behandlingen ble ferdigstilt, hvis den er ferdig
+          type: string
+          format: date-time
+        behandletHendelse:
+          description: Hvilken hendelse som utløste behandlingen
+          $ref: '#/components/schemas/Hendelse'
+        førteTil:
+          $ref: '#/components/schemas/Avgjørelse'
+          description: Hvilken avgjørelse behandlingen førte til, hvis den er ferdig
 
     VilkaarNavn:
       type: string

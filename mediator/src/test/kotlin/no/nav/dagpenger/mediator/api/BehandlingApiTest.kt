@@ -21,6 +21,7 @@ import no.nav.dagpenger.dato.april
 import no.nav.dagpenger.mediator.api.TestApplication.maskinToken
 import no.nav.dagpenger.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.mediator.api.TestApplication.withMockAuthServerAndTestApplication
+import no.nav.dagpenger.mediator.api.models.AvgjørelseDTO
 import no.nav.dagpenger.mediator.api.models.BehandlingDTO
 import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.mediator.api.models.DesimaltallVerdiDTO
@@ -29,6 +30,7 @@ import no.nav.dagpenger.mediator.api.models.FerietilleggKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
+import no.nav.dagpenger.mediator.api.models.SakDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.januar
@@ -273,6 +275,45 @@ internal class BehandlingApiTest {
                     HendelseDTOTypeDTO.MELDEKORT,
                     HendelseDTOTypeDTO.SØKNAD,
                 )
+        }
+    }
+
+    @Test
+    fun `hent sak gitt en behandlingskjedeId`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.april(LocalDate.now().year))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val sakId = person.behandling.behandlingskjedeId
+
+            val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/sak/$sakId")
+            response.status shouldBe HttpStatusCode.OK
+
+            val sak = response.body<SakDTO>()
+            sak.sakId shouldBe sakId
+            sak.status.harLøpendeRett shouldBe true
+            sak.behandlinger shouldHaveSize 1
+            sak.behandlinger.single().behandlingId shouldBe person.behandlingId
+            sak.behandlinger
+                .single()
+                .behandletHendelse.type shouldBe HendelseDTOTypeDTO.SØKNAD
+            sak.behandlinger
+                .single()
+                .ferdigstilt
+                .shouldNotBeNull()
+            sak.behandlinger.single().førteTil shouldBe AvgjørelseDTO.INNVILGELSE
+        }
+    }
+
+    @Test
+    fun `gir 404 for ukjent sak`() {
+        medSikretBehandlingApi { testContext ->
+            val response =
+                testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/sak/${UUIDv7.ny()}")
+            response.status shouldBe HttpStatusCode.NotFound
         }
     }
 
