@@ -158,20 +158,11 @@ internal class OpplysningerRepositoryPostgres(
                                     from opplysningstabell
                                     where opplysninger_id = ANY(:opplysninger_ider)
                                     
-                                    union all
-                                    -- rekursive opplysninger. Kandidatene (utledet_av_id og erstatter_id) samles i én
-                                    -- lateral-subquery slik at rekursjonen kun refererer opplysningskjede ett sted,
-                                    -- og join'en mot opplysningstabell kan bruke indeks (id = cand.ref_id) i stedet
-                                    -- for en OR-betingelse som tvinger nested loop uten indeksbruk.
+                                    union
+                                    -- rekursive opplysninger
                                     select o.id, o.utledet_av_id, o.erstatter_id
-                                    from opplysningskjede ok
-                                    cross join lateral (
-                                        select unnest(ok.utledet_av_id) as ref_id
-                                        union all
-                                        select ok.erstatter_id
-                                        where ok.erstatter_id is not null
-                                    ) cand
-                                    join opplysningstabell o on o.id = cand.ref_id
+                                    from opplysningstabell o
+                                    join opplysningskjede ok on o.id = any(ok.utledet_av_id) or o.id = ok.erstatter_id
                                 ),
                                 kjede_ids as (select distinct id from opplysningskjede)
                             select o.*
