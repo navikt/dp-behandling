@@ -109,7 +109,7 @@ object Avklaringspunkter {
             tittel = "Stans av dagpenger på grunn av arbeid",
             beskrivelse =
                 """
-                På de siste tre meldekortene har bruker ført jobb som utgjør mer enn 50 prosent av sin vanlige arbeidstid. Vilkåret om tap av arbeidstid etter folketrygdloven § 4-3 er ikke oppfylt og dagpenger skal stanses fra og med mandag etter siste innsendte meldekort.
+                På de siste tre meldekortene har bruker ført jobb som utgjør mer enn 50 prosent av sin vanlige arbeidstid. Vilkåret om tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid etter dagpengeforskriften § 10-4 er ikke oppfylt og dagpenger skal stanses fra og med mandag etter siste innsendte meldekort.
                 """.trimIndent(),
             kanAvbrytes = false,
         )

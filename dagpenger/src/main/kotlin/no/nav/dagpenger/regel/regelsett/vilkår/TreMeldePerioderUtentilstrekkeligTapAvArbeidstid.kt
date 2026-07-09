@@ -20,7 +20,7 @@ object TreMeldePerioderUtentilstrekkeligTapAvArbeidstid {
             forskriftTilFolketrygden.hjemmel(
                 10,
                 4,
-                tittel = "Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid § 10-4 annet ledd",
+                tittel = "Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid",
                 kortnavn = "Tre meldeperioder uten tilstrekkelig tap",
             ),
         ) {
@@ -30,7 +30,12 @@ object TreMeldePerioderUtentilstrekkeligTapAvArbeidstid {
             ) { somUtgangspunkt(true, Søknadstidspunkt.søknadsdato) }
 
             avklaring(Avklaringspunkter.JobbetOverTerskel)
-            påvirkerResultat { it.har(trePåfølgendePerioderUtenTilstrekkeligTap) }
+            påvirkerResultat {
+                it.har(
+                    trePåfølgendePerioderUtenTilstrekkeligTap,
+                ) &&
+                    !it.oppfyller(trePåfølgendePerioderUtenTilstrekkeligTap)
+            }
         }
 
     val OverTerskelKontroll =
