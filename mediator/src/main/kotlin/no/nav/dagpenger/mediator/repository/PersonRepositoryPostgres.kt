@@ -43,10 +43,15 @@ class PersonRepositoryPostgres(
                         val dbIdent = Ident(row.string("ident"))
                         val rettighetstatuser = session.rettighetstatusFor(dbIdent)
                         val utestengninger = session.utestengningerFor(dbIdent)
-                        val behandlinger = behandlingRepository.hentBehandlinger(dbIdent)
-                        logger.info { "Hentet person med ${behandlinger.size} behandlinger" }
-                        Metrikk.registrerAntallBehandlinger(behandlinger.size)
-                        Person(dbIdent, behandlinger, rettighetstatuser, utestengninger)
+                        val behandlingskjeder = behandlingRepository.hentBehandlinger(dbIdent)
+                        logger.info {
+                            "Hentet person med ${behandlingskjeder.size} behandlingskjede(r) med ${behandlingskjeder.joinToString {
+                                (it.dybde + 1)
+                                    .toString()
+                            }} behandling(er)"
+                        }
+                        Metrikk.registrerAntallBehandlinger(behandlingskjeder.size)
+                        Person(dbIdent, behandlingskjeder, rettighetstatuser, utestengninger)
                     }.asSingle,
                 )?.also {
                     val antallBehandlinger = it.behandlinger().size.toString()
