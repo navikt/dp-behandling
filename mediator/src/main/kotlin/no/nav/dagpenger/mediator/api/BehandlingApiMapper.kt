@@ -92,6 +92,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.antallBortfallsuker
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.harTidsbegrensetBortfall
@@ -265,6 +266,8 @@ internal val redigerbareOpplysninger =
                             beregningsregel12mnd,
                             beregningsregel36mnd,
                             beregnetArbeidstid,
+                            // TODO: Fjern denne
+                            kravTilTaptArbeidstid,
                             nyArbeidstid,
                             // 4-5
                             ønsketArbeidstid,
