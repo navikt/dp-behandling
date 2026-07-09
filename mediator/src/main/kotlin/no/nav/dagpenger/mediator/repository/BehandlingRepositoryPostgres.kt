@@ -4,6 +4,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.mediator.Metrikk.hentBehandlingTimer
+import no.nav.dagpenger.mediator.Metrikk.hentBehandlingerStegTimer
 import no.nav.dagpenger.mediator.db.DatabaseSession
 import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.modell.Arbeidssteg
@@ -223,23 +224,33 @@ internal class BehandlingRepositoryPostgres(
     }
 
     private fun Session.hentBehandlinger(valg: HentBehandling): List<Behandlingkjede> {
-        val behandlingRader = lagBehandlingRad(valg)
+        val behandlingRader =
+            hentBehandlingerStegTimer.labelValues("behandlingsrader").time<List<BehandlingRad>> {
+                lagBehandlingRad(valg)
+            }
         val alleBehandlingIder = behandlingRader.map { it.behandlingId }.toSet()
 
-        val arbeidsstegMap = lagArbeidsstegMap(alleBehandlingIder)
+        val arbeidsstegMap =
+            hentBehandlingerStegTimer.labelValues("arbeidssteg").time<Map<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>> {
+                lagArbeidsstegMap(alleBehandlingIder)
+            }
 
         // Hent avklaringer for alle behandlinger i én spørring
-        val avklaringerMap = hentAvklaringer(alleBehandlingIder)
+        val avklaringerMap =
+            hentBehandlingerStegTimer.labelValues("avklaringer").time<Map<UUID, List<Avklaring>>> {
+                hentAvklaringer(alleBehandlingIder)
+            }
 
         val opplysningerMap =
-            this
-                .hentOpplysninger(
+            hentBehandlingerStegTimer.labelValues("opplysninger").time<Map<UUID, Opplysninger>> {
+                this.hentOpplysninger(
                     kildeRepository,
                     opplysningstypeRegister,
                     behandlingRader
                         .map { it.opplysningerId }
                         .toSet(),
                 )
+            }
 
         return lagBehandlingKjede(behandlingRader, avklaringerMap, opplysningerMap, arbeidsstegMap)
     }

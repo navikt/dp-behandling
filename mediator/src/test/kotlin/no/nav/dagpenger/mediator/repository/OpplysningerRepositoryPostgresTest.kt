@@ -8,6 +8,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
+import no.nav.dagpenger.mediator.TestOpplysningstyper
 import no.nav.dagpenger.mediator.TestOpplysningstyper.barn
 import no.nav.dagpenger.mediator.TestOpplysningstyper.baseOpplysningstype
 import no.nav.dagpenger.mediator.TestOpplysningstyper.beløpA
@@ -28,6 +29,7 @@ import no.nav.dagpenger.mediator.db.withMigratedDb
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.objectMapper
+import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
 import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
@@ -37,6 +39,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -659,6 +662,50 @@ class OpplysningerRepositoryPostgresTest {
             repo.lagreOpplysninger(opplysninger2)
 
             vaktmesterRepo.slettOpplysninger(antallBehandlinger = 10).size shouldBe 6
+        }
+    }
+
+    @Test
+    fun `henter riktig opplysninger for flere ferdige sosken kjedet pa samme rot`() {
+        // Reprodukserer "delt rot": flere ferdige søsken-behandlinger som alle er
+        // basertPå samme forelder og overskriver samme opplysningstype. Dette skaper
+        // fan-in i erstatter_id-grafen når alle opplysninger_id-ene hentes i én batch,
+        // slik hentBehandlinger(ident) faktisk gjør. Regresjonstest for UNION ALL-rewriten
+        // av den rekursive CTE-en i OpplysningerRepositoryPostgres.
+        withMigratedDb {
+            val repo = opplysningerRepository(dbSession)
+            val kildeRepository = KildeRepository(dbSession)
+            val opplysningstypeRegister = OpplysningstypeRegister(TestOpplysningstyper.alle)
+
+            val rot = Opplysninger.med(Faktum(heltall, 1))
+            repo.lagreOpplysninger(rot)
+
+            val antallSosken = 4
+            val soskenKjeder =
+                (0 until antallSosken).map { i ->
+                    val søsken = Opplysninger.basertPå(rot)
+                    søsken.leggTil(Faktum(heltall, 10 + i) as Opplysning<*>)
+                    repo.lagreOpplysninger(søsken)
+                    søsken
+                }
+
+            val alleOpplysningerIder = (listOf(rot) + soskenKjeder).map { it.id }.toSet()
+
+            val fraDb =
+                dbSession.session { session ->
+                    session.hentOpplysninger(kildeRepository, opplysningstypeRegister, alleOpplysningerIder)
+                }
+
+            // Hver søsken-kjede skal kun se sin egen overskrivning av "heltall", ikke søsknenes
+            soskenKjeder.forEachIndexed { i, søsken ->
+                val opplysningerFraDb = fraDb.getValue(søsken.id).baserPå(fraDb.getValue(rot.id))
+                opplysningerFraDb.somListe(Egne).size shouldBe 1
+                opplysningerFraDb.finnOpplysning(heltall).verdi shouldBe 10 + i
+            }
+
+            // Roten skal fortsatt bare ha sin egen, opprinnelige opplysning
+            fraDb.getValue(rot.id).somListe(Egne).size shouldBe 1
+            fraDb.getValue(rot.id).finnOpplysning(heltall).verdi shouldBe 1
         }
     }
 }

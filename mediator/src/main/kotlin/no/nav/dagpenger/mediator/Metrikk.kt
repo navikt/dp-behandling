@@ -30,6 +30,14 @@ internal object Metrikk {
             .help("Tid brukt på å hente en behandling")
             .register()
 
+    val hentBehandlingerStegTimer: Histogram =
+        Histogram
+            .builder()
+            .name("dp_behandling_hent_behandlinger_steg_tid")
+            .help("Tid brukt per delspørring i hentBehandlinger (behandlingsrader/arbeidssteg/avklaringer/opplysninger)")
+            .labelNames("steg")
+            .register()
+
     val tidBruktPerHendelse: Histogram =
         Histogram
             .builder()

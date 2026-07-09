@@ -23,6 +23,7 @@ Generert fra `PrometheusRegistry` — legger du til en ny metrikk, oppdateres de
 | `dp_behandling_godkjent` | counter | Antall godkjente behandlinger | — |
 | `dp_behandling_hendelse_haandtert` | counter | Antall hendelser håndtert | hendelse |
 | `dp_behandling_hent_behandling_tid` | histogram | Tid brukt på å hente en behandling | — |
+| `dp_behandling_hent_behandlinger_steg_tid` | histogram | Tid brukt per delspørring i hentBehandlinger (behandlingsrader/arbeidssteg/avklaringer/opplysninger) | steg |
 | `dp_behandling_meldekort_koe_storrelse` | gauge | Antall meldekort i behandlingskø | status |
 | `dp_behandling_opplysning_svar` | counter | Antall opplysningssvar mottatt | — |
 | `dp_behandling_opplysninger_antall` | histogram | Antall egne opplysninger per behandling ved ferdigstillelse | — |
