@@ -151,24 +151,38 @@ internal class OpplysningerRepositoryPostgres(
                         queryOf(
                             //language=PostgreSQL
                             """
-                            with recursive 
-                                opplysningskjede as (
+                            WITH RECURSIVE
+                                opplysningskjede AS (
                                     -- ankeropplysninger
-                                    select id, utledet_av_id, erstatter_id
-                                    from opplysningstabell
-                                    where opplysninger_id = ANY(:opplysninger_ider)
+                                    SELECT id, erstatter_id
+                                    FROM opplysning
+                                    WHERE opplysninger_id = ANY(:opplysninger_ider) AND fjernet IS FALSE
                                     
-                                    union
-                                    -- rekursive opplysninger
-                                    select o.id, o.utledet_av_id, o.erstatter_id
-                                    from opplysningstabell o
-                                    join opplysningskjede ok on o.id = any(ok.utledet_av_id) or o.id = ok.erstatter_id
-                                ),
-                                kjede_ids as (select distinct id from opplysningskjede)
-                            select o.*
-                            from kjede_ids k
-                            join opplysningstabell o on o.id = k.id
-                            order by o.id
+                                    UNION
+                                    -- rekursive opplysninger. Traverserer grunntabellene direkte (ikke
+                                    -- opplysningstabell-viewet) for å unngå å betale for viewets to
+                                    -- LATERAL-subqueries på hvert rekursjonsnivå. Viewet trengs bare
+                                    -- for sluttresultatet.
+                                    SELECT o.id, o.erstatter_id
+                                    FROM opplysningskjede ok
+                                    CROSS JOIN LATERAL (
+                                        SELECT utledet_av AS ref_id
+                                        FROM opplysning_utledet_av
+                                        WHERE opplysning_id = ok.id
+                                        UNION ALL
+                                        SELECT ok.erstatter_id
+                                        WHERE ok.erstatter_id IS NOT NULL
+                                    ) cand
+                                    JOIN opplysning o ON o.id = cand.ref_id AND o.fjernet IS FALSE
+                                )
+                            -- Array-basert oppslag (i stedet for join mot CTE-en) fordi rekursive
+                            -- CTE-er har dårlige radestimater i Postgres. Et join mot opplysningskjede
+                            -- direkte fikk planleggeren til å tro resultatet var mye større enn det er,
+                            -- og valgte en full tabellskann (Merge Join) i stedet for indeksoppslag.
+                            SELECT o.*
+                            FROM opplysningstabell o
+                            WHERE o.id = ANY(ARRAY(SELECT id FROM opplysningskjede))
+                            ORDER BY o.id
                             """.trimIndent(),
                             mapOf(
                                 "opplysninger_ider" to
