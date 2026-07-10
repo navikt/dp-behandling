@@ -289,6 +289,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |019bc5f8-fdf3-7240-afaf-52c0486eddc5|Har gitt fullstendige og riktige opplysninger|Boolsk|boolean|||Resultat
 ### § 4-8. Meldeplikt og møteplikt
 *Type:* Vilkår
+#### Avhenger på data fra
+- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|

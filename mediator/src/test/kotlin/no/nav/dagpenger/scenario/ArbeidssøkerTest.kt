@@ -11,6 +11,7 @@ import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse.Companion.behandlingFlyttetAvklaring
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
@@ -53,9 +54,11 @@ class ArbeidssøkerTest {
                 manueltAvregistrert = true,
             )
 
-            behandlingsresultatForslag {
+            behandlingsresultatForslag(3) {
+                førteTil shouldBe Avgjørelse.Stans.toString()
+
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
                 }
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
                     this shouldHaveSize 2
@@ -118,10 +121,13 @@ class ArbeidssøkerTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
-            behandlingsresultat {
+            behandlingsresultat(4) {
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
                     this shouldHaveSize 2
                     this[0].verdi.verdi shouldBe true
+                    this[0].gyldigFraOgMed shouldBe 21.juni(2018)
+                    this[0].gyldigTilOgMed shouldBe 15.juli(2018)
+
                     this[1].verdi.verdi shouldBe false
                     this[1].gyldigFraOgMed shouldBe 16.juli(2018)
                 }
@@ -131,11 +137,16 @@ class ArbeidssøkerTest {
                     this[1].gyldigFraOgMed shouldBe 1.august(2018)
                 }
 
-                rettighetsperioder shouldHaveSize 3
-                rettighetsperioder[1].harRett shouldBe true
-                rettighetsperioder[1].tilOgMed shouldBe 15.juli(2018)
-                rettighetsperioder[2].harRett shouldBe false
-                rettighetsperioder[2].fraOgMed shouldBe 16.juli(2018)
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].tilOgMed shouldBe 15.juli(2018)
+
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 16.juli(2018)
+                rettighetsperioder[1].tilOgMed shouldBe null
+
+                førteTil shouldBe Avgjørelse.Stans.toString()
             }
         }
     }
@@ -171,7 +182,7 @@ class ArbeidssøkerTest {
             meldekortBatch(markerFerdig = true)
             behandlingsresultat(3) {
                 opplysninger(Meldeplikt.oppfyllerMeldeplikt) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
                 }
             }
 
@@ -188,8 +199,10 @@ class ArbeidssøkerTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat(nummer = 4) {
+                førteTil shouldBe Avgjørelse.Stans.toString()
+
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
                 }
                 with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {
                     this shouldHaveSize 2
