@@ -152,6 +152,22 @@ internal fun Application.behandlingApi(
         }
 
         authenticate("azureAd") {
+            route("sak/{sakId}") {
+                get {
+                    val sakId = call.sakId
+                    val rot = personRepository.hentBehandling(sakId) ?: throw NotFoundException("Sak ikke funnet")
+                    if (rot.basertPå != null) throw NotFoundException("Sak ikke funnet")
+
+                    auditlogg.les("Så en sak", rot.behandler.ident, call.saksbehandlerId())
+
+                    val kjede =
+                        personRepository
+                            .hentBehandlinger(rot.behandler.ident.tilPersonIdentfikator())
+                            .single { it.rot.behandlingId == sakId }
+
+                    call.respond(HttpStatusCode.OK, tilSakDTO(sakId, kjede))
+                }
+            }
             route("person/rettighetsstatus") {
                 post {
                     val identForespørsel = call.receive<IdentForesporselDTO>()
@@ -831,6 +847,12 @@ private val ApplicationCall.behandlingId: UUID
     get() {
         val behandlingId = parameters["behandlingId"] ?: throw IllegalArgumentException("BehandlingId må være satt")
         return UUID.fromString(behandlingId)
+    }
+
+private val ApplicationCall.sakId: UUID
+    get() {
+        val sakId = parameters["sakId"] ?: throw IllegalArgumentException("SakId må være satt")
+        return UUID.fromString(sakId)
     }
 
 private val ApplicationCall.avklaringId: UUID
