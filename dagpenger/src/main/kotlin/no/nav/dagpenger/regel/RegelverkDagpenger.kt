@@ -22,6 +22,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
+import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
@@ -61,6 +62,7 @@ val RegelverkDagpenger =
         DagpengenesStørrelse.regelsett,
         Dagpengeperiode.regelsett,
         Egenandel.regelsett,
+        Eksport.regelsett,
         FulleYtelser.regelsett,
         Gjenopptak.regelsett,
         KravPåDagpenger.regelsett,
@@ -79,12 +81,12 @@ val RegelverkDagpenger =
         SamordingUtenforFolketrygden.regelsett,
         Samordning.regelsett,
         Sanksjonsperiode.regelsett,
-        TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.regelsett,
         StreikOgLockout.regelsett,
         Søknad.regelsett,
         Søknadstidspunkt.regelsett,
         TapAvArbeidsinntektOgArbeidstid.regelsett,
         TidsbegrensetBortfall.regelsett,
+        TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.regelsett,
         Uriktigeopplysninger.regelsett,
         Utdanning.regelsett,
         Utestengning.regelsett,
