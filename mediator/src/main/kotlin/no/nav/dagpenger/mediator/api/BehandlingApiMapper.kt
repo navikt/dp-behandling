@@ -95,6 +95,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.antallBortfallsuker
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.harTidsbegrensetBortfall
+import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelsePåKurs
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.grunnskoleopplæring
@@ -266,6 +267,8 @@ internal val redigerbareOpplysninger =
                             beregningsregel36mnd,
                             beregnetArbeidstid,
                             nyArbeidstid,
+                            // forskrift 4-10 Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid
+                            trePåfølgendePerioderUtenTilstrekkeligTap,
                             // 4-5
                             ønsketArbeidstid,
                             minimumVanligArbeidstid,
