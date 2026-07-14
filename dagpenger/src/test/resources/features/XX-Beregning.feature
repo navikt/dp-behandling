@@ -779,3 +779,33 @@ Egenskap: Beregning av meldekort
     Og det forbrukes 5 dager
     Og utbetales 1875,0 kroner
 
+  Scenario: Egenandel rundes av når det rettighetsperiode starter sent i meldeperioden
+    Gitt at mottaker har vedtak med
+      | Opplysning | verdi | fraOgMed   | tilOgMed |
+      | Terskel    | 50.0  |            |          |
+      | Periode    | 52    | 02.07.2026 |          |
+      | Sats       | 1966  | 02.07.2026 |          |
+      | FVA        | 39.5  | 02.07.2026 |          |
+      | Egenandel  | 5898  | 02.07.2026 |          |
+    Når meldekort for periode som begynner fra og med 22.06.2026 mottas med
+      | Dag     | type         | verdi |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 0     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  |              |       |
+      | Søndag  |              |       |
+      | Mandag  | Arbeidstimer | 0     |
+      | Tirsdag | Arbeidstimer | 0     |
+      | Onsdag  | Arbeidstimer | 0     |
+      | Torsdag | Arbeidstimer | 7     |
+      | Fredag  | Arbeidstimer | 0     |
+      | Lørdag  |              | 4     |
+      | Søndag  |              | 0     |
+    Så skal kravet til tapt arbeidstid være oppfylt
+    Og det forbrukes 2190 i egenandel
+    Og gjenstår 3708 i egenandel
+    Og det forbrukes 2 dager
+    Og utbetales 0 kroner
+

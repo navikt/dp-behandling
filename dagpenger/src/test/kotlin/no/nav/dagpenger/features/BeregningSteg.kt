@@ -123,15 +123,14 @@ class BeregningSteg : No {
             opplysninger.add(Faktum(ordinærPeriode, gjenståendeDager, Gyldighetsperiode(fom = meldeperiodeTilOgMed)))
         }
         Og("det forbrukes {int} i egenandel") { forbruktEgenandel: Int ->
-            beregning.forbruktEgenandel.verdien
-                .toInt() shouldBe forbruktEgenandel
+            beregning.forbruktEgenandel.verdien shouldBe Beløp(forbruktEgenandel).verdien
         }
 
         Og("gjenstår {int} i egenandel") { gjenståendeEgenandel: Int ->
             val egenandel = opplysninger.find { it.opplysningstype == egenandel }!!.verdi as Beløp
             val forbrukt = beregning.forbruktEgenandel
 
-            (egenandel.verdien - forbrukt.verdien).toInt() shouldBe gjenståendeEgenandel
+            (egenandel.verdien - forbrukt.verdien) shouldBe Beløp(gjenståendeEgenandel).verdien
         }
     }
 

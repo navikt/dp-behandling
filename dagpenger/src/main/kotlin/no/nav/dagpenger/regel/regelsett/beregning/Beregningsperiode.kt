@@ -106,7 +106,7 @@ class Beregningsperiode private constructor(
                 gruppe.fordelPåDager(netto)
             }
 
-        val forbruktEgenandel = Beløp(grupperMedEgenandel.sumOf { (_, egenandel) -> egenandel.verdien })
+        val forbruktEgenandel = Beløp(grupperMedEgenandel.sumOf { (_, egenandel) -> egenandel.verdien }).avrundetBeløp
         val alleForbruksdager = (sanksjonForbruksdager + utbetalingsForbruksdager).sortedBy { it.dag.dato }
 
         return Beregningresultat(
