@@ -3,29 +3,27 @@ package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
-import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
-import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.basertPå
-import no.nav.dagpenger.opplysning.regel.alle
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.arvFraMedGrense
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.arvFraValgtGren
+import no.nav.dagpenger.opplysning.regel.alleMedGyldighetsperiodeFra
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilDager
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.fraOgMed
+import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
+import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
-import no.nav.dagpenger.regel.OpplysningsTyper.blurpId
+import no.nav.dagpenger.regel.OpplysningsTyper.eksportGjenopptakId
 import no.nav.dagpenger.regel.OpplysningsTyper.fristForRegistreringId
 import no.nav.dagpenger.regel.OpplysningsTyper.fristdatoForRegistreringId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerVilkårForEksportId
+import no.nav.dagpenger.regel.OpplysningsTyper.registrertEtterFristId
 import no.nav.dagpenger.regel.OpplysningsTyper.registrertIVertslandFraId
 import no.nav.dagpenger.regel.OpplysningsTyper.registrertIVertslandId
 import no.nav.dagpenger.regel.OpplysningsTyper.registrertInnenFristId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalHaEksportFraId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalHaEksportId
-import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.fristForRegistrering
-import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.fristdatoForRegistrering
-import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.registrertInnenFrist
-import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.skalHaEksport
-import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.skalHaEksportFra
 
 object Eksport {
     val skalHaEksport =
@@ -49,23 +47,15 @@ object Eksport {
             fristdatoForRegistreringId,
             "Frist for å registrere seg i vertsland",
         )
+    val registrertEtterFrist =
+        Opplysningstype.boolsk(
+            registrertEtterFristId,
+            "Bruker er registrert etter fristen i vertsland",
+        )
     val registrertInnenFrist =
         Opplysningstype.boolsk(
             registrertInnenFristId,
             "Bruker er registrert innen fristen i vertsland",
-            gyldighetsperiode = basertPå(),
-        )
-    val blurp =
-        Opplysningstype.boolsk(
-            blurpId,
-            "blurp",
-            gyldighetsperiode =
-                GyldighetsperiodeStrategi { _, utledetAv ->
-                    when (utledetAv.first().verdi as Boolean) {
-                        true -> utledetAv[1].gyldighetsperiode
-                        false -> utledetAv[2].gyldighetsperiode
-                    }
-                },
         )
     val registrertIVertsland =
         Opplysningstype.boolsk(
@@ -77,10 +67,17 @@ object Eksport {
             registrertIVertslandFraId,
             "Bruker er registrert i vertsland fra og med",
         )
-    val oppfyllerVilkårForEksport =
+    val eksportGjenopptakFraOgMed =
+        Opplysningstype.dato(
+            eksportGjenopptakId,
+            "eksportGjenopptakId",
+            gyldighetsperiode = arvFraValgtGren(registrertInnenFrist, skalHaEksportFra, registrertIVertslandFra),
+        )
+    val oppyllerVilkårForEksport =
         Opplysningstype.boolsk(
             oppfyllerVilkårForEksportId,
-            "Bruker oppfyller vilkåret for eksport",
+            "Oppfyller kravet til eksport",
+            gyldighetsperiode = arvFraMedGrense(eksportGjenopptakFraOgMed),
         )
 
     val regelsett =
@@ -95,14 +92,17 @@ object Eksport {
             regel(fristForRegistrering) { somUtgangspunkt(7) }
             regel(fristdatoForRegistrering) { leggTilDager(skalHaEksportFra, fristForRegistrering) }
 
-            regel(registrertIVertsland) { somUtgangspunkt(false) }
+            regel(registrertIVertsland) { somUtgangspunkt(false, skalHaEksport) }
             regel(registrertIVertslandFra) { fraOgMed(registrertIVertsland) }
 
             regel(registrertInnenFrist) { førEllerLik(registrertIVertslandFra, fristdatoForRegistrering) }
+            regel(registrertEtterFrist) { ikke(registrertInnenFrist) }
 
-            // regel(blurp) { hvisSannMedResultat(registrertInnenFrist, skalHaEksport, registrertIVertsland) }
+            regel(eksportGjenopptakFraOgMed) { hvisSannMedResultat(registrertInnenFrist, skalHaEksportFra, registrertIVertslandFra) }
 
-            utfall(oppfyllerVilkårForEksport) { alle(skalHaEksport, registrertIVertsland) }
+            utfall(oppyllerVilkårForEksport) {
+                alleMedGyldighetsperiodeFra(skalHaEksport, registrertIVertsland, periodeFra = eksportGjenopptakFraOgMed)
+            }
 
             påvirkerResultat { it.erSann(Rettighetstype.skalEksportVurderes) }
         }

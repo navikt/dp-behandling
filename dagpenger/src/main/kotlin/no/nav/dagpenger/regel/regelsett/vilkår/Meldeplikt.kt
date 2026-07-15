@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerMeldepliktId
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEksportVurderes
 
 object Meldeplikt {
     val oppfyllerMeldeplikt = boolsk(OppfyllerMeldepliktId, "Oppfyller meldeplikt")
@@ -16,6 +17,11 @@ object Meldeplikt {
 
             utfall(oppfyllerMeldeplikt) { somUtgangspunkt(true, Søknadstidspunkt.søknadsdato) }
 
-            påvirkerResultat { it.har(oppfyllerMeldeplikt) && !it.erSann(oppfyllerMeldeplikt) }
+            påvirkerResultat {
+                it.har(oppfyllerMeldeplikt) &&
+                    !it.erSann(oppfyllerMeldeplikt) &&
+                    // Når bruker har eksport skal ikke meldeplikt være
+                    !it.erSann(skalEksportVurderes)
+            }
         }
 }

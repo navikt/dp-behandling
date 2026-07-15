@@ -2303,6 +2303,7 @@ components:
         - Er ilagt tidsbegrenset bortfall av dagpenger
         - Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet
         - Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid § 10-4 annet ledd
+        - Oppfyller kravet til eksport
 
   examples:
     UgyldigBehandlingstilstandProblem:
