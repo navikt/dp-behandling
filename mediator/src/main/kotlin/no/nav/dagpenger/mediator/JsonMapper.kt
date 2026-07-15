@@ -6,6 +6,7 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.blackbird.BlackbirdModule
 import tools.jackson.module.kotlin.KotlinModule
@@ -18,6 +19,8 @@ val objectMapper: ObjectMapper =
         .addModule(KotlinModule.Builder().build())
         .addModule(BlackbirdModule())
         .changeDefaultPropertyInclusion { it.withValueInclusion(JsonInclude.Include.NON_NULL) }
+        // Bugfix: Dropper felter som begynner på Æ/Ø/Å
+        .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
         .build()
 
 fun InntektV1.tilJsonNode(): JsonNode =
