@@ -102,9 +102,129 @@ class EksportTest {
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder.last().harRett shouldBe true
                 rettighetsperioder.last().fraOgMed shouldBe 1.februar(2025)
+
+                // Registrert innen fristen, gjenopptak skal arve gyldighetsperioden fra skalHaEksportFra (1.februar)
+                opplysninger(Eksport.eksportGjenopptakFraOgMed) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe 1.februar(2025).toString()
+                    single().gyldigFraOgMed shouldBe 1.februar(2025)
+                }
             }
 
             // TODO: Se på samspill med stans etter 21 dager
+        }
+    }
+
+    @Test
+    fun `eksport av dagpenger til EØS-land hvor bruker registrerer seg nøyaktig på fristdagen`() {
+        nyttScenario {
+            inntektSiste12Mnd = 5000000
+        }.test {
+            person.søkDagpenger(1.januar(2025))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            saksbehandler.lagBehandling(1.februar(2025))
+            saksbehandler.endreOpplysning(
+                Rettighetstype.skalEksportVurderes,
+                true,
+                "Drar til syden",
+                gyldighetsperiode = Gyldighetsperiode(1.februar(2025)),
+            )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Eksport godkjent og bruker får stans fram til registrering i vertsland
+            behandlingsresultat(3) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe false
+            }
+
+            // Frist for å registrere seg er skalHaEksportFra + 7 dager = 8.februar. Registrering
+            // nøyaktig på fristdagen skal fortsatt regnes som "innen fristen".
+            saksbehandler.lagBehandling(8.februar(2025))
+            saksbehandler.endreOpplysning(
+                Eksport.registrertIVertsland,
+                true,
+                "Har registrert seg i syden på siste gyldige dag",
+                gyldighetsperiode = Gyldighetsperiode(8.februar(2025)),
+            )
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Registrert på fristdagen: skal fortsatt behandles som "innen fristen", altså
+            // gjenopptak fra og med skalHaEksportFra, ikke fra registreringsdatoen.
+            behandlingsresultat(4) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 1.februar(2025)
+
+                opplysninger(Eksport.eksportGjenopptakFraOgMed) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe 1.februar(2025).toString()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `eksport av dagpenger til EØS-land hvor bruker aldri registrerer seg i vertslandet`() {
+        nyttScenario {
+            inntektSiste12Mnd = 5000000
+        }.test {
+            person.søkDagpenger(1.januar(2025))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            saksbehandler.lagBehandling(1.februar(2025))
+            saksbehandler.endreOpplysning(
+                Rettighetstype.skalEksportVurderes,
+                true,
+                "Drar til syden",
+                gyldighetsperiode = Gyldighetsperiode(1.februar(2025)),
+            )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Eksport godkjent og bruker får stans fram til registrering i vertsland
+            behandlingsresultat(3) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe false
+                opplysninger(Eksport.oppyllerVilkårForEksport) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+            }
+
+            // Bruker registrerer seg aldri i vertslandet. Videre meldekort skal ikke
+            // spontant gi gjenopptak av dagpenger.
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat(4) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe false
+                opplysninger(Eksport.oppyllerVilkårForEksport) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+            }
         }
     }
 
@@ -158,6 +278,14 @@ class EksportTest {
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder.last().harRett shouldBe true
                 rettighetsperioder.last().fraOgMed shouldBe 15.februar(2025)
+
+                // Registrert etter fristen, gjenopptak skal arve gyldighetsperioden fra registreringsdatoen.
+                // Historikken inneholder også en tidligere (nå overstyrt) gjetning fra behandlingen
+                // hvor registrering ennå ikke var kjent, så vi sjekker den siste/gjeldende perioden.
+                opplysninger(Eksport.eksportGjenopptakFraOgMed) {
+                    last().verdi.verdi shouldBe 15.februar(2025).toString()
+                    last().gyldigFraOgMed shouldBe 15.februar(2025)
+                }
             }
 
             // TODO: Se på samspill med stans etter 21 dager
