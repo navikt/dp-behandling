@@ -37,6 +37,7 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.hold
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.unnlateråEtterkommePålegg
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.uriktigeOpplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
+import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.antallDagerFristForRegistrering
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.registrertIVertsland
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.skalHaEksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
@@ -356,6 +357,7 @@ internal val redigerbareOpplysninger =
                             skalEksportVurderes,
                             skalHaEksport,
                             registrertIVertsland,
+                            antallDagerFristForRegistrering,
                         ),
                     )
 
