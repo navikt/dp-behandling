@@ -3,7 +3,6 @@ package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.dsl.vilkår
-import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.arvFraMedGrense
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.arvFraValgtGren
 import no.nav.dagpenger.opplysning.regel.alleMedGyldighetsperiodeFra
@@ -14,6 +13,7 @@ import no.nav.dagpenger.opplysning.regel.fraOgMed
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.opplysning.trygdeforordningen
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.eksportGjenopptakId
 import no.nav.dagpenger.regel.OpplysningsTyper.fristForRegistreringId
@@ -86,7 +86,7 @@ object Eksport {
 
     val regelsett =
         vilkår(
-            folketrygden.hjemmel(0, 0, "Eksport", "Eksport"),
+            trygdeforordningen.hjemmel(64, 0, "Eksport av dagpenger til EØS-land", "Eksport til EØS-land"),
         ) {
             skalVurderes { it.erSann(Rettighetstype.skalEksportVurderes) }
 

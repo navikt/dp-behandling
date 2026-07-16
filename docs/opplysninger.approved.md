@@ -45,7 +45,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019df7e6-33bc-7daa-ad4e-46ba84c3cb49|Dag med sanksjon av dagpenger|Boolsk|boolean|||Resultat
 |17ca728c-1994-438d-acbf-4098bc1c0dcd|Siste antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Utgangspunkt
 |76d9c243-228b-4359-9550-1ebbb7ba5cb5|Antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Resultat
-### § 0-0. Eksport
+### § 64-0. Eksport av dagpenger til EØS-land
 *Type:* Vilkår
 #### Avhenger på data fra
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
