@@ -11,11 +11,14 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.mediator.november
+import no.nav.dagpenger.opplysning.Avgjørelse.Endring
+import no.nav.dagpenger.opplysning.Avgjørelse.Stans
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -27,6 +30,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeri
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktPeriode
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
@@ -44,9 +48,12 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel12mnd
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
@@ -954,6 +961,90 @@ class ScenarioTest {
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[2].harRett shouldBe true
+            }
+        }
+    }
+
+    @Test
+    fun `revurdering hvor det skal endres lengde å unntak for utdanning og utdanning avsluttes etter unntaket`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(19.mai(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(kravPåLønn, true, "A", Gyldighetsperiode(19.mai(2026), 31.mai(2026)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(kravPåLønn, false, "A", Gyldighetsperiode(1.juni(2026)))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 1.juni(2026)
+                rettighetsperioder.last().tilOgMed shouldBe null
+            }
+
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+            behandlingsresultat(2) {
+                førteTil shouldBe Endring.toString()
+            }
+
+            person.sendInnMeldekort(3, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
+            meldekortBatch()
+
+            saksbehandler.endreOpplysning(deltakelseIArbeidsmarkedstiltak, true, "A", Gyldighetsperiode(8.juni(2026), 3.juli(2026)))
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(3) {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe true
+            }
+
+            person.sendInnMeldekort(4)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat(4) {
+                førteTil shouldBe Stans.toString()
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[1].harRett shouldBe false
+            }
+
+            saksbehandler.omgjørBehandling(15.juli(2026))
+            saksbehandler.endreOpplysning(OmgjøringUtenKlage.ansesUgyldigVedtak, true, "A")
+
+            saksbehandler.endreOpplysning(Utdanning.tarUtdanning, false, "A", Gyldighetsperiode(4.juli(2026), 26.juli(2026)))
+            saksbehandler.endreOpplysning(Utdanning.tarUtdanning, true, "A", Gyldighetsperiode(27.juli(2026), 1.januar(2027)))
+            saksbehandler.endreOpplysning(Utdanning.tarUtdanning, false, "A", Gyldighetsperiode(2.januar(2027)))
+
+            // Får godkjent den ene dagen med informasjonsmøte
+            // TODO: Om man er uheldig og gjør en feil først og sletter opplysningen så kommer vi helt i usynk og alt blir feil
+            // saksbehandler.endreOpplysning(deltakelseIArbeidsmarkedstiltak, true, "A", Gyldighetsperiode(2.juni(2026), 2.juli(2026)))
+            // saksbehandler.fjernOpplysning(deltakelseIArbeidsmarkedstiltak)
+            saksbehandler.endreOpplysning(deltakelseIArbeidsmarkedstiltak, true, "A", Gyldighetsperiode(2.juni(2026), 2.juni(2026)))
+
+            // Får godkjent ny periode med arbeidsmarkedstiltak
+            saksbehandler.endreOpplysning(deltakelseIArbeidsmarkedstiltak, true, "A", Gyldighetsperiode(27.juli(2026), 1.januar(2027)))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(5) {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe true
+
+                opplysninger(Utdanning.kravTilUtdanning) {
+                    shouldHaveSize(5)
+                    this.all { it.verdi.verdi == true }
+                }
             }
         }
     }
