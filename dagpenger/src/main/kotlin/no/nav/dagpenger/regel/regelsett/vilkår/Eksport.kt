@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.arvFraMedGrense
@@ -35,6 +36,7 @@ object Eksport {
         Opplysningstype.dato(
             skalHaEksportFraId,
             "Dato eksport skal gjelde fra",
+            synlig = aldriSynlig,
         )
     val antallDagerFristForRegistrering =
         Opplysningstype.heltall(
@@ -66,12 +68,14 @@ object Eksport {
         Opplysningstype.dato(
             registrertIVertslandFraId,
             "Dato bruker registrerte seg i vertsland",
+            synlig = aldriSynlig,
         )
     val eksportGjenopptakFraOgMed =
         Opplysningstype.dato(
             eksportGjenopptakId,
             "Dato for gjenopptak av dagpenger",
             gyldighetsperiode = arvFraValgtGren(registrertInnenFrist, skalHaEksportFra, registrertIVertslandFra),
+            synlig = aldriSynlig,
         )
     val oppfyllerVilkårForEksport =
         Opplysningstype.boolsk(
