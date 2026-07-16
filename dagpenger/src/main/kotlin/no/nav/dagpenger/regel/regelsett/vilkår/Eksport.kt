@@ -70,7 +70,7 @@ object Eksport {
     val eksportGjenopptakFraOgMed =
         Opplysningstype.dato(
             eksportGjenopptakId,
-            "eksportGjenopptakId",
+            "Dato for gjenopptak av dagpenger",
             gyldighetsperiode = arvFraValgtGren(registrertInnenFrist, skalHaEksportFra, registrertIVertslandFra),
         )
     val oppyllerVilkårForEksport =
