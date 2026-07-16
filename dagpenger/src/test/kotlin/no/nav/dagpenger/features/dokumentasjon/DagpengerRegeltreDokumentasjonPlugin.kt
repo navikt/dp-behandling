@@ -13,6 +13,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
+import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
@@ -62,6 +63,7 @@ internal val dagpengerRegeltreDokumentasjonOppsett =
                 "@regel-fulle-ytelser-eller-afp" to FulleYtelser.regelsett,
                 "@regel-streik-og-lockout" to StreikOgLockout.regelsett,
                 "@regel-dapengeperiode" to Dagpengeperiode.regelsett,
+                "@regel-eksport" to Eksport.regelsett,
                 "@regel-dagpengegrunnlag" to Dagpengegrunnlag.regelsett,
                 "@regel-dagpengensStørrelse" to DagpengenesStørrelse.regelsett,
                 "@regel-egenandel" to Egenandel.regelsett,

@@ -31,7 +31,7 @@ class EksportTest {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe false
                 }
-                opplysninger(Eksport.oppyllerVilkårForEksport) {
+                opplysninger(Eksport.oppfyllerVilkårForEksport) {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe false
                 }
@@ -75,7 +75,7 @@ class EksportTest {
                     this[1].verdi.verdi shouldBe true
                     this[1].gyldigFraOgMed shouldBe 1.februar(2025)
                 }
-                opplysninger(Eksport.oppyllerVilkårForEksport) {
+                opplysninger(Eksport.oppfyllerVilkårForEksport) {
                     shouldHaveSize(1)
                     this[0].verdi.verdi shouldBe false
                     this[0].gyldigFraOgMed shouldBe 1.februar(2025)
@@ -206,7 +206,7 @@ class EksportTest {
             behandlingsresultat(3) {
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder.last().harRett shouldBe false
-                opplysninger(Eksport.oppyllerVilkårForEksport) {
+                opplysninger(Eksport.oppfyllerVilkårForEksport) {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe false
                 }
@@ -220,7 +220,7 @@ class EksportTest {
             behandlingsresultat(4) {
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder.last().harRett shouldBe false
-                opplysninger(Eksport.oppyllerVilkårForEksport) {
+                opplysninger(Eksport.oppfyllerVilkårForEksport) {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe false
                 }

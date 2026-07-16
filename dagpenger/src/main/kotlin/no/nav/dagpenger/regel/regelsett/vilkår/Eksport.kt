@@ -29,14 +29,14 @@ object Eksport {
     val skalHaEksport =
         Opplysningstype.boolsk(
             skalHaEksportId,
-            "Bruker er skal ha eksport til EØS",
+            "Bruker skal ha eksport av dagpenger til EØS-land",
         )
     val skalHaEksportFra =
         Opplysningstype.dato(
             skalHaEksportFraId,
-            "Dato eksport skal løpe fra",
+            "Dato eksport skal gjelde fra",
         )
-    val fristForRegistrering =
+    val antallDagerFristForRegistrering =
         Opplysningstype.heltall(
             fristForRegistreringId,
             "Antall dagers frist for å registrere seg i vertsland",
@@ -45,7 +45,7 @@ object Eksport {
     val fristdatoForRegistrering =
         Opplysningstype.dato(
             fristdatoForRegistreringId,
-            "Frist for å registrere seg i vertsland",
+            "Fristdato for å registrere seg i vertsland",
         )
     val registrertEtterFrist =
         Opplysningstype.boolsk(
@@ -65,7 +65,7 @@ object Eksport {
     val registrertIVertslandFra =
         Opplysningstype.dato(
             registrertIVertslandFraId,
-            "Bruker er registrert i vertsland fra og med",
+            "Dato bruker registrerte seg i vertsland",
         )
     val eksportGjenopptakFraOgMed =
         Opplysningstype.dato(
@@ -73,10 +73,10 @@ object Eksport {
             "Dato for gjenopptak av dagpenger",
             gyldighetsperiode = arvFraValgtGren(registrertInnenFrist, skalHaEksportFra, registrertIVertslandFra),
         )
-    val oppyllerVilkårForEksport =
+    val oppfyllerVilkårForEksport =
         Opplysningstype.boolsk(
             oppfyllerVilkårForEksportId,
-            "Oppfyller kravet til eksport",
+            "Oppfyller vilkåret om eksport av dagpenger til EØS-land",
             gyldighetsperiode = arvFraMedGrense(eksportGjenopptakFraOgMed),
         )
 
@@ -89,8 +89,8 @@ object Eksport {
             regel(skalHaEksport) { erSann(Rettighetstype.skalEksportVurderes) }
             regel(skalHaEksportFra) { fraOgMed(Rettighetstype.skalEksportVurderes) }
 
-            regel(fristForRegistrering) { somUtgangspunkt(7) }
-            regel(fristdatoForRegistrering) { leggTilDager(skalHaEksportFra, fristForRegistrering) }
+            regel(antallDagerFristForRegistrering) { somUtgangspunkt(7) }
+            regel(fristdatoForRegistrering) { leggTilDager(skalHaEksportFra, antallDagerFristForRegistrering) }
 
             regel(registrertIVertsland) { somUtgangspunkt(false, skalHaEksport) }
             regel(registrertIVertslandFra) { fraOgMed(registrertIVertsland) }
@@ -100,7 +100,7 @@ object Eksport {
 
             regel(eksportGjenopptakFraOgMed) { hvisSannMedResultat(registrertInnenFrist, skalHaEksportFra, registrertIVertslandFra) }
 
-            utfall(oppyllerVilkårForEksport) {
+            utfall(oppfyllerVilkårForEksport) {
                 alleMedGyldighetsperiodeFra(skalHaEksport, registrertIVertsland, periodeFra = eksportGjenopptakFraOgMed)
             }
 

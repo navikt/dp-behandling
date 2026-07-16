@@ -265,7 +265,7 @@ internal val opplysningTilVilkårMap =
         TidsbegrensetBortfall.harTidsbegrensetBortfall to VilkaarNavnDTO.ER_ILAGT_TIDSBEGRENSET_BORTFALL_AV_DAGPENGER,
         TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap to
             VilkaarNavnDTO.TRE_PÅFØLGENDE_MELDEPERIODER_UTEN_TILSTREKKELIG_TAP_AV_ARBEIDSTID___10_4_ANNET_LEDD,
-        Eksport.oppyllerVilkårForEksport to
+        Eksport.oppfyllerVilkårForEksport to
             VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_EKSPORT,
     )
 

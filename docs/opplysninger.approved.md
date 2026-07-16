@@ -52,16 +52,16 @@ Dette er opplysninger som blir brukt av regelverket.
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|019f608e-807e-758c-80ff-58e95f429f5a|Bruker er skal ha eksport til EØS|Boolsk|boolean|||Intern
+|019f608e-807e-758c-80ff-58e95f429f5a|Bruker skal ha eksport av dagpenger til EØS-land|Boolsk|boolean|||Intern
 |019f6091-6e9a-782e-8d21-0a20ff720910|Bruker er registrert i vertsland|Boolsk|boolean|||Utgangspunkt
-|019f6094-681b-7233-9558-da8bf7527cd3|Oppfyller kravet til eksport|Boolsk|boolean|||Resultat
+|019f6094-681b-7233-9558-da8bf7527cd3|Oppfyller vilkåret om eksport av dagpenger til EØS-land|Boolsk|boolean|||Resultat
 |019f60b9-befd-7945-a7c6-72f35cc59a4d|Bruker er registrert innen fristen i vertsland|Boolsk|boolean|||Intern
 |019f60c7-bcf0-7938-a425-76fe3aabb4aa|Antall dagers frist for å registrere seg i vertsland|Heltall|int|| Dager|Utgangspunkt
-|019f60c8-d6db-71f3-b03c-b1102533007c|Frist for å registrere seg i vertsland|Dato|LocalDate|||Intern
-|019f60cb-737b-70c2-8d9f-779dea0b6e3f|Dato eksport skal løpe fra|Dato|LocalDate|||Intern
-|019f60cc-dea0-7028-878c-2845f58a6133|Bruker er registrert i vertsland fra og med|Dato|LocalDate|||Intern
+|019f60c8-d6db-71f3-b03c-b1102533007c|Fristdato for å registrere seg i vertsland|Dato|LocalDate|||Intern
+|019f60cb-737b-70c2-8d9f-779dea0b6e3f|Dato eksport skal gjelde fra|Dato|LocalDate|||Intern
+|019f60cc-dea0-7028-878c-2845f58a6133|Dato bruker registrerte seg i vertsland|Dato|LocalDate|||Intern
 |019f64cd-e720-7d88-994b-7be5acee6191|Bruker er registrert etter fristen i vertsland|Boolsk|boolean|||Intern
-|019f64d8-258b-791a-a7ae-c8b1d4cf9d44|eksportGjenopptakId|Dato|LocalDate|||Intern
+|019f64d8-258b-791a-a7ae-c8b1d4cf9d44|Dato for gjenopptak av dagpenger|Dato|LocalDate|||Intern
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger
