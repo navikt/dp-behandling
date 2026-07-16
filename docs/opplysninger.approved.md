@@ -45,6 +45,23 @@ Dette er opplysninger som blir brukt av regelverket.
 |019df7e6-33bc-7daa-ad4e-46ba84c3cb49|Dag med sanksjon av dagpenger|Boolsk|boolean|||Resultat
 |17ca728c-1994-438d-acbf-4098bc1c0dcd|Siste antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Utgangspunkt
 |76d9c243-228b-4359-9550-1ebbb7ba5cb5|Antall dager med sanksjon som gjenstår|Heltall|int|| Dager|Resultat
+### § 64-0. Eksport av dagpenger til EØS-land
+*Type:* Vilkår
+#### Avhenger på data fra
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|019f608e-807e-758c-80ff-58e95f429f5a|Bruker skal ha eksport av dagpenger til EØS-land|Boolsk|boolean|||Intern
+|019f6091-6e9a-782e-8d21-0a20ff720910|Bruker er registrert i vertsland|Boolsk|boolean|||Utgangspunkt
+|019f6094-681b-7233-9558-da8bf7527cd3|Oppfyller vilkåret om eksport av dagpenger til EØS-land|Boolsk|boolean|||Resultat
+|019f60b9-befd-7945-a7c6-72f35cc59a4d|Bruker er registrert innen fristen i vertsland|Boolsk|boolean|||Intern
+|019f60c7-bcf0-7938-a425-76fe3aabb4aa|Antall dagers frist for å registrere seg i vertsland|Heltall|int|| Dager|Utgangspunkt
+|019f60c8-d6db-71f3-b03c-b1102533007c|Fristdato for å registrere seg i vertsland|Dato|LocalDate|||Intern
+|019f60cb-737b-70c2-8d9f-779dea0b6e3f|Dato eksport skal gjelde fra|Dato|LocalDate|||Intern
+|019f60cc-dea0-7028-878c-2845f58a6133|Dato bruker registrerte seg i vertsland|Dato|LocalDate|||Intern
+|019f64cd-e720-7d88-994b-7be5acee6191|Bruker er registrert etter fristen i vertsland|Boolsk|boolean|||Intern
+|019f64d8-258b-791a-a7ae-c8b1d4cf9d44|Dato for gjenopptak av dagpenger|Dato|LocalDate|||Intern
 ### § 0-0. Krav på dagpenger
 *Type:* Vilkår
 #### Opplysninger
@@ -69,6 +86,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kravet til reell arbeidssøker er relevant|Boolsk|boolean|||Resultat
 |01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Boolsk|boolean|||Resultat
 |019d0068-8037-7d91-bfff-de88f9e87fd3|Skal kravet til gjenopptak vurderes|Boolsk|boolean|||Resultat
+|019f608d-f9c5-7ccc-a6f3-c53531d1f00c|Skal eksport vurderes|Boolsk|boolean|||Resultat
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
 #### Avklaringer

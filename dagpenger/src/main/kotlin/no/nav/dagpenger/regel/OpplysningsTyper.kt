@@ -403,6 +403,18 @@ object OpplysningsTyper {
     val kanOmgjøresUtenKlageId = Opplysningstype.Id(UUID.fromString("019c5676-a923-7e31-83b9-0e77e5a3cdcb"), Boolsk)
 //    019bc5f9-3040-77cc-9b16-5b919bd4ccd9
 //    019bc5f9-69d0-7c07-9fb4-68b8657a662b
+
+    val skalEksportVurderesId = Opplysningstype.Id(UUID.fromString("019f608d-f9c5-7ccc-a6f3-c53531d1f00c"), Boolsk)
+    val skalHaEksportId = Opplysningstype.Id(UUID.fromString("019f608e-807e-758c-80ff-58e95f429f5a"), Boolsk)
+    val skalHaEksportFraId = Opplysningstype.Id(UUID.fromString("019f60cb-737b-70c2-8d9f-779dea0b6e3f"), Dato)
+    val fristForRegistreringId = Opplysningstype.Id(UUID.fromString("019f60c7-bcf0-7938-a425-76fe3aabb4aa"), Heltall)
+    val fristdatoForRegistreringId = Opplysningstype.Id(UUID.fromString("019f60c8-d6db-71f3-b03c-b1102533007c"), Dato)
+    val registrertInnenFristId = Opplysningstype.Id(UUID.fromString("019f60b9-befd-7945-a7c6-72f35cc59a4d"), Boolsk)
+    val registrertEtterFristId = Opplysningstype.Id(UUID.fromString("019f64cd-e720-7d88-994b-7be5acee6191"), Boolsk)
+    val eksportGjenopptakId = Opplysningstype.Id(UUID.fromString("019f64d8-258b-791a-a7ae-c8b1d4cf9d44"), Dato)
+    val registrertIVertslandId = Opplysningstype.Id(UUID.fromString("019f6091-6e9a-782e-8d21-0a20ff720910"), Boolsk)
+    val registrertIVertslandFraId = Opplysningstype.Id(UUID.fromString("019f60cc-dea0-7028-878c-2845f58a6133"), Dato)
+    val oppfyllerVilkårForEksportId = Opplysningstype.Id(UUID.fromString("019f6094-681b-7233-9558-da8bf7527cd3"), Boolsk)
 }
 
 /**

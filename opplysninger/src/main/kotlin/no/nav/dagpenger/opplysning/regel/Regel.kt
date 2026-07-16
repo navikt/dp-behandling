@@ -185,10 +185,21 @@ fun interface GyldighetsperiodeStrategi<T> {
                     tilOgMed = basertPå.minOf { it.gyldighetsperiode.tilOgMed },
                 )
             }
+        private val størsteMulige =
+            GyldighetsperiodeStrategi<Any> { _, basertPå ->
+                if (basertPå.isEmpty()) return@GyldighetsperiodeStrategi Gyldighetsperiode()
+                Gyldighetsperiode(
+                    fraOgMed = basertPå.minOf { it.gyldighetsperiode.fraOgMed },
+                    tilOgMed = basertPå.maxOf { it.gyldighetsperiode.tilOgMed },
+                )
+            }
         val egenVerdi = GyldighetsperiodeStrategi<LocalDate> { produkt, _ -> Gyldighetsperiode(fom = produkt) }
 
         @Suppress("UNCHECKED_CAST")
         fun <P> minsteMulige() = minsteMulige as GyldighetsperiodeStrategi<P>
+
+        @Suppress("UNCHECKED_CAST")
+        fun <P> størsteMulige() = størsteMulige as GyldighetsperiodeStrategi<P>
 
         fun <P> basertPå(opplysningstype: Opplysningstype<LocalDate>) =
             GyldighetsperiodeStrategi<P> { _, basertPå ->
@@ -196,6 +207,41 @@ fun interface GyldighetsperiodeStrategi<T> {
                 require(dato is LocalDate) { "Opplysningstype som skal brukes til å utlede gyldighetsperiode må være LocalDate" }
                 Gyldighetsperiode(dato)
             }
+
+        // Arver hele gyldighetsperioden til en navngitt avhengighet, slått opp på opplysningstype
+        // (ikke posisjon i avhengerAv-listen). Brukes når en opplysning skal "låne" gyldighetsperioden
+        // til én spesifikk avhengighet, uavhengig av hvilke andre opplysninger den også er avhengig av.
+        fun <P> arvFra(opplysningstype: Opplysningstype<*>) =
+            GyldighetsperiodeStrategi<P> { _, basertPå ->
+                basertPå.single { it.opplysningstype == opplysningstype }.gyldighetsperiode
+            }
+
+        // Som arvFra, men begrenser tilOgMed til det minste tilOgMed blant *alle* avhengigheter
+        // (tilsvarende minsteMulige()). Uten denne begrensningen vil et resultat som strekker seg
+        // uendelig frem i tid forstyrre regelmotorens fallback for å utlede prøvingsdato for senere
+        // regelkjøringer (se Regelkjøring.medGyldighetsperiode/sisteTilgjengeligeDato), siden en
+        // ubegrenset gyldighetsperiode aldri "avsluttes" ved et nytt faktum lenger frem i tid.
+        fun <P> arvFraMedGrense(opplysningstype: Opplysningstype<*>) =
+            GyldighetsperiodeStrategi<P> { _, basertPå ->
+                Gyldighetsperiode(
+                    fraOgMed = basertPå.single { it.opplysningstype == opplysningstype }.gyldighetsperiode.fraOgMed,
+                    tilOgMed = basertPå.minOf { it.gyldighetsperiode.tilOgMed },
+                )
+            }
+
+        // Arver gyldighetsperioden til den grenen (hvisSann/hvisUsann) som faktisk ble valgt av
+        // en tilhørende hvisSannMedResultat-regel, slått opp på opplysningstype (ikke posisjon i
+        // avhengerAv-listen). Brukes når selve resultatverdien skal "låne" gyldighetsperioden til
+        // den valgte grenen, i stedet for en periode utledet fra alle avhengighetene samlet.
+        fun <P : Any> arvFraValgtGren(
+            sjekk: Opplysningstype<Boolean>,
+            hvisSann: Opplysningstype<P>,
+            hvisUsann: Opplysningstype<P>,
+        ) = GyldighetsperiodeStrategi<P> { _, basertPå ->
+            val sjekkVerdi = basertPå.single { it.opplysningstype == sjekk }.verdi as Boolean
+            val valgtGren = if (sjekkVerdi) hvisSann else hvisUsann
+            basertPå.single { it.opplysningstype == valgtGren }.gyldighetsperiode
+        }
     }
 
     fun gyldighetsperiode(

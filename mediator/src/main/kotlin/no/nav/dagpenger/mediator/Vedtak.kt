@@ -26,7 +26,6 @@ import no.nav.dagpenger.mediator.api.tilDataTypeDTO
 import no.nav.dagpenger.mediator.api.tilOpplysningskildeDTO
 import no.nav.dagpenger.mediator.api.tilOpplysningsverdiDTO
 import no.nav.dagpenger.mediator.api.tilUtbetalingDTO
-import no.nav.dagpenger.mediator.objectMapper
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
@@ -50,6 +49,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløp
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
+import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
@@ -265,6 +265,8 @@ internal val opplysningTilVilkårMap =
         TidsbegrensetBortfall.harTidsbegrensetBortfall to VilkaarNavnDTO.ER_ILAGT_TIDSBEGRENSET_BORTFALL_AV_DAGPENGER,
         TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap to
             VilkaarNavnDTO.TRE_PÅFØLGENDE_MELDEPERIODER_UTEN_TILSTREKKELIG_TAP_AV_ARBEIDSTID___10_4_ANNET_LEDD,
+        Eksport.oppfyllerVilkårForEksport to
+            VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_EKSPORT,
     )
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")

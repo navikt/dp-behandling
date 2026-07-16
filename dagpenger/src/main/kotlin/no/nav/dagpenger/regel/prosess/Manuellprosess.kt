@@ -40,10 +40,10 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
         val dato = prøvingsdato(opplysninger)
         return Regelkjøring(
-            dato,
-            opplysninger,
-            this,
-            opplysningerGyldigPåPrøvingsdato,
+            regelverksdato = dato,
+            prøvingsperiode = Regelkjøring.Periode(dato),
+            opplysninger = opplysninger,
+            forretningsprosess = this,
         )
     }
 
@@ -79,9 +79,6 @@ class Manuellprosess : Forretningsprosess(RegelverkDagpenger) {
         opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = prøvingsdato(opplysninger)
-
-    private val opplysningerGyldigPåPrøvingsdato: LesbarOpplysninger.(LocalDate) -> LesbarOpplysninger =
-        { forDato(prøvingsdato(this)) }
 
     private fun prøvingsdato(opplysninger: LesbarOpplysninger): LocalDate = PrøvingsdatoUtleder.utled(opplysninger)
 }

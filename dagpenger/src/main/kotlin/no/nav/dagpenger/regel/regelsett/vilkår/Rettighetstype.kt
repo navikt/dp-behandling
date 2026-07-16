@@ -25,6 +25,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.PermittertFiskeforedlingId
 import no.nav.dagpenger.regel.OpplysningsTyper.PermittertId
 import no.nav.dagpenger.regel.OpplysningsTyper.RettighetstypeId
 import no.nav.dagpenger.regel.OpplysningsTyper.SkalVernepliktVurderesId
+import no.nav.dagpenger.regel.OpplysningsTyper.skalEksportVurderesId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalGjenopptakVurderesId
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
@@ -54,6 +55,8 @@ object Rettighetstype {
 
     val skalGjenopptakVurderes = boolsk(skalGjenopptakVurderesId, "Skal kravet til gjenopptak vurderes")
 
+    val skalEksportVurderes = boolsk(skalEksportVurderesId, "Skal eksport vurderes")
+
     private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
     private val ingenArbeid = boolsk(IngenArbeidId, "Har rett til ordinære dagpenger uten arbeidsforhold", synlig = aldriSynlig)
 
@@ -80,7 +83,15 @@ object Rettighetstype {
 
             regel(skalGjenopptakVurderes) { somUtgangspunkt(false) }
 
-            ønsketResultat(rettighetstype, kravetReellArbeidsøkerSkalVurderes, skalVernepliktVurderes, skalGjenopptakVurderes)
+            regel(skalEksportVurderes) { somUtgangspunkt(false) }
+
+            ønsketResultat(
+                rettighetstype,
+                kravetReellArbeidsøkerSkalVurderes,
+                skalVernepliktVurderes,
+                skalGjenopptakVurderes,
+                skalEksportVurderes,
+            )
         }
 
     val ManglerReellArbeidssøkerKontroll =
