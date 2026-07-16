@@ -37,6 +37,8 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.hold
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.unnlateråEtterkommePålegg
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.uriktigeOpplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
+import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.registrertIVertsland
+import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.skalHaEksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
@@ -60,6 +62,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEksportVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.foreldrepenger
@@ -349,6 +352,10 @@ internal val redigerbareOpplysninger =
                             // Ferietillegg
                             antallDagerForbruk,
                             sumUtbetaltForÅr,
+                            // Eksport
+                            skalEksportVurderes,
+                            skalHaEksport,
+                            registrertIVertsland,
                         ),
                     )
 
