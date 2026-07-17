@@ -30,6 +30,12 @@ abstract class Forretningsprosess(
 
     open fun rettighetsperioder(opplysninger: LesbarOpplysninger) = regelverk.rettighetsperioder(opplysninger)
 
+    // Bestemmer om en ferdig behandling med denne opplysningstilstanden kan legges til grunn for
+    // videre behandling av rettighetsforholdet (dvs. arves av neste behandling i kjeden). Selve
+    // regelen for hvilke avgjørelser som kan legges til grunn eies av regelverket
+    // (Regelverk.Grunnlagsvurdering), siden det er en egenskap ved regelverket, ikke prosessen.
+    open fun kanLeggesTilGrunn(opplysninger: LesbarOpplysninger): Boolean = regelverk.kanLeggesTilGrunn(opplysninger)
+
     fun regelsett() = regelverk.regelsett
 
     fun registrer(handler: ProsessPlugin) = plugins.add(handler)

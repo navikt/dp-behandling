@@ -73,13 +73,15 @@ private fun Behandlingkjede.leggTilBarnHvisDelAvGren(barn: Behandling): Behandli
 operator fun Behandlingkjede.contains(behandling: Behandling): Boolean = rot === behandling || barn.any { behandling in it }
 
 // går gjennom hele treet for å finne løvnoder å bygge videre på,
+// avslåtte grener (f.eks. avslått tilleggsrettighet) regnes verken som kandidater selv,
+// eller som en videreført gren som diskvalifiserer sin forelder som kandidat.
 private fun alleBehandlingerSomKanBaseresPå(kjede: Behandlingkjede): List<Behandling> {
     val stabel = ArrayDeque(listOf(kjede))
     val kandidater = mutableListOf<Behandling>()
     while (stabel.isNotEmpty()) {
         val gjeldende = stabel.removeFirst()
 
-        if (gjeldende.erFerdig && gjeldende.barn.none { it.erFerdig }) {
+        if (gjeldende.rot.kanLeggesTilGrunn && gjeldende.barn.none { it.rot.kanLeggesTilGrunn }) {
             kandidater.add(gjeldende.rot)
         }
 

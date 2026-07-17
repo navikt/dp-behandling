@@ -50,12 +50,17 @@ fun interface Avgjørelsesberegning {
     fun avgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse
 }
 
+fun interface Grunnlagsvurdering {
+    fun kanLeggesTilGrunn(avgjørelse: Avgjørelse): Boolean
+}
+
 class Regelverk(
     val navn: RegelverkType,
     private val rettighetsperiodeberegning: Rettighetsperiodeberegning = Rettighetsperiodeberegning { emptyList() },
     private val utbetalingsberegning: Utbetalingsberegning = Utbetalingsberegning { emptyList() },
     private val avgjørelsesberegning: Avgjørelsesberegning = Avgjørelsesberegning { Avgjørelse.Uavklart },
     vararg regelsett: Regelsett,
+    private val grunnlagsvurdering: Grunnlagsvurdering = Grunnlagsvurdering { it != Avgjørelse.Avslag },
 ) {
     private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
     val produserer = regelsett.flatMap { it.produserer }.toSet()
@@ -108,6 +113,8 @@ class Regelverk(
     fun utbetalinger(opplysninger: LesbarOpplysninger) = utbetalingsberegning.utbetalinger(opplysninger)
 
     fun avgjørelse(opplysninger: LesbarOpplysninger) = avgjørelsesberegning.avgjørelse(opplysninger)
+
+    fun kanLeggesTilGrunn(opplysninger: LesbarOpplysninger) = grunnlagsvurdering.kanLeggesTilGrunn(avgjørelse(opplysninger))
 
     val vilkårsopplysninger by lazy {
         regelsett

@@ -27,6 +27,7 @@ import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
@@ -82,11 +83,11 @@ class Person(
             return
         }
 
-        // Unngår å opprette rettighetshistorikk ved avslag
-        // Da vet vi hvilke saker vi "eier" i ny løsning
-        // TODO: Skal fjernes når vi skal eie avslag også (her venter vi på automatiske brev ved avslag)
-        val erAvslag = rettighethistorikk().isEmpty() && event.rettighetsperioder.all { !it.harRett }
-        if (erAvslag) return
+        // Et avslag skal aldri påvirke det gjeldende rettighetsforholdet – verken det aller første
+        // avslaget (historisk unntak, se opprinnelig TODO under) eller et avslag som forgrener seg
+        // ut av en eksisterende, styrende kjede (f.eks. avslått gjenopptak eller tilleggsrettighet).
+        // Opprinnelig TODO: Skal fjernes når vi skal eie avslag også (her venter vi på automatiske brev ved avslag)
+        if (event.avgjørelse == Avgjørelse.Avslag) return
 
         event.rettighetsperioder.filter { it.endret }.forEach {
             rettighetstatus.put(
@@ -298,7 +299,7 @@ class Person(
     private fun List<Behandlingkjede>.harParallelleBehandlinger(behandling: Behandling): Boolean {
         if (behandling.basertPå == null) return false
         return flatten().any {
-            it.harTilstand(Ferdig) && it.basertPå?.behandlingId == behandling.basertPå.behandlingId
+            it.kanLeggesTilGrunn && it.basertPå?.behandlingId == behandling.basertPå.behandlingId
         }
     }
 

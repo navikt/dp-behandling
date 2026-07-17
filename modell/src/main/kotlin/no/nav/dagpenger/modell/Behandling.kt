@@ -93,6 +93,15 @@ class Behandling private constructor(
     private val forretningsprosess = behandler.forretningsprosess
     val regelverk get() = forretningsprosess.regelverk.navn
 
+    // Om denne ferdige behandlingen kan legges til grunn for videre behandling av rettighetsforholdet
+    // (dvs. arves av neste behandling i kjeden) avgjøres av forretningsprosessen selv, se
+    // Forretningsprosess.kanLeggesTilGrunn. Avslåtte behandlinger (f.eks. en avslått
+    // tilleggsrettighet som forgrener behandlingskjeden) skal som standard kunne ferdigstilles og
+    // få vedtak, uten å bli lagt til grunn for videre behandling eller regnes som gjeldende for
+    // rettighetsforholdet.
+    val kanLeggesTilGrunn: Boolean
+        get() = harTilstand(TilstandType.Ferdig) && forretningsprosess.kanLeggesTilGrunn(opplysninger())
+
     val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
