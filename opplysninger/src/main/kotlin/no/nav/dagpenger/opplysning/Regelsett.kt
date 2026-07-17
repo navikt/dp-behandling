@@ -24,6 +24,10 @@ class Regelsett internal constructor(
     val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
     val betingelser: List<Opplysningstype<Boolean>>,
     val kvoter: List<KvoteDefinisjon> = emptyList(),
+    // Er sann når regelsettet besvarer en selvstendig søknad (jf. forvaltningsloven § 11 a,
+    // plikten til å svare på en søknad) – altså et spørsmål bruker selv har bedt om å få vurdert,
+    // til forskjell fra vilkår som rutinemessig inngår i den løpende vurderingen av rettighetsforholdet.
+    private val selvstendigSøknad: ((opplysninger: LesbarOpplysninger) -> Boolean)? = null,
 ) {
     val navn: String = hjemmel.kortnavn
 
@@ -51,6 +55,10 @@ class Regelsett internal constructor(
 
     // Returnerer regler som er gyldige for en gitt dato
     fun regler(forDato: LocalDate = LocalDate.MIN) = regler.map { it.value.get(forDato) }.toList()
+
+    // Bruker har fått avslag på en selvstendig søknad dette regelsettet besvarer
+    fun girAvslagPåSelvstendigSøknad(opplysninger: LesbarOpplysninger): Boolean =
+        selvstendigSøknad?.invoke(opplysninger) == true && utfall != null && !opplysninger.erSann(utfall)
 
     override fun toString() = "Regelsett(navn=$navn, type=$type)"
 }

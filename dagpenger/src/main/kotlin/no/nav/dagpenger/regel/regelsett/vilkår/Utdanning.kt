@@ -140,6 +140,11 @@ object Utdanning {
 
             utfall(kravTilUtdanning) { enAv(oppfyllerKravetPåUnntak, svartNeiPåUtdanning) }
 
+            // Bruker har opplyst at de tar utdanning/opplæring – et negativt utfall skal gi
+            // avslag på retten til dagpenger under nettopp denne utdanningen, uten å endre
+            // klassifiseringen av det løpende rettighetsforholdet for øvrig.
+            selvstendigSøknad { hvisTarUtdanning(it) }
+
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
         }
 }

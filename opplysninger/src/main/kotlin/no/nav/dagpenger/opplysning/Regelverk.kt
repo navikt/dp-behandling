@@ -75,6 +75,12 @@ class Regelverk(
 
     fun regelsettAvType(type: RegelsettType) = regelsett.filter { it.type == type }
 
+    // Har bruker fått avslag på en selvstendig søknad i noen av regelverkets vilkår?
+    // Se Regelsett.girAvslagPåSelvstendigSøknad – gir vilkårsmoduler et sted å melde inn
+    // slike søknader, uten at dette regelverket trenger kjennskap til hver enkelt av dem.
+    fun girAvslagPåSelvstendigSøknad(opplysninger: LesbarOpplysninger): Boolean =
+        regelsett.any { it.girAvslagPåSelvstendigSøknad(opplysninger) }
+
     fun regelsettFor(opplysningstype: Opplysningstype<*>): Set<Regelsett> {
         val nødvendigeRegelsett = mutableSetOf<Regelsett>()
 

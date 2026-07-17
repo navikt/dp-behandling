@@ -92,6 +92,10 @@ object Gjenopptak {
 
             utfall(skalGjenopptas) { alle(harForbrukt, harGjenstående, harSøktInnenFrist, skalGjenopptakVurderes) }
 
+            // Bruker har eksplisitt søkt om gjenopptak – et negativt utfall skal gi avslag på
+            // gjenopptaket, uten å endre klassifiseringen av det løpende rettighetsforholdet.
+            selvstendigSøknad { it.erSann(skalGjenopptakVurderes) }
+
             ønsketResultat(terskelUkerNyttGrunnlag, oppholdMedArbeidI12ukerEllerMer)
 
             påvirkerResultat { it.har(skalGjenopptas) }

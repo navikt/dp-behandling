@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning.dsl
 
 import no.nav.dagpenger.opplysning.Hjemmel
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
@@ -13,6 +14,7 @@ class VilkårRegelsettBuilder internal constructor(
     private var utfall: Opplysningstype<Boolean>? = null
     private var vurderinger: MutableList<Opplysningstype<Boolean>> = mutableListOf()
     private val ønsketResultat: MutableList<Opplysningstype<*>> = mutableListOf()
+    private var selvstendigSøknad: ((LesbarOpplysninger) -> Boolean)? = null
 
     fun ønsketResultat(vararg opplysningstype: Opplysningstype<*>) {
         ønsketResultat += opplysningstype.toList()
@@ -41,6 +43,13 @@ class VilkårRegelsettBuilder internal constructor(
         vurderinger.add(produserer)
     }
 
+    // Marker at dette vilkåret besvarer en selvstendig søknad fra bruker (jf. forvaltningsloven § 11 a),
+    // slik at et negativt utfall skal gi avslag på nettopp den søknaden – uavhengig av om det
+    // ellers skjer endringer i det løpende rettighetsforholdet. Se Regelsett.girAvslagPåSelvstendigSøknad.
+    fun selvstendigSøknad(trigger: (LesbarOpplysninger) -> Boolean) {
+        selvstendigSøknad = trigger
+    }
+
     override fun build() =
         Regelsett(
             hjemmel = hjemmel,
@@ -55,5 +64,6 @@ class VilkårRegelsettBuilder internal constructor(
             påvirkerResultat = relevant,
             betingelser = vurderinger,
             kvoter = kvoter.toList(),
+            selvstendigSøknad = selvstendigSøknad,
         )
 }

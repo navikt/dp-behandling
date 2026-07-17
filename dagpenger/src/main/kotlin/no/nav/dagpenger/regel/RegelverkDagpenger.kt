@@ -37,7 +37,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.StreikOgLockout
@@ -137,11 +136,11 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
         arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Stans
 
         // Går fra å ikke ha rett til å fortsatt ikke ha rett
-        // Avslag om det er gjenopptak
-        // Stans om man går fra stans til stans uten å vurdere gjenopptak
+        // Avslag om det er avslag på en selvstendig søknad (f.eks. gjenopptak eller utdanning)
+        // Stans om det er en rutinemessig videreføring uten noen slik søknad
         !arvede.last().harRett &&
             !nye.any { it.harRett }
-        -> if (opplysninger.kunEgne.har(skalGjenopptakVurderes)) Avgjørelse.Avslag else Avgjørelse.Stans
+        -> if (RegelverkDagpenger.girAvslagPåSelvstendigSøknad(opplysninger)) Avgjørelse.Avslag else Avgjørelse.Stans
 
         // Går fra å ikke ha rett til å ha ny rett
         !arvede.last().harRett && nye.any { it.harRett } -> Avgjørelse.Gjenopptak
