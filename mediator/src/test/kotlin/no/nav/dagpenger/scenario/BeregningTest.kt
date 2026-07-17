@@ -18,6 +18,8 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
+import no.nav.dagpenger.opplysning.Avgjørelse.Gjenopptak
+import no.nav.dagpenger.opplysning.Avgjørelse.Stans
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
@@ -538,6 +540,8 @@ class BeregningTest {
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
 
                 opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe true
+
+                førteTil shouldBe Stans.toString()
             }
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -553,6 +557,7 @@ class BeregningTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat {
+                førteTil shouldBe Stans.toString()
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
 
@@ -573,6 +578,7 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
+                førteTil shouldBe Gjenopptak.toString()
                 rettighetsperioder.size shouldBe 4
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)

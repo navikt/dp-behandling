@@ -111,7 +111,7 @@ class DagpengerAvgjørelseTest {
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.mars(2024))))
             }
 
-        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Avslag
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Stans
     }
 
     @Test
