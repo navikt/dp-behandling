@@ -7,6 +7,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
 import com.natpryce.konfig.ConfigurationMap
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.ktor.client.request.header
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -32,6 +33,7 @@ import no.nav.dagpenger.mediator.db.DBTestContext
 import no.nav.dagpenger.mediator.db.withMigratedDb
 import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.modell.Person
+import no.nav.dagpenger.modell.hendelser.MeldekortId
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.scenario.assertions.BehandlingsresultatAssertions
@@ -209,7 +211,7 @@ internal class SimulertDagpengerSystem(
     fun meldekortBatch(
         avklar: Boolean = false,
         markerFerdig: Boolean = true,
-    ) {
+    ): List<MeldekortId> {
         val påbegynteMeldekort = meldekortkø.sendMeldekortTilBehandling()
 
         if (avklar) {
@@ -220,11 +222,18 @@ internal class SimulertDagpengerSystem(
         }
 
         if (avklar || markerFerdig) {
+            saksbehandler.åpneAvklaringer().shouldBeEmpty()
             påbegynteMeldekort.forEach { eksternMeldekortId ->
                 // Marker som ferdig (vi klarer ikke å fange det i VedtakFattetMottak)
                 runtime.meldekortRepository.markerSomFerdig(eksternMeldekortId)
             }
         }
+
+        return påbegynteMeldekort
+    }
+
+    fun meldekortFerdig(eksternMeldekortId: MeldekortId) {
+        runtime.meldekortRepository.markerSomFerdig(eksternMeldekortId)
     }
 
     internal suspend fun TestContext.autentisert(

@@ -19,6 +19,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.prosess.Meldekortprosess
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
@@ -117,6 +118,25 @@ class BeregnMeldekortHendelse(
                                         beskrivelse =
                                             """Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. 
                                             |Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
+                                            """.trimMargin(),
+                                        kanAvbrytes = false,
+                                        kanKvitteres = true,
+                                    ),
+                                ),
+                            )
+                        }
+
+                        val harEksportPerioder = forrigeBehandling.opplysninger.finnAlle(Eksport.oppfyllerVilkårForEksport).any { it.verdi }
+
+                        if (harEksportPerioder) {
+                            add(
+                                Avklaring(
+                                    Avklaringkode(
+                                        kode = "MeldekortMedEksport",
+                                        tittel = "Meldekort med eksport",
+                                        beskrivelse =
+                                            """Bruker er innvilget eksport. Sjekk at det beregnes riktig, 
+                                            |og ikke får f.eks. trekk ved for sen melding.
                                             """.trimMargin(),
                                         kanAvbrytes = false,
                                         kanKvitteres = true,

@@ -30,7 +30,7 @@ class StansPgaAlderTest {
             }
 
             person.sendInnMeldekort(1)
-            meldekortBatch(false)
+            meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag {
                 rettighetsperioder.first().harRett shouldBe true

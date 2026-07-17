@@ -384,7 +384,7 @@ class OmgjøringScenarioTester {
             person.sendInnMeldekort(2, korrigeringAv = meldekortId, timer = List(14) { 7 })
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch()
+            meldekortBatch(markerFerdig = false)
 
             person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
 
@@ -455,7 +455,7 @@ class OmgjøringScenarioTester {
                         MeldekortAktivitet.Utdanning(0),
                     ),
             )
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag(3) {
                 rettighetsperioder shouldHaveSize 2

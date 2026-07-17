@@ -264,7 +264,7 @@ class BeregningTest {
             person.sendInnMeldekort(Periode(11.juni(2018), 24.juni(2018)))
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
 
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
@@ -338,7 +338,7 @@ class BeregningTest {
             person.sendInnMeldekort(1, korrigeringAv = meldekortId, timer = List(14) { 7 })
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch()
+            meldekortBatch(markerFerdig = false)
 
             // Verifiser at vi lager en avklaring om korrigert meldekort
             person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
@@ -425,7 +425,7 @@ class BeregningTest {
             person.sendInnMeldekort(2, korrigeringAv = meldekortId, timer = List(14) { 7 })
 
             // Systemet kjører beregningsbatchen
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
 
             person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
 
@@ -526,7 +526,7 @@ class BeregningTest {
 
             // Send inn meldekort hvor en har jobbet for mye
             person.sendInnMeldekort(4, timer = List(14) { 7 })
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
 
             saksbehandler.åpneAvklaringer().first().kode shouldBe JobbetOverTerskel.kode
 
@@ -696,7 +696,7 @@ class BeregningTest {
             val korrigerteAktiviteter = MutableList<MeldekortAktivitet>(14) { MeldekortAktivitet.IngenAktivitet }
             korrigerteAktiviteter[0] = MeldekortAktivitet.Syk
             person.sendInnMeldekort(1, korrigeringAv = meldekortId, aktiviteter = korrigerteAktiviteter)
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag(3) {
                 with(opplysninger(Beregning.arbeidsdag)) {
@@ -835,7 +835,7 @@ class BeregningTest {
             val korrigerteAktiviteter = MutableList<MeldekortAktivitet>(14) { MeldekortAktivitet.IngenAktivitet }
             korrigerteAktiviteter[0] = MeldekortAktivitet.Syk
             person.sendInnMeldekort(4, korrigeringAv = meldekortId, aktiviteter = korrigerteAktiviteter)
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag {
                 with(opplysninger(Beregning.forbruk)) {
@@ -912,7 +912,7 @@ class BeregningTest {
             person.sendInnMeldekort(1)
             meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(2, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag(3) {
                 rettighetsperioder shouldHaveSize 2

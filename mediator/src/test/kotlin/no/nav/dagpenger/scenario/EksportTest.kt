@@ -1,5 +1,6 @@
 package no.nav.dagpenger.scenario
 
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -341,7 +342,9 @@ class EksportTest {
             // midlertidig stanset i påvente av registrering, skal hele perioden være utbetalt siden
             // gjenopptaket arver gyldighetsperioden tilbake til 1.februar (innen fristen).
             person.sendInnMeldekort(3)
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
             behandlingsresultat {
                 // Ukedagene i februar skal alle være utbetalt siden gjenopptaket arver
@@ -404,7 +407,9 @@ class EksportTest {
             }
 
             person.sendInnMeldekort(2)
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
             val fastsattMeldedato = person.fastsattMeldedato(3)
 
@@ -464,7 +469,9 @@ class EksportTest {
             saksbehandler.beslutt()
 
             person.sendInnMeldekort(2)
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
             val fastsattMeldedato = person.fastsattMeldedato(3)
 
@@ -525,7 +532,13 @@ class EksportTest {
             saksbehandler.beslutt()
 
             person.sendInnMeldekort(2)
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
+
+            behandlingsresultatForslag(9) {
+                person.avklaringer.map { it.kode } shouldContain "MeldekortMedEksport"
+            }
+            saksbehandler.lukkAlleAvklaringer().map { it.kode } shouldContain "MeldekortMedEksport"
+            saksbehandler.godkjenn()
 
             val fastsattMeldedato = person.fastsattMeldedato(3)
 

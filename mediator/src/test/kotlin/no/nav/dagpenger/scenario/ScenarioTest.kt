@@ -995,7 +995,7 @@ class ScenarioTest {
             }
 
             person.sendInnMeldekort(3, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
-            meldekortBatch()
+            val meldekort = meldekortBatch(markerFerdig = false)
 
             saksbehandler.endreOpplysning(deltakelseIArbeidsmarkedstiltak, true, "A", Gyldighetsperiode(8.juni(2026), 3.juli(2026)))
             saksbehandler.lukkAlleAvklaringer()
@@ -1005,6 +1005,8 @@ class ScenarioTest {
             behandlingsresultat(3) {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder[0].harRett shouldBe true
+
+                meldekortFerdig(meldekort.last())
             }
 
             person.sendInnMeldekort(4)
