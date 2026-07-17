@@ -104,7 +104,11 @@ internal class BehandlingApiTest {
     @Test
     fun `opprett ny behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
-            val response = testContext.autentisert(endepunkt = "/person/behandling", body = """{"ident":"${person.ident}"}""")
+            val response =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body = """{"ident":"${person.ident}", "behandlingstype" : "Manuell" }""",
+                )
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
 
@@ -121,7 +125,7 @@ internal class BehandlingApiTest {
             val response =
                 testContext.autentisert(
                     endepunkt = "/person/behandling",
-                    body = """{"ident":"${person.ident}", "regelverk": "Ferietillegg"}""",
+                    body = """{"ident":"${person.ident}", "regelverk": "Ferietillegg", "behandlingstype" : "Manuell" }""",
                 )
             response.status shouldBe HttpStatusCode.OK
 
@@ -139,7 +143,7 @@ internal class BehandlingApiTest {
             val response =
                 testContext.autentisert(
                     endepunkt = "/person/behandling",
-                    body = """{"ident":"${person.ident}", "regelverk": "Utestengning"}""",
+                    body = """{"ident":"${person.ident}", "regelverk": "Utestengning", "behandlingstype" : "Manuell" }""",
                 )
             response.status shouldBe HttpStatusCode.OK
 
@@ -148,6 +152,47 @@ internal class BehandlingApiTest {
 
             val behandling = objectMapper.readTree(response.bodyAsText())
             // behandling["vilkår"][0]["hjemmel"]["kilde"]["tittel"].asString() shouldBe "Utestengning"
+        }
+    }
+
+    @Test
+    fun `opprett klagebehandling på dagpenger uten id fører til 400 feil`() {
+        medSikretBehandlingApi { testContext ->
+            // Klage uten id
+            val body = """{"ident":"${person.ident}", "behandlingstype": "Klage"}"""
+            val response =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body = body,
+                )
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `opprett klagebehandling på dagpenger med id fører til 200 OK`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.april(LocalDate.now().year))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.behandlingId.shouldNotBeNull()
+            person.avklaringer.shouldNotBeEmpty()
+
+            listOf("Førsteinstans", "Klageinstans", "Trygderetten").forEach { kildeSystem ->
+
+                // Klage med id (Klagebehandlingen sin behandlingId)
+                val body =
+                    """{"ident":"${person.ident}", "behandlingstype": "OmgjøringEtterKlage", "kildesystem": "$kildeSystem", "id": "${UUIDv7.ny()}"}"""
+                val response =
+                    testContext.autentisert(
+                        endepunkt = "/person/behandling",
+                        body = body,
+                    )
+                response.status shouldBe HttpStatusCode.OK
+            }
         }
     }
 
@@ -163,13 +208,12 @@ internal class BehandlingApiTest {
             person.behandlingId.shouldNotBeNull()
             person.avklaringer.shouldNotBeEmpty()
             val skjeddeDato = LocalDate.now()
-            val hendelseId = UUIDv7.ny()
             // language=JSON
             val body =
                 """{
                   "ident": "${person.ident}",
                   "behandlingstype": "Manuell",
-                  "id": "$hendelseId",
+
                   "skjedde": "$skjeddeDato",
                   "begrunnelse": "Automatisk opprettet av test"
             }"""
@@ -179,7 +223,8 @@ internal class BehandlingApiTest {
 
             person.behandlingId.shouldNotBeNull()
             person.behandling.behandletHendelse.type shouldBe HendelseDTOTypeDTO.MANUELL
-            person.behandling.behandletHendelse.id shouldBe hendelseId.toString()
+            person.behandling.behandletHendelse.id
+                .shouldNotBeNull()
             person.behandling.behandletHendelse.skjedde shouldBe skjeddeDato
 
             person.avklaringer.shouldNotBeEmpty()

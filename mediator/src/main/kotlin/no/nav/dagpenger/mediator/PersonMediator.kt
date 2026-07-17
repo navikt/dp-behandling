@@ -16,6 +16,9 @@ import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.PersonObservatør
 import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.modell.hendelser.FerietilleggId
+import no.nav.dagpenger.modell.hendelser.KlageFørsteinstansId
+import no.nav.dagpenger.modell.hendelser.KlageKlageinstansId
+import no.nav.dagpenger.modell.hendelser.KlageTrygderettenId
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.MeldekortId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
@@ -87,16 +90,7 @@ internal class PersonMediator : PersonObservatør {
                         mapOf(
                             "id" to hendelse.eksternId.id,
                             "datatype" to hendelse.eksternId.datatype,
-                            "type" to
-                                when (hendelse.eksternId) {
-                                    is MeldekortId -> "Meldekort"
-                                    is SøknadId -> "Søknad"
-                                    is ManuellId -> "Manuell"
-                                    is OmgjøringId -> "Omgjøring"
-                                    is ArbeidssøkerperiodeId -> "Arbeidssøkerperiode"
-                                    is FerietilleggId -> "Ferietillegg"
-                                    is SamordningId -> "Samordning"
-                                },
+                            "type" to hendelse.eksternId.hendelseType(),
                             "skjedde" to hendelse.skjedde,
                         ),
                 ) +
@@ -143,16 +137,7 @@ internal class PersonMediator : PersonObservatør {
                         mapOf(
                             "id" to hendelse.id,
                             "datatype" to hendelse.datatype,
-                            "type" to
-                                when (hendelse) {
-                                    is MeldekortId -> "Meldekort"
-                                    is SøknadId -> "Søknad"
-                                    is ManuellId -> "Manuell"
-                                    is OmgjøringId -> "Omgjøring"
-                                    is ArbeidssøkerperiodeId -> "Arbeidssøkerperiode"
-                                    is FerietilleggId -> "Ferietillegg"
-                                    is SamordningId -> "Samordning"
-                                },
+                            "type" to hendelse.hendelseType(),
                         ),
                 ) + (årsak?.let { mapOf("årsak" to it) } ?: emptyMap()),
             )
@@ -174,3 +159,17 @@ internal class PersonMediator : PersonObservatør {
         private val sikkerlogg = KotlinLogging.logger("tjenestekall.PersonMediator")
     }
 }
+
+internal fun no.nav.dagpenger.modell.hendelser.EksternId<*>.hendelseType(): String =
+    when (this) {
+        is SøknadId -> "Søknad"
+        is MeldekortId -> "Meldekort"
+        is ManuellId -> "Manuell"
+        is OmgjøringId -> "Omgjøring"
+        is FerietilleggId -> "Ferietillegg"
+        is ArbeidssøkerperiodeId -> "Arbeidssøkerperiode"
+        is SamordningId -> "Samordning"
+        is KlageFørsteinstansId -> "KlageFørsteinstans"
+        is KlageKlageinstansId -> "KlageKlageinstans"
+        is KlageTrygderettenId -> "KlageTryderetten"
+    }

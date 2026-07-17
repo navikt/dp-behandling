@@ -34,6 +34,9 @@ sealed class EksternId<T>(
             "ArbeidssøkerperiodeId" -> ArbeidssøkerperiodeId(id)
             "FerietilleggId" -> FerietilleggId(id)
             "SamordningId" -> SamordningId(id)
+            "KlageFørsteinstansId" -> KlageFørsteinstansId(id)
+            "KlageKlageinstansId" -> KlageKlageinstansId(id)
+            "KlageTrygderettenId" -> KlageTrygderettenId(id)
             else -> throw IllegalArgumentException("Ukjent idType: $eksternIdType")
         }
     }
@@ -114,3 +117,34 @@ class SamordningId(
             "samordningId" to id.toString(),
         )
 }
+
+sealed class KlageId<T>(
+    id: T,
+    private val kilde: KlageBehandlingKilde,
+) : EksternId<T>(id) {
+    override fun kontekstMap() =
+        mapOf(
+            "klageId" to id.toString(),
+            "klageKilde" to kilde.toString(),
+        )
+
+    enum class KlageBehandlingKilde {
+        Førsteinstans,
+        Klageinstans,
+        Tryderetten,
+    }
+}
+
+class KlageFørsteinstansId(
+    id: UUID,
+) : KlageId<UUID>(id, KlageBehandlingKilde.Førsteinstans) {
+    constructor(id: String) : this(UUID.fromString(id))
+}
+
+class KlageKlageinstansId(
+    id: String,
+) : KlageId<String>(id, KlageBehandlingKilde.Klageinstans)
+
+class KlageTrygderettenId(
+    id: String,
+) : KlageId<String>(id, KlageBehandlingKilde.Tryderetten)

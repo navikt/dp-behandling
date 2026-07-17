@@ -34,6 +34,9 @@ import no.nav.dagpenger.mediator.api.models.UtledningDTO
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.modell.hendelser.FerietilleggId
+import no.nav.dagpenger.modell.hendelser.KlageFørsteinstansId
+import no.nav.dagpenger.modell.hendelser.KlageKlageinstansId
+import no.nav.dagpenger.modell.hendelser.KlageTrygderettenId
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.MeldekortId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
@@ -111,6 +114,9 @@ internal fun StartHendelse.tilHendelseDTO(): HendelseDTO =
                 is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE
                 is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
                 is SamordningId -> HendelseDTOTypeDTO.SAMORDNING
+                is KlageFørsteinstansId -> HendelseDTOTypeDTO.KLAGE_FØRSTEINSTANS
+                is KlageKlageinstansId -> HendelseDTOTypeDTO.KLAGE_KLAGEINSTANS
+                is KlageTrygderettenId -> HendelseDTOTypeDTO.KLAGE_TRYGDERETTEN
             },
         skjedde = skjedde,
     )

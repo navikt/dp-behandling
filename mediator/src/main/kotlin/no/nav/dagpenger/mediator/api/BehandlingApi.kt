@@ -36,15 +36,18 @@ import no.nav.dagpenger.mediator.api.melding.FjernOpplysning
 import no.nav.dagpenger.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.mediator.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.BehandlingDTO
-import no.nav.dagpenger.mediator.api.models.BehandlingstypeDTO
 import no.nav.dagpenger.mediator.api.models.DataTypeDTO
 import no.nav.dagpenger.mediator.api.models.DatalastKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.FerietilleggKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.FlyttBehandlingDTO
 import no.nav.dagpenger.mediator.api.models.IdentForesporselDTO
+import no.nav.dagpenger.mediator.api.models.KlageKildesystemDTO
 import no.nav.dagpenger.mediator.api.models.KvitteringDTO
 import no.nav.dagpenger.mediator.api.models.NyBehandlingDTO
+import no.nav.dagpenger.mediator.api.models.NyKlageDTO
+import no.nav.dagpenger.mediator.api.models.NyManuellBehandlingDTO
 import no.nav.dagpenger.mediator.api.models.NyOpplysningDTO
+import no.nav.dagpenger.mediator.api.models.NyRevurderingDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.mediator.api.models.RegelverkTypeDTO
 import no.nav.dagpenger.mediator.api.models.RekjoringDTO
@@ -68,6 +71,9 @@ import no.nav.dagpenger.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.GodkjennBehandlingHendelse
+import no.nav.dagpenger.modell.hendelser.KlageFørsteinstansId
+import no.nav.dagpenger.modell.hendelser.KlageKlageinstansId
+import no.nav.dagpenger.modell.hendelser.KlageTrygderettenId
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
@@ -86,6 +92,7 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.regel.hendelse.KlagebehandlingHendelse
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.regel.prosess.Manuellprosess
@@ -214,26 +221,33 @@ internal fun Application.behandlingApi(
                 post {
                     val nyBehandlingDto = call.receive<NyBehandlingDTO>()
                     val ident = nyBehandlingDto.ident
-                    val id = nyBehandlingDto.id ?: UUIDv7.ny()
+
                     val skjedde = nyBehandlingDto.skjedde ?: LocalDate.now()
                     if (!personRepository.harIdent(ident.tilPersonIdentfikator())) {
                         throw NotFoundException("Person ikke funnet")
                     }
 
                     val melding = ApiMelding(nyBehandlingDto.ident)
+
                     val hendelse =
-                        when (nyBehandlingDto.behandlingstype) {
-                            BehandlingstypeDTO.REVURDERING -> {
-                                OmgjøringHendelse(
+                        when (nyBehandlingDto) {
+                            is NyKlageDTO -> {
+                                val id =
+                                    when (nyBehandlingDto.kildesystem) {
+                                        KlageKildesystemDTO.FØRSTEINSTANS -> KlageFørsteinstansId(nyBehandlingDto.id)
+                                        KlageKildesystemDTO.KLAGEINSTANS -> KlageKlageinstansId(nyBehandlingDto.id)
+                                        KlageKildesystemDTO.TRYGDERETTEN -> KlageTrygderettenId(nyBehandlingDto.id)
+                                    }
+                                KlagebehandlingHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
-                                    eksternId = OmgjøringId(id),
+                                    eksternId = id,
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
                                 )
                             }
 
-                            else -> {
+                            is NyManuellBehandlingDTO -> {
                                 val prosess =
                                     when (nyBehandlingDto.regelverk) {
                                         RegelverkTypeDTO.FERIETILLEGG -> Ferietilleggprosess()
@@ -243,12 +257,22 @@ internal fun Application.behandlingApi(
                                 OpprettBehandlingHendelse(
                                     meldingsreferanseId = melding.id,
                                     ident = nyBehandlingDto.ident,
-                                    eksternId = ManuellId(id),
+                                    eksternId = ManuellId(UUIDv7.ny()),
                                     gjelderDato = skjedde,
                                     begrunnelse = nyBehandlingDto.begrunnelse,
                                     opprettet = LocalDateTime.now(),
                                     prosess = prosess,
                                     // TODO: Legg til sporing av hvem som gjør dette
+                                )
+                            }
+
+                            is NyRevurderingDTO -> {
+                                OmgjøringHendelse(
+                                    meldingsreferanseId = melding.id,
+                                    ident = nyBehandlingDto.ident,
+                                    eksternId = OmgjøringId(UUIDv7.ny()),
+                                    gjelderDato = skjedde,
+                                    opprettet = LocalDateTime.now(),
                                 )
                             }
                         }

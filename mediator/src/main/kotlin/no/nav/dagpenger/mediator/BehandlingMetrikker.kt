@@ -8,13 +8,6 @@ import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingForslagTilVedtak
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingOpprettet
 import no.nav.dagpenger.modell.PersonObservatør
-import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
-import no.nav.dagpenger.modell.hendelser.FerietilleggId
-import no.nav.dagpenger.modell.hendelser.ManuellId
-import no.nav.dagpenger.modell.hendelser.MeldekortId
-import no.nav.dagpenger.modell.hendelser.OmgjøringId
-import no.nav.dagpenger.modell.hendelser.SamordningId
-import no.nav.dagpenger.modell.hendelser.SøknadId
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Regelsett
 
@@ -208,14 +201,3 @@ internal class BehandlingMetrikker : PersonObservatør {
                 .register()
     }
 }
-
-private fun no.nav.dagpenger.modell.hendelser.EksternId<*>.hendelseType(): String =
-    when (this) {
-        is SøknadId -> "Søknad"
-        is MeldekortId -> "Meldekort"
-        is ManuellId -> "Manuell"
-        is OmgjøringId -> "Omgjøring"
-        is FerietilleggId -> "Ferietillegg"
-        is ArbeidssøkerperiodeId -> "Arbeidssøkerperiode"
-        is SamordningId -> "Samordning"
-    }

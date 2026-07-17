@@ -116,6 +116,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
                         is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE
                         is SamordningId -> HendelseDTOTypeDTO.SAMORDNING
+                        else -> throw IllegalStateException("Kan ikke lage vedtak med eksternType ${behandlingAv.eksternId}")
                     },
                 skjedde = behandlingAv.skjedde,
             ),

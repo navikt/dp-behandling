@@ -929,6 +929,7 @@ components:
       type: object
       required:
         - ident
+        - behandlingstype
       properties:
         behandlingstype:
           $ref: '#/components/schemas/Behandlingstype'
@@ -938,20 +939,53 @@ components:
           $ref: '#/components/schemas/Personident'
         begrunnelse:
           type: string
-        id:
-          type: string
-          format: uuid
-          description: Valgfritt id for hendelsen, hvis ikke genereres det en uuid
         skjedde:
           type: string
           format: date
           description: Når hendelsen skjedde, hvis ikke settes det til nåværende tidspunkt
+      discriminator:
+        propertyName: behandlingstype
+        mapping:
+          Revurdering: '#/components/schemas/NyRevurdering'
+          Manuell: '#/components/schemas/NyManuellBehandling'
+          OmgjøringEtterKlage: '#/components/schemas/NyKlage'
+
+    NyRevurdering:
+      allOf:
+        - $ref: '#/components/schemas/NyBehandling'
+
+    NyManuellBehandling:
+      allOf:
+        - $ref: '#/components/schemas/NyBehandling'
+
+    NyKlage:
+      allOf:
+        - $ref: '#/components/schemas/NyBehandling'
+        - type: object
+          required:
+            - id
+            - kildesystem
+          properties:
+            id:
+              type: string
+              description: ID for klagen i kildesystemet
+            kildesystem:
+              $ref: '#/components/schemas/KlageKildesystem'
+
+    KlageKildesystem:
+      type: string
+      description: Kildesystemet klagen kommer fra
+      enum:
+        - Førsteinstans
+        - Klageinstans
+        - Trygderetten
 
     Behandlingstype:
       type: string
       enum:
         - Revurdering
         - Manuell
+        - OmgjøringEtterKlage
 
     RegelverkType:
       type: string
@@ -2130,7 +2164,7 @@ components:
           type: string
         type:
           type: string
-          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring", "Arbeidssøkerperiode", "Ferietillegg", "Samordning" ]
+          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring", "Arbeidssøkerperiode", "Ferietillegg", "Samordning", "KlageFørsteinstans", "KlageKlageinstans", "KlageTrygderetten" ]
         skjedde:
           type: string
           format: date
