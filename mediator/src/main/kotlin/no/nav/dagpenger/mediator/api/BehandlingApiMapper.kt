@@ -140,12 +140,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
                     .map { it.tilVurderingsresultatDTO(opplysningSet) }
-                    .sortedBy { it.hjemmel.paragraf.toInt() } +
-                    // TODO: Fjerne prosessregler fra fastsettelsesreglene når de er tatt i bruk (saksbehandlingsregler) i frontend
-                    behandler.forretningsprosess.regelverk
-                        .regelsettAvType(RegelsettType.Prosess)
-                        .map { it.tilVurderingsresultatDTO(opplysningSet) }
-                        .sortedBy { it.hjemmel.paragraf.toInt() },
+                    .sortedBy { it.hjemmel.paragraf.toInt() },
             opplysninger =
                 opplysningSet.somOpplysningperiode({ type, opplysninger ->
                     RedigerbareOpplysningerDTO(
