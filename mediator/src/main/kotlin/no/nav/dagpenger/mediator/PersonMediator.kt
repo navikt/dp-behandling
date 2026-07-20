@@ -171,5 +171,5 @@ internal fun no.nav.dagpenger.modell.hendelser.EksternId<*>.hendelseType(): Stri
         is SamordningId -> "Samordning"
         is KlageFørsteinstansId -> "KlageFørsteinstans"
         is KlageKlageinstansId -> "KlageKlageinstans"
-        is KlageTrygderettenId -> "KlageTryderetten"
+        is KlageTrygderettenId -> "KlageTrygderetten"
     }
