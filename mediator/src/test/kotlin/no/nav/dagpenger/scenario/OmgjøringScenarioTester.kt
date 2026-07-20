@@ -1,6 +1,7 @@
 package no.nav.dagpenger.scenario
 
 import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
@@ -25,6 +26,7 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
@@ -118,9 +120,19 @@ class OmgjøringScenarioTester {
                 "Mere Penger!",
                 Gyldighetsperiode(21.juni(2018)),
             )
+            saksbehandler.endreOpplysning(
+                Rettighetstype.skalOmgjøringUtenKlageVurderes,
+                true,
+                "Test",
+                Gyldighetsperiode(21.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
 
             // Verifiser at omgjøringsbehandlingen har avklaring
-            person.avklaringer.first().kode shouldBe "HarSvartPåOmgjøringUtenKlage"
+            with(person.avklaringer.map { it.kode }) {
+                this.shouldContain("SkalOmgjøringUtenKlageVurderes")
+                this.shouldContain("HarSvartPåOmgjøringUtenKlage")
+            }
 
             saksbehandler.endreOpplysning(
                 OmgjøringUtenKlage.ansesUgyldigVedtak,

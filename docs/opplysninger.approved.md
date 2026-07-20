@@ -87,6 +87,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Boolsk|boolean|||Resultat
 |019d0068-8037-7d91-bfff-de88f9e87fd3|Skal kravet til gjenopptak vurderes|Boolsk|boolean|||Resultat
 |019f608d-f9c5-7ccc-a6f3-c53531d1f00c|Skal eksport vurderes|Boolsk|boolean|||Resultat
+|019f7004-6585-7728-88b4-256210d72b93|Skal omgjøring uten klage vurderes|Boolsk|boolean|||Resultat
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
 #### Avklaringer

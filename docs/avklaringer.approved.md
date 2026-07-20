@@ -331,6 +331,14 @@ Sjekk at valgt prøvingsdato er riktig.
 - Prøvingsdato
 
 ---
+## Skal omgjøring uten klage vurderes
+- **Kode:** `SkalOmgjøringUtenKlageVurderes`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Saksbehandler må vurdere om vedtaket kan omgjøres med hjemmel i § 6-35 Omgjøring av vedtak uten klage.
+
+---
 ## Bortfall på grunn av alder
 - **Kode:** `StansAlder`
 - **Kan lukkes av saksbehandler:** ✅ 

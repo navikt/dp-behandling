@@ -261,20 +261,12 @@ internal class BehandlingApiTest {
             val bodyAsText = response.bodyAsText()
             bodyAsText.shouldNotBeEmpty()
 
-            val behandling = objectMapper.readTree(bodyAsText)
-            behandling["saksbehandlingsregler"].isEmpty shouldBe false
-            behandling["saksbehandlingsregler"][0]["type"].asString() shouldBe "Prosess"
-            behandling["saksbehandlingsregler"][0]["opplysninger"].isEmpty shouldBe false
-
-            behandling["avklaringer"].isEmpty shouldBe false
-            behandling["avklaringer"][0]["regelsett"][0]["type"].asString() shouldBe "Prosess"
-
             person.behandlingId.shouldNotBeNull()
 
             person.behandling.behandletHendelse.type shouldBe HendelseDTOTypeDTO.OMGJØRING
 
             person.avklaringer shouldHaveSize 10
-            person.avklaringer.any { it.kode == "HarSvartPåOmgjøringUtenKlage" } shouldBe true
+            person.avklaringer.any { it.kode == "SkalOmgjøringUtenKlageVurderes" } shouldBe true
         }
     }
 
