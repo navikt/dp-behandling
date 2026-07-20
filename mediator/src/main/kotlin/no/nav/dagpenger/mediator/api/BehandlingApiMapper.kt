@@ -60,6 +60,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.minimumVanlig
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
@@ -344,6 +345,7 @@ internal val redigerbareOpplysninger =
                             holderTilbake,
                             unnlateråEtterkommePålegg,
                             // Forvaltningsloven kapittel 6 - paragraf 35
+                            Rettighetstype.skalOmgjøringUtenKlageVurderes,
                             endringIkkeTilSkade,
                             ikkeUnderretning,
                             ansesUgyldigVedtak,
