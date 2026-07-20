@@ -23,10 +23,10 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
@@ -121,7 +121,7 @@ class OmgjøringScenarioTester {
                 Gyldighetsperiode(21.juni(2018)),
             )
             saksbehandler.endreOpplysning(
-                Rettighetstype.skalOmgjøringUtenKlageVurderes,
+                skalOmgjøringUtenKlageVurderes,
                 true,
                 "Test",
                 Gyldighetsperiode(21.juni(2018)),

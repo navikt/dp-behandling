@@ -33,6 +33,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barnet
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ansesUgyldigVedtak
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.endringIkkeTilSkade
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ikkeUnderretning
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.holderTilbake
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.unnlateråEtterkommePålegg
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.uriktigeOpplysninger
@@ -60,7 +61,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.minimumVanlig
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
@@ -345,7 +345,7 @@ internal val redigerbareOpplysninger =
                             holderTilbake,
                             unnlateråEtterkommePålegg,
                             // Forvaltningsloven kapittel 6 - paragraf 35
-                            Rettighetstype.skalOmgjøringUtenKlageVurderes,
+                            skalOmgjøringUtenKlageVurderes,
                             endringIkkeTilSkade,
                             ikkeUnderretning,
                             ansesUgyldigVedtak,

@@ -20,6 +20,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
@@ -68,6 +69,7 @@ val RegelverkDagpenger =
         KravPåDagpenger.regelsett,
         Meldeplikt.regelsett,
         Minsteinntekt.regelsett,
+        OmgjøringUtenKlageValg.regelsett,
         OmgjøringUtenKlage.regelsett,
         Opphold.regelsett,
         Opptjeningstid.regelsett,

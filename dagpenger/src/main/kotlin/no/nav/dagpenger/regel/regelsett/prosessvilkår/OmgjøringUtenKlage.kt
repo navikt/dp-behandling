@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.OpplysningsTyper
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalOmgjøringUtenKlageVurderes
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 
 object OmgjøringUtenKlage {
     val endringIkkeTilSkade =
