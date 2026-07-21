@@ -42,6 +42,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.registrertIVertsland
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.skalHaEksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
+import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
@@ -299,6 +300,8 @@ internal val redigerbareOpplysninger =
                             permitteringFiskeforedling,
                             erPermitteringenFraFiskeindustriMidlertidig,
                             godkjentÅrsakPermitteringFraFiskindustri,
+                            // 4-8 Meldeplikt og møteplikt
+                            oppfyllerMeldeplikt,
                             // 4-10 Sanksjon
                             harSanksjon,
                             antallSanksjonsuker,
