@@ -16,7 +16,7 @@ object OmgjøringUtenKlageValg {
 
     val regelsett =
         prosess(
-            forvaltningsloven.hjemmel(6, 35, "Omgjøring av vedtak uten klage", "Skal det gjøres omgjøring uten klage?"),
+            forvaltningsloven.hjemmel(6, 35, "Skal omgjøring uten klage vurderes?", "Skal omgjøring uten klage vurderes?"),
         ) {
             skalVurderes { opplysninger ->
                 opplysninger.har(hendelseTypeOpplysningstype) &&

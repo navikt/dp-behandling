@@ -336,12 +336,12 @@ Sjekk at valgt prøvingsdato er riktig.
 - **Kan lukkes av saksbehandler:** ✅ 
 - **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
-Saksbehandler må vurdere om vedtaket kan omgjøres med hjemmel i § 6-35 Omgjøring av vedtak uten klage.
+Saksbehandler må vurdere om vedtaket kan skal gå etter § 6-35 Omgjøring av vedtak uten klage.
 
 ### Tilknyttet regelsett
-- [§ 6-35. Omgjøring av vedtak uten klage?](./opplysninger.approved.md#-6-35-omgjøring-av-vedtak-uten-klage?)
+- [§ 6-35. Skal omgjøring uten klage vurderes?](./opplysninger.approved.md#-6-35-skal-omgjøring-uten-klage-vurderes?)
 ### Opplysninger avklaringen ser på
-- Skal omgjøring uten klage vurderes
+- Skal omgjøring uten klage vurderes?
 
 ---
 ## Bortfall på grunn av alder

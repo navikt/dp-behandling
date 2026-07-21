@@ -268,7 +268,7 @@ object Avklaringspunkter {
         Avklaringkode(
             kode = "SkalOmgjøringUtenKlageVurderes",
             tittel = "Skal omgjøring uten klage vurderes",
-            beskrivelse = "Saksbehandler må vurdere om vedtaket kan omgjøres med hjemmel i § 6-35 Omgjøring av vedtak uten klage.",
+            beskrivelse = "Saksbehandler må vurdere om vedtaket kan skal gå etter § 6-35 Omgjøring av vedtak uten klage.",
             kanKvitteres = true,
         )
 

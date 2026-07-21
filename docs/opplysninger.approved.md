@@ -615,14 +615,14 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|---|---|
 |0194881f-9447-7e36-a569-3e9f42bff9f6|Bruker er utestengt fra dagpenger|Boolsk|boolean|ErUtestengt||Ekstern
 |0194881f-9447-7e36-a569-3e9f42bff9f7|Oppfyller krav til ikke utestengt|Boolsk|boolean|||Resultat
-### § 6-35. Omgjøring av vedtak uten klage?
+### § 6-35. Skal omgjøring uten klage vurderes?
 *Type:* Prosess
 #### Avklaringer
 - SkalOmgjøringUtenKlageVurderes - [Skal omgjøring uten klage vurderes](./avklaringer.approved.md#skal-omgjøring-uten-klage-vurderes)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|019f7004-6585-7728-88b4-256210d72b93|Skal omgjøring uten klage vurderes|Boolsk|boolean|||Resultat
+|019f7004-6585-7728-88b4-256210d72b93|Skal omgjøring uten klage vurderes?|Boolsk|boolean|||Resultat
 ### § 6-35. Omgjøring av vedtak uten klage
 *Type:* Prosess
 #### Avklaringer
