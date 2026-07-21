@@ -12,11 +12,11 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.kanOm
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 
 object OmgjøringUtenKlageValg {
-    val skalOmgjøringUtenKlageVurderes = boolsk(skalOmgjøringUtenKlageVurderesId, "Skal omgjøring uten klage vurderes")
+    val skalOmgjøringUtenKlageVurderes = boolsk(skalOmgjøringUtenKlageVurderesId, "Skal omgjøring uten klage vurderes?")
 
     val regelsett =
         prosess(
-            forvaltningsloven.hjemmel(6, 35, "Omgjøring av vedtak uten klage?", "Skal det gjøres omgjøring uten klage?"),
+            forvaltningsloven.hjemmel(6, 35, "Omgjøring av vedtak uten klage", "Skal det gjøres omgjøring uten klage?"),
         ) {
             skalVurderes { opplysninger ->
                 opplysninger.har(hendelseTypeOpplysningstype) &&
