@@ -33,6 +33,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barnet
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ansesUgyldigVedtak
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.endringIkkeTilSkade
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ikkeUnderretning
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.holderTilbake
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.unnlateråEtterkommePålegg
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.uriktigeOpplysninger
@@ -140,12 +141,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                 behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
                     .map { it.tilVurderingsresultatDTO(opplysningSet) }
-                    .sortedBy { it.hjemmel.paragraf.toInt() } +
-                    // TODO: Fjerne prosessregler fra fastsettelsesreglene når de er tatt i bruk (saksbehandlingsregler) i frontend
-                    behandler.forretningsprosess.regelverk
-                        .regelsettAvType(RegelsettType.Prosess)
-                        .map { it.tilVurderingsresultatDTO(opplysningSet) }
-                        .sortedBy { it.hjemmel.paragraf.toInt() },
+                    .sortedBy { it.hjemmel.paragraf.toInt() },
             opplysninger =
                 opplysningSet.somOpplysningperiode({ type, opplysninger ->
                     RedigerbareOpplysningerDTO(
@@ -347,6 +343,7 @@ internal val redigerbareOpplysninger =
                             holderTilbake,
                             unnlateråEtterkommePålegg,
                             // Forvaltningsloven kapittel 6 - paragraf 35
+                            skalOmgjøringUtenKlageVurderes,
                             endringIkkeTilSkade,
                             ikkeUnderretning,
                             ansesUgyldigVedtak,

@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.regel.enAv
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.OpplysningsTyper
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 
 object OmgjøringUtenKlage {
     val endringIkkeTilSkade =
@@ -41,8 +41,8 @@ object OmgjøringUtenKlage {
     val regelsett =
         prosess(forvaltningsloven.hjemmel(6, 35, "Omgjøring av vedtak uten klage", "Omgjøring uten klage")) {
             skalVurderes { opplysninger ->
-                opplysninger.har(hendelseTypeOpplysningstype) &&
-                    opplysninger.finnOpplysning(hendelseTypeOpplysningstype).verdi == "OmgjøringHendelse"
+                opplysninger.har(skalOmgjøringUtenKlageVurderes) &&
+                    opplysninger.erSann(skalOmgjøringUtenKlageVurderes)
             }
 
             regel(endringIkkeTilSkade) { somUtgangspunkt(false) }

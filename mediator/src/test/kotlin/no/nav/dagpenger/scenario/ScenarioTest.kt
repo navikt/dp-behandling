@@ -30,7 +30,6 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeri
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktPeriode
-import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
@@ -1020,7 +1019,6 @@ class ScenarioTest {
             }
 
             saksbehandler.omgjørBehandling(15.juli(2026))
-            saksbehandler.endreOpplysning(OmgjøringUtenKlage.ansesUgyldigVedtak, true, "A")
 
             saksbehandler.endreOpplysning(Utdanning.tarUtdanning, false, "A", Gyldighetsperiode(4.juli(2026), 26.juli(2026)))
             saksbehandler.endreOpplysning(Utdanning.tarUtdanning, true, "A", Gyldighetsperiode(27.juli(2026), 1.januar(2027)))

@@ -264,6 +264,14 @@ object Avklaringspunkter {
             kanKvitteres = false,
         )
 
+    val SkalOmgjøringUtenKlageVurderes =
+        Avklaringkode(
+            kode = "SkalOmgjøringUtenKlageVurderes",
+            tittel = "Skal omgjøring uten klage vurderes",
+            beskrivelse = "Saksbehandler må vurdere om vedtaket kan skal gå etter § 6-35 Omgjøring av vedtak uten klage.",
+            kanKvitteres = true,
+        )
+
     val HarTilleggsopplysninger =
         Avklaringkode(
             kode = "HarTilleggsopplysninger",

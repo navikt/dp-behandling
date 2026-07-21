@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.prosess.PeriodeOverskrivingsStrategi.Companion.OVERSKRIV_ALLTID
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.OmgjøringUtenKlageKontroll
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.SkalOmgjøringUtenKlageVurderesKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
@@ -55,7 +56,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
         )
     }
 
-    override fun kontrollpunkter() = listOf(OmgjøringUtenKlageKontroll)
+    override fun kontrollpunkter() = listOf(OmgjøringUtenKlageKontroll, SkalOmgjøringUtenKlageVurderesKontroll)
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
         opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }

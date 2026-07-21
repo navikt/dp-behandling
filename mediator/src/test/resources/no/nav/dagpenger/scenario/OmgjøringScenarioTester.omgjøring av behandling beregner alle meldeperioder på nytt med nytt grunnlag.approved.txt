@@ -47,10 +47,13 @@ Behandling endret tilstand til: Ferdig
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
-Laget avklaring om HarSvartPåOmgjøringUtenKlage
+Laget avklaring om SkalOmgjøringUtenKlageVurderes
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Laget avklaring om HarSvartPåOmgjøringUtenKlage
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert

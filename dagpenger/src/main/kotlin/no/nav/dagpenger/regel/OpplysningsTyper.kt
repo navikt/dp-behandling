@@ -401,8 +401,8 @@ object OpplysningsTyper {
     val ikkeUnderretningId = Opplysningstype.Id(UUID.fromString("019c5676-5c44-73d4-bc65-aee9d9257aa1"), Boolsk)
     val ansesUgyldigVedtakId = Opplysningstype.Id(UUID.fromString("019c5676-7c80-7217-a232-15318ff258c5"), Boolsk)
     val kanOmgjøresUtenKlageId = Opplysningstype.Id(UUID.fromString("019c5676-a923-7e31-83b9-0e77e5a3cdcb"), Boolsk)
-//    019bc5f9-3040-77cc-9b16-5b919bd4ccd9
-//    019bc5f9-69d0-7c07-9fb4-68b8657a662b
+
+    val skalOmgjøringUtenKlageVurderesId = Opplysningstype.Id(UUID.fromString("019f7004-6585-7728-88b4-256210d72b93"), Boolsk)
 
     val skalEksportVurderesId = Opplysningstype.Id(UUID.fromString("019f608d-f9c5-7ccc-a6f3-c53531d1f00c"), Boolsk)
     val skalHaEksportId = Opplysningstype.Id(UUID.fromString("019f608e-807e-758c-80ff-58e95f429f5a"), Boolsk)

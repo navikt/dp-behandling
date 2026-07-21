@@ -209,7 +209,7 @@ internal class Mennesket(
             for (offset in rapid.inspektør.size - 1 downTo 0) {
                 val message = rapid.inspektør.message(offset)
                 if (message["@event_name"].asString() == "NyAvklaring") {
-                    liste.add(Avklaring(message["avklaringId"].asUUID(), message["kode"].asString()))
+                    liste.add(Avklaring(message["avklaringId"].asUUID(), message["kode"].asString(), message["behandlingId"].asUUID()))
                 }
             }
             return liste.toList()
@@ -218,6 +218,7 @@ internal class Mennesket(
     internal data class Avklaring(
         val id: UUID,
         val kode: String,
+        val behandlingId: UUID,
     )
 
     private val løsninger: Map<String, Behovsløsning>
