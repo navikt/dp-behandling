@@ -4,9 +4,9 @@
 
 ```mermaid
 graph RL
-  A["Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget"] -->|"EnAv"| B["Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser"]
-  A["Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget"] -->|"EnAv"| C["Underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort"]
-  A["Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget"] -->|"EnAv"| D["Vedtaket må anses ugyldig"]
+  A["Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget"] -->|"EnAv"| B["a. Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser"]
+  A["Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget"] -->|"EnAv"| C["b. underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort"]
+  A["Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget"] -->|"EnAv"| D["c. vedtaket må anses ugyldig"]
 ```
 
 ## Akseptansetester
