@@ -64,13 +64,16 @@ class MeldekortBeregningPlugin(
         opplysninger.leggTil(Faktum(oppfyllerKravTilTaptArbeidstidIPerioden, resultat.oppfyllerKravTilTaptArbeidstid, gyldighetsperiode))
 
         val forbruksdager = resultat.beregningsdager
-        forbruksdager
-            .forEach { dag ->
+        val dagOpplysninger =
+            forbruksdager.flatMap { dag ->
                 val dagGyldighetsperiode = dag.gyldighetsperiode
-                opplysninger.leggTil(Faktum(forbruk, dag is Forbruksdag, dagGyldighetsperiode))
-                opplysninger.leggTil(Faktum(utbetaling, dag.tilUtbetaling, dagGyldighetsperiode))
-                opplysninger.leggTil(Faktum(erSanksjonsdag, dag.avviklerSanksjon, dagGyldighetsperiode))
+                listOf(
+                    Faktum(forbruk, dag is Forbruksdag, dagGyldighetsperiode),
+                    Faktum(utbetaling, dag.tilUtbetaling, dagGyldighetsperiode),
+                    Faktum(erSanksjonsdag, dag.avviklerSanksjon, dagGyldighetsperiode),
+                )
             }
+        opplysninger.leggTilAlle(dagOpplysninger)
 
         Kvoteteller(kvoter, resultat.beregningsdager)
             .beregn(opplysninger, meldeperiode.fraOgMed)
