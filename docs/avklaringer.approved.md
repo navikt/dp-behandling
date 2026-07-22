@@ -123,12 +123,12 @@ Søker har oppgitt permittering fra fiskeindustri i søknaden. <br>Vurder om sø
 - Permittert fra fiskeindustrien
 
 ---
-## Omgjøring uten klage
+## Omgjøring etter forvaltningsloven § 35
 - **Kode:** `HarSvartPåOmgjøringUtenKlage`
 - **Kan lukkes av saksbehandler:** ❌ 
 - **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
-Saksbehandler må svare på hvorfor vedtaket omgjøres uten at det har vært klage på tidligere vedtak. Sjekk at det er lagt inn en begrunnelse for omgjøringen.
+Du må velge aktuell bokstav i forvaltningsloven § 35, og begrunne. Trykk på linken for å komme til prosessregler og gi begrunnelse.
 
 ### Tilknyttet regelsett
 - [§ 6-35. Omgjøring av vedtak uten klage](./opplysninger.approved.md#-6-35-omgjøring-av-vedtak-uten-klage)
@@ -331,17 +331,17 @@ Sjekk at valgt prøvingsdato er riktig.
 - Prøvingsdato
 
 ---
-## Skal omgjøring uten klage vurderes
+## Skal vedtaket omgjøres etter forvaltningsloven § 35?
 - **Kode:** `SkalOmgjøringUtenKlageVurderes`
 - **Kan lukkes av saksbehandler:** ✅ 
 - **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
-Saksbehandler må vurdere om vedtaket kan skal gå etter § 6-35 Omgjøring av vedtak uten klage.
+Hvis du ikke skal omgjøre etter forvaltningsloven § 35, må du begrunne hvorfor for å lukke avklaringen. <br>Hvis du skal omgjøre må du klikke på linken og velge årsak til omgjøringen.
 
 ### Tilknyttet regelsett
 - [§ 6-35. Skal omgjøring uten klage vurderes?](./opplysninger.approved.md#-6-35-skal-omgjøring-uten-klage-vurderes?)
 ### Opplysninger avklaringen ser på
-- Skal omgjøring uten klage vurderes?
+- Skal vedtaket omgjøres etter forvaltningsloven § 35?
 
 ---
 ## Bortfall på grunn av alder

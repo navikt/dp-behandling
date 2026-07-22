@@ -618,19 +618,19 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 6-35. Skal omgjøring uten klage vurderes?
 *Type:* Prosess
 #### Avklaringer
-- SkalOmgjøringUtenKlageVurderes - [Skal omgjøring uten klage vurderes](./avklaringer.approved.md#skal-omgjøring-uten-klage-vurderes)
+- SkalOmgjøringUtenKlageVurderes - [Skal vedtaket omgjøres etter forvaltningsloven § 35?](./avklaringer.approved.md#skal-vedtaket-omgjøres-etter-forvaltningsloven--35?)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|019f7004-6585-7728-88b4-256210d72b93|Skal omgjøring uten klage vurderes?|Boolsk|boolean|||Resultat
+|019f7004-6585-7728-88b4-256210d72b93|Skal vedtaket omgjøres etter forvaltningsloven § 35?|Boolsk|boolean|||Resultat
 ### § 6-35. Omgjøring av vedtak uten klage
 *Type:* Prosess
 #### Avklaringer
-- HarSvartPåOmgjøringUtenKlage - [Omgjøring uten klage](./avklaringer.approved.md#omgjøring-uten-klage)
+- HarSvartPåOmgjøringUtenKlage - [Omgjøring etter forvaltningsloven § 35](./avklaringer.approved.md#omgjøring-etter-forvaltningsloven--35)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|019c5673-ae11-7a8a-ae77-170f6ac20944|Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser|Boolsk|boolean|||Utgangspunkt
-|019c5676-5c44-73d4-bc65-aee9d9257aa1|Underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort|Boolsk|boolean|||Utgangspunkt
-|019c5676-7c80-7217-a232-15318ff258c5|Vedtaket må anses ugyldig|Boolsk|boolean|||Utgangspunkt
+|019c5673-ae11-7a8a-ae77-170f6ac20944|a. Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser|Boolsk|boolean|||Utgangspunkt
+|019c5676-5c44-73d4-bc65-aee9d9257aa1|b. underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort|Boolsk|boolean|||Utgangspunkt
+|019c5676-7c80-7217-a232-15318ff258c5|c. vedtaket må anses ugyldig|Boolsk|boolean|||Utgangspunkt
 |019c5676-a923-7e31-83b9-0e77e5a3cdcb|Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget|Boolsk|boolean|||Resultat

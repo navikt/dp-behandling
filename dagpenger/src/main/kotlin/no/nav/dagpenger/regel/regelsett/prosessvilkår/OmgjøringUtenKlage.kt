@@ -15,19 +15,19 @@ object OmgjøringUtenKlage {
     val endringIkkeTilSkade =
         boolsk(
             OpplysningsTyper.endringIkkeTilSkadeId,
-            "Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser",
+            "a. Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser",
             opplysningstypeKategori = OpplysningstypeKategori.Prosess,
         )
     val ikkeUnderretning =
         boolsk(
             OpplysningsTyper.ikkeUnderretningId,
-            "Underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort",
+            "b. underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort",
             opplysningstypeKategori = OpplysningstypeKategori.Prosess,
         )
     val ansesUgyldigVedtak =
         boolsk(
             OpplysningsTyper.ansesUgyldigVedtakId,
-            "Vedtaket må anses ugyldig",
+            "c. vedtaket må anses ugyldig",
             opplysningstypeKategori = OpplysningstypeKategori.Prosess,
         )
 

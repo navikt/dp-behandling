@@ -259,16 +259,20 @@ object Avklaringspunkter {
     val HarSvartPåOmgjøringUtenKlage =
         Avklaringkode(
             kode = "HarSvartPåOmgjøringUtenKlage",
-            tittel = "Omgjøring uten klage",
-            beskrivelse = "Saksbehandler må svare på hvorfor vedtaket omgjøres uten at det har vært klage på tidligere vedtak. Sjekk at det er lagt inn en begrunnelse for omgjøringen.",
+            tittel = "Omgjøring etter forvaltningsloven § 35",
+            beskrivelse = "Du må velge aktuell bokstav i forvaltningsloven § 35, og begrunne. Trykk på linken for å komme til prosessregler og gi begrunnelse.",
             kanKvitteres = false,
         )
 
     val SkalOmgjøringUtenKlageVurderes =
         Avklaringkode(
             kode = "SkalOmgjøringUtenKlageVurderes",
-            tittel = "Skal omgjøring uten klage vurderes",
-            beskrivelse = "Saksbehandler må vurdere om vedtaket kan skal gå etter § 6-35 Omgjøring av vedtak uten klage.",
+            tittel = "Skal vedtaket omgjøres etter forvaltningsloven § 35?",
+            beskrivelse =
+                """
+                Hvis du ikke skal omgjøre etter forvaltningsloven § 35, må du begrunne hvorfor for å lukke avklaringen. 
+                Hvis du skal omgjøre må du klikke på linken og velge årsak til omgjøringen.
+                """.trimIndent(),
             kanKvitteres = true,
         )
 
