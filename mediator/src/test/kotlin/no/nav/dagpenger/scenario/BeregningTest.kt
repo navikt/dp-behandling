@@ -337,7 +337,16 @@ class BeregningTest {
             }
 
             // Send inn korrigering av forrige meldekort
-            person.sendInnMeldekort(1, korrigeringAv = meldekortId, timer = List(14) { 7 })
+            person.sendInnMeldekort(
+                1,
+                korrigeringAv = meldekortId,
+                korrigertAv =
+                    Meldingskatalog.MeldekortKilde(
+                        Meldingskatalog.MeldekortKilde.Rolle.Saksbehandler,
+                        ident = "NAV123123",
+                    ),
+                timer = List(14) { 7 },
+            )
 
             // Systemet kjører beregningsbatchen
             meldekortBatch(markerFerdig = false)
@@ -372,6 +381,9 @@ class BeregningTest {
                     first().verdi.verdi shouldBe false
                 }
             }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
         }
     }
 

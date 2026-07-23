@@ -13,6 +13,8 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
@@ -47,9 +49,22 @@ class BeregnMeldekortHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): StartHendelseResultat {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
-        val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
         logger.info { "Baserer meldekortberegning på: ${forrigeBehandling.behandlingId}" }
+        val kilde = Systemkilde(meldekort.meldingsreferanseId, opprettet)
+        val saksbehandlerKilde =
+            when (meldekort.kilde.rolle) {
+                "Saksbehandler" -> {
+                    Saksbehandlerkilde(
+                        meldingsreferanseId = meldekort.meldingsreferanseId,
+                        saksbehandler = Saksbehandler(meldekort.kilde.ident),
+                        opprettet = opprettet,
+                    )
+                }
 
+                else -> {
+                    kilde
+                }
+            }
         val behandling =
             Behandling(
                 basertPå = forrigeBehandling,
@@ -66,7 +81,7 @@ class BeregnMeldekortHendelse(
                             Beregning.meldeperiode,
                             Periode(meldekort.fom, meldekort.tom),
                             Gyldighetsperiode(meldekort.fom, meldekort.tom),
-                            kilde = kilde,
+                            kilde = saksbehandlerKilde,
                         ),
                     ),
                 avklaringer =

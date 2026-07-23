@@ -51,3 +51,6 @@ Laget avklaring om KorrigeringUtbetaltPeriode
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig

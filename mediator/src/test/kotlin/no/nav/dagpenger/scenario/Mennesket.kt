@@ -13,6 +13,7 @@ import no.nav.dagpenger.mediator.tilJsonNode
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
+import no.nav.dagpenger.scenario.Meldingskatalog.MeldekortKilde
 import no.nav.dagpenger.uuid.UUIDv7
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
@@ -150,25 +151,28 @@ internal class Mennesket(
     fun sendInnMeldekort(
         nummer: Int,
         korrigeringAv: UUID? = null,
+        korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         timer: List<Int> = emptyList(),
-    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, timer)
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, timer)
 
     @JvmName("sendInnMeldekortMedAktiviteter")
     fun sendInnMeldekort(
         nummer: Int,
         korrigeringAv: UUID? = null,
+        korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         aktiviteter: List<MeldekortAktivitet>,
-    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, aktiviteter)
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, aktiviteter)
 
     fun fastsattMeldedato(nummer: Int) = meldesyklus.periode(nummer).fraOgMed
 
     fun sendInnMeldekort(
         periode: Periode,
         korrigeringAv: UUID? = null,
+        korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         timer: List<Int> = emptyList(),
     ): UUID {
         val meldekortId = UUIDv7.ny()
-        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, timer)
+        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, korrigertAv, timer)
         rapid.sendTestMessage(message)
         return meldekortId
     }
@@ -177,10 +181,11 @@ internal class Mennesket(
     fun sendInnMeldekort(
         periode: Periode,
         korrigeringAv: UUID? = null,
+        korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         aktiviteter: List<MeldekortAktivitet>,
     ): UUID {
         val meldekortId = UUIDv7.ny()
-        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, aktiviteter)
+        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, korrigertAv, aktiviteter)
         rapid.sendTestMessage(message)
         return meldekortId
     }

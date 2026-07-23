@@ -73,6 +73,7 @@ internal object Meldingskatalog {
         meldekortId: UUID,
         meldeperiode: Periode,
         korrigeringAv: UUID? = null,
+        korrigertAv: MeldekortKilde,
         arbeidstimer: List<Int> = emptyList(),
     ): String =
         meldekortInnsendt(
@@ -80,14 +81,26 @@ internal object Meldingskatalog {
             meldekortId = meldekortId,
             meldeperiode = meldeperiode,
             korrigeringAv = korrigeringAv,
+            korrigertAv = korrigertAv,
             aktiviteter = arbeidstimer.map { MeldekortAktivitet.Arbeid(it) },
         )
+
+    data class MeldekortKilde(
+        val kilde: Rolle,
+        val ident: String,
+    ) {
+        enum class Rolle {
+            Saksbehandler,
+            Søker,
+        }
+    }
 
     fun meldekortInnsendt(
         ident: String,
         meldekortId: UUID,
         meldeperiode: Periode,
         korrigeringAv: UUID? = null,
+        korrigertAv: MeldekortKilde,
         aktiviteter: List<MeldekortAktivitet> = emptyList(),
         meldedato: LocalDate = meldeperiode.tilOgMed.plusDays(1),
     ): String =
@@ -136,8 +149,8 @@ internal object Meldingskatalog {
                                 },
                             "kilde" to
                                 mapOf(
-                                    "rolle" to "Søker",
-                                    "ident" to ident,
+                                    "rolle" to korrigertAv.kilde.name,
+                                    "ident" to korrigertAv.ident,
                                 ),
                             "meldedato" to meldedato,
                             "innsendtTidspunkt" to LocalDateTime.now(),
