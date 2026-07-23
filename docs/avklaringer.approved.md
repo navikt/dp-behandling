@@ -341,7 +341,7 @@ Hvis du ikke skal omgjøre etter forvaltningsloven § 35, må du begrunne hvorfo
 ### Tilknyttet regelsett
 - [§ 6-35. Skal omgjøring uten klage vurderes?](./opplysninger.approved.md#-6-35-skal-omgjøring-uten-klage-vurderes?)
 ### Opplysninger avklaringen ser på
-- Skal vedtaket omgjøres etter forvaltningsloven § 35?
+- Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget
 
 ---
 ## Bortfall på grunn av alder

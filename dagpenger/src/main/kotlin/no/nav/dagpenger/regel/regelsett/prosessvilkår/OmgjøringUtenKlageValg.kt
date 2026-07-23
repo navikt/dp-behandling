@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.regelsett.prosessvilkår
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
+import no.nav.dagpenger.opplysning.OpplysningstypeKategori
 import no.nav.dagpenger.opplysning.dsl.prosess
 import no.nav.dagpenger.opplysning.forvaltningsloven
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
@@ -12,7 +13,12 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.kanOm
 import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 
 object OmgjøringUtenKlageValg {
-    val skalOmgjøringUtenKlageVurderes = boolsk(skalOmgjøringUtenKlageVurderesId, "Skal vedtaket omgjøres etter forvaltningsloven § 35?")
+    val skalOmgjøringUtenKlageVurderes =
+        boolsk(
+            skalOmgjøringUtenKlageVurderesId,
+            "Skal vedtaket omgjøres etter forvaltningsloven § 35?",
+            opplysningstypeKategori = OpplysningstypeKategori.Prosess,
+        )
 
     val regelsett =
         prosess(

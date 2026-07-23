@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.dsl
 
 import no.nav.dagpenger.opplysning.Hjemmel
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.OpplysningstypeKategori
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
 
@@ -18,8 +19,11 @@ class ProsessRegelsettBuilder internal constructor(
         ønsketResultat = opplysningstype.toList()
     }
 
-    override fun build() =
-        Regelsett(
+    override fun build(): Regelsett {
+        require(regler.map { it.key }.all { it.opplysningstypeKategori == OpplysningstypeKategori.Prosess }) {
+            "Alle opplysninger produsert av et prosess-regelsett må være av opplysningstypeKategori Prosess"
+        }
+        return Regelsett(
             hjemmel = hjemmel,
             type = type,
             ønsketResultat = ønsketResultat,
@@ -32,4 +36,5 @@ class ProsessRegelsettBuilder internal constructor(
             betingelser = emptyList(),
             kvoter = kvoter.toList(),
         )
+    }
 }

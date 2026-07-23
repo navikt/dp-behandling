@@ -129,7 +129,7 @@ class OmgjøringScenarioTester {
             behovsløsere.løsTilForslag()
 
             // Verifiser at omgjøringsbehandlingen har avklaring
-            with(person.avklaringer.map { it.kode }) {
+            with(saksbehandler.åpneAvklaringer().map { it.kode }) {
                 this.shouldContain("SkalOmgjøringUtenKlageVurderes")
                 this.shouldContain("HarSvartPåOmgjøringUtenKlage")
             }
@@ -150,6 +150,16 @@ class OmgjøringScenarioTester {
                     single().verdi.verdi shouldNotBe 5036
                     single().verdi.verdi shouldBe 8760
                 }
+            }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Utfør omgjøring nummer 2
+            saksbehandler.omgjørBehandling(24.juni(2018))
+            behovsløsere.løsTilForslag()
+            with(saksbehandler.åpneAvklaringer().map { it.kode }) {
+                this.shouldContain("SkalOmgjøringUtenKlageVurderes")
             }
         }
     }
