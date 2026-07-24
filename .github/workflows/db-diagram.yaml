@@ -13,7 +13,7 @@ jobs:
   diagram:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
       - uses: navikt/flyway2mermaid@v1
         with:
           migrations: mediator/src/main/resources/db/migration/
