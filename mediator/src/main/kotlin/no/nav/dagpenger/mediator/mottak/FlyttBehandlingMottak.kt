@@ -40,7 +40,9 @@ internal class FlyttBehandlingMottak(
         logger.info { "Mottok flytt_behandling" }
 
         val message = FlyttBehandlingMessage(packet)
-        hendelseMottaker.behandle(message.hendelse, message, context)
+        withLoggingContext("behandlingId" to message.behandlingId) {
+            hendelseMottaker.behandle(message.hendelse, message, context)
+        }
     }
 
     internal class FlyttBehandlingMessage(
