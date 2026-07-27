@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
@@ -69,7 +70,7 @@ object PermitteringFraFiskeindustrien {
                 )
             }
 
-            påvirkerResultat(erPermittertFraFisk())
+            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) && it.erSann(permitteringFiskeforedling) }
 
             avklaring(HarOppgittPermitteringFiskeindustri)
         }
