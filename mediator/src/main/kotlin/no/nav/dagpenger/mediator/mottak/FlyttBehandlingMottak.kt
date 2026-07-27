@@ -6,11 +6,13 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.mediator.IMessageMediator
 import no.nav.dagpenger.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
+import java.util.UUID
 
 internal class FlyttBehandlingMottak(
     rapidsConnection: RapidsConnection,
@@ -40,13 +42,15 @@ internal class FlyttBehandlingMottak(
         logger.info { "Mottok flytt_behandling" }
 
         val message = FlyttBehandlingMessage(packet)
-        hendelseMottaker.behandle(message.hendelse, message, context)
+        withLoggingContext("behandlingId" to message.behandlingId.toString()) {
+            hendelseMottaker.behandle(message.hendelse, message, context)
+        }
     }
 
     internal class FlyttBehandlingMessage(
         packet: JsonMessage,
     ) : HåndterbarKafkaMelding(packet) {
-        private val behandlingId = packet["behandlingId"].asUUID()
+        val behandlingId: UUID = packet["behandlingId"].asUUID()
         private val nyBasertPåId = packet["nyBasertPåId"].asUUID()
 
         override val ident = packet["ident"].asString()
