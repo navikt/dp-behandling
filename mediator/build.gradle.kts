@@ -49,7 +49,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
     testImplementation("io.ktor:ktor-client-content-negotiation:${libs.versions.ktor.get()}")
     testImplementation("io.ktor:ktor-serialization-jackson3:${libs.versions.ktor.get()}")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.0")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.2")
     testImplementation(libs.approvaltests)
 }
 
