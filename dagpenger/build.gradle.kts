@@ -6,9 +6,9 @@ plugins {
 dependencies {
     implementation(project(path = ":regelverk"))
     implementation(project(path = ":dag"))
-    implementation("no.nav.dagpenger:dp-grunnbelop:20260529.284.a0e9bd")
-    implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.30.0")
-    implementation("io.opentelemetry:opentelemetry-api:1.64.0")
+    implementation(libs.dp.grunnbelop)
+    implementation(libs.otel.instrumentation.annotations)
+    implementation(libs.otel.api)
     testImplementation(project(path = ":cucumber-testsupport"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:${libs.versions.junit.get()}")
     testImplementation(libs.bundles.jackson)

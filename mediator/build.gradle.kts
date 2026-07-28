@@ -27,8 +27,8 @@ dependencies {
     implementation(libs.rapids.and.rivers)
     implementation(libs.konfig)
     implementation(libs.kotlin.logging)
-    implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.1.0")
-    implementation("io.opentelemetry:opentelemetry-api:1.36.0")
+    implementation(libs.otel.instrumentation.annotations)
+    implementation(libs.otel.api)
     implementation("io.prometheus:prometheus-metrics-core:1.3.1")
 
     implementation(libs.bundles.ktor.client)
@@ -40,7 +40,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson3:${libs.versions.ktor.get()}")
     implementation("io.ktor:ktor-server-sse:${libs.versions.ktor.get()}")
 
-    testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
+    testImplementation(libs.kotest.assertions.core)
 
     testImplementation(libs.rapids.and.rivers.test)
     testImplementation(libs.mockk)
@@ -49,8 +49,8 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
     testImplementation("io.ktor:ktor-client-content-negotiation:${libs.versions.ktor.get()}")
     testImplementation("io.ktor:ktor-serialization-jackson3:${libs.versions.ktor.get()}")
-    testImplementation("com.approvaltests:approvaltests:22.3.3")
     testImplementation("com.tngtech.archunit:archunit-junit5:1.4.0")
+    testImplementation(libs.approvaltests)
 }
 
 application {

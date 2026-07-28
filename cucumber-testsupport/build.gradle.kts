@@ -8,5 +8,5 @@ dependencies {
     implementation(project(path = ":dag"))
 
     api(libs.bundles.cucumber)
-    api("com.approvaltests:approvaltests:31.0.0")
+    api(libs.approvaltests)
 }

@@ -3,7 +3,6 @@ plugins {
     `java-library`
 }
 
-val cucumberVersion = "7.15.0"
 dependencies {
     implementation(project(":opplysninger"))
     implementation(project(":avklaring"))
@@ -13,9 +12,7 @@ dependencies {
     api("no.nav.dagpenger:aktivitetslogg:20251016.40.a3c526")
 
     implementation(libs.kotlin.logging)
-    testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
+    testImplementation(libs.bundles.cucumber)
     testImplementation(libs.kotest.assertions.core)
-    testImplementation("org.junit.platform:junit-platform-suite:1.10.2")
     testImplementation(libs.bundles.jackson)
 }
