@@ -29,11 +29,21 @@ class Opplysninger private constructor(
     override val kunEgne: LesbarOpplysninger get() = OpplysningerView(this, bareEgne = true)
 
     private fun refreshOpplysninger() {
-        alleOpplysninger.refresh()
-        alleOpplysningerMap = alleOpplysninger.groupBy { it.opplysningstype }
+        val oppfrisketOpplysninger = alleOpplysninger.refresh()
+        alleOpplysningerMap = oppfrisketOpplysninger.groupBy { it.opplysningstype }
     }
 
     fun <T : Any> leggTil(opplysning: Opplysning<T>) {
+        leggTilIntern(opplysning)
+        refreshOpplysninger()
+    }
+
+    fun leggTilAlle(opplysninger: List<Opplysning<*>>) {
+        opplysninger.forEach { leggTilIntern(it) }
+        refreshOpplysninger()
+    }
+
+    private fun <T : Any> leggTilIntern(opplysning: Opplysning<T>) {
         opplysning.behandlet = false
         opplysning.behandletVed = null
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
@@ -59,7 +69,6 @@ class Opplysninger private constructor(
         }
 
         egne.add(opplysning)
-        refreshOpplysninger()
     }
 
     private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
