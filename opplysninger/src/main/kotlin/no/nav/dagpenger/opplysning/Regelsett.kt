@@ -52,5 +52,14 @@ class Regelsett internal constructor(
     // Returnerer regler som er gyldige for en gitt dato
     fun regler(forDato: LocalDate = LocalDate.MIN) = regler.map { it.value.get(forDato) }.toList()
 
+    /**
+     * Om regelsettet både har fått lov til å kjøre og faktisk er relevant for resultatet.
+     *
+     * Dette er den trygge, sammensatte varianten av `skalKjøres && påvirkerResultat` - bruk
+     * denne (ikke `påvirkerResultat` isolert) for å avgjøre om et regelsett er relevant for
+     * resultatet/vedtaket.
+     */
+    fun erRelevantForResultatet(opplysninger: LesbarOpplysninger): Boolean = skalKjøres(opplysninger) && påvirkerResultat(opplysninger)
+
     override fun toString() = "Regelsett(navn=$navn, type=$type)"
 }

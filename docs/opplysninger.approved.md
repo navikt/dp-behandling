@@ -327,7 +327,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019523aa-7941-7dd2-8c43-0644d7b43f57|Tre ganger dagsats|Penger|Beløp|||Intern
 |019523aa-980d-7805-b6ed-d701e7827998|Ingen egenandel|Penger|Beløp|||Utgangspunkt
 ### § 4-10. Sanksjonsperiode ved selvforskyldt arbeidsløshet
-*Type:* Vilkår
+*Type:* Fastsettelse
 #### Avklaringer
 - OppgirSelvforskyldtArbeidsløshet - [Bruker oppgir selvforskyldt arbeidsløshet](./avklaringer.approved.md#bruker-oppgir-selvforskyldt-arbeidsløshet)
 #### Avhenger på data fra
@@ -337,7 +337,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
 |f13a07fe-0e18-4a3c-bd93-1e4d03d4fee9|Ingen dager med sanksjon|Heltall|int|| Dager|Utgangspunkt
-|019e82fc-04e7-7f8d-bd52-6a7041ebb15f|Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet|Boolsk|boolean|||Resultat
+|019e82fc-04e7-7f8d-bd52-6a7041ebb15f|Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet|Boolsk|boolean|||Utgangspunkt
 |019e82fc-bdd6-77d8-a2bc-4bd7f1d46b25|Antall dager med sanksjon|Heltall|int|| Dager|Resultat
 |019e82fd-f97c-7395-be5c-7de504871871|Antall uker med sanksjon|Heltall|int|| Uker|Utgangspunkt
 |019f26ec-f7e4-791a-af42-6cb632466cfa|Bruker oppgir selvforskyldt arbeidsløshet|Boolsk|boolean|Sanksjon||Ekstern
@@ -496,7 +496,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9421-766c-9dc6-41fe6c9a1e01|Periode som gis ved verneplikt|Heltall|int|| Uker|Resultat
 |0194881f-9421-766c-9dc6-41fe6c9a1e02|Fastsatt vanlig arbeidstid for verneplikt|Desimaltall|double|| Timer|Resultat
 ### § 4-20. Tidsbegrenset bortfall av dagpenger
-*Type:* Vilkår
+*Type:* Fastsettelse
 #### Avhenger på data fra
 - [§ 4-15. Antall stønadsuker (stønadsperiode)](#-4-15-antall-stønadsuker-(stønadsperiode))
 #### Opplysninger
@@ -504,7 +504,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|---|---|
 |956a3057-d81c-42b0-bc49-156098556d7e|Ingen dager med tidsbegrenset bortfall|Heltall|int|| Dager|Utgangspunkt
 |019df7d6-5156-7785-a6fd-54f5af1244be|Antall dager med tidsbegrenset bortfall|Heltall|int|| Dager|Resultat
-|019df9b1-7052-72e9-9232-547f7cb6ba60|Er ilagt tidsbegrenset bortfall av dagpenger|Boolsk|boolean|||Resultat
+|019df9b1-7052-72e9-9232-547f7cb6ba60|Er ilagt tidsbegrenset bortfall av dagpenger|Boolsk|boolean|||Utgangspunkt
 |019e8300-20f7-7cba-b8dc-7bebfd86dcf3|Antall uker med tidsbegrenset bortfall|Heltall|int|| Uker|Utgangspunkt
 |022adcbd-aae7-482d-9259-1799cb1f9fbe|Beregnet antall dager med tidsbegrenset bortfall|Heltall|int|| Dager|Intern
 ### § 4-22. Bortfall ved streik og lock-out

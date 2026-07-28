@@ -1,4 +1,4 @@
-package no.nav.dagpenger.regel.regelsett.vilkår
+package no.nav.dagpenger.regel.regelsett.fastsetting
 
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Forbrukstype
@@ -7,7 +7,7 @@ import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
-import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -58,13 +58,13 @@ object Sanksjonsperiode {
         )
 
     val regelsett =
-        vilkår(folketrygden.hjemmel(4, 10, "Sanksjonsperiode ved selvforskyldt arbeidsløshet", "Sanksjonsperiode")) {
+        fastsettelse(folketrygden.hjemmel(4, 10, "Sanksjonsperiode ved selvforskyldt arbeidsløshet", "Sanksjonsperiode")) {
             skalVurderes { kravPåDagpenger(it) }
 
             regel(oppgirSelvforskyldtArbeidsløshet) { innhentMed(søknadIdOpplysningstype) }
 
             // Default false fordi mange er innvilget etter å ha oppgitt selvforskyldt arbeidsløshet
-            utfall(harSanksjon) { somUtgangspunkt(false) }
+            regel(harSanksjon) { somUtgangspunkt(false) }
             regel(antallSanksjonsuker) { somUtgangspunkt(18) }
             regel(beregnetAntallSanksjonsdager) { multiplikasjon(antallSanksjonsuker, dagerIUka) }
             regel(ingenSanksjonsdager) { somUtgangspunkt(0) }

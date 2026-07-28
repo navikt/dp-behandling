@@ -17,6 +17,8 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFraFiskeindustrienFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
+import no.nav.dagpenger.regel.regelsett.fastsetting.Sanksjonsperiode
+import no.nav.dagpenger.regel.regelsett.fastsetting.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
@@ -39,12 +41,10 @@ import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
-import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.StreikOgLockout
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknad
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
-import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning

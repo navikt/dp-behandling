@@ -8,8 +8,8 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import no.nav.dagpenger.regel.regelsett.fastsetting.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
-import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 
 class TidsbegrensetBortfallSteg : No {
     private val fraDato = 23.mai(2024)

@@ -18,7 +18,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
-import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
+import no.nav.dagpenger.regel.regelsett.fastsetting.TidsbegrensetBortfall
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

@@ -1,11 +1,11 @@
-package no.nav.dagpenger.regel.regelsett.vilkår
+package no.nav.dagpenger.regel.regelsett.fastsetting
 
 import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
-import no.nav.dagpenger.opplysning.dsl.vilkår
+import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
@@ -39,10 +39,10 @@ object TidsbegrensetBortfall {
         Opplysningstype.heltall(OpplysningsTyper.antallBortfallsdagerId, "Antall dager med tidsbegrenset bortfall", enhet = Enhet.Dager)
 
     val regelsett =
-        vilkår(folketrygden.hjemmel(4, 20, "Tidsbegrenset bortfall av dagpenger", "Tidsbegrenset bortfall")) {
+        fastsettelse(folketrygden.hjemmel(4, 20, "Tidsbegrenset bortfall av dagpenger", "Tidsbegrenset bortfall")) {
             skalVurderes { kravPåDagpenger(it) }
 
-            utfall(harTidsbegrensetBortfall) { somUtgangspunkt(false) }
+            regel(harTidsbegrensetBortfall) { somUtgangspunkt(false) }
             regel(antallBortfallsuker) { somUtgangspunkt(18) }
             regel(beregnetAntallBortfallsdager) { multiplikasjon(antallBortfallsuker, dagerIUka) }
             regel(ingenBortfallsdager) { somUtgangspunkt(0) }

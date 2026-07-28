@@ -9,7 +9,7 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruktSanksjonsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.gjenståendeSanksjonsdager
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeSanksjonsdager
-import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
+import no.nav.dagpenger.regel.regelsett.fastsetting.Sanksjonsperiode
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
 

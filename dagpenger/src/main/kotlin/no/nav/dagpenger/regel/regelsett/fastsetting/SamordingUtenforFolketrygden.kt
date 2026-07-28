@@ -42,7 +42,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.skalSamordnesMedYtelserUtenforFol
 import no.nav.dagpenger.regel.OpplysningsTyper.sumYtelserUtenforFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelVedSamordningId
 import no.nav.dagpenger.regel.kravPåDagpenger
-import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.arbeidsdagerPerUke
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.samordnetDagsats
@@ -213,7 +212,7 @@ object SamordingUtenforFolketrygden {
                 )
             }
 
-            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            påvirkerResultat { kravPåDagpenger(it) }
 
             ønsketResultat(skalSamordnesUtenforFolketrygden, dagsatsSamordnetUtenforFolketrygden)
 

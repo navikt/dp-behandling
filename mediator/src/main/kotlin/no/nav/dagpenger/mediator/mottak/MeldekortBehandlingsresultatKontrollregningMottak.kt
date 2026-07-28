@@ -14,8 +14,8 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning.arbeidsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.arbeidstimer
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldtITide
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Sanksjonsperiode.harSanksjon
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
-import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal

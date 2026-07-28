@@ -7,8 +7,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.arbeidsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.arbeidstimerId
 import no.nav.dagpenger.regel.OpplysningsTyper.maksimalVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
+import no.nav.dagpenger.regel.regelsett.fastsetting.Sanksjonsperiode.harSanksjon
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
-import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
 import org.junit.jupiter.api.Test
 import java.util.UUID
 

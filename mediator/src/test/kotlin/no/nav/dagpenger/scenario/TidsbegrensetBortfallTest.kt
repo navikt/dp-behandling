@@ -5,8 +5,8 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
-import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
-import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
+import no.nav.dagpenger.regel.regelsett.fastsetting.Sanksjonsperiode
+import no.nav.dagpenger.regel.regelsett.fastsetting.TidsbegrensetBortfall
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
 

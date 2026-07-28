@@ -13,11 +13,11 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
+import no.nav.dagpenger.regel.regelsett.fastsetting.Sanksjonsperiode
+import no.nav.dagpenger.regel.regelsett.fastsetting.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
-import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
-import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek

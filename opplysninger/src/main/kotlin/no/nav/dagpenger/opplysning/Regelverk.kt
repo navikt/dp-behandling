@@ -93,15 +93,21 @@ class Regelverk(
         return DAG(edges.toList())
     }
 
+    // Et regelsett som ikke har kjørt (skalKjøres == false) kan aldri regnes som relevant for
+    // resultatet, selv om `påvirkerResultat` isolert sett skulle si noe annet – se
+    // Regelsett.erRelevantForResultatet. Dette er trygt å AND'e sammen med skalKjøres fordi ingen
+    // Vilkår-regelsett lenger bruker kravPåDagpenger (som selv bygger på relevanteVilkår) som sin
+    // egen skalVurderes/skalKjøres – Sanksjonsperiode/TidsbegrensetBortfall, som tidligere gjorde
+    // nettopp det, er Fastsettelse-regelsett og inngår derfor ikke i utvalget under.
     fun relevanteVilkår(opplysninger: LesbarOpplysninger): List<Regelsett> =
         regelsett
             .filter { it.type == RegelsettType.Vilkår }
-            .filter { it.påvirkerResultat(opplysninger) }
+            .filter { it.erRelevantForResultatet(opplysninger) }
 
     fun relevanteFastsettelser(opplysninger: LesbarOpplysninger): List<Regelsett> =
         regelsett
             .filter { it.type == RegelsettType.Fastsettelse }
-            .filter { it.påvirkerResultat(opplysninger) }
+            .filter { it.erRelevantForResultatet(opplysninger) }
 
     fun rettighetsperioder(opplysninger: LesbarOpplysninger) = rettighetsperiodeberegning.rettighetsperioder(opplysninger)
 
