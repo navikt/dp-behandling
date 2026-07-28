@@ -16,3 +16,12 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.rapids.and.rivers.test)
 }
+
+tasks.test {
+    // cucumber.plugin (satt i junit-platform.properties) skriver denne HTML-rapporten som en
+    // side-effekt av testkjøringen. Den må deklareres som en output for at Gradle build cache
+    // skal gjenopprette filen ved cache-treff – ellers forsvinner den etter en `clean`-bygg.
+    outputs
+        .file(layout.buildDirectory.file("reports/cucumber.html"))
+        .withPropertyName("cucumberHtmlReport")
+}
