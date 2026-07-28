@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-    implementation("no.bekk.bekkopen:nocommons:0.16.0")
+    implementation("no.bekk.bekkopen:nocommons:0.17.0")
 }
