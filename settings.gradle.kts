@@ -7,7 +7,9 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            from("no.nav.dagpenger:dp-version-catalog:20260516.254.df0c40")
+            from("no.nav.dagpenger:dp-version-catalog:20260728.276.7d515f")
+            // om du vil teste nye versjoner før de merges til version-catalog, kan det gjøres slik:
+            // version("ktor", "3.5.1")
         }
     }
 }
