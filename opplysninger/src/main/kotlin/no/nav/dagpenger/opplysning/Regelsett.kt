@@ -21,7 +21,7 @@ class Regelsett internal constructor(
     val utfall: Opplysningstype<Boolean>?,
     val skalKjøres: (opplysninger: LesbarOpplysninger) -> Boolean,
     val skalRevurderes: (opplysning: LesbarOpplysninger) -> Boolean,
-    val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
+    private val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
     val betingelser: List<Opplysningstype<Boolean>>,
     val kvoter: List<KvoteDefinisjon> = emptyList(),
 ) {
@@ -55,9 +55,12 @@ class Regelsett internal constructor(
     /**
      * Om regelsettet både har fått lov til å kjøre og faktisk er relevant for resultatet.
      *
-     * Dette er den trygge, sammensatte varianten av `skalKjøres && påvirkerResultat` - bruk
-     * denne (ikke `påvirkerResultat` isolert) for å avgjøre om et regelsett er relevant for
-     * resultatet/vedtaket.
+     * `påvirkerResultat` er privat og kan i prinsippet fortsatt divergere fra `skalKjøres`
+     * for et enkelt regelsett (typisk skrivefeil/slurv, se f.eks. den historiske feilen i
+     * `PermitteringFraFiskeindustrien`, commit 655c3c72). Denne funksjonen er derfor det
+     * eneste stedet som skal brukes for å avgjøre om et regelsett er relevant for
+     * resultatet/vedtaket - slik unngår vi at et regelsett kan fremstå som relevant uten
+     * faktisk å ha kjørt.
      */
     fun erRelevantForResultatet(opplysninger: LesbarOpplysninger): Boolean = skalKjøres(opplysninger) && påvirkerResultat(opplysninger)
 

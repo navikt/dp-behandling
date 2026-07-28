@@ -223,7 +223,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
                 tittel = hjemmel.toString(),
                 url = hjemmel.url,
             ),
-        relevantForResultat = påvirkerResultat(alleOpplysninger.somOpplysninger()),
+        relevantForResultat = erRelevantForResultatet(alleOpplysninger.somOpplysninger()),
         type =
             when (type) {
                 RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR

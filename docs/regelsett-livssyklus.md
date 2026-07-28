@@ -185,6 +185,37 @@ En invariant-test ville kun ha fanget symptomet (asymmetrisk
 aldri kjørte). Med roten fjernet er testen overflødig; den ble derfor bevisst
 ikke lagt inn permanent.
 
+## Feltet `påvirkerResultat` er nå privat
+
+Etter at rotårsaken (den selvrefererende bruken av `kravPåDagpenger`) ble
+fjernet, er det ingen gjenværende legitim grunn til å lese det rå
+`påvirkerResultat`-feltet direkte utenfra `Regelsett` — `erRelevantForResultatet`
+er alltid riktig valg. Feltet er derfor gjort `private` på `Regelsett`.
+
+Dette avdekket umiddelbart et **reelt, tredje tilfelle** av nøyaktig samme
+bug-mønster som utløste denne hele analysen: `BehandlingApiMapper.kt` satte
+`RegelsettDTO.relevantForResultat` (feltet saksbehandler ser i API-et) direkte
+fra `påvirkerResultat(...)`, uten å sjekke `skalKjøres`. Rettet til
+`erRelevantForResultatet(...)`.
+
+To testfiler (`MinsteinntektTest.kt`, `VernepliktTest.kt`) som testet
+`Minsteinntekt`/`Verneplikt` sin **lovlige** divergens (`skalKjøres` sann,
+`påvirkerResultat` varierer — se avsnittet om invarianten) leste også feltet
+direkte. Disse er oppdatert til å kalle `erRelevantForResultatet` i stedet:
+- For `Minsteinntekt` var ingen datajustering nødvendig, siden testens egen
+  `alder`-parameter allerede tilsvarer regelsettets `skalKjøres`-gate.
+- For `Verneplikt` er `kravTilAlder = true` lagt til i testens opplysninger,
+  siden regelsettets `skalKjøres` gates på `kravTilAlder` (en annen opplysning
+  enn `skalVernepliktVurderes`, som testen selv varierer) - testen verifiserer
+  fortsatt nøyaktig samme interne logikk som før, nå bare gjennom den riktige,
+  sammensatte inngangen.
+
+Denne innstrammingen er et konkret eksempel på mål 3 i den opprinnelige
+analysen (constraints som fanger opp ulogisk bruk tidligere): å gjøre feltet
+`private` tvang kompilatoren til å avdekke alle gjenværende steder som leste
+det rå signalet, i stedet for å stole på at forfattere husker å bruke
+`erRelevantForResultatet`.
+
 ## Anbefalinger (oppdatert status)
 
 1. **Gjort, fullstendig**: invarianten `påvirkerResultat ⇒ skalKjøres` er nå
