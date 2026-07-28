@@ -4,6 +4,9 @@ plugins {
 dependencyResolutionManagement {
     repositories {
         maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+        // Fallback for OSS-koordinater mirror-en ikke har (f.eks. io.opentelemetry).
+        // Uten denne feiler både Dependabot og bygg utenfor Nav-nettverket.
+        mavenCentral()
     }
     versionCatalogs {
         create("libs") {
