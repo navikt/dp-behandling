@@ -34,12 +34,10 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.kravTilUtdanning
 import no.nav.dagpenger.scenario.MeldekortAktivitet.Arbeid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class OmgjøringScenarioTester {
     @Test
-    @Disabled("Fungerer ikke i main (enda)")
     fun `omgjøring av førstegangs innvilgelse tilbake i tid`() {
         nyttScenario {
             inntektSiste12Mnd = 500000

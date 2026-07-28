@@ -58,8 +58,26 @@ class Opplysninger private constructor(
             }
         }
 
+        sjekkAtUtledetAvFinnes(opplysning)
+
         egne.add(opplysning)
         refreshOpplysninger()
+    }
+
+    // Invariant: en opplysning kan ikke være utledetAv noe som ikke finnes (lenger) i denne
+    // Opplysninger-instansen. Dette kan skje om en avhengighet blir fjernet (f.eks. fordi den selv
+    // ble erstattet) etter at denne opplysningen ble beregnet, men før den blir lagt til. En slik
+    // opplysning peker da på en «foreldreløs» avhengighet, som til syvende og sist gir et
+    // brudd på fremmednøkkelen mot opplysning-tabellen når vi lagrer til database.
+    private fun sjekkAtUtledetAvFinnes(opplysning: Opplysning<*>) {
+        opplysning.utledetAv?.opplysninger?.forEach { avhengighet ->
+            check(alleOpplysninger.contains(avhengighet)) {
+                "Opplysning ${opplysning.id} (${opplysning.opplysningstype.navn}) er utledetAv " +
+                    "${avhengighet.id} (${avhengighet.opplysningstype.navn}), men denne finnes ikke " +
+                    "(lenger) i opplysningene. Avhengigheten kan ha blitt fjernet fordi den selv ble " +
+                    "erstattet før denne opplysningen ble lagt til."
+            }
+        }
     }
 
     private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
@@ -70,11 +88,6 @@ class Opplysninger private constructor(
     }
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
-
-    internal fun <T : Any> leggTilUtledet(opplysning: Opplysning<T>) {
-        leggTil(opplysning)
-        opplysning.behandlet = true
-    }
 
     fun markerBehandlet(dato: LocalDate) {
         egne

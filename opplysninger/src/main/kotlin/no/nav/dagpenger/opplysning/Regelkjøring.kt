@@ -28,7 +28,25 @@ class Regelplanlegger {
 
     fun lagProduksjonsplan(): Produksjonsplan {
         val (ekstern, intern) = regler.partition { it is Ekstern<*> }
-        return Produksjonsplan(ekstern = ekstern.toSet(), intern = intern.toSet())
+
+        // Om en regel avhenger av en opplysningstype som en ANNEN regel i samme runde produserer,
+        // planlegger vi den samme regelen på nytt senere (etter at avhengigheten faktisk er
+        // oppdatert) i stedet for å kjøre den nå mot en verdi som er i ferd med å bli erstattet.
+        val produsertDenneRunden = intern.map { it.produserer }.toSet()
+        val (kanKjøres, ventende) = intern.partition { it.avhengerAv.none { avhengighet -> avhengighet in produsertDenneRunden } }
+
+        return Produksjonsplan(ekstern = ekstern.toSet(), intern = kanKjøres.toSet()).also {
+            if (ventende.isNotEmpty()) {
+                logger.debug {
+                    "Utsetter ${ventende.size} regler til neste runde, siden de avhenger av opplysninger " +
+                        "som produseres i samme runde: ${ventende.joinToString { it.produserer.navn }}"
+                }
+            }
+        }
+    }
+
+    private companion object {
+        val logger = KotlinLogging.logger {}
     }
 }
 
@@ -185,7 +203,7 @@ class Regelkjøring(
     ) {
         fun skalKjøre() = siste.plan.isNotEmpty()
 
-        fun kjørPlan() = siste.kjørRegelPlan()
+        fun kjørPlan(opplysninger: Opplysninger) = siste.kjørRegelPlan(opplysninger)
 
         fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan {
             // loop detection
@@ -198,6 +216,14 @@ class Regelkjøring(
 
     // Itererer plan -> kjør -> ny plan helt til ingen flere regler står for tur.
     // Den eneste muteringspunktet for `opplysninger` i regelkjøringen.
+    //
+    // Hver regel i runden legges til i `opplysninger` med en gang den er kjørt, før neste regel i
+    // samme runde kjøres - ikke samlet etter at hele runden er beregnet. `opplysningerPåPrøvingsdato`
+    // er et "live" view (se OpplysningerView) som leser gjennom til `opplysninger`, så en regel som
+    // kjøres senere i runden ser resultatet av regler som allerede er lagt til tidligere i samme
+    // runde. Dette er det som gjør at f.eks. en regel som produserer en opplysning, og en annen
+    // regel i samme runde som er avhengig av den, alltid ser et konsistent bilde av hverandre -
+    // uavhengig av rekkefølgen de kjøres i.
     private fun planleggOgUtfør(prøvingsdato: LocalDate): Pair<Kjøreplan, List<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>> {
         var kjøreplan =
             Kjøreplan(
@@ -206,11 +232,8 @@ class Regelkjøring(
         val regelresultater = mutableListOf<List<Regelkjøringstilstand.Regelkjøringutfall<*>>>()
         try {
             while (kjøreplan.skalKjøre()) {
-                val resultater = kjøreplan.kjørPlan()
+                val resultater = kjøreplan.kjørPlan(opplysninger)
                 regelresultater.add(resultater)
-                resultater.forEach { (_, opplysning) ->
-                    opplysninger.leggTilUtledet(opplysning)
-                }
                 kjøreplan =
                     kjøreplan.nyPlan(aktiver(prøvingsdato, regelverksdato, opplysninger, forretningsprosess, opplysningerTilRegelkjøring))
             }
@@ -299,10 +322,13 @@ class Regelkjøring(
                     avhengigheter.map { opplysningerPåPrøvingsdato.finnOpplysning(it) }.toSet()
                 }
 
-        fun kjørRegelPlan(): List<Regelkjøringutfall<*>> =
+        // Kjører og legger til én regel i gangen (ikke samlet etter at hele runden er beregnet).
+        // `opplysningerPåPrøvingsdato` leser gjennom (live) til `opplysninger`, så resultatet av
+        // regel N er synlig for regel N+1 i samme runde med en gang det er lagt til.
+        fun kjørRegelPlan(opplysninger: Opplysninger): List<Regelkjøringutfall<*>> =
             plan.map { regel ->
                 try {
-                    regel.kjørRegel()
+                    regel.kjørRegel().also { opplysninger.leggTil(it.produkt) }
                 } catch (e: IllegalArgumentException) {
                     throw RegelkjøringException(regel, e)
                 }

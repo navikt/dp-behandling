@@ -124,6 +124,29 @@ class OpplysningerTest {
     }
 
     @Test
+    fun `kan ikke legge til en opplysning som er utledetAv en opplysning som ikke finnes`() {
+        val opplysninger = Opplysninger()
+
+        val avhengighet = Faktum(desimaltall, 0.5)
+        opplysninger.leggTil(avhengighet)
+
+        // Simulerer at avhengigheten ble fjernet (f.eks. fordi den ble erstattet) etter at
+        // en annen opplysning ble utledet av den, men før den utledede opplysningen legges til.
+        opplysninger.fjern(avhengighet.id)
+
+        val utledet =
+            Faktum(
+                boolskA,
+                true,
+                utledetAv = Utledning(regel = "EnRegel", opplysninger = listOf(avhengighet)),
+            )
+
+        shouldThrow<IllegalStateException> {
+            opplysninger.leggTil(utledet)
+        }
+    }
+
+    @Test
     fun `lager tidslinje og sånt`() {
         val datoer = listOf(5.januar, 11.januar, 21.januar, 25.januar, 30.januar, 5.juni, 21.juni)
 
