@@ -125,20 +125,8 @@ class BeregnMeldekortHendelse(
                             opplysninger.leggTil(
                                 Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanning), kilde = kilde),
                             )
-                            add(
-                                Avklaring(
-                                    Avklaringkode(
-                                        kode = "MeldekortMedUtdanning",
-                                        tittel = "Meldekort med utdanning eller tiltak",
-                                        beskrivelse =
-                                            """Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. 
-                                            |Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
-                                            """.trimMargin(),
-                                        kanAvbrytes = false,
-                                        kanKvitteres = true,
-                                    ),
-                                ),
-                            )
+
+                            add(Avklaring(meldekortMedUtdanning))
                         }
 
                         val harEksportPerioder = forrigeBehandling.opplysninger.finnAlle(Eksport.oppfyllerVilkårForEksport).any { it.verdi }
@@ -180,6 +168,18 @@ class BeregnMeldekortHendelse(
 
     companion object {
         private val logger = KotlinLogging.logger {}
+
+        internal val meldekortMedUtdanning =
+            Avklaringkode(
+                kode = "MeldekortMedUtdanning",
+                tittel = "Meldekort med utdanning eller tiltak",
+                beskrivelse =
+                    """Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. 
+                    |Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
+                    """.trimMargin(),
+                kanAvbrytes = false,
+                kanKvitteres = true,
+            )
     }
 
     private fun harMeldtUtdanningUtenGodkjenning(

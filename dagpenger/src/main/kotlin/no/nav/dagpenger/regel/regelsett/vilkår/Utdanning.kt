@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
@@ -24,6 +25,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetPåUnntakForUtdann
 import no.nav.dagpenger.regel.OpplysningsTyper.svartJaPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.svartNeiPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.tarUtdanningEllerOpplæringId
+import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse.Companion.meldekortMedUtdanning
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 
@@ -139,6 +141,8 @@ object Utdanning {
             regel(oppfyllerKravetPåUnntak) { alle(svartJaPåUtdanning, godkjentUnntakForUtdanning) }
 
             utfall(kravTilUtdanning) { enAv(oppfyllerKravetPåUnntak, svartNeiPåUtdanning) }
+
+            avklaring(meldekortMedUtdanning)
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
         }

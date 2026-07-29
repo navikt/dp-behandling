@@ -246,6 +246,16 @@ Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
 - Skal eksport vurderes
 
 ---
+## Meldekort med utdanning eller tiltak
+- **Kode:** `MeldekortMedUtdanning`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. <br>Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
+
+### Tilknyttet regelsett
+- [§ 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v](./opplysninger.approved.md#-4-6-dagpenger-under-utdanning,-opplæring,-etablering-av-egen-virksomhet-mv)
+---
 ## Gjenopptak i Arena
 - **Kode:** `MuligGjenopptak`
 - **Kan lukkes av saksbehandler:** ✅ 

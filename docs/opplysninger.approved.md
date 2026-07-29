@@ -237,6 +237,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9442-707b-a6ee-e96c06877be1|Oppfyller kravet til å være registrert som arbeidssøker|Boolsk|boolean|||Resultat
 ### § 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v
 *Type:* Vilkår
+#### Avklaringer
+- MeldekortMedUtdanning - [Meldekort med utdanning eller tiltak](./avklaringer.approved.md#meldekort-med-utdanning-eller-tiltak)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 #### Opplysninger
