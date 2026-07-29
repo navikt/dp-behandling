@@ -27,6 +27,7 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.s
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
@@ -58,6 +59,7 @@ class OmgjøringScenarioTester {
 
             // Utfør omgjøring
             saksbehandler.omgjørBehandling(30.juni(2018))
+            // 1. Flytt søknadsId/søknadsdato bak i tid
             saksbehandler.endreOpplysning(
                 søknadIdOpplysningstype,
                 opprinneligSøknadId.toString(),
@@ -65,9 +67,20 @@ class OmgjøringScenarioTester {
                 Gyldighetsperiode(1.mai(2018)),
             )
             behovsløsere.løsTilForslag()
+
+            // 2. Flytt ønsker fra dato bak i tid
             saksbehandler.endreOpplysning(
-                Søknadstidspunkt.prøvingsdato,
+                Søknadstidspunkt.ønsketdato,
                 1.mai(2018),
+                "Bak i tid",
+                Gyldighetsperiode(1.mai(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            // 3. Overstyr vilkåret om å være registrert
+            saksbehandler.endreOpplysning(
+                RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
+                true,
                 "Bak i tid",
                 Gyldighetsperiode(1.mai(2018)),
             )
@@ -76,7 +89,8 @@ class OmgjøringScenarioTester {
             // saksbehandler.endreOpplysning(OmgjøringUtenKlage.ansesUgyldigVedtak, true)
 
             // Verifiser at behandlingen har beregnet utbetaling for perioden
-            behandlingsresultatForslag(5) {
+            behandlingsresultatForslag(6) {
+                rettighetsperioder.single().fraOgMed shouldBe 1.mai(2018)
                 opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldNotBe 31.mai(2018).toString()
             }
         }
