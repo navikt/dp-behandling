@@ -4,6 +4,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.matchers.nulls.shouldNotBeNull
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.mediator.IHendelseMediator
+import no.nav.dagpenger.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.modell.Behandling
@@ -14,16 +15,13 @@ import no.nav.dagpenger.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.GodkjennBehandlingHendelse
-import no.nav.dagpenger.modell.hendelser.OpplysningSvar
-import no.nav.dagpenger.modell.hendelser.OpplysningSvarHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Saksbehandler
-import no.nav.dagpenger.opplysning.Saksbehandlerbegrunnelse
-import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -145,36 +143,24 @@ internal class TestSaksbehandler2(
         verdi: T,
         begrunnelse: String = "",
         gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
-    ): UUID {
-        val meldingsreferanseId = UUIDv7.ny()
-        val kildeId = UUIDv7.ny()
-        hendelseMediator.behandle(
-            OpplysningSvarHendelse(
-                meldingsreferanseId = meldingsreferanseId,
-                ident = testPerson.ident,
+    ) {
+        val verdi =
+            when (verdi) {
+                is Inntekt -> verdi.verdi
+                else -> verdi
+            }
+        val svar =
+            OpplysningsSvar(
                 behandlingId = testPerson.behandlingId,
-                listOf(
-                    OpplysningSvar(
-                        opplysningstype = opplysningstype,
-                        verdi = verdi,
-                        tilstand = OpplysningSvar.Tilstand.Faktum,
-                        gyldighetsperiode = gyldighetsperiode,
-                        kilde =
-                            Saksbehandlerkilde(
-                                meldingsreferanseId = meldingsreferanseId,
-                                saksbehandler = Saksbehandler("NAV123123"),
-                                begrunnelse = Saksbehandlerbegrunnelse(begrunnelse),
-                                opprettet = LocalDateTime.now(),
-                                id = kildeId,
-                            ),
-                    ),
-                ),
-                opprettet = LocalDateTime.now(),
-            ),
-            rapid,
-        )
-
-        return kildeId
+                opplysningNavn = opplysningstype.behovId,
+                ident = testPerson.ident,
+                verdi = verdi,
+                saksbehandler = "NAV123123",
+                begrunnelse = begrunnelse,
+                gyldigFraOgMed = gyldighetsperiode.fraOgMed,
+                gyldigTilOgMed = gyldighetsperiode.tilOgMed,
+            )
+        rapid.sendTestMessage(svar.toJson(), testPerson.ident)
     }
 
     fun fjernOpplysning(opplysningstype: Opplysningstype<*>): OpplysningerDTO {

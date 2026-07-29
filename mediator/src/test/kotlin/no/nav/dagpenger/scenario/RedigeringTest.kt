@@ -9,6 +9,8 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class RedigeringTest {
@@ -86,6 +88,24 @@ class RedigeringTest {
                         this[2].verdi.verdi shouldBe 737
                     }
                 }
+            }
+    }
+
+    @Test
+    @Disabled("Vi må finne på noe lurt for å kunne nullstille behandlinger som står fast, men det er ikke så lett")
+    fun `vi kan nullstille behandlinger som står fast`() {
+        SimulertDagpengerSystem.Companion
+            .nyttScenario {
+                inntektSiste12Mnd = 500000
+            }.test {
+                person.søkDagpenger(21.juni(2018))
+
+                behovsløsere.løsTilForslag()
+                saksbehandler.lukkAlleAvklaringer()
+
+                saksbehandler.endreOpplysning(Søknadstidspunkt.ønsketdato, 25.juni(2018))
+
+                saksbehandler.godkjenn()
             }
     }
 }
