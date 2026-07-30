@@ -86,20 +86,16 @@ class BeregnMeldekortHendelse(
                     ),
                 avklaringer =
                     buildList {
-                        if (meldekort.korrigeringAv != null) {
-                            val sisteBeregnedeDato =
-                                forrigeBehandling
-                                    .opplysninger
-                                    .finnAlle(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)
-                                    .lastOrNull()
-                                    ?.gyldighetsperiode
-                                    ?.tilOgMed
-                            harBeregnetPeriodenEtterDenne =
-                                sisteBeregnedeDato != null &&
-                                (sisteBeregnedeDato.isAfter(meldekort.tom) || sisteBeregnedeDato == meldekort.tom)
+                        val sisteBeregnedeMeldeperiode = forrigeBehandling.opplysninger.finnAlle(Beregning.meldeperiode).lastOrNull()
+                        val sisteBeregnedeDato = sisteBeregnedeMeldeperiode?.gyldighetsperiode?.tilOgMed
 
+                        harBeregnetPeriodenEtterDenne = sisteBeregnedeDato?.let { sisteBeregnedeDato >= meldekort.tom } ?: false
+
+                        logger.info { "Har valgt ${forretningsprosess.javaClass.simpleName} som prosess for å beregne meldekort" }
+
+                        if (meldekort.korrigeringAv != null) {
                             if (harBeregnetPeriodenEtterDenne) {
-                                logger.error {
+                                logger.info {
                                     "Vi har allerede beregnet en periode etter denne meldeperioden! Dette blir en omgjøring bak i tid."
                                 }
                                 add(

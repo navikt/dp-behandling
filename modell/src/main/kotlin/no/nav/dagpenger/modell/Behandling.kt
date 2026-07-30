@@ -658,6 +658,11 @@ class Behandling private constructor(
             hendelse.info("Flytter behandlingen ${behandling.behandlingId} til ${hendelse.nyBasertPåId ?: "ny kjede"}")
             behandling.flyttBehandling(hendelse)
         }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: GodkjennBehandlingHendelse,
+        ): Unit = throw IllegalStateException("Behandlingen har åpne avklaringer som må lukkes før den kan godkjennes.")
     }
 
     private data class Redigert(

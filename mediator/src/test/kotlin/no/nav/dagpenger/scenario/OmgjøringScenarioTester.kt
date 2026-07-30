@@ -12,6 +12,7 @@ import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
+import no.nav.dagpenger.mediator.april
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
@@ -22,6 +23,7 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
@@ -44,7 +46,7 @@ class OmgjøringScenarioTester {
             inntektSiste12Mnd = 500000
         }.test {
             // Søk og innvilg dagpenger
-            person.søkDagpenger(21.juni(2018))
+            person.søkDagpenger(19.mai(2026))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -52,28 +54,39 @@ class OmgjøringScenarioTester {
 
             behandlingsresultat {
                 rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder.single().fraOgMed shouldBe 19.mai(2026)
 
-                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 31.mai(2018).toString()
+                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 30.april(2026).toString()
+
+                opplysninger(Egenandel.egenandel) {
+                    this shouldHaveSize 1
+                    this.single().gyldigFraOgMed shouldBe 19.mai(2026)
+                }
             }
             val opprinneligSøknadId = person.sisteSøknadId!!
 
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
             // Utfør omgjøring
-            saksbehandler.omgjørBehandling(30.juni(2018))
+            saksbehandler.omgjørBehandling(29.juli(2026))
             // 1. Flytt søknadsId/søknadsdato bak i tid
             saksbehandler.endreOpplysning(
                 søknadIdOpplysningstype,
                 opprinneligSøknadId.toString(),
                 "Bak i tid",
-                Gyldighetsperiode(1.mai(2018)),
+                Gyldighetsperiode(12.mai(2026)),
             )
             behovsløsere.løsTilForslag()
 
             // 2. Flytt ønsker fra dato bak i tid
             saksbehandler.endreOpplysning(
                 Søknadstidspunkt.ønsketdato,
-                1.mai(2018),
+                12.mai(2026),
                 "Bak i tid",
-                Gyldighetsperiode(1.mai(2018)),
+                Gyldighetsperiode(12.mai(2026)),
             )
             behovsløsere.løsTilForslag()
 
@@ -82,16 +95,43 @@ class OmgjøringScenarioTester {
                 RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
                 true,
                 "Bak i tid",
-                Gyldighetsperiode(1.mai(2018)),
+                Gyldighetsperiode(12.mai(2026)),
             )
             behovsløsere.løsTilForslag()
 
-            // saksbehandler.endreOpplysning(OmgjøringUtenKlage.ansesUgyldigVedtak, true)
-
             // Verifiser at behandlingen har beregnet utbetaling for perioden
             behandlingsresultatForslag(6) {
-                rettighetsperioder.single().fraOgMed shouldBe 1.mai(2018)
-                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldNotBe 31.mai(2018).toString()
+                rettighetsperioder.single().fraOgMed shouldBe 12.mai(2026)
+                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 30.april(2026).toString()
+            }
+
+            saksbehandler.endreOpplysning(OmgjøringUtenKlage.ansesUgyldigVedtak, true)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send meldekortet FØR det første
+            person.sendInnMeldekort(0)
+            meldekortBatch(avklar = true, markerFerdig = true)
+
+            behandlingsresultat(5) {
+                opplysninger(Beregning.forbruktEgenandel) {
+                    this shouldHaveSize 3
+
+                    this.sumOf { it.verdi.verdi as Int } shouldBe 3891
+
+                    this.map { it.gyldigFraOgMed } shouldContainExactly
+                        listOf(
+                            4.mai(2026), // Meldekortet som opprettes som konsekvens av flyttet innvigelse
+                            18.mai(2026),
+                            1.juni(2026),
+                        )
+                }
+
+                opplysninger(Egenandel.egenandel) {
+                    this shouldHaveSize 1
+                    this.single().gyldigFraOgMed shouldBe 12.mai(2026)
+                }
             }
         }
     }

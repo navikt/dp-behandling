@@ -23,7 +23,7 @@ internal class BehandlingsresultatAssertions(
 
     val utfall get() = rettighetsperioder.last().harRett
 
-    fun opplysninger(
+    inline fun opplysninger(
         opplysningstype: Opplysningstype<*>,
         block: List<Opplysningsperiode>.() -> Unit = {},
     ): List<Opplysningsperiode> {
