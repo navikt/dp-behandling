@@ -8,7 +8,7 @@ dependencies {
     implementation(project(":dato"))
     implementation(project(":uuid-v7"))
     api("com.github.navikt:dp-inntekt-kontrakter:2_20251211.17f9d7")
-    api("org.javamoney:moneta:1.4.4")
+    api("org.javamoney:moneta:1.4.5")
     api(libs.dp.grunnbelop)
     api(libs.kotlin.logging)
     api("no.nav.dagpenger:aktivitetslogg:20251016.40.a3c526")
