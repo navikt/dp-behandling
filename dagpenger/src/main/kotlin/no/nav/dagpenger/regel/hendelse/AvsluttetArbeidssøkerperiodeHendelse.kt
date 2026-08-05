@@ -98,9 +98,9 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                             ),
                         )
                     },
-            ).apply {
+            ) {
                 // Marker bruker som ikke lenger registrert fra og med avsluttetTidspunkt.
-                opplysninger.leggTil(
+                leggTil(
                     Faktum(
                         registrertArbeidssøker,
                         false,
@@ -113,7 +113,7 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                 // Om bruker sier "nei" til å stå registrert på meldekort
                 if (avsluttetArbeidssøkerperiode.sagtNei) {
                     val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
-                    opplysninger.leggTil(
+                    leggTil(
                         Faktum(
                             harLøpendeRett,
                             false,
@@ -125,7 +125,7 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                 // Om meldekort sendes inn etter 21-dagers fristen skal også få stans på § 4-8
                 if (avsluttetArbeidssøkerperiode.fristBrutt) {
                     val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
-                    opplysninger.leggTil(
+                    leggTil(
                         Faktum(
                             oppfyllerMeldeplikt,
                             false,

@@ -75,12 +75,13 @@ abstract class StartHendelse(
     /**
      * Oppretter en ny [Behandling] for denne hendelsen og legger til [hendelseTypeFaktum].
      * Konkrete [StartHendelse]-implementasjoner skal bruke denne fremfor å konstruere [Behandling] selv.
-     * Opplysninger som avhenger av `forrigeBehandling` (kun tilgjengelig i [behandling]) legges til i etterkant
-     * på den returnerte instansen.
+     * Opplysninger som avhenger av `forrigeBehandling` (kun tilgjengelig i [behandling]), eller andre opplysninger
+     * som er spesifikke for denne hendelsen, legges til via [byggOpplysninger].
      */
     protected fun opprettBehandling(
         basertPå: Behandling?,
         avklaringer: List<Avklaring> = emptyList(),
+        byggOpplysninger: Opplysninger.() -> Unit = {},
     ): Behandling =
         Behandling(
             behandler =
@@ -98,5 +99,6 @@ abstract class StartHendelse(
             avklaringer = avklaringer,
         ).apply {
             opplysninger.leggTil(hendelseTypeFaktum)
+            opplysninger.byggOpplysninger()
         }
 }
