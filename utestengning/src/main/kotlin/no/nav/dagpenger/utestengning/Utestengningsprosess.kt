@@ -1,10 +1,10 @@
 package no.nav.dagpenger.utestengning
 
+import no.nav.dagpenger.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 
 class Utestengningsprosess : Forretningsprosess(RegelverkUtestengning) {

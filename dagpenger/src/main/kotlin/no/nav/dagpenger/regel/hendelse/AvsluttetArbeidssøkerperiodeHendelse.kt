@@ -14,12 +14,10 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.opplysning.Utledning
 import no.nav.dagpenger.regel.prosess.Stansprosess
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -58,12 +56,9 @@ class AvsluttetArbeidssøkerperiodeHendelse(
             return StartHendelseResultat.OppdaterBehandling("Fant ingen behandling å kjede på")
         }
 
-        val hendelseTypeOpplysning = Faktum(hendelseTypeOpplysningstype, type, Gyldighetsperiode.kun(skjedde), kilde = kilde)
         return Opprettet(
-            Behandling(
+            opprettBehandling(
                 basertPå = forrigeBehandling,
-                behandler = this,
-                opplysninger = listOf(hendelseTypeOpplysning),
                 avklaringer =
                     buildList {
                         if (avsluttetArbeidssøkerperiode.manueltAvregistrert) {
@@ -111,7 +106,7 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                         false,
                         Gyldighetsperiode(fraOgMed = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate()),
                         kilde = kilde,
-                        utledetAv = Utledning(this::class.java.simpleName, listOf(hendelseTypeOpplysning)),
+                        utledetAv = nullstillesVedNyHendelse(),
                     ),
                 )
 

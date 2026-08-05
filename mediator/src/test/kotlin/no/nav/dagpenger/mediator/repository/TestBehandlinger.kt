@@ -51,7 +51,8 @@ internal object TestBehandlinger {
         søknadId: UUID = meldingsreferanseId,
         gjelderDato: LocalDate = LocalDate.now(),
         opprettet: LocalDateTime = LocalDateTime.now(),
-    ) = TestStartHendelse(meldingsreferanseId, ident, søknadId, gjelderDato, opprettet)
+        opplysninger: List<Faktum<*>> = emptyList(),
+    ) = TestStartHendelse(meldingsreferanseId, ident, søknadId, gjelderDato, opprettet, opplysninger)
 
     fun rehydrerBehandling(
         ident: String = "12345678911",
@@ -84,6 +85,7 @@ internal class TestStartHendelse(
     søknadId: UUID,
     gjelderDato: LocalDate,
     opprettet: LocalDateTime,
+    private val ekstraOpplysninger: List<Faktum<*>> = emptyList(),
 ) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
     override val forretningsprosess = TestProsess()
 
@@ -91,4 +93,13 @@ internal class TestStartHendelse(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): StartHendelseResultat = throw UnsupportedOperationException("Brukes bare for rehydrering i tester")
+
+    /**
+     * Test-only helper: konstruerer en [Behandling] via [opprettBehandling] slik at testene ikke trenger direkte
+     * tilgang til den interne konstruktøren.
+     */
+    fun opprettTestBehandling(basertPå: Behandling? = null): Behandling =
+        opprettBehandling(basertPå = basertPå).apply {
+            ekstraOpplysninger.forEach { opplysninger.leggTil(it) }
+        }
 }

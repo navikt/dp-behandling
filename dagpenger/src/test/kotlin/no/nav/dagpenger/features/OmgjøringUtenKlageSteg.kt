@@ -4,6 +4,7 @@ import io.cucumber.java.BeforeStep
 import io.cucumber.java8.No
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.mai
+import no.nav.dagpenger.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -12,7 +13,6 @@ import no.nav.dagpenger.opplysning.RegelkjøringObserver
 import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 
 class OmgjøringUtenKlageSteg : No {
     private val fraDato = 23.mai(2024)

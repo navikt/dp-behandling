@@ -17,6 +17,7 @@ import no.nav.dagpenger.mediator.api.models.RedigerbareOpplysningerDTO
 import no.nav.dagpenger.mediator.april
 import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -35,7 +36,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

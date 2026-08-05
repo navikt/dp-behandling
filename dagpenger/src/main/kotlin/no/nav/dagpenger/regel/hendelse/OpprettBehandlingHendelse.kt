@@ -5,20 +5,15 @@ import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.Rettighetstatus.Companion.harIkkeInnvilgelse
 import no.nav.dagpenger.modell.hendelser.EksternId
-import no.nav.dagpenger.modell.hendelser.Hendelse
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Avklaringkode
-import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.prosess.Manuellprosess
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -49,27 +44,8 @@ class OpprettBehandlingHendelse(
         begrunnelse?.let { info("Begrunnelse for opprettelse: $it") }
 
         return Opprettet(
-            Behandling(
+            opprettBehandling(
                 basertPå = forrigeBehandling,
-                behandler =
-                    Hendelse(
-                        meldingsreferanseId = meldingsreferanseId,
-                        type = type,
-                        ident = ident,
-                        eksternId = eksternId,
-                        skjedde = skjedde,
-                        opprettet = opprettet,
-                        forretningsprosess = forretningsprosess,
-                    ),
-                opplysninger =
-                    listOf(
-                        Faktum(
-                            hendelseTypeOpplysningstype,
-                            type,
-                            gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
-                            kilde = Systemkilde(meldingsreferanseId, opprettet),
-                        ),
-                    ),
                 avklaringer =
                     listOf(
                         Avklaring(

@@ -24,7 +24,6 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -66,24 +65,8 @@ class BeregnMeldekortHendelse(
                 }
             }
         val behandling =
-            Behandling(
+            opprettBehandling(
                 basertPå = forrigeBehandling,
-                behandler = this,
-                opplysninger =
-                    listOf(
-                        Faktum(
-                            hendelseTypeOpplysningstype,
-                            type,
-                            Gyldighetsperiode.kun(skjedde),
-                            kilde = Systemkilde(meldingsreferanseId, opprettet),
-                        ),
-                        Faktum(
-                            Beregning.meldeperiode,
-                            Periode(meldekort.fom, meldekort.tom),
-                            Gyldighetsperiode(meldekort.fom, meldekort.tom),
-                            kilde = saksbehandlerKilde,
-                        ),
-                    ),
                 avklaringer =
                     buildList {
                         val sisteBeregnedeMeldeperiode = forrigeBehandling.opplysninger.finnAlle(Beregning.meldeperiode).lastOrNull()
@@ -145,6 +128,15 @@ class BeregnMeldekortHendelse(
                         }
                     },
             ).apply {
+                this.opplysninger.leggTil(
+                    Faktum(
+                        Beregning.meldeperiode,
+                        Periode(meldekort.fom, meldekort.tom),
+                        Gyldighetsperiode(meldekort.fom, meldekort.tom),
+                        kilde = saksbehandlerKilde,
+                    ),
+                )
+
                 val førsteDagMedUtdanning =
                     meldekort.dager
                         .firstOrNull { dag -> dag.aktiviteter.any { it.type == AktivitetType.Utdanning } }

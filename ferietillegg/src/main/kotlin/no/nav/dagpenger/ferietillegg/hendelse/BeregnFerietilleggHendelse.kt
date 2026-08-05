@@ -14,7 +14,6 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -41,18 +40,8 @@ class BeregnFerietilleggHendelse(
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
         val basertPå = if (sammeOpptjeningsår(forrigeBehandling)) forrigeBehandling else null
         return Opprettet(
-            Behandling(
+            opprettBehandling(
                 basertPå = basertPå,
-                behandler = this,
-                opplysninger =
-                    listOf(
-                        Faktum(
-                            hendelseTypeOpplysningstype,
-                            type,
-                            Gyldighetsperiode.kun(skjedde),
-                            kilde = kilde,
-                        ),
-                    ),
                 avklaringer =
                     buildList {
                         if (basertPå != null) {

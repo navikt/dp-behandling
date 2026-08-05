@@ -65,7 +65,9 @@ class Behandling private constructor(
     avklaringer: List<Avklaring>,
 ) : Aktivitetskontekst,
     BehandlingHåndter {
-    constructor(
+    // Kun for bruk fra modell-modulen (i praksis StartHendelse.opprettBehandling()). StartHendelse-implementasjoner
+    // i andre moduler skal ikke konstruere Behandling direkte, men gå via opprettBehandling().
+    internal constructor(
         behandler: StartHendelse,
         opplysninger: List<Opplysning<*>>,
         basertPå: Behandling? = null,

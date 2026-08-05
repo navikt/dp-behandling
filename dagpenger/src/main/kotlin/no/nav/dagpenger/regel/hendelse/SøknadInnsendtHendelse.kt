@@ -2,7 +2,6 @@ package no.nav.dagpenger.regel.hendelse
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Rettighetstatus
-import no.nav.dagpenger.modell.hendelser.Hendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
@@ -17,10 +16,8 @@ import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.prosess.Søknadsprosess
-import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -75,24 +72,8 @@ class SøknadInnsendtHendelse(
 
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
         return Opprettet(
-            Behandling(
+            opprettBehandling(
                 basertPå = basertPå,
-                behandler =
-                    Hendelse(
-                        meldingsreferanseId = meldingsreferanseId,
-                        type = type,
-                        ident = ident,
-                        eksternId = eksternId,
-                        skjedde = skjedde,
-                        opprettet = opprettet,
-                        forretningsprosess = forretningsprosess,
-                    ),
-                opplysninger =
-                    buildList {
-                        if (basertPå == null) {
-                            add(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = kilde))
-                        }
-                    },
                 avklaringer =
                     buildList {
                         if (basertPå != null) {
@@ -103,18 +84,19 @@ class SøknadInnsendtHendelse(
                             }
                         }
                     },
-            ).also {
-                it.opplysninger.leggTil(
+            ).apply {
+                if (basertPå == null) {
+                    opplysninger.leggTil(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = kilde))
+                }
+
+                opplysninger.leggTil(
                     Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = kilde, gyldighetsperiode = Gyldighetsperiode(skjedde)),
-                )
-                it.opplysninger.leggTil(
-                    Faktum(hendelseTypeOpplysningstype, type, gyldighetsperiode = Gyldighetsperiode.kun(skjedde), kilde = kilde),
                 )
 
                 if (basertPå != null) {
                     // Om bruker tidligere har hatt minst en periode med rett så begynner med gjenopptaksbehandling som utgangspunkt
                     if (basertPå.vedtakopplysninger.rettighetsperioder.any { rettighetsperiode -> rettighetsperiode.harRett }) {
-                        it.opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
+                        opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
                     }
                 }
             },

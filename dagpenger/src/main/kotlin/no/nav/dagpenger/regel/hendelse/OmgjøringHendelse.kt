@@ -4,17 +4,12 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.EksternId
-import no.nav.dagpenger.modell.hendelser.Hendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
-import no.nav.dagpenger.opplysning.Faktum
-import no.nav.dagpenger.opplysning.Gyldighetsperiode
-import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.SkalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
-import no.nav.dagpenger.regelverk.hendelseTypeOpplysningstype
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -41,22 +36,9 @@ class OmgjøringHendelse(
     ): StartHendelseResultat {
         requireNotNull(forrigeBehandling) { "Omgjøring krever en tidligere behandling å basere seg på" }
 
-        val kilde = Systemkilde(meldingsreferanseId, opprettet)
-
         return Opprettet(
-            Behandling(
+            opprettBehandling(
                 basertPå = forrigeBehandling,
-                behandler =
-                    Hendelse(
-                        meldingsreferanseId = meldingsreferanseId,
-                        type = type,
-                        ident = ident,
-                        eksternId = eksternId,
-                        skjedde = skjedde,
-                        opprettet = opprettet,
-                        forretningsprosess = forretningsprosess,
-                    ),
-                opplysninger = emptyList(),
                 avklaringer =
                     listOf(
                         Avklaring(
@@ -64,16 +46,7 @@ class OmgjøringHendelse(
                             kode = SkalOmgjøringUtenKlageVurderes,
                         ),
                     ),
-            ).also {
-                it.opplysninger.leggTil(
-                    Faktum(
-                        hendelseTypeOpplysningstype,
-                        type,
-                        gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
-                        kilde = kilde,
-                    ),
-                )
-            },
+            ),
         )
     }
 }
