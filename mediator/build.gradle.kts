@@ -29,7 +29,7 @@ dependencies {
     implementation(libs.kotlin.logging)
     implementation(libs.otel.instrumentation.annotations)
     implementation(libs.otel.api)
-    implementation("io.prometheus:prometheus-metrics-core:1.3.1")
+    implementation("io.prometheus:prometheus-metrics-core:1.8.0")
 
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.ktor.server)
