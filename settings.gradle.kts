@@ -16,7 +16,7 @@ dependencyResolutionManagement {
 
             // Avhengigheter som ikke (enda) finnes i dp-version-catalog, men som brukes i flere
             // moduler her. Definert sentralt for å unngå at modulene drifter fra hverandre.
-            version("otel-api", "1.64.0")
+            version("otel-api", "1.65.0")
             version("otel-instrumentation", "2.30.0")
             library("otel-api", "io.opentelemetry", "opentelemetry-api").versionRef("otel-api")
             library(
