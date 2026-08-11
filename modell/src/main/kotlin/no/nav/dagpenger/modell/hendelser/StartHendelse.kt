@@ -77,28 +77,49 @@ abstract class StartHendelse(
      * Konkrete [StartHendelse]-implementasjoner skal bruke denne fremfor å konstruere [Behandling] selv.
      * Opplysninger som avhenger av `forrigeBehandling` (kun tilgjengelig i [behandling]), eller andre opplysninger
      * som er spesifikke for denne hendelsen, legges til via [byggOpplysninger].
+     *
+     * Opplysningene som bygges her lagres også på den tynne [Hendelse] (`behandler`-feltet) som en uavhengig
+     * kopi (se [Opplysninger.kopiAv]), slik at de overlever rehydrering og senere kan brukes til å resette
+     * behandlingen tilbake til utgangspunktet – uten at videre (levende) mutasjon på Behandlingen påvirker
+     * hendelsens frosne kopi.
      */
     protected fun opprettBehandling(
         basertPå: Behandling?,
         avklaringer: List<Avklaring> = emptyList(),
         byggOpplysninger: Opplysninger.() -> Unit = {},
-    ): Behandling =
-        Behandling(
-            behandler =
-                Hendelse(
-                    meldingsreferanseId = meldingsreferanseId,
-                    type = type,
-                    ident = ident,
-                    eksternId = eksternId,
-                    skjedde = skjedde,
-                    opprettet = opprettet,
-                    forretningsprosess = forretningsprosess,
-                ),
-            opplysninger = emptyList(),
-            basertPå = basertPå,
-            avklaringer = avklaringer,
-        ).apply {
-            opplysninger.leggTil(hendelseTypeFaktum)
-            opplysninger.byggOpplysninger()
-        }
+    ): Behandling {
+        val hendelse =
+            Hendelse(
+                meldingsreferanseId = meldingsreferanseId,
+                type = type,
+                ident = ident,
+                eksternId = eksternId,
+                skjedde = skjedde,
+                opprettet = opprettet,
+                forretningsprosess = forretningsprosess,
+            )
+
+        // Bygges med basertPå-kontekst (om det finnes en forrige behandling), slik at leggTil() kan
+        // oppdage og erstatte arvede opplysninger riktig, og korrekt utledetAv/erstatter-graf bevares –
+        // vi bygger direkte i Behandlingens eget (allerede basertPå-koblede) opplysningssett, ikke en
+        // frittstående kopi som senere må slås sammen.
+        val opprettelsesopplysninger =
+            (basertPå?.let { Opplysninger.basertPå(it.opplysninger) } ?: Opplysninger()).apply {
+                leggTil(hendelseTypeFaktum)
+                byggOpplysninger()
+            }
+
+        val behandling =
+            Behandling(
+                behandler = hendelse,
+                opplysninger = opprettelsesopplysninger,
+                basertPå = basertPå,
+                avklaringer = avklaringer,
+            )
+
+        // Hendelsen får en uavhengig kopi av opprettelsesopplysningene, satt etter at Behandlingen er bygget.
+        hendelse.opplysninger = Opplysninger.kopiAv(opprettelsesopplysninger)
+
+        return behandling
+    }
 }

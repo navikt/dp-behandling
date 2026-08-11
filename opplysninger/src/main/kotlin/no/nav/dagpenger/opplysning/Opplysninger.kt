@@ -294,6 +294,65 @@ class Opplysninger private constructor(
 
         fun basertPå(andre: Opplysninger) = Opplysninger(UUIDv7.ny(), emptyList(), andre)
 
+        /**
+         * Lager en uavhengig kopi av [original] sine egne opplysninger. Hver [Opplysning] kopieres med ny id
+         * ([Opplysning.medNyId]), slik at videre mutasjon av kopien (f.eks. regelkjøring) ikke påvirker
+         * [original], og omvendt. Brukes bl.a. for å gi en [no.nav.dagpenger.modell.hendelser.Hendelse] sitt
+         * eget, frosne øyeblikksbilde av opprettelsesopplysningene, uavhengig av Behandlingens videre (levende)
+         * mutasjon av det samme settet.
+         *
+         * `utledetAv`/`erstatter`-referanser remappes til de tilsvarende kopiene i det nye settet (i stedet for
+         * å fortsatt peke på originalene), slik at utledetAv/erstatter-grafen forblir intern i kopien. Uten
+         * dette ville kopien inneholde "foreldreløse" referanser til opplysninger som ikke finnes i kopisettet
+         * – noe som bl.a. bryter fremmednøkler ved lagring til database.
+         */
+        fun kopiAv(original: Opplysninger): Opplysninger {
+            val originale = original.somListe(Filter.Egne)
+            val originalePrId = originale.associateBy { it.id }
+
+            // Forhåndsutdel nye id-er, slik at vi kan remappe utledetAv/erstatter-referanser mellom
+            // kopiene uavhengig av rekkefølgen opplysningene kommer i (en opplysning kan referere til
+            // en annen som kommer senere i listen).
+            val nyId = originale.associate { it.id to UUIDv7.ny() }
+
+            // Ferdige (endelig remappede) kopier, bygget rekursivt med memoisering slik at en referanse
+            // aldri peker på en "tom" mellomkopi, men alltid på den endelige, ferdig remappede instansen.
+            val ferdigKopi = mutableMapOf<UUID, Opplysning<*>>()
+
+            fun <T : Any> kopiAv(referanse: Opplysning<*>): Opplysning<T> {
+                @Suppress("UNCHECKED_CAST")
+                ferdigKopi[referanse.id]?.let { return it as Opplysning<T> }
+
+                val opplysning = originalePrId[referanse.id]
+                if (opplysning == null) {
+                    // Referansen er ikke blant "egne" opplysninger som kopieres. Dette er kun gyldig
+                    // dersom den peker på en arvet (basertPå) opplysning – da skal referansen til
+                    // originalen beholdes uendret. Enhver annen situasjon (f.eks. en opplysning som
+                    // uventet er filtrert bort av Filter.Egne) er en feil vi ønsker å oppdage her,
+                    // fremfor å stilltiende produsere en kopi med "foreldreløse" referanser.
+                    check(original.erArvet(referanse)) {
+                        "Kan ikke remappe referanse til opplysning ${referanse.id} (${referanse.opplysningstype}) " +
+                            "– den er verken blant opplysningene som kopieres, eller arvet (basertPå)."
+                    }
+                    @Suppress("UNCHECKED_CAST")
+                    return referanse as Opplysning<T>
+                }
+
+                val nyUtledetAv =
+                    opplysning.utledetAv?.let { utledning ->
+                        utledning.copy(opplysninger = utledning.opplysninger.map { avhengighet -> kopiAv<Any>(avhengighet) })
+                    }
+                val nyErstatter = opplysning.erstatter?.let { kopiAv<T>(it) }
+
+                @Suppress("UNCHECKED_CAST")
+                val kopi = (opplysning as Opplysning<T>).medNyId(nyId.getValue(opplysning.id), nyUtledetAv, nyErstatter)
+                ferdigKopi[opplysning.id] = kopi
+                return kopi
+            }
+
+            return med(originale.map { kopiAv<Any>(it) })
+        }
+
         fun rehydrer(
             id: UUID,
             opplysninger: List<Opplysning<*>>,

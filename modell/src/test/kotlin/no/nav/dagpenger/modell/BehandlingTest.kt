@@ -109,7 +109,7 @@ internal class BehandlingTest {
                     testHendelse.also {
                         testHendelse.kontekst(it)
                     },
-                opplysninger = emptyList(),
+                opplysninger = Opplysninger(),
             )
 
         val observatør = TestObservatør().also { behandling.registrer(it) }

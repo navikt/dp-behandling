@@ -163,7 +163,9 @@ internal class BehandlingRepositoryPostgres(
                         """
                         $cteForBehandlinger
                         
-                        select b.*, bhb.*, bh.*, bo.*
+                        select b.*, bhb.*, bh.*, bo.*,
+                               bh.opplysninger_id as behandler_hendelse_opplysninger_id,
+                               bo.opplysninger_id as behandling_opplysninger_id
                         from behandlingkjede bk
                         inner join behandling b on bk.behandling_id = b.behandling_id
                         left join behandler_hendelse_behandling bhb on b.behandling_id = bhb.behandling_id
@@ -183,7 +185,8 @@ internal class BehandlingRepositoryPostgres(
                             skjedde = row.localDate("skjedde"),
                             forretningsprosess = row.string("forretningsprosess"),
                             opprettet = row.localDateTime("opprettet"),
-                            opplysningerId = row.uuid("opplysninger_id"),
+                            opplysningerId = row.uuid("behandling_opplysninger_id"),
+                            behandlerHendelseOpplysningerId = row.uuidOrNull("behandler_hendelse_opplysninger_id"),
                             tilstand = row.string("tilstand"),
                             sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
                             basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
@@ -246,8 +249,7 @@ internal class BehandlingRepositoryPostgres(
                 this.hentOpplysninger(
                     kildeRepository,
                     opplysningstypeRegister,
-                    behandlingRader
-                        .map { it.opplysningerId }
+                    (behandlingRader.map { it.opplysningerId } + behandlingRader.mapNotNull { it.behandlerHendelseOpplysningerId })
                         .toSet(),
                 )
             }
@@ -284,6 +286,10 @@ internal class BehandlingRepositoryPostgres(
                                 skjedde = rad.skjedde,
                                 forretningsprosess = prosessregister.opprett(rad.forretningsprosess),
                                 opprettet = rad.opprettet,
+                                opplysninger =
+                                    rad.behandlerHendelseOpplysningerId?.let {
+                                        opplysningerMap[it] ?: Opplysninger.rehydrer(it, emptyList())
+                                    } ?: Opplysninger(),
                             ),
                         gjeldendeOpplysninger = opplysningerMap.getValue(rad.opplysningerId),
                         basertPå = basertPå,
@@ -317,6 +323,7 @@ internal class BehandlingRepositoryPostgres(
         val forretningsprosess: String,
         val opprettet: java.time.LocalDateTime,
         val opplysningerId: UUID,
+        val behandlerHendelseOpplysningerId: UUID?,
         val tilstand: String,
         val sistEndretTilstand: java.time.LocalDateTime,
         val basertPåBehandlingId: UUID?,
@@ -535,6 +542,10 @@ internal class BehandlingRepositoryPostgres(
         unitOfWork: PostgresUnitOfWork,
         behandlinger: List<Behandling>,
     ) {
+        // Opplysningene behandler-hendelsen (den tynne Hendelsen) ble opprettet med, se
+        // StartHendelse.opprettBehandling(). Lagres slik at de kan hentes ut igjen ved rehydrering.
+        opplysningRepository.lagreOpplysninger(behandlinger.map { it.behandler.opplysninger }, unitOfWork)
+
         val params =
             behandlinger.map { behandling ->
                 mapOf(
@@ -545,6 +556,7 @@ internal class BehandlingRepositoryPostgres(
                     "hendelse_type" to behandling.behandler.type,
                     "skjedde" to behandling.behandler.skjedde,
                     "forretningsprosess" to behandling.behandler.forretningsprosess.navn,
+                    "opplysninger_id" to behandling.behandler.opplysninger.id,
                 )
             }
 
@@ -552,8 +564,8 @@ internal class BehandlingRepositoryPostgres(
             .batchPreparedNamedStatement(
                 // language=PostgreSQL
                 """
-                INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
-                VALUES (:ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) 
+                INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess, opplysninger_id) 
+                VALUES (:ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess, :opplysninger_id) 
                 ON CONFLICT DO NOTHING 
                 """.trimMargin(),
                 params,

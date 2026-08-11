@@ -65,7 +65,17 @@ sealed class Opplysning<T : Any>(
 
     abstract fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode): Opplysning<T>
 
-    abstract fun medNyId(): Opplysning<T>
+    /**
+     * Lager en kopi med ny id (eller [nyId] om oppgitt). [nyUtledetAv] og [nyErstatter] lar kallere remappe
+     * disse referansene til andre kopier (f.eks. når et helt sett med opplysninger kopieres samlet via
+     * [Opplysninger.kopiAv]), slik at utledetAv/erstatter-grafen forblir intern i kopisettet i stedet for å
+     * peke tilbake til originalene.
+     */
+    abstract fun medNyId(
+        nyId: UUID = UUIDv7.ny(),
+        nyUtledetAv: Utledning? = utledetAv,
+        nyErstatter: Opplysning<T>? = erstatter,
+    ): Opplysning<T>
 }
 
 class Hypotese<T : Any>(
@@ -114,16 +124,20 @@ class Hypotese<T : Any>(
             erstatter,
         )
 
-    override fun medNyId(): Opplysning<T> =
+    override fun medNyId(
+        nyId: UUID,
+        nyUtledetAv: Utledning?,
+        nyErstatter: Opplysning<T>?,
+    ): Opplysning<T> =
         Hypotese(
-            UUIDv7.ny(),
+            nyId,
             opplysningstype,
             verdi,
             gyldighetsperiode,
-            utledetAv,
+            nyUtledetAv,
             kilde,
             opprettet,
-            erstatter,
+            nyErstatter,
         )
 }
 
@@ -173,15 +187,19 @@ class Faktum<T : Any>(
             erstatter,
         )
 
-    override fun medNyId(): Opplysning<T> =
+    override fun medNyId(
+        nyId: UUID,
+        nyUtledetAv: Utledning?,
+        nyErstatter: Opplysning<T>?,
+    ): Opplysning<T> =
         Faktum(
-            UUIDv7.ny(),
+            nyId,
             opplysningstype,
             verdi,
             gyldighetsperiode,
-            utledetAv,
+            nyUtledetAv,
             kilde,
             opprettet,
-            erstatter,
+            nyErstatter,
         )
 }

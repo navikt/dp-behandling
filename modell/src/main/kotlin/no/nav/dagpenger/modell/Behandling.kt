@@ -35,9 +35,7 @@ import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
-import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysninger.Companion.forkortetTil
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -67,15 +65,19 @@ class Behandling private constructor(
     BehandlingHåndter {
     // Kun for bruk fra modell-modulen (i praksis StartHendelse.opprettBehandling()). StartHendelse-implementasjoner
     // i andre moduler skal ikke konstruere Behandling direkte, men gå via opprettBehandling().
+    // Behandlingen bruker [opplysninger] direkte (ingen kopi) – den er allerede bygget riktig basertPå-wiret av
+    // opprettBehandling() (basertPå forrige behandlings opplysninger, om noen). Hendelsen (behandler) får sitt
+    // eget, uavhengige øyeblikksbilde av de samme opplysningene (se StartHendelse.opprettBehandling()), slik at
+    // Behandlingens videre (levende) mutasjoner ikke påvirker hendelsens frosne kopi.
     internal constructor(
         behandler: StartHendelse,
-        opplysninger: List<Opplysning<*>>,
+        opplysninger: Opplysninger,
         basertPå: Behandling? = null,
         avklaringer: List<Avklaring> = emptyList(),
     ) : this(
         behandlingId = UUIDv7.ny(),
         behandler = behandler,
-        gjeldendeOpplysninger = opplysninger.somOpplysninger(),
+        gjeldendeOpplysninger = opplysninger,
         basertPå = basertPå,
         opprettet = LocalDateTime.now(),
         tilstand = UnderOpprettelse(LocalDateTime.now()),

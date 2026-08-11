@@ -154,7 +154,7 @@ private class RegelverkTestHendelse(
             Behandling(
                 basertPå = forrigeBehandling,
                 behandler = this,
-                opplysninger = emptyList(),
+                opplysninger = Opplysninger(),
             ),
         )
 }
