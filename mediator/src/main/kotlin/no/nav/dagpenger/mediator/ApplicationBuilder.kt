@@ -31,6 +31,7 @@ import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.utestengning.UtestengningRegistrering
 import no.nav.helse.rapids_rivers.RapidApplication
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.record.CompressionType
 import java.util.Properties
 
 class AivenConfigCompression(
@@ -39,7 +40,7 @@ class AivenConfigCompression(
     override fun producerConfig(properties: Properties): Properties =
         config.producerConfig(
             Properties().apply {
-                put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd")
+                put(ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.ZSTD.name)
             },
         )
 }
