@@ -41,6 +41,7 @@ class AivenConfigCompression(
         config.producerConfig(
             Properties().apply {
                 put(ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.ZSTD.name)
+                put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "2097152") // 2MB
             },
         )
 }
