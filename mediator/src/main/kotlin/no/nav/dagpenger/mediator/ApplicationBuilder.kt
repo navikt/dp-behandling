@@ -1,10 +1,12 @@
 package no.nav.dagpenger.mediator
 
+import com.github.navikt.tbd_libs.kafka.AivenConfig
+import com.github.navikt.tbd_libs.kafka.Config
+import com.github.navikt.tbd_libs.kafka.ConsumerProducerFactory
 import com.github.navikt.tbd_libs.rapids_and_rivers.KafkaRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.ContentType
-import io.ktor.serialization.Configuration
 import io.ktor.serialization.jackson3.JacksonConverter
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
@@ -28,6 +30,19 @@ import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.utestengning.UtestengningRegistrering
 import no.nav.helse.rapids_rivers.RapidApplication
+import org.apache.kafka.clients.producer.ProducerConfig
+import java.util.Properties
+
+class AivenConfigCompression(
+    val config: AivenConfig = AivenConfig.default,
+) : Config by config {
+    override fun producerConfig(properties: Properties): Properties =
+        config.producerConfig(
+            Properties().apply {
+                put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd")
+            },
+        )
+}
 
 internal class ApplicationBuilder(
     config: Map<String, String>,
@@ -54,6 +69,7 @@ internal class ApplicationBuilder(
     private val rapidsConnection: RapidsConnection =
         RapidApplication.create(
             env = config,
+            consumerProducerFactory = ConsumerProducerFactory(AivenConfigCompression()),
             builder = {
                 withKtorModule {
                     install(ContentNegotiation) {
