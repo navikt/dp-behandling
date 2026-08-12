@@ -7,7 +7,6 @@ import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruktSanksjonsdager
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.gjenståendeSanksjonsdager
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeSanksjonsdager
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario

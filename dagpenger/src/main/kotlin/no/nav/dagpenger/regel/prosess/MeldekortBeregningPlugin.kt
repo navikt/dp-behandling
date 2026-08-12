@@ -13,6 +13,7 @@ import no.nav.dagpenger.regel.KvotetellingsSkriver
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.erSanksjonsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.oppfyllerKravTilTaptArbeidstidIPerioden
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetaling
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetalingForPeriode
@@ -20,6 +21,7 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 
 class MeldekortBeregningPlugin(
     private val kvoter: List<KvoteDefinisjon>,
@@ -99,6 +101,12 @@ class MeldekortBeregningPlugin(
         meldeperiode: Periode,
         gyldighetsperiode: Gyldighetsperiode,
     ) {
+        val innvilgelseDatoer = finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode.fraOgMed }
+        if (innvilgelseDatoer.any { gyldighetsperiode.inneholder(it) }) {
+            leggTil(Faktum(Beregning.meldtITide, true, gyldighetsperiode))
+            return
+        }
+
         val terskelForAntallDagerEnIkkeKanVæreMeldt = TerskelTrekkForSenMelding.forDato(meldeperiode.fraOgMed)
         val antallIkkeMeldtDager =
             finnAlle(Beregning.meldt)

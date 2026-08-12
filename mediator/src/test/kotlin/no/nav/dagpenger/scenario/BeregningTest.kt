@@ -40,6 +40,43 @@ import kotlin.math.round
 
 class BeregningTest {
     @Test
+    fun `første meldekort vurder ikke meldt i tide`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+            }
+
+            // Send inn meldekort 1
+            person.sendInnMeldekort(1, meldtITide = false)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                opplysninger(Beregning.utbetalingForPeriode).single().verdi.verdi shouldBe 5036
+            }
+
+            // Send inn meldekort 2
+            person.sendInnMeldekort(2, meldtITide = false)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                opplysninger(Beregning.utbetalingForPeriode) {
+                    this[0].verdi.verdi shouldBe 5036
+                    this[1].verdi.verdi shouldBe 0
+                }
+            }
+        }
+    }
+
+    @Test
     fun `beregning av et meldekort`() {
         nyttScenario {
             inntektSiste12Mnd = 500000

@@ -75,6 +75,7 @@ internal object Meldingskatalog {
         korrigeringAv: UUID? = null,
         korrigertAv: MeldekortKilde,
         arbeidstimer: List<Int> = emptyList(),
+        meldtITide: Boolean = true,
     ): String =
         meldekortInnsendt(
             ident = ident,
@@ -83,6 +84,7 @@ internal object Meldingskatalog {
             korrigeringAv = korrigeringAv,
             korrigertAv = korrigertAv,
             aktiviteter = arbeidstimer.map { MeldekortAktivitet.Arbeid(it) },
+            meldtITide = meldtITide,
         )
 
     data class MeldekortKilde(
@@ -103,6 +105,7 @@ internal object Meldingskatalog {
         korrigertAv: MeldekortKilde,
         aktiviteter: List<MeldekortAktivitet> = emptyList(),
         meldedato: LocalDate = meldeperiode.tilOgMed.plusDays(1),
+        meldtITide: Boolean,
     ): String =
         JsonMessage
             .newMessage(
@@ -122,7 +125,7 @@ internal object Meldingskatalog {
                                     val aktivitet = aktiviteter.getOrElse(index) { MeldekortAktivitet.IngenAktivitet }
                                     mapOf(
                                         "dato" to meldedag,
-                                        "meldt" to true,
+                                        "meldt" to meldtITide,
                                         "aktiviteter" to
                                             when (aktivitet) {
                                                 is MeldekortAktivitet.Arbeid -> {

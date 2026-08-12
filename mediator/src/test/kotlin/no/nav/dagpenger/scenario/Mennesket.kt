@@ -1,4 +1,5 @@
 package no.nav.dagpenger.scenario
+
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.dagpenger.inntekt.v1.Inntekt
@@ -153,7 +154,8 @@ internal class Mennesket(
         korrigeringAv: UUID? = null,
         korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         timer: List<Int> = emptyList(),
-    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, timer)
+        meldtITide: Boolean = true,
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, timer, meldtITide)
 
     @JvmName("sendInnMeldekortMedAktiviteter")
     fun sendInnMeldekort(
@@ -170,9 +172,10 @@ internal class Mennesket(
         korrigeringAv: UUID? = null,
         korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         timer: List<Int> = emptyList(),
+        meldtITide: Boolean = true,
     ): UUID {
         val meldekortId = UUIDv7.ny()
-        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, korrigertAv, timer)
+        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, korrigertAv, timer, meldtITide)
         rapid.sendTestMessage(message)
         return meldekortId
     }
@@ -185,7 +188,16 @@ internal class Mennesket(
         aktiviteter: List<MeldekortAktivitet>,
     ): UUID {
         val meldekortId = UUIDv7.ny()
-        val message = Meldingskatalog.meldekortInnsendt(ident, meldekortId, periode, korrigeringAv, korrigertAv, aktiviteter)
+        val message =
+            Meldingskatalog.meldekortInnsendt(
+                ident,
+                meldekortId,
+                periode,
+                korrigeringAv,
+                korrigertAv,
+                aktiviteter,
+                meldtITide = true,
+            )
         rapid.sendTestMessage(message)
         return meldekortId
     }
