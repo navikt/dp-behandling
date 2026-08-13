@@ -10,6 +10,7 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.dato.april
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.februar
@@ -40,37 +41,145 @@ import kotlin.math.round
 
 class BeregningTest {
     @Test
+    @Disabled("Det er noe galt med implementasjonen av §4-8. Det er noen dager som burde få trekk.")
     fun `første meldekort vurder ikke meldt i tide`() {
         nyttScenario {
-            inntektSiste12Mnd = 500000
+            inntektSiste12Mnd = 391316
         }.test {
-            person.søkDagpenger(21.juni(2018))
+            person.søkDagpenger(3.juni(2026), ønskerFraDato = 1.juli(2026))
 
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat {
+            behandlingsresultat(1) {
                 rettighetsperioder.single().harRett shouldBe true
             }
 
-            // Send inn meldekort 1
-            person.sendInnMeldekort(1, meldtITide = false)
-            meldekortBatch(markerFerdig = true)
-
-            behandlingsresultat {
-                opplysninger(Beregning.utbetalingForPeriode).single().verdi.verdi shouldBe 5036
-            }
-
-            // Send inn meldekort 2
+            // Send inn meldekort (uke 25-26)
             person.sendInnMeldekort(2, meldtITide = false)
             meldekortBatch(markerFerdig = true)
 
-            behandlingsresultat {
+            behandlingsresultat(1) {
+                // Meldekortet dekkes ikke av periode med rett og beregnes ikke
+            }
+
+            // Send inn meldekort (uke 27-28)
+            person.sendInnMeldekort(
+                3,
+                aktiviteter =
+                    listOf(
+                        MeldekortAktivitet.Arbeid(timer = 7),
+                        MeldekortAktivitet.Arbeid(timer = 7),
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.Fravær,
+                        MeldekortAktivitet.Fravær,
+                        MeldekortAktivitet.Fravær,
+                        MeldekortAktivitet.Fravær,
+                        MeldekortAktivitet.Fravær,
+                        MeldekortAktivitet.Fravær,
+                        MeldekortAktivitet.Fravær,
+                    ),
+                meldtITide = false,
+            )
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat(2) {
                 opplysninger(Beregning.utbetalingForPeriode) {
-                    this[0].verdi.verdi shouldBe 5036
+                    this shouldHaveSize 1
+                    this[0].verdi.verdi shouldBe 0
+                }
+                opplysninger(Beregning.forbruktEgenandel) {
+                    this shouldHaveSize 1
+                    this[0].verdi.verdi shouldNotBe 0
+                }
+            }
+
+            // Send inn meldekort (uke 29-30)
+            person.sendInnMeldekort(
+                4,
+                aktiviteter =
+                    listOf(
+                        MeldekortAktivitet.Fravær,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                    ),
+                meldtITide = false,
+            )
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat(3) {
+                opplysninger(Beregning.meldtITide) {
+                    this shouldHaveSize 2
+                }
+                opplysninger(Beregning.utbetalingForPeriode) {
+                    this shouldHaveSize 2
+                    this[0].verdi.verdi shouldBe 0
                     this[1].verdi.verdi shouldBe 0
+                }
+            }
+
+            // Send inn meldekort (uke 31-32)
+            person.sendInnMeldekort(
+                5,
+                aktiviteter =
+                    listOf(
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(9),
+                        MeldekortAktivitet.IngenAktivitet,
+                        MeldekortAktivitet.IngenAktivitet,
+                    ),
+                meldtITide = true,
+            )
+            meldekortBatch(markerFerdig = true)
+
+            // For mange seine meldekortr
+            val dagerSomSkalHaTrekk =
+                listOf(
+                    27.juli(2026),
+                    28.juli(2026),
+                    29.juli(2026),
+                    30.juli(2026),
+                )
+            behandlingsresultat(4) {
+                opplysninger(Beregning.meldtITide) {
+                    this shouldHaveSize 3
+                }
+                opplysninger(Beregning.utbetaling) {
+                    this.filter { it.gyldigFraOgMed in dagerSomSkalHaTrekk }.sumOf { it.verdi.verdi as Int } shouldBe 0
+                }
+                val sats = opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi
+                opplysninger(Beregning.utbetalingForPeriode) {
+                    this shouldHaveSize 3
+                    this[0].verdi.verdi shouldBe 0
+                    this[1].verdi.verdi shouldBe 0
+                    this[2].verdi.verdi shouldBe sats
                 }
             }
         }

@@ -105,7 +105,7 @@ internal object Meldingskatalog {
         korrigertAv: MeldekortKilde,
         aktiviteter: List<MeldekortAktivitet> = emptyList(),
         meldedato: LocalDate = meldeperiode.tilOgMed.plusDays(1),
-        meldtITide: Boolean,
+        meldtITide: Boolean = true,
     ): String =
         JsonMessage
             .newMessage(
