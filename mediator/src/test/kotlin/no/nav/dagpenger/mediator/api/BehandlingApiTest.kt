@@ -28,16 +28,14 @@ import no.nav.dagpenger.mediator.api.models.DesimaltallVerdiDTO
 import no.nav.dagpenger.mediator.api.models.EnhetDTO
 import no.nav.dagpenger.mediator.api.models.FerietilleggKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.HendelseDTOTypeDTO
-import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
 import no.nav.dagpenger.mediator.api.models.SakDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.juli
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
-import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem
@@ -689,7 +687,7 @@ internal class BehandlingApiTest {
     }
 
     @Test
-    @Disabled("Må finne ut av hvorfor denne gir 500")
+    @Disabled("Testen krever at vi lytter på meldinger og sånt, og det er klønete med TestRapid")
     fun `kan endre alle typer opplysninger som er redigerbare`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger(1.april(LocalDate.now().year))
@@ -698,36 +696,50 @@ internal class BehandlingApiTest {
             val behandlingId = person.behandlingId
             val opplysninger =
                 listOf(
-                    Pair(Minsteinntekt.inntekt12, "100"),
-                    Pair(Alderskrav.fødselsdato, """"${LocalDate.of(2020, 1, 1)}""""),
-                    Pair(TapAvArbeidsinntektOgArbeidstid.nyArbeidstid, "10.12"),
-                    Pair(ReellArbeidssøker.erArbeidsfør, "false"),
-                    Pair(
-                        DagpengenesStørrelse.barn,
+                    DagpengenesStørrelse.barn to
                         """
-
                         [
-                            {
-                                "fødselsdato": "${LocalDate.now().minusYears(2)}",
-                                "fornavnOgMellomnavn": "Navnesen",
-                                "etternavn": "Navnsen",
-                                "statsborgerskap": "NOR",
-                                "kvalifiserer": true
-                            }
+                          {
+                            "ident": "",
+                            "kilde": "Saksbehandler",
+                            "etternavn": "DUK",
+                            "begrunnelse": "asd",
+                            "fødselsdato": "2008-10-05",
+                            "kvalifiserer": true,
+                            "oppholdsland": "NOR",
+                            "statsborgerskap": null,
+                            "forsørgeransvar": true,
+                            "fornavnOgMellomnavn": "DYP"
+                          },
+                          {
+                            "ident": "",
+                            "kilde": "Saksbehandler",
+                            "etternavn": "BURSDAG2",
+                            "begrunnelse": "nei!",
+                            "fødselsdato": "2013-02-22",
+                            "kvalifiserer": "false",
+                            "oppholdsland": "NOR",
+                            "statsborgerskap": null,
+                            "forsørgeransvar": false,
+                            "fornavnOgMellomnavn": "SUBJEKTIV"
+                          }
                         ]
-
                         """.replace("\n", "").trimIndent().escapeIfNeeded(),
-                    ),
-                ).associate { (opplysning, verdi) ->
-                    verdi to person.behandling(behandlingId).opplysninger.single { it.navn == opplysning.navn }
-                }
-            opplysninger.forEach { (opplysning: Any, type: OpplysningerDTO) ->
+                )
+            opplysninger.forEach { (type: Opplysningstype<*>, opplysning: Any) ->
                 testContext
                     .autentisert(
-                        httpMethod = HttpMethod.Put,
-                        endepunkt = "/behandling/$behandlingId/opplysning/${type.perioder.last().id}",
+                        httpMethod = HttpMethod.Post,
+                        endepunkt = "/behandling/$behandlingId/opplysning/",
                         // language=JSON
-                        body = """{"begrunnelse":"tekst", "verdi": $opplysning }""",
+                        body =
+                            """
+                            {
+                              "opplysningstype": "${type.id.uuid}",
+                              "begrunnelse": "tekst",
+                              "verdi": $opplysning
+                            }
+                            """.trimIndent(),
                     ).status shouldBe HttpStatusCode.OK
             }
         }
