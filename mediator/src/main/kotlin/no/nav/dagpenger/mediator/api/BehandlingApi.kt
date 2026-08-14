@@ -620,7 +620,7 @@ internal fun Application.behandlingApi(
                             }
 
                             if (opplysningstype.er(søknadIdOpplysningstype)) {
-                                val forrigeVerdi = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
+                                val forrigeVerdi = behandling.opplysninger().kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
 
                                 if (forrigeVerdi != null) {
                                     require(nyOpplysningDTO.verdi == forrigeVerdi.verdi) { "Kan ikke endre verdi for søknadId" }
@@ -630,10 +630,10 @@ internal fun Application.behandlingApi(
                             }
 
                             if (opplysningstype.er(prøvingsdato)) {
-                                if (behandling.opplysninger.kunEgne.finnNullableOpplysning(prøvingsdato) == null) {
+                                if (behandling.opplysninger().kunEgne.finnNullableOpplysning(prøvingsdato) == null) {
                                     throw KanIkkeEndrePrøvingsdatoException()
                                 }
-                                val søknadId = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
+                                val søknadId = behandling.opplysninger().kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
                                 if (søknadId != null) {
                                     val nyPrøvingsdato = LocalDate.parse(nyOpplysningDTO.verdi)
 

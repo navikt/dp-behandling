@@ -64,12 +64,19 @@ class BeregnMeldekortHendelse(
                     kilde
                 }
             }
+        val måAvklareUtdanning = meldekort.dager.any { harMeldtUtdanningUtenGodkjenning(it, forrigeBehandling) }
+        val førsteDagMedUtdanningUtenGodkjenning =
+            if (måAvklareUtdanning) {
+                meldekort.dager.first { dag -> harMeldtUtdanningUtenGodkjenning(dag, forrigeBehandling) }.dato
+            } else {
+                null
+            }
         val behandling =
             opprettBehandling(
                 basertPå = forrigeBehandling,
                 avklaringer =
                     buildList {
-                        val sisteBeregnedeMeldeperiode = forrigeBehandling.opplysninger.finnAlle(Beregning.meldeperiode).lastOrNull()
+                        val sisteBeregnedeMeldeperiode = forrigeBehandling.opplysninger().finnAlle(Beregning.meldeperiode).lastOrNull()
                         val sisteBeregnedeDato = sisteBeregnedeMeldeperiode?.gyldighetsperiode?.tilOgMed
 
                         harBeregnetPeriodenEtterDenne = sisteBeregnedeDato?.let { sisteBeregnedeDato >= meldekort.tom } ?: false
@@ -94,21 +101,12 @@ class BeregnMeldekortHendelse(
                             }
                         }
 
-                        val måAvklareUtdanning = meldekort.dager.any { harMeldtUtdanningUtenGodkjenning(it, forrigeBehandling) }
-
                         if (måAvklareUtdanning) {
-                            val førsteDagMedUtdanning =
-                                meldekort.dager
-                                    .first { dag -> harMeldtUtdanningUtenGodkjenning(dag, forrigeBehandling) }
-                                    .dato
-                            opplysninger.leggTil(
-                                Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanning), kilde = kilde),
-                            )
-
                             add(Avklaring(meldekortMedUtdanning))
                         }
 
-                        val harEksportPerioder = forrigeBehandling.opplysninger.finnAlle(Eksport.oppfyllerVilkårForEksport).any { it.verdi }
+                        val harEksportPerioder =
+                            forrigeBehandling.opplysninger().finnAlle(Eksport.oppfyllerVilkårForEksport).any { it.verdi }
 
                         if (harEksportPerioder) {
                             add(
@@ -127,8 +125,19 @@ class BeregnMeldekortHendelse(
                             )
                         }
                     },
-            ).apply {
-                this.opplysninger.leggTil(
+            ) {
+                if (måAvklareUtdanning) {
+                    leggTil(
+                        Faktum(
+                            tarUtdanning,
+                            true,
+                            gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanningUtenGodkjenning!!),
+                            kilde = kilde,
+                        ),
+                    )
+                }
+
+                leggTil(
                     Faktum(
                         Beregning.meldeperiode,
                         Periode(meldekort.fom, meldekort.tom),
@@ -142,13 +151,13 @@ class BeregnMeldekortHendelse(
                         .firstOrNull { dag -> dag.aktiviteter.any { it.type == AktivitetType.Utdanning } }
                         ?.dato
                 if (førsteDagMedUtdanning != null) {
-                    this.opplysninger.leggTil(
+                    leggTil(
                         Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanning), kilde = kilde),
                     )
                 }
 
                 val meldekortOpplysninger = meldekort.tilOpplysninger(kilde)
-                meldekortOpplysninger.forEach { this.opplysninger.leggTil(it) }
+                meldekortOpplysninger.forEach { leggTil(it) }
             }
 
         return Opprettet(behandling)

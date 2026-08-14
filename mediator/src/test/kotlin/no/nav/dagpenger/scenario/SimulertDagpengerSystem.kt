@@ -127,7 +127,7 @@ internal class SimulertDagpengerSystem(
 
     fun BehandlingsresultatDTO.harOpplysning(opplysningId: UUID): Boolean {
         val behandling = runtime.personRepository.hentBehandling(person.behandlingId)
-        return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
+        return runCatching { behandling!!.opplysninger().finnOpplysning(opplysningId) }.isSuccess
     }
 
     class ScenarioOptions(
