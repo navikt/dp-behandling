@@ -85,7 +85,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NyBehandling'
+              oneOf:
+                - $ref: '#/components/schemas/NyRevurdering'
+                - $ref: '#/components/schemas/NyManuellBehandling'
+                - $ref: '#/components/schemas/NyKlage'
+              discriminator:
+                propertyName: behandlingstype
+                mapping:
+                  Revurdering: '#/components/schemas/NyRevurdering'
+                  Manuell: '#/components/schemas/NyManuellBehandling'
+                  OmgjøringEtterKlage: '#/components/schemas/NyKlage'
       responses:
         200:
           description: OK
