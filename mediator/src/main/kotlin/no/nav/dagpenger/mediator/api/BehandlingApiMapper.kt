@@ -62,6 +62,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.minimumVanlig
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.ønskerÅVæreRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
@@ -281,6 +282,8 @@ internal val redigerbareOpplysninger =
                             godkjentLokalArbeidssøker,
                             godkjentArbeidsufør,
                             kravetReellArbeidsøkerSkalVurderes,
+                            // 4-5 Registrert arbeidssøker
+                            ønskerÅVæreRegistrertArbeidssøker,
                             // 4-6 Utdanning
                             tarUtdanning,
                             deltakelseIArbeidsmarkedstiltak,

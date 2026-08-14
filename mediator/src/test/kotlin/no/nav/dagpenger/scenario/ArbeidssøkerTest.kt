@@ -189,6 +189,9 @@ class ArbeidssøkerTest {
             val fastsattMeldedato = person.fastsattMeldedato(3)
 
             // Melder seg for periode 3 i tide, men nei som videre registrert
+            // Meldedato er 16. juli
+            // Avregistreres fra 1. august
+            // Stans skal gjelde fra 16. juli
             person.avsluttArbeidssøkerperiode(
                 fastsattMeldingsdag = fastsattMeldedato,
                 avsluttetTidspunkt = fastsattMeldedato.plusDays(16).atTime(12, 21),
@@ -208,9 +211,11 @@ class ArbeidssøkerTest {
                     this shouldHaveSize 2
                 }
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 3
                     this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 1.august(2018)
+                    this[1].gyldigFraOgMed shouldBe 16.juli(2018)
+                    this[2].verdi.verdi shouldBe false
+                    this[2].gyldigFraOgMed shouldBe 1.august(2018)
                 }
 
                 rettighetsperioder shouldHaveSize 2

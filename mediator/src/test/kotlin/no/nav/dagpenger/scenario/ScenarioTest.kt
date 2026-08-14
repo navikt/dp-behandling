@@ -78,7 +78,7 @@ class ScenarioTest {
                 opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe false
                 opplysninger(Minsteinntekt.minsteinntekt).shouldBeEmpty()
 
-                opplysninger shouldHaveSize 23
+                opplysninger shouldHaveSize 24
             }
         }
     }
@@ -105,7 +105,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker).single().verdi.verdi shouldBe true
 
-                opplysninger shouldHaveSize 68
+                opplysninger shouldHaveSize 69
             }
         }
     }
@@ -141,7 +141,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
 
-                opplysninger shouldHaveSize 53
+                opplysninger shouldHaveSize 54
             }
         }
     }
@@ -426,7 +426,7 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
                 opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
 
-                opplysninger shouldHaveSize 53
+                opplysninger shouldHaveSize 54
             }
         }
     }

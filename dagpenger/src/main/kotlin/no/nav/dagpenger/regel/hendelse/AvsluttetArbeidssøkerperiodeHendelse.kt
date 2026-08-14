@@ -15,9 +15,9 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.prosess.Stansprosess
-import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.ønskerÅVæreRegistrertArbeidssøker
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -115,10 +115,11 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                     val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
                     opplysninger.leggTil(
                         Faktum(
-                            harLøpendeRett,
+                            ønskerÅVæreRegistrertArbeidssøker,
                             false,
                             Gyldighetsperiode(fraOgMed = meldingsdag),
                             kilde = kilde,
+                            utledetAv = nullstillesVedNyHendelse(),
                         ),
                     )
                 }

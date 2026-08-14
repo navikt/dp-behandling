@@ -235,6 +235,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|---|---|
 |0194881f-9442-707b-a6ee-e96c06877be0|Registrert som arbeidssøker|Boolsk|boolean|RegistrertSomArbeidssøker||Ekstern
 |0194881f-9442-707b-a6ee-e96c06877be1|Oppfyller kravet til å være registrert som arbeidssøker|Boolsk|boolean|||Resultat
+|019ffffa-05bf-7428-ba34-ef848dab0f39|Ønsker å være registrert som arbeidssøker|Boolsk|boolean|||Utgangspunkt
 ### § 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v
 *Type:* Vilkår
 #### Avklaringer

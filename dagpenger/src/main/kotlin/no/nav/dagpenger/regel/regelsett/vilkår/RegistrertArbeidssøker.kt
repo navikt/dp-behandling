@@ -1,15 +1,18 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningsformål.Register
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.innhentMed
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter.IkkeRegistrertSomArbeidsøker
 import no.nav.dagpenger.regel.Behov.RegistrertSomArbeidssøker
 import no.nav.dagpenger.regel.OpplysningsTyper.OppyllerKravTilRegistrertArbeidssøkerId
 import no.nav.dagpenger.regel.OpplysningsTyper.RegistrertSomArbeidssøkerId
+import no.nav.dagpenger.regel.OpplysningsTyper.ØnskerÅVæreRegistrertArbeidssøkerId
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEksportVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.tidligsteVurderingsdato
@@ -23,6 +26,12 @@ object RegistrertArbeidssøker {
             behovId = RegistrertSomArbeidssøker,
             formål = Register,
         )
+    val ønskerÅVæreRegistrertArbeidssøker =
+        boolsk(
+            ØnskerÅVæreRegistrertArbeidssøkerId,
+            beskrivelse = "Ønsker å være registrert som arbeidssøker",
+            formål = Opplysningsformål.Bruker,
+        )
     val oppyllerKravTilRegistrertArbeidssøker =
         boolsk(OppyllerKravTilRegistrertArbeidssøkerId, "Oppfyller kravet til å være registrert som arbeidssøker")
 
@@ -31,7 +40,8 @@ object RegistrertArbeidssøker {
             skalVurderes { it.har(kravTilAlder) }
 
             regel(registrertArbeidssøker) { innhentMed(tidligsteVurderingsdato) }
-            utfall(oppyllerKravTilRegistrertArbeidssøker) { alle(registrertArbeidssøker) }
+            regel(ønskerÅVæreRegistrertArbeidssøker) { somUtgangspunkt(true, tidligsteVurderingsdato) }
+            utfall(oppyllerKravTilRegistrertArbeidssøker) { alle(registrertArbeidssøker, ønskerÅVæreRegistrertArbeidssøker) }
 
             påvirkerResultat { it.har(kravTilAlder) && !it.erSann(skalEksportVurderes) }
         }

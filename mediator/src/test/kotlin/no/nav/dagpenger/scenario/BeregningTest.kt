@@ -19,6 +19,7 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
+import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Avgjørelse.Gjenopptak
 import no.nav.dagpenger.opplysning.Avgjørelse.Stans
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -714,8 +715,9 @@ class BeregningTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
+            // Stans på stans skal fortsatt være stans
             behandlingsresultat {
-                førteTil shouldBe Stans.toString()
+                førteTil shouldBe Endring.toString()
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
 
@@ -737,22 +739,18 @@ class BeregningTest {
 
             behandlingsresultat {
                 førteTil shouldBe Gjenopptak.toString()
-                rettighetsperioder.size shouldBe 4
+                rettighetsperioder.size shouldBe 3
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
                 rettighetsperioder[0].tilOgMed shouldBe 1.juli(2018)
 
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
-                rettighetsperioder[1].tilOgMed shouldBe 3.juli(2018)
+                rettighetsperioder[1].tilOgMed shouldBe 12.august(2018)
 
-                rettighetsperioder[2].harRett shouldBe false
-                rettighetsperioder[2].fraOgMed shouldBe 4.juli(2018)
-                rettighetsperioder[2].tilOgMed shouldBe 12.august(2018)
-
-                rettighetsperioder[3].harRett shouldBe true
-                rettighetsperioder[3].fraOgMed shouldBe 13.august(2018)
-                rettighetsperioder[3].tilOgMed shouldBe null
+                rettighetsperioder[2].harRett shouldBe true
+                rettighetsperioder[2].fraOgMed shouldBe 13.august(2018)
+                rettighetsperioder[2].tilOgMed shouldBe null
             }
         }
     }

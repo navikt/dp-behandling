@@ -551,8 +551,8 @@ class EksportTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
-            behandlingsresultatForslag {
-                førteTil shouldBe "Stans"
+            behandlingsresultatForslag(12) {
+                førteTil shouldBe "Endring"
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
                     this shouldHaveSize 1
                     this[0].verdi.verdi shouldBe true
@@ -564,14 +564,16 @@ class EksportTest {
                     this[1].gyldigFraOgMed shouldBe 12.februar(2025)
                 }
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 3
                     this[0].verdi.verdi shouldBe true
                     this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 12.februar(2025)
+                    this[1].gyldigFraOgMed shouldBe 27.januar(2025)
+                    this[2].verdi.verdi shouldBe false
+                    this[2].gyldigFraOgMed shouldBe 12.februar(2025)
                 }
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].harRett shouldBe true
                 rettighetsperioder[1].tilOgMed shouldBe null
             }
         }
