@@ -9,8 +9,7 @@ import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
-import no.nav.dagpenger.regel.Behov.Barnetillegg
-import no.nav.dagpenger.regel.Behov.BarnetilleggV2
+import no.nav.dagpenger.opplysning.verdier.Barnekilde
 import tools.jackson.databind.JsonNode
 import java.util.UUID
 
@@ -37,45 +36,33 @@ class OpplysningSvarBygger<T : Any>(
     }
 }
 
-fun barnMapper(verdi: String): BarnListe = barnMapper(BarnetilleggV2, objectMapper.readTree(verdi))
+// Barn kan komme inn i to former:
+//  - V1 (gammel/utgått): en ren liste av barn, uten søknadbarnId
+//  - V2 (gjeldende): et objekt med søknadbarnId og en liste av barn
+// Formen kjennes igjen på JSON-strukturen, så vi trenger ikke vite hvilket
+// behov/typeNavn svaret kom fra for å tolke det riktig.
+fun barnMapper(verdi: String): BarnListe = barnMapper(objectMapper.readTree(verdi))
 
-fun barnMapper(
-    typeNavn: String,
-    verdi: JsonNode,
-): BarnListe =
-    when (typeNavn) {
-        Barnetillegg -> {
+fun barnMapper(verdi: JsonNode): BarnListe =
+    when {
+        verdi.isArray -> BarnListe(barn = verdi.toList().map { it.tilBarn() })
+        else ->
             BarnListe(
-                barn =
-                    verdi.toList().map {
-                        Barn(
-                            fødselsdato = it["fødselsdato"].asLocalDate(),
-                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asString(),
-                            etternavn = it["etternavn"]?.asString(),
-                            statsborgerskap = it["statsborgerskap"]?.asString(),
-                            kvalifiserer = it["kvalifiserer"].asBoolean(),
-                        )
-                    },
+                søknadbarnId = verdi["søknadbarnId"]?.takeUnless { it.isNull }?.asUUID(),
+                barn = verdi["barn"].toList().map { it.tilBarn() },
             )
-        }
-
-        BarnetilleggV2 -> {
-            BarnListe(
-                søknadbarnId = verdi["søknadbarnId"].asUUID(),
-                barn =
-                    verdi["barn"].toList().map {
-                        Barn(
-                            fødselsdato = it["fødselsdato"].asLocalDate(),
-                            fornavnOgMellomnavn = it["fornavnOgMellomnavn"]?.asString(),
-                            etternavn = it["etternavn"]?.asString(),
-                            statsborgerskap = it["statsborgerskap"]?.asString(),
-                            kvalifiserer = it["kvalifiserer"].asBoolean(),
-                        )
-                    },
-            )
-        }
-
-        else -> {
-            throw IllegalArgumentException("Ukjent typeNavn for barnMapper: $typeNavn")
-        }
     }
+
+private fun JsonNode.tilBarn() =
+    Barn(
+        kilde = this["kilde"]?.asString()?.let { Barnekilde.valueOf(it) },
+        ident = this["ident"]?.asString(),
+        fødselsdato = this["fødselsdato"].asLocalDate(),
+        fornavnOgMellomnavn = this["fornavnOgMellomnavn"]?.asString(),
+        etternavn = this["etternavn"]?.asString(),
+        statsborgerskap = this["statsborgerskap"]?.asString(),
+        oppholdsland = this["oppholdsland"]?.asString() ?: this["statsborgerskap"]?.asString(),
+        kvalifiserer = this["kvalifiserer"].asBoolean(),
+        forsørgeransvar = this["forsørgeransvar"]?.asBoolean() ?: this["kvalifiserer"].asBoolean(),
+        begrunnelse = this["begrunnelse"]?.asString(),
+    )

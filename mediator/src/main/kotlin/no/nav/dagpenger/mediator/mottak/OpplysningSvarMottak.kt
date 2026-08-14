@@ -182,7 +182,7 @@ internal class OpplysningSvarMessage(
                     val opplysningSvarBygger =
                         OpplysningSvarBygger(
                             opplysningstype,
-                            JsonMapper(typeNavn, svar.verdi),
+                            JsonMapper(svar.verdi),
                             kilde,
                             svar.tilstand,
                             svar.gyldighetsperiode,
@@ -296,7 +296,6 @@ private object EnkeltSvar : SvarStrategi {
 
 @Suppress("UNCHECKED_CAST")
 private class JsonMapper(
-    private val typeNavn: String,
     private val verdi: JsonNode,
 ) : OpplysningSvarBygger.VerdiMapper {
     override fun <T : Any> map(datatype: Datatype<T>): T =
@@ -326,7 +325,7 @@ private class JsonMapper(
             }
 
             BarnDatatype -> {
-                barnMapper(typeNavn, verdi) as T
+                barnMapper(verdi) as T
             }
 
             InntektDataType -> {
