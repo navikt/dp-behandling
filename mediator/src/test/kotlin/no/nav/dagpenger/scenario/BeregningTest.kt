@@ -711,10 +711,6 @@ class BeregningTest {
                 avsluttetTidspunkt = 4.juli(2018).atTime(11, 21),
             )
 
-            // Lukker avklaringen som tvinger alle stans til manuell behandling
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-
             // Stans på stans skal fortsatt være stans
             behandlingsresultat {
                 førteTil shouldBe Endring.toString()

@@ -86,17 +86,21 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                                 else -> "Bruker er ikke lenger registrert som saksbehandler"
                             }
 
-                        // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
-                        add(
-                            Avklaring(
-                                Avklaringkode(
-                                    kode = "UtmeldtArbeidssøker",
-                                    tittel = "Bruker har blitt utmeldt av arbeidssøkerregisteret",
-                                    beskrivelse = "$beskrivelse. Ta stilling til om forslaget til stans er riktig.",
-                                    kanAvbrytes = false,
+                        val sisteUtfall = forrigeBehandling.vedtakopplysninger.rettighetsperioder.last()
+                        // Om saken allerede er stanset kan vi bare oppdatere informasjonen automatisk
+                        if (sisteUtfall.harRett) {
+                            // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
+                            add(
+                                Avklaring(
+                                    Avklaringkode(
+                                        kode = "UtmeldtArbeidssøker",
+                                        tittel = "Bruker har blitt utmeldt av arbeidssøkerregisteret",
+                                        beskrivelse = "$beskrivelse. Ta stilling til om forslaget til stans er riktig.",
+                                        kanAvbrytes = false,
+                                    ),
                                 ),
-                            ),
-                        )
+                            )
+                        }
                     },
             ).apply {
                 // Marker bruker som ikke lenger registrert fra og med avsluttetTidspunkt.
