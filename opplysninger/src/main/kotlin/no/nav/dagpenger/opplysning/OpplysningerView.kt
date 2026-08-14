@@ -74,6 +74,8 @@ internal class OpplysningerView(
         }
     }
 
+    override fun fjernet(): Set<Opplysning<*>> = source.fjernet()
+
     private fun hentBaseListe(): List<Opplysning<*>> {
         val base = source.hentOpplysninger(bareEgne)
         return if (gjelderFor != null) {

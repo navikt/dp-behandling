@@ -376,7 +376,7 @@ internal class BehandlingRepositoryPostgres(
         unitOfWork: PostgresUnitOfWork,
         behandlinger: List<Behandling>,
     ) {
-        opplysningRepository.lagreOpplysninger(behandlinger.map { it.opplysninger }, unitOfWork)
+        opplysningRepository.lagreOpplysninger(behandlinger.map { it.opplysninger() }, unitOfWork)
 
         val params =
             behandlinger.map { behandling ->

@@ -83,5 +83,7 @@ class LesbarOpplysningerMedLogg(
 
     override fun somListe(filter: LesbarOpplysninger.Filter) = TODO("Not yet implemented")
 
+    override fun fjernet(): Set<Opplysning<*>> = opplysninger.fjernet()
+
     override fun forDato(gjelderFor: LocalDate) = TODO()
 }

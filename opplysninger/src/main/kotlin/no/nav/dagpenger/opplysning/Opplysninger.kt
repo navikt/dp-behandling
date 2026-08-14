@@ -149,7 +149,7 @@ class Opplysninger private constructor(
 
     fun baserPå(tidligereOpplysninger: Opplysninger?) = Opplysninger(id, egne, tidligereOpplysninger)
 
-    fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
+    override fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
 
     fun fjernHvis(block: (Opplysning<*>) -> Boolean) =
         egne.filter { block(it) }.forEach { fjern(it, false) }.also {

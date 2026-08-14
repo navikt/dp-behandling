@@ -49,6 +49,9 @@ interface LesbarOpplysninger {
 
     fun somListe(filter: Filter = Filter.Alle): List<Opplysning<*>>
 
+    /** Opplysninger som er fjernet (f.eks. via [no.nav.dagpenger.opplysning.Opplysninger.fjern]). Kun for persistering. */
+    fun fjernet(): Set<Opplysning<*>>
+
     companion object {
         fun Collection<Opplysning<*>>.somOpplysninger() = Opplysninger.med(this)
     }

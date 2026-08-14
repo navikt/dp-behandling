@@ -84,19 +84,19 @@ class SøknadInnsendtHendelse(
                             }
                         }
                     },
-            ).apply {
+            ) {
                 if (basertPå == null) {
-                    opplysninger.leggTil(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = kilde))
+                    leggTil(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = kilde))
                 }
 
-                opplysninger.leggTil(
+                leggTil(
                     Faktum(søknadIdOpplysningstype, eksternId.id.toString(), kilde = kilde, gyldighetsperiode = Gyldighetsperiode(skjedde)),
                 )
 
                 if (basertPå != null) {
                     // Om bruker tidligere har hatt minst en periode med rett så begynner med gjenopptaksbehandling som utgangspunkt
                     if (basertPå.vedtakopplysninger.rettighetsperioder.any { rettighetsperiode -> rettighetsperiode.harRett }) {
-                        opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
+                        leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
                     }
                 }
             },

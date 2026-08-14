@@ -78,5 +78,7 @@ class SpionLesbarOpplysninger : LesbarOpplysninger {
 
     override fun somListe(filter: LesbarOpplysninger.Filter): List<Opplysning<*>> = emptyList()
 
+    override fun fjernet(): Set<Opplysning<*>> = emptySet()
+
     class SpionAvsluttet : Exception()
 }

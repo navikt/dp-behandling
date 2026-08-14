@@ -52,8 +52,8 @@ class BeregnFerietilleggHendelse(
                             )
                         }
                     },
-            ).apply {
-                this.opplysninger.leggTil(
+            ) {
+                leggTil(
                     Faktum(
                         KravPåFerietillegg.åretDetSkalBeregnesFerietilleggFor,
                         opptjeningsår,

@@ -81,14 +81,14 @@ internal class OpplysningerRepositoryPostgres(
     override fun hentOpplysninger(opplysningerId: UUID) =
         dbSession.session { session -> session.hentOpplysninger(kildeRepository, opplysningstypeRegister, opplysningerId) }
 
-    override fun lagreOpplysninger(opplysninger: Opplysninger) {
+    override fun lagreOpplysninger(opplysninger: LesbarOpplysninger) {
         dbSession.transaction {
             lagreOpplysninger(listOf(opplysninger), this)
         }
     }
 
     override fun lagreOpplysninger(
-        opplysninger: List<Opplysninger>,
+        opplysninger: List<LesbarOpplysninger>,
         unitOfWork: PostgresUnitOfWork,
     ) {
         val params =

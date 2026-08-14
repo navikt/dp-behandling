@@ -99,7 +99,7 @@ internal class TestStartHendelse(
      * tilgang til den interne konstruktøren.
      */
     fun opprettTestBehandling(basertPå: Behandling? = null): Behandling =
-        opprettBehandling(basertPå = basertPå).apply {
-            ekstraOpplysninger.forEach { opplysninger.leggTil(it) }
+        opprettBehandling(basertPå = basertPå) {
+            ekstraOpplysninger.forEach { leggTil(it) }
         }
 }

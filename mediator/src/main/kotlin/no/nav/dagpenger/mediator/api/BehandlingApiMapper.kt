@@ -116,8 +116,8 @@ import kotlin.io.encoding.Base64
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
-        val opplysningSet = opplysninger.somListe()
-        val egneId = opplysninger.somListe(Egne).map { it.id }
+        val opplysningSet = opplysninger().somListe()
+        val egneId = opplysninger().somListe(Egne).map { it.id }
         val behandlingsresultat = vedtakopplysninger
 
         BehandlingDTO(
@@ -149,7 +149,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         navn = type.navn,
                         perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
                         datatype = type.datatype.tilDataTypeDTO(),
-                        synlig = type.synlig(this.opplysninger),
+                        synlig = type.synlig(this.opplysninger()),
                         redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                         redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
                         kanOppfriskes = type.kanOppfriskes(opplysninger.any { it.id in egneId }),
@@ -191,7 +191,7 @@ private fun Pair<Behandling.TilstandType, LocalDateTime>.tilTilstandDTO() =
 internal fun Behandling.tilSaksbehandlersVurderinger() =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val endredeOpplysninger = opplysninger().somListe().filter { it.kilde is Saksbehandlerkilde }
-        val egneId = opplysninger.somListe(Egne).map { it.id }
+        val egneId = opplysninger().somListe(Egne).map { it.id }
 
         SaksbehandlersVurderingerDTO(
             behandlingId = behandlingId,
