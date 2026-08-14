@@ -163,7 +163,8 @@ internal class Mennesket(
         korrigeringAv: UUID? = null,
         korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         aktiviteter: List<MeldekortAktivitet>,
-    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, aktiviteter)
+        meldtITide: Boolean = true,
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, aktiviteter, meldtITide)
 
     fun fastsattMeldedato(nummer: Int) = meldesyklus.periode(nummer).fraOgMed
 
@@ -186,6 +187,7 @@ internal class Mennesket(
         korrigeringAv: UUID? = null,
         korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         aktiviteter: List<MeldekortAktivitet>,
+        meldtITide: Boolean = true,
     ): UUID {
         val meldekortId = UUIDv7.ny()
         val message =
@@ -196,7 +198,7 @@ internal class Mennesket(
                 korrigeringAv,
                 korrigertAv,
                 aktiviteter,
-                meldtITide = true,
+                meldtITide = meldtITide,
             )
         rapid.sendTestMessage(message)
         return meldekortId
