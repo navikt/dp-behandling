@@ -16,6 +16,7 @@ import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.GodkjennBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.modell.hendelser.OpplysningSvarHendelse
+import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
@@ -218,6 +219,24 @@ internal class TestSaksbehandler2(
 
     fun omgjørBehandling(gjelderDato: LocalDate) {
         rapid.sendTestMessage(Meldingskatalog.omgjørBehandling(testPerson.ident, gjelderDato))
+    }
+
+    /**
+     * Simulerer at et eksternt verktøy (f.eks. inntektsløsningen) ber oss om å rekjøre
+     * behandlingen og innhente en eller flere opplysningstyper på nytt, via
+     * `rekjør_behandling` + `oppfriskOpplysningIder` - slik det faktisk skjer i produksjon.
+     */
+    fun rekjørBehandling(oppfriskOpplysningIder: List<Opplysningstype<*>> = emptyList()) {
+        hendelseMediator.behandle(
+            RekjørBehandlingHendelse(
+                meldingsreferanseId = UUIDv7.ny(),
+                ident = testPerson.ident,
+                behandlingId = testPerson.behandlingId,
+                opprettet = LocalDateTime.now(),
+                oppfriskOpplysningIder = oppfriskOpplysningIder,
+            ),
+            rapid,
+        )
     }
 
     fun avbryt(årsak: String = "Avbryt") {

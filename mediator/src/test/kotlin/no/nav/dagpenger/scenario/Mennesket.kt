@@ -31,7 +31,10 @@ internal class Mennesket(
     private val scenario: SimulertDagpengerSystem.ScenarioOptions,
 ) {
     val ident = scenario.ident
-    private val inntektSiste12Mnd = scenario.inntektSiste12Mnd
+
+    // Kan endres i løpet av en test for å simulere at inntektsregisteret oppdateres mellom søknadstidspunkt og
+    // en senere revurdering/gjenopptak, slik at et nytt Inntekt-behov løses med en oppdatert verdi.
+    var inntektSiste12Mnd = scenario.inntektSiste12Mnd
     var antallDagerForbrukt: Int = 100
 
     private val søknader = mutableListOf<UUID>()
