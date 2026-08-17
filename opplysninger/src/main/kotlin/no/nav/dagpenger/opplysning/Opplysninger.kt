@@ -118,13 +118,15 @@ class Opplysninger private constructor(
             ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig for $gjelderFor")
 
     override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
-        finnNullableOpplysning(opplysningstype, Gyldighetsperiode())
+        alleOpplysningerMap[opplysningstype]
+            ?.filterIsInstance<Opplysning<T>>()
+            ?.lastOrNull { !it.erTombstone }
 
     override fun finnOpplysning(opplysningId: UUID) =
         alleOpplysninger.lastOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
-    override fun <T : Any> har(opplysningstype: Opplysningstype<T>) = alleOpplysninger.any { it.er(opplysningstype) }
+    override fun <T : Any> har(opplysningstype: Opplysningstype<T>) = alleOpplysninger.any { it.er(opplysningstype) && !it.erTombstone }
 
     override fun <T : Any> har(
         opplysningstype: Opplysningstype<T>,
@@ -132,12 +134,12 @@ class Opplysninger private constructor(
     ) = finnNullableOpplysningMedFiltre(opplysningstype, gjelderFor, false) != null
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) =
-        opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) } }
+        opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) && !it.erTombstone } }
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = opplysningstyper.flatMap { type -> finnAlle(type) }
 
     override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) =
-        alleOpplysninger.filter { it.er(opplysningstype) }.filterIsInstance<Opplysning<T>>()
+        alleOpplysninger.filter { it.er(opplysningstype) && !it.erTombstone }.filterIsInstance<Opplysning<T>>()
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger = OpplysningerView(this, gjelderFor = gjelderFor)
 
@@ -269,11 +271,12 @@ class Opplysninger private constructor(
         val kandidater =
             if (bareEgne) {
                 egne
-                    .filter { it.er(opplysningstype) }
+                    .filter { it.er(opplysningstype) && !it.erTombstone }
                     .filterIsInstance<Opplysning<T>>()
             } else {
                 alleOpplysningerMap[opplysningstype]
                     ?.filterIsInstance<Opplysning<T>>()
+                    ?.filterNot { it.erTombstone }
                     ?: emptyList()
             }
         return if (gjelderFor != null) {
@@ -284,6 +287,33 @@ class Opplysninger private constructor(
     }
 
     fun erArvet(opplysning: Opplysning<*>): Boolean = basertPåOpplysninger.contains(opplysning)
+
+    /**
+     * Oppfrisker [opplysningstype]: sørger for at opplysningstypen fremstår som manglende for
+     * regelmotoren, slik at en `Ekstern`-regel (f.eks. `innhentMed`) naturlig blir planlagt på
+     * nytt og ber om et nytt behov.
+     *
+     * - Egne opplysninger av typen (lagt til i *denne* behandlingen, f.eks. av saksbehandler
+     *   eller et tidligere gjenopptak) kan fjernes reelt med [fjern] - de eies av denne
+     *   behandlingen og kan trygt fjernes.
+     * - Arvede opplysninger (fra en tidligere behandling i kjeden) kan vi derimot aldri fjerne -
+     *   en revurdering kan bare legge til nye opplysninger. Disse "slettes" i stedet ved å legge
+     *   til en tombstone-kopi (samme verdi og gyldighetsperiode, men merket med
+     *   [Opplysning.erTombstone]), som gjør dem usynlige for verdi-oppslag (se
+     *   [finnNullableOpplysning], [har], [finnAlle] m.fl.) uten å bryte regelen om at en
+     *   revurdering bare kan legge til nye opplysninger.
+     */
+    fun lagTombstone(opplysningstype: Opplysningstype<*>) {
+        egne
+            .filter { it.er(opplysningstype) }
+            .forEach { fjern(it, false) }
+
+        basertPåOpplysninger
+            .filter { it.er(opplysningstype) }
+            .forEach { leggTil(it.somTombstone()) }
+
+        refreshOpplysninger()
+    }
 
     companion object {
         private val logger = KotlinLogging.logger {}
