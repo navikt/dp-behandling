@@ -5,7 +5,9 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.ktor.server.application.Application
 import no.nav.dagpenger.mediator.api.auth.AuthFactory
 import no.nav.dagpenger.mediator.api.behandlingApi
+import no.nav.dagpenger.mediator.api.datadelingApi
 import no.nav.dagpenger.mediator.audit.Auditlogg
+import no.nav.dagpenger.mediator.datadeling.DatadelingService
 import no.nav.dagpenger.mediator.db.DatabaseSession
 import no.nav.dagpenger.mediator.meldekort.MeldekortBehandlingskø
 import no.nav.dagpenger.mediator.melding.PostgresMeldingRepository
@@ -17,6 +19,7 @@ import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.mediator.repository.AvklaringRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.BehandlingRepositoryPostgres
+import no.nav.dagpenger.mediator.repository.DatadelingRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.KildeRepository
 import no.nav.dagpenger.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OppdateringRepositoryPostgres
@@ -126,6 +129,8 @@ class BehandlingRuntime(
         opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
     }
 
+    private val datadelingService = DatadelingService(DatadelingRepositoryPostgres(dbSession, kildeRepository, opplysningstypeRegister))
+
     val api: Application.() -> Unit = {
         behandlingApi(
             authFactory = authFactory,
@@ -137,6 +142,7 @@ class BehandlingRuntime(
             messageContext = messageContextFactory,
             oppdateringRepository = oppdateringRepository,
         )
+        datadelingApi(datadelingService)
     }
 
     fun meldekortBehandlingskø(messageContext: MessageContext) =

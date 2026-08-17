@@ -27,6 +27,8 @@ tags:
     description: Operasjoner for produksjon av data til dataprodukter.
   - name: Oppdatering
     description: Operasjoner for løpende oppdateringer via SSE.
+  - name: Datadeling
+    description: Operasjoner for datadeling av dagpengeperioder og beregninger.
 
 paths:
   /opplysningstyper:
@@ -68,6 +70,62 @@ paths:
                   $ref: '#/components/schemas/Rettighetsstatus'
         default:
           description: Feil ved oppretting av behandling
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /dagpenger/datadeling/v1/perioder:
+    post:
+      description: Henter dagpengeperioder (rettighetsperioder med rett) for en person
+      security:
+        - azureAd: [ ]
+      tags:
+        - Datadeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatadelingForesporsel'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatadelingPeriodeRespons'
+        default:
+          description: Feil ved henting av perioder
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /dagpenger/datadeling/v1/beregninger:
+    post:
+      description: Henter beregnede dager (utbetalingsdetaljer) for en person
+      security:
+        - azureAd: [ ]
+      tags:
+        - Datadeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatadelingForesporsel'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BeregnetDag'
+        default:
+          description: Feil ved henting av beregninger
           content:
             application/problem+json:
               schema:
@@ -2244,6 +2302,91 @@ components:
           $ref: '#/components/schemas/BehandlingId'
         behandlingskjedeId:
           $ref: '#/components/schemas/BehandlingId'
+
+    DatadelingForesporsel:
+      description: Forespørsel om datadeling for en person i en gitt periode
+      type: object
+      required:
+        - ident
+        - fraOgMed
+      properties:
+        ident:
+          $ref: '#/components/schemas/Personident'
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          description: Tom-dato for avgrensning. Utelates hentes alt fra fraOgMedDato og fremover
+          type: string
+          format: date
+
+    DatadelingPeriodeRespons:
+      type: object
+      required:
+        - ident
+        - perioder
+      properties:
+        ident:
+          $ref: '#/components/schemas/Personident'
+        perioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatadelingPeriode'
+
+    DatadelingPeriode:
+      description: En periode hvor personen har fått vurdert sin rett på dagpenger, og utfallet
+      type: object
+      required:
+        - fraOgMed
+        - harRett
+        - ytelseType
+      properties:
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          description: Utelates for løpende (åpen) periode
+          type: string
+          format: date
+        harRett:
+          description: Om personen har rett på dagpenger i perioden (false = avslag/stans)
+          type: boolean
+        ytelseType:
+          $ref: '#/components/schemas/Ytelsestype'
+
+    BeregnetDag:
+      description: En beregnet dag med sats, utbetalt beløp og gjenstående dager
+      type: object
+      required:
+        - fraOgMed
+        - tilOgMed
+        - sats
+        - utbetaltBeløp
+        - gjenståendeDager
+      properties:
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          type: string
+          format: date
+        sats:
+          type: integer
+          format: int32
+        utbetaltBeløp:
+          type: integer
+          format: int32
+        gjenståendeDager:
+          description: Antall gjenstående dager med rett på dagpenger
+          type: integer
+          format: int32
+
+    Ytelsestype:
+      type: string
+      enum:
+        - DAGPENGER_ARBEIDSSOKER_ORDINAER
+        - DAGPENGER_PERMITTERING_ORDINAER
+        - DAGPENGER_PERMITTERING_FISKEINDUSTRI
 
     Sak:
       description: En sak, det vil si en sammenhengende behandlingskjede med tilhørende status og behandlingshistorikk
