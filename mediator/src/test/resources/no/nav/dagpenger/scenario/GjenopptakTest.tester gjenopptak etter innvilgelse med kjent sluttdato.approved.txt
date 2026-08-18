@@ -66,12 +66,9 @@ Behov:
 - RegistrertSomArbeidssøker
 - TarUtdanningEllerOpplæring
 - Verneplikt
-- AndreØkonomiskeYtelser
-- TarUtdanningEllerOpplæring
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
-Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:

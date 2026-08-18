@@ -192,7 +192,7 @@ fun interface GyldighetsperiodeStrategi<T> {
                 )
             }
         private val størsteMulige =
-            GyldighetsperiodeStrategi<Any> { _, basertPå ->
+            GyldighetsperiodeStrategi<Any> { _, basertPå, _ ->
                 if (basertPå.isEmpty()) return@GyldighetsperiodeStrategi Gyldighetsperiode()
                 Gyldighetsperiode(
                     fraOgMed = basertPå.minOf { it.gyldighetsperiode.fraOgMed },
@@ -218,7 +218,7 @@ fun interface GyldighetsperiodeStrategi<T> {
         // (ikke posisjon i avhengerAv-listen). Brukes når en opplysning skal "låne" gyldighetsperioden
         // til én spesifikk avhengighet, uavhengig av hvilke andre opplysninger den også er avhengig av.
         fun <P> arvFra(opplysningstype: Opplysningstype<*>) =
-            GyldighetsperiodeStrategi<P> { _, basertPå ->
+            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
                 basertPå.single { it.opplysningstype == opplysningstype }.gyldighetsperiode
             }
 
@@ -228,7 +228,7 @@ fun interface GyldighetsperiodeStrategi<T> {
         // regelkjøringer (se Regelkjøring.medGyldighetsperiode/sisteTilgjengeligeDato), siden en
         // ubegrenset gyldighetsperiode aldri "avsluttes" ved et nytt faktum lenger frem i tid.
         fun <P> arvFraMedGrense(opplysningstype: Opplysningstype<*>) =
-            GyldighetsperiodeStrategi<P> { _, basertPå ->
+            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
                 Gyldighetsperiode(
                     fraOgMed = basertPå.single { it.opplysningstype == opplysningstype }.gyldighetsperiode.fraOgMed,
                     tilOgMed = basertPå.minOf { it.gyldighetsperiode.tilOgMed },
@@ -243,7 +243,7 @@ fun interface GyldighetsperiodeStrategi<T> {
             sjekk: Opplysningstype<Boolean>,
             hvisSann: Opplysningstype<P>,
             hvisUsann: Opplysningstype<P>,
-        ) = GyldighetsperiodeStrategi<P> { _, basertPå ->
+        ) = GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
             val sjekkVerdi = basertPå.single { it.opplysningstype == sjekk }.verdi as Boolean
             val valgtGren = if (sjekkVerdi) hvisSann else hvisUsann
             basertPå.single { it.opplysningstype == valgtGren }.gyldighetsperiode

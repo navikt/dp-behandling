@@ -2,16 +2,12 @@ package no.nav.dagpenger.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
-import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
-import no.nav.dagpenger.behandling.mediator.asUUID
-import no.nav.dagpenger.behandling.objectMapper
 import no.nav.dagpenger.inntekt.v1.Inntekt
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.mediator.asUUID
-import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.objectMapper
 import no.nav.dagpenger.mediator.tilJsonNode
 import no.nav.dagpenger.opplysning.verdier.Periode

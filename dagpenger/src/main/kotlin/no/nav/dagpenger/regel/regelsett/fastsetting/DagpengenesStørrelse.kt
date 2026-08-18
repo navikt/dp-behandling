@@ -11,8 +11,8 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
-import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.folketrygden
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.regel.addisjon
 import no.nav.dagpenger.opplysning.regel.avrund
 import no.nav.dagpenger.opplysning.regel.barn.antallAv

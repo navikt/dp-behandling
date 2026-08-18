@@ -4,13 +4,17 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
+import java.time.LocalDate
 
 class AntallAv<T : Any>(
     produserer: Opplysningstype<Int>,
     val opplysningstype: Opplysningstype<BarnListe>,
     val filter: Barn.() -> Boolean,
 ) : Regel<Int>(produserer, listOf(opplysningstype)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Int {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Int {
         val liste = opplysninger.finnOpplysning(opplysningstype).verdi.barn
         return liste.filter { filter(it) }.size
     }

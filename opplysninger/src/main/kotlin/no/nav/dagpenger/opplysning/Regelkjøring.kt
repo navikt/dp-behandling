@@ -337,7 +337,7 @@ class Regelkjøring(
         private fun <T : Any> Regel<T>.kjørRegel(): Regelkjøringutfall<T> {
             val produkt =
                 this
-                    .lagProdukt(opplysningerPåPrøvingsdato)
+                    .lagProdukt(opplysningerPåPrøvingsdato, prøvingsdato)
                     .medGyldighetsperiode(prøvingsdato)
 
             return Regelkjøringutfall(

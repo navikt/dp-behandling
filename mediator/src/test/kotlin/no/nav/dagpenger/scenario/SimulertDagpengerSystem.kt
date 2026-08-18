@@ -39,7 +39,6 @@ import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.scenario.assertions.BehandlingsresultatAssertions
 import no.nav.dagpenger.utestengning.UtestengningRegistrering
 import org.approvaltests.Approvals
-import java.time.LocalDate
 import tools.jackson.databind.JsonNode
 import java.time.LocalDate
 import java.util.UUID
