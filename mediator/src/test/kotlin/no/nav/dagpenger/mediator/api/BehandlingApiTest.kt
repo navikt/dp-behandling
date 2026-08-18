@@ -263,7 +263,7 @@ internal class BehandlingApiTest {
 
             person.behandling.behandletHendelse.type shouldBe HendelseDTOTypeDTO.OMGJØRING
 
-            person.avklaringer shouldHaveSize 10
+            person.avklaringer shouldHaveSize 9
             person.avklaringer.any { it.kode == "SkalOmgjøringUtenKlageVurderes" } shouldBe true
         }
     }
@@ -404,7 +404,7 @@ internal class BehandlingApiTest {
 //                avklaringer.any { it.kode == "InntektNesteKalendermåned" } shouldBe true
 //            }
 
-            behandlingDto.avklaringer shouldHaveSize 9
+            behandlingDto.avklaringer shouldHaveSize 8
             auditlogg.aktivitet shouldContainExactly listOf("les")
         }
     }
@@ -442,7 +442,7 @@ internal class BehandlingApiTest {
                 this.perioder.first().verdi shouldBe DesimaltallVerdiDTO(verdi = 0.0, enhet = EnhetDTO.TIMER)
             }
 
-            behandlingDto.avklaringer shouldHaveSize 9
+            behandlingDto.avklaringer shouldHaveSize 8
             auditlogg.aktivitet shouldContainExactly listOf("les")
         }
     }

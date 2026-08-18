@@ -135,7 +135,7 @@ class TidsbegrensetBortfallTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(2) {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 5036
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 4968
             }
         }
     }

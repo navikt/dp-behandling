@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.regel.dato
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Regelplanlegger
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
 
@@ -10,7 +11,7 @@ class DagensDato internal constructor(
 ) : Regel<LocalDate>(produserer) {
     override fun lagPlan(
         opplysninger: LesbarOpplysninger,
-        plan: MutableSet<Regel<*>>,
+        plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {

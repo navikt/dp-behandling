@@ -61,12 +61,9 @@ Behov:
 - RegistrertSomArbeidssøker
 - TarUtdanningEllerOpplæring
 - Verneplikt
-- AndreØkonomiskeYtelser
-- TarUtdanningEllerOpplæring
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
-Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
@@ -87,8 +84,6 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- ØnskerDagpengerFraDato
-- BarnetilleggV2
 - AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
@@ -102,12 +97,9 @@ Behov:
 - RegistrertSomArbeidssøker
 - TarUtdanningEllerOpplæring
 - Verneplikt
-- AndreØkonomiskeYtelser
-- TarUtdanningEllerOpplæring
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
-Laget avklaring om BarnMåGodkjennes
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
