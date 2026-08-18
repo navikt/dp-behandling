@@ -27,9 +27,10 @@ class OpplysningerTombstoneTest {
         revurdering.finnAlle(ReglerForInntektTest.inntekt12) shouldBe emptyList()
         revurdering.finnFlere(listOf(ReglerForInntektTest.inntekt12)) shouldBe emptyList()
 
-        // Den opprinnelige arvede opplysningen er fortsatt sporbar via erstatter-kjeden på tombstonen
-        val tombstone = revurdering.somListe(LesbarOpplysninger.Filter.Alle).single { it.erTombstone }
-        tombstone.erstatter shouldBe inntekt
+        // Den arvede opplysningen finnes fortsatt i sporloggen (den er aldri fjernet eller endret),
+        // men markert som tombstonet slik at den ikke lenger telles med i verdi-oppslag
+        val original = revurdering.somListe(LesbarOpplysninger.Filter.Alle).single { it.id == inntekt.id }
+        original shouldBe inntekt
     }
 
     @Test

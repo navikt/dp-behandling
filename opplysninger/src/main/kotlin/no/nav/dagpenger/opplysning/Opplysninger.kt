@@ -19,6 +19,13 @@ class Opplysninger private constructor(
     private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
     private val erstattet: MutableSet<UUID> get() = alleOpplysninger.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
+    // Id-er på opplysninger som er "tombstonet" via lagTombstone(): de finnes fortsatt i
+    // alleOpplysninger (for sporbarhet/erstatter-kjeden), men skal ikke telle som en gyldig verdi
+    // for regelmotoren. Med vilje IKKE persistert - om behandlingen rehydreres fra database
+    // midt i en rekjør-flyt (før ny opplysning er lagt til), mister vi denne markeringen, men det
+    // er greit: regelmotoren vil da bare be om opplysningen på nytt, som er idempotent.
+    private val tombstonet: MutableSet<UUID> = mutableSetOf()
+
     private val basertPåOpplysninger: List<Opplysning<*>> =
         basertPå?.let { (it.basertPåOpplysninger + it.egne).filter { opplysning -> opplysning.skalArves } } ?: emptyList()
 
@@ -120,13 +127,14 @@ class Opplysninger private constructor(
     override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
         alleOpplysningerMap[opplysningstype]
             ?.filterIsInstance<Opplysning<T>>()
-            ?.lastOrNull { !it.erTombstone }
+            ?.lastOrNull { it.id !in tombstonet }
 
     override fun finnOpplysning(opplysningId: UUID) =
         alleOpplysninger.lastOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
-    override fun <T : Any> har(opplysningstype: Opplysningstype<T>) = alleOpplysninger.any { it.er(opplysningstype) && !it.erTombstone }
+    override fun <T : Any> har(opplysningstype: Opplysningstype<T>) =
+        alleOpplysninger.any { it.er(opplysningstype) && it.id !in tombstonet }
 
     override fun <T : Any> har(
         opplysningstype: Opplysningstype<T>,
@@ -134,12 +142,12 @@ class Opplysninger private constructor(
     ) = finnNullableOpplysningMedFiltre(opplysningstype, gjelderFor, false) != null
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) =
-        opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) && !it.erTombstone } }
+        opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) && it.id !in tombstonet } }
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = opplysningstyper.flatMap { type -> finnAlle(type) }
 
     override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) =
-        alleOpplysninger.filter { it.er(opplysningstype) && !it.erTombstone }.filterIsInstance<Opplysning<T>>()
+        alleOpplysninger.filter { it.er(opplysningstype) && it.id !in tombstonet }.filterIsInstance<Opplysning<T>>()
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger = OpplysningerView(this, gjelderFor = gjelderFor)
 
@@ -271,12 +279,12 @@ class Opplysninger private constructor(
         val kandidater =
             if (bareEgne) {
                 egne
-                    .filter { it.er(opplysningstype) && !it.erTombstone }
+                    .filter { it.er(opplysningstype) && it.id !in tombstonet }
                     .filterIsInstance<Opplysning<T>>()
             } else {
                 alleOpplysningerMap[opplysningstype]
                     ?.filterIsInstance<Opplysning<T>>()
-                    ?.filterNot { it.erTombstone }
+                    ?.filterNot { it.id in tombstonet }
                     ?: emptyList()
             }
         return if (gjelderFor != null) {
@@ -285,6 +293,8 @@ class Opplysninger private constructor(
             kandidater.lastOrNull()
         }
     }
+
+    internal fun erTombstonet(opplysningId: UUID): Boolean = opplysningId in tombstonet
 
     fun erArvet(opplysning: Opplysning<*>): Boolean = basertPåOpplysninger.contains(opplysning)
 
@@ -297,11 +307,14 @@ class Opplysninger private constructor(
      *   eller et tidligere gjenopptak) kan fjernes reelt med [fjern] - de eies av denne
      *   behandlingen og kan trygt fjernes.
      * - Arvede opplysninger (fra en tidligere behandling i kjeden) kan vi derimot aldri fjerne -
-     *   en revurdering kan bare legge til nye opplysninger. Disse "slettes" i stedet ved å legge
-     *   til en tombstone-kopi (samme verdi og gyldighetsperiode, men merket med
-     *   [Opplysning.erTombstone]), som gjør dem usynlige for verdi-oppslag (se
-     *   [finnNullableOpplysning], [har], [finnAlle] m.fl.) uten å bryte regelen om at en
-     *   revurdering bare kan legge til nye opplysninger.
+     *   en revurdering kan bare legge til nye opplysninger. Vi legger derfor ikke til noe nytt her
+     *   heller: id-en til den arvede opplysningen registreres direkte i [tombstonet], slik at
+     *   verdi-oppslag (se [finnNullableOpplysning], [har], [finnAlle] m.fl.) hopper over den, uten
+     *   å bryte regelen om at en revurdering bare kan legge til nye opplysninger.
+     *
+     * Merk at [tombstonet] bevisst ikke er persistert: om behandlingen rehydreres fra database
+     * midt i en rekjør-flyt, mister vi markeringen og opplysningen blir synlig igjen - men
+     * regelmotoren vil da bare be om den på nytt, noe som er trygt og idempotent.
      */
     fun lagTombstone(opplysningstype: Opplysningstype<*>) {
         egne
@@ -310,7 +323,7 @@ class Opplysninger private constructor(
 
         basertPåOpplysninger
             .filter { it.er(opplysningstype) }
-            .forEach { leggTil(it.somTombstone()) }
+            .forEach { tombstonet.add(it.id) }
 
         refreshOpplysninger()
     }

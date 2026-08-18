@@ -3,6 +3,7 @@ package no.nav.dagpenger.opplysning.regelsett
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.ULID
@@ -33,6 +34,7 @@ internal object ReglerForInntektTest {
             Opplysningstype.Id(UUIDv7.ny(), Penger),
             beskrivelse = "Inntekt siste 12 mnd",
             behovId = "inntekt12mnd",
+            formål = Opplysningsformål.Register,
         )
     val inntekt36 =
         Opplysningstype.beløp(
