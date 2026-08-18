@@ -103,6 +103,24 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
+    override fun merge(
+        winner: Ident,
+        loser: Ident,
+    ) {
+        val winnerPerson = persondb[winner] ?: error("Vinner-ident $winner finnes ikke")
+        val loserPerson = persondb[loser] ?: return
+        if (winnerPerson.ident == loserPerson.ident) return
+        // Flytt loser-data til winner ved å fjerne loser fra db (winner beholder sine data)
+        persondb.remove(loser)
+    }
+
+    override fun split(
+        loserIdent: Ident,
+        fraIdent: Ident,
+    ) {
+        TODO("Not yet implemented in InMemoryPersonRepository")
+    }
+
     fun reset() {
         persondb.clear()
     }
