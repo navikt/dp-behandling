@@ -2281,7 +2281,6 @@ components:
       type: object
       required:
         - harLøpendeRett
-        - sistEndret
       properties:
         harLøpendeRett:
           description: Om bruker har en løpende rett på dagpenger i dag
