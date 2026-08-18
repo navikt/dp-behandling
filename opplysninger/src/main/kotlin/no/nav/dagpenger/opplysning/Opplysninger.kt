@@ -127,14 +127,14 @@ class Opplysninger private constructor(
     override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
         alleOpplysningerMap[opplysningstype]
             ?.filterIsInstance<Opplysning<T>>()
-            ?.lastOrNull { it.id !in tombstonet }
+            ?.lastOrNull { !erTombstonet(it.id) }
 
     override fun finnOpplysning(opplysningId: UUID) =
         alleOpplysninger.lastOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
     override fun <T : Any> har(opplysningstype: Opplysningstype<T>) =
-        alleOpplysninger.any { it.er(opplysningstype) && it.id !in tombstonet }
+        alleOpplysninger.any { it.er(opplysningstype) && !erTombstonet(it.id) }
 
     override fun <T : Any> har(
         opplysningstype: Opplysningstype<T>,
@@ -142,12 +142,12 @@ class Opplysninger private constructor(
     ) = finnNullableOpplysningMedFiltre(opplysningstype, gjelderFor, false) != null
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) =
-        opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) && it.id !in tombstonet } }
+        opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) && !erTombstonet(it.id) } }
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = opplysningstyper.flatMap { type -> finnAlle(type) }
 
     override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) =
-        alleOpplysninger.filter { it.er(opplysningstype) && it.id !in tombstonet }.filterIsInstance<Opplysning<T>>()
+        alleOpplysninger.filter { it.er(opplysningstype) && !erTombstonet(it.id) }.filterIsInstance<Opplysning<T>>()
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger = OpplysningerView(this, gjelderFor = gjelderFor)
 
@@ -279,12 +279,12 @@ class Opplysninger private constructor(
         val kandidater =
             if (bareEgne) {
                 egne
-                    .filter { it.er(opplysningstype) && it.id !in tombstonet }
+                    .filter { it.er(opplysningstype) && !erTombstonet(it.id) }
                     .filterIsInstance<Opplysning<T>>()
             } else {
                 alleOpplysningerMap[opplysningstype]
                     ?.filterIsInstance<Opplysning<T>>()
-                    ?.filterNot { it.id in tombstonet }
+                    ?.filterNot { erTombstonet(it.id) }
                     ?: emptyList()
             }
         return if (gjelderFor != null) {
@@ -294,7 +294,11 @@ class Opplysninger private constructor(
         }
     }
 
-    internal fun erTombstonet(opplysningId: UUID): Boolean = opplysningId in tombstonet
+    // Fast-path som unngår et hash-oppslag mot `tombstonet` i det normale tilfellet der
+    // ingenting er tombstonet (dvs. nesten alltid) - `isEmpty()` er billigere enn et
+    // sett-oppslag, og dette kalles for hver opplysning i hvert kall til
+    // finnNullableOpplysning/har/finnAlle m.fl. under regelkjøring.
+    internal fun erTombstonet(opplysningId: UUID): Boolean = tombstonet.isNotEmpty() && opplysningId in tombstonet
 
     fun erArvet(opplysning: Opplysning<*>): Boolean = basertPåOpplysninger.contains(opplysning)
 
