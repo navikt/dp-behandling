@@ -119,7 +119,7 @@ class OmgjøringScenarioTester {
                 opplysninger(Beregning.forbruktEgenandel) {
                     this shouldHaveSize 3
 
-                    this.sumOf { it.verdi.verdi as Int } shouldBe 3891
+                    this.sumOf { it.verdi.verdi as Int } shouldBe 3777
 
                     this.map { it.gyldigFraOgMed } shouldContainExactly
                         listOf(
