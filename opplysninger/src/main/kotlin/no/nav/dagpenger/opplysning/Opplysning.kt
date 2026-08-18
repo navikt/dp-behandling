@@ -25,11 +25,6 @@ sealed class Opplysning<T : Any>(
     var erUtdatert: Boolean = false,
     private var _erstatter: Opplysning<T>? = null,
     private var _skalLagres: Boolean = false,
-    // Markerer at denne opplysningen er en "tombstone": den finnes for sporbarhet og for å
-    // kunne kaskadere erUtdatert til det som er utledet av opplysningen den erstatter, men skal
-    // ikke telle som en gyldig verdi for regelmotoren. Brukes til å "slette" en arvet opplysning
-    // uten å bryte regelen om at en revurdering bare kan legge til nye opplysninger.
-    val erTombstone: Boolean = false,
     // Flagg som indikerer om opplysningen har blitt behandlet av regelkjøringen.
     // Default true fordi opplysninger lastet fra DB allerede er behandlet (flagget persisteres ikke).
     var behandlet: Boolean = true,
@@ -71,15 +66,6 @@ sealed class Opplysning<T : Any>(
     abstract fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode): Opplysning<T>
 
     abstract fun medNyId(): Opplysning<T>
-
-    /**
-     * Lager en tombstone-kopi av denne opplysningen: samme verdi og gyldighetsperiode, men med
-     * en ny id og [erTombstone] satt til true. Brukes for å "slette" en arvet opplysning uten å
-     * bryte regelen om at en revurdering bare kan legge til nye opplysninger - tombstonen legges
-     * til som en egen opplysning som erstatter den arvede (se [Opplysninger.leggTil]), og gjør at
-     * regelmotoren ser opplysningstypen som manglende igjen, slik at den kan hentes på nytt.
-     */
-    abstract fun somTombstone(): Opplysning<T>
 }
 
 class Hypotese<T : Any>(
@@ -92,7 +78,6 @@ class Hypotese<T : Any>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
-    erTombstone: Boolean = false,
 ) : Opplysning<T>(
         id,
         opplysningstype,
@@ -104,7 +89,6 @@ class Hypotese<T : Any>(
         false,
         erstatter,
         _skalLagres = skalLagres,
-        erTombstone = erTombstone,
     ) {
     constructor(
         opplysningstype: Opplysningstype<T>,
@@ -128,7 +112,6 @@ class Hypotese<T : Any>(
             kilde,
             opprettet,
             erstatter,
-            erTombstone = erTombstone,
         )
 
     override fun medNyId(): Opplysning<T> =
@@ -141,19 +124,6 @@ class Hypotese<T : Any>(
             kilde,
             opprettet,
             erstatter,
-            erTombstone = erTombstone,
-        )
-
-    override fun somTombstone(): Opplysning<T> =
-        Hypotese(
-            UUIDv7.ny(),
-            opplysningstype,
-            verdi,
-            gyldighetsperiode,
-            utledetAv,
-            kilde,
-            opprettet,
-            erTombstone = true,
         )
 }
 
@@ -167,7 +137,6 @@ class Faktum<T : Any>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
-    erTombstone: Boolean = false,
 ) : Opplysning<T>(
         id,
         opplysningstype,
@@ -179,7 +148,6 @@ class Faktum<T : Any>(
         false,
         erstatter,
         _skalLagres = skalLagres,
-        erTombstone = erTombstone,
     ) {
     constructor(
         opplysningstype: Opplysningstype<T>,
@@ -203,7 +171,6 @@ class Faktum<T : Any>(
             kilde,
             opprettet,
             erstatter,
-            erTombstone = erTombstone,
         )
 
     override fun medNyId(): Opplysning<T> =
@@ -216,18 +183,5 @@ class Faktum<T : Any>(
             kilde,
             opprettet,
             erstatter,
-            erTombstone = erTombstone,
-        )
-
-    override fun somTombstone(): Opplysning<T> =
-        Faktum(
-            UUIDv7.ny(),
-            opplysningstype,
-            verdi,
-            gyldighetsperiode,
-            utledetAv,
-            kilde,
-            opprettet,
-            erTombstone = true,
         )
 }

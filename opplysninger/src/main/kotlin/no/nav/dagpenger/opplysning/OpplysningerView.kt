@@ -40,7 +40,7 @@ internal class OpplysningerView(
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>): List<Opplysning<*>> =
         opplysningstyper.mapNotNull { type ->
-            hentBaseListe().lastOrNull { it.er(type) && !it.erTombstone }
+            hentBaseListe().lastOrNull { it.er(type) && !source.erTombstonet(it.id) }
         }
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>): List<Opplysning<T>> =
@@ -48,7 +48,7 @@ internal class OpplysningerView(
 
     override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>): List<Opplysning<T>> =
         hentBaseListe()
-            .filter { it.er(opplysningstype) && !it.erTombstone }
+            .filter { it.er(opplysningstype) && !source.erTombstonet(it.id) }
             .filterIsInstance<Opplysning<T>>()
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger = OpplysningerView(source, gjelderFor, bareEgne)
