@@ -6,5 +6,5 @@ plugins {
 dependencies {
     implementation(libs.konfig)
     implementation(libs.kotlin.logging)
-    api("io.getunleash:unleash-client-java:9.3.2")
+    api("io.getunleash:unleash-client-java:12.2.3")
 }
