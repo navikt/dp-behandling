@@ -13,6 +13,7 @@ import no.nav.dagpenger.modell.Behandling.TilstandType.Avbrutt
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.modell.Behandlingkjede
+import no.nav.dagpenger.modell.BehandlingskjedeOpplysninger
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.Hendelse
@@ -45,6 +46,14 @@ internal class BehandlingRepositoryPostgres(
         dbSession.session { session ->
             session.hentBehandlinger(HentBehandling.AlleForIdent(ident))
         }
+
+    override fun hentRelevanteOpplysninger(ident: String): List<BehandlingskjedeOpplysninger> {
+        dbSession.session { session ->
+            val kjeder = session.hentBehandlinger(HentBehandling.AlleForIdent(Ident(ident)))
+        }
+
+        return emptyList()
+    }
 
     override fun flyttBehandling(
         behandlingId: UUID,

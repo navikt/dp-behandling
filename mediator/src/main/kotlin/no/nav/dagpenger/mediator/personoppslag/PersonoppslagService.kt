@@ -1,12 +1,10 @@
-package no.nav.dagpenger.mediator.datadeling
+package no.nav.dagpenger.mediator.personoppslag
 
 import no.nav.dagpenger.mediator.api.models.BeregnetDagDTO
-import no.nav.dagpenger.mediator.api.models.DatadelingForesporselDTO
-import no.nav.dagpenger.mediator.api.models.DatadelingPeriodeDTO
-import no.nav.dagpenger.mediator.api.models.DatadelingPeriodeResponsDTO
+import no.nav.dagpenger.mediator.api.models.RettighetsperiodeResponsDTO
 import no.nav.dagpenger.mediator.api.models.YtelsestypeDTO
-import no.nav.dagpenger.mediator.repository.BehandlingMedOpplysninger
-import no.nav.dagpenger.mediator.repository.DatadelingRepository
+import no.nav.dagpenger.mediator.repository.BehandlingskjedeOpplysninger
+import no.nav.dagpenger.mediator.repository.PersonOpplysningerRepository
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.regel.OpplysningsTyper
 import no.nav.dagpenger.regel.RegelverkDagpenger
@@ -16,44 +14,48 @@ import java.time.LocalDate
 import java.util.UUID
 
 /**
- * Bygger datadeling-responser (perioder og beregninger) direkte fra
+ * Svarer på personnivå-spørsmål (rettighetsperioder, beregninger) direkte fra
  * dp-behandlings database, uten å gå veien om personaggregatet.
  *
  * Gjenbruker [RegelverkDagpenger] sine beregningsfunksjoner slik at
  * forretningslogikken er den samme som i behandlingsresultat-eventet.
  * Kontrakten er definert i behandling-api.yaml og DTO-ene genereres av Fabrikt.
  */
-class DatadelingService(
-    private val repository: DatadelingRepository,
+class PersonoppslagService(
+    private val repository: PersonOpplysningerRepository,
 ) {
-    fun hentPerioder(forespørsel: DatadelingForesporselDTO): DatadelingPeriodeResponsDTO {
-        val ønsketPeriode = Datoperiode(forespørsel.fraOgMed, forespørsel.tilOgMed ?: LocalDate.MAX)
-        val perioder =
-            repository
-                .hentFerdigeBehandlinger(forespørsel.ident)
-                .flatMap { behandling -> behandling.tilPerioder() }
-                .filter { Datoperiode(it.fraOgMed, it.tilOgMed ?: LocalDate.MAX) overlapper ønsketPeriode }
-                .sortedBy { it.fraOgMed }
-
-        return DatadelingPeriodeResponsDTO(ident = forespørsel.ident, perioder = perioder)
+    fun hentRettighetsperioder(
+        ident: String,
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate?,
+    ): List<RettighetsperiodeResponsDTO> {
+        val ønsketPeriode = Datoperiode(fraOgMed, tilOgMed ?: LocalDate.MAX)
+        return repository
+            .hentRelevanteOpplysninger(ident)
+            .flatMap { kjede -> kjede.tilRettighetsperioder() }
+            .filter { Datoperiode(it.fraOgMed, it.tilOgMed ?: LocalDate.MAX) overlapper ønsketPeriode }
+            .sortedBy { it.fraOgMed }
     }
 
-    fun hentBeregninger(forespørsel: DatadelingForesporselDTO): List<BeregnetDagDTO> {
-        val ønsketPeriode = Datoperiode(forespørsel.fraOgMed, forespørsel.tilOgMed ?: LocalDate.MAX)
+    fun hentBeregninger(
+        ident: String,
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate?,
+    ): List<BeregnetDagDTO> {
+        val ønsketPeriode = Datoperiode(fraOgMed, tilOgMed ?: LocalDate.MAX)
         return repository
-            .hentFerdigeBehandlinger(forespørsel.ident)
-            .flatMap { behandling -> behandling.tilBeregnedeDager() }
+            .hentRelevanteOpplysninger(ident)
+            .flatMap { kjede -> kjede.tilBeregnedeDager() }
             .filter { Datoperiode(it.fraOgMed, it.tilOgMed) overlapper ønsketPeriode }
             .sortedBy { it.fraOgMed }
     }
 
-    private fun BehandlingMedOpplysninger.tilPerioder(): List<DatadelingPeriodeDTO> {
+    private fun BehandlingskjedeOpplysninger.tilRettighetsperioder(): List<RettighetsperiodeResponsDTO> {
         val rettighetstyper = opplysninger.rettighetstyper()
-        // Returnerer både perioder med og uten rett — filtrering på harRett gjøres av konsumenten (dp-datadeling)
         return RegelverkDagpenger
             .rettighetsperioder(opplysninger)
             .map { periode ->
-                DatadelingPeriodeDTO(
+                RettighetsperiodeResponsDTO(
                     fraOgMed = periode.fraOgMed,
                     tilOgMed = periode.tilOgMed.takeIf { it != LocalDate.MAX },
                     harRett = periode.harRett,
@@ -62,7 +64,7 @@ class DatadelingService(
             }
     }
 
-    private fun BehandlingMedOpplysninger.tilBeregnedeDager(): List<BeregnetDagDTO> =
+    private fun BehandlingskjedeOpplysninger.tilBeregnedeDager(): List<BeregnetDagDTO> =
         RegelverkDagpenger.utbetalinger(opplysninger).map { utbetaling ->
             BeregnetDagDTO(
                 fraOgMed = utbetaling.dato,
@@ -74,8 +76,7 @@ class DatadelingService(
         }
 
     /**
-     * Samme utledning som dp-datadelings BehandlingResultatV1Tolker:
-     * finn rettighetstypen som dekker perioden, med Ordinær som standard.
+     * Finn rettighetstypen som dekker perioden, med Ordinær som standard.
      */
     private fun ytelseTypeFor(
         rettighetstyper: List<RettighetstypePeriode>,
@@ -89,7 +90,7 @@ class DatadelingService(
         return when (dekkende?.type) {
             null, Rettighetstype.ORDINÆR -> YtelsestypeDTO.DAGPENGER_ARBEIDSSOKER_ORDINAER
             Rettighetstype.PERMITTERING -> YtelsestypeDTO.DAGPENGER_PERMITTERING_ORDINAER
-            Rettighetstype.LØNNSGARANTI -> throw IllegalArgumentException("Lønngaranti ikke støttet i datadeling")
+            Rettighetstype.LØNNSGARANTI -> throw IllegalArgumentException("Lønngaranti ikke støttet")
             Rettighetstype.FISK -> YtelsestypeDTO.DAGPENGER_PERMITTERING_FISKEINDUSTRI
         }
     }
@@ -107,8 +108,7 @@ class DatadelingService(
             }
 
     /**
-     * Samme oppslag som dp-datadelings BehandlingResultatV1Tolker, inkludert
-     * fallback til innvilget antall stønadsdager.
+     * Gjenstående dager for en dato, med fallback til innvilget antall stønadsdager.
      */
     private fun LesbarOpplysninger.gjenståendeDager(dato: LocalDate): Int =
         somListe()

@@ -180,7 +180,7 @@ internal class OpplysningerRepositoryPostgres(
                             -- direkte fikk planleggeren til å tro resultatet var mye større enn det er,
                             -- og valgte en full tabellskann (Merge Join) i stedet for indeksoppslag.
                             SELECT o.*
-                            FROM opplysningstabell o
+                            FROM opplysningstabell o    
                             WHERE o.id = ANY(ARRAY(SELECT id FROM opplysningskjede))
                             ORDER BY o.id
                             """.trimIndent(),
