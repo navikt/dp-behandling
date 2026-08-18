@@ -1,7 +1,7 @@
 package no.nav.dagpenger.mediator.api
 
 import no.nav.dagpenger.mediator.api.models.BehandlingSammendragDTO
-import no.nav.dagpenger.mediator.api.models.PeriodeDTO
+import no.nav.dagpenger.mediator.api.models.LukketPeriodeDTO
 import no.nav.dagpenger.mediator.api.models.SakDTO
 import no.nav.dagpenger.mediator.api.models.SakStatusDTO
 import no.nav.dagpenger.modell.Behandling
@@ -42,7 +42,7 @@ private fun Behandling.tilSakStatusDTO(): SakStatusDTO {
     val perioder = vedtakopplysninger.rettighetsperioderRådata()
     val iDag = LocalDate.now()
     val gjeldendePeriode =
-        perioder.lastOrNull { !it.fraOgMed.isAfter(iDag) && !it.tilOgMed.isBefore(iDag) }
+        perioder.last { !it.fraOgMed.isAfter(iDag) && !it.tilOgMed.isBefore(iDag) }
 
     val sisteMeldeperiode =
         opplysninger
@@ -51,10 +51,10 @@ private fun Behandling.tilSakStatusDTO(): SakStatusDTO {
             ?.verdi
 
     return SakStatusDTO(
-        harLøpendeRett = gjeldendePeriode?.harRett ?: false,
-        fraOgMed = gjeldendePeriode?.fraOgMed,
-        tilOgMed = gjeldendePeriode?.tilOgMed?.tilApiDato(),
-        sisteMeldeperiode = sisteMeldeperiode?.let { PeriodeDTO(fraOgMed = it.fraOgMed, tilOgMed = it.tilOgMed) },
+        harLøpendeRett = gjeldendePeriode.harRett,
+        fraOgMed = gjeldendePeriode.fraOgMed,
+        tilOgMed = gjeldendePeriode.tilOgMed.tilApiDato(),
+        sisteMeldeperiode = sisteMeldeperiode?.let { LukketPeriodeDTO(fraOgMed = it.fraOgMed, tilOgMed = it.tilOgMed) },
         // sisteGjenståendeDager har en åpen gyldighetsperiode (fra siste forbruksdato og fremover),
         // i motsetning til gjenståendeDager som kun er gyldig per forbruksdag
         gjenståendeDager = opplysninger.finnNullableOpplysning(Beregning.sisteGjenståendeDager)?.verdi,

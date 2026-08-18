@@ -2091,6 +2091,19 @@ components:
           type: string
           format: date
 
+    LukketPeriode:
+      type: object
+      required:
+        - fraOgMed
+        - tilOgMed
+      properties:
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          type: string
+          format: date
+
     Rettighetsperiode:
       description: En periode hvor brukeren har fått vurdert sin rett på dagpenger og utfallet av vurderingen
       type: object
@@ -2268,6 +2281,7 @@ components:
       type: object
       required:
         - harLøpendeRett
+        - sistEndret
       properties:
         harLøpendeRett:
           description: Om bruker har en løpende rett på dagpenger i dag
@@ -2281,7 +2295,7 @@ components:
           type: string
           format: date
         sisteMeldeperiode:
-          $ref: '#/components/schemas/Periode'
+          $ref: '#/components/schemas/LukketPeriode'
         gjenståendeDager:
           description: Antall gjenstående dager med rett på dagpenger
           type: integer
