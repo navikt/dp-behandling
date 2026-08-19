@@ -58,10 +58,14 @@ class KvotetellingsSkriver(
         opplysninger: Opplysninger,
         resultat: Kvotetellingsresultat,
     ) {
-        resultat.forbruktTeller.forEach { opplysninger.leggTil(Faktum(definisjon.forbruksteller, it.verdi, it.gyldighetsperiode)) }
-        resultat.gjenstående.forEach { opplysninger.leggTil(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
-        resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
-        resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
+        val batch =
+            buildList {
+                resultat.forbruktTeller.forEach { add(Faktum(definisjon.forbruksteller, it.verdi, it.gyldighetsperiode)) }
+                resultat.gjenstående.forEach { add(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
+                resultat.sisteDagMedForbruk?.let { add(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
+                resultat.sisteGjenstående?.let { add(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
+            }
+        opplysninger.leggTilAlle(batch)
 
         if (resultat.sisteGjenstående?.verdi == 0 && resultat.gjenstående.any { it.verdi != 0 }) {
             val sisteDag = resultat.sisteDagMedForbruk!!.verdi
