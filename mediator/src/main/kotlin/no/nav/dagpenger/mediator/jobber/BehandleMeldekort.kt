@@ -4,7 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.api.GlobalOpenTelemetry
 import no.nav.dagpenger.mediator.meldekort.MeldekortBehandlingskø
 import kotlin.concurrent.fixedRateTimer
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 internal class BehandleMeldekort(
     private val meldekortBehandlingskø: MeldekortBehandlingskø,
@@ -18,7 +20,7 @@ internal class BehandleMeldekort(
         fixedRateTimer(
             name = "Behandle meldekort",
             daemon = true,
-            initialDelay = 1.minutes.inWholeMilliseconds,
+            initialDelay = Random.nextInt(60, 180).seconds.inWholeMilliseconds,
             period = 1.minutes.inWholeMilliseconds,
             action = {
                 val span = tracer.spanBuilder("behandle-meldekortkø").startSpan()
