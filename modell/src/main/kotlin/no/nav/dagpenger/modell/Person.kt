@@ -46,13 +46,30 @@ data class Rettighetstatus(
 class Person(
     val ident: Ident,
     behandlinger: List<Behandlingkjede>,
-    private val rettighetstatus: TemporalCollection<Rettighetstatus> = TemporalCollection(),
     utestengninger: List<Utestengningsperiode> = emptyList(),
 ) : Aktivitetskontekst,
     PersonHåndter,
     PersonObservatør {
     private val observatører =
         mutableSetOf<PersonObservatør>()
+
+    private val rettighetstatus: TemporalCollection<Rettighetstatus> =
+        behandlinger.fold(TemporalCollection()) { rettighetstatus, behandlingkjede ->
+            behandlingkjede.alleFerdigeLøvnoder.lastOrNull()?.let {
+                it.vedtakopplysninger.rettighetsperioder.map { periode ->
+                    rettighetstatus.put(
+                        periode.fraOgMed,
+                        Rettighetstatus(
+                            periode.fraOgMed,
+                            periode.harRett,
+                            it.behandlingId,
+                            it.behandlingskjedeId,
+                        ),
+                    )
+                }
+            }
+            rettighetstatus
+        }
 
     private val utestengninger = utestengninger.toMutableList()
 

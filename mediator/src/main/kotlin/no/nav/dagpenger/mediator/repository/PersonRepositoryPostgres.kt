@@ -41,7 +41,6 @@ class PersonRepositoryPostgres(
                         mapOf("ident" to ident.identifikator()),
                     ).map { row ->
                         val dbIdent = Ident(row.string("ident"))
-                        val rettighetstatuser = session.rettighetstatusFor(dbIdent)
                         val utestengninger = session.utestengningerFor(dbIdent)
                         val behandlingskjeder = behandlingRepository.hentBehandlinger(dbIdent)
                         logger.info {
@@ -51,7 +50,7 @@ class PersonRepositoryPostgres(
                             }} behandling(er)"
                         }
                         Metrikk.registrerAntallBehandlinger(behandlingskjeder.size)
-                        Person(dbIdent, behandlingskjeder, rettighetstatuser, utestengninger)
+                        Person(dbIdent, behandlingskjeder, utestengninger)
                     }.asSingle,
                 )?.also {
                     val antallBehandlinger = it.behandlinger().size.toString()
