@@ -13,7 +13,6 @@ import no.nav.dagpenger.opplysning.Opplysninger.Companion.sisteEndring
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
-import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.prosess.PeriodeOverskrivingsStrategi.Companion.OVERSKRIV_ALLTID
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -28,8 +27,6 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
 
     init {
         registrer(RettighetsperiodePlugin(this.regelverk, OVERSKRIV_ALLTID))
-        // TODO: Sjekk at dette faktisk er lurt
-        // registrer(PrøvingsdatoPlugin())
         registrer(OmgjøringBeregningPlugin(meldekortBeregningPlugin))
     }
 
@@ -58,8 +55,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun kontrollpunkter() = listOf(OmgjøringUtenKlageKontroll, SkalOmgjøringUtenKlageVurderesKontroll)
 
-    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
-        opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }
+    override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = true
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
         val meldeperioder = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)

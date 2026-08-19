@@ -113,6 +113,7 @@ class OmgjøringScenarioTester {
             // Send meldekortet FØR det første
             person.sendInnMeldekort(0)
             meldekortBatch(avklar = true, markerFerdig = true)
+            saksbehandler.beslutt()
 
             behandlingsresultat(5) {
                 opplysninger(Beregning.forbruktEgenandel) {
@@ -510,8 +511,8 @@ class OmgjøringScenarioTester {
                 rettighetsperioder.last().fraOgMed shouldBe 21.november(2025)
             }
 
-            repeat(14) {
-                person.sendInnMeldekort(1)
+            (1..14).forEach {
+                person.sendInnMeldekort(it)
                 meldekortBatch(markerFerdig = true)
             }
 

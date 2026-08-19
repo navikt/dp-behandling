@@ -73,8 +73,8 @@ class RevurderingInntektTest {
             // I motsetning til den direkte-push-varianten er den nye inntekten satt av en behovsløser
             // (maskinell kilde), ikke av en saksbehandler. Da krever ikke omgjøringsprosessen
             // totrinnskontroll (se Omgjøringsprosess.kreverTotrinnskontroll), og behandlingen blir
-            // Ferdig allerede ved godkjenning - det er ikke noe eget beslutt-steg å utføre her.
             saksbehandler.godkjenn()
+            saksbehandler.beslutt()
 
             verifiserOppdatertGrunnlagOgSats(opprinneligGrunnlag, opprinneligSats)
         }

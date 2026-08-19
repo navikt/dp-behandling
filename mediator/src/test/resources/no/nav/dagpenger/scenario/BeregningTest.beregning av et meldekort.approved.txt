@@ -49,4 +49,4 @@ Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: Ferdig
+Behandling endret tilstand til: TilGodkjenning
