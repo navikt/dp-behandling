@@ -21,7 +21,9 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.permitteringsdag
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
+import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermittering
 
 class MeldekortBeregningPlugin(
     private val kvoter: List<KvoteDefinisjon>,
@@ -51,6 +53,12 @@ class MeldekortBeregningPlugin(
         val opplysninger = kontekst.opplysninger
         val gyldighetsperiode = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed)
         kontekst.info("Beregner meldeperiode: ${gyldighetsperiode.fraOgMed} til ${gyldighetsperiode.tilOgMed}")
+
+        val permitteringsperioder = opplysninger.finnAlle(oppfyllerKravetTilPermittering).filter { it.verdi }.map { it.gyldighetsperiode }
+        meldeperiode.forEach { dag ->
+            val erPermittert = permitteringsperioder.any { it.inneholder(dag) }
+            opplysninger.leggTil(Faktum(permitteringsdag, erPermittert, Gyldighetsperiode(dag, dag)))
+        }
 
         opplysninger.fastsettMeldtITide(meldeperiode, gyldighetsperiode)
 

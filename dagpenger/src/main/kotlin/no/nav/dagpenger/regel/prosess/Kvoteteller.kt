@@ -8,7 +8,6 @@ import no.nav.dagpenger.regel.Kvotetelling
 import no.nav.dagpenger.regel.Kvotetellingsresultat
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag
 import java.time.LocalDate
-import kotlin.collections.filter
 
 internal fun KvoteDefinisjon.tell(
     opplysninger: LesbarOpplysninger,
@@ -43,7 +42,12 @@ internal class Kvoteteller private constructor(
         fraOgMed: LocalDate,
     ): Map<KvoteDefinisjon, List<LocalDate>> {
         // Alle kvoter som teller rettighet får telle alle forbruksdager
-        val rettigheter = kvoter.filter { it.teller(Rettighet) }.associateWith { rettighetsdager }
+        val rettigheter =
+            kvoter.filter { it.teller(Rettighet) }.associateWith { kvotedefinisjon ->
+                rettighetsdager.filter {
+                    opplysninger.finnOpplysning(kvotedefinisjon.tellesNår, it).verdi
+                }
+            }
 
         // Alle kvoter som teller bortfall må telle i rekkefølge
         val sanksjoner = bortfallPerSanksjon(opplysninger, fraOgMed)

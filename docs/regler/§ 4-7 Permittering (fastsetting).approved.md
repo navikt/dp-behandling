@@ -4,7 +4,9 @@
 
 ```mermaid
 graph RL
-  A["Periode som gis ved permittering"] -->|"Oppslag"| B["Prøvingsdato"]
+  A["Uker med fritak fra arbeidsplikt"] -->|"Oppslag"| B["Prøvingsdato"]
+  C["Dager med fritak fra arbeidsplikt"] -->|"Multiplikasjon"| A["Uker med fritak fra arbeidsplikt"]
+  C["Dager med fritak fra arbeidsplikt"] -->|"Multiplikasjon"| D["Antall dager som skal regnes med i hver uke"]
 ```
 
 ## Akseptansetester

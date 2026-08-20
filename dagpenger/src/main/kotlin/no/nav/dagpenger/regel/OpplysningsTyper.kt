@@ -297,6 +297,14 @@ object OpplysningsTyper {
     val oppfyllerKravetTilPermitteringId = Opplysningstype.Id(UUID.fromString("0194d111-db2f-7395-bcfb-959f245fd2a6"), Boolsk)
     val erPermitteringenMidlertidigId = Opplysningstype.Id(UUID.fromString("0194d119-90b7-7416-a8b0-9e9cf3587d48"), Boolsk)
     val permitteringsperiodeId = Opplysningstype.Id(UUID.fromString("0195042d-918e-7fae-8fb7-7f38eed42710"), Heltall)
+    val antallPermitteringsdagerId = Opplysningstype.Id(UUID.fromString("01a01e28-0ad3-77e4-aaf5-e23392821cfb"), Heltall)
+
+    val forbruktPermitteringId = Opplysningstype.Id(UUID.fromString("01a01e28-4bc6-7132-a846-a5666f92427c"), Heltall)
+    val gjenståendePermitteringId = Opplysningstype.Id(UUID.fromString("01a01e28-a90b-7109-beae-b69d61cea3c0"), Heltall)
+    val sistePermitteringsdagId = Opplysningstype.Id(UUID.fromString("01a01e28-e230-7661-98cd-8ece26fa6224"), Dato)
+    val sisteGjenståendePermitteringId = Opplysningstype.Id(UUID.fromString("01a01e29-0db9-76a0-8621-5df3a7fb06ef"), Heltall)
+
+    val permitteringsdagId = Opplysningstype.Id(UUID.fromString("01a01e47-4bf4-739e-950c-5ac51d4fb6e3"), Boolsk)
 
     // permittering fiskeindustri
     val oppfyllerKravetTilPermitteringFiskeindustriId = Opplysningstype.Id(UUID.fromString("019522b0-c722-76d4-8d7f-78f556c51f72"), Boolsk)

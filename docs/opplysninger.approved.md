@@ -279,10 +279,17 @@ Dette er opplysninger som blir brukt av regelverket.
 *Type:* Fastsettelse
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-15. Antall stønadsuker (stønadsperiode)](#-4-15-antall-stønadsuker-(stønadsperiode))
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Heltall|int|| Uker|Resultat
+|0195042d-918e-7fae-8fb7-7f38eed42710|Uker med fritak fra arbeidsplikt|Heltall|int|| Uker|Intern
+|01a01e28-0ad3-77e4-aaf5-e23392821cfb|Dager med fritak fra arbeidsplikt|Heltall|int|| Dager|Resultat
+|01a01e28-4bc6-7132-a846-a5666f92427c|Antall fritaksperiodedager som er forbrukt|Heltall|int|| Dager|Utgangspunkt
+|01a01e28-a90b-7109-beae-b69d61cea3c0|Antall fritaksperiodedager som gjenstår|Heltall|int|| Dager|Utgangspunkt
+|01a01e28-e230-7661-98cd-8ece26fa6224|Siste forbruksdato av fritaksperiode|Dato|LocalDate|||Utgangspunkt
+|01a01e29-0db9-76a0-8621-5df3a7fb06ef|Siste antall fridagsperiodedager som gjenstår|Heltall|int|| Dager|Utgangspunkt
+|01a01e47-4bf4-739e-950c-5ac51d4fb6e3|Arbeidsdag hvor bruker har vært permittert|Boolsk|boolean|||Utgangspunkt
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Vilkår
 #### Avklaringer

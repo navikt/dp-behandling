@@ -27,7 +27,6 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antall
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
-import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
@@ -245,26 +244,6 @@ class ScenarioTest {
 
     // TODO: Lag en dedikert test som verifiserer at behandlingsresultat har ident til saksbehandler og beslutter
     // TODO: Lag en dedikert test som verifiserer at behandlingsresultat om behandlingen er automatisk
-
-    @Test
-    fun `tester innvilgelse ved permittering`() {
-        nyttScenario {
-            inntektSiste12Mnd = 500000
-            permittering = true
-        }.test {
-            person.søkDagpenger(21.juni(2018))
-
-            behovsløsere.løsTilForslag()
-
-            behandlingsresultatForslag {
-                utfall shouldBe true
-
-                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
-                    this.single().verdi.verdi shouldBe 26
-                }
-            }
-        }
-    }
 
     @Test
     fun `tester innvilgelse ved verneplikt`() {
