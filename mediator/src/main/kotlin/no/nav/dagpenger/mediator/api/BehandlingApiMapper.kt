@@ -34,15 +34,13 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.anses
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.endringIkkeTilSkade
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ikkeUnderretning
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
-import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.holderTilbake
-import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.unnlateråEtterkommePålegg
-import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger.uriktigeOpplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.antallDagerFristForRegistrering
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.registrertIVertsland
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.skalHaEksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
+import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt.oppfyllerOpplysningsplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.medlemFolketrygden
@@ -103,6 +101,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.antallBortfallsuker
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.harTidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap
+import no.nav.dagpenger.regel.regelsett.vilkår.Uriktigeopplysninger.holderTilbake
+import no.nav.dagpenger.regel.regelsett.vilkår.Uriktigeopplysninger.unnlateråEtterkommePålegg
+import no.nav.dagpenger.regel.regelsett.vilkår.Uriktigeopplysninger.uriktigeOpplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelsePåKurs
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.grunnskoleopplæring
@@ -341,6 +342,8 @@ internal val redigerbareOpplysninger =
                             antallBarn,
                             arbeidstidsreduksjonIkkeBruktTidligere,
                             barnetilleggetsStørrelse,
+                            // 21-3 Medlemmets opplysningsplikt
+                            oppfyllerOpplysningsplikt,
                             // 21-7 Uriktige opplysninger
                             uriktigeOpplysninger,
                             holderTilbake,

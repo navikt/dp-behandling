@@ -21,12 +21,12 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg
-import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
+import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
@@ -46,6 +46,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Uriktigeopplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
@@ -68,6 +69,7 @@ val RegelverkDagpenger =
         FulleYtelser.regelsett,
         Gjenopptak.regelsett,
         KravPåDagpenger.regelsett,
+        MedlemmetOpplysningsplikt.regelsett,
         Meldeplikt.regelsett,
         Minsteinntekt.regelsett,
         OmgjøringUtenKlageValg.regelsett,

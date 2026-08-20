@@ -397,6 +397,9 @@ object OpplysningsTyper {
             Boolsk,
         )
 
+    // Medlemmets opplysningsplikt
+    val oppfyllerOpplysningspliktId = Opplysningstype.Id(UUID.fromString("01a01e21-17ce-70c4-aac1-d25c30ecfac9"), Boolsk)
+
     // Omgjøring Uten klage
     val endringIkkeTilSkadeId = Opplysningstype.Id(UUID.fromString("019c5673-ae11-7a8a-ae77-170f6ac20944"), Boolsk)
     val ikkeUnderretningId = Opplysningstype.Id(UUID.fromString("019c5676-5c44-73d4-bc65-aee9d9257aa1"), Boolsk)

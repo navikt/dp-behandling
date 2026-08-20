@@ -1,4 +1,4 @@
-package no.nav.dagpenger.regel.regelsett.prosessvilkår
+package no.nav.dagpenger.regel.regelsett.vilkår
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.dsl.vilkår
@@ -36,7 +36,7 @@ object Uriktigeopplysninger {
                 21,
                 7,
                 "Uriktige opplysninger m.m. - følger for ytelser fra trygden",
-                "Manglende og uriktige opplysninger",
+                "Uriktige opplysninger og tilbakeholdelse",
             ),
         ) {
             regel(uriktigeOpplysninger) { somUtgangspunkt(false) }

@@ -129,6 +129,12 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9414-7823-8d29-0e25b7feb7ce|Lovpålagt rapporteringsfrist for A-ordningen|Dato|LocalDate|||Intern
 |0194881f-9414-7823-8d29-0e25b7feb7cf|Arbeidsgivers rapporteringsfrist|Dato|LocalDate|||Intern
 |0194881f-9414-7823-8d29-0e25b7feb7d0|Siste avsluttende kalendermåned|Dato|LocalDate|||Resultat
+### § 21-3. Medlemmets opplysningsplikt
+*Type:* Vilkår
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|01a01e21-17ce-70c4-aac1-d25c30ecfac9|Har gitt alle nødvendige opplysninger?|Boolsk|boolean|||Resultat
 ### § 4-3. Tap av arbeidsinntekt og arbeidstid
 *Type:* Vilkår
 #### Avklaringer

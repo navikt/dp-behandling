@@ -2360,6 +2360,7 @@ components:
         - Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet
         - Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid § 10-4 annet ledd
         - Oppfyller kravet til eksport
+        - Oppfyller medlemmets opplysningsplikt
 
   examples:
     UgyldigBehandlingstilstandProblem:

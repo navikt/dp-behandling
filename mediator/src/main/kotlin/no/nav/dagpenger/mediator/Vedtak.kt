@@ -47,11 +47,11 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
-import no.nav.dagpenger.regel.regelsett.prosessvilkår.Uriktigeopplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
+import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
@@ -68,6 +68,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Uriktigeopplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
@@ -268,6 +269,8 @@ internal val opplysningTilVilkårMap =
             VilkaarNavnDTO.TRE_PÅFØLGENDE_MELDEPERIODER_UTEN_TILSTREKKELIG_TAP_AV_ARBEIDSTID___10_4_ANNET_LEDD,
         Eksport.oppfyllerVilkårForEksport to
             VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_EKSPORT,
+        MedlemmetOpplysningsplikt.oppfyllerOpplysningsplikt to
+            VilkaarNavnDTO.OPPFYLLER_MEDLEMMETS_OPPLYSNINGSPLIKT,
     )
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")
