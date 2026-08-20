@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.tomHjemmel
 import no.nav.dagpenger.regel.KvotetellingsSkriver
@@ -54,7 +55,7 @@ class KvotetellingsSkriverTest {
             )
         val opplysninger = Opplysninger().apply { leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025)))) }
 
-        KvotetellingsSkriver(kvote).skriv(opplysninger, resultat)
+        KvotetellingsSkriver(kvote).skriv(Prosesskontekst(opplysninger), resultat)
 
         opplysninger.finnAlle(Beregning.forbrukt).last().verdi shouldBe 2
         opplysninger.finnAlle(Beregning.gjenståendeDager).last().verdi shouldBe 1
@@ -93,7 +94,7 @@ class KvotetellingsSkriverTest {
             )
         val opplysninger = Opplysninger().apply { leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025)))) }
 
-        KvotetellingsSkriver(kvote).skriv(opplysninger, resultat)
+        KvotetellingsSkriver(kvote).skriv(Prosesskontekst(opplysninger), resultat)
 
         opplysninger.finnAlle(Beregning.forbruktSanksjonsdager).map { it.verdi } shouldBe listOf(1, 2)
         opplysninger.finnAlle(Beregning.gjenståendeSanksjonsdager).last().verdi shouldBe 1

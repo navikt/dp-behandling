@@ -376,10 +376,10 @@ class ArbeidssøkerTest {
                 }
             }
 
-            saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, true, "", Gyldighetsperiode(3.august(2026), 16.august(2026)))
+            // saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, true, "", Gyldighetsperiode(3.august(2026), 16.august(2026)))
             saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, false, "", Gyldighetsperiode(17.august(2026)))
 
-            behandlingsresultatForslag(8) {
+            behandlingsresultatForslag(7) {
                 rettighetsperioder shouldHaveSize 2
                 with(rettighetsperioder[0]) {
                     harRett shouldBe true

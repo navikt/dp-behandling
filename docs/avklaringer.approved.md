@@ -120,7 +120,7 @@ Søker har oppgitt permittering fra fiskeindustri i søknaden. <br>Vurder om sø
 ### Tilknyttet regelsett
 - [§ 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien](./opplysninger.approved.md#-6-7-permittering-i-fiskeforedlingsindustrien,-sjømatindustrien-og-fiskeoljeindustrien)
 ### Opplysninger avklaringen ser på
-- Permittert fra fiskeindustrien
+- Skal permittert fra fiskeindustrien vurderes
 
 ---
 ## Omgjøring etter forvaltningsloven § 35
@@ -314,7 +314,7 @@ Vurder om søker fyller unntakene til reell arbeidssøker.
 ### Tilknyttet regelsett
 - [§ 4-5. Reelle arbeidssøkere](./opplysninger.approved.md#-4-5-reelle-arbeidssøkere)
 ### Opplysninger avklaringen ser på
-- Kravet til reell arbeidssøker er relevant
+- Skal reell arbeidssøker vurderes
 
 ---
 ## Samordning

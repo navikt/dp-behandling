@@ -74,8 +74,8 @@ private val ANTALL_TESTER_I_PARALLELL = System.getProperty("junit.jupiter.execut
 internal object Postgres {
     private val logger = KotlinLogging.logger { }
     private val instance by lazy {
-        PostgreSQLContainer("postgres:18.3").apply {
-            withReuse(true)
+        PostgreSQLContainer("postgres:18.4").apply {
+            withReuse(false)
             start()
         }
     }

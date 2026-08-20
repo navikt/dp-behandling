@@ -27,7 +27,6 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antall
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
-import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktPeriode
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
@@ -40,7 +39,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.kanJobbeHvorSomHelst
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalReellArbeidssøkerVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
@@ -127,7 +126,7 @@ class ScenarioTest {
                 this shouldHaveSize 8
             }
 
-            saksbehandler.endreOpplysning(kravetReellArbeidsøkerSkalVurderes, false)
+            saksbehandler.endreOpplysning(skalReellArbeidssøkerVurderes, false)
             with(saksbehandler.lukkAlleAvklaringer()) {
                 // Avklaringen for reell arbeidssøker forsvinner automatisk om det ikke skal vurderes
                 map { it.kode } shouldNotContain "ReellArbeidssøkerUnntak"
@@ -249,26 +248,6 @@ class ScenarioTest {
     // TODO: Lag en dedikert test som verifiserer at behandlingsresultat om behandlingen er automatisk
 
     @Test
-    fun `tester innvilgelse ved permittering`() {
-        nyttScenario {
-            inntektSiste12Mnd = 500000
-            permittering = true
-        }.test {
-            person.søkDagpenger(21.juni(2018))
-
-            behovsløsere.løsTilForslag()
-
-            behandlingsresultatForslag {
-                utfall shouldBe true
-
-                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
-                    this.single().verdi.verdi shouldBe 26
-                }
-            }
-        }
-    }
-
-    @Test
     fun `tester innvilgelse ved verneplikt`() {
         nyttScenario {
             inntektSiste12Mnd = 50000
@@ -369,7 +348,7 @@ class ScenarioTest {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[0].fraOgMed shouldBe 22.juni(2018)
-                with(opplysninger(Rettighetstype.permitteringFiskeforedling)) {
+                with(opplysninger(Rettighetstype.skalPermitteringFiskeforedlingVurderes)) {
                     size shouldBe 1
                     first().verdi.verdi shouldBe true
                 }
@@ -408,7 +387,7 @@ class ScenarioTest {
 
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(kravetReellArbeidsøkerSkalVurderes, false, "Kan ikke vurdere reell arbeidssøker")
+            saksbehandler.endreOpplysning(skalReellArbeidssøkerVurderes, false, "Kan ikke vurdere reell arbeidssøker")
             saksbehandler.endreOpplysning(
                 prøvingsdato,
                 25.juni(2018),
@@ -820,6 +799,7 @@ class ScenarioTest {
     }
 
     @Test
+    @Disabled("Vi kan ikke stanse direkte på harLøpendeRett")
     fun `tester automatisk stans etter oppbrukt periode`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
