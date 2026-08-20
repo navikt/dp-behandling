@@ -161,7 +161,12 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
 private fun harGapMellomRettighetsperiodene(
     arvede: List<Rettighetsperiode>,
     nye: List<Rettighetsperiode>,
-): Boolean = ChronoUnit.DAYS.between(arvede.last().tilOgMed, nye.first().fraOgMed) > 0
+): Boolean =
+    // Merk: terskelen er > 0, ikke > 1. Selv ett dags avstand mellom periodene regnes som et opphold,
+    // fordi periodene uansett er splittet i to separate rettighetsperioder - var det egentlig sammenhengende
+    // rett, ville det vært én periode. To uavhengige LLM-implementasjoner av denne funksjonen (uten kjennskap
+    // til denne kommentaren) endte begge opp med > 1 og feilet dermed mediator-scenarioet under.
+    ChronoUnit.DAYS.between(arvede.last().tilOgMed, nye.first().fraOgMed) > 0
 
 private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
     val meldeperioder = opplysninger.finnAlle(Beregning.meldeperiode)

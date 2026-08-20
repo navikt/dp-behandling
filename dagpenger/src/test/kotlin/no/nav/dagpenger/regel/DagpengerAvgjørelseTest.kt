@@ -206,6 +206,27 @@ internal class DagpengerAvgjørelseTest {
     }
 
     @Test
+    fun `gjenopptak når stans og påfølgende gjenopptak skjer samme dag`() {
+        // Reflekterer mediator-scenarioet "tester stans og gjenopptak på samme dag": rett → stans → gjenopptak,
+        // der stans og gjenopptak begge har fraOgMed/tilOgMed samme dag. Selv med null dager mellom periodene
+        // skal dette bli Gjenopptak, ikke Endring - se kommentar på harGapMellomRettighetsperiodene.
+        val innvilget =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(21.juni(2018))))
+            }
+        val stanset =
+            Opplysninger.basertPå(innvilget).apply {
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(22.juni(2018))))
+            }
+        val opplysninger =
+            Opplysninger.basertPå(stanset).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(22.juni(2018))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Gjenopptak
+    }
+
+    @Test
     @Disabled("Denne burde bli stans?")
     fun `endring når arvet rett og ny rett kant-i-kant`() {
         // Innvilget → ny rett starter dagen etter forrige slutt = ingen gap = Endring
