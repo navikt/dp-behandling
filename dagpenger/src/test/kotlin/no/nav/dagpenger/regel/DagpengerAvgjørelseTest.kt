@@ -2,8 +2,10 @@ package no.nav.dagpenger.regel
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import no.nav.dagpenger.dato.august
 import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
+import no.nav.dagpenger.dato.juni
 import no.nav.dagpenger.dato.mars
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Faktum
@@ -185,6 +187,22 @@ internal class DagpengerAvgjørelseTest {
             }
 
         RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Gjenopptak
+    }
+
+    @Test
+    fun `lisesaken med gjenopptak ved stans`() {
+        // Innvilget → periode uten rett → ny periode med rett (gap mellom) = Gjenopptak
+        val forrige =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(22.juni(2026))))
+            }
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(3.august(2026), 11.august(2026))))
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(12.august(2026))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Stans
     }
 
     @Test

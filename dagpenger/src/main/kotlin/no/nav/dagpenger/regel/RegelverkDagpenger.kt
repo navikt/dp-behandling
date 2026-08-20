@@ -51,7 +51,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
-import java.time.Period
+import java.time.temporal.ChronoUnit
 
 val RegelverkDagpenger =
     Regelverk(
@@ -128,39 +128,40 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
 
     val (nye, arvede) = perioder.partition { it.endret }
 
+    // Ingen nye perioder betyr at forrige avgjørelse videreføres uendret, f.eks. ved meldekort
+    if (nye.isEmpty()) return Avgjørelse.Endring
+
+    val forrigePeriode = arvede.lastOrNull()
+    val harNyRett = nye.any { it.harRett }
+
+    // Aller første rettighetsperiode som er vurdert - ingenting å sammenligne med
+    if (forrigePeriode == null) {
+        return if (harNyRett) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
+    }
+
     return when {
-        // Ingen endring i rettighetsperiode
-        nye.isEmpty() -> Avgjørelse.Endring
+        // Hadde rett fra før, men ender nå uten rett
+        forrigePeriode.harRett && !nye.last().harRett -> Avgjørelse.Stans
 
-        // Første rettighetsperiode
-        arvede.isEmpty() -> if (nye.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
+        // Hadde rett fra før, og har fortsatt rett - men med et opphold mellom periodene
+        forrigePeriode.harRett && harGapMellomRettighetsperiodene(arvede, nye) -> Avgjørelse.Gjenopptak
 
-        // Går fra å ha rett til ny periode uten rett
-        arvede.last().harRett && !nye.any { it.harRett } -> Avgjørelse.Stans
+        // Hadde rett fra før, og har fortsatt rett uten opphold
+        forrigePeriode.harRett -> Avgjørelse.Endring
 
-        // Går fra å ikke ha rett til å fortsatt ikke ha rett
-        // Avslag om det er gjenopptak
-        // Stans om man går fra stans til stans uten å vurdere gjenopptak
-        !arvede.last().harRett &&
-            !nye.any { it.harRett }
-        -> if (opplysninger.kunEgne.har(skalGjenopptakVurderes)) Avgjørelse.Avslag else Avgjørelse.Stans
+        // Hadde ikke rett fra før, men får ny rett
+        harNyRett -> Avgjørelse.Gjenopptak
 
-        // Går fra å ikke ha rett til å ha ny rett
-        !arvede.last().harRett && nye.any { it.harRett } -> Avgjørelse.Gjenopptak
-
-        // Går fra å ha hatt rett til ny rett uten at de ligger kant-i-kant
-        arvede.last().harRett &&
-            nye.any { it.harRett } &&
-            harDagerMellomRettighetsperiodene(arvede, nye) -> Avgjørelse.Gjenopptak
-
-        else -> Avgjørelse.Endring
+        // Hadde ikke rett fra før, og har fortsatt ikke rett
+        opplysninger.kunEgne.har(skalGjenopptakVurderes) -> Avgjørelse.Avslag
+        else -> Avgjørelse.Stans
     }
 }
 
-private fun harDagerMellomRettighetsperiodene(
+private fun harGapMellomRettighetsperiodene(
     arvede: List<Rettighetsperiode>,
     nye: List<Rettighetsperiode>,
-): Boolean = Period.between(arvede.last().tilOgMed, nye.first().fraOgMed).days > 0
+): Boolean = ChronoUnit.DAYS.between(arvede.last().tilOgMed, nye.first().fraOgMed) > 0
 
 private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
     val meldeperioder = opplysninger.finnAlle(Beregning.meldeperiode)
