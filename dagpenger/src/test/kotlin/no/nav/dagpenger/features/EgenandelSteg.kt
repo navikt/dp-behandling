@@ -13,7 +13,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
 class EgenandelSteg : No {
@@ -40,7 +40,7 @@ class EgenandelSteg : No {
         Og("søker har ikke permittering fra fiskeindustrien") {
             opplysninger.apply {
                 leggTil(Faktum(oppfyllerKravetTilPermitteringFiskeindustri, false))
-                leggTil(Faktum(permitteringFiskeforedling, false))
+                leggTil(Faktum(skalPermitteringFiskeforedlingVurderes, false))
                 regelkjøring.evaluer()
             }
         }
@@ -49,7 +49,7 @@ class EgenandelSteg : No {
             opplysninger
                 .apply {
                     leggTil(Faktum(oppfyllerKravetTilPermitteringFiskeindustri, true))
-                    leggTil(Faktum(permitteringFiskeforedling, true))
+                    leggTil(Faktum(skalPermitteringFiskeforedlingVurderes, true))
                     regelkjøring.evaluer()
                 }
         }

@@ -8,14 +8,19 @@ import no.nav.dagpenger.regel.Kvotetelling
 import no.nav.dagpenger.regel.Kvotetellingsresultat
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag
 import java.time.LocalDate
-import kotlin.collections.filter
 
 internal fun KvoteDefinisjon.tell(
     opplysninger: LesbarOpplysninger,
     fraOgMed: LocalDate,
     dager: List<LocalDate>,
     beregningsdager: List<Beregningsdag>,
-): Kvotetellingsresultat = Kvotetelling.tell(tildeltKapasitet(opplysninger), forrigeForbruk(opplysninger, fraOgMed), dager, beregningsdager)
+): Kvotetellingsresultat =
+    Kvotetelling.tell(
+        tildeltKapasitetOppslag(opplysninger),
+        forrigeForbruk(opplysninger, fraOgMed),
+        dager,
+        beregningsdager,
+    )
 
 internal class Kvoteteller private constructor(
     private val kvoter: List<KvoteDefinisjon>,
@@ -42,13 +47,35 @@ internal class Kvoteteller private constructor(
         opplysninger: LesbarOpplysninger,
         fraOgMed: LocalDate,
     ): Map<KvoteDefinisjon, List<LocalDate>> {
-        // Alle kvoter som teller rettighet får telle alle forbruksdager
-        val rettigheter = kvoter.filter { it.teller(Rettighet) }.associateWith { rettighetsdager }
+        val rettigheter =
+            kvoter
+                .filter { it.teller(Rettighet) }
+                .filter { it.skalFortsattTelles(opplysninger, fraOgMed) }
+                .associateWith { kvotedefinisjon ->
+                    rettighetsdager.filter {
+                        opplysninger.finnOpplysning(kvotedefinisjon.tellesNår, it).verdi
+                    }
+                }
 
         // Alle kvoter som teller bortfall må telle i rekkefølge
         val sanksjoner = bortfallPerSanksjon(opplysninger, fraOgMed)
 
         return rettigheter + sanksjoner
+    }
+
+    /**
+     * En rettighetskvote skal fortsatt telles med for denne perioden dersom utløsendeBetingelse enten
+     * er oppfylt, eller først ble satt til usann ETTER at perioden startet - altså at kvoten brukes
+     * opp midt i DENNE perioden. Den skal telles med helt til overgangen faktisk trer i kraft. Uten
+     * dette ville en rekjøring innenfor samme periode ekskludert kvoten fullstendig, og mistet
+     * forbruket som allerede var beregnet før overgangen.
+     */
+    private fun KvoteDefinisjon.skalFortsattTelles(
+        opplysninger: LesbarOpplysninger,
+        fraOgMed: LocalDate,
+    ): Boolean {
+        val betingelse = opplysninger.finnNullableOpplysning(utløsendeBetingelse) ?: return false
+        return betingelse.verdi || betingelse.gyldighetsperiode.fraOgMed.isAfter(fraOgMed)
     }
 
     private fun bortfallPerSanksjon(

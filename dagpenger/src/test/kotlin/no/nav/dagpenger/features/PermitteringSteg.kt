@@ -8,22 +8,16 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
-import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 
 class PermitteringSteg : No {
     private val fraDato = 23.mai(2024)
     private val regelsett =
-        listOf(
-            Verneplikt.regelsett,
-            Permittering.regelsett,
-            PermitteringFastsetting.regelsett,
-            Rettighetstype.regelsett,
-            Søknadstidspunkt.regelsett,
-        )
+        RegelverkDagpenger.regelsettFor(Permittering.oppfyllerKravetTilPermittering) +
+            RegelverkDagpenger.regelsettFor(PermitteringFastsetting.permitteringsperiode)
     private val opplysninger = Opplysninger()
     private lateinit var regelkjøring: Regelkjøring
 
@@ -34,7 +28,7 @@ class PermitteringSteg : No {
 
     init {
         Gitt("at søker har {boolsk} om dagpenger under permittering") { søkt: Boolean ->
-            opplysninger.leggTil(Faktum(Rettighetstype.erPermittert, søkt) as Opplysning<*>).also { regelkjøring.evaluer() }
+            opplysninger.leggTil(Faktum(Rettighetstype.skalPermitteringVurderes, søkt) as Opplysning<*>).also { regelkjøring.evaluer() }
         }
 
         Og("saksbehandler vurderer at søker har {boolsk} til permittering") { årsak: Boolean ->

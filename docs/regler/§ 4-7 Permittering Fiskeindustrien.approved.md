@@ -5,7 +5,7 @@
 ```mermaid
 graph RL
   A["Krav til prosentvis tap av arbeidstid ved permittering fra fiskeindustrien"] -->|"Oppslag"| B["Prøvingsdato"]
-  C["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| D["Permittert fra fiskeindustrien"]
+  C["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| D["Skal permittert fra fiskeindustrien vurderes"]
   C["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| E["Årsaken til permitteringen fra fiskeindustrien er godkjent"]
   C["Oppfyller kravet til permittering i fiskeindustrien"] -->|"Alle"| F["Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans"]
 ```

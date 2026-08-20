@@ -77,15 +77,15 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
 |0194881f-9444-7a73-a458-0af81c034d85|Har rett til ordinære dagpenger gjennom arbeidsforhold|Boolsk|boolean|Ordinær||Ekstern
-|0194881f-9444-7a73-a458-0af81c034d86|Bruker er permittert|Boolsk|boolean|Permittert||Ekstern
+|0194881f-9444-7a73-a458-0af81c034d86|Skal permittering vurderes|Boolsk|boolean|Permittert||Ekstern
 |0194881f-9444-7a73-a458-0af81c034d87|Forskutterte lønnsgarantimidler i form av dagpenger|Boolsk|boolean|Lønnsgaranti||Ekstern
-|0194881f-9444-7a73-a458-0af81c034d88|Permittert fra fiskeindustrien|Boolsk|boolean|PermittertFiskeforedling||Ekstern
+|0194881f-9444-7a73-a458-0af81c034d88|Skal permittert fra fiskeindustrien vurderes|Boolsk|boolean|PermittertFiskeforedling||Ekstern
 |0194881f-9444-7a73-a458-0af81c034d89|Har rett til ordinære dagpenger uten arbeidsforhold|Boolsk|boolean|||Intern
 |0194881f-9444-7a73-a458-0af81c034d8a|Ordinære dagpenger|Boolsk|boolean|||Intern
 |0194881f-9444-7a73-a458-0af81c034d8b|Rettighetstype|Boolsk|boolean|||Resultat
-|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Kravet til reell arbeidssøker er relevant|Boolsk|boolean|||Resultat
-|01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal kravet til verneplikt vurderes|Boolsk|boolean|||Resultat
-|019d0068-8037-7d91-bfff-de88f9e87fd3|Skal kravet til gjenopptak vurderes|Boolsk|boolean|||Resultat
+|0194ff86-a035-7eb0-9c60-21899f7cc0c1|Skal reell arbeidssøker vurderes|Boolsk|boolean|||Resultat
+|01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal verneplikt vurderes|Boolsk|boolean|||Resultat
+|019d0068-8037-7d91-bfff-de88f9e87fd3|Skal gjenopptak vurderes|Boolsk|boolean|||Resultat
 |019f608d-f9c5-7ccc-a6f3-c53531d1f00c|Skal eksport vurderes|Boolsk|boolean|||Resultat
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
@@ -144,6 +144,7 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-3. Fastsettelse av arbeidstid](#-4-3-fastsettelse-av-arbeidstid)
+- [§ 4-7. Dagpenger til permitterte](#-4-7-dagpenger-til-permitterte)
 - [§ 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien](#-6-7-permittering-i-fiskeforedlingsindustrien,-sjømatindustrien-og-fiskeoljeindustrien)
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 - [§ 4-19. Dagpenger etter avtjent verneplikt](#-4-19-dagpenger-etter-avtjent-verneplikt)
@@ -165,6 +166,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9435-72a8-b1ce-9575cbc2a76f|Oppfyller vilkåret om tap av arbeidsinntekt og arbeidstid|Boolsk|boolean|||Resultat
 |019522d6-846d-7173-a892-67f10016d8d2|Ordinært krav til prosentvis tap av arbeidstid|Desimaltall|double|| Prosent|Intern
 |0196b4a7-23b5-7b2c-aa95-e4167d900de8|Arbeidstidsreduksjonen er ikke brukt tidligere i en full stønadsperiode|Boolsk|boolean|||Utgangspunkt
+|01a03e0b-1dfa-755c-9139-297e3db68a6d|Har ikke krav på lønn fra arbeidsgiver|Boolsk|boolean|||Intern
 ### § 4-3. Fastsettelse av arbeidstid
 *Type:* Fastsettelse
 #### Avhenger på data fra
@@ -269,20 +271,30 @@ Dette er opplysninger som blir brukt av regelverket.
 - HarOppgittPermittering - [Permittering](./avklaringer.approved.md#permittering)
 #### Avhenger på data fra
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
+- [§ 4-7. Dagpenger til permitterte](#-4-7-dagpenger-til-permitterte)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
 |0194d105-bd54-7b2b-9dc6-6e6664951894|Årsaken til permitteringen er godkjent|Boolsk|boolean|||Utgangspunkt
 |0194d111-db2f-7395-bcfb-959f245fd2a6|Oppfyller kravet til permittering|Boolsk|boolean|||Resultat
 |0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|||Utgangspunkt
+|01a02331-3f5b-7751-82f0-0fc520cc8983|Dato permitteringen løper fra|Dato|LocalDate|||Resultat
 ### § 4-7. Dagpenger til permitterte
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-7. Dagpenger til permitterte](#-4-7-dagpenger-til-permitterte)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|0195042d-918e-7fae-8fb7-7f38eed42710|Periode som gis ved permittering|Heltall|int|| Uker|Resultat
+|0195042d-918e-7fae-8fb7-7f38eed42710|Uker med fritak fra arbeidsplikt|Heltall|int|| Uker|Intern
+|01a01e28-0ad3-77e4-aaf5-e23392821cfb|Dager med fritak fra arbeidsplikt|Heltall|int|| Dager|Resultat
+|01a01e28-4bc6-7132-a846-a5666f92427c|Antall fritaksperiodedager som er forbrukt|Heltall|int|| Dager|Utgangspunkt
+|01a01e28-a90b-7109-beae-b69d61cea3c0|Antall fritaksperiodedager som gjenstår|Heltall|int|| Dager|Utgangspunkt
+|01a01e28-e230-7661-98cd-8ece26fa6224|Siste forbruksdato av fritaksperiode|Dato|LocalDate|||Utgangspunkt
+|01a01e29-0db9-76a0-8621-5df3a7fb06ef|Siste antall fridagsperiodedager som gjenstår|Heltall|int|| Dager|Utgangspunkt
+|01a01e47-4bf4-739e-950c-5ac51d4fb6e3|Arbeidsdag hvor bruker har vært permittert|Boolsk|boolean|||Resultat
+|01a02334-b6e7-7565-878c-2b1e1e99e286|Antall dager som skal regnes som en uke ved permittering|Heltall|int|| Dager|Utgangspunkt
+|01a03e0b-1dfa-7832-8ec7-a82c549895b4|Innenfor fritaksperioden for tap av arbeidsinntekt|Boolsk|boolean|||Resultat
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Vilkår
 #### Avklaringer

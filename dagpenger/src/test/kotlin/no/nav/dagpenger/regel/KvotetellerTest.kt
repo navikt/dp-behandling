@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.sortertEtterIlagtDato
@@ -62,9 +63,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025), 7.januar(2025), 9.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -92,9 +93,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025), 7.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, fraOgMed),
                 dager,
                 dager.tilBeregningdager(),
@@ -129,9 +130,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -152,9 +153,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025), 8.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -172,9 +173,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -196,9 +197,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025), 8.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -229,9 +230,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025), 7.januar(2025), 8.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, fraOgMed),
                 dager,
                 dager.tilBeregningdager(),
@@ -264,9 +265,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025), 7.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -291,9 +292,9 @@ class KvotetellerTest {
         val dager = listOf(6.januar(2025), 7.januar(2025))
 
         KvotetellingsSkriver(kvote).skriv(
-            opplysninger,
+            Prosesskontekst(opplysninger),
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitetOppslag(opplysninger),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),

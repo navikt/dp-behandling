@@ -16,7 +16,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.godkjentÅrsakPermitteringFraFisk
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilProsentvisTapAvArbeidstidFiskepermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFiskeindustriId
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
 object PermitteringFraFiskeindustrien {
@@ -56,7 +56,7 @@ object PermitteringFraFiskeindustrien {
                 kortnavn = "Permittering fiskeindustri",
             ),
         ) {
-            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) && it.erSann(permitteringFiskeforedling) }
+            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) && it.erSann(skalPermitteringFiskeforedlingVurderes) }
 
             regel(godkjentÅrsakPermitteringFraFiskindustri) { somUtgangspunkt(true) }
             regel(erPermitteringenFraFiskeindustriMidlertidig) { somUtgangspunkt(true) }
@@ -64,21 +64,21 @@ object PermitteringFraFiskeindustrien {
 
             utfall(oppfyllerKravetTilPermitteringFiskeindustri) {
                 alle(
-                    permitteringFiskeforedling,
+                    skalPermitteringFiskeforedlingVurderes,
                     godkjentÅrsakPermitteringFraFiskindustri,
                     erPermitteringenFraFiskeindustriMidlertidig,
                 )
             }
 
-            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) && it.erSann(permitteringFiskeforedling) }
+            påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) && it.erSann(skalPermitteringFiskeforedlingVurderes) }
 
             avklaring(HarOppgittPermitteringFiskeindustri)
         }
 
-    private fun erPermittertFraFisk(): (LesbarOpplysninger) -> Boolean = { it.erSann(permitteringFiskeforedling) }
+    private fun erPermittertFraFisk(): (LesbarOpplysninger) -> Boolean = { it.erSann(skalPermitteringFiskeforedlingVurderes) }
 
     val PermitteringFiskKontroll =
         Kontrollpunkt(HarOppgittPermitteringFiskeindustri) {
-            it.har(permitteringFiskeforedling) && it.finnOpplysning(permitteringFiskeforedling).verdi
+            it.har(skalPermitteringFiskeforedlingVurderes) && it.finnOpplysning(skalPermitteringFiskeforedlingVurderes).verdi
         }
 }

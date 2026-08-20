@@ -30,6 +30,8 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløp
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.permitteringsdag
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.permitteringsperiode
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ansesUgyldigVedtak
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.endringIkkeTilSkade
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ikkeUnderretning
@@ -63,11 +65,11 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.ønskerÅVæreRegistrertArbeidssøker
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erPermittert
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEksportVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalReellArbeidssøkerVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.foreldrepenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.foreldrepengerDagsats
@@ -286,7 +288,7 @@ internal val redigerbareOpplysninger =
                             godkjentDeltidssøker,
                             godkjentLokalArbeidssøker,
                             godkjentArbeidsufør,
-                            kravetReellArbeidsøkerSkalVurderes,
+                            skalReellArbeidssøkerVurderes,
                             // 4-5 Registrert arbeidssøker
                             ønskerÅVæreRegistrertArbeidssøker,
                             // 4-6 Utdanning
@@ -298,10 +300,14 @@ internal val redigerbareOpplysninger =
                             høyereUtdanning,
                             deltakelsePåKurs,
                             // 4-7 Permittering
-                            erPermittert,
+                            skalPermitteringVurderes,
                             godkjentPermitteringsårsak,
                             erPermitteringenMidlertidig,
-                            permitteringFiskeforedling,
+                            permitteringsperiode,
+                            // TODO: Skal denne være redigerbar?
+                            permitteringsdag,
+                            // Fiskeperm
+                            skalPermitteringFiskeforedlingVurderes,
                             erPermitteringenFraFiskeindustriMidlertidig,
                             godkjentÅrsakPermitteringFraFiskindustri,
                             // 4-8 Meldeplikt og møteplikt

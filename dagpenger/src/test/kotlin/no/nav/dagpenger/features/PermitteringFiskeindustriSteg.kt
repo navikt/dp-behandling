@@ -32,7 +32,10 @@ class PermitteringFiskeindustriSteg : No {
 
     init {
         Gitt("at søker har {boolsk} om dagpenger under permittering fra fiskeindustrien") { søkt: Boolean ->
-            opplysninger.leggTil(Faktum(Rettighetstype.permitteringFiskeforedling, søkt) as Opplysning<*>).also { regelkjøring.evaluer() }
+            opplysninger
+                .leggTil(
+                    Faktum(Rettighetstype.skalPermitteringFiskeforedlingVurderes, søkt) as Opplysning<*>,
+                ).also { regelkjøring.evaluer() }
         }
 
         Og("saksbehandler vurderer at søker har {boolsk} til permittering fra fiskeindustrien") { årsak: Boolean ->

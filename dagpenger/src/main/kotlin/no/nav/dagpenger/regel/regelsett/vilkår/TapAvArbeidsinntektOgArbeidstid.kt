@@ -33,15 +33,18 @@ import no.nav.dagpenger.regel.OpplysningsTyper.kravTilProsentvisTapAvArbeidstidI
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilTapAvArbeidsinntektId
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilTapAvArbeidsinntektOgArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.maksimalVanligArbeidstidId
+import no.nav.dagpenger.regel.OpplysningsTyper.manglerKravPåLønnId
 import no.nav.dagpenger.regel.OpplysningsTyper.nyArbeidstidPerUkeId
 import no.nav.dagpenger.regel.OpplysningsTyper.ordinærtKravTilTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.tapAvArbeidstidErMinstTerskelId
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.innenforFritaksperioden
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktFastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 
@@ -57,6 +60,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             formål = Opplysningsformål.Bruker,
         )
     val kravTilTapAvArbeidsinntekt = boolsk(kravTilTapAvArbeidsinntektId, "Oppfyller vilkåret til tap av arbeidsinntekt")
+    private val manglerKravPåLønn = boolsk(manglerKravPåLønnId, "Har ikke krav på lønn fra arbeidsgiver", synlig = aldriSynlig)
 
     val kravTilArbeidstidsreduksjon =
         desimaltall(
@@ -136,13 +140,20 @@ object TapAvArbeidsinntektOgArbeidstid {
             skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
 
             regel(kravPåLønn) { innhentMed(søknadIdOpplysningstype) }
-            betingelse(kravTilTapAvArbeidsinntekt) { ikke(kravPåLønn) }
+            regel(manglerKravPåLønn) { ikke(kravPåLønn) }
+            // Om bruker er permittert, presumeres tap av arbeidsinntekt oppfylt så lenge § 4-7 sin
+            // fritaksperiode (26 uker/18 måneder) ikke er brukt opp. Når fritaksperioden er brukt opp
+            // (innenforFritaksperioden settes til usann, se PermitteringFastsetting), faller vilkåret
+            // tilbake til reell vurdering av om bruker har krav på lønn.
+            betingelse(kravTilTapAvArbeidsinntekt) {
+                hvisSannMedResultat(skalPermitteringVurderes, innenforFritaksperioden, manglerKravPåLønn)
+            }
 
             regel(ordinærtKravTilTaptArbeidstid) { oppslag(prøvingsdato) { 50.0 } }
 
             regel(kravTilArbeidstidsreduksjon) {
                 hvisSannMedResultat(
-                    permitteringFiskeforedling,
+                    skalPermitteringFiskeforedlingVurderes,
                     kravTilArbeidstidsreduksjonVedFiskepermittering,
                     ordinærtKravTilTaptArbeidstid,
                 )

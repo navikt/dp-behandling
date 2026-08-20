@@ -4,9 +4,11 @@
 
 ```mermaid
 graph RL
-  A["Oppfyller kravet til permittering"] -->|"Alle"| B["Bruker er permittert"]
+  A["Oppfyller kravet til permittering"] -->|"Alle"| B["Skal permittering vurderes"]
   A["Oppfyller kravet til permittering"] -->|"Alle"| C["Årsaken til permitteringen er godkjent"]
   A["Oppfyller kravet til permittering"] -->|"Alle"| D["Permitteringen er midlertidig driftsinnskrenkning eller driftsstans"]
+  A["Oppfyller kravet til permittering"] -->|"Alle"| E["Innenfor fritaksperioden for tap av arbeidsinntekt"]
+  F["Dato permitteringen løper fra"] -->|"FraOgMedForOpplysning"| A["Oppfyller kravet til permittering"]
 ```
 
 ## Akseptansetester

@@ -13,7 +13,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernep
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregningsregel6mnd
@@ -45,7 +45,8 @@ class TapAvArbeidSteg : No {
             opplysninger.leggTil(Faktum(ReellArbeidssøker.ønsketArbeidstid, 40.0))
 
             opplysninger.leggTil(Faktum(grunnlagForVernepliktErGunstigst, false))
-            opplysninger.leggTil(Faktum(permitteringFiskeforedling, false))
+            opplysninger.leggTil(Faktum(skalPermitteringFiskeforedlingVurderes, false))
+            opplysninger.leggTil(Faktum(Rettighetstype.skalPermitteringVurderes, false))
             opplysninger.leggTil(Faktum(vernepliktFastsattVanligArbeidstid, 0.0))
             opplysninger.leggTil(Faktum(kravTilArbeidstidsreduksjonVedFiskepermittering, 40.0))
         }
@@ -64,7 +65,7 @@ class TapAvArbeidSteg : No {
         Og("personen er permittert fra fiskeindustrien {boolsk}") { permittert: Boolean ->
             opplysninger
                 .leggTil(
-                    Faktum(Rettighetstype.permitteringFiskeforedling, permittert) as Opplysning<*>,
+                    Faktum(Rettighetstype.skalPermitteringFiskeforedlingVurderes, permittert) as Opplysning<*>,
                 ).also { regelkjøring.evaluer() }
         }
         Når("personen søker om dagpenger") { }
