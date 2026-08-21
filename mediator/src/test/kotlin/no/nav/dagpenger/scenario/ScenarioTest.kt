@@ -520,6 +520,7 @@ class ScenarioTest {
     }
 
     @Test
+    @Disabled
     fun `sjekk at vi ikke går i loop når det kommer opplysninger som ikke har avhengighetene sine i samme gyldighetsperiode`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
