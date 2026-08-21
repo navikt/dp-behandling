@@ -130,6 +130,11 @@ internal class SimulertDagpengerSystem(
         return runCatching { behandling!!.opplysninger.finnOpplysning(opplysningId) }.isSuccess
     }
 
+    data class ScenarioBarn(
+        val fødselsdato: LocalDate,
+        val kvalifiserer: Boolean,
+    )
+
     class ScenarioOptions(
         var ident: String = Random.nextLong(10000000000, 19999999999).toString(),
         var fødselsdato: LocalDate = LocalDate.now().minusYears(33),
@@ -143,6 +148,7 @@ internal class SimulertDagpengerSystem(
         var saksbehandlerGruppe: String = "dagpenger-saksbehandler",
         var adminGrupper: List<String> = listOf("enkel-admin"),
         var maskintilgangnavn: String = "test-app",
+        var barn: List<ScenarioBarn> = listOf(),
     ) {
         inline fun test(crossinline block: SimulertDagpengerSystem.() -> Unit) {
             withMigratedDb {

@@ -1,30 +1,26 @@
-package no.nav.dagpenger.opplysning.regel
+package no.nav.dagpenger.opplysning.regel.barn
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.verdier.Barn
+import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import java.time.LocalDate
 
-class AntallAv<T : Any>(
+class AntallAv(
     produserer: Opplysningstype<Int>,
     val opplysningstype: Opplysningstype<BarnListe>,
-    val filter: Barn.() -> Boolean,
 ) : Regel<Int>(produserer, listOf(opplysningstype)) {
     override fun kjør(
         opplysninger: LesbarOpplysninger,
         prøvingsdato: LocalDate,
     ): Int {
         val liste = opplysninger.finnOpplysning(opplysningstype).verdi.barn
-        return liste.filter { filter(it) }.size
+        return liste.size
     }
 
-    override fun toString() = "Beregner $produserer ved å telle antall $opplysningstype som oppfyller filteret"
+    override fun toString() = "Produserer $produserer ved å se på antall barn som oppfyller filteret."
 }
 
 @Suppress("UNCHECKED_CAST")
 @JvmName("antallAvBarn")
-fun Opplysningstype<Int>.antallAv(
-    opplysningstype: Opplysningstype<BarnListe>,
-    filter: Barn.() -> Boolean,
-) = AntallAv<BarnListe>(this, opplysningstype, filter)
+fun Opplysningstype<Int>.antallAv(opplysningstype: Opplysningstype<BarnListe>) = AntallAv(this, opplysningstype)

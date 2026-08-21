@@ -35,9 +35,11 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.scenario.SimulertDagpengerSystem.ScenarioBarn
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 import kotlin.math.round
 
 class BeregningTest {
@@ -227,7 +229,7 @@ class BeregningTest {
                 // Første forbruksdag er 21, så 11 dager i perioden gir utbetaling
                 utbetalinger.toList() shouldHaveSize 11
 
-                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 5036
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 4968
 
                 with(opplysninger(Beregning.forbrukt)) {
                     none { it.opprinnelse == Opplysningsperiode.Periodestatus.Arvet } shouldBe true
@@ -246,7 +248,7 @@ class BeregningTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 5036
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 4968
 
                 with(opplysninger(Beregning.forbrukt)) {
                     forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
@@ -287,7 +289,7 @@ class BeregningTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 42806
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 42228
 
                 // Bare de siste 14 dagene skal markeres som ny for de tilhører siste meldeperiode
                 utbetalinger.toList().count { it["opprinnelse"].asString() == "Ny" } shouldBe 14
@@ -466,7 +468,7 @@ class BeregningTest {
                 }
 
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    first().verdi.verdi shouldBe 5036
+                    first().verdi.verdi shouldBe 4968
                 }
 
                 with(opplysninger(Beregning.gjenståendeEgenandel)) {
@@ -475,7 +477,7 @@ class BeregningTest {
                 }
                 with(opplysninger(Beregning.forbruktEgenandel)) {
                     this shouldHaveSize 1
-                    first().verdi.verdi shouldBe 3777
+                    first().verdi.verdi shouldBe 3726
                 }
                 with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
                     this shouldHaveSize 1
@@ -574,9 +576,9 @@ class BeregningTest {
 
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     this shouldHaveSize 3
-                    this[0].verdi.verdi shouldBe 5036
-                    this[1].verdi.verdi shouldBe 12590
-                    this[2].verdi.verdi shouldBe 12590
+                    this[0].verdi.verdi shouldBe 4968
+                    this[1].verdi.verdi shouldBe 12420
+                    this[2].verdi.verdi shouldBe 12420
                 }
             }
 
@@ -596,9 +598,9 @@ class BeregningTest {
 
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     this shouldHaveSize 3
-                    this[0].verdi.verdi shouldBe 5036
+                    this[0].verdi.verdi shouldBe 4968
                     this[1].verdi.verdi shouldBe 0
-                    this[2].verdi.verdi shouldBe 12590
+                    this[2].verdi.verdi shouldBe 12420
                 }
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 42
@@ -620,6 +622,13 @@ class BeregningTest {
     fun `vi kan håndtere endring av barnetillegg og sats midt i meldekort`() {
         nyttScenario {
             inntektSiste12Mnd = 300000
+            barn =
+                listOf(
+                    ScenarioBarn(
+                        fødselsdato = 21.juni(2014),
+                        kvalifiserer = true,
+                    ),
+                )
         }.test {
             person.søkDagpenger(21.juni(2018))
 
@@ -1198,5 +1207,47 @@ class BeregningTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun `Barn blir 18 under meldekortberegning`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            barn =
+                listOf(
+                    ScenarioBarn(fødselsdato = 8.juni(2008), kvalifiserer = true), // Barn 1 er 18 år 8.juni 2026
+                    ScenarioBarn(fødselsdato = 1.juni(2012), kvalifiserer = true), // Barn 2 er 18 år 1.juni 2030
+                )
+        }.test {
+            person.søkDagpenger(1.juni(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                opplysninger(Beregning.forbruk) {
+                    this shouldHaveSize 14
+                }
+                opplysninger(DagpengenesStørrelse.barnetillegg) {
+                    this shouldHaveSize 2
+                    first().verdi.verdi shouldBe 76
+                    last().verdi.verdi shouldBe 38
+                }
+                opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg) {
+                    this shouldHaveSize 2
+                    first().verdi.verdi shouldBe 1335
+                    last().verdi.verdi shouldBe 1297
+                }
+                val satsPerDag = utbetalinger.toList().map { it["sats"].asInt() }
+                val utbetalingPerDag = utbetalinger.toList().map { it["utbetaling"].asInt() }
+                satsPerDag.shouldContainExactly(1335, 1335, 1335, 1335, 1335, 1335, 1335, 1335, 1297, 1297, 1297, 1297, 1297, 1297)
+                utbetalingPerDag.shouldContainExactly(941, 941, 941, 941, 941, 0, 0, 944, 914, 914, 914, 916, 0, 0)
+            }
+        }
+        fail { "Burde feile pga manglende avklaring? " }
     }
 }

@@ -151,22 +151,28 @@ abstract class Regel<T : Any> internal constructor(
 
     abstract override fun toString(): String
 
-    protected abstract fun kjør(opplysninger: LesbarOpplysninger): T
+    protected abstract fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): T
 
     fun produserer(opplysningstype: Opplysningstype<*>) = produserer.er(opplysningstype)
 
-    internal fun lagProdukt(opplysninger: LesbarOpplysninger): Opplysning<T> {
+    internal fun lagProdukt(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Opplysning<T> {
         if (avhengerAv.isEmpty()) {
-            val produkt = kjør(opplysninger)
+            val produkt = kjør(opplysninger, prøvingsdato)
             return Faktum(produserer, produkt)
         }
 
         val basertPå = opplysninger.finnFlere(avhengerAv)
 
-        val produkt = kjør(opplysninger)
+        val produkt = kjør(opplysninger, prøvingsdato)
         val erAlleFaktum = basertPå.all { it is Faktum<*> }
         val utledetAv = Utledning(this, basertPå)
-        val gyldighetsperiode = produserer.gyldighetsperiode(produkt, basertPå)
+        val gyldighetsperiode = produserer.gyldighetsperiode(produkt, basertPå, prøvingsdato)
 
         return when (erAlleFaktum) {
             true -> Faktum(opplysningstype = produserer, verdi = produkt, utledetAv = utledetAv, gyldighetsperiode = gyldighetsperiode)
@@ -178,7 +184,7 @@ abstract class Regel<T : Any> internal constructor(
 fun interface GyldighetsperiodeStrategi<T> {
     companion object {
         private val minsteMulige =
-            GyldighetsperiodeStrategi<Any> { _, basertPå ->
+            GyldighetsperiodeStrategi<Any> { _, basertPå, _ ->
                 if (basertPå.isEmpty()) return@GyldighetsperiodeStrategi Gyldighetsperiode()
                 Gyldighetsperiode(
                     fraOgMed = basertPå.maxOf { it.gyldighetsperiode.fraOgMed },
@@ -186,14 +192,14 @@ fun interface GyldighetsperiodeStrategi<T> {
                 )
             }
         private val størsteMulige =
-            GyldighetsperiodeStrategi<Any> { _, basertPå ->
+            GyldighetsperiodeStrategi<Any> { _, basertPå, _ ->
                 if (basertPå.isEmpty()) return@GyldighetsperiodeStrategi Gyldighetsperiode()
                 Gyldighetsperiode(
                     fraOgMed = basertPå.minOf { it.gyldighetsperiode.fraOgMed },
                     tilOgMed = basertPå.maxOf { it.gyldighetsperiode.tilOgMed },
                 )
             }
-        val egenVerdi = GyldighetsperiodeStrategi<LocalDate> { produkt, _ -> Gyldighetsperiode(fom = produkt) }
+        val egenVerdi = GyldighetsperiodeStrategi<LocalDate> { produkt, _, _ -> Gyldighetsperiode(fom = produkt) }
 
         @Suppress("UNCHECKED_CAST")
         fun <P> minsteMulige() = minsteMulige as GyldighetsperiodeStrategi<P>
@@ -202,7 +208,7 @@ fun interface GyldighetsperiodeStrategi<T> {
         fun <P> størsteMulige() = størsteMulige as GyldighetsperiodeStrategi<P>
 
         fun <P> basertPå(opplysningstype: Opplysningstype<LocalDate>) =
-            GyldighetsperiodeStrategi<P> { _, basertPå ->
+            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
                 val dato = basertPå.single { it.opplysningstype == opplysningstype }.verdi
                 require(dato is LocalDate) { "Opplysningstype som skal brukes til å utlede gyldighetsperiode må være LocalDate" }
                 Gyldighetsperiode(dato)
@@ -212,7 +218,7 @@ fun interface GyldighetsperiodeStrategi<T> {
         // (ikke posisjon i avhengerAv-listen). Brukes når en opplysning skal "låne" gyldighetsperioden
         // til én spesifikk avhengighet, uavhengig av hvilke andre opplysninger den også er avhengig av.
         fun <P> arvFra(opplysningstype: Opplysningstype<*>) =
-            GyldighetsperiodeStrategi<P> { _, basertPå ->
+            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
                 basertPå.single { it.opplysningstype == opplysningstype }.gyldighetsperiode
             }
 
@@ -222,7 +228,7 @@ fun interface GyldighetsperiodeStrategi<T> {
         // regelkjøringer (se Regelkjøring.medGyldighetsperiode/sisteTilgjengeligeDato), siden en
         // ubegrenset gyldighetsperiode aldri "avsluttes" ved et nytt faktum lenger frem i tid.
         fun <P> arvFraMedGrense(opplysningstype: Opplysningstype<*>) =
-            GyldighetsperiodeStrategi<P> { _, basertPå ->
+            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
                 Gyldighetsperiode(
                     fraOgMed = basertPå.single { it.opplysningstype == opplysningstype }.gyldighetsperiode.fraOgMed,
                     tilOgMed = basertPå.minOf { it.gyldighetsperiode.tilOgMed },
@@ -237,7 +243,7 @@ fun interface GyldighetsperiodeStrategi<T> {
             sjekk: Opplysningstype<Boolean>,
             hvisSann: Opplysningstype<P>,
             hvisUsann: Opplysningstype<P>,
-        ) = GyldighetsperiodeStrategi<P> { _, basertPå ->
+        ) = GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
             val sjekkVerdi = basertPå.single { it.opplysningstype == sjekk }.verdi as Boolean
             val valgtGren = if (sjekkVerdi) hvisSann else hvisUsann
             basertPå.single { it.opplysningstype == valgtGren }.gyldighetsperiode
@@ -247,6 +253,7 @@ fun interface GyldighetsperiodeStrategi<T> {
     fun gyldighetsperiode(
         produkt: T,
         basertPå: List<Opplysning<*>>,
+        prøvingsdato: LocalDate,
     ): Gyldighetsperiode
 }
 

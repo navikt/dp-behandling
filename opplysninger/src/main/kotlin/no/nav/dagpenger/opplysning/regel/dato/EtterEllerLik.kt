@@ -10,7 +10,10 @@ class EtterEllerLik internal constructor(
     private val er: Opplysningstype<LocalDate>,
     private val etter: Opplysningstype<LocalDate>,
 ) : Regel<Boolean>(produserer, listOf(er, etter)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Boolean {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Boolean {
         val a = opplysninger.finnOpplysning(er).verdi
         val b = opplysninger.finnOpplysning(etter).verdi
         return b.isAfter(a) || a.isEqual(b)

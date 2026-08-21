@@ -119,7 +119,7 @@ class OmgjøringScenarioTester {
                 opplysninger(Beregning.forbruktEgenandel) {
                     this shouldHaveSize 3
 
-                    this.sumOf { it.verdi.verdi as Int } shouldBe 3891
+                    this.sumOf { it.verdi.verdi as Int } shouldBe 3777
 
                     this.map { it.gyldigFraOgMed } shouldContainExactly
                         listOf(
@@ -158,10 +158,10 @@ class OmgjøringScenarioTester {
             // Verifiser opprinnelig utbetaling
             behandlingsresultat {
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    first().verdi.verdi shouldBe 5036
+                    first().verdi.verdi shouldBe 4968
                 }
                 with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                    this[0].verdi.verdi shouldBe 1259
+                    this[0].verdi.verdi shouldBe 1242
                 }
             }
 
@@ -200,8 +200,8 @@ class OmgjøringScenarioTester {
                 }
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     // Utbetalingen skal fortsatt være beregnet (med samme verdi siden grunnlaget er likt)
-                    single().verdi.verdi shouldNotBe 5036
-                    single().verdi.verdi shouldBe 8760
+                    single().verdi.verdi shouldNotBe 4968
+                    single().verdi.verdi shouldBe 8811
                 }
             }
             saksbehandler.lukkAlleAvklaringer()
@@ -269,7 +269,7 @@ class OmgjøringScenarioTester {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 21403
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 21114
             }
 
             // Omgjøring
@@ -300,7 +300,7 @@ class OmgjøringScenarioTester {
                 with(opplysninger(Gjenopptak.skalGjenopptas)) {
                     this.minByOrNull { it.gyldigFraOgMed!! }!!.gyldigFraOgMed shouldBe 1.august(2018)
                 }
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27698
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27324
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[1].harRett shouldBe false
@@ -311,8 +311,8 @@ class OmgjøringScenarioTester {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeGreaterThan 27698
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 40288
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeGreaterThan 27324
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 39744
                 behandletHendelse["type"].asString() shouldBe "Meldekort"
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true
@@ -376,7 +376,7 @@ class OmgjøringScenarioTester {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27991
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 27600
 
                 rettighetsperioder shouldHaveSize 3
                 rettighetsperioder[0].harRett shouldBe true

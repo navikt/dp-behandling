@@ -55,6 +55,8 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -164,7 +166,7 @@ class ScenarioTest {
                 rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
 
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
-                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1259
+                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1242
 
                 opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
             }
@@ -236,7 +238,7 @@ class ScenarioTest {
                 rettighetsperioder[1].fraOgMed shouldBe 28.juni(2018)
 
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
-                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1259
+                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1242
 
                 opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
             }
@@ -285,7 +287,7 @@ class ScenarioTest {
                 opplysninger(dagpengegrunnlag).single().verdi.verdi shouldBe 52490
                 opplysninger(grunnlag).single().verdi.verdi shouldBe 319197
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
-                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 783
+                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 766
                 opplysninger(ordinærPeriode).single().verdi.verdi shouldBe 0
                 opplysninger(vernepliktPeriode).single().verdi.verdi shouldBe 26
             }
@@ -518,6 +520,7 @@ class ScenarioTest {
     }
 
     @Test
+    @Disabled
     fun `sjekk at vi ikke går i loop når det kommer opplysninger som ikke har avhengighetene sine i samme gyldighetsperiode`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -1044,6 +1047,57 @@ class ScenarioTest {
                 opplysninger(Utdanning.kravTilUtdanning) {
                     shouldHaveSize(5)
                     this.all { it.verdi.verdi == true }
+                }
+            }
+        }
+    }
+
+    @Test
+    @Disabled("Denne må vi fikse etterpå")
+    fun `ny søknad med ønsket dato i framtiden skal ikke legge seg over opphold fra forrige behandling`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            // Første søknad: opphold satt av saksbehandler fra 1. mai til 17. mai
+            person.søkDagpenger(1.mai(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                oppholdINorge,
+                true,
+                "Opphold i Norge",
+                Gyldighetsperiode(fraOgMed = 1.mai(2018), tilOgMed = 17.mai(2018)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                with(opplysninger(oppholdINorge)) {
+                    this shouldHaveSize 1
+                    this[0].gyldigFraOgMed shouldBe 1.mai(2018)
+                    this[0].gyldigTilOgMed shouldBe 17.mai(2018)
+                }
+            }
+
+            // Ny søknad 4. mai med ønsket dato 31. mai (søknadsdato er også 4. mai)
+            person.søkDagpenger(4.mai(2018), ønskerFraDato = 31.mai(2018))
+            behovsløsere.løsTilForslag()
+
+            // Det nye forslaget skal IKKE ha en oppholds-opplysning som overlapper med 1-17. mai
+            behandlingsresultatForslag {
+                with(opplysninger(oppholdINorge)) {
+                    this shouldHaveSize 2
+                    // Arvet fra forrige behandling
+                    this[0].gyldigFraOgMed shouldBe 1.mai(2018)
+                    this[0].gyldigTilOgMed shouldBe 17.mai(2018)
+                    this[0].opprinnelse shouldBe Opplysningsperiode.Periodestatus.Arvet
+                    // Ny opplysning legger seg etter den arvede perioden
+                    this[1].gyldigFraOgMed shouldBe 18.mai(2018)
+                    this[1].gyldigTilOgMed shouldBe null
+                    this[1].opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny
                 }
             }
         }

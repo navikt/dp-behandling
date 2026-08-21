@@ -8,7 +8,6 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.mediator.asUUID
-import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.objectMapper
 import no.nav.dagpenger.mediator.tilJsonNode
 import no.nav.dagpenger.opplysning.verdier.Periode
@@ -24,6 +23,7 @@ import java.time.Period
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.random.Random
+import kotlin.to
 import no.nav.dagpenger.ferietillegg.Behov as FerietilleggBehov
 
 internal class Mennesket(
@@ -278,13 +278,7 @@ internal class Mennesket(
                             "verdi" to
                                 mapOf(
                                     "søknadbarnId" to UUIDv7.ny(),
-                                    "barn" to
-                                        listOf(
-                                            mapOf(
-                                                "fødselsdato" to 1.januar(2000),
-                                                "kvalifiserer" to true,
-                                            ),
-                                        ),
+                                    "barn" to scenario.barn,
                                 ),
                         ),
                     ),

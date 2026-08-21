@@ -5,13 +5,17 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.regel.Regel
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import java.time.LocalDate
 
 class SummerPeriode(
     produserer: Opplysningstype<Beløp>,
     private val inntekt: Opplysningstype<Inntekt>,
     private val periode: Set<InntektPeriode>,
 ) : Regel<Beløp>(produserer, listOf(inntekt)) {
-    override fun kjør(opplysninger: LesbarOpplysninger): Beløp {
+    override fun kjør(
+        opplysninger: LesbarOpplysninger,
+        prøvingsdato: LocalDate,
+    ): Beløp {
         val inntekt = opplysninger.finnOpplysning(inntekt).verdi
         return periode.map { it.block(inntekt.verdi) }.reduce { acc, beløp -> acc + beløp }
     }
