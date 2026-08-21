@@ -1,6 +1,5 @@
 package no.nav.dagpenger.opplysning
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Gyldighetsperiode.Companion.overlappendePerioder
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter
 import no.nav.dagpenger.uuid.UUIDv7
@@ -18,7 +17,6 @@ class Opplysninger private constructor(
     // Rekkefølgen er viktig, så vi sorterer på id for å få en konsistent rekkefølge
     private val egne: MutableList<Opplysning<*>> = initielleOpplysninger.sortedBy { it.id }.toMutableList()
     private val fjernet: MutableList<Opplysning<*>> = mutableListOf()
-    private val erstattet: MutableSet<UUID> get() = alleOpplysninger.mapNotNull { it.erstatter }.map { it.id }.toMutableSet()
 
     // Id-er på opplysninger som er "tombstonet" via lagTombstone(): de finnes fortsatt i
     // alleOpplysninger (for sporbarhet/erstatter-kjeden), men skal ikke telle som en gyldig verdi
@@ -30,27 +28,24 @@ class Opplysninger private constructor(
     private val basertPåOpplysninger: List<Opplysning<*>> =
         basertPå?.let { (it.basertPåOpplysninger + it.egne).filter { opplysning -> opplysning.skalArves } } ?: emptyList()
 
-    private val alleOpplysninger = CachedList { (basertPåOpplysninger + egne).utenErstattet() }
+    private val indeks =
+        Opplysningsindeks(
+            arvedePerType = basertPåOpplysninger.groupBy { it.opplysningstype },
+            egneVedOppstart = egne,
+        )
 
-    private var alleOpplysningerMap = alleOpplysninger.groupBy { it.opplysningstype }
+    private val alleOpplysninger: List<Opplysning<*>> get() = indeks.alle
 
     override val kunEgne: LesbarOpplysninger get() = OpplysningerView(this, bareEgne = true)
 
-    private fun refreshOpplysninger() {
-        alleOpplysninger.refresh()
-        alleOpplysningerMap = alleOpplysninger.groupBy { it.opplysningstype }
-    }
-
     fun <T : Any> leggTil(opplysning: Opplysning<T>) {
         settInnOpplysning(opplysning)
-        refreshOpplysninger()
     }
 
     fun leggTil(block: (MutableList<Opplysning<*>>) -> Unit) {
         val nye = mutableListOf<Opplysning<*>>().apply(block)
         krevIngenOverlappInnadIBatch(nye)
         nye.forEach { settInnOpplysning(it) }
-        refreshOpplysninger()
     }
 
     private fun krevIngenOverlappInnadIBatch(nye: List<Opplysning<*>>) {
@@ -92,6 +87,7 @@ class Opplysninger private constructor(
         sjekkAtUtledetAvFinnes(opplysning)
 
         egne.add(opplysning)
+        indeks.leggTilEgen(opplysning)
     }
 
     // Invariant: en opplysning kan ikke være utledetAv noe som ikke finnes (lenger) i denne
@@ -117,7 +113,10 @@ class Opplysninger private constructor(
         avhengigheter.forEach { it.erUtdatert = true }
     }
 
-    override fun erErstattet(opplysninger: List<Opplysning<*>>) = opplysninger.any { it.id in erstattet }
+    override fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean {
+        val erstattedeIder = alleOpplysninger.mapNotNullTo(mutableSetOf()) { it.erstatter?.id }
+        return opplysninger.any { it.id in erstattedeIder }
+    }
 
     fun markerBehandlet(dato: LocalDate) {
         egne
@@ -148,16 +147,16 @@ class Opplysninger private constructor(
             ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig for $gjelderFor")
 
     override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
-        alleOpplysningerMap[opplysningstype]
-            ?.filterIsInstance<Opplysning<T>>()
-            ?.lastOrNull { !erTombstonet(it.id) }
+        indeks
+            .gjeldende(opplysningstype)
+            .filterIsInstance<Opplysning<T>>()
+            .lastOrNull { !erTombstonet(it.id) }
 
     override fun finnOpplysning(opplysningId: UUID) =
         alleOpplysninger.lastOrNull { it.id == opplysningId }
             ?: throw OpplysningIkkeFunnetException("Har ikke opplysning med id=$opplysningId")
 
-    override fun <T : Any> har(opplysningstype: Opplysningstype<T>) =
-        alleOpplysninger.any { it.er(opplysningstype) && !erTombstonet(it.id) }
+    override fun <T : Any> har(opplysningstype: Opplysningstype<T>) = indeks.gjeldende(opplysningstype).any { !erTombstonet(it.id) }
 
     override fun <T : Any> har(
         opplysningstype: Opplysningstype<T>,
@@ -177,18 +176,14 @@ class Opplysninger private constructor(
     override fun somListe(filter: Filter) =
         when (filter) {
             Filter.Alle -> alleOpplysninger
-            Filter.Egne -> egne
-        }.utenErstattet()
+            Filter.Egne -> indeks.kunEgne
+        }
 
     fun baserPå(tidligereOpplysninger: Opplysninger?) = Opplysninger(id, egne, tidligereOpplysninger)
 
     fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
 
-    fun fjernHvis(block: (Opplysning<*>) -> Boolean) =
-        egne.filter { block(it) }.forEach { fjern(it, false) }.also {
-            // Oppdaterer alleOpplysninger etter at opplysninger er fjernet
-            refreshOpplysninger()
-        }
+    fun fjernHvis(block: (Opplysning<*>) -> Boolean) = egne.filter { block(it) }.forEach { fjern(it) }
 
     fun fjern(opplysningId: UUID) =
         fjern(
@@ -202,97 +197,36 @@ class Opplysninger private constructor(
                 ?: throw OpplysningIkkeFunnetException("Har ingen opplysning med opplysningTypeId=${opplysningTypeId.id.uuid}"),
         )
 
-    private fun fjern(
-        opplysning: Opplysning<*>,
-        skalOppfriske: Boolean = true,
-    ) {
+    private fun fjern(opplysning: Opplysning<*>) {
         // Fjern alle opplysninger som er utledet av opplysningen som fjernes
         fjernAvhengigheter(opplysning)
 
         if (egne.remove(opplysning)) {
             fjernet.add(opplysning)
+            indeks.fjernEgen(opplysning)
         }
-
-        if (skalOppfriske) refreshOpplysninger()
     }
 
     private fun fjernAvhengigheter(eksisterende: Opplysning<*>) {
         val graf = OpplysningGraf(egne.toList())
         val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
-        avhengigheter.forEach { avhengighet -> fjern(avhengighet, false) }
+        avhengigheter.forEach { avhengighet -> fjern(avhengighet) }
     }
 
     private fun <T : Any> finnNullableOpplysning(
         opplysningstype: Opplysningstype<T>,
         gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
-    ): Opplysning<T>? {
-        val opplysninger =
-            alleOpplysningerMap[opplysningstype]
-                ?.filterIsInstance<Opplysning<T>>()
-                ?.filter { it.gyldighetsperiode.overlapper(gyldighetsperiode) }
-
-        return opplysninger?.lastOrNull()
-    }
-
-    private fun Collection<Opplysning<*>>.utenErstattet(): List<Opplysning<*>> {
-        val bearbeidet =
-            this
-                .groupBy { it.opplysningstype }
-                .mapValues { (_, perioder) ->
-                    val sortert = perioder.sortedBy { it.gyldighetsperiode.fraOgMed }
-                    val resultat = mutableListOf<Opplysning<*>>()
-
-                    sortert.forEach { utfordrer ->
-                        val forrige = resultat.lastOrNull()
-
-                        when {
-                            forrige == null -> {
-                                resultat.add(utfordrer)
-                            }
-
-                            forrige.gyldighetsperiode.erFør(utfordrer.gyldighetsperiode) ||
-                                forrige.gyldighetsperiode.tilstøter(utfordrer.gyldighetsperiode) -> {
-                                resultat.add(utfordrer)
-                            }
-
-                            // det er overlapp, men forrige er nyest
-                            forrige.id > utfordrer.id -> {}
-
-                            // utfordrer er nyest, og overskriver hele forrige
-                            forrige.gyldighetsperiode.fraOgMed == utfordrer.gyldighetsperiode.fraOgMed -> {
-                                resultat[resultat.lastIndex] = utfordrer
-                            }
-
-                            else -> {
-                                val forkortet = forrige.forkortetTil(utfordrer)
-                                logger.debug {
-                                    """
-                                        |Kant-i-kant overlapper opplysning ${forrige.id} og ${utfordrer.id} for type ${forrige.opplysningstype.navn}. Lager forkortet opplysning.
-                                        |Venstre: ${forrige.gyldighetsperiode}
-                                        |Høyre: ${utfordrer.gyldighetsperiode}
-                                        |Forkortet: ${forkortet.gyldighetsperiode}
-                                    """.trimMargin()
-                                }
-                                resultat[resultat.lastIndex] = forkortet
-                                resultat.add(utfordrer)
-                            }
-                        }
-                    }
-                    resultat
-                }
-
-        // Sorter opplysningene i samme rekkefølge som de var i før bearbeiding
-        return this
-            .mapNotNull { opplysning ->
-                bearbeidet[opplysning.opplysningstype]?.takeIf { it.isNotEmpty() }?.removeFirst()
-            }.sortedBy { it.id }
-    }
+    ): Opplysning<T>? =
+        indeks
+            .gjeldende(opplysningstype)
+            .filterIsInstance<Opplysning<T>>()
+            .filter { it.gyldighetsperiode.overlapper(gyldighetsperiode) }
+            .lastOrNull()
 
     fun inneholder(opplysning: Opplysning<*>): Boolean = alleOpplysninger.contains(opplysning)
 
     // Interne hjelpemetoder for OpplysningerView
-    internal fun hentOpplysninger(bareEgne: Boolean): List<Opplysning<*>> =
-        if (bareEgne) egne.utenErstattet() else alleOpplysninger.toList()
+    internal fun hentOpplysninger(bareEgne: Boolean): List<Opplysning<*>> = if (bareEgne) indeks.kunEgne else alleOpplysninger
 
     internal fun <T : Any> finnNullableOpplysningMedFiltre(
         opplysningstype: Opplysningstype<T>,
@@ -305,10 +239,10 @@ class Opplysninger private constructor(
                     .filter { it.er(opplysningstype) && !erTombstonet(it.id) }
                     .filterIsInstance<Opplysning<T>>()
             } else {
-                alleOpplysningerMap[opplysningstype]
-                    ?.filterIsInstance<Opplysning<T>>()
-                    ?.filterNot { erTombstonet(it.id) }
-                    ?: emptyList()
+                indeks
+                    .gjeldende(opplysningstype)
+                    .filterIsInstance<Opplysning<T>>()
+                    .filterNot { erTombstonet(it.id) }
             }
         return if (gjelderFor != null) {
             kandidater.lastOrNull { it.gyldighetsperiode.inneholder(gjelderFor) }
@@ -346,18 +280,14 @@ class Opplysninger private constructor(
     fun lagTombstone(opplysningstype: Opplysningstype<*>) {
         egne
             .filter { it.er(opplysningstype) }
-            .forEach { fjern(it, false) }
+            .forEach { fjern(it) }
 
         basertPåOpplysninger
             .filter { it.er(opplysningstype) }
             .forEach { tombstonet.add(it.id) }
-
-        refreshOpplysninger()
     }
 
     companion object {
-        private val logger = KotlinLogging.logger {}
-
         fun med(opplysninger: Collection<Opplysning<*>>) = Opplysninger(UUIDv7.ny(), opplysninger.toList())
 
         fun med(vararg opplysning: Opplysning<*>) = Opplysninger(UUIDv7.ny(), opplysning.toList())
