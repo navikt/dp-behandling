@@ -38,8 +38,23 @@ data class KvoteDefinisjon(
     fun tildeltKapasitet(
         opplysninger: LesbarOpplysninger,
         gjelderFor: LocalDate,
-    ): Int {
+    ): Int = tildeltKapasitetFra(opplysninger.finnAlle(tildelingsgrunnlag.kapasitet), gjelderFor)
+
+    /**
+     * Som [tildeltKapasitet], men slår opp kapasitetslisten kun én gang og returnerer en lett
+     * oppslagsfunksjon. Nyttig når kapasiteten trengs for mange datoer (f.eks. dag for dag i en
+     * meldeperiode), slik at vi slipper å gjenta det (relativt sett) dyre [LesbarOpplysninger.finnAlle]-
+     * oppslaget for hver dag.
+     */
+    fun tildeltKapasitetOppslag(opplysninger: LesbarOpplysninger): (LocalDate) -> Int {
         val kapasiteter = opplysninger.finnAlle(tildelingsgrunnlag.kapasitet)
+        return { gjelderFor -> tildeltKapasitetFra(kapasiteter, gjelderFor) }
+    }
+
+    private fun tildeltKapasitetFra(
+        kapasiteter: List<Opplysning<Int>>,
+        gjelderFor: LocalDate,
+    ): Int {
         if (kapasiteter.isEmpty()) return 0
         return kapasiteter
             .lastOrNull { !it.gyldighetsperiode.fraOgMed.isAfter(gjelderFor) }

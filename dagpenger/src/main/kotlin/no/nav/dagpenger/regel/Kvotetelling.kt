@@ -8,9 +8,15 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
 import java.time.LocalDate
 
 object Kvotetelling {
-    /** Teller forbruk. Alle datoer i [dager] teller som +1. */
+    /**
+     * Teller forbruk. Alle datoer i [dager] teller som +1.
+     *
+     * [kapasitet] slås opp per dag (ikke som en fast verdi for hele batchen), slik at en
+     * nedjustering av tildelingsgrunnlaget med virkning midt i en løpende meldeperiode slår ut
+     * fra og med virkningsdatoen, og ikke først fra neste meldeperiode.
+     */
     fun tell(
-        kapasitet: Int,
+        kapasitet: (LocalDate) -> Int,
         utgangspunkt: Int,
         dager: List<LocalDate>,
         beregningsdager: List<Beregningresultat.Beregningsdag>,
@@ -21,11 +27,11 @@ object Kvotetelling {
             sortert.map { beregningsdag ->
                 val dato = beregningsdag.dag.dato
                 if (dato in dager) teller++
-                KvotetellingsVerdi(minOf(teller, kapasitet), Gyldighetsperiode(dato, dato))
+                KvotetellingsVerdi(minOf(teller, kapasitet(dato)), Gyldighetsperiode(dato, dato))
             }
         val gjenstående =
             forbruktTeller.map {
-                val g = maxOf(kapasitet - it.verdi, 0)
+                val g = maxOf(kapasitet(it.gyldighetsperiode.fraOgMed) - it.verdi, 0)
                 require(g >= 0) {
                     "Gjenstående kan ikke være negativt. Har $g igjen"
                 }
@@ -44,7 +50,7 @@ object Kvotetelling {
                 ),
             sisteGjenstående =
                 KvotetellingsVerdi(
-                    gjenstående.lastOrNull()?.verdi ?: kapasitet,
+                    gjenstående.lastOrNull()?.verdi ?: kapasitet(beregningsdager.last().dag.dato),
                     Gyldighetsperiode(beregningsdager.last().dag.dato),
                 ),
         )
