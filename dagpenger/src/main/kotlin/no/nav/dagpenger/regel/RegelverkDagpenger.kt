@@ -118,6 +118,9 @@ private fun dagpengerRettighetsperioder(opplysninger: LesbarOpplysninger): List<
             tilOgMed = periode.gyldighetsperiode.tilOgMed,
             harRett = periode.verdi,
             endret = egne.contains(periode),
+            // Perioden overskriver/omgjør en tidligere, allerede vurdert periode uten rett - altså en
+            // stans som nå oppheves, selv om det kalendermessig kan se ut som en ren videreføring.
+            opphevetStans = periode.erstatter?.verdi == false,
         )
     }
 }
@@ -155,8 +158,8 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
         // Hadde rett fra før, men ender nå uten rett
         forrigePeriode.harRett && !gjeldendePeriode.harRett -> Avgjørelse.Stans
 
-        // Hadde rett fra før, og har fortsatt rett - men med et opphold mellom periodene
-        forrigePeriode.harRett && harGapEtterForrigePeriode(perioder, forrigePeriode) -> Avgjørelse.Gjenopptak
+        // Hadde rett fra før, og har fortsatt rett - men med et reelt opphold mellom periodene
+        forrigePeriode.harRett && harReeltOppholdEtter(perioder, forrigePeriode) -> Avgjørelse.Gjenopptak
 
         // Hadde rett fra før, og har fortsatt rett uten opphold
         forrigePeriode.harRett -> Avgjørelse.Endring
@@ -170,17 +173,18 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     }
 }
 
-private fun harGapEtterForrigePeriode(
+private fun harReeltOppholdEtter(
     perioder: List<Rettighetsperiode>,
     forrigePeriode: Rettighetsperiode,
 ): Boolean {
     val nestePeriode = perioder.getOrNull(perioder.indexOf(forrigePeriode) + 1) ?: return false
 
-    // Merk: terskelen er > 0, ikke > 1. Selv ett dags avstand mellom periodene regnes som et opphold,
-    // fordi periodene uansett er splittet i to separate rettighetsperioder - var det egentlig sammenhengende
-    // rett, ville det vært én periode. To uavhengige LLM-implementasjoner av denne funksjonen (uten kjennskap
-    // til denne kommentaren) endte begge opp med > 1 og feilet dermed mediator-scenarioet under.
-    return ChronoUnit.DAYS.between(forrigePeriode.tilOgMed, nestePeriode.fraOgMed) > 0
+    // Et kalenderhull på mer enn én dag er alltid et reelt opphold. Ligger periodene kant-i-kant (ingen
+    // manglende dager) er det bare et reelt opphold dersom den nye perioden faktisk opphever en tidligere
+    // kjent stans (se Rettighetsperiode.opphevetStans) - ellers er det bare en ren videreføring inn i
+    // tidligere uvurdert tid, og ikke noe opphold.
+    val dagerMellom = ChronoUnit.DAYS.between(forrigePeriode.tilOgMed, nestePeriode.fraOgMed)
+    return dagerMellom > 1 || nestePeriode.opphevetStans
 }
 
 private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {

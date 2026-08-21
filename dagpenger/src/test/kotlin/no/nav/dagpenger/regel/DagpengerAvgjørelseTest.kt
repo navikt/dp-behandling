@@ -5,6 +5,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.dato.august
 import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
+import no.nav.dagpenger.dato.juli
 import no.nav.dagpenger.dato.juni
 import no.nav.dagpenger.dato.mars
 import no.nav.dagpenger.opplysning.Avgjørelse
@@ -13,7 +14,6 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
-import org.junit.jupiter.api.Disabled
 import kotlin.test.Test
 
 internal class DagpengerAvgjørelseTest {
@@ -73,6 +73,17 @@ internal class DagpengerAvgjørelseTest {
 
         val avgjørelse = RegelverkDagpenger.avgjørelse(opplysninger)
         avgjørelse shouldBe Avgjørelse.Endring
+    }
+
+    @Test
+    fun `endring når arvet avslag fortsetter uten nye perioder`() {
+        val forrige =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.januar(2024))))
+            }
+        val opplysninger = Opplysninger.basertPå(forrige)
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Endring
     }
 
     @Test
@@ -231,7 +242,7 @@ internal class DagpengerAvgjørelseTest {
     fun `gjenopptak når stans og påfølgende gjenopptak skjer samme dag`() {
         // Reflekterer mediator-scenarioet "tester stans og gjenopptak på samme dag": rett → stans → gjenopptak,
         // der stans og gjenopptak begge har fraOgMed/tilOgMed samme dag. Selv med null dager mellom periodene
-        // skal dette bli Gjenopptak, ikke Endring - se kommentar på harGapEtterForrigePeriode.
+        // skal dette bli Gjenopptak, ikke Endring - se kommentar på harReeltOppholdEtter.
         val innvilget =
             Opplysninger().apply {
                 leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(21.juni(2018))))
@@ -249,17 +260,95 @@ internal class DagpengerAvgjørelseTest {
     }
 
     @Test
-    @Disabled("Denne burde bli stans?")
-    fun `endring når arvet rett og ny rett kant-i-kant`() {
-        // Innvilget → ny rett starter dagen etter forrige slutt = ingen gap = Endring
+    fun `endring når innvilget rett videreføres kant-i-kant i ny behandling`() {
+        // Innvilget fra 1. juli i én behandling. En påfølgende behandling gir en ny rettighetsperiode som
+        // fortsatt har rett, og som ligger kant-i-kant rett etter forrige periode (ingen reell stans imellom -
+        // bare en administrativ videreføring inn i tidligere uvurdert tid). Dette skal være en Endring, ikke
+        // en Gjenopptak, siden brukeren aldri mistet retten.
+        val forrige =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.juli(2026), 20.august(2026))))
+            }
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(21.august(2026))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Endring
+    }
+
+    @Test
+    fun `gjenopptak når arvet avslag går til innvilget kant-i-kant`() {
+        // Selv uten noe kalenderhull skal en overgang fra ikke-rett til rett alltid regnes som
+        // Gjenopptak - i motsetning til rett-til-rett-tilfellet er det ikke tvetydig her.
+        val forrige =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.januar(2024), 31.januar(2024))))
+            }
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.februar(2024))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Gjenopptak
+    }
+
+    @Test
+    fun `endring når tilbakedatert periode ikke endrer en allerede kjent, arvet stans`() {
+        // Speilbildet av henningsaken: forrige status var IKKE rett (stans), og en tilbakedatert periode
+        // med rett dukker opp FØR den allerede kjente, arvede stansen. Stansen er fortsatt uendret og
+        // kronologisk sist - den tilbakedaterte perioden endrer derfor ikke gjeldende status, og det blir
+        // bare en Endring, ikke et Gjenopptak.
+        val innvilget =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.januar(2024), 31.januar(2024))))
+            }
+        val forrige =
+            Opplysninger.basertPå(innvilget).apply {
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.mars(2024))))
+            }
+        RegelverkDagpenger.avgjørelse(forrige) shouldBe Avgjørelse.Stans
+
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.februar(2024), 29.februar(2024))))
+            }
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Endring
+    }
+
+    @Test
+    fun `gjenopptak når reell stans forkortes ved overlappende, men ulik startdato`() {
+        // Samme situasjon som "stans og gjenopptak samme dag", men her overlapper periodene med ulike
+        // fraOgMed-datoer, slik at den arvede stansen blir forkortet til én dag (ikke fullstendig erstattet
+        // med samme fraOgMed) - en litt annen mekanikk internt (Opplysninger.forkortetTil), men skal gi
+        // samme avgjørelse: Gjenopptak.
+        val innvilget =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.januar(2024))))
+            }
+        val stanset =
+            Opplysninger.basertPå(innvilget).apply {
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(10.januar(2024))))
+            }
+        val opplysninger =
+            Opplysninger.basertPå(stanset).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(11.januar(2024))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Gjenopptak
+    }
+
+    @Test
+    fun `stans når arvet rett går til avslag kant-i-kant`() {
+        // Uansett gap mellom periodene skal en overgang fra rett til ikke-rett alltid regnes som Stans -
+        // gapet er bare avgjørende for rett-til-rett-tilfellet (se harReeltOppholdEtter).
         val forrige =
             Opplysninger().apply {
                 leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.januar(2024), 31.januar(2024))))
             }
         val opplysninger =
             Opplysninger.basertPå(forrige).apply {
-                // 1. februar er dagen etter 31. januar — Period.between(...).days == 0
-                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.januar(2024), 31.januar(2024))))
+                // 1. februar er dagen etter 31. januar - kant-i-kant, ingen kalenderhull
                 leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.februar(2024))))
             }
 

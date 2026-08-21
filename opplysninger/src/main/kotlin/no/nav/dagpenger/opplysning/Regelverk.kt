@@ -141,6 +141,9 @@ data class Rettighetsperiode(
     val tilOgMed: LocalDate,
     val harRett: Boolean,
     val endret: Boolean,
+    // Perioden overskriver/omgjør en tidligere periode uten rett (samme dato var allerede vurdert som
+    // stans). Skiller en reell (men kalendermessig skjult) gjenopptak fra en ren videreføring.
+    val opphevetStans: Boolean = false,
 )
 
 data class Utbetaling(
