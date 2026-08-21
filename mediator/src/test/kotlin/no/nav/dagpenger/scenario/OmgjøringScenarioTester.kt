@@ -14,6 +14,7 @@ import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.mediator.april
 import no.nav.dagpenger.mediator.august
+import no.nav.dagpenger.mediator.desember
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
@@ -318,6 +319,13 @@ class OmgjøringScenarioTester {
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[2].harRett shouldBe true
             }
+
+            val rettighetsperioder = personOppslagService.hentRettighetsperioder(person.ident, 1.januar(2018), 31.desember(2018))
+            rettighetsperioder shouldHaveSize 3
+            val utbetalinger = personOppslagService.hentBeregninger(person.ident, 1.januar(2018), 31.desember(2018))
+            utbetalinger.sumOf { it.utbetaltBeløp } shouldBe 40288
+            utbetalinger.last().fraOgMed shouldBe 26.august(2018)
+            utbetalinger.last().gjenståendeDager shouldBe 485
         }
     }
 

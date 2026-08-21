@@ -93,6 +93,8 @@ internal class SimulertDagpengerSystem(
 
     val api: Application.() -> Unit = runtime.api
 
+    val personOppslagService = runtime.personoppslagService
+
     val person = Mennesket(rapid, oppsett)
     val behovsløsere = Behovsløsere(rapid, person)
     val saksbehandler = TestSaksbehandler2(person, runtime.hendelseMediator, runtime.personRepository, rapid)

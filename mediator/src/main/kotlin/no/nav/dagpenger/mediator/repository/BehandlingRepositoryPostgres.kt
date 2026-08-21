@@ -19,7 +19,10 @@ import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.Hendelse
 import no.nav.dagpenger.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.modell.somKjede
+import no.nav.dagpenger.opplysning.Datatype
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
@@ -46,14 +49,6 @@ internal class BehandlingRepositoryPostgres(
         dbSession.session { session ->
             session.hentBehandlinger(HentBehandling.AlleForIdent(ident))
         }
-
-    override fun hentRelevanteOpplysninger(ident: String): List<BehandlingskjedeOpplysninger> {
-        dbSession.session { session ->
-            val kjeder = session.hentBehandlinger(HentBehandling.AlleForIdent(Ident(ident)))
-        }
-
-        return emptyList()
-    }
 
     override fun flyttBehandling(
         behandlingId: UUID,
@@ -658,4 +653,70 @@ internal class BehandlingRepositoryPostgres(
                 )?.let { UtbetalingStatus.Status.valueOf(it) }
                 ?: throw IllegalArgumentException("Fant ikke utbetalingstatus for behandling $behandlingId")
         }
+
+    override fun hentRelevanteOpplysninger(
+        ident: String,
+        opplysningstyper: Set<Opplysningstype<*>>,
+    ): List<BehandlingskjedeOpplysninger> =
+        dbSession.session { session ->
+            val opplysningerPerKjede = session.hentRelevanteOpplysninger(ident, opplysningstyper.map { it.id.uuid }.toSet())
+            opplysningerPerKjede.map { (kjedeId, opplysninger) ->
+                BehandlingskjedeOpplysninger(
+                    behandlingskjedeId = kjedeId,
+                    opplysninger = Opplysninger.rehydrer(kjedeId, opplysninger),
+                )
+            }
+        }
+
+    private fun Session.hentRelevanteOpplysninger(
+        ident: String,
+        relevanteOpplysningstyper: Set<UUID>,
+    ): Map<UUID, List<Opplysning<out Any>>> {
+        val rader: List<Pair<UUID, OpplysningRad<out Any>>> =
+            this
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        WITH RECURSIVE personens_kjeder AS (
+                            -- rotbehandlinger (behandlingskjedeId = egen id) for personen
+                            SELECT b.behandling_id AS kjede_id, b.behandling_id
+                            FROM behandling b
+                            INNER JOIN person_behandling pb ON pb.behandling_id = b.behandling_id
+                            WHERE pb.ident = :ident AND b.basert_på_behandling_id IS NULL
+
+                            UNION ALL
+
+                            -- alle behandlinger nedover i kjeden
+                            SELECT pk.kjede_id, b.behandling_id
+                            FROM behandling b
+                            INNER JOIN personens_kjeder pk ON b.basert_på_behandling_id = pk.behandling_id
+                        )
+                        SELECT pk.kjede_id, o.*
+                        FROM personens_kjeder pk
+                        INNER JOIN behandling b ON b.behandling_id = pk.behandling_id AND b.tilstand = '${Behandling.TilstandType.Ferdig.name}'
+                        INNER JOIN behandling_opplysninger bo ON bo.behandling_id = pk.behandling_id
+                        INNER JOIN opplysningstabell o ON o.opplysninger_id = bo.opplysninger_id
+                        WHERE o.type_uuid = ANY(:typer)
+                        ORDER BY o.id
+                        """.trimIndent(),
+                        mapOf(
+                            "ident" to ident,
+                            "typer" to connection.underlying.createArrayOf("uuid", relevanteOpplysningstyper.toTypedArray()),
+                        ),
+                    ).map { row ->
+                        row.uuid("kjede_id") to
+                            row.somOpplysningRad(Datatype.fromString(row.string("datatype")), opplysningstypeRegister)
+                    }.asList,
+                )
+
+        // Hent inn kilde for alle opplysninger vi trenger
+        val kilder = kildeRepository.hentKilder(rader.mapNotNull { it.second.kildeId }, this)
+        return rader
+            .map { (kjedeId, rad) ->
+                val kilde = rad.kildeId?.let { kilder[it] ?: throw IllegalStateException("Mangler kilde") }
+                kjedeId to rad.copy(kilde = kilde)
+            }.groupBy({ it.first }, { it.second })
+            .mapValues { (_, raderForKjede) -> raderForKjede.somOpplysninger() }
+    }
 }

@@ -3,13 +3,19 @@ package no.nav.dagpenger.mediator.personoppslag
 import no.nav.dagpenger.mediator.api.models.BeregnetDagDTO
 import no.nav.dagpenger.mediator.api.models.RettighetsperiodeResponsDTO
 import no.nav.dagpenger.mediator.api.models.YtelsestypeDTO
-import no.nav.dagpenger.mediator.repository.BehandlingskjedeOpplysninger
-import no.nav.dagpenger.mediator.repository.PersonOpplysningerRepository
+import no.nav.dagpenger.mediator.repository.KjedeOpplysningerRepository
+import no.nav.dagpenger.modell.BehandlingskjedeOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.regel.OpplysningsTyper
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erPermittert
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.lønnsgaranti
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.ordinærArbeid
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.permitteringFiskeforedling
 import java.time.LocalDate
 import java.util.UUID
 
@@ -22,7 +28,7 @@ import java.util.UUID
  * Kontrakten er definert i behandling-api.yaml og DTO-ene genereres av Fabrikt.
  */
 class PersonoppslagService(
-    private val repository: PersonOpplysningerRepository,
+    private val repository: KjedeOpplysningerRepository,
 ) {
     fun hentRettighetsperioder(
         ident: String,
@@ -31,7 +37,7 @@ class PersonoppslagService(
     ): List<RettighetsperiodeResponsDTO> {
         val ønsketPeriode = Datoperiode(fraOgMed, tilOgMed ?: LocalDate.MAX)
         return repository
-            .hentRelevanteOpplysninger(ident)
+            .hentRelevanteOpplysninger(ident, relevanteOpplysningstyper)
             .flatMap { kjede -> kjede.tilRettighetsperioder() }
             .filter { Datoperiode(it.fraOgMed, it.tilOgMed ?: LocalDate.MAX) overlapper ønsketPeriode }
             .sortedBy { it.fraOgMed }
@@ -44,7 +50,7 @@ class PersonoppslagService(
     ): List<BeregnetDagDTO> {
         val ønsketPeriode = Datoperiode(fraOgMed, tilOgMed ?: LocalDate.MAX)
         return repository
-            .hentRelevanteOpplysninger(ident)
+            .hentRelevanteOpplysninger(ident, relevanteOpplysningstyper)
             .flatMap { kjede -> kjede.tilBeregnedeDager() }
             .filter { Datoperiode(it.fraOgMed, it.tilOgMed) overlapper ønsketPeriode }
             .sortedBy { it.fraOgMed }
@@ -143,10 +149,32 @@ class PersonoppslagService(
     private companion object {
         private val rettighetstypePerUuid: Map<UUID, Rettighetstype> =
             mapOf(
-                OpplysningsTyper.HarRettTilOrdinærId.uuid to Rettighetstype.ORDINÆR,
-                OpplysningsTyper.PermittertId.uuid to Rettighetstype.PERMITTERING,
-                OpplysningsTyper.LønnsgarantiId.uuid to Rettighetstype.LØNNSGARANTI,
-                OpplysningsTyper.PermittertFiskeforedlingId.uuid to Rettighetstype.FISK,
+                ordinærArbeid.id.uuid to Rettighetstype.ORDINÆR,
+                erPermittert.id.uuid to Rettighetstype.PERMITTERING,
+                lønnsgaranti.id.uuid to Rettighetstype.LØNNSGARANTI,
+                permitteringFiskeforedling.id.uuid to Rettighetstype.FISK,
+            )
+
+        /**
+         * Opplysningstypene som trengs for rettighetsperioder, rettighetstyper og
+         * utbetalinger (det samme som legges i behandlingsresultat-eventet).
+         */
+        private val relevanteOpplysningstyper: Set<Opplysningstype<*>> =
+            setOf(
+                // Rettighetsperioder (RegelverkDagpenger.rettighetsperioder)
+                KravPåDagpenger.harLøpendeRett,
+                // Utbetalinger (RegelverkDagpenger.utbetalinger)
+                Beregning.meldeperiode,
+                Beregning.utbetaling,
+                DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg,
+                // Gjenstående dager (+ fallback)
+                Beregning.gjenståendeDager,
+                Dagpengeperiode.antallStønadsdager,
+                // Rettighetstyper for ytelseType-mapping
+                ordinærArbeid,
+                erPermittert,
+                lønnsgaranti,
+                permitteringFiskeforedling,
             )
     }
 }

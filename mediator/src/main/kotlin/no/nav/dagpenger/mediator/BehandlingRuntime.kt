@@ -22,7 +22,6 @@ import no.nav.dagpenger.mediator.repository.KildeRepository
 import no.nav.dagpenger.mediator.repository.MeldekortRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OppdateringRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres
-import no.nav.dagpenger.mediator.repository.PersonOpplysningerRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.repository.PersonRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.VentendeMeldekortDings
@@ -128,8 +127,8 @@ class BehandlingRuntime(
         opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
     }
 
-    private val personoppslagService =
-        PersonoppslagService(PersonOpplysningerRepositoryPostgres(dbSession, kildeRepository, opplysningstypeRegister))
+    val personoppslagService =
+        PersonoppslagService(personRepository)
 
     val api: Application.() -> Unit = {
         behandlingApi(

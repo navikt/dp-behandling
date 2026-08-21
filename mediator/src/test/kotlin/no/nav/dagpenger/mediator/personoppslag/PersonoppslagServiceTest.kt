@@ -3,12 +3,13 @@ package no.nav.dagpenger.mediator.personoppslag
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.api.models.YtelsestypeDTO
-import no.nav.dagpenger.mediator.repository.BehandlingskjedeOpplysninger
-import no.nav.dagpenger.mediator.repository.PersonOpplysningerRepository
+import no.nav.dagpenger.mediator.repository.KjedeOpplysningerRepository
+import no.nav.dagpenger.modell.BehandlingskjedeOpplysninger
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
@@ -27,8 +28,11 @@ class PersonoppslagServiceTest {
 
     private class StubRepository(
         private val kjedelag: List<BehandlingskjedeOpplysninger>,
-    ) : PersonOpplysningerRepository {
-        override fun hentRelevanteOpplysninger(ident: String) = kjedelag
+    ) : KjedeOpplysningerRepository {
+        override fun hentRelevanteOpplysninger(
+            ident: String,
+            opplysningstyper: Set<Opplysningstype<*>>,
+        ): List<BehandlingskjedeOpplysninger> = kjedelag
     }
 
     private fun kjedeMed(vararg opplysninger: Opplysning<*>) =
