@@ -320,9 +320,9 @@ class OmgjøringScenarioTester {
                 rettighetsperioder[2].harRett shouldBe true
             }
 
-            val rettighetsperioder = personOppslagService.hentRettighetsperioder(person.ident, 1.januar(2018), 31.desember(2018))
+            val rettighetsperioder = dagpengehistorikkQuery.hentRettighetsperioder(person.ident, 1.januar(2018), 31.desember(2018))
             rettighetsperioder shouldHaveSize 3
-            val utbetalinger = personOppslagService.hentBeregninger(person.ident, 1.januar(2018), 31.desember(2018))
+            val utbetalinger = dagpengehistorikkQuery.hentBeregninger(person.ident, 1.januar(2018), 31.desember(2018))
             utbetalinger.sumOf { it.utbetaltBeløp } shouldBe 40288
             utbetalinger.last().fraOgMed shouldBe 26.august(2018)
             utbetalinger.last().gjenståendeDager shouldBe 485
