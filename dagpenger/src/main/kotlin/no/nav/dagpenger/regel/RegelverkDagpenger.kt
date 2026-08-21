@@ -123,7 +123,10 @@ private fun dagpengerRettighetsperioder(opplysninger: LesbarOpplysninger): List<
 }
 
 private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse {
-    val perioder = dagpengerRettighetsperioder(opplysninger)
+    // Perioder kan komme i vilkårlig rekkefølge (f.eks. en etterregistrert/tilbakedatert periode som
+    // dukker opp etter en periode som allerede er kjent) - sorter derfor kronologisk før vi resonnerer
+    // om hva som faktisk er den gjeldende (siste) statusen.
+    val perioder = dagpengerRettighetsperioder(opplysninger).sortedBy { it.fraOgMed }
     if (perioder.isEmpty()) return Avgjørelse.Uavklart
 
     val (nye, arvede) = perioder.partition { it.endret }
@@ -132,25 +135,27 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     if (nye.isEmpty()) return Avgjørelse.Endring
 
     val forrigePeriode = arvede.lastOrNull()
-    val harNyRett = nye.any { it.harRett }
+
+    // Den kronologisk siste perioden er den reelle, gjeldende statusen - uavhengig av om den er ny eller arvet
+    val gjeldendePeriode = perioder.last()
 
     // Aller første rettighetsperiode som er vurdert - ingenting å sammenligne med
     if (forrigePeriode == null) {
-        return if (harNyRett) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
+        return if (gjeldendePeriode.harRett) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
     }
 
     return when {
         // Hadde rett fra før, men ender nå uten rett
-        forrigePeriode.harRett && !nye.last().harRett -> Avgjørelse.Stans
+        forrigePeriode.harRett && !gjeldendePeriode.harRett -> Avgjørelse.Stans
 
         // Hadde rett fra før, og har fortsatt rett - men med et opphold mellom periodene
-        forrigePeriode.harRett && harGapMellomRettighetsperiodene(arvede, nye) -> Avgjørelse.Gjenopptak
+        forrigePeriode.harRett && harGapEtterForrigePeriode(perioder, forrigePeriode) -> Avgjørelse.Gjenopptak
 
         // Hadde rett fra før, og har fortsatt rett uten opphold
         forrigePeriode.harRett -> Avgjørelse.Endring
 
         // Hadde ikke rett fra før, men får ny rett
-        harNyRett -> Avgjørelse.Gjenopptak
+        gjeldendePeriode.harRett -> Avgjørelse.Gjenopptak
 
         // Hadde ikke rett fra før, og har fortsatt ikke rett
         opplysninger.kunEgne.har(skalGjenopptakVurderes) -> Avgjørelse.Avslag
@@ -158,15 +163,18 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     }
 }
 
-private fun harGapMellomRettighetsperiodene(
-    arvede: List<Rettighetsperiode>,
-    nye: List<Rettighetsperiode>,
-): Boolean =
+private fun harGapEtterForrigePeriode(
+    perioder: List<Rettighetsperiode>,
+    forrigePeriode: Rettighetsperiode,
+): Boolean {
+    val nestePeriode = perioder.getOrNull(perioder.indexOf(forrigePeriode) + 1) ?: return false
+
     // Merk: terskelen er > 0, ikke > 1. Selv ett dags avstand mellom periodene regnes som et opphold,
     // fordi periodene uansett er splittet i to separate rettighetsperioder - var det egentlig sammenhengende
     // rett, ville det vært én periode. To uavhengige LLM-implementasjoner av denne funksjonen (uten kjennskap
     // til denne kommentaren) endte begge opp med > 1 og feilet dermed mediator-scenarioet under.
-    ChronoUnit.DAYS.between(arvede.last().tilOgMed, nye.first().fraOgMed) > 0
+    return ChronoUnit.DAYS.between(forrigePeriode.tilOgMed, nestePeriode.fraOgMed) > 0
+}
 
 private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
     val meldeperioder = opplysninger.finnAlle(Beregning.meldeperiode)
