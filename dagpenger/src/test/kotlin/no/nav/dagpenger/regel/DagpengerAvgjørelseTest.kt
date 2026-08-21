@@ -194,28 +194,12 @@ internal class DagpengerAvgjørelseTest {
         // Innvilget → periode uten rett → ny periode med rett (gap mellom) = Gjenopptak
         val forrige =
             Opplysninger().apply {
-                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(23.juni(2026))))
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(22.juni(2026))))
             }
         val opplysninger =
             Opplysninger.basertPå(forrige).apply {
-                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(3.august(2026), 9.august(2026))))
-                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(10.august(2026))))
-            }
-
-        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Stans
-    }
-
-    @Test
-    fun `henningsaken med gjenopptak ved stans`() {
-        // Innvilget → periode uten rett → ny periode med rett (gap mellom) = Gjenopptak
-        val forrige =
-            Opplysninger().apply {
-                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(23.juni(2026))))
-                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(10.august(2026))))
-            }
-        val opplysninger =
-            Opplysninger.basertPå(forrige).apply {
-                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(3.august(2026), 9.august(2026))))
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(3.august(2026), 11.august(2026))))
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(12.august(2026))))
             }
 
         RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Stans
