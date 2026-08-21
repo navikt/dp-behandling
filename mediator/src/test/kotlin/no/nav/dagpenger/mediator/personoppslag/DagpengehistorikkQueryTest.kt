@@ -1,5 +1,6 @@
 package no.nav.dagpenger.mediator.personoppslag
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.api.models.YtelsestypeDTO
@@ -22,14 +23,14 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
 
-class PersonoppslagServiceTest {
+class DagpengehistorikkQueryTest {
     private val mandag = LocalDate.of(2025, 1, 6)
     private val tirsdag = LocalDate.of(2025, 1, 7)
 
     private class StubRepository(
         private val kjedelag: List<BehandlingskjedeOpplysninger>,
     ) : KjedeOpplysningerRepository {
-        override fun hentRelevanteOpplysninger(
+        override fun hentOpplysningerPerKjede(
             ident: String,
             opplysningstyper: Set<Opplysningstype<*>>,
         ): List<BehandlingskjedeOpplysninger> = kjedelag
@@ -49,12 +50,12 @@ class PersonoppslagServiceTest {
 
     @Test
     fun `rettighetsperioder bygges fra harLøpendeRett-opplysninger`() {
-        val service =
-            PersonoppslagService(
+        val query =
+            DagpengehistorikkQuery(
                 StubRepository(listOf(kjedeMed(harLøpendeRett(fraOgMed = mandag)))),
             )
 
-        val perioder = service.hentRettighetsperioder("12345678910", mandag, tirsdag)
+        val perioder = query.hentRettighetsperioder("12345678910", mandag, tirsdag)
 
         perioder shouldHaveSize 1
         with(perioder.single()) {
@@ -67,14 +68,14 @@ class PersonoppslagServiceTest {
 
     @Test
     fun `perioder uten rett returneres med harRett false`() {
-        val service =
-            PersonoppslagService(
+        val query =
+            DagpengehistorikkQuery(
                 StubRepository(
                     listOf(kjedeMed(harLøpendeRett(fraOgMed = mandag, tilOgMed = tirsdag, verdi = false))),
                 ),
             )
 
-        val perioder = service.hentRettighetsperioder("12345678910", mandag, tirsdag)
+        val perioder = query.hentRettighetsperioder("12345678910", mandag, tirsdag)
 
         perioder shouldHaveSize 1
         with(perioder.single()) {
@@ -86,21 +87,21 @@ class PersonoppslagServiceTest {
 
     @Test
     fun `perioder utenfor forespørselsperioden filtreres bort`() {
-        val service =
-            PersonoppslagService(
+        val query =
+            DagpengehistorikkQuery(
                 StubRepository(
                     listOf(kjedeMed(harLøpendeRett(fraOgMed = mandag.minusMonths(2), tilOgMed = mandag.minusMonths(1)))),
                 ),
             )
 
-        service.hentRettighetsperioder("12345678910", mandag, tirsdag) shouldHaveSize 0
+        query.hentRettighetsperioder("12345678910", mandag, tirsdag) shouldHaveSize 0
     }
 
     @Test
     fun `ytelsestype utledes fra rettighetstype-opplysning`() {
         val permittert = boolsk(OpplysningsTyper.PermittertId, "Bruker er permittert")
-        val service =
-            PersonoppslagService(
+        val query =
+            DagpengehistorikkQuery(
                 StubRepository(
                     listOf(
                         kjedeMed(
@@ -111,14 +112,35 @@ class PersonoppslagServiceTest {
                 ),
             )
 
-        service.hentRettighetsperioder("12345678910", mandag, null).single().ytelseType shouldBe
+        query.hentRettighetsperioder("12345678910", mandag, null).single().ytelseType shouldBe
             YtelsestypeDTO.DAGPENGER_PERMITTERING_ORDINAER
     }
 
     @Test
+    fun `lønnsgaranti er ikke støttet som ytelsestype`() {
+        val query =
+            DagpengehistorikkQuery(
+                StubRepository(
+                    listOf(
+                        kjedeMed(
+                            harLøpendeRett(fraOgMed = mandag),
+                            Faktum(
+                                boolsk(OpplysningsTyper.LønnsgarantiId, "Lønnsgaranti"),
+                                true,
+                                Gyldighetsperiode(mandag, LocalDate.MAX),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+
+        shouldThrow<IllegalArgumentException> { query.hentRettighetsperioder("12345678910", mandag, null) }
+    }
+
+    @Test
     fun `beregninger bygges fra utbetalingsopplysninger`() {
-        val service =
-            PersonoppslagService(
+        val query =
+            DagpengehistorikkQuery(
                 StubRepository(
                     listOf(
                         kjedeMed(
@@ -138,7 +160,7 @@ class PersonoppslagServiceTest {
                 ),
             )
 
-        val beregninger = service.hentBeregninger("12345678910", mandag, tirsdag)
+        val beregninger = query.hentBeregninger("12345678910", mandag, tirsdag)
 
         beregninger shouldHaveSize 2
         with(beregninger.first()) {
@@ -152,8 +174,8 @@ class PersonoppslagServiceTest {
 
     @Test
     fun `gjenstående dager faller tilbake til innvilget antall stønadsdager`() {
-        val service =
-            PersonoppslagService(
+        val query =
+            DagpengehistorikkQuery(
                 StubRepository(
                     listOf(
                         kjedeMed(
@@ -171,6 +193,6 @@ class PersonoppslagServiceTest {
                 ),
             )
 
-        service.hentBeregninger("12345678910", mandag, mandag).single().gjenståendeDager shouldBe 260
+        query.hentBeregninger("12345678910", mandag, mandag).single().gjenståendeDager shouldBe 260
     }
 }

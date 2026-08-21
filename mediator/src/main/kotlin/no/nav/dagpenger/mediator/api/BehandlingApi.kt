@@ -57,7 +57,7 @@ import no.nav.dagpenger.mediator.api.models.SaksbehandlerbegrunnelseDTO
 import no.nav.dagpenger.mediator.api.sse.opprettSseStream
 import no.nav.dagpenger.mediator.audit.Auditlogg
 import no.nav.dagpenger.mediator.barnMapper
-import no.nav.dagpenger.mediator.personoppslag.PersonoppslagService
+import no.nav.dagpenger.mediator.personoppslag.DagpengehistorikkQuery
 import no.nav.dagpenger.mediator.repository.ApiMelding
 import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OppdateringRepository
@@ -120,7 +120,7 @@ internal fun Application.behandlingApi(
     apiRepositoryPostgres: ApiRepositoryPostgres,
     messageContext: (ident: String) -> MessageContext,
     oppdateringRepository: OppdateringRepository,
-    personoppslagService: PersonoppslagService,
+    dagpengehistorikkQuery: DagpengehistorikkQuery,
 ) {
     authenticationConfig(authFactory)
     install(OtelTraceIdPlugin)
@@ -207,7 +207,7 @@ internal fun Application.behandlingApi(
                 post {
                     val forespørsel = call.receive<PeriodeForesporselDTO>()
                     val perioder =
-                        personoppslagService.hentRettighetsperioder(
+                        dagpengehistorikkQuery.hentRettighetsperioder(
                             ident = forespørsel.ident,
                             fraOgMed = forespørsel.fraOgMed,
                             tilOgMed = forespørsel.tilOgMed,
@@ -219,7 +219,7 @@ internal fun Application.behandlingApi(
                 post {
                     val forespørsel = call.receive<PeriodeForesporselDTO>()
                     val beregninger =
-                        personoppslagService.hentBeregninger(
+                        dagpengehistorikkQuery.hentBeregninger(
                             ident = forespørsel.ident,
                             fraOgMed = forespørsel.fraOgMed,
                             tilOgMed = forespørsel.tilOgMed,

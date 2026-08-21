@@ -20,14 +20,15 @@ import java.time.LocalDate
 import java.util.UUID
 
 /**
- * Svarer på personnivå-spørsmål (rettighetsperioder, beregninger) direkte fra
- * dp-behandlings database, uten å gå veien om personaggregatet.
+ * Lesespørring (CQRS query) som svarer på hva en person har hatt av dagpenger over
+ * tid — rettighetsperioder og beregnede dager — direkte fra dp-behandlings database,
+ * uten å gå veien om personaggregatet.
  *
  * Gjenbruker [RegelverkDagpenger] sine beregningsfunksjoner slik at
  * forretningslogikken er den samme som i behandlingsresultat-eventet.
  * Kontrakten er definert i behandling-api.yaml og DTO-ene genereres av Fabrikt.
  */
-class PersonoppslagService(
+class DagpengehistorikkQuery(
     private val repository: KjedeOpplysningerRepository,
 ) {
     fun hentRettighetsperioder(
@@ -37,7 +38,7 @@ class PersonoppslagService(
     ): List<RettighetsperiodeResponsDTO> {
         val ønsketPeriode = Datoperiode(fraOgMed, tilOgMed ?: LocalDate.MAX)
         return repository
-            .hentRelevanteOpplysninger(ident, relevanteOpplysningstyper)
+            .hentOpplysningerPerKjede(ident, relevanteOpplysningstyper)
             .flatMap { kjede -> kjede.tilRettighetsperioder() }
             .filter { Datoperiode(it.fraOgMed, it.tilOgMed ?: LocalDate.MAX) overlapper ønsketPeriode }
             .sortedBy { it.fraOgMed }
@@ -50,25 +51,23 @@ class PersonoppslagService(
     ): List<BeregnetDagDTO> {
         val ønsketPeriode = Datoperiode(fraOgMed, tilOgMed ?: LocalDate.MAX)
         return repository
-            .hentRelevanteOpplysninger(ident, relevanteOpplysningstyper)
+            .hentOpplysningerPerKjede(ident, relevanteOpplysningstyper)
             .flatMap { kjede -> kjede.tilBeregnedeDager() }
             .filter { Datoperiode(it.fraOgMed, it.tilOgMed) overlapper ønsketPeriode }
             .sortedBy { it.fraOgMed }
     }
 
-    private fun BehandlingskjedeOpplysninger.tilRettighetsperioder(): List<RettighetsperiodeResponsDTO> {
-        val rettighetstyper = opplysninger.rettighetstyper()
-        return RegelverkDagpenger
+    private fun BehandlingskjedeOpplysninger.tilRettighetsperioder(): List<RettighetsperiodeResponsDTO> =
+        RegelverkDagpenger
             .rettighetsperioder(opplysninger)
             .map { periode ->
                 RettighetsperiodeResponsDTO(
                     fraOgMed = periode.fraOgMed,
                     tilOgMed = periode.tilOgMed.takeIf { it != LocalDate.MAX },
                     harRett = periode.harRett,
-                    ytelseType = ytelseTypeFor(rettighetstyper, periode.fraOgMed, periode.tilOgMed),
+                    ytelseType = opplysninger.ytelsestypeFor(periode.fraOgMed, periode.tilOgMed),
                 )
             }
-    }
 
     private fun BehandlingskjedeOpplysninger.tilBeregnedeDager(): List<BeregnetDagDTO> =
         RegelverkDagpenger.utbetalinger(opplysninger).map { utbetaling ->
@@ -82,36 +81,23 @@ class PersonoppslagService(
         }
 
     /**
-     * Finn rettighetstypen som dekker perioden, med Ordinær som standard.
+     * Ytelsestypen for en rettighetsperiode, utledet fra hvilken rettighetstype-opplysning
+     * som er sann og dekker hele perioden. Ordinær er standard.
      */
-    private fun ytelseTypeFor(
-        rettighetstyper: List<RettighetstypePeriode>,
+    private fun LesbarOpplysninger.ytelsestypeFor(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
     ): YtelsestypeDTO {
         val dekkende =
-            rettighetstyper.firstOrNull { type ->
-                !type.fraOgMed.isAfter(fraOgMed) && !type.tilOgMed.isBefore(tilOgMed)
-            }
-        return when (dekkende?.type) {
-            null, Rettighetstype.ORDINÆR -> YtelsestypeDTO.DAGPENGER_ARBEIDSSOKER_ORDINAER
-            Rettighetstype.PERMITTERING -> YtelsestypeDTO.DAGPENGER_PERMITTERING_ORDINAER
-            Rettighetstype.LØNNSGARANTI -> throw IllegalArgumentException("Lønngaranti ikke støttet")
-            Rettighetstype.FISK -> YtelsestypeDTO.DAGPENGER_PERMITTERING_FISKEINDUSTRI
-        }
-    }
+            somListe()
+                .filter { it.verdi == true }
+                .filter { !it.gyldighetsperiode.fraOgMed.isAfter(fraOgMed) && !it.gyldighetsperiode.tilOgMed.isBefore(tilOgMed) }
+                .firstOrNull { it.opplysningstype.id.uuid in rettighetstyper }
+                ?: return YtelsestypeDTO.DAGPENGER_ARBEIDSSOKER_ORDINAER
 
-    private fun LesbarOpplysninger.rettighetstyper(): List<RettighetstypePeriode> =
-        somListe()
-            .filter { it.verdi == true }
-            .mapNotNull { opplysning ->
-                val type = rettighetstypePerUuid[opplysning.opplysningstype.id.uuid] ?: return@mapNotNull null
-                RettighetstypePeriode(
-                    type = type,
-                    fraOgMed = opplysning.gyldighetsperiode.fraOgMed,
-                    tilOgMed = opplysning.gyldighetsperiode.tilOgMed,
-                )
-            }
+        return ytelsestypePerOpplysningstype[dekkende.opplysningstype.id.uuid]
+            ?: throw IllegalArgumentException("Rettighetstypen ${dekkende.opplysningstype.navn} er ikke støttet")
+    }
 
     /**
      * Gjenstående dager for en dato, med fallback til innvilget antall stønadsdager.
@@ -126,19 +112,6 @@ class PersonoppslagService(
                 ?.verdi as? Int
             ?: throw IllegalStateException("Finner ikke antall innvilgede dager")
 
-    private data class RettighetstypePeriode(
-        val type: Rettighetstype,
-        val fraOgMed: LocalDate,
-        val tilOgMed: LocalDate,
-    )
-
-    private enum class Rettighetstype {
-        ORDINÆR,
-        PERMITTERING,
-        LØNNSGARANTI,
-        FISK,
-    }
-
     private data class Datoperiode(
         val fraOgMed: LocalDate,
         val tilOgMed: LocalDate,
@@ -147,13 +120,15 @@ class PersonoppslagService(
     }
 
     private companion object {
-        private val rettighetstypePerUuid: Map<UUID, Rettighetstype> =
+        private val ytelsestypePerOpplysningstype: Map<UUID, YtelsestypeDTO> =
             mapOf(
-                ordinærArbeid.id.uuid to Rettighetstype.ORDINÆR,
-                erPermittert.id.uuid to Rettighetstype.PERMITTERING,
-                lønnsgaranti.id.uuid to Rettighetstype.LØNNSGARANTI,
-                permitteringFiskeforedling.id.uuid to Rettighetstype.FISK,
+                ordinærArbeid.id.uuid to YtelsestypeDTO.DAGPENGER_ARBEIDSSOKER_ORDINAER,
+                erPermittert.id.uuid to YtelsestypeDTO.DAGPENGER_PERMITTERING_ORDINAER,
+                permitteringFiskeforedling.id.uuid to YtelsestypeDTO.DAGPENGER_PERMITTERING_FISKEINDUSTRI,
             )
+
+        /** Alle rettighetstyper, inkludert de vi ikke støtter å svare ut. */
+        private val rettighetstyper: Set<UUID> = ytelsestypePerOpplysningstype.keys + lønnsgaranti.id.uuid
 
         /**
          * Opplysningstypene som trengs for rettighetsperioder, rettighetstyper og

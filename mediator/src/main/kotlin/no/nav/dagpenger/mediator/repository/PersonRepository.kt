@@ -66,7 +66,7 @@ interface KjedeOpplysningerRepository {
      * Henter relevante opplysninger for alle behandlinger i alle kjedene til en person.
      * Returnerer én Opplysninger-instans per behandlingskjede (flatt, uten arv-mekanikk).
      */
-    fun hentRelevanteOpplysninger(
+    fun hentOpplysningerPerKjede(
         ident: String,
         opplysningstyper: Set<Opplysningstype<*>>,
     ): List<BehandlingskjedeOpplysninger>

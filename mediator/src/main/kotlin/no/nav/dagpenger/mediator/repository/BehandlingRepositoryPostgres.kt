@@ -654,12 +654,12 @@ internal class BehandlingRepositoryPostgres(
                 ?: throw IllegalArgumentException("Fant ikke utbetalingstatus for behandling $behandlingId")
         }
 
-    override fun hentRelevanteOpplysninger(
+    override fun hentOpplysningerPerKjede(
         ident: String,
         opplysningstyper: Set<Opplysningstype<*>>,
     ): List<BehandlingskjedeOpplysninger> =
         dbSession.session { session ->
-            val opplysningerPerKjede = session.hentRelevanteOpplysninger(ident, opplysningstyper.map { it.id.uuid }.toSet())
+            val opplysningerPerKjede = session.hentOpplysningerPerKjede(ident, opplysningstyper.map { it.id.uuid }.toSet())
             opplysningerPerKjede.map { (kjedeId, opplysninger) ->
                 BehandlingskjedeOpplysninger(
                     behandlingskjedeId = kjedeId,
@@ -668,7 +668,7 @@ internal class BehandlingRepositoryPostgres(
             }
         }
 
-    private fun Session.hentRelevanteOpplysninger(
+    private fun Session.hentOpplysningerPerKjede(
         ident: String,
         relevanteOpplysningstyper: Set<UUID>,
     ): Map<UUID, List<Opplysning<out Any>>> {
