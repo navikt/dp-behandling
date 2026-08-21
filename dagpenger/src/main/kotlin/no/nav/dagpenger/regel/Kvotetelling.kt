@@ -58,14 +58,16 @@ class KvotetellingsSkriver(
         opplysninger: Opplysninger,
         resultat: Kvotetellingsresultat,
     ) {
-        resultat.forbruktTeller.forEach { opplysninger.leggTil(Faktum(definisjon.forbruksteller, it.verdi, it.gyldighetsperiode)) }
-        resultat.gjenstående.forEach { opplysninger.leggTil(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
-        resultat.sisteDagMedForbruk?.let { opplysninger.leggTil(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
-        resultat.sisteGjenstående?.let { opplysninger.leggTil(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
+        opplysninger.leggTil { fakta ->
+            resultat.forbruktTeller.forEach { fakta.add(Faktum(definisjon.forbruksteller, it.verdi, it.gyldighetsperiode)) }
+            resultat.gjenstående.forEach { fakta.add(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
+            resultat.sisteDagMedForbruk?.let { fakta.add(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
+            resultat.sisteGjenstående?.let { fakta.add(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
 
-        if (resultat.sisteGjenstående?.verdi == 0 && resultat.gjenstående.any { it.verdi != 0 }) {
-            val sisteDag = resultat.sisteDagMedForbruk!!.verdi
-            opplysninger.leggTil(Faktum(definisjon.utløsendeBetingelse, false, Gyldighetsperiode(sisteDag.plusDays(1))))
+            if (resultat.sisteGjenstående?.verdi == 0 && resultat.gjenstående.any { it.verdi != 0 }) {
+                val sisteDag = resultat.sisteDagMedForbruk!!.verdi
+                fakta.add(Faktum(definisjon.utløsendeBetingelse, false, Gyldighetsperiode(sisteDag.plusDays(1))))
+            }
         }
     }
 }
