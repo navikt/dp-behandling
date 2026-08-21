@@ -44,14 +44,20 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
+private val logger = KotlinLogging.logger { }
+
+private val serdeBarn = objectMapper.serde<BarnListe>()
+
+// Legacy serde for å kunne lese gamle verdier lagret med gammel struktur
+private val legazySerdeBarn = objectMapper.serde<List<Barn>>()
+private val serdePeriode = objectMapper.serde<Periode>()
+
 internal class OpplysningerRepositoryPostgres(
     private val dbSession: DatabaseSession,
     private val kildeRepository: KildeRepository,
     private val opplysningstypeRegister: OpplysningstypeRegister = OpplysningstypeRegister.tom,
 ) : OpplysningerRepository {
     internal companion object {
-        private val logger = KotlinLogging.logger { }
-
         fun Session.hentOpplysninger(
             kildeRepository: KildeRepository,
             opplysningstypeRegister: OpplysningstypeRegister,
@@ -70,12 +76,6 @@ internal class OpplysningerRepositoryPostgres(
             .mapValues { (opplysningerId, opplysninger) ->
                 Opplysninger.rehydrer(opplysningerId, opplysninger)
             }
-
-        private val serdeBarn = objectMapper.serde<BarnListe>()
-
-        // Legacy serde for å kunne lese gamle verdier lagret med gammel struktur
-        private val legazySerdeBarn = objectMapper.serde<List<Barn>>()
-        private val serdePeriode = objectMapper.serde<Periode>()
     }
 
     override fun hentOpplysninger(opplysningerId: UUID) =
@@ -180,7 +180,7 @@ internal class OpplysningerRepositoryPostgres(
                             -- direkte fikk planleggeren til å tro resultatet var mye større enn det er,
                             -- og valgte en full tabellskann (Merge Join) i stedet for indeksoppslag.
                             SELECT o.*
-                            FROM opplysningstabell o
+                            FROM opplysningstabell o    
                             WHERE o.id = ANY(ARRAY(SELECT id FROM opplysningskjede))
                             ORDER BY o.id
                             """.trimIndent(),
@@ -193,7 +193,7 @@ internal class OpplysningerRepositoryPostgres(
                             ),
                         ).map { row ->
                             val datatype = Datatype.fromString(row.string("datatype"))
-                            row.somOpplysningRad(datatype)
+                            row.somOpplysningRad(datatype, opplysningstypeRegister)
                         }.asList,
                     ).toSet()
 
@@ -217,121 +217,6 @@ internal class OpplysningerRepositoryPostgres(
                 .filter { it.id in opplysningerIdForOpplysning }
                 .groupBy { opplysningerIdForOpplysning.getValue(it.id) }
         }
-
-        private fun <T : Any> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
-            val opplysingerId = uuid("opplysninger_id")
-            val id = uuid("id")
-            val typeUuid = uuid("type_uuid")
-
-            val opplysningTypeId = Opplysningstype.Id(typeUuid, datatype)
-            val opplysningstype: Opplysningstype<T> =
-                opplysningstypeRegister[opplysningTypeId]
-                    ?.let {
-                        if (datatype != it.datatype) {
-                            logger.warn {
-                                """
-                                Lastet opplysningstype med feil 
-                                datatype: ${opplysningTypeId.datatype} - Id ${opplysningTypeId.uuid} - Har navn: ${string("type_id")}
-                                database: $datatype, 
-                                kode: ${it.datatype}
-                                """.trimIndent()
-                            }
-                            return@let null
-                        }
-                        @Suppress("UNCHECKED_CAST")
-                        it as Opplysningstype<T>
-                    } ?: Opplysningstype(
-                    // Fallback når opplysningstype ikke er definert i kode lengre
-                    id = opplysningTypeId,
-                    navn = string("type_navn"),
-                    behovId = string("type_behov_id"),
-                    formål = Opplysningsformål.valueOf(string("type_formål")),
-                    synlig = alltidSynlig,
-                )
-
-            val gyldighetsperiode =
-                Gyldighetsperiode(
-                    fraOgMed = localDateOrNull("gyldig_fom") ?: LocalDate.MIN,
-                    tilOgMed = localDateOrNull("gyldig_tom") ?: LocalDate.MAX,
-                )
-            val status = this.string("status")
-            val verdi = datatype.verdi(this)
-            val opprettet = this.localDateTime("opprettet")
-            val utledetAvId = this.arrayOrNull<UUID>("utledet_av_id")?.toList() ?: emptyList()
-            val utledetAv = this.stringOrNull("utledet_av")?.let { UtledningRad(it, utledetAvId, this.stringOrNull("utledet_versjon")) }
-            val erstatterId = this.uuidOrNull("erstatter_id")
-
-            val kildeId = this.uuidOrNull("kilde_id")
-            val behandletVed = this.localDateOrNull("behandlet_ved")
-
-            return OpplysningRad(
-                opplysingerId = opplysingerId,
-                id = id,
-                opplysningstype = opplysningstype,
-                verdi = verdi,
-                status = status,
-                gyldighetsperiode = gyldighetsperiode,
-                utledetAv = utledetAv,
-                kildeId = kildeId,
-                kilde = null,
-                opprettet = opprettet,
-                erstatter = erstatterId,
-                behandletVed = behandletVed,
-            )
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun <T : Any> Datatype<T>.verdi(row: Row): T =
-            when (this) {
-                Boolsk -> {
-                    row.boolean("verdi_boolsk")
-                }
-
-                Dato -> {
-                    when (row.string("verdi_dato")) {
-                        "-infinity" -> LocalDate.MIN
-                        "infinity" -> LocalDate.MAX
-                        else -> row.localDate("verdi_dato")
-                    }
-                }
-
-                Desimaltall -> {
-                    row.double("verdi_desimaltall")
-                }
-
-                Heltall -> {
-                    row.int("verdi_heltall")
-                }
-
-                ULID -> {
-                    Ulid(row.string("verdi_string"))
-                }
-
-                Penger -> {
-                    Beløp(row.string("verdi_string"))
-                }
-
-                Tekst -> {
-                    row.string("verdi_string")
-                }
-
-                BarnDatatype -> {
-                    val barneJsonNode = objectMapper.readTree(row.binaryStream("verdi_jsonb"))
-                    runCatching {
-                        serdeBarn.fromJson(
-                            barneJsonNode,
-                        )
-                    }.getOrElse { BarnListe(barn = legazySerdeBarn.fromJson(barneJsonNode)) }
-                }
-
-                InntektDataType -> {
-                    Inntekt(row.binaryStream("verdi_jsonb").use { objectMapper.readTree(it).tilInntektV1() })
-                }
-
-                PeriodeDataType -> {
-                    serdePeriode.fromJson(row.string("verdi_jsonb"))
-                }
-            } as T
 
         fun lagreOpplysninger(
             opplysninger: List<Pair<UUID, List<Opplysning<*>>>>,
@@ -554,8 +439,126 @@ internal class OpplysningerRepositoryPostgres(
     }
 }
 
+internal fun <T : Any> Row.somOpplysningRad(
+    datatype: Datatype<T>,
+    opplysningstypeRegister: OpplysningstypeRegister,
+): OpplysningRad<T> {
+    val opplysingerId = uuid("opplysninger_id")
+    val id = uuid("id")
+    val typeUuid = uuid("type_uuid")
+
+    val opplysningTypeId = Opplysningstype.Id(typeUuid, datatype)
+    val opplysningstype: Opplysningstype<T> =
+        opplysningstypeRegister[opplysningTypeId]
+            ?.let {
+                if (datatype != it.datatype) {
+                    logger.warn {
+                        """
+                        Lastet opplysningstype med feil 
+                        datatype: ${opplysningTypeId.datatype} - Id ${opplysningTypeId.uuid} - Har navn: ${string("type_id")}
+                        database: $datatype, 
+                        kode: ${it.datatype}
+                        """.trimIndent()
+                    }
+                    return@let null
+                }
+                @Suppress("UNCHECKED_CAST")
+                it as Opplysningstype<T>
+            } ?: Opplysningstype(
+            // Fallback når opplysningstype ikke er definert i kode lengre
+            id = opplysningTypeId,
+            navn = string("type_navn"),
+            behovId = string("type_behov_id"),
+            formål = Opplysningsformål.valueOf(string("type_formål")),
+            synlig = alltidSynlig,
+        )
+
+    val gyldighetsperiode =
+        Gyldighetsperiode(
+            fraOgMed = localDateOrNull("gyldig_fom") ?: LocalDate.MIN,
+            tilOgMed = localDateOrNull("gyldig_tom") ?: LocalDate.MAX,
+        )
+    val status = this.string("status")
+    val verdi = datatype.verdi(this)
+    val opprettet = this.localDateTime("opprettet")
+    val utledetAvId = this.arrayOrNull<UUID>("utledet_av_id")?.toList() ?: emptyList()
+    val utledetAv = this.stringOrNull("utledet_av")?.let { UtledningRad(it, utledetAvId, this.stringOrNull("utledet_versjon")) }
+    val erstatterId = this.uuidOrNull("erstatter_id")
+
+    val kildeId = this.uuidOrNull("kilde_id")
+    val behandletVed = this.localDateOrNull("behandlet_ved")
+
+    return OpplysningRad(
+        opplysingerId = opplysingerId,
+        id = id,
+        opplysningstype = opplysningstype,
+        verdi = verdi,
+        status = status,
+        gyldighetsperiode = gyldighetsperiode,
+        utledetAv = utledetAv,
+        kildeId = kildeId,
+        kilde = null,
+        opprettet = opprettet,
+        erstatter = erstatterId,
+        behandletVed = behandletVed,
+    )
+}
+
 @Suppress("UNCHECKED_CAST")
-private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysning<out Any>> {
+private fun <T : Any> Datatype<T>.verdi(row: Row): T =
+    when (this) {
+        Boolsk -> {
+            row.boolean("verdi_boolsk")
+        }
+
+        Dato -> {
+            when (row.string("verdi_dato")) {
+                "-infinity" -> LocalDate.MIN
+                "infinity" -> LocalDate.MAX
+                else -> row.localDate("verdi_dato")
+            }
+        }
+
+        Desimaltall -> {
+            row.double("verdi_desimaltall")
+        }
+
+        Heltall -> {
+            row.int("verdi_heltall")
+        }
+
+        ULID -> {
+            Ulid(row.string("verdi_string"))
+        }
+
+        Penger -> {
+            Beløp(row.string("verdi_string"))
+        }
+
+        Tekst -> {
+            row.string("verdi_string")
+        }
+
+        BarnDatatype -> {
+            val barneJsonNode = objectMapper.readTree(row.binaryStream("verdi_jsonb"))
+            runCatching {
+                serdeBarn.fromJson(
+                    barneJsonNode,
+                )
+            }.getOrElse { BarnListe(barn = legazySerdeBarn.fromJson(barneJsonNode)) }
+        }
+
+        InntektDataType -> {
+            Inntekt(row.binaryStream("verdi_jsonb").use { objectMapper.readTree(it).tilInntektV1() })
+        }
+
+        PeriodeDataType -> {
+            serdePeriode.fromJson(row.string("verdi_jsonb"))
+        }
+    } as T
+
+@Suppress("UNCHECKED_CAST")
+internal fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysning<out Any>> {
     val opplysningMap = mutableMapOf<UUID, Opplysning<out Any>>()
 
     // Finn opplysningen som erstattes av denne
@@ -629,13 +632,13 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
     return alleOpplysninger
 }
 
-private data class UtledningRad(
+internal data class UtledningRad(
     val regel: String,
     val opplysninger: List<UUID>,
     val versjon: String? = null,
 )
 
-private data class OpplysningRad<T : Any>(
+internal data class OpplysningRad<T : Any>(
     val opplysingerId: UUID,
     val id: UUID,
     val opplysningstype: Opplysningstype<T>,

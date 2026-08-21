@@ -73,6 +73,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
 
+  /person/rettighetsperioder:
+    post:
+      description: Rettighetsperioder (både med og uten rett) for en person, beregnet fra opplysninger
+      security:
+        - azureAd: [ ]
+      tags:
+        - Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodeForesporsel'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RettighetsperiodeRespons'
+        default:
+          description: Feil ved henting av rettighetsperioder
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
+  /person/beregninger:
+    post:
+      description: Beregnede dager (utbetalingsdetaljer) for en person, beregnet fra opplysninger
+      security:
+        - azureAd: [ ]
+      tags:
+        - Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodeForesporsel'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BeregnetDag'
+        default:
+          description: Feil ved henting av beregninger
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+
   /person/behandling:
     post:
       description: Opprett ny behandling for en person
@@ -2257,6 +2315,78 @@ components:
           $ref: '#/components/schemas/BehandlingId'
         behandlingskjedeId:
           $ref: '#/components/schemas/BehandlingId'
+
+    PeriodeForesporsel:
+      description: Forespørsel om data for en person i en gitt periode
+      type: object
+      required:
+        - ident
+        - fraOgMed
+      properties:
+        ident:
+          $ref: '#/components/schemas/Personident'
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          description: Tom-dato for avgrensning. Utelates hentes alt fra fraOgMed og fremover
+          type: string
+          format: date
+
+    RettighetsperiodeRespons:
+      description: En periode hvor personen har fått vurdert sin rett på dagpenger, og utfallet
+      type: object
+      required:
+        - fraOgMed
+        - harRett
+        - ytelseType
+      properties:
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          description: Utelates for løpende (åpen) periode
+          type: string
+          format: date
+        harRett:
+          description: Om personen har rett på dagpenger i perioden (false = avslag/stans)
+          type: boolean
+        ytelseType:
+          $ref: '#/components/schemas/Ytelsestype'
+
+    BeregnetDag:
+      description: En beregnet dag med sats, utbetalt beløp og gjenstående dager
+      type: object
+      required:
+        - fraOgMed
+        - tilOgMed
+        - sats
+        - utbetaltBeløp
+        - gjenståendeDager
+      properties:
+        fraOgMed:
+          type: string
+          format: date
+        tilOgMed:
+          type: string
+          format: date
+        sats:
+          type: integer
+          format: int32
+        utbetaltBeløp:
+          type: integer
+          format: int32
+        gjenståendeDager:
+          description: Antall gjenstående dager med rett på dagpenger
+          type: integer
+          format: int32
+
+    Ytelsestype:
+      type: string
+      enum:
+        - DAGPENGER_ARBEIDSSOKER_ORDINAER
+        - DAGPENGER_PERMITTERING_ORDINAER
+        - DAGPENGER_PERMITTERING_FISKEINDUSTRI
 
     Sak:
       description: En sak, det vil si en sammenhengende behandlingskjede med tilhørende status og behandlingshistorikk
