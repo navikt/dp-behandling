@@ -39,6 +39,7 @@ import no.nav.dagpenger.scenario.SimulertDagpengerSystem.ScenarioBarn
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 import kotlin.math.round
 
 class BeregningTest {
@@ -1206,5 +1207,47 @@ class BeregningTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun `Barn blir 18 under meldekortberegning`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            barn =
+                listOf(
+                    ScenarioBarn(fødselsdato = 8.juni(2008), kvalifiserer = true), // Barn 1 er 18 år 8.juni 2026
+                    ScenarioBarn(fødselsdato = 1.juni(2012), kvalifiserer = true), // Barn 2 er 18 år 1.juni 2030
+                )
+        }.test {
+            person.søkDagpenger(1.juni(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                opplysninger(Beregning.forbruk) {
+                    this shouldHaveSize 14
+                }
+                opplysninger(DagpengenesStørrelse.barnetillegg) {
+                    this shouldHaveSize 2
+                    first().verdi.verdi shouldBe 76
+                    last().verdi.verdi shouldBe 38
+                }
+                opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg) {
+                    this shouldHaveSize 2
+                    first().verdi.verdi shouldBe 1335
+                    last().verdi.verdi shouldBe 1297
+                }
+                val satsPerDag = utbetalinger.toList().map { it["sats"].asInt() }
+                val utbetalingPerDag = utbetalinger.toList().map { it["utbetaling"].asInt() }
+                satsPerDag.shouldContainExactly(1335, 1335, 1335, 1335, 1335, 1335, 1335, 1335, 1297, 1297, 1297, 1297, 1297, 1297)
+                utbetalingPerDag.shouldContainExactly(941, 941, 941, 941, 941, 0, 0, 944, 914, 914, 914, 916, 0, 0)
+            }
+        }
+        fail { "Burde feile pga manglende avklaring? " }
     }
 }
