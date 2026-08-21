@@ -100,6 +100,7 @@ object OpplysningsTyper {
     val IngenOrdinærPeriodeId = Opplysningstype.Id(UUID.fromString("0194881f-943d-77a7-969c-147999f15458"), Heltall)
     val OrdinærPeriodeId = Opplysningstype.Id(UUID.fromString("0194881f-943d-77a7-969c-147999f15459"), Heltall)
     val DagerIUkaId = Opplysningstype.Id(UUID.fromString("0194881f-943d-77a7-969c-147999f15449"), Heltall)
+    val permitteringsdagerIUkaId = Opplysningstype.Id(UUID.fromString("01a02334-b6e7-7565-878c-2b1e1e99e286"), Heltall)
     val GjenståendeStønadsdagerId = Opplysningstype.Id(UUID.fromString("0194881f-943d-77a7-969c-147999f15457"), Heltall)
     val AntallDagsatsForEgenandelId = Opplysningstype.Id(UUID.fromString("0194881f-943f-78d9-b874-00a4944c54f0"), Desimaltall)
     val EgenandelId = Opplysningstype.Id(UUID.fromString("0194881f-943f-78d9-b874-00a4944c54ef"), Penger)
@@ -295,6 +296,7 @@ object OpplysningsTyper {
     // permittering
     val godkjentPermitteringsårsakId = Opplysningstype.Id(UUID.fromString("0194d105-bd54-7b2b-9dc6-6e6664951894"), Boolsk)
     val oppfyllerKravetTilPermitteringId = Opplysningstype.Id(UUID.fromString("0194d111-db2f-7395-bcfb-959f245fd2a6"), Boolsk)
+    val oppfyllerKravetTilPermitteringFraDatoId = Opplysningstype.Id(UUID.fromString("01a02331-3f5b-7751-82f0-0fc520cc8983"), Dato)
     val erPermitteringenMidlertidigId = Opplysningstype.Id(UUID.fromString("0194d119-90b7-7416-a8b0-9e9cf3587d48"), Boolsk)
     val permitteringsperiodeId = Opplysningstype.Id(UUID.fromString("0195042d-918e-7fae-8fb7-7f38eed42710"), Heltall)
     val antallPermitteringsdagerId = Opplysningstype.Id(UUID.fromString("01a01e28-0ad3-77e4-aaf5-e23392821cfb"), Heltall)

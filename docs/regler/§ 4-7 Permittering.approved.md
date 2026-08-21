@@ -7,6 +7,7 @@ graph RL
   A["Oppfyller kravet til permittering"] -->|"Alle"| B["Bruker er permittert"]
   A["Oppfyller kravet til permittering"] -->|"Alle"| C["Årsaken til permitteringen er godkjent"]
   A["Oppfyller kravet til permittering"] -->|"Alle"| D["Permitteringen er midlertidig driftsinnskrenkning eller driftsstans"]
+  E["Dato permitteringen løper fra"] -->|"FraOgMedForOpplysning"| A["Oppfyller kravet til permittering"]
 ```
 
 ## Akseptansetester

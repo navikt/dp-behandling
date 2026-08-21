@@ -9,23 +9,30 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
-import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.antallPermitteringsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbruktPermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendePermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.permitteringsdagId
+import no.nav.dagpenger.regel.OpplysningsTyper.permitteringsdagerIUkaId
 import no.nav.dagpenger.regel.OpplysningsTyper.permitteringsperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendePermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.sistePermitteringsdagId
-import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.dagerIUka
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermittering
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermitteringFraDato
 
 object PermitteringFastsetting {
+    val permitteringsdagerIUka =
+        heltall(
+            permitteringsdagerIUkaId,
+            "Antall dager som skal regnes som en uke ved permittering",
+            synlig = aldriSynlig,
+            enhet = Enhet.Dager,
+        )
     val permitteringsdag = Opplysningstype.boolsk(permitteringsdagId, "Arbeidsdag hvor bruker har vært permittert")
 
     val permitteringsperiode =
@@ -46,9 +53,11 @@ object PermitteringFastsetting {
         ) {
             skalVurderes { it.erSann(oppfyllerKravetTilPermittering) }
 
-            regel(permitteringsperiode) { oppslag(prøvingsdato) { 26 } }
-            regel(antallPermitteringsdager) { multiplikasjon(permitteringsperiode, dagerIUka) }
+            regel(permitteringsdagerIUka) { somUtgangspunkt(5) }
+            regel(permitteringsperiode) { oppslag(oppfyllerKravetTilPermitteringFraDato) { 26 } }
+            regel(antallPermitteringsdager) { multiplikasjon(permitteringsperiode, permitteringsdagerIUka) }
 
+            // TODO: Sjekk om dette egentlig skal funke
             // regel(permitteringsdag) { erSann(arbeidsdag) }
             regel(permitteringsdag) { tomRegel }
 

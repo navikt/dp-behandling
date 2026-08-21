@@ -30,6 +30,8 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløp
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.permitteringsdag
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.permitteringsperiode
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ansesUgyldigVedtak
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.endringIkkeTilSkade
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ikkeUnderretning
@@ -297,6 +299,10 @@ internal val redigerbareOpplysninger =
                             erPermittert,
                             godkjentPermitteringsårsak,
                             erPermitteringenMidlertidig,
+                            permitteringsperiode,
+                            // TODO: Skal denne være redigerbar?
+                            permitteringsdag,
+                            // Fiskeperm
                             permitteringFiskeforedling,
                             erPermitteringenFraFiskeindustriMidlertidig,
                             godkjentÅrsakPermitteringFraFiskindustri,

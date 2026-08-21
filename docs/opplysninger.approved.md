@@ -275,11 +275,11 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194d105-bd54-7b2b-9dc6-6e6664951894|Årsaken til permitteringen er godkjent|Boolsk|boolean|||Utgangspunkt
 |0194d111-db2f-7395-bcfb-959f245fd2a6|Oppfyller kravet til permittering|Boolsk|boolean|||Resultat
 |0194d119-90b7-7416-a8b0-9e9cf3587d48|Permitteringen er midlertidig driftsinnskrenkning eller driftsstans|Boolsk|boolean|||Utgangspunkt
+|01a02331-3f5b-7751-82f0-0fc520cc8983|Dato permitteringen løper fra|Dato|LocalDate|||Resultat
 ### § 4-7. Dagpenger til permitterte
 *Type:* Fastsettelse
 #### Avhenger på data fra
-- [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
-- [§ 4-15. Antall stønadsuker (stønadsperiode)](#-4-15-antall-stønadsuker-(stønadsperiode))
+- [§ 4-7. Dagpenger til permitterte](#-4-7-dagpenger-til-permitterte)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
@@ -290,6 +290,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01a01e28-e230-7661-98cd-8ece26fa6224|Siste forbruksdato av fritaksperiode|Dato|LocalDate|||Utgangspunkt
 |01a01e29-0db9-76a0-8621-5df3a7fb06ef|Siste antall fridagsperiodedager som gjenstår|Heltall|int|| Dager|Utgangspunkt
 |01a01e47-4bf4-739e-950c-5ac51d4fb6e3|Arbeidsdag hvor bruker har vært permittert|Boolsk|boolean|||Utgangspunkt
+|01a02334-b6e7-7565-878c-2b1e1e99e286|Antall dager som skal regnes som en uke ved permittering|Heltall|int|| Dager|Utgangspunkt
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Vilkår
 #### Avklaringer
