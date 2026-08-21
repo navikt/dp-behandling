@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel
 
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.GjeldendeKapasitet
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -14,24 +15,37 @@ object Kvotetelling {
      * [kapasitet] slås opp per dag (ikke som en fast verdi for hele batchen), slik at en
      * nedjustering av tildelingsgrunnlaget med virkning midt i en løpende meldeperiode slår ut
      * fra og med virkningsdatoen, og ikke først fra neste meldeperiode.
+     *
+     * Når en dags kapasitet har en annen virkningsdato enn foregående dags (dvs. vi beveger oss
+     * inn i en ny kapasitetsperiode, f.eks. pga. en nedjustering/omjustering av tildelingsgrunnlaget
+     * i en revurdering), starter tellingen på nytt fra 0 - en ny tildeling gjelder for seg selv,
+     * og "arver" ikke forbruk fra den forrige kapasitetsperioden.
      */
     fun tell(
-        kapasitet: (LocalDate) -> Int,
+        kapasitet: (LocalDate) -> GjeldendeKapasitet,
         utgangspunkt: Int,
         dager: List<LocalDate>,
         beregningsdager: List<Beregningresultat.Beregningsdag>,
     ): Kvotetellingsresultat {
         val sortert = beregningsdager.sortedBy { it.dag.dato }
         var teller = utgangspunkt
+        var gjeldendeVirkningsdato: LocalDate? = null
         val forbruktTeller =
             sortert.map { beregningsdag ->
                 val dato = beregningsdag.dag.dato
+                val (kapasitetPåDato, virkningsdato) = kapasitet(dato)
+                if (gjeldendeVirkningsdato != null && virkningsdato != gjeldendeVirkningsdato) {
+                    // Krysser inn i en ny kapasitetsperiode - forbruket telles på nytt fra 0.
+                    teller = 0
+                }
+                gjeldendeVirkningsdato = virkningsdato
                 if (dato in dager) teller++
-                KvotetellingsVerdi(minOf(teller, kapasitet(dato)), Gyldighetsperiode(dato, dato))
+                KvotetellingsVerdi(minOf(teller, kapasitetPåDato), Gyldighetsperiode(dato, dato))
             }
         val gjenstående =
             forbruktTeller.map {
-                val g = maxOf(kapasitet(it.gyldighetsperiode.fraOgMed) - it.verdi, 0)
+                val kapasitetPåDato = kapasitet(it.gyldighetsperiode.fraOgMed).verdi
+                val g = maxOf(kapasitetPåDato - it.verdi, 0)
                 require(g >= 0) {
                     "Gjenstående kan ikke være negativt. Har $g igjen"
                 }
@@ -50,7 +64,7 @@ object Kvotetelling {
                 ),
             sisteGjenstående =
                 KvotetellingsVerdi(
-                    gjenstående.lastOrNull()?.verdi ?: kapasitet(beregningsdager.last().dag.dato),
+                    gjenstående.lastOrNull()?.verdi ?: kapasitet(beregningsdager.last().dag.dato).verdi,
                     Gyldighetsperiode(beregningsdager.last().dag.dato),
                 ),
         )

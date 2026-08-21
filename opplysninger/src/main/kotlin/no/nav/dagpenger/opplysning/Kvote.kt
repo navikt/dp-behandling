@@ -38,28 +38,50 @@ data class KvoteDefinisjon(
     fun tildeltKapasitet(
         opplysninger: LesbarOpplysninger,
         gjelderFor: LocalDate,
-    ): Int = tildeltKapasitetFra(opplysninger.finnAlle(tildelingsgrunnlag.kapasitet), gjelderFor)
+    ): Int = gjeldendeKapasitetFra(opplysninger.finnAlle(tildelingsgrunnlag.kapasitet), gjelderFor).verdi
 
     /**
      * Som [tildeltKapasitet], men slår opp kapasitetslisten kun én gang og returnerer en lett
-     * oppslagsfunksjon. Nyttig når kapasiteten trengs for mange datoer (f.eks. dag for dag i en
-     * meldeperiode), slik at vi slipper å gjenta det (relativt sett) dyre [LesbarOpplysninger.finnAlle]-
-     * oppslaget for hver dag.
+     * oppslagsfunksjon som gir gjeldende kapasitet OG virkningsdatoen den ble tildelt fra.
+     *
+     * Virkningsdatoen brukes til å nullstille forbruksteller når man beveger seg inn i en ny
+     * kapasitetsperiode (se [forrigeForbruk] og [no.nav.dagpenger.regel.Kvotetelling.tell]) - en
+     * nedjustering/omjustering av tildelingsgrunnlaget starter tellingen på nytt fra og med sin
+     * egen virkningsdato, den endrer ikke bare kapasitetstaket.
+     *
+     * Nyttig når kapasiteten trengs for mange datoer (f.eks. dag for dag i en meldeperiode),
+     * slik at vi slipper å gjenta det (relativt sett) dyre [LesbarOpplysninger.finnAlle]-oppslaget
+     * for hver dag.
      */
-    fun tildeltKapasitetOppslag(opplysninger: LesbarOpplysninger): (LocalDate) -> Int {
+    fun tildeltKapasitetOppslag(opplysninger: LesbarOpplysninger): (LocalDate) -> GjeldendeKapasitet {
         val kapasiteter = opplysninger.finnAlle(tildelingsgrunnlag.kapasitet)
-        return { gjelderFor -> tildeltKapasitetFra(kapasiteter, gjelderFor) }
+        return { gjelderFor -> gjeldendeKapasitetFra(kapasiteter, gjelderFor) }
     }
 
-    private fun tildeltKapasitetFra(
+    private fun gjeldendeKapasitetFra(
         kapasiteter: List<Opplysning<Int>>,
         gjelderFor: LocalDate,
-    ): Int {
-        if (kapasiteter.isEmpty()) return 0
-        return kapasiteter
-            .lastOrNull { !it.gyldighetsperiode.fraOgMed.isAfter(gjelderFor) }
-            ?.verdi
-            ?: kapasiteter.minBy { it.gyldighetsperiode.fraOgMed }.verdi
+    ): GjeldendeKapasitet {
+        if (kapasiteter.isEmpty()) return GjeldendeKapasitet(0, gjelderFor)
+        val sortert = kapasiteter.sortedBy { it.gyldighetsperiode.fraOgMed }
+        val gjeldendeIndeks =
+            sortert
+                .indexOfLast { !it.gyldighetsperiode.fraOgMed.isAfter(gjelderFor) }
+                .takeIf { it >= 0 } ?: 0
+        val gjeldende = sortert[gjeldendeIndeks]
+
+        // En revurdering kan produsere et nytt faktum med samme verdi som forrige (f.eks. fordi
+        // regelmotoren kjøres på nytt av en helt annen grunn enn en endring i kapasiteten selv).
+        // Virkningsdatoen for tellingen skal da IKKE flyttes - vi går derfor bakover så lenge
+        // verdien er uendret, og bruker den tidligste fraOgMed i den sammenhengende serien med
+        // samme verdi som den reelle virkningsdatoen for gjeldende kapasitet.
+        var reellVirkningsdato = gjeldende.gyldighetsperiode.fraOgMed
+        for (i in gjeldendeIndeks - 1 downTo 0) {
+            if (sortert[i].verdi != gjeldende.verdi) break
+            reellVirkningsdato = sortert[i].gyldighetsperiode.fraOgMed
+        }
+
+        return GjeldendeKapasitet(gjeldende.verdi, reellVirkningsdato)
     }
 
     fun gjenståendeVed(
@@ -74,15 +96,28 @@ data class KvoteDefinisjon(
         return sisteGjenståendeVerdi ?: tildeltKapasitet(opplysninger, førsteDag)
     }
 
+    /**
+     * Henter forbruk registrert før [før], men KUN forbruk som er talt innenfor samme
+     * kapasitetsperiode som [før] tilhører. Forbruk fra en tidligere kapasitetsperiode (dvs. før
+     * gjeldende kapasitets virkningsdato) skal ikke telle med - en ny/endret tildeling av
+     * kapasitet starter tellingen på nytt fra sin egen virkningsdato.
+     */
     fun forrigeForbruk(
         opplysninger: LesbarOpplysninger,
         før: LocalDate,
-    ): Int =
-        opplysninger
+    ): Int {
+        val virkningsdato = tildeltKapasitetOppslag(opplysninger)(før).virkningsdato
+        return opplysninger
             .finnAlle(forbruksteller)
-            .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(før) }
+            .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(før) && !it.gyldighetsperiode.fraOgMed.isBefore(virkningsdato) }
             ?.verdi ?: 0
+    }
 }
+
+data class GjeldendeKapasitet(
+    val verdi: Int,
+    val virkningsdato: LocalDate,
+)
 
 data class Tildelingsgrunnlag(
     val kapasitet: Opplysningstype<Int>,

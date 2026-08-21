@@ -274,16 +274,19 @@ class PermitteringTest {
             }
 
             // Sender et nytt meldekort etter virkningsdatoen for nedjusteringen, og sjekker at
-            // den nye (lavere) kapasiteten på 100 dager brukes for dette meldekortet.
+            // den nye (lavere) kapasiteten på 100 dager brukes for dette meldekortet. Siden
+            // nedjusteringen er en NY tildeling (ikke bare et nytt kapasitetstak), starter
+            // tellingen på nytt fra 0 fra og med virkningsdatoen - forbruk fra FØR 16. juli
+            // (17 dager) telles altså ikke med mot den nye kapasiteten.
             person.sendInnMeldekort(3)
             meldekortBatch()
 
             behandlingsresultat(5) {
                 with(opplysninger(PermitteringFastsetting.forbruktPermittering)) {
-                    this.last().verdi.verdi shouldBe 27
+                    this.last().verdi.verdi shouldBe 10
                 }
                 with(opplysninger(PermitteringFastsetting.gjenståendePermittering)) {
-                    this.last().verdi.verdi shouldBe 73
+                    this.last().verdi.verdi shouldBe 90
                 }
             }
         }
@@ -360,18 +363,20 @@ class PermitteringTest {
                 }
             }
 
-            // Meldeperiode 3 (16.-29. juli) starter *på* virkningsdatoen for nedjusteringen, og
-            // skal derfor telle ned fra den NYE kapasiteten på 100 dager (20 uker), altså
-            // 100 - 17 (forbruk fra periode 1 og 2) - 10 (nytt forbruk) = 73, IKKE 130 - 27 = 103.
+            // Meldeperiode 3 (16.-29. juli) starter *på* virkningsdatoen for nedjusteringen. En
+            // nedjustering er en NY tildeling, ikke bare et nytt kapasitetstak - forbruket telles
+            // derfor på nytt fra 0 fra og med 16. juli: 10 nye dager forbrukt mot 100 dager (20
+            // uker) ny kapasitet, altså 100 - 10 = 90 gjenstående. Forbruket fra periode 1 og 2
+            // (17 dager, talt mot den gamle kapasiteten på 130 dager) telles ikke med.
             person.sendInnMeldekort(3)
             meldekortBatch()
 
             behandlingsresultat(5) {
                 with(opplysninger(PermitteringFastsetting.forbruktPermittering)) {
-                    this.last().verdi.verdi shouldBe 27
+                    this.last().verdi.verdi shouldBe 10
                 }
                 with(opplysninger(PermitteringFastsetting.gjenståendePermittering)) {
-                    this.last().verdi.verdi shouldBe 73
+                    this.last().verdi.verdi shouldBe 90
                 }
             }
         }
@@ -419,20 +424,20 @@ class PermitteringTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            // Meldeperiode 2 (2.-15. juli) starter *før* virkningsdatoen (9. juli), men siden
-            // kapasiteten nå slås opp per dag, skal gjenstående falle umiddelbart fra og med
-            // 9. juli - selv om meldeperioden startet før virkningsdatoen. 7 (periode 1) + 10
-            // (periode 2, hvorav de siste dagene teller mot ny kapasitet) forbrukt = 17, mot ny
-            // kapasitet på 100 (20 uker): 100 - 17 = 83.
+            // Meldeperiode 2 (2.-15. juli) starter *før* virkningsdatoen (9. juli). Siden
+            // nedjusteringen er en NY tildeling, ikke bare et nytt kapasitetstak, nullstilles
+            // telleren fra og med 9. juli - kun permitteringsdagene fra 9. til 15. juli telles
+            // mot den nye kapasiteten på 100 dager (20 uker). Forbruket fra FØR 9. juli (både
+            // periode 1 og starten av periode 2) telles ikke med mot den nye tildelingen.
             person.sendInnMeldekort(2)
             meldekortBatch()
 
             behandlingsresultat(4) {
                 with(opplysninger(PermitteringFastsetting.forbruktPermittering)) {
-                    this.last().verdi.verdi shouldBe 17
+                    this.last().verdi.verdi shouldBe 5
                 }
                 with(opplysninger(PermitteringFastsetting.gjenståendePermittering)) {
-                    this.last().verdi.verdi shouldBe 83
+                    this.last().verdi.verdi shouldBe 95
                 }
             }
         }
