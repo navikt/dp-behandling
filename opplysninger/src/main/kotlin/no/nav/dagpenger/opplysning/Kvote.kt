@@ -23,9 +23,28 @@ data class KvoteDefinisjon(
 
     fun teller(type: Forbrukstype) = type == forbrukstype
 
-    fun tildeltKapasitet(opplysninger: LesbarOpplysninger): Int {
-        if (!opplysninger.har(tildelingsgrunnlag.kapasitet)) return 0
-        return opplysninger.finnOpplysning(tildelingsgrunnlag.kapasitet).verdi
+    /**
+     * Henter tildelt kapasitet slik den var gyldig på [gjelderFor].
+     *
+     * Kapasiteten kan endres over tid (f.eks. ved nedjustering av tildelingsgrunnlaget i en
+     * revurdering/omgjøring). Vi finner derfor den siste kapasiteten som var trådt i kraft senest
+     * på [gjelderFor], i stedet for alltid å hente den nyeste/gjeldende verdien - det ville fått
+     * historiske meldeperioder til å bli regnet om med feil kapasitet ved en omgjøring.
+     *
+     * Meldeperioder kan starte noen dager før selve vedtaket/kapasiteten formelt ble gyldig
+     * (uke-justerte meldeperioder), så hvis [gjelderFor] er tidligere enn noen kjent kapasitet,
+     * faller vi tilbake på den først tildelte kapasiteten.
+     */
+    fun tildeltKapasitet(
+        opplysninger: LesbarOpplysninger,
+        gjelderFor: LocalDate,
+    ): Int {
+        val kapasiteter = opplysninger.finnAlle(tildelingsgrunnlag.kapasitet)
+        if (kapasiteter.isEmpty()) return 0
+        return kapasiteter
+            .lastOrNull { !it.gyldighetsperiode.fraOgMed.isAfter(gjelderFor) }
+            ?.verdi
+            ?: kapasiteter.minBy { it.gyldighetsperiode.fraOgMed }.verdi
     }
 
     fun gjenståendeVed(
@@ -37,7 +56,7 @@ data class KvoteDefinisjon(
                 .finnAlle(gjenstående)
                 .lastOrNull { it.gyldighetsperiode.fraOgMed.isBefore(førsteDag) }
                 ?.verdi
-        return sisteGjenståendeVerdi ?: tildeltKapasitet(opplysninger)
+        return sisteGjenståendeVerdi ?: tildeltKapasitet(opplysninger, førsteDag)
     }
 
     fun forrigeForbruk(

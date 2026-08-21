@@ -64,7 +64,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, dager.first()),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -94,7 +94,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, fraOgMed),
                 kvote.forrigeForbruk(opplysninger, fraOgMed),
                 dager,
                 dager.tilBeregningdager(),
@@ -131,7 +131,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, dager.first()),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -154,7 +154,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, dager.first()),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -174,7 +174,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, dager.first()),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -198,7 +198,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, dager.first()),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -231,7 +231,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, fraOgMed),
                 kvote.forrigeForbruk(opplysninger, fraOgMed),
                 dager,
                 dager.tilBeregningdager(),
@@ -266,7 +266,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, dager.first()),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),
@@ -293,7 +293,7 @@ class KvotetellerTest {
         KvotetellingsSkriver(kvote).skriv(
             opplysninger,
             Kvotetelling.tell(
-                kvote.tildeltKapasitet(opplysninger),
+                kvote.tildeltKapasitet(opplysninger, dager.first()),
                 kvote.forrigeForbruk(opplysninger, dager.first()),
                 dager,
                 dager.tilBeregningdager(),

@@ -14,7 +14,8 @@ internal fun KvoteDefinisjon.tell(
     fraOgMed: LocalDate,
     dager: List<LocalDate>,
     beregningsdager: List<Beregningsdag>,
-): Kvotetellingsresultat = Kvotetelling.tell(tildeltKapasitet(opplysninger), forrigeForbruk(opplysninger, fraOgMed), dager, beregningsdager)
+): Kvotetellingsresultat =
+    Kvotetelling.tell(tildeltKapasitet(opplysninger, fraOgMed), forrigeForbruk(opplysninger, fraOgMed), dager, beregningsdager)
 
 internal class Kvoteteller private constructor(
     private val kvoter: List<KvoteDefinisjon>,

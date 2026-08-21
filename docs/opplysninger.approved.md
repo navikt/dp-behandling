@@ -289,7 +289,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01a01e28-a90b-7109-beae-b69d61cea3c0|Antall fritaksperiodedager som gjenstår|Heltall|int|| Dager|Utgangspunkt
 |01a01e28-e230-7661-98cd-8ece26fa6224|Siste forbruksdato av fritaksperiode|Dato|LocalDate|||Utgangspunkt
 |01a01e29-0db9-76a0-8621-5df3a7fb06ef|Siste antall fridagsperiodedager som gjenstår|Heltall|int|| Dager|Utgangspunkt
-|01a01e47-4bf4-739e-950c-5ac51d4fb6e3|Arbeidsdag hvor bruker har vært permittert|Boolsk|boolean|||Utgangspunkt
+|01a01e47-4bf4-739e-950c-5ac51d4fb6e3|Arbeidsdag hvor bruker har vært permittert|Boolsk|boolean|||Resultat
 |01a02334-b6e7-7565-878c-2b1e1e99e286|Antall dager som skal regnes som en uke ved permittering|Heltall|int|| Dager|Utgangspunkt
 ### § 6-7. Permittering i fiskeforedlingsindustrien, sjømatindustrien og fiskeoljeindustrien
 *Type:* Vilkår

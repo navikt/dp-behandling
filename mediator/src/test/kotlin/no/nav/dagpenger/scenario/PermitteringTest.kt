@@ -5,10 +5,14 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
+import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermittering
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erPermittert
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class PermitteringTest {
     @Test
@@ -167,6 +171,119 @@ class PermitteringTest {
                 }
                 with(opplysninger(PermitteringFastsetting.gjenståendePermittering)) {
                     this.last().verdi.verdi shouldBe 113
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `nedjustering av tildelingsgrunnlag med senere virkningsdato skal ikke telles om igjen for allerede prosesserte meldeperioder`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            permittering = true
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                utfall shouldBe true
+
+                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
+                    this.single().verdi.verdi shouldBe 26
+                }
+            }
+
+            // Meldeperiode 1: forbruker 7 av 130 dager (26 uker) med kapasitet 26 uker.
+            person.sendInnMeldekort(1)
+            meldekortBatch()
+
+            behandlingsresultat(2) {
+                with(opplysninger(PermitteringFastsetting.forbruktPermittering)) {
+                    this.last().verdi.verdi shouldBe 7
+                }
+                with(opplysninger(PermitteringFastsetting.gjenståendePermittering)) {
+                    this.last().verdi.verdi shouldBe 123
+                }
+            }
+
+            // Meldeperiode 2: forbruker totalt 17 av 130 dager, fortsatt med kapasitet 26 uker.
+            person.sendInnMeldekort(2)
+            meldekortBatch()
+
+            behandlingsresultat(3) {
+                with(opplysninger(PermitteringFastsetting.forbruktPermittering)) {
+                    this.last().verdi.verdi shouldBe 17
+                }
+                with(opplysninger(PermitteringFastsetting.gjenståendePermittering)) {
+                    this.last().verdi.verdi shouldBe 113
+                }
+            }
+
+            // Saksbehandler omgjør behandlingen og nedjusterer tildelingsgrunnlaget fra 26 til 20 uker,
+            // men KUN med virkning fra 16. juli - altså *etter* at meldeperiode 1 og 2 allerede er
+            // ferdig behandlet med kapasitet 26 uker (130 dager).
+            saksbehandler.omgjørBehandling(21.juni(2018))
+            saksbehandler.endreOpplysning(
+                PermitteringFastsetting.permitteringsperiode,
+                20,
+                "Nedjustering av permitteringsperiode, gjelder fra 16. juli",
+                Gyldighetsperiode(16.juli(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                skalOmgjøringUtenKlageVurderes,
+                true,
+                "Test",
+                Gyldighetsperiode(21.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                OmgjøringUtenKlage.ansesUgyldigVedtak,
+                true,
+            )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(4) {
+                // Meldeperiode 1 og 2 blir beregnet på nytt av OmgjøringBeregningPlugin, selv om
+                // nedjusteringen først skal gjelde fra 16. juli.
+                //
+                // Siden 16. juli ligger *etter* meldeperiode 1 og 2, skal disse periodenes
+                // forbrukt/gjenstående forbli uendret (kapasitet 26 uker/130 dager var fortsatt
+                // gjeldende da disse dagene faktisk ble forbrukt). Dette sikres av at
+                // KvoteDefinisjon.tildeltKapasitet(...) nå slår opp kapasiteten på den datoen som
+                // faktisk beregnes, i stedet for alltid å hente den nyeste/gjeldende verdien.
+                val forbruktPerioder = opplysninger(PermitteringFastsetting.forbruktPermittering)
+                val gjenståendePerioder = opplysninger(PermitteringFastsetting.gjenståendePermittering)
+
+                fun List<Opplysningsperiode>.gjeldendeFor(dato: LocalDate) =
+                    single { it.gyldigFraOgMed!! <= dato && (it.gyldigTilOgMed == null || it.gyldigTilOgMed >= dato) }.verdi.verdi as Int
+
+                forbruktPerioder.gjeldendeFor(1.juli(2018)) shouldBe 7
+                forbruktPerioder.gjeldendeFor(15.juli(2018)) shouldBe 17
+
+                // Gjenstående for meldeperiode 1 og 2 skal fortsatt være 123 og 113 (basert på
+                // kapasitet 130 dager, som fortsatt gjaldt på det tidspunktet), IKKE 93/83 (basert
+                // på ny kapasitet 100 dager som først skal gjelde fra 16. juli).
+                gjenståendePerioder.gjeldendeFor(1.juli(2018)) shouldBe 123
+                gjenståendePerioder.gjeldendeFor(15.juli(2018)) shouldBe 113
+            }
+
+            // Sender et nytt meldekort etter virkningsdatoen for nedjusteringen, og sjekker at
+            // den nye (lavere) kapasiteten på 100 dager brukes for dette meldekortet.
+            person.sendInnMeldekort(3)
+            meldekortBatch()
+
+            behandlingsresultat(5) {
+                with(opplysninger(PermitteringFastsetting.forbruktPermittering)) {
+                    this.last().verdi.verdi shouldBe 27
+                }
+                with(opplysninger(PermitteringFastsetting.gjenståendePermittering)) {
+                    this.last().verdi.verdi shouldBe 73
                 }
             }
         }

@@ -80,7 +80,7 @@ object PermitteringFastsetting {
                 ),
             )
 
-            ønsketResultat(antallPermitteringsdager)
+            ønsketResultat(antallPermitteringsdager, permitteringsdag)
 
             påvirkerResultat { it.erSann(oppfyllerKravetTilPermittering) }
         }
