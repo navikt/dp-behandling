@@ -1,6 +1,7 @@
 package no.nav.dagpenger.opplysning
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import no.nav.dagpenger.opplysning.Gyldighetsperiode.Companion.overlappendePerioder
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
@@ -41,13 +42,36 @@ class Opplysninger private constructor(
     }
 
     fun <T : Any> leggTil(opplysning: Opplysning<T>) {
+        settInnOpplysning(opplysning)
+        refreshOpplysninger()
+    }
+
+    fun leggTil(block: (MutableList<Opplysning<*>>) -> Unit) {
+        val nye = mutableListOf<Opplysning<*>>().apply(block)
+        krevIngenOverlappInnadIBatch(nye)
+        nye.forEach { settInnOpplysning(it) }
+        refreshOpplysninger()
+    }
+
+    private fun krevIngenOverlappInnadIBatch(nye: List<Opplysning<*>>) {
+        nye
+            .groupBy { it.opplysningstype }
+            .forEach { (type, opplysninger) ->
+                require(!opplysninger.map { it.gyldighetsperiode }.overlappendePerioder()) {
+                    "leggTil (batch) støtter ikke opplysninger som overlapper hverandre i samme batch: " +
+                        "${type.navn} har overlappende gyldighetsperioder"
+                }
+            }
+    }
+
+    private fun <T : Any> settInnOpplysning(opplysning: Opplysning<T>) {
         opplysning.behandlet = false
         opplysning.behandletVed = null
         val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
         if (eksisterende != null) {
             if (egne.contains(eksisterende)) {
-                // Erstatt hele opplysningen
+                // Erstatt hele opplysningen.
                 fjern(eksisterende)
 
                 eksisterende.erstatter?.let {
@@ -68,7 +92,6 @@ class Opplysninger private constructor(
         sjekkAtUtledetAvFinnes(opplysning)
 
         egne.add(opplysning)
-        refreshOpplysninger()
     }
 
     // Invariant: en opplysning kan ikke være utledetAv noe som ikke finnes (lenger) i denne
