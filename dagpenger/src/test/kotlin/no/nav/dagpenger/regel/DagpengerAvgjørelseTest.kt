@@ -5,6 +5,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.dato.august
 import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
+import no.nav.dagpenger.dato.juli
 import no.nav.dagpenger.dato.juni
 import no.nav.dagpenger.dato.mars
 import no.nav.dagpenger.opplysning.Avgjørelse
@@ -246,6 +247,24 @@ internal class DagpengerAvgjørelseTest {
             }
 
         RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Gjenopptak
+    }
+
+    @Test
+    fun `endring når innvilget rett videreføres kant-i-kant i ny behandling`() {
+        // Innvilget fra 1. juli i én behandling. En påfølgende behandling gir en ny rettighetsperiode som
+        // fortsatt har rett, og som ligger kant-i-kant rett etter forrige periode (ingen reell stans imellom -
+        // bare en administrativ videreføring inn i tidligere uvurdert tid). Dette skal være en Endring, ikke
+        // en Gjenopptak, siden brukeren aldri mistet retten.
+        val forrige =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.juli(2026), 20.august(2026))))
+            }
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(21.august(2026))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Endring
     }
 
     @Test

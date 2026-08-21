@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
@@ -126,6 +127,7 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     // Perioder kan komme i vilkårlig rekkefølge (f.eks. en etterregistrert/tilbakedatert periode som
     // dukker opp etter en periode som allerede er kjent) - sorter derfor kronologisk før vi resonnerer
     // om hva som faktisk er den gjeldende (siste) statusen.
+    val rettighetsopplysninger = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
     val perioder = dagpengerRettighetsperioder(opplysninger).sortedBy { it.fraOgMed }
     if (perioder.isEmpty()) return Avgjørelse.Uavklart
 
@@ -156,7 +158,7 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
         forrigePeriode.harRett && !gjeldendePeriode.harRett -> Avgjørelse.Stans
 
         // Hadde rett fra før, og har fortsatt rett - men med et opphold mellom periodene
-        forrigePeriode.harRett && harGapEtterForrigePeriode(perioder, forrigePeriode) -> Avgjørelse.Gjenopptak
+        forrigePeriode.harRett && harGapEtterForrigePeriode(perioder, forrigePeriode, rettighetsopplysninger) -> Avgjørelse.Gjenopptak
 
         // Hadde rett fra før, og har fortsatt rett uten opphold
         forrigePeriode.harRett -> Avgjørelse.Endring
@@ -173,14 +175,23 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
 private fun harGapEtterForrigePeriode(
     perioder: List<Rettighetsperiode>,
     forrigePeriode: Rettighetsperiode,
+    rettighetsopplysninger: List<Opplysning<Boolean>>,
 ): Boolean {
     val nestePeriode = perioder.getOrNull(perioder.indexOf(forrigePeriode) + 1) ?: return false
 
-    // Merk: terskelen er > 0, ikke > 1. Selv ett dags avstand mellom periodene regnes som et opphold,
-    // fordi periodene uansett er splittet i to separate rettighetsperioder - var det egentlig sammenhengende
-    // rett, ville det vært én periode. To uavhengige LLM-implementasjoner av denne funksjonen (uten kjennskap
-    // til denne kommentaren) endte begge opp med > 1 og feilet dermed mediator-scenarioet under.
-    return ChronoUnit.DAYS.between(forrigePeriode.tilOgMed, nestePeriode.fraOgMed) > 0
+    val dagerMellom = ChronoUnit.DAYS.between(forrigePeriode.tilOgMed, nestePeriode.fraOgMed)
+
+    // Mer enn ett dags avstand er alltid et reelt opphold.
+    if (dagerMellom > 1) return true
+    if (dagerMellom < 1) return false
+
+    // Ett dags avstand er tvetydig: perioder som opprinnelig hadde et opphold (f.eks. stans etterfulgt av
+    // gjenopptak samme dag) kan bli slått sammen slik at det ser ut som periodene ligger rett inntil
+    // hverandre (kant-i-kant), selv om det egentlig var en reell stans imellom. Vi skiller de to tilfellene
+    // ved å sjekke om den nye perioden faktisk erstatter en tidligere vurdert periode (reelt opphold), eller
+    // om den bare er en ren videreføring inn i tidligere uvurdert tid (ikke noe opphold).
+    val nesteOpplysning = rettighetsopplysninger.firstOrNull { it.gyldighetsperiode.fraOgMed == nestePeriode.fraOgMed }
+    return nesteOpplysning?.erstatter != null
 }
 
 private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
