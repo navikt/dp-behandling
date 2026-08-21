@@ -206,10 +206,32 @@ internal class DagpengerAvgjørelseTest {
     }
 
     @Test
+    fun `henningsaken med innvilgelse og etterfølgende endring`() {
+        // Én og samme sending kan innvilge rett og samtidig inneholde en senere, innebygd stans -
+        // det er fortsatt en Innvilgelse, siden det er dette behandlingen faktisk gir beskjed om.
+        val forrige =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(23.juni(2026), 9.august(2026))))
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(10.august(2026))))
+            }
+        RegelverkDagpenger.avgjørelse(forrige) shouldBe Avgjørelse.Innvilgelse
+
+        // Neste behandling legger til en tilbakedatert periode (3.-9. august) som ligger FØR den allerede
+        // kjente, arvede stansen (10. august). Den arvede stansen er uendret og fortsatt den kronologisk
+        // siste (gjeldende) perioden - den nye perioden endrer derfor ikke den gjeldende statusen, og det
+        // blir bare en Endring, ikke Gjenopptak.
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(3.august(2026), 9.august(2026))))
+            }
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Endring
+    }
+
+    @Test
     fun `gjenopptak når stans og påfølgende gjenopptak skjer samme dag`() {
         // Reflekterer mediator-scenarioet "tester stans og gjenopptak på samme dag": rett → stans → gjenopptak,
         // der stans og gjenopptak begge har fraOgMed/tilOgMed samme dag. Selv med null dager mellom periodene
-        // skal dette bli Gjenopptak, ikke Endring - se kommentar på harGapMellomRettighetsperiodene.
+        // skal dette bli Gjenopptak, ikke Endring - se kommentar på harGapEtterForrigePeriode.
         val innvilget =
             Opplysninger().apply {
                 leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(21.juni(2018))))
