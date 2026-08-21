@@ -28,6 +28,7 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Avklaringspunkter.JobbetOverTerskel
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
@@ -254,6 +255,8 @@ class BeregningTest {
                     // Alle dager telles med verdi (0 eller faktisk forbrukt)
                     map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                 }
+
+                opplysninger(PermitteringFastsetting.permitteringsperiode) shouldHaveSize 0
             }
         }
     }

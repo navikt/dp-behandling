@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
+import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
@@ -57,8 +58,6 @@ object PermitteringFastsetting {
             regel(permitteringsperiode) { oppslag(oppfyllerKravetTilPermitteringFraDato) { 26 } }
             regel(antallPermitteringsdager) { multiplikasjon(permitteringsperiode, permitteringsdagerIUka) }
 
-            // TODO: Sjekk om dette egentlig skal funke
-            // regel(permitteringsdag) { erSann(arbeidsdag) }
             regel(permitteringsdag) { tomRegel }
 
             regel(forbruktPermittering) { tomRegel }

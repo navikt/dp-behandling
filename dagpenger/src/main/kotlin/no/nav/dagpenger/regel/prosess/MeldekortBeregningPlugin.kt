@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.medSpan
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KvotetellingsSkriver
@@ -21,9 +22,9 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
-import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.permitteringsdag
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
-import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermittering
+import no.nav.dagpenger.regel.regelsett.vilkår.Permittering
 
 class MeldekortBeregningPlugin(
     private val kvoter: List<KvoteDefinisjon>,
@@ -54,12 +55,7 @@ class MeldekortBeregningPlugin(
         val gyldighetsperiode = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed)
         kontekst.info("Beregner meldeperiode: ${gyldighetsperiode.fraOgMed} til ${gyldighetsperiode.tilOgMed}")
 
-        val permitteringsperioder = opplysninger.finnAlle(oppfyllerKravetTilPermittering).filter { it.verdi }.map { it.gyldighetsperiode }
-        meldeperiode.forEach { dag ->
-            val erPermittert = permitteringsperioder.any { it.inneholder(dag) }
-            opplysninger.leggTil(Faktum(permitteringsdag, erPermittert, Gyldighetsperiode(dag, dag)))
-        }
-
+        opplysninger.tellPermitteringsdager(meldeperiode)
         opplysninger.fastsettMeldtITide(meldeperiode, gyldighetsperiode)
 
         val resultat =
@@ -86,6 +82,23 @@ class MeldekortBeregningPlugin(
             .beregn(opplysninger, meldeperiode.fraOgMed)
             .forEach { (kvote, kvoteresultat) -> KvotetellingsSkriver(kvote).skriv(opplysninger, kvoteresultat) }
         return resultat
+    }
+
+    private fun Opplysninger.tellPermitteringsdager(meldeperiode: Periode) {
+        if (mangler(Permittering.oppfyllerKravetTilPermittering)) return
+        val permitteringsperioder = finnAlle(Permittering.oppfyllerKravetTilPermittering).filter { it.verdi }.map { it.gyldighetsperiode }
+
+        val overstyrteDager =
+            finnAlle(PermitteringFastsetting.permitteringsdag)
+                .filter { it.kilde is Saksbehandlerkilde }
+                .map { it.gyldighetsperiode }
+
+        meldeperiode
+            .filterNot { dag -> overstyrteDager.any { it.inneholder(dag) } }
+            .forEach { dag ->
+                val erPermittert = permitteringsperioder.any { it.inneholder(dag) }
+                leggTil(Faktum(PermitteringFastsetting.permitteringsdag, erPermittert, Gyldighetsperiode(dag, dag)))
+            }
     }
 
     private fun Opplysninger.lagreEgenandel(

@@ -49,11 +49,14 @@ internal class Kvoteteller private constructor(
     ): Map<KvoteDefinisjon, List<LocalDate>> {
         // Alle kvoter som teller rettighet får telle alle forbruksdager
         val rettigheter =
-            kvoter.filter { it.teller(Rettighet) }.associateWith { kvotedefinisjon ->
-                rettighetsdager.filter {
-                    opplysninger.finnOpplysning(kvotedefinisjon.tellesNår, it).verdi
+            kvoter
+                .filter { it.teller(Rettighet) }
+                .filter { opplysninger.oppfyller(it.utløsendeBetingelse) }
+                .associateWith { kvotedefinisjon ->
+                    rettighetsdager.filter {
+                        opplysninger.finnOpplysning(kvotedefinisjon.tellesNår, it).verdi
+                    }
                 }
-            }
 
         // Alle kvoter som teller bortfall må telle i rekkefølge
         val sanksjoner = bortfallPerSanksjon(opplysninger, fraOgMed)
