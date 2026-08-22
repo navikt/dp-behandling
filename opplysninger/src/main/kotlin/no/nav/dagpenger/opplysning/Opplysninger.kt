@@ -164,12 +164,12 @@ class Opplysninger private constructor(
     ) = finnNullableOpplysningMedFiltre(opplysningstype, gjelderFor, false) != null
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>) =
-        opplysningstyper.mapNotNull { type -> alleOpplysninger.lastOrNull { it.er(type) && !erTombstonet(it.id) } }
+        opplysningstyper.mapNotNull { type -> indeks.gjeldende(type).lastOrNull { !erTombstonet(it.id) } }
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = opplysningstyper.flatMap { type -> finnAlle(type) }
 
     override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) =
-        alleOpplysninger.filter { it.er(opplysningstype) && !erTombstonet(it.id) }.filterIsInstance<Opplysning<T>>()
+        indeks.gjeldende(opplysningstype).filterNot { erTombstonet(it.id) }.filterIsInstance<Opplysning<T>>()
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger = OpplysningerView(this, gjelderFor = gjelderFor)
 
