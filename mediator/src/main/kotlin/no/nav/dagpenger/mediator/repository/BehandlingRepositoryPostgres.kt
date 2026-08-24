@@ -1,5 +1,7 @@
 package no.nav.dagpenger.mediator.repository
 
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.dagpenger.avklaring.Avklaring
@@ -223,12 +225,14 @@ internal class BehandlingRepositoryPostgres(
         return arbeidsstegMap
     }
 
+    @WithSpan
     private fun Session.hentBehandlinger(valg: HentBehandling): List<Behandlingkjede> {
         val behandlingRader =
             hentBehandlingerStegTimer.labelValues("behandlingsrader").time<List<BehandlingRad>> {
                 lagBehandlingRad(valg)
             }
         val alleBehandlingIder = behandlingRader.map { it.behandlingId }.toSet()
+        Span.current().setAttribute("app.antallBehandlingIder", alleBehandlingIder.size.toLong())
 
         val arbeidsstegMap =
             hentBehandlingerStegTimer.labelValues("arbeidssteg").time<Map<Pair<UUID, Arbeidssteg.Oppgave>, Arbeidssteg>> {

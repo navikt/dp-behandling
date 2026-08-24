@@ -1,6 +1,7 @@
 package no.nav.dagpenger.mediator.repository
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotliquery.Row
 import kotliquery.Session
@@ -144,7 +145,9 @@ internal class OpplysningerRepositoryPostgres(
         private val kildeRespository: KildeRepository,
         private val opplysningstypeRegister: OpplysningstypeRegister,
     ) {
+        @WithSpan
         fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<out Any>>> {
+            Span.current().setAttribute("app.antallOpplysningerIder", opplysningerIder.size.toLong())
             val rader: Set<OpplysningRad<*>> =
                 session
                     .run(
@@ -196,6 +199,7 @@ internal class OpplysningerRepositoryPostgres(
                             row.somOpplysningRad(datatype)
                         }.asList,
                     ).toSet()
+            Span.current().setAttribute("app.antallOpplysningerRader", rader.size.toLong())
 
             // Hent inn kilde for alle opplysninger vi trenger
             val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId }, session)
