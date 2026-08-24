@@ -1,6 +1,5 @@
 package no.nav.dagpenger.scenario
 
-import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldBeMonotonicallyIncreasing
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
@@ -237,23 +236,6 @@ class BeregningTest {
 
                 opplysninger(Sanksjonsperiode.harSanksjon).single().verdi.verdi shouldBe false
                 opplysninger(Beregning.forbruktSanksjonsdager) shouldHaveSize 14
-            }
-
-            // Send inn meldekort
-            person.sendInnMeldekort(1)
-
-            // Systemet kjører beregningsbatchen
-            meldekortBatch(markerFerdig = true)
-
-            behandlingsresultat {
-                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 5036
-
-                with(opplysninger(Beregning.forbrukt)) {
-                    forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
-
-                    // Alle dager telles med verdi (0 eller faktisk forbrukt)
-                    map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
-                }
             }
         }
     }

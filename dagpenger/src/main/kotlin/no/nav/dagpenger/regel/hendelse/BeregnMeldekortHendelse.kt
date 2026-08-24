@@ -76,17 +76,28 @@ class BeregnMeldekortHendelse(
 
                         logger.info { "Har valgt ${forretningsprosess.javaClass.simpleName} som prosess for å beregne meldekort" }
 
-                        if (meldekort.korrigeringAv != null) {
-                            if (harBeregnetPeriodenEtterDenne) {
-                                logger.info {
-                                    "Vi har allerede beregnet en periode etter denne meldeperioden! Dette blir en omgjøring bak i tid."
-                                }
+                        if (harBeregnetPeriodenEtterDenne) {
+                            if (meldekort.korrigeringAv != null) {
+                                logger.info { "Korrigering av tidligere beregnet meldeperiode som ligger bak i tid." }
                                 add(
                                     Avklaring(
                                         Avklaringkode(
                                             kode = "KorrigeringUtbetaltPeriode",
                                             tittel = "Beregning av meldekort som korrigerer tidligere periode",
                                             beskrivelse = "Behandlingen er korrigering av et tidligere beregnet meldekort",
+                                            kanAvbrytes = false,
+                                        ),
+                                    ),
+                                )
+                            } else {
+                                logger.info { "Vi har allerede beregnet en periode etter denne meldeperioden!" }
+                                add(
+                                    Avklaring(
+                                        Avklaringkode(
+                                            kode = "EtterrapportertPeriode",
+                                            tittel = "Beregning av meldekort som gjelder en periode som ligger bak i tid",
+                                            beskrivelse =
+                                                "Behandlingen gjelder et meldekort som er rapportert etter at vi har beregnet en senere periode",
                                             kanAvbrytes = false,
                                         ),
                                     ),

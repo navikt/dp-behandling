@@ -102,6 +102,7 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
+Laget avklaring om EtterrapportertPeriode
 Laget avklaring om SkalOmgjøringUtenKlageVurderes
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
