@@ -9,10 +9,12 @@ import io.kotest.matchers.string.shouldContain
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode.Periodestatus.Arvet
 import org.junit.jupiter.api.Test
@@ -397,6 +399,57 @@ class KjedescenarioTest {
             behovsløsere.løsTilForslag()
             behandlingsresultatForslag(2) {
                 rettighetsperioder.size shouldBe 1
+            }
+        }
+    }
+
+    @Test
+    fun `Gjenopptak som fører til ny sak`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1, aktiviteter = MutableList<MeldekortAktivitet>(14) { MeldekortAktivitet.Arbeid(9) })
+            meldekortBatch(markerFerdig = true)
+            // Stans pga arbeidssøkerperiode
+
+            saksbehandler.omgjørBehandling(gjelderDato = 30.juni(2018))
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid,
+                false,
+                "Skulle ikke hatt innvilgels",
+                Gyldighetsperiode(21.juni(2018)),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.size shouldBe 1
+                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder.last().fraOgMed shouldBe 21.juni(2018)
+                førteTil shouldBe "Avslag"
+            }
+
+            person.søkGjenopptak(10.august(2018))
+            behovsløsere.løsTilForslag()
+
+            // Ny kjede - knapp for å opprette ny sak
+            saksbehandler.flyttBehandlingTilNyKjede(behandlingId = person.behandlingId, nyBehandlingskjedeId = null)
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag(7) {
+                rettighetsperioder.size shouldBe 1
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 10.august(2018)
+                basertPå shouldBe null // Hvordan kommunisere dette til STSB.
             }
         }
     }
