@@ -228,6 +228,17 @@ object Avklaringspunkter {
             beskrivelse = "Barn må godkjennes om de skal gi barnetillegg. Sjekk hvilke barn som skal gi barnetillegg.",
         )
 
+    val BarnFyller18ÅrIMeldeperioden =
+        Avklaringkode(
+            kode = "BarnFyller18ÅrIMeldeperioden",
+            tittel = "Barn fyller 18 år",
+            beskrivelse =
+                """
+                Et barn som gir rett til barnetillegg fyller 18 år i meldeperioden, og barnetillegget faller bort fra 18-årsdagen.
+                Sjekk at barnetillegget er redusert riktig. 
+                """.trimIndent(),
+        )
+
     val ReellArbeidssøkerUnntak =
         Avklaringkode(
             kode = "ReellArbeidssøkerUnntak",

@@ -24,6 +24,7 @@ import no.nav.dagpenger.opplysning.Avgjørelse.Stans
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.Avklaringspunkter.BarnFyller18ÅrIMeldeperioden
 import no.nav.dagpenger.regel.Avklaringspunkter.JobbetOverTerskel
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
@@ -38,7 +39,6 @@ import no.nav.dagpenger.scenario.SimulertDagpengerSystem.ScenarioBarn
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 import kotlin.math.round
 
 class BeregningTest {
@@ -1225,7 +1225,12 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             person.sendInnMeldekort(1)
-            meldekortBatch(markerFerdig = true)
+            meldekortBatch(markerFerdig = false)
+
+            // Barn 1 fyller 18 år i meldeperioden, og det må komme en avklaring om at barnetillegget endrer seg
+            saksbehandler.åpneAvklaringer() shouldContain BarnFyller18ÅrIMeldeperioden
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
 
             behandlingsresultat {
                 opplysninger(Beregning.forbruk) {
@@ -1234,19 +1239,22 @@ class BeregningTest {
                 opplysninger(DagpengenesStørrelse.barnetillegg) {
                     this shouldHaveSize 2
                     first().verdi.verdi shouldBe 76
+                    first().gyldigTilOgMed shouldBe 7.juni(2026) // 7. juni er siste dag med barnetillegg for 2 barn
                     last().verdi.verdi shouldBe 38
+                    last().gyldigFraOgMed shouldBe 8.juni(2026) // 8. juni er første dag med barnetillegg for 1 barn
                 }
                 opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg) {
                     this shouldHaveSize 2
                     first().verdi.verdi shouldBe 1335
+                    first().gyldigTilOgMed shouldBe 7.juni(2026) // 7. juni er siste dag med barnetillegg for 2 barn
                     last().verdi.verdi shouldBe 1297
+                    last().gyldigFraOgMed shouldBe 8.juni(2026) // 8. juni er første dag med barnetillegg for 1 barn
                 }
                 val satsPerDag = utbetalinger.toList().map { it["sats"].asInt() }
                 val utbetalingPerDag = utbetalinger.toList().map { it["utbetaling"].asInt() }
-                satsPerDag.shouldContainExactly(1335, 1335, 1335, 1335, 1335, 1335, 1335, 1335, 1297, 1297, 1297, 1297, 1297, 1297)
-                utbetalingPerDag.shouldContainExactly(941, 941, 941, 941, 941, 0, 0, 944, 914, 914, 914, 916, 0, 0)
+                satsPerDag.shouldContainExactly(1335, 1335, 1335, 1335, 1335, 1335, 1335, 1297, 1297, 1297, 1297, 1297, 1297, 1297)
+                utbetalingPerDag.shouldContainExactly(940, 940, 940, 940, 941, 0, 0, 913, 913, 913, 913, 916, 0, 0)
             }
         }
-        fail { "Burde feile pga manglende avklaring? " }
     }
 }

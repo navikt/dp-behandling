@@ -15,6 +15,14 @@ Avklaringer som *ikke* kan lukkes av saksbehandler krever at opplysningene i sak
 
 Avklaringer som *ikke* kan lukkes automatisk må alltid håndteres manuelt av saksbehandler, uavhengig av opplysningene.
 
+## Barn fyller 18 år
+- **Kode:** `BarnFyller18ÅrIMeldeperioden`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
+### Beskrivelse
+Et barn som gir rett til barnetillegg fyller 18 år i meldeperioden, og barnetillegget faller bort fra bursdagen.<br>Sjekk at barnetillegget er redusert riktig.
+
+---
 ## Barnetillegg
 - **Kode:** `BarnMåGodkjennes`
 - **Kan lukkes av saksbehandler:** ✅ 
