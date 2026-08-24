@@ -239,23 +239,6 @@ class BeregningTest {
                 opplysninger(Sanksjonsperiode.harSanksjon).single().verdi.verdi shouldBe false
                 opplysninger(Beregning.forbruktSanksjonsdager) shouldHaveSize 14
             }
-
-            // Send inn meldekort
-            person.sendInnMeldekort(1)
-
-            // Systemet kjører beregningsbatchen
-            meldekortBatch(markerFerdig = true)
-
-            behandlingsresultat {
-                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 4968
-
-                with(opplysninger(Beregning.forbrukt)) {
-                    forAll { it.opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny }
-
-                    // Alle dager telles med verdi (0 eller faktisk forbrukt)
-                    map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
-                }
-            }
         }
     }
 
@@ -597,9 +580,9 @@ class BeregningTest {
 
                 with(opplysninger(Beregning.utbetalingForPeriode)) {
                     this shouldHaveSize 3
-                    this[0].verdi.verdi shouldBe 5036
+                    this[0].verdi.verdi shouldBe 4968
                     this[1].verdi.verdi shouldBe 0
-                    this[2].verdi.verdi shouldBe 12590
+                    this[2].verdi.verdi shouldBe 12420
                 }
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 42

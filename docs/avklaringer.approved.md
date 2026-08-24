@@ -20,7 +20,7 @@ Avklaringer som *ikke* kan lukkes automatisk må alltid håndteres manuelt av sa
 - **Kan lukkes av saksbehandler:** ✅ 
 - **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
-Et barn som gir rett til barnetillegg fyller 18 år i meldeperioden, og barnetillegget faller bort fra bursdagen.<br>Sjekk at barnetillegget er redusert riktig.
+Et barn som gir rett til barnetillegg fyller 18 år i meldeperioden, og barnetillegget faller bort fra 18-årsdagen.<br>Sjekk at barnetillegget er redusert riktig. 
 
 ---
 ## Barnetillegg
