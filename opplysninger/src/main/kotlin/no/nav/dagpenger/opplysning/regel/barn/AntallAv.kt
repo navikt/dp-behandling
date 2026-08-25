@@ -14,7 +14,7 @@ class AntallAv(
         opplysninger: LesbarOpplysninger,
         prøvingsdato: LocalDate,
     ): Int {
-        val liste = opplysninger.finnOpplysning(opplysningstype).verdi.barn
+        val liste = opplysninger.finnNullableOpplysning(opplysningstype)?.verdi?.barn ?: return 0
         return liste.size
     }
 
