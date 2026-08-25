@@ -28,6 +28,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.BarnFyller18ÅrIMeldeperioden
 import no.nav.dagpenger.regel.Avklaringspunkter.JobbetOverTerskel
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
@@ -1227,6 +1228,10 @@ class BeregningTest {
                     last().gyldigFraOgMed shouldBe 8.juni(2026) // 8. juni er første dag med barnetillegg for 1 barn
                 }
 
+                opplysninger(Egenandel.egenandel) {
+                    this shouldHaveSize 1
+                }
+
                 opplysninger(DagpengenesStørrelse.barnSomGirTillegg) {
                     this shouldHaveSize 2
                     first().gyldigTilOgMed shouldBe 7.juni(2026) // 7. juni er siste dag med barnetillegg for 2 barn
@@ -1242,7 +1247,7 @@ class BeregningTest {
                 val satsPerDag = utbetalinger.toList().map { it["sats"].asInt() }
                 val utbetalingPerDag = utbetalinger.toList().map { it["utbetaling"].asInt() }
                 satsPerDag.shouldContainExactly(1335, 1335, 1335, 1335, 1335, 1335, 1335, 1297, 1297, 1297, 1297, 1297, 1297, 1297)
-                utbetalingPerDag.shouldContainExactly(940, 940, 940, 940, 941, 0, 0, 913, 913, 913, 913, 916, 0, 0)
+                utbetalingPerDag.shouldContainExactly(928, 928, 928, 928, 932, 0, 0, 902, 902, 902, 902, 903, 0, 0)
             }
         }
     }

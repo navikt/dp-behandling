@@ -158,9 +158,11 @@ class Opplysningstype<T : Any>(
             formål: Opplysningsformål = Opplysningsformål.Regel,
             synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
             behovId: String = beskrivelse,
+            gyldighetsperiode: GyldighetsperiodeStrategi<Beløp> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<Beløp> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+        ): Opplysningstype<Beløp> =
+            som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
 
         fun barn(
             id: Id<BarnListe>,
