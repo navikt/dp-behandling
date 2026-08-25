@@ -1226,6 +1226,12 @@ class BeregningTest {
                     last().verdi.verdi shouldBe 38
                     last().gyldigFraOgMed shouldBe 8.juni(2026) // 8. juni er første dag med barnetillegg for 1 barn
                 }
+
+                opplysninger(DagpengenesStørrelse.barnSomGirTillegg) {
+                    this shouldHaveSize 2
+                    first().gyldigTilOgMed shouldBe 7.juni(2026) // 7. juni er siste dag med barnetillegg for 2 barn
+                    last().gyldigFraOgMed shouldBe 8.juni(2026) // 8. juni er første dag med barnetillegg for 1 barn
+                }
                 opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg) {
                     this shouldHaveSize 2
                     first().verdi.verdi shouldBe 1335

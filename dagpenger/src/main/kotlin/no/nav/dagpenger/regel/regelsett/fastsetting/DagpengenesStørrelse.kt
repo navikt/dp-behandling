@@ -201,7 +201,7 @@ object DagpengenesStørrelse {
 
             påvirkerResultat { kravPåDagpenger(it) }
 
-            ønsketResultat(ukessats, dagsatsSamordnetUtenforFolketrygden, ukesatsMedBarnetillegg, harSamordnet)
+            ønsketResultat(ukessats, dagsatsSamordnetUtenforFolketrygden, ukesatsMedBarnetillegg, harSamordnet, barnSomGirTillegg)
         }
     }
 
