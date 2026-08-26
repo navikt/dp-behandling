@@ -5,7 +5,7 @@ Dette er opplysninger som blir innhentet som en del av dagpengebehandlingen. De 
 |Behov|Beskrivelse|Logisk datatype|Datatype|Utgåtte behov | 
 |---|---|---|---|---|
 |AndreØkonomiskeYtelser | Har krav på lønn fra arbeidsgiver | Boolsk|boolean|
-|BarnetilleggV2 | Barn | BarnDatatype|BarnListe|Barnetillegg
+|BarnetilleggV2 | Barn fra register/søknad/saksbehandler | BarnDatatype|BarnListe|Barnetillegg
 |BostedslandErNorge | Bostedsland er Norge | Boolsk|boolean|
 |ErUtestengt | Bruker er utestengt fra dagpenger | Boolsk|boolean|
 |Foreldrepenger | Foreldrepenger etter lovens kapittel 14 | Boolsk|boolean|

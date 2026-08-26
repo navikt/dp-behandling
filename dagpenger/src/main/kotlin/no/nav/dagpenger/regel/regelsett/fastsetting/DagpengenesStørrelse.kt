@@ -246,6 +246,15 @@ object DagpengenesStørrelse {
                     return@Kontroll false
                 }
 
+                if (opplysninger
+                        .finnOpplysning(barnSomGirTillegg)
+                        .verdi
+                        .barn
+                        .isEmpty()
+                ) {
+                    return@Kontroll false
+                }
+
                 return@Kontroll true
             },
         )

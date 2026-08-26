@@ -33,7 +33,7 @@ Barn må godkjennes om de skal gi barnetillegg. Sjekk hvilke barn som skal gi ba
 ### Tilknyttet regelsett
 - [§ 4-12. Dagpengenes størrelse](./opplysninger.approved.md#-4-12-dagpengenes-størrelse)
 ### Opplysninger avklaringen ser på
-- Barn
+- Barn fra register/søknad/saksbehandler
 
 ---
 ## Arbeidstid
