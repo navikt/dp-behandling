@@ -42,7 +42,7 @@ private fun Behandling.tilSakStatusDTO(): SakStatusDTO {
     val perioder = vedtakopplysninger.rettighetsperioderRådata()
     val iDag = LocalDate.now()
     val gjeldendePeriode =
-        perioder.last { !it.fraOgMed.isAfter(iDag) && !it.tilOgMed.isBefore(iDag) }
+        perioder.lastOrNull { !it.fraOgMed.isAfter(iDag) && !it.tilOgMed.isBefore(iDag) } ?: perioder.last()
 
     val sisteMeldeperiode =
         opplysninger
