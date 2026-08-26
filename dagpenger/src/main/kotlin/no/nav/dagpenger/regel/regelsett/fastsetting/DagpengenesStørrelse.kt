@@ -81,13 +81,21 @@ fun førsteBarnMedEndring(barn: Opplysningstype<BarnListe>) =
     }
 
 object DagpengenesStørrelse {
-    val barn = Opplysningstype.barn(BarnId, "Barn", Register, behovId = BarnetilleggV2, utgåtteBehovId = setOf(Barnetillegg))
+    val barn =
+        Opplysningstype.barn(
+            BarnId,
+            "Barn fra register/søknad/saksbehandler",
+            Register,
+            behovId = BarnetilleggV2,
+            utgåtteBehovId = setOf(Barnetillegg),
+        )
 
     val barnSomGirTillegg =
         Opplysningstype.barn(
             BarnSomGirTilleggId,
             "Barn som gir tillegg",
             gyldighetsperiode = førsteBarnMedEndring(barn),
+            synlig = aldriSynlig,
         )
 
     val antallBarn = heltall(AntallBarnSomGirRettTilBarnetilleggId, "Antall barn som gir rett til barnetillegg")
