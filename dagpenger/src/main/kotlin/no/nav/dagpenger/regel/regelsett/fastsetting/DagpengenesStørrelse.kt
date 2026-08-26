@@ -81,13 +81,21 @@ fun førsteBarnMedEndring(barn: Opplysningstype<BarnListe>) =
     }
 
 object DagpengenesStørrelse {
-    val barn = Opplysningstype.barn(BarnId, "Barn", Register, behovId = BarnetilleggV2, utgåtteBehovId = setOf(Barnetillegg))
+    val barn =
+        Opplysningstype.barn(
+            BarnId,
+            "Barn fra register/søknad/saksbehandler",
+            Register,
+            behovId = BarnetilleggV2,
+            utgåtteBehovId = setOf(Barnetillegg),
+        )
 
     val barnSomGirTillegg =
         Opplysningstype.barn(
             BarnSomGirTilleggId,
             "Barn som gir tillegg",
             gyldighetsperiode = førsteBarnMedEndring(barn),
+            synlig = aldriSynlig,
         )
 
     val antallBarn = heltall(AntallBarnSomGirRettTilBarnetilleggId, "Antall barn som gir rett til barnetillegg")
@@ -198,6 +206,7 @@ object DagpengenesStørrelse {
             regel(harBarnetillegg) { størreEnnEllerLik(barnetillegg, barnetilleggetsStørrelse) }
 
             avklaring(BarnMåGodkjennes)
+            avklaring(BarnFyller18ÅrIMeldeperioden)
 
             påvirkerResultat { kravPåDagpenger(it) }
 
@@ -234,6 +243,15 @@ object DagpengenesStørrelse {
 
                 if (opplysninger
                         .finnNullableOpplysning(barnSomGirTillegg) == null
+                ) {
+                    return@Kontroll false
+                }
+
+                if (opplysninger
+                        .finnOpplysning(barnSomGirTillegg)
+                        .verdi
+                        .barn
+                        .isEmpty()
                 ) {
                     return@Kontroll false
                 }

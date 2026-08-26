@@ -60,6 +60,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.minimumVanlig
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.ønskerÅVæreRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.erPermittert
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.kravetReellArbeidsøkerSkalVurderes
@@ -173,6 +174,7 @@ private val kanOppfriskes =
     setOf(
         inntektFraSkatt,
         grunnbeløpForDagpengeGrunnlag,
+        registrertArbeidssøker,
     )
 
 private fun Opplysningstype<*>.kanOppfriskes(finnesIEgne: Boolean): Boolean = this in kanOppfriskes && finnesIEgne
