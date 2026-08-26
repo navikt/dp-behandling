@@ -96,8 +96,8 @@ class ScenarioTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
-            // En etterslenger for å verifisere at vi sender ut vedtak_fattet for avslag
-            rapidInspektør.message(17)["@event_name"].asString() shouldBe "vedtak_fattet"
+            // Vi sender ikke lenger vedtak_fattet for avslag, siden avslag ikke synkes til Arena
+            (0..<rapidInspektør.size).map { rapidInspektør.message(it)["@event_name"].asString() } shouldNotContain "vedtak_fattet"
 
             behandlingsresultat {
                 rettighetsperioder.single().harRett shouldBe false

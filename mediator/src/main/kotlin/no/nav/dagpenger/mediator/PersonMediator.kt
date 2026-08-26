@@ -12,7 +12,6 @@ import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingEndretTilstand
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingForslagTilVedtak
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingOpprettet
-import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.PersonObservatør
 import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.modell.hendelser.FerietilleggId
@@ -24,7 +23,6 @@ import no.nav.dagpenger.modell.hendelser.MeldekortId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.SøknadId
-import no.nav.dagpenger.opplysning.RegelverkType
 
 typealias Hendelse = Pair<String, JsonMessage>
 
@@ -49,13 +47,7 @@ internal class PersonMediator : PersonObservatør {
     override fun ferdig(event: BehandlingFerdig) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
         meldinger.add(ident to event.tilBehandlingsresultat("behandlingsresultat", ident))
-        // todo: Fjerne vedtak fattet melding når vi slutter å synke avslag til Arena.
-        if (event.erAvslag() && event.regelverk == RegelverkType("Dagpenger")) {
-            meldinger.add(ident to event.tilVedtakFattetMelding())
-        }
     }
-
-    private fun BehandlingFerdig.erAvslag(): Boolean = this.rettighetsperioder.size == 1 && !this.rettighetsperioder.single().harRett
 
     override fun avbrutt(event: BehandlingAvbrutt) {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
@@ -112,12 +104,6 @@ internal class PersonMediator : PersonObservatør {
                     "tidBrukt" to tidBrukt.toString(),
                 ),
             )
-
-    private fun BehandlingFerdig.tilVedtakFattetMelding(): JsonMessage {
-        val ident = Ident(requireNotNull(ident) { "Mangler ident i BehandlingForslagTilVedtak" })
-        val vedtak = this.lagVedtakDTO(ident)
-        return toJsonMessage("vedtak_fattet", vedtak)
-    }
 
     private fun BehandlingObservatør.VedtakEvent.tilBehandlingsresultat(
         hendelseNavn: String,
