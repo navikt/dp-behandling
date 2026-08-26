@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
-import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.BarnFyller18ÅrKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
@@ -45,7 +44,7 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
     override fun kontrollpunkter(): List<IKontrollpunkt> =
         listOf(
             Alderskrav.StansAlderKontroll,
-            BarnFyller18ÅrKontroll,
+            // BarnFyller18ÅrKontroll,
             TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.OverTerskelKontroll,
         )
 
