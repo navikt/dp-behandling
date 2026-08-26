@@ -12,9 +12,12 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse.Companion.behandlingFlyttetAvklaring
 import no.nav.dagpenger.opplysning.Avgjørelse
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -325,6 +328,68 @@ class ArbeidssøkerTest {
 
                     this[0].gyldigFraOgMed shouldBe 21.juni(2018)
                     this[1].gyldigFraOgMed shouldBe 6.juli(2018)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `får stans på grunn av ikke meldt uten å ha sendt noen meldekort`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juli(2026), ønskerFraDato = 19.juli(2026))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(kravPåLønn, true, "", Gyldighetsperiode(21.juli(2026), 31.juli(2026)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(kravPåLønn, false, "", Gyldighetsperiode(1.august(2026)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(prøvingsdato, 3.august(2026), "", Gyldighetsperiode(1.august(2026)))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+                with(rettighetsperioder.single()) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 3.august(2026)
+                    tilOgMed shouldBe null
+                }
+            }
+
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = 3.august(2026),
+                avsluttetTidspunkt = 25.august(2026).atTime(2, 1),
+                fristBrutt = true,
+            )
+
+            behandlingsresultatForslag(6) {
+                rettighetsperioder shouldHaveSize 1
+                with(rettighetsperioder.last()) {
+                    harRett shouldBe false
+                    fraOgMed shouldBe 3.august(2026)
+                    tilOgMed shouldBe null
+                }
+            }
+
+            saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, true, "", Gyldighetsperiode(3.august(2026), 16.august(2026)))
+            saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, false, "", Gyldighetsperiode(17.august(2026)))
+
+            behandlingsresultatForslag(8) {
+                rettighetsperioder shouldHaveSize 2
+                with(rettighetsperioder[0]) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 3.august(2026)
+                    tilOgMed shouldBe 16.august(2026)
+                }
+                with(rettighetsperioder[1]) {
+                    harRett shouldBe false
+                    fraOgMed shouldBe 17.august(2026)
+                    tilOgMed shouldBe null
                 }
             }
         }
