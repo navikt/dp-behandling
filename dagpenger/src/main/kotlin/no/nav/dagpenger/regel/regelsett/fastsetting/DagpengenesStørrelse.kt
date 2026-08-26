@@ -206,6 +206,7 @@ object DagpengenesStørrelse {
             regel(harBarnetillegg) { størreEnnEllerLik(barnetillegg, barnetilleggetsStørrelse) }
 
             avklaring(BarnMåGodkjennes)
+            avklaring(BarnFyller18ÅrIMeldeperioden)
 
             påvirkerResultat { kravPåDagpenger(it) }
 
