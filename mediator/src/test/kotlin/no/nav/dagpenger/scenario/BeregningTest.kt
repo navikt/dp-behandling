@@ -1003,10 +1003,10 @@ class BeregningTest {
 
     // Dette er et behov for POPP i framtida. De trenger å vite hvor mye som er utbetalt som dagpenger ekslusive barnetillegg
     @Test
-    @Disabled("Bare en POC for hvordan dette kan gjøres")
     fun `beregning av hvor mye barnetillegg utgjør av utbetalt`() {
         nyttScenario {
             inntektSiste12Mnd = 300000
+            barn = listOf(ScenarioBarn(fødselsdato = 21.juni(2014), kvalifiserer = true))
         }.test {
             person.søkDagpenger(18.juni(2018))
             behovsløsere.løsTilForslag()
