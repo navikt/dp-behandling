@@ -1209,12 +1209,6 @@ class BeregningTest {
 
             person.sendInnMeldekort(1)
             meldekortBatch(markerFerdig = true)
-
-            // Barn 1 fyller 18 år i meldeperioden, og det må komme en avklaring om at barnetillegget endrer seg
-            // saksbehandler.åpneAvklaringer() shouldContain BarnFyller18ÅrIMeldeperioden
-            // saksbehandler.lukkAlleAvklaringer()
-            // saksbehandler.godkjenn()
-
             behandlingsresultat {
                 opplysninger(Beregning.forbruk) {
                     this shouldHaveSize 14

@@ -397,7 +397,6 @@ Dette er opplysninger som blir brukt av regelverket.
 *Type:* Fastsettelse
 #### Avklaringer
 - BarnMåGodkjennes - [Barnetillegg](./avklaringer.approved.md#barnetillegg)
-- BarnFyller18ÅrIMeldeperioden - [Barn fyller 18 år](./avklaringer.approved.md#barn-fyller-18-år)
 #### Avhenger på data fra
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
 - [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
