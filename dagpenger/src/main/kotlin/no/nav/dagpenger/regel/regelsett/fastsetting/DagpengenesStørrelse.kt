@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.fastsetting
 
-import no.nav.dagpenger.avklaring.Kontroll
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningsformål.Legacy
@@ -30,7 +29,6 @@ import no.nav.dagpenger.opplysning.regel.substraksjonTilNull
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
-import no.nav.dagpenger.regel.Avklaringspunkter.BarnFyller18ÅrIMeldeperioden
 import no.nav.dagpenger.regel.Avklaringspunkter.BarnMåGodkjennes
 import no.nav.dagpenger.regel.Behov.Barnetillegg
 import no.nav.dagpenger.regel.Behov.BarnetilleggV2
@@ -58,7 +56,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.SamordnetDagsatsMedBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.UkessatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpOverMaksId
 import no.nav.dagpenger.regel.kravPåDagpenger
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
@@ -206,7 +203,6 @@ object DagpengenesStørrelse {
             regel(harBarnetillegg) { størreEnnEllerLik(barnetillegg, barnetilleggetsStørrelse) }
 
             avklaring(BarnMåGodkjennes)
-            avklaring(BarnFyller18ÅrIMeldeperioden)
 
             påvirkerResultat { kravPåDagpenger(it) }
 
@@ -223,42 +219,6 @@ object DagpengenesStørrelse {
                     .barn
                     .isNotEmpty()
         }
-
-    /**
-     * Gir en avklaring når et barn som gir rett til barnetillegg fyller 18 år i meldeperioden,
-     * slik at saksbehandler kontrollerer at barnetillegget er redusert riktig.
-     *
-     * Kontrollen må se på hele barnelista (som er arvet fra søknadsbehandlingen) og hele
-     * meldeperioden samlet, og bruker derfor [KontrollMedAlleOpplysninger].
-     */
-    val BarnFyller18ÅrKontroll =
-        Kontrollpunkt(
-            BarnFyller18ÅrIMeldeperioden,
-            Kontroll { opplysninger ->
-                if (opplysninger
-                        .finnNullableOpplysning(Beregning.meldeperiode) == null
-                ) {
-                    return@Kontroll false
-                }
-
-                if (opplysninger
-                        .finnNullableOpplysning(barnSomGirTillegg) == null
-                ) {
-                    return@Kontroll false
-                }
-
-                if (opplysninger
-                        .finnOpplysning(barnSomGirTillegg)
-                        .verdi
-                        .barn
-                        .isEmpty()
-                ) {
-                    return@Kontroll false
-                }
-
-                return@Kontroll true
-            },
-        )
 }
 
 internal object BarnetilleggSats {
