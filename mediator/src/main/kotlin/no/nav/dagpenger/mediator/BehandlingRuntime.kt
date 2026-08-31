@@ -13,6 +13,7 @@ import no.nav.dagpenger.mediator.mottak.ArenaOppgaveMottak
 import no.nav.dagpenger.mediator.mottak.MarkerMeldekortSomBehandletMottak
 import no.nav.dagpenger.mediator.mottak.MeldekortBehandlingsresultatKontrollregningMottak
 import no.nav.dagpenger.mediator.mottak.SakRepositoryPostgres
+import no.nav.dagpenger.mediator.personoppslag.DagpengehistorikkQuery
 import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.AvklaringKafkaObservatør
 import no.nav.dagpenger.mediator.repository.AvklaringRepositoryPostgres
@@ -126,6 +127,9 @@ class BehandlingRuntime(
         opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
     }
 
+    val dagpengehistorikkQuery =
+        DagpengehistorikkQuery(personRepository)
+
     val api: Application.() -> Unit = {
         behandlingApi(
             authFactory = authFactory,
@@ -136,6 +140,7 @@ class BehandlingRuntime(
             apiRepositoryPostgres = apiRepositoryPostgres,
             messageContext = messageContextFactory,
             oppdateringRepository = oppdateringRepository,
+            dagpengehistorikkQuery = dagpengehistorikkQuery,
         )
     }
 

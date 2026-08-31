@@ -6,12 +6,14 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandlingkjede
+import no.nav.dagpenger.modell.BehandlingskjedeOpplysninger
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.Person
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.Meldekort
 import no.nav.dagpenger.modell.hendelser.MeldekortId
 import no.nav.dagpenger.modell.hendelser.UtbetalingStatus
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,10 +47,36 @@ interface UtbetalingStatusRepository {
     fun hentUtbetalingStatus(behandlingId: UUID): UtbetalingStatus.Status
 }
 
+/**
+ * Dedikerte lesespørringer for å svare på personnivå-spørsmål (rettighetsperioder,
+ * beregninger) uten å gjenoppbygge hele personaggregatet.
+ *
+ * Til forskjell fra [PersonRepositoryPostgres.hent] (FOR UPDATE-lås + rekursiv
+ * opplysningsgraf) henter disse spørringene kun relevante opplysningstyper,
+ * flatt per behandlingskjede. Siden alle relevante opplysninger i kjeden
+ * slås sammen til ett sett, får vi samme effektive opplysninger som en fullt
+ * rehydrert behandling (egne + arvede), og RegelverkDagpenger sine
+ * beregningsfunksjoner kan kjøres direkte på settet.
+ *
+ * Deserialiseringen gjenbruker [somOpplysningRad] og [somOpplysninger] fra
+ * OpplysningerRepositoryPostgres.
+ */
+interface KjedeOpplysningerRepository {
+    /**
+     * Henter relevante opplysninger for alle behandlinger i alle kjedene til en person.
+     * Returnerer én Opplysninger-instans per behandlingskjede (flatt, uten arv-mekanikk).
+     */
+    fun hentOpplysningerPerKjede(
+        ident: String,
+        opplysningstyper: Set<Opplysningstype<*>>,
+    ): List<BehandlingskjedeOpplysninger>
+}
+
 interface BehandlingRepository :
     AvklaringRepository,
     BegrunnelseRepository,
-    UtbetalingStatusRepository {
+    UtbetalingStatusRepository,
+    KjedeOpplysningerRepository {
     @WithSpan
     fun hentBehandling(
         @SpanAttribute
