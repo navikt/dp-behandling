@@ -25,7 +25,7 @@ internal class SøknadBehandletObserver : PersonObservatør {
         meldinger.add(
             ident to
                 JsonMessage.newMessage(
-                    "søknad_behandlet",
+                    "søknadsbehandling_ferdig",
                     mapOf(
                         "ident" to ident,
                         "behandlingId" to event.behandlingId,
