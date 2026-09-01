@@ -45,3 +45,4 @@ Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
+melding: søknad_behandlet

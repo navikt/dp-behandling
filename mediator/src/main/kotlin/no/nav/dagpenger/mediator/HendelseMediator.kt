@@ -137,10 +137,12 @@ internal class HendelseMediator(
             val personMediator = PersonMediator()
             val oppdateringObserver = OppdateringObserver()
             val flyttSøskenObserver = FlyttSøskenObserver(personRepository)
+            val søknadBehandletObserver = SøknadBehandletObserver()
             person(ident) { person ->
                 person.registrer(personMediator)
                 person.registrer(oppdateringObserver)
                 person.registrer(flyttSøskenObserver)
+                person.registrer(søknadBehandletObserver)
                 observatører.forEach { observatør -> person.registrer(observatør) }
 
                 val hendelsesSpan =
@@ -160,7 +162,7 @@ internal class HendelseMediator(
 
                 hendelseTeller.labelValues(hendelse.javaClass.simpleName).inc()
             }
-            ferdigstill(context, personMediator, oppdateringObserver, hendelse)
+            ferdigstill(context, personMediator, oppdateringObserver, søknadBehandletObserver, hendelse)
             flyttSøskenObserver.ferdigstill(context)
         } catch (aktivitetException: Aktivitetslogg.AktivitetException) {
             sikkerlogg.error(
@@ -186,12 +188,14 @@ internal class HendelseMediator(
         context: MessageContext,
         personMediator: PersonMediator,
         oppdateringObserver: OppdateringObserver,
+        søknadBehandletObserver: SøknadBehandletObserver,
         hendelse: PersonHendelse,
     ) {
         val utboks = Utboks(context, postgres)
 
         personMediator.ferdigstill(utboks)
         oppdateringObserver.ferdigstill(oppdateringRepository, hendelse.meldingsreferanseId())
+        søknadBehandletObserver.ferdigstill(utboks)
 
         if (!hendelse.harAktiviteter()) return
         if (hendelse.harFunksjonelleFeilEllerVerre()) {

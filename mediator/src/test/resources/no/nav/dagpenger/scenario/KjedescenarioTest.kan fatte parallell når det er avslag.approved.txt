@@ -26,6 +26,7 @@ Laget avklaring om Inntektsjekk
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Ferdig
+melding: søknad_behandlet
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
@@ -108,3 +109,4 @@ Laget avklaring om Inntektsjekk
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Ferdig
+melding: søknad_behandlet
