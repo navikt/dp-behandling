@@ -7,6 +7,7 @@ import no.nav.dagpenger.mediator.repository.TestBehandlinger
 import no.nav.dagpenger.mediator.repository.TestProsess
 import no.nav.dagpenger.modell.Arbeidssteg
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingAvbrutt
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.ManuellId
@@ -64,6 +65,42 @@ class SøknadBehandletObserverTest {
 
         rapid.inspektør.size shouldBeExactly 0
     }
+
+    @Test
+    fun `publiserer søknadsbehandling_avbrutt når en behandling av søknad avbrytes`() {
+        val hendelse = TestBehandlinger.lagTestHendelse(ident = "12345678901")
+
+        observer.avbrutt(behandlingAvbrutt(behandlingAv = hendelse, årsak = "Trukket"))
+        observer.ferdigstill(rapid)
+
+        rapid.inspektør.size shouldBeExactly 1
+        val message = rapid.inspektør.message(0)
+        message["@event_name"].asString() shouldBe "søknadsbehandling_avbrutt"
+        message["ident"].asString() shouldBe "12345678901"
+        message["søknadId"].asString() shouldBe hendelse.eksternId.id.toString()
+        message["årsak"].asString() shouldBe "Trukket"
+    }
+
+    @Test
+    fun `ignorerer avbrutte behandlinger som ikke er av en søknad`() {
+        observer.avbrutt(
+            behandlingAvbrutt(behandlingAv = TestManuellHendelse(ident = "12345678901"), årsak = null),
+        )
+        observer.ferdigstill(rapid)
+
+        rapid.inspektør.size shouldBeExactly 0
+    }
+
+    private fun behandlingAvbrutt(
+        behandlingAv: StartHendelse,
+        årsak: String?,
+    ): BehandlingAvbrutt =
+        BehandlingAvbrutt(
+            behandlingId = UUIDv7.ny(),
+            hendelse = behandlingAv.eksternId,
+            behandlingAv = behandlingAv,
+            årsak = årsak,
+        ).also { it.ident = "12345678901" }
 
     private fun behandlingFerdig(
         behandlingAv: StartHendelse,

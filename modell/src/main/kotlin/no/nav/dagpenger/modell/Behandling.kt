@@ -1247,6 +1247,7 @@ class Behandling private constructor(
             BehandlingAvbrutt(
                 behandlingId = behandlingId,
                 hendelse = behandler.eksternId,
+                behandlingAv = behandler,
                 årsak = årsak,
             )
 
@@ -1352,6 +1353,7 @@ interface BehandlingObservatør {
     data class BehandlingAvbrutt(
         val behandlingId: UUID,
         val hendelse: EksternId<*>,
+        val behandlingAv: StartHendelse,
         val årsak: String? = null,
     ) : PersonEvent()
 

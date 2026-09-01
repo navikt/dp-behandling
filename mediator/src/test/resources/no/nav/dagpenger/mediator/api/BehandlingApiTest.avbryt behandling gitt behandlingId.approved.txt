@@ -42,3 +42,4 @@ Behov:
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Avbrutt
 melding: behandling_avbrutt
+melding: søknadsbehandling_avbrutt
