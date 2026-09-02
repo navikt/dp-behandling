@@ -42,9 +42,13 @@ class RettighetsperiodePlugin(
         val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 
-        // Om saksbehandler eller hendelse har pilla, skal vi ikke overstyre med automatikk
+        // Om saksbehandler eller hendelse har pilla, skal vi ikke overstyre med automatikk.
+        // Det samme gjelder opplysninger som er skrevet direkte uten en Utledning (f.eks. når en
+        // kvote brukes opp midt i en periode, se KvotetellingsSkriver) - disse skal behandles som
+        // ferdig avgjorte, og ikke overskrives av en ny automatisk utledning ved en rekjøring.
         val harPerioder = egne.har(KravPåDagpenger.harLøpendeRett)
-        val harPilla = harPerioder && egne.finnOpplysning(KravPåDagpenger.harLøpendeRett).kilde != null
+        val sisteFaktum = if (harPerioder) egne.finnOpplysning(KravPåDagpenger.harLøpendeRett) else null
+        val harPilla = sisteFaktum != null && (sisteFaktum.kilde != null || sisteFaktum.utledetAv == null)
         if (harPilla) return
 
         val vilkår =

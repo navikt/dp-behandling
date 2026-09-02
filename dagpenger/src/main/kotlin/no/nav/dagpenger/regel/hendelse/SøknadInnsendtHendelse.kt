@@ -7,6 +7,7 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.modell.hendelser.SøknadId
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -57,6 +58,12 @@ class SøknadInnsendtHendelse(
                 val varAvslag = rettighetsperioder.size == 1 && !rettighetsperioder.single().harRett
 
                 if (erSammeType && varAvslag) {
+                    return@let null
+                }
+
+                // Forrige behandling endte i Opphør (f.eks. ordinær stønadsperiode brukt opp for godt).
+                // Retten kan ikke gjenopptas - en ny søknad må behandles som en helt ny sak, ikke kjedes videre.
+                if (forrigeBehandling.vedtakopplysninger.avgjørelse is Avgjørelse.Opphør) {
                     return@let null
                 }
 

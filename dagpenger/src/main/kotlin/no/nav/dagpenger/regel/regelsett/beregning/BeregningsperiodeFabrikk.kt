@@ -36,7 +36,13 @@ class BeregningsperiodeFabrikk(
         val dager = opprettPeriode(meldeperiode)
         val stønadsdagerIgjen =
             opplysninger.finnOpplysning(antallStønadsdager).verdi -
-                opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
+                opplysninger
+                    .somListe()
+                    .filter {
+                        it.er(forbruk) &&
+                            it.verdi as Boolean &&
+                            it.gyldighetsperiode.fraOgMed.isBefore(meldeperiode.fraOgMed)
+                    }.size
         val gjenståendeEgenandel = hentGjenståendeEgenandel(meldeperiode.fraOgMed)
         val sanksjonsdagerIgjen = hentGjenståendeBortfall(meldeperiode.fraOgMed)
 

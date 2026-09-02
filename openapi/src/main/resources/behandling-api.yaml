@@ -1237,6 +1237,7 @@ components:
         - Innvilgelse
         - Avslag
         - Stans
+        - Opphør
         - Gjenopptak
         - Endring
 

@@ -25,6 +25,12 @@ sealed class Avgjørelse {
         override fun toString() = "Stans"
     }
 
+    // Retten er endelig oppbrukt (f.eks. ordinær stønadsperiode etter § 4-15) og kan ikke gjenopptas -
+    // i motsetning til Stans, som forutsetter at saken i prinsippet kan gjenopptas senere.
+    data object Opphør : Avgjørelse() {
+        override fun toString() = "Opphør"
+    }
+
     data object Gjenopptak : Avgjørelse() {
         override fun toString() = "Gjenopptak"
     }

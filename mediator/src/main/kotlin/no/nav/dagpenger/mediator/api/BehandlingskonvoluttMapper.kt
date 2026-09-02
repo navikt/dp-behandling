@@ -244,6 +244,7 @@ internal fun Avgjørelse.tilAvgjørelseDTO(): AvgjørelseDTO =
         is Avgjørelse.Innvilgelse -> AvgjørelseDTO.INNVILGELSE
         is Avgjørelse.Avslag -> AvgjørelseDTO.AVSLAG
         is Avgjørelse.Stans -> AvgjørelseDTO.STANS
+        is Avgjørelse.Opphør -> AvgjørelseDTO.OPPHØR
         is Avgjørelse.Gjenopptak -> AvgjørelseDTO.GJENOPPTAK
         is Avgjørelse.Endring -> AvgjørelseDTO.ENDRING
         is Avgjørelse.Uavklart -> AvgjørelseDTO.AVSLAG
