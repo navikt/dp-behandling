@@ -1,4 +1,6 @@
 package no.nav.dagpenger.regel.prosess
+
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
@@ -16,6 +18,9 @@ class Stansprosess : Forretningsprosess(RegelverkDagpenger) {
         val egne = opplysninger.somListe(Egne).filter { it.gyldighetsperiode.harStartdato }
         val første = egne.minOf { it.gyldighetsperiode.fraOgMed }
         val siste = egne.maxOf { it.gyldighetsperiode.fraOgMed }
+
+        logger.info { "Kjører regler i ${this.javaClass.simpleName} fra $første til $siste" }
+
         return Regelkjøring(
             regelverksdato = første,
             prøvingsperiode = Regelkjøring.Periode(start = første, endInclusive = siste),
@@ -29,4 +34,8 @@ class Stansprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger) =
         opplysninger.somListe(Egne).filter { it.gyldighetsperiode.harStartdato }.minOf { it.gyldighetsperiode.fraOgMed }
+
+    private companion object {
+        private val logger = KotlinLogging.logger { }
+    }
 }
