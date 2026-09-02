@@ -891,7 +891,7 @@ paths:
                 $ref: '#/components/schemas/HttpProblem'
 
 webhooks:
-  søknad_behandlet:
+  søknadsbehandling_ferdig:
     post:
       summary: Publiseres når en behandling av en søknad er ferdigstilt
       description: >
@@ -904,6 +904,23 @@ webhooks:
           application/json:
             schema:
               $ref: '#/components/schemas/SoknadBehandlet'
+      responses:
+        200:
+          description: Meldingen er mottatt
+
+  søknadsbehandling_avbrutt:
+    post:
+      summary: Publiseres når en behandling av en søknad avbrytes uten å bli ferdigstilt
+      description: >
+        Tynn hendelse med henvisning til søknadId og eventuell årsak. Publiseres på
+        rapid-topicet, ikke via HTTP.
+      tags:
+        - Kafka-hendelser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoknadsbehandlingAvbrutt'
       responses:
         200:
           description: Meldingen er mottatt
@@ -923,23 +940,6 @@ webhooks:
           application/json:
             schema:
               $ref: '#/components/schemas/Behandlingsresultat'
-      responses:
-        200:
-          description: Meldingen er mottatt
-
-  søknadsbehandling_avbrutt:
-    post:
-      summary: Publiseres når en behandling av en søknad avbrytes uten å bli ferdigstilt
-      description: >
-        Tynn hendelse med henvisning til søknadId og eventuell årsak. Publiseres på
-        rapid-topicet, ikke via HTTP.
-      tags:
-        - Kafka-hendelser
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SoknadsbehandlingAvbrutt'
       responses:
         200:
           description: Meldingen er mottatt
