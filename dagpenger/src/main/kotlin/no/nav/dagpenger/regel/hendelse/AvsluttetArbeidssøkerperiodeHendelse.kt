@@ -61,22 +61,6 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                 basertPå = forrigeBehandling,
                 avklaringer =
                     buildList {
-                        if (avsluttetArbeidssøkerperiode.manueltAvregistrert) {
-                            add(
-                                Avklaring(
-                                    Avklaringkode(
-                                        kode = "ManueltUtmeldt",
-                                        tittel = "Bruker har blitt utmeldt av ASR utenfor dagpenger",
-                                        beskrivelse =
-                                            """Bruker har blitt utmeldt av ASR utenfor dagpenger, og må derfor vurderes manuelt. Sjekk 
-                                            |hvordan dette påvirker retten til dagpenger og fra hvilken dato en eventuell stans skal gjelde fra.
-                                            """.trimMargin(),
-                                        kanAvbrytes = false,
-                                    ),
-                                ),
-                            )
-                        }
-
                         @Suppress("ktlint:standard:max-line-length")
                         val beskrivelse =
                             when {
@@ -100,6 +84,22 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                                     ),
                                 ),
                             )
+
+                            if (avsluttetArbeidssøkerperiode.manueltAvregistrert) {
+                                add(
+                                    Avklaring(
+                                        Avklaringkode(
+                                            kode = "ManueltUtmeldt",
+                                            tittel = "Bruker har blitt utmeldt av ASR utenfor dagpenger",
+                                            beskrivelse =
+                                                """Bruker har blitt utmeldt av ASR utenfor dagpenger, og må derfor vurderes manuelt. Sjekk 
+                                            |hvordan dette påvirker retten til dagpenger og fra hvilken dato en eventuell stans skal gjelde fra.
+                                                """.trimMargin(),
+                                            kanAvbrytes = false,
+                                        ),
+                                    ),
+                                )
+                            }
                         }
                     },
             ).apply {
