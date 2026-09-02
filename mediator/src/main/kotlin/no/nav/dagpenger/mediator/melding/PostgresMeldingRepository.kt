@@ -15,6 +15,7 @@ import no.nav.dagpenger.mediator.mottak.GodkjennBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.MeldekortInnsendtMessage
 import no.nav.dagpenger.mediator.mottak.OmgjøringMessage
 import no.nav.dagpenger.mediator.mottak.OpplysningSvarMessage
+import no.nav.dagpenger.mediator.mottak.RekjørBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.UtbetalingStatusMessage
 import no.nav.dagpenger.mediator.repository.ApiMelding
 import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
@@ -168,6 +169,10 @@ internal class PostgresMeldingRepository(
                 MeldingTypeDTO.FLYTT_BEHANDLING
             }
 
+            is RekjørBehandlingMessage -> {
+                MeldingTypeDTO.REKJØR_BEHANDLING
+            }
+
             else -> {
                 null.also {
                     logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
@@ -195,6 +200,7 @@ private enum class MeldingTypeDTO {
     OMGJØRING,
     OPPLYSNING_SVAR,
     OPPRETT_BEHANDLING,
+    REKJØR_BEHANDLING,
     SAMORDNING_HENDELSE,
     SØKNAD_INNSENDT,
     UTBETALING_STATUS,
