@@ -29,7 +29,7 @@ class SøknadBehandletObserverTest {
     private val observer = SøknadBehandletObserver()
 
     @Test
-    fun `publiserer søknad_behandlet når en behandling av søknad er ferdig`() {
+    fun `publiserer søknadsbehandling_ferdig når en behandling av søknad er ferdig`() {
         val hendelse = TestBehandlinger.lagTestHendelse(ident = "12345678901")
 
         observer.ferdig(
@@ -43,7 +43,7 @@ class SøknadBehandletObserverTest {
 
         rapid.inspektør.size shouldBeExactly 1
         val message = rapid.inspektør.message(0)
-        message["@event_name"].asString() shouldBe "søknad_behandlet"
+        message["@event_name"].asString() shouldBe "søknadsbehandling_ferdig"
         message["ident"].asString() shouldBe "12345678901"
         message["søknadId"].asString() shouldBe hendelse.eksternId.id.toString()
         message["førteTil"].asString() shouldBe "Innvilgelse"

@@ -43,7 +43,7 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
-melding: søknad_behandlet
+melding: søknadsbehandling_ferdig
 Laget avklaring om GjenopptakBehandling
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
@@ -113,7 +113,7 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
-melding: søknad_behandlet
+melding: søknadsbehandling_ferdig
 melding: flytt_behandling
 Laget avklaring om BehandlingFlyttet
 Behandling endret tilstand til: Redigert
