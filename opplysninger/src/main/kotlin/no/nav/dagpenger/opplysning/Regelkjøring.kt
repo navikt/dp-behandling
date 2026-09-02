@@ -208,7 +208,9 @@ class Regelkjøring(
         fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan {
             // loop detection
             if (regelkjøringstilstand.plan == siste.plan) {
-                error("Går i loop! Planlegger samme plan vi har fra før. Vil kjøre: ${siste.plan.joinToString()}}")
+                throw RegelkjøringLoopException(
+                    "Går i loop! Planlegger samme plan vi har fra før. Planlegger ${siste.prøvingsdato} og vil kjøre: ${siste.plan.joinToString()}}",
+                )
             }
             return Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
         }
@@ -457,3 +459,7 @@ interface RegelkjøringObserver {
 
 fun Regelkart.finn(opplysningstype: Opplysningstype<*>) =
     get(opplysningstype) ?: throw IllegalStateException("Fant ikke produsent for $opplysningstype")
+
+class RegelkjøringLoopException(
+    message: String,
+) : Exception(message)

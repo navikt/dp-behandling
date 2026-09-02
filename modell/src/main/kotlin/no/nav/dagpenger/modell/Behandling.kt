@@ -44,6 +44,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.OpplysningstypeKategori
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.RegelkjøringLoopException
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -1077,7 +1078,14 @@ class Behandling private constructor(
         val avklaringerFør = avklaringer.avklaringer().associate { it.id to it.måAvklares() }
 
         // 1. Evaluerer regler
-        val rapport = regelkjøring.evaluer()
+        val rapport =
+            try {
+                regelkjøring.evaluer()
+            } catch (e: RegelkjøringLoopException) {
+                hendelse.info("Regelkjøring loop oppdaget: ${e.message}")
+                avgjørNesteTilstand(hendelse)
+                return
+            }
 
         // Logger hva som skjedde
         rapport.kjørteRegler.forEach { hendelse.info(it.toString()) }
