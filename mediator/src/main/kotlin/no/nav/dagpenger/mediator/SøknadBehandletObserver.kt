@@ -3,8 +3,8 @@ package no.nav.dagpenger.mediator
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
-import no.nav.dagpenger.mediator.api.models.SoknadBehandletDTO
 import no.nav.dagpenger.mediator.api.models.SoknadsbehandlingAvbruttDTO
+import no.nav.dagpenger.mediator.api.models.SoknadsbehandlingFerdigDTO
 import no.nav.dagpenger.mediator.api.tilAvgjørelseDTO
 import no.nav.dagpenger.mediator.api.tilOpprinnelseDTO
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingAvbrutt
@@ -32,7 +32,7 @@ internal class SøknadBehandletObserver : PersonObservatør {
         val ident = requireNotNull(event.ident) { "Mangler ident i BehandlingFerdig" }
 
         val dto =
-            SoknadBehandletDTO(
+            SoknadsbehandlingFerdigDTO(
                 ident = ident,
                 behandlingId = event.behandlingId,
                 søknadId = søknadId.id,

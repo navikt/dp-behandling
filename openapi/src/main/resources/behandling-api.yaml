@@ -903,7 +903,7 @@ webhooks:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SoknadBehandlet'
+              $ref: '#/components/schemas/SoknadsbehandlingFerdig'
       responses:
         200:
           description: Meldingen er mottatt
@@ -2255,7 +2255,7 @@ components:
     # bekreftet med bl.a. "SøknadBehandlet"/"Søppelbøtte" i isolerte tester). Disse to Kafka-event-
     # schemaene har derfor ASCII-navn her, mens webhooks-nøklene over beholder det norske navnet
     # som brukes i @event_name.
-    SoknadBehandlet:
+    SoknadsbehandlingFerdig:
       description: >
         Tynn Kafka-melding publisert (ikke en del av HTTP-API-et) når en behandling av en søknad er
         ferdigstilt, med henvisning til søknadId og utfallet av behandlingen.
