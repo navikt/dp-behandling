@@ -50,8 +50,8 @@ Behandling endret tilstand til: Ferdig
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
-Laget avklaring om ManueltUtmeldt
 Laget avklaring om UtmeldtArbeidssøker
+Laget avklaring om ManueltUtmeldt
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
