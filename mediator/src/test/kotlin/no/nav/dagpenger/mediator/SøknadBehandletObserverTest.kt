@@ -48,7 +48,7 @@ class SøknadBehandletObserverTest {
         message["søknadId"].asString() shouldBe hendelse.eksternId.id.toString()
         message["førteTil"].asString() shouldBe "Innvilgelse"
         message["rettighetsperioder"][0]["fraOgMed"].asText() shouldBe "2024-01-01"
-        message["rettighetsperioder"][0]["tilOgMed"].isNull shouldBe true
+        message["rettighetsperioder"][0].has("tilOgMed") shouldBe false
         message["rettighetsperioder"][0]["harRett"].asBoolean() shouldBe true
     }
 

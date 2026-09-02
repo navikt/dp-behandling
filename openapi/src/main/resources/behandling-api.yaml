@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: Behandling API
   version: 1.0.3
@@ -27,6 +27,11 @@ tags:
     description: Operasjoner for produksjon av data til dataprodukter.
   - name: Oppdatering
     description: Operasjoner for løpende oppdateringer via SSE.
+  - name: Kafka-hendelser
+    description: >
+      Tynne hendelser publisert på Kafka (rapid-topicet) når en behandling går gjennom bestemte
+      tilstander. Ikke en del av HTTP-API-et, men dokumentert her for discoverability og for å
+      generere typede DTO-er via fabrikt.
 
 paths:
   /opplysningstyper:
@@ -884,6 +889,60 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/HttpProblem'
+
+webhooks:
+  søknad_behandlet:
+    post:
+      summary: Publiseres når en behandling av en søknad er ferdigstilt
+      description: >
+        Tynn hendelse med henvisning til søknadId og utfallet av behandlingen (avgjørelse og
+        rettighetsperioder). Publiseres på rapid-topicet, ikke via HTTP.
+      tags:
+        - Kafka-hendelser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoknadBehandlet'
+      responses:
+        200:
+          description: Meldingen er mottatt
+
+  behandlingsresultat:
+    post:
+      summary: Publiseres når en behandling er ferdigstilt, med resultatet av behandlingen
+      description: >
+        Fullstendig behandlingsresultat (opplysninger, utbetalinger, avgjørelse m.m.), publisert på
+        rapid-topicet av `PersonMediator`. Samme schema (`Behandlingsresultat`) brukes også som
+        respons for `GET /behandling/{behandlingId}/behandlingsresultat` i HTTP-API-et — Kafka-
+        meldingen og HTTP-responsen er alltid i sync fordi begge genereres fra samme fabrikt-DTO.
+      tags:
+        - Kafka-hendelser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Behandlingsresultat'
+      responses:
+        200:
+          description: Meldingen er mottatt
+
+  søknadsbehandling_avbrutt:
+    post:
+      summary: Publiseres når en behandling av en søknad avbrytes uten å bli ferdigstilt
+      description: >
+        Tynn hendelse med henvisning til søknadId og eventuell årsak. Publiseres på
+        rapid-topicet, ikke via HTTP.
+      tags:
+        - Kafka-hendelser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoknadsbehandlingAvbrutt'
+      responses:
+        200:
+          description: Meldingen er mottatt
 
 components:
   schemas:
@@ -2191,6 +2250,58 @@ components:
           type: string
           format: date
           description: Når hendelsen skjedde på utsiden av vårt system
+
+    # NB: Fabrikt ser ut til å ikke generere modellklasser for enkelte schema-navn med "ø" (bug,
+    # bekreftet med bl.a. "SøknadBehandlet"/"Søppelbøtte" i isolerte tester). Disse to Kafka-event-
+    # schemaene har derfor ASCII-navn her, mens webhooks-nøklene over beholder det norske navnet
+    # som brukes i @event_name.
+    SoknadBehandlet:
+      description: >
+        Tynn Kafka-melding publisert (ikke en del av HTTP-API-et) når en behandling av en søknad er
+        ferdigstilt, med henvisning til søknadId og utfallet av behandlingen.
+      type: object
+      required:
+        - ident
+        - behandlingId
+        - søknadId
+        - førteTil
+        - rettighetsperioder
+      properties:
+        ident:
+          type: string
+        behandlingId:
+          type: string
+          format: uuid
+        søknadId:
+          type: string
+          format: uuid
+        førteTil:
+          $ref: '#/components/schemas/Avgjørelse'
+        rettighetsperioder:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rettighetsperiode'
+
+    SoknadsbehandlingAvbrutt:
+      description: >
+        Tynn Kafka-melding publisert (ikke en del av HTTP-API-et) når en behandling av en søknad
+        avbrytes uten å bli ferdigstilt, med henvisning til søknadId og eventuell årsak.
+      type: object
+      required:
+        - ident
+        - behandlingId
+        - søknadId
+      properties:
+        ident:
+          type: string
+        behandlingId:
+          type: string
+          format: uuid
+        søknadId:
+          type: string
+          format: uuid
+        årsak:
+          type: string
 
     FerietilleggKvittering:
       type: object
