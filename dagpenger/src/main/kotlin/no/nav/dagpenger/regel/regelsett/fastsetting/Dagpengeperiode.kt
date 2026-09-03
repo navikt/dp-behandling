@@ -83,7 +83,6 @@ object Dagpengeperiode {
             folketrygden.hjemmel(4, 15, "Antall stønadsuker (stønadsperiode)", "Periode"),
         ) {
             skalVurderes { kravPåDagpenger(it) }
-            skalRevurderes { it.mangler(ordinærPeriode) }
 
             regel(kortPeriode) { oppslag(prøvingsdato) { 52 } }
             regel(langPeriode) { oppslag(prøvingsdato) { 104 } }
@@ -106,7 +105,9 @@ object Dagpengeperiode {
             regel(ordinærPeriode) { hvisSannMedResultat(Minsteinntekt.minsteinntekt, antallStønadsuker, ingenOrdinærPeriode) }
 
             regel(dagerIUka) { oppslag(prøvingsdato) { 5 } }
-            regel(antallStønadsdager) { multiplikasjon(antallStønadsuker, dagerIUka) }
+            regel(antallStønadsdager) { multiplikasjon(ordinærPeriode, dagerIUka) }
+
+            ønsketResultat(ordinærPeriode, antallStønadsdager)
 
             kvote(
                 KvoteDefinisjon(
@@ -123,7 +124,5 @@ object Dagpengeperiode {
             )
 
             påvirkerResultat { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
-
-            ønsketResultat(ordinærPeriode, antallStønadsdager)
         }
 }

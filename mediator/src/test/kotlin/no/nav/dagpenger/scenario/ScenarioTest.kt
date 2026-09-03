@@ -32,6 +32,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernep
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.godkjentPermitteringsårsak
@@ -166,6 +167,7 @@ class ScenarioTest {
 
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
                 opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1242
+                opplysninger(antallStønadsdager).single().verdi.verdi shouldBe 520
 
                 opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
             }
@@ -268,6 +270,7 @@ class ScenarioTest {
                 opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
                 opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 766
                 opplysninger(ordinærPeriode).single().verdi.verdi shouldBe 0
+                opplysninger(antallStønadsdager).single().verdi.verdi shouldBe 0
                 opplysninger(vernepliktPeriode).single().verdi.verdi shouldBe 26
             }
         }

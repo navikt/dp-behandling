@@ -123,7 +123,7 @@ graph RL
   CE["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| CC["Antall stønadsuker"]
   CE["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| CD["Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt"]
   CG["Antall dager som skal regnes med i hver uke"] -->|"Oppslag"| F["Prøvingsdato"]
-  H["Antall stønadsdager"] -->|"Multiplikasjon"| CC["Antall stønadsuker"]
+  H["Antall stønadsdager"] -->|"Multiplikasjon"| CE["Antall stønadsuker (stønadsperiode)"]
   H["Antall stønadsdager"] -->|"Multiplikasjon"| CG["Antall dager som skal regnes med i hver uke"]
   CH["Antall dagsats for egenandel"] -->|"Oppslag"| F["Prøvingsdato"]
   CI["Tre ganger dagsats"] -->|"Multiplikasjon"| BK["Dagsats med barnetillegg etter samordning og 90 % regel"]

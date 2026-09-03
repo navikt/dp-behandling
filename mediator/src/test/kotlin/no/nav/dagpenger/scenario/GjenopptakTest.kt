@@ -15,6 +15,8 @@ import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
@@ -119,6 +121,17 @@ class GjenopptakTest {
                     this shouldHaveSize 1
                     this[0].opprinnelse shouldBe Periodestatus.Arvet
                     this[0].verdi.verdi shouldBe 517349
+                }
+
+                // Regresjonstest: dagpengeperioden (stønadsuker/-dager) skal arves fra
+                // førstegangsbehandlingen og ikke utledes på nytt ved gjenopptak.
+                with(opplysninger(ordinærPeriode)) {
+                    this shouldHaveSize 1
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                }
+                with(opplysninger(antallStønadsdager)) {
+                    this shouldHaveSize 1
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
                 }
 
                 with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {

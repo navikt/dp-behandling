@@ -31,7 +31,7 @@ graph RL
   S["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| Q["Antall stønadsuker"]
   S["Antall stønadsuker (stønadsperiode)"] -->|"HvisSannMedResultat"| R["Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt"]
   U["Antall dager som skal regnes med i hver uke"] -->|"Oppslag"| B["Prøvingsdato"]
-  V["Antall stønadsdager"] -->|"Multiplikasjon"| Q["Antall stønadsuker"]
+  V["Antall stønadsdager"] -->|"Multiplikasjon"| S["Antall stønadsuker (stønadsperiode)"]
   V["Antall stønadsdager"] -->|"Multiplikasjon"| U["Antall dager som skal regnes med i hver uke"]
 ```
 
