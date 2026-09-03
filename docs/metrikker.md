@@ -12,6 +12,7 @@ Generert fra `PrometheusRegistry` — legger du til en ny metrikk, oppdateres de
 | `behandling_lagre_person_tid_sekunder` | histogram | Tid det tar å lagre en person, i sekunder | — |
 | `behandling_publiser_aktivitetslogg_sekunder` | histogram | Tid brukt på å hente person med behandlinger | — |
 | `commit_duration_seconds` | histogram | Time spent in actual DB commit | — |
+| `dagpenger_personer_antall` | gauge | Antall unike personer i hvert system som behandler dagpenger, fordelt på om de har rett nå. Regnes globalt i hver pod - bruk avg/max by(...), ikke sum, ved aggregering | system, har_rett |
 | `dp_antall_behandlinger` | histogram | Antall behandlinger per person | — |
 | `dp_behandling_avbrutt` | counter | Antall avbrutte behandlinger | hendelse_type, aarsak |
 | `dp_behandling_avklaring_levetid_sekunder` | histogram | Tid fra avklaring opprettes til den lukkes, i sekunder | kode |

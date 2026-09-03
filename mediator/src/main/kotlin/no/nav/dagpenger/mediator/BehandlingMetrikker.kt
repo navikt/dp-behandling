@@ -1,6 +1,7 @@
 package no.nav.dagpenger.mediator
 
 import io.prometheus.metrics.core.metrics.Counter
+import io.prometheus.metrics.core.metrics.Gauge
 import io.prometheus.metrics.core.metrics.Histogram
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingAvbrutt
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingEndretTilstand
@@ -168,8 +169,8 @@ internal class BehandlingMetrikker : PersonObservatør {
                 .help("Antall opplysningssvar mottatt")
                 .register()
 
-        val meldekortKøStørrelse: io.prometheus.metrics.core.metrics.Gauge =
-            io.prometheus.metrics.core.metrics.Gauge
+        val meldekortKøStørrelse: Gauge =
+            Gauge
                 .builder()
                 .name("dp_behandling_meldekort_koe_storrelse")
                 .help("Antall meldekort i behandlingskø")
@@ -198,6 +199,16 @@ internal class BehandlingMetrikker : PersonObservatør {
                 .name("dp_behandling_behov_losningstid_sekunder")
                 .help("Tid fra behov sendes til løsning mottas, i sekunder")
                 .labelNames("behov", "kilde")
+                .register()
+
+        val antallDagpengepersoner: Gauge =
+            Gauge
+                .builder()
+                .name("dagpenger_personer_antall")
+                .help(
+                    "Antall unike personer i hvert system som behandler dagpenger, fordelt på om de har rett nå. " +
+                        "Regnes globalt i hver pod - bruk avg/max by(...), ikke sum, ved aggregering",
+                ).labelNames("system", "har_rett")
                 .register()
     }
 }

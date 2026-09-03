@@ -112,6 +112,13 @@ interface PersonRepository : BehandlingRepository {
     @WithSpan
     fun hentIdenterMedRettighetsperioder(år: Int): List<String>
 
+    /**
+     * Teller antall unike mennesker som har en gjeldende rettighetsstatus, gruppert på om de har rett nå.
+     * Brukes til å produsere `dp_mennesker`-metrikken. Nøkkelen er `har_rettighet`-verdien.
+     */
+    @WithSpan
+    fun tellMenneskerPerRettighetstatus(): Map<Boolean, Long>
+
     @WithSpan
     fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus>
 

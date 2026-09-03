@@ -24,6 +24,7 @@ import no.nav.dagpenger.mediator.api.statusPagesConfig
 import no.nav.dagpenger.mediator.audit.ApiAuditlogg
 import no.nav.dagpenger.mediator.db.PostgresDataSourceBuilder
 import no.nav.dagpenger.mediator.jobber.BehandleMeldekort
+import no.nav.dagpenger.mediator.jobber.OppdaterMenneskerMetrikk
 import no.nav.dagpenger.mediator.jobber.SlettFjernetOpplysninger
 import no.nav.dagpenger.mediator.repository.VaktmesterPostgresRepo
 import no.nav.dagpenger.regel.DagpengerRegistrering
@@ -124,5 +125,7 @@ internal class ApplicationBuilder(
         BehandleMeldekort(
             runtime.meldekortBehandlingskø(rapidsConnection),
         ).start()
+
+        OppdaterMenneskerMetrikk.start(runtime.personRepository)
     }
 }

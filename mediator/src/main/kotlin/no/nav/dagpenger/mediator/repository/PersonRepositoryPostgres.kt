@@ -215,6 +215,29 @@ class PersonRepositoryPostgres(
                 )
         }
 
+    @WithSpan
+    override fun tellMenneskerPerRettighetstatus(): Map<Boolean, Long> =
+        dbSession.session { session ->
+            session
+                .run(
+                    queryOf(
+                        //language=PostgreSQL
+                        """
+                        SELECT har_rettighet, count(*) AS antall
+                        FROM (
+                            SELECT DISTINCT ON (ident) ident, har_rettighet
+                            FROM rettighetstatus
+                            ORDER BY ident, gjelder_fra DESC
+                        ) siste_status
+                        GROUP BY har_rettighet
+                        """.trimIndent(),
+                        emptyMap<String, Any>(),
+                    ).map { row ->
+                        row.boolean("har_rettighet") to row.long("antall")
+                    }.asList,
+                ).toMap()
+        }
+
     private fun lagreRettighetshistorikk(
         unitOfWork: PostgresUnitOfWork,
         ident: String,

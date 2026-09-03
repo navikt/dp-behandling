@@ -23,6 +23,7 @@ class BehandlingMetrikkerTest {
             listOf(
                 "dp_behandling_",
                 "dp_antall_",
+                "dagpenger_personer_",
                 "hendelse_behandling_",
                 "behandling_",
                 "transactions_",

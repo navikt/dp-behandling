@@ -103,6 +103,10 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
+    override fun tellMenneskerPerRettighetstatus(): Map<Boolean, Long> {
+        TODO("Not yet implemented")
+    }
+
     fun reset() {
         persondb.clear()
     }
