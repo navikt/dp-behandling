@@ -1,5 +1,9 @@
 package no.nav.dagpenger.mediator
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.tngtech.archunit.base.DescribedPredicate
+import com.tngtech.archunit.core.domain.JavaClass
+import com.tngtech.archunit.core.domain.JavaMethodCall
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
@@ -86,5 +90,46 @@ class ArkitekturTest {
             .should()
             .beFreeOfCycles()
             .check(klasser)
+    }
+
+    // -- Typede Kafka-hendelser --
+
+    @Test
+    fun `nye Kafka-hendelser skal publiseres med typede DTOer, ikke JsonMessage newMessage direkte`() {
+        // Kjent teknisk gjeld fra før dette mønsteret ble innført. Skal ikke øke — nye Kafka-
+        // hendelser skal bruke toJsonMessage(eventName, dto) (se Vedtak.kt) med en DTO generert av
+        // fabrikt fra en components/schemas-oppføring i openapi/src/main/resources/behandling-api.yaml.
+        val kjenteUntak =
+            setOf(
+                "no.nav.dagpenger.mediator.AktivitetsloggMediator",
+                "no.nav.dagpenger.mediator.FlyttSøskenObserver",
+                "no.nav.dagpenger.mediator.HendelseMediator",
+                "no.nav.dagpenger.mediator.PersonMediator",
+                "no.nav.dagpenger.mediator.meldekort.MeldekortBehandlingskø",
+                "no.nav.dagpenger.mediator.mottak.ArenaOppgaveMottak",
+                "no.nav.dagpenger.mediator.mottak.InnsendingFerdigstiltMessage",
+                "no.nav.dagpenger.mediator.mottak.MeldekortBehandlingsresultatKontrollregningMottak",
+                "no.nav.dagpenger.mediator.repository.AvklaringKafkaObservatør",
+            )
+
+        val erIkkeKjentUnntak =
+            DescribedPredicate.describe<JavaClass>("ikke et kjent unntak") { klasse ->
+                klasse.fullName !in kjenteUntak
+            }
+
+        val kallerJsonMessageNewMessageDirekte =
+            DescribedPredicate.describe<JavaMethodCall>("kaller JsonMessage.newMessage direkte") { kall ->
+                kall.targetOwner.isEquivalentTo(JsonMessage.Companion::class.java) &&
+                    kall.target.name.startsWith("newMessage")
+            }
+
+        noClasses()
+            .that(erIkkeKjentUnntak)
+            .should()
+            .callMethodWhere(kallerJsonMessageNewMessageDirekte)
+            .because(
+                "nye Kafka-hendelser skal bruke typede DTOer via toJsonMessage(eventName, dto) i stedet for " +
+                    "rå mapOf-payloads (se SøknadBehandletObserver.kt for eksempel)",
+            ).check(klasser)
     }
 }

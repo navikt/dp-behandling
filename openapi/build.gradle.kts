@@ -34,6 +34,8 @@ ktlint {
 
 dependencies {
     implementation(libs.jackson.databind)
+    // Kun brukt av testen som genererer docs/kafka-events-catalog.md fra webhooks-seksjonen i spec-en.
+    testImplementation("org.yaml:snakeyaml:2.3")
 }
 
 fabrikt {
