@@ -205,10 +205,8 @@ internal class BehandlingMetrikker : PersonObservatør {
             Gauge
                 .builder()
                 .name("dagpenger_personer_antall")
-                .help(
-                    "Antall unike personer i hvert system som behandler dagpenger, fordelt på om de har rett nå. " +
-                        "Regnes globalt i hver pod - bruk avg/max by(...), ikke sum, ved aggregering",
-                ).labelNames("system", "har_rett")
+                .help("Antall unike personer i hvert system som behandler dagpenger, fordelt på om de har rett nå.")
+                .labelNames("system", "har_rett")
                 .register()
     }
 }
