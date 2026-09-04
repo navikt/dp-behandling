@@ -1082,7 +1082,7 @@ class Behandling private constructor(
             try {
                 regelkjøring.evaluer()
             } catch (e: RegelkjøringLoopException) {
-                hendelse.info("Regelkjøring loop oppdaget: ${e.message}")
+                hendelse.funksjonellFeil("Regelkjøring loop oppdaget: ${e.message}")
                 avgjørNesteTilstand(hendelse)
                 return
             }

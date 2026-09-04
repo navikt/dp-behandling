@@ -9,7 +9,7 @@ dependencies {
     implementation(project(":uuid-v7"))
 
     api("com.fasterxml.uuid:java-uuid-generator:5.2.0")
-    api("no.nav.dagpenger:aktivitetslogg:20251016.40.a3c526")
+    api("no.nav.dagpenger:aktivitetslogg:20260903.45.ba6634")
 
     implementation(libs.kotlin.logging)
     testImplementation(libs.bundles.cucumber)

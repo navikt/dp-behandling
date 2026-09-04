@@ -199,7 +199,7 @@ internal class HendelseMediator(
 
         if (!hendelse.harAktiviteter()) return
         if (hendelse.harFunksjonelleFeilEllerVerre()) {
-            logger.info { "aktivitetslogg inneholder feil (se sikkerlogg)" }
+            logger.error { "aktivitetslogg inneholder feil (se sikkerlogg)" }
             sikkerlogg.error { "aktivitetslogg inneholder feil:\n${hendelse.toLogString()}" }
             sikkerlogg.info { "aktivitetslogg inneholder meldinger:\n${hendelse.toLogString()}" }
         }
