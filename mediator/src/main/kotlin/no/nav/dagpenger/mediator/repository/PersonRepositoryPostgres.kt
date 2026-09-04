@@ -227,11 +227,11 @@ class PersonRepositoryPostgres(
                         FROM (
                             SELECT DISTINCT ON (ident) ident, har_rettighet
                             FROM rettighetstatus
+                            WHERE gjelder_fra <= CURRENT_DATE
                             ORDER BY ident, gjelder_fra DESC
                         ) siste_status
                         GROUP BY har_rettighet
                         """.trimIndent(),
-                        emptyMap<String, Any>(),
                     ).map { row ->
                         row.boolean("har_rettighet") to row.long("antall")
                     }.asList,
