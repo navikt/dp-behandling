@@ -78,6 +78,7 @@ import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
+import no.nav.dagpenger.modell.hendelser.SøknadId
 import no.nav.dagpenger.modell.somKjede
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
@@ -620,6 +621,10 @@ internal fun Application.behandlingApi(
                             }
 
                             if (opplysningstype.er(søknadIdOpplysningstype)) {
+                                require(
+                                    runCatching { SøknadId(nyOpplysningDTO.verdi) }.isSuccess,
+                                ) { "Kan ikke sette tom verdi for søknadId" }
+
                                 val forrigeVerdi = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
 
                                 if (forrigeVerdi != null) {
