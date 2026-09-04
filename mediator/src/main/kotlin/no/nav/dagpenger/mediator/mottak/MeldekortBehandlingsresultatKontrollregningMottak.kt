@@ -2,6 +2,7 @@ package no.nav.dagpenger.mediator.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
@@ -12,6 +13,7 @@ import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.arbeidsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.arbeidstimer
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldtITide
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
@@ -19,6 +21,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.UUID
 
 class MeldekortBehandlingsresultatKontrollregningMottak(
@@ -125,7 +128,21 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
 
         private val ileggesSanksjon get() = nyePerioder(harSanksjon).any { it.medVerdi(true) }
 
-        private val harEndretRettighetsperiode get() = packet["rettighetsperioder"].any { it["opprinnelse"].asString() == "Ny" }
+        private val nyeMeldeperioder: List<ClosedRange<LocalDate>>
+            get() = nyePerioder(meldeperiode).map { it.verdi["fom"].asLocalDate()..it.verdi["tom"].asLocalDate() }
+
+        private val nyeNeiPerioder: List<ClosedRange<LocalDate>>
+            get() =
+                packet["rettighetsperioder"].filter { it["opprinnelse"].asString() == "Ny" && !it["harRett"].asBoolean() }.map {
+                    val fraOgMed = it["fraOgMed"]?.asLocalDate() ?: LocalDate.MIN
+                    val tilOgMed = it["tilOgMed"]?.asLocalDate() ?: LocalDate.MAX
+                    fraOgMed..tilOgMed
+                }
+
+        private val harEndretRettighetsperiode get() =
+            nyeMeldeperioder.any { meldeperiode ->
+                nyeNeiPerioder.any { neiPeriode -> meldeperiode.overlapper(neiPeriode) }
+            }
 
         private val nyePerioder: List<NyPeriode> by lazy {
             packet["opplysninger"]
@@ -142,6 +159,9 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         private fun nyePerioder(opplysningstype: Opplysningstype<*>) = nyePerioder.filter { it.er(opplysningstype) }
 
         private companion object {
+            private fun ClosedRange<LocalDate>.overlapper(b: ClosedRange<LocalDate>): Boolean =
+                start <= b.endInclusive && b.start <= endInclusive
+
             private fun JsonNode.erNyPeriode() =
                 this["opprinnelse"].asString().let { råverdi ->
                     råverdi.equals(OpprinnelseDTO.NY.name, ignoreCase = true) ||
@@ -157,6 +177,8 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
         val periode: JsonNode,
     ) {
         fun er(opplysningType: Opplysningstype<*>) = opplysningTypeId == opplysningType.id.uuid
+
+        val verdi get() = periode["verdi"]
 
         fun medVerdi(verdi: Boolean) = periode["verdi"]["verdi"].asBoolean() == verdi
 

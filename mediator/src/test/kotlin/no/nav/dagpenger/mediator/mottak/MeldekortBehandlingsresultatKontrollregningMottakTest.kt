@@ -186,7 +186,7 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
         opplysninger: List<String>,
     ): String {
         val opprinnelse = if (endretRettighetsperiode) "Ny" else "Arvet"
-        val opplysninger = opplysninger.joinToString(",")
+        val opplysninger = (opplysninger + meldeperiode).joinToString(",")
         return """
             {
               "@event_name": "behandlingsresultat",
@@ -196,11 +196,28 @@ class MeldekortBehandlingsresultatKontrollregningMottakTest {
                 "type": "$hendelseType",
                 "id": "meldekort-1"
               },
-              "rettighetsperioder": [{"opprinnelse": "$opprinnelse"}],
+              "rettighetsperioder": [{"opprinnelse": "$opprinnelse", "harRett": false}],
               "opplysninger": [$opplysninger]
             }
             """.trimIndent()
     }
+
+    private val meldeperiode =
+        """
+        {
+          "opplysningTypeId": "01956abd-2871-7517-a332-b462c0c31292",
+          "perioder": [
+            {
+              "opprinnelse": "NY",
+              "verdi" : {
+                "fom" : "2018-06-18",
+                "tom" : "2018-07-01",
+                "datatype" : "periode"
+              }
+            }
+          ]
+        }
+        """.trimIndent()
 
     private fun opplysning(
         opplysningTypeId: UUID,
