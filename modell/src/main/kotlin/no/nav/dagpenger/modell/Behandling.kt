@@ -1,6 +1,6 @@
 package no.nav.dagpenger.modell
 
-import io.github.oshai.kotlinlogging.KotlinLogging.logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.avklaring.Avklaring
@@ -1085,6 +1085,7 @@ class Behandling private constructor(
                 regelkjøring.evaluer()
             } catch (e: RegelkjøringLoopException) {
                 hendelse.funksjonellFeil("Regelkjøring loop oppdaget: ${e.message}")
+                KotlinLogging.logger {}.warn { "Regelkjøring loop oppdaget: ${e.message}" }
                 avklaringer.leggTil(
                     Avklaring(
                         Avklaringkode(

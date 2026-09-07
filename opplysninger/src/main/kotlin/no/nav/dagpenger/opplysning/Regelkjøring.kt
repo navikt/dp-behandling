@@ -252,7 +252,9 @@ class Regelkjøring(
                     """Går i loop! Planlegger samme plan vi har fra før. Planlegger ${siste.prøvingsdato} og vil kjøre:
                     |${siste.plan.joinToString("\n") { it.beskrivMedAvhengigheter(siste.opplysningerPåPrøvingsdato) }}
                     """.trimMargin(),
-                )
+                ).also {
+                    Span.current().recordException(it)
+                }
             }
             return Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
         }
