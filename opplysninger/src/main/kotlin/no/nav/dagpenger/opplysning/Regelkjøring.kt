@@ -136,7 +136,11 @@ class Regelkjøring(
             var totalRapport: Regelkjøringsrapport? = null
             var aktiveDatoer = 0
             for (dato in prøvingsperiode) {
-                val rapport = evaluerDag(dato).also { span.loggRapport(it, dato) }
+                val rapport =
+                    evaluerDag(dato).also {
+                        span.loggRapport(it, dato)
+                        span.setAttribute("regelkjøring.kjørteRegler", it.kjørteRegler.joinToString { regel -> regel.toString() })
+                    }
                 if (rapport.kjørteRegler.isNotEmpty()) aktiveDatoer++
                 totalRapport = totalRapport?.plus(rapport) ?: rapport
 
