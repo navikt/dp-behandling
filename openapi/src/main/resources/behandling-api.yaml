@@ -1239,6 +1239,7 @@ components:
         - Stans
         - Gjenopptak
         - Endring
+        - Opphør
 
     BehandlingTilstand:
       type: string
@@ -1850,7 +1851,7 @@ components:
       enum: [ "dato", "desimaltall", "heltall", "boolsk", "ulid", "penger", "inntekt", "tekst", "barn", "periode" ]
       description: |
         Hvilken datatype opplysningen har, for å kunne validere at verdi er riktig format
-    
+
     Kvittering:
       type: object
       required:
@@ -2545,8 +2546,8 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: |
-        Bruker [AzureAD](https://docs.nais.io/security/auth/azure-ad) til autentisering. 
+        Bruker [AzureAD](https://docs.nais.io/security/auth/azure-ad) til autentisering.
         Token må ha `audience` satt til `[cluster].teamdagpenger.dp-behandling`.
-        
+
         For å teste APIet kan du lage et gyldig OBO-token ved å bruke wonderwalled:
         - [dev-gcp](https://azure-token-generator.intern.dev.nav.no/api/obo?aud=dev-gcp.teamdagpenger.dp-behandling)
