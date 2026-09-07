@@ -81,7 +81,14 @@ class KvotetellingsSkriver(
         resultat: Kvotetellingsresultat,
     ) {
         val opplysninger = kontekst.opplysninger
-        val gjenståendeFørDenneBatchen = opplysninger.finnNullableOpplysning(definisjon.gjenstående)?.verdi
+
+        // Bruker "siste fakta i HELE historikken" (finnNullableOpplysning) er feil så snart denne
+        // meldeperioden reberegnes en gang til (f.eks. ved en korrigering/revurdering) - da vil vi
+        // plukke opp DENNE periodens egen, foreldede verdi fra forrige gjennomkjøring i stedet for
+        // verdien slik den var før DENNE batchen startet. Scope derfor oppslaget til å gjelde verdien
+        // rett før batchens første dag, på samme måte som [KvoteDefinisjon.gjenståendeVed].
+        val batchensFørsteDag = resultat.forbruktTeller.minOfOrNull { it.gyldighetsperiode.fraOgMed }
+        val gjenståendeFørDenneBatchen = batchensFørsteDag?.let { definisjon.gjenståendeVed(opplysninger, it) }
 
         skrivForbruk(opplysninger, resultat)
 
@@ -146,7 +153,7 @@ class KvotetellingsSkriver(
     private fun Opplysninger.erAlleredeSattTilUsannFra(
         utløsendeBetingelse: Opplysningstype<Boolean>,
         fraOgMed: LocalDate,
-    ): Boolean = har(utløsendeBetingelse, fraOgMed) && !finnOpplysning(utløsendeBetingelse, fraOgMed).verdi
+    ): Boolean = kunEgne.har(utløsendeBetingelse, fraOgMed) && !finnOpplysning(utløsendeBetingelse, fraOgMed).verdi
 }
 
 data class Kvotetellingsresultat(

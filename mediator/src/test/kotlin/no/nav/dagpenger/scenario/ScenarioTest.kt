@@ -803,7 +803,6 @@ class ScenarioTest {
     }
 
     @Test
-    @Disabled("Vi kan ikke stanse direkte på harLøpendeRett")
     fun `tester automatisk stans etter oppbrukt periode`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -900,14 +899,6 @@ class ScenarioTest {
         }
     }
 
-    @Disabled(
-        "Åpent spørsmål: 'krav til tapt arbeidstid' vurderes i sum for hele meldeperioden, så 5 dager med " +
-            "Arbeid(7t) reduserer ikke antall forbruksdager når terskelen fortsatt er oppfylt i sum – kvoten " +
-            "blir dermed fortsatt oppbrukt (Stans) etter korrigeringen, ikke Innvilgelse som testen forventer. " +
-            "Gammel kode ga 'riktig' resultat her, men pga. en urelatert bug som mistet meldekort1s forbrukte " +
-            "dager fra tellingen ved reberegning – ikke en bevisst korrekt regel. Krever en forretningsavklaring " +
-            "på om enkeltdager med Arbeid skal unntas fra forbruk uavhengig av periodens samlede terskel.",
-    )
     @Test
     fun `vi kan revurdere opphør`() {
         nyttScenario {
@@ -927,8 +918,10 @@ class ScenarioTest {
             person.sendInnMeldekort(1)
             meldekortBatch(markerFerdig = true)
 
+            // Meldekort 2
             val meldekortUUID = person.sendInnMeldekort(2)
             meldekortBatch(markerFerdig = true)
+
             behandlingsresultat(3) {
                 førteTil shouldBe Avgjørelse.Opphør.toString()
                 rettighetsperioder shouldHaveSize 2
@@ -940,15 +933,16 @@ class ScenarioTest {
                 korrigeringAv = meldekortUUID,
                 aktiviteter =
                     listOf(
-                        MeldekortAktivitet.Arbeid(7),
-                        MeldekortAktivitet.Arbeid(7),
-                        MeldekortAktivitet.Arbeid(7),
-                        MeldekortAktivitet.Arbeid(7),
-                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(8),
+                        MeldekortAktivitet.Arbeid(8),
+                        MeldekortAktivitet.Arbeid(8),
+                        MeldekortAktivitet.Arbeid(8),
+                        MeldekortAktivitet.Arbeid(8),
                     ),
             )
             meldekortBatch(markerFerdig = false)
             person.avklaringer.map { it.kode } shouldContain "KorrigeringUtbetaltPeriode"
+
             behandlingsresultatForslag(3) {
                 førteTil shouldBe Avgjørelse.Innvilgelse.toString()
                 rettighetsperioder shouldHaveSize 1

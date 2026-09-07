@@ -74,7 +74,26 @@ class BeregningsperiodeFabrikk(
         kvoter.sanksjonerSortert(opplysninger).sumOf { kvote -> kvote.gjenståendeVed(opplysninger, førsteDag) }
 
     private fun hentMeldekortDagerMedRett(): List<LocalDate> {
-        val perioderMedRett = opplysninger.finnAlle(harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
+        val alleFakta = opplysninger.finnAlle(harLøpendeRett)
+
+        // En harLøpendeRett=false-fakta skrevet direkte (uten Utledning/kilde, se
+        // KvotetellingsSkriver.settUtløsendeBetingelseTilUsann) som starter INNE i denne samme
+        // meldeperioden kan bare stamme fra en TIDLIGERE kjøring av NETTOPP DENNE meldeperiodens eget
+        // forbruksresultat. Lar vi den styre hvilke dager som klassifiseres som Arbeidsdag/
+        // IkkeRettighetDag i DENNE beregningen, blir resultatet av "krav til tapt arbeidstid" (som
+        // beregnes over nettopp disse dagene) sirkulært avhengig av sin egen konklusjon fra forrige
+        // kjøring - ved en korrigering/revurdering som endrer forbruket, kan dette gjøre at
+        // regelmotoren aldri konvergerer (uendelig løkke). Vi ignorerer den derfor her, og lar den
+        // fortsatt styre PÅFØLGENDE meldeperioder helt normalt.
+        val relevanteFakta =
+            alleFakta.filterNot {
+                !it.verdi &&
+                    it.kilde == null &&
+                    it.utledetAv == null &&
+                    it.gyldighetsperiode.fraOgMed.isAfter(meldeperiode.fraOgMed)
+            }
+
+        val perioderMedRett = relevanteFakta.filter { it.verdi }.map { it.gyldighetsperiode }
         val meldtITide = opplysninger.finnOpplysning(meldtITide, meldeperiode.fraOgMed).verdi
         val dagerMedRett =
             meldeperiode
