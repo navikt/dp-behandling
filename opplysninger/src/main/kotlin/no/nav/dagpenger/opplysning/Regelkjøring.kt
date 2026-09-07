@@ -2,6 +2,9 @@ package no.nav.dagpenger.opplysning
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
 import no.nav.dagpenger.opplysning.Regelkjøring.Regelkjøringstilstand.Companion.aktiver
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
@@ -142,11 +145,24 @@ class Regelkjøring(
             }
 
             totalRapport!!.also { rapport ->
-                span.setAttribute("kjørteRegler", rapport.kjørteRegler.size.toLong())
-                span.setAttribute("antallDatoer", rapport.prøvingsdato.size.toLong())
-                span.setAttribute("aktiveDatoer", aktiveDatoer.toLong())
-                span.setAttribute("mangler", rapport.mangler.size.toLong())
-                span.setAttribute("fjernet", rapport.fjernet.size.toLong())
+                span.addEvent(
+                    "regelkjøring.resultat",
+                    Attributes.of(
+                        stringKey("rapport"),
+                        rapport.kjørteRegler.joinToString(", ") { it.toString() },
+                        longKey("kjørteRegler"),
+                        rapport.kjørteRegler.size.toLong(),
+                        longKey("antallDatoer"),
+                        rapport.prøvingsdato.size.toLong(),
+                        longKey("aktiveDatoer"),
+                        aktiveDatoer.toLong(),
+                        longKey("mangler"),
+                        rapport.mangler.size.toLong(),
+                        longKey("fjernet"),
+                        rapport.fjernet.size.toLong(),
+                    ),
+                )
+
                 if (rapport.prøvingsdato.size > 365) {
                     logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${rapport.prøvingsdato.size}" }
                 }
