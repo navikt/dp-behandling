@@ -3,8 +3,10 @@ package no.nav.dagpenger.opplysning
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.common.AttributeKey.stringArrayKey
 import io.opentelemetry.api.common.AttributeKey.stringKey
 import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.dagpenger.opplysning.Regelkjøring.Regelkjøringstilstand.Companion.aktiver
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
@@ -134,7 +136,7 @@ class Regelkjøring(
             var totalRapport: Regelkjøringsrapport? = null
             var aktiveDatoer = 0
             for (dato in prøvingsperiode) {
-                val rapport = evaluerDag(dato)
+                val rapport = evaluerDag(dato).also { span.loggRapport(it, dato) }
                 if (rapport.kjørteRegler.isNotEmpty()) aktiveDatoer++
                 totalRapport = totalRapport?.plus(rapport) ?: rapport
 
@@ -145,24 +147,6 @@ class Regelkjøring(
             }
 
             totalRapport!!.also { rapport ->
-                span.addEvent(
-                    "regelkjøring.resultat",
-                    Attributes.of(
-                        stringKey("rapport"),
-                        rapport.kjørteRegler.joinToString(", ") { it.toString() },
-                        longKey("kjørteRegler"),
-                        rapport.kjørteRegler.size.toLong(),
-                        longKey("antallDatoer"),
-                        rapport.prøvingsdato.size.toLong(),
-                        longKey("aktiveDatoer"),
-                        aktiveDatoer.toLong(),
-                        longKey("mangler"),
-                        rapport.mangler.size.toLong(),
-                        longKey("fjernet"),
-                        rapport.fjernet.size.toLong(),
-                    ),
-                )
-
                 if (rapport.prøvingsdato.size > 365) {
                     logger.warn { "Kjørte på mer enn 365 datoer. Antall: ${rapport.prøvingsdato.size}" }
                 }
@@ -174,6 +158,29 @@ class Regelkjøring(
                 }
             }
         }
+
+    private fun Span.loggRapport(
+        regelkjøringsrapport: Regelkjøringsrapport,
+        dato: LocalDate,
+    ) {
+        addEvent(
+            "regelkjøring.resultat",
+            Attributes.of(
+                stringKey("prøvingsdato"),
+                dato.toString(),
+                stringArrayKey("kjørteRegler"),
+                regelkjøringsrapport.kjørteRegler.map { it.toString() },
+                longKey("antallKjørteRegler"),
+                regelkjøringsrapport.kjørteRegler.size.toLong(),
+                longKey("antallDatoer"),
+                regelkjøringsrapport.prøvingsdato.size.toLong(),
+                longKey("mangler"),
+                regelkjøringsrapport.mangler.size.toLong(),
+                longKey("fjernet"),
+                regelkjøringsrapport.fjernet.size.toLong(),
+            ),
+        )
+    }
 
     private fun evaluerDag(prøvingsdato: LocalDate): Regelkjøringsrapport {
         val (kjøreplan, regelresultater) = planleggOgUtfør(prøvingsdato)
