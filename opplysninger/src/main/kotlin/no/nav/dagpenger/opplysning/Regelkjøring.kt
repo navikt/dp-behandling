@@ -245,21 +245,22 @@ class Regelkjøring(
         }
 
         // Diagnostikk brukt kun i loop-feilmeldingen: viser hvilken opplysning en regel i planen
-        // avhenger av, og hva regelkjøringen faktisk finner (eller mangler) for den avhengigheten
+        // produserer og avhenger av, og hva regelkjøringen faktisk finner (eller mangler) for disse
         // gitt prøvingsdatoen som evalueres akkurat nå. Nyttig for å finne ut *hvorfor* en regel
-        // stadig blir vurdert som "ikke ferdig" (f.eks. en avhengighet som finnes, men er erstattet
-        // eller ikke gyldig for dagen som evalueres).
+        // stadig blir vurdert som "ikke ferdig" - f.eks. en avhengighet som finnes, men er erstattet
+        // eller ikke gyldig for dagen som evalueres, ELLER at selve produktet regelen produserer
+        // stadig blir slettet/gjenskapt (samme verdi, ny id) hver runde uten å konvergere.
         private fun Regel<*>.beskrivMedAvhengigheter(opplysninger: LesbarOpplysninger): String {
             val avhengigheter =
-                avhengerAv.joinToString(", ") { type ->
-                    val opplysning = opplysninger.finnNullableOpplysning(type)
-                    if (opplysning == null) {
-                        "$type=mangler"
-                    } else {
-                        "$type=${opplysning.verdi} (id=${opplysning.id}, gyldig fom=${opplysning.gyldighetsperiode.fraOgMed}, tom=${opplysning.gyldighetsperiode.tilOgMed})"
-                    }
-                }
-            return "$this [produserer=$produserer, avhengerAv: $avhengigheter]"
+                avhengerAv.joinToString(", ") { type -> "$type=${type.beskrivOpplysning(opplysninger)}" }
+            return "$this [produserer=$produserer=${produserer.beskrivOpplysning(opplysninger)}, avhengerAv: $avhengigheter]"
+        }
+
+        private fun <T : Any> Opplysningstype<T>.beskrivOpplysning(opplysninger: LesbarOpplysninger): String {
+            val opplysning = opplysninger.finnNullableOpplysning(this) ?: return "mangler"
+            return "${opplysning.verdi} (id=${opplysning.id}, gyldig fom=${opplysning.gyldighetsperiode.fraOgMed}, " +
+                "tom=${opplysning.gyldighetsperiode.tilOgMed}, utledetAv=${opplysning.utledetAv?.opplysninger?.map { it.id }}, " +
+                "erstatter=${opplysning.erstatter?.id})"
         }
     }
 
