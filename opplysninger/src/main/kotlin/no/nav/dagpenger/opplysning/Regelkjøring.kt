@@ -236,10 +236,30 @@ class Regelkjøring(
             // loop detection
             if (regelkjøringstilstand.plan == siste.plan) {
                 throw RegelkjøringLoopException(
-                    "Går i loop! Planlegger samme plan vi har fra før. Planlegger ${siste.prøvingsdato} og vil kjøre: ${siste.plan.joinToString()}}",
+                    """Går i loop! Planlegger samme plan vi har fra før. Planlegger ${siste.prøvingsdato} og vil kjøre:
+                    |${siste.plan.joinToString("\n") { it.beskrivMedAvhengigheter(siste.opplysningerPåPrøvingsdato) }}
+                    """.trimMargin(),
                 )
             }
             return Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
+        }
+
+        // Diagnostikk brukt kun i loop-feilmeldingen: viser hvilken opplysning en regel i planen
+        // avhenger av, og hva regelkjøringen faktisk finner (eller mangler) for den avhengigheten
+        // gitt prøvingsdatoen som evalueres akkurat nå. Nyttig for å finne ut *hvorfor* en regel
+        // stadig blir vurdert som "ikke ferdig" (f.eks. en avhengighet som finnes, men er erstattet
+        // eller ikke gyldig for dagen som evalueres).
+        private fun Regel<*>.beskrivMedAvhengigheter(opplysninger: LesbarOpplysninger): String {
+            val avhengigheter =
+                avhengerAv.joinToString(", ") { type ->
+                    val opplysning = opplysninger.finnNullableOpplysning(type)
+                    if (opplysning == null) {
+                        "$type=mangler"
+                    } else {
+                        "$type=${opplysning.verdi} (id=${opplysning.id}, gyldig fom=${opplysning.gyldighetsperiode.fraOgMed}, tom=${opplysning.gyldighetsperiode.tilOgMed})"
+                    }
+                }
+            return "$this [produserer=$produserer, avhengerAv: $avhengigheter]"
         }
     }
 
