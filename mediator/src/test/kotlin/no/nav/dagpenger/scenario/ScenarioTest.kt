@@ -951,6 +951,73 @@ class ScenarioTest {
         }
     }
 
+    // BUG: harLøpendeRett fryses permanent til usann fra den datoen kvoten FØRST ble brukt opp
+    // (KvotetellingsSkriver.settUtløsendeBetingelseTilUsann), og RettighetsperiodePlugin nekter
+    // (harPilla) å noensinne skrive en ny/utvidet rettighetsperiode etter dette. Når man så korrigerer
+    // meldekortet med lavere arbeidstimer (som fortsatt oppfyller kravet til tapt arbeidstid, og derfor
+    // fortsatt SKAL konsumere dager), blir "dagerMedRett"-vinduet likevel begrenset til den gamle,
+    // frosne grensen (til og med dagen FØR frysingen inntraff) - ikke det korrigerte, fulle vinduet.
+    // Resultatet er at færre dager enn budsjettert klassifiseres som Arbeidsdag, kvoten telles aldri
+    // helt tom på nytt, og korrigeringen ender feilaktig med Stans i stedet for et opprettholdt Opphør.
+    // Dette krever trolig at harLøpendeRett kan re-utledes friskt (ikke bare vinduet for
+    // tapt-arbeidstid-beregningen isolert) når en korrigering endrer forbruket for en allerede
+    // ferdigbehandlet periode.
+    @Disabled("Kjent bug: harLøpendeRett sin frosne grense oppdateres ikke ved korrigering, se kommentar over")
+    @Test
+    fun `vi kan revurdere opphør men arbeid under terskel opprettholder opphøret`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            saksbehandler.endreOpplysning(antallStønadsdager, 15)
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder shouldHaveSize 1
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            // Meldekort 2
+            val meldekortUUID = person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat(3) {
+                førteTil shouldBe Avgjørelse.Opphør.toString()
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe false
+            }
+
+            // Arbeidstimene her ligger UNDER kravet til tapt arbeidstid (35t av 75t = 46,7 % <= 50 %-
+            // terskelen), slik at kravet fortsatt er oppfylt og dagene telles med som forbruk - i
+            // motsetning til testen over. Da er den ordinære kvoten (15 dager) faktisk brukt opp, og
+            // korrigeringen skal derfor IKKE gjenopprette retten - opphøret skal stå seg.
+            person.sendInnMeldekort(
+                2,
+                korrigeringAv = meldekortUUID,
+                aktiviteter =
+                    listOf(
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                    ),
+            )
+            meldekortBatch(markerFerdig = false)
+
+            behandlingsresultatForslag(3) {
+                førteTil shouldBe Avgjørelse.Opphør.toString()
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe false
+            }
+        }
+    }
+
     @Test
     fun `mangler fastsettelse av arbeidstid `() {
         nyttScenario {
