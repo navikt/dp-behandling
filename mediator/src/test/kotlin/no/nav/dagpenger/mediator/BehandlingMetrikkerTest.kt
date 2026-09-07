@@ -97,7 +97,7 @@ private fun io.prometheus.metrics.model.snapshots.MetricSnapshot.hentLabelNames(
     collectorsField.isAccessible = true
 
     @Suppress("UNCHECKED_CAST")
-    val collectors = collectorsField.get(registry) as List<Any>
+    val collectors = collectorsField.get(registry) as Collection<Any>
     val collector =
         collectors.filterIsInstance<MetricWithFixedMetadata>().firstOrNull {
             it.prometheusName == this.metadata.prometheusName
@@ -116,7 +116,7 @@ private fun io.prometheus.metrics.model.snapshots.MetricSnapshot.hentLabelNames(
     multiCollectorsField.isAccessible = true
 
     @Suppress("UNCHECKED_CAST")
-    val multiCollectors = multiCollectorsField.get(registry) as List<Any>
+    val multiCollectors = multiCollectorsField.get(registry) as Collection<Any>
     for (mc in multiCollectors) {
         try {
             val namesMethod = mc.javaClass.getMethod("getPrometheusNames")
