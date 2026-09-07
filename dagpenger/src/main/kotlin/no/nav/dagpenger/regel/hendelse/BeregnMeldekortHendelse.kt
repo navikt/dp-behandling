@@ -158,6 +158,7 @@ class BeregnMeldekortHendelse(
                     )
                 }
 
+                logger.info { "Legger til meldekortopplysninger for meldeperiode ${meldekort.fom} - ${meldekort.tom}" }
                 val meldekortOpplysninger = meldekort.tilOpplysninger(kilde)
                 meldekortOpplysninger.forEach { this.opplysninger.leggTil(it) }
             }
