@@ -29,10 +29,6 @@ object Configuration {
         val admin by listType(stringType, Regex(","))
     }
 
-    object Maskintilgang : PropertyGroup() {
-        val navn by listType(stringType, Regex(","))
-    }
-
     val properties =
         ConfigurationProperties.systemProperties() overriding EnvironmentVariables() overriding defaultProperties
 
