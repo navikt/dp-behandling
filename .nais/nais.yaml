@@ -116,6 +116,7 @@ spec:
         - application: dp-behandling-admin
         - application: dp-inntekt-api
         - application: dp-sanity-sync
+        - application: dp-tilbakekreving
         {{#if wonderwalled}}
         - application: wonderwalled-idporten
           namespace: nais
