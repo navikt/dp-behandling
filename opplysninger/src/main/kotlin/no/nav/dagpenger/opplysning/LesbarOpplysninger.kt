@@ -8,12 +8,6 @@ interface LesbarOpplysninger {
 
     val kunEgne: LesbarOpplysninger
 
-    // Hvilken dag dette viewet er avgrenset til (om noe). Satt av OpplysningerView.forDato(),
-    // og brukes av regler som trenger å vite hvilken dag som evalueres akkurat nå - f.eks. for å
-    // avgjøre om en kandidatverdi de vurderer å produsere faktisk vil dekke denne dagen, før de
-    // bestemmer seg for å replanlegge
-    val gjelderFor: LocalDate? get() = null
-
     fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>): Opplysning<T>
 
     fun <T : Any> finnOpplysning(
