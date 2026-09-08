@@ -1085,13 +1085,6 @@ class Behandling private constructor(
                 regelkjøring.evaluer()
             } catch (e: RegelkjøringLoopException) {
                 hendelse.funksjonellFeil("Regelkjøring loop oppdaget: ${e.message}")
-                KotlinLogging.logger {}.warn {
-                    val nyeOpplysninger =
-                        opplysninger
-                            .somListe(Egne)
-                            .joinToString("\n") { it.opplysningstype.behovId + ":" + it.verdi + ":" + it.gyldighetsperiode }
-                    "Regelkjøring loop oppdaget: ${e.message}. Egne opplysninger: $nyeOpplysninger"
-                }
                 avklaringer.leggTil(
                     Avklaring(
                         Avklaringkode(
