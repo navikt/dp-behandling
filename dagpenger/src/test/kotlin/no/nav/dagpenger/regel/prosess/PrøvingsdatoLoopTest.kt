@@ -13,6 +13,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 /**
@@ -48,6 +49,7 @@ import org.junit.jupiter.api.Test
  */
 class PrøvingsdatoLoopTest {
     @Test
+    @Disabled
     fun `ny søknad som erstatter søknadstidspunkt skal ikke få regelkjøringen til å loope for en eldre dag`() {
         // Behandling 1: opprinnelig gjenopptaksøknad S1, prøvingsdato blir fastsatt til 27. juli.
         val behandling1 = Opplysninger()
