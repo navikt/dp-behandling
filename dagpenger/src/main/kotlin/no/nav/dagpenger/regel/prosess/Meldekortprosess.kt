@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.IKontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
@@ -33,6 +34,10 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
                     .maxBy { it <= meldeperiode.fraOgMed }
         val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
 
+        logger.info {
+            "Meldeperiode: $meldeperiode, førsteDagMedRett: $førsteDagMedRett, tilOgMed: ${meldeperiode.tilOgMed}, innvilgelsesdato: $innvilgelsesdato"
+        }
+
         return Regelkjøring(
             regelverksdato = innvilgelsesdato,
             prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = meldeperiode.tilOgMed),
@@ -57,4 +62,8 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
         opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode.fraOgMed }
 
     private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi
+
+    private companion object {
+        private val logger = KotlinLogging.logger { }
+    }
 }
