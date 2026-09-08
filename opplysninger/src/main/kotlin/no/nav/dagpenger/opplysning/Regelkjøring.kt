@@ -235,11 +235,26 @@ class Regelkjøring(
         fun nyPlan(regelkjøringstilstand: Regelkjøringstilstand): Kjøreplan {
             // loop detection
             if (regelkjøringstilstand.plan == siste.plan) {
+                Span.current().addEvent(
+                    "regelkjøring.loop",
+                    Attributes.of(
+                        stringKey("prøvingsdato"),
+                        regelkjøringstilstand.prøvingsdato.toString(),
+                        stringArrayKey("plan"),
+                        regelkjøringstilstand.plan.map { it.produserer.navn },
+                        longKey("historikk"),
+                        historikk.size.toLong(),
+                        stringArrayKey("historiskPlan"),
+                        historikk.flatMap { it.plan.map { regel -> regel.produserer.navn } },
+                    ),
+                )
                 throw RegelkjøringLoopException(
                     """Går i loop! Planlegger samme plan vi har fra før. Planlegger ${siste.prøvingsdato} og vil kjøre:
                     |${siste.plan.joinToString("\n") { it.beskrivMedAvhengigheter(siste.opplysningerPåPrøvingsdato) }}
                     """.trimMargin(),
-                )
+                ).also {
+                    Span.current().recordException(it)
+                }
             }
             return Kjøreplan(siste = regelkjøringstilstand, historikk = historikk.plusElement(siste))
         }
