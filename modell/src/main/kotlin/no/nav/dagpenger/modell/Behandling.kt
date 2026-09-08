@@ -34,7 +34,6 @@ import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.opplysning.Avgjørelse
-import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
@@ -1084,18 +1083,7 @@ class Behandling private constructor(
                 regelkjøring.evaluer()
             } catch (e: RegelkjøringLoopException) {
                 hendelse.funksjonellFeil("Regelkjøring loop oppdaget: ${e.message}")
-                avklaringer.leggTil(
-                    Avklaring(
-                        Avklaringkode(
-                            "REGELKJØRING_LOOP",
-                            "Feil i regelkjøring",
-                            "Det er oppdaget en feil i regelkjøringen som gjør at behandlingen ikke kan ferdigstilles. Kontakt systemansvarlig.",
-                            kanKvitteres = false,
-                        ),
-                    ),
-                )
-                avgjørNesteTilstand(hendelse)
-                return
+                throw e
             }
 
         // Logger hva som skjedde
