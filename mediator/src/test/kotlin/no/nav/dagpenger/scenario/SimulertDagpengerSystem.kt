@@ -62,7 +62,6 @@ internal class SimulertDagpengerSystem(
             ConfigurationMap(
                 mapOf(
                     Configuration.Grupper.saksbehandler.name to oppsett.saksbehandlerGruppe,
-                    Configuration.Maskintilgang.navn.name to oppsett.maskintilgangnavn,
                     Configuration.Grupper.admin.name to oppsett.adminGrupper.joinToString(","),
                     azure_app.client_id.name to TestApplication.CLIENT_ID,
                     azure_app.well_known_url.name to "${TestApplication.mockOAuth2Server.wellKnownUrl(AZUREAD_ISSUER_ID)}",
@@ -147,7 +146,6 @@ internal class SimulertDagpengerSystem(
         var oppgirUtdanning: Boolean = false,
         var saksbehandlerGruppe: String = "dagpenger-saksbehandler",
         var adminGrupper: List<String> = listOf("enkel-admin"),
-        var maskintilgangnavn: String = "test-app",
         var barn: List<ScenarioBarn> = listOf(),
     ) {
         inline fun test(crossinline block: SimulertDagpengerSystem.() -> Unit) {

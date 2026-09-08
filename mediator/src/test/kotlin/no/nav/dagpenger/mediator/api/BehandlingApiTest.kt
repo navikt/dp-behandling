@@ -874,7 +874,6 @@ internal class BehandlingApiTest {
             inntektSiste12Mnd = 350000
             saksbehandlerGruppe = "dagpenger-saksbehandler"
             adminGrupper = listOf("enkel-admin")
-            maskintilgangnavn = "test-app"
         }.test {
             withMockAuthServerAndTestApplication(this.api) { block(this) }
         }
