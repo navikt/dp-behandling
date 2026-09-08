@@ -14,7 +14,7 @@ import java.util.UUID
  */
 internal class OpplysningerView(
     private val source: Opplysninger,
-    private val gjelderFor: LocalDate? = null,
+    override val gjelderFor: LocalDate? = null,
     private val bareEgne: Boolean = false,
 ) : LesbarOpplysninger {
     override val id: UUID get() = source.id

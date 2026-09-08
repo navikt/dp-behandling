@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.forskriftTilFolketrygden
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.egenVerdi
+import no.nav.dagpenger.opplysning.regel.dato.prøvingsdato
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
 import no.nav.dagpenger.opplysning.regel.fraOgMed
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -50,7 +51,7 @@ object Søknadstidspunkt {
             regel(søknadsdato) { fraOgMed(søknadIdOpplysningstype) }
             regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
-            regel(prøvingsdato) { sisteAv(søknadstidspunkt) }
+            regel(prøvingsdato) { prøvingsdato(søknadstidspunkt) }
 
             ønsketResultat(prøvingsdato)
 
