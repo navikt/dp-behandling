@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.BarnetilleggKontroll
@@ -33,6 +34,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.IkkeRegi
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.ManglerReellArbeidssøkerKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.SkalSamordnes
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.SelvforskyldtArbeidsløshetKontroll
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.SjekkPrøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.VirkningstidspunktForLangtFremITid
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.TapArbeidstidBeregningsregelKontroll
@@ -59,14 +61,35 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
                 prøvingsdato
             }
 
-        logger.info { "Regelkjøringsdato=$regelkjøringsdato (prøvingsdato=$prøvingsdato, ubehandlede=$ubehandlede)" }
+        // PrøvingsdatoPlugin kan ha flyttet prøvingsdato fremover forbi perioder som fortsatt hører til
+        // denne behandlingen. Da må endringer saksbehandler gjør i de tidligere periodene fortsatt
+        // evalueres, ellers blir utledede opplysninger der stående utdaterte.
+        val ekstraDatoer =
+            if (prøvingsdatoErFlyttetAvPlugin(opplysninger)) {
+                opplysninger.ubehandledeSaksbehandlerdatoer().filter { it < regelkjøringsdato }
+            } else {
+                emptyList()
+            }
+
+        val regelkjøringsdatoer = (ekstraDatoer + regelkjøringsdato).distinct().sorted()
+
+        logger.info { "Regelkjøringsdatoer=$regelkjøringsdatoer (prøvingsdato=$prøvingsdato, ubehandlede=$ubehandlede)" }
 
         return Regelkjøring(
             regelverksdato = virkningsdato(opplysninger),
-            prøvingsperiode = Regelkjøring.Enkeltdager(regelkjøringsdato),
+            prøvingsperiode = Regelkjøring.Enkeltdager(regelkjøringsdatoer),
             opplysninger = opplysninger,
             forretningsprosess = this,
         )
+    }
+
+    /**
+     * Prøvingsdato utledes normalt av regelmotoren (utledetAv != null) eller settes av saksbehandler
+     * (kilde != null). Er begge tomme, er opplysningen skrevet direkte av PrøvingsdatoPlugin.
+     */
+    private fun prøvingsdatoErFlyttetAvPlugin(opplysninger: Opplysninger): Boolean {
+        val fastsatt = opplysninger.kunEgne.finnNullableOpplysning(Søknadstidspunkt.prøvingsdato) ?: return false
+        return fastsatt.utledetAv == null && fastsatt.kilde == null
     }
 
     override fun kontrollpunkter() =
@@ -115,6 +138,18 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     private fun alder(opplysninger: LesbarOpplysninger): Boolean =
         opplysninger.har(Alderskrav.kravTilAlder) &&
             opplysninger.finnOpplysning(Alderskrav.kravTilAlder).verdi
+
+    /**
+     * Datoer der saksbehandler har lagt inn eller endret en opplysning som ennå ikke er behandlet.
+     * Disse må evalueres selv om de ligger før prøvingsdato, ellers blir utledede opplysninger
+     * stående utdaterte når prøvingsdato har blitt flyttet fremover.
+     */
+    private fun Opplysninger.ubehandledeSaksbehandlerdatoer(): List<LocalDate> =
+        somListe(Egne)
+            .filter { !it.behandlet && it.kilde is Saksbehandlerkilde && !it.gyldighetsperiode.fraOgMed.isEqual(LocalDate.MIN) }
+            .map { it.gyldighetsperiode.fraOgMed }
+            .distinct()
+            .sorted()
 
     companion object {
         private val logger = KotlinLogging.logger { }

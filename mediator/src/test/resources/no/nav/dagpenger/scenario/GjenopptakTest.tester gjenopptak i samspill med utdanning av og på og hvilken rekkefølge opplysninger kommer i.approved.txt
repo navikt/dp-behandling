@@ -40,12 +40,36 @@ Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig
+melding: søknadsbehandling_ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: Ferdig
+Laget avklaring om SkalOmgjøringUtenKlageVurderes
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig
+Laget avklaring om GjenopptakBehandling
+Laget avklaring om HarTilleggsopplysninger
+Opprettet ny behandling
+Behandling endret tilstand til: UnderBehandling
 Behov:
-- ØnskerDagpengerFraDato
-Behov:
+- AndreØkonomiskeYtelser
+- BostedslandErNorge
 - HelseTilAlleTyperJobb
-- Inntekt
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - Lønnsgaranti
@@ -53,39 +77,15 @@ Behov:
 - Permittert
 - PermittertFiskeforedling
 - RegistrertSomArbeidssøker
+- TarUtdanningEllerOpplæring
 - Verneplikt
 - VilligTilÅBytteYrke
+- ØnskerDagpengerFraDato
 - ØnsketArbeidstid
-Behov:
-- AndreØkonomiskeYtelser
-- BostedslandErNorge
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- TarUtdanningEllerOpplæring
-- Uføre
-Behov:
-- BarnetilleggV2
 Behandling endret tilstand til: ForslagTilVedtak
-Laget avklaring om IkkeRegistrertSomArbeidsøker
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Behandling endret tilstand til: Redigert
-Behov:
-- Inntekt
-Behov:
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- Uføre
-Behov:
-- Inntekt
 Behov:
 - ErUtestengt
 - Foreldrepenger
@@ -97,8 +97,9 @@ Behov:
 - Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behov:
-- Inntekt
+Behandling endret tilstand til: ForslagTilVedtak
+Laget avklaring om VirkningstidspunktForLangtFramItid
+Behandling endret tilstand til: Redigert
 Behov:
 - ErUtestengt
 - Foreldrepenger
@@ -110,15 +111,8 @@ Behov:
 - Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behov:
-- Inntekt
-Behov:
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- Uføre
 Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: TilGodkjenning
+Behandling endret tilstand til: TilBeslutning
+Behandling endret tilstand til: Ferdig
+melding: søknadsbehandling_ferdig

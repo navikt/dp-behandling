@@ -10,6 +10,7 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
+import no.nav.dagpenger.mediator.oktober
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -29,6 +30,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode.Periodestatus
 import org.junit.jupiter.api.Test
@@ -465,6 +467,137 @@ class GjenopptakTest {
                 rettighetsperioder[1].harRett shouldBe true
                 rettighetsperioder[1].fraOgMed shouldBe gjenopptaksdato
                 rettighetsperioder[1].tilOgMed.shouldBeNull()
+            }
+        }
+    }
+
+    @Test
+    fun `tester gjenopptak i samspill med utdanning av og på og hvilken rekkefølge opplysninger kommer i`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.juni(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                førteTil shouldBe "Innvilgelse"
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(3)
+            meldekortBatch(markerFerdig = true)
+
+            saksbehandler.omgjørBehandling(27.juli(2026))
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.nyArbeidstid,
+                39.0,
+                begrunnelse = "Har fått mer arbeid",
+                gyldighetsperiode = Gyldighetsperiode(27.juli(2026)),
+            )
+            behovsløsere.løsTilForslag()
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(5) {
+                førteTil shouldBe "Innvilgelse"
+                rettighetsperioder.size shouldBe 2
+            }
+
+            person.søkGjenopptak(11.august(2026), 17.august(2026))
+
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.nyArbeidstid,
+                39.0,
+                begrunnelse = "Har fått mer arbeid",
+                gyldighetsperiode = Gyldighetsperiode(27.juli(2026), 16.august(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                TapAvArbeidsinntektOgArbeidstid.nyArbeidstid,
+                0.0,
+                begrunnelse = "Mister arbeid",
+                gyldighetsperiode = Gyldighetsperiode(17.august(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                Utdanning.tarUtdanning,
+                true,
+                begrunnelse = "Starter utdanning",
+                gyldighetsperiode = Gyldighetsperiode(17.august(2026), 11.oktober(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                Utdanning.tarUtdanning,
+                false,
+                begrunnelse = "Starter utdanning",
+                gyldighetsperiode = Gyldighetsperiode(12.oktober(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(
+                Utdanning.deltakelseIArbeidsmarkedstiltak,
+                true,
+                begrunnelse = "Deltar på arbeidsmarkedstiltak",
+                gyldighetsperiode = Gyldighetsperiode(17.august(2026), 11.oktober(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(6) {
+                førteTil shouldBe "Gjenopptak"
+                rettighetsperioder.size shouldBe 5
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[1].fraOgMed shouldBe 27.juli(2026)
+                rettighetsperioder[1].tilOgMed shouldBe 10.august(2026)
+                rettighetsperioder[1].harRett shouldBe false
+                // Gjenopptakssøknaden 11.august starter en ny rettighetsperiode med samme utfall
+                rettighetsperioder[2].fraOgMed shouldBe 11.august(2026)
+                rettighetsperioder[2].tilOgMed shouldBe 16.august(2026)
+                rettighetsperioder[2].harRett shouldBe false
+                rettighetsperioder[3].fraOgMed shouldBe 17.august(2026)
+                rettighetsperioder[3].tilOgMed shouldBe 11.oktober(2026)
+                rettighetsperioder[3].harRett shouldBe true
+                rettighetsperioder[4].fraOgMed shouldBe 12.oktober(2026)
+                rettighetsperioder[4].tilOgMed.shouldBeNull()
+                rettighetsperioder[4].harRett shouldBe true
+
+                with(opplysninger(Utdanning.kravTilUtdanning).sortedBy { it.gyldigFraOgMed }) {
+                    this shouldHaveSize 3
+                    this[0].gyldigFraOgMed shouldBe 1.juni(2026)
+                    this[0].gyldigTilOgMed shouldBe 16.august(2026)
+                    this[0].verdi.verdi shouldBe true
+
+                    this[1].gyldigFraOgMed shouldBe 17.august(2026)
+                    this[1].gyldigTilOgMed shouldBe 11.oktober(2026)
+                    this[1].verdi.verdi shouldBe true
+
+                    this[2].gyldigFraOgMed shouldBe 12.oktober(2026)
+                    this[2].gyldigTilOgMed.shouldBeNull()
+                    this[2].verdi.verdi shouldBe true
+                }
+
+                with(opplysninger(Søknadstidspunkt.prøvingsdato).sortedBy { it.gyldigFraOgMed }) {
+                    this shouldHaveSize 2
+                    this[0].gyldigFraOgMed shouldBe 1.juni(2026)
+                    this[0].gyldigTilOgMed shouldBe 11.oktober(2026)
+
+                    this[1].gyldigFraOgMed shouldBe 12.oktober(2026)
+                    this[1].gyldigTilOgMed.shouldBeNull()
+                }
             }
         }
     }
