@@ -51,7 +51,7 @@ object Søknadstidspunkt {
             regel(søknadsdato) { fraOgMed(søknadIdOpplysningstype) }
             regel(ønsketdato) { innhentMed(søknadIdOpplysningstype) }
             regel(søknadstidspunkt) { sisteAv(søknadsdato, ønsketdato) }
-            regel(prøvingsdato) { sisteAv(søknadstidspunkt) }
+            regel(prøvingsdato) { prøvingsdato(søknadstidspunkt) }
 
             ønsketResultat(prøvingsdato)
 
