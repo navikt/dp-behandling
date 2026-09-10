@@ -48,7 +48,7 @@ internal class TestSaksbehandler2(
             BesluttBehandlingHendelse(
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = testPerson.ident,
-                behandlingId = testPerson.behandlingId,
+                behandlingId = behandlingId,
                 opprettet = LocalDateTime.now(),
                 besluttetAv = Saksbehandler("NAV987987"),
             ),

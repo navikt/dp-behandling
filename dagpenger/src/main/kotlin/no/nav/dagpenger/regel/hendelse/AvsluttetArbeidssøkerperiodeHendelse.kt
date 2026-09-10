@@ -70,7 +70,9 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                                 else -> "Bruker er ikke lenger registrert som saksbehandler"
                             }
 
-                        val sisteUtfall = forrigeBehandling.vedtakopplysninger.rettighetsperioder.last()
+                        val rettighetsperioder = forrigeBehandling.vedtakopplysninger.rettighetsperioder
+                        logger.info { "Rettighetsperioder : $rettighetsperioder" }
+                        val sisteUtfall = rettighetsperioder.last()
                         // Om saken allerede er stanset kan vi bare oppdatere informasjonen automatisk
                         if (sisteUtfall.harRett) {
                             // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
