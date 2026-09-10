@@ -61,11 +61,13 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
                 prøvingsdato
             }
 
-        // PrøvingsdatoPlugin kan ha flyttet prøvingsdato fremover forbi perioder som fortsatt hører til
-        // denne behandlingen. Da må endringer saksbehandler gjør i de tidligere periodene fortsatt
-        // evalueres, ellers blir utledede opplysninger der stående utdaterte.
+        // Prøvingsdato kan ha hoppet fremover forbi perioder som fortsatt hører til denne behandlingen.
+        // Da må ubehandlede endringer fra saksbehandler i de tidligere periodene fortsatt evalueres,
+        // ellers blir utledede opplysninger der stående utdaterte.
+        //
+        // Se prøvingsdatoErFlyttetFremover for hvordan vi kjenner igjen hoppet.
         val ekstraDatoer =
-            if (prøvingsdatoErFlyttetAvPlugin(opplysninger)) {
+            if (prøvingsdatoErFlyttetFremover(opplysninger)) {
                 opplysninger.ubehandledeSaksbehandlerdatoer().filter { it < regelkjøringsdato }
             } else {
                 emptyList()
@@ -81,15 +83,6 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
             opplysninger = opplysninger,
             forretningsprosess = this,
         )
-    }
-
-    /**
-     * Prøvingsdato utledes normalt av regelmotoren (utledetAv != null) eller settes av saksbehandler
-     * (kilde != null). Er begge tomme, er opplysningen skrevet direkte av PrøvingsdatoPlugin.
-     */
-    private fun prøvingsdatoErFlyttetAvPlugin(opplysninger: Opplysninger): Boolean {
-        val fastsatt = opplysninger.kunEgne.finnNullableOpplysning(Søknadstidspunkt.prøvingsdato) ?: return false
-        return fastsatt.utledetAv == null && fastsatt.kilde == null
     }
 
     override fun kontrollpunkter() =
@@ -138,6 +131,26 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
     private fun alder(opplysninger: LesbarOpplysninger): Boolean =
         opplysninger.har(Alderskrav.kravTilAlder) &&
             opplysninger.finnOpplysning(Alderskrav.kravTilAlder).verdi
+
+    /**
+     * Sant når prøvingsdato har hoppet fremover, og hoppet er et rent hopp: opplysningen gjelder fra
+     * og med sin egen verdi, og den verdien ligger etter søknadstidspunktet den bygger på.
+     *
+     * Kravet om at gyldighetsperioden starter på verdien skiller hoppet fra en prøvingsdato
+     * saksbehandler har satt manuelt. En manuelt satt prøvingsdato gjelder typisk fra en tidligere
+     * dato enn verdien sin, og skal ikke utløse reevaluering bakover — da havner vi i en sirkel der
+     * PrøvingsdatoPlugin flytter datoen fremover igjen for hver runde.
+     *
+     * Sjekken er bevisst uavhengig av hvem som gjorde hoppet: både regelmotoren og PrøvingsdatoPlugin
+     * kan gjøre det, og hvem som rekker først varierer.
+     */
+    private fun prøvingsdatoErFlyttetFremover(opplysninger: Opplysninger): Boolean {
+        val egne = opplysninger.kunEgne
+        val prøvingsdato = egne.finnNullableOpplysning(Søknadstidspunkt.prøvingsdato) ?: return false
+        val søknadstidspunkt = egne.finnNullableOpplysning(Søknadstidspunkt.søknadstidspunkt) ?: return false
+        if (!prøvingsdato.gyldighetsperiode.fraOgMed.isEqual(prøvingsdato.verdi)) return false
+        return prøvingsdato.gyldighetsperiode.fraOgMed.isAfter(søknadstidspunkt.gyldighetsperiode.fraOgMed)
+    }
 
     /**
      * Datoer der saksbehandler har lagt inn eller endret en opplysning som ennå ikke er behandlet.

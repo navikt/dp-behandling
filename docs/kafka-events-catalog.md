@@ -49,7 +49,7 @@ Publiseres når en behandling av en søknad avbrytes uten å bli ferdigstilt
 
 Tynn hendelse med henvisning til søknadId og eventuell årsak. Publiseres på rapid-topicet, ikke via HTTP.
 
-Schema: [`SoknadsbehandlingAvbrutt`](../openapi/src/main/resources/behandling-api.yaml#L2285)
+Schema: [`SoknadsbehandlingAvbrutt`](../openapi/src/main/resources/behandling-api.yaml#L2286)
 
 ### `søknadsbehandling_ferdig`
 
@@ -57,5 +57,5 @@ Publiseres når en behandling av en søknad er ferdigstilt
 
 Tynn hendelse med henvisning til søknadId og utfallet av behandlingen (avgjørelse og rettighetsperioder). Publiseres på rapid-topicet, ikke via HTTP.
 
-Schema: [`SoknadsbehandlingFerdig`](../openapi/src/main/resources/behandling-api.yaml#L2258)
+Schema: [`SoknadsbehandlingFerdig`](../openapi/src/main/resources/behandling-api.yaml#L2259)
 
