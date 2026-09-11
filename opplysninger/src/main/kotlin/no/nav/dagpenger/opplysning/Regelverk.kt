@@ -144,7 +144,9 @@ data class Rettighetsperiode(
     // Perioden overskriver/omgjør en tidligere periode uten rett (samme dato var allerede vurdert som
     // stans). Skiller en reell (men kalendermessig skjult) gjenopptak fra en ren videreføring.
     val opphevetStans: Boolean = false,
-)
+) : Comparable<Rettighetsperiode> {
+    override fun compareTo(other: Rettighetsperiode): Int = fraOgMed.compareTo(other.fraOgMed)
+}
 
 data class Utbetaling(
     val meldeperiode: String,

@@ -1221,7 +1221,7 @@ class Behandling private constructor(
                 basertPåBehandling = basertPåBehandlinger(),
                 behandlingskjedeId = behandlingskjedeId,
                 regelverk = regelverk,
-                rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()),
+                rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()).sorted(),
                 avgjørelse = forretningsprosess.regelverk.avgjørelse(opplysninger()),
                 virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,
