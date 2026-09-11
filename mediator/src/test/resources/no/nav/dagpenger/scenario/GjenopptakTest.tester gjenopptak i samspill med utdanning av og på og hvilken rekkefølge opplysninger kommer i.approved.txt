@@ -53,9 +53,6 @@ Behandling endret tilstand til: Ferdig
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: Ferdig
 Laget avklaring om SkalOmgjøringUtenKlageVurderes
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
@@ -85,8 +82,10 @@ Behov:
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
+Behandling endret tilstand til: ForslagTilVedtak
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
+Behandling endret tilstand til: Redigert
 Behov:
 - ErUtestengt
 - Foreldrepenger
@@ -96,10 +95,6 @@ Behov:
 - Svangerskapspenger
 - Sykepenger
 - Uføre
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
@@ -116,23 +111,8 @@ Behov:
 - Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behov:
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
 melding: søknadsbehandling_ferdig
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: Ferdig
-Opprettet ny behandling
-Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: Ferdig

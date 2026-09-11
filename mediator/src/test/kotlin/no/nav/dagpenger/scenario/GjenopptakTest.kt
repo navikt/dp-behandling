@@ -492,8 +492,6 @@ class GjenopptakTest {
             meldekortBatch(markerFerdig = true)
             person.sendInnMeldekort(3)
             meldekortBatch(markerFerdig = true)
-            person.sendInnMeldekort(4)
-            meldekortBatch(markerFerdig = true)
 
             saksbehandler.omgjørBehandling(27.juli(2026))
             saksbehandler.endreOpplysning(
@@ -503,21 +501,17 @@ class GjenopptakTest {
                 gyldighetsperiode = Gyldighetsperiode(27.juli(2026)),
             )
             behovsløsere.løsTilForslag()
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat(6) {
+            behandlingsresultat(5) {
                 førteTil shouldBe "Innvilgelse"
                 rettighetsperioder.size shouldBe 2
             }
 
             person.søkGjenopptak(11.august(2026), 17.august(2026))
-            behovsløsere.løsTilForslag()
-
-            behandlingsresultatForslag {
-                rettighetsperioder
-            }
 
             saksbehandler.endreOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.nyArbeidstid,
@@ -563,21 +557,23 @@ class GjenopptakTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat(7) {
+            behandlingsresultat(6) {
                 førteTil shouldBe "Gjenopptak"
-                rettighetsperioder.size shouldBe 4
+                rettighetsperioder.size shouldBe 5
                 rettighetsperioder[0].harRett shouldBe true
-                // 27.juli–16.august er én sammenhengende periode uten rett. Gjenopptakssøknaden
-                // 11.august endrer ikke utfallet, og gir derfor ingen egen periode.
                 rettighetsperioder[1].fraOgMed shouldBe 27.juli(2026)
-                rettighetsperioder[1].tilOgMed shouldBe 16.august(2026)
+                rettighetsperioder[1].tilOgMed shouldBe 10.august(2026)
                 rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[2].fraOgMed shouldBe 17.august(2026)
-                rettighetsperioder[2].tilOgMed shouldBe 11.oktober(2026)
-                rettighetsperioder[2].harRett shouldBe true
-                rettighetsperioder[3].fraOgMed shouldBe 12.oktober(2026)
-                rettighetsperioder[3].tilOgMed.shouldBeNull()
+                // Gjenopptakssøknaden 11.august starter en ny rettighetsperiode med samme utfall
+                rettighetsperioder[2].fraOgMed shouldBe 11.august(2026)
+                rettighetsperioder[2].tilOgMed shouldBe 16.august(2026)
+                rettighetsperioder[2].harRett shouldBe false
+                rettighetsperioder[3].fraOgMed shouldBe 17.august(2026)
+                rettighetsperioder[3].tilOgMed shouldBe 11.oktober(2026)
                 rettighetsperioder[3].harRett shouldBe true
+                rettighetsperioder[4].fraOgMed shouldBe 12.oktober(2026)
+                rettighetsperioder[4].tilOgMed.shouldBeNull()
+                rettighetsperioder[4].harRett shouldBe true
 
                 with(opplysninger(Utdanning.kravTilUtdanning).sortedBy { it.gyldigFraOgMed }) {
                     this shouldHaveSize 3
@@ -597,18 +593,12 @@ class GjenopptakTest {
                 with(opplysninger(Søknadstidspunkt.prøvingsdato).sortedBy { it.gyldigFraOgMed }) {
                     this shouldHaveSize 2
                     this[0].gyldigFraOgMed shouldBe 1.juni(2026)
-                    this[0].gyldigTilOgMed shouldBe 16.august(2026)
+                    this[0].gyldigTilOgMed shouldBe 11.oktober(2026)
 
-                    this[1].gyldigFraOgMed shouldBe 17.august(2026)
+                    this[1].gyldigFraOgMed shouldBe 12.oktober(2026)
                     this[1].gyldigTilOgMed.shouldBeNull()
                 }
             }
-            person.sendInnMeldekort(5)
-            meldekortBatch(markerFerdig = true)
-            person.sendInnMeldekort(6)
-            meldekortBatch(markerFerdig = true)
-            person.sendInnMeldekort(7)
-            meldekortBatch(markerFerdig = true)
         }
     }
 }

@@ -134,26 +134,7 @@ abstract class Regel<T : Any> internal constructor(
             harRegelNyeAvhengigheter(utledning) -> {
                 lagPlanNårRegelenHarFåttNyeAvhengigheter(opplysninger, plan, produsenter, besøkt)
             }
-
-            // Produktet er utledet av andre opplysninger enn de som gjelder på denne prøvingsdatoen.
-            // Det skjer når en avhengighet har fått en ny opplysning for en senere periode, mens
-            // produktet fortsatt har en åpen periode som startet tidligere. Produktet er da utdatert
-            // for denne datoen, men verken erstattet eller markert utdatert, så ingen av sjekkene over
-            // fanger det. Regelen må kjøres på nytt slik at produktet splittes på riktig dato.
-            harAndreGjeldendeAvhengigheter(utledning, opplysninger) -> {
-                plan.add(this)
-            }
         }
-    }
-
-    private fun harAndreGjeldendeAvhengigheter(
-        utledetAv: Utledning,
-        opplysninger: LesbarOpplysninger,
-    ): Boolean {
-        val gjeldende = opplysninger.finnFlere(avhengerAv)
-        if (gjeldende.size != avhengerAv.size) return false
-        val brukte = utledetAv.opplysninger.mapTo(mutableSetOf()) { it.id }
-        return gjeldende.any { it.id !in brukte }
     }
 
     private fun harRegelNyeAvhengigheter(utledetAv: Utledning) =
