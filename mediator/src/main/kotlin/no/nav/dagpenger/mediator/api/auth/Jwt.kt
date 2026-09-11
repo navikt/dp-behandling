@@ -12,5 +12,3 @@ internal fun ApplicationCall.saksbehandlerIdOrNull(): String? =
     runCatching { this.authentication.principal<JWTPrincipal>()?.saksbehandlerId() }.getOrNull()
 
 internal fun JWTPayloadHolder.saksbehandlerId(): String = requireNotNull(this.payload.claims["NAVident"]?.asString())
-
-internal fun JWTPayloadHolder.saksbehandlerApp(): String = requireNotNull(this.payload.claims["azp_name"]?.asString())
