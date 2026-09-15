@@ -327,6 +327,42 @@ class KjedescenarioTest {
     }
 
     @Test
+    fun `gjenopptak rett etter innvilgelse med lik verdi slås ikke sammen til én rettighetsperiode`() {
+        // RettighetsperiodePlugin slår sammen kant-i-kant-perioder med lik verdi, men bare når den
+        // faktisk kjører automatikken. Her har innvilgelsen sin harLøpendeRett-periode en åpen
+        // sluttdato likevel avgrenset til 21.juni fordi det ikke er beregnet lenger enn det på
+        // innvilgelsestidspunktet, og gjenopptaket oppretter sin egen harLøpendeRett direkte via
+        // hendelse (med kilde). Det gjør at RettighetsperiodePlugin kortslutter (saksbehandler/
+        // hendelse har "pilla"), og de to periodene forblir separate - selv om de er kant-i-kant og
+        // har lik verdi (true).
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.søkGjenopptak(22.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 2
+
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].tilOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].harRett shouldBe true
+
+                rettighetsperioder[1].fraOgMed shouldBe 22.juni(2018)
+                rettighetsperioder[1].tilOgMed shouldBe null
+                rettighetsperioder[1].harRett shouldBe true
+            }
+        }
+    }
+
+    @Test
     fun `får stans før meldekort`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
