@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
@@ -156,6 +157,72 @@ class GjenopptakTest {
                     this[1].opprinnelse shouldBe Periodestatus.Arvet
                     this[2].opprinnelse shouldBe Periodestatus.Ny
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `bekrefter opphold i Norge på nytt med lik verdi etter meldekort`() {
+        // Saksbehandler bekrefter (domenemessig meningsløst) at bruker fortsatt oppholder seg i
+        // Norge, med samme verdi (true) som allerede gjelder, men fra en senere dato. Dette gir en
+        // ny, kant-i-kant vilkårsopplysning med lik verdi på selve oppholdINorge.
+        //
+        // TidslinjeBygger slår (med slåSammenLike=true) sammen de to like periodene til ÉN
+        // kandidatperiode som starter på den opprinnelige datoen (21.juni), FØR
+        // RettighetsperiodePlugin i det hele tatt ser kandidaten. Kandidaten treffer da
+        // BEHOLD_EKSISTERENDE sin dedup-regel (lik fraOgMed + lik verdi som eksisterende) og
+        // forkastes i sin helhet - rettighetsperioden forblir uendret og fortsatt "Arvet" fra
+        // innvilgelsen. Plugin sin egen kant-i-kant-sammenslåing (erTilstøtendeMedLikVerdi)
+        // kommer med andre ord aldri i spill her, siden TidslinjeBygger allerede har slått
+        // periodene sammen internt før den når fram.
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].harRett shouldBe true
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
+            // Meningsløst i praksis, men gyldig: bekreft opphold i Norge på nytt fra en senere dato
+            person.opprettBehandling(19.juli(2018))
+            saksbehandler.endreOpplysning(
+                oppholdINorge,
+                true,
+                "Bekrefter fortsatt opphold i Norge",
+                Gyldighetsperiode(19.juli(2018)),
+            )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                // Selve vilkårsopplysningen splittes riktig i to kant-i-kant-perioder med lik verdi
+                with(opplysninger(oppholdINorge)) {
+                    this shouldHaveSize 2
+                    this[0].gyldigTilOgMed shouldBe 18.juli(2018)
+                    this[1].gyldigFraOgMed shouldBe 19.juli(2018)
+                }
+
+                // ...men rettighetsperioden er uendret: fortsatt én periode, fortsatt Arvet
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].tilOgMed shouldBe null
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].opprinnelse shouldBe OpprinnelseDTO.ARVET
             }
         }
     }
