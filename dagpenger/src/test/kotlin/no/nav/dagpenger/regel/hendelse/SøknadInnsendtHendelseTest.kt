@@ -28,13 +28,13 @@ class SøknadInnsendtHendelseTest {
 
     @Test
     fun `Arena uten fagsakId gir IkkeOpprettet`() {
-        val resultat = hendelse(fagsakId = null, fagsystem = Fagsystem("Arena")).behandling(null, TemporalCollection())
+        val resultat = hendelse(fagsakId = null, fagsystem = Fagsystem("ARENA")).behandling(null, TemporalCollection())
         resultat shouldBe IkkeOpprettet("Hendelse av type SøknadInnsendtHendelse mangler fagsakId og har ingen behandling å basere seg på")
     }
 
     @Test
     fun `Arena med fagsakId 0 gir IkkeOpprettet`() {
-        val resultat = hendelse(fagsakId = 0, fagsystem = Fagsystem("Arena")).behandling(null, TemporalCollection())
+        val resultat = hendelse(fagsakId = 0, fagsystem = Fagsystem("ARENA")).behandling(null, TemporalCollection())
         resultat shouldBe IkkeOpprettet("Hendelse av type SøknadInnsendtHendelse mangler fagsakId og har ingen behandling å basere seg på")
     }
 
@@ -56,7 +56,7 @@ class SøknadInnsendtHendelseTest {
 
     @Test
     fun `Arena med gyldig fagsakId gir Opprettet med fagsakId-opplysning`() {
-        val resultat = hendelse(fagsakId = 123, fagsystem = Fagsystem("Arena")).behandling(null, TemporalCollection())
+        val resultat = hendelse(fagsakId = 123, fagsystem = Fagsystem("ARENA")).behandling(null, TemporalCollection())
 
         val behandling = (resultat as Opprettet).behandling
         behandling.opplysninger.finnNullableOpplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype)?.verdi shouldBe 123
