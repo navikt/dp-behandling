@@ -14,6 +14,7 @@ import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.TidslinjeBygger
 import no.nav.dagpenger.opplysning.Utledning
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
+import java.time.LocalDate
 
 fun interface PeriodeOverskrivingsStrategi {
     fun skalIkkeLeggesTil(
@@ -64,6 +65,9 @@ class RettighetsperiodePlugin(
         }
 
         val eksisterende = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
+        // Vi trenger siste eksisterende periode for å avgjøre om neste periode er kant-i-kant med den
+        var forrige = eksisterende.maxByOrNull { it.gyldighetsperiode.fraOgMed }
+
         return TidslinjeBygger(utfall)
             .lagPeriode(slåSammenLike) { påDato ->
                 val harVurdertAlle = påDato.map { it.opplysningstype }.containsAll(vilkår)
@@ -81,17 +85,46 @@ class RettighetsperiodePlugin(
                     return@forEach
                 }
 
+                // Om det lages en ny opplysning med samme verdi som ligger kant-i-kant med forrige verdi skal vi bare utvide
+                // rettighetsperioden inne i denne behandlingen, ikke legge til duplikat
+                val skalSlåsSammenMedForrige = erTilstøtendeMedLikVerdi(forrige, gyldighetsperiode, periode.verdi)
+                val faktiskGyldighetsperiode =
+                    if (skalSlåsSammenMedForrige) {
+                        Gyldighetsperiode(forrige!!.gyldighetsperiode.fraOgMed, gyldighetsperiode.tilOgMed)
+                    } else {
+                        gyldighetsperiode
+                    }
+
                 loggVilkårsvurdering(vilkår, utfall, kontekst)
 
-                opplysninger.leggTil(
+                val nyPeriode =
                     Faktum(
                         KravPåDagpenger.harLøpendeRett,
                         periode.verdi,
-                        gyldighetsperiode,
+                        faktiskGyldighetsperiode,
                         Utledning(this.javaClass.simpleName, utfall),
-                    ),
-                )
+                    )
+                opplysninger.leggTil(nyPeriode)
+
+                // Oppdater forrige til den nyeste perioden vi har lagt til, slik at neste periode kan avgjøre om den er kant-i-kant med denne.
+                forrige = nyPeriode
             }
+    }
+
+    /**
+     * Er `forrige` kant-i-kant med den nye, åpne perioden, og har samme verdi? Vi ser bevisst bare på
+     * den ene forrige perioden - ikke alle eksisterende - slik at vi aldri hopper bakover forbi en
+     * reell historisk overgang (f.eks. en stans) og smelter sammen med en eldre periode som
+     * tilfeldigvis også grenser til samme dato.
+     */
+    private fun erTilstøtendeMedLikVerdi(
+        forrige: Opplysning<Boolean>?,
+        gyldighetsperiode: Gyldighetsperiode,
+        verdi: Boolean,
+    ): Boolean {
+        if (forrige == null) return false
+        if (gyldighetsperiode.tilOgMed != LocalDate.MAX) return false
+        return forrige.verdi == verdi && forrige.gyldighetsperiode.tilstøter(gyldighetsperiode)
     }
 
     override fun toSpesifikkKontekst() =
