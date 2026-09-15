@@ -100,4 +100,34 @@ class RettighetsperiodePluginTest {
         perioder[2].gyldighetsperiode shouldBe Gyldighetsperiode(15.januar(2018))
         perioder[2].verdi shouldBe true
     }
+
+    @Test
+    fun `slår sammen en ny periode som er kant-i-kant med en arvet periode med lik verdi og åpen sluttdato`() {
+        val plugin = RettighetsperiodePlugin(regelverk)
+
+        // Behandling 1: utfall2 mangler vurdering etter 10. januar, så perioden blir bundet (ikke MAX)
+        val behandling1 =
+            Opplysninger().apply {
+                leggTil(Faktum(utfall1, true, Gyldighetsperiode(1.januar(2018))))
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(1.januar(2018), 10.januar(2018))))
+            }
+        plugin.regelkjøringFerdig(Prosesskontekst(behandling1))
+        val arvetPeriode = behandling1.finnAlle(harLøpendeRett)
+        arvetPeriode shouldHaveSize 1
+        arvetPeriode[0].gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2018), 10.januar(2018))
+
+        // Behandling 2: viderefører samme verdi (true) fra dagen etter, uten opphold, åpen sluttdato
+        val behandling2 =
+            Opplysninger.basertPå(behandling1).apply {
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(11.januar(2018))))
+            }
+        plugin.regelkjøringFerdig(Prosesskontekst(behandling2))
+
+        val perioder = behandling2.finnAlle(harLøpendeRett)
+
+        // Skal være ÉN sammenhengende periode, ikke to kant-i-kant perioder med lik verdi
+        perioder shouldHaveSize 1
+        perioder[0].gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2018))
+        perioder[0].verdi shouldBe true
+    }
 }

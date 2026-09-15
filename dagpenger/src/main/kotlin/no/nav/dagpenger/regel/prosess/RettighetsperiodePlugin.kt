@@ -25,7 +25,20 @@ fun interface PeriodeOverskrivingsStrategi {
     companion object {
         val BEHOLD_EKSISTERENDE =
             PeriodeOverskrivingsStrategi { eksisterende, gyldighetsperiode, periode ->
-                eksisterende.any { it.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && it.verdi == periode.verdi }
+                // Vi tillater bare at en periode "vokser" videre (samme fraOgMed, men lengre/åpen
+                // tilOgMed) når den utvider den nyeste (siste) eksisterende perioden. Det garanterer at
+                // vi aldri overskriver flere eldre perioder på én gang - noe som ville visket ut en
+                // reell historisk overgang (f.eks. en stans etterfulgt av gjenopptak), se
+                // GjenopptakTest/EksportTest. For alle andre tilfeller beholdes den opprinnelige,
+                // konservative regelen: enhver periode med lik fraOgMed og verdi hopper vi over.
+                val nyeste = eksisterende.maxByOrNull { it.gyldighetsperiode.fraOgMed }
+                val utviderNyeste =
+                    nyeste != null &&
+                        nyeste.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed &&
+                        nyeste.verdi == periode.verdi &&
+                        nyeste.gyldighetsperiode.tilOgMed < gyldighetsperiode.tilOgMed
+                !utviderNyeste &&
+                    eksisterende.any { it.gyldighetsperiode.fraOgMed == gyldighetsperiode.fraOgMed && it.verdi == periode.verdi }
             }
         val OVERSKRIV_ALLTID = PeriodeOverskrivingsStrategi { _, _, _ -> false }
     }
