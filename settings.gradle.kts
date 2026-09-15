@@ -10,7 +10,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            from("no.nav.dagpenger:dp-version-catalog:20260914.297")
+            from("no.nav.dagpenger:dp-version-catalog:20260915.298")
             // om du vil teste nye versjoner før de merges til version-catalog, kan det gjøres slik:
             // version("ktor", "3.5.1")
 
