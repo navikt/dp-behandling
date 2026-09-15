@@ -81,7 +81,7 @@ class SøknadInnsendtMessage(
         packet["fagsystem"].let { node ->
             // Historisk sett har alle søknader kommet fra Arena, og feltet er ikke alltid satt av produsent.
             // Fraværende fagsystem tolkes derfor som Arena for å bevare eksisterende oppførsel.
-            if (node.isMissingNode) Fagsystem("Arena") else Fagsystem(node.stringValue())
+            if (node.isMissingNode) Fagsystem("ARENA") else Fagsystem(node.stringValue())
         }
 
     private val fagsakId =
@@ -108,7 +108,7 @@ class SøknadInnsendtMessage(
         value class Fagsystem(
             val navn: String,
         ) {
-            fun erArena() = navn == "Arena"
+            fun erArena() = navn == "ARENA"
         }
     }
 }
