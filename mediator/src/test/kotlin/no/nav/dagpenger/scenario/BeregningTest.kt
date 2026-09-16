@@ -346,11 +346,8 @@ class BeregningTest {
 
             saksbehandler.omgjørBehandling(6.juli(2018))
 
-            // Vilkår blir vurderte som ikke oppfylt
+            // Vilkår blir vurderte som ikke oppfylt, rettighetsperiode stanses automatisk som følge av dette
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "", Gyldighetsperiode(8.juli(2018)))
-
-            // Behandlingen av meldekort har stoppet opp og vi endrer rettighetsperiode på grunn av stans
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "", Gyldighetsperiode(8.juli(2018)))
 
             // Verifiser at behandlingen nå bare beregner et subset av meldeperioden
             behandlingsresultatForslag {
