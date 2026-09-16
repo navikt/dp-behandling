@@ -44,7 +44,7 @@ class RettighetsperiodePlugin(
         val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 
-        if (harSaksbehandlerEllerHendelsePillet(egne)) return
+        if (harSaksbehandlerKilde(egne)) return
 
         val vilkår = regelverk.relevanteVilkår(opplysninger).mapNotNull { it.utfall }
         val utfall = finnVurdertUtfall(opplysninger, vilkår)
@@ -70,8 +70,13 @@ class RettighetsperiodePlugin(
             }
     }
 
-    // Om saksbehandler eller hendelse har pilla, skal vi ikke overstyre med automatikk
-    private fun harSaksbehandlerEllerHendelsePillet(egne: LesbarOpplysninger): Boolean {
+    // Automatikken skal aldri overstyre en periode som er satt av noe annet enn seg selv (kilde != null).
+    // I dag er `harLøpendeRett` fjernet fra saksbehandlers redigerbare opplysninger (se
+    // BehandlingApiMapper.redigerbareOpplysninger), og ingen hendelse setter den direkte heller
+    // - så sjekken slår aldri til i praksis. Den beholdes som et sikkerhetsnett: om redigeringstilgangen
+    // gjeninnføres, eller en fremtidig hendelse setter perioden direkte, skal den fortsatt vinne over
+    // automatikken.
+    private fun harSaksbehandlerKilde(egne: LesbarOpplysninger): Boolean {
         val harPerioder = egne.har(KravPåDagpenger.harLøpendeRett)
         return harPerioder && egne.finnOpplysning(KravPåDagpenger.harLøpendeRett).kilde != null
     }
