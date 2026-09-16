@@ -5,7 +5,9 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.PeriodisertVerdi
 import no.nav.dagpenger.opplysning.ProsessPlugin
@@ -42,56 +44,70 @@ class RettighetsperiodePlugin(
         val opplysninger = kontekst.opplysninger
         val egne = opplysninger.kunEgne
 
-        // Om saksbehandler eller hendelse har pilla, skal vi ikke overstyre med automatikk
-        val harPerioder = egne.har(KravPåDagpenger.harLøpendeRett)
-        val harPilla = harPerioder && egne.finnOpplysning(KravPåDagpenger.harLøpendeRett).kilde != null
-        if (harPilla) return
+        if (harSaksbehandlerKilde(egne)) return
 
-        val vilkår =
-            regelverk
-                .relevanteVilkår(opplysninger)
-                .mapNotNull { it.utfall }
+        val vilkår = regelverk.relevanteVilkår(opplysninger).mapNotNull { it.utfall }
+        val utfall = finnVurdertUtfall(opplysninger, vilkår)
 
-        val utfall =
-            opplysninger
-                .somListe()
-                .filter { it.opplysningstype in vilkår }
-                .filterIsInstance<Opplysning<Boolean>>()
-
-        // Fjern gamle perioder før vi legger til nye
-        egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
-            opplysninger.fjern(it.id)
-        }
+        fjernEgneRettighetsperioder(opplysninger, egne)
 
         val eksisterende = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
-        return TidslinjeBygger(utfall)
-            .lagPeriode(slåSammenLike) { påDato ->
-                val harVurdertAlle = påDato.map { it.opplysningstype }.containsAll(vilkår)
-                if (!harVurdertAlle) return@lagPeriode null
+        val kandidatperioder =
+            TidslinjeBygger(utfall).lagPeriode(slåSammenLike) { påDato -> alleVilkårOppfylt(vilkår, påDato) }
 
-                val alleVilkårOppfylt = påDato.all { it.verdi }
-                alleVilkårOppfylt
-            }.forEach { periode ->
-                val gyldighetsperiode = Gyldighetsperiode(periode.fraOgMed, periode.tilOgMed)
-                require(gyldighetsperiode.harStartdato) { "Rettighetsperioder kan ikke begynne fra LocalDate.MIN" }
-
-                // Ikke legg til perioder som har lik fra- og med eksisterende perioder med samme verdi
-                // Denne unngår at vi legger til en forkortet rettighetsperiode men lener oss på "uterstatning" logikk i opplysninger.
-                if (overskrivingsStrategi.skalIkkeLeggesTil(eksisterende, gyldighetsperiode, periode)) {
-                    return@forEach
-                }
-
+        RettighetsperiodeUtleder
+            .utledNyeRettighetsperioder(eksisterende, kandidatperioder, overskrivingsStrategi)
+            .forEach { nyPeriode ->
                 loggVilkårsvurdering(vilkår, utfall, kontekst)
-
                 opplysninger.leggTil(
                     Faktum(
                         KravPåDagpenger.harLøpendeRett,
-                        periode.verdi,
-                        gyldighetsperiode,
+                        nyPeriode.verdi,
+                        nyPeriode.gyldighetsperiode,
                         Utledning(this.javaClass.simpleName, utfall),
                     ),
                 )
             }
+    }
+
+    // Automatikken skal aldri overstyre en periode som er satt av noe annet enn seg selv (kilde != null).
+    // I dag er `harLøpendeRett` fjernet fra saksbehandlers redigerbare opplysninger (se
+    // BehandlingApiMapper.redigerbareOpplysninger), og ingen hendelse setter den direkte heller
+    // - så sjekken slår aldri til i praksis. Den beholdes som et sikkerhetsnett: om redigeringstilgangen
+    // gjeninnføres, eller en fremtidig hendelse setter perioden direkte, skal den fortsatt vinne over
+    // automatikken.
+    private fun harSaksbehandlerKilde(egne: LesbarOpplysninger): Boolean {
+        val harPerioder = egne.har(KravPåDagpenger.harLøpendeRett)
+        return harPerioder && egne.finnOpplysning(KravPåDagpenger.harLøpendeRett).kilde != null
+    }
+
+    private fun finnVurdertUtfall(
+        opplysninger: LesbarOpplysninger,
+        vilkår: List<Opplysningstype<Boolean>>,
+    ): List<Opplysning<Boolean>> =
+        opplysninger
+            .somListe()
+            .filter { it.opplysningstype in vilkår }
+            .filterIsInstance<Opplysning<Boolean>>()
+
+    private fun alleVilkårOppfylt(
+        vilkår: List<Opplysningstype<Boolean>>,
+        påDato: Collection<Opplysning<Boolean>>,
+    ): Boolean? {
+        val harVurdertAlle = påDato.map { it.opplysningstype }.containsAll(vilkår)
+        if (!harVurdertAlle) return null
+        return påDato.all { it.verdi }
+    }
+
+    // Vi bygger hele tidslinja av rettighetsperioder på nytt for hver regelkjøring, så gamle egne
+    // perioder må fjernes først - ellers vil de henge igjen som duplikater ved siden av de nye.
+    private fun fjernEgneRettighetsperioder(
+        opplysninger: Opplysninger,
+        egne: LesbarOpplysninger,
+    ) {
+        egne.finnAlle(KravPåDagpenger.harLøpendeRett).forEach {
+            opplysninger.fjern(it.id)
+        }
     }
 
     override fun toSpesifikkKontekst() =

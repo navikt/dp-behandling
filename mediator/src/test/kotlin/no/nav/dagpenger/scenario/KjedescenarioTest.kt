@@ -327,6 +327,46 @@ class KjedescenarioTest {
     }
 
     @Test
+    fun `gjenopptak rett etter innvilgelse med lik verdi slås ikke sammen til én rettighetsperiode`() {
+        // RettighetsperiodePlugin kjører automatikken helt normalt her - gjenopptaket "piller" ikke
+        // harLøpendeRett direkte, det setter bare skalGjenopptakVurderes og lar vilkårene vurderes på
+        // vanlig måte. At periodene likevel forblir to atskilte (21.juni og 22.juni-MAX, begge true)
+        // skyldes to ting i kombinasjon:
+        // 1. Kandidatperiode 21.juni-21.juni matcher eksisterende (fraOgMed + verdi) og blir derfor
+        //    forkastet av BEHOLD_EKSISTERENDE-dedupen - "forrige" forblir den arvede 21.juni-MAX.
+        // 2. Kandidatperiode 22.juni-MAX blir IKKE slått sammen med "forrige" (21.juni-MAX), fordi
+        //    Gyldighetsperiode.tilstøter() ikke klarer å avgjøre at to åpne (MAX) sluttdatoer ligger
+        //    kant-i-kant - den krever at minst én side har en konkret sluttdato å regne "neste dag" fra.
+        // Resultatet er domenemessig riktig (en innvilgelse og et påfølgende gjenopptak er to separate
+        // rettighetsperioder), men av en litt tilfeldig teknisk årsak snarere enn bevisst design.
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.søkGjenopptak(22.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 2
+
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].tilOgMed shouldBe 21.juni(2018)
+                rettighetsperioder[0].harRett shouldBe true
+
+                rettighetsperioder[1].fraOgMed shouldBe 22.juni(2018)
+                rettighetsperioder[1].tilOgMed shouldBe null
+                rettighetsperioder[1].harRett shouldBe true
+            }
+        }
+    }
+
+    @Test
     fun `får stans før meldekort`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
