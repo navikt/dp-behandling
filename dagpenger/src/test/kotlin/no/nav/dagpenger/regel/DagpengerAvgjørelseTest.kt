@@ -373,6 +373,27 @@ internal class DagpengerAvgjørelseTest {
     }
 
     @Test
+    fun `avslag når hele den innvilgede perioden omgjøres retroaktivt til avslag`() {
+        // Speiler KjedescenarioTest sitt "Gjenopptak som fører til ny sak": en revurdering finner at
+        // vilkåret aldri var oppfylt, og omgjør HELE den opprinnelige (og eneste) innvilgede perioden -
+        // med samme fraOgMed - til avslag. I motsetning til `omgjøring til avslag` overlever INGEN del
+        // av den opprinnelige retten noe sted i det endelige, flate resultatet (kun én periode igjen,
+        // og den er false). Dette er en fullstendig retroaktiv tilbakevisning, ikke en stans av en rett
+        // som faktisk eksisterte en stund - derfor Avslag, ikke Stans.
+        val forrige =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(21.juni(2018))))
+            }
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                // Samme fraOgMed som originalen - erstatter den fullstendig, ingen rest av rett igjen
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(21.juni(2018))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Avslag
+    }
+
+    @Test
     fun `stans når kun den andre av to arvede perioder omgjøres`() {
         // Tre behandlinger i kjede: (1) innvilget i januar, (2) stans f.o.m. mars (arver januar uendret),
         // (3) omgjør BARE mars-perioden til fortsatt innvilget. Forrige tilstand for avgjørelsen i (3)

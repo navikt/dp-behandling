@@ -135,6 +135,14 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     // Ingen nye perioder betyr at forrige avgjørelse videreføres uendret, f.eks. ved meldekort
     if (nye.isEmpty()) return Avgjørelse.Endring
 
+    // Den kronologisk siste perioden er den reelle, gjeldende statusen - uavhengig av om den er ny eller arvet
+    val gjeldendePeriode = perioder.last()
+
+    // Hvis den gjeldende perioden er arvet (ikke ny), er de nye periodene i realiteten tilbakedaterte og
+    // fullstendig overstyrt av en allerede kjent, senere periode som ikke er endret nå. Da har den gjeldende
+    // statusen ikke endret seg, uansett hva de nye periodene selv sier - altså bare en Endring.
+    if (!gjeldendePeriode.endret) return Avgjørelse.Endring
+
     val forrigePeriode = arvede.lastOrNull()
 
     // Forrige tilstand er hva som faktisk lå der rett før den første nye endringen. Om den nye
@@ -152,16 +160,15 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
         return if (nye.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
     }
 
-    // Den kronologisk siste perioden er den reelle, gjeldende statusen - uavhengig av om den er ny eller arvet
-    val gjeldendePeriode = perioder.last()
-
-    // Hvis den gjeldende perioden er arvet (ikke ny), er de nye periodene i realiteten tilbakedaterte og
-    // fullstendig overstyrt av en allerede kjent, senere periode som ikke er endret nå. Da har den gjeldende
-    // statusen ikke endret seg, uansett hva de nye periodene selv sier - altså bare en Endring.
-    if (!gjeldendePeriode.endret) return Avgjørelse.Endring
-
     return when {
-        // Hadde rett fra før, men ender nå uten rett
+        // Hadde rett fra før, men ender nå uten rett OG ingen periode i det endelige, flate resultatet
+        // (verken arvet eller ny) har rett lenger. Dette er i realiteten en fullstendig retroaktiv
+        // tilbakevisning - retten er tatt bort for hele perioden den noensinne gjaldt, ikke bare stanset
+        // et sted underveis - så det er riktigere å kalle det Avslag enn Stans.
+        forrigeHarRett && !gjeldendePeriode.harRett && perioder.none { it.harRett } -> Avgjørelse.Avslag
+
+        // Hadde rett fra før, men ender nå uten rett - og minst én periode viser fortsatt at retten
+        // faktisk eksisterte en periode
         forrigeHarRett && !gjeldendePeriode.harRett -> Avgjørelse.Stans
 
         // Hadde rett fra før, og har fortsatt rett - men med et reelt opphold mellom periodene. Kan bare
