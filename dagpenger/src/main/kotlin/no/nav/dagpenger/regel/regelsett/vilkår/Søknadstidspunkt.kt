@@ -56,6 +56,7 @@ object Søknadstidspunkt {
             ønsketResultat(prøvingsdato)
 
             avklaring(Avklaringspunkter.VirkningstidspunktForLangtFramITid)
+            avklaring(Avklaringspunkter.SjekkPrøvingsdato)
         }
 
     val VirkningstidspunktForLangtFremITid =
