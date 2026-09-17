@@ -354,4 +354,75 @@ internal class DagpengerAvgjørelseTest {
 
         RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Stans
     }
+
+    @Test
+    fun `omgjøring til avslag`() {
+        // Uansett gap mellom periodene skal en overgang fra rett til ikke-rett alltid regnes som Stans -
+        // gapet er bare avgjørende for rett-til-rett-tilfellet (se harReeltOppholdEtter).
+        val forrige =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(3.august(2026))))
+            }
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(3.august(2026), 16.august(2026))))
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(17.august(2026))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Stans
+    }
+
+    @Test
+    fun `stans når kun den andre av to arvede perioder omgjøres`() {
+        // Tre behandlinger i kjede: (1) innvilget i januar, (2) stans f.o.m. mars (arver januar uendret),
+        // (3) omgjør BARE mars-perioden til fortsatt innvilget. Forrige tilstand for avgjørelsen i (3)
+        // skal leses fra det mars-perioden faktisk erstattet (stans, fra behandling 2), ikke fra den
+        // første, urelaterte arvede perioden (januar-innvilgelsen) - selv om den fortsatt er den siste
+        // *uendrede* arvede perioden i (3).
+        val innvilget =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.januar(2024), 29.februar(2024))))
+            }
+        val stanset =
+            Opplysninger.basertPå(innvilget).apply {
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.mars(2024))))
+            }
+        RegelverkDagpenger.avgjørelse(stanset) shouldBe Avgjørelse.Stans
+
+        val opplysninger =
+            Opplysninger.basertPå(stanset).apply {
+                // Samme fraOgMed som den arvede stansen - omgjør den fullstendig til fortsatt innvilget
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.mars(2024))))
+            }
+
+        // Forrige tilstand (stans) → fortsatt rett nå = Gjenopptak, ikke Endring
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Gjenopptak
+    }
+
+    @Test
+    fun `endring når omgjøring av arvet periode ikke faktisk endrer sannhetsverdien`() {
+        // Tre behandlinger i kjede: (1) avslag i januar, (2) gjenopptak (rett) f.o.m. mars (arver januar
+        // uendret), (3) "omgjør" BARE mars-perioden - men til samme verdi (fortsatt rett). Forrige
+        // tilstand skal leses fra det mars-perioden faktisk erstattet (rett, fra behandling 2), ikke fra
+        // den urelaterte januar-perioden (avslag) - ellers ville vi feilaktig konkludert med Gjenopptak
+        // i stedet for Endring, siden januar-perioden (arvede.lastOrNull()) villedende ser ut som "siste
+        // kjente tilstand".
+        val avslått =
+            Opplysninger().apply {
+                leggTil(Faktum(harLøpendeRett, false, Gyldighetsperiode(1.januar(2024), 29.februar(2024))))
+            }
+        val forrige =
+            Opplysninger.basertPå(avslått).apply {
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.mars(2024))))
+            }
+        RegelverkDagpenger.avgjørelse(forrige) shouldBe Avgjørelse.Gjenopptak
+
+        val opplysninger =
+            Opplysninger.basertPå(forrige).apply {
+                // Samme fraOgMed og samme verdi som den arvede mars-perioden - ingen reell endring
+                leggTil(Faktum(harLøpendeRett, true, Gyldighetsperiode(1.mars(2024))))
+            }
+
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Endring
+    }
 }

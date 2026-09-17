@@ -29,8 +29,8 @@ class RettighetsperiodeTest {
 
     @Test
     fun `beholder rekkefølgen for perioder med lik fraOgMed`() {
-        val original = Rettighetsperiode(1.januar, 31.januar, harRett = true, endret = false, opphevetStans = false)
-        val omgjort = Rettighetsperiode(1.januar, 31.januar, harRett = false, endret = true, opphevetStans = true)
+        val original = Rettighetsperiode(1.januar, 31.januar, harRett = true, endret = false)
+        val omgjort = Rettighetsperiode(1.januar, 31.januar, harRett = false, endret = true, erstatterHarRett = true)
 
         listOf(omgjort, original).sorted().shouldContainExactly(omgjort, original)
     }

@@ -141,9 +141,14 @@ data class Rettighetsperiode(
     val tilOgMed: LocalDate,
     val harRett: Boolean,
     val endret: Boolean,
-    // Perioden overskriver/omgjør en tidligere periode uten rett (samme dato var allerede vurdert som
-    // stans). Skiller en reell (men kalendermessig skjult) gjenopptak fra en ren videreføring.
-    val opphevetStans: Boolean = false,
+    // harRett-verdien til perioden denne erstatter, om noen (null om perioden ikke erstatter noe).
+    // Brukes til to formål:
+    // 1) Skille en reell (men kalendermessig skjult) gjenopptak fra en ren videreføring, når perioden
+    //    opphever en tidligere kjent stans (erstatterHarRett == false) - se harReeltOppholdEtter.
+    // 2) Avgjøre forrige tilstand når en tidligere periode er fullstendig omgjort/restatert i samme
+    //    behandling (samme fraOgMed, men f.eks. kortere varighet) - da overlever ingen arvet (uendret)
+    //    periode å sammenligne med.
+    val erstatterHarRett: Boolean? = null,
 ) : Comparable<Rettighetsperiode> {
     override fun compareTo(other: Rettighetsperiode): Int = fraOgMed.compareTo(other.fraOgMed)
 }
