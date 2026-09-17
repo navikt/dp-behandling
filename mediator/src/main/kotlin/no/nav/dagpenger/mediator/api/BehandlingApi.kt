@@ -97,6 +97,7 @@ import no.nav.dagpenger.regel.hendelse.KlagebehandlingHendelse
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.regel.prosess.Manuellprosess
+import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.utestengning.Utestengningsprosess
@@ -636,7 +637,9 @@ internal fun Application.behandlingApi(
 
                             if (opplysningstype.er(prøvingsdato)) {
                                 if (behandling.opplysninger.kunEgne.finnNullableOpplysning(prøvingsdato) == null) {
-                                    throw KanIkkeEndrePrøvingsdatoException()
+                                    if (behandling.behandler.forretningsprosess.javaClass != Omgjøringsprosess::class.java) {
+                                        throw KanIkkeEndrePrøvingsdatoException()
+                                    }
                                 }
                                 val søknadId = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
                                 if (søknadId != null) {
