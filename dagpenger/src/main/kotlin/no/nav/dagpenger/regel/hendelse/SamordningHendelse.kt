@@ -34,10 +34,10 @@ class SamordningHendelse(
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): StartHendelseResultat {
         if (!rettighetstatus.harAktivRettighet(skjedde)) {
-            return IkkeOpprettet("Samordningshendelse av type $type overlapper med en aktiv rettighetsperiode fra $skjedde")
+            return IkkeOpprettet("Samordningshendelse overlapper ikke med en aktiv rettighetsperiode fra $skjedde")
         }
         if (forrigeBehandling == null) {
-            return IkkeOpprettet("Hendelse av type $type kan ikke starte en ny behandlingskjede uten en tidligere behandling")
+            return IkkeOpprettet("Samordningshendelse kan ikke starte en ny behandlingskjede uten en tidligere behandling")
         }
 
         begrunnelse?.let { info("Begrunnelse for opprettelse: $it") }

@@ -28,7 +28,7 @@ class SamordningHendelseTest {
         val resultat = hendelse().behandling(null, TemporalCollection())
 
         resultat shouldBe
-            IkkeOpprettet("Hendelse av type SamordningHendelse kan ikke starte en ny behandlingskjede uten en tidligere behandling")
+            IkkeOpprettet("Samordningshendelse overlapper ikke med en aktiv rettighetsperiode fra $gjelderDato")
     }
 
     @Test
@@ -42,7 +42,7 @@ class SamordningHendelseTest {
         val resultat = hendelse().behandling(null, rettighetstatus)
 
         resultat shouldBe
-            IkkeOpprettet("Samordningshendelse av type SamordningHendelse overlapper med en aktiv rettighetsperiode fra $gjelderDato")
+            IkkeOpprettet("Samordningshendelse kan ikke starte en ny behandlingskjede uten en tidligere behandling")
     }
 
     @Test
@@ -55,6 +55,6 @@ class SamordningHendelseTest {
         val resultat = hendelse().behandling(null, rettighetstatus)
 
         resultat shouldBe
-            IkkeOpprettet("Hendelse av type SamordningHendelse kan ikke starte en ny behandlingskjede uten en tidligere behandling")
+            IkkeOpprettet("Samordningshendelse overlapper ikke med en aktiv rettighetsperiode fra $gjelderDato")
     }
 }
