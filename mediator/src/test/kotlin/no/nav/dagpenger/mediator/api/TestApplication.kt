@@ -34,6 +34,7 @@ object TestApplication {
                     mapOf(
                         "idtyp" to "app",
                         "azp_name" to app,
+                        "roles" to listOf("access_as_application"),
                     ),
             ).serialize()
 
