@@ -41,6 +41,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.kanJobbeHvorS
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalReellArbeidssøkerVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.samordnetArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
@@ -607,6 +608,32 @@ class ScenarioTest {
             with(saksbehandler.åpneAvklaringer().single()) {
                 kode shouldBe "ManuellBehandling"
                 beskrivelse shouldContain "SYK"
+            }
+        }
+    }
+
+    @Test
+    fun `samordnet arbeidstid skal ikke påvirke fastsatt vanlig arbeidstid når ingenting skal samordnes`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+
+            behandlingsresultatForslag {
+                // Ingen ytelser er registrert, så det skal ikke samordnes
+                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
+            }
+
+            // Saksbehandler har likevel satt en samordnet arbeidstid (f.eks. lagt igjen fra en tidligere vurdering)
+            saksbehandler.endreOpplysning(samordnetArbeidstid, 10.0)
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                // Bug: samordnetArbeidstid trekkes fra fastsatt vanlig arbeidstid selv om det ikke skal samordnes
+                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
             }
         }
     }
