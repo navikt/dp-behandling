@@ -7,7 +7,7 @@ dependencies {
     implementation(project(":dag"))
     implementation(project(":dato"))
     implementation(project(":uuid-v7"))
-    api("com.github.navikt:dp-inntekt-kontrakter:2_20251211.17f9d7")
+    api("com.github.navikt:dp-inntekt-kontrakter:2_202609181789745424.d9cfdc")
     api("org.javamoney:moneta:1.4.5")
     api(libs.dp.grunnbelop)
     api(libs.kotlin.logging)
