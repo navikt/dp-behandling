@@ -44,7 +44,7 @@ Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
 melding: søknadsbehandling_ferdig
-Laget avklaring om ManuellBehandling
+Laget avklaring om MuligSamordning
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak

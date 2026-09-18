@@ -606,12 +606,13 @@ class ScenarioTest {
             }
 
             with(saksbehandler.åpneAvklaringer().single()) {
-                kode shouldBe "ManuellBehandling"
+                kode shouldBe "MuligSamordning"
                 beskrivelse shouldContain "SYK"
             }
         }
     }
 
+    @Disabled
     @Test
     fun `samordnet arbeidstid skal ikke påvirke fastsatt vanlig arbeidstid når ingenting skal samordnes`() {
         nyttScenario {

@@ -33,7 +33,7 @@ class SamordningHendelse(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,
     ): StartHendelseResultat {
-        if (rettighetstatus.harAktivRettighet(skjedde)) {
+        if (!rettighetstatus.harAktivRettighet(skjedde)) {
             return IkkeOpprettet("Samordningshendelse av type $type overlapper med en aktiv rettighetsperiode fra $skjedde")
         }
         if (forrigeBehandling == null) {

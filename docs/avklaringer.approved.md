@@ -337,6 +337,8 @@ Vi har funnet andre ytelser fra folketrygden. <br>Vurder om, og eventuelt hvorda
 ### Beskrivelse
 Sjekk at valgt prøvingsdato er riktig.
 
+### Tilknyttet regelsett
+- [§ 3-1. Søknadstidspunkt](./opplysninger.approved.md#-3-1-søknadstidspunkt)
 ### Opplysninger avklaringen ser på
 - Prøvingsdato
 
