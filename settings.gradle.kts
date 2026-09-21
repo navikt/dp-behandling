@@ -24,7 +24,7 @@ dependencyResolutionManagement {
                 "io.opentelemetry.instrumentation",
                 "opentelemetry-instrumentation-annotations",
             ).versionRef("otel-instrumentation")
-            library("dp-grunnbelop", "no.nav.dagpenger", "dp-grunnbelop").version("20260529.285.e99922")
+            library("dp-grunnbelop", "no.nav.dagpenger", "dp-grunnbelop").version("20260921.318.7235ed")
             library("approvaltests", "com.approvaltests", "approvaltests").version("31.0.0")
         }
     }
