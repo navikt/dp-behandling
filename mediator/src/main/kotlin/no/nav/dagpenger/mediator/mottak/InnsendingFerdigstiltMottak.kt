@@ -21,7 +21,7 @@ internal class InnsendingFerdigstiltMottak(
                 precondition { it.requireValue("@event_name", "innsending_ferdigstilt") }
                 precondition { it.requireAny("type", listOf("NySøknad", "Gjenopptak")) }
                 validate { it.requireKey("fødselsnummer", "datoRegistrert") }
-                validate { it.interestedIn("fagsakId") }
+                validate { it.interestedIn("fagsakId", "fagsystem") }
                 validate {
                     it.require("søknadsData") { data ->
                         data["søknad_uuid"].asUUID()
@@ -65,6 +65,7 @@ class InnsendingFerdigstiltMessage(
             if (it == 0) logger.warn { "Søknad ($type) mottatt uten fagsakId" }
         }
     private val journalpostId = packet["journalpostId"].asInt()
+    private val fagsystem = packet["fagsystem"].takeUnless { it.isMissingNode || it.isNull }?.asString()
 
     private val melding =
         JsonMessage.newMessage(
@@ -76,7 +77,7 @@ class InnsendingFerdigstiltMessage(
                 "innsendt" to innsendt,
                 "journalpostId" to journalpostId,
                 "type" to type,
-            ),
+            ).let { felter -> fagsystem?.let { felter + ("fagsystem" to it) } ?: felter },
         )
 
     fun publish(context: MessageContext) {
