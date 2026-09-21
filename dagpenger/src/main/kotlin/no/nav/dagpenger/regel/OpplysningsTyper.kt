@@ -408,6 +408,14 @@ object OpplysningsTyper {
             Boolsk,
         )
 
+    // Etablering
+    val nyVirksomhetId = Opplysningstype.Id(UUID.fromString("01a0c30c-4859-703a-9c5a-830136f9aa24"), Boolsk)
+    val selvforsørgetId = Opplysningstype.Id(UUID.fromString("01a0c30f-60d5-778a-a749-ff5f5f55f98d"), Boolsk)
+    val godkjentNæringsfagligId = Opplysningstype.Id(UUID.fromString("01a0c30f-87de-7359-b642-e009a91bbda8"), Boolsk)
+    val ikkeSelvforskyldtArbeidsledigId = Opplysningstype.Id(UUID.fromString("01a0c30f-af05-736e-8d44-bd525b24bf4a"), Boolsk)
+    val påvirkerUtfalletId = Opplysningstype.Id(UUID.fromString("01a0c329-f682-76fb-8746-5977d66dd491"), Boolsk)
+    val sluttDatoId = Opplysningstype.Id(UUID.fromString("01a0c310-b597-75be-acb6-e91c77024a33"), Dato)
+
     // Medlemmets opplysningsplikt
     val oppfyllerOpplysningspliktId = Opplysningstype.Id(UUID.fromString("01a01e21-17ce-70c4-aac1-d25c30ecfac9"), Boolsk)
 
@@ -419,6 +427,7 @@ object OpplysningsTyper {
 
     val skalOmgjøringUtenKlageVurderesId = Opplysningstype.Id(UUID.fromString("019f7004-6585-7728-88b4-256210d72b93"), Boolsk)
 
+    val skalEtableringVurderesId = Opplysningstype.Id(UUID.fromString("01a0c316-a2e9-7088-acb1-da5596bd0055"), Boolsk)
     val skalEksportVurderesId = Opplysningstype.Id(UUID.fromString("019f608d-f9c5-7ccc-a6f3-c53531d1f00c"), Boolsk)
     val skalHaEksportId = Opplysningstype.Id(UUID.fromString("019f608e-807e-758c-80ff-58e95f429f5a"), Boolsk)
     val skalHaEksportFraId = Opplysningstype.Id(UUID.fromString("019f60cb-737b-70c2-8d9f-779dea0b6e3f"), Dato)

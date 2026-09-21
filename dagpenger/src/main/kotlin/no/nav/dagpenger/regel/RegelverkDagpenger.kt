@@ -23,6 +23,7 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
@@ -98,6 +99,7 @@ val RegelverkDagpenger =
         Vanligarbeidstid.regelsett,
         Verneplikt.regelsett,
         VernepliktFastsetting.regelsett,
+        Etablering.regelsett,
     )
 
 fun oppfyllerKravetTilMinsteinntektEllerVerneplikt(opplysninger: LesbarOpplysninger): Boolean =
@@ -183,6 +185,7 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
 
         // Hadde ikke rett fra før, og har fortsatt ikke rett
         opplysninger.kunEgne.har(skalGjenopptakVurderes) -> Avgjørelse.Avslag
+
         else -> Avgjørelse.Stans
     }
 }
