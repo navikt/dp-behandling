@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.hendelse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.AktivitetType
 import no.nav.dagpenger.modell.hendelser.Dag
@@ -32,12 +33,14 @@ class BeregnMeldekortHendelse(
     ident: String,
     opprettet: LocalDateTime,
     private val meldekort: Meldekort,
+    opprettetAv: Oppretter? = null,
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
         eksternId = meldekort.eksternMeldekortId,
         skjedde = meldekort.innsendtTidspunkt.toLocalDate(),
         opprettet = opprettet,
+        opprettetAv = opprettetAv,
     ) {
     override val forretningsprosess get() = if (harBeregnetPeriodenEtterDenne) Omgjøringsprosess() else Meldekortprosess()
 

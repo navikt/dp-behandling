@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.hendelse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
@@ -37,12 +38,14 @@ class AvsluttetArbeidssøkerperiodeHendelse(
     ident: String,
     opprettet: LocalDateTime,
     private val avsluttetArbeidssøkerperiode: AvsluttetArbeidssøkerperiode,
+    opprettetAv: Oppretter? = null,
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
         eksternId = avsluttetArbeidssøkerperiode.arbeidssøkerperiodeId,
         skjedde = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate(),
         opprettet = opprettet,
+        opprettetAv = opprettetAv,
     ) {
     override val forretningsprosess = Stansprosess()
 

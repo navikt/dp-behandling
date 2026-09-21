@@ -2,8 +2,11 @@ package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
 import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
 import no.nav.dagpenger.regelverk.HendelseMottaker
@@ -34,8 +37,10 @@ class AvsluttetArbeidssøkerperiodeMottakTest {
 
         rapid.sendTestMessage(melding.toJson())
 
+        val hendelse = slot<AvsluttetArbeidssøkerperiodeHendelse>()
         verify {
-            hendelseMottaker.behandle(any<AvsluttetArbeidssøkerperiodeHendelse>(), any<AvsluttetArbeidssøkerperiodeMessage>(), any())
+            hendelseMottaker.behandle(capture(hendelse), any<AvsluttetArbeidssøkerperiodeMessage>(), any())
         }
+        hendelse.captured.opprettetAv shouldBe Oppretter(Oppretter.Type.System, "dp-sak")
     }
 }

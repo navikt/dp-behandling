@@ -29,6 +29,8 @@ import no.nav.dagpenger.mediator.api.models.EnhetDTO
 import no.nav.dagpenger.mediator.api.models.FerietilleggKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
+import no.nav.dagpenger.mediator.api.models.OppretterDTO
+import no.nav.dagpenger.mediator.api.models.OppretterDTOTypeDTO
 import no.nav.dagpenger.mediator.api.models.SakDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.mediator.asUUID
@@ -102,13 +104,21 @@ internal class BehandlingApiTest {
     @Test
     fun `opprett ny behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
+            val navIdent = "Z123456"
             val response =
                 testContext.autentisert(
                     endepunkt = "/person/behandling",
                     body = """{"ident":"${person.ident}", "behandlingstype" : "Manuell" }""",
+                    token =
+                        testAzureAdToken(
+                            ADGrupper = listOf(oppsett.saksbehandlerGruppe),
+                            navIdent = navIdent,
+                        ),
                 )
             response.status shouldBe HttpStatusCode.OK
-            response.bodyAsText().shouldNotBeEmpty()
+            val behandling = response.body<BehandlingDTO>()
+            behandling.opprettetAv?.ident shouldBe navIdent
+            behandling.opprettetAv?.type shouldBe OppretterDTOTypeDTO.SAKSBEHANDLER
 
             person.behandlingId.shouldNotBeNull()
 
@@ -190,6 +200,9 @@ internal class BehandlingApiTest {
                         body = body,
                     )
                 response.status shouldBe HttpStatusCode.OK
+                val behandling = response.body<BehandlingDTO>()
+                behandling.opprettetAv?.ident shouldBe "123"
+                behandling.opprettetAv?.type shouldBe OppretterDTOTypeDTO.SAKSBEHANDLER
             }
         }
     }
@@ -223,6 +236,7 @@ internal class BehandlingApiTest {
             person.behandling.behandletHendelse.type shouldBe HendelseDTOTypeDTO.MANUELL
             person.behandling.behandletHendelse.id
                 .shouldNotBeNull()
+            person.behandling.behandletAv
             person.behandling.behandletHendelse.skjedde shouldBe skjeddeDato
 
             person.avklaringer.shouldNotBeEmpty()
@@ -258,6 +272,9 @@ internal class BehandlingApiTest {
             response.status shouldBe HttpStatusCode.OK
             val bodyAsText = response.bodyAsText()
             bodyAsText.shouldNotBeEmpty()
+            val behandling = objectMapper.readValue(bodyAsText, BehandlingDTO::class.java)
+            behandling.opprettetAv?.ident shouldBe "123"
+            behandling.opprettetAv?.type shouldBe OppretterDTOTypeDTO.SAKSBEHANDLER
 
             person.behandlingId.shouldNotBeNull()
 
@@ -391,6 +408,7 @@ internal class BehandlingApiTest {
 
             val behandlingDto = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingDTO::class.java) }
             behandlingDto.behandlingId shouldBe person.behandlingId
+            behandlingDto.opprettetAv shouldBe OppretterDTO(ident = "dp-sak", type = OppretterDTOTypeDTO.SYSTEM)
             behandlingDto.vilkår.shouldNotBeEmpty()
             behandlingDto.opplysninger.all { it.redigerbar } shouldBe false
             behandlingDto.avklaringer.shouldNotBeEmpty()

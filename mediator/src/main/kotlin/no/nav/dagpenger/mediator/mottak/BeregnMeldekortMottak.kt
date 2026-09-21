@@ -14,6 +14,7 @@ import no.nav.dagpenger.mediator.MessageMediator
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.mediator.repository.MeldekortRepository
+import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.Meldekort
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 import java.util.UUID
@@ -76,6 +77,13 @@ internal class BeregnMeldekortMottak(
             mediator.behandle(hendelse, this, context)
         }
 
-        private val hendelse = BeregnMeldekortHendelse(id, ident, opprettet, meldekort)
+        private val hendelse =
+            BeregnMeldekortHendelse(
+                meldingsreferanseId = id,
+                ident = ident,
+                opprettet = opprettet,
+                meldekort = meldekort,
+                opprettetAv = Oppretter.dpSak,
+            )
     }
 }

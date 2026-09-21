@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
@@ -38,7 +39,8 @@ class SøknadInnsendtHendelse(
     opprettet: LocalDateTime,
     val søknadstype: Søknadstype,
     val fagsystem: Fagsystem? = Fagsystem("Arena"),
-) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
+    opprettetAv: Oppretter? = null,
+) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet, opprettetAv) {
     override val forretningsprosess = Søknadsprosess()
 
     override fun behandling(

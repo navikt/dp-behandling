@@ -10,6 +10,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiode
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
@@ -74,6 +75,7 @@ class AvsluttetArbeidssøkerperiodeMottak(
                         fristBrutt = årsak == Årsak.IKKE_MELDT_SEG_PÅ_21_DAGER,
                         manueltAvregistrert = årsak == Årsak.UTMELDT_I_ARBEIDSSØKERREGISTERET,
                     ),
+                opprettetAv = Oppretter.dpSak,
             )
     }
 

@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
@@ -21,12 +22,14 @@ class OmgjøringHendelse(
     eksternId: EksternId<*>,
     gjelderDato: LocalDate,
     opprettet: LocalDateTime,
+    opprettetAv: Oppretter? = null,
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
         eksternId = eksternId,
         skjedde = gjelderDato,
         opprettet = opprettet,
+        opprettetAv = opprettetAv,
     ) {
     override val forretningsprosess = Omgjøringsprosess()
 

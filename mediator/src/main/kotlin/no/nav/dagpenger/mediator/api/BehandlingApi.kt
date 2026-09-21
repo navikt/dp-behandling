@@ -66,6 +66,7 @@ import no.nav.dagpenger.modell.Behandling.TilstandType.Redigert
 import no.nav.dagpenger.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.modell.Behandling.TilstandType.TilGodkjenning
 import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
+import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.modell.hendelser.BesluttBehandlingHendelse
@@ -223,6 +224,7 @@ internal fun Application.behandlingApi(
                 post {
                     val nyBehandlingDto = call.receive<NyBehandlingDTO>()
                     val ident = nyBehandlingDto.ident
+                    val opprettetAv = Oppretter(Oppretter.Type.Saksbehandler, call.saksbehandlerId())
 
                     val skjedde = nyBehandlingDto.skjedde ?: LocalDate.now()
                     if (!personRepository.harIdent(ident.tilPersonIdentfikator())) {
@@ -246,6 +248,7 @@ internal fun Application.behandlingApi(
                                     eksternId = id,
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
+                                    opprettetAv = opprettetAv,
                                 )
                             }
 
@@ -264,7 +267,7 @@ internal fun Application.behandlingApi(
                                     begrunnelse = nyBehandlingDto.begrunnelse,
                                     opprettet = LocalDateTime.now(),
                                     prosess = prosess,
-                                    // TODO: Legg til sporing av hvem som gjør dette
+                                    opprettetAv = opprettetAv,
                                 )
                             }
 
@@ -275,6 +278,7 @@ internal fun Application.behandlingApi(
                                     eksternId = OmgjøringId(UUIDv7.ny()),
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
+                                    opprettetAv = opprettetAv,
                                 )
                             }
                         }

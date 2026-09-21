@@ -5,6 +5,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.dagpenger.modell.Oppretter
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -72,6 +74,18 @@ class SøknadInnsendtMottakTest {
         }
 
         meldingSlot.captured.hendelse.fagsakId shouldBe null
+    }
+
+    @Test
+    fun `Kafka-opprettet starthendelse har dp-sak som oppretter`() {
+        val hendelse = slot<SøknadInnsendtHendelse>()
+        testRapid.sendTestMessage(søknadInnsendMelding(123))
+
+        verify(exactly = 1) {
+            hendelseMottaker.behandle(capture(hendelse), any(), any())
+        }
+
+        hendelse.captured.opprettetAv shouldBe Oppretter(Oppretter.Type.System, "dp-sak")
     }
 
     private val meldingUtenFagsystemOgFagsakId =
