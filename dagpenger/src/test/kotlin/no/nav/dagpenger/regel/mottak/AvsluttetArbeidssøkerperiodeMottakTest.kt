@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.dagpenger.modell.Oppretter
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.AvsluttetArbeidssøkerperiodeHendelse
 import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
 import no.nav.dagpenger.regelverk.HendelseMottaker
@@ -41,6 +41,6 @@ class AvsluttetArbeidssøkerperiodeMottakTest {
         verify {
             hendelseMottaker.behandle(capture(hendelse), any<AvsluttetArbeidssøkerperiodeMessage>(), any())
         }
-        hendelse.captured.opprettetAv shouldBe Oppretter(Oppretter.Type.System, "dp-sak")
+        hendelse.captured.opprettetAv shouldBe Systemaktør.dpSak
     }
 }

@@ -2,7 +2,6 @@ package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
-import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.Rettighetstatus.Companion.harIkkeInnvilgelse
 import no.nav.dagpenger.modell.hendelser.EksternId
@@ -11,6 +10,7 @@ import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -28,7 +28,7 @@ class OpprettBehandlingHendelse(
     opprettet: LocalDateTime,
     private val startNyKjede: Boolean = true,
     prosess: Forretningsprosess = Manuellprosess(),
-    opprettetAv: Oppretter? = null,
+    opprettetAv: Aktør? = null,
 ) : StartHendelse(meldingsreferanseId, ident, eksternId, gjelderDato, opprettet, opprettetAv) {
     override val forretningsprosess = prosess
 

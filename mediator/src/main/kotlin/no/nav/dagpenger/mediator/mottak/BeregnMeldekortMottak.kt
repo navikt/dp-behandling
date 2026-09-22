@@ -14,8 +14,8 @@ import no.nav.dagpenger.mediator.MessageMediator
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.mediator.repository.MeldekortRepository
-import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.Meldekort
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 import java.util.UUID
 
@@ -83,7 +83,7 @@ internal class BeregnMeldekortMottak(
                 ident = ident,
                 opprettet = opprettet,
                 meldekort = meldekort,
-                opprettetAv = Oppretter.dpSak,
+                opprettetAv = Systemaktør.dpSak,
             )
     }
 }

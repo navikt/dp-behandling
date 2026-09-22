@@ -7,8 +7,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.ManuellId
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
@@ -54,6 +54,6 @@ class OpprettBehandlingMessage(
             gjelderDato = packet["prøvingsdato"].asOptionalLocalDate() ?: LocalDate.now(),
             begrunnelse = packet["begrunnelse"].asString(),
             opprettet = opprettet,
-            opprettetAv = Oppretter.dpSak,
+            opprettetAv = Systemaktør.dpSak,
         )
 }

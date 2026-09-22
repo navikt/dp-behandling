@@ -11,8 +11,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.SamordningId
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.SamordningHendelse
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
@@ -74,7 +74,7 @@ class SamordningHendelseMottak(
                 gjelderDato = fom.toLocalDate(),
                 begrunnelse = "Fanget opp mulig endring i samordning mot $ytelse",
                 opprettet = opprettet,
-                opprettetAv = Oppretter.dpSak,
+                opprettetAv = Systemaktør.dpSak,
             )
     }
 }

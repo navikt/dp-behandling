@@ -11,7 +11,7 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.modell.Oppretter
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.regelverk.HendelseMottaker
@@ -101,7 +101,7 @@ class SøknadInnsendtMessage(
                 opprettet,
                 søknadstype,
                 fagsystem,
-                opprettetAv = Oppretter.dpSak,
+                opprettetAv = Systemaktør.dpSak,
             )
         }
 

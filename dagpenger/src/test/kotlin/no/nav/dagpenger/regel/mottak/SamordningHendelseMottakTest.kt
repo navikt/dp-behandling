@@ -6,8 +6,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import org.junit.jupiter.api.Test
@@ -39,7 +39,7 @@ class SamordningHendelseMottakTest {
         verify(exactly = 1) {
             hendelseMottaker.behandle(capture(hendelse), any<SamordningHendelseMessage>(), any())
         }
-        hendelse.captured.opprettetAv shouldBe Oppretter(Oppretter.Type.System, "dp-sak")
+        hendelse.captured.opprettetAv shouldBe Systemaktør.dpSak
     }
 
     @Test

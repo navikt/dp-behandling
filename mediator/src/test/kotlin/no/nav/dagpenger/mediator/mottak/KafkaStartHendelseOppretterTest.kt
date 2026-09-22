@@ -9,10 +9,10 @@ import io.mockk.verify
 import no.nav.dagpenger.mediator.IMessageMediator
 import no.nav.dagpenger.mediator.MessageMediator
 import no.nav.dagpenger.mediator.repository.MeldekortRepository
-import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.Meldekort
 import no.nav.dagpenger.modell.hendelser.MeldekortId
 import no.nav.dagpenger.modell.hendelser.MeldekortKilde
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import org.junit.jupiter.api.Test
@@ -86,6 +86,6 @@ class KafkaStartHendelseOppretterTest {
     }
 
     private companion object {
-        val dpSak = Oppretter(Oppretter.Type.System, "dp-sak")
+        val dpSak = Systemaktør.dpSak
     }
 }

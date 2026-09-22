@@ -16,15 +16,16 @@ import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.modell.Behandlingkjede
 import no.nav.dagpenger.modell.Ident
-import no.nav.dagpenger.modell.Oppretter
 import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.Hendelse
 import no.nav.dagpenger.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.modell.somKjede
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.Systemaktør
 import java.time.LocalDate
 import java.util.UUID
 
@@ -331,7 +332,7 @@ internal class BehandlingRepositoryPostgres(
         val tilstand: String,
         val sistEndretTilstand: java.time.LocalDateTime,
         val basertPåBehandlingId: UUID?,
-        val opprettetAv: Oppretter?,
+        val opprettetAv: Aktør?,
     )
 
     override fun finnBehandlinger(
@@ -557,7 +558,12 @@ internal class BehandlingRepositoryPostgres(
                     "hendelse_type" to behandling.behandler.type,
                     "skjedde" to behandling.behandler.skjedde,
                     "forretningsprosess" to behandling.behandler.forretningsprosess.navn,
-                    "opprettet_av_type" to behandling.opprettetAv?.type?.name,
+                    "opprettet_av_type" to
+                        when (behandling.opprettetAv) {
+                            is Saksbehandler -> "Saksbehandler"
+                            is Systemaktør -> "System"
+                            null -> null
+                        },
                     "opprettet_av_ident" to behandling.opprettetAv?.ident,
                 )
             }
@@ -583,10 +589,12 @@ internal class BehandlingRepositoryPostgres(
     private fun oppretterFraDatabase(
         type: String?,
         ident: String?,
-    ): Oppretter? =
+    ): Aktør? =
         when {
             type == null && ident == null -> null
-            type != null && ident != null -> Oppretter.fra(type, ident)
+            type == "Saksbehandler" && ident != null -> Saksbehandler(ident)
+            type == "System" && ident != null -> Systemaktør(ident)
+            type != null && ident != null -> error("Ukjent opprettertype: $type")
             else -> error("Opprettertype og oppretterident må begge være satt eller begge være null")
         }
 
