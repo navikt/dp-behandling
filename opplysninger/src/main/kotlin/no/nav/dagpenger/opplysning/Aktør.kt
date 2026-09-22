@@ -12,6 +12,7 @@ data class Saksbehandler(
     }
 }
 
+// Skulle gjerne kalt denne System, men kræsjer med java.lang.System
 data class Systemaktør(
     override val ident: String,
 ) : Aktør {

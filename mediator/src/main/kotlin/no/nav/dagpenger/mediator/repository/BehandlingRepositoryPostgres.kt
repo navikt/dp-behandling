@@ -192,7 +192,7 @@ internal class BehandlingRepositoryPostgres(
                             sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
                             basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
                             opprettetAv =
-                                oppretterFraDatabase(
+                                opprettetAvFraDatabase(
                                     type = row.stringOrNull("opprettet_av_type"),
                                     ident = row.stringOrNull("opprettet_av_ident"),
                                 ),
@@ -586,7 +586,7 @@ internal class BehandlingRepositoryPostgres(
             )
     }
 
-    private fun oppretterFraDatabase(
+    private fun opprettetAvFraDatabase(
         type: String?,
         ident: String?,
     ): Aktør? =
