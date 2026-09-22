@@ -1365,6 +1365,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RegelsettMeta'
+        opplysninger:
+          description: Opplysninger som utløste at avklaringen ble (gjen)åpnet
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningsId'
 
     Opplysningstype:
       type: object
