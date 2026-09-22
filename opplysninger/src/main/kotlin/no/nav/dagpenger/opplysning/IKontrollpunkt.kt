@@ -1,6 +1,8 @@
 package no.nav.dagpenger.opplysning
 
+import no.nav.dagpenger.opplysning.Opplysning
 import java.time.LocalDateTime
+import java.util.UUID
 
 interface IKontrollpunkt {
     fun evaluer(opplysninger: LesbarOpplysninger): Kontrollresultat
@@ -20,7 +22,14 @@ interface IKontrollpunkt {
 
         data class KreverAvklaring(
             val avklaringkode: Avklaringkode,
-            val sisteOpplysning: LocalDateTime,
-        ) : Kontrollresultat()
+            val opplysninger: List<Opplysning<*>>,
+        ) : Kontrollresultat() {
+            init {
+                require(opplysninger.isNotEmpty()) { "Et kontrollpunkt som krever avklaring må ha slått opp minst én opplysning" }
+            }
+
+            val sisteOpplysning: LocalDateTime get() = opplysninger.maxOf { it.opprettet }
+            val opplysningIder: List<UUID> get() = opplysninger.map { it.id }.distinct()
+        }
     }
 }
