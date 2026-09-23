@@ -37,7 +37,7 @@ object Etablering {
             regel(selvforsørget) { somUtgangspunkt(false) }
             regel(godkjentNæringsfaglig) { somUtgangspunkt(false) }
             regel(ikkeSelvforskyldtArbeidsledig) { somUtgangspunkt(false) }
-            regel(påvirkerUtfallet) { somUtgangspunkt(false) }
+            regel(påvirkerUtfallet) { somUtgangspunkt(true) }
             regel(sluttDato) { somUtgangspunkt(LocalDate.now().plusMonths(12)) }
 
             påvirkerResultat { it.erSann(påvirkerUtfallet) }
