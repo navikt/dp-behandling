@@ -25,8 +25,8 @@ object Etablering {
     val regelsett =
         vilkår(
             forskriftTilFolketrygden.hjemmel(
-                kapittel = 0,
-                paragraf = 0,
+                kapittel = 4,
+                paragraf = 6,
                 tittel = "Etablering",
                 kortnavn = "Etablering",
             ),
