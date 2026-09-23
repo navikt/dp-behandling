@@ -1,0 +1,101 @@
+package no.nav.dagpenger.scenario
+
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.mediator.januar
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import kotlin.test.Test
+
+class EtableringTest {
+    @Test
+    fun `etablering påvirker ikke resultatet før den skal vurderes`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.januar(2025))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder.single().harRett shouldBe true
+
+                opplysninger(Rettighetstype.skalEtableringVurderes) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+
+                // Regelsettet har ikke skalKjøres = true ennå, så ingen av opplysningene er produsert
+                opplysninger(Etablering.nyVirksomhet).shouldBeEmpty()
+                opplysninger(Etablering.påvirkerUtfallet).shouldBeEmpty()
+            }
+        }
+    }
+
+    @Test
+    fun `etablering skal vurderes og saksbehandler avgjør at den påvirker resultatet`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.januar(2025))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            saksbehandler.lagBehandling(1.januar(2025))
+            saksbehandler.endreOpplysning(Rettighetstype.skalEtableringVurderes, true, "Har startet egen virksomhet")
+
+            behandlingsresultatForslag {
+                // Regelsettet kjøres nå, og standardverdiene (somUtgangspunkt) er produsert
+                opplysninger(Etablering.nyVirksomhet) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+                opplysninger(Etablering.selvforsørget) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+                opplysninger(Etablering.godkjentNæringsfaglig) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+                opplysninger(Etablering.ikkeSelvforskyldtArbeidsledig) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+                opplysninger(Etablering.påvirkerUtfallet) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+            }
+
+            saksbehandler.endreOpplysning(Etablering.påvirkerUtfallet, true, "Etablering påvirker utfallet i denne saken")
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(2) {
+                opplysninger(Rettighetstype.skalEtableringVurderes) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe true
+                }
+                opplysninger(Etablering.påvirkerUtfallet) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe true
+                }
+
+                // Etablering.regelsett har ikke noe "utfall" som stanser eller endrer rettighetsperioden,
+                // kun påvirkerResultat-flagget som brukes til å vise vilkåret som relevant i vedtaket
+                rettighetsperioder.last().harRett shouldBe true
+            }
+        }
+    }
+}
