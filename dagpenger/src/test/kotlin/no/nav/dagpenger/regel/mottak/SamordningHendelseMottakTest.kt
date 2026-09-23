@@ -2,9 +2,12 @@ package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import no.nav.dagpenger.modell.hendelser.StartHendelse
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import org.junit.jupiter.api.Test
@@ -32,9 +35,11 @@ class SamordningHendelseMottakTest {
                 ).toJson(),
         )
 
+        val hendelse = slot<StartHendelse>()
         verify(exactly = 1) {
-            hendelseMottaker.behandle(any<StartHendelse>(), any<SamordningHendelseMessage>(), any())
+            hendelseMottaker.behandle(capture(hendelse), any<SamordningHendelseMessage>(), any())
         }
+        hendelse.captured.opprettetAv shouldBe Systemaktør.dpSak
     }
 
     @Test

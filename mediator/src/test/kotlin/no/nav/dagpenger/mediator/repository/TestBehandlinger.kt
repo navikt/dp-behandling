@@ -8,6 +8,7 @@ import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.SøknadId
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
@@ -52,7 +53,8 @@ internal object TestBehandlinger {
         gjelderDato: LocalDate = LocalDate.now(),
         opprettet: LocalDateTime = LocalDateTime.now(),
         opplysninger: List<Faktum<*>> = emptyList(),
-    ) = TestStartHendelse(meldingsreferanseId, ident, søknadId, gjelderDato, opprettet, opplysninger)
+        opprettetAv: Aktør? = null,
+    ) = TestStartHendelse(meldingsreferanseId, ident, søknadId, gjelderDato, opprettet, opplysninger, opprettetAv)
 
     fun rehydrerBehandling(
         ident: String = "12345678911",
@@ -87,7 +89,8 @@ internal class TestStartHendelse(
     gjelderDato: LocalDate,
     opprettet: LocalDateTime,
     private val ekstraOpplysninger: List<Faktum<*>> = emptyList(),
-) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
+    opprettetAv: Aktør? = null,
+) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet, opprettetAv) {
     override val forretningsprosess = TestProsess()
 
     override fun behandling(

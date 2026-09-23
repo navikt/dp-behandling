@@ -223,6 +223,7 @@ internal fun Application.behandlingApi(
                 post {
                     val nyBehandlingDto = call.receive<NyBehandlingDTO>()
                     val ident = nyBehandlingDto.ident
+                    val opprettetAv = Saksbehandler(call.saksbehandlerId())
 
                     val skjedde = nyBehandlingDto.skjedde ?: LocalDate.now()
                     if (!personRepository.harIdent(ident.tilPersonIdentfikator())) {
@@ -246,6 +247,7 @@ internal fun Application.behandlingApi(
                                     eksternId = id,
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
+                                    opprettetAv = opprettetAv,
                                 )
                             }
 
@@ -264,7 +266,7 @@ internal fun Application.behandlingApi(
                                     begrunnelse = nyBehandlingDto.begrunnelse,
                                     opprettet = LocalDateTime.now(),
                                     prosess = prosess,
-                                    // TODO: Legg til sporing av hvem som gjør dette
+                                    opprettetAv = opprettetAv,
                                 )
                             }
 
@@ -275,6 +277,7 @@ internal fun Application.behandlingApi(
                                     eksternId = OmgjøringId(UUIDv7.ny()),
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
+                                    opprettetAv = opprettetAv,
                                 )
                             }
                         }

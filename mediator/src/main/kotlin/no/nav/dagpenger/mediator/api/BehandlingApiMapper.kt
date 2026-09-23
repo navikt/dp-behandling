@@ -11,11 +11,14 @@ import no.nav.dagpenger.mediator.api.models.FormålDTO
 import no.nav.dagpenger.mediator.api.models.HjemmelDTO
 import no.nav.dagpenger.mediator.api.models.LovkildeDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
+import no.nav.dagpenger.mediator.api.models.OppretterDTO
+import no.nav.dagpenger.mediator.api.models.OppretterDTOTypeDTO
 import no.nav.dagpenger.mediator.api.models.RedigerbareOpplysningerDTO
 import no.nav.dagpenger.mediator.api.models.RegelsettDTO
 import no.nav.dagpenger.mediator.api.models.RegelsettTypeDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
@@ -24,7 +27,9 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Redigerbar
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
@@ -168,10 +173,21 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                     .map { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             forslagOm = vedtakopplysninger.avgjørelse.tilAvgjørelseDTO(),
+            opprettetAv = opprettetAv?.tilOppretterDTO(),
             opprettet = opprettet,
             sistEndret = sistEndret,
         )
     }
+
+internal fun Aktør.tilOppretterDTO(): OppretterDTO =
+    OppretterDTO(
+        type =
+            when (this) {
+                is Saksbehandler -> OppretterDTOTypeDTO.SAKSBEHANDLER
+                is Systemaktør -> OppretterDTOTypeDTO.SYSTEM
+            },
+        ident = ident,
+    )
 
 private val kanOppfriskes =
     setOf(
