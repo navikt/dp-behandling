@@ -87,6 +87,18 @@ Dette er opplysninger som blir brukt av regelverket.
 |01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal verneplikt vurderes|Boolsk|boolean|||Resultat
 |019d0068-8037-7d91-bfff-de88f9e87fd3|Skal gjenopptak vurderes|Boolsk|boolean|||Resultat
 |019f608d-f9c5-7ccc-a6f3-c53531d1f00c|Skal eksport vurderes|Boolsk|boolean|||Resultat
+|01a0c316-a2e9-7088-acb1-da5596bd0055|Skal etablering vurderes|Boolsk|boolean|||Resultat
+### § 0-0. Etablering
+*Type:* Vilkår
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|01a0c30c-4859-703a-9c5a-830136f9aa24|Ny virksomhet|Boolsk|boolean|||Utgangspunkt
+|01a0c30f-60d5-778a-a749-ff5f5f55f98d|Antas selvforørget|Boolsk|boolean|||Utgangspunkt
+|01a0c30f-87de-7359-b642-e009a91bbda8|Godkjent Næringsfaglig|Boolsk|boolean|||Utgangspunkt
+|01a0c30f-af05-736e-8d44-bd525b24bf4a|Ikke selvforskyldt arbeidsledig|Boolsk|boolean|||Utgangspunkt
+|01a0c310-b597-75be-acb6-e91c77024a33|Ikke selvforskyldt arbeidsledig|Dato|LocalDate|||Utgangspunkt
+|01a0c329-f682-76fb-8746-5977d66dd491|Skal påvirker utfallet|Boolsk|boolean|||Utgangspunkt
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
 #### Avklaringer
