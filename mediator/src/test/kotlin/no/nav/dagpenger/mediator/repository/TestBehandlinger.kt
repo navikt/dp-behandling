@@ -60,12 +60,13 @@ internal object TestBehandlinger {
         ident: String = "12345678911",
         tilstand: TilstandType = TilstandType.ForslagTilVedtak,
         avklaringer: List<Avklaring> = emptyList(),
+        gjeldendeOpplysninger: Opplysninger = Opplysninger.med(Faktum(testOpplysningstype, true)),
     ): Behandling {
         val hendelse = lagTestHendelse(ident)
         return Behandling.rehydrer(
             behandlingId = UUIDv7.ny(),
             behandler = hendelse,
-            gjeldendeOpplysninger = Opplysninger.med(Faktum(testOpplysningstype, true)),
+            gjeldendeOpplysninger = gjeldendeOpplysninger,
             opprettet = LocalDateTime.now(),
             tilstand = tilstand,
             sistEndretTilstand = LocalDateTime.now(),

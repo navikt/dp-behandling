@@ -1,7 +1,6 @@
 package no.nav.dagpenger.opplysning
 
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 // Sporer hvilke opplysninger som har vært i bruk
@@ -12,10 +11,9 @@ class LesbarOpplysningerMedLogg(
 
     override val id get() = opplysninger.id
 
-    val sistBrukteOpplysning: LocalDateTime
-        get() =
-            oppslag.maxOfOrNull { it.opprettet }
-                ?: throw IllegalStateException("Ingen opplysninger har blitt brukt")
+    // Alle opplysninger som har blitt slått opp, uten duplikater
+    val brukteOpplysninger: List<Opplysning<*>>
+        get() = oppslag.distinctBy { it.id }
 
     override fun <T : Any> finnOpplysning(opplysningstype: Opplysningstype<T>) =
         opplysninger.finnOpplysning(opplysningstype).apply {

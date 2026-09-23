@@ -181,6 +181,32 @@ class BehandlingApiMapperTest {
         )
 
     @Test
+    fun `tilAvklaringDTO populerer opplysninger for åpen avklaring og tom liste for avklart`() {
+        val opplysning = Faktum(TestOpplysningstyper.boolsk, true)
+        val åpenAvklaring =
+            Avklaring.rehydrer(
+                UUIDv7.ny(),
+                Avklaringkode("tittel", "beskrivelse", "kanKvitteres"),
+                mutableListOf(
+                    Avklaring.Endring.UnderBehandling(opplysninger = listOf(opplysning.id)),
+                ),
+            )
+        val avklartAvklaring =
+            Avklaring.rehydrer(
+                UUIDv7.ny(),
+                Avklaringkode("tittel", "beskrivelse", "kanKvitteres"),
+                mutableListOf(
+                    Avklaring.Endring.Avklart(
+                        avklartAv = Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("Z123456")),
+                    ),
+                ),
+            )
+
+        åpenAvklaring.tilAvklaringDTO().opplysninger shouldBe listOf(opplysning.id)
+        avklartAvklaring.tilAvklaringDTO().opplysninger.shouldBeEmpty()
+    }
+
+    @Test
     fun `inneholder utfall og vilkår`() {
         val behandlingDto = behandling.tilBehandlingDTO()
 
