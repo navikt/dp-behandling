@@ -10,12 +10,12 @@ Egenskap: Etablering
     Eksempler:
       | påvirker | påvirke |
       | Ja       | Ja      |
-      | Nei      | Nei     |
+      | Nei      | Nei      |
 
   Scenario: Etablering skal vurderes uten at saksbehandler har vurdert utfallet
     Gitt at etablering skal vurderes
-    Så skal vilkåret om etablering "Nei" resultatet
+    Så skal vilkåret om etablering "Ja" resultatet
 
   Scenario: Etablering skal ikke vurderes
     Gitt at etablering ikke skal vurderes
-    Så skal vilkåret om etablering "Nei" resultatet
+    Så skal vilkåret om etablering "Ja" resultatet
