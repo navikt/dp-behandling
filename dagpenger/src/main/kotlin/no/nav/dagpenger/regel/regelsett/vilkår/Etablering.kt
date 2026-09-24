@@ -4,7 +4,9 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.forskriftTilFolketrygden
+import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.regel.OpplysningsTyper.etableringGodkjentId
 import no.nav.dagpenger.regel.OpplysningsTyper.godkjentNæringsfagligId
 import no.nav.dagpenger.regel.OpplysningsTyper.ikkeSelvforskyldtArbeidsledigId
 import no.nav.dagpenger.regel.OpplysningsTyper.nyVirksomhetId
@@ -21,6 +23,7 @@ object Etablering {
     val ikkeSelvforskyldtArbeidsledig = boolsk(ikkeSelvforskyldtArbeidsledigId, "Ikke selvforskyldt arbeidsledig")
     val påvirkerUtfallet = boolsk(påvirkerUtfalletId, "Skal påvirker utfallet")
     val sluttDato = dato(sluttDatoId, "Ikke selvforskyldt arbeidsledig")
+    val etableringGodkjent = boolsk(etableringGodkjentId, "Etablering godkjent")
 
     val regelsett =
         vilkår(
@@ -39,6 +42,9 @@ object Etablering {
             regel(ikkeSelvforskyldtArbeidsledig) { somUtgangspunkt(false) }
             regel(påvirkerUtfallet) { somUtgangspunkt(true) }
             regel(sluttDato) { somUtgangspunkt(LocalDate.now().plusMonths(12)) }
+
+            utfall(etableringGodkjent) { alle(nyVirksomhet, selvforsørget, godkjentNæringsfaglig, ikkeSelvforskyldtArbeidsledig) }
+            ønsketResultat(påvirkerUtfallet, sluttDato)
 
             påvirkerResultat { it.erSann(påvirkerUtfallet) }
         }

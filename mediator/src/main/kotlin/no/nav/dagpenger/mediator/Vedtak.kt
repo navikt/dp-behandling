@@ -49,6 +49,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløp
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt
@@ -271,6 +272,7 @@ internal val opplysningTilVilkårMap =
             VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_EKSPORT,
         MedlemmetOpplysningsplikt.oppfyllerOpplysningsplikt to
             VilkaarNavnDTO.OPPFYLLER_MEDLEMMETS_OPPLYSNINGSPLIKT,
+        Etablering.etableringGodkjent to VilkaarNavnDTO.ETABLERING_GODKJENT,
     )
 
 private fun Opplysningstype<*>.tilVilkårNavn() = opplysningTilVilkårMap[this] ?: error("Mangler mapping for vilkårnavn $this")

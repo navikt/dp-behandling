@@ -390,4 +390,8 @@ graph RL
   AI["Grunnlag som gis ved verneplikt"] -->|"Multiplikasjon"| JT["Antall G som gis som grunnlag ved verneplikt"]
   JU["Periode som gis ved verneplikt"] -->|"Oppslag"| F["Prøvingsdato"]
   IM["Fastsatt vanlig arbeidstid for verneplikt"] -->|"Oppslag"| F["Prøvingsdato"]
+  JV["Etablering godkjent"] -->|"Alle"| JW["Ny virksomhet"]
+  JV["Etablering godkjent"] -->|"Alle"| JX["Antas selvforørget"]
+  JV["Etablering godkjent"] -->|"Alle"| JY["Godkjent Næringsfaglig"]
+  JV["Etablering godkjent"] -->|"Alle"| JZ["Ikke selvforskyldt arbeidsledig"]
 ```

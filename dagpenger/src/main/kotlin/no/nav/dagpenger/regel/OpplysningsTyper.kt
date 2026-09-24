@@ -415,6 +415,7 @@ object OpplysningsTyper {
     val ikkeSelvforskyldtArbeidsledigId = Opplysningstype.Id(UUID.fromString("01a0c30f-af05-736e-8d44-bd525b24bf4a"), Boolsk)
     val påvirkerUtfalletId = Opplysningstype.Id(UUID.fromString("01a0c329-f682-76fb-8746-5977d66dd491"), Boolsk)
     val sluttDatoId = Opplysningstype.Id(UUID.fromString("01a0c310-b597-75be-acb6-e91c77024a33"), Dato)
+    val etableringGodkjentId = Opplysningstype.Id(UUID.fromString("01a0d282-3d10-772b-83fa-7ce6660e7d8b"), Boolsk)
 
     // Medlemmets opplysningsplikt
     val oppfyllerOpplysningspliktId = Opplysningstype.Id(UUID.fromString("01a01e21-17ce-70c4-aac1-d25c30ecfac9"), Boolsk)
