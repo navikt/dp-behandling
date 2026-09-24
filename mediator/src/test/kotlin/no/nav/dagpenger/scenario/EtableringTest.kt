@@ -38,7 +38,7 @@ class EtableringTest {
     }
 
     @Test
-    fun `etablering skal vurderes og saksbehandler avgjør at den påvirker resultatet`() {
+    fun `etablering skal vurderes og påvirker resultatet med standardverdi`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
         }.test {
@@ -70,13 +70,15 @@ class EtableringTest {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe false
                 }
+
+                // påvirkerUtfallet har somUtgangspunkt(true), så den er allerede sann uten at
+                // saksbehandler trenger å overstyre den manuelt. Dette er det som gjør at
+                // relevantForResultat (og dermed vilkåret i vilkårslisten) blir true.
                 opplysninger(Etablering.påvirkerUtfallet) {
                     shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                    single().verdi.verdi shouldBe true
                 }
             }
-
-            saksbehandler.endreOpplysning(Etablering.påvirkerUtfallet, true, "Etablering påvirker utfallet i denne saken")
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -94,6 +96,37 @@ class EtableringTest {
 
                 // Etablering.regelsett har ikke noe "utfall" som stanser eller endrer rettighetsperioden,
                 // kun påvirkerResultat-flagget som brukes til å vise vilkåret som relevant i vedtaket
+                rettighetsperioder.last().harRett shouldBe false
+            }
+        }
+    }
+
+    @Test
+    fun `saksbehandler kan overstyre påvirkerUtfallet til false selv om standardverdien er true`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.januar(2025))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            saksbehandler.lagBehandling(1.januar(2025))
+            saksbehandler.endreOpplysning(Rettighetstype.skalEtableringVurderes, true, "Har startet egen virksomhet")
+            saksbehandler.endreOpplysning(Etablering.påvirkerUtfallet, false, "Etablering påvirker likevel ikke resultatet")
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(2) {
+                opplysninger(Etablering.påvirkerUtfallet) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
+
                 rettighetsperioder.last().harRett shouldBe true
             }
         }

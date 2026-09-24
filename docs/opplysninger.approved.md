@@ -276,8 +276,9 @@ Dette er opplysninger som blir brukt av regelverket.
 |01a0c30f-60d5-778a-a749-ff5f5f55f98d|Antas selvforørget|Boolsk|boolean|||Utgangspunkt
 |01a0c30f-87de-7359-b642-e009a91bbda8|Godkjent Næringsfaglig|Boolsk|boolean|||Utgangspunkt
 |01a0c30f-af05-736e-8d44-bd525b24bf4a|Ikke selvforskyldt arbeidsledig|Boolsk|boolean|||Utgangspunkt
-|01a0c310-b597-75be-acb6-e91c77024a33|Ikke selvforskyldt arbeidsledig|Dato|LocalDate|||Utgangspunkt
-|01a0c329-f682-76fb-8746-5977d66dd491|Skal påvirker utfallet|Boolsk|boolean|||Utgangspunkt
+|01a0c310-b597-75be-acb6-e91c77024a33|Ikke selvforskyldt arbeidsledig|Dato|LocalDate|||Resultat
+|01a0c329-f682-76fb-8746-5977d66dd491|Skal påvirker utfallet|Boolsk|boolean|||Resultat
+|01a0d282-3d10-772b-83fa-7ce6660e7d8b|Etablering godkjent|Boolsk|boolean|||Resultat
 ### § 4-7. Dagpenger til permitterte
 *Type:* Vilkår
 #### Avklaringer

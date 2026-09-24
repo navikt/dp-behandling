@@ -4,6 +4,10 @@
 
 ```mermaid
 graph RL
+  A["Etablering godkjent"] -->|"Alle"| B["Ny virksomhet"]
+  A["Etablering godkjent"] -->|"Alle"| C["Antas selvforørget"]
+  A["Etablering godkjent"] -->|"Alle"| D["Godkjent Næringsfaglig"]
+  A["Etablering godkjent"] -->|"Alle"| E["Ikke selvforskyldt arbeidsledig"]
 ```
 
 ## Akseptansetester

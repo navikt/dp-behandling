@@ -2495,6 +2495,7 @@ components:
         - Tre påfølgende meldeperioder uten tilstrekkelig tap av arbeidstid § 10-4 annet ledd
         - Oppfyller kravet til eksport
         - Oppfyller medlemmets opplysningsplikt
+        - Etablering godkjent
 
   examples:
     UgyldigBehandlingstilstandProblem:
