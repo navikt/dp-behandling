@@ -46,6 +46,6 @@ object Etablering {
             utfall(etableringGodkjent) { alle(nyVirksomhet, selvforsørget, godkjentNæringsfaglig, ikkeSelvforskyldtArbeidsledig) }
             ønsketResultat(påvirkerUtfallet)
 
-            påvirkerResultat { it.erSann(påvirkerUtfallet) }
+            påvirkerResultat { it.erSann(skalEtableringVurderes) && it.erSann(påvirkerUtfallet) }
         }
 }
