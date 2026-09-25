@@ -26,6 +26,7 @@ class EtableringTest {
 
         // Etablering skal ikke vurderes, og påvirker dermed ikke utfallet, ikke relevant
         regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = false, påvirkerUtfallet = false)) shouldBe false
+        regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = false, påvirkerUtfallet = true)) shouldBe false
     }
 
     @Test

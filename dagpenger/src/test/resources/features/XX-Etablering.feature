@@ -2,20 +2,27 @@
 @dokumentasjon @regel-etablering
 Egenskap: Etablering
 
-  Scenariomal: Etablering skal vurderes og saksbehandler har vurdert utfallet
+  Scenariomal: Saksbehandler vurderer opplysninger om etablering
     Gitt at etablering skal vurderes
-    Og saksbehandler vurderer at etablering "<påvirker>" utfallet
-    Så skal vilkåret om etablering "<påvirke>" resultatet
+    Og de øvrige vilkårene for etablering er oppfylt
+    Og saksbehandler vurderer at etablering påvirker resultatet "<påvirkerResultat>"
+    Og saksbehandler vurderer at det er en ny virksomhet "<nyVirksomhet>"
+    Og saksbehandler vurderer selvforsørgelse som "<selvforsørget>"
+    Så skal vilkåret om etablering være "<utfall>"
+    Og skal retten til dagpenger være "<harRett>"
 
     Eksempler:
-      | påvirker | påvirke |
-      | Ja       | Ja      |
-      | Nei      | Nei      |
-
-  Scenario: Etablering skal vurderes uten at saksbehandler har vurdert utfallet
-    Gitt at etablering skal vurderes
-    Så skal vilkåret om etablering "Ja" resultatet
+      | påvirkerResultat | nyVirksomhet | selvforsørget | utfall | harRett |
+      | Ja               | Ja           | Ja             | Ja     | Ja      |
+      | Ja               | Ja           | Nei            | Nei    | Nei     |
+      | Ja               | Nei          | Ja             | Nei    | Nei     |
+      | Ja               | Nei          | Nei            | Nei    | Nei     |
+      | Nei              | Ja           | Ja             | Ja     | Ja      |
+      | Nei              | Ja           | Nei            | Nei    | Ja      |
+      | Nei              | Nei          | Ja             | Nei    | Ja      |
+      | Nei              | Nei          | Nei            | Nei    | Ja      |
 
   Scenario: Etablering skal ikke vurderes
     Gitt at etablering ikke skal vurderes
-    Så skal vilkåret om etablering "Ja" resultatet
+    Så skal opplysninger om etablering ikke være satt
+    Og skal retten til dagpenger være "Ja"
