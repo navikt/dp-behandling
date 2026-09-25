@@ -22,7 +22,7 @@ object Etablering {
     val godkjentNæringsfaglig = boolsk(godkjentNæringsfagligId, "Godkjent Næringsfaglig")
     val ikkeSelvforskyldtArbeidsledig = boolsk(ikkeSelvforskyldtArbeidsledigId, "Ikke selvforskyldt arbeidsledig")
     val påvirkerUtfallet = boolsk(påvirkerUtfalletId, "Skal påvirker utfallet")
-    val sluttDato = dato(sluttDatoId, "Ikke selvforskyldt arbeidsledig")
+    val sluttDato = dato(sluttDatoId, "Siste dato for etablering")
     val etableringGodkjent = boolsk(etableringGodkjentId, "Etablering godkjent")
 
     val regelsett =
@@ -44,7 +44,7 @@ object Etablering {
             regel(sluttDato) { somUtgangspunkt(LocalDate.now().plusMonths(12)) }
 
             utfall(etableringGodkjent) { alle(nyVirksomhet, selvforsørget, godkjentNæringsfaglig, ikkeSelvforskyldtArbeidsledig) }
-            ønsketResultat(påvirkerUtfallet, sluttDato)
+            ønsketResultat(påvirkerUtfallet)
 
             påvirkerResultat { it.erSann(påvirkerUtfallet) }
         }
