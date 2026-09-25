@@ -1,4 +1,6 @@
 package no.nav.dagpenger.regel
+
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -24,6 +26,11 @@ class EtableringTest {
 
         // Etablering skal ikke vurderes, og påvirker dermed ikke utfallet, ikke relevant
         regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = false, påvirkerUtfallet = false)) shouldBe false
+    }
+
+    @Test
+    fun `beholder opplysningen som styrer relevans`() {
+        regelsett.ønsketInformasjon shouldContainAll setOf(Etablering.påvirkerUtfallet)
     }
 
     // NB: `somUtgangspunkt`-standardverdiene i Etablering.regelsett (nyVirksomhet, selvforsørget,

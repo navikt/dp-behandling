@@ -4,7 +4,9 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.januar
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.etableringGodkjent
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import kotlin.test.Test
@@ -49,8 +51,15 @@ class EtableringTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            saksbehandler.lagBehandling(1.januar(2025))
-            saksbehandler.endreOpplysning(Rettighetstype.skalEtableringVurderes, true, "Har startet egen virksomhet")
+            saksbehandler.omgjørBehandling(1.januar(2025))
+            saksbehandler.endreOpplysning(
+                Rettighetstype.skalEtableringVurderes,
+                true,
+                "Har startet egen virksomhet",
+                gyldighetsperiode = Gyldighetsperiode(1.januar(2025)),
+            )
+
+            behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
                 // Regelsettet kjøres nå, og standardverdiene (somUtgangspunkt) er produsert
@@ -93,9 +102,11 @@ class EtableringTest {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe true
                 }
+                opplysninger(etableringGodkjent) {
+                    shouldHaveSize(1)
+                    single().verdi.verdi shouldBe false
+                }
 
-                // Etablering.regelsett har ikke noe "utfall" som stanser eller endrer rettighetsperioden,
-                // kun påvirkerResultat-flagget som brukes til å vise vilkåret som relevant i vedtaket
                 rettighetsperioder.last().harRett shouldBe false
             }
         }
