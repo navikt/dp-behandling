@@ -73,6 +73,12 @@ class EtableringSteg : No {
                 .also { regelkjøring.evaluer() }
         }
 
+        Og("saksbehandler vurderer at virksomheten er egen {boolsk}") { egenVirksomhet: Boolean ->
+            opplysninger
+                .leggTil(Faktum(Etablering.egenVirksomhet, egenVirksomhet) as Opplysning<*>)
+                .also { regelkjøring.evaluer() }
+        }
+
         Så("skal vilkåret om etablering være {boolsk}") { utfall: Boolean ->
             opplysninger.finnOpplysning(Etablering.etableringGodkjent).verdi shouldBe utfall
         }
@@ -82,6 +88,7 @@ class EtableringSteg : No {
                 Etablering.påvirkerUtfallet,
                 Etablering.nyVirksomhet,
                 Etablering.selvforsørget,
+                Etablering.egenVirksomhet,
                 Etablering.etableringGodkjent,
             ).forEach { opplysningstype ->
                 opplysninger.har(opplysningstype) shouldBe false
