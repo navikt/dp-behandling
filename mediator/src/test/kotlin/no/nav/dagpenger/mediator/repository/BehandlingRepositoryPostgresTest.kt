@@ -13,6 +13,7 @@ import no.nav.dagpenger.modell.Behandling.TilstandType.UnderBehandling
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.Person
 import no.nav.dagpenger.modell.somKjede
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
@@ -20,6 +21,8 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
+import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -28,7 +31,11 @@ import java.time.temporal.ChronoUnit
 
 class BehandlingRepositoryPostgresTest {
     private val ident = "12345678911"
-    private val testHendelse = TestBehandlinger.lagTestHendelse(ident)
+    private val testHendelse =
+        TestBehandlinger.lagTestHendelse(
+            ident,
+            opprettetAv = Saksbehandler("Z123456"),
+        )
 
     private val datoOpplysningstype = Opplysningstype.dato(Opplysningstype.Id(UUIDv7.ny(), Dato), "test-dato")
     private val datoOpplysning = Faktum(datoOpplysningstype, LocalDate.now())
@@ -198,12 +205,22 @@ class BehandlingRepositoryPostgresTest {
                     prosessregister = prosessregister,
                 )
 
-            opprettKjede(behandlingRepositoryPostgres, listOf(basertPåBehandling, behandling))
+            val systemaktørOppretter = Systemaktør("dp-klient")
+            val systemBehandling = nyBehandlingMedOppretter(systemaktørOppretter, Opplysninger.med(opplysning4))
+            val behandlingUtenOppretter = nyBehandlingMedOppretter(null, Opplysninger.med(opplysning5))
+            opprettKjede(
+                behandlingRepositoryPostgres,
+                listOf(basertPåBehandling, behandling, systemBehandling, behandlingUtenOppretter),
+            )
 
             val rehydrertBehandling = behandlingRepositoryPostgres.hentBehandling(behandling.behandlingId).shouldNotBeNull()
 
             rehydrertBehandling.behandlingId shouldBe behandling.behandlingId
             rehydrertBehandling.basertPå shouldBe behandling.basertPå
+            rehydrertBehandling.opprettetAv shouldBe Saksbehandler("Z123456")
+
+            behandlingRepositoryPostgres.hentBehandling(systemBehandling.behandlingId)?.opprettetAv shouldBe systemaktørOppretter
+            behandlingRepositoryPostgres.hentBehandling(behandlingUtenOppretter.behandlingId)?.opprettetAv shouldBe null
 
             rehydrertBehandling.opplysninger().somListe().size shouldBe behandling.opplysninger().somListe().size
             rehydrertBehandling.opplysninger().somListe() shouldContainExactly behandling.opplysninger().somListe()
@@ -232,6 +249,20 @@ class BehandlingRepositoryPostgresTest {
             }
         }
     }
+
+    private fun nyBehandlingMedOppretter(
+        oppretter: Aktør?,
+        opplysninger: Opplysninger,
+    ): Behandling =
+        Behandling.rehydrer(
+            behandlingId = UUIDv7.ny(),
+            behandler = TestBehandlinger.lagTestHendelse(ident, opprettetAv = oppretter),
+            gjeldendeOpplysninger = opplysninger,
+            opprettet = LocalDateTime.now(),
+            tilstand = UnderBehandling,
+            sistEndretTilstand = LocalDateTime.now(),
+            avklaringer = emptyList(),
+        )
 
     private fun DBTestContext.opprettKjede(
         behandlingRepositoryPostgres: BehandlingRepositoryPostgres,

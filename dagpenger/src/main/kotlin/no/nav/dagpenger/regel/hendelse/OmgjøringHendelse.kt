@@ -7,6 +7,7 @@ import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.SkalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
@@ -21,12 +22,14 @@ class OmgjøringHendelse(
     eksternId: EksternId<*>,
     gjelderDato: LocalDate,
     opprettet: LocalDateTime,
+    opprettetAv: Aktør? = null,
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
         eksternId = eksternId,
         skjedde = gjelderDato,
         opprettet = opprettet,
+        opprettetAv = opprettetAv,
     ) {
     override val forretningsprosess = Omgjøringsprosess()
 

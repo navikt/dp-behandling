@@ -1,6 +1,7 @@
 package no.nav.dagpenger.avklaring
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -57,6 +58,26 @@ class KontrollpunktTest {
     }
 
     @Test
+    fun `KreverAvklaring får riktig opplysningIder fra opplysningene som ble slått opp`() {
+        val kontrollpunkt =
+            Kontrollpunkt(ArbeidIEØS) { opplysninger ->
+                opplysninger.har(opplysningstype) && opplysninger.finnOpplysning(opplysningstype).verdi == 123
+            }
+
+        val opplysninger = Opplysninger()
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger)
+        val opplysning = getOpplysning(123) as Opplysning<*>
+        opplysninger.leggTil(opplysning).also { regelkjøring.evaluer() }
+
+        val resultat = kontrollpunkt.evaluer(opplysninger)
+        resultat.shouldBeInstanceOf<Kontrollresultat.KreverAvklaring>()
+
+        // Kontrollpunktet slår opp opplysningen to ganger (har + finnOpplysning), men
+        // opplysningIder skal kun inneholde den unike opplysningen
+        resultat.opplysningIder shouldContainExactly listOf(opplysning.id)
+    }
+
+    @Test
     fun `avklaringer gjenåpnes når grunnlaget endres`() {
         val kontrollpunkter =
             listOf(
@@ -94,6 +115,67 @@ class KontrollpunktTest {
             avklaringer.all { it.kode == TestIkke123 } shouldBe true
             avklaringer.first().sistEndret.shouldBeAfter(endretOpplysning.opprettet)
         }
+    }
+
+    @Test
+    fun `ny avklaring får opplysninger fra kontrollpunktet som utløste den`() {
+        val kontrollpunkter =
+            listOf(
+                Kontrollpunkt(TestIkke123) { opplysninger ->
+                    opplysninger.har(opplysningstype) && opplysninger.finnOpplysning(opplysningstype).verdi == 321
+                },
+            )
+
+        val ding = Avklaringer(kontrollpunkter)
+        val opplysninger = Opplysninger()
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.leggTilObservatør(ding) }
+        val utløsendeOpplysning = getOpplysning(321)
+        opplysninger.leggTil(utløsendeOpplysning as Opplysning<*>)
+        regelkjøring.evaluer()
+
+        val avklaring = ding.måAvklares().single()
+        val underBehandling = avklaring.endringer.last().shouldBeInstanceOf<Avklaring.Endring.UnderBehandling>()
+        underBehandling.opplysninger shouldContainExactly listOf(utløsendeOpplysning.id)
+    }
+
+    @Test
+    fun `automatisk gjenåpning av avklaring får opplysninger fra kontrollpunktet`() {
+        val kontrollpunkter =
+            listOf(
+                Kontrollpunkt(TestIkke123) { opplysninger ->
+                    opplysninger.har(opplysningstype) && opplysninger.finnOpplysning(opplysningstype).verdi == 321
+                },
+            )
+
+        val ding = Avklaringer(kontrollpunkter)
+        val opplysninger = Opplysninger()
+        val regelkjøring = Regelkjøring(1.mai(2024), opplysninger).also { it.leggTilObservatør(ding) }
+        opplysninger.leggTil(getOpplysning(321)).also { regelkjøring.evaluer() }
+
+        // Saksbehandler endrer opplysningen, avklaringen avbrytes automatisk
+        opplysninger.leggTil(getOpplysning(123) as Opplysning<*>).also { regelkjøring.evaluer() }
+        ding.avklaringer.single().erAvbrutt() shouldBe true
+
+        // Opplysningen endres tilbake til tilstand som krever avklaring — avklaringen gjenåpnes automatisk
+        val gjenåpnendeOpplysning = getOpplysning(321)
+        opplysninger.leggTil(gjenåpnendeOpplysning as Opplysning<*>).also { regelkjøring.evaluer() }
+
+        val avklaring = ding.avklaringer.single()
+        avklaring.måAvklares() shouldBe true
+        val underBehandling = avklaring.endringer.last().shouldBeInstanceOf<Avklaring.Endring.UnderBehandling>()
+        underBehandling.opplysninger shouldContainExactly listOf(gjenåpnendeOpplysning.id)
+    }
+
+    @Test
+    fun `manuell gjenåpning uten kontrollpunkt-kontekst gir tom opplysningsliste`() {
+        val avklaring = Avklaring(TestIkke123)
+        avklaring.avbryt() shouldBe true
+
+        val ding = Avklaringer(kontrollpunkter = emptyList(), avklaringer = listOf(avklaring))
+        ding.gjenåpne(avklaring.id) shouldBe true
+
+        val underBehandling = avklaring.endringer.last().shouldBeInstanceOf<Avklaring.Endring.UnderBehandling>()
+        underBehandling.opplysninger shouldBe emptyList()
     }
 
     @Test

@@ -10,6 +10,7 @@ import no.nav.dagpenger.modell.hendelser.Meldekort
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -32,12 +33,14 @@ class BeregnMeldekortHendelse(
     ident: String,
     opprettet: LocalDateTime,
     private val meldekort: Meldekort,
+    opprettetAv: Aktør? = null,
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
         eksternId = meldekort.eksternMeldekortId,
         skjedde = meldekort.innsendtTidspunkt.toLocalDate(),
         opprettet = opprettet,
+        opprettetAv = opprettetAv,
     ) {
     override val forretningsprosess get() = if (harBeregnetPeriodenEtterDenne) Omgjøringsprosess() else Meldekortprosess()
 

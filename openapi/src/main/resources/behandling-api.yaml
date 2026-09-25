@@ -1201,6 +1201,9 @@ components:
             - opplysninger
             - forslagOm
           properties:
+            opprettetAv:
+              $ref: '#/components/schemas/Oppretter'
+              description: Aktøren som opprettet behandlingen, hvis oppretteren er kjent
             kreverTotrinnskontroll:
               type: boolean
             tilstand:
@@ -1365,6 +1368,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RegelsettMeta'
+        opplysninger:
+          description: Opplysninger som utløste at avklaringen ble (gjen)åpnet
+          type: array
+          items:
+            $ref: '#/components/schemas/OpplysningsId'
 
     Opplysningstype:
       type: object
@@ -1843,6 +1851,20 @@ components:
       required:
         - ident
       properties:
+        ident:
+          type: string
+
+    Oppretter:
+      type: object
+      required:
+        - type
+        - ident
+      properties:
+        type:
+          type: string
+          enum:
+            - Saksbehandler
+            - System
         ident:
           type: string
 

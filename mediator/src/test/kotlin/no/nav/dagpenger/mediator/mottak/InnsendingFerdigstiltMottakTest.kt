@@ -17,7 +17,7 @@ internal class InnsendingFerdigstiltMottakTest {
 
     @Test
     fun `tar imot søknad om ny og republiserer som behandlingsklar`() {
-        rapid.sendTestMessage(søknad())
+        rapid.sendTestMessage(søknad(fagsystem = "ARENA"))
         rapid.inspektør.size shouldBe 1
         rapid.inspektør.key(0) shouldBe ident
         val message = rapid.inspektør.message(0)
@@ -27,7 +27,15 @@ internal class InnsendingFerdigstiltMottakTest {
             this["journalpostId"].asInt() shouldBe 123
             this["søknadId"].asUUID() shouldBe søknadId
             this["type"].asString() shouldBe "NySøknad"
+            this["fagsystem"].asString() shouldBe "ARENA"
         }
+    }
+
+    @Test
+    fun `pipe videre manglende fagsystem uten å finne på en verdi`() {
+        rapid.sendTestMessage(søknad())
+        val message = rapid.inspektør.message(0)
+        message.has("fagsystem") shouldBe false
     }
 
     @Test
@@ -55,9 +63,11 @@ internal class InnsendingFerdigstiltMottakTest {
     fun søknad(
         type: String = "NySøknad",
         fagsakId: Int? = 123,
+        fagsystem: String? = null,
     ) = buildMap {
         put("type", type)
         if (fagsakId != null) put("fagsakId", fagsakId)
+        if (fagsystem != null) put("fagsystem", fagsystem)
         put("fødselsnummer", ident)
         put("søknadsData", mapOf("søknad_uuid" to søknadId))
         put("datoRegistrert", "2024-06-01T12:00:00")

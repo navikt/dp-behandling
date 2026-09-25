@@ -96,7 +96,7 @@ class Behandling private constructor(
     private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
     val regelverk get() = forretningsprosess.regelverk.navn
-
+    val opprettetAv get() = behandler.opprettetAv
     val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
