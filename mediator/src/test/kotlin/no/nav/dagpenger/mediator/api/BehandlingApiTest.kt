@@ -288,10 +288,21 @@ internal class BehandlingApiTest {
     @Test
     fun `hent behandlinger gitt person`() {
         medSikretBehandlingApi { testContext ->
-            val response = testContext.autentisert(endepunkt = "/behandling", body = """{"ident":"${person.ident}"}""")
+            val navIdent = "Z456789"
+            val response =
+                testContext.autentisert(
+                    endepunkt = "/behandling",
+                    body = """{"ident":"${person.ident}"}""",
+                    token =
+                        testAzureAdToken(
+                            ADGrupper = listOf(oppsett.saksbehandlerGruppe),
+                            navIdent = navIdent,
+                        ),
+                )
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText() shouldBe "[]"
             auditlogg.aktivitet shouldContainExactly listOf("les")
+            auditlogg.kall.single().saksbehandler shouldBe navIdent
         }
     }
 
@@ -402,7 +413,17 @@ internal class BehandlingApiTest {
             person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
-            val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/${person.behandlingId}")
+            val navIdent = "Z456789"
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Get,
+                    endepunkt = "/behandling/${person.behandlingId}",
+                    token =
+                        testAzureAdToken(
+                            ADGrupper = listOf(oppsett.saksbehandlerGruppe),
+                            navIdent = navIdent,
+                        ),
+                )
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
 
@@ -424,6 +445,7 @@ internal class BehandlingApiTest {
 
             behandlingDto.avklaringer shouldHaveSize 8
             auditlogg.aktivitet shouldContainExactly listOf("les")
+            auditlogg.kall.single().saksbehandler shouldBe navIdent
         }
     }
 
