@@ -50,6 +50,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12uk
 import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt.oppfyllerOpplysningsplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.bostedsland
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
@@ -390,6 +391,8 @@ internal val redigerbareOpplysninger =
                             skalHaEksport,
                             registrertIVertsland,
                             antallDagerFristForRegistrering,
+                            // test for Eivind
+                            minsteinntekt,
                         ),
                     )
 
