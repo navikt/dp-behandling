@@ -45,7 +45,7 @@ import java.util.UUID
 import kotlin.random.Random
 
 internal class SimulertDagpengerSystem(
-    dbTestContext: DBTestContext,
+    val dbTestContext: DBTestContext,
     val oppsett: ScenarioOptions,
 ) {
     companion object {
@@ -318,14 +318,21 @@ fun TestRapid.RapidInspector.sisteMelding(navn: String): Pair<Int, JsonNode> {
 }
 
 class TestAuditlogg internal constructor() : Auditlogg {
-    val aktivitet = mutableListOf<String>()
+    data class Kall(
+        val operasjon: String,
+        val ident: String,
+        val saksbehandler: String,
+    )
+
+    val kall = mutableListOf<Kall>()
+    val aktivitet get() = kall.map { it.operasjon }
 
     override fun les(
         melding: String,
         ident: String,
         saksbehandler: String,
     ) {
-        aktivitet.add("les")
+        kall.add(Kall("les", ident, saksbehandler))
     }
 
     override fun opprett(
@@ -333,7 +340,7 @@ class TestAuditlogg internal constructor() : Auditlogg {
         ident: String,
         saksbehandler: String,
     ) {
-        aktivitet.add("opprett")
+        kall.add(Kall("opprett", ident, saksbehandler))
     }
 
     override fun oppdater(
@@ -341,7 +348,7 @@ class TestAuditlogg internal constructor() : Auditlogg {
         ident: String,
         saksbehandler: String,
     ) {
-        aktivitet.add("oppdater")
+        kall.add(Kall("oppdater", ident, saksbehandler))
     }
 
     override fun slett(
@@ -349,6 +356,6 @@ class TestAuditlogg internal constructor() : Auditlogg {
         ident: String,
         saksbehandler: String,
     ) {
-        aktivitet.add("slett")
+        kall.add(Kall("slett", ident, saksbehandler))
     }
 }
