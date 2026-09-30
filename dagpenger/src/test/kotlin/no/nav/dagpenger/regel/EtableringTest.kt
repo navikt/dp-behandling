@@ -2,12 +2,18 @@ package no.nav.dagpenger.regel
 
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.regelsett
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class EtableringTest {
     @Test
@@ -34,11 +40,50 @@ class EtableringTest {
         regelsett.ønsketInformasjon shouldContainAll setOf(Etablering.påvirkerUtfallet)
     }
 
-    // NB: `somUtgangspunkt`-standardverdiene i Etablering.regelsett (nyVirksomhet, selvforsørget,
-    // godkjentNæringsfaglig, ikkeSelvforskyldtArbeidsledig, sluttDato) kan ikke enhetstestes isolert her.
-    // Regel.kjør(...) er internal i opplysninger-modulen og krever at hele regelmotoren/DAG-en kjøres
-    // for å produsere disse verdiene, slik andre vilkår-regelsett-tester i dette prosjektet heller
-    // ikke gjør.
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `etableringsutfallet bruker sluttdato og oppdateres når den endres`(godkjent: Boolean) {
+        val prøvingsdato = 15.januar(2025)
+        val opplysninger =
+            opplysninger(skalEtableringVurderes = true, påvirkerUtfallet = true).apply {
+                leggTil(Faktum(Etablering.nyVirksomhet, godkjent))
+                leggTil(Faktum(Etablering.selvforsørget, true))
+                leggTil(Faktum(Etablering.godkjentNæringsfaglig, true))
+                leggTil(Faktum(Etablering.egenVirksomhet, true))
+                leggTil(Faktum(Etablering.ikkeSelvforskyldtArbeidsledig, true))
+                leggTil(Faktum(Etablering.sluttDato, 31.januar(2025)))
+            }
+
+        Regelkjøring(prøvingsdato, opplysninger, regelsett).evaluer()
+
+        with(opplysninger.finnOpplysning(Etablering.etableringGodkjent)) {
+            verdi shouldBe godkjent
+            gyldighetsperiode shouldBe Gyldighetsperiode(prøvingsdato, 31.januar(2025))
+        }
+
+        opplysninger.leggTil(Faktum(Etablering.sluttDato, 20.januar(2025)))
+        Regelkjøring(prøvingsdato, opplysninger, regelsett).evaluer()
+
+        with(opplysninger.finnOpplysning(Etablering.etableringGodkjent)) {
+            verdi shouldBe godkjent
+            gyldighetsperiode shouldBe Gyldighetsperiode(prøvingsdato, 20.januar(2025))
+        }
+    }
+
+    @Test
+    fun `negativt etableringsutfall stopper ikke fastsetting når øvrige vilkår er oppfylt`() {
+        val opplysninger =
+            opplysninger(skalEtableringVurderes = true, påvirkerUtfallet = true).apply {
+                RegelverkDagpenger.vilkårsopplysninger.forEach { leggTil(Faktum(it, true)) }
+                leggTil(Faktum(Etablering.etableringGodkjent, false))
+            }
+
+        kravPåDagpenger(opplysninger) shouldBe true
+
+        opplysninger.leggTil(Faktum(Alderskrav.kravTilAlder, false))
+
+        kravPåDagpenger(opplysninger) shouldBe false
+    }
 
     private fun opplysninger(
         skalEtableringVurderes: Boolean,

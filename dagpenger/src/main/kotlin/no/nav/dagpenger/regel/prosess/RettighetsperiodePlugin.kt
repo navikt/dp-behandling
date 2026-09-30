@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.TidslinjeBygger
 import no.nav.dagpenger.opplysning.Utledning
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.etableringGodkjent
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 
 fun interface PeriodeOverskrivingsStrategi {
@@ -46,7 +47,8 @@ class RettighetsperiodePlugin(
 
         if (harSaksbehandlerKilde(egne)) return
 
-        val vilkår = regelverk.relevanteVilkår(opplysninger).mapNotNull { it.utfall }
+        val relevanteVilkår = regelverk.relevanteVilkår(opplysninger).mapNotNull { it.utfall }
+        val vilkår = relevanteVilkår.filterNot { it == etableringGodkjent }
         val utfall = finnVurdertUtfall(opplysninger, vilkår)
 
         fjernEgneRettighetsperioder(opplysninger, egne)
@@ -68,6 +70,39 @@ class RettighetsperiodePlugin(
                     ),
                 )
             }
+
+        if (etableringGodkjent in relevanteVilkår) {
+            fastsettSluttdatoFraEtablering(kontekst, utfall)
+        }
+    }
+
+    private fun fastsettSluttdatoFraEtablering(
+        kontekst: Prosesskontekst,
+        utfall: List<Opplysning<Boolean>>,
+    ) {
+        val opplysninger = kontekst.opplysninger
+        val etablering =
+            opplysninger.finnAlle(etableringGodkjent).maxByOrNull { it.gyldighetsperiode.fraOgMed }
+                ?: return
+        if (!etablering.verdi) return
+
+        // Bare den siste perioden kan endres, slik at etablering ikke overstyrer en senere stans.
+        val rett =
+            opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).maxByOrNull { it.gyldighetsperiode.fraOgMed }
+                ?: return
+        if (!rett.verdi || !rett.gyldighetsperiode.overlapper(etablering.gyldighetsperiode)) return
+        if (rett.gyldighetsperiode.tilOgMed == etablering.gyldighetsperiode.tilOgMed) return
+
+        val gyldighetsperiode = rett.gyldighetsperiode.copy(tilOgMed = etablering.gyldighetsperiode.tilOgMed)
+        opplysninger.leggTil(
+            Faktum(
+                KravPåDagpenger.harLøpendeRett,
+                rett.verdi,
+                gyldighetsperiode,
+                Utledning(this.javaClass.simpleName, utfall + etablering),
+            ),
+        )
+        kontekst.info("Godkjent etablering setter sluttdato for løpende rett til ${gyldighetsperiode.tilOgMed}")
     }
 
     // Automatikken skal aldri overstyre en periode som er satt av noe annet enn seg selv (kilde != null).

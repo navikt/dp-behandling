@@ -4,7 +4,8 @@ import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.forskriftTilFolketrygden
-import no.nav.dagpenger.opplysning.regel.alle
+import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
+import no.nav.dagpenger.opplysning.regel.alleMedGyldighetsperiodeFra
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.OpplysningsTyper.egenVirksomhetId
 import no.nav.dagpenger.regel.OpplysningsTyper.etableringGodkjentId
@@ -19,13 +20,18 @@ import java.time.LocalDate
 
 object Etablering {
     val nyVirksomhet = boolsk(nyVirksomhetId, "Ny virksomhet")
+    val sluttDato = dato(sluttDatoId, "Siste dato for dagpenger under etablering")
     val selvforsørget = boolsk(selvforsørgetId, "Antas å føre til selvforsørgelse")
     val godkjentNæringsfaglig = boolsk(godkjentNæringsfagligId, "Godkjent næringsfaglig vurdering")
     val ikkeSelvforskyldtArbeidsledig = boolsk(ikkeSelvforskyldtArbeidsledigId, "Ikke selvforskyldt arbeidsledig")
     val egenVirksomhet = boolsk(egenVirksomhetId, "Egen Virksomhet")
     val påvirkerUtfallet = boolsk(påvirkerUtfalletId, "Skal påvirke løpende rett")
-    val sluttDato = dato(sluttDatoId, "Siste dato for etablering")
-    val etableringGodkjent = boolsk(etableringGodkjentId, "Oppfyller vilkårene til etablering av egen virksomhet")
+    val etableringGodkjent =
+        boolsk(
+            etableringGodkjentId,
+            "Oppfyller vilkårene til etablering av egen virksomhet",
+            gyldighetsperiode = GyldighetsperiodeStrategi.basertPåTilOgMed(sluttDato),
+        )
 
     val regelsett =
         vilkår(
@@ -47,15 +53,16 @@ object Etablering {
             regel(sluttDato) { somUtgangspunkt(LocalDate.now().plusMonths(12)) }
 
             utfall(etableringGodkjent) {
-                alle(
+                alleMedGyldighetsperiodeFra(
                     nyVirksomhet,
                     selvforsørget,
                     godkjentNæringsfaglig,
                     egenVirksomhet,
                     ikkeSelvforskyldtArbeidsledig,
+                    periodeFra = sluttDato,
                 )
             }
-            ønsketResultat(påvirkerUtfallet)
+            ønsketResultat(påvirkerUtfallet, sluttDato)
 
             påvirkerResultat { it.erSann(skalEtableringVurderes) && it.erSann(påvirkerUtfallet) }
         }

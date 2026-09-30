@@ -2,6 +2,11 @@
 @dokumentasjon @regel-etablering
 Egenskap: Etablering
 
+  Etablering påvirker bare sluttdatoen når vilkåret er relevant og godkjent.
+  Da får siste periode med løpende rett samme til-og-med-dato som etableringsvilkåret.
+  Fra-og-med-datoen endres ikke, og etablering overstyrer ikke en senere stans.
+  Et negativt etableringsutfall endrer ikke eksisterende rett.
+
   Scenariomal: Saksbehandler vurderer opplysninger om etablering
     Gitt at etablering skal vurderes
     Og de øvrige vilkårene for etablering er oppfylt
@@ -15,13 +20,13 @@ Egenskap: Etablering
     Eksempler:
       | påvirkerResultat | nyVirksomhet | selvforsørget | egenVirksomhet | utfall | harRett |
       | Ja               | Ja           | Ja             | Ja             | Ja     | Ja      |
-      | Ja               | Ja           | Ja             | Nei            | Nei    | Nei     |
-      | Ja               | Ja           | Nei            | Ja             | Nei    | Nei     |
-      | Ja               | Ja           | Nei            | Nei            | Nei    | Nei     |
-      | Ja               | Nei          | Ja             | Ja             | Nei    | Nei     |
-      | Ja               | Nei          | Ja             | Nei            | Nei    | Nei     |
-      | Ja               | Nei          | Nei            | Ja             | Nei    | Nei     |
-      | Ja               | Nei          | Nei            | Nei            | Nei    | Nei     |
+      | Ja               | Ja           | Ja             | Nei            | Nei    | Ja      |
+      | Ja               | Ja           | Nei            | Ja             | Nei    | Ja      |
+      | Ja               | Ja           | Nei            | Nei            | Nei    | Ja      |
+      | Ja               | Nei          | Ja             | Ja             | Nei    | Ja      |
+      | Ja               | Nei          | Ja             | Nei            | Nei    | Ja      |
+      | Ja               | Nei          | Nei            | Ja             | Nei    | Ja      |
+      | Ja               | Nei          | Nei            | Nei            | Nei    | Ja      |
       | Nei              | Ja           | Ja             | Ja             | Ja     | Ja      |
       | Nei              | Ja           | Ja             | Nei            | Nei    | Ja      |
       | Nei              | Ja           | Nei            | Ja             | Nei    | Ja      |

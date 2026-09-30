@@ -80,14 +80,29 @@ class EtableringTest {
                     single().verdi.verdi shouldBe false
                 }
 
-                // påvirkerUtfallet har somUtgangspunkt(true), så den er allerede sann uten at
-                // saksbehandler trenger å overstyre den manuelt. Dette er det som gjør at
-                // relevantForResultat (og dermed vilkåret i vilkårslisten) blir true.
                 opplysninger(Etablering.påvirkerUtfallet) {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe true
                 }
+                opplysninger(etableringGodkjent) {
+                    single().verdi.verdi shouldBe false
+                }
+
+                with(rettighetsperioder.single()) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 1.januar(2025)
+                    tilOgMed shouldBe null
+                }
             }
+
+            saksbehandler.endreOpplysning(Etablering.sluttDato, 31.januar(2025))
+            listOf(
+                Etablering.nyVirksomhet,
+                Etablering.selvforsørget,
+                Etablering.godkjentNæringsfaglig,
+                Etablering.egenVirksomhet,
+                Etablering.ikkeSelvforskyldtArbeidsledig,
+            ).forEach { saksbehandler.endreOpplysning(it, true) }
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -104,10 +119,15 @@ class EtableringTest {
                 }
                 opplysninger(etableringGodkjent) {
                     shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                    single().verdi.verdi shouldBe true
+                    single().gyldigTilOgMed shouldBe 31.januar(2025)
                 }
 
-                rettighetsperioder.last().harRett shouldBe false
+                with(rettighetsperioder.single()) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 1.januar(2025)
+                    tilOgMed shouldBe 31.januar(2025)
+                }
             }
         }
     }
@@ -138,7 +158,11 @@ class EtableringTest {
                     single().verdi.verdi shouldBe false
                 }
 
-                rettighetsperioder.last().harRett shouldBe true
+                with(rettighetsperioder.single()) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 1.januar(2025)
+                    tilOgMed shouldBe null
+                }
             }
         }
     }
