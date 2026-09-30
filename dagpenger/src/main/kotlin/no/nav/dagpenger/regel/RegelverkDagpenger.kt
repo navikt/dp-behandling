@@ -110,6 +110,7 @@ fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
     RegelverkDagpenger
         .relevanteVilkår(opplysninger)
         .asSequence()
+        .filterNot { it == Etablering.regelsett }
         .flatMap { it.betingelser.asSequence() }
         .all { opplysninger.erSann(it) }
 

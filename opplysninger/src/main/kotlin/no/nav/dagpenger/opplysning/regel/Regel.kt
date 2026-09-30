@@ -214,6 +214,13 @@ fun interface GyldighetsperiodeStrategi<T> {
                 Gyldighetsperiode(dato)
             }
 
+        fun <P> basertPåTilOgMed(opplysningstype: Opplysningstype<LocalDate>) =
+            GyldighetsperiodeStrategi<P> { _, basertPå, prøvingsdato ->
+                val dato = basertPå.single { it.opplysningstype == opplysningstype }.verdi
+                require(dato is LocalDate) { "Opplysningstype som skal brukes til å utlede gyldighetsperiode må være LocalDate" }
+                Gyldighetsperiode(prøvingsdato, dato)
+            }
+
         // Arver hele gyldighetsperioden til en navngitt avhengighet, slått opp på opplysningstype
         // (ikke posisjon i avhengerAv-listen). Brukes når en opplysning skal "låne" gyldighetsperioden
         // til én spesifikk avhengighet, uavhengig av hvilke andre opplysninger den også er avhengig av.
