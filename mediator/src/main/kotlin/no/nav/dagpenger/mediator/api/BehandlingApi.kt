@@ -61,6 +61,7 @@ import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OppdateringRepository
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.toJsonMessage
+import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.Behandling.TilstandType.Redigert
 import no.nav.dagpenger.modell.Behandling.TilstandType.TilBeslutning
@@ -297,6 +298,7 @@ internal fun Application.behandlingApi(
                         personRepository
                             .hent(ident.tilPersonIdentfikator())!!
                             .behandlinger()
+                            .filterNot { it.harTilstand(Behandling.TilstandType.Avbrutt) }
                             .single { it.behandler.eksternId == hendelse.eksternId }
                             .tilBehandlingDTO(),
                     )

@@ -208,6 +208,45 @@ internal class BehandlingApiTest {
     }
 
     @Test
+    fun `Kan opprette klagebehandling på nytt når forrige klagebehandling er avbrutt`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.april(LocalDate.now().year))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.behandlingId.shouldNotBeNull()
+
+            // Klage med id (Klagebehandlingen sin behandlingId)
+            val klageId = UUIDv7.ny()
+
+            val behandlingRespons1 =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body =
+                        """
+                        {"ident":"${person.ident}", "behandlingstype": "OmgjøringEtterKlage", "kildesystem": "Førsteinstans", "id": "$klageId"}
+                        """.trimIndent(),
+                )
+            behandlingRespons1.status shouldBe HttpStatusCode.OK
+            with(behandlingRespons1.body<BehandlingDTO>()) {
+                saksbehandler.avbryt(behandlingId = behandlingId)
+            }
+
+            val behandlingRespons2 =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body =
+                        """
+                        {"ident":"${person.ident}", "behandlingstype": "OmgjøringEtterKlage", "kildesystem": "Førsteinstans", "id": "$klageId"}
+                        """.trimIndent(),
+                )
+            behandlingRespons2.status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    @Test
     fun `opprett kjedet behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger(1.april(LocalDate.now().year))
