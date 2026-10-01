@@ -18,6 +18,7 @@ internal class BehandlingsresultatAssertions(
     val rettighetsperioder: List<RettighetsperiodeDTO> = objectMapper.treeToValue(klump["rettighetsperioder"])
     val opplysninger: JsonNode = klump["opplysninger"]
     val utbetalinger: JsonNode = klump["utbetalinger"]
+    val totaltUtbetalt = utbetalinger.toList().sumOf { it["utbetaling"].asInt() }
     val førteTil: String = klump["førteTil"].asString()
     val behandletHendelse: JsonNode = klump["behandletHendelse"]
 

@@ -11,8 +11,10 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
+import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Inntekt
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -20,6 +22,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStøna
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.skalGjenopptas
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
@@ -30,6 +33,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode.Periodestatus
 import org.junit.jupiter.api.Test
@@ -532,6 +536,80 @@ class GjenopptakTest {
                 rettighetsperioder[1].harRett shouldBe true
                 rettighetsperioder[1].fraOgMed shouldBe gjenopptaksdato
                 rettighetsperioder[1].tilOgMed.shouldBeNull()
+            }
+        }
+    }
+
+    @Test
+    fun `tester gjenopptak med innvilgelse etter stans der deler av meldekortet dekker perioden en skal ha rett`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(4.august(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
+            // Opprett stans
+            saksbehandler.omgjørBehandling(3.juni(2026))
+            saksbehandler.endreOpplysning(Utdanning.tarUtdanning, true, "Tar utdanning", Gyldighetsperiode(1.september(2026)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(3)
+            meldekortBatch(markerFerdig = true)
+            var tidligereUtbetalt = 0
+            behandlingsresultat(5) {
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 42
+                    find { it.gyldigFraOgMed == 4.september(2026) }?.verdi?.verdi shouldBe false
+                }
+                tidligereUtbetalt = totaltUtbetalt
+                tidligereUtbetalt shouldBeGreaterThan 0
+            }
+
+            // Gjenoppta
+            val gjenopptaksdato = 4.september(2026)
+            person.søkGjenopptak(gjenopptaksdato)
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(
+                Utdanning.tarUtdanning,
+                true,
+                "Tar utdanning",
+                Gyldighetsperiode(1.september(2026), 3.september(2026)),
+            )
+            saksbehandler.endreOpplysning(Utdanning.tarUtdanning, false, "Tar utdanning", Gyldighetsperiode(1.september(2026)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(6) {
+                rettighetsperioder.size shouldBe 3
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].fraOgMed shouldBe 4.august(2026)
+                rettighetsperioder[0].tilOgMed shouldBe 31.august(2026)
+
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 1.september(2026)
+                rettighetsperioder[1].tilOgMed shouldBe 3.september(2026)
+
+                rettighetsperioder[2].harRett shouldBe true
+                rettighetsperioder[2].fraOgMed shouldBe gjenopptaksdato
+
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 42
+                    find { it.gyldigFraOgMed == gjenopptaksdato }?.verdi?.verdi shouldBe true
+                    totaltUtbetalt shouldBeGreaterThan tidligereUtbetalt
+                }
             }
         }
     }
