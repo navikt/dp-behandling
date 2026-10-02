@@ -50,6 +50,7 @@ class EtableringTest {
                 leggTil(Faktum(Etablering.selvforsørget, true))
                 leggTil(Faktum(Etablering.godkjentNæringsfaglig, true))
                 leggTil(Faktum(Etablering.egenVirksomhet, true))
+                leggTil(Faktum(Etablering.overFemtiProsentEierandel, true))
                 leggTil(Faktum(Etablering.ikkeSelvforskyldtArbeidsledig, true))
                 leggTil(Faktum(Etablering.sluttDato, 31.januar(2025)))
             }

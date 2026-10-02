@@ -12,6 +12,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.etableringGodkjentId
 import no.nav.dagpenger.regel.OpplysningsTyper.godkjentNæringsfagligId
 import no.nav.dagpenger.regel.OpplysningsTyper.ikkeSelvforskyldtArbeidsledigId
 import no.nav.dagpenger.regel.OpplysningsTyper.nyVirksomhetId
+import no.nav.dagpenger.regel.OpplysningsTyper.overFemtiProsentEierandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.påvirkerUtfalletId
 import no.nav.dagpenger.regel.OpplysningsTyper.selvforsørgetId
 import no.nav.dagpenger.regel.OpplysningsTyper.sluttDatoId
@@ -26,6 +27,9 @@ object Etablering {
     val ikkeSelvforskyldtArbeidsledig = boolsk(ikkeSelvforskyldtArbeidsledigId, "Ikke selvforskyldt arbeidsledig")
     val egenVirksomhet = boolsk(egenVirksomhetId, "Egen Virksomhet")
     val påvirkerUtfallet = boolsk(påvirkerUtfalletId, "Skal påvirke løpende rett")
+
+    // En person som mottar dagpenger og etablerer virksomhet sammen med andre som ikke mottar dagpenger eller arbeidsavklaringspenger fra Nav, må ha en eierandel i virksomheten på over 50 prosent.
+    val overFemtiProsentEierandel = boolsk(overFemtiProsentEierandelId, "Over 50 prosent eierandel i virksomheten")
     val etableringGodkjent =
         boolsk(
             etableringGodkjentId,
@@ -49,6 +53,7 @@ object Etablering {
             regel(godkjentNæringsfaglig) { somUtgangspunkt(false) }
             regel(ikkeSelvforskyldtArbeidsledig) { somUtgangspunkt(false) }
             regel(egenVirksomhet) { somUtgangspunkt(false) }
+            regel(overFemtiProsentEierandel) { somUtgangspunkt(false) }
             regel(påvirkerUtfallet) { somUtgangspunkt(true) }
             regel(sluttDato) { somUtgangspunkt(LocalDate.now().plusMonths(12)) }
 
@@ -59,6 +64,7 @@ object Etablering {
                     godkjentNæringsfaglig,
                     egenVirksomhet,
                     ikkeSelvforskyldtArbeidsledig,
+                    overFemtiProsentEierandel,
                     periodeFra = sluttDato,
                 )
             }

@@ -78,6 +78,12 @@ class EtableringSteg : No {
                 .leggTil(Faktum(Etablering.egenVirksomhet, egenVirksomhet) as Opplysning<*>)
                 .also { regelkjøring.evaluer() }
         }
+        Og("saksbehandler vurderer at eierandelen er over femti prosent {boolsk}") { overFemtiProsent: Boolean ->
+            // Write code here that turns the phrase above into concrete actions
+            opplysninger
+                .leggTil(Faktum(Etablering.overFemtiProsentEierandel, overFemtiProsent) as Opplysning<*>)
+                .also { regelkjøring.evaluer() }
+        }
 
         Så("skal vilkåret om etablering være {boolsk}") { utfall: Boolean ->
             opplysninger.finnOpplysning(Etablering.etableringGodkjent).verdi shouldBe utfall
