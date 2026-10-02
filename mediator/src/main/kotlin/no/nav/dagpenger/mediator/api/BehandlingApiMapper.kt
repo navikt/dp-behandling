@@ -408,7 +408,6 @@ internal val redigerbareOpplysninger =
                             påvirkerUtfallet,
                             sluttDato,
                             egenVirksomhet,
-                            etableringGodkjent,
                             overFemtiProsentEierandel,
                         ),
                     )
