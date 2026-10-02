@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel
 
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Faktum
@@ -26,26 +25,14 @@ class EtableringTest {
 
     @Test
     fun `skal kun kjøres når skalEtableringVurderes er sann`() {
-        regelsett.skalKjøres(opplysninger(skalEtableringVurderes = true, påvirkerUtfallet = false)) shouldBe true
-        regelsett.skalKjøres(opplysninger(skalEtableringVurderes = false, påvirkerUtfallet = false)) shouldBe false
+        regelsett.skalKjøres(opplysninger(skalEtableringVurderes = true)) shouldBe true
+        regelsett.skalKjøres(opplysninger(skalEtableringVurderes = false)) shouldBe false
     }
 
     @Test
-    fun `valider oppførsel til påvirkerResultat`() {
-        // Etablering er vurdert og påvirker utfallet, relevant
-        regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = true, påvirkerUtfallet = true)) shouldBe true
-
-        // Etablering er vurdert, men påvirker ikke utfallet, ikke relevant
-        regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = true, påvirkerUtfallet = false)) shouldBe false
-
-        // Etablering skal ikke vurderes, og påvirker dermed ikke utfallet, ikke relevant
-        regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = false, påvirkerUtfallet = false)) shouldBe false
-        regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = false, påvirkerUtfallet = true)) shouldBe false
-    }
-
-    @Test
-    fun `beholder opplysningen som styrer relevans`() {
-        regelsett.ønsketInformasjon shouldContainAll setOf(Etablering.påvirkerUtfallet)
+    fun `er relevant bare når etablering skal vurderes`() {
+        regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = true)) shouldBe true
+        regelsett.påvirkerResultat(opplysninger(skalEtableringVurderes = false)) shouldBe false
     }
 
     @ParameterizedTest
@@ -53,7 +40,7 @@ class EtableringTest {
     fun `etableringsutfallet bruker sluttdato og oppdateres når den endres`(godkjent: Boolean) {
         val prøvingsdato = 15.januar(2025)
         val opplysninger =
-            opplysninger(skalEtableringVurderes = true, påvirkerUtfallet = true).apply {
+            opplysninger(skalEtableringVurderes = true).apply {
                 leggTil(Faktum(Etablering.nyVirksomhet, godkjent))
                 leggTil(Faktum(Etablering.selvforsørget, true))
                 leggTil(Faktum(Etablering.godkjentNæringsfaglig, true))
@@ -82,7 +69,7 @@ class EtableringTest {
     @Test
     fun `negativt etableringsutfall stopper ikke fastsetting når øvrige vilkår er oppfylt`() {
         val opplysninger =
-            opplysninger(skalEtableringVurderes = true, påvirkerUtfallet = true).apply {
+            opplysninger(skalEtableringVurderes = true).apply {
                 RegelverkDagpenger.vilkårsopplysninger.forEach { leggTil(Faktum(it, true)) }
                 leggTil(Faktum(Etablering.etableringGodkjent, false))
             }
@@ -94,12 +81,6 @@ class EtableringTest {
         kravPåDagpenger(opplysninger) shouldBe false
     }
 
-    private fun opplysninger(
-        skalEtableringVurderes: Boolean,
-        påvirkerUtfallet: Boolean,
-    ): Opplysninger =
-        Opplysninger.med(
-            Faktum(Rettighetstype.skalEtableringVurderes, skalEtableringVurderes),
-            Faktum(Etablering.påvirkerUtfallet, påvirkerUtfallet),
-        )
+    private fun opplysninger(skalEtableringVurderes: Boolean): Opplysninger =
+        Opplysninger.med(Faktum(Rettighetstype.skalEtableringVurderes, skalEtableringVurderes))
 }

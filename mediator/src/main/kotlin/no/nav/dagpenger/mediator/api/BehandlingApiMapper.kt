@@ -50,7 +50,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.godkjentNæringsfagli
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.ikkeSelvforskyldtArbeidsledig
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.nyVirksomhet
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.overFemtiProsentEierandel
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.påvirkerUtfallet
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.selvforsørget
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.sluttDato
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
@@ -404,7 +403,6 @@ internal val redigerbareOpplysninger =
                             selvforsørget,
                             godkjentNæringsfaglig,
                             ikkeSelvforskyldtArbeidsledig,
-                            påvirkerUtfallet,
                             sluttDato,
                             egenVirksomhet,
                             overFemtiProsentEierandel,

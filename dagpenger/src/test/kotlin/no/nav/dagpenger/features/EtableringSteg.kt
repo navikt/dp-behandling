@@ -55,12 +55,6 @@ class EtableringSteg : No {
                 }.also { regelkjøring.evaluer() }
         }
 
-        Og("saksbehandler vurderer at etablering påvirker resultatet {boolsk}") { påvirker: Boolean ->
-            opplysninger
-                .leggTil(Faktum(Etablering.påvirkerUtfallet, påvirker) as Opplysning<*>)
-                .also { regelkjøring.evaluer() }
-        }
-
         Og("saksbehandler vurderer at det er en ny virksomhet {boolsk}") { nyVirksomhet: Boolean ->
             opplysninger
                 .leggTil(Faktum(Etablering.nyVirksomhet, nyVirksomhet) as Opplysning<*>)
@@ -91,7 +85,6 @@ class EtableringSteg : No {
 
         Så("skal opplysninger om etablering ikke være satt") {
             listOf(
-                Etablering.påvirkerUtfallet,
                 Etablering.nyVirksomhet,
                 Etablering.selvforsørget,
                 Etablering.egenVirksomhet,

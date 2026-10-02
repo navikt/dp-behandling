@@ -178,7 +178,6 @@ class RettighetsperiodePluginTest {
             Opplysninger.med(
                 Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025))),
                 Faktum(Rettighetstype.skalEtableringVurderes, true),
-                Faktum(Etablering.påvirkerUtfallet, true),
                 Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
             )
 
@@ -196,7 +195,6 @@ class RettighetsperiodePluginTest {
             Opplysninger.basertPå(Opplysninger.med(innvilgelse)).apply {
                 leggTil(Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025))))
                 leggTil(Faktum(Rettighetstype.skalEtableringVurderes, true))
-                leggTil(Faktum(Etablering.påvirkerUtfallet, true))
                 leggTil(Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025))))
             }
         val plugin = RettighetsperiodePlugin(regelverkMedEtablering)
@@ -217,7 +215,6 @@ class RettighetsperiodePluginTest {
             Opplysninger.med(
                 Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025), 20.januar(2025))),
                 Faktum(Rettighetstype.skalEtableringVurderes, true),
-                Faktum(Etablering.påvirkerUtfallet, true),
                 Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
             )
 
@@ -230,17 +227,12 @@ class RettighetsperiodePluginTest {
 
     @ParameterizedTest
     @CsvSource(
-        "false, false, false",
-        "false, false, true",
-        "false, true, false",
-        "false, true, true",
-        "true, false, false",
-        "true, false, true",
-        "true, true, false",
+        "false, false",
+        "false, true",
+        "true, false",
     )
     fun `etablering som ikke er relevant og godkjent lar arvet rett være uendret`(
         skalVurderes: Boolean,
-        påvirkerUtfallet: Boolean,
         godkjent: Boolean,
     ) {
         val innvilgelse = Faktum(harLøpendeRett, true, Gyldighetsperiode(1.januar(2025), 20.januar(2025)))
@@ -248,7 +240,6 @@ class RettighetsperiodePluginTest {
             Opplysninger.basertPå(Opplysninger.med(innvilgelse)).apply {
                 leggTil(Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025))))
                 leggTil(Faktum(Rettighetstype.skalEtableringVurderes, skalVurderes))
-                leggTil(Faktum(Etablering.påvirkerUtfallet, påvirkerUtfallet))
                 leggTil(Faktum(Etablering.etableringGodkjent, godkjent, Gyldighetsperiode(15.januar(2025), 31.januar(2025))))
             }
 
@@ -264,7 +255,6 @@ class RettighetsperiodePluginTest {
             Opplysninger.med(
                 Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025))),
                 Faktum(Rettighetstype.skalEtableringVurderes, true),
-                Faktum(Etablering.påvirkerUtfallet, true),
             )
 
         RettighetsperiodePlugin(regelverkMedEtablering).regelkjøringFerdig(Prosesskontekst(opplysninger))
@@ -280,7 +270,6 @@ class RettighetsperiodePluginTest {
             Opplysninger.med(
                 Faktum(utfall2, false, Gyldighetsperiode(1.januar(2025))),
                 Faktum(Rettighetstype.skalEtableringVurderes, true),
-                Faktum(Etablering.påvirkerUtfallet, true),
                 Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
             )
 
@@ -296,7 +285,6 @@ class RettighetsperiodePluginTest {
         val opplysninger =
             Opplysninger.med(
                 Faktum(Rettighetstype.skalEtableringVurderes, true),
-                Faktum(Etablering.påvirkerUtfallet, true),
                 Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
             )
 
@@ -312,7 +300,6 @@ class RettighetsperiodePluginTest {
                 Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025), 10.januar(2025))),
                 Faktum(utfall2, false, Gyldighetsperiode(11.januar(2025))),
                 Faktum(Rettighetstype.skalEtableringVurderes, true),
-                Faktum(Etablering.påvirkerUtfallet, true),
                 Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(5.januar(2025), 31.januar(2025))),
             )
 
@@ -333,7 +320,6 @@ class RettighetsperiodePluginTest {
                 Faktum(utfall2, false, Gyldighetsperiode(11.januar(2025), 14.januar(2025))),
                 Faktum(utfall2, true, Gyldighetsperiode(15.januar(2025))),
                 Faktum(Rettighetstype.skalEtableringVurderes, true),
-                Faktum(Etablering.påvirkerUtfallet, true),
                 Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(20.januar(2025), 31.januar(2025))),
             )
 
@@ -353,7 +339,6 @@ class RettighetsperiodePluginTest {
             Opplysninger.med(
                 Faktum(utfall2, true, Gyldighetsperiode(15.januar(2025))),
                 Faktum(Rettighetstype.skalEtableringVurderes, true),
-                Faktum(Etablering.påvirkerUtfallet, true),
                 Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(1.januar(2025), 10.januar(2025))),
             )
 
@@ -373,7 +358,6 @@ class RettighetsperiodePluginTest {
                 .apply {
                     leggTil(Faktum(utfall2, true, Gyldighetsperiode(15.januar(2025))))
                     leggTil(Faktum(Rettighetstype.skalEtableringVurderes, true))
-                    leggTil(Faktum(Etablering.påvirkerUtfallet, true))
                     leggTil(Faktum(Etablering.etableringGodkjent, true, Gyldighetsperiode(20.januar(2025), 31.januar(2025))))
                 }
 
