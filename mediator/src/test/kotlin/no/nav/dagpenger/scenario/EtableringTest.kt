@@ -34,13 +34,12 @@ class EtableringTest {
 
                 // Regelsettet har ikke skalKjøres = true ennå, så ingen av opplysningene er produsert
                 opplysninger(Etablering.nyVirksomhet).shouldBeEmpty()
-                opplysninger(Etablering.påvirkerUtfallet).shouldBeEmpty()
             }
         }
     }
 
     @Test
-    fun `etablering skal vurderes og påvirker resultatet med standardverdi`() {
+    fun `godkjent etablering setter sluttdato på løpende rett`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
         }.test {
@@ -79,11 +78,6 @@ class EtableringTest {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe false
                 }
-
-                opplysninger(Etablering.påvirkerUtfallet) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe true
-                }
                 opplysninger(etableringGodkjent) {
                     single().verdi.verdi shouldBe false
                 }
@@ -114,10 +108,6 @@ class EtableringTest {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe true
                 }
-                opplysninger(Etablering.påvirkerUtfallet) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe true
-                }
                 opplysninger(etableringGodkjent) {
                     shouldHaveSize(1)
                     single().verdi.verdi shouldBe true
@@ -128,41 +118,6 @@ class EtableringTest {
                     harRett shouldBe true
                     fraOgMed shouldBe 1.januar(2025)
                     tilOgMed shouldBe 31.januar(2025)
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `saksbehandler kan overstyre påvirkerUtfallet til false selv om standardverdien er true`() {
-        nyttScenario {
-            inntektSiste12Mnd = 500000
-        }.test {
-            person.søkDagpenger(1.januar(2025))
-
-            behovsløsere.løsTilForslag()
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            saksbehandler.lagBehandling(1.januar(2025))
-            saksbehandler.endreOpplysning(Rettighetstype.skalEtableringVurderes, true, "Har startet egen virksomhet")
-            saksbehandler.endreOpplysning(Etablering.påvirkerUtfallet, false, "Etablering påvirker likevel ikke resultatet")
-
-            saksbehandler.lukkAlleAvklaringer()
-            saksbehandler.godkjenn()
-            saksbehandler.beslutt()
-
-            behandlingsresultat(2) {
-                opplysninger(Etablering.påvirkerUtfallet) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
-                }
-
-                with(rettighetsperioder.single()) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 1.januar(2025)
-                    tilOgMed shouldBe null
                 }
             }
         }
