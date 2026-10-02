@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Boolsk
@@ -13,6 +14,121 @@ import kotlin.test.Test
 
 class RettighetsperiodeUtlederTest {
     private val type = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "harLøpendeRett")
+    private val sluttdatoType = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Sluttdatovilkår")
+
+    @Test
+    fun `sluttdatoutfall endrer arvet periode selv når kandidatperioden beholdes`() {
+        val arvet = eksisterende(true, Gyldighetsperiode(1.januar(2025)))
+        val utfall = Faktum(sluttdatoType, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025)))
+
+        val nye =
+            RettighetsperiodeUtleder.utledNyeRettighetsperioder(
+                eksisterende = listOf(arvet),
+                kandidatperioder = listOf(PeriodisertVerdi(1.januar(2025), verdi = true)),
+                overskrivingsStrategi = PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
+                sluttdatoutfall = listOf(utfall),
+            )
+
+        nye shouldBe listOf(NyRettighetsperiode(Gyldighetsperiode(1.januar(2025), 31.januar(2025)), true, listOf(utfall)))
+        arvet.gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2025))
+    }
+
+    @Test
+    fun `sluttdato brukes etter sammenslåing av nye kant i kant perioder`() {
+        val utfall = Faktum(sluttdatoType, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025)))
+        val kandidater =
+            listOf(
+                PeriodisertVerdi(1.januar(2025), 10.januar(2025), true),
+                PeriodisertVerdi(11.januar(2025), verdi = true),
+            )
+
+        val nye =
+            RettighetsperiodeUtleder.utledNyeRettighetsperioder(
+                emptyList(),
+                kandidater,
+                PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
+                listOf(utfall),
+            )
+
+        nye.last() shouldBe NyRettighetsperiode(Gyldighetsperiode(1.januar(2025), 31.januar(2025)), true, listOf(utfall))
+    }
+
+    @Test
+    fun `en senere arvet stans går foran sluttdatoutfallet`() {
+        val historikk =
+            listOf(
+                eksisterende(true, Gyldighetsperiode(1.januar(2025), 10.januar(2025))),
+                eksisterende(false, Gyldighetsperiode(11.januar(2025))),
+            )
+        val utfall = Faktum(sluttdatoType, true, Gyldighetsperiode(5.januar(2025), 31.januar(2025)))
+
+        val nye =
+            RettighetsperiodeUtleder.utledNyeRettighetsperioder(
+                historikk,
+                emptyList(),
+                PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
+                listOf(utfall),
+            )
+
+        nye shouldBe emptyList()
+    }
+
+    @Test
+    fun `omgjort stans vurderes etter ny rettighetsperiode`() {
+        val stans = eksisterende(false, Gyldighetsperiode(11.januar(2025)))
+        val utfall = Faktum(sluttdatoType, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025)))
+
+        val nye =
+            RettighetsperiodeUtleder.utledNyeRettighetsperioder(
+                listOf(stans),
+                listOf(PeriodisertVerdi(1.januar(2025), verdi = true)),
+                PeriodeOverskrivingsStrategi.OVERSKRIV_ALLTID,
+                listOf(utfall),
+            )
+
+        nye.last() shouldBe NyRettighetsperiode(Gyldighetsperiode(1.januar(2025), 31.januar(2025)), true, listOf(utfall))
+    }
+
+    @Test
+    fun `siste negative sluttdatoutfall overstyrer et eldre positivt utfall`() {
+        val utfall =
+            listOf(
+                Faktum(sluttdatoType, true, Gyldighetsperiode(1.januar(2025), 14.januar(2025))),
+                Faktum(sluttdatoType, false, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
+            )
+
+        val nye =
+            RettighetsperiodeUtleder.utledNyeRettighetsperioder(
+                emptyList(),
+                listOf(PeriodisertVerdi(1.januar(2025), verdi = true)),
+                PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
+                utfall,
+            )
+
+        nye shouldBe listOf(NyRettighetsperiode(Gyldighetsperiode(1.januar(2025)), true))
+    }
+
+    @Test
+    fun `motstridende sluttdatoer avvises uten å endre arvet periode`() {
+        val annenType = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Annet sluttdatovilkår")
+        val arvet = eksisterende(true, Gyldighetsperiode(1.januar(2025)))
+        val utfall =
+            listOf(
+                Faktum(sluttdatoType, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
+                Faktum(annenType, true, Gyldighetsperiode(15.januar(2025), 20.januar(2025))),
+            )
+
+        shouldThrow<IllegalStateException> {
+            RettighetsperiodeUtleder.utledNyeRettighetsperioder(
+                listOf(arvet),
+                emptyList(),
+                PeriodeOverskrivingsStrategi.BEHOLD_EKSISTERENDE,
+                utfall,
+            )
+        }
+
+        arvet.gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2025))
+    }
 
     private fun eksisterende(
         verdi: Boolean,

@@ -7,15 +7,23 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.regelsett
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class EtableringTest {
+    @Test
+    fun `etablering bruker sluttdatostrategi mens utdanning beholder ordinær vilkårsvurdering`() {
+        regelsett.rettighetsperiodeStrategi shouldBe RettighetsperiodeStrategi.SettTilOgMedVedOppfylt
+        Utdanning.regelsett.rettighetsperiodeStrategi shouldBe RettighetsperiodeStrategi.VilkårForRett
+    }
+
     @Test
     fun `skal kun kjøres når skalEtableringVurderes er sann`() {
         regelsett.skalKjøres(opplysninger(skalEtableringVurderes = true, påvirkerUtfallet = false)) shouldBe true

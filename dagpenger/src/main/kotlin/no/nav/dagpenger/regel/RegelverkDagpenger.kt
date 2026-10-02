@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
+import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi.VilkårForRett
 import no.nav.dagpenger.opplysning.Utbetaling
 import no.nav.dagpenger.opplysning.Ytelsestype
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -110,7 +111,7 @@ fun kravPåDagpenger(opplysninger: LesbarOpplysninger): Boolean =
     RegelverkDagpenger
         .relevanteVilkår(opplysninger)
         .asSequence()
-        .filterNot { it == Etablering.regelsett }
+        .filter { it.rettighetsperiodeStrategi == VilkårForRett }
         .flatMap { it.betingelser.asSequence() }
         .all { opplysninger.erSann(it) }
 

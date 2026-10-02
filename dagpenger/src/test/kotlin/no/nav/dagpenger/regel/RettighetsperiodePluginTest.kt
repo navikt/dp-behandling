@@ -1,4 +1,6 @@
 package no.nav.dagpenger.regel
+
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
@@ -10,6 +12,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi.SettTilOgMedVedOppfylt
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.prosess.RettighetsperiodePlugin
@@ -42,6 +45,132 @@ class RettighetsperiodePluginTest {
             RegelverkType("Test med etablering"),
             regelsett = (regelverk.regelsett + Etablering.regelsett).toTypedArray(),
         )
+
+    @Test
+    fun `regelsett kan sette sluttdato gjennom DSL uten domenespesifikk håndtering`() {
+        val tillegg =
+            vilkår("Tillegg") {
+                påvirkningPåRettighetsperiode(SettTilOgMedVedOppfylt)
+                utfall(utfall1) { somUtgangspunkt(true) }
+            }
+        val generiskRegelverk =
+            Regelverk(RegelverkType("Generisk"), regelsett = (regelverk.regelsett + tillegg).toTypedArray())
+        val opplysninger =
+            Opplysninger.med(
+                Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025))),
+                Faktum(utfall1, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
+            )
+
+        RettighetsperiodePlugin(generiskRegelverk).regelkjøringFerdig(Prosesskontekst(opplysninger))
+
+        val periode = opplysninger.finnAlle(harLøpendeRett).single()
+        periode.gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2025), 31.januar(2025))
+        periode.verdi shouldBe true
+    }
+
+    @ParameterizedTest
+    @CsvSource("true, false", "false, true")
+    fun `generisk sluttdatostrategi ignorerer negativt eller irrelevant utfall`(
+        relevant: Boolean,
+        oppfylt: Boolean,
+    ) {
+        val tillegg =
+            vilkår("Tillegg") {
+                påvirkningPåRettighetsperiode(SettTilOgMedVedOppfylt)
+                påvirkerResultat { relevant }
+                utfall(utfall1) { somUtgangspunkt(true) }
+            }
+        val generiskRegelverk =
+            Regelverk(RegelverkType("Generisk"), regelsett = (regelverk.regelsett + tillegg).toTypedArray())
+        val opplysninger =
+            Opplysninger.med(
+                Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025))),
+                Faktum(utfall1, oppfylt, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
+            )
+
+        RettighetsperiodePlugin(generiskRegelverk).regelkjøringFerdig(Prosesskontekst(opplysninger))
+
+        val periode = opplysninger.finnAlle(harLøpendeRett).single()
+        periode.gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2025))
+        periode.verdi shouldBe true
+    }
+
+    @Test
+    fun `standardstrategien bruker begge datogrenser og lar negative utfall påvirke retten`() {
+        val ordinærtVilkår = vilkår("Ordinært") { utfall(utfall1) { somUtgangspunkt(true) } }
+        val generiskRegelverk =
+            Regelverk(RegelverkType("Generisk"), regelsett = (regelverk.regelsett + ordinærtVilkår).toTypedArray())
+        val opplysninger =
+            Opplysninger.med(
+                Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025))),
+                Faktum(utfall1, false, Gyldighetsperiode(15.januar(2025), 20.januar(2025))),
+                Faktum(utfall1, true, Gyldighetsperiode(21.januar(2025), 31.januar(2025))),
+            )
+
+        RettighetsperiodePlugin(generiskRegelverk).regelkjøringFerdig(Prosesskontekst(opplysninger))
+
+        opplysninger.finnAlle(harLøpendeRett).map { it.gyldighetsperiode to it.verdi } shouldBe
+            listOf(
+                Gyldighetsperiode(15.januar(2025), 20.januar(2025)) to false,
+                Gyldighetsperiode(21.januar(2025), 31.januar(2025)) to true,
+            )
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `motstridende sluttdatoer feiler uavhengig av regelsettenes rekkefølge`(omvendtRekkefølge: Boolean) {
+        val ekstraUtfall = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Ekstra utfall")
+        val tillegg =
+            listOf(utfall1, ekstraUtfall)
+                .map { type ->
+                    vilkår(type.navn) {
+                        påvirkningPåRettighetsperiode(SettTilOgMedVedOppfylt)
+                        utfall(type) { somUtgangspunkt(true) }
+                    }
+                }.let { if (omvendtRekkefølge) it.reversed() else it }
+        val generiskRegelverk =
+            Regelverk(RegelverkType("Generisk"), regelsett = (regelverk.regelsett + tillegg).toTypedArray())
+        val opplysninger =
+            Opplysninger.med(
+                Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025))),
+                Faktum(utfall1, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025))),
+                Faktum(ekstraUtfall, true, Gyldighetsperiode(15.januar(2025), 20.januar(2025))),
+            )
+
+        shouldThrow<IllegalStateException> {
+            RettighetsperiodePlugin(generiskRegelverk).regelkjøringFerdig(Prosesskontekst(opplysninger))
+        }.message shouldBe
+            "Motstridende sluttdatoer fra regelsett med SettTilOgMedVedOppfylt: " +
+            tillegg.joinToString {
+                val vurdering = opplysninger.finnOpplysning(requireNotNull(it.utfall))
+                "${vurdering.opplysningstype.navn}=${vurdering.gyldighetsperiode.tilOgMed}"
+            }
+    }
+
+    @Test
+    fun `flere oppfylte sluttdatovilkår med samme sluttdato bevares i utledningen`() {
+        val ekstraUtfall = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "Ekstra utfall")
+        val tillegg =
+            listOf(utfall1, ekstraUtfall).map { type ->
+                vilkår(type.navn) {
+                    påvirkningPåRettighetsperiode(SettTilOgMedVedOppfylt)
+                    utfall(type) { somUtgangspunkt(true) }
+                }
+            }
+        val generiskRegelverk =
+            Regelverk(RegelverkType("Generisk"), regelsett = (regelverk.regelsett + tillegg).toTypedArray())
+        val ordinærtUtfall = Faktum(utfall2, true, Gyldighetsperiode(1.januar(2025)))
+        val førsteTillegg = Faktum(utfall1, true, Gyldighetsperiode(15.januar(2025), 31.januar(2025)))
+        val andreTillegg = Faktum(ekstraUtfall, true, Gyldighetsperiode(20.januar(2025), 31.januar(2025)))
+        val opplysninger = Opplysninger.med(ordinærtUtfall, førsteTillegg, andreTillegg)
+
+        RettighetsperiodePlugin(generiskRegelverk).regelkjøringFerdig(Prosesskontekst(opplysninger))
+
+        val periode = opplysninger.finnAlle(harLøpendeRett).single()
+        periode.gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2025), 31.januar(2025))
+        periode.verdi shouldBe true
+        periode.utledetAv?.opplysninger shouldBe listOf(ordinærtUtfall, førsteTillegg, andreTillegg)
+    }
 
     @Test
     fun `godkjent etablering setter til og med uten å flytte fra og med`() {

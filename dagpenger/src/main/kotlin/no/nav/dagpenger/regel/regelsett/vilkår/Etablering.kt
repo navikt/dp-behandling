@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.regelsett.vilkår
 
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
+import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi.SettTilOgMedVedOppfylt
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.forskriftTilFolketrygden
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi
@@ -46,6 +47,7 @@ object Etablering {
                 kortnavn = "Etablering",
             ),
         ) {
+            påvirkningPåRettighetsperiode(SettTilOgMedVedOppfylt)
             skalVurderes { opplysninger -> opplysninger.erSann(skalEtableringVurderes) }
 
             regel(nyVirksomhet) { somUtgangspunkt(false) }

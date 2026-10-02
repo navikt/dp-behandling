@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.Hjemmel
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.regel.Regel
 import java.time.LocalDate
 
@@ -13,6 +14,11 @@ class VilkårRegelsettBuilder internal constructor(
     private var utfall: Opplysningstype<Boolean>? = null
     private var vurderinger: MutableList<Opplysningstype<Boolean>> = mutableListOf()
     private val ønsketResultat: MutableList<Opplysningstype<*>> = mutableListOf()
+    private var rettighetsperiodeStrategi = RettighetsperiodeStrategi.VilkårForRett
+
+    fun påvirkningPåRettighetsperiode(strategi: RettighetsperiodeStrategi) {
+        rettighetsperiodeStrategi = strategi
+    }
 
     fun ønsketResultat(vararg opplysningstype: Opplysningstype<*>) {
         ønsketResultat += opplysningstype.toList()
@@ -41,8 +47,11 @@ class VilkårRegelsettBuilder internal constructor(
         vurderinger.add(produserer)
     }
 
-    override fun build() =
-        Regelsett(
+    override fun build(): Regelsett {
+        require(rettighetsperiodeStrategi == RettighetsperiodeStrategi.VilkårForRett || utfall != null) {
+            "SettTilOgMedVedOppfylt krever et utfall i regelsettet ${hjemmel.kortnavn}"
+        }
+        return Regelsett(
             hjemmel = hjemmel,
             type = type,
             // TODO: ønsketResultat burde være emptyList() når det vilkår
@@ -55,5 +64,7 @@ class VilkårRegelsettBuilder internal constructor(
             påvirkerResultat = relevant,
             betingelser = vurderinger,
             kvoter = kvoter.toList(),
+            rettighetsperiodeStrategi = rettighetsperiodeStrategi,
         )
+    }
 }

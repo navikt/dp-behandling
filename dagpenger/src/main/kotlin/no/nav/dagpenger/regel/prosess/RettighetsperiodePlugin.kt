@@ -13,9 +13,9 @@ import no.nav.dagpenger.opplysning.PeriodisertVerdi
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RettighetsperiodeStrategi
 import no.nav.dagpenger.opplysning.TidslinjeBygger
 import no.nav.dagpenger.opplysning.Utledning
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.etableringGodkjent
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 
 fun interface PeriodeOverskrivingsStrategi {
@@ -47,9 +47,17 @@ class RettighetsperiodePlugin(
 
         if (harSaksbehandlerKilde(egne)) return
 
-        val relevanteVilkår = regelverk.relevanteVilkår(opplysninger).mapNotNull { it.utfall }
-        val vilkår = relevanteVilkår.filterNot { it == etableringGodkjent }
+        val vilkår = mutableListOf<Opplysningstype<Boolean>>()
+        val sluttdatovilkår = mutableListOf<Opplysningstype<Boolean>>()
+        regelverk.relevanteVilkår(opplysninger).forEach { regelsett ->
+            val utfallstype = regelsett.utfall ?: return@forEach
+            when (regelsett.rettighetsperiodeStrategi) {
+                RettighetsperiodeStrategi.VilkårForRett -> vilkår.add(utfallstype)
+                RettighetsperiodeStrategi.SettTilOgMedVedOppfylt -> sluttdatovilkår.add(utfallstype)
+            }
+        }
         val utfall = finnVurdertUtfall(opplysninger, vilkår)
+        val sluttdatoutfall = sluttdatovilkår.flatMap { opplysninger.finnAlle(it) }
 
         fjernEgneRettighetsperioder(opplysninger, egne)
 
@@ -58,7 +66,7 @@ class RettighetsperiodePlugin(
             TidslinjeBygger(utfall).lagPeriode(slåSammenLike) { påDato -> alleVilkårOppfylt(vilkår, påDato) }
 
         RettighetsperiodeUtleder
-            .utledNyeRettighetsperioder(eksisterende, kandidatperioder, overskrivingsStrategi)
+            .utledNyeRettighetsperioder(eksisterende, kandidatperioder, overskrivingsStrategi, sluttdatoutfall)
             .forEach { nyPeriode ->
                 loggVilkårsvurdering(vilkår, utfall, kontekst)
                 opplysninger.leggTil(
@@ -66,43 +74,15 @@ class RettighetsperiodePlugin(
                         KravPåDagpenger.harLøpendeRett,
                         nyPeriode.verdi,
                         nyPeriode.gyldighetsperiode,
-                        Utledning(this.javaClass.simpleName, utfall),
+                        Utledning(this.javaClass.simpleName, utfall + nyPeriode.sluttdatoutfall),
                     ),
                 )
+                if (nyPeriode.sluttdatoutfall.isNotEmpty()) {
+                    kontekst.info(
+                        "Oppfylte sluttdatovilkår setter sluttdato for løpende rett til ${nyPeriode.gyldighetsperiode.tilOgMed}",
+                    )
+                }
             }
-
-        if (etableringGodkjent in relevanteVilkår) {
-            fastsettSluttdatoFraEtablering(kontekst, utfall)
-        }
-    }
-
-    private fun fastsettSluttdatoFraEtablering(
-        kontekst: Prosesskontekst,
-        utfall: List<Opplysning<Boolean>>,
-    ) {
-        val opplysninger = kontekst.opplysninger
-        val etablering =
-            opplysninger.finnAlle(etableringGodkjent).maxByOrNull { it.gyldighetsperiode.fraOgMed }
-                ?: return
-        if (!etablering.verdi) return
-
-        // Bare den siste perioden kan endres, slik at etablering ikke overstyrer en senere stans.
-        val rett =
-            opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).maxByOrNull { it.gyldighetsperiode.fraOgMed }
-                ?: return
-        if (!rett.verdi || !rett.gyldighetsperiode.overlapper(etablering.gyldighetsperiode)) return
-        if (rett.gyldighetsperiode.tilOgMed == etablering.gyldighetsperiode.tilOgMed) return
-
-        val gyldighetsperiode = rett.gyldighetsperiode.copy(tilOgMed = etablering.gyldighetsperiode.tilOgMed)
-        opplysninger.leggTil(
-            Faktum(
-                KravPåDagpenger.harLøpendeRett,
-                rett.verdi,
-                gyldighetsperiode,
-                Utledning(this.javaClass.simpleName, utfall + etablering),
-            ),
-        )
-        kontekst.info("Godkjent etablering setter sluttdato for løpende rett til ${gyldighetsperiode.tilOgMed}")
     }
 
     // Automatikken skal aldri overstyre en periode som er satt av noe annet enn seg selv (kilde != null).
