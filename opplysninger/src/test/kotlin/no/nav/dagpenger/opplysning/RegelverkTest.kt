@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dag.printer.MermaidPrinter
@@ -7,6 +8,7 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.innhentes
+import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.uuid.UUIDv7
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
@@ -30,6 +32,33 @@ class RegelverkTest {
     private val r3 = vilkår("Dagpenger") { regel(typeC) { innhentMed(typeA, typeB) } }
 
     private val regelverk = Regelverk(RegelverkType("Test"), regelsett = arrayOf(r1, r2, r3))
+
+    @Test
+    fun `vilkår beholder ordinær rettighetsperiodestrategi som standard`() {
+        r1.rettighetsperiodeStrategi shouldBe RettighetsperiodeStrategi.VilkårForRett
+    }
+
+    @Test
+    fun `DSL bevarer sluttdatostrategi og utfall på regelsettet`() {
+        val tillegg =
+            vilkår("Tillegg") {
+                påvirkningPåRettighetsperiode(RettighetsperiodeStrategi.SettTilOgMedVedOppfylt)
+                utfall(typeA) { somUtgangspunkt(true) }
+            }
+
+        tillegg.rettighetsperiodeStrategi shouldBe RettighetsperiodeStrategi.SettTilOgMedVedOppfylt
+        tillegg.utfall shouldBe typeA
+        tillegg.ønsketInformasjon shouldContainExactlyInAnyOrder setOf(typeA)
+    }
+
+    @Test
+    fun `sluttdatostrategien krever et utfall`() {
+        shouldThrow<IllegalArgumentException> {
+            vilkår("Tillegg") {
+                påvirkningPåRettighetsperiode(RettighetsperiodeStrategi.SettTilOgMedVedOppfylt)
+            }
+        }.message shouldBe "SettTilOgMedVedOppfylt krever et utfall i regelsettet Tillegg"
+    }
 
     @Test
     fun `finner alle nødvendige regler for en opplysning helt til venstre`() {

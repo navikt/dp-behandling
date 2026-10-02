@@ -56,6 +56,38 @@ object MittVilkår {
 }
 ```
 
+### Påvirkning på rettighetsperioden
+
+Vilkår kan velge `RettighetsperiodeStrategi` i DSL-en. Standardverdien
+`VilkårForRett` beholder ordinær vilkårsvurdering: utfallet og begge datogrenser
+inngår i beregningen av retten. Utdanning bruker denne strategien.
+
+Etablering velger en annen strategi:
+
+```kotlin
+påvirkningPåRettighetsperiode(RettighetsperiodeStrategi.SettTilOgMedVedOppfylt)
+```
+
+`påvirkerResultat` avgjør fortsatt om regelsettet er relevant. For et relevant
+regelsett med `SettTilOgMedVedOppfylt` bruker `RettighetsperiodeUtleder` det siste
+utfallet. Et positivt utfall som overlapper den siste perioden med løpende rett,
+setter rettens `tilOgMed` til utfallets `tilOgMed`. Startdatoen og rettens verdi
+endres ikke. Et negativt eller manglende utfall har ingen effekt, og en senere
+stans eller eldre rettighetsperioder overstyres ikke.
+
+Sluttdatostrategien krever et utfall i regelsettet. Regelsett med denne strategien
+inngår ikke som inngangsvilkår i `kravPåDagpenger()`. Hvis flere relevante og
+oppfylte sluttdatovilkår gir ulike sluttdatoer for samme rettighetsperiode,
+feiler beregningen eksplisitt. PoC-en velger ikke dato etter regelsettenes
+rekkefølge. Like sluttdatoer er tillatt, og alle bidragene tas med i utledningen.
+
+Strategien er ikke en markering av tilleggsrettigheter for frontend.
+
+`RettighetsperiodeUtleder` beregner periodeendringene uten å endre opplysninger.
+Den returnerer også sluttdatoutfallene som bidro til hver justering.
+`RettighetsperiodePlugin` henter relevante utfall, lagrer de utledede periodene
+som `Faktum` med sporbar `Utledning`, og logger endringene.
+
 ### 3. Lag Regelverk-instans
 
 Samle alle regelsett i en `Regelverk`-instans:

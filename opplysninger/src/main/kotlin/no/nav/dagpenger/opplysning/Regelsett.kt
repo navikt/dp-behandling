@@ -12,6 +12,14 @@ enum class RegelsettType {
     Prosess,
 }
 
+enum class RettighetsperiodeStrategi {
+    /** Utfallet avgjør retten innenfor hele sin gyldighetsperiode. */
+    VilkårForRett,
+
+    /** Bare et positivt utfall setter sluttdatoen, uten å endre starten eller verdien av retten. */
+    SettTilOgMedVedOppfylt,
+}
+
 class Regelsett internal constructor(
     val hjemmel: Hjemmel,
     val type: RegelsettType,
@@ -24,6 +32,7 @@ class Regelsett internal constructor(
     val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
     val betingelser: List<Opplysningstype<Boolean>>,
     val kvoter: List<KvoteDefinisjon> = emptyList(),
+    val rettighetsperiodeStrategi: RettighetsperiodeStrategi = RettighetsperiodeStrategi.VilkårForRett,
 ) {
     val navn: String = hjemmel.kortnavn
 
