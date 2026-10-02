@@ -102,6 +102,7 @@ class EtableringTest {
                 Etablering.godkjentNæringsfaglig,
                 Etablering.egenVirksomhet,
                 Etablering.ikkeSelvforskyldtArbeidsledig,
+                Etablering.overFemtiProsentEierandel,
             ).forEach { saksbehandler.endreOpplysning(it, true) }
 
             saksbehandler.lukkAlleAvklaringer()

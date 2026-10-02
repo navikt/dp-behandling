@@ -9,7 +9,8 @@ graph RL
   A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| D["Godkjent næringsfaglig vurdering"]
   A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| E["Egen Virksomhet"]
   A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| F["Ikke selvforskyldt arbeidsledig"]
-  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| G["Siste dato for dagpenger under etablering"]
+  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| G["Over 50 prosent eierandel i virksomheten"]
+  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| H["Siste dato for dagpenger under etablering"]
 ```
 
 ## Akseptansetester
@@ -31,27 +32,29 @@ Egenskap: Etablering
     Og saksbehandler vurderer at det er en ny virksomhet "<nyVirksomhet>"
     Og saksbehandler vurderer selvforsørgelse som "<selvforsørget>"
     Og saksbehandler vurderer at virksomheten er egen "<egenVirksomhet>"
+    Og saksbehandler vurderer at eierandelen er over femti prosent "<eierandelOverFemtiProsent>"
     Så skal vilkåret om etablering være "<utfall>"
     Og skal retten til dagpenger være "<harRett>"
 
     Eksempler:
-      | påvirkerResultat | nyVirksomhet | selvforsørget | egenVirksomhet | utfall | harRett |
-      | Ja               | Ja           | Ja             | Ja             | Ja     | Ja      |
-      | Ja               | Ja           | Ja             | Nei            | Nei    | Ja      |
-      | Ja               | Ja           | Nei            | Ja             | Nei    | Ja      |
-      | Ja               | Ja           | Nei            | Nei            | Nei    | Ja      |
-      | Ja               | Nei          | Ja             | Ja             | Nei    | Ja      |
-      | Ja               | Nei          | Ja             | Nei            | Nei    | Ja      |
-      | Ja               | Nei          | Nei            | Ja             | Nei    | Ja      |
-      | Ja               | Nei          | Nei            | Nei            | Nei    | Ja      |
-      | Nei              | Ja           | Ja             | Ja             | Ja     | Ja      |
-      | Nei              | Ja           | Ja             | Nei            | Nei    | Ja      |
-      | Nei              | Ja           | Nei            | Ja             | Nei    | Ja      |
-      | Nei              | Ja           | Nei            | Nei            | Nei    | Ja      |
-      | Nei              | Nei          | Ja             | Ja             | Nei    | Ja      |
-      | Nei              | Nei          | Ja             | Nei            | Nei    | Ja      |
-      | Nei              | Nei          | Nei            | Ja             | Nei    | Ja      |
-      | Nei              | Nei          | Nei            | Nei            | Nei    | Ja      |
+      | påvirkerResultat | nyVirksomhet | selvforsørget | egenVirksomhet | eierandelOverFemtiProsent | utfall | harRett |
+      | Ja               | Ja           | Ja            | Ja             | Ja                        | Ja     | Ja      |
+      | Ja               | Ja           | Ja            | Nei            | Ja                        | Nei    | Ja      |
+      | Ja               | Ja           | Nei           | Ja             | Ja                        | Nei    | Ja      |
+      | Ja               | Ja           | Nei           | Nei            | Ja                        | Nei    | Ja      |
+      | Ja               | Nei          | Ja            | Ja             | Ja                        | Nei    | Ja      |
+      | Ja               | Nei          | Ja            | Nei            | Ja                        | Nei    | Ja      |
+      | Ja               | Nei          | Nei           | Ja             | Ja                        | Nei    | Ja      |
+      | Ja               | Nei          | Nei           | Nei            | Ja                        | Nei    | Ja      |
+      | Nei              | Ja           | Ja            | Ja             | Ja                        | Ja     | Ja      |
+      | Nei              | Ja           | Ja            | Nei            | Ja                        | Nei    | Ja      |
+      | Nei              | Ja           | Nei           | Ja             | Ja                        | Nei    | Ja      |
+      | Nei              | Ja           | Nei           | Nei            | Ja                        | Nei    | Ja      |
+      | Nei              | Nei          | Ja            | Ja             | Ja                        | Nei    | Ja      |
+      | Nei              | Nei          | Ja            | Nei            | Ja                        | Nei    | Ja      |
+      | Nei              | Nei          | Nei           | Ja             | Ja                        | Nei    | Ja      |
+      | Nei              | Nei          | Nei           | Nei            | Nei                       | Nei    | Ja      |
+
 
   Scenario: Etablering skal ikke vurderes
     Gitt at etablering ikke skal vurderes

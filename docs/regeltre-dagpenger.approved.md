@@ -395,5 +395,6 @@ graph RL
   JV["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| JY["Godkjent næringsfaglig vurdering"]
   JV["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| JZ["Egen Virksomhet"]
   JV["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| KA["Ikke selvforskyldt arbeidsledig"]
-  JV["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| KB["Siste dato for dagpenger under etablering"]
+  JV["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| KB["Over 50 prosent eierandel i virksomheten"]
+  JV["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| KC["Siste dato for dagpenger under etablering"]
 ```

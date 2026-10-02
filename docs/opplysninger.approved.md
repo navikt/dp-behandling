@@ -280,6 +280,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01a0c329-f682-76fb-8746-5977d66dd491|Skal påvirke løpende rett|Boolsk|boolean|||Resultat
 |01a0d282-3d10-772b-83fa-7ce6660e7d8b|Oppfyller vilkårene til etablering av egen virksomhet|Boolsk|boolean|||Resultat
 |01a0d841-8707-73f8-9db2-4b7b9708a103|Egen Virksomhet|Boolsk|boolean|||Utgangspunkt
+|01a0fb7e-5dd3-746d-a9eb-1c81f98cf545|Over 50 prosent eierandel i virksomheten|Boolsk|boolean|||Utgangspunkt
 ### § 4-7. Dagpenger til permitterte
 *Type:* Vilkår
 #### Avklaringer
