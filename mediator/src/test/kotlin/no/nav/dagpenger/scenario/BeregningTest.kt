@@ -18,6 +18,8 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
+import no.nav.dagpenger.mediator.september
+import no.nav.dagpenger.opplysning.Avgjørelse.Avslag
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Avgjørelse.Gjenopptak
 import no.nav.dagpenger.opplysning.Avgjørelse.Stans
@@ -33,7 +35,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.ScenarioBarn
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
@@ -740,6 +744,43 @@ class BeregningTest {
     }
 
     @Test
+    fun `arbeid over terskel 3 meldekort på rad uten noe forbruk`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(1, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(2, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(3, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = false)
+
+            saksbehandler.åpneAvklaringer().first().kode shouldBe JobbetOverTerskel.kode
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe false
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                // TODO: Burde det egentlig det?
+                førteTil shouldBe Avslag.toString()
+            }
+        }
+    }
+
+    @Test
     fun `Beregne meldekort etter stans og gjenopptak der meldekortet treffer perioden etter stansen og før gjenopptaket`() {
         nyttScenario {
             inntektSiste12Mnd = 300000
@@ -1071,6 +1112,84 @@ class BeregningTest {
             }
 
             person.avklaringer.map { it.kode } shouldContain "MeldekortMedUtdanning"
+        }
+    }
+
+    @Test
+    @Disabled("Tiltak bakover i tid")
+    fun `meldekort med utdanning hvor tiltaksregisteret svarer med perioder utenfor og innenfor meldeperioden`() {
+        // Simulerer en app som lytter på MeldekortMedUtdanning-avklaringen, slår opp i tiltaksregisteret
+        // og svarer med en liste av tiltaksperioder. Her ligger periodene både bak og fram i tid i
+        // forhold til meldeperioden som beregnes (25.juni - 8.juli 2018), samt én periode som treffer
+        // midt i meldeperioden.
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(11.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
+            meldekortBatch(markerFerdig = false)
+
+            behandlingsresultatForslag(3) {
+                rettighetsperioder shouldHaveSize 2
+                // Første mandag i meldekort 2 er 25.juni
+                rettighetsperioder.last().fraOgMed shouldBe 25.juni(2018)
+                rettighetsperioder.last().harRett shouldBe false
+            }
+
+            person.avklaringer.map { it.kode } shouldContain "MeldekortMedUtdanning"
+
+            // Tiltaksregisteret svarer med tre perioder - én langt bak i tid, én fram i tid,
+            // og én som treffer midt i meldeperioden (25.juni - 8.juli 2018).
+            saksbehandler.endreOpplysning(
+                deltakelseIArbeidsmarkedstiltak,
+                true,
+                "Tiltak fra register (historisk)",
+                // Må ligge etter søknadstidspunktet (11.juni) og innenfor en periode med rett,
+                // ellers finnes det ikke data å knytte opplysningen til.
+                Gyldighetsperiode(12.juni(2018), 20.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                deltakelseIArbeidsmarkedstiltak,
+                true,
+                "Tiltak fra register (i meldeperioden)",
+                Gyldighetsperiode(25.juni(2018), 2.juli(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                tarUtdanning,
+                false,
+                "Tiltak fra register (i meldeperioden)",
+                Gyldighetsperiode(26.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                deltakelseIArbeidsmarkedstiltak,
+                true,
+                "Tiltak fra register (framtidig)",
+                Gyldighetsperiode(1.august(2018), 1.september(2018)),
+            )
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(3) {
+                // Perioden 28.juni-2.juli dekkes av tiltak, og gir dermed rett i den delen av meldeperioden
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.last().harRett shouldBe true
+
+                opplysninger(deltakelseIArbeidsmarkedstiltak) {
+                    // Utgangspunkt (false) + de tre periodene fra registeret
+                    shouldHaveSize(4)
+                    count { it.verdi.verdi == true } shouldBe 3
+                }
+            }
         }
     }
 
