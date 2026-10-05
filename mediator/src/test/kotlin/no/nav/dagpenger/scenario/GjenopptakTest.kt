@@ -535,4 +535,68 @@ class GjenopptakTest {
             }
         }
     }
+
+    @Test
+    fun `tester beregning av meldekort etter gjenopptak`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val innvilgelseBehandlingId = person.behandlingId
+            behandlingsresultat {
+                førteTil shouldBe "Innvilgelse"
+            }
+
+            // Må ha startet forbruk for å kunne gjenoppta
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            behandlingsresultat {
+                utbetalinger.size() shouldBe 11
+                førteTil shouldBe "Endring"
+            }
+
+            // Opprett stans
+            person.opprettBehandling(22.juli(2018))
+            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe "Stans"
+                rettighetsperioder shouldHaveSize 2
+            }
+
+            // Gjenoppta
+            person.søkGjenopptak(23.august(2018), ønskerFraDato = 28.august(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(4) {
+                behandlingskjedeId shouldBe innvilgelseBehandlingId
+                førteTil shouldBe "Gjenopptak"
+            }
+
+            // Skal fortsette med meldekort
+            person.sendInnMeldekort(6)
+            meldekortBatch(markerFerdig = true)
+            behandlingsresultat(5) {
+                utbetalinger.size() shouldBe 24
+                førteTil shouldBe "Endring"
+            }
+        }
+    }
 }
