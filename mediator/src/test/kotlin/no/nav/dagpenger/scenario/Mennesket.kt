@@ -9,7 +9,9 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.objectMapper
+import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.tilJsonNode
+import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
@@ -29,6 +31,7 @@ import no.nav.dagpenger.ferietillegg.Behov as FerietilleggBehov
 internal class Mennesket(
     private val rapid: TestRapid,
     private val scenario: SimulertDagpengerSystem.ScenarioOptions,
+    private val personRepository: PersonRepository,
 ) {
     val ident = scenario.ident
 
@@ -236,6 +239,8 @@ internal class Mennesket(
             }
             return liste.toList()
         }
+
+    val rettighetstatus get() = personRepository.rettighetstatusFor(ident.tilPersonIdentfikator())
 
     internal data class Avklaring(
         val id: UUID,

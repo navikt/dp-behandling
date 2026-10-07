@@ -169,13 +169,6 @@ class PersonRepositoryPostgres(
                 mapOf("ident" to person.ident.identifikator()),
             ).asUpdate,
         )
-        unitOfWork.session.run(
-            queryOf(
-                //language=PostgreSQL
-                "DELETE FROM rettighetstatus WHERE ident = :ident",
-                mapOf("ident" to person.ident.identifikator()),
-            ).asUpdate,
-        )
 
         lagreRettighetshistorikk(unitOfWork, person.ident.identifikator(), person.rettighethistorikk())
         lagreUtestengninger(unitOfWork, person.ident.identifikator(), person.utestengninghistorikk())
@@ -243,6 +236,14 @@ class PersonRepositoryPostgres(
         ident: String,
         rettighethistorikk: Map<LocalDate, Rettighetstatus>,
     ) {
+        unitOfWork.session.run(
+            queryOf(
+                //language=PostgreSQL
+                "DELETE FROM rettighetstatus WHERE ident = :ident",
+                mapOf("ident" to ident),
+            ).asUpdate,
+        )
+
         val params =
             rettighethistorikk
                 .map { (gjelderFra, rettighetstatus) ->

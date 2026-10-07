@@ -53,7 +53,7 @@ class Person(
     private val observatører =
         mutableSetOf<PersonObservatør>()
 
-    private val rettighetstatus: TemporalCollection<Rettighetstatus> =
+    private var rettighetstatus: TemporalCollection<Rettighetstatus> =
         behandlinger.fold(TemporalCollection()) { rettighetstatus, behandlingkjede ->
             behandlingkjede.alleFerdigeLøvnoder.lastOrNull()?.let {
                 it.vedtakopplysninger.rettighetsperioder.map { periode ->
@@ -105,7 +105,21 @@ class Person(
         val erAvslag = rettighethistorikk().isEmpty() && event.rettighetsperioder.all { !it.harRett }
         if (erAvslag) return
 
-        event.rettighetsperioder.filter { it.endret }.forEach {
+        rettighetstatus =
+            TemporalCollection<Rettighetstatus>().apply {
+                event.rettighetsperioder.forEach { periode ->
+                    put(
+                        periode.fraOgMed,
+                        Rettighetstatus(
+                            periode.fraOgMed,
+                            periode.harRett,
+                            event.behandlingId,
+                            event.behandlingskjedeId,
+                        ),
+                    )
+                }
+            }
+        /*event.rettighetsperioder.filter { it.endret }.forEach {
             rettighetstatus.put(
                 it.fraOgMed,
                 Rettighetstatus(it.fraOgMed, it.harRett, event.behandlingId, event.behandlingskjedeId),
@@ -117,7 +131,7 @@ class Person(
                     Rettighetstatus(it.tilOgMed.plusDays(1), false, event.behandlingId, event.behandlingskjedeId),
                 )
             }
-        }
+        }*/
     }
 
     override fun håndter(hendelse: StartHendelse) {
