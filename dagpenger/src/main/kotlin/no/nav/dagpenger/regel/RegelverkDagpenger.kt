@@ -53,9 +53,10 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import java.time.temporal.ChronoUnit
 
+val RegelverkDagpengerNavn = RegelverkType("Dagpenger")
 val RegelverkDagpenger =
     Regelverk(
-        navn = RegelverkType("Dagpenger"),
+        navn = RegelverkDagpengerNavn,
         rettighetsperiodeberegning = ::dagpengerRettighetsperioder,
         utbetalingsberegning = ::dagpengerUtbetalinger,
         avgjørelsesberegning = ::dagpengerAvgjørelse,
@@ -183,6 +184,7 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
 
         // Hadde ikke rett fra før, og har fortsatt ikke rett
         opplysninger.kunEgne.har(skalGjenopptakVurderes) -> Avgjørelse.Avslag
+
         else -> Avgjørelse.Stans
     }
 }

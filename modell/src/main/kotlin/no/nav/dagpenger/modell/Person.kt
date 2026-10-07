@@ -105,21 +105,8 @@ class Person(
         val erAvslag = rettighethistorikk().isEmpty() && event.rettighetsperioder.all { !it.harRett }
         if (erAvslag) return
 
-        rettighetstatus =
-            TemporalCollection<Rettighetstatus>().apply {
-                event.rettighetsperioder.forEach { periode ->
-                    put(
-                        periode.fraOgMed,
-                        Rettighetstatus(
-                            periode.fraOgMed,
-                            periode.harRett,
-                            event.behandlingId,
-                            event.behandlingskjedeId,
-                        ),
-                    )
-                }
-            }
-        /*event.rettighetsperioder.filter { it.endret }.forEach {
+        event.rettighetsperioder.filter { it.endret }.forEach {
+            rettighetstatus.removeRange(it.fraOgMed, it.tilOgMed)
             rettighetstatus.put(
                 it.fraOgMed,
                 Rettighetstatus(it.fraOgMed, it.harRett, event.behandlingId, event.behandlingskjedeId),
@@ -131,7 +118,7 @@ class Person(
                     Rettighetstatus(it.tilOgMed.plusDays(1), false, event.behandlingId, event.behandlingskjedeId),
                 )
             }
-        }*/
+        }
     }
 
     override fun håndter(hendelse: StartHendelse) {
