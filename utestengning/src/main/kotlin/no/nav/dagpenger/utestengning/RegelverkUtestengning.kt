@@ -3,7 +3,7 @@ package no.nav.dagpenger.utestengning
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Utbetalingsberegning
 import no.nav.dagpenger.utestengning.UtestengningVilkår.erUtestengt
@@ -12,7 +12,7 @@ import no.nav.dagpenger.utestengning.UtestengningVilkår.tilOgMed
 
 val RegelverkUtestengning =
     Regelverk(
-        navn = RegelverkType("Utestengning"),
+        ident = RegelverkIdent("Utestengning"),
         rettighetsperiodeberegning = ::utestengningRettighetsperioder,
         utbetalingsberegning = Utbetalingsberegning { emptyList() },
         avgjørelsesberegning = ::utestengningAvgjørelse,
@@ -31,6 +31,7 @@ private fun utestengningRettighetsperioder(opplysninger: LesbarOpplysninger): Li
             tilOgMed = opplysninger.finnOpplysning(tilOgMed).verdi,
             harRett = utestengtOpplysning.verdi,
             endret = true,
+            opplysningId = utestengtOpplysning.id,
         ),
     )
 }
