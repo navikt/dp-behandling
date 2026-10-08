@@ -26,7 +26,7 @@ internal class OppdateringObserver : PersonObservatør {
                         "behandlingId" to event.behandlingId,
                         "behandlingskjedeId" to event.behandlingskjedeId,
                         "basertPåBehandling" to event.basertPåBehandlinger,
-                        "regelverk" to event.regelverk.navn,
+                        "regelverk" to event.regelverk.ident,
                         "hendelseType" to event.hendelse.eksternId.datatype,
                     ),
             ),

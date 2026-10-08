@@ -4,7 +4,7 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.mediator.TestOpplysningstyper
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandling.TilstandType
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.SøknadId
@@ -17,8 +17,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.RegelverkType
-import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.innhentes
 import no.nav.dagpenger.uuid.UUIDv7
@@ -38,7 +37,7 @@ internal object TestBehandlinger {
             regel(testOpplysningstype) { innhentes }
         }
 
-    val testRegelverk = Regelverk(RegelverkType("Test"), regelsett = arrayOf(testRegelsett))
+    val testRegelverk = Regelverk(RegelverkIdent("Test"), regelsett = arrayOf(testRegelsett))
 
     val testAvklaringskode = Avklaringkode("TestAvklaring", "Test", "Avklaring for testing")
 
@@ -95,7 +94,7 @@ internal class TestStartHendelse(
 
     override fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat = throw UnsupportedOperationException("Brukes bare for rehydrering i tester")
 
     /**

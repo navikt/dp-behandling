@@ -3,7 +3,7 @@ package no.nav.dagpenger.regel.hendelse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.modell.hendelser.AktivitetType
 import no.nav.dagpenger.modell.hendelser.Dag
 import no.nav.dagpenger.modell.hendelser.Meldekort
@@ -17,7 +17,6 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.prosess.Meldekortprosess
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
@@ -48,7 +47,7 @@ class BeregnMeldekortHendelse(
 
     override fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat {
         requireNotNull(forrigeBehandling) { "Må ha en behandling å ta utgangspunkt i" }
         logger.info { "Baserer meldekortberegning på: ${forrigeBehandling.behandlingId}" }

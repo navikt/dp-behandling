@@ -10,7 +10,6 @@ import no.nav.dagpenger.mediator.mottak.AvbrytBehandlingMottak
 import no.nav.dagpenger.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.mediator.mottak.AvklaringIkkeRelevantMottak
 import no.nav.dagpenger.mediator.mottak.BehandlingStårFastMessage
-import no.nav.dagpenger.mediator.mottak.BehovsløserErUtestengtMottak
 import no.nav.dagpenger.mediator.mottak.BehovsløserForbruksdagerMottak
 import no.nav.dagpenger.mediator.mottak.BeregnMeldekortMottak
 import no.nav.dagpenger.mediator.mottak.FjernOpplysningMessage
@@ -55,6 +54,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.regelverk.melding.MeldingRepository
+import no.nav.dagpenger.utestengning.mottak.BehovsløserErUtestengtMottak
 import tools.jackson.databind.JsonNode
 import java.util.UUID
 
@@ -72,7 +72,7 @@ internal class MessageMediator(
         // Generiske mottak
         AvbrytBehandlingMottak(rapidsConnection, this)
         AvklaringIkkeRelevantMottak(rapidsConnection, this)
-        BehovsløserErUtestengtMottak(rapidsConnection, personRepository)
+        BehovsløserErUtestengtMottak(rapidsConnection, personRepository::rettighetstatusFor)
         BehovsløserForbruksdagerMottak(rapidsConnection, personRepository)
         BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
         FjernOpplysningMottak(rapidsConnection, this, opplysningstyper)

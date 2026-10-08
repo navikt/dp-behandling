@@ -10,9 +10,8 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.Rettighetsperiode
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -25,12 +24,12 @@ class PersonBehandlingskjedeRegelverkTest {
 
     private val regelverkDagpenger =
         Regelverk(
-            navn = RegelverkType("Dagpenger"),
+            ident = RegelverkIdent("Dagpenger"),
             rettighetsperiodeberegning = { listOf(Rettighetsperiode(LocalDate.now(), LocalDate.MAX, true, true)) },
         )
     private val regelverkFerietillegg =
         Regelverk(
-            navn = RegelverkType("Ferietillegg"),
+            ident = RegelverkIdent("Ferietillegg"),
             rettighetsperiodeberegning = { listOf(Rettighetsperiode(LocalDate.now(), LocalDate.MAX, true, true)) },
         )
 
@@ -148,7 +147,7 @@ private class RegelverkTestHendelse(
 
     override fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat =
         StartHendelseResultat.Opprettet(
             Behandling(

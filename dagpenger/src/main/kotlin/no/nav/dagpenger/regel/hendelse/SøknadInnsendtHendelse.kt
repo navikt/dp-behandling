@@ -2,7 +2,7 @@ package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
@@ -13,7 +13,6 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
@@ -45,7 +44,7 @@ class SøknadInnsendtHendelse(
 
     override fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat {
         val basertPå =
             forrigeBehandling?.let { forrigeBehandling ->

@@ -2,9 +2,10 @@ package no.nav.dagpenger.regel.hendelse
 
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetstidslinje
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
-import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -23,9 +24,27 @@ class SamordningHendelseTest {
             opprettet = LocalDateTime.now(),
         )
 
+    private fun rettighetsperioderMed(harRett: Boolean) =
+        Rettighetstidslinje
+            .fraPerioder(
+                mapOf(
+                    RegelverkDagpenger.ident to
+                        listOf(
+                            Rettighetstatus(
+                                fraOgMed = gjelderDato.minusMonths(1),
+                                tilOgMed = LocalDate.MAX,
+                                harRett = harRett,
+                                behandlingId = UUID.randomUUID(),
+                                behandlingskjedeId = UUID.randomUUID(),
+                                opplysningId = UUID.randomUUID(),
+                            ),
+                        ),
+                ),
+            ).forRegelverk(RegelverkDagpenger)
+
     @Test
     fun `uten en tidligere behandling blir det ikke opprettet en ny behandling`() {
-        val resultat = hendelse().behandling(null, TemporalCollection())
+        val resultat = hendelse().behandling(null, Rettighetstidslinje().forRegelverk(RegelverkDagpenger))
 
         resultat shouldBe
             IkkeOpprettet("Samordningshendelse overlapper ikke med en aktiv rettighetsperiode fra $gjelderDato")
@@ -33,13 +52,8 @@ class SamordningHendelseTest {
 
     @Test
     fun `overlapper gjelderDato med en aktiv rettighetsperiode blir det ikke opprettet en ny behandling`() {
-        val rettighetstatus =
-            TemporalCollection<Rettighetstatus>().apply {
-                put(gjelderDato.minusMonths(1), Rettighetstatus(gjelderDato.minusMonths(1), true, UUID.randomUUID(), UUID.randomUUID()))
-            }
-
         // forrigeBehandling er null her også, men overlappsjekken skal slå til før den sjekken
-        val resultat = hendelse().behandling(null, rettighetstatus)
+        val resultat = hendelse().behandling(null, rettighetsperioderMed(harRett = true))
 
         resultat shouldBe
             IkkeOpprettet("Samordningshendelse kan ikke starte en ny behandlingskjede uten en tidligere behandling")
@@ -47,12 +61,7 @@ class SamordningHendelseTest {
 
     @Test
     fun `overlapper ikke gjelderDato med en aktiv rettighetsperiode faller den videre til neste sjekk`() {
-        val rettighetstatus =
-            TemporalCollection<Rettighetstatus>().apply {
-                put(gjelderDato.minusMonths(1), Rettighetstatus(gjelderDato.minusMonths(1), false, UUID.randomUUID(), UUID.randomUUID()))
-            }
-
-        val resultat = hendelse().behandling(null, rettighetstatus)
+        val resultat = hendelse().behandling(null, rettighetsperioderMed(harRett = false))
 
         resultat shouldBe
             IkkeOpprettet("Samordningshendelse overlapper ikke med en aktiv rettighetsperiode fra $gjelderDato")

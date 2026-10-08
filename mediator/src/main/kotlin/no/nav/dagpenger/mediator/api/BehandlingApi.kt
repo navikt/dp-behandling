@@ -94,6 +94,7 @@ import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.hendelse.KlagebehandlingHendelse
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
@@ -183,20 +184,20 @@ internal fun Application.behandlingApi(
                     val identForespørsel = call.receive<IdentForesporselDTO>()
                     val ident = identForespørsel.ident.tilPersonIdentfikator()
 
-                    val rettighetstatusForPerson = personRepository.rettighetstatusFor(ident).contents()
+                    val perioder = personRepository.rettighetstatusFor(ident).perioder(RegelverkDagpenger)
 
-                    if (rettighetstatusForPerson.isEmpty()) {
+                    if (perioder.isEmpty()) {
                         call.respond(HttpStatusCode.NotFound, "Ingen rettighetsstatus funnet for person")
                         return@post
                     }
 
                     val rettighetsstatus =
-                        rettighetstatusForPerson.map { (_, rettighet) ->
+                        perioder.map { periode ->
                             RettighetsstatusDTO(
-                                virkningsdato = rettighet.virkningsdato,
-                                harRett = rettighet.utfall,
-                                behandlingId = rettighet.behandlingId,
-                                behandlingskjedeId = rettighet.behandlingskjedeId,
+                                virkningsdato = periode.fraOgMed,
+                                harRett = periode.harRett,
+                                behandlingId = periode.behandlingId,
+                                behandlingskjedeId = periode.behandlingskjedeId,
                             )
                         }
 

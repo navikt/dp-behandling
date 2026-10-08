@@ -9,7 +9,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.prosess.RettighetsperiodePlugin
@@ -23,7 +23,7 @@ class RettighetsperiodePluginTest {
 
     private val regelverk =
         Regelverk(
-            RegelverkType("Test"),
+            RegelverkIdent("Test"),
             regelsett =
                 arrayOf(
                     vilkår("vilkår 2") {

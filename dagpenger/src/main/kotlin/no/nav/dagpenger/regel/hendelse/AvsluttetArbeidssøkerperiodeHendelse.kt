@@ -3,7 +3,7 @@ package no.nav.dagpenger.regel.hendelse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
@@ -14,7 +14,6 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.prosess.Stansprosess
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
@@ -53,7 +52,7 @@ class AvsluttetArbeidssøkerperiodeHendelse(
 
     override fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat {
         if (forrigeBehandling == null) {
             return StartHendelseResultat.OppdaterBehandling("Fant ingen behandling å kjede på")

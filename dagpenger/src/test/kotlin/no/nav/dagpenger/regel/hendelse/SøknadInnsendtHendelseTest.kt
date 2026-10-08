@@ -1,9 +1,10 @@
 package no.nav.dagpenger.regel.hendelse
 
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.modell.Rettighetstidslinje
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
-import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage.Companion.Fagsystem
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -11,6 +12,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class SøknadInnsendtHendelseTest {
+    private fun ingenRettighetsperioder() = Rettighetstidslinje().forRegelverk(RegelverkDagpenger)
+
     private fun hendelse(
         fagsakId: Int?,
         fagsystem: Fagsystem?,
@@ -28,19 +31,19 @@ class SøknadInnsendtHendelseTest {
 
     @Test
     fun `Arena uten fagsakId gir IkkeOpprettet`() {
-        val resultat = hendelse(fagsakId = null, fagsystem = Fagsystem("ARENA")).behandling(null, TemporalCollection())
+        val resultat = hendelse(fagsakId = null, fagsystem = Fagsystem("ARENA")).behandling(null, ingenRettighetsperioder())
         resultat shouldBe IkkeOpprettet("Hendelse av type SøknadInnsendtHendelse mangler fagsakId og har ingen behandling å basere seg på")
     }
 
     @Test
     fun `Arena med fagsakId 0 gir IkkeOpprettet`() {
-        val resultat = hendelse(fagsakId = 0, fagsystem = Fagsystem("ARENA")).behandling(null, TemporalCollection())
+        val resultat = hendelse(fagsakId = 0, fagsystem = Fagsystem("ARENA")).behandling(null, ingenRettighetsperioder())
         resultat shouldBe IkkeOpprettet("Hendelse av type SøknadInnsendtHendelse mangler fagsakId og har ingen behandling å basere seg på")
     }
 
     @Test
     fun `ikke-Arena uten fagsakId gir Opprettet uten fagsakId-opplysning`() {
-        val resultat = hendelse(fagsakId = null, fagsystem = Fagsystem("NyttFagsystem")).behandling(null, TemporalCollection())
+        val resultat = hendelse(fagsakId = null, fagsystem = Fagsystem("NyttFagsystem")).behandling(null, ingenRettighetsperioder())
 
         val behandling = (resultat as Opprettet).behandling
         behandling.opplysninger.har(SøknadInnsendtHendelse.fagsakIdOpplysningstype) shouldBe false
@@ -48,7 +51,7 @@ class SøknadInnsendtHendelseTest {
 
     @Test
     fun `ikke-Arena med fagsakId 0 gir Opprettet uten at sentinelverdien lagres som opplysning`() {
-        val resultat = hendelse(fagsakId = 0, fagsystem = Fagsystem("NyttFagsystem")).behandling(null, TemporalCollection())
+        val resultat = hendelse(fagsakId = 0, fagsystem = Fagsystem("NyttFagsystem")).behandling(null, ingenRettighetsperioder())
 
         val behandling = (resultat as Opprettet).behandling
         behandling.opplysninger.har(SøknadInnsendtHendelse.fagsakIdOpplysningstype) shouldBe false
@@ -56,7 +59,7 @@ class SøknadInnsendtHendelseTest {
 
     @Test
     fun `Arena med gyldig fagsakId gir Opprettet med fagsakId-opplysning`() {
-        val resultat = hendelse(fagsakId = 123, fagsystem = Fagsystem("ARENA")).behandling(null, TemporalCollection())
+        val resultat = hendelse(fagsakId = 123, fagsystem = Fagsystem("ARENA")).behandling(null, ingenRettighetsperioder())
 
         val behandling = (resultat as Opprettet).behandling
         behandling.opplysninger.finnNullableOpplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype)?.verdi shouldBe 123

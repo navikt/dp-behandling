@@ -1,9 +1,16 @@
 package no.nav.dagpenger.modell
 
+import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RegelverkIdent
+
 data class Behandlingkjede(
     val rot: Behandling,
     val barn: List<Behandlingkjede> = emptyList(),
 ) : Iterable<Behandling> {
+    fun tilhørerRegelverk(regelverk: Regelverk): Boolean = tilhørerRegelverk(regelverk.ident)
+
+    fun tilhørerRegelverk(regelverk: RegelverkIdent): Boolean = rot.regelverk == regelverk
+
     val erLøvnode = barn.isEmpty()
     val dybde: Int = if (erLøvnode) 0 else barn.maxOf { it.dybde } + 1
     val etterkommere: Int = barn.sumOf { it.etterkommere } + barn.count()

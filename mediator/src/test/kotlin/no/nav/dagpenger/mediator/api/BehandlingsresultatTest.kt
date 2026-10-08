@@ -16,7 +16,7 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
@@ -200,7 +200,7 @@ class BehandlingsresultatTest {
             behandlingId = behandlingId,
             basertPåBehandling = null,
             behandlingskjedeId = behandlingId,
-            regelverk = RegelverkType("Dagpenger"),
+            regelverk = RegelverkIdent("Dagpenger"),
             rettighetsperioder = listOf(Rettighetsperiode(MIN, MAX, true, true)),
             avgjørelse = Avgjørelse.Innvilgelse,
             virkningsdato = LocalDate.now(),

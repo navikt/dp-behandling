@@ -2,14 +2,13 @@ package no.nav.dagpenger.modell.hendelser
 
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -51,7 +50,7 @@ abstract class StartHendelse(
 
     abstract fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat
 
     open val opplysninger: Opplysninger = Opplysninger()

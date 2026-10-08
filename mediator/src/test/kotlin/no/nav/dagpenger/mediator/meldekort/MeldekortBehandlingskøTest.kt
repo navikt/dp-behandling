@@ -11,7 +11,8 @@ import no.nav.dagpenger.mediator.repository.Meldekortgenerator.Companion.generat
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.modell.Rettighetstatus
-import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.modell.Rettighetstidslinje
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -55,17 +56,20 @@ class MeldekortBehandlingskøTest {
         every {
             personRepository.rettighetstatusFor(ident.tilPersonIdentfikator())
         } returns
-            TemporalCollection<Rettighetstatus>().apply {
-                val behandlingId = UUIDv7.ny()
-                put(
-                    innvilget,
-                    Rettighetstatus(
-                        virkningsdato = innvilget,
-                        utfall = true,
-                        behandlingId = behandlingId,
-                        behandlingskjedeId = behandlingId,
-                    ),
-                )
-            }
+            Rettighetstidslinje.fraPerioder(
+                mapOf(
+                    RegelverkDagpenger.ident to
+                        listOf(
+                            Rettighetstatus(
+                                fraOgMed = innvilget,
+                                tilOgMed = LocalDate.MAX,
+                                harRett = true,
+                                behandlingId = UUIDv7.ny(),
+                                behandlingskjedeId = UUIDv7.ny(),
+                                opplysningId = UUIDv7.ny(),
+                            ),
+                        ),
+                ),
+            )
     }
 }

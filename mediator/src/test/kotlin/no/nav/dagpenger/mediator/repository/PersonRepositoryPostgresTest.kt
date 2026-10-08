@@ -18,6 +18,7 @@ import no.nav.dagpenger.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.modell.somKjede
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Prosessregister
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -34,7 +35,9 @@ class PersonRepositoryPostgresTest {
                 }
 
             val actualPerson = personRepositoryPostgres.hent(ident)
-            actualPerson?.harRettighet(LocalDate.now()) shouldBe false
+            actualPerson
+                ?.rettighetstidslinje()
+                ?.harRett(RegelverkIdent("Dagpenger"), LocalDate.now()) shouldBe false
 
             assertEquals(expectedPerson.ident, actualPerson?.ident)
 
