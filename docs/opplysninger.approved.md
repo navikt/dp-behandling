@@ -87,6 +87,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01980cf4-9010-7bcf-b578-ca5a825d64ef|Skal verneplikt vurderes|Boolsk|boolean|||Resultat
 |019d0068-8037-7d91-bfff-de88f9e87fd3|Skal gjenopptak vurderes|Boolsk|boolean|||Resultat
 |019f608d-f9c5-7ccc-a6f3-c53531d1f00c|Skal eksport vurderes|Boolsk|boolean|||Resultat
+|01a0c316-a2e9-7088-acb1-da5596bd0055|Skal etablering vurderes|Boolsk|boolean|||Resultat
 ### § 3-1. Søknadstidspunkt
 *Type:* Fastsettelse
 #### Avklaringer
@@ -245,6 +246,19 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-9442-707b-a6ee-e96c06877be0|Registrert som arbeidssøker|Boolsk|boolean|RegistrertSomArbeidssøker||Ekstern
 |0194881f-9442-707b-a6ee-e96c06877be1|Oppfyller kravet til å være registrert som arbeidssøker|Boolsk|boolean|||Resultat
 |019ffffa-05bf-7428-ba34-ef848dab0f39|Ønsker å være registrert som arbeidssøker|Boolsk|boolean|||Utgangspunkt
+### § 4-6. Etablering
+*Type:* Vilkår
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|01a0c30c-4859-703a-9c5a-830136f9aa24|Ny virksomhet|Boolsk|boolean|||Utgangspunkt
+|01a0c30f-60d5-778a-a749-ff5f5f55f98d|Antas å føre til selvforsørgelse|Boolsk|boolean|||Utgangspunkt
+|01a0c30f-87de-7359-b642-e009a91bbda8|Godkjent næringsfaglig vurdering|Boolsk|boolean|||Utgangspunkt
+|01a0c30f-af05-736e-8d44-bd525b24bf4a|Ikke selvforskyldt arbeidsledig|Boolsk|boolean|||Utgangspunkt
+|01a0c310-b597-75be-acb6-e91c77024a33|Siste dato for dagpenger under etablering|Dato|LocalDate|||Resultat
+|01a0d282-3d10-772b-83fa-7ce6660e7d8b|Oppfyller vilkårene til etablering av egen virksomhet|Boolsk|boolean|||Resultat
+|01a0d841-8707-73f8-9db2-4b7b9708a103|Egen Virksomhet|Boolsk|boolean|||Utgangspunkt
+|01a0fb7e-5dd3-746d-a9eb-1c81f98cf545|Over 50 prosent eierandel i virksomheten|Boolsk|boolean|||Utgangspunkt
 ### § 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v
 *Type:* Vilkår
 #### Avklaringer

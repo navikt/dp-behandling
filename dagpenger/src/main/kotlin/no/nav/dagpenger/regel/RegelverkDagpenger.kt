@@ -23,6 +23,7 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
@@ -66,6 +67,7 @@ val RegelverkDagpenger =
         DagpengenesStørrelse.regelsett,
         Dagpengeperiode.regelsett,
         Egenandel.regelsett,
+        Etablering.regelsett,
         Eksport.regelsett,
         FulleYtelser.regelsett,
         Gjenopptak.regelsett,

@@ -248,6 +248,14 @@ fun interface GyldighetsperiodeStrategi<T> {
             val valgtGren = if (sjekkVerdi) hvisSann else hvisUsann
             basertPå.single { it.opplysningstype == valgtGren }.gyldighetsperiode
         }
+
+        fun basertPåTilOgMed(sluttDato: Opplysningstype<LocalDate>): GyldighetsperiodeStrategi<Boolean> =
+            GyldighetsperiodeStrategi { _, basertPå, _ ->
+                val fraOgMed = basertPå.maxOf { it.gyldighetsperiode.fraOgMed }
+                val tilOgMed = basertPå.single { it.opplysningstype == sluttDato }.verdi
+                require(tilOgMed is LocalDate) { "Opplysningstype som skal brukes til å utlede gyldighetsperiode må være LocalDate" }
+                Gyldighetsperiode(fraOgMed = fraOgMed, tilOgMed = tilOgMed)
+            }
     }
 
     fun gyldighetsperiode(
