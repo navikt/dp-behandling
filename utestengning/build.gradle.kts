@@ -4,6 +4,7 @@ plugins {
 }
 dependencies {
     implementation(project(path = ":regelverk"))
+    implementation(libs.otel.instrumentation.annotations)
 
     testImplementation(libs.kotest.assertions.core)
 }
