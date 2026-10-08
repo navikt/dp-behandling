@@ -2,13 +2,12 @@ package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.SkalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.uuid.UUIDv7
@@ -35,7 +34,7 @@ class OmgjøringHendelse(
 
     override fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat {
         requireNotNull(forrigeBehandling) { "Omgjøring krever en tidligere behandling å basere seg på" }
 

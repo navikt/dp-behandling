@@ -8,10 +8,9 @@ import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandlingkjede
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.Person
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetstidslinje
 import no.nav.dagpenger.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.modell.somKjede
-import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.util.UUID
 
@@ -62,14 +61,9 @@ class InMemoryPersonRepository :
         TODO("Not yet implemented")
     }
 
-    override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> {
+    override fun rettighetstatusFor(ident: Ident): Rettighetstidslinje {
         TODO("Not yet implemented")
     }
-
-    override fun erUtestengt(
-        ident: Ident,
-        dato: LocalDate,
-    ): Boolean = persondb[ident]?.erUtestengt(dato) ?: false
 
     override fun harIdent(ident: Ident) = persondb[ident] != null
 

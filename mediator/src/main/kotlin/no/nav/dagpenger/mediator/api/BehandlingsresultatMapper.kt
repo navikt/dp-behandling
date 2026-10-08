@@ -24,7 +24,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
             ident = ident,
             automatisk = automatiskBehandlet,
             basertPå = basertPåBehandling,
-            regelverk = regelverk.navn,
+            regelverk = regelverk.ident,
             behandlingskjedeId = behandlingskjedeId,
             behandletHendelse = behandlingAv.tilHendelseDTO(),
             rettighetsperioder = rettighetsperioder(),

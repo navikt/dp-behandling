@@ -27,59 +27,18 @@ import no.nav.dagpenger.modell.hendelser.RekjørBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.SendTilbakeHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
-import no.nav.dagpenger.opplysning.RegelverkType
-import no.nav.dagpenger.opplysning.TemporalCollection
-import java.time.LocalDate
-import java.util.UUID
-
-data class Rettighetstatus(
-    val virkningsdato: LocalDate,
-    val utfall: Boolean,
-    val behandlingId: UUID,
-    val behandlingskjedeId: UUID,
-) {
-    companion object {
-        val TemporalCollection<Rettighetstatus>.harIkkeInnvilgelse get() = this.getAll().none { it.utfall }
-    }
-}
 
 class Person(
     val ident: Ident,
     behandlinger: List<Behandlingkjede>,
-    utestengninger: List<Utestengningsperiode> = emptyList(),
+    private val rettighetstidslinje: Rettighetstidslinje = Rettighetstidslinje(),
 ) : Aktivitetskontekst,
     PersonHåndter,
     PersonObservatør {
     private val observatører =
         mutableSetOf<PersonObservatør>()
 
-    private var rettighetstatus: TemporalCollection<Rettighetstatus> =
-        behandlinger.fold(TemporalCollection()) { rettighetstatus, behandlingkjede ->
-            behandlingkjede.alleFerdigeLøvnoder.lastOrNull()?.let {
-                it.vedtakopplysninger.rettighetsperioder.map { periode ->
-                    rettighetstatus.put(
-                        periode.fraOgMed,
-                        Rettighetstatus(
-                            periode.fraOgMed,
-                            periode.harRett,
-                            it.behandlingId,
-                            it.behandlingskjedeId,
-                        ),
-                    )
-                }
-            }
-            rettighetstatus
-        }
-
-    private val utestengninger = utestengninger.toMutableList()
-
-    fun rettighethistorikk() = rettighetstatus.contents()
-
-    fun harRettighet(dato: LocalDate) = runCatching { rettighetstatus.get(dato).utfall }.getOrElse { false }
-
-    fun utestengninghistorikk(): List<Utestengningsperiode> = utestengninger.toList()
-
-    fun erUtestengt(dato: LocalDate): Boolean = utestengninger.any { dato in it.fraOgMed..it.tilOgMed }
+    fun rettighetstidslinje(): Rettighetstidslinje = rettighetstidslinje
 
     private val behandlingkjeder = behandlinger.toMutableList()
 
@@ -90,48 +49,7 @@ class Person(
     }
 
     override fun ferdig(event: BehandlingFerdig) {
-        if (event.regelverk == RegelverkType("Utestengning")) {
-            event.rettighetsperioder.filter { it.harRett }.forEach {
-                utestengninger.add(
-                    Utestengningsperiode(it.fraOgMed, it.tilOgMed, event.behandlingId, event.behandlingskjedeId),
-                )
-            }
-            return
-        }
-
-        // Unngår å opprette rettighetshistorikk ved avslag
-        // Da vet vi hvilke saker vi "eier" i ny løsning
-        // TODO: Skal fjernes når vi skal eie avslag også (her venter vi på automatiske brev ved avslag)
-        val erAvslag = rettighethistorikk().isEmpty() && event.rettighetsperioder.all { !it.harRett }
-        if (erAvslag) return
-
-        rettighetstatus =
-            TemporalCollection<Rettighetstatus>().apply {
-                event.rettighetsperioder.forEach { periode ->
-                    put(
-                        periode.fraOgMed,
-                        Rettighetstatus(
-                            periode.fraOgMed,
-                            periode.harRett,
-                            event.behandlingId,
-                            event.behandlingskjedeId,
-                        ),
-                    )
-                }
-            }
-        /*event.rettighetsperioder.filter { it.endret }.forEach {
-            rettighetstatus.put(
-                it.fraOgMed,
-                Rettighetstatus(it.fraOgMed, it.harRett, event.behandlingId, event.behandlingskjedeId),
-            )
-
-            if (!it.tilOgMed.isEqual(LocalDate.MAX) && it.harRett) {
-                rettighetstatus.put(
-                    it.tilOgMed.plusDays(1),
-                    Rettighetstatus(it.tilOgMed.plusDays(1), false, event.behandlingId, event.behandlingskjedeId),
-                )
-            }
-        }*/
+        rettighetstidslinje.oppdater(event.regelverk, event.behandlingId, event.behandlingskjedeId, event.rettighetsperioder)
     }
 
     override fun håndter(hendelse: StartHendelse) {
@@ -147,14 +65,15 @@ class Person(
         //      (velger den kjeden som har nyest behandling)
         val kjede =
             behandlingkjeder
-                .filter { it.rot.regelverk == hendelse.forretningsprosess.regelverk.navn }
+                .filter { it.tilhørerRegelverk(hendelse.forretningsprosess.regelverk) }
                 .filter { it.nesteSomKanBaseresPå != null }
                 .maxByOrNull { it.nesteSomKanBaseresPå!!.behandlingId }
 
         // Oppskrift for å opprette en behandling
         hendelse.leggTilKontekst(this)
+        val rettighetsperioder = rettighetstidslinje.forRegelverk(hendelse.forretningsprosess.regelverk.ident)
         val behandling =
-            when (val resultat = hendelse.behandling(kjede?.nesteSomKanBaseresPå, rettighetstatus)) {
+            when (val resultat = hendelse.behandling(kjede?.nesteSomKanBaseresPå, rettighetsperioder)) {
                 is StartHendelseResultat.IkkeOpprettet -> {
                     val melding =
                         "Kan ikke starte behandling av ${hendelse.type} med id ${hendelse.eksternId.id}: ${resultat.årsak}"
@@ -170,7 +89,7 @@ class Person(
                 is StartHendelseResultat.OppdaterBehandling -> {
                     val eldsteAktiveBehandling =
                         behandlingkjeder
-                            .filter { it.rot.regelverk == hendelse.forretningsprosess.regelverk.navn }
+                            .filter { it.tilhørerRegelverk(hendelse.forretningsprosess.regelverk) }
                             .filterNot { it.rot.harTilstand(Ferdig) || it.rot.harTilstand(Avbrutt) }
                             .minByOrNull { it.rot.behandlingId }
                             ?.rot
@@ -317,7 +236,7 @@ class Person(
     }
 
     private fun krevLineærBehandlingskjede(behandling: Behandling) {
-        val relevanteKjeder = behandlingkjeder.filter { it.rot.regelverk == behandling.regelverk }
+        val relevanteKjeder = behandlingkjeder.filter { it.tilhørerRegelverk(behandling.regelverk) }
         if (!relevanteKjeder.harParallelleBehandlinger(behandling)) return
         throw IllegalStateException(
             """Vedtaket kan ikke fattes fordi en nyere åpen behandling er blitt opprettet. Avbryt denne eldre behandlingen og gjør 

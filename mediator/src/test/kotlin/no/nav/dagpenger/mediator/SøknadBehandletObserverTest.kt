@@ -9,15 +9,14 @@ import no.nav.dagpenger.modell.Arbeidssteg
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingAvbrutt
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingFerdig
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.Rettighetsperiode
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -113,7 +112,7 @@ class SøknadBehandletObserverTest {
                 behandlingId = behandlingId,
                 basertPåBehandling = null,
                 behandlingskjedeId = behandlingId,
-                regelverk = RegelverkType("Test"),
+                regelverk = RegelverkIdent("Test"),
                 rettighetsperioder = rettighetsperioder,
                 avgjørelse = avgjørelse,
                 virkningsdato = 1.januar,
@@ -137,7 +136,7 @@ class SøknadBehandletObserverTest {
 
         override fun behandling(
             forrigeBehandling: Behandling?,
-            rettighetstatus: TemporalCollection<Rettighetstatus>,
+            rettighetsperioder: Rettighetsperioder,
         ): StartHendelseResultat = throw UnsupportedOperationException("Brukes bare for testing")
     }
 }

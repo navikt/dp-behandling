@@ -2,8 +2,7 @@ package no.nav.dagpenger.regel.hendelse
 
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
-import no.nav.dagpenger.modell.Rettighetstatus
-import no.nav.dagpenger.modell.Rettighetstatus.Companion.harIkkeInnvilgelse
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
@@ -13,7 +12,6 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Forretningsprosess
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.prosess.Manuellprosess
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -34,12 +32,12 @@ class OpprettBehandlingHendelse(
 
     override fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat {
         if (forrigeBehandling == null && !startNyKjede) {
             return IkkeOpprettet("Hendelse av type $type kan ikke starte en ny behandlingskjede uten en tidligere behandling")
         }
-        if (eksternId is SamordningId && rettighetstatus.harIkkeInnvilgelse) {
+        if (eksternId is SamordningId && rettighetsperioder.harAldriHattRett()) {
             return IkkeOpprettet("Samordningshendelse av type $type kan ikke opprette behandling uten innvilget dagpengerett")
         }
 

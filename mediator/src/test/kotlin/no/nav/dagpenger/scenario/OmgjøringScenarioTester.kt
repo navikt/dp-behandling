@@ -20,6 +20,7 @@ import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.november
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
@@ -135,7 +136,7 @@ class OmgjøringScenarioTester {
                 }
             }
 
-            person.rettighetstatus.contents().size shouldBe 1
+            person.rettighetstatus.perioder(RegelverkDagpenger).size shouldBe 1
         }
     }
 
@@ -322,7 +323,7 @@ class OmgjøringScenarioTester {
                 rettighetsperioder[2].harRett shouldBe true
             }
 
-            person.rettighetstatus.contents().size shouldBe 3
+            person.rettighetstatus.perioder(RegelverkDagpenger).size shouldBe 3
         }
     }
 
@@ -433,7 +434,7 @@ class OmgjøringScenarioTester {
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeLessThan 27991
             }
 
-            person.rettighetstatus.contents().size shouldBe 4
+            person.rettighetstatus.perioder(RegelverkDagpenger).size shouldBe 4
         }
     }
 
@@ -590,7 +591,8 @@ class OmgjøringScenarioTester {
                 }
             }
 
-            person.rettighetstatus.contents().map { it.key } shouldContainExactly perioder!!.map { it.fraOgMed }
+            person.rettighetstatus.perioder(RegelverkDagpenger).map { it.fraOgMed } shouldContainExactly
+                perioder!!.map { it.fraOgMed }
         }
     }
 }

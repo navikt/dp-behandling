@@ -3,6 +3,7 @@ package no.nav.dagpenger.mediator.repository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import io.prometheus.metrics.model.snapshots.Labels
+import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.dagpenger.mediator.Metrikk
@@ -12,8 +13,9 @@ import no.nav.dagpenger.mediator.db.DatabaseSession
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.Person
 import no.nav.dagpenger.modell.Rettighetstatus
-import no.nav.dagpenger.modell.Utestengningsperiode
-import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.modell.Rettighetstidslinje
+import no.nav.dagpenger.opplysning.RegelverkIdent
+import org.postgresql.util.PGobject
 import java.time.LocalDate
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
@@ -41,7 +43,7 @@ class PersonRepositoryPostgres(
                         mapOf("ident" to ident.identifikator()),
                     ).map { row ->
                         val dbIdent = Ident(row.string("ident"))
-                        val utestengninger = session.utestengningerFor(dbIdent)
+                        val rettighetstidslinje = session.rettighetstidslinjeFor(dbIdent)
                         val behandlingskjeder = behandlingRepository.hentBehandlinger(dbIdent)
                         logger.info {
                             "Hentet person med ${behandlingskjeder.size} behandlingskjede(r) med ${behandlingskjeder.joinToString {
@@ -50,7 +52,7 @@ class PersonRepositoryPostgres(
                             }} behandling(er)"
                         }
                         Metrikk.registrerAntallBehandlinger(behandlingskjeder.size)
-                        Person(dbIdent, behandlingskjeder, utestengninger)
+                        Person(dbIdent, behandlingskjeder, rettighetstidslinje)
                     }.asSingle,
                 )?.also {
                     val antallBehandlinger = it.behandlinger().size.toString()
@@ -69,27 +71,8 @@ class PersonRepositoryPostgres(
         }
 
     @WithSpan
-    override fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
-        dbSession.session { session -> session.rettighetstatusFor(ident) }
-
-    @WithSpan
-    override fun erUtestengt(
-        ident: Ident,
-        dato: LocalDate,
-    ): Boolean =
-        dbSession.session { session ->
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    SELECT 1 FROM utestengning
-                    WHERE ident = :ident AND fra_og_med <= :dato AND til_og_med >= :dato
-                    LIMIT 1
-                    """.trimIndent(),
-                    mapOf("ident" to ident.identifikator(), "dato" to dato),
-                ).map { 1 }.asSingle,
-            ) == 1
-        }
+    override fun rettighetstatusFor(ident: Ident): Rettighetstidslinje =
+        dbSession.session { session -> session.rettighetstidslinjeFor(ident) }
 
     @WithSpan
     override fun harIdent(ident: Ident): Boolean =
@@ -106,7 +89,7 @@ class PersonRepositoryPostgres(
                 ) == 1
         }
 
-    private fun Session.rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus> =
+    private fun Session.rettighetstidslinjeFor(ident: Ident): Rettighetstidslinje =
         this
             .run(
                 queryOf(
@@ -116,37 +99,27 @@ class PersonRepositoryPostgres(
                     """.trimIndent(),
                     mapOf("ident" to ident.identifikator()),
                 ).map { row ->
-                    val gjelderFra = row.localDate("gjelder_fra")
-                    val virkningsdato = row.localDate("virkningsdato")
-                    val utfall = row.boolean("har_rettighet")
-                    val behandlingId = row.uuid("behandling_id")
-                    val behandlingskjedeId = row.uuid("behandlingskjede_id")
-                    Pair(gjelderFra, Rettighetstatus(virkningsdato, utfall, behandlingId, behandlingskjedeId))
+                    val regelverk = RegelverkIdent(row.string("regelverk"))
+                    val status =
+                        Rettighetstatus(
+                            fraOgMed = row.localDate("fra_og_med"),
+                            tilOgMed = row.tilOgMedDato(),
+                            harRett = row.boolean("har_rettighet"),
+                            behandlingId = row.uuid("behandling_id"),
+                            behandlingskjedeId = row.uuid("behandlingskjede_id"),
+                            opplysningId = row.uuid("opplysning_id"),
+                        )
+                    regelverk to status
                 }.asList,
-            ).let {
-                TemporalCollection<Rettighetstatus>().apply {
-                    it.forEach { pair -> put(pair.first, pair.second) }
-                }
-            }
+            ).groupBy({ it.first }, { it.second })
+            .let { Rettighetstidslinje.fraPerioder(it) }
 
-    private fun Session.utestengningerFor(ident: Ident): List<Utestengningsperiode> =
-        this
-            .run(
-                queryOf(
-                    //language=PostgreSQL
-                    """
-                    SELECT * FROM utestengning WHERE ident = :ident ORDER BY fra_og_med
-                    """.trimIndent(),
-                    mapOf("ident" to ident.identifikator()),
-                ).map { row ->
-                    Utestengningsperiode(
-                        fraOgMed = row.localDate("fra_og_med"),
-                        tilOgMed = row.localDate("til_og_med"),
-                        behandlingId = row.uuid("behandling_id"),
-                        behandlingskjedeId = row.uuid("behandlingskjede_id"),
-                    )
-                }.asList,
-            )
+    private fun Row.tilOgMedDato(): LocalDate =
+        when (string("til_og_med")) {
+            "infinity" -> LocalDate.MAX
+            "-infinity" -> LocalDate.MIN
+            else -> localDate("til_og_med")
+        }
 
     override fun lagre(person: Person) {
         lagrePersonMetrikk.time {
@@ -170,8 +143,7 @@ class PersonRepositoryPostgres(
             ).asUpdate,
         )
 
-        lagreRettighetshistorikk(unitOfWork, person.ident.identifikator(), person.rettighethistorikk())
-        lagreUtestengninger(unitOfWork, person.ident.identifikator(), person.utestengninghistorikk())
+        lagreRettighetshistorikk(unitOfWork, person.ident.identifikator(), person.rettighetstidslinje())
 
         behandlingRepository.lagre(person.ident, person.behandlinger(), unitOfWork)
     }
@@ -183,20 +155,12 @@ class PersonRepositoryPostgres(
                     queryOf(
                         //language=PostgreSQL
                         """
-                        WITH åretFør AS (
-                            SELECT DISTINCT ON (ident) ident, har_rettighet
-                            FROM rettighetstatus
-                            WHERE gjelder_fra < :fom
-                            ORDER BY ident, gjelder_fra DESC
-                        )
                         SELECT DISTINCT ident
                         FROM rettighetstatus
-                        WHERE har_rettighet = true
-                          AND gjelder_fra BETWEEN :fom AND :tom
-                        union
-                        select ident
-                        from åretFør
-                        where har_rettighet = true
+                        WHERE regelverk = 'Dagpenger'
+                          AND har_rettighet = true
+                          AND fra_og_med <= :tom
+                          AND til_og_med >= :fom
                         """.trimIndent(),
                         mapOf(
                             "fom" to LocalDate.of(år, 1, 1),
@@ -216,17 +180,23 @@ class PersonRepositoryPostgres(
                     queryOf(
                         //language=PostgreSQL
                         """
-                        SELECT har_rettighet, count(*) AS antall
+                        SELECT har_rett, count(*) AS antall
                         FROM (
-                            SELECT DISTINCT ON (ident) ident, har_rettighet
-                            FROM rettighetstatus
-                            WHERE gjelder_fra <= CURRENT_DATE
-                            ORDER BY ident, gjelder_fra DESC
+                            SELECT DISTINCT rs.ident,
+                                   EXISTS (
+                                       SELECT 1 FROM rettighetstatus r
+                                       WHERE r.ident = rs.ident
+                                         AND r.regelverk = 'Dagpenger'
+                                         AND r.har_rettighet = true
+                                         AND CURRENT_DATE BETWEEN r.fra_og_med AND r.til_og_med
+                                   ) AS har_rett
+                            FROM rettighetstatus rs
+                            WHERE rs.regelverk = 'Dagpenger'
                         ) siste_status
-                        GROUP BY har_rettighet
+                        GROUP BY har_rett
                         """.trimIndent(),
                     ).map { row ->
-                        row.boolean("har_rettighet") to row.long("antall")
+                        row.boolean("har_rett") to row.long("antall")
                     }.asList,
                 ).toMap()
         }
@@ -234,7 +204,7 @@ class PersonRepositoryPostgres(
     private fun lagreRettighetshistorikk(
         unitOfWork: PostgresUnitOfWork,
         ident: String,
-        rettighethistorikk: Map<LocalDate, Rettighetstatus>,
+        rettighetstidslinje: Rettighetstidslinje,
     ) {
         unitOfWork.session.run(
             queryOf(
@@ -245,53 +215,54 @@ class PersonRepositoryPostgres(
         )
 
         val params =
-            rettighethistorikk
-                .map { (gjelderFra, rettighetstatus) ->
+            rettighetstidslinje.regelverk().flatMap { regelverk ->
+                rettighetstidslinje.perioder(regelverk).map { periode ->
                     mapOf(
                         "ident" to ident,
-                        "gjelderFra" to gjelderFra,
-                        "virkningsdato" to rettighetstatus.virkningsdato,
-                        "behandlingId" to rettighetstatus.behandlingId,
-                        "harRettighet" to rettighetstatus.utfall,
-                        "behandlingskjedeId" to rettighetstatus.behandlingskjedeId,
+                        "regelverk" to regelverk.ident,
+                        "fraOgMed" to periode.fraOgMed,
+                        "tilOgMed" to periode.tilOgMed.tilPostgresqlDato(),
+                        "behandlingId" to periode.behandlingId,
+                        "harRettighet" to periode.harRett,
+                        "behandlingskjedeId" to periode.behandlingskjedeId,
+                        "opplysningId" to periode.opplysningId,
                     )
                 }
+            }
+
+        if (params.isEmpty()) return
 
         unitOfWork.session
             .batchPreparedNamedStatement(
                 //language=PostgreSQL
                 """
-                INSERT INTO rettighetstatus (ident, gjelder_fra, virkningsdato, har_rettighet, behandling_id, behandlingskjede_id)
-                VALUES (:ident, :gjelderFra, :virkningsdato, :harRettighet, :behandlingId, :behandlingskjedeId)
+                INSERT INTO rettighetstatus
+                    (ident, regelverk, fra_og_med, til_og_med, har_rettighet, behandling_id, behandlingskjede_id, opplysning_id)
+                VALUES
+                    (:ident, :regelverk, :fraOgMed, :tilOgMed, :harRettighet, :behandlingId, :behandlingskjedeId, :opplysningId)
                 """.trimIndent(),
                 params,
             ).krevAtAntallRaderErNøyaktigLik(params.size)
     }
 
-    private fun lagreUtestengninger(
-        unitOfWork: PostgresUnitOfWork,
-        ident: String,
-        utestengninger: List<Utestengningsperiode>,
-    ) {
-        if (utestengninger.isEmpty()) return
-        val params =
-            utestengninger.map {
-                mapOf(
-                    "ident" to ident,
-                    "behandlingId" to it.behandlingId,
-                    "behandlingskjedeId" to it.behandlingskjedeId,
-                    "fraOgMed" to it.fraOgMed,
-                    "tilOgMed" to it.tilOgMed,
-                )
+    private fun LocalDate.tilPostgresqlDato(): Any =
+        when (this) {
+            LocalDate.MAX -> {
+                PGobject().apply {
+                    type = "date"
+                    value = "infinity"
+                }
             }
-        unitOfWork.session.batchPreparedNamedStatement(
-            //language=PostgreSQL
-            """
-            INSERT INTO utestengning (ident, behandling_id, behandlingskjede_id, fra_og_med, til_og_med)
-            VALUES (:ident, :behandlingId, :behandlingskjedeId, :fraOgMed, :tilOgMed)
-            ON CONFLICT (ident, behandling_id) DO NOTHING
-            """.trimIndent(),
-            params,
-        )
-    }
+
+            LocalDate.MIN -> {
+                PGobject().apply {
+                    type = "date"
+                    value = "-infinity"
+                }
+            }
+
+            else -> {
+                this
+            }
+        }
 }

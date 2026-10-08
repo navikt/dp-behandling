@@ -1,6 +1,5 @@
 package no.nav.dagpenger.modell
 
-import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingFerdig
 import no.nav.dagpenger.modell.hendelser.EksternId
@@ -16,9 +15,8 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.Rettighetsperiode
-import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -27,6 +25,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 private val testIdent = "12312312311"
+private val dagpenger = RegelverkIdent("Dagpenger")
 
 class PersonTest {
     @Test
@@ -93,7 +92,7 @@ class PersonTest {
         val person = Person(Ident(testIdent))
         person.harRettighet(1.juni) shouldBe false
 
-        // Innvilg ny periode
+        // Rent avslag - ingen periode har noensinne gitt rett
         person.ferdig(
             BehandlingFerdig(
                 behandlingResultat(
@@ -105,8 +104,10 @@ class PersonTest {
         )
 
         person.harRettighet(1.juni) shouldBe false
-        person.rettighethistorikk().shouldBeEmpty()
+        person.rettighetstidslinje().forRegelverk(dagpenger).harAldriHattRett() shouldBe true
     }
+
+    private fun Person.harRettighet(dato: LocalDate) = rettighetstidslinje().harRett(dagpenger, dato)
 
     private fun behandlingResultat(
         virkningsdato: LocalDate,
@@ -118,7 +119,7 @@ class PersonTest {
             behandlingId = behandlingId,
             basertPåBehandling = null,
             behandlingskjedeId = behandlingId,
-            regelverk = RegelverkType("Dagpenger"),
+            regelverk = dagpenger,
             rettighetsperioder = perioder,
             avgjørelse = if (perioder.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag,
             virkningsdato = virkningsdato,
@@ -152,12 +153,12 @@ class PersonTest {
             ManuellId(UUIDv7.ny()),
             LocalDate.now(),
             LocalDateTime.now(),
-            Testprosess(Regelverk(RegelverkType("Test"))),
+            Testprosess(Regelverk(RegelverkIdent("Test"))),
         )
 
         override fun behandling(
             forrigeBehandling: Behandling?,
-            rettighetstatus: TemporalCollection<Rettighetstatus>,
+            rettighetsperioder: Rettighetsperioder,
         ): StartHendelseResultat {
             TODO("Not yet implemented")
         }

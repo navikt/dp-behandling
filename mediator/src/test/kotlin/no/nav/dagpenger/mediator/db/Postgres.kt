@@ -39,6 +39,22 @@ data class DBTestContext(
 
     fun runMigration(): Int = migratedOutput.size
 
+    // Migrerer kun til og med den oppgitte versjonen, slik at en test kan sette inn data i et eldre skjema
+    // og deretter kalle runMigration() for å verifisere at en senere migrering (f.eks. et backfill-skript)
+    // transformerer dataene riktig.
+    fun runMigrationTo(target: String): Int =
+        HikariDataSource(hikariConfig).use { flywayDataSource ->
+            Flyway
+                .configure()
+                .connectRetries(10)
+                .target(target)
+                .dataSource(flywayDataSource)
+                .load()
+                .migrate()
+                .migrations
+                .size
+        }
+
     fun truncateTables() {
         dbSession.session { session ->
             val tabeller =

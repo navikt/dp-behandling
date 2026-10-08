@@ -8,11 +8,10 @@ import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandlingkjede
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.Person
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetstidslinje
 import no.nav.dagpenger.modell.hendelser.Meldekort
 import no.nav.dagpenger.modell.hendelser.MeldekortId
 import no.nav.dagpenger.modell.hendelser.UtbetalingStatus
-import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -120,13 +119,7 @@ interface PersonRepository : BehandlingRepository {
     fun tellMenneskerPerRettighetstatus(): Map<Boolean, Long>
 
     @WithSpan
-    fun rettighetstatusFor(ident: Ident): TemporalCollection<Rettighetstatus>
-
-    @WithSpan
-    fun erUtestengt(
-        ident: Ident,
-        dato: LocalDate,
-    ): Boolean
+    fun rettighetstatusFor(ident: Ident): Rettighetstidslinje
 
     @WithSpan
     fun harIdent(ident: Ident): Boolean

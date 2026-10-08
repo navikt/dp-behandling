@@ -11,6 +11,7 @@ import no.nav.dagpenger.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.modell.hendelser.MeldekortId
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import java.time.LocalDate
 
 class MeldekortBehandlingskø(
@@ -41,12 +42,12 @@ class MeldekortBehandlingskø(
 
                         kø.behandlingsklare.map { it.meldekort }.forEach { meldekort ->
                             val meldekortPeriode = meldekort.periode()
-                            val rettighetstatus = personRepositoryPostgres.rettighetstatusFor(meldekort.ident.tilPersonIdentfikator())
+                            val rettighetstidslinje = personRepositoryPostgres.rettighetstatusFor(meldekort.ident.tilPersonIdentfikator())
 
                             withLoggingContext("meldekortId" to meldekort.id.toString()) {
                                 val potensielleDager =
                                     meldekortPeriode.associateWith { dag ->
-                                        runCatching { rettighetstatus.get(dag).utfall }.getOrElse { false }
+                                        rettighetstidslinje.harRett(RegelverkDagpenger, dag)
                                     }
 
                                 val harRettighet = potensielleDager.any { it.value }

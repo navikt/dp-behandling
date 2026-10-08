@@ -46,7 +46,7 @@ import no.nav.dagpenger.opplysning.OpplysningstypeKategori
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.RegelkjøringLoopException
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
@@ -95,7 +95,7 @@ class Behandling private constructor(
     private val observatører = mutableListOf<BehandlingObservatør>()
     private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
-    val regelverk get() = forretningsprosess.regelverk.navn
+    val regelverk get() = forretningsprosess.regelverk.ident
     val opprettetAv get() = behandler.opprettetAv
     val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 
@@ -1304,7 +1304,7 @@ class Behandling private constructor(
         val behandlingId: UUID
         val basertPåBehandling: UUID?
         val behandlingskjedeId: UUID
-        val regelverk: RegelverkType
+        val regelverk: RegelverkIdent
         val rettighetsperioder: List<Rettighetsperiode>
         val avgjørelse: Avgjørelse
         val virkningsdato: LocalDate
@@ -1325,7 +1325,7 @@ class Behandling private constructor(
         override val behandlingId: UUID,
         override val basertPåBehandling: UUID?,
         override val behandlingskjedeId: UUID,
-        override val regelverk: RegelverkType,
+        override val regelverk: RegelverkIdent,
         override val rettighetsperioder: List<Rettighetsperiode>,
         override val avgjørelse: Avgjørelse,
         override val virkningsdato: LocalDate,
@@ -1344,7 +1344,7 @@ interface BehandlingObservatør {
         val behandlingId: UUID,
         val basertPåBehandlinger: UUID?,
         val behandlingskjedeId: UUID,
-        val regelverk: RegelverkType,
+        val regelverk: RegelverkIdent,
         val hendelse: StartHendelse,
     ) : PersonEvent()
 

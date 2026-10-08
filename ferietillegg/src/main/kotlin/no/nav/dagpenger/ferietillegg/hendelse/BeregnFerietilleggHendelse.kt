@@ -5,7 +5,7 @@ import no.nav.dagpenger.ferietillegg.Avklaringspunkter.KontrollFerietilleggRevur
 import no.nav.dagpenger.ferietillegg.Ferietilleggprosess
 import no.nav.dagpenger.ferietillegg.KravPåFerietillegg
 import no.nav.dagpenger.modell.Behandling
-import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.modell.Rettighetsperioder
 import no.nav.dagpenger.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
@@ -13,7 +13,6 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Systemkilde
-import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -35,7 +34,7 @@ class BeregnFerietilleggHendelse(
 
     override fun behandling(
         forrigeBehandling: Behandling?,
-        rettighetstatus: TemporalCollection<Rettighetstatus>,
+        rettighetsperioder: Rettighetsperioder,
     ): StartHendelseResultat {
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
         val basertPå = if (sammeOpptjeningsår(forrigeBehandling)) forrigeBehandling else null
