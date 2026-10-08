@@ -27,6 +27,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Redigerbar
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.RegelsettType
+import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemaktør
@@ -123,6 +124,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning.utestengt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import java.time.LocalDateTime
+import java.util.UUID
 import kotlin.io.encoding.Base64
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
@@ -130,6 +132,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
         val opplysningSet = opplysninger.somListe()
         val egneId = opplysninger.somListe(Egne).map { it.id }
         val behandlingsresultat = vedtakopplysninger
+        val opplysningstypeRekkefølge = behandler.forretningsprosess.regelverk.opplysningstypeRekkefølge()
 
         BehandlingDTO(
             behandlingId = behandlingId,
@@ -154,19 +157,20 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                     .map { it.tilVurderingsresultatDTO(opplysningSet) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             opplysninger =
-                opplysningSet.somOpplysningperiode({ type, opplysninger ->
-                    RedigerbareOpplysningerDTO(
-                        opplysningTypeId = type.id.uuid,
-                        navn = type.navn,
-                        perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
-                        datatype = type.datatype.tilDataTypeDTO(),
-                        synlig = type.synlig(this.opplysninger),
-                        redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
-                        redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
-                        kanOppfriskes = type.kanOppfriskes(opplysninger.any { it.id in egneId }),
-                        formål = type.tilFormålDTO(),
-                    )
-                }),
+                opplysningSet
+                    .somOpplysningperiode { type, opplysninger ->
+                        RedigerbareOpplysningerDTO(
+                            opplysningTypeId = type.id.uuid,
+                            navn = type.navn,
+                            perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
+                            datatype = type.datatype.tilDataTypeDTO(),
+                            synlig = type.synlig(this.opplysninger),
+                            redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
+                            redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
+                            kanOppfriskes = type.kanOppfriskes(opplysninger.any { it.id in egneId }),
+                            formål = type.tilFormålDTO(),
+                        )
+                    }.sortedBy { opplysningstypeRekkefølge[it.opplysningTypeId] ?: Int.MAX_VALUE },
             saksbehandlingsregler =
                 behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Prosess)
@@ -197,6 +201,17 @@ private val kanOppfriskes =
     )
 
 private fun Opplysningstype<*>.kanOppfriskes(finnesIEgne: Boolean): Boolean = this in kanOppfriskes && finnesIEgne
+
+// Opplysningstyper skal vises i samme rekkefølge som de er definert i regelsettene (regelsett-
+// rekkefølgen i regelverket, deretter regeldefinisjonsrekkefølgen innad i hvert regelsett).
+// Typer som ikke produseres av et regelsett (f.eks. opplysninger som kommer direkte fra en
+// hendelse) havner til slutt, i sin opprinnelige rekkefølge.
+private fun Regelverk.opplysningstypeRekkefølge(): Map<UUID, Int> =
+    regelsett
+        .flatMap { it.produserer }
+        .distinct()
+        .withIndex()
+        .associate { (indeks, type) -> type.id.uuid to indeks }
 
 private fun Pair<Behandling.TilstandType, LocalDateTime>.tilTilstandDTO() =
     when (first) {

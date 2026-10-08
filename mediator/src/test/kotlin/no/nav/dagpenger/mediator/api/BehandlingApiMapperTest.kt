@@ -1,6 +1,7 @@
 package no.nav.dagpenger.mediator.api
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -214,6 +215,26 @@ class BehandlingApiMapperTest {
 
         behandlingDto.vilkår shouldHaveSize 24
         behandlingDto.vilkår.single { it.navn == "Alder" }.relevantForResultat shouldBe true
+    }
+
+    @Test
+    fun `opplysninger listes i samme rekkefølge som regelsettene definerer dem`() {
+        val behandlingDto = behandling.tilBehandlingDTO()
+        val rekkefølge = behandlingDto.opplysninger.map { it.opplysningTypeId }
+
+        // Alderskrav, Minsteinntekt, Søknadstidspunkt og Verneplikt er regelsett som i
+        // RegelverkDagpenger er definert i nettopp denne rekkefølgen.
+        val kravTilAlderIndeks = rekkefølge.indexOf(kravTilAlder.id.uuid)
+        val inntekt12Indeks = rekkefølge.indexOf(Minsteinntekt.inntekt12.id.uuid)
+        val prøvingsdatoIndeks = rekkefølge.indexOf(Søknadstidspunkt.prøvingsdato.id.uuid)
+        val avtjentVernepliktIndeks = rekkefølge.indexOf(Verneplikt.avtjentVerneplikt.id.uuid)
+        // heltall produseres ikke av noe regelsett, og skal derfor havne til slutt
+        val heltallIndeks = rekkefølge.indexOf(TestOpplysningstyper.heltall.id.uuid)
+
+        kravTilAlderIndeks shouldBeLessThan inntekt12Indeks
+        inntekt12Indeks shouldBeLessThan prøvingsdatoIndeks
+        prøvingsdatoIndeks shouldBeLessThan avtjentVernepliktIndeks
+        avtjentVernepliktIndeks shouldBeLessThan heltallIndeks
     }
 
     @Test
