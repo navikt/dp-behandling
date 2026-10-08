@@ -3,13 +3,15 @@ package no.nav.dagpenger.opplysning
 import no.nav.dagpenger.dag.DAG
 import no.nav.dagpenger.dag.Edge
 import no.nav.dagpenger.dag.Node
+import no.nav.dagpenger.uuid.UUIDv7
 import java.time.LocalDate
+import java.util.UUID
 
 @JvmInline
-value class RegelverkType(
-    val navn: String,
+value class RegelverkIdent(
+    val ident: String,
 ) {
-    override fun toString() = navn
+    override fun toString() = ident
 }
 
 sealed class Avgjørelse {
@@ -51,7 +53,7 @@ fun interface Avgjørelsesberegning {
 }
 
 class Regelverk(
-    val navn: RegelverkType,
+    val ident: RegelverkIdent,
     private val rettighetsperiodeberegning: Rettighetsperiodeberegning = Rettighetsperiodeberegning { emptyList() },
     private val utbetalingsberegning: Utbetalingsberegning = Utbetalingsberegning { emptyList() },
     private val avgjørelsesberegning: Avgjørelsesberegning = Avgjørelsesberegning { Avgjørelse.Uavklart },
@@ -149,6 +151,11 @@ data class Rettighetsperiode(
     //    behandling (samme fraOgMed, men f.eks. kortere varighet) - da overlever ingen arvet (uendret)
     //    periode å sammenligne med.
     val erstatterHarRett: Boolean? = null,
+    // Id-en til opplysningen (f.eks. harLøpendeRett) perioden stammer fra. Overlever uendret selv om
+    // opplysningen blir forkortet (se Opplysninger.forkortetTil, som bruker medGyldighetsperiode) eller
+    // arvet uendret inn i en senere behandling i samme kjede - og kan derfor brukes som en stabil nøkkel
+    // for å spore hvilken behandling som opprinnelig skapte en periode (se Rettighetstidslinje).
+    val opplysningId: UUID = UUIDv7.ny(),
 ) : Comparable<Rettighetsperiode> {
     override fun compareTo(other: Rettighetsperiode): Int = fraOgMed.compareTo(other.fraOgMed)
 }

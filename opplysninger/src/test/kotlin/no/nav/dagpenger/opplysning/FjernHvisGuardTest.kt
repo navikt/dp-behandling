@@ -90,7 +90,7 @@ class FjernHvisGuardTest {
     private fun lagRegelkjøring(opplysninger: Opplysninger): Regelkjøring {
         val regelverk =
             Regelverk(
-                navn = RegelverkType("TestRegelverk"),
+                ident = RegelverkIdent("TestRegelverk"),
                 regelsett = arrayOf(gateRegelsett, producerRegelsett, otherRegelsett),
             )
         val prosess =

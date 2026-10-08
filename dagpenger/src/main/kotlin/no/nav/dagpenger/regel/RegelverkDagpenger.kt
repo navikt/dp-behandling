@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Utbetaling
 import no.nav.dagpenger.opplysning.Ytelsestype
@@ -55,7 +55,7 @@ import java.time.temporal.ChronoUnit
 
 val RegelverkDagpenger =
     Regelverk(
-        navn = RegelverkType("Dagpenger"),
+        ident = RegelverkIdent("Dagpenger"),
         rettighetsperiodeberegning = ::dagpengerRettighetsperioder,
         utbetalingsberegning = ::dagpengerUtbetalinger,
         avgjørelsesberegning = ::dagpengerAvgjørelse,
@@ -119,6 +119,7 @@ private fun dagpengerRettighetsperioder(opplysninger: LesbarOpplysninger): List<
             harRett = periode.verdi,
             endret = egne.contains(periode),
             erstatterHarRett = periode.erstatter?.verdi,
+            opplysningId = periode.id,
         )
     }
 }

@@ -4,7 +4,7 @@ import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Regelverk
-import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.opplysning.RegelverkIdent
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Utbetaling
 import no.nav.dagpenger.opplysning.Ytelsestype
@@ -12,7 +12,7 @@ import java.time.LocalDate
 
 val RegelverkFerietillegg =
     Regelverk(
-        navn = RegelverkType("Ferietillegg"),
+        ident = RegelverkIdent("Ferietillegg"),
         rettighetsperiodeberegning = ::ferietilleggRettighetsperioder,
         utbetalingsberegning = ::ferietilleggUtbetalinger,
         avgjørelsesberegning = ::ferietilleggAvgjørelse,
@@ -28,6 +28,7 @@ private fun ferietilleggRettighetsperioder(opplysninger: LesbarOpplysninger): Li
             tilOgMed = periode.gyldighetsperiode.tilOgMed,
             harRett = periode.verdi,
             endret = egne.contains(periode),
+            opplysningId = periode.id,
         )
     }
 }
