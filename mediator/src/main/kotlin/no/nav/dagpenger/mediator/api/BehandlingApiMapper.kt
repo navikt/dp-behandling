@@ -126,6 +126,14 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVer
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.io.encoding.Base64
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.egenVirksomhet
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.godkjentNæringsfaglig
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.ikkeSelvforskyldtArbeidsledig
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.nyVirksomhet
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.overFemtiProsentEierandel
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.selvforsørget
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.sluttDato
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEtableringVurderes
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -405,6 +413,16 @@ internal val redigerbareOpplysninger =
                             skalHaEksport,
                             registrertIVertsland,
                             antallDagerFristForRegistrering,
+
+                            // Etablering
+                            skalEtableringVurderes,
+                            nyVirksomhet,
+                            selvforsørget,
+                            godkjentNæringsfaglig,
+                            ikkeSelvforskyldtArbeidsledig,
+                            sluttDato,
+                            egenVirksomhet,
+                            overFemtiProsentEierandel,
                         ),
                     )
 
