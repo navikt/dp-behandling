@@ -257,7 +257,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |01a0c30f-af05-736e-8d44-bd525b24bf4a|Ikke selvforskyldt arbeidsledig|Boolsk|boolean|||Utgangspunkt
 |01a0c310-b597-75be-acb6-e91c77024a33|Siste dato for dagpenger under etablering|Dato|LocalDate|||Resultat
 |01a0d282-3d10-772b-83fa-7ce6660e7d8b|Oppfyller vilkårene til etablering av egen virksomhet|Boolsk|boolean|||Resultat
-|01a0d841-8707-73f8-9db2-4b7b9708a103|Egen Virksomhet|Boolsk|boolean|||Utgangspunkt
 |01a0fb7e-5dd3-746d-a9eb-1c81f98cf545|Over 50 prosent eierandel i virksomheten|Boolsk|boolean|||Utgangspunkt
 ### § 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v
 *Type:* Vilkår

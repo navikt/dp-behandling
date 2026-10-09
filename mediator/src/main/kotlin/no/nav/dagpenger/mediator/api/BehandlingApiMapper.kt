@@ -46,6 +46,12 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.antallDagerFristForRegistrering
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.registrertIVertsland
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.skalHaEksport
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.godkjentNæringsfaglig
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.ikkeSelvforskyldtArbeidsledig
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.nyVirksomhet
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.overFemtiProsentEierandel
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.selvforsørget
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.sluttDato
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt.oppfyllerOpplysningsplikt
@@ -72,6 +78,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.ønskerÅVæreRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEksportVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEtableringVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
@@ -126,14 +133,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVer
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.io.encoding.Base64
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.egenVirksomhet
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.godkjentNæringsfaglig
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.ikkeSelvforskyldtArbeidsledig
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.nyVirksomhet
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.overFemtiProsentEierandel
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.selvforsørget
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.sluttDato
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEtableringVurderes
 
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
@@ -413,7 +412,6 @@ internal val redigerbareOpplysninger =
                             skalHaEksport,
                             registrertIVertsland,
                             antallDagerFristForRegistrering,
-
                             // Etablering
                             skalEtableringVurderes,
                             nyVirksomhet,
@@ -421,7 +419,6 @@ internal val redigerbareOpplysninger =
                             godkjentNæringsfaglig,
                             ikkeSelvforskyldtArbeidsledig,
                             sluttDato,
-                            egenVirksomhet,
                             overFemtiProsentEierandel,
                         ),
                     )
