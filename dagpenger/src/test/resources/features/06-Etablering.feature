@@ -12,21 +12,23 @@ Egenskap: Etablering
     Og de øvrige vilkårene for etablering er oppfylt
     Og saksbehandler vurderer at det er en ny virksomhet "<nyVirksomhet>"
     Og saksbehandler vurderer selvforsørgelse som "<selvforsørget>"
-    Og saksbehandler vurderer at virksomheten er egen "<egenVirksomhet>"
+    Og saksbehandler vurderer ikke selvforskyldt abeidsledig som "<selvforskyldt_arbeidsledig>"
+    Og saksbehandler vurderer at det er godkjent næringsfaglig vurdering "<godkjent_naeringsfaglig_vurdering>"
     Og saksbehandler vurderer at eierandelen er over femti prosent "<eierandelOverFemtiProsent>"
     Så skal vilkåret om etablering være "<utfall>"
     Og skal retten til dagpenger være "<harRett>"
 
     Eksempler:
-      | nyVirksomhet | selvforsørget | egenVirksomhet | eierandelOverFemtiProsent | utfall | harRett |
-      | Ja           | Ja            | Ja             | Ja                        | Ja     | Ja      |
-      | Ja           | Ja            | Nei            | Ja                        | Nei    | Ja      |
-      | Ja           | Nei           | Ja             | Ja                        | Nei    | Ja      |
-      | Ja           | Nei           | Nei            | Ja                        | Nei    | Ja      |
-      | Nei          | Ja            | Ja             | Ja                        | Nei    | Ja      |
-      | Nei          | Ja            | Nei            | Ja                        | Nei    | Ja      |
-      | Nei          | Nei           | Ja             | Ja                        | Nei    | Ja      |
-      | Nei          | Nei           | Nei            | Ja                        | Nei    | Ja      |
+      | nyVirksomhet | selvforsørget | eierandelOverFemtiProsent | selvforskyldt_arbeidsledig | godkjent_naeringsfaglig_vurdering | utfall | harRett |
+      | Ja           | Ja            | Ja                        | Ja                         | Ja                                | Ja     | Ja      |
+      | Ja           | Ja            | Ja                        | Ja                         | Nei                               | Nei    | Ja      |
+      | Ja           | Ja            | Ja                        | Nei                        | Nei                               | Nei    | Ja      |
+      | Ja           | Nei           | Ja                        | Nei                        | Nei                               | Nei    | Ja      |
+      | Ja           | Nei           | Ja                        | Nei                        | Nei                               | Nei    | Ja      |
+      | Nei          | Ja            | Ja                        | Nei                        | Nei                               | Nei    | Ja      |
+      | Nei          | Ja            | Ja                        | Nei                        | Nei                               | Nei    | Ja      |
+      | Nei          | Nei           | Ja                        | Nei                        | Nei                               | Nei    | Ja      |
+      | Nei          | Nei           | Ja                        | Nei                        | Nei                               | Nei    | Ja      |
 
 
   Scenario: Etablering skal ikke vurderes

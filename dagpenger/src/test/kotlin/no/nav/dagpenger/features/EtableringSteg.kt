@@ -67,15 +67,22 @@ class EtableringSteg : No {
                 .also { regelkjøring.evaluer() }
         }
 
-        Og("saksbehandler vurderer at virksomheten er egen {boolsk}") { egenVirksomhet: Boolean ->
-            opplysninger
-                .leggTil(Faktum(Etablering.egenVirksomhet, egenVirksomhet) as Opplysning<*>)
-                .also { regelkjøring.evaluer() }
-        }
         Og("saksbehandler vurderer at eierandelen er over femti prosent {boolsk}") { overFemtiProsent: Boolean ->
             // Write code here that turns the phrase above into concrete actions
             opplysninger
                 .leggTil(Faktum(Etablering.overFemtiProsentEierandel, overFemtiProsent) as Opplysning<*>)
+                .also { regelkjøring.evaluer() }
+        }
+
+        Og("saksbehandler vurderer at det er godkjent næringsfaglig vurdering {boolsk}") { godkjentNæringsfagligVurdering: Boolean ->
+            opplysninger
+                .leggTil(Faktum(Etablering.godkjentNæringsfaglig, godkjentNæringsfagligVurdering) as Opplysning<*>)
+                .also { regelkjøring.evaluer() }
+        }
+
+        Og("saksbehandler vurderer ikke selvforskyldt abeidsledig som {boolsk}") { ikkeSelvforskyldtArbeidsledig: Boolean ->
+            opplysninger
+                .leggTil(Faktum(Etablering.ikkeSelvforskyldtArbeidsledig, ikkeSelvforskyldtArbeidsledig) as Opplysning<*>)
                 .also { regelkjøring.evaluer() }
         }
 
@@ -87,7 +94,6 @@ class EtableringSteg : No {
             listOf(
                 Etablering.nyVirksomhet,
                 Etablering.selvforsørget,
-                Etablering.egenVirksomhet,
                 Etablering.etableringGodkjent,
             ).forEach { opplysningstype ->
                 opplysninger.har(opplysningstype) shouldBe false

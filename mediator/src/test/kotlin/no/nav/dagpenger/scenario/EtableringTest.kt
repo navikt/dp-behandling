@@ -65,7 +65,6 @@ class EtableringTest {
                 Etablering.nyVirksomhet,
                 Etablering.selvforsørget,
                 Etablering.godkjentNæringsfaglig,
-                Etablering.egenVirksomhet,
                 Etablering.ikkeSelvforskyldtArbeidsledig,
                 Etablering.overFemtiProsentEierandel,
             ).forEach { saksbehandler.endreOpplysning(it, false, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
@@ -151,7 +150,6 @@ class EtableringTest {
                 Etablering.nyVirksomhet,
                 Etablering.selvforsørget,
                 Etablering.godkjentNæringsfaglig,
-                Etablering.egenVirksomhet,
                 Etablering.ikkeSelvforskyldtArbeidsledig,
                 Etablering.overFemtiProsentEierandel,
             ).forEach { saksbehandler.endreOpplysning(it, true, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
