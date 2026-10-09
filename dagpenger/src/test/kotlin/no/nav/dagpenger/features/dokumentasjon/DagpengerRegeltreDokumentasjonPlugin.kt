@@ -13,6 +13,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
@@ -80,6 +81,7 @@ internal val dagpengerRegeltreDokumentasjonOppsett =
                 "@regel-gjenopptak" to Gjenopptak.regelsett,
                 "@regel-sanksjon" to Sanksjonsperiode.regelsett,
                 "@regel-tidsbegrenset-bortfall" to TidsbegrensetBortfall.regelsett,
+                "@regel-etablering" to Etablering.regelsett,
             ).map {
                 it.key to listOf(it.value)
             }.toMap(),
