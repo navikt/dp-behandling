@@ -53,7 +53,7 @@ class BeregningsperiodeTest {
                     sats = Beløp(100),
                     fva = 4.3.timer,
                     timerArbeidet = timer,
-                    terskel = 0.5,
+                    terskel = 50.0,
                 )
             }.toSet()
 

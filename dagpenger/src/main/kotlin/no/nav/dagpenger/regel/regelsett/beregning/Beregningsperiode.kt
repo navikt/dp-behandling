@@ -35,12 +35,7 @@ class Beregningsperiode private constructor(
      * ·       Dersom «ja» finner vi den dagen og denne har opplysning om hvor mange dager med rettighet som gjenstår etter.
      */
 
-    private val sumFva =
-        meldedager
-            .mapNotNull {
-                println(it.fva)
-                it.fva
-            }.summer()
+    private val sumFva = meldedager.mapNotNull { it.fva }.summer()
     private val arbeidsdager = arbeidsdager(meldedager) // todo: Endre til stønadsdager
     private val prosentfaktor = beregnProsentfaktor(meldedager)
 
