@@ -27,5 +27,10 @@ value class Timer(
         val Duration.tilTimer: Timer get() = (this.inWholeMinutes.toDouble() / 60).timer
 
         fun List<Timer>.summer() = this.sumOf { it.timer }.timer
+
+//        fun List<Timer>.summer() =
+//            Timer(
+//                fold(BigDecimal.ZERO) { sum, timer -> sum + BigDecimal.valueOf(timer.timer) }.toDouble(),
+//            )
     }
 }

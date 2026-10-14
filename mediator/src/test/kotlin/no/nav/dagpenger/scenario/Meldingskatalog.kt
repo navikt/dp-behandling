@@ -5,19 +5,24 @@ import no.nav.dagpenger.opplysning.verdier.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.math.roundToInt
 
 internal sealed class MeldekortAktivitet {
     data class Arbeid(
-        val timer: Int,
-    ) : MeldekortAktivitet()
+        val timer: Double,
+    ) : MeldekortAktivitet() {
+        constructor(timer: Int) : this(timer.toDouble())
+    }
 
     data object Syk : MeldekortAktivitet()
 
     data object Fravær : MeldekortAktivitet()
 
     data class Utdanning(
-        val timer: Int,
-    ) : MeldekortAktivitet()
+        val timer: Double,
+    ) : MeldekortAktivitet() {
+        constructor(timer: Int) : this(timer.toDouble())
+    }
 
     data object IngenAktivitet : MeldekortAktivitet()
 }
@@ -66,6 +71,26 @@ internal object Meldingskatalog {
                 "tema" to tema,
             ),
         ).toJson()
+
+    @JvmName("meldekortInnsendtMedArbeidstimerSomDouble")
+    fun meldekortInnsendt(
+        ident: String,
+        meldekortId: UUID,
+        meldeperiode: Periode,
+        korrigeringAv: UUID? = null,
+        korrigertAv: MeldekortKilde,
+        arbeidstimer: List<Double>,
+        meldtITide: Boolean = true,
+    ): String =
+        meldekortInnsendt(
+            ident = ident,
+            meldekortId = meldekortId,
+            meldeperiode = meldeperiode,
+            korrigeringAv = korrigeringAv,
+            korrigertAv = korrigertAv,
+            aktiviteter = arbeidstimer.map { MeldekortAktivitet.Arbeid(it) },
+            meldtITide = meldtITide,
+        )
 
     @JvmName("meldekortInnsendtMedArbeidstimer")
     fun meldekortInnsendt(
@@ -129,7 +154,7 @@ internal object Meldingskatalog {
                                         "aktiviteter" to
                                             when (aktivitet) {
                                                 is MeldekortAktivitet.Arbeid -> {
-                                                    listOf(mapOf("type" to "Arbeid", "timer" to "PT${aktivitet.timer}H"))
+                                                    listOf(mapOf("type" to "Arbeid", "timer" to aktivitet.timer.somIsoVarighet()))
                                                 }
 
                                                 is MeldekortAktivitet.Syk -> {
@@ -141,7 +166,7 @@ internal object Meldingskatalog {
                                                 }
 
                                                 is MeldekortAktivitet.Utdanning -> {
-                                                    listOf(mapOf("type" to "Utdanning", "timer" to "PT${aktivitet.timer}H"))
+                                                    listOf(mapOf("type" to "Utdanning", "timer" to aktivitet.timer.somIsoVarighet()))
                                                 }
 
                                                 is MeldekortAktivitet.IngenAktivitet -> {
@@ -164,6 +189,18 @@ internal object Meldingskatalog {
                     }
                 },
             ).toJson()
+
+    private fun Double.somIsoVarighet(): String {
+        val totalMinutter = (this * 60).roundToInt()
+        val heleTimer = totalMinutter / 60
+        val minutter = totalMinutter % 60
+        return buildString {
+            append("PT")
+            if (heleTimer > 0) append("${heleTimer}H")
+            if (minutter > 0) append("${minutter}M")
+            if (heleTimer == 0 && minutter == 0) append("0S")
+        }
+    }
 
     fun omgjørBehandling(
         ident: String,

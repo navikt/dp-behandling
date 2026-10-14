@@ -30,6 +30,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.JobbetOverTerskel
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
@@ -43,6 +44,7 @@ import no.nav.dagpenger.scenario.SimulertDagpengerSystem.ScenarioBarn
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import kotlin.apply
 import kotlin.math.round
 
 class BeregningTest {
@@ -516,6 +518,92 @@ class BeregningTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
+        }
+    }
+
+    @Test
+    fun `arbeid akkurat på terskel etter korrigering gir utbetaling`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid, 21.5)
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                opplysninger(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid).single().verdi.verdi shouldBe 21.5
+                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 21.5
+            }
+
+            // send inn første meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            // send inn andre meldekort med 22.5 timer som er 1 time over terskel (21.5)
+            // skal gi null utbetaling
+            val timerOverTerskel =
+                List(14) {
+                    MeldekortAktivitet.IngenAktivitet as MeldekortAktivitet
+                }.toMutableList().apply {
+                    this[0] = MeldekortAktivitet.Arbeid(7.5)
+                    this[1] = MeldekortAktivitet.Arbeid(7.5)
+                    this[2] = MeldekortAktivitet.Arbeid(7.5)
+                }
+            val meldekortId = person.sendInnMeldekort(2, aktiviteter = timerOverTerskel)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldBe false
+                }
+            }
+
+            // send inn meldekort som er akkurat på terskel (21.5)
+            // skal gi utbetaling
+            val timerPåTerskel =
+                timerOverTerskel.toMutableList().apply {
+                    this[2] = MeldekortAktivitet.Arbeid(6.5)
+                }
+            person.sendInnMeldekort(2, korrigeringAv = meldekortId, aktiviteter = timerPåTerskel)
+            meldekortBatch(markerFerdig = false)
+
+            person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
+
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldNotBe 0
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldBe true
+                }
+            }
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldNotBe 0
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldBe true
+                }
+            }
         }
     }
 
