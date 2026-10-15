@@ -161,7 +161,8 @@ internal class Mennesket(
         korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         timer: List<Int> = emptyList(),
         meldtITide: Boolean = true,
-    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, timer, meldtITide)
+        offset: Long = 0,
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer, offset), korrigeringAv, korrigertAv, timer, meldtITide)
 
     @JvmName("sendInnMeldekortMedAktiviteter")
     fun sendInnMeldekort(
@@ -170,7 +171,8 @@ internal class Mennesket(
         korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         aktiviteter: List<MeldekortAktivitet>,
         meldtITide: Boolean = true,
-    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, aktiviteter, meldtITide)
+        offset: Long = 0,
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer, offset), korrigeringAv, korrigertAv, aktiviteter, meldtITide)
 
     fun fastsattMeldedato(nummer: Int) = meldesyklus.periode(nummer).fraOgMed
 
