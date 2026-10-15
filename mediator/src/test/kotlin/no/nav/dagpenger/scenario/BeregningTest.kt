@@ -18,6 +18,7 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
+import no.nav.dagpenger.mediator.oktober
 import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.opplysning.Avgjørelse.Avslag
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
@@ -189,6 +190,108 @@ class BeregningTest {
                     this[1].verdi.verdi shouldBe 0
                     this[2].verdi.verdi shouldBe sats
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `beregning av et meldekort med utdanning som starter tidligere enn løpende rett`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(6.oktober(2026))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+            }
+
+            // Send inn meldekort
+            val dager =
+                List(14) {
+                    MeldekortAktivitet.Utdanning(0.0) as MeldekortAktivitet
+                }.toMutableList().apply {
+                    this[0] = MeldekortAktivitet.Arbeid(7.5)
+                    this[1] = MeldekortAktivitet.Arbeid(7.5)
+                    this[2] = MeldekortAktivitet.Arbeid(7.5)
+                }
+
+            person.sendInnMeldekort(1, offset = -1, aktiviteter = dager)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(markerFerdig = false)
+
+            behandlingsresultatForslag {
+                rettighetsperioder.single().harRett shouldBe false
+                rettighetsperioder.single().fraOgMed shouldBe 6.oktober(2026)
+                førteTil shouldBe Avslag.toString()
+
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    this.first().gyldigFraOgMed shouldBe 28.september(2026)
+                    this.last().gyldigFraOgMed shouldBe 11.oktober(2026)
+                    none { it.verdi.verdi == true } shouldBe true
+                }
+
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 0
+            }
+        }
+    }
+
+    @Test
+    fun `beregning av et meldekort med utdanning på meldekort 2`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(6.oktober(2026))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+            }
+
+            person.sendInnMeldekort(1, offset = -1)
+            meldekortBatch(markerFerdig = true)
+
+            // Send inn meldekort
+            val dager =
+                List(14) {
+                    MeldekortAktivitet.Utdanning(0.0) as MeldekortAktivitet
+                }.toMutableList().apply {
+                    this[0] = MeldekortAktivitet.Arbeid(7.5)
+                    this[1] = MeldekortAktivitet.Arbeid(7.5)
+                    this[2] = MeldekortAktivitet.Arbeid(7.5)
+                }
+
+            person.sendInnMeldekort(2, offset = -1, aktiviteter = dager)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(markerFerdig = false)
+
+            behandlingsresultatForslag {
+                rettighetsperioder.size shouldBe 2
+                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder.last().fraOgMed shouldBe 12.oktober(2026)
+                førteTil shouldBe Avslag.toString()
+
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    this.first().gyldigFraOgMed shouldBe 28.september(2026)
+                    this.last().gyldigFraOgMed shouldBe 11.oktober(2026)
+                    none { it.verdi.verdi == true } shouldBe true
+                }
+
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 0
             }
         }
     }
