@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
@@ -20,6 +21,7 @@ import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.mediator.oktober
 import no.nav.dagpenger.mediator.september
+import no.nav.dagpenger.modell.hendelser.MeldekortId
 import no.nav.dagpenger.opplysning.Avgjørelse.Avslag
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Avgjørelse.Gjenopptak
@@ -1496,6 +1498,48 @@ class BeregningTest {
                 satsPerDag.shouldContainExactly(1335, 1335, 1335, 1335, 1335, 1335, 1335, 1297, 1297, 1297, 1297, 1297, 1297, 1297)
                 utbetalingPerDag.shouldContainExactly(928, 928, 928, 928, 932, 0, 0, 902, 902, 902, 902, 903, 0, 0)
             }
+        }
+    }
+
+    @Test
+    fun `Avklaring på en allerede behandlet meldekort uavhengig av rekkefølge`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.juni(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val meldekort1 = person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            val meldekort2 = person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
+            val korrigertMeldekort2 =
+                person.sendInnMeldekort(
+                    1,
+                    korrigeringAv = meldekort1,
+                    aktiviteter = listOf(MeldekortAktivitet.Arbeid(timer = 7), MeldekortAktivitet.Arbeid(timer = 7)),
+                )
+            meldekortBatch(markerFerdig = false)
+            saksbehandler.åpneAvklaringer().shouldNotBeEmpty()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+            meldekortFerdig(MeldekortId(korrigertMeldekort2.toString()))
+
+            person.sendInnMeldekort(
+                2,
+                korrigeringAv = meldekort2,
+                aktiviteter = listOf(MeldekortAktivitet.Arbeid(timer = 7), MeldekortAktivitet.Arbeid(timer = 7)),
+            )
+
+            meldekortBatch(markerFerdig = false)
+            saksbehandler.åpneAvklaringer().shouldNotBeEmpty()
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldContainExactly listOf("KorrigeringUtbetaltPeriode")
         }
     }
 }

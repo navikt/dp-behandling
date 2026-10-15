@@ -72,7 +72,12 @@ class BeregnMeldekortHendelse(
                 basertPå = forrigeBehandling,
                 avklaringer =
                     buildList {
-                        val sisteBeregnedeMeldeperiode = forrigeBehandling.opplysninger.finnAlle(Beregning.meldeperiode).lastOrNull()
+                        val sisteBeregnedeMeldeperiode =
+                            forrigeBehandling.opplysninger
+                                .finnAlle(Beregning.meldeperiode)
+                                .maxByOrNull {
+                                    it.gyldighetsperiode.fraOgMed
+                                }
                         val sisteBeregnedeDato = sisteBeregnedeMeldeperiode?.gyldighetsperiode?.tilOgMed
 
                         harBeregnetPeriodenEtterDenne = sisteBeregnedeDato?.let { sisteBeregnedeDato >= meldekort.tom } ?: false
