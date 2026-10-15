@@ -18,7 +18,6 @@ import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.mediator.november
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
-import no.nav.dagpenger.opplysning.Avgjørelse.Stans
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
@@ -1016,8 +1015,9 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(3) {
-                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[1].harRett shouldBe false
 
                 meldekortFerdig(meldekort.last())
             }
@@ -1026,7 +1026,7 @@ class ScenarioTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(4) {
-                førteTil shouldBe Stans.toString()
+                førteTil shouldBe Endring.toString()
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true
                 rettighetsperioder[1].harRett shouldBe false

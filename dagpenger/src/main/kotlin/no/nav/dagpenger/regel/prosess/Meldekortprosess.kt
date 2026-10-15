@@ -8,12 +8,10 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
-import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
 import java.time.LocalDate
 
@@ -29,10 +27,7 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
         val meldeperiode = meldeperiode(opplysninger)
 
         val rettighetsperioder = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
-        val regelverksdato =
-            rettighetsperioder.minOfOrNull { it.fraOgMed }
-                ?: opplysninger.finnAlle(Søknadstidspunkt.prøvingsdato).minOfOrNull { it.verdi }
-                ?: throw IllegalStateException("Meldekortbehandling mangler både rettighetsperiode og prøvingsdato")
+        val regelverksdato = rettighetsperioder.minOf { it.fraOgMed }
 
         val førsteMeldedagMedRett =
             rettighetsperioder.firstOrNull { it.overlapper(meldeperiode) }?.fraOgMed
@@ -53,7 +48,6 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
     override fun kontrollpunkter(): List<IKontrollpunkt> =
         listOf(
             Alderskrav.StansAlderKontroll,
-            // BarnFyller18ÅrKontroll,
             TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.OverTerskelKontroll,
         )
 

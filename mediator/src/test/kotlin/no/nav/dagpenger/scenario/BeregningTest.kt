@@ -3,6 +3,7 @@ package no.nav.dagpenger.scenario
 import io.kotest.matchers.collections.shouldBeMonotonicallyIncreasing
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
@@ -19,6 +20,7 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
+import no.nav.dagpenger.mediator.november
 import no.nav.dagpenger.mediator.oktober
 import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.modell.hendelser.MeldekortId
@@ -241,6 +243,43 @@ class BeregningTest {
                 }
 
                 utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 0
+            }
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldContainOnly listOf("MeldekortMedUtdanning")
+
+            saksbehandler.endreOpplysning(
+                tarUtdanning,
+                true,
+                "Tar utdanning",
+                Gyldighetsperiode(6.oktober(2026), 11.november(2026)),
+            )
+            saksbehandler.endreOpplysning(
+                tarUtdanning,
+                false,
+                "Tar ikke lenger utdanning",
+                Gyldighetsperiode(11.oktober(2026)),
+            )
+            saksbehandler.endreOpplysning(
+                godkjentUnntakForUtdanning,
+                true,
+                "Godkjent utdanning",
+                Gyldighetsperiode(6.oktober(2026), 11.november(2026)),
+            )
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder.single().fraOgMed shouldBe 6.oktober(2026)
+                førteTil shouldBe Endring.toString()
+
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    this.first().gyldigFraOgMed shouldBe 28.september(2026)
+                    this.last().gyldigFraOgMed shouldBe 11.oktober(2026)
+                    count { it.verdi.verdi == true } shouldBe 4
+                }
+
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 1200
             }
         }
     }

@@ -545,6 +545,7 @@ class OmgjøringScenarioTester {
             }
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
+            saksbehandler.beslutt()
             behandlingsresultat(16) {
                 opplysninger(Utdanning.tarUtdanning) {
                     this[0].verdi.verdi shouldBe false

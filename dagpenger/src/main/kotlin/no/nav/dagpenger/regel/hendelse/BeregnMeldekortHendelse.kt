@@ -42,9 +42,9 @@ class BeregnMeldekortHendelse(
         opprettet = opprettet,
         opprettetAv = opprettetAv,
     ) {
-    override val forretningsprosess get() = if (harBeregnetPeriodenEtterDenne) Omgjøringsprosess() else Meldekortprosess()
+    override val forretningsprosess get() = if (skalRevurderes) Omgjøringsprosess() else Meldekortprosess()
 
-    private var harBeregnetPeriodenEtterDenne: Boolean = false
+    private var skalRevurderes: Boolean = false
 
     override fun behandling(
         forrigeBehandling: Behandling?,
@@ -80,11 +80,12 @@ class BeregnMeldekortHendelse(
                                 }
                         val sisteBeregnedeDato = sisteBeregnedeMeldeperiode?.gyldighetsperiode?.tilOgMed
 
-                        harBeregnetPeriodenEtterDenne = sisteBeregnedeDato?.let { sisteBeregnedeDato >= meldekort.tom } ?: false
+                        val harBeregnetPeriodenEtterDenne = sisteBeregnedeDato?.let { sisteBeregnedeDato >= meldekort.tom } ?: false
 
                         logger.info { "Har valgt ${forretningsprosess.javaClass.simpleName} som prosess for å beregne meldekort" }
 
                         if (harBeregnetPeriodenEtterDenne) {
+                            skalRevurderes = true
                             if (meldekort.korrigeringAv != null) {
                                 logger.info { "Korrigering av tidligere beregnet meldeperiode som ligger bak i tid." }
                                 add(
@@ -116,6 +117,7 @@ class BeregnMeldekortHendelse(
                         val måAvklareUtdanning = meldekort.dager.any { harMeldtUtdanningUtenGodkjenning(it, forrigeBehandling) }
 
                         if (måAvklareUtdanning) {
+                            skalRevurderes = true
                             val førsteDagMedUtdanning =
                                 meldekort.dager
                                     .first { dag -> harMeldtUtdanningUtenGodkjenning(dag, forrigeBehandling) }
