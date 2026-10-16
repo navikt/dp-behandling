@@ -45,7 +45,12 @@ Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
 melding: søknadsbehandling_ferdig
 Laget avklaring om MeldekortMedUtdanning
-Laget avklaring om StansAlder
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
