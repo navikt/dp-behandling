@@ -1,5 +1,6 @@
 package no.nav.dagpenger.scenario
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -179,6 +180,109 @@ class EtableringTest {
                     single().gyldigFraOgMed shouldBe 10.januar(2025)
                     single().gyldigTilOgMed shouldBe 31.januar(2025)
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `test stans ved etablering`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.januar(2025))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            saksbehandler.omgjørBehandling(1.januar(2025))
+            val etableringFra = 10.januar(2025)
+            saksbehandler.endreOpplysning(
+                Rettighetstype.skalEtableringVurderes,
+                false,
+                "Har startet egen virksomhet",
+                gyldighetsperiode = Gyldighetsperiode(fraOgMed = 1.januar(2025), tilOgMed = etableringFra.minusDays(1)),
+            )
+            saksbehandler.endreOpplysning(
+                Rettighetstype.skalEtableringVurderes,
+                true,
+                "Har startet egen virksomhet",
+                gyldighetsperiode = Gyldighetsperiode(etableringFra),
+            )
+
+            listOf(
+                Etablering.nyVirksomhet,
+                Etablering.selvforsørget,
+                Etablering.godkjentNæringsfaglig,
+                Etablering.ikkeSelvforskyldtArbeidsledig,
+                Etablering.overFemtiProsentEierandel,
+            ).forEach { saksbehandler.endreOpplysning(it, true, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
+
+            saksbehandler.endreOpplysning(
+                Etablering.sluttDato,
+                14.januar(2025),
+                gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra),
+            )
+            saksbehandler.endreOpplysning(
+                Etablering.etableringGodkjent,
+                false,
+                gyldighetsperiode = Gyldighetsperiode(fraOgMed = 15.januar(2025)),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(2) {
+                rettighetsperioder.size shouldBe 3
+                with(rettighetsperioder.first()) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 1.januar(2025)
+                    tilOgMed shouldBe 9.januar(2025)
+                }
+                with(rettighetsperioder[1]) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 10.januar(2025)
+                    tilOgMed shouldBe 14.januar(2025)
+                }
+
+                with(rettighetsperioder.last()) {
+                    harRett shouldBe false
+                    fraOgMed shouldBe 15.januar(2025)
+                    tilOgMed shouldBe null
+                }
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            var utbetalt = 0
+            behandlingsresultat(3) {
+                utbetalt = utbetalinger.sumOf { it["utbetaling"].asInt() }
+            }
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+            behandlingsresultat(4) {
+                førteTil shouldBe "Endring"
+                rettighetsperioder.size shouldBe 3
+                with(rettighetsperioder.first()) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 1.januar(2025)
+                    tilOgMed shouldBe 9.januar(2025)
+                }
+                with(rettighetsperioder[1]) {
+                    harRett shouldBe true
+                    fraOgMed shouldBe 10.januar(2025)
+                    tilOgMed shouldBe 14.januar(2025)
+                }
+
+                with(rettighetsperioder.last()) {
+                    harRett shouldBe false
+                    fraOgMed shouldBe 15.januar(2025)
+                    tilOgMed shouldBe null
+                }
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe utbetalt + 2400
+                utbetalinger.last()["dato"].asLocalDate() shouldBe 14.januar(2025)
             }
         }
     }
