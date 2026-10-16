@@ -5,6 +5,7 @@ on:
   push:
     branches-ignore:
       - 'dependabot/**'
+      - 'renovate/**'
     paths-ignore:
       - 'docs/**'
       - '.github/workflows/cucumber-pages.yaml'
@@ -20,12 +21,12 @@ jobs:
       id-token: "write"
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-java@v6.0.0
+      - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
-          java-version: 25
-      - uses: gradle/actions/wrapper-validation@v6.3.0
-      - uses: gradle/actions/setup-gradle@v6.3.0
+          java-version: 26.0.2+10
+      - uses: gradle/actions/wrapper-validation@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.0
         env:
           # Eksluder test dependencies
           DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: compileClasspath|runtimeClasspath
@@ -35,7 +36,7 @@ jobs:
       - run: ./gradlew --configuration-cache build installDist
 
       - name: Publish results (unit test)
-        uses: EnricoMi/publish-unit-test-result-action@v2.24.0
+        uses: EnricoMi/publish-unit-test-result-action@v2.25.0
         if: success() || failure()
         with:
           files: "**/build/test-results/test/TEST-*.xml"
@@ -66,7 +67,7 @@ jobs:
         with:
           team: teamdagpenger
       - id: attest-sign
-        uses: nais/attest-sign@v2.0.18
+        uses: nais/attest-sign@v2.1.0
         with:
           image_ref: ${{ needs.build.outputs.image }}
 
@@ -81,7 +82,7 @@ jobs:
       id-token: "write"
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: nais/deploy/actions/deploy@v2
+      - uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/nais.yaml,.nais/unleash.yaml
@@ -100,7 +101,7 @@ jobs:
       id-token: "write"
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: nais/deploy/actions/deploy@v2
+      - uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: prod-gcp
           RESOURCE: .nais/nais.yaml,.nais/unleash.yaml #,.nais/alerts.yaml

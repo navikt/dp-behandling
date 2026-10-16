@@ -53,9 +53,10 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import java.time.temporal.ChronoUnit
 
+val RegelverkDagpengerNavn = RegelverkType("Dagpenger")
 val RegelverkDagpenger =
     Regelverk(
-        navn = RegelverkType("Dagpenger"),
+        navn = RegelverkDagpengerNavn,
         rettighetsperiodeberegning = ::dagpengerRettighetsperioder,
         utbetalingsberegning = ::dagpengerUtbetalinger,
         avgjørelsesberegning = ::dagpengerAvgjørelse,
@@ -118,9 +119,7 @@ private fun dagpengerRettighetsperioder(opplysninger: LesbarOpplysninger): List<
             tilOgMed = periode.gyldighetsperiode.tilOgMed,
             harRett = periode.verdi,
             endret = egne.contains(periode),
-            // Perioden overskriver/omgjør en tidligere, allerede vurdert periode uten rett - altså en
-            // stans som nå oppheves, selv om det kalendermessig kan se ut som en ren videreføring.
-            opphevetStans = periode.erstatter?.verdi == false,
+            erstatterHarRett = periode.erstatter?.verdi,
         )
     }
 }
@@ -137,15 +136,6 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     // Ingen nye perioder betyr at forrige avgjørelse videreføres uendret, f.eks. ved meldekort
     if (nye.isEmpty()) return Avgjørelse.Endring
 
-    val forrigePeriode = arvede.lastOrNull()
-
-    // Aller første rettighetsperiode som er vurdert - ingenting å sammenligne med. Avgjørelsen reflekterer
-    // om denne (første) behandlingen i det hele tatt innvilger rett, selv om en senere periode i samme
-    // sending går tilbake til ingen rett (f.eks. innvilget med en innebygd fremtidig stans).
-    if (forrigePeriode == null) {
-        return if (nye.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
-    }
-
     // Den kronologisk siste perioden er den reelle, gjeldende statusen - uavhengig av om den er ny eller arvet
     val gjeldendePeriode = perioder.last()
 
@@ -154,21 +144,47 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     // statusen ikke endret seg, uansett hva de nye periodene selv sier - altså bare en Endring.
     if (!gjeldendePeriode.endret) return Avgjørelse.Endring
 
+    val forrigePeriode = arvede.lastOrNull()
+
+    // Forrige tilstand er hva som faktisk lå der rett før den første nye endringen. Om den nye
+    // perioden fullstendig omgjør/restaterer en tidligere periode (samme fraOgMed som originalen,
+    // men f.eks. kortere varighet), er det verdien den erstatter som er den reelle forrige tilstanden -
+    // ikke nødvendigvis siste arvede periode et annet sted i tidslinjen (som kan være en helt annen,
+    // eldre periode uten sammenheng med det som faktisk ble endret her). Bare når den nye perioden
+    // ikke erstatter noe (en helt fristilt periode, f.eks. i et hull), faller vi tilbake på siste arvede.
+    val forrigeHarRett = nye.first().erstatterHarRett ?: forrigePeriode?.harRett
+
+    // Aller første rettighetsperiode som er vurdert - ingenting å sammenligne med. Avgjørelsen reflekterer
+    // om denne (første) behandlingen i det hele tatt innvilger rett, selv om en senere periode i samme
+    // sending går tilbake til ingen rett (f.eks. innvilget med en innebygd fremtidig stans).
+    if (forrigeHarRett == null) {
+        return if (nye.any { it.harRett }) Avgjørelse.Innvilgelse else Avgjørelse.Avslag
+    }
+
     return when {
-        // Hadde rett fra før, men ender nå uten rett
-        forrigePeriode.harRett && !gjeldendePeriode.harRett -> Avgjørelse.Stans
+        // Hadde rett fra før, men ender nå uten rett OG ingen periode i det endelige, flate resultatet
+        // (verken arvet eller ny) har rett lenger. Dette er i realiteten en fullstendig retroaktiv
+        // tilbakevisning - retten er tatt bort for hele perioden den noensinne gjaldt, ikke bare stanset
+        // et sted underveis - så det er riktigere å kalle det Avslag enn Stans.
+        forrigeHarRett && !gjeldendePeriode.harRett && perioder.none { it.harRett } -> Avgjørelse.Avslag
 
-        // Hadde rett fra før, og har fortsatt rett - men med et reelt opphold mellom periodene
-        forrigePeriode.harRett && harReeltOppholdEtter(perioder, forrigePeriode) -> Avgjørelse.Gjenopptak
+        // Hadde rett fra før, men ender nå uten rett - og minst én periode viser fortsatt at retten
+        // faktisk eksisterte en periode
+        forrigeHarRett && !gjeldendePeriode.harRett -> Avgjørelse.Stans
 
-        // Hadde rett fra før, og har fortsatt rett uten opphold
-        forrigePeriode.harRett -> Avgjørelse.Endring
+        // Hadde rett fra før, og har fortsatt rett - men med et reelt opphold mellom periodene. Kan bare
+        // vurderes når vi har en faktisk arvet periode å måle kalenderhullet fra.
+        forrigeHarRett && forrigePeriode != null && harReeltOppholdEtter(perioder, forrigePeriode) -> Avgjørelse.Gjenopptak
+
+        // Hadde rett fra før, og har fortsatt rett uten (kjent) opphold
+        forrigeHarRett -> Avgjørelse.Endring
 
         // Hadde ikke rett fra før, men får ny rett
         gjeldendePeriode.harRett -> Avgjørelse.Gjenopptak
 
         // Hadde ikke rett fra før, og har fortsatt ikke rett
         opplysninger.kunEgne.har(skalGjenopptakVurderes) -> Avgjørelse.Avslag
+
         else -> Avgjørelse.Stans
     }
 }
@@ -181,10 +197,10 @@ private fun harReeltOppholdEtter(
 
     // Et kalenderhull på mer enn én dag er alltid et reelt opphold. Ligger periodene kant-i-kant (ingen
     // manglende dager) er det bare et reelt opphold dersom den nye perioden faktisk opphever en tidligere
-    // kjent stans (se Rettighetsperiode.opphevetStans) - ellers er det bare en ren videreføring inn i
+    // kjent stans (se Rettighetsperiode.erstatterHarRett) - ellers er det bare en ren videreføring inn i
     // tidligere uvurdert tid, og ikke noe opphold.
     val dagerMellom = ChronoUnit.DAYS.between(forrigePeriode.tilOgMed, nestePeriode.fraOgMed)
-    return dagerMellom > 1 || nestePeriode.opphevetStans
+    return dagerMellom > 1 || nestePeriode.erstatterHarRett == false
 }
 
 private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {

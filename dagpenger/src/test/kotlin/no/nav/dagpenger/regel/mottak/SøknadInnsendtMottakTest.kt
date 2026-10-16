@@ -1,8 +1,12 @@
 package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import no.nav.dagpenger.opplysning.Systemaktør
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -48,6 +52,51 @@ class SøknadInnsendtMottakTest {
             )
         }
     }
+
+    @Test
+    fun `manglende fagsystem defaulter til Arena`() {
+        val meldingSlot = slot<SøknadInnsendtMessage>()
+        testRapid.sendTestMessage(meldingUtenFagsystemOgFagsakId)
+        verify(exactly = 1) {
+            hendelseMottaker.behandle(any(), capture(meldingSlot), any())
+        }
+
+        meldingSlot.captured.hendelse.fagsystem
+            ?.erArena() shouldBe true
+    }
+
+    @Test
+    fun `manglende fagsakId gir null, ikke exception`() {
+        val meldingSlot = slot<SøknadInnsendtMessage>()
+        testRapid.sendTestMessage(meldingUtenFagsystemOgFagsakId)
+        verify(exactly = 1) {
+            hendelseMottaker.behandle(any(), capture(meldingSlot), any())
+        }
+
+        meldingSlot.captured.hendelse.fagsakId shouldBe null
+    }
+
+    @Test
+    fun `Kafka-opprettet starthendelse har dp-sak som oppretter`() {
+        val hendelse = slot<SøknadInnsendtHendelse>()
+        testRapid.sendTestMessage(søknadInnsendMelding(123))
+
+        verify(exactly = 1) {
+            hendelseMottaker.behandle(capture(hendelse), any(), any())
+        }
+
+        hendelse.captured.opprettetAv shouldBe Systemaktør.dpSak
+    }
+
+    private val meldingUtenFagsystemOgFagsakId =
+        """{
+          |   "@event_name": "søknad_behandlingsklar",
+          |   "@id": "${UUID.randomUUID()}",
+          |   "ident": "12345678910",
+          |   "innsendt": "${LocalDateTime.now()}",
+          |   "søknadId": "123e4567-e89b-12d3-a456-426614174000"
+          |}
+        """.trimMargin()
 
     private fun søknadInnsendMelding(fagsakId: Int) =
         """{

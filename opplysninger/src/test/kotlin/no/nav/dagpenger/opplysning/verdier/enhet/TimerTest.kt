@@ -2,6 +2,7 @@ package no.nav.dagpenger.opplysning.verdier.enhet
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.summer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.tilTimer
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.timer
 import org.junit.jupiter.api.Test
@@ -25,5 +26,8 @@ class TimerTest {
         2.5.hours.tilTimer shouldBe Timer(2.5)
 
         (2.5.hours + 30.minutes).tilTimer shouldBe (2.5.timer + 0.5.timer)
+
+        listOf(0.1.timer, 0.7.timer).summer() shouldBe 0.8.timer
+        listOf(0.1.timer, 0.2.timer).summer() shouldBe 0.3.timer
     }
 }

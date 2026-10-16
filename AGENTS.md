@@ -7,7 +7,7 @@ Den reagerer på hendelser, starter behandlinger, innhenter opplysninger og prod
 
 ## Tech Stack
 
-- **Språk**: Kotlin (JVM 21)
+- **Språk**: Kotlin med JVM-verktøykjede 25 (CI kjører Gradle med JDK 26)
 - **Rammeverk**: Ktor (server + client)
 - **Bygg**: Gradle (Kotlin DSL) med version catalog (`dp-version-catalog`)
 - **Database**: PostgreSQL 17 (Flyway-migrasjoner)

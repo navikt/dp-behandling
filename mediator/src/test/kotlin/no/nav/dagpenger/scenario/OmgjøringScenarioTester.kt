@@ -134,6 +134,8 @@ class OmgjøringScenarioTester {
                     this.single().gyldigFraOgMed shouldBe 12.mai(2026)
                 }
             }
+
+            person.rettighetstatus.contents().size shouldBe 1
         }
     }
 
@@ -319,6 +321,8 @@ class OmgjøringScenarioTester {
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[2].harRett shouldBe true
             }
+
+            person.rettighetstatus.contents().size shouldBe 3
         }
     }
 
@@ -428,6 +432,8 @@ class OmgjøringScenarioTester {
 
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBeLessThan 27991
             }
+
+            person.rettighetstatus.contents().size shouldBe 4
         }
     }
 
@@ -561,8 +567,13 @@ class OmgjøringScenarioTester {
                 "Tiltak er ferdig",
                 Gyldighetsperiode(4.juli(2026)),
             )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
 
-            behandlingsresultatForslag(7) {
+            var perioder: List<RettighetsperiodeDTO>? = null
+            behandlingsresultat(17) {
+                perioder = rettighetsperioder
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder[0].harRett shouldBe true
 
@@ -578,6 +589,8 @@ class OmgjøringScenarioTester {
                     this[2].gyldigFraOgMed shouldBe 4.juli(2026)
                 }
             }
+
+            person.rettighetstatus.contents().map { it.key } shouldContainExactly perioder!!.map { it.fraOgMed }
         }
     }
 }

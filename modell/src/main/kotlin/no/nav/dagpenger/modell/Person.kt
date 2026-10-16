@@ -53,7 +53,7 @@ class Person(
     private val observatører =
         mutableSetOf<PersonObservatør>()
 
-    private val rettighetstatus: TemporalCollection<Rettighetstatus> =
+    private var rettighetstatus: TemporalCollection<Rettighetstatus> =
         behandlinger.fold(TemporalCollection()) { rettighetstatus, behandlingkjede ->
             behandlingkjede.alleFerdigeLøvnoder.lastOrNull()?.let {
                 it.vedtakopplysninger.rettighetsperioder.map { periode ->
@@ -106,6 +106,7 @@ class Person(
         if (erAvslag) return
 
         event.rettighetsperioder.filter { it.endret }.forEach {
+            rettighetstatus.removeRange(it.fraOgMed, it.tilOgMed)
             rettighetstatus.put(
                 it.fraOgMed,
                 Rettighetstatus(it.fraOgMed, it.harRett, event.behandlingId, event.behandlingskjedeId),

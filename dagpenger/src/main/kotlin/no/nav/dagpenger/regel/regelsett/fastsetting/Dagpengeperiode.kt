@@ -83,6 +83,7 @@ object Dagpengeperiode {
             folketrygden.hjemmel(4, 15, "Antall stønadsuker (stønadsperiode)", "Periode"),
         ) {
             skalVurderes { kravPåDagpenger(it) }
+            skalRevurderes { it.mangler(ordinærPeriode) || it.mangler(antallStønadsdager) }
 
             regel(kortPeriode) { oppslag(prøvingsdato) { 52 } }
             regel(langPeriode) { oppslag(prøvingsdato) { 104 } }

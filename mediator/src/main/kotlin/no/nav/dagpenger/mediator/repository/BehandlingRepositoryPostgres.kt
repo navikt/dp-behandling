@@ -20,10 +20,12 @@ import no.nav.dagpenger.modell.hendelser.EksternId
 import no.nav.dagpenger.modell.hendelser.Hendelse
 import no.nav.dagpenger.modell.hendelser.UtbetalingStatus
 import no.nav.dagpenger.modell.somKjede
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
+import no.nav.dagpenger.opplysning.Systemaktør
 import java.time.LocalDate
 import java.util.UUID
 
@@ -189,6 +191,11 @@ internal class BehandlingRepositoryPostgres(
                             tilstand = row.string("tilstand"),
                             sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
                             basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
+                            opprettetAv =
+                                opprettetAvFraDatabase(
+                                    type = row.stringOrNull("opprettet_av_type"),
+                                    ident = row.stringOrNull("opprettet_av_ident"),
+                                ),
                         )
                     }.asList,
                 ).also { liste ->
@@ -288,6 +295,7 @@ internal class BehandlingRepositoryPostgres(
                                 skjedde = rad.skjedde,
                                 forretningsprosess = prosessregister.opprett(rad.forretningsprosess),
                                 opprettet = rad.opprettet,
+                                opprettetAv = rad.opprettetAv,
                             ),
                         gjeldendeOpplysninger = opplysningerMap.getValue(rad.opplysningerId),
                         basertPå = basertPå,
@@ -324,6 +332,7 @@ internal class BehandlingRepositoryPostgres(
         val tilstand: String,
         val sistEndretTilstand: java.time.LocalDateTime,
         val basertPåBehandlingId: UUID?,
+        val opprettetAv: Aktør?,
     )
 
     override fun finnBehandlinger(
@@ -549,6 +558,13 @@ internal class BehandlingRepositoryPostgres(
                     "hendelse_type" to behandling.behandler.type,
                     "skjedde" to behandling.behandler.skjedde,
                     "forretningsprosess" to behandling.behandler.forretningsprosess.navn,
+                    "opprettet_av_type" to
+                        when (behandling.opprettetAv) {
+                            is Saksbehandler -> "Saksbehandler"
+                            is Systemaktør -> "System"
+                            null -> null
+                        },
+                    "opprettet_av_ident" to behandling.opprettetAv?.ident,
                 )
             }
 
@@ -556,13 +572,31 @@ internal class BehandlingRepositoryPostgres(
             .batchPreparedNamedStatement(
                 // language=PostgreSQL
                 """
-                INSERT INTO behandler_hendelse (ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess) 
-                VALUES (:ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess) 
+                INSERT INTO behandler_hendelse (
+                    ident, melding_id, ekstern_id_type, ekstern_id, hendelse_type, skjedde, forretningsprosess,
+                    opprettet_av_type, opprettet_av_ident
+                )
+                VALUES (
+                    :ident, :melding_id, :ekstern_id_type, :ekstern_id, :hendelse_type, :skjedde, :forretningsprosess,
+                    :opprettet_av_type, :opprettet_av_ident
+                )
                 ON CONFLICT DO NOTHING 
                 """.trimMargin(),
                 params,
             )
     }
+
+    private fun opprettetAvFraDatabase(
+        type: String?,
+        ident: String?,
+    ): Aktør? =
+        when {
+            type == null && ident == null -> null
+            type == "Saksbehandler" && ident != null -> Saksbehandler(ident)
+            type == "System" && ident != null -> Systemaktør(ident)
+            type != null && ident != null -> error("Ukjent opprettertype: $type")
+            else -> error("Opprettertype og oppretterident må begge være satt eller begge være null")
+        }
 
     private fun lagrePersonBehandlingkoblinger(
         unitOfWork: PostgresUnitOfWork,

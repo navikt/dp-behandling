@@ -1,9 +1,12 @@
 package no.nav.dagpenger.regel.beregning
+
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.enhet.Timer.Companion.timer
+import no.nav.dagpenger.regel.regelsett.beregning.Arbeidsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningsperiode
 import no.nav.dagpenger.regel.regelsett.beregning.Fraværsdag
@@ -28,5 +31,40 @@ class BeregningsperiodeTest {
             .shouldBeEmpty()
         beregning.resultat.utbetaling shouldBe Beløp(0.0)
         beregning.resultat.oppfyllerKravTilTaptArbeidstid shouldBe true
+    }
+
+    @Test
+    fun `test summering av flyttall`() {
+        val dager =
+            listOf(
+                7.5.timer,
+                6.5.timer,
+                7.5.timer,
+                0.0.timer,
+                0.0.timer,
+                0.0.timer,
+                0.0.timer,
+                0.0.timer,
+                0.0.timer,
+                0.0.timer,
+            ).mapIndexed { dato, timer ->
+                Arbeidsdag(
+                    dato = dato.plus(1).januar((2025)),
+                    sats = Beløp(100),
+                    fva = 4.3.timer,
+                    timerArbeidet = timer,
+                    terskel = 50.0,
+                )
+            }.toSet()
+
+        val beregning =
+            Beregningsperiode(
+                gjenståendeEgenandel = Beløp(0.0),
+                dag = dager,
+                stønadsdagerIgjen = 53,
+                bortfallsdagerIgjen = 0,
+            )
+
+        beregning.oppfyllerKravTilTaptArbeidstid shouldBe true
     }
 }

@@ -1,9 +1,11 @@
 package no.nav.dagpenger.scenario
 
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.mediator.asUUID
@@ -15,10 +17,12 @@ import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import no.nav.dagpenger.scenario.assertions.BehandlingsresultatAssertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
@@ -292,6 +296,93 @@ class ArbeidssøkerTest {
 
                 opplysninger(Beregning.forbruk).last().gyldigFraOgMed shouldBe sisteForbrukteDag
             }
+        }
+    }
+
+    @Test
+    fun `oppretter behandling uten avklaring etter avsluttet arbeidssøkerperiode når søknaden allerede har stanset`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            val stansdato = person.fastsattMeldedato(4).plusDays(7)
+            saksbehandler.endreOpplysning(
+                Opphold.oppholdINorge,
+                true,
+                "Oppholder seg i Norge",
+                Gyldighetsperiode(21.juni(2018), stansdato.minusDays(1)),
+            )
+            saksbehandler.endreOpplysning(
+                Opphold.oppholdINorge,
+                false,
+                "Oppholder seg i utlandet",
+                Gyldighetsperiode(stansdato),
+            )
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[0].tilOgMed shouldBe stansdato.minusDays(1)
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe stansdato
+                rettighetsperioder[1].tilOgMed shouldBe null
+            }
+
+            repeat(3) { index ->
+                person.sendInnMeldekort(index + 1)
+                meldekortBatch(markerFerdig = true)
+                behandlingsresultat {
+                    behandletHendelse["type"].asString() shouldBe "Meldekort"
+                    førteTil shouldBe Avgjørelse.Endring.toString()
+                }
+            }
+
+            person.sendInnMeldekort(4)
+            meldekortBatch(markerFerdig = true)
+
+            var sisteMeldekortBehandlingId: UUID? = null
+            behandlingsresultat {
+                sisteMeldekortBehandlingId = behandlingId
+                behandletHendelse["type"].asString() shouldBe "Meldekort"
+                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder.last().fraOgMed shouldBe stansdato
+                rettighetsperioder.last().tilOgMed shouldBe null
+            }
+
+            val meldingerFørAvsluttetArbeidssøkerperiode = rapidInspektør.size
+            val sisteMeldedato = person.fastsattMeldedato(5)
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = sisteMeldedato,
+                avsluttetTidspunkt = sisteMeldedato.plusWeeks(3).atTime(12, 21),
+            )
+            behovsløsere.løsTilForslag()
+
+            val arbeidssøkerperiodeResultat =
+                (meldingerFørAvsluttetArbeidssøkerperiode until rapidInspektør.size)
+                    .map { rapidInspektør.message(it) }
+                    .singleOrNull {
+                        it["@event_name"].asString() == "behandlingsresultat" &&
+                            it["behandletHendelse"]["type"].asString() == "Arbeidssøkerperiode"
+                    } ?: error("Fant ikke behandlingsresultat for Arbeidssøkerperiode")
+
+            var arbeidssøkerperiodeHendelseId: UUID? = null
+            with(BehandlingsresultatAssertions(arbeidssøkerperiodeResultat)) {
+                behandlingId shouldNotBe sisteMeldekortBehandlingId
+                basertPå shouldBe sisteMeldekortBehandlingId
+                arbeidssøkerperiodeHendelseId = behandletHendelse["id"].asUUID()
+                behandletHendelse["type"].asString() shouldBe "Arbeidssøkerperiode"
+                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder.last().fraOgMed shouldBe stansdato
+                rettighetsperioder.last().tilOgMed shouldBe null
+            }
+            saksbehandler
+                .åpneAvklaringer(arbeidssøkerperiodeHendelseId)
+                .shouldBeEmpty()
         }
     }
 

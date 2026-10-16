@@ -1,10 +1,12 @@
 package no.nav.dagpenger.mediator.repository
 
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.avklaring.Avklaringer
+import no.nav.dagpenger.mediator.TestOpplysningstyper
 import no.nav.dagpenger.mediator.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.mediator.db.withMigratedDb
 import no.nav.dagpenger.modell.Ident
@@ -12,6 +14,8 @@ import no.nav.dagpenger.modell.Person
 import no.nav.dagpenger.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.modell.somKjede
 import no.nav.dagpenger.opplysning.Avklaringkode
+import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -20,6 +24,31 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
 class AvklaringRepositoryPostgresTest {
+    @Test
+    fun `lagrer og rehydrerer opplysningIder på UnderBehandling-endring`() {
+        avklaringTest {
+            val kode1 = Avklaringkode("JobbetUtenforNorge", "Arbeid utenfor Norge", "Personen har oppgitt arbeid utenfor Norge")
+
+            // Opplysningen som skal spores må finnes i behandlingens gjeldende opplysninger,
+            // slik at den lagres i `opplysning`-tabellen før avklaringen (FK-krav)
+            val sporetOpplysning = Faktum(TestOpplysningstyper.boolsk, true)
+            val avklaring = Avklaring(kode1, listOf(sporetOpplysning.id))
+
+            val behandling = testBehandling(Opplysninger.med(sporetOpplysning), avklaring)
+            val avklaringerFraDb = repository.hentAvklaringer(behandling.behandlingId)
+
+            avklaringerFraDb.shouldHaveSize(1)
+            val underBehandling =
+                avklaringerFraDb
+                    .first()
+                    .endringer
+                    .last()
+                    .shouldBeInstanceOf<Avklaring.Endring.UnderBehandling>()
+
+            underBehandling.opplysninger shouldContainExactly listOf(sporetOpplysning.id)
+        }
+    }
+
     @Test
     fun `lagrer og rehydrer avklaringer`() {
         avklaringTest {
@@ -82,10 +111,16 @@ class AvklaringRepositoryPostgresTest {
 
     private class TestBehandling(
         private val personRepository: PersonRepository,
+        gjeldendeOpplysninger: Opplysninger? = null,
         vararg avklaring: Avklaring,
     ) {
         val behandlingId get() = behandling.behandlingId
-        private val behandling = TestBehandlinger.rehydrerBehandling(avklaringer = avklaring.toList())
+        private val behandling =
+            if (gjeldendeOpplysninger != null) {
+                TestBehandlinger.rehydrerBehandling(avklaringer = avklaring.toList(), gjeldendeOpplysninger = gjeldendeOpplysninger)
+            } else {
+                TestBehandlinger.rehydrerBehandling(avklaringer = avklaring.toList())
+            }
 
         init {
             lagre()
@@ -138,6 +173,11 @@ class AvklaringRepositoryPostgresTest {
         val behandlingRepository: BehandlingRepositoryPostgres,
         val personRepository: PersonRepositoryPostgres,
     ) {
-        fun testBehandling(vararg avklaring: Avklaring) = TestBehandling(personRepository, *avklaring)
+        fun testBehandling(vararg avklaring: Avklaring) = TestBehandling(personRepository, null, *avklaring)
+
+        fun testBehandling(
+            gjeldendeOpplysninger: Opplysninger,
+            vararg avklaring: Avklaring,
+        ) = TestBehandling(personRepository, gjeldendeOpplysninger, *avklaring)
     }
 }

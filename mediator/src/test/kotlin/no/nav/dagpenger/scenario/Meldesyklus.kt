@@ -9,10 +9,12 @@ class Meldesyklus(
     // Finn første mandag før søknadsdato
     private val førsteMandag = søknadsdato.minusDays(((søknadsdato.dayOfWeek.value + 6) % 7).toLong())
 
-    fun periode(nummer: Int): Periode {
-        val førsteDag = førsteMandag.plusWeeks((nummer - 1).toLong() * 2)
+    fun periode(
+        nummer: Int,
+        offset: Long = 0,
+    ): Periode {
+        val førsteDag = førsteMandag.plusWeeks(offset).plusWeeks((nummer - 1).toLong() * 2)
         return Periode(førsteDag, førsteDag.plusDays(13)).also {
-            ""
             println("Meldeperiode $nummer: ${it.fraOgMed} - ${it.tilOgMed}")
         }
     }

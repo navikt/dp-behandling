@@ -1,6 +1,8 @@
 package no.nav.dagpenger.regel.prosess
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.Forretningsprosess
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.IKontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
@@ -11,6 +13,7 @@ import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
 import java.time.LocalDate
 
@@ -25,17 +28,23 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
         val meldeperiode = meldeperiode(opplysninger)
 
-        val innvilgelsesdato =
-            innvilgelsesdato(opplysninger).maxByOrNull { it <= meldeperiode.fraOgMed }
-                ?: opplysninger.kunEgne
-                    .finnAlle(KravPåDagpenger.harLøpendeRett)
-                    .map { it.gyldighetsperiode.fraOgMed }
-                    .maxBy { it <= meldeperiode.fraOgMed }
-        val førsteDagMedRett = maxOf(innvilgelsesdato, meldeperiode.fraOgMed)
+        val rettighetsperioder = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode }
+        val regelverksdato =
+            rettighetsperioder.minOfOrNull { it.fraOgMed }
+                ?: opplysninger.finnAlle(Søknadstidspunkt.prøvingsdato).minOfOrNull { it.verdi }
+                ?: throw IllegalStateException("Meldekortbehandling mangler både rettighetsperiode og prøvingsdato")
+
+        val førsteMeldedagMedRett =
+            rettighetsperioder.firstOrNull { it.overlapper(meldeperiode) }?.fraOgMed
+                ?: meldeperiode.fraOgMed
+
+        logger.info {
+            "Meldeperiode: $meldeperiode, førsteMeldedagMedRett: $førsteMeldedagMedRett, tilOgMed: ${meldeperiode.tilOgMed}, innvilgelsesdato: $regelverksdato"
+        }
 
         return Regelkjøring(
-            regelverksdato = innvilgelsesdato,
-            prøvingsperiode = Regelkjøring.Periode(start = førsteDagMedRett, endInclusive = meldeperiode.tilOgMed),
+            regelverksdato = regelverksdato,
+            prøvingsperiode = Regelkjøring.Periode(start = førsteMeldedagMedRett, endInclusive = meldeperiode.tilOgMed),
             opplysninger = opplysninger,
             forretningsprosess = this,
         )
@@ -53,8 +62,10 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = meldeperiode(opplysninger).tilOgMed
 
-    private fun innvilgelsesdato(opplysninger: LesbarOpplysninger): List<LocalDate> =
-        opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett).filter { it.verdi }.map { it.gyldighetsperiode.fraOgMed }
+    private fun meldeperiode(opplysninger: LesbarOpplysninger): Gyldighetsperiode =
+        opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).gyldighetsperiode
 
-    private fun meldeperiode(opplysninger: LesbarOpplysninger): Periode = opplysninger.kunEgne.finnOpplysning(Beregning.meldeperiode).verdi
+    private companion object {
+        private val logger = KotlinLogging.logger { }
+    }
 }

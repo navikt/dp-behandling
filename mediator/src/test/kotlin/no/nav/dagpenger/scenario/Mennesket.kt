@@ -9,7 +9,9 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.objectMapper
+import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.tilJsonNode
+import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
@@ -29,6 +31,7 @@ import no.nav.dagpenger.ferietillegg.Behov as FerietilleggBehov
 internal class Mennesket(
     private val rapid: TestRapid,
     private val scenario: SimulertDagpengerSystem.ScenarioOptions,
+    private val personRepository: PersonRepository,
 ) {
     val ident = scenario.ident
 
@@ -158,7 +161,8 @@ internal class Mennesket(
         korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         timer: List<Int> = emptyList(),
         meldtITide: Boolean = true,
-    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, timer, meldtITide)
+        offset: Long = 0,
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer, offset), korrigeringAv, korrigertAv, timer, meldtITide)
 
     @JvmName("sendInnMeldekortMedAktiviteter")
     fun sendInnMeldekort(
@@ -167,7 +171,8 @@ internal class Mennesket(
         korrigertAv: MeldekortKilde = MeldekortKilde(MeldekortKilde.Rolle.Søker, ident),
         aktiviteter: List<MeldekortAktivitet>,
         meldtITide: Boolean = true,
-    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer), korrigeringAv, korrigertAv, aktiviteter, meldtITide)
+        offset: Long = 0,
+    ): UUID = sendInnMeldekort(meldesyklus.periode(nummer, offset), korrigeringAv, korrigertAv, aktiviteter, meldtITide)
 
     fun fastsattMeldedato(nummer: Int) = meldesyklus.periode(nummer).fraOgMed
 
@@ -236,6 +241,8 @@ internal class Mennesket(
             }
             return liste.toList()
         }
+
+    val rettighetstatus get() = personRepository.rettighetstatusFor(ident.tilPersonIdentfikator())
 
     internal data class Avklaring(
         val id: UUID,

@@ -11,6 +11,7 @@ import no.nav.dagpenger.mediator.IMessageMediator
 import no.nav.dagpenger.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.uuid.UUIDv7
 
@@ -53,6 +54,7 @@ internal class OmgjøringMessage(
             eksternId = OmgjøringId(UUIDv7.ny()),
             gjelderDato = packet["gjelderDato"].asLocalDate(),
             opprettet = opprettet,
+            opprettetAv = Systemaktør.dpSak,
         )
 
     override fun behandle(

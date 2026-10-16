@@ -42,7 +42,3 @@ data class Saksbehandlerbegrunnelse(
 ) {
     constructor(verdi: String) : this(verdi, LocalDateTime.now())
 }
-
-data class Saksbehandler(
-    val ident: String,
-)

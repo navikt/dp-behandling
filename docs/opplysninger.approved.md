@@ -91,6 +91,7 @@ Dette er opplysninger som blir brukt av regelverket.
 *Type:* Fastsettelse
 #### Avklaringer
 - VirkningstidspunktForLangtFramItid - [Prøvingsdato ligger for langt fram i tid](./avklaringer.approved.md#prøvingsdato-ligger-for-langt-fram-i-tid)
+- SjekkPrøvingsdato - [Prøvingsdato](./avklaringer.approved.md#prøvingsdato)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|

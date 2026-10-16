@@ -302,6 +302,7 @@ internal fun Avklaring.tilAvklaringDTO(): AvklaringDTO {
         avklartAv = saksbehandler,
         sistEndret = sisteEndring.endret,
         regelsett = påvirkerRegelsett,
+        opplysninger = (sisteEndring as? Avklaring.Endring.UnderBehandling)?.opplysninger ?: emptyList(),
     )
 }
 

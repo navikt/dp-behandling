@@ -48,7 +48,7 @@ internal class TestSaksbehandler2(
             BesluttBehandlingHendelse(
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = testPerson.ident,
-                behandlingId = testPerson.behandlingId,
+                behandlingId = behandlingId,
                 opprettet = LocalDateTime.now(),
                 besluttetAv = Saksbehandler("NAV987987"),
             ),
@@ -239,12 +239,15 @@ internal class TestSaksbehandler2(
         )
     }
 
-    fun avbryt(årsak: String = "Avbryt") {
+    fun avbryt(
+        årsak: String = "Avbryt",
+        behandlingId: UUID = testPerson.behandlingId,
+    ) {
         hendelseMediator.behandle(
             AvbrytBehandlingHendelse(
                 meldingsreferanseId = UUIDv7.ny(),
                 ident = testPerson.ident,
-                behandlingId = testPerson.behandlingId,
+                behandlingId = behandlingId,
                 opprettet = LocalDateTime.now(),
                 årsak = årsak,
             ),

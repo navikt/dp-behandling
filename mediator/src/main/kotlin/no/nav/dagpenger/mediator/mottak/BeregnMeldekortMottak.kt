@@ -15,6 +15,7 @@ import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.melding.HåndterbarKafkaMelding
 import no.nav.dagpenger.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.modell.hendelser.Meldekort
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse
 import java.util.UUID
 
@@ -31,7 +32,7 @@ internal class BeregnMeldekortMottak(
             }.register(this)
     }
 
-    private val skipMeldekort = setOf("019e3aeb-f11e-724d-ab8e-b31a97aa1fad")
+    private val skipMeldekort = setOf("uuid")
 
     @WithSpan
     override fun onPacket(
@@ -76,6 +77,13 @@ internal class BeregnMeldekortMottak(
             mediator.behandle(hendelse, this, context)
         }
 
-        private val hendelse = BeregnMeldekortHendelse(id, ident, opprettet, meldekort)
+        private val hendelse =
+            BeregnMeldekortHendelse(
+                meldingsreferanseId = id,
+                ident = ident,
+                opprettet = opprettet,
+                meldekort = meldekort,
+                opprettetAv = Systemaktør.dpSak,
+            )
     }
 }

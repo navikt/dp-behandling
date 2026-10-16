@@ -47,6 +47,8 @@ class Avklaringer(
             kontrollpunkter
                 .map { it.evaluer(opplysninger) }
                 .filterIsInstance<KreverAvklaring>()
+                .groupBy { it.avklaringkode }
+                .map { (_, treff) -> treff.slåSammen() }
 
         // Avbryt alle avklaringer som ikke lenger er aktive
         avklaringer
@@ -58,16 +60,22 @@ class Avklaringer(
         // Avklaringer som er kvittert skal ikke gjenåpnes
         aktiveAvklaringer
             .mapNotNull { aktiv ->
-                avklaringer.find { eksisterendeAvklaring ->
-                    eksisterendeAvklaring.kode == aktiv.avklaringkode &&
-                        eksisterendeAvklaring.erAvbrutt() &&
-                        eksisterendeAvklaring.sistEndret.isBefore(aktiv.sisteOpplysning)
-                }
-            }.forEach { it.gjenåpne() }
+                avklaringer
+                    .find { eksisterendeAvklaring ->
+                        eksisterendeAvklaring.kode == aktiv.avklaringkode &&
+                            eksisterendeAvklaring.erAvbrutt() &&
+                            eksisterendeAvklaring.sistEndret.isBefore(aktiv.sisteOpplysning)
+                    }?.let { it to aktiv }
+            }.forEach { (avklaring, aktiv) -> avklaring.gjenåpne(aktiv.opplysningIder) }
 
         // Legg til nye avklaringer
-        avklaringer.addAll(aktiveAvklaringer.map { Avklaring(it.avklaringkode) })
+        avklaringer.addAll(aktiveAvklaringer.map { Avklaring(it.avklaringkode, it.opplysningIder) })
 
         return avklaringer.toList()
     }
+
+    // Flere kontrollpunkter kan i teorien kreve avklaring med samme kode. Slå sammen slik at ingen
+    // opplysninger som bidro til avklaringen går tapt, siden avklaringer kun holdes én gang per kode.
+    private fun List<KreverAvklaring>.slåSammen(): KreverAvklaring =
+        reduce { a, b -> a.copy(opplysninger = (a.opplysninger + b.opplysninger).distinctBy { it.id }) }
 }

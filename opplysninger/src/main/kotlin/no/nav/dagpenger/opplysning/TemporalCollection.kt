@@ -1,7 +1,6 @@
 package no.nav.dagpenger.opplysning
 
 import java.time.LocalDate
-import java.util.Collections.unmodifiableMap
 import java.util.TreeMap
 
 // Temporal object pattern fra https://martinfowler.com/eaaDev/TemporalObject.html
@@ -9,7 +8,7 @@ class TemporalCollection<R> {
     // LocalDateTime er comparable og sorterer naturlig i kronologisk rekkefølge
     private val contents = TreeMap<LocalDate, R>()
 
-    fun contents() = unmodifiableMap(contents)
+    fun contents() = contents.toMap()
 
     private val milestones get() = contents.descendingKeySet().toList()
 
@@ -30,4 +29,12 @@ class TemporalCollection<R> {
     fun getAll(): List<R> = contents.values.toList()
 
     override fun toString(): String = "TemporalCollection(contents=$contents)"
+
+    /** Fjerner alle elementer i intervallet [fraOgMed, tilOgMed] */
+    fun removeRange(
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+    ) {
+        contents.subMap(fraOgMed, true, tilOgMed, true).clear()
+    }
 }

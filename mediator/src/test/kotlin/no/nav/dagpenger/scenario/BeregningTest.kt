@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldEndWith
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.comparables.shouldBeLessThan
@@ -18,6 +19,10 @@ import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
+import no.nav.dagpenger.mediator.oktober
+import no.nav.dagpenger.mediator.september
+import no.nav.dagpenger.modell.hendelser.MeldekortId
+import no.nav.dagpenger.opplysning.Avgjørelse.Avslag
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Avgjørelse.Gjenopptak
 import no.nav.dagpenger.opplysning.Avgjørelse.Stans
@@ -28,17 +33,21 @@ import no.nav.dagpenger.regel.Avklaringspunkter.JobbetOverTerskel
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.ScenarioBarn
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import kotlin.apply
 import kotlin.math.round
 
 class BeregningTest {
@@ -183,6 +192,55 @@ class BeregningTest {
                     this[1].verdi.verdi shouldBe 0
                     this[2].verdi.verdi shouldBe sats
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `beregning av et meldekort med utdanning som starter tidligere enn løpende rett`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(6.oktober(2026))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe true
+            }
+
+            // Send inn meldekort
+            val dager =
+                List(14) {
+                    MeldekortAktivitet.Utdanning(0.0) as MeldekortAktivitet
+                }.toMutableList().apply {
+                    this[0] = MeldekortAktivitet.Arbeid(7.5)
+                    this[1] = MeldekortAktivitet.Arbeid(7.5)
+                    this[2] = MeldekortAktivitet.Arbeid(7.5)
+                }
+
+            person.sendInnMeldekort(1, offset = -1, aktiviteter = dager)
+
+            // Systemet kjører beregningsbatchen
+            meldekortBatch(markerFerdig = false)
+
+            behandlingsresultatForslag {
+                rettighetsperioder.single().harRett shouldBe false
+                rettighetsperioder.single().fraOgMed shouldBe 6.oktober(2026)
+                førteTil shouldBe Avslag.toString()
+
+                with(opplysninger(Beregning.forbruk)) {
+                    this shouldHaveSize 14
+
+                    this.first().gyldigFraOgMed shouldBe 28.september(2026)
+                    this.last().gyldigFraOgMed shouldBe 11.oktober(2026)
+                    none { it.verdi.verdi == true } shouldBe true
+                }
+
+                utbetalinger.toList().sumOf { it["utbetaling"].asInt() } shouldBe 0
             }
         }
     }
@@ -346,11 +404,8 @@ class BeregningTest {
 
             saksbehandler.omgjørBehandling(6.juli(2018))
 
-            // Vilkår blir vurderte som ikke oppfylt
+            // Vilkår blir vurderte som ikke oppfylt, rettighetsperiode stanses automatisk som følge av dette
             saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "", Gyldighetsperiode(8.juli(2018)))
-
-            // Behandlingen av meldekort har stoppet opp og vi endrer rettighetsperiode på grunn av stans
-            saksbehandler.endreOpplysning(harLøpendeRett, false, "", Gyldighetsperiode(8.juli(2018)))
 
             // Verifiser at behandlingen nå bare beregner et subset av meldeperioden
             behandlingsresultatForslag {
@@ -515,6 +570,92 @@ class BeregningTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
+        }
+    }
+
+    @Test
+    fun `arbeid akkurat på terskel etter korrigering gir utbetaling`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid, 21.5)
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                opplysninger(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid).single().verdi.verdi shouldBe 21.5
+                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 21.5
+            }
+
+            // send inn første meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            // send inn andre meldekort med 22.5 timer som er 1 time over terskel (21.5)
+            // skal gi null utbetaling
+            val timerOverTerskel =
+                List(14) {
+                    MeldekortAktivitet.IngenAktivitet as MeldekortAktivitet
+                }.toMutableList().apply {
+                    this[0] = MeldekortAktivitet.Arbeid(7.5)
+                    this[1] = MeldekortAktivitet.Arbeid(7.5)
+                    this[2] = MeldekortAktivitet.Arbeid(7.5)
+                }
+            val meldekortId = person.sendInnMeldekort(2, aktiviteter = timerOverTerskel)
+            meldekortBatch(markerFerdig = true)
+
+            behandlingsresultat {
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldBe 0
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldBe false
+                }
+            }
+
+            // send inn meldekort som er akkurat på terskel (21.5)
+            // skal gi utbetaling
+            val timerPåTerskel =
+                timerOverTerskel.toMutableList().apply {
+                    this[2] = MeldekortAktivitet.Arbeid(6.5)
+                }
+            person.sendInnMeldekort(2, korrigeringAv = meldekortId, aktiviteter = timerPåTerskel)
+            meldekortBatch(markerFerdig = false)
+
+            person.avklaringer.first().kode shouldBe "KorrigeringUtbetaltPeriode"
+
+            behandlingsresultatForslag {
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldNotBe 0
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldBe true
+                }
+            }
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                with(opplysninger(Beregning.utbetalingForPeriode)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldNotBe 0
+                }
+                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
+                    this shouldHaveSize 2
+                    this[1].verdi.verdi shouldBe true
+                }
+            }
         }
     }
 
@@ -738,6 +879,43 @@ class BeregningTest {
                 rettighetsperioder[2].harRett shouldBe true
                 rettighetsperioder[2].fraOgMed shouldBe 13.august(2018)
                 rettighetsperioder[2].tilOgMed shouldBe null
+            }
+        }
+    }
+
+    @Test
+    fun `arbeid over terskel 3 meldekort på rad uten noe forbruk`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(1, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(2, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(3, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = false)
+
+            saksbehandler.åpneAvklaringer().first().kode shouldBe JobbetOverTerskel.kode
+
+            behandlingsresultatForslag {
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder[0].harRett shouldBe false
+                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+
+                // TODO: Burde det egentlig det?
+                førteTil shouldBe Avslag.toString()
             }
         }
     }
@@ -1078,6 +1256,84 @@ class BeregningTest {
     }
 
     @Test
+    @Disabled("Tiltak bakover i tid")
+    fun `meldekort med utdanning hvor tiltaksregisteret svarer med perioder utenfor og innenfor meldeperioden`() {
+        // Simulerer en app som lytter på MeldekortMedUtdanning-avklaringen, slår opp i tiltaksregisteret
+        // og svarer med en liste av tiltaksperioder. Her ligger periodene både bak og fram i tid i
+        // forhold til meldeperioden som beregnes (25.juni - 8.juli 2018), samt én periode som treffer
+        // midt i meldeperioden.
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(11.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
+            meldekortBatch(markerFerdig = false)
+
+            behandlingsresultatForslag(3) {
+                rettighetsperioder shouldHaveSize 2
+                // Første mandag i meldekort 2 er 25.juni
+                rettighetsperioder.last().fraOgMed shouldBe 25.juni(2018)
+                rettighetsperioder.last().harRett shouldBe false
+            }
+
+            person.avklaringer.map { it.kode } shouldContain "MeldekortMedUtdanning"
+
+            // Tiltaksregisteret svarer med tre perioder - én langt bak i tid, én fram i tid,
+            // og én som treffer midt i meldeperioden (25.juni - 8.juli 2018).
+            saksbehandler.endreOpplysning(
+                deltakelseIArbeidsmarkedstiltak,
+                true,
+                "Tiltak fra register (historisk)",
+                // Må ligge etter søknadstidspunktet (11.juni) og innenfor en periode med rett,
+                // ellers finnes det ikke data å knytte opplysningen til.
+                Gyldighetsperiode(12.juni(2018), 20.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                deltakelseIArbeidsmarkedstiltak,
+                true,
+                "Tiltak fra register (i meldeperioden)",
+                Gyldighetsperiode(25.juni(2018), 2.juli(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                tarUtdanning,
+                false,
+                "Tiltak fra register (i meldeperioden)",
+                Gyldighetsperiode(26.juni(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                deltakelseIArbeidsmarkedstiltak,
+                true,
+                "Tiltak fra register (framtidig)",
+                Gyldighetsperiode(1.august(2018), 1.september(2018)),
+            )
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(3) {
+                // Perioden 28.juni-2.juli dekkes av tiltak, og gir dermed rett i den delen av meldeperioden
+                rettighetsperioder shouldHaveSize 1
+                rettighetsperioder.last().harRett shouldBe true
+
+                opplysninger(deltakelseIArbeidsmarkedstiltak) {
+                    // Utgangspunkt (false) + de tre periodene fra registeret
+                    shouldHaveSize(4)
+                    count { it.verdi.verdi == true } shouldBe 3
+                }
+            }
+        }
+    }
+
+    @Test
     fun `meldekort med utdanning og godkjent utdanning går automatisk`() {
         nyttScenario {
             inntektSiste12Mnd = 300000
@@ -1242,6 +1498,48 @@ class BeregningTest {
                 satsPerDag.shouldContainExactly(1335, 1335, 1335, 1335, 1335, 1335, 1335, 1297, 1297, 1297, 1297, 1297, 1297, 1297)
                 utbetalingPerDag.shouldContainExactly(928, 928, 928, 928, 932, 0, 0, 902, 902, 902, 902, 903, 0, 0)
             }
+        }
+    }
+
+    @Test
+    fun `Avklaring på en allerede behandlet meldekort uavhengig av rekkefølge`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(1.juni(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val meldekort1 = person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            val meldekort2 = person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+
+            val korrigertMeldekort2 =
+                person.sendInnMeldekort(
+                    1,
+                    korrigeringAv = meldekort1,
+                    aktiviteter = listOf(MeldekortAktivitet.Arbeid(timer = 7), MeldekortAktivitet.Arbeid(timer = 7)),
+                )
+            meldekortBatch(markerFerdig = false)
+            saksbehandler.åpneAvklaringer().shouldNotBeEmpty()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+            meldekortFerdig(MeldekortId(korrigertMeldekort2.toString()))
+
+            person.sendInnMeldekort(
+                2,
+                korrigeringAv = meldekort2,
+                aktiviteter = listOf(MeldekortAktivitet.Arbeid(timer = 7), MeldekortAktivitet.Arbeid(timer = 7)),
+            )
+
+            meldekortBatch(markerFerdig = false)
+            saksbehandler.åpneAvklaringer().shouldNotBeEmpty()
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldContainExactly listOf("KorrigeringUtbetaltPeriode")
         }
     }
 }

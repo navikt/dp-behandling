@@ -4,9 +4,7 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
-import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
-import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap
 
 /**
@@ -32,20 +30,12 @@ class TaptArbeidstidStans : ProsessPlugin {
             val stansFraOgMed = påfølgendeUtenTapt.first().gyldighetsperiode.fraOgMed
             val stansperiode = Gyldighetsperiode(stansFraOgMed)
 
-            // Unngå å legge til opplysningen en gang til.
-            val harLøpendeRett = opplysninger.finnOpplysning(KravPåDagpenger.harLøpendeRett, stansFraOgMed)
-            if (!harLøpendeRett.verdi || harLøpendeRett.kilde is Saksbehandlerkilde) {
-                return
-            }
-
             kontekst.info(
                 "Bruker har ikke oppfylt kravet til tapt arbeidstid i ${påfølgendeUtenTapt.size} påfølgende perioder. Stans av dagpenger fra og med $stansFraOgMed.",
             )
 
             val utledetAv = opplysninger.finnOpplysning(trePåfølgendePerioderUtenTilstrekkeligTap).utledetAv
-            opplysninger.leggTil(
-                Faktum(trePåfølgendePerioderUtenTilstrekkeligTap, false, stansperiode, utledetAv),
-            )
+            opplysninger.leggTil(Faktum(trePåfølgendePerioderUtenTilstrekkeligTap, false, stansperiode, utledetAv))
 
             kontekst.beOmRekjøring()
         }

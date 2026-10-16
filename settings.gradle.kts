@@ -10,13 +10,13 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            from("no.nav.dagpenger:dp-version-catalog:20260904.287")
+            from("no.nav.dagpenger:dp-version-catalog:20261015.315")
             // om du vil teste nye versjoner før de merges til version-catalog, kan det gjøres slik:
             // version("ktor", "3.5.1")
 
             // Avhengigheter som ikke (enda) finnes i dp-version-catalog, men som brukes i flere
             // moduler her. Definert sentralt for å unngå at modulene drifter fra hverandre.
-            version("otel-api", "1.65.0")
+            version("otel-api", "1.67.0")
             version("otel-instrumentation", "2.30.0")
             library("otel-api", "io.opentelemetry", "opentelemetry-api").versionRef("otel-api")
             library(
@@ -24,7 +24,7 @@ dependencyResolutionManagement {
                 "io.opentelemetry.instrumentation",
                 "opentelemetry-instrumentation-annotations",
             ).versionRef("otel-instrumentation")
-            library("dp-grunnbelop", "no.nav.dagpenger", "dp-grunnbelop").version("20260529.285.e99922")
+            library("dp-grunnbelop", "no.nav.dagpenger", "dp-grunnbelop").version("20260922.320.2def33")
             library("approvaltests", "com.approvaltests", "approvaltests").version("31.0.0")
         }
     }

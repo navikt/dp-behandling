@@ -45,7 +45,7 @@ import java.util.UUID
 import kotlin.random.Random
 
 internal class SimulertDagpengerSystem(
-    dbTestContext: DBTestContext,
+    val dbTestContext: DBTestContext,
     val oppsett: ScenarioOptions,
 ) {
     companion object {
@@ -62,7 +62,6 @@ internal class SimulertDagpengerSystem(
             ConfigurationMap(
                 mapOf(
                     Configuration.Grupper.saksbehandler.name to oppsett.saksbehandlerGruppe,
-                    Configuration.Maskintilgang.navn.name to oppsett.maskintilgangnavn,
                     Configuration.Grupper.admin.name to oppsett.adminGrupper.joinToString(","),
                     azure_app.client_id.name to TestApplication.CLIENT_ID,
                     azure_app.well_known_url.name to "${TestApplication.mockOAuth2Server.wellKnownUrl(AZUREAD_ISSUER_ID)}",
@@ -93,7 +92,7 @@ internal class SimulertDagpengerSystem(
 
     val api: Application.() -> Unit = runtime.api
 
-    val person = Mennesket(rapid, oppsett)
+    val person = Mennesket(rapid, oppsett, runtime.personRepository)
     val behovsløsere = Behovsløsere(rapid, person)
     val saksbehandler = TestSaksbehandler2(person, runtime.hendelseMediator, runtime.personRepository, rapid)
 
@@ -147,7 +146,6 @@ internal class SimulertDagpengerSystem(
         var oppgirUtdanning: Boolean = false,
         var saksbehandlerGruppe: String = "dagpenger-saksbehandler",
         var adminGrupper: List<String> = listOf("enkel-admin"),
-        var maskintilgangnavn: String = "test-app",
         var barn: List<ScenarioBarn> = listOf(),
     ) {
         inline fun test(crossinline block: SimulertDagpengerSystem.() -> Unit) {
@@ -318,14 +316,21 @@ fun TestRapid.RapidInspector.sisteMelding(navn: String): Pair<Int, JsonNode> {
 }
 
 class TestAuditlogg internal constructor() : Auditlogg {
-    val aktivitet = mutableListOf<String>()
+    data class Kall(
+        val operasjon: String,
+        val ident: String,
+        val saksbehandler: String,
+    )
+
+    val kall = mutableListOf<Kall>()
+    val aktivitet get() = kall.map { it.operasjon }
 
     override fun les(
         melding: String,
         ident: String,
         saksbehandler: String,
     ) {
-        aktivitet.add("les")
+        kall.add(Kall("les", ident, saksbehandler))
     }
 
     override fun opprett(
@@ -333,7 +338,7 @@ class TestAuditlogg internal constructor() : Auditlogg {
         ident: String,
         saksbehandler: String,
     ) {
-        aktivitet.add("opprett")
+        kall.add(Kall("opprett", ident, saksbehandler))
     }
 
     override fun oppdater(
@@ -341,7 +346,7 @@ class TestAuditlogg internal constructor() : Auditlogg {
         ident: String,
         saksbehandler: String,
     ) {
-        aktivitet.add("oppdater")
+        kall.add(Kall("oppdater", ident, saksbehandler))
     }
 
     override fun slett(
@@ -349,6 +354,6 @@ class TestAuditlogg internal constructor() : Auditlogg {
         ident: String,
         saksbehandler: String,
     ) {
-        aktivitet.add("slett")
+        kall.add(Kall("slett", ident, saksbehandler))
     }
 }

@@ -91,16 +91,8 @@ class BeregningsperiodeFabrikk(
                 val gjeldendeOpplysninger = opplysninger.forDato(dato)
 
                 when (dato.dagstype) {
-                    Hverdag -> {
-                        opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
-                    }
-
-                    Helg -> {
-                        Helgedag(
-                            dato = dato,
-                            timerArbeidet = Timer(gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi),
-                        )
-                    }
+                    Hverdag -> opprettArbeidsdagEllerFraværsdag(dato, gjeldendeOpplysninger)
+                    Helg -> Helgedag(dato, Timer(gjeldendeOpplysninger.finnOpplysning(Beregning.arbeidstimer).verdi))
                 }
             }.toSortedSet()
     }

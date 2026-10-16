@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning.verdier.enhet
 
+import java.math.BigDecimal
 import kotlin.time.Duration
 
 @JvmInline
@@ -26,6 +27,9 @@ value class Timer(
         val Number.timer get() = Timer(this)
         val Duration.tilTimer: Timer get() = (this.inWholeMinutes.toDouble() / 60).timer
 
-        fun List<Timer>.summer() = this.sumOf { it.timer }.timer
+        fun List<Timer>.summer() =
+            Timer(
+                fold(BigDecimal.ZERO) { sum, timer -> sum + BigDecimal.valueOf(timer.timer) }.toDouble(),
+            )
     }
 }

@@ -61,6 +61,7 @@ import no.nav.dagpenger.mediator.repository.ApiRepositoryPostgres
 import no.nav.dagpenger.mediator.repository.OppdateringRepository
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.mediator.toJsonMessage
+import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.Behandling.TilstandType.Redigert
 import no.nav.dagpenger.modell.Behandling.TilstandType.TilBeslutning
@@ -97,6 +98,7 @@ import no.nav.dagpenger.regel.hendelse.KlagebehandlingHendelse
 import no.nav.dagpenger.regel.hendelse.OmgjøringHendelse
 import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
 import no.nav.dagpenger.regel.prosess.Manuellprosess
+import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.utestengning.Utestengningsprosess
@@ -222,6 +224,7 @@ internal fun Application.behandlingApi(
                 post {
                     val nyBehandlingDto = call.receive<NyBehandlingDTO>()
                     val ident = nyBehandlingDto.ident
+                    val opprettetAv = Saksbehandler(call.saksbehandlerId())
 
                     val skjedde = nyBehandlingDto.skjedde ?: LocalDate.now()
                     if (!personRepository.harIdent(ident.tilPersonIdentfikator())) {
@@ -245,6 +248,7 @@ internal fun Application.behandlingApi(
                                     eksternId = id,
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
+                                    opprettetAv = opprettetAv,
                                 )
                             }
 
@@ -263,7 +267,7 @@ internal fun Application.behandlingApi(
                                     begrunnelse = nyBehandlingDto.begrunnelse,
                                     opprettet = LocalDateTime.now(),
                                     prosess = prosess,
-                                    // TODO: Legg til sporing av hvem som gjør dette
+                                    opprettetAv = opprettetAv,
                                 )
                             }
 
@@ -274,6 +278,7 @@ internal fun Application.behandlingApi(
                                     eksternId = OmgjøringId(UUIDv7.ny()),
                                     gjelderDato = skjedde,
                                     opprettet = LocalDateTime.now(),
+                                    opprettetAv = opprettetAv,
                                 )
                             }
                         }
@@ -293,6 +298,7 @@ internal fun Application.behandlingApi(
                         personRepository
                             .hent(ident.tilPersonIdentfikator())!!
                             .behandlinger()
+                            .filterNot { it.harTilstand(Behandling.TilstandType.Avbrutt) }
                             .single { it.behandler.eksternId == hendelse.eksternId }
                             .tilBehandlingDTO(),
                     )
@@ -636,7 +642,9 @@ internal fun Application.behandlingApi(
 
                             if (opplysningstype.er(prøvingsdato)) {
                                 if (behandling.opplysninger.kunEgne.finnNullableOpplysning(prøvingsdato) == null) {
-                                    throw KanIkkeEndrePrøvingsdatoException()
+                                    if (behandling.behandler.forretningsprosess.javaClass != Omgjøringsprosess::class.java) {
+                                        throw KanIkkeEndrePrøvingsdatoException()
+                                    }
                                 }
                                 val søknadId = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
                                 if (søknadId != null) {

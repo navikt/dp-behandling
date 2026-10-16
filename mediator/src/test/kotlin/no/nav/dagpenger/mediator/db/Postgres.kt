@@ -90,7 +90,7 @@ internal object Postgres {
         val testContext =
             tilgjengeligeTestsesjoner.poll(Duration.ofSeconds(20).toSeconds(), TimeUnit.SECONDS)
                 ?: error("Fikk ikke tak i databasesesjon!")
-        logger.info { "Fikk tak i database..." }
+        logger.info { "Fikk tak i database ${testContext.hikariConfig.jdbcUrl}..." }
         testContext.runMigration()
         return testContext
     }

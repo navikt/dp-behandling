@@ -3,6 +3,7 @@ package no.nav.dagpenger.modell.hendelser
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -35,6 +36,7 @@ abstract class StartHendelse(
     val eksternId: EksternId<*>,
     val skjedde: LocalDate,
     opprettet: LocalDateTime,
+    val opprettetAv: Aktør? = null,
 ) : PersonHendelse(meldingsreferanseId, ident, opprettet) {
     open val type: String = this.javaClass.simpleName
 
@@ -92,6 +94,7 @@ abstract class StartHendelse(
                     skjedde = skjedde,
                     opprettet = opprettet,
                     forretningsprosess = forretningsprosess,
+                    opprettetAv = opprettetAv,
                 ),
             opplysninger = emptyList(),
             basertPå = basertPå,

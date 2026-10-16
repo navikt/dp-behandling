@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.hendelse
+
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Rettighetstatus
@@ -7,6 +8,7 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.modell.hendelser.SøknadId
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -15,6 +17,7 @@ import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
+import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage.Companion.Fagsystem
 import no.nav.dagpenger.regel.prosess.Søknadsprosess
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
@@ -32,10 +35,12 @@ class SøknadInnsendtHendelse(
     ident: String,
     søknadId: UUID,
     gjelderDato: LocalDate,
-    val fagsakId: Int,
+    val fagsakId: Int?,
     opprettet: LocalDateTime,
     val søknadstype: Søknadstype,
-) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet) {
+    val fagsystem: Fagsystem? = Fagsystem("Arena"),
+    opprettetAv: Aktør? = null,
+) : StartHendelse(meldingsreferanseId, ident, SøknadId(søknadId), gjelderDato, opprettet, opprettetAv) {
     override val forretningsprosess = Søknadsprosess()
 
     override fun behandling(
@@ -63,10 +68,11 @@ class SøknadInnsendtHendelse(
                 forrigeBehandling
             }
 
-        if (basertPå == null && fagsakId == 0) {
-            // Vi tar kun inn søknad så lenge den har en fagsakId i seg. Det vil være søknader om nytt rett (som oppretter sak i Arena).
+        if (basertPå == null && fagsystem?.erArena() == true && (fagsakId == null || fagsakId == 0)) {
+            // Er fagsystemet Arena må søknaden ha en fagsakId i seg. Det vil være søknader om nytt rett (som oppretter sak i Arena).
             // Søknad om gjenopptak vil ikke ha fagsakId.
             // Har vi en behandlingskjede (noe er innvilget) så vil vi også fange opp gjenopptaksøknader.
+            // Er fagsystemet ikke Arena er ikke fagsakId et krav.
             return IkkeOpprettet("Hendelse av type $type mangler fagsakId og har ingen behandling å basere seg på")
         }
 
@@ -85,7 +91,7 @@ class SøknadInnsendtHendelse(
                         }
                     },
             ).apply {
-                if (basertPå == null) {
+                if (basertPå == null && fagsakId != null && fagsakId != 0) {
                     opplysninger.leggTil(Faktum(fagsakIdOpplysningstype, fagsakId, kilde = kilde))
                 }
 

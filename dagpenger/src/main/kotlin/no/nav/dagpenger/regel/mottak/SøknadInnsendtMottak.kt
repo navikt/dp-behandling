@@ -11,6 +11,7 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Søknadstype
 import no.nav.dagpenger.regelverk.HendelseMottaker
@@ -29,12 +30,11 @@ class SøknadInnsendtMottak(
                     it.requireKey(
                         "ident",
                         "innsendt",
-                        "fagsakId",
                         "søknadId",
                     )
                 }
                 validate { it.interestedIn("@id", "@opprettet") }
-                validate { it.interestedIn("journalpostId", "type") }
+                validate { it.interestedIn("journalpostId", "type", "fagsystem", "fagsakId") }
             }.register(this)
     }
 
@@ -78,6 +78,18 @@ class SøknadInnsendtMessage(
             if (node.isMissingNode) Søknadstype.NySøknad else Søknadstype.valueOf(node.stringValue())
         }
 
+    private val fagsystem =
+        packet["fagsystem"].let { node ->
+            // Historisk sett har alle søknader kommet fra Arena, og feltet er ikke alltid satt av produsent.
+            // Fraværende fagsystem tolkes derfor som Arena for å bevare eksisterende oppførsel.
+            if (node.isMissingNode) Fagsystem("ARENA") else Fagsystem(node.stringValue())
+        }
+
+    private val fagsakId =
+        packet["fagsakId"].let { node ->
+            if (node.isMissingNode) null else node.asInt()
+        }
+
     internal val hendelse: SøknadInnsendtHendelse
         get() {
             return SøknadInnsendtHendelse(
@@ -85,9 +97,20 @@ class SøknadInnsendtMessage(
                 ident,
                 søknadId = søknadId,
                 gjelderDato = packet["innsendt"].asLocalDateTime().toLocalDate(),
-                fagsakId = packet["fagsakId"].asInt(),
+                fagsakId = fagsakId,
                 opprettet,
                 søknadstype,
+                fagsystem,
+                opprettetAv = Systemaktør.dpSak,
             )
         }
+
+    companion object {
+        @JvmInline
+        value class Fagsystem(
+            val navn: String,
+        ) {
+            fun erArena() = navn == "ARENA"
+        }
+    }
 }

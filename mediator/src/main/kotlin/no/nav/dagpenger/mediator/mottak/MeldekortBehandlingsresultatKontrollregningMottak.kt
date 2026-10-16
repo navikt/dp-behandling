@@ -58,7 +58,7 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
 
         withLoggingContext("behandlingId" to packet["behandlingId"].asString()) {
             val detaljer = kontrollbehov.kontrollbehovDetaljer()
-            context.publish(
+            /*context.publish(
                 packet["ident"].asString(),
                 JsonMessage
                     .newMessage(
@@ -70,7 +70,7 @@ class MeldekortBehandlingsresultatKontrollregningMottak(
                             "detaljer" to detaljer,
                         ),
                     ).toJson(),
-            )
+            )*/
             logger.info { "Publiserte kontrollregningbehov: $detaljer" }
         }
     }

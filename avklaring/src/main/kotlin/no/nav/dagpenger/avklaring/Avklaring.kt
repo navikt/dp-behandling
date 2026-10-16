@@ -15,7 +15,13 @@ data class Avklaring(
     val kode: Avklaringkode,
     private val historikk: MutableList<Endring> = mutableListOf(UnderBehandling()),
 ) {
-    constructor(kode: Avklaringkode) : this(UUIDv7.ny(), kode)
+    constructor(kode: Avklaringkode) : this(kode, emptyList())
+
+    constructor(kode: Avklaringkode, opplysninger: List<UUID>) : this(
+        UUIDv7.ny(),
+        kode,
+        mutableListOf(UnderBehandling(opplysninger = opplysninger)),
+    )
 
     private val tilstand get() = endringer.last()
     val sistEndret get(): LocalDateTime = endringer.last().endret
@@ -53,7 +59,7 @@ data class Avklaring(
 
     internal fun avklar(kilde: Kilde): Boolean = historikk.add(Avklart(avklartAv = kilde))
 
-    internal fun gjenåpne(): Boolean = historikk.add(UnderBehandling())
+    internal fun gjenåpne(opplysninger: List<UUID> = emptyList()): Boolean = historikk.add(UnderBehandling(opplysninger = opplysninger))
 
     private fun kanKvitteresSjekk() {
         require(kanKvitteres) { "Avklaring $kode kan ikke kvitteres ut, krever endring i behandlingen" }
@@ -70,6 +76,8 @@ data class Avklaring(
         class UnderBehandling(
             id: UUID = UUIDv7.ny(),
             endret: LocalDateTime = LocalDateTime.now(),
+            // Opplysninger som utløste at avklaringen ble (gjen)åpnet av et kontrollpunkt
+            val opplysninger: List<UUID> = emptyList(),
         ) : Endring(id, endret)
 
         class Avklart(

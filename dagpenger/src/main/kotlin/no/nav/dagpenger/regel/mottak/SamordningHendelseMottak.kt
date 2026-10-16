@@ -12,7 +12,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.modell.hendelser.SamordningId
-import no.nav.dagpenger.regel.hendelse.OpprettBehandlingHendelse
+import no.nav.dagpenger.opplysning.Systemaktør
+import no.nav.dagpenger.regel.hendelse.SamordningHendelse
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.uuid.UUIDv7
@@ -66,14 +67,14 @@ class SamordningHendelseMottak(
         val fom = packet["tidspunkt"].asLocalDateTime()
 
         internal val hendelse =
-            OpprettBehandlingHendelse(
+            SamordningHendelse(
                 meldingsreferanseId = packet.id.toUUID(),
                 ident = ident,
                 eksternId = SamordningId(UUIDv7.ny()),
                 gjelderDato = fom.toLocalDate(),
                 begrunnelse = "Fanget opp mulig endring i samordning mot $ytelse",
                 opprettet = opprettet,
-                startNyKjede = false,
+                opprettetAv = Systemaktør.dpSak,
             )
     }
 }

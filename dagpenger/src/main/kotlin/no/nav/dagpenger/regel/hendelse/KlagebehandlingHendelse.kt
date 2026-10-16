@@ -7,6 +7,7 @@ import no.nav.dagpenger.modell.hendelser.KlageId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -21,12 +22,14 @@ class KlagebehandlingHendelse(
     eksternId: KlageId<*>,
     gjelderDato: LocalDate,
     opprettet: LocalDateTime,
+    opprettetAv: Aktør? = null,
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
         eksternId = eksternId,
         skjedde = gjelderDato,
         opprettet = opprettet,
+        opprettetAv = opprettetAv,
     ) {
     override val forretningsprosess: Forretningsprosess
         get() = Omgjøringsprosess()

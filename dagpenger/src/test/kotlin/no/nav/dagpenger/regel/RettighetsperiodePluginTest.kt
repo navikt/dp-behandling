@@ -100,4 +100,26 @@ class RettighetsperiodePluginTest {
         perioder[2].gyldighetsperiode shouldBe Gyldighetsperiode(15.januar(2018))
         perioder[2].verdi shouldBe true
     }
+
+    @Test
+    fun `slår sammen flere nye kant-i-kant perioder med lik verdi beregnet i samme kjøring`() {
+        val plugin = RettighetsperiodePlugin(regelverk, slåSammenLike = false)
+
+        val opplysninger =
+            Opplysninger().apply {
+                leggTil(Faktum(utfall1, true, Gyldighetsperiode(1.januar(2018))))
+                // To separate, kant-i-kant vilkårsopplysninger med lik verdi (true), som ellers ville
+                // gitt to distinkte segmenter i tidslinja siden slåSammenLike er skrudd av
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(1.januar(2018), 10.januar(2018))))
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(11.januar(2018))))
+            }
+
+        plugin.regelkjøringFerdig(Prosesskontekst(opplysninger))
+
+        val perioder = opplysninger.finnAlle(harLøpendeRett)
+
+        perioder shouldHaveSize 1
+        perioder[0].gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2018))
+        perioder[0].verdi shouldBe true
+    }
 }

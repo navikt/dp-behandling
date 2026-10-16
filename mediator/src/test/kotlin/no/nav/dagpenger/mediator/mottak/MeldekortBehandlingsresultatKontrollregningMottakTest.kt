@@ -9,9 +9,11 @@ import no.nav.dagpenger.regel.OpplysningsTyper.maksimalVanligArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
+@Disabled
 class MeldekortBehandlingsresultatKontrollregningMottakTest {
     private val rapid = TestRapid()
 

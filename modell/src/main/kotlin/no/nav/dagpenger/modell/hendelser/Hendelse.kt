@@ -2,6 +2,7 @@ package no.nav.dagpenger.modell.hendelser
 
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Rettighetstatus
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.TemporalCollection
 import java.time.LocalDate
@@ -16,7 +17,8 @@ class Hendelse(
     skjedde: LocalDate,
     opprettet: LocalDateTime,
     override val forretningsprosess: Forretningsprosess,
-) : StartHendelse(meldingsreferanseId, ident, eksternId, skjedde, opprettet) {
+    opprettetAv: Aktør? = null,
+) : StartHendelse(meldingsreferanseId, ident, eksternId, skjedde, opprettet, opprettetAv) {
     override fun behandling(
         forrigeBehandling: Behandling?,
         rettighetstatus: TemporalCollection<Rettighetstatus>,

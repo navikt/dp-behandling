@@ -1,6 +1,5 @@
 package no.nav.dagpenger.modell
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.Aktivitetskontekst
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.avklaring.Avklaring
@@ -97,7 +96,7 @@ class Behandling private constructor(
     private val tidligereOpplysninger = basertPå?.opplysninger
     private val forretningsprosess = behandler.forretningsprosess
     val regelverk get() = forretningsprosess.regelverk.navn
-
+    val opprettetAv get() = behandler.opprettetAv
     val opplysninger: Opplysninger = gjeldendeOpplysninger.baserPå(tidligereOpplysninger)
 
     private val regelkjøring: Regelkjøring
@@ -1085,7 +1084,6 @@ class Behandling private constructor(
                 regelkjøring.evaluer()
             } catch (e: RegelkjøringLoopException) {
                 hendelse.funksjonellFeil("Regelkjøring loop oppdaget: ${e.message}")
-                KotlinLogging.logger {}.warn { "Regelkjøring loop oppdaget: ${e.message}" }
                 avklaringer.leggTil(
                     Avklaring(
                         Avklaringkode(
@@ -1223,7 +1221,7 @@ class Behandling private constructor(
                 basertPåBehandling = basertPåBehandlinger(),
                 behandlingskjedeId = behandlingskjedeId,
                 regelverk = regelverk,
-                rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()),
+                rettighetsperioder = forretningsprosess.rettighetsperioder(opplysninger()).sorted(),
                 avgjørelse = forretningsprosess.regelverk.avgjørelse(opplysninger()),
                 virkningsdato = forretningsprosess.virkningsdato(opplysninger()),
                 behandlingAv = behandler,

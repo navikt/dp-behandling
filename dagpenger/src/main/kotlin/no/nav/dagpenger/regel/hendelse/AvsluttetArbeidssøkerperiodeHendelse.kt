@@ -8,6 +8,7 @@ import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
+import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -37,12 +38,14 @@ class AvsluttetArbeidssøkerperiodeHendelse(
     ident: String,
     opprettet: LocalDateTime,
     private val avsluttetArbeidssøkerperiode: AvsluttetArbeidssøkerperiode,
+    opprettetAv: Aktør? = null,
 ) : StartHendelse(
         meldingsreferanseId = meldingsreferanseId,
         ident = ident,
         eksternId = avsluttetArbeidssøkerperiode.arbeidssøkerperiodeId,
         skjedde = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate(),
         opprettet = opprettet,
+        opprettetAv = opprettetAv,
     ) {
     override val forretningsprosess = Stansprosess()
 
@@ -70,7 +73,9 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                                 else -> "Bruker er ikke lenger registrert som saksbehandler"
                             }
 
-                        val sisteUtfall = forrigeBehandling.vedtakopplysninger.rettighetsperioder.last()
+                        val rettighetsperioder = forrigeBehandling.vedtakopplysninger.rettighetsperioder
+                        logger.info { "Rettighetsperioder : $rettighetsperioder" }
+                        val sisteUtfall = rettighetsperioder.last()
                         // Om saken allerede er stanset kan vi bare oppdatere informasjonen automatisk
                         if (sisteUtfall.harRett) {
                             // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest

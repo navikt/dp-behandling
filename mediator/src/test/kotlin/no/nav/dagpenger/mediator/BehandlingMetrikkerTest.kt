@@ -11,13 +11,15 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class BehandlingMetrikkerTest {
-    @Test
-    fun `dokumenterer alle metrikker`() {
-        // Sørg for at alle metrikker er registrert ved å referere til companion objects
+    // Sørg for at alle metrikker er registrert ved å referere til companion objects
+    init {
         BehandlingMetrikker
         Metrikk
         DbMetrics
+    }
 
+    @Test
+    fun `dokumenterer alle metrikker`() {
         // Kjente prefiks for våre egne metrikker
         val egnePrefikser =
             listOf(

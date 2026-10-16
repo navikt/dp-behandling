@@ -29,6 +29,8 @@ import no.nav.dagpenger.mediator.api.models.EnhetDTO
 import no.nav.dagpenger.mediator.api.models.FerietilleggKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.HendelseDTOTypeDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningstypeDTO
+import no.nav.dagpenger.mediator.api.models.OppretterDTO
+import no.nav.dagpenger.mediator.api.models.OppretterDTOTypeDTO
 import no.nav.dagpenger.mediator.api.models.SakDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.mediator.asUUID
@@ -102,13 +104,21 @@ internal class BehandlingApiTest {
     @Test
     fun `opprett ny behandling på en gitt person`() {
         medSikretBehandlingApi { testContext ->
+            val navIdent = "Z123456"
             val response =
                 testContext.autentisert(
                     endepunkt = "/person/behandling",
                     body = """{"ident":"${person.ident}", "behandlingstype" : "Manuell" }""",
+                    token =
+                        testAzureAdToken(
+                            ADGrupper = listOf(oppsett.saksbehandlerGruppe),
+                            navIdent = navIdent,
+                        ),
                 )
             response.status shouldBe HttpStatusCode.OK
-            response.bodyAsText().shouldNotBeEmpty()
+            val behandling = response.body<BehandlingDTO>()
+            behandling.opprettetAv?.ident shouldBe navIdent
+            behandling.opprettetAv?.type shouldBe OppretterDTOTypeDTO.SAKSBEHANDLER
 
             person.behandlingId.shouldNotBeNull()
 
@@ -190,7 +200,49 @@ internal class BehandlingApiTest {
                         body = body,
                     )
                 response.status shouldBe HttpStatusCode.OK
+                val behandling = response.body<BehandlingDTO>()
+                behandling.opprettetAv?.ident shouldBe "123"
+                behandling.opprettetAv?.type shouldBe OppretterDTOTypeDTO.SAKSBEHANDLER
             }
+        }
+    }
+
+    @Test
+    fun `Kan opprette klagebehandling på nytt når forrige klagebehandling er avbrutt`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.april(LocalDate.now().year))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.behandlingId.shouldNotBeNull()
+
+            // Klage med id (Klagebehandlingen sin behandlingId)
+            val klageId = UUIDv7.ny()
+
+            val behandlingRespons1 =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body =
+                        """
+                        {"ident":"${person.ident}", "behandlingstype": "OmgjøringEtterKlage", "kildesystem": "Førsteinstans", "id": "$klageId"}
+                        """.trimIndent(),
+                )
+            behandlingRespons1.status shouldBe HttpStatusCode.OK
+            with(behandlingRespons1.body<BehandlingDTO>()) {
+                saksbehandler.avbryt(behandlingId = behandlingId)
+            }
+
+            val behandlingRespons2 =
+                testContext.autentisert(
+                    endepunkt = "/person/behandling",
+                    body =
+                        """
+                        {"ident":"${person.ident}", "behandlingstype": "OmgjøringEtterKlage", "kildesystem": "Førsteinstans", "id": "$klageId"}
+                        """.trimIndent(),
+                )
+            behandlingRespons2.status shouldBe HttpStatusCode.OK
         }
     }
 
@@ -223,6 +275,7 @@ internal class BehandlingApiTest {
             person.behandling.behandletHendelse.type shouldBe HendelseDTOTypeDTO.MANUELL
             person.behandling.behandletHendelse.id
                 .shouldNotBeNull()
+            person.behandling.behandletAv
             person.behandling.behandletHendelse.skjedde shouldBe skjeddeDato
 
             person.avklaringer.shouldNotBeEmpty()
@@ -258,6 +311,9 @@ internal class BehandlingApiTest {
             response.status shouldBe HttpStatusCode.OK
             val bodyAsText = response.bodyAsText()
             bodyAsText.shouldNotBeEmpty()
+            val behandling = objectMapper.readValue(bodyAsText, BehandlingDTO::class.java)
+            behandling.opprettetAv?.ident shouldBe "123"
+            behandling.opprettetAv?.type shouldBe OppretterDTOTypeDTO.SAKSBEHANDLER
 
             person.behandlingId.shouldNotBeNull()
 
@@ -271,10 +327,21 @@ internal class BehandlingApiTest {
     @Test
     fun `hent behandlinger gitt person`() {
         medSikretBehandlingApi { testContext ->
-            val response = testContext.autentisert(endepunkt = "/behandling", body = """{"ident":"${person.ident}"}""")
+            val navIdent = "Z456789"
+            val response =
+                testContext.autentisert(
+                    endepunkt = "/behandling",
+                    body = """{"ident":"${person.ident}"}""",
+                    token =
+                        testAzureAdToken(
+                            ADGrupper = listOf(oppsett.saksbehandlerGruppe),
+                            navIdent = navIdent,
+                        ),
+                )
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText() shouldBe "[]"
             auditlogg.aktivitet shouldContainExactly listOf("les")
+            auditlogg.kall.single().saksbehandler shouldBe navIdent
         }
     }
 
@@ -385,12 +452,23 @@ internal class BehandlingApiTest {
             person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
-            val response = testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/${person.behandlingId}")
+            val navIdent = "Z456789"
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Get,
+                    endepunkt = "/behandling/${person.behandlingId}",
+                    token =
+                        testAzureAdToken(
+                            ADGrupper = listOf(oppsett.saksbehandlerGruppe),
+                            navIdent = navIdent,
+                        ),
+                )
             response.status shouldBe HttpStatusCode.OK
             response.bodyAsText().shouldNotBeEmpty()
 
             val behandlingDto = shouldNotThrowAny { objectMapper.readValue(response.bodyAsText(), BehandlingDTO::class.java) }
             behandlingDto.behandlingId shouldBe person.behandlingId
+            behandlingDto.opprettetAv shouldBe OppretterDTO(ident = "dp-sak", type = OppretterDTOTypeDTO.SYSTEM)
             behandlingDto.vilkår.shouldNotBeEmpty()
             behandlingDto.opplysninger.all { it.redigerbar } shouldBe false
             behandlingDto.avklaringer.shouldNotBeEmpty()
@@ -406,6 +484,7 @@ internal class BehandlingApiTest {
 
             behandlingDto.avklaringer shouldHaveSize 8
             auditlogg.aktivitet shouldContainExactly listOf("les")
+            auditlogg.kall.single().saksbehandler shouldBe navIdent
         }
     }
 
@@ -795,7 +874,6 @@ internal class BehandlingApiTest {
             inntektSiste12Mnd = 350000
             saksbehandlerGruppe = "dagpenger-saksbehandler"
             adminGrupper = listOf("enkel-admin")
-            maskintilgangnavn = "test-app"
         }.test {
             withMockAuthServerAndTestApplication(this.api) { block(this) }
         }
