@@ -48,10 +48,10 @@ class VernepliktFastsettingSteg : No {
         }
 
         Gitt("at inntekt ved verneplikt er") { data: DataTable ->
-            opplysninger.leggTil(Faktum<Beløp>(inntekt12, data.cell(0, 1).tilBeløp()))
-            opplysninger.leggTil(Faktum<Beløp>(inntekt36, data.cell(1, 1).tilBeløp()))
-            opplysninger.leggTil(Faktum<Beløp>(grunnlag12mnd, data.cell(0, 1).tilBeløp()))
-            opplysninger.leggTil(Faktum<Beløp>(grunnlag36mnd, data.cell(1, 1).tilBeløp()))
+            opplysninger.leggTil(Faktum<Beløp>(inntekt12, data.cell(0, 1)!!.tilBeløp()))
+            opplysninger.leggTil(Faktum<Beløp>(inntekt36, data.cell(1, 1)!!.tilBeløp()))
+            opplysninger.leggTil(Faktum<Beløp>(grunnlag12mnd, data.cell(0, 1)!!.tilBeløp()))
+            opplysninger.leggTil(Faktum<Beløp>(grunnlag36mnd, data.cell(1, 1)!!.tilBeløp()))
             regelkjøring.evaluer()
         }
 

@@ -50,8 +50,8 @@ class MinsteinntektSteg : No {
             opplysninger.leggTil(Faktum(Verneplikt.avtjentVerneplikt, verneplikt)).also { regelkjøring.evaluer() }
         }
         Gitt("at inntekt er") { data: DataTable ->
-            opplysninger.leggTil(Faktum(Minsteinntekt.inntekt12, data.cell(0, 1).tilBeløp()))
-            opplysninger.leggTil(Faktum(opplysningstype = Minsteinntekt.inntekt36, verdi = data.cell(1, 1).tilBeløp()))
+            opplysninger.leggTil(Faktum(Minsteinntekt.inntekt12, data.cell(0, 1)!!.tilBeløp()))
+            opplysninger.leggTil(Faktum(opplysningstype = Minsteinntekt.inntekt36, verdi = data.cell(1, 1)!!.tilBeløp()))
             regelkjøring.evaluer()
         }
 
