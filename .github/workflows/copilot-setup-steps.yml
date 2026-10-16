@@ -7,14 +7,14 @@ name: Copilot Setup Steps
 on: workflow_dispatch
 
 jobs:
-  setup:
+  copilot-setup-steps:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v7.0.1
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
