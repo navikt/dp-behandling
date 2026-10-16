@@ -12,6 +12,7 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.prosess.RettighetsperiodePlugin
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
@@ -19,7 +20,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 
 class EtableringSteg : No {
     private val fraDato = 1.januar(2025)
-    private val regelsett = listOf(Etablering.regelsett)
+    private val regelsett = RegelverkDagpenger.regelsettFor(Etablering.etableringGodkjent)
     private val opplysninger =
         Opplysninger.basertPå(
             Opplysninger.med(Faktum(harLøpendeRett, true, Gyldighetsperiode(fraDato))),
@@ -27,7 +28,7 @@ class EtableringSteg : No {
     private val etableringRegelverk =
         Regelverk(
             navn = RegelverkType("Etablering"),
-            regelsett = arrayOf(Etablering.regelsett),
+            regelsett = regelsett.toTypedArray(),
         )
     private lateinit var regelkjøring: Regelkjøring
 

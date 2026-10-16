@@ -1,15 +1,21 @@
-# Etablering
+# § 4-6 Etablering - tredje avsnitt
 
 ## Regeltre
 
 ```mermaid
 graph RL
-  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| B["Ny virksomhet"]
-  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| C["Antas å føre til selvforsørgelse"]
-  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| D["Godkjent næringsfaglig vurdering"]
-  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| E["Ikke selvforskyldt arbeidsledig"]
-  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| F["Over 50 prosent eierandel i virksomheten"]
-  A["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| G["Siste dato for dagpenger under etablering"]
+  A["Ny virksomhet"] -->|"Utgangspunkt"| B["Skal etablering vurderes"]
+  C["Antas å føre til selvforsørgelse"] -->|"Utgangspunkt"| B["Skal etablering vurderes"]
+  D["Godkjent næringsfaglig vurdering"] -->|"Utgangspunkt"| B["Skal etablering vurderes"]
+  E["Ikke selvforskyldt arbeidsledig"] -->|"Utgangspunkt"| B["Skal etablering vurderes"]
+  F["Over 50 prosent eierandel i virksomheten"] -->|"Utgangspunkt"| B["Skal etablering vurderes"]
+  G["Siste dato for dagpenger under etablering"] -->|"Utgangspunkt"| B["Skal etablering vurderes"]
+  H["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| A["Ny virksomhet"]
+  H["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| C["Antas å føre til selvforsørgelse"]
+  H["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| D["Godkjent næringsfaglig vurdering"]
+  H["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| E["Ikke selvforskyldt arbeidsledig"]
+  H["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| F["Over 50 prosent eierandel i virksomheten"]
+  H["Oppfyller vilkårene til etablering av egen virksomhet"] -->|"AlleMedGyldighetsperiodeFra"| G["Siste dato for dagpenger under etablering"]
 ```
 
 ## Akseptansetester
@@ -17,7 +23,7 @@ graph RL
 ```gherkin
 #language: no
 @dokumentasjon @regel-etablering
-Egenskap: Etablering
+Egenskap: § 4-6 Etablering - tredje avsnitt
 
   Etablering påvirker bare sluttdatoen når vilkåret er relevant og godkjent.
   Da får siste periode med løpende rett samme til-og-med-dato som etableringsvilkåret.

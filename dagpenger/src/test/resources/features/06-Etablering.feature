@@ -1,6 +1,6 @@
 #language: no
 @dokumentasjon @regel-etablering
-Egenskap: Etablering
+Egenskap: § 4-6 Etablering - tredje avsnitt
 
   Etablering påvirker bare sluttdatoen når vilkåret er relevant og godkjent.
   Da får siste periode med løpende rett samme til-og-med-dato som etableringsvilkåret.

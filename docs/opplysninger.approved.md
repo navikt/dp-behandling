@@ -248,6 +248,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |019ffffa-05bf-7428-ba34-ef848dab0f39|Ønsker å være registrert som arbeidssøker|Boolsk|boolean|||Utgangspunkt
 ### § 4-6. Etablering
 *Type:* Vilkår
+#### Avhenger på data fra
+- [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
@@ -255,7 +257,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |01a0c30f-60d5-778a-a749-ff5f5f55f98d|Antas å føre til selvforsørgelse|Boolsk|boolean|||Utgangspunkt
 |01a0c30f-87de-7359-b642-e009a91bbda8|Godkjent næringsfaglig vurdering|Boolsk|boolean|||Utgangspunkt
 |01a0c30f-af05-736e-8d44-bd525b24bf4a|Ikke selvforskyldt arbeidsledig|Boolsk|boolean|||Utgangspunkt
-|01a0c310-b597-75be-acb6-e91c77024a33|Siste dato for dagpenger under etablering|Dato|LocalDate|||Resultat
+|01a0c310-b597-75be-acb6-e91c77024a33|Siste dato for dagpenger under etablering|Dato|LocalDate|||Utgangspunkt
 |01a0d282-3d10-772b-83fa-7ce6660e7d8b|Oppfyller vilkårene til etablering av egen virksomhet|Boolsk|boolean|||Resultat
 |01a0fb7e-5dd3-746d-a9eb-1c81f98cf545|Over 50 prosent eierandel i virksomheten|Boolsk|boolean|||Utgangspunkt
 ### § 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v

@@ -44,12 +44,12 @@ object Etablering {
         ) {
             skalVurderes { opplysninger -> opplysninger.erSann(skalEtableringVurderes) }
 
-            regel(nyVirksomhet) { somUtgangspunkt(false) }
-            regel(selvforsørget) { somUtgangspunkt(false) }
-            regel(godkjentNæringsfaglig) { somUtgangspunkt(false) }
-            regel(ikkeSelvforskyldtArbeidsledig) { somUtgangspunkt(false) }
-            regel(overFemtiProsentEierandel) { somUtgangspunkt(false) }
-            regel(sluttDato) { somUtgangspunkt(LocalDate.now().plusMonths(12)) }
+            regel(nyVirksomhet) { somUtgangspunkt(false, skalEtableringVurderes) }
+            regel(selvforsørget) { somUtgangspunkt(false, skalEtableringVurderes) }
+            regel(godkjentNæringsfaglig) { somUtgangspunkt(false, skalEtableringVurderes) }
+            regel(ikkeSelvforskyldtArbeidsledig) { somUtgangspunkt(false, skalEtableringVurderes) }
+            regel(overFemtiProsentEierandel) { somUtgangspunkt(false, skalEtableringVurderes) }
+            regel(sluttDato) { somUtgangspunkt(LocalDate.now().plusMonths(12).minusDays(1), skalEtableringVurderes) }
 
             utfall(etableringGodkjent) {
                 alleMedGyldighetsperiodeFra(
@@ -61,7 +61,6 @@ object Etablering {
                     periodeFra = sluttDato,
                 )
             }
-            ønsketResultat(sluttDato)
 
             påvirkerResultat { it.erSann(skalEtableringVurderes) && it.erSann(etableringGodkjent) }
         }
