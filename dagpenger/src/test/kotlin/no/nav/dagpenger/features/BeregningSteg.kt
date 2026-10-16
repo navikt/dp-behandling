@@ -55,8 +55,8 @@ class BeregningSteg : No {
         Gitt("at terskel er satt til {double}") { terskelVerdi: Double ->
             opplysninger.add(Faktum(terskel, terskelVerdi))
         }
-        Gitt("at mottaker har vedtak med") { dataTable: DataTable? ->
-            val vedtakstabell = dataTable!!.asMaps()
+        Gitt("at mottaker har vedtak med") { dataTable: DataTable ->
+            val vedtakstabell = dataTable.asMaps()
             opplysninger.addAll(lagVedtak(vedtakstabell))
         }
         Når("meldekort for periode som begynner fra og med {dato} mottas med") { fraOgMed: LocalDate, dataTable: DataTable? ->
@@ -141,7 +141,7 @@ class BeregningSteg : No {
         )
     }
 
-    private fun lagVedtak(vedtakstabell: List<MutableMap<String, String>>): List<Opplysning<*>> =
+    private fun lagVedtak(vedtakstabell: List<MutableMap<String?, String?>>): List<Opplysning<*>> =
         vedtakstabell.flatMap {
             val factory = opplysningFactory(it)
             factory(it, gyldighetsperiode(it["fraOgMed"].toLocalDate(), it["tilOgMed"].toLocalDate()))
@@ -165,7 +165,7 @@ class BeregningSteg : No {
 
     private fun lagMeldekort(
         fraOgMed: LocalDate,
-        dager: MutableList<MutableMap<String, String>>,
+        dager: MutableList<MutableMap<String?, String?>>,
     ): List<Opplysning<*>> {
         require(dager.size == 14) { "Må ha nøyaktig 14 dager" }
         require(fraOgMed.dayOfWeek.value == 1) { "Må starte på en mandag" }
@@ -248,7 +248,7 @@ class BeregningSteg : No {
         return meldekort.tilOpplysninger(Systemkilde(meldekort.meldingsreferanseId, innsendtTidspunkt))
     }
 
-    private val opplysningFactories: Map<String, (Map<String, String>, Gyldighetsperiode) -> List<Opplysning<*>>> =
+    private val opplysningFactories: Map<String, (Map<String?, String?>, Gyldighetsperiode) -> List<Opplysning<*>>> =
         mapOf(
             "Periode" to { args, gyldighetsperiode ->
                 listOf(
@@ -271,8 +271,8 @@ class BeregningSteg : No {
             },
         )
 
-    private fun opplysningFactory(it: Map<String, String>): (Map<String, String>, Gyldighetsperiode) -> List<Opplysning<*>> {
-        val opplysningstype = it["Opplysning"]!!
+    private fun opplysningFactory(it: Map<String?, String?>): (Map<String?, String?>, Gyldighetsperiode) -> List<Opplysning<*>> {
+        val opplysningstype = requireNotNull(it["Opplysning"]) { "Opplysningstype må være satt" }
         return opplysningFactories[opplysningstype]
             ?: throw IllegalArgumentException("Ukjent opplysningstype: $opplysningstype")
     }

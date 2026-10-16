@@ -84,7 +84,7 @@ class DagpengergrunnlagSteg : No {
         }
     }
 
-    private fun lagInntekt(inntekt: MutableList<MutableMap<String, String>>): InntektV1 {
+    private fun lagInntekt(inntekt: MutableList<MutableMap<String?, String?>>): InntektV1 {
         val inntekter = inntekt.map { Månedsinntekt(it) }
         val perMåned = inntekter.groupBy { it.periode }
         return InntektV1(
@@ -111,7 +111,7 @@ class DagpengergrunnlagSteg : No {
         val beløp: BigDecimal,
         val inntektsklasse: InntektKlasse,
     ) {
-        constructor(verdier: Map<String, String>) : this(
+        constructor(verdier: Map<String?, String?>) : this(
             verdier["Periode"]!!.let { YearMonth.parse(it) },
             verdier["Beløp"]!!.toBigDecimal(),
             verdier["Inntektsklasse"]!!.let { InntektKlasse.valueOf(it) },

@@ -22,7 +22,7 @@ class CucumberSetup : No {
                 objectMapper.constructType(toValueType),
             )
         }
-        DefaultDataTableEntryTransformer { fromValue: Map<String?, String?>?, toValueType: Type? ->
+        DefaultDataTableEntryTransformer { fromValue: Map<String, String>, toValueType: Type? ->
             objectMapper.convertValue(
                 fromValue,
                 objectMapper.constructType(toValueType),
