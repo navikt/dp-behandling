@@ -46,6 +46,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.antallDagerFristForRegistrering
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.registrertIVertsland
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport.skalHaEksport
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.etableringGodkjent
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.godkjentNæringsfaglig
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.ikkeSelvforskyldtArbeidsledig
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.nyVirksomhet
@@ -413,6 +414,7 @@ internal val redigerbareOpplysninger =
                             registrertIVertsland,
                             antallDagerFristForRegistrering,
                             // Etablering
+                            etableringGodkjent,
                             skalEtableringVurderes,
                             nyVirksomhet,
                             selvforsørget,
