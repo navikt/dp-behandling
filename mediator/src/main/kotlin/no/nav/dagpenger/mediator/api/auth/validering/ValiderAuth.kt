@@ -4,20 +4,16 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.auth.jwt.JWTAuthenticationProvider
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.auth.jwt.JWTPrincipal
-import no.nav.dagpenger.mediator.api.auth.saksbehandlerApp
 
 private val logger = KotlinLogging.logger { }
 
-internal fun JWTAuthenticationProvider.Config.autoriser(
-    saksbehandlerGruppe: String,
-    apperMedTilgang: List<String>,
-) {
+internal fun JWTAuthenticationProvider.Config.autoriser(saksbehandlerGruppe: String) {
     validate { jwtClaims: JWTCredential ->
         val type = jwtClaims.payload.claims["idtyp"]?.asString()
         logger.trace { "Tilgangsjekker idtyp: $type" }
         when (type) {
             "app" -> {
-                jwtClaims.tilgangsjekkForMaskinToken(apperMedTilgang)
+                jwtClaims.tilgangsjekkForMaskinToken()
             }
 
             else -> {
@@ -28,14 +24,23 @@ internal fun JWTAuthenticationProvider.Config.autoriser(
     }
 }
 
-private fun JWTCredential.tilgangsjekkForMaskinToken(apper: List<String>) =
+/**
+ * Entra ID utsteder kun maskintoken for vår audience til apper som er
+ * eksplisitt godkjent i accessPolicy.inbound.rules i nais.yaml - slike apper
+ * får alltid standardrollen access_as_application i roles-claimet. Dette gjør
+ * accessPolicy den eneste kilden til sannhet for hvilke apper som har tilgang,
+ * fremfor en egen, manuelt vedlikeholdt liste med app-navn (som i tillegg
+ * risikerte å komme i utakt med accessPolicy).
+ *
+ * NB: azp_name er ikke egnet til autorisering (Nais sin dokumentasjon sier
+ * eksplisitt at det ikke er garantert unikt og ikke skal brukes til dette).
+ */
+private fun JWTCredential.tilgangsjekkForMaskinToken() =
     require(
-        this.saksbehandlerApp().let { apper.contains(it) },
-    ) {
-        "Applikasjon mangler tilgang: ${this.saksbehandlerApp()}".also {
-            logger.warn { it }
-        }
-    }
+        this.payload.claims["roles"]
+            ?.asList(String::class.java)
+            ?.contains("access_as_application") ?: false,
+    ) { "Maskintoken mangler forventet rolle access_as_application".also { logger.warn { it } } }
 
 private fun JWTCredential.tilgangsjekkForSaksbehandler(ADGruppe: String) =
     require(
