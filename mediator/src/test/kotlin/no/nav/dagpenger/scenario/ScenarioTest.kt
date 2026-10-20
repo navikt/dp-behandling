@@ -11,12 +11,14 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.mediator.november
+import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
@@ -31,7 +33,6 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernep
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.fødselsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
-import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
 import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.godkjentPermitteringsårsak
@@ -53,7 +54,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.nyArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.deltakelseIArbeidsmarkedstiltak
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
+import no.nav.dagpenger.scenario.MeldekortAktivitet.Arbeid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled

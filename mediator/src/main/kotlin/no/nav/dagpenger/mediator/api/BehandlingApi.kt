@@ -369,6 +369,7 @@ internal fun Application.behandlingApi(
                     put("vurderinger/{opplysningId}") {
                         val begrunnelse = call.receive<SaksbehandlerbegrunnelseDTO>()
 
+                        // TODO: Bør sperres til å kun gjøres på behandlinger som er til redigering
                         personRepository.lagreBegrunnelse(call.opplysningId, begrunnelse.begrunnelse)
 
                         call.respond(HttpStatusCode.Accepted)
