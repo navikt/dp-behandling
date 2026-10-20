@@ -371,7 +371,7 @@ internal fun Application.behandlingApi(
 
                         personRepository.lagreBegrunnelse(call.opplysningId, begrunnelse.begrunnelse)
 
-                        call.respond(HttpStatusCode.Accepted)
+                        call.respond(HttpStatusCode.NoContent)
                     }
 
                     post("godkjenn") {
