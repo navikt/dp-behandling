@@ -381,6 +381,8 @@ class KjedescenarioTest {
             // Melding om "nei" kommer først
             var opprinneligUUIDs: List<UUID>? = null
             person.avsluttArbeidssøkerperiode(24.juni(2018))
+            behovsløsere.løsTilForslag()
+
             behandlingsresultatForslag(3) {
                 opprinneligUUIDs = opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.id }
             }
@@ -393,6 +395,8 @@ class KjedescenarioTest {
             rapidInspektør.sisteMelding("flytt_behandling").second.run {
                 saksbehandler.flyttBehandlingTilNyKjede(this["behandlingId"].asUUID(), this["nyBasertPåId"].asUUID())
             }
+
+            behovsløsere.løsTilForslag()
 
             // Stans på grunn av "nei" har blitt flyttet
             behandlingsresultatForslag(4) {

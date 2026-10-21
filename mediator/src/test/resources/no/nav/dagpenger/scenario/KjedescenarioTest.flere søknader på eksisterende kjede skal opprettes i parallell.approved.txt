@@ -45,6 +45,8 @@ Behandling endret tilstand til: TilBeslutning
 Behandling endret tilstand til: Ferdig
 melding: søknadsbehandling_ferdig
 Laget avklaring om GjenopptakBehandling
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
@@ -52,21 +54,27 @@ Behov:
 - AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
+- ErUtestengt
+- Foreldrepenger
 - HelseTilAlleTyperJobb
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - Lønnsgaranti
+- Omsorgspenger
+- Opplæringspenger
 - Ordinær
 - Permittert
 - PermittertFiskeforedling
+- Pleiepenger
 - RegistrertSomArbeidssøker
+- Svangerskapspenger
+- Sykepenger
 - TarUtdanningEllerOpplæring
+- Uføre
 - Verneplikt
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
 Behov:
 - ErUtestengt
 - Foreldrepenger
@@ -79,6 +87,8 @@ Behov:
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Laget avklaring om GjenopptakBehandling
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
@@ -86,21 +96,27 @@ Behov:
 - AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
+- ErUtestengt
+- Foreldrepenger
 - HelseTilAlleTyperJobb
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - Lønnsgaranti
+- Omsorgspenger
+- Opplæringspenger
 - Ordinær
 - Permittert
 - PermittertFiskeforedling
+- Pleiepenger
 - RegistrertSomArbeidssøker
+- Svangerskapspenger
+- Sykepenger
 - TarUtdanningEllerOpplæring
+- Uføre
 - Verneplikt
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
 Behov:
 - ErUtestengt
 - Foreldrepenger
@@ -113,6 +129,8 @@ Behov:
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Laget avklaring om GjenopptakBehandling
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
@@ -120,21 +138,27 @@ Behov:
 - AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
+- ErUtestengt
+- Foreldrepenger
 - HelseTilAlleTyperJobb
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - Lønnsgaranti
+- Omsorgspenger
+- Opplæringspenger
 - Ordinær
 - Permittert
 - PermittertFiskeforedling
+- Pleiepenger
 - RegistrertSomArbeidssøker
+- Svangerskapspenger
+- Sykepenger
 - TarUtdanningEllerOpplæring
+- Uføre
 - Verneplikt
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
 Behov:
 - ErUtestengt
 - Foreldrepenger

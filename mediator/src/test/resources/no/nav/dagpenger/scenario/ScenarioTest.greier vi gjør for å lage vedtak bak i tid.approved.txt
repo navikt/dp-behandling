@@ -89,6 +89,15 @@ Behov:
 Laget avklaring om IkkeRegistrertSomArbeidsøker
 Behov:
 - Inntekt
+Behov:
+- ErUtestengt
+- Foreldrepenger
+- Omsorgspenger
+- Opplæringspenger
+- Pleiepenger
+- Svangerskapspenger
+- Sykepenger
+- Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak

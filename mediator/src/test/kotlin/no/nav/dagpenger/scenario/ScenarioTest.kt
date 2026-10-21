@@ -807,6 +807,7 @@ class ScenarioTest {
             }
 
             person.avsluttArbeidssøkerperiode(22.juni(2018), 22.juni(2018).atTime(14, 2))
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
@@ -892,15 +893,15 @@ class ScenarioTest {
                 rettighetsperioder.last().harRett shouldBe true
                 rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
                 with(opplysninger(kravTilTaptArbeidstid)) {
-                    this shouldHaveSize 1
+                    this shouldHaveSize 2
                 }
                 with(opplysninger(kravTilArbeidstidsreduksjon)) {
-                    size shouldBe 1
+                    size shouldBe 2
                 }
                 with(opplysninger(fastsattVanligArbeidstid)) {
-                    this shouldHaveSize 1
-                    this.first().gyldigFraOgMed shouldBe 22.juni(2026)
-                    this.first().verdi.verdi shouldBe 37.5
+                    this shouldHaveSize 2
+                    this.last().gyldigFraOgMed shouldBe 22.juni(2026)
+                    this.last().verdi.verdi shouldBe 37.5
                 }
             }
 
@@ -930,13 +931,13 @@ class ScenarioTest {
                 rettighetsperioder.last().harRett shouldBe true
                 rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
                 with(opplysninger(fastsattVanligArbeidstid)) {
-                    this shouldHaveSize 1
-                    this.first().gyldigFraOgMed shouldBe 22.juni(2026)
-                    this.first().verdi.verdi shouldBe 23.5
+                    this shouldHaveSize 2
+                    this.last().gyldigFraOgMed shouldBe 22.juni(2026)
+                    this.last().verdi.verdi shouldBe 23.5
                 }
 
                 with(opplysninger(kravTilArbeidstidsreduksjon)) {
-                    size shouldBe 1
+                    size shouldBe 2
                 }
             }
         }

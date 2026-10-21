@@ -881,10 +881,11 @@ class BeregningTest {
                 fastsattMeldingsdag = 4.juli(2018),
                 avsluttetTidspunkt = 4.juli(2018).atTime(11, 21),
             )
+            behovsløsere.løsTilForslag()
 
             // Stans på stans skal fortsatt være stans
             behandlingsresultat {
-                førteTil shouldBe Endring.toString()
+                førteTil shouldBe Stans.toString()
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
 
@@ -1428,6 +1429,7 @@ class BeregningTest {
                 avsluttetTidspunkt = fastsattMeldedato.plusDays(5).atTime(12, 21),
                 manueltAvregistrert = true,
             )
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
@@ -1439,11 +1441,11 @@ class BeregningTest {
                 with(rettighetsperioder[0]) {
                     harRett shouldBe true
                     fraOgMed shouldBe 21.juni(2018)
-                    tilOgMed shouldBe 6.juli(2018)
+                    tilOgMed shouldBe 7.juli(2018)
                 }
                 with(rettighetsperioder[1]) {
                     harRett shouldBe false
-                    fraOgMed shouldBe 7.juli(2018)
+                    fraOgMed shouldBe 8.juli(2018)
                     tilOgMed shouldBe null
                 }
             }

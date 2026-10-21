@@ -456,7 +456,7 @@ class GjenopptakTest {
 
             behandlingsresultatForslag {
                 with(opplysninger(Søknadstidspunkt.prøvingsdato)) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
                 }
                 with(opplysninger(oppholdINorge)) {
                     this shouldHaveSize 2
