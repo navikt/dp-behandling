@@ -482,6 +482,7 @@ class EksportTest {
                 fristBrutt = true,
             )
 
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 

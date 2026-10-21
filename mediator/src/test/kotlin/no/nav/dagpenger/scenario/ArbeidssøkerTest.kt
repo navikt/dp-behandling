@@ -126,6 +126,7 @@ class ArbeidssøkerTest {
             )
 
             // Lukker avklaringen som tvinger alle stans til manuell behandling
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
@@ -142,7 +143,7 @@ class ArbeidssøkerTest {
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
                     this shouldHaveSize 2
                     this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 1.august(2018)
+                    this[1].gyldigFraOgMed shouldBe 2.august(2018)
                 }
 
                 rettighetsperioder shouldHaveSize 2
@@ -198,7 +199,7 @@ class ArbeidssøkerTest {
 
             // Melder seg for periode 3 i tide, men nei som videre registrert
             // Meldedato er 16. juli
-            // Avregistreres fra 1. august
+            // Siste registrerte dag er 1. august, ikke registrert fra 2. august
             // Stans skal gjelde fra 16. juli
             person.avsluttArbeidssøkerperiode(
                 fastsattMeldingsdag = fastsattMeldedato,
@@ -206,6 +207,7 @@ class ArbeidssøkerTest {
             )
 
             // Lukker avklaringen som tvinger alle stans til manuell behandling
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
@@ -223,7 +225,7 @@ class ArbeidssøkerTest {
                     this[1].verdi.verdi shouldBe false
                     this[1].gyldigFraOgMed shouldBe 16.juli(2018)
                     this[2].verdi.verdi shouldBe false
-                    this[2].gyldigFraOgMed shouldBe 1.august(2018)
+                    this[2].gyldigFraOgMed shouldBe 2.august(2018)
                 }
 
                 rettighetsperioder shouldHaveSize 2
@@ -269,6 +271,7 @@ class ArbeidssøkerTest {
                 fastsattMeldingsdag = fastsattMeldedato,
                 avsluttetTidspunkt = fastsattMeldedato.plusDays(3).atTime(12, 21),
             )
+            behovsløsere.løsTilForslag()
 
             var stansId: UUID? = null
             behandlingsresultatForslag(3) {
@@ -287,6 +290,7 @@ class ArbeidssøkerTest {
             // Simulerer at vi tar imot flytt_behandling og flytter søsken (dette løses automatisk av behovsløsere)
             val flytt = rapidInspektør.sisteMelding("flytt_behandling").second
             saksbehandler.flyttBehandlingTilNyKjede(flytt["behandlingId"].asUUID(), flytt["nyBasertPåId"].asUUID())
+            behovsløsere.løsTilForslag() shouldHaveSize 1 // Henter inn RegistrertSomArbeidssøker på nytt
 
             // Sjekk at behandlingene som godkjennes får en avklaring som viser at det har skjedd
             saksbehandler.lukkAlleAvklaringer(stansId) shouldContain behandlingFlyttetAvklaring
@@ -437,7 +441,7 @@ class ArbeidssøkerTest {
             behovsløsere.løsTilForslag()
             saksbehandler.endreOpplysning(kravPåLønn, false, "", Gyldighetsperiode(1.august(2026)))
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(prøvingsdato, 3.august(2026), "", Gyldighetsperiode(1.august(2026)))
+            saksbehandler.endreOpplysning(prøvingsdato, 3.august(2026), "", Gyldighetsperiode(3.august(2026)))
             behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
@@ -458,6 +462,7 @@ class ArbeidssøkerTest {
                 avsluttetTidspunkt = 25.august(2026).atTime(2, 1),
                 fristBrutt = true,
             )
+            behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag(6) {
                 rettighetsperioder shouldHaveSize 1

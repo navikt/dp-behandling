@@ -116,6 +116,7 @@ internal class Mennesket(
     ): UUID {
         this.søknadsdato = dato
         this.ønskerFraDato = ønskerFraDato
+        arbeidsøkerRegisterPerioder.add(Periode(dato, LocalDate.MAX))
         val nySøknadId = søknader.ny()
         rapid.sendTestMessage(
             Meldingskatalog.søknadInnsendt(
