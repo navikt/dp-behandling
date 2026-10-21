@@ -82,9 +82,7 @@ abstract class Regel<T : Any> internal constructor(
         val gjeldende = opplysninger.finnFlere(avhengerAv)
         if (gjeldende.toSet() == utledning.opplysninger.toSet()) return
 
-        if (gjeldende.size == avhengerAv.size) {
-            lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
-        }
+        lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
     }
 
     protected open fun lagPlanNårAvhengerErErstattet(
@@ -93,7 +91,7 @@ abstract class Regel<T : Any> internal constructor(
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
-        plan.add(this)
+        if (opplysninger.finnFlere(avhengerAv).size == avhengerAv.size) plan.add(this)
     }
 
     abstract override fun toString(): String
