@@ -37,6 +37,8 @@ class Opplysningstype<T : Any>(
     val utgåtteBehovId: Set<String> = emptySet(),
     /** Om opplysninger av denne typen skal arves til neste behandling i kjeden. Default true. */
     val opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+    /** Kun den nyeste opplysningen av denne typen er synlig, uavhengig av gyldighetsperiode. */
+    val kunSisteGjelder: Boolean = false,
 ) : Klassifiserbart {
     val datatype = id.datatype
 
@@ -109,8 +111,19 @@ class Opplysningstype<T : Any>(
             gyldighetsperiode: GyldighetsperiodeStrategi<LocalDate> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
+            kunSisteGjelder: Boolean = false,
         ): Opplysningstype<LocalDate> =
-            som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                gyldighetsperiode,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                kunSisteGjelder = kunSisteGjelder,
+            )
 
         fun ulid(
             id: Id<Ulid>,
@@ -186,6 +199,7 @@ class Opplysningstype<T : Any>(
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
             opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+            kunSisteGjelder: Boolean = false,
         ): Opplysningstype<T> =
             Opplysningstype(
                 id,
@@ -197,6 +211,7 @@ class Opplysningstype<T : Any>(
                 enhet,
                 utgåtteBehovId,
                 opplysningstypeKategori,
+                kunSisteGjelder,
             )
     }
 
