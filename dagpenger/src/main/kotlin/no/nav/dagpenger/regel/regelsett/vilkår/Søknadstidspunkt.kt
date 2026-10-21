@@ -39,7 +39,14 @@ object Søknadstidspunkt {
             behovId = InnhentFraOgMed,
         )
 
-    val prøvingsdato = Opplysningstype.dato(prøvingsdatoId, "Prøvingsdato", behovId = Prøvingsdato, gyldighetsperiode = egenVerdi)
+    val prøvingsdato =
+        Opplysningstype.dato(
+            prøvingsdatoId,
+            "Prøvingsdato",
+            behovId = Prøvingsdato,
+            gyldighetsperiode = egenVerdi,
+            kunSisteGjelder = true,
+        )
     val søknadIdOpplysningstype = Opplysningstype.tekst(søknadId, "søknadId")
 
     val regelsett =
