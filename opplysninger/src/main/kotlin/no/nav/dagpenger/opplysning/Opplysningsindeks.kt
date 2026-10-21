@@ -1,8 +1,5 @@
 package no.nav.dagpenger.opplysning
 
-import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.dagpenger.opplysning.Opplysninger.Companion.forkortetTil
-
 /**
  * Holder de gjeldende (overlapp-oppløste) opplysningene per opplysningstype for én
  * [Opplysninger]-instans, og husker hvilke typer som er påvirket av siste mutasjon - slik at
@@ -107,8 +104,6 @@ internal class Opplysningsindeks(
     }
 
     companion object {
-        private val logger = KotlinLogging.logger {}
-
         /**
          * Løser opp overlapp/erstatning/forkorting innad i ÉN opplysningstype. Input må være
          * opplysninger av samme type (typisk en per-type-gruppe). Resultatet er sortert på
@@ -116,46 +111,21 @@ internal class Opplysningsindeks(
          * re-sortere på `id` etterpå.
          */
         private fun løsOppOverlappInnadIType(gruppe: List<Opplysning<*>>): List<Opplysning<*>> {
-            val sortert = gruppe.sortedBy { it.gyldighetsperiode.fraOgMed }
+            val dekket = mutableListOf<Gyldighetsperiode>()
             val resultat = mutableListOf<Opplysning<*>>()
 
-            sortert.forEach { utfordrer ->
-                val forrige = resultat.lastOrNull()
-
-                when {
-                    forrige == null -> {
-                        resultat.add(utfordrer)
-                    }
-
-                    forrige.gyldighetsperiode.erFør(utfordrer.gyldighetsperiode) ||
-                        forrige.gyldighetsperiode.tilstøter(utfordrer.gyldighetsperiode) -> {
-                        resultat.add(utfordrer)
-                    }
-
-                    // det er overlapp, men forrige er nyest
-                    forrige.id > utfordrer.id -> {}
-
-                    // utfordrer er nyest, og overskriver hele forrige
-                    forrige.gyldighetsperiode.fraOgMed == utfordrer.gyldighetsperiode.fraOgMed -> {
-                        resultat[resultat.lastIndex] = utfordrer
-                    }
-
-                    else -> {
-                        val forkortet = forrige.forkortetTil(utfordrer)
-                        logger.debug {
-                            """
-                                |Kant-i-kant overlapper opplysning ${forrige.id} og ${utfordrer.id} for type ${forrige.opplysningstype.navn}. Lager forkortet opplysning.
-                                |Venstre: ${forrige.gyldighetsperiode}
-                                |Høyre: ${utfordrer.gyldighetsperiode}
-                                |Forkortet: ${forkortet.gyldighetsperiode}
-                            """.trimMargin()
-                        }
-                        resultat[resultat.lastIndex] = forkortet
-                        resultat.add(utfordrer)
-                    }
+            // Nyeste først: en opplysning gjelder kun for de dagene ingen nyere opplysning dekker.
+            // Segmentene beholder id-en til opprinnelig opplysning, slik at utledetAv fortsatt peker riktig.
+            gruppe.sortedByDescending { it.id }.forEach { opplysning ->
+                val overlappende = dekket.filter { it.overlapper(opplysning.gyldighetsperiode) }
+                // Kun venstre rest beholdes: en nyere opplysning avslutter den eldre, den "gjenopptas" ikke etter
+                val synlige = opplysning.gyldighetsperiode.minus(overlappende).filter { rest -> overlappende.none { it.erFør(rest) } }
+                synlige.forEach { periode ->
+                    resultat.add(if (periode == opplysning.gyldighetsperiode) opplysning else opplysning.medGyldighetsperiode(periode))
                 }
+                dekket.add(opplysning.gyldighetsperiode)
             }
-            return resultat
+            return resultat.sortedBy { it.gyldighetsperiode.fraOgMed }
         }
     }
 }

@@ -25,7 +25,6 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.random.Random
-import kotlin.to
 import no.nav.dagpenger.ferietillegg.Behov as FerietilleggBehov
 
 internal fun Collection<Periode>.somArbeidssøkerbehov(fraOgMed: LocalDate): List<Map<String, Any>> {
@@ -58,10 +57,13 @@ private fun Periode.minus(annen: Periode): List<Periode> =
                 Periode(fraOgMed, annen.fraOgMed.minusDays(1)),
                 Periode(annen.tilOgMed.plusDays(1), tilOgMed),
             )
+
         annen.fraOgMed > fraOgMed && annen.tilOgMed >= tilOgMed ->
             listOf(Periode(fraOgMed, annen.fraOgMed.minusDays(1)))
+
         annen.fraOgMed <= fraOgMed && annen.tilOgMed < tilOgMed ->
             listOf(Periode(annen.tilOgMed.plusDays(1), tilOgMed))
+
         else -> emptyList()
     }
 
@@ -287,7 +289,6 @@ internal class Mennesket(
                 arbeidsøkerRegisterPerioder.remove(periode)
                 arbeidsøkerRegisterPerioder.add(Periode(periode.fraOgMed, avsluttetDato))
             }
-
         val message =
             Meldingskatalog.avsluttArbeidssøkerperiode(
                 ident = ident,

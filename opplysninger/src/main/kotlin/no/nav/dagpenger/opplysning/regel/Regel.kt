@@ -68,41 +68,6 @@ abstract class Regel<T : Any> internal constructor(
         }
     }
 
-    private fun lagPlanNårUtledereErUtdaterte(
-        utdaterteOpplysninger: List<Opplysning<*>>,
-        opplysninger: LesbarOpplysninger,
-        plan: Regelplanlegger,
-        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        // Minst en av opplysningene som regelen er avhengig av er utdatert, regelen skal kjøres på nytt
-        utdaterteOpplysninger.forEach { utdatert ->
-            val produsent =
-                produsenter[utdatert.opplysningstype] ?: return
-
-            produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
-        }
-    }
-
-    private fun lagPlanNårRegelenHarFåttNyeAvhengigheter(
-        opplysninger: LesbarOpplysninger,
-        plan: Regelplanlegger,
-        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        val mangler = avhengerAv.filter { opplysninger.mangler(it) }
-
-        // Om alle avhengigheter er tilstede, skal denne regelen kjøres på nytt
-        if (mangler.isEmpty()) return plan.add(this)
-
-        // Manger vi noen avhengigheter, så kan vi ikke kjøre denne regelen på nytt enda
-        mangler.forEach { avhengighet ->
-            // Om en avhengighet mangler, må de regelene kjøres på nytt
-            val avhengigRegel = produsenter[avhengighet]
-            avhengigRegel?.lagPlan(opplysninger, plan, produsenter, besøkt)
-        }
-    }
-
     private fun lagPlanFraUtledning(
         utledning: Utledning,
         opplysninger: LesbarOpplysninger,
@@ -110,35 +75,17 @@ abstract class Regel<T : Any> internal constructor(
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
-        val (erErstattet, ikkeErstattet) = utledning.opplysninger.partition { opplysninger.erErstattet(listOf(it)) }
-        val utdaterteOpplysninger = ikkeErstattet.filter { it.erUtdatert }
+        // Oppstrøms regler planlegges først, slik at utdaterte produkter oppdages transitivt
+        avhengerAv.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
 
-        when {
-            // Sjekk om produktet er basert på utdatert informasjon
-            utdaterteOpplysninger.isNotEmpty() -> {
-                lagPlanNårUtledereErUtdaterte(
-                    utdaterteOpplysninger,
-                    opplysninger,
-                    plan,
-                    produsenter,
-                    besøkt,
-                )
-            }
+        // Produktet er utdatert om det er utledet av noe annet enn det som gjelder nå
+        val gjeldende = opplysninger.finnFlere(avhengerAv)
+        if (gjeldende.toSet() == utledning.opplysninger.toSet()) return
 
-            // Sjekk om produktet er basert på erstattet informasjon
-            erErstattet.isNotEmpty() -> {
-                lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
-            }
-
-            // Sjekk om regelen har fått nye avhengigheter
-            harRegelNyeAvhengigheter(utledning) -> {
-                lagPlanNårRegelenHarFåttNyeAvhengigheter(opplysninger, plan, produsenter, besøkt)
-            }
+        if (gjeldende.size == avhengerAv.size) {
+            lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
         }
     }
-
-    private fun harRegelNyeAvhengigheter(utledetAv: Utledning) =
-        avhengerAv.toSet() != utledetAv.opplysninger.map { it.opplysningstype }.toSet()
 
     protected open fun lagPlanNårAvhengerErErstattet(
         opplysninger: LesbarOpplysninger,

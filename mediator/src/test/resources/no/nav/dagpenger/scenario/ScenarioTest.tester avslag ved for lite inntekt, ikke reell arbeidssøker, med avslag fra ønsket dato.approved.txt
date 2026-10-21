@@ -26,8 +26,6 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behov:
-- Inntekt
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Ferdig

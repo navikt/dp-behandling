@@ -22,7 +22,6 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Kilde
-import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningsformål
@@ -107,8 +106,7 @@ internal class OpplysningerRepositoryPostgres(
 
         val opplysningerSomSkalLagres =
             opplysninger.map {
-                val somListe = it.somListe(LesbarOpplysninger.Filter.Egne)
-                it.id to somListe.filter { opplysning -> opplysning.skalLagres }
+                it.id to it.rå().filter { opplysning -> opplysning.skalLagres }
             }
 
         val fjernet = opplysninger.flatMap { it.fjernet() }.toSet()

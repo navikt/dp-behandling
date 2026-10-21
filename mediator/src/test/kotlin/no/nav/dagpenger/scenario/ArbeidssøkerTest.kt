@@ -60,6 +60,7 @@ class ArbeidssøkerTest {
                 avsluttetTidspunkt = fastsattMeldedato.plusDays(3).atTime(12, 21),
                 manueltAvregistrert = true,
             )
+            behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag(3) {
                 førteTil shouldBe Avgjørelse.Stans.toString()
@@ -70,18 +71,18 @@ class ArbeidssøkerTest {
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
                     this shouldHaveSize 2
                     this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 19.juli(2018)
+                    this[1].gyldigFraOgMed shouldBe 20.juli(2018)
                 }
                 // Stansen skal være fra og med torsdag
                 rettighetsperioder.shouldContainExactly(
                     RettighetsperiodeDTO(
                         fraOgMed = 21.juni(2018),
-                        tilOgMed = 18.juli(2018),
+                        tilOgMed = 19.juli(2018),
                         harRett = true,
                         opprinnelse = OpprinnelseDTO.ARVET,
                     ),
                     RettighetsperiodeDTO(
-                        fraOgMed = 19.juli(2018),
+                        fraOgMed = 20.juli(2018),
                         tilOgMed = null,
                         harRett = false,
                         opprinnelse = OpprinnelseDTO.NY,

@@ -62,28 +62,14 @@ class Opplysninger private constructor(
     private fun <T : Any> settInnOpplysning(opplysning: Opplysning<T>) {
         opplysning.behandlet = false
         opplysning.behandletVed = null
-        val eksisterende = finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)
 
-        if (eksisterende != null) {
-            if (egne.contains(eksisterende)) {
-                // Erstatt hele opplysningen.
-                fjern(eksisterende)
-
-                eksisterende.erstatter?.let {
-                    // Om den eksisterende opplysningen erstatter noe, så må den nye også erstatte den samme
-                    opplysning.erstatter(it)
-
-                    // Marker alle opplysninger som er utledet av den erstattede som utdaterte
-                    markerUtledningerSomUtdatert(it)
-                }
-            }
-
-            if (basertPåOpplysninger.contains(eksisterende)) {
-                opplysning.erstatter(eksisterende)
-                markerUtledningerSomUtdatert(eksisterende)
+        // Sporbarhet: peker på det den overstyrer. Selve oppslaget gjøres av indeksen, ikke av denne lenken.
+        finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)?.let { eksisterende ->
+            when {
+                erArvet(eksisterende) -> opplysning.erstatter(eksisterende)
+                else -> eksisterende.erstatter?.let { opplysning.erstatter(it) }
             }
         }
-
         sjekkAtUtledetAvFinnes(opplysning)
 
         egne.add(opplysning)
@@ -97,20 +83,13 @@ class Opplysninger private constructor(
     // brudd på fremmednøkkelen mot opplysning-tabellen når vi lagrer til database.
     private fun sjekkAtUtledetAvFinnes(opplysning: Opplysning<*>) {
         opplysning.utledetAv?.opplysninger?.forEach { avhengighet ->
-            check(alleOpplysninger.contains(avhengighet)) {
+            check(egne.contains(avhengighet) || basertPåOpplysninger.contains(avhengighet)) {
                 "Opplysning ${opplysning.id} (${opplysning.opplysningstype.navn}) er utledetAv " +
                     "${avhengighet.id} (${avhengighet.opplysningstype.navn}), men denne finnes ikke " +
                     "(lenger) i opplysningene. Avhengigheten kan ha blitt fjernet fordi den selv ble " +
                     "erstattet før denne opplysningen ble lagt til."
             }
         }
-    }
-
-    private fun markerUtledningerSomUtdatert(eksisterende: Opplysning<*>) {
-        val graf = OpplysningGraf(alleOpplysninger)
-        val avhengigheter = graf.hentAlleUtledetAv(eksisterende)
-
-        avhengigheter.forEach { it.erUtdatert = true }
     }
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean {
@@ -180,6 +159,9 @@ class Opplysninger private constructor(
         }
 
     fun baserPå(tidligereOpplysninger: Opplysninger?) = Opplysninger(id, egne, tidligereOpplysninger)
+
+    // Rådata slik de er lagt til, uten utflating. Det er dette som skal persisteres.
+    fun rå(): List<Opplysning<*>> = egne.toList()
 
     fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
 
