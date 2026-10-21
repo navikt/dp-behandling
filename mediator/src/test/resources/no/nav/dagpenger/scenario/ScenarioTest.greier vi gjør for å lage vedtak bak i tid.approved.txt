@@ -42,65 +42,57 @@ Behov:
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:
-- ØnskerDagpengerFraDato
-Behov:
-- HelseTilAlleTyperJobb
-- Inntekt
-- KanJobbeDeltid
-- KanJobbeHvorSomHelst
-- Lønnsgaranti
-- Ordinær
-- Permittert
-- PermittertFiskeforedling
-- RegistrertSomArbeidssøker
-- Verneplikt
-- VilligTilÅBytteYrke
-- ØnsketArbeidstid
-Behov:
 - AndreØkonomiskeYtelser
+- BarnetilleggV2
 - BostedslandErNorge
 - ErUtestengt
 - Foreldrepenger
+- HelseTilAlleTyperJobb
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- Lønnsgaranti
 - Omsorgspenger
 - Opplæringspenger
+- Ordinær
+- Permittert
+- PermittertFiskeforedling
 - Pleiepenger
+- RegistrertSomArbeidssøker
 - Svangerskapspenger
 - Sykepenger
 - TarUtdanningEllerOpplæring
 - Uføre
+- Verneplikt
+- VilligTilÅBytteYrke
+- ØnskerDagpengerFraDato
+- ØnsketArbeidstid
 Behov:
-- BarnetilleggV2
+- ErUtestengt
+- Foreldrepenger
+- Omsorgspenger
+- Opplæringspenger
+- Pleiepenger
+- Svangerskapspenger
+- Sykepenger
+- Uføre
 Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
+Behov:
+- ErUtestengt
+- Foreldrepenger
+- Omsorgspenger
+- Opplæringspenger
+- Pleiepenger
+- Svangerskapspenger
+- Sykepenger
+- Uføre
 Laget avklaring om IkkeRegistrertSomArbeidsøker
-Behandling endret tilstand til: Redigert
 Behov:
 - Inntekt
-Behov:
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- Uføre
-Behov:
-- Inntekt
-Behov:
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behov:
-- Inntekt
 Behov:
 - ErUtestengt
 - Foreldrepenger

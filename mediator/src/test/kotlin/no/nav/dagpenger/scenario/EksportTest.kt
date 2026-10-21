@@ -548,6 +548,7 @@ class EksportTest {
                 avsluttetTidspunkt = fastsattMeldedato.plusDays(16).atTime(12, 21),
             )
 
+            behovsløsere.løsTilForslag() shouldHaveSize 1
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
@@ -561,7 +562,7 @@ class EksportTest {
                     this shouldHaveSize 2
                     this[0].verdi.verdi shouldBe true
                     this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 12.februar(2025)
+                    this[1].gyldigFraOgMed shouldBe 13.februar(2025)
                 }
                 with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
                     this shouldHaveSize 3
@@ -569,7 +570,7 @@ class EksportTest {
                     this[1].verdi.verdi shouldBe false
                     this[1].gyldigFraOgMed shouldBe 27.januar(2025)
                     this[2].verdi.verdi shouldBe false
-                    this[2].gyldigFraOgMed shouldBe 12.februar(2025)
+                    this[2].gyldigFraOgMed shouldBe 13.februar(2025)
                 }
                 rettighetsperioder shouldHaveSize 2
                 rettighetsperioder[0].harRett shouldBe true

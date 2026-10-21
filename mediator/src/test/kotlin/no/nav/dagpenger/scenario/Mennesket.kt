@@ -21,12 +21,50 @@ import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Period
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.random.Random
-import kotlin.to
 import no.nav.dagpenger.ferietillegg.Behov as FerietilleggBehov
+
+internal fun Collection<Periode>.somArbeidssøkerbehov(fraOgMed: LocalDate): List<Map<String, Any>> {
+    val registrertePerioder = sortedBy { it.fraOgMed }
+    val utgangspunkt = Periode(fraOgMed, LocalDate.MAX)
+    val hullperioder =
+        registrertePerioder.fold(listOf(utgangspunkt)) { hull, registrert ->
+            hull.flatMap { it.minus(registrert) }
+        }
+    val perioder =
+        (
+            hullperioder.map { false to it } +
+                registrertePerioder.filter { it.tilOgMed >= fraOgMed }.map { true to it }
+        ).sortedWith(compareBy({ it.second.fraOgMed }, { it.second.tilOgMed }))
+
+    return perioder.map { (registrert, periode) ->
+        mapOf(
+            "verdi" to registrert,
+            "gyldigFraOgMed" to periode.fraOgMed,
+            "gyldigTilOgMed" to periode.tilOgMed,
+        )
+    }
+}
+
+private fun Periode.minus(annen: Periode): List<Periode> =
+    when {
+        maxOf(annen.fraOgMed, fraOgMed) > minOf(annen.tilOgMed, tilOgMed) -> listOf(this)
+        annen.fraOgMed > fraOgMed && annen.tilOgMed < tilOgMed ->
+            listOf(
+                Periode(fraOgMed, annen.fraOgMed.minusDays(1)),
+                Periode(annen.tilOgMed.plusDays(1), tilOgMed),
+            )
+
+        annen.fraOgMed > fraOgMed && annen.tilOgMed >= tilOgMed ->
+            listOf(Periode(fraOgMed, annen.fraOgMed.minusDays(1)))
+
+        annen.fraOgMed <= fraOgMed && annen.tilOgMed < tilOgMed ->
+            listOf(Periode(annen.tilOgMed.plusDays(1), tilOgMed))
+
+        else -> emptyList()
+    }
 
 internal class Mennesket(
     private val rapid: TestRapid,
@@ -218,6 +256,14 @@ internal class Mennesket(
         fristBrutt: Boolean = false,
         manueltAvregistrert: Boolean = false,
     ) {
+        val avsluttetDato = avsluttetTidspunkt.toLocalDate()
+        arbeidsøkerRegisterPerioder
+            .filter { avsluttetDato in it }
+            .maxByOrNull { it.fraOgMed }
+            ?.let { periode ->
+                arbeidsøkerRegisterPerioder.remove(periode)
+                arbeidsøkerRegisterPerioder.add(Periode(periode.fraOgMed, avsluttetDato))
+            }
         val message =
             Meldingskatalog.avsluttArbeidssøkerperiode(
                 ident = ident,
@@ -363,51 +409,8 @@ internal class Mennesket(
             sisteAvsluttendeKalenderMåned = YearMonth.from(fraOgMed),
         )
 
-    private fun byggArbeidssøkerperiodeListe(grensedato: LocalDate): List<Map<String, Any>> {
-        val sortertePerioder =
-            arbeidsøkerRegisterPerioder
-                .filter { it.tilOgMed >= grensedato }
-                .sortedBy { it.fraOgMed }
-
-        if (sortertePerioder.isEmpty()) return listOf(mapOf("verdi" to false, "gyldigFraOgMed" to grensedato))
-
-        val perioder = mutableListOf<Map<String, Any>>()
-
-        val førstePeriode = sortertePerioder.first()
-        if (!førstePeriode.contains(grensedato)) {
-            perioder.add(
-                mapOf(
-                    "verdi" to false,
-                    "gyldigFraOgMed" to grensedato,
-                    "gyldigTilOgMed" to førstePeriode.fraOgMed.minusDays(1),
-                ),
-            )
-        }
-        sortertePerioder.forEachIndexed { i, periode ->
-            perioder.add(
-                mapOf(
-                    "verdi" to true,
-                    "gyldigFraOgMed" to periode.fraOgMed,
-                    "gyldigTilOgMed" to periode.tilOgMed,
-                ),
-            )
-            if (sortertePerioder.size == i + 1) return@forEachIndexed
-            val nestePeriode = sortertePerioder[i + 1]
-            val dagerTilNestePeriode = Period.between(periode.tilOgMed, nestePeriode.fraOgMed)
-
-            if (!dagerTilNestePeriode.isZero && !periode.tilOgMed.isEqual(periode.tilOgMed)) {
-                perioder.add(
-                    mapOf(
-                        "verdi" to false,
-                        "gyldigFraOgMed" to periode.tilOgMed.plusDays(1),
-                        "gyldigTilOgMed" to nestePeriode.fraOgMed.minusDays(1),
-                    ),
-                )
-            }
-        }
-
-        return perioder
-    }
+    private fun byggArbeidssøkerperiodeListe(grensedato: LocalDate): List<Map<String, Any>> =
+        arbeidsøkerRegisterPerioder.somArbeidssøkerbehov(grensedato)
 
     private companion object {
         fun MutableList<UUID>.ny() = UUID.randomUUID().also { add(it) }
