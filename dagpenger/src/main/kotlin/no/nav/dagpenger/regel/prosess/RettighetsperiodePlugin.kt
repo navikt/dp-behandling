@@ -16,6 +16,7 @@ import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.TidslinjeBygger
 import no.nav.dagpenger.opplysning.Utledning
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 
 fun interface PeriodeOverskrivingsStrategi {
     fun skalIkkeLeggesTil(
@@ -84,11 +85,14 @@ class RettighetsperiodePlugin(
     private fun finnVurdertUtfall(
         opplysninger: LesbarOpplysninger,
         vilkår: List<Opplysningstype<Boolean>>,
-    ): List<Opplysning<Boolean>> =
-        opplysninger
+    ): List<Opplysning<Boolean>> {
+        val prøvingsdato = opplysninger.finnNullableOpplysning(Søknadstidspunkt.prøvingsdato)?.verdi
+        return opplysninger
             .somListe()
             .filter { it.opplysningstype in vilkår }
+            .filter { prøvingsdato == null || !it.gyldighetsperiode.tilOgMed.isBefore(prøvingsdato) }
             .filterIsInstance<Opplysning<Boolean>>()
+    }
 
     private fun alleVilkårOppfylt(
         vilkår: List<Opplysningstype<Boolean>>,
