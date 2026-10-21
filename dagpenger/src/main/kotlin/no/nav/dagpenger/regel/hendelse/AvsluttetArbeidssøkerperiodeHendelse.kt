@@ -108,12 +108,12 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                         }
                     },
             ).apply {
-                // Marker bruker som ikke lenger registrert fra og med avsluttetTidspunkt.
+                // Bruker er registrert ut avsluttetTidspunkt, og ikke registrert fra dagen etter.
                 opplysninger.leggTil(
                     Faktum(
                         registrertArbeidssøker,
                         false,
-                        Gyldighetsperiode(fraOgMed = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate()),
+                        Gyldighetsperiode(fraOgMed = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate().plusDays(1)),
                         kilde = kilde,
                         utledetAv = nullstillesVedNyHendelse(),
                     ),
@@ -128,7 +128,6 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                             false,
                             Gyldighetsperiode(fraOgMed = meldingsdag),
                             kilde = kilde,
-                            utledetAv = nullstillesVedNyHendelse(),
                         ),
                     )
                 }
