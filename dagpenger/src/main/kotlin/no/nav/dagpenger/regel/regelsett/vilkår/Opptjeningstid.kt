@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
@@ -44,7 +45,10 @@ object Opptjeningstid {
             aOpplynsingsLoven.hjemmel(1, 2, "Frist for levering av opplysninger", "Opptjeningsperiode"),
         ) {
             skalVurderes { it.oppfyller(kravTilAlder) }
-            skalRevurderes { !it.har(inntektFraSkatt) || it.erSann(Gjenopptak.oppholdMedArbeidI12ukerEllerMer) }
+            skalRevurderes {
+                (!it.har(inntektFraSkatt) && !it.harVurdertMinsteinntektOgFastsattGrunnlag()) ||
+                    it.erSann(Gjenopptak.oppholdMedArbeidI12ukerEllerMer)
+            }
 
             regel(pliktigRapporteringsfrist) { oppslag(prøvingsdato) { Aordningen.rapporteringsfrist(it) } }
             regel(justertRapporteringsfrist) { førsteArbeidsdag(pliktigRapporteringsfrist) }
@@ -58,6 +62,8 @@ object Opptjeningstid {
             ønsketResultat(inntektFraSkatt, sisteAvsluttendendeKalenderMåned, førsteMånedAvOpptjeningsperiode)
         }
 }
+
+private fun LesbarOpplysninger.harVurdertMinsteinntektOgFastsattGrunnlag() = false
 
 private object Aordningen {
     fun rapporteringsfrist(dato: LocalDate): LocalDate = LocalDate.of(dato.year, dato.month, 5)

@@ -4,11 +4,13 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak
+import no.nav.dagpenger.regel.mottak.MigrerYtelseMottak
 import no.nav.dagpenger.regel.mottak.OpprettBehandlingMottak
 import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak
 import no.nav.dagpenger.regel.mottak.SøknadInnsendtMottak
 import no.nav.dagpenger.regel.prosess.Manuellprosess
 import no.nav.dagpenger.regel.prosess.Meldekortprosess
+import no.nav.dagpenger.regel.prosess.Migreringsprosess
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.prosess.Stansprosess
 import no.nav.dagpenger.regel.prosess.Søknadsprosess
@@ -24,6 +26,7 @@ class DagpengerRegistrering : RegelverkRegistrering(RegelverkDagpenger) {
         hendelseMottaker: HendelseMottaker,
     ) {
         AvsluttetArbeidssøkerperiodeMottak(rapidsConnection, hendelseMottaker)
+        MigrerYtelseMottak(rapidsConnection, hendelseMottaker, opplysningstyper)
         OpprettBehandlingMottak(rapidsConnection, hendelseMottaker)
         SamordningHendelseMottak(rapidsConnection, hendelseMottaker)
         SøknadInnsendtMottak(rapidsConnection, hendelseMottaker)
@@ -33,6 +36,7 @@ class DagpengerRegistrering : RegelverkRegistrering(RegelverkDagpenger) {
         prosessregister.registrer(Søknadsprosess())
         prosessregister.registrer(Meldekortprosess())
         prosessregister.registrer(Manuellprosess())
+        prosessregister.registrer(Migreringsprosess())
         prosessregister.registrer(Omgjøringsprosess())
         prosessregister.registrer(Stansprosess())
     }

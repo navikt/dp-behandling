@@ -19,6 +19,7 @@ import no.nav.dagpenger.mediator.mottak.RekjørBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.UtbetalingStatusMessage
 import no.nav.dagpenger.mediator.repository.ApiMelding
 import no.nav.dagpenger.regel.mottak.AvsluttetArbeidssøkerperiodeMottak.AvsluttetArbeidssøkerperiodeMessage
+import no.nav.dagpenger.regel.mottak.MigrerYtelseMessage
 import no.nav.dagpenger.regel.mottak.OpprettBehandlingMessage
 import no.nav.dagpenger.regel.mottak.SamordningHendelseMottak.SamordningHendelseMessage
 import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage
@@ -109,6 +110,10 @@ internal class PostgresMeldingRepository(
                 MeldingTypeDTO.AVBRYT_BEHANDLING
             }
 
+            is MigrerYtelseMessage -> {
+                MeldingTypeDTO.MIGRER_YTELSE
+            }
+
             is SamordningHendelseMessage -> {
                 MeldingTypeDTO.SAMORDNING_HENDELSE
             }
@@ -197,6 +202,7 @@ private enum class MeldingTypeDTO {
     FLYTT_BEHANDLING,
     MANUELL_BEHANDLING_AVKLART,
     MELDEKORT_INNSENDT,
+    MIGRER_YTELSE,
     OMGJØRING,
     OPPLYSNING_SVAR,
     OPPRETT_BEHANDLING,

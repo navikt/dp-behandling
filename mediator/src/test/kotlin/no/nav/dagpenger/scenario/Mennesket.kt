@@ -15,6 +15,7 @@ import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.Behov.BostedslandErNorge
+import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.scenario.Meldingskatalog.MeldekortKilde
 import no.nav.dagpenger.uuid.UUIDv7
 import tools.jackson.databind.JsonNode
@@ -151,6 +152,30 @@ internal class Mennesket(
                 .newMessage(
                     "opprett_behandling",
                     mapOf("ident" to ident, "prøvingsdato" to fraDato),
+                ).toJson(),
+        )
+    }
+
+    fun startMigrering(
+        fagsakId: String,
+        fraDato: LocalDate,
+    ) {
+        this.meldesyklus = Meldesyklus(fraDato)
+        rapid.sendTestMessage(
+            JsonMessage
+                .newMessage(
+                    "migrer_ytelse",
+                    mapOf(
+                        "ident" to ident,
+                        "innvilgetFraOgMed" to fraDato,
+                        "innvilgedeStønadsuker" to 104,
+                        "gjenståendeStønadsdager" to 520,
+                        "dagsats" to "800",
+                        "antallBarn" to 0,
+                        "vanligArbeidstidPerUke" to 37.5,
+                        "grunnlag" to "517349",
+                        "opplysninger" to mapOf(fagsakIdOpplysningstype.behovId to fagsakId.toInt()),
+                    ),
                 ).toJson(),
         )
     }
