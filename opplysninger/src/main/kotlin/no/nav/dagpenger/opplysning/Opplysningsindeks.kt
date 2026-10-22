@@ -122,9 +122,12 @@ internal class Opplysningsindeks(
             val dekket = mutableListOf<Gyldighetsperiode>()
             val resultat = mutableListOf<Opplysning<*>>()
 
+            // En revisjon erstatter hele opplysningen den endrer, uavhengig av periode
+            val sisteRevisjoner = gruppe.groupBy { it.identitetId }.values.map { rader -> rader.maxBy { it.id } }
+
             // Nyeste først: en opplysning gjelder kun for de dagene ingen nyere opplysning dekker.
             // Segmentene beholder id-en til opprinnelig opplysning, slik at utledetAv fortsatt peker riktig.
-            gruppe.sortedByDescending { it.id }.forEach { opplysning ->
+            sisteRevisjoner.sortedByDescending { it.id }.forEach { opplysning ->
                 val overlappende = dekket.filter { it.overlapper(opplysning.gyldighetsperiode) }
                 // Kun venstre rest beholdes: en nyere opplysning avslutter den eldre, den "gjenopptas" ikke etter
                 val synlige = opplysning.gyldighetsperiode.minus(overlappende) // .filter { rest -> overlappende.none { it.erFør(rest) } }

@@ -35,6 +35,17 @@ class Opplysninger private constructor(
         settInnOpplysning(opplysning)
     }
 
+    /**
+     * Endrer verdi og/eller gyldighetsperiode på en eksisterende opplysning. Endringen legges til som en ny
+     * revisjon med samme identitet, og erstatter hele opplysningen uavhengig av periode.
+     */
+    fun <T : Any> endre(
+        opplysning: Opplysning<T>,
+        verdi: T = opplysning.verdi,
+        gyldighetsperiode: Gyldighetsperiode = opplysning.gyldighetsperiode,
+        kilde: Kilde? = opplysning.kilde,
+    ): Opplysning<T> = opplysning.revider(verdi, gyldighetsperiode, kilde).also { settInnOpplysning(it) }
+
     fun leggTil(block: (MutableList<Opplysning<*>>) -> Unit) {
         val nye = mutableListOf<Opplysning<*>>().apply(block)
         krevIngenOverlappInnadIBatch(nye)
@@ -59,10 +70,12 @@ class Opplysninger private constructor(
         if (opplysning.opplysningstype.kunSisteGjelder) tombstoneAvhengigeAvForrige(opplysning)
 
         // Sporbarhet: peker på det den overstyrer. Selve oppslaget gjøres av indeksen, ikke av denne lenken.
-        finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)?.let { eksisterende ->
-            when {
-                erArvet(eksisterende) -> opplysning.erstatter(eksisterende)
-                else -> eksisterende.erstatter?.let { opplysning.erstatter(it) }
+        if (!opplysning.erRevisjon) {
+            finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)?.let { eksisterende ->
+                when {
+                    erArvet(eksisterende) -> opplysning.erstatter(eksisterende)
+                    else -> eksisterende.erstatter?.let { opplysning.erstatter(it) }
+                }
             }
         }
         sjekkAtUtledetAvFinnes(opplysning)
