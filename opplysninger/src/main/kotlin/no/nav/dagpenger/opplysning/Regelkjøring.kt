@@ -31,6 +31,8 @@ class Regelplanlegger {
         regler.add(regel)
     }
 
+    fun planlegger(regel: Regel<*>) = regel in regler
+
     fun lagProduksjonsplan(): Produksjonsplan {
         val (ekstern, intern) = regler.partition { it is Ekstern<*> }
 
