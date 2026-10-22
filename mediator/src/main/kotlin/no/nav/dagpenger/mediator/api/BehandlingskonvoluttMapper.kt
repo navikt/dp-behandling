@@ -62,6 +62,7 @@ import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.Tekst
+import no.nav.dagpenger.opplysning.Tombstone
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -88,6 +89,7 @@ internal fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
             when (this) {
                 is Faktum<*> -> OpplysningsperiodeDTOTypeDTO.FAKTUM
                 is Hypotese<*> -> OpplysningsperiodeDTOTypeDTO.HYPOTESE
+                is Tombstone<*> -> error("Tombstone skal ikke eksponeres")
             },
         verdi = tilOpplysningsverdiDTO(),
         kilde = tilOpplysningskildeDTO(),

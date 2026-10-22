@@ -63,6 +63,8 @@ class Opplysninger private constructor(
         opplysning.behandlet = false
         opplysning.behandletVed = null
 
+        if (opplysning.opplysningstype.kunSisteGjelder) tombstoneAvhengigeAvForrige(opplysning)
+
         // Sporbarhet: peker på det den overstyrer. Selve oppslaget gjøres av indeksen, ikke av denne lenken.
         finnNullableOpplysning(opplysning.opplysningstype, opplysning.gyldighetsperiode)?.let { eksisterende ->
             when {
@@ -74,6 +76,15 @@ class Opplysninger private constructor(
 
         egne.add(opplysning)
         indeks.leggTilEgen(opplysning)
+    }
+
+    private fun tombstoneAvhengigeAvForrige(ny: Opplysning<*>) {
+        val forrige = indeks.gjeldende(ny.opplysningstype).lastOrNull() ?: return
+        if (forrige.verdi == ny.verdi) return
+        OpplysningGraf(egne.toList())
+            .hentAlleUtledetAv(forrige)
+            .filterNot { it is Tombstone<*> }
+            .forEach { tombstone(it.opplysningstype, it.gyldighetsperiode) }
     }
 
     // Invariant: en opplysning kan ikke være utledetAv noe som ikke finnes (lenger) i denne
@@ -240,6 +251,23 @@ class Opplysninger private constructor(
     internal fun erTombstonet(opplysningId: UUID): Boolean = tombstonet.isNotEmpty() && opplysningId in tombstonet
 
     fun erArvet(opplysning: Opplysning<*>): Boolean = basertPåOpplysninger.contains(opplysning)
+
+    /**
+     * Skjuler gjeldende opplysninger av [opplysningstype] i [periode] ved å legge til tombstones.
+     * Ingenting slettes, og senere opplysninger av typen vinner over tombstonen.
+     */
+    fun tombstone(
+        opplysningstype: Opplysningstype<*>,
+        periode: Gyldighetsperiode = Gyldighetsperiode(),
+        kilde: Kilde? = null,
+    ) {
+        indeks
+            .gjeldende(opplysningstype)
+            .mapNotNull { synlig -> synlig.gyldighetsperiode.overlapp(periode)?.let { synlig to it } }
+            .forEach { (synlig, skjultPeriode) ->
+                settInnOpplysning(Tombstone(synlig, skjultPeriode, kilde))
+            }
+    }
 
     /**
      * Oppfrisker [opplysningstype]: sørger for at opplysningstypen fremstår som manglende for

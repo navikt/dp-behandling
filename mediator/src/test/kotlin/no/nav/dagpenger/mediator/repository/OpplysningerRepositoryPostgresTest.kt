@@ -43,6 +43,7 @@ import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.Tombstone
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
@@ -126,6 +127,22 @@ class OpplysningerRepositoryPostgresTest {
                     Regelkjøring(LocalDate.now(), it)
                 }
             fraDb.finnOpplysning(faktum1.opplysningstype).gyldighetsperiode shouldBe gyldighetsperiode1
+        }
+    }
+
+    @Test
+    fun `tombstone persisteres og skjuler fortsatt opplysningen etter lasting`() {
+        withMigratedDb {
+            val repo = opplysningerRepository(dbSession)
+            val opplysninger = Opplysninger()
+            opplysninger.leggTil(Faktum(heltall, 10, Gyldighetsperiode(1.april(2024), 20.april(2024))))
+            opplysninger.tombstone(heltall, Gyldighetsperiode(10.april(2024), 20.april(2024)))
+            repo.lagreOpplysninger(opplysninger)
+
+            val fraDb = repo.hentOpplysninger(opplysninger.id)
+
+            fraDb.rå().filterIsInstance<Tombstone<*>>().size shouldBe 1
+            fraDb.finnAlle(heltall).map { it.gyldighetsperiode } shouldBe listOf(Gyldighetsperiode(1.april(2024), 9.april(2024)))
         }
     }
 
