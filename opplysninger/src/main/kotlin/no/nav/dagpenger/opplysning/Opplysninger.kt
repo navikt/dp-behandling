@@ -46,6 +46,30 @@ class Opplysninger private constructor(
         kilde: Kilde? = opplysning.kilde,
     ): Opplysning<T> = opplysning.revider(verdi, gyldighetsperiode, kilde).also { settInnOpplysning(it) }
 
+    fun endre(
+        opplysningId: UUID,
+        verdi: Any? = null,
+        gyldighetsperiode: Gyldighetsperiode? = null,
+        kilde: Kilde? = null,
+    ): Opplysning<*> {
+        val opplysning = finnOpplysning(opplysningId)
+        require(opplysning !is Tombstone<*>) { "Kan ikke endre en tombstone" }
+        require(
+            verdi == null ||
+                opplysning.opplysningstype.datatype.klasse.kotlin.javaObjectType
+                    .isInstance(verdi),
+        ) {
+            "Verdien ${verdi?.javaClass?.simpleName} passer ikke til ${opplysning.opplysningstype}"
+        }
+        @Suppress("UNCHECKED_CAST")
+        return endre(
+            opplysning as Opplysning<Any>,
+            verdi ?: opplysning.verdi,
+            gyldighetsperiode ?: opplysning.gyldighetsperiode,
+            kilde ?: opplysning.kilde,
+        )
+    }
+
     fun leggTil(block: (MutableList<Opplysning<*>>) -> Unit) {
         val nye = mutableListOf<Opplysning<*>>().apply(block)
         krevIngenOverlappInnadIBatch(nye)

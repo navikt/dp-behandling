@@ -19,6 +19,7 @@ import no.nav.dagpenger.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.modell.hendelser.BesluttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.EksternId
+import no.nav.dagpenger.modell.hendelser.EndreOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.ForslagGodkjentHendelse
@@ -238,6 +239,11 @@ class Behandling private constructor(
         tilstand.håndter(this, hendelse)
     }
 
+    override fun håndter(hendelse: EndreOpplysningHendelse) {
+        hendelse.kontekst(this)
+        tilstand.håndter(this, hendelse)
+    }
+
     override fun håndter(hendelse: FlyttBehandlingHendelse) {
         hendelse.kontekst(this)
         // Behandlingen har blitt flytten fra en kjede til en ny eller annen kjede
@@ -247,6 +253,14 @@ class Behandling private constructor(
 
     fun registrer(observatør: BehandlingObservatør) {
         observatører.add(observatør)
+    }
+
+    private fun endreOpplysning(hendelse: EndreOpplysningHendelse) {
+        val opplysning = opplysninger.finnOpplysning(hendelse.opplysningId)
+        kanLeggeTil(opplysning.opplysningstype, (hendelse.gyldighetsperiode ?: opplysning.gyldighetsperiode).fraOgMed)
+
+        hendelse.info("Saksbehandler endret opplysning ${hendelse.opplysningId}")
+        opplysninger.endre(hendelse.opplysningId, hendelse.verdi, hendelse.gyldighetsperiode, hendelse.kilde)
     }
 
     fun kanLeggeTil(opplysning: OpplysningSvar<*>) = kanLeggeTil(opplysning.opplysningstype, opplysning.gyldighetsperiode?.fraOgMed)
@@ -433,6 +447,11 @@ class Behandling private constructor(
             behandling: Behandling,
             hendelse: FjernOpplysningHendelse,
         ): Unit = throw IllegalStateException("Opplysning skal fjernes, men tilstanden ${this.type.name} støtter ikke dette")
+
+        fun håndter(
+            behandling: Behandling,
+            hendelse: EndreOpplysningHendelse,
+        ): Unit = throw IllegalStateException("Opplysning skal endres, men tilstanden ${this.type.name} støtter ikke dette")
 
         fun håndter(
             behandling: Behandling,
@@ -652,6 +671,14 @@ class Behandling private constructor(
             hendelse.info("Saksbehandler fjernet opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
 
+            behandling.tilstand(Redigert(), hendelse)
+        }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: EndreOpplysningHendelse,
+        ) {
+            behandling.endreOpplysning(hendelse)
             behandling.tilstand(Redigert(), hendelse)
         }
 
@@ -941,6 +968,14 @@ class Behandling private constructor(
             hendelse.info("Saksbehandler fjernet opplysning ${hendelse.opplysningId}")
             behandling.opplysninger.fjern(hendelse.opplysningId)
 
+            behandling.tilstand(Redigert(), hendelse)
+        }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: EndreOpplysningHendelse,
+        ) {
+            behandling.endreOpplysning(hendelse)
             behandling.tilstand(Redigert(), hendelse)
         }
 
