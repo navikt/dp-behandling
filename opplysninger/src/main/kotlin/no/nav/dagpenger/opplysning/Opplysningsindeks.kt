@@ -31,17 +31,23 @@ internal class Opplysningsindeks(
     private var gjeldendeFlat: List<Opplysning<*>>? = null
     private var gjeldendeEgenFlat: List<Opplysning<*>>? = null
 
-    /** Gjeldende opplysninger av én type, id-sortert (= "nyeste sist"). Tom liste om typen ikke finnes. */
+    /** Gjeldende opplysninger av én type, sortert på fraOgMed. Tom liste om typen ikke finnes. */
     fun gjeldende(type: Opplysningstype<*>): List<Opplysning<*>> {
         oppfrisk(type)
         return gjeldendePerType[type].orEmpty()
     }
 
-    /** Alle gjeldende opplysninger på tvers av typer, globalt id-sortert. */
+    /** Som [gjeldende], men kun egne (ikke-arvede) opplysninger. */
+    fun gjeldendeEgne(type: Opplysningstype<*>): List<Opplysning<*>> {
+        oppfriskEgen(type)
+        return gjeldendeEgnePerType[type].orEmpty()
+    }
+
+    /** Alle gjeldende opplysninger på tvers av typer: typer i rekkefølge etter første innsetting, hver type sortert på fraOgMed. */
     val alle: List<Opplysning<*>>
         get() = gjeldendeFlat ?: flatt(gjeldendePerType, ::oppfriskAlle).also { gjeldendeFlat = it }
 
-    /** Kun egne (ikke-arvede) gjeldende opplysninger, globalt id-sortert. */
+    /** Som [alle], men kun egne (ikke-arvede) opplysninger. */
     val kunEgne: List<Opplysning<*>>
         get() = gjeldendeEgenFlat ?: flatt(gjeldendeEgnePerType, ::oppfriskAlleEgne).also { gjeldendeEgenFlat = it }
 
@@ -67,7 +73,7 @@ internal class Opplysningsindeks(
         oppfriskAlt: () -> Unit,
     ): List<Opplysning<*>> {
         oppfriskAlt()
-        return kilde.values.flatten().sortedBy { it.id }
+        return kilde.values.sortedBy { gruppe -> gruppe.minOf { it.id } }.flatten()
     }
 
     private fun oppfriskAlle() {
@@ -76,7 +82,7 @@ internal class Opplysningsindeks(
 
     private fun oppfrisk(type: Opplysningstype<*>) {
         if (!påvirkedeTyper.remove(type)) return
-        settGjeldende(gjeldendePerType, type, arvedePerType[type].orEmpty() + egnePerType[type].orEmpty())
+        settGjeldende(gjeldendePerType, type, arvedePerType[type].orEmpty() + egnePerType[type].orEmpty().kunSisteHvisKrevd(type))
     }
 
     private fun oppfriskAlleEgne() {
@@ -85,8 +91,12 @@ internal class Opplysningsindeks(
 
     private fun oppfriskEgen(type: Opplysningstype<*>) {
         if (!påvirkedeEgneTyper.remove(type)) return
-        settGjeldende(gjeldendeEgnePerType, type, egnePerType[type].orEmpty())
+        settGjeldende(gjeldendeEgnePerType, type, egnePerType[type].orEmpty().kunSisteHvisKrevd(type))
     }
+
+    // kunSisteGjelder gjelder kun egne opplysninger; arvede (basertPå) tas alltid med
+    private fun List<Opplysning<*>>.kunSisteHvisKrevd(type: Opplysningstype<*>) =
+        if (type.kunSisteGjelder && isNotEmpty()) listOf(maxBy { it.id }) else this
 
     private fun settGjeldende(
         gjeldende: MutableMap<Opplysningstype<*>, List<Opplysning<*>>>,
@@ -97,15 +107,7 @@ internal class Opplysningsindeks(
             gjeldende.remove(type)
             return
         }
-        // Invariant: oppslag som bruker lastOrNull() (f.eks. finnNullableOpplysning/har) forventer
-        // "nyeste" - dvs. id-sortert. Resolve-algoritmen sorterer derimot på fraOgMed, så vi må
-        // eksplisitt re-sortere på id før gruppen lagres i cachen.
-        val utflatet =
-            if (type.kunSisteGjelder) {
-                listOf(rå.maxBy { it.id })
-            } else {
-                løsOppOverlappInnadIType(rå).sortedBy { it.id }
-            }
+        val utflatet = løsOppOverlappInnadIType(rå)
         val synlige = utflatet.filterNot { it is Tombstone<*> }
         if (synlige.isEmpty()) gjeldende.remove(type) else gjeldende[type] = synlige
     }
@@ -114,8 +116,7 @@ internal class Opplysningsindeks(
         /**
          * Løser opp overlapp/erstatning/forkorting innad i ÉN opplysningstype. Input må være
          * opplysninger av samme type (typisk en per-type-gruppe). Resultatet er sortert på
-         * `gyldighetsperiode.fraOgMed` - kalleren (se [settGjeldende]) sørger selv for å
-         * re-sortere på `id` etterpå.
+         * `gyldighetsperiode.fraOgMed`. Id (innsettingsrekkefølge) avgjør kun hvilke som blir med.
          */
         private fun løsOppOverlappInnadIType(gruppe: List<Opplysning<*>>): List<Opplysning<*>> {
             val dekket = mutableListOf<Gyldighetsperiode>()
@@ -126,7 +127,7 @@ internal class Opplysningsindeks(
             gruppe.sortedByDescending { it.id }.forEach { opplysning ->
                 val overlappende = dekket.filter { it.overlapper(opplysning.gyldighetsperiode) }
                 // Kun venstre rest beholdes: en nyere opplysning avslutter den eldre, den "gjenopptas" ikke etter
-                val synlige = opplysning.gyldighetsperiode.minus(overlappende).filter { rest -> overlappende.none { it.erFør(rest) } }
+                val synlige = opplysning.gyldighetsperiode.minus(overlappende) // .filter { rest -> overlappende.none { it.erFør(rest) } }
                 synlige.forEach { periode ->
                     resultat.add(if (periode == opplysning.gyldighetsperiode) opplysning else opplysning.medGyldighetsperiode(periode))
                 }

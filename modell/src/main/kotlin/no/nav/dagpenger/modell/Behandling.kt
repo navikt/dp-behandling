@@ -640,7 +640,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Mottok beskjed om rekjøring av behandling")
             hendelse.oppfriskOpplysningIder.forEach {
-                behandling.opplysninger.lagTombstone(it)
+                behandling.opplysninger.tombstone(it)
             }
             behandling.tilstand(Redigert(), hendelse)
         }
@@ -983,7 +983,7 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Mottok beskjed om rekjøring av behandling")
             hendelse.oppfriskOpplysningIder.forEach {
-                behandling.opplysninger.lagTombstone(it)
+                behandling.opplysninger.tombstone(it)
             }
             behandling.tilstand(Redigert(), hendelse)
         }
