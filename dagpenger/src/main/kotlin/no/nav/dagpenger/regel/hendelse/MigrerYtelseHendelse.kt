@@ -19,7 +19,6 @@ import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.prosess.Migreringsprosess
-import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
@@ -142,7 +141,7 @@ class MigrerYtelseHendelse(
                     Tilleggsopplysning(Samordning.skalSamordnes, false),
                     Tilleggsopplysning(Samordning.samordnetDagsats, Beløp(ytelse.dagsats)),
                     Tilleggsopplysning(Samordning.utfallEtterSamordning, true),
-                    Tilleggsopplysning(Dagpengegrunnlag.grunnlag, Beløp(ytelse.grunnlag)),
+//                    Tilleggsopplysning(Dagpengegrunnlag.grunnlag, Beløp(ytelse.grunnlag)),
                     Tilleggsopplysning(Egenandel.egenandel, Beløp(ytelse.egenandel)),
                     Tilleggsopplysning(TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon, ytelse.kravTilArbeidstidsreduksjon),
                     Tilleggsopplysning(DagpengenesStørrelse.ukessats, Beløp(ytelse.dagsats) * 7),
@@ -162,7 +161,7 @@ class MigrerYtelseHendelse(
                 DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg,
                 DagpengenesStørrelse.antallBarn,
                 Vanligarbeidstid.fastsattVanligArbeidstid,
-                Dagpengegrunnlag.grunnlag,
+//                Dagpengegrunnlag.grunnlag,
                 Egenandel.egenandel,
                 TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon,
             )

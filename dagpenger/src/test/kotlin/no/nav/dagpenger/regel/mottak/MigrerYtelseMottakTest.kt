@@ -12,45 +12,51 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.uuid.UUIDv7
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
 
-@Disabled
 class MigrerYtelseMottakTest {
     private val ekstra = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "ekstra")
     private val rapid = TestRapid()
     private val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
 
     init {
-        MigrerYtelseMottak(rapid, hendelseMottaker, setOf(ekstra, DagpengenesStørrelse.antallBarn))
+        MigrerYtelseMottak(
+            rapidsConnection = rapid,
+            hendelseMottaker = hendelseMottaker,
+            opplysningstyper = DagpengerRegistrering().opplysningstyper,
+        )
     }
 
-//    @Test
-//    fun `oppretter behandling med kontraktsfelter og tilleggsopplysninger`() {
-//        rapid.sendTestMessage(melding(opplysninger = """{ "${ekstra.behovId}": true }"""))
-//
-//        val hendelse = slot<MigrerYtelseHendelse>()
-//        verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
-//
-//        val behandling =
-//            hendelse.captured
-//                .behandling(null, TemporalCollection())
-//                .shouldBeInstanceOf<StartHendelseResultat.Opprettet>()
-//                .behandling
-//        val opplysninger = behandling.opplysninger()
-//
+    @Test
+    fun `oppretter behandling med kontraktsfelter og tilleggsopplysninger`() {
+        rapid.sendTestMessage(ekteMelding())
+
+        val hendelse = slot<MigrerYtelseHendelse>()
+        verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
+
+        val behandling =
+            hendelse.captured
+                .behandling(null, TemporalCollection())
+                .shouldBeInstanceOf<StartHendelseResultat.Opprettet>()
+                .behandling
+        val opplysninger = behandling.opplysninger()
+
 //        opplysninger.finnOpplysning(ekstra).verdi shouldBe true
-//        opplysninger.finnOpplysning(DagpengenesStørrelse.antallBarn).verdi shouldBe 2
-//        opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsdager).verdi shouldBe 120
-//        opplysninger.finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg).verdi shouldBe Beløp(800)
-//    }
+        opplysninger.finnOpplysning(DagpengenesStørrelse.antallBarn).verdi shouldBe 0
+        opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsdager).verdi shouldBe 520
+        opplysninger.finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg).verdi shouldBe Beløp(1500)
+        opplysninger.finnOpplysning(Dagpengegrunnlag.grunnlag).verdi shouldBe Beløp(310630)
+    }
 
     @Test
     fun `oppretter faktum fra opplysningsliste i start_migrering`() {
@@ -140,6 +146,112 @@ class MigrerYtelseMottakTest {
           "vanligArbeidstidPerUke": 37.5,
           "grunnlag": "517349",
           "opplysninger": $opplysninger
+        }
+        """.trimIndent()
+
+    private fun ekteMelding() =
+        """
+        {
+          "@event_name": "start_migrering",
+          "sakId": 13699878,
+          "initiertAv": "Z990798",
+          "opplysninger": [
+            {
+              "verdi": true,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9443-72b4-8b30-5f6cdb24d54c"
+            },
+            {
+              "verdi": true,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9443-72b4-8b30-5f6cdb24d54e"
+            },
+            {
+              "verdi": 310630,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9410-7481-b263-4606fdd10cbd"
+            },
+            {
+              "verdi": "2024-08-31",
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9414-7823-8d29-0e25b7feb7d0"
+            },
+            {
+              "verdi": true,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9442-707b-a6ee-e96c06877bd8"
+            },
+            {
+              "verdi": true,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9442-707b-a6ee-e96c06877bdb"
+            },
+            {
+              "verdi": 3730,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9428-74d5-b160-f63a4c61a24e"
+            },
+            {
+              "verdi": 3730,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9428-74d5-b160-f63a4c61a240"
+            },
+            {
+              "verdi": false,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9428-74d5-b160-f63a4c61a250"
+            },
+            {
+              "verdi": 120000,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9410-7481-b263-4606fdd10cad"
+            },
+            {
+              "verdi": 60000,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9410-7481-b263-4606fdd10cae"
+            },
+            {
+              "verdi": 14000000,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9410-7481-b263-4606fdd10caf"
+            },
+            {
+              "verdi": true,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-940b-76ff-acf5-ba7bcb367237"
+            },
+            {
+              "verdi": 746,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-942f-7bde-ab16-68ffd19e9a33"
+            },
+            {
+              "verdi": false,
+              "gyldigFraOgMed": "2025-01-31",
+              "uuid": "0194881f-9442-707b-a6ee-e96c06877be1"
+            }
+          ],
+          "ident": "26867799140",
+          "@id": "1291622c-04d5-44fe-8cef-2a9da8d9e635",
+          "@opprettet": "2026-10-22T12:24:12.317783439",
+          "system_read_count": 1,
+          "system_participating_services": [
+            {
+              "id": "1291622c-04d5-44fe-8cef-2a9da8d9e635",
+              "time": "2026-10-22T12:24:12.317783439",
+              "service": "dp-migrering",
+              "instance": "dp-migrering-d97585f6f-5s4ns",
+              "image": "europe-north1-docker.pkg.dev/nais-management-233d/teamdagpenger/dp-migrering:2026.10.22-10.20-e675bc2@sha256:e1a3e8d199374c2379903ed5ed232a02efa316ba701b6a2057683cd511f5ca90"
+            },
+            {
+              "id": "1291622c-04d5-44fe-8cef-2a9da8d9e635",
+              "time": "2026-10-22T12:24:12.321039974",
+              "service": "dp-behandling",
+              "instance": "dp-behandling-6b5f464587-dsc8x",
+              "image": "europe-north1-docker.pkg.dev/nais-management-233d/teamdagpenger/dp-behandling:2026.10.22-09.36-5aa0257@sha256:dae4fdceabb3ba11b7e0508685467d89f0997de6147a552160518349fd4d10d7"
+            }
+          ]
         }
         """.trimIndent()
 

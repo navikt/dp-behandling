@@ -67,8 +67,8 @@ class MigrerYtelseMottak(
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
         logger.info { "Mottok melding om migrering : ${packet.toJson()}" }
-//        val message = MigrerYtelseMessage(packet, opplysningstyper)
-//        hendelseMottaker.behandle(message.hendelse, message, context)
+        val message = MigrerYtelseMessage(packet, opplysningstyper)
+        hendelseMottaker.behandle(message.hendelse, message, context)
     }
 
     override fun onError(
