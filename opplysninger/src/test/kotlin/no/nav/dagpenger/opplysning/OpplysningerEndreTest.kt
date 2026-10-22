@@ -1,5 +1,6 @@
 package no.nav.dagpenger.opplysning
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.a
@@ -21,6 +22,18 @@ class OpplysningerEndreTest {
 
         opplysninger.finnAlle(a).map { it.verdi to it.gyldighetsperiode } shouldBe listOf(true to Gyldighetsperiode(10.januar))
         opplysninger.har(a, 5.januar) shouldBe false
+    }
+
+    @Test
+    fun `endring via id validerer at verdien passer til typen`() {
+        val opplysninger = Opplysninger()
+        val opprinnelig = Faktum(desimaltall, 1.0, Gyldighetsperiode(1.januar, 20.januar))
+        opplysninger.leggTil(opprinnelig)
+
+        opplysninger.endre(opprinnelig.id, verdi = 2.0, gyldighetsperiode = Gyldighetsperiode(5.januar))
+
+        opplysninger.finnAlle(desimaltall).map { it.verdi to it.gyldighetsperiode } shouldBe listOf(2.0 to Gyldighetsperiode(5.januar))
+        shouldThrow<IllegalArgumentException> { opplysninger.endre(opplysninger.finnAlle(desimaltall).single().id, verdi = "tekst") }
     }
 
     @Test
