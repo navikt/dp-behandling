@@ -41,8 +41,6 @@ Behov:
 - OppgittAndreYtelserUtenforNav
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
 Behov:
 - Inntekt
 Behov:
@@ -54,6 +52,8 @@ Behov:
 - Svangerskapspenger
 - Sykepenger
 - Uføre
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:

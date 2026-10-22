@@ -39,11 +39,12 @@ class OpplysningerInvariantTest {
         try {
             repeat(200) { i ->
                 when (random.nextInt(4)) {
-                    0, 1 ->
+                    0, 1 -> {
                         // Enkeltvis leggTil - det vanlige tilfellet
                         opplysninger.leggTil(tilfeldigOpplysning(random, i))
+                    }
 
-                    2 ->
+                    2 -> {
                         // Batch leggTil av 2-4 opplysninger av ULIKE typer (siden
                         // krevIngenOverlappInnadIBatch forbyr overlapp innad i samme type)
                         opplysninger.leggTil { fakta ->
@@ -51,6 +52,7 @@ class OpplysningerInvariantTest {
                                 fakta.add(tilfeldigOpplysningAvType(random, type, i * 10 + j))
                             }
                         }
+                    }
 
                     else -> {
                         // Fjern en tilfeldig egen opplysning, om det finnes noen

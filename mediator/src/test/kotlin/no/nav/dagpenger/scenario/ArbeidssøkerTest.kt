@@ -411,11 +411,16 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt(person.sisteSøknadId)
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                with(rettighetsperioder.single()) {
+                rettighetsperioder shouldHaveSize 2
+                with(rettighetsperioder.first()) {
                     harRett shouldBe true
                     fraOgMed shouldBe 21.juni(2018)
                     tilOgMed shouldBe 5.juli(2018)
+                }
+                with(rettighetsperioder.last()) {
+                    harRett shouldBe false
+                    fraOgMed shouldBe 6.juli(2018)
+                    tilOgMed shouldBe null
                 }
 
                 with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {

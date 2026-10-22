@@ -63,7 +63,7 @@ class RevurderingInntektTest {
             // 3. Det lages en revurdering. I stedet for å legge inn ny inntekt direkte, simulerer vi at
             // inntektsverktøyet ber om rekjøring av behandlingen med oppfriskOpplysningIder=[inntektFraSkatt] -
             // slik det faktisk skjer i produksjon. Dette utløser en tombstone av den arvede inntekten
-            // (se `Opplysninger.lagTombstone`), som gjør at regelmotoren ber om et nytt Inntekt-behov,
+            // (se `Opplysninger.tombstone`), som gjør at regelmotoren ber om et nytt Inntekt-behov,
             // som besvares med den oppdaterte inntekten.
             saksbehandler.omgjørBehandling(søknadsdato)
             saksbehandler.rekjørBehandling(listOf(inntektFraSkatt))

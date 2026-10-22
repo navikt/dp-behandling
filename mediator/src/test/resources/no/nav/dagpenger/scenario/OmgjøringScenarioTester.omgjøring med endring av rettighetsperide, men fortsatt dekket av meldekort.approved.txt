@@ -132,7 +132,7 @@ Behandling endret tilstand til: Ferdig
 Laget avklaring om SkalOmgjøringUtenKlageVurderes
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: TilGodkjenning
+ninehandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Redigert
 Behov:
 - ErUtestengt

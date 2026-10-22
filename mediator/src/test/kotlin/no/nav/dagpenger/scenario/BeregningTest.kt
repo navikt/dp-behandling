@@ -977,8 +977,8 @@ class BeregningTest {
             person.sendInnMeldekort(2)
             meldekortBatch(markerFerdig = true)
 
-            behandlingsresultat {
-                utbetalinger.shouldHaveSize(28)
+            behandlingsresultat(3) {
+                utbetalinger shouldHaveSize 28
             }
 
             saksbehandler.lagBehandling(1.februar(2018))
@@ -991,7 +991,7 @@ class BeregningTest {
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
-            behandlingsresultat {
+            behandlingsresultat(4) {
                 rettighetsperioder.size shouldBe 2
             }
 
@@ -1007,7 +1007,7 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat {
+            behandlingsresultat(5) {
                 rettighetsperioder.size shouldBe 3
                 rettighetsperioder.last().harRett shouldBe true
             }
@@ -1015,14 +1015,14 @@ class BeregningTest {
             person.sendInnMeldekort(3)
             meldekortBatch(markerFerdig = true)
 
-            behandlingsresultat {
+            behandlingsresultat(6) {
                 utbetalinger.shouldHaveSize(31)
             }
 
             person.sendInnMeldekort(4)
             meldekortBatch(markerFerdig = true)
 
-            behandlingsresultat {
+            behandlingsresultat(7) {
                 utbetalinger.shouldHaveSize(45)
             }
         }
@@ -1096,40 +1096,28 @@ class BeregningTest {
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 false,
                 "test",
-                Gyldighetsperiode(
-                    30.mars(2026),
-                    12.april(2026),
-                ),
+                Gyldighetsperiode(30.mars(2026), 12.april(2026)),
             )
-
             behovsløsere.løsTilForslag()
             saksbehandler.endreOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 true,
                 "test",
-                Gyldighetsperiode(
-                    13.april(2026),
-                    26.april(2026),
-                ),
+                Gyldighetsperiode(13.april(2026), 26.april(2026)),
             )
             behovsløsere.løsTilForslag()
             saksbehandler.endreOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 false,
                 "test",
-                Gyldighetsperiode(
-                    27.april(2026),
-                    24.mai(2026),
-                ),
+                Gyldighetsperiode(27.april(2026), 24.mai(2026)),
             )
             behovsløsere.løsTilForslag()
             saksbehandler.endreOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 true,
                 "test",
-                Gyldighetsperiode(
-                    25.mai(2026),
-                ),
+                Gyldighetsperiode(25.mai(2026)),
             )
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()

@@ -283,54 +283,19 @@ class ScenarioTest {
             permittering = true
         }.test {
             person.søkDagpenger(21.juni(2018))
-
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(
-                godkjentPermitteringsårsak,
-                true,
-                "Båten suser",
-                Gyldighetsperiode(21.juni(2018), 22.juni(2018)),
-            )
-            saksbehandler.endreOpplysning(
-                godkjentPermitteringsårsak,
-                false,
-                "Båten suser",
-                Gyldighetsperiode(23.juni(2018), 26.juni(2018)),
-            )
-            saksbehandler.endreOpplysning(
-                godkjentPermitteringsårsak,
-                true,
-                "Båten suser",
-                Gyldighetsperiode(27.juni(2018), 29.juni(2018)),
-            )
-            saksbehandler.endreOpplysning(
-                godkjentPermitteringsårsak,
-                false,
-                "Båten suser",
-                Gyldighetsperiode(30.juni(2018), 2.juli(2018)),
-            )
-            saksbehandler.endreOpplysning(
-                godkjentPermitteringsårsak,
-                true,
-                "Båten suser",
-                Gyldighetsperiode(3.juli(2018), 3.juli(2018)),
-            )
-            saksbehandler.endreOpplysning(
-                godkjentPermitteringsårsak,
-                false,
-                "Båten suser",
-                Gyldighetsperiode(4.juli(2018), 5.juli(2018)),
-            )
-            saksbehandler.endreOpplysning(
-                godkjentPermitteringsårsak,
-                true,
-                "Båten suser",
-                Gyldighetsperiode(6.juli(2018), 6.juli(2018)),
-            )
+            saksbehandler.endreOpplysning(godkjentPermitteringsårsak, true, "Båten suser", Gyldighetsperiode(21.juni(2018), 22.juni(2018)))
+            saksbehandler.endreOpplysning(godkjentPermitteringsårsak, false, "Båten suser", Gyldighetsperiode(23.juni(2018), 26.juni(2018)))
+            saksbehandler.endreOpplysning(godkjentPermitteringsårsak, true, "Båten suser", Gyldighetsperiode(27.juni(2018), 29.juni(2018)))
+            saksbehandler.endreOpplysning(godkjentPermitteringsårsak, false, "Båten suser", Gyldighetsperiode(30.juni(2018), 2.juli(2018)))
+            saksbehandler.endreOpplysning(godkjentPermitteringsårsak, true, "Båten suser", Gyldighetsperiode(3.juli(2018), 3.juli(2018)))
+            saksbehandler.endreOpplysning(godkjentPermitteringsårsak, false, "Båten suser", Gyldighetsperiode(4.juli(2018), 5.juli(2018)))
+            saksbehandler.endreOpplysning(godkjentPermitteringsårsak, true, "Båten suser", Gyldighetsperiode(6.juli(2018), 6.juli(2018)))
             saksbehandler.endreOpplysning(godkjentPermitteringsårsak, false, "Båten suser", Gyldighetsperiode(7.juli(2018)))
 
             behandlingsresultatForslag {
+                opplysninger(godkjentPermitteringsårsak)
                 rettighetsperioder shouldHaveSize 8
             }
         }
@@ -553,9 +518,9 @@ class ScenarioTest {
 
             saksbehandler.endreOpplysning(
                 ReellArbeidssøker.kravTilArbeidssøker,
-                true,
-                "Flyttet prøvingsdato automatisk",
-                Gyldighetsperiode(25.juni(2021)),
+                false,
+                "Flytter prøvingsdato automatisk",
+                Gyldighetsperiode(21.juni(2021), 24.juni(2021)),
             )
             behovsløsere.løsTilForslag()
 
