@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 
 class OpplysningerTombstoneTest {
     @Test
-    fun `lagTombstone gjør en arvet opplysning usynlig for oppslag, men beholder den i sporloggen`() {
+    fun `tombstone gjør en arvet opplysning usynlig for oppslag, men beholder den i sporloggen`() {
         val inntekt =
             Faktum(ReglerForInntektTest.inntekt12, Beløp(221221.0), Gyldighetsperiode(1.januar, 1.mai))
         val tidligereBehandling = Opplysninger.med(inntekt)
@@ -19,7 +19,7 @@ class OpplysningerTombstoneTest {
         revurdering.har(ReglerForInntektTest.inntekt12) shouldBe true
         revurdering.erArvet(inntekt) shouldBe true
 
-        revurdering.lagTombstone(ReglerForInntektTest.inntekt12)
+        revurdering.tombstone(ReglerForInntektTest.inntekt12)
 
         // Etter tombstone: opplysningstypen fremstår som manglende
         revurdering.har(ReglerForInntektTest.inntekt12) shouldBe false
@@ -28,13 +28,13 @@ class OpplysningerTombstoneTest {
         revurdering.finnFlere(listOf(ReglerForInntektTest.inntekt12)) shouldBe emptyList()
 
         // Den arvede opplysningen finnes fortsatt i sporloggen (den er aldri fjernet eller endret),
-        // men markert som tombstonet slik at den ikke lenger telles med i verdi-oppslag
+        // men skjult av en tombstone slik at den ikke lenger telles med i verdi-oppslag
         val original = revurdering.somListe(LesbarOpplysninger.Filter.Alle).single { it.id == inntekt.id }
         original shouldBe inntekt
     }
 
     @Test
-    fun `lagTombstone fjerner egne opplysninger av samme type reelt`() {
+    fun `tombstone skjuler egne og arvede opplysninger av samme type`() {
         val arvetInntekt =
             Faktum(ReglerForInntektTest.inntekt12, Beløp(100000.0), Gyldighetsperiode(1.januar, 1.mai))
         val tidligereBehandling = Opplysninger.med(arvetInntekt)
@@ -44,7 +44,7 @@ class OpplysningerTombstoneTest {
             Faktum(ReglerForInntektTest.inntekt12, Beløp(200000.0), Gyldighetsperiode(2.mai, 9.mai))
         revurdering.leggTil(egenInntekt)
 
-        revurdering.lagTombstone(ReglerForInntektTest.inntekt12)
+        revurdering.tombstone(ReglerForInntektTest.inntekt12)
 
         // Både den egne og den arvede opplysningen skal nå fremstå som manglende
         revurdering.har(ReglerForInntektTest.inntekt12) shouldBe false
@@ -52,7 +52,7 @@ class OpplysningerTombstoneTest {
     }
 
     @Test
-    fun `lagTombstone fører til at regelmotoren ber om ny inntekt`() {
+    fun `tombstone fører til at regelmotoren ber om ny inntekt`() {
         val tidligereBehandling =
             Opplysninger.med(
                 Faktum(ReglerForInntektTest.inntekt12, Beløp(221221.0), Gyldighetsperiode(1.januar, 1.mai)),
@@ -75,7 +75,7 @@ class OpplysningerTombstoneTest {
 
         regelkjøring.evaluer().informasjonsbehov shouldContainKey ReglerForInntektTest.inntekt12
 
-        revurdering.lagTombstone(ReglerForInntektTest.inntekt12)
+        revurdering.tombstone(ReglerForInntektTest.inntekt12)
 
         regelkjøring.evaluer().informasjonsbehov shouldContainKey ReglerForInntektTest.inntekt12
     }
