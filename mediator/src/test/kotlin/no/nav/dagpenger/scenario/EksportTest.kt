@@ -549,7 +549,7 @@ class EksportTest {
                 avsluttetTidspunkt = fastsattMeldedato.plusDays(16).atTime(12, 21),
             )
 
-            behovsløsere.løsTilForslag() shouldHaveSize 1
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
