@@ -127,6 +127,46 @@ class Hypotese<T : Any>(
         )
 }
 
+/**
+ * Markerer at [erstatter] ikke lenger gjelder i [gyldighetsperiode]. Bærer verdien til det den skjuler,
+ * og er add-only: den vinner i utflatingen som enhver annen nyere opplysning, men er aldri synlig ved lesing.
+ */
+class Tombstone<T : Any>(
+    id: UUID,
+    opplysningstype: Opplysningstype<T>,
+    verdi: T,
+    gyldighetsperiode: Gyldighetsperiode,
+    kilde: Kilde? = null,
+    opprettet: LocalDateTime,
+    erstatter: Opplysning<T>? = null,
+    skalLagres: Boolean = true,
+) : Opplysning<T>(
+        id,
+        opplysningstype,
+        verdi,
+        gyldighetsperiode,
+        null,
+        kilde,
+        opprettet,
+        false,
+        erstatter,
+        _skalLagres = skalLagres,
+    ) {
+    constructor(
+        skjult: Opplysning<T>,
+        gyldighetsperiode: Gyldighetsperiode = skjult.gyldighetsperiode,
+        kilde: Kilde? = null,
+        opprettet: LocalDateTime = LocalDateTime.now(),
+    ) : this(UUIDv7.ny(), skjult.opplysningstype, skjult.verdi, gyldighetsperiode, kilde, opprettet, skjult)
+
+    override fun bekreft(): Faktum<T> = throw IllegalStateException("En tombstone kan ikke bekreftes")
+
+    override fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode): Opplysning<T> =
+        Tombstone(id, opplysningstype, verdi, gyldighetsperiode, kilde, opprettet, erstatter)
+
+    override fun medNyId(): Opplysning<T> = Tombstone(UUIDv7.ny(), opplysningstype, verdi, gyldighetsperiode, kilde, opprettet, erstatter)
+}
+
 class Faktum<T : Any>(
     id: UUID,
     opplysningstype: Opplysningstype<T>,

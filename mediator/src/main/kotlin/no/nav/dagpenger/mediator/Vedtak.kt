@@ -43,6 +43,7 @@ import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.opplysning.Tombstone
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
@@ -166,6 +167,7 @@ private fun Opplysning<*>.tilOpplysningDTO(opplysninger: LesbarOpplysninger): Op
             when (this) {
                 is Faktum -> OpplysningDTOStatusDTO.FAKTUM
                 is Hypotese -> OpplysningDTOStatusDTO.HYPOTESE
+                is Tombstone -> error("Tombstone skal ikke eksponeres")
             },
         verdien = tilOpplysningsverdiDTO(),
         gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),

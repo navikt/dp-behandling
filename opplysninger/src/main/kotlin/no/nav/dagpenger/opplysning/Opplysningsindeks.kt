@@ -100,13 +100,14 @@ internal class Opplysningsindeks(
         // Invariant: oppslag som bruker lastOrNull() (f.eks. finnNullableOpplysning/har) forventer
         // "nyeste" - dvs. id-sortert. Resolve-algoritmen sorterer derimot på fraOgMed, så vi må
         // eksplisitt re-sortere på id før gruppen lagres i cachen.
-        val synlige =
+        val utflatet =
             if (type.kunSisteGjelder) {
                 listOf(rå.maxBy { it.id })
             } else {
                 løsOppOverlappInnadIType(rå).sortedBy { it.id }
             }
-        gjeldende[type] = synlige
+        val synlige = utflatet.filterNot { it is Tombstone<*> }
+        if (synlige.isEmpty()) gjeldende.remove(type) else gjeldende[type] = synlige
     }
 
     companion object {

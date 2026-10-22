@@ -31,6 +31,7 @@ import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.PeriodeDataType
 import no.nav.dagpenger.opplysning.Tekst
+import no.nav.dagpenger.opplysning.Tombstone
 import no.nav.dagpenger.opplysning.ULID
 import no.nav.dagpenger.opplysning.Utledning
 import no.nav.dagpenger.opplysning.verdier.Barn
@@ -607,6 +608,18 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
                         verdi = verdi,
                         gyldighetsperiode = gyldighetsperiode,
                         utledetAv = utledetAv,
+                        kilde = kilde,
+                        opprettet = opprettet,
+                        skalLagres = false,
+                    )
+                }
+
+                "Tombstone" -> {
+                    Tombstone(
+                        id = id,
+                        opplysningstype = opplysningstype,
+                        verdi = verdi,
+                        gyldighetsperiode = gyldighetsperiode,
                         kilde = kilde,
                         opprettet = opprettet,
                         skalLagres = false,
