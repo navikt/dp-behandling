@@ -78,9 +78,16 @@ abstract class Regel<T : Any> internal constructor(
         // Oppstrøms regler planlegges først, slik at utdaterte produkter oppdages transitivt
         avhengerAv.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
 
+        // Planlegges en intern oppstrøms regel blir også dette produktet utdatert, selv om det fortsatt
+        // stemmer overens med oppstrøms produkter som snart erstattes
+        val oppstrømsPlanlagt =
+            avhengerAv.any { type ->
+                produsenter[type]?.let { it !is Ekstern<*> && !type.kunSisteGjelder && plan.planlegger(it) } == true
+            }
+
         // Produktet er utdatert om det er utledet av noe annet enn det som gjelder nå
         val gjeldende = opplysninger.finnFlere(avhengerAv)
-        if (gjeldende.toSet() == utledning.opplysninger.toSet()) return
+        if (!oppstrømsPlanlagt && gjeldende.toSet() == utledning.opplysninger.toSet()) return
 
         lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
     }
