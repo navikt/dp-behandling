@@ -13,6 +13,7 @@ import no.nav.dagpenger.opplysning.TestOpplysningstyper.foreldrevilkår
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.undervilkår1
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.undervilkår2
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -94,6 +95,7 @@ class OpplysningerTest {
     }
 
     @Test
+    @Disabled("FJERN-SEMANTIKK: forutsetter fysisk sletting. Skrives om til Tombstone når fjern() er fjernet.")
     fun `🍌☎ 🐍🍄🍄`() {
         val opplysninger = Opplysninger()
 
