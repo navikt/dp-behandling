@@ -485,6 +485,56 @@ paths:
           type: string
           format: uuid
         description: Opplysningens id
+    put:
+      summary: Endre en eksisterende opplysning
+      description: >
+        Endrer verdi og/eller gyldighetsperiode på opplysningen. Opplysningen får en ny revisjon som
+        erstatter hele den eksisterende, og utledede opplysninger beregnes på nytt. Oppgis gyldigFraOgMed
+        erstattes hele perioden (utelatt gyldigTilOgMed betyr åpen periode), ellers beholdes perioden.
+      operationId: endreOpplysning
+      security:
+        - azureAd: [ ]
+      tags:
+        - Behandling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndreOpplysning'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kvittering'
+          description: OK
+        409:
+          description: Behandlingen er ikke i riktig tilstand for redigering
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+              examples:
+                redigeringPagar:
+                  $ref: '#/components/examples/RedigeringPågårProblem'
+                ikkeRedigerbar:
+                  $ref: '#/components/examples/BehandlingIkkeRedigerbaresProblem'
+        422:
+          description: Opplysningen kan ikke endres
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
+              examples:
+                ikkeRedigerbarOpplysning:
+                  $ref: '#/components/examples/OpplysningIkkeRedigerbaresProblem'
+        default:
+          description: Feil ved endring av opplysning
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpProblem'
     delete:
       summary: Fjern en opplysning
       operationId: fjernOpplysning
@@ -1072,6 +1122,22 @@ components:
       properties:
         opplysningstype:
           $ref: '#/components/schemas/OpplysningTypeId'
+        verdi:
+          type: string
+        begrunnelse:
+          type: string
+        gyldigFraOgMed:
+          type: string
+          format: date
+        gyldigTilOgMed:
+          type: string
+          format: date
+
+    EndreOpplysning:
+      type: object
+      required:
+        - begrunnelse
+      properties:
         verdi:
           type: string
         begrunnelse:

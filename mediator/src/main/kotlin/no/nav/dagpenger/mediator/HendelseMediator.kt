@@ -32,6 +32,7 @@ import no.nav.dagpenger.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.AvklaringIkkeRelevantHendelse
 import no.nav.dagpenger.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.modell.hendelser.BesluttBehandlingHendelse
+import no.nav.dagpenger.modell.hendelser.EndreOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.ForslagGodkjentHendelse
@@ -350,6 +351,15 @@ internal class HendelseMediator(
     }
 
     override fun behandle(
+        hendelse: EndreOpplysningHendelse,
+        context: MessageContext,
+    ) {
+        hentPersonOgHåndter(hendelse, context) { person ->
+            person.håndter(hendelse)
+        }
+    }
+
+    override fun behandle(
         hendelse: UtbetalingStatus,
         context: MessageContext,
     ) {
@@ -456,6 +466,11 @@ interface IHendelseMediator {
 
     fun behandle(
         hendelse: FjernOpplysningHendelse,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: EndreOpplysningHendelse,
         context: MessageContext,
     )
 
