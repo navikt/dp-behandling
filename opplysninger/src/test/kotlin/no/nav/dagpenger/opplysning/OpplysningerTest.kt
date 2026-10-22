@@ -162,14 +162,15 @@ class OpplysningerTest {
 
         with(sisteOpplysninger.somListe()) {
             this shouldHaveSize datoer.size * 2
-            this[0].gyldighetsperiode.fraOgMed shouldBe 5.januar
-            this[0].gyldighetsperiode.tilOgMed shouldBe 10.januar
+            val første = filter { it.er(undervilkår1) }
+            første[0].gyldighetsperiode.fraOgMed shouldBe 5.januar
+            første[0].gyldighetsperiode.tilOgMed shouldBe 10.januar
 
-            this[2].gyldighetsperiode.fraOgMed shouldBe 11.januar
-            this[2].gyldighetsperiode.tilOgMed shouldBe 20.januar
+            første[1].gyldighetsperiode.fraOgMed shouldBe 11.januar
+            første[1].gyldighetsperiode.tilOgMed shouldBe 20.januar
 
-            this[4].gyldighetsperiode.fraOgMed shouldBe 21.januar
-            this[4].gyldighetsperiode.tilOgMed shouldBe 24.januar
+            første[2].gyldighetsperiode.fraOgMed shouldBe 21.januar
+            første[2].gyldighetsperiode.tilOgMed shouldBe 24.januar
 
             this.last { it.er(undervilkår1) }.gyldighetsperiode.tilOgMed shouldBe LocalDate.MAX
             this.last { it.er(undervilkår2) }.gyldighetsperiode.tilOgMed shouldBe LocalDate.MAX
@@ -294,7 +295,7 @@ class OpplysningerTest {
     }
 
     @Test
-    fun `utenErstattet bevarer original id-rekkefølge når fraOgMed-rekkefølge avviker fra id-rekkefølge`() {
+    fun `somListe sorterer på fraOgMed innad i hver type, og typene etter første innsetting`() {
         val opplysninger = Opplysninger()
 
         val aFørstMars = Faktum(desimaltall, 1.0, gyldighetsperiode = Gyldighetsperiode(1.mars))
@@ -313,11 +314,10 @@ class OpplysningerTest {
 
         val liste = opplysninger.somListe()
 
-        // Opplysningene skal ligge i id-rekkefølge, ikke fraOgMed-rekkefølge
         liste shouldHaveSize 3
-        liste[0].verdi shouldBe 1.0 // aFørstMars (lavest id, fom=Mars)
-        liste[1].verdi shouldBe true // bMidten
-        liste[2].verdi shouldBe 3.0 // aSenereMedTidligDato (høyest id, fom=Januar)
+        liste[0].verdi shouldBe 3.0 // aSenereMedTidligDato (fom=Januar)
+        liste[1].verdi shouldBe 1.0 // aFørstMars (fom=Mars)
+        liste[2].verdi shouldBe true // bMidten
     }
 
     //language=Mermaid

@@ -32,7 +32,13 @@ sealed class Opplysning<T : Any>(
     // Brukes for å skille opplysninger fra nåværende eval-syklus (kan fjernes ved cleanup)
     // fra opplysninger fra tidligere eval-sykluser med annen prøvingsdato (skal beskyttes).
     var behandletVed: LocalDate? = null,
+    identitet: UUID? = null,
 ) : Klassifiserbart by opplysningstype {
+    // Stabil identitet gjennom revisjoner: første rad har identitetId = id, endringer arver den
+    val identitetId: UUID = identitet ?: id
+
+    val erRevisjon get() = identitetId != id
+
     private val defaultRedigering = Redigerbar { opplysningstype.datatype != ULID }
 
     abstract fun bekreft(): Faktum<T>
@@ -66,6 +72,13 @@ sealed class Opplysning<T : Any>(
     abstract fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode): Opplysning<T>
 
     abstract fun medNyId(): Opplysning<T>
+
+    /** Ny rad som erstatter hele denne opplysningen, med samme identitet. */
+    abstract fun revider(
+        verdi: T = this.verdi,
+        gyldighetsperiode: Gyldighetsperiode = this.gyldighetsperiode,
+        kilde: Kilde? = this.kilde,
+    ): Opplysning<T>
 }
 
 class Hypotese<T : Any>(
@@ -78,6 +91,7 @@ class Hypotese<T : Any>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
+    identitet: UUID? = null,
 ) : Opplysning<T>(
         id,
         opplysningstype,
@@ -89,6 +103,7 @@ class Hypotese<T : Any>(
         false,
         erstatter,
         _skalLagres = skalLagres,
+        identitet = identitet,
     ) {
     constructor(
         opplysningstype: Opplysningstype<T>,
@@ -112,6 +127,7 @@ class Hypotese<T : Any>(
             kilde,
             opprettet,
             erstatter,
+            identitet = identitetId,
         )
 
     override fun medNyId(): Opplysning<T> =
@@ -124,6 +140,23 @@ class Hypotese<T : Any>(
             kilde,
             opprettet,
             erstatter,
+        )
+
+    override fun revider(
+        verdi: T,
+        gyldighetsperiode: Gyldighetsperiode,
+        kilde: Kilde?,
+    ): Opplysning<T> =
+        Hypotese(
+            UUIDv7.ny(),
+            opplysningstype,
+            verdi,
+            gyldighetsperiode,
+            null,
+            kilde,
+            LocalDateTime.now(),
+            this,
+            identitet = identitetId,
         )
 }
 
@@ -140,6 +173,7 @@ class Tombstone<T : Any>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
+    identitet: UUID? = null,
 ) : Opplysning<T>(
         id,
         opplysningstype,
@@ -151,6 +185,7 @@ class Tombstone<T : Any>(
         false,
         erstatter,
         _skalLagres = skalLagres,
+        identitet = identitet,
     ) {
     constructor(
         skjult: Opplysning<T>,
@@ -162,9 +197,15 @@ class Tombstone<T : Any>(
     override fun bekreft(): Faktum<T> = throw IllegalStateException("En tombstone kan ikke bekreftes")
 
     override fun medGyldighetsperiode(gyldighetsperiode: Gyldighetsperiode): Opplysning<T> =
-        Tombstone(id, opplysningstype, verdi, gyldighetsperiode, kilde, opprettet, erstatter)
+        Tombstone(id, opplysningstype, verdi, gyldighetsperiode, kilde, opprettet, erstatter, identitet = identitetId)
 
     override fun medNyId(): Opplysning<T> = Tombstone(UUIDv7.ny(), opplysningstype, verdi, gyldighetsperiode, kilde, opprettet, erstatter)
+
+    override fun revider(
+        verdi: T,
+        gyldighetsperiode: Gyldighetsperiode,
+        kilde: Kilde?,
+    ): Opplysning<T> = throw IllegalStateException("En tombstone kan ikke endres")
 }
 
 class Faktum<T : Any>(
@@ -177,6 +218,7 @@ class Faktum<T : Any>(
     opprettet: LocalDateTime,
     erstatter: Opplysning<T>? = null,
     skalLagres: Boolean = true,
+    identitet: UUID? = null,
 ) : Opplysning<T>(
         id,
         opplysningstype,
@@ -188,6 +230,7 @@ class Faktum<T : Any>(
         false,
         erstatter,
         _skalLagres = skalLagres,
+        identitet = identitet,
     ) {
     constructor(
         opplysningstype: Opplysningstype<T>,
@@ -211,6 +254,7 @@ class Faktum<T : Any>(
             kilde,
             opprettet,
             erstatter,
+            identitet = identitetId,
         )
 
     override fun medNyId(): Opplysning<T> =
@@ -223,5 +267,22 @@ class Faktum<T : Any>(
             kilde,
             opprettet,
             erstatter,
+        )
+
+    override fun revider(
+        verdi: T,
+        gyldighetsperiode: Gyldighetsperiode,
+        kilde: Kilde?,
+    ): Opplysning<T> =
+        Faktum(
+            UUIDv7.ny(),
+            opplysningstype,
+            verdi,
+            gyldighetsperiode,
+            null,
+            kilde,
+            LocalDateTime.now(),
+            this,
+            identitet = identitetId,
         )
 }
