@@ -11,6 +11,7 @@ import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator
 import no.nav.dagpenger.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.AvklaringKvittertHendelse
 import no.nav.dagpenger.modell.hendelser.BesluttBehandlingHendelse
+import no.nav.dagpenger.modell.hendelser.EndreOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.GodkjennBehandlingHendelse
@@ -176,6 +177,36 @@ internal class TestSaksbehandler2(
         )
 
         return kildeId
+    }
+
+    fun endreEksisterende(
+        opplysningstype: Opplysningstype<*>,
+        verdi: Any? = null,
+        gyldighetsperiode: Gyldighetsperiode? = null,
+        begrunnelse: String = "",
+    ) {
+        val opplysning = testPerson.behandling.opplysninger.last { it.opplysningTypeId == opplysningstype.id.uuid }
+        val meldingsreferanseId = UUIDv7.ny()
+
+        hendelseMediator.behandle(
+            EndreOpplysningHendelse(
+                meldingsreferanseId = meldingsreferanseId,
+                ident = testPerson.ident,
+                behandlingId = testPerson.behandlingId,
+                opplysningId = opplysning.perioder.last().id,
+                verdi = verdi,
+                gyldighetsperiode = gyldighetsperiode,
+                kilde =
+                    Saksbehandlerkilde(
+                        meldingsreferanseId = meldingsreferanseId,
+                        saksbehandler = Saksbehandler("NAV123123"),
+                        begrunnelse = Saksbehandlerbegrunnelse(begrunnelse),
+                        opprettet = LocalDateTime.now(),
+                    ),
+                opprettet = LocalDateTime.now(),
+            ),
+            rapid,
+        )
     }
 
     fun fjernOpplysning(opplysningstype: Opplysningstype<*>): OpplysningerDTO {

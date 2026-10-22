@@ -672,11 +672,10 @@ class ScenarioTest {
             person.søkDagpenger(1.juni(2018))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(
+            saksbehandler.endreEksisterende(
                 oppholdINorge,
-                true,
-                "Endres",
-                Gyldighetsperiode(fraOgMed = 10.juni(2018)),
+                gyldighetsperiode = Gyldighetsperiode(fraOgMed = 10.juni(2018)),
+                begrunnelse = "Endres",
             )
             behovsløsere.løsTilForslag() shouldHaveSize 9
 

@@ -92,6 +92,7 @@ class Opplysninger private constructor(
         opplysning.behandletVed = null
 
         if (opplysning.opplysningstype.overlappStrategi == OverlappStrategi.KUN_SISTE) tombstoneAvhengigeAvForrige(opplysning)
+        if (opplysning.erRevisjon) opplysning.erstatter?.let { tombstoneAvhengigeAv(it, behandlet = true) }
 
         // Sporbarhet: peker på det den overstyrer. Selve oppslaget gjøres av indeksen, ikke av denne lenken.
         if (!opplysning.erRevisjon) {
@@ -111,10 +112,17 @@ class Opplysninger private constructor(
     private fun tombstoneAvhengigeAvForrige(ny: Opplysning<*>) {
         val forrige = indeks.gjeldende(ny.opplysningstype).maxByOrNull { it.id } ?: return
         if (forrige.verdi == ny.verdi) return
+        tombstoneAvhengigeAv(forrige)
+    }
+
+    private fun tombstoneAvhengigeAv(
+        forrige: Opplysning<*>,
+        behandlet: Boolean = false,
+    ) {
         OpplysningGraf(egne.toList())
             .hentAlleUtledetAv(forrige)
             .filterNot { it is Tombstone<*> }
-            .forEach { tombstone(it.opplysningstype, it.gyldighetsperiode) }
+            .forEach { tombstone(it.opplysningstype, it.gyldighetsperiode, behandlet = behandlet) }
     }
 
     // Invariant: en opplysning kan ikke være utledetAv noe som ikke finnes (lenger) i denne
@@ -292,12 +300,15 @@ class Opplysninger private constructor(
         opplysningstype: Opplysningstype<*>,
         periode: Gyldighetsperiode = Gyldighetsperiode(),
         kilde: Kilde? = null,
+        behandlet: Boolean = false,
     ) {
         indeks
             .gjeldende(opplysningstype)
             .mapNotNull { synlig -> synlig.gyldighetsperiode.overlapp(periode)?.let { synlig to it } }
             .forEach { (synlig, skjultPeriode) ->
-                settInnOpplysning(Tombstone(synlig, skjultPeriode, kilde))
+                val tombstone = Tombstone(synlig, skjultPeriode, kilde)
+                settInnOpplysning(tombstone)
+                tombstone.behandlet = behandlet
             }
     }
 
