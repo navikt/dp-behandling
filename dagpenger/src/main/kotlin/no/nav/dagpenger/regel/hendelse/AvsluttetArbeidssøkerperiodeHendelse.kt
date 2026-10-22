@@ -115,7 +115,6 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                         false,
                         Gyldighetsperiode(fraOgMed = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate().plusDays(1)),
                         kilde = kilde,
-                        utledetAv = nullstillesVedNyHendelse(),
                     ),
                 )
 

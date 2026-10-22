@@ -290,7 +290,6 @@ class ArbeidssøkerTest {
             // Simulerer at vi tar imot flytt_behandling og flytter søsken (dette løses automatisk av behovsløsere)
             val flytt = rapidInspektør.sisteMelding("flytt_behandling").second
             saksbehandler.flyttBehandlingTilNyKjede(flytt["behandlingId"].asUUID(), flytt["nyBasertPåId"].asUUID())
-            behovsløsere.løsTilForslag() shouldHaveSize 1 // Henter inn RegistrertSomArbeidssøker på nytt
 
             // Sjekk at behandlingene som godkjennes får en avklaring som viser at det har skjedd
             saksbehandler.lukkAlleAvklaringer(stansId) shouldContain behandlingFlyttetAvklaring
@@ -462,7 +461,6 @@ class ArbeidssøkerTest {
                 avsluttetTidspunkt = 25.august(2026).atTime(2, 1),
                 fristBrutt = true,
             )
-            behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag(6) {
                 rettighetsperioder shouldHaveSize 1
@@ -473,10 +471,10 @@ class ArbeidssøkerTest {
                 }
             }
 
-            // saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, true, "", Gyldighetsperiode(3.august(2026), 16.august(2026)))
+            saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, true, "", Gyldighetsperiode(3.august(2026), 16.august(2026)))
             saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, false, "", Gyldighetsperiode(17.august(2026)))
 
-            behandlingsresultatForslag(7) {
+            behandlingsresultatForslag(8) {
                 rettighetsperioder shouldHaveSize 2
                 with(rettighetsperioder[0]) {
                     harRett shouldBe true
