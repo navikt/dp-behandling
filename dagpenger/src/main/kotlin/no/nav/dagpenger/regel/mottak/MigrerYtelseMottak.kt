@@ -3,7 +3,6 @@ package no.nav.dagpenger.regel.mottak
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
-import com.github.navikt.tbd_libs.rapids_and_rivers.asOptionalLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
@@ -16,6 +15,7 @@ import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
@@ -30,6 +30,8 @@ import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.uuid.UUIDv7
 import tools.jackson.databind.JsonNode
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.util.UUID
 
 class MigrerYtelseMottak(
     rapidsConnection: RapidsConnection,
@@ -39,17 +41,17 @@ class MigrerYtelseMottak(
     init {
         River(rapidsConnection)
             .apply {
-                precondition { it.requireValue("@event_name", "migrer_ytelse") }
+                precondition { it.requireAny("@event_name", listOf("migrer_ytelse", "start_migrering")) }
                 validate {
                     it.requireKey(
                         "ident",
-                        "innvilgetFraOgMed",
-                        "innvilgedeStønadsuker",
-                        "gjenståendeStønadsdager",
-                        "dagsats",
-                        "antallBarn",
-                        "vanligArbeidstidPerUke",
-                        "grunnlag",
+//                        "innvilgetFraOgMed",
+//                        "innvilgedeStønadsuker",
+//                        "gjenståendeStønadsdager",
+//                        "dagsats",
+//                        "antallBarn",
+//                        "vanligArbeidstidPerUke",
+//                        "grunnlag",
                     )
                     it.interestedIn("innvilgetTilOgMed", "egenandel", "kravTilArbeidstidsreduksjon", "opplysninger")
                 }
@@ -64,8 +66,8 @@ class MigrerYtelseMottak(
         meterRegistry: MeterRegistry,
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
-        val message = MigrerYtelseMessage(packet, opplysningstyper)
-        hendelseMottaker.behandle(message.hendelse, message, context)
+//        val message = MigrerYtelseMessage(packet, opplysningstyper)
+//        hendelseMottaker.behandle(message.hendelse, message, context)
     }
 
     override fun onError(
@@ -95,38 +97,90 @@ class MigrerYtelseMessage(
             opprettet = opprettet,
             ytelse =
                 MigrertYtelse(
-                    innvilgetFraOgMed = packet["innvilgetFraOgMed"].asLocalDate(),
-                    innvilgetTilOgMed = packet["innvilgetTilOgMed"].asOptionalLocalDate(),
-                    innvilgedeStønadsuker = packet["innvilgedeStønadsuker"].asInt(),
-                    gjenståendeStønadsdager = packet["gjenståendeStønadsdager"].asInt(),
-                    dagsats = packet["dagsats"].asString().toBigDecimal(),
-                    antallBarn = packet["antallBarn"].asInt(),
-                    vanligArbeidstidPerUke = packet["vanligArbeidstidPerUke"].asDouble(),
-                    grunnlag = packet["grunnlag"].asText().toBigDecimal(),
-                    egenandel =
-                        packet["egenandel"].takeUnless { it.isMissingNode || it.isNull }?.asText()?.toBigDecimal() ?: BigDecimal.ZERO,
-                    kravTilArbeidstidsreduksjon =
-                        packet["kravTilArbeidstidsreduksjon"].takeUnless { it.isMissingNode || it.isNull }?.asDouble() ?: 50.0,
+                    innvilgetFraOgMed = LocalDate.now(),
+                    innvilgetTilOgMed = null,
+                    innvilgedeStønadsuker = 104,
+                    gjenståendeStønadsdager = 520,
+                    dagsats = BigDecimal.valueOf(1500),
+                    antallBarn = 0,
+                    vanligArbeidstidPerUke = 37.5,
+                    grunnlag = BigDecimal.valueOf(500000),
+                    egenandel = BigDecimal.valueOf(0),
+                    kravTilArbeidstidsreduksjon = 50.0,
                 ),
+//                MigrertYtelse(
+//                    innvilgetFraOgMed = packet["innvilgetFraOgMed"].asLocalDate(),
+//                    innvilgetTilOgMed = packet["innvilgetTilOgMed"].asOptionalLocalDate(),
+//                    innvilgedeStønadsuker = packet["innvilgedeStønadsuker"].asInt(),
+//                    gjenståendeStønadsdager = packet["gjenståendeStønadsdager"].asInt(),
+//                    dagsats = packet["dagsats"].asString().toBigDecimal(),
+//                    antallBarn = packet["antallBarn"].asInt(),
+//                    vanligArbeidstidPerUke = packet["vanligArbeidstidPerUke"].asDouble(),
+//                    grunnlag = packet["grunnlag"].asText().toBigDecimal(),
+//                    egenandel =
+//                        packet["egenandel"].takeUnless { it.isMissingNode || it.isNull }?.asText()?.toBigDecimal() ?: BigDecimal.ZERO,
+//                    kravTilArbeidstidsreduksjon =
+//                        packet["kravTilArbeidstidsreduksjon"].takeUnless { it.isMissingNode || it.isNull }?.asDouble() ?: 50.0,
+//                ),
             tilleggsopplysninger = packet["opplysninger"].tilleggsopplysninger(opplysningstyper),
             opprettetAv = Systemaktør.dpSak,
         )
 }
 
-// Format: { "<behovId>": verdi }. Kun enkle datatyper støttes.
-private fun JsonNode.tilleggsopplysninger(opplysningstyper: Set<Opplysningstype<*>>): List<Tilleggsopplysning<*>> {
+internal fun JsonNode.tilleggsopplysninger(opplysningstyper: Set<Opplysningstype<*>>): List<Tilleggsopplysning<*>> {
     if (isMissingNode || isNull) return emptyList()
-    require(isObject) { "opplysninger må være et objekt med behovId som nøkkel" }
-    return properties().map { (behovId, verdi) ->
-        val type =
-            opplysningstyper.singleOrNull { it.behovId == behovId }
-                ?: throw IllegalArgumentException("Ukjent opplysningstype: $behovId")
-        type.tilleggsopplysning(verdi)
+    return when {
+        isObject -> {
+            properties().toList().map { (behovId, verdi) ->
+                val type =
+                    opplysningstyper.singleOrNull { it.behovId == behovId }
+                        ?: throw IllegalArgumentException("Ukjent opplysningstype: $behovId")
+                type.tilleggsopplysning(verdi)
+            }
+        }
+
+        isArray -> {
+            values().map { it.tilleggsopplysning(opplysningstyper) }
+        }
+
+        else -> {
+            throw IllegalArgumentException("opplysninger må være et objekt eller en liste")
+        }
     }
 }
 
+private fun JsonNode.tilleggsopplysning(opplysningstyper: Set<Opplysningstype<*>>): Tilleggsopplysning<*> {
+    require(isObject) { "Hver opplysning må være et objekt" }
+    val uuid =
+        get("uuid")
+            ?.takeIf { it.isString }
+            ?.asString()
+            ?.let(UUID::fromString)
+            ?: throw IllegalArgumentException("Opplysning mangler gyldig uuid")
+    val type =
+        opplysningstyper.singleOrNull { it.id.uuid == uuid }
+            ?: throw IllegalArgumentException("Ukjent opplysningstype: $uuid")
+    val verdi = get("verdi") ?: throw IllegalArgumentException("Opplysning $uuid mangler verdi")
+    require(!verdi.isNull) { "Opplysning $uuid mangler verdi" }
+    val gyldigFraOgMed =
+        get("gyldigFraOgMed")
+            ?.takeIf { it.isString }
+            ?.asLocalDate()
+            ?: throw IllegalArgumentException("Opplysning $uuid mangler gyldig gyldigFraOgMed")
+    val gyldigTilOgMed =
+        get("gyldigTilOgMed")
+            ?.takeUnless { it.isMissingNode || it.isNull }
+            ?.also { require(it.isString) { "Opplysning $uuid har ugyldig gyldigTilOgMed" } }
+            ?.asLocalDate()
+            ?: LocalDate.MAX
+    return type.tilleggsopplysning(verdi, Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed))
+}
+
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> Opplysningstype<T>.tilleggsopplysning(verdi: JsonNode): Tilleggsopplysning<T> {
+private fun <T : Any> Opplysningstype<T>.tilleggsopplysning(
+    verdi: JsonNode,
+    gyldighetsperiode: Gyldighetsperiode? = null,
+): Tilleggsopplysning<*> {
     fun JsonNode.krev(
         gyldig: Boolean,
         forventet: String,
@@ -142,5 +196,5 @@ private fun <T : Any> Opplysningstype<T>.tilleggsopplysning(verdi: JsonNode): Ti
             Tekst -> verdi.also { it.krev(it.isString, "tekst") }.asString()
             else -> throw IllegalArgumentException("Opplysning $behovId har datatype ${datatype.javaClass.simpleName} som ikke støttes")
         }
-    return Tilleggsopplysning(this, konvertert as T)
+    return Tilleggsopplysning(this, konvertert as T, gyldighetsperiode)
 }

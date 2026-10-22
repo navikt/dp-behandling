@@ -51,15 +51,18 @@ data class MigrertYtelse(
     val innvilgetPeriode get() = innvilgetTilOgMed?.let { Gyldighetsperiode(innvilgetFraOgMed, it) } ?: Gyldighetsperiode(innvilgetFraOgMed)
 }
 
-/** Opplysning utenfor den eksplisitte kontrakten. Gjelder i hele den innvilgede perioden. */
+/**
+ * Opplysning utenfor den eksplisitte kontrakten. Bruker ytelsens periode hvis opplysningen mangler egen periode.
+ */
 class Tilleggsopplysning<T : Any>(
     val opplysningstype: Opplysningstype<T>,
     val verdi: T,
+    val gyldighetsperiode: Gyldighetsperiode? = null,
 ) {
     fun faktum(
-        gyldighetsperiode: Gyldighetsperiode,
+        standardGyldighetsperiode: Gyldighetsperiode,
         kilde: Kilde,
-    ) = Faktum(opplysningstype, verdi, gyldighetsperiode, kilde = kilde)
+    ) = Faktum(opplysningstype, verdi, gyldighetsperiode ?: standardGyldighetsperiode, kilde = kilde)
 }
 
 class MigrerYtelseHendelse(

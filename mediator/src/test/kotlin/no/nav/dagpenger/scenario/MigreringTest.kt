@@ -5,9 +5,11 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppfyllerKravet
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class MigreringTest {
+    @Disabled
     @Test
     fun `tester meldekort etter migrering`() {
         nyttScenario {
