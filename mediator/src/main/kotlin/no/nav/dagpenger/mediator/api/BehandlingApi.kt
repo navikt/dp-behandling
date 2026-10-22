@@ -32,12 +32,14 @@ import no.nav.dagpenger.mediator.OpplysningSvarBygger.VerdiMapper
 import no.nav.dagpenger.mediator.api.auth.AuthFactory
 import no.nav.dagpenger.mediator.api.auth.saksbehandlerId
 import no.nav.dagpenger.mediator.api.auth.saksbehandlerIdOrNull
+import no.nav.dagpenger.mediator.api.melding.EndreOpplysning
 import no.nav.dagpenger.mediator.api.melding.FjernOpplysning
 import no.nav.dagpenger.mediator.api.melding.OpplysningsSvar
 import no.nav.dagpenger.mediator.api.models.AvklaringKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.BehandlingDTO
 import no.nav.dagpenger.mediator.api.models.DataTypeDTO
 import no.nav.dagpenger.mediator.api.models.DatalastKvitteringDTO
+import no.nav.dagpenger.mediator.api.models.EndreOpplysningDTO
 import no.nav.dagpenger.mediator.api.models.FerietilleggKvitteringDTO
 import no.nav.dagpenger.mediator.api.models.FlyttBehandlingDTO
 import no.nav.dagpenger.mediator.api.models.IdentForesporselDTO
@@ -530,6 +532,60 @@ internal fun Application.behandlingApi(
                         call.respond(HttpStatusCode.Accepted)
                     }
 
+                    put("opplysning/{opplysningId}") {
+                        val behandlingId = call.behandlingId
+                        val opplysningId = call.opplysningId
+                        withLoggingContext(
+                            "behandlingId" to behandlingId.toString(),
+                        ) {
+                            val endring = call.receive<EndreOpplysningDTO>()
+                            if (endring.verdi == null && endring.gyldigFraOgMed == null) {
+                                throw BadRequestException("Må endre verdi eller gyldighetsperiode")
+                            }
+                            if (endring.gyldigFraOgMed == null && endring.gyldigTilOgMed != null) {
+                                throw BadRequestException("gyldigTilOgMed krever gyldigFraOgMed")
+                            }
+
+                            val behandling = hentBehandling(personRepository, behandlingId)
+
+                            if (behandling.harTilstand(Redigert)) {
+                                throw RedigeringPågårException()
+                            }
+
+                            if (!behandling.kanRedigeres()) {
+                                throw BehandlingIkkeRedigerbareException(behandling.tilstand().first.name)
+                            }
+
+                            val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
+                            val opplysningstype = opplysning.opplysningstype
+                            if (!redigerbareOpplysninger.kanRedigere(opplysningstype) || opplysningstype.er(søknadIdOpplysningstype)) {
+                                throw OpplysningIkkeRedigerbareException(opplysningstype.toString())
+                            }
+
+                            val svar =
+                                EndreOpplysning(
+                                    behandlingId = behandlingId,
+                                    opplysningId = opplysningId,
+                                    behovId = opplysningstype.behovId,
+                                    ident = behandling.behandler.ident,
+                                    verdi = endring.verdi?.let { HttpVerdiMapper(it).map(opplysningstype.datatype) },
+                                    gyldigFraOgMed = endring.gyldigFraOgMed,
+                                    gyldigTilOgMed = endring.gyldigTilOgMed,
+                                    saksbehandler = call.saksbehandlerId(),
+                                    begrunnelse = endring.begrunnelse,
+                                )
+
+                            apiRepositoryPostgres.endreOpplysning(behandlingId, opplysningstype.behovId) {
+                                logger.info { "Starter en endring av eksisterende opplysning i behandling" }
+                                messageContext(behandling.behandler.ident).publish(svar.toJson())
+                                auditlogg.oppdater("Endret opplysning", behandling.behandler.ident, call.saksbehandlerId())
+                                logger.info { "Venter på endring i behandling" }
+                            }
+
+                            call.respond(HttpStatusCode.OK, KvitteringDTO(behandlingId))
+                        }
+                    }
+
                     delete("opplysning/{opplysningId}") {
                         val behandlingId = call.behandlingId
                         val opplysningId = call.opplysningId
@@ -680,7 +736,7 @@ internal fun Application.behandlingApi(
                                     behandlingId,
                                     opplysningstype.behovId,
                                     behandling.behandler.ident,
-                                    HttpVerdiMapper(nyOpplysningDTO).map(opplysningstype.datatype),
+                                    HttpVerdiMapper(nyOpplysningDTO.verdi).map(opplysningstype.datatype),
                                     call.saksbehandlerId(),
                                     nyOpplysningDTO.begrunnelse,
                                     nyOpplysningDTO.gyldigFraOgMed,
@@ -908,17 +964,17 @@ private val OtelTraceIdPlugin =
 
 @Suppress("UNCHECKED_CAST")
 private class HttpVerdiMapper(
-    private val nyOpplysning: NyOpplysningDTO,
+    private val verdi: String,
 ) : VerdiMapper {
     override fun <T : Any> map(datatype: Datatype<T>): T =
         when (datatype) {
-            Heltall -> nyOpplysning.verdi.toInt() as T
-            Boolsk -> nyOpplysning.verdi.toBoolean() as T
-            Desimaltall -> nyOpplysning.verdi.toDouble() as T
-            Penger -> nyOpplysning.verdi.toDouble() as T
-            Dato -> nyOpplysning.verdi.let { LocalDate.parse(it) } as T
-            BarnDatatype -> barnMapper(nyOpplysning.verdi) as T
-            Tekst -> nyOpplysning.verdi as T
+            Heltall -> verdi.toInt() as T
+            Boolsk -> verdi.toBoolean() as T
+            Desimaltall -> verdi.toDouble() as T
+            Penger -> verdi.toDouble() as T
+            Dato -> verdi.let { LocalDate.parse(it) } as T
+            BarnDatatype -> barnMapper(verdi) as T
+            Tekst -> verdi as T
             else -> throw BadRequestException("Datatype $datatype støttes ikke å redigere i APIet enda")
         }
 }

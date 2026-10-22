@@ -295,7 +295,7 @@ private object EnkeltSvar : SvarStrategi {
 }
 
 @Suppress("UNCHECKED_CAST")
-private class JsonMapper(
+internal class JsonMapper(
     private val verdi: JsonNode,
 ) : OpplysningSvarBygger.VerdiMapper {
     override fun <T : Any> map(datatype: Datatype<T>): T =

@@ -13,6 +13,8 @@ import no.nav.dagpenger.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.mediator.mottak.BehovsløserErUtestengtMottak
 import no.nav.dagpenger.mediator.mottak.BehovsløserForbruksdagerMottak
 import no.nav.dagpenger.mediator.mottak.BeregnMeldekortMottak
+import no.nav.dagpenger.mediator.mottak.EndreOpplysningMessage
+import no.nav.dagpenger.mediator.mottak.EndreOpplysningMottak
 import no.nav.dagpenger.mediator.mottak.FjernOpplysningMessage
 import no.nav.dagpenger.mediator.mottak.FjernOpplysningMottak
 import no.nav.dagpenger.mediator.mottak.FlyttBehandlingMottak
@@ -39,6 +41,7 @@ import no.nav.dagpenger.mediator.repository.MeldekortRepository
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.AvklaringIkkeRelevantHendelse
+import no.nav.dagpenger.modell.hendelser.EndreOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FjernOpplysningHendelse
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.hendelser.ForslagGodkjentHendelse
@@ -75,6 +78,7 @@ internal class MessageMediator(
         BehovsløserErUtestengtMottak(rapidsConnection, personRepository)
         BehovsløserForbruksdagerMottak(rapidsConnection, personRepository)
         BeregnMeldekortMottak(rapidsConnection, this, meldekortRepository)
+        EndreOpplysningMottak(rapidsConnection, this, opplysningstyper)
         FjernOpplysningMottak(rapidsConnection, this, opplysningstyper)
         FlyttBehandlingMottak(rapidsConnection, this)
         GodkjennBehandlingMottak(rapidsConnection, this)
@@ -210,6 +214,17 @@ internal class MessageMediator(
     }
 
     override fun behandle(
+        hendelse: EndreOpplysningHendelse,
+        message: EndreOpplysningMessage,
+        context: MessageContext,
+    ) {
+        behandle(hendelse, message) {
+            hendelseMediator.behandle(it, context)
+            behovssporer.behovLøst(hendelse.behandlingId, message.behovId)
+        }
+    }
+
+    override fun behandle(
         hendelse: UtbetalingStatus,
         message: UtbetalingStatusMessage,
         context: MessageContext,
@@ -258,6 +273,12 @@ internal interface IMessageMediator : HendelseMottaker {
     fun behandle(
         hendelse: OpplysningSvarHendelse,
         message: OpplysningSvarMessage,
+        context: MessageContext,
+    )
+
+    fun behandle(
+        hendelse: EndreOpplysningHendelse,
+        message: EndreOpplysningMessage,
         context: MessageContext,
     )
 
