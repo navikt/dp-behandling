@@ -20,11 +20,11 @@ class TidsbegrensetBortfallTest {
             behovsløsere.løsTilForslag()
 
             // Saksbehandler ilegger tidsbegrenset bortfall på 5 dager
-            saksbehandler.endreOpplysning(TidsbegrensetBortfall.harTidsbegrensetBortfall, true)
-            saksbehandler.endreOpplysning(TidsbegrensetBortfall.antallBortfallsdager, 5)
+            saksbehandler.leggTilOpplysning(TidsbegrensetBortfall.harTidsbegrensetBortfall, true)
+            saksbehandler.leggTilOpplysning(TidsbegrensetBortfall.antallBortfallsdager, 5)
 
-            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, true)
-            saksbehandler.endreOpplysning(Sanksjonsperiode.antallSanksjonsdager, 2)
+            saksbehandler.leggTilOpplysning(Sanksjonsperiode.harSanksjon, true)
+            saksbehandler.leggTilOpplysning(Sanksjonsperiode.antallSanksjonsdager, 2)
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -73,8 +73,8 @@ class TidsbegrensetBortfallTest {
             behovsløsere.løsTilForslag()
 
             // Saksbehandler ilegger tidsbegrenset bortfall på 3 dager
-            saksbehandler.endreOpplysning(TidsbegrensetBortfall.harTidsbegrensetBortfall, true)
-            saksbehandler.endreOpplysning(TidsbegrensetBortfall.antallBortfallsdager, 3)
+            saksbehandler.leggTilOpplysning(TidsbegrensetBortfall.harTidsbegrensetBortfall, true)
+            saksbehandler.leggTilOpplysning(TidsbegrensetBortfall.antallBortfallsdager, 3)
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()

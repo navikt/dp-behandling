@@ -142,7 +142,7 @@ internal class TestSaksbehandler2(
         return behandling.shouldNotBeNull()
     }
 
-    fun <T : Any> endreOpplysning(
+    fun <T : Any> leggTilOpplysning(
         opplysningstype: Opplysningstype<T>,
         verdi: T,
         begrunnelse: String = "",
@@ -179,11 +179,11 @@ internal class TestSaksbehandler2(
         return kildeId
     }
 
-    fun endreEksisterende(
+    fun endreOpplysning(
         opplysningstype: Opplysningstype<*>,
         verdi: Any? = null,
-        gyldighetsperiode: Gyldighetsperiode? = null,
         begrunnelse: String = "",
+        gyldighetsperiode: Gyldighetsperiode? = null,
     ) {
         val opplysning = testPerson.behandling.opplysninger.last { it.opplysningTypeId == opplysningstype.id.uuid }
         val meldingsreferanseId = UUIDv7.ny()

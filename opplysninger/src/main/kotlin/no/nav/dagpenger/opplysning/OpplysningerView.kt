@@ -40,7 +40,7 @@ internal class OpplysningerView(
 
     override fun finnFlere(opplysningstyper: List<Opplysningstype<*>>): List<Opplysning<*>> =
         opplysningstyper.mapNotNull { type ->
-            hentBaseListe().lastOrNull { it.er(type) }
+            source.finnAlleMedFiltre(type, gjelderFor, bareEgne).lastOrNull()
         }
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>): List<Opplysning<T>> =

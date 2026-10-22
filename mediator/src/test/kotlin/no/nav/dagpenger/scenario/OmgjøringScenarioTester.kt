@@ -73,7 +73,7 @@ class OmgjøringScenarioTester {
             // Utfør omgjøring
             saksbehandler.omgjørBehandling(29.juli(2026))
             // 1. Flytt søknadsId/søknadsdato bak i tid
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 søknadIdOpplysningstype,
                 opprinneligSøknadId.toString(),
                 "Bak i tid",
@@ -82,7 +82,7 @@ class OmgjøringScenarioTester {
             behovsløsere.løsTilForslag()
 
             // 2. Flytt ønsker fra dato bak i tid
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Søknadstidspunkt.ønsketdato,
                 12.mai(2026),
                 "Bak i tid",
@@ -91,7 +91,7 @@ class OmgjøringScenarioTester {
             behovsløsere.løsTilForslag()
 
             // 3. Overstyr vilkåret om å være registrert
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
                 true,
                 "Bak i tid",
@@ -105,7 +105,7 @@ class OmgjøringScenarioTester {
                 opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 30.april(2026).toString()
             }
 
-            saksbehandler.endreOpplysning(OmgjøringUtenKlage.ansesUgyldigVedtak, true)
+            saksbehandler.leggTilOpplysning(OmgjøringUtenKlage.ansesUgyldigVedtak, true)
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -169,13 +169,13 @@ class OmgjøringScenarioTester {
 
             // Utfør omgjøring
             saksbehandler.omgjørBehandling(21.juni(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 DagpengenesStørrelse.dagsatsUtenBarnetillegg,
                 Beløp(1000000000.0),
                 "Mere Penger!",
                 Gyldighetsperiode(21.juni(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 skalOmgjøringUtenKlageVurderes,
                 true,
                 "Test",
@@ -189,7 +189,7 @@ class OmgjøringScenarioTester {
                 this.shouldContain("HarSvartPåOmgjøringUtenKlage")
             }
 
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 OmgjøringUtenKlage.ansesUgyldigVedtak,
                 true,
             )
@@ -239,7 +239,7 @@ class OmgjøringScenarioTester {
 
             // Stans
             saksbehandler.lagBehandling(11.juli(2018))
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "Oppholder seg ikke i Norge", Gyldighetsperiode(15.juli(2018)))
+            saksbehandler.leggTilOpplysning(Opphold.oppholdINorge, false, "Oppholder seg ikke i Norge", Gyldighetsperiode(15.juli(2018)))
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -252,7 +252,7 @@ class OmgjøringScenarioTester {
 
             // Gjenopptak
             person.søkGjenopptak(8.august(2018))
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(8.august(2018)))
+            saksbehandler.leggTilOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(8.august(2018)))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -276,20 +276,20 @@ class OmgjøringScenarioTester {
 
             // Omgjøring
             saksbehandler.omgjørBehandling(1.august(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Søknadstidspunkt.prøvingsdato,
                 1.august(2018),
                 "Omgjøring: gjenopptak gjelder fra 1. august",
                 Gyldighetsperiode(1.august(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 skalGjenopptakVurderes,
                 true,
                 "Endrer kravet om gjenopptak til 1. august, som er første mulige dato for gjenopptak",
                 Gyldighetsperiode(1.august(2018)),
             )
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(1.august(2018)))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(1.august(2018)))
+            saksbehandler.leggTilOpplysning(
                 OmgjøringUtenKlage.ansesUgyldigVedtak,
                 true,
             )
@@ -345,7 +345,7 @@ class OmgjøringScenarioTester {
 
             // Stans
             saksbehandler.lagBehandling(25.januar(2018))
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "Oppholder seg ikke i Norge", Gyldighetsperiode(25.januar(2018)))
+            saksbehandler.leggTilOpplysning(Opphold.oppholdINorge, false, "Oppholder seg ikke i Norge", Gyldighetsperiode(25.januar(2018)))
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -368,7 +368,7 @@ class OmgjøringScenarioTester {
 
             // Gjenopptak
             person.søkGjenopptak(14.februar(2018))
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(14.februar(2018)))
+            saksbehandler.leggTilOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(14.februar(2018)))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -398,14 +398,14 @@ class OmgjøringScenarioTester {
 
             // Omgjøring
             saksbehandler.omgjørBehandling(19.februar(2018))
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(19.februar(2018)))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(Opphold.oppholdINorge, true, "Oppholder seg i Norge", Gyldighetsperiode(19.februar(2018)))
+            saksbehandler.leggTilOpplysning(
                 Opphold.oppholdINorge,
                 false,
                 "Oppholder seg ikke i Norge",
                 Gyldighetsperiode(14.februar(2018), 18.februar(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 OmgjøringUtenKlage.ansesUgyldigVedtak,
                 true,
             )
@@ -556,13 +556,13 @@ class OmgjøringScenarioTester {
 
             // Omgjøring
             saksbehandler.omgjørBehandling(22.juni(2026))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Utdanning.deltakelseIArbeidsmarkedstiltak,
                 true,
                 "Har litt tiltak",
                 Gyldighetsperiode(8.juni(2026), 3.juli(2026)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Utdanning.tarUtdanning,
                 false,
                 "Tiltak er ferdig",

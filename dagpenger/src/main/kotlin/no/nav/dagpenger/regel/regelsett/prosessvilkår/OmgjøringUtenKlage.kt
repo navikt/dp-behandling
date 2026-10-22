@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.regelsett.prosessvilkår
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.OpplysningstypeKategori
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.prosess
 import no.nav.dagpenger.opplysning.forvaltningsloven
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -17,18 +18,21 @@ object OmgjøringUtenKlage {
             OpplysningsTyper.endringIkkeTilSkadeId,
             "a. Endringen ikke er til skade for noen som vedtaket retter seg mot eller direkte tilgodeser",
             opplysningstypeKategori = OpplysningstypeKategori.Prosess,
+            overlappStrategi = OverlappStrategi.KUN_SISTE,
         )
     val ikkeUnderretning =
         boolsk(
             OpplysningsTyper.ikkeUnderretningId,
             "b. underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort",
             opplysningstypeKategori = OpplysningstypeKategori.Prosess,
+            overlappStrategi = OverlappStrategi.KUN_SISTE,
         )
     val ansesUgyldigVedtak =
         boolsk(
             OpplysningsTyper.ansesUgyldigVedtakId,
             "c. vedtaket må anses ugyldig",
             opplysningstypeKategori = OpplysningstypeKategori.Prosess,
+            overlappStrategi = OverlappStrategi.KUN_SISTE,
         )
 
     val kanOmgjøresUtenKlage =
@@ -36,6 +40,7 @@ object OmgjøringUtenKlage {
             OpplysningsTyper.kanOmgjøresUtenKlageId,
             "Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget",
             opplysningstypeKategori = OpplysningstypeKategori.Prosess,
+            overlappStrategi = OverlappStrategi.KUN_SISTE,
         )
 
     val regelsett =

@@ -22,7 +22,7 @@ class SporbarhetTest {
 
                 // endreOpplysning returnerer kildeId, så vi slipper å gjette
                 val kildeId =
-                    saksbehandler.endreOpplysning(
+                    saksbehandler.leggTilOpplysning(
                         grunnlag,
                         verdi = Beløp(300000),
                         begrunnelse = "Inntekt korrigert etter dokumentasjon fra bruker",

@@ -8,6 +8,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.OutgoingMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.SentMessage
 import com.natpryce.konfig.ConfigurationMap
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldNotBe
 import io.ktor.client.request.header
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -270,7 +271,9 @@ private fun godkjennMeldinger(inspektør: TestRapid.RapidInspector) {
             }
 
             "NyAvklaring" -> {
-                meldinger.add("Laget avklaring om ${melding["kode"].asString()}")
+                val avklaringkode = melding["kode"].asString()
+                avklaringkode shouldNotBe "REGELKJØRING_LOOP"
+                meldinger.add("Laget avklaring om $avklaringkode")
             }
 
             "behandling_opprettet" -> {

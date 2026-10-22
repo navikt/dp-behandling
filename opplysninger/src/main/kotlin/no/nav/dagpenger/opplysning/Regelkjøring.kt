@@ -393,7 +393,8 @@ class Regelkjøring(
         // `opplysningerPåPrøvingsdato` leser gjennom (live) til `opplysninger`, så resultatet av
         // regel N er synlig for regel N+1 i samme runde med en gang det er lagt til.
         fun kjørRegelPlan(opplysninger: Opplysninger): List<Regelkjøringutfall<*>> =
-            plan.map { regel ->
+            plan.mapNotNull { regel ->
+                if (!regel.erKlarTilKjøring(opplysningerPåPrøvingsdato)) return@mapNotNull null
                 try {
                     regel.kjørRegel().also { opplysninger.leggTil(it.produkt) }
                 } catch (e: IllegalArgumentException) {

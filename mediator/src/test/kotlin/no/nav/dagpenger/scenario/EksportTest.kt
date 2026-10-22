@@ -49,7 +49,7 @@ class EksportTest {
             }
 
             saksbehandler.lagBehandling(1.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEksportVurderes,
                 true,
                 "Drar til syden",
@@ -90,7 +90,7 @@ class EksportTest {
 
             // Registrerer seg i vertslandet og skal ha gjenopptak av dagpenger
             saksbehandler.lagBehandling(5.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Eksport.registrertIVertsland,
                 true,
                 "Har registrert seg i syden",
@@ -135,7 +135,7 @@ class EksportTest {
             meldekortBatch(markerFerdig = true)
 
             saksbehandler.lagBehandling(1.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEksportVurderes,
                 true,
                 "Drar til syden",
@@ -154,7 +154,7 @@ class EksportTest {
             // Frist for å registrere seg er skalHaEksportFra + 7 dager = 8.februar. Registrering
             // nøyaktig på fristdagen skal fortsatt regnes som "innen fristen".
             saksbehandler.lagBehandling(8.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Eksport.registrertIVertsland,
                 true,
                 "Har registrert seg i syden på siste gyldige dag",
@@ -196,7 +196,7 @@ class EksportTest {
             meldekortBatch(markerFerdig = true)
 
             saksbehandler.lagBehandling(1.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEksportVurderes,
                 true,
                 "Drar til syden",
@@ -248,7 +248,7 @@ class EksportTest {
             meldekortBatch(markerFerdig = true)
 
             saksbehandler.lagBehandling(1.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEksportVurderes,
                 true,
                 "Drar til syden",
@@ -266,7 +266,7 @@ class EksportTest {
 
             // Registrerer seg i vertslandet og skal ha gjenopptak av dagpenger
             saksbehandler.lagBehandling(5.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Eksport.registrertIVertsland,
                 true,
                 "Har registrert seg i syden",
@@ -312,7 +312,7 @@ class EksportTest {
             meldekortBatch(markerFerdig = true)
 
             saksbehandler.lagBehandling(1.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEksportVurderes,
                 true,
                 "Drar til syden",
@@ -323,7 +323,7 @@ class EksportTest {
             saksbehandler.beslutt()
 
             saksbehandler.lagBehandling(5.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Eksport.registrertIVertsland,
                 true,
                 "Har registrert seg i syden",
@@ -380,7 +380,7 @@ class EksportTest {
             meldekortBatch(markerFerdig = true)
 
             saksbehandler.lagBehandling(1.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEksportVurderes,
                 true,
                 "Drar til syden",
@@ -391,7 +391,7 @@ class EksportTest {
             saksbehandler.beslutt()
 
             saksbehandler.lagBehandling(5.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Eksport.registrertIVertsland,
                 true,
                 "Har registrert seg i syden",
@@ -447,7 +447,7 @@ class EksportTest {
             meldekortBatch(markerFerdig = true)
 
             saksbehandler.lagBehandling(1.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEksportVurderes,
                 true,
                 "Drar til syden",
@@ -458,7 +458,7 @@ class EksportTest {
             saksbehandler.beslutt()
 
             saksbehandler.lagBehandling(5.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Eksport.registrertIVertsland,
                 true,
                 "Har registrert seg i syden",
@@ -511,7 +511,7 @@ class EksportTest {
             meldekortBatch(markerFerdig = true)
 
             saksbehandler.lagBehandling(1.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEksportVurderes,
                 true,
                 "Drar til syden",
@@ -522,7 +522,7 @@ class EksportTest {
             saksbehandler.beslutt()
 
             saksbehandler.lagBehandling(5.februar(2025))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Eksport.registrertIVertsland,
                 true,
                 "Har registrert seg i syden",

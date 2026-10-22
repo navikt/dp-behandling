@@ -32,7 +32,7 @@ class RevurderingInntektTest {
             // inn i revurderingen - se `rekjørBehandling`-varianten under for hvordan dette faktisk skjer i
             // produksjon, via inntektsverktøyets rekjør_behandling + oppfriskOpplysningIder.
             saksbehandler.omgjørBehandling(søknadsdato)
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 inntektFraSkatt,
                 Inntekt(person.inntekt(person.inntektSiste12Mnd, søknadsdato.minusMonths(2))),
                 "Innhentet inntekt på nytt ved revurdering",
