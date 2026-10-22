@@ -515,6 +515,7 @@ class OpplysningerRepositoryPostgresTest {
     }
 
     @Test
+    @Disabled("FJERN-SEMANTIKK: forutsetter fysisk sletting. Skrives om til Tombstone når fjern() er fjernet.")
     fun `ikke slette mer enn vi skal fra tidligere opplysninger `() {
         withMigratedDb {
             val repo = opplysningerRepository(dbSession)
@@ -625,6 +626,7 @@ class OpplysningerRepositoryPostgresTest {
     }
 
     @Test
+    @Disabled("FJERN-SEMANTIKK: forutsetter fysisk sletting. Skrives om til Tombstone når fjern() er fjernet.")
     fun `Sletter flere sett med opplysninger`() {
         withMigratedDb {
             val vaktmesterRepo = VaktmesterPostgresRepo(dbSession)
