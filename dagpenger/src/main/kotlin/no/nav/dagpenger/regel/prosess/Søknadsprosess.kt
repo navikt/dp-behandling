@@ -55,15 +55,25 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
         val regelkjøringsdato =
             if (ubehandlede.isNotEmpty()) {
                 maxOf(prøvingsdato, ubehandlede.first())
+                // maxOf(prøvingsdato, *ubehandlede.toTypedArray())
             } else {
                 prøvingsdato
             }
 
+        val alledatoer =
+            opplysninger
+                .somListe(Egne)
+                .flatMap { listOf(it.gyldighetsperiode.fraOgMed, it.gyldighetsperiode.tilOgMed) }
+                .toSet()
+                .filterNot { it == LocalDate.MAX || it == LocalDate.MIN }
+
         logger.info { "Regelkjøringsdato=$regelkjøringsdato (prøvingsdato=$prøvingsdato, ubehandlede=$ubehandlede)" }
+        logger.info { "DE EKTE DATOENE ${alledatoer.joinToString()}" }
 
         return Regelkjøring(
             regelverksdato = virkningsdato(opplysninger),
             prøvingsperiode = Regelkjøring.Enkeltdager(regelkjøringsdato),
+            // prøvingsperiode = Regelkjøring.Periode(alledatoer.min(), alledatoer.max()),
             opplysninger = opplysninger,
             forretningsprosess = this,
         )
