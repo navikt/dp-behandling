@@ -33,6 +33,10 @@ class OpplysningSvarHendelse(
         )
 }
 
+// Et svar kan ikke gjelde utenfor det grunnlaget det er innhentet med gjelder (utflatet) for
+private fun Gyldighetsperiode.begrensesAv(grunnlag: List<Opplysning<*>>): Gyldighetsperiode? =
+    grunnlag.fold<Opplysning<*>, Gyldighetsperiode?>(this) { periode, it -> periode?.overlapp(it.gyldighetsperiode) }
+
 data class OpplysningSvar<T : Any>(
     val opplysningstype: Opplysningstype<T>,
     val verdi: T,
@@ -56,7 +60,9 @@ data class OpplysningSvar<T : Any>(
             }
         // TODO ??????????????
         val prøvingsdato = LocalDate.now()
-        val gyldighetsperiode = gyldighetsperiode ?: opplysningstype.gyldighetsperiode(verdi, basertPå, prøvingsdato)
+        val begrenset = gyldighetsperiode?.begrensesAv(basertPå)
+        val utenforGrunnlaget = gyldighetsperiode != null && begrenset == null
+        val gyldighetsperiode = begrenset ?: gyldighetsperiode ?: opplysningstype.gyldighetsperiode(verdi, basertPå, prøvingsdato)
 
         val opplysning =
             when (tilstand) {
@@ -80,7 +86,7 @@ data class OpplysningSvar<T : Any>(
                     )
                 }
             }
-        opplysninger.leggTil(opplysning)
+        if (!utenforGrunnlaget) opplysninger.leggTil(opplysning)
 
         return opplysning
     }
