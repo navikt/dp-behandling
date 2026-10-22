@@ -41,7 +41,7 @@ Publiseres når en behandling er ferdigstilt, med resultatet av behandlingen
 
 Fullstendig behandlingsresultat (opplysninger, utbetalinger, avgjørelse m.m.), publisert på rapid-topicet av `PersonMediator`. Samme schema (`Behandlingsresultat`) brukes også som respons for `GET /behandling/{behandlingId}/behandlingsresultat` i HTTP-API-et — Kafka- meldingen og HTTP-responsen er alltid i sync fordi begge genereres fra samme fabrikt-DTO.
 
-Schema: [`Behandlingsresultat`](../openapi/src/main/resources/behandling-api.yaml#L1162)
+Schema: [`Behandlingsresultat`](../openapi/src/main/resources/behandling-api.yaml#L1228)
 
 ### `søknadsbehandling_avbrutt`
 
@@ -49,7 +49,7 @@ Publiseres når en behandling av en søknad avbrytes uten å bli ferdigstilt
 
 Tynn hendelse med henvisning til søknadId og eventuell årsak. Publiseres på rapid-topicet, ikke via HTTP.
 
-Schema: [`SoknadsbehandlingAvbrutt`](../openapi/src/main/resources/behandling-api.yaml#L2308)
+Schema: [`SoknadsbehandlingAvbrutt`](../openapi/src/main/resources/behandling-api.yaml#L2374)
 
 ### `søknadsbehandling_ferdig`
 
@@ -57,5 +57,5 @@ Publiseres når en behandling av en søknad er ferdigstilt
 
 Tynn hendelse med henvisning til søknadId og utfallet av behandlingen (avgjørelse og rettighetsperioder). Publiseres på rapid-topicet, ikke via HTTP.
 
-Schema: [`SoknadsbehandlingFerdig`](../openapi/src/main/resources/behandling-api.yaml#L2281)
+Schema: [`SoknadsbehandlingFerdig`](../openapi/src/main/resources/behandling-api.yaml#L2347)
 

@@ -340,7 +340,7 @@ graph RL
   IJ["Ønsker dagpenger fra dato"] -->|"Ekstern"| AQ["søknadId"]
   IK["Søknadstidspunkt"] -->|"SisteAv"| DS["Søknadsdato"]
   IK["Søknadstidspunkt"] -->|"SisteAv"| IJ["Ønsker dagpenger fra dato"]
-  F["Prøvingsdato"] -->|"SisteAv"| IK["Søknadstidspunkt"]
+  F["Prøvingsdato"] -->|"Prøvingsdato"| IK["Søknadstidspunkt"]
   IL["Har krav på lønn fra arbeidsgiver"] -->|"Ekstern"| AQ["søknadId"]
   IM["Har ikke krav på lønn fra arbeidsgiver"] -->|"IngenAv"| IL["Har krav på lønn fra arbeidsgiver"]
   IN["Oppfyller vilkåret til tap av arbeidsinntekt"] -->|"HvisSannMedResultat"| ER["Skal permittering vurderes"]

@@ -51,20 +51,28 @@ internal fun Collection<Periode>.somArbeidssøkerbehov(fraOgMed: LocalDate): Lis
 
 private fun Periode.minus(annen: Periode): List<Periode> =
     when {
-        maxOf(annen.fraOgMed, fraOgMed) > minOf(annen.tilOgMed, tilOgMed) -> listOf(this)
-        annen.fraOgMed > fraOgMed && annen.tilOgMed < tilOgMed ->
+        maxOf(annen.fraOgMed, fraOgMed) > minOf(annen.tilOgMed, tilOgMed) -> {
+            listOf(this)
+        }
+
+        annen.fraOgMed > fraOgMed && annen.tilOgMed < tilOgMed -> {
             listOf(
                 Periode(fraOgMed, annen.fraOgMed.minusDays(1)),
                 Periode(annen.tilOgMed.plusDays(1), tilOgMed),
             )
+        }
 
-        annen.fraOgMed > fraOgMed && annen.tilOgMed >= tilOgMed ->
+        annen.fraOgMed > fraOgMed && annen.tilOgMed >= tilOgMed -> {
             listOf(Periode(fraOgMed, annen.fraOgMed.minusDays(1)))
+        }
 
-        annen.fraOgMed <= fraOgMed && annen.tilOgMed < tilOgMed ->
+        annen.fraOgMed <= fraOgMed && annen.tilOgMed < tilOgMed -> {
             listOf(Periode(annen.tilOgMed.plusDays(1), tilOgMed))
+        }
 
-        else -> emptyList()
+        else -> {
+            emptyList()
+        }
     }
 
 internal class Mennesket(
@@ -83,7 +91,7 @@ internal class Mennesket(
     private val fagsak = mutableListOf<Int>()
     private val fødselsdato: LocalDate = scenario.fødselsdato
     private lateinit var søknadsdato: LocalDate
-    private lateinit var ønskerFraDato: LocalDate
+    private val ønsketdatoPerSøknad = mutableMapOf<UUID, LocalDate>()
     private lateinit var meldesyklus: Meldesyklus
     private val kanJobbeDeltid = scenario.kanJobbeDeltid
     val arbeidsøkerRegisterPerioder = mutableSetOf<Periode>()
@@ -96,7 +104,7 @@ internal class Mennesket(
         søknadId: UUID = søknader.ny(),
     ) {
         this.søknadsdato = dato
-        this.ønskerFraDato = ønskerFraDato
+        ønsketdatoPerSøknad[søknadId] = ønskerFraDato
         this.meldesyklus = Meldesyklus(søknadsdato)
         arbeidsøkerRegisterPerioder.add(Periode(dato, LocalDate.MAX))
 
@@ -116,9 +124,8 @@ internal class Mennesket(
         ønskerFraDato: LocalDate = dato,
     ): UUID {
         this.søknadsdato = dato
-        this.ønskerFraDato = ønskerFraDato
-        arbeidsøkerRegisterPerioder.add(Periode(dato, LocalDate.MAX))
         val nySøknadId = søknader.ny()
+        ønsketdatoPerSøknad[nySøknadId] = ønskerFraDato
         rapid.sendTestMessage(
             Meldingskatalog.søknadInnsendt(
                 ident = ident,
@@ -327,7 +334,11 @@ internal class Mennesket(
             mapOf(
                 "Fødselsdato" to Behovsløsning.Statisk(fødselsdato),
                 Behov.Søknadsdato to Behovsløsning.Statisk(søknadsdato),
-                Behov.ØnskerDagpengerFraDato to Behovsløsning.Statisk(ønskerFraDato),
+                Behov.ØnskerDagpengerFraDato to
+                    Behovsløsning.FraBehov { melding ->
+                        val søknadId = melding[Behov.ØnskerDagpengerFraDato]["søknadId"].asUUID()
+                        ønsketdatoPerSøknad.getValue(søknadId)
+                    },
                 Behov.ØnsketArbeidstid to Behovsløsning.Statisk(40.0),
                 // Inntekt
                 Behov.Inntekt to Behovsløsning.Statisk(mapOf("verdi" to inntektV1.tilJsonNode())),
