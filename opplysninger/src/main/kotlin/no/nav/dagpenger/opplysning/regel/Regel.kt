@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Hypotese
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.Regelplanlegger
 import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
@@ -82,7 +83,14 @@ abstract class Regel<T : Any> internal constructor(
         // stemmer overens med oppstrøms produkter som snart erstattes
         val oppstrømsPlanlagt =
             avhengerAv.any { type ->
-                produsenter[type]?.let { it !is Ekstern<*> && !type.kunSisteGjelder && plan.planlegger(it) } == true
+                produsenter[type]?.let {
+                    it !is Ekstern<*> &&
+                        type.overlappStrategi != OverlappStrategi.KUN_SISTE &&
+                        plan.planlegger(
+                            it,
+                        )
+                } ==
+                    true
             }
 
         // Produktet er utdatert om det er utledet av noe annet enn det som gjelder nå

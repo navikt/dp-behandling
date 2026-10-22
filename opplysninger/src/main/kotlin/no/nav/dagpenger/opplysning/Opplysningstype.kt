@@ -37,8 +37,7 @@ class Opplysningstype<T : Any>(
     val utgåtteBehovId: Set<String> = emptySet(),
     /** Om opplysninger av denne typen skal arves til neste behandling i kjeden. Default true. */
     val opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
-    /** Kun den nyeste opplysningen av denne typen er synlig, uavhengig av gyldighetsperiode. */
-    val kunSisteGjelder: Boolean = false,
+    val overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
 ) : Klassifiserbart {
     val datatype = id.datatype
 
@@ -111,7 +110,7 @@ class Opplysningstype<T : Any>(
             gyldighetsperiode: GyldighetsperiodeStrategi<LocalDate> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-            kunSisteGjelder: Boolean = false,
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
         ): Opplysningstype<LocalDate> =
             som(
                 id,
@@ -122,7 +121,7 @@ class Opplysningstype<T : Any>(
                 gyldighetsperiode,
                 enhet = enhet,
                 utgåtteBehovId = utgåtteBehovId,
-                kunSisteGjelder = kunSisteGjelder,
+                overlappStrategi = overlappStrategi,
             )
 
         fun ulid(
@@ -199,7 +198,7 @@ class Opplysningstype<T : Any>(
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
             opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
-            kunSisteGjelder: Boolean = false,
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
         ): Opplysningstype<T> =
             Opplysningstype(
                 id,
@@ -211,7 +210,7 @@ class Opplysningstype<T : Any>(
                 enhet,
                 utgåtteBehovId,
                 opplysningstypeKategori,
-                kunSisteGjelder,
+                overlappStrategi,
             )
     }
 

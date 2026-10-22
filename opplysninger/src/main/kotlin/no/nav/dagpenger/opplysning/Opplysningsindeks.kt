@@ -94,9 +94,9 @@ internal class Opplysningsindeks(
         settGjeldende(gjeldendeEgnePerType, type, egnePerType[type].orEmpty().kunSisteHvisKrevd(type))
     }
 
-    // kunSisteGjelder gjelder kun egne opplysninger; arvede (basertPå) tas alltid med
+    // KUN_SISTE gjelder kun egne opplysninger; arvede (basertPå) tas alltid med
     private fun List<Opplysning<*>>.kunSisteHvisKrevd(type: Opplysningstype<*>) =
-        if (type.kunSisteGjelder && isNotEmpty()) listOf(maxBy { it.id }) else this
+        if (type.overlappStrategi == OverlappStrategi.KUN_SISTE && isNotEmpty()) listOf(maxBy { it.id }) else this
 
     private fun settGjeldende(
         gjeldende: MutableMap<Opplysningstype<*>, List<Opplysning<*>>>,
@@ -107,7 +107,7 @@ internal class Opplysningsindeks(
             gjeldende.remove(type)
             return
         }
-        val utflatet = løsOppOverlappInnadIType(rå)
+        val utflatet = løsOppOverlappInnadIType(rå, type.overlappStrategi)
         val synlige = utflatet.filterNot { it is Tombstone<*> }
         if (synlige.isEmpty()) gjeldende.remove(type) else gjeldende[type] = synlige
     }
@@ -118,7 +118,10 @@ internal class Opplysningsindeks(
          * opplysninger av samme type (typisk en per-type-gruppe). Resultatet er sortert på
          * `gyldighetsperiode.fraOgMed`. Id (innsettingsrekkefølge) avgjør kun hvilke som blir med.
          */
-        private fun løsOppOverlappInnadIType(gruppe: List<Opplysning<*>>): List<Opplysning<*>> {
+        private fun løsOppOverlappInnadIType(
+            gruppe: List<Opplysning<*>>,
+            strategi: OverlappStrategi,
+        ): List<Opplysning<*>> {
             val dekket = mutableListOf<Gyldighetsperiode>()
             val resultat = mutableListOf<Opplysning<*>>()
 
@@ -129,8 +132,12 @@ internal class Opplysningsindeks(
             // Segmentene beholder id-en til opprinnelig opplysning, slik at utledetAv fortsatt peker riktig.
             sisteRevisjoner.sortedByDescending { it.id }.forEach { opplysning ->
                 val overlappende = dekket.filter { it.overlapper(opplysning.gyldighetsperiode) }
-                // Kun venstre rest beholdes: en nyere opplysning avslutter den eldre, den "gjenopptas" ikke etter
-                val synlige = opplysning.gyldighetsperiode.minus(overlappende) // .filter { rest -> overlappende.none { it.erFør(rest) } }
+                val rester = opplysning.gyldighetsperiode.minus(overlappende)
+                val synlige =
+                    when (strategi) {
+                        OverlappStrategi.BEVAR_HØYRE -> rester
+                        else -> rester.filter { rest -> overlappende.none { it.erFør(rest) } }
+                    }
                 synlige.forEach { periode ->
                     resultat.add(if (periode == opplysning.gyldighetsperiode) opplysning else opplysning.medGyldighetsperiode(periode))
                 }
