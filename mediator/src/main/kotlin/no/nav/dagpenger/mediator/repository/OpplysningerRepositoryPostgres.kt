@@ -263,6 +263,7 @@ internal class OpplysningerRepositoryPostgres(
             val utledetAvId = this.arrayOrNull<UUID>("utledet_av_id")?.toList() ?: emptyList()
             val utledetAv = this.stringOrNull("utledet_av")?.let { UtledningRad(it, utledetAvId, this.stringOrNull("utledet_versjon")) }
             val erstatterId = this.uuidOrNull("erstatter_id")
+            val identitetId = this.uuidOrNull("identitet_id")
 
             val kildeId = this.uuidOrNull("kilde_id")
             val behandletVed = this.localDateOrNull("behandlet_ved")
@@ -280,6 +281,7 @@ internal class OpplysningerRepositoryPostgres(
                 opprettet = opprettet,
                 erstatter = erstatterId,
                 behandletVed = behandletVed,
+                identitet = identitetId,
             )
         }
 
@@ -427,6 +429,7 @@ internal class OpplysningerRepositoryPostgres(
                             "opplysning_id" to opplysning.id,
                             "datatype" to datatype.navn(),
                             "erstatter_id" to opplysning.erstatter?.id,
+                            "identitet_id" to opplysning.identitetId.takeIf { opplysning.erRevisjon },
                             "behandlet_ved" to opplysning.behandletVed,
                         ) + verdi
                     }
@@ -439,10 +442,10 @@ internal class OpplysningerRepositoryPostgres(
                     WITH ins AS (SELECT opplysningstype_id FROM opplysningstype WHERE uuid = :typeUuid AND datatype = :datatype)
                     INSERT
                     INTO opplysning (opplysninger_id, id, status, opplysningstype_id, kilde_id, gyldig_fom, gyldig_tom, opprettet, datatype,
-                                     verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string, verdi_jsonb, erstatter_id, behandlet_ved)
+                                     verdi_heltall, verdi_desimaltall, verdi_dato, verdi_boolsk, verdi_string, verdi_jsonb, erstatter_id, behandlet_ved, identitet_id)
                     VALUES (:opplysningerId, :id, :status, (SELECT opplysningstype_id FROM ins), :kilde_id, :fom::timestamp,
                             :tom::timestamp, :opprettet, :datatype, :verdi_heltall, :verdi_desimaltall, :verdi_dato, :verdi_boolsk,
-                            :verdi_string, :verdi_jsonb, :erstatter_id, :behandlet_ved)
+                            :verdi_string, :verdi_jsonb, :erstatter_id, :behandlet_ved, :identitet_id)
                     ON CONFLICT(id) DO UPDATE SET erstatter_id=:erstatter_id, behandlet_ved=:behandlet_ved
                     """.trimIndent(),
                     params,
@@ -598,6 +601,7 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
                         kilde = kilde,
                         opprettet = opprettet,
                         skalLagres = false,
+                        identitet = identitet,
                     )
                 }
 
@@ -611,6 +615,7 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
                         kilde = kilde,
                         opprettet = opprettet,
                         skalLagres = false,
+                        identitet = identitet,
                     )
                 }
 
@@ -623,6 +628,7 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
                         kilde = kilde,
                         opprettet = opprettet,
                         skalLagres = false,
+                        identitet = identitet,
                     )
                 }
 
@@ -663,4 +669,5 @@ private data class OpplysningRad<T : Any>(
     val opprettet: LocalDateTime,
     val erstatter: UUID? = null,
     val behandletVed: LocalDate? = null,
+    val identitet: UUID? = null,
 )

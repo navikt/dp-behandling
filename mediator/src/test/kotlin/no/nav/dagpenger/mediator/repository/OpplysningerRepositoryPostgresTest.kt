@@ -147,6 +147,24 @@ class OpplysningerRepositoryPostgresTest {
     }
 
     @Test
+    fun `revisjon persisteres med identitet og erstatter hele opplysningen etter lasting`() {
+        withMigratedDb {
+            val repo = opplysningerRepository(dbSession)
+            val opplysninger = Opplysninger()
+            val opprinnelig = Faktum(heltall, 10, Gyldighetsperiode(1.april(2024), 20.april(2024)))
+            opplysninger.leggTil(opprinnelig)
+            val endret = opplysninger.endre(opprinnelig, verdi = 20, gyldighetsperiode = Gyldighetsperiode(10.april(2024)))
+            repo.lagreOpplysninger(opplysninger)
+
+            val fraDb = repo.hentOpplysninger(opplysninger.id)
+
+            fraDb.finnAlle(heltall).map { it.id to it.verdi } shouldBe listOf(endret.id to 20)
+            fraDb.finnAlle(heltall).single().identitetId shouldBe opprinnelig.id
+            fraDb.finnAlle(heltall).single().gyldighetsperiode shouldBe Gyldighetsperiode(10.april(2024))
+        }
+    }
+
+    @Test
     fun `lagrer grenseverdier for dato opplysninger`() {
         withMigratedDb {
             val repo = opplysningerRepository(dbSession)
