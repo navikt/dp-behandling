@@ -22,7 +22,7 @@ class SanksjonTest {
             behovsløsere.løsTilForslag()
 
             // Saksbehandler ilegger sanksjonsperiode
-            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, true)
+            saksbehandler.leggTilOpplysning(Sanksjonsperiode.harSanksjon, true)
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -78,8 +78,8 @@ class SanksjonTest {
             behovsløsere.løsTilForslag()
 
             // Bruker har 3 dager med sanksjon igjen
-            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, true)
-            saksbehandler.endreOpplysning(Sanksjonsperiode.antallSanksjonsdager, 3)
+            saksbehandler.leggTilOpplysning(Sanksjonsperiode.harSanksjon, true)
+            saksbehandler.leggTilOpplysning(Sanksjonsperiode.antallSanksjonsdager, 3)
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -154,7 +154,7 @@ class SanksjonTest {
             behovsløsere.løsTilForslag()
 
             // Saksbehandler ilegger sanksjonsperiode
-            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, true)
+            saksbehandler.leggTilOpplysning(Sanksjonsperiode.harSanksjon, true)
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -201,7 +201,7 @@ class SanksjonTest {
 
             saksbehandler.omgjørBehandling(30.juni(2018))
             // Saksbehandler ilegger sanksjonsperiode
-            saksbehandler.endreOpplysning(Sanksjonsperiode.harSanksjon, false)
+            saksbehandler.leggTilOpplysning(Sanksjonsperiode.harSanksjon, false)
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {

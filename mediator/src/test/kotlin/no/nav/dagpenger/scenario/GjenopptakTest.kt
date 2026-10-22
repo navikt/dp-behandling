@@ -64,7 +64,7 @@ class GjenopptakTest {
 
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
-            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+            saksbehandler.leggTilOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -94,7 +94,7 @@ class GjenopptakTest {
             person.søkGjenopptak(23.august(2018))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
+            saksbehandler.leggTilOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
             behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
@@ -199,7 +199,7 @@ class GjenopptakTest {
 
             // Meningsløst i praksis, men gyldig: bekreft opphold i Norge på nytt fra en senere dato
             person.opprettBehandling(19.juli(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 oppholdINorge,
                 true,
                 "Bekrefter fortsatt opphold i Norge",
@@ -241,7 +241,7 @@ class GjenopptakTest {
 
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
-            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+            saksbehandler.leggTilOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -250,8 +250,8 @@ class GjenopptakTest {
             val gjenopptaksdato = 23.august(2018)
             person.søkGjenopptak(gjenopptaksdato)
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(gjenopptaksdato))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.leggTilOpplysning(
                 oppholdMedArbeidI12ukerEllerMer,
                 true,
                 "Har krav på ny vurdering av grunnlag",
@@ -263,7 +263,7 @@ class GjenopptakTest {
 
             // Legg inn en inntekt som gir et lavere grunnlag
             val lavereInntekt = person.inntekt(300000, gjenopptaksdato.minusMonths(2))
-            saksbehandler.endreOpplysning(inntektFraSkatt, Inntekt(lavereInntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.leggTilOpplysning(inntektFraSkatt, Inntekt(lavereInntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
 
             behandlingsresultatForslag {
                 with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
@@ -289,7 +289,7 @@ class GjenopptakTest {
 
             // Legg inn en inntekt som gir et høyere grunnlag
             val høyereInntekt = person.inntekt(600000, gjenopptaksdato.minusMonths(2))
-            saksbehandler.endreOpplysning(inntektFraSkatt, Inntekt(høyereInntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.leggTilOpplysning(inntektFraSkatt, Inntekt(høyereInntekt), "Har krav", Gyldighetsperiode(gjenopptaksdato))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -350,7 +350,7 @@ class GjenopptakTest {
 
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
-            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+            saksbehandler.leggTilOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -380,7 +380,7 @@ class GjenopptakTest {
             person.søkGjenopptak(23.august(2018))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 oppholdINorge,
                 false,
                 "Sa han var tilbake fra utlandet, men det var han ikke",
@@ -430,7 +430,7 @@ class GjenopptakTest {
 
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(oppholdINorge, true, "Tok en tur til Afrika", Gyldighetsperiode(21.juni(2018), 25.juni(2018)))
+            saksbehandler.leggTilOpplysning(oppholdINorge, true, "Tok en tur til Afrika", Gyldighetsperiode(21.juni(2018), 25.juni(2018)))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -480,8 +480,8 @@ class GjenopptakTest {
             person.søkDagpenger(18.mai(2026), ønskerFraDato = 1.mars(2026))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(ReellArbeidssøker.erArbeidsfør, true, "Noe syk", Gyldighetsperiode(18.mai(2026), 31.mai(2026)))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(ReellArbeidssøker.erArbeidsfør, true, "Noe syk", Gyldighetsperiode(18.mai(2026), 31.mai(2026)))
+            saksbehandler.leggTilOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid,
                 26.5,
                 "70% stilling",
@@ -509,11 +509,11 @@ class GjenopptakTest {
             person.søkGjenopptak(gjenopptaksdato)
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(ReellArbeidssøker.erArbeidsfør, false, "", Gyldighetsperiode(gjenopptaksdato))
-            saksbehandler.endreOpplysning(ReellArbeidssøker.godkjentArbeidsufør, true, "", Gyldighetsperiode(gjenopptaksdato))
-            saksbehandler.endreOpplysning(ReellArbeidssøker.godkjentLokalArbeidssøker, true, "", Gyldighetsperiode(gjenopptaksdato))
-            saksbehandler.endreOpplysning(ReellArbeidssøker.godkjentDeltidssøker, true, "", Gyldighetsperiode(gjenopptaksdato))
-            saksbehandler.endreOpplysning(ønsketArbeidstid, 19.0, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.leggTilOpplysning(ReellArbeidssøker.erArbeidsfør, false, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.leggTilOpplysning(ReellArbeidssøker.godkjentArbeidsufør, true, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.leggTilOpplysning(ReellArbeidssøker.godkjentLokalArbeidssøker, true, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.leggTilOpplysning(ReellArbeidssøker.godkjentDeltidssøker, true, "", Gyldighetsperiode(gjenopptaksdato))
+            saksbehandler.leggTilOpplysning(ønsketArbeidstid, 19.0, "", Gyldighetsperiode(gjenopptaksdato))
             behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
@@ -563,7 +563,7 @@ class GjenopptakTest {
 
             // Opprett stans
             person.opprettBehandling(22.juli(2018))
-            saksbehandler.endreOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+            saksbehandler.leggTilOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -578,7 +578,7 @@ class GjenopptakTest {
             person.søkGjenopptak(23.august(2018), ønskerFraDato = 28.august(2018))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
+            saksbehandler.leggTilOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
             behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()

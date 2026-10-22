@@ -29,7 +29,7 @@ class OpplysningsperioderScenarioTest {
             }
 
             // Endring av verdi med samme gyldighetsperiode
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode(21.juni(2018)))
+            saksbehandler.leggTilOpplysning(Opphold.oppholdINorge, false, "fjas", Gyldighetsperiode(21.juni(2018)))
 
             // Assert at vi har endret verdi
             behandlingsresultatForslag {
@@ -50,13 +50,13 @@ class OpplysningsperioderScenarioTest {
             person.søkDagpenger(21.juni(2018))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Utdanning.deltakelseIArbeidsmarkedstiltak,
                 false,
                 "fjas",
                 Gyldighetsperiode(21.juni(2018), 25.juni(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Utdanning.deltakelseIArbeidsmarkedstiltak,
                 true,
                 "fjas",

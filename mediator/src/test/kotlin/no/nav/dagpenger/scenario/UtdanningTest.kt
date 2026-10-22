@@ -56,9 +56,9 @@ class UtdanningTest {
             val meldekortId = meldekortBatch(markerFerdig = false).last()
             // TODO: Når false legges til først blir "Godkjent unntak for utdanning eller opplæring?" aldri revurdert
             // Motsatt rekkefølge hjelper mye
-            saksbehandler.endreOpplysning(tarUtdanning, false, gyldighetsperiode = Gyldighetsperiode(27.august(2026)))
-            saksbehandler.endreOpplysning(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(25.august(2026), 26.august(2026)))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(tarUtdanning, false, gyldighetsperiode = Gyldighetsperiode(27.august(2026)))
+            saksbehandler.leggTilOpplysning(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(25.august(2026), 26.august(2026)))
+            saksbehandler.leggTilOpplysning(
                 deltakelseIArbeidsmarkedstiltak,
                 true,
                 gyldighetsperiode = Gyldighetsperiode(25.august(2026), 26.august(2026)),
@@ -127,14 +127,14 @@ class UtdanningTest {
                     ),
             )
             meldekortBatch(markerFerdig = false)
-            saksbehandler.endreOpplysning(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(28.september(2026), 27.mars(2027)))
-            saksbehandler.endreOpplysning(tarUtdanning, false, gyldighetsperiode = Gyldighetsperiode(28.mars(2027)))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(28.september(2026), 27.mars(2027)))
+            saksbehandler.leggTilOpplysning(tarUtdanning, false, gyldighetsperiode = Gyldighetsperiode(28.mars(2027)))
+            saksbehandler.leggTilOpplysning(
                 deltakelseIArbeidsmarkedstiltak,
                 false,
                 gyldighetsperiode = Gyldighetsperiode(27.august(2026), 27.september(2026)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 deltakelseIArbeidsmarkedstiltak,
                 true,
                 gyldighetsperiode = Gyldighetsperiode(28.september(2026), 27.mars(2027)),

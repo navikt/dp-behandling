@@ -49,13 +49,13 @@ class EtableringTest {
             behovsløsere.løsTilForslag()
 
             val etableringFra = 10.januar(2025)
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEtableringVurderes,
                 false,
                 "Har startet egen virksomhet",
                 gyldighetsperiode = Gyldighetsperiode(fraOgMed = 1.januar(2025), tilOgMed = etableringFra.minusDays(1)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEtableringVurderes,
                 true,
                 "Har startet egen virksomhet",
@@ -68,9 +68,9 @@ class EtableringTest {
                 Etablering.godkjentNæringsfaglig,
                 Etablering.ikkeSelvforskyldtArbeidsledig,
                 Etablering.overFemtiProsentEierandel,
-            ).forEach { saksbehandler.endreOpplysning(it, false, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
+            ).forEach { saksbehandler.leggTilOpplysning(it, false, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
 
-            saksbehandler.endreOpplysning(Etablering.sluttDato, 31.januar(2025))
+            saksbehandler.leggTilOpplysning(Etablering.sluttDato, 31.januar(2025))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -108,7 +108,7 @@ class EtableringTest {
 
             saksbehandler.omgjørBehandling(1.januar(2025))
             val etableringFra = 10.januar(2025)
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEtableringVurderes,
                 true,
                 "Har startet egen virksomhet",
@@ -146,14 +146,14 @@ class EtableringTest {
                 }
             }
 
-            saksbehandler.endreOpplysning(Etablering.sluttDato, 31.januar(2025))
+            saksbehandler.leggTilOpplysning(Etablering.sluttDato, 31.januar(2025))
             listOf(
                 Etablering.nyVirksomhet,
                 Etablering.selvforsørget,
                 Etablering.godkjentNæringsfaglig,
                 Etablering.ikkeSelvforskyldtArbeidsledig,
                 Etablering.overFemtiProsentEierandel,
-            ).forEach { saksbehandler.endreOpplysning(it, true, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
+            ).forEach { saksbehandler.leggTilOpplysning(it, true, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -198,13 +198,13 @@ class EtableringTest {
 
             saksbehandler.omgjørBehandling(1.januar(2025))
             val etableringFra = 10.januar(2025)
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEtableringVurderes,
                 false,
                 "Har startet egen virksomhet",
                 gyldighetsperiode = Gyldighetsperiode(fraOgMed = 1.januar(2025), tilOgMed = etableringFra.minusDays(1)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Rettighetstype.skalEtableringVurderes,
                 true,
                 "Har startet egen virksomhet",
@@ -217,14 +217,14 @@ class EtableringTest {
                 Etablering.godkjentNæringsfaglig,
                 Etablering.ikkeSelvforskyldtArbeidsledig,
                 Etablering.overFemtiProsentEierandel,
-            ).forEach { saksbehandler.endreOpplysning(it, true, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
+            ).forEach { saksbehandler.leggTilOpplysning(it, true, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
 
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Etablering.sluttDato,
                 14.januar(2025),
                 gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Etablering.etableringGodkjent,
                 false,
                 gyldighetsperiode = Gyldighetsperiode(fraOgMed = 15.januar(2025)),

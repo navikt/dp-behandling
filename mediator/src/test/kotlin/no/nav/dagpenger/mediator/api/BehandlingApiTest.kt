@@ -598,7 +598,7 @@ internal class BehandlingApiTest {
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
 
-            saksbehandler.endreOpplysning(ReellArbeidssøker.erArbeidsfør, false)
+            saksbehandler.leggTilOpplysning(ReellArbeidssøker.erArbeidsfør, false)
 
             val response = testContext.autentisert(HttpMethod.Get, "/behandling/${person.behandlingId}/vurderinger")
             response.status shouldBe HttpStatusCode.OK
@@ -621,7 +621,7 @@ internal class BehandlingApiTest {
             person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
 
-            val kildeId = saksbehandler.endreOpplysning(ReellArbeidssøker.erArbeidsfør, false)
+            val kildeId = saksbehandler.leggTilOpplysning(ReellArbeidssøker.erArbeidsfør, false)
 
             testContext.autentisert(
                 httpMethod = HttpMethod.Put,

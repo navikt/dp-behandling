@@ -246,19 +246,19 @@ class BeregningTest {
             }
             saksbehandler.åpneAvklaringer().map { it.kode } shouldContainOnly listOf("MeldekortMedUtdanning")
 
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 tarUtdanning,
                 true,
                 "Tar utdanning",
                 Gyldighetsperiode(6.oktober(2026), 11.november(2026)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 tarUtdanning,
                 false,
                 "Tar ikke lenger utdanning",
                 Gyldighetsperiode(11.oktober(2026)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 godkjentUnntakForUtdanning,
                 true,
                 "Godkjent utdanning",
@@ -444,7 +444,7 @@ class BeregningTest {
             saksbehandler.omgjørBehandling(6.juli(2018))
 
             // Vilkår blir vurderte som ikke oppfylt, rettighetsperiode stanses automatisk som følge av dette
-            saksbehandler.endreOpplysning(Opphold.oppholdINorge, false, "", Gyldighetsperiode(8.juli(2018)))
+            saksbehandler.leggTilOpplysning(Opphold.oppholdINorge, false, "", Gyldighetsperiode(8.juli(2018)))
 
             // Verifiser at behandlingen nå bare beregner et subset av meldeperioden
             behandlingsresultatForslag {
@@ -620,7 +620,7 @@ class BeregningTest {
             person.søkDagpenger(21.juni(2018))
 
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid, 21.5)
+            saksbehandler.leggTilOpplysning(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid, 21.5)
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -815,7 +815,7 @@ class BeregningTest {
 
             saksbehandler.omgjørBehandling(22.juni(2018))
             // Endre barnetillegg midt i meldekortbehandlingen
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 DagpengenesStørrelse.barnetilleggetsStørrelse,
                 Beløp(380.0),
                 "",
@@ -894,7 +894,7 @@ class BeregningTest {
 
             person.søkDagpenger(13.august(2018))
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
                 true,
                 "test",
@@ -982,7 +982,7 @@ class BeregningTest {
             }
 
             saksbehandler.lagBehandling(1.februar(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Opphold.oppholdINorge,
                 false,
                 "test",
@@ -996,7 +996,7 @@ class BeregningTest {
             }
 
             person.søkGjenopptak(12.februar(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Opphold.oppholdINorge,
                 true,
                 "test",
@@ -1092,28 +1092,28 @@ class BeregningTest {
         }.test {
             person.søkDagpenger(30.mars(2026))
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 false,
                 "test",
                 Gyldighetsperiode(30.mars(2026), 12.april(2026)),
             )
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 true,
                 "test",
                 Gyldighetsperiode(13.april(2026), 26.april(2026)),
             )
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 false,
                 "test",
                 Gyldighetsperiode(27.april(2026), 24.mai(2026)),
             )
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 true,
                 "test",
@@ -1156,7 +1156,7 @@ class BeregningTest {
             person.søkGjenopptak(11.juni(2026))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 false,
                 "test",
@@ -1167,7 +1167,7 @@ class BeregningTest {
             )
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
                 true,
                 "test",
@@ -1316,7 +1316,7 @@ class BeregningTest {
 
             // Tiltaksregisteret svarer med tre perioder - én langt bak i tid, én fram i tid,
             // og én som treffer midt i meldeperioden (25.juni - 8.juli 2018).
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 deltakelseIArbeidsmarkedstiltak,
                 true,
                 "Tiltak fra register (historisk)",
@@ -1324,19 +1324,19 @@ class BeregningTest {
                 // ellers finnes det ikke data å knytte opplysningen til.
                 Gyldighetsperiode(12.juni(2018), 20.juni(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 deltakelseIArbeidsmarkedstiltak,
                 true,
                 "Tiltak fra register (i meldeperioden)",
                 Gyldighetsperiode(25.juni(2018), 2.juli(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 tarUtdanning,
                 false,
                 "Tiltak fra register (i meldeperioden)",
                 Gyldighetsperiode(26.juni(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 deltakelseIArbeidsmarkedstiltak,
                 true,
                 "Tiltak fra register (framtidig)",
@@ -1369,7 +1369,7 @@ class BeregningTest {
         }.test {
             person.søkDagpenger(18.juni(2018))
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(godkjentUnntakForUtdanning, true, "Ser topp ut", Gyldighetsperiode(18.juni(2018)))
+            saksbehandler.leggTilOpplysning(godkjentUnntakForUtdanning, true, "Ser topp ut", Gyldighetsperiode(18.juni(2018)))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()

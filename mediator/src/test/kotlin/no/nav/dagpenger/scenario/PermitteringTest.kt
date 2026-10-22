@@ -110,13 +110,13 @@ class PermitteringTest {
 
             // Stanser permittering og forbruker bare ordinær
             saksbehandler.lagBehandling(2.juli(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 skalPermitteringVurderes,
                 false,
                 "Permitteringen er satt på pause",
                 Gyldighetsperiode(2.juli(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 oppfyllerKravetTilPermittering,
                 false,
                 "Permitteringen er satt på pause",
@@ -150,13 +150,13 @@ class PermitteringTest {
 
             // Blir permittert igjen
             saksbehandler.lagBehandling(16.juli(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 skalPermitteringVurderes,
                 true,
                 "Permitteringen er startet igjen",
                 Gyldighetsperiode(16.juli(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 oppfyllerKravetTilPermittering,
                 true,
                 "Permitteringen er startet igjen",
@@ -233,20 +233,20 @@ class PermitteringTest {
             // men KUN med virkning fra 16. juli - altså *etter* at meldeperiode 1 og 2 allerede er
             // ferdig behandlet med kapasitet 26 uker (130 dager).
             saksbehandler.omgjørBehandling(21.juni(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 PermitteringFastsetting.permitteringsperiode,
                 20,
                 "Nedjustering av permitteringsperiode, gjelder fra 16. juli",
                 Gyldighetsperiode(16.juli(2018)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 skalOmgjøringUtenKlageVurderes,
                 true,
                 "Test",
                 Gyldighetsperiode(21.juni(2018)),
             )
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 OmgjøringUtenKlage.ansesUgyldigVedtak,
                 true,
             )
@@ -333,7 +333,7 @@ class PermitteringTest {
             // Vanlig revurdering (ikke omgjøring): saksbehandler nedjusterer tildelingsgrunnlaget
             // fra 26 til 20 uker, med virkning fra 16. juli - altså *etter* meldeperiode 1.
             saksbehandler.lagBehandling(16.juli(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 PermitteringFastsetting.permitteringsperiode,
                 20,
                 "Nedjustering av permitteringsperiode, gjelder fra 16. juli",
@@ -420,7 +420,7 @@ class PermitteringTest {
             // Vanlig revurdering: saksbehandler nedjusterer tildelingsgrunnlaget fra 26 til 20
             // uker, med virkning fra 9. juli - altså *midt i* meldeperiode 2 (2.-15. juli).
             saksbehandler.lagBehandling(9.juli(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 PermitteringFastsetting.permitteringsperiode,
                 20,
                 "Nedjustering av permitteringsperiode, gjelder fra 9. juli",
@@ -505,7 +505,7 @@ class PermitteringTest {
         }.test {
             person.søkDagpenger(19.juni(2018))
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(PermitteringFastsetting.permitteringsperiode, 3, "Redusert permitteringsperiode")
+            saksbehandler.leggTilOpplysning(PermitteringFastsetting.permitteringsperiode, 3, "Redusert permitteringsperiode")
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()

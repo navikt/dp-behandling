@@ -33,7 +33,7 @@ class RedigeringTest {
                 }
 
                 saksbehandler.lagBehandling(1.juli(2018))
-                saksbehandler.endreOpplysning(
+                saksbehandler.leggTilOpplysning(
                     grunnlag,
                     verdi = Beløp(300000),
                     begrunnelse = "Høres bedre ut",
@@ -50,7 +50,7 @@ class RedigeringTest {
                     }
                 }
 
-                saksbehandler.endreOpplysning(
+                saksbehandler.leggTilOpplysning(
                     grunnlag,
                     verdi = Beløp(400000),
                     begrunnelse = "Høres bedre ut",
@@ -71,7 +71,7 @@ class RedigeringTest {
                 saksbehandler.beslutt()
 
                 saksbehandler.lagBehandling(10.juli(2018))
-                saksbehandler.endreOpplysning(
+                saksbehandler.leggTilOpplysning(
                     grunnlag,
                     verdi = Beløp(300000),
                     begrunnelse = "Høres bedre ut",

@@ -154,7 +154,7 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                     Faktum(
                         registrertArbeidssøker,
                         false,
-                        Gyldighetsperiode(fraOgMed = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate()),
+                        Gyldighetsperiode(fraOgMed = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate().plusDays(1)),
                         kilde = kilde,
                     ),
                 )

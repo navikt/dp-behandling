@@ -64,7 +64,18 @@ class Opplysningstype<T : Any>(
             behovId: String = beskrivelse,
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<Periode> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
+        ): Opplysningstype<Periode> =
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                overlappStrategi = overlappStrategi,
+            )
 
         fun heltall(
             id: Id<Int>,
@@ -75,8 +86,19 @@ class Opplysningstype<T : Any>(
             gyldighetsperiode: GyldighetsperiodeStrategi<Int> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
         ): Opplysningstype<Int> =
-            som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                gyldighetsperiode,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                overlappStrategi = overlappStrategi,
+            )
 
         fun boolsk(
             id: Id<Boolean>,
@@ -88,6 +110,7 @@ class Opplysningstype<T : Any>(
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
             opplysningstypeKategori: OpplysningstypeKategori = OpplysningstypeKategori.Materiell,
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
         ): Opplysningstype<Boolean> =
             som(
                 id,
@@ -99,6 +122,7 @@ class Opplysningstype<T : Any>(
                 enhet = enhet,
                 utgåtteBehovId = utgåtteBehovId,
                 opplysningstypeKategori = opplysningstypeKategori,
+                overlappStrategi = overlappStrategi,
             )
 
         fun dato(
@@ -132,7 +156,18 @@ class Opplysningstype<T : Any>(
             behovId: String = beskrivelse,
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<Ulid> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
+        ): Opplysningstype<Ulid> =
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                overlappStrategi = overlappStrategi,
+            )
 
         fun inntekt(
             id: Id<Inntekt>,
@@ -142,7 +177,18 @@ class Opplysningstype<T : Any>(
             behovId: String = beskrivelse,
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<Inntekt> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
+        ): Opplysningstype<Inntekt> =
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                overlappStrategi = overlappStrategi,
+            )
 
         fun desimaltall(
             id: Id<Double>,
@@ -152,7 +198,18 @@ class Opplysningstype<T : Any>(
             behovId: String = beskrivelse,
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<Double> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
+        ): Opplysningstype<Double> =
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                overlappStrategi = overlappStrategi,
+            )
 
         fun tekst(
             id: Id<String>,
@@ -162,7 +219,18 @@ class Opplysningstype<T : Any>(
             behovId: String = beskrivelse,
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
-        ): Opplysningstype<String> = som(id, beskrivelse, formål, synlig, behovId, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
+        ): Opplysningstype<String> =
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                overlappStrategi = overlappStrategi,
+            )
 
         fun beløp(
             id: Id<Beløp>,
@@ -173,8 +241,19 @@ class Opplysningstype<T : Any>(
             gyldighetsperiode: GyldighetsperiodeStrategi<Beløp> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
         ): Opplysningstype<Beløp> =
-            som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                gyldighetsperiode,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                overlappStrategi = overlappStrategi,
+            )
 
         fun barn(
             id: Id<BarnListe>,
@@ -185,8 +264,19 @@ class Opplysningstype<T : Any>(
             gyldighetsperiode: GyldighetsperiodeStrategi<BarnListe> = GyldighetsperiodeStrategi.minsteMulige(),
             enhet: Enhet? = null,
             utgåtteBehovId: Set<String> = emptySet(),
+            overlappStrategi: OverlappStrategi = OverlappStrategi.ERSTATT_FRA_FOM,
         ): Opplysningstype<BarnListe> =
-            som(id, beskrivelse, formål, synlig, behovId, gyldighetsperiode, enhet = enhet, utgåtteBehovId = utgåtteBehovId)
+            som(
+                id,
+                beskrivelse,
+                formål,
+                synlig,
+                behovId,
+                gyldighetsperiode,
+                enhet = enhet,
+                utgåtteBehovId = utgåtteBehovId,
+                overlappStrategi = overlappStrategi,
+            )
 
         fun <T : Any> som(
             id: Id<T>,

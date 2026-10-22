@@ -312,13 +312,13 @@ class ArbeidssøkerTest {
             behovsløsere.løsTilForslag()
 
             val stansdato = person.fastsattMeldedato(4).plusDays(7)
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Opphold.oppholdINorge,
                 true,
                 "Oppholder seg i Norge",
                 Gyldighetsperiode(21.juni(2018), stansdato.minusDays(1)),
             )
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 Opphold.oppholdINorge,
                 false,
                 "Oppholder seg i utlandet",
@@ -411,16 +411,11 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt(person.sisteSøknadId)
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 2
-                with(rettighetsperioder.first()) {
+                rettighetsperioder shouldHaveSize 1
+                with(rettighetsperioder.single()) {
                     harRett shouldBe true
                     fraOgMed shouldBe 21.juni(2018)
-                    tilOgMed shouldBe 5.juli(2018)
-                }
-                with(rettighetsperioder.last()) {
-                    harRett shouldBe false
-                    fraOgMed shouldBe 6.juli(2018)
-                    tilOgMed shouldBe null
+                    tilOgMed shouldBe 6.juli(2018)
                 }
 
                 with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {
@@ -441,11 +436,11 @@ class ArbeidssøkerTest {
             person.søkDagpenger(21.juli(2026), ønskerFraDato = 19.juli(2026))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.endreOpplysning(kravPåLønn, true, "", Gyldighetsperiode(21.juli(2026), 31.juli(2026)))
+            saksbehandler.leggTilOpplysning(kravPåLønn, true, "", Gyldighetsperiode(21.juli(2026), 31.juli(2026)))
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(kravPåLønn, false, "", Gyldighetsperiode(1.august(2026)))
+            saksbehandler.leggTilOpplysning(kravPåLønn, false, "", Gyldighetsperiode(1.august(2026)))
             behovsløsere.løsTilForslag()
-            saksbehandler.endreOpplysning(prøvingsdato, 3.august(2026), "", Gyldighetsperiode(3.august(2026)))
+            saksbehandler.leggTilOpplysning(prøvingsdato, 3.august(2026), "", Gyldighetsperiode(3.august(2026)))
             behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
@@ -476,8 +471,8 @@ class ArbeidssøkerTest {
                 }
             }
 
-            saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, true, "", Gyldighetsperiode(3.august(2026), 16.august(2026)))
-            saksbehandler.endreOpplysning(Meldeplikt.oppfyllerMeldeplikt, false, "", Gyldighetsperiode(17.august(2026)))
+            saksbehandler.leggTilOpplysning(Meldeplikt.oppfyllerMeldeplikt, true, "", Gyldighetsperiode(3.august(2026), 16.august(2026)))
+            saksbehandler.leggTilOpplysning(Meldeplikt.oppfyllerMeldeplikt, false, "", Gyldighetsperiode(17.august(2026)))
 
             behandlingsresultatForslag(8) {
                 rettighetsperioder shouldHaveSize 2

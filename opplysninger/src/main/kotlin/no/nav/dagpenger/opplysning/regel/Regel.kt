@@ -109,6 +109,9 @@ abstract class Regel<T : Any> internal constructor(
         if (opplysninger.finnFlere(avhengerAv).size == avhengerAv.size) plan.add(this)
     }
 
+    // Tidligere regler i samme runde kan ha gjort inndata ugyldig (f.eks. via tombstones). Da planlegges regelen på nytt neste runde.
+    internal open fun erKlarTilKjøring(opplysninger: LesbarOpplysninger) = opplysninger.finnFlere(avhengerAv).size == avhengerAv.size
+
     abstract override fun toString(): String
 
     protected abstract fun kjør(

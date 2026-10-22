@@ -464,7 +464,7 @@ class KjedescenarioTest {
             // Stans pga arbeidssøkerperiode
 
             saksbehandler.omgjørBehandling(gjelderDato = 30.juni(2018))
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 TapAvArbeidsinntektOgArbeidstid.kravTilTaptArbeidstid,
                 false,
                 "Skulle ikke hatt innvilgels",

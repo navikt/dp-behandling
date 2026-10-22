@@ -73,6 +73,11 @@ class HvisSannMedResultat<T : Any>(
         plan.add(this)
     }
 
+    override fun erKlarTilKjøring(opplysninger: LesbarOpplysninger): Boolean {
+        if (opplysninger.mangler(sjekk)) return false
+        return opplysninger.har(if (opplysninger.finnOpplysning(sjekk).verdi) hvisSann else hvisUsann)
+    }
+
     override fun toString() = "Hvis $sjekk er sann, returner $hvisSann, ellers returner $hvisUsann"
 }
 

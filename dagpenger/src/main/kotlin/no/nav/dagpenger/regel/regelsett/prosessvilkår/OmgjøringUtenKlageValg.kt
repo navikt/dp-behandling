@@ -4,6 +4,7 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.OpplysningstypeKategori
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.prosess
 import no.nav.dagpenger.opplysning.forvaltningsloven
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
@@ -18,6 +19,7 @@ object OmgjøringUtenKlageValg {
             skalOmgjøringUtenKlageVurderesId,
             "Skal vedtaket omgjøres etter forvaltningsloven § 35?",
             opplysningstypeKategori = OpplysningstypeKategori.Prosess,
+            overlappStrategi = OverlappStrategi.KUN_SISTE,
         )
 
     val regelsett =
