@@ -53,8 +53,6 @@ Behandling endret tilstand til: Ferdig
 Laget avklaring om UtmeldtArbeidssøker
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behov:
-- RegistrertSomArbeidssøker
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Opprettet ny behandling
@@ -63,8 +61,6 @@ Behandling endret tilstand til: Ferdig
 melding: flytt_behandling
 Laget avklaring om BehandlingFlyttet
 Behandling endret tilstand til: Redigert
-Behov:
-- RegistrertSomArbeidssøker
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Ferdig

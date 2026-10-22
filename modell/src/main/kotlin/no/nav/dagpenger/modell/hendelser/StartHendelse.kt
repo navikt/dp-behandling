@@ -10,7 +10,6 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.opplysning.Utledning
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -65,14 +64,6 @@ abstract class StartHendelse(
             kilde = Systemkilde(meldingsreferanseId, opprettet),
         )
     }
-
-    /**
-     * Gir en [Utledning] som gjør at et faktum nullstilles (markeres utdatert, se `markerUtledningerSomUtdatert`)
-     * når en senere hendelse overtar hendelsetypen. Kun trygt å bruke i create-path (`opprettBehandling`), siden
-     * hendelseTypeFaktum kun er garantert lagt til på behandlingen når hendelsen faktisk oppretter den – ikke ved
-     * merge inn i en annen, pågående behandling.
-     */
-    protected fun nullstillesVedNyHendelse(regel: String = this::class.java.simpleName) = Utledning(regel, listOf(hendelseTypeFaktum))
 
     /**
      * Oppretter en ny [Behandling] for denne hendelsen og legger til [hendelseTypeFaktum].
