@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.forskriftTilFolketrygden
@@ -45,7 +46,7 @@ object Søknadstidspunkt {
             "Prøvingsdato",
             behovId = Prøvingsdato,
             gyldighetsperiode = egenVerdi,
-            kunSisteGjelder = true,
+            overlappStrategi = OverlappStrategi.KUN_SISTE,
         )
     val søknadIdOpplysningstype = Opplysningstype.tekst(søknadId, "søknadId")
 

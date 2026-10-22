@@ -67,7 +67,7 @@ class Opplysninger private constructor(
         opplysning.behandlet = false
         opplysning.behandletVed = null
 
-        if (opplysning.opplysningstype.kunSisteGjelder) tombstoneAvhengigeAvForrige(opplysning)
+        if (opplysning.opplysningstype.overlappStrategi == OverlappStrategi.KUN_SISTE) tombstoneAvhengigeAvForrige(opplysning)
 
         // Sporbarhet: peker på det den overstyrer. Selve oppslaget gjøres av indeksen, ikke av denne lenken.
         if (!opplysning.erRevisjon) {

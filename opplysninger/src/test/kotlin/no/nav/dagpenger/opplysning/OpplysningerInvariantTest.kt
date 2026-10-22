@@ -105,15 +105,24 @@ class OpplysningerInvariantTest {
         val alle = opplysninger.somListe(LesbarOpplysninger.Filter.Alle)
         val egne = opplysninger.somListe(LesbarOpplysninger.Filter.Egne)
 
-        // 1. Den flate lista skal være strengt sortert på id.
-        alle.zipWithNext().forEach { (forrige, neste) ->
-            assert(forrige.id < neste.id) {
-                "$kontekst: alleOpplysninger er ikke id-sortert: ${forrige.id} kommer før ${neste.id}"
-            }
-        }
-        egne.zipWithNext().forEach { (forrige, neste) ->
-            assert(forrige.id < neste.id) {
-                "$kontekst: somListe(Egne) er ikke id-sortert: ${forrige.id} kommer før ${neste.id}"
+        // 1. Typene ligger sammenhengende, ordnet etter laveste id, og hver type er sortert på fraOgMed.
+        listOf("alleOpplysninger" to alle, "somListe(Egne)" to egne).forEach { (navn, liste) ->
+            val grupper = liste.groupBy { it.opplysningstype }.values
+            assert(grupper.sumOf { it.size } == liste.size && liste.map { it.opplysningstype }.distinct().size == grupper.size)
+            val rekkefølge = liste.map { it.opplysningstype }.distinct()
+            val forventet =
+                liste
+                    .groupBy { it.opplysningstype }
+                    .entries
+                    .sortedBy { (_, g) -> g.minOf { it.id } }
+                    .map { it.key }
+            assert(rekkefølge == forventet) { "$kontekst: $navn har typene i feil rekkefølge" }
+            grupper.forEach { gruppe ->
+                gruppe.zipWithNext().forEach { (forrige, neste) ->
+                    assert(forrige.gyldighetsperiode.fraOgMed <= neste.gyldighetsperiode.fraOgMed) {
+                        "$kontekst: $navn er ikke datosortert innad i type"
+                    }
+                }
             }
         }
 
