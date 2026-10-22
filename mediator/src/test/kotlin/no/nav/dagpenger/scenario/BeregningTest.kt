@@ -885,7 +885,7 @@ class BeregningTest {
 
             // Stans på stans skal fortsatt være stans
             behandlingsresultat {
-                førteTil shouldBe Stans.toString()
+                førteTil shouldBe Endring.toString()
                 rettighetsperioder[1].harRett shouldBe false
                 rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
 
