@@ -66,8 +66,8 @@ class MigrerYtelseMottak(
         meterRegistry: MeterRegistry,
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
-//        val message = MigrerYtelseMessage(packet, opplysningstyper)
-//        hendelseMottaker.behandle(message.hendelse, message, context)
+        val message = MigrerYtelseMessage(packet, opplysningstyper)
+        hendelseMottaker.behandle(message.hendelse, message, context)
     }
 
     override fun onError(
