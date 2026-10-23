@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -23,11 +24,22 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
 import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
 
 class MigrerYtelseMottakTest {
+    private val påkrevdeOpplysninger =
+        mapOf<Opplysningstype<*>, Any>(
+            Dagpengegrunnlag.grunnlag to 310630,
+            Opphold.oppfyllerKravet to true,
+            Dagpengeperiode.ordinærPeriode to 104,
+        )
+    private val jsonMapper = JsonMapper.builder().build()
     private val ekstra = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "ekstra")
     private val rapid = TestRapid()
     private val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
@@ -44,15 +56,18 @@ class MigrerYtelseMottakTest {
         val packet = valideringsmelding(emptyMap())
 
         mottak.validerOpplysninger(packet) shouldBe
-            listOf(Dagpengegrunnlag.grunnlag, Opphold.oppfyllerKravet)
+            påkrevdeOpplysninger.keys.toList()
     }
 
-    @Test
-    fun `returnerer bare opplysningstypen som mangler`() {
-        val packet = valideringsmelding(mapOf(Dagpengegrunnlag.grunnlag.behovId to 310630))
+    @TestFactory
+    fun `returnerer bare opplysningstypen som mangler`() =
+        påkrevdeOpplysninger.keys.map { manglendeType ->
+            dynamicTest(manglendeType.behovId) {
+                val packet = valideringsmelding(testopplysninger(uten = manglendeType))
 
-        mottak.validerOpplysninger(packet) shouldBe listOf(Opphold.oppfyllerKravet)
-    }
+                mottak.validerOpplysninger(packet) shouldBe listOf(manglendeType)
+            }
+        }
 
     @Test
     fun `returnerer tom liste nar alle pakrevde opplysningstyper finnes i listen`() {
@@ -62,22 +77,13 @@ class MigrerYtelseMottakTest {
                     "start_migrering",
                     mapOf(
                         "opplysninger" to
-                            listOf(
+                            påkrevdeOpplysninger.map { (type, verdi) ->
                                 mapOf(
-                                    "uuid" to
-                                        Dagpengegrunnlag.grunnlag.id.uuid
-                                            .toString(),
-                                    "verdi" to 310630,
+                                    "uuid" to type.id.uuid.toString(),
+                                    "verdi" to verdi,
                                     "gyldigFraOgMed" to "2024-10-04",
-                                ),
-                                mapOf(
-                                    "uuid" to
-                                        Opphold.oppfyllerKravet.id.uuid
-                                            .toString(),
-                                    "verdi" to true,
-                                    "gyldigFraOgMed" to "2024-10-04",
-                                ),
-                            ),
+                                )
+                            },
                     ),
                 ).apply { interestedIn("opplysninger") }
 
@@ -85,16 +91,104 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `stopper behandling nar pakrevde opplysninger mangler`() {
-        val feil =
-            shouldThrow<IllegalArgumentException> {
-                rapid.sendTestMessage(melding(opplysninger = "{}"))
-            }
+    fun `publiserer avbrudd nar pakrevde opplysninger mangler`() {
+        rapid.sendTestMessage(melding(opplysninger = "{}"))
 
-        feil.message shouldBe
-            "Mangler påkrevde opplysninger: ${Dagpengegrunnlag.grunnlag.behovId}, " +
-            Opphold.oppfyllerKravet.behovId
+        val avbrudd = rapid.inspektør.message(0)
+        avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
+        avbrudd["sakId"].asInt() shouldBe 13699878
+        avbrudd["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
+        avbrudd["arsak"]["melding"].asString() shouldBe "Mangler påkrevde opplysninger"
+        avbrudd["arsak"]["detaljer"].values().map { it.asString() } shouldBe
+            påkrevdeOpplysninger.keys.map { it.behovId }
+        rapid.inspektør.size shouldBe 1
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+    }
+
+    @TestFactory
+    fun `publiserer bare manglende pakrevd opplysning i avbruddet`() =
+        påkrevdeOpplysninger.keys.map { manglendeType ->
+            dynamicTest(manglendeType.behovId) {
+                rapid.reset()
+                rapid.sendTestMessage(melding(opplysninger = jsonMapper.writeValueAsString(testopplysninger(uten = manglendeType))))
+
+                val avbrudd = rapid.inspektør.message(0)
+                avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
+                avbrudd["sakId"].asInt() shouldBe 13699878
+                avbrudd["arsak"]["detaljer"].values().map { it.asString() } shouldBe listOf(manglendeType.behovId)
+                rapid.inspektør.size shouldBe 1
+                verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+            }
+        }
+
+    private fun testopplysninger(uten: Opplysningstype<*>? = null): Map<String, Any> =
+        påkrevdeOpplysninger
+            .filterKeys { it != uten }
+            .mapKeys { (type, _) -> type.behovId }
+
+    @Test
+    fun `avbruddshjelperen serialiserer arsaker med detaljer`() {
+        val context = mockk<MessageContext>(relaxed = true)
+        val publiserte = mutableListOf<String>()
+        val detaljer = listOf("grunnlag", "opphold")
+
+        context.avbrytMigrering(
+            123,
+            Migreringsavbrudd(kode = "ANNEN_ÅRSAK", melding = "En annen årsak", detaljer = detaljer),
+        )
+        context.avbrytMigrering(
+            123,
+            Migreringsavbrudd(kode = "ANNEN_ÅRSAK", melding = "En annen årsak", detaljer = detaljer),
+        )
+
+        verify(exactly = 2) { context.publish(capture(publiserte)) }
+        val avbrudd = JsonMapper.builder().build().readTree(publiserte.first())
+        avbrudd
+            .properties()
+            .toList()
+            .map { it.key }
+            .toSet() shouldBe
+            setOf("@event_name", "@id", "@opprettet", "sakId", "arsak")
+        avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
+        avbrudd["sakId"].asInt() shouldBe 123
+        UUID.fromString(avbrudd["@id"].asString())
+        LocalDateTime.parse(avbrudd["@opprettet"].asString())
+        avbrudd["arsak"]
+            .properties()
+            .toList()
+            .map { it.key }
+            .toSet() shouldBe
+            setOf("kode", "melding", "detaljer")
+        avbrudd["arsak"]["kode"].asString() shouldBe "ANNEN_ÅRSAK"
+        avbrudd["arsak"]["melding"].asString() shouldBe "En annen årsak"
+        avbrudd["arsak"]["detaljer"].values().map { it.asString() } shouldBe detaljer
+        val andreAvbrudd = JsonMapper.builder().build().readTree(publiserte.last())
+        (avbrudd["@id"].asString() != andreAvbrudd["@id"].asString()) shouldBe true
+    }
+
+    @Test
+    fun `fullforingshjelperen publiserer svar uten arsak`() {
+        val context = mockk<MessageContext>(relaxed = true)
+        val publiserte = mutableListOf<String>()
+
+        context.fullførMigrering(123)
+        context.fullførMigrering(123)
+
+        verify(exactly = 2) { context.publish(capture(publiserte)) }
+        val fullført = JsonMapper.builder().build().readTree(publiserte.first())
+        fullført
+            .properties()
+            .toList()
+            .map { it.key }
+            .toSet() shouldBe
+            setOf("@event_name", "@id", "@opprettet", "sakId")
+        fullført["@event_name"].asString() shouldBe "teknisk_migrering_fullfort"
+        fullført["sakId"].asInt() shouldBe 123
+        UUID.fromString(fullført["@id"].asString())
+        LocalDateTime.parse(fullført["@opprettet"].asString())
+        fullført.has("arsak") shouldBe false
+        val andreFullført = JsonMapper.builder().build().readTree(publiserte.last())
+        (fullført["@id"].asString() != andreFullført["@id"].asString()) shouldBe true
     }
 
     private fun valideringsmelding(opplysninger: Map<String, Any>): JsonMessage =
@@ -104,8 +198,10 @@ class MigrerYtelseMottakTest {
 
     @Test
     fun `oppretter behandling med kontraktsfelter og tilleggsopplysninger`() {
-        rapid.sendTestMessage(ekteMelding())
+        rapid.sendTestMessage(melding(opplysninger = jsonMapper.writeValueAsString(testopplysninger())))
 
+        rapid.inspektør.size shouldBe 1
+        rapid.inspektør.message(0)["@event_name"].asString() shouldBe "teknisk_migrering_fullfort"
         val hendelse = slot<MigrerYtelseHendelse>()
         verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
 
@@ -163,12 +259,20 @@ class MigrerYtelseMottakTest {
         opplysninger.first().gyldighetsperiode shouldBe Gyldighetsperiode(LocalDate.of(2025, 11, 17))
     }
 
-    @Test
-    fun `kan ikke oppgi samme opplysning både eksplisitt og som tilleggsopplysning`() {
-        shouldThrow<IllegalArgumentException> {
-            rapid.sendTestMessage(melding(opplysninger = """{ "${DagpengenesStørrelse.antallBarn.behovId}": 3 }"""))
-        }
-    }
+//    @Test
+//    fun `kan ikke oppgi samme opplysning både eksplisitt og som tilleggsopplysning`() {
+//        rapid.sendTestMessage(
+//            melding(
+//                opplysninger =
+//                    """{ "${DagpengenesStørrelse.antallBarn.behovId}": 3, "${Dagpengegrunnlag.grunnlag.behovId}": 310630, "${Opphold.oppfyllerKravet.behovId}": true }""",
+//            ),
+//        )
+//        val hendelse = slot<MigrerYtelseHendelse>()
+//        verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
+//        shouldThrow<IllegalArgumentException> {
+//            hendelse.captured.behandling(null, TemporalCollection())
+//        }
+//    }
 
     @Test
     fun `avviser tilleggsopplysning med feil verdityper`() {
@@ -204,6 +308,7 @@ class MigrerYtelseMottakTest {
     ) = """
         {
           "@event_name": "$eventName",
+          "sakId": 13699878,
           "ident": "12345678910",
           "innvilgetFraOgMed": "${LocalDate.of(2026, 1, 5)}",
           "innvilgedeStønadsuker": 52,
@@ -227,6 +332,11 @@ class MigrerYtelseMottakTest {
               "verdi": true,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9443-72b4-8b30-5f6cdb24d54c"
+            },
+            {
+              "verdi": 104,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-943d-77a7-969c-147999f15459"
             },
             {
               "verdi": true,

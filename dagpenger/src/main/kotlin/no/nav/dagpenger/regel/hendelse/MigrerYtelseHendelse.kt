@@ -131,7 +131,7 @@ class MigrerYtelseHendelse(
                     // Uten denne lages det avklaring
                     Tilleggsopplysning(Eksport.oppfyllerVilkårForEksport, false),
                     Tilleggsopplysning(Søknadstidspunkt.prøvingsdato, ytelse.innvilgetFraOgMed),
-                    Tilleggsopplysning(Dagpengeperiode.ordinærPeriode, ytelse.innvilgedeStønadsuker),
+//                    Tilleggsopplysning(Dagpengeperiode.ordinærPeriode, ytelse.innvilgedeStønadsuker),
                     Tilleggsopplysning(Dagpengeperiode.antallStønadsdager, ytelse.gjenståendeStønadsdager),
                     Tilleggsopplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg, Beløp(ytelse.dagsats)),
                     Tilleggsopplysning(SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden, Beløp(ytelse.dagsats)),
@@ -156,7 +156,7 @@ class MigrerYtelseHendelse(
         val eksplisitteTyper =
             listOf(
                 Søknadstidspunkt.prøvingsdato,
-                Dagpengeperiode.ordinærPeriode,
+//                Dagpengeperiode.ordinærPeriode,
                 Dagpengeperiode.antallStønadsdager,
                 DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg,
                 DagpengenesStørrelse.antallBarn,

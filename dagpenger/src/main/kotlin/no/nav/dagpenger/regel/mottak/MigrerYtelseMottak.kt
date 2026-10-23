@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.mottak
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
@@ -26,14 +27,63 @@ import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.uuid.UUIDv7
 import tools.jackson.databind.JsonNode
+import tools.jackson.module.kotlin.jsonMapper
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
+
+private val migreringSvarSerializer = jsonMapper {}
+
+internal data class Migreringsavbrudd(
+    val kode: String,
+    val melding: String,
+    val detaljer: List<String> = emptyList(),
+)
+
+internal data class MigreringAvbruttDto(
+    val sakId: Int,
+    val arsak: Migreringsavbrudd,
+) {
+    @get:JsonProperty("@event_name")
+    val eventName = "migrering_avbrutt"
+
+    @get:JsonProperty("@id")
+    val id = UUID.randomUUID().toString()
+
+    @get:JsonProperty("@opprettet")
+    val opprettet = LocalDateTime.now().toString()
+}
+
+internal data class TekniskMigreringFullførtDto(
+    val sakId: Int,
+) {
+    @get:JsonProperty("@event_name")
+    val eventName = "teknisk_migrering_fullfort"
+
+    @get:JsonProperty("@id")
+    val id = UUID.randomUUID().toString()
+
+    @get:JsonProperty("@opprettet")
+    val opprettet = LocalDateTime.now().toString()
+}
+
+internal fun MessageContext.avbrytMigrering(
+    sakId: Int,
+    arsak: Migreringsavbrudd,
+) {
+    publish(migreringSvarSerializer.writeValueAsString(MigreringAvbruttDto(sakId, arsak)))
+}
+
+internal fun MessageContext.fullførMigrering(sakId: Int) {
+    publish(migreringSvarSerializer.writeValueAsString(TekniskMigreringFullførtDto(sakId)))
+}
 
 class MigrerYtelseMottak(
     rapidsConnection: RapidsConnection,
@@ -44,6 +94,7 @@ class MigrerYtelseMottak(
         setOf(
             Dagpengegrunnlag.grunnlag,
             Opphold.oppfyllerKravet,
+            Dagpengeperiode.ordinærPeriode,
         )
 
     init {
@@ -53,6 +104,7 @@ class MigrerYtelseMottak(
                 validate {
                     it.requireKey(
                         "ident",
+                        "sakId",
 //                        "innvilgetFraOgMed",
 //                        "innvilgedeStønadsuker",
 //                        "gjenståendeStønadsdager",
@@ -74,13 +126,24 @@ class MigrerYtelseMottak(
         meterRegistry: MeterRegistry,
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
+        val sakId = packet["sakId"].asInt()
         val manglendeOpplysninger = validerOpplysninger(packet)
-        require(manglendeOpplysninger.isEmpty()) {
-            "Mangler påkrevde opplysninger: ${manglendeOpplysninger.joinToString { it.behovId }}"
+
+        if (manglendeOpplysninger.isNotEmpty()) {
+            context.avbrytMigrering(
+                sakId,
+                Migreringsavbrudd(
+                    kode = "MANGLENDE_OPPLYSNINGER",
+                    melding = "Mangler påkrevde opplysninger",
+                    detaljer = manglendeOpplysninger.map { it.behovId },
+                ),
+            )
+            return
         }
 
         val message = MigrerYtelseMessage(packet, opplysningstyper)
         hendelseMottaker.behandle(message.hendelse, message, context)
+        context.fullførMigrering(sakId)
     }
 
     fun validerOpplysninger(packet: JsonMessage): List<Opplysningstype<*>> {
