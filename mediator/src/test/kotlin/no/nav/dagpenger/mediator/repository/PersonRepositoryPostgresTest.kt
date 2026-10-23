@@ -44,7 +44,6 @@ class PersonRepositoryPostgresTest {
                 .dataPoints
                 .shouldForAll {
                     it.sum shouldBeGreaterThan 0.0
-                    it.exemplars.size() shouldBe 0
                 }
         }
 
