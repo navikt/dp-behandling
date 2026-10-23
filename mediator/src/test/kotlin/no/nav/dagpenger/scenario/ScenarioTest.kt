@@ -914,13 +914,13 @@ class ScenarioTest {
                 rettighetsperioder.last().harRett shouldBe true
                 rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
                 with(opplysninger(fastsattVanligArbeidstid)) {
-                    this shouldHaveSize 2
-                    this.last().gyldigFraOgMed shouldBe 22.juni(2026)
-                    this.last().verdi.verdi shouldBe 23.5
+                    this shouldHaveSize 1
+                    this.single().gyldigFraOgMed shouldBe 22.juni(2026)
+                    this.single().verdi.verdi shouldBe 23.5
                 }
 
                 with(opplysninger(kravTilArbeidstidsreduksjon)) {
-                    size shouldBe 2
+                    size shouldBe 1
                 }
             }
         }
