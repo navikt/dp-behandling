@@ -564,11 +564,11 @@ internal class OpplysningerRepositoryPostgres(
 private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysning<out Any>> {
     val opplysningMap = mutableMapOf<UUID, Opplysning<out Any>>()
 
-    // Finn opplysningen som erstattes av denne
+    // Finn opplysningen som erstattes av denne. Er den fjernet finnes den ikke lenger, og da er det ingenting å erstatte
     fun <T : Any> OpplysningRad<T>.finnErstatter() {
-        this.erstatter?.let {
-            require(opplysningMap.contains(it)) { "Opplysning ${this.id} trenger id $it er ikke funnet" }
-            (opplysningMap[this.id] as Opplysning<T>).erstatter(opplysningMap[it] as Opplysning<T>)
+        this.erstatter?.let { erstatterId ->
+            val erstattet = opplysningMap[erstatterId] ?: return
+            (opplysningMap[this.id] as Opplysning<T>).erstatter(erstattet as Opplysning<T>)
         }
     }
 
