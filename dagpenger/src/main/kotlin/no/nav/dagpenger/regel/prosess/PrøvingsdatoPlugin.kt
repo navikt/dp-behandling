@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.prosess
+
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.aktivitetslogg.SpesifikkKontekst
 import no.nav.dagpenger.opplysning.Faktum
@@ -8,6 +9,7 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadstidspunkt
 
 class PrøvingsdatoPlugin : ProsessPlugin {
     override fun regelkjøringFerdig(kontekst: Prosesskontekst) {
@@ -26,7 +28,16 @@ class PrøvingsdatoPlugin : ProsessPlugin {
                 ?: return
 
         val gjeldende = opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato)
-        val nyDato = førsteInnvilgelse.gyldighetsperiode.fraOgMed
+
+        // Prøvingsdato kan aldri settes FØR søknadstidspunkt
+        val søknadstidspunkt =
+            opplysninger
+                .finnNullableOpplysning(søknadstidspunkt)
+                ?.takeIf { gjeldende.kilde !is Saksbehandlerkilde }
+                ?.verdi
+
+        val nyDato =
+            listOfNotNull(førsteInnvilgelse.gyldighetsperiode.fraOgMed, søknadstidspunkt).max()
 
         // Allerede korrekt — ingen endring nødvendig
         if (gjeldende.verdi.isEqual(nyDato)) return
