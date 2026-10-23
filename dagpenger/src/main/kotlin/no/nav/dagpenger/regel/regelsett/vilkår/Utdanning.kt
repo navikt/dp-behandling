@@ -40,6 +40,7 @@ object Utdanning {
             "Brukeren er under utdanning eller opplæring",
             Bruker,
             behovId = TarUtdanningEllerOpplæring,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val godkjentUnntakForUtdanning =
         boolsk(
