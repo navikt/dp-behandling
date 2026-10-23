@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
@@ -43,6 +44,14 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
             opplysninger = opplysninger,
             forretningsprosess = this,
         )
+    }
+
+    // Meldekort henter ikke på nytt det som allerede er innhentet, selv om prøvingsdato har flyttet seg
+    override fun produsenter(
+        regelverksdato: LocalDate,
+        opplysningerPåPrøvingsdato: LesbarOpplysninger,
+    ) = super.produsenter(regelverksdato, opplysningerPåPrøvingsdato).filterNot { (type, regel) ->
+        regel is Ekstern<*> && opplysningerPåPrøvingsdato.har(type)
     }
 
     override fun kontrollpunkter(): List<IKontrollpunkt> =

@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
@@ -66,9 +67,11 @@ object Alderskrav {
 
     val StansAlderKontroll =
         Kontrollpunkt(Avklaringspunkter.StansAlder) { opplysninger ->
+            // Skal kun kjøre når det er meldekort som beregnes
             if (opplysninger.mangler(meldeperiode)) {
                 return@Kontrollpunkt false
             }
-            return@Kontrollpunkt opplysninger.har(kravTilAlder, gjelderFor = LocalDate.MAX)
+            return@Kontrollpunkt opplysninger.har(kravTilAlder, gjelderFor = LocalDate.MAX) &&
+                !opplysninger.erSann(kravTilAlder, gjelderFor = LocalDate.MAX)
         }
 }
