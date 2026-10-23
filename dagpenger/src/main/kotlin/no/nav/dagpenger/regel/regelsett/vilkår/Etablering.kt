@@ -62,6 +62,6 @@ object Etablering {
                 )
             }
 
-            påvirkerResultat { it.erSann(skalEtableringVurderes) && it.erSann(etableringGodkjent) }
+            påvirkerResultat { it.erSann(skalEtableringVurderes) && it.finnAlle(etableringGodkjent).any { godkjent -> godkjent.verdi } }
         }
 }
