@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.mottak
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -18,6 +19,7 @@ import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Disabled
@@ -30,13 +32,75 @@ class MigrerYtelseMottakTest {
     private val rapid = TestRapid()
     private val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
 
-    init {
+    private val mottak =
         MigrerYtelseMottak(
             rapidsConnection = rapid,
             hendelseMottaker = hendelseMottaker,
             opplysningstyper = DagpengerRegistrering().opplysningstyper,
         )
+
+    @Test
+    fun `returnerer alle manglende pakrevde opplysningstyper`() {
+        val packet = valideringsmelding(emptyMap())
+
+        mottak.validerOpplysninger(packet) shouldBe
+            listOf(Dagpengegrunnlag.grunnlag, Opphold.oppfyllerKravet)
     }
+
+    @Test
+    fun `returnerer bare opplysningstypen som mangler`() {
+        val packet = valideringsmelding(mapOf(Dagpengegrunnlag.grunnlag.behovId to 310630))
+
+        mottak.validerOpplysninger(packet) shouldBe listOf(Opphold.oppfyllerKravet)
+    }
+
+    @Test
+    fun `returnerer tom liste nar alle pakrevde opplysningstyper finnes i listen`() {
+        val packet =
+            JsonMessage
+                .newMessage(
+                    "start_migrering",
+                    mapOf(
+                        "opplysninger" to
+                            listOf(
+                                mapOf(
+                                    "uuid" to
+                                        Dagpengegrunnlag.grunnlag.id.uuid
+                                            .toString(),
+                                    "verdi" to 310630,
+                                    "gyldigFraOgMed" to "2024-10-04",
+                                ),
+                                mapOf(
+                                    "uuid" to
+                                        Opphold.oppfyllerKravet.id.uuid
+                                            .toString(),
+                                    "verdi" to true,
+                                    "gyldigFraOgMed" to "2024-10-04",
+                                ),
+                            ),
+                    ),
+                ).apply { interestedIn("opplysninger") }
+
+        mottak.validerOpplysninger(packet) shouldBe emptyList()
+    }
+
+    @Test
+    fun `stopper behandling nar pakrevde opplysninger mangler`() {
+        val feil =
+            shouldThrow<IllegalArgumentException> {
+                rapid.sendTestMessage(melding(opplysninger = "{}"))
+            }
+
+        feil.message shouldBe
+            "Mangler påkrevde opplysninger: ${Dagpengegrunnlag.grunnlag.behovId}, " +
+            Opphold.oppfyllerKravet.behovId
+        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+    }
+
+    private fun valideringsmelding(opplysninger: Map<String, Any>): JsonMessage =
+        JsonMessage
+            .newMessage("start_migrering", mapOf("opplysninger" to opplysninger))
+            .apply { interestedIn("opplysninger") }
 
     @Test
     fun `oppretter behandling med kontraktsfelter og tilleggsopplysninger`() {

@@ -25,6 +25,8 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.uuid.UUIDv7
@@ -38,6 +40,12 @@ class MigrerYtelseMottak(
     private val hendelseMottaker: HendelseMottaker,
     private val opplysningstyper: Set<Opplysningstype<*>>,
 ) : River.PacketListener {
+    private val påkrevdeOpplysningstyper =
+        setOf(
+            Dagpengegrunnlag.grunnlag,
+            Opphold.oppfyllerKravet,
+        )
+
     init {
         River(rapidsConnection)
             .apply {
@@ -66,9 +74,22 @@ class MigrerYtelseMottak(
         meterRegistry: MeterRegistry,
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
-        logger.info { "Mottok melding om migrering : ${packet.toJson()}" }
+        val manglendeOpplysninger = validerOpplysninger(packet)
+        require(manglendeOpplysninger.isEmpty()) {
+            "Mangler påkrevde opplysninger: ${manglendeOpplysninger.joinToString { it.behovId }}"
+        }
+
         val message = MigrerYtelseMessage(packet, opplysningstyper)
         hendelseMottaker.behandle(message.hendelse, message, context)
+    }
+
+    fun validerOpplysninger(packet: JsonMessage): List<Opplysningstype<*>> {
+        val mottatteTyper =
+            packet["opplysninger"]
+                .tilleggsopplysninger(opplysningstyper)
+                .map { it.opplysningstype }
+                .toSet()
+        return påkrevdeOpplysningstyper.filterNot { it in mottatteTyper }
     }
 
     override fun onError(
