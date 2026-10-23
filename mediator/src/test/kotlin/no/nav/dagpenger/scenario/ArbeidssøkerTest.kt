@@ -422,7 +422,7 @@ class ArbeidssøkerTest {
                     this shouldHaveSize 2
 
                     this[0].gyldigFraOgMed shouldBe 21.juni(2018)
-                    this[1].gyldigFraOgMed shouldBe 6.juli(2018)
+                    this[1].gyldigFraOgMed shouldBe 7.juli(2018)
                 }
             }
         }
