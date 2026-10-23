@@ -107,7 +107,12 @@ object Utdanning {
     // § 4-3e.(deltakelse på kurs mv
     val deltakelsePåKurs = boolsk(deltarPåKursMvId, "Deltar på kurs mv", synlig = hvisTarUtdanning)
 
-    val kravTilUtdanning = boolsk(kravTilUtdanningEllerOpplæringId, "Oppfyller krav til utdanning eller opplæring")
+    val kravTilUtdanning =
+        boolsk(
+            kravTilUtdanningEllerOpplæringId,
+            "Oppfyller krav til utdanning eller opplæring",
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
 
     val regelsett =
         vilkår(
