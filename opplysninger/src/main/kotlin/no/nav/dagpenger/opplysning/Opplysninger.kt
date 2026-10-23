@@ -132,7 +132,7 @@ class Opplysninger private constructor(
     // brudd på fremmednøkkelen mot opplysning-tabellen når vi lagrer til database.
     private fun sjekkAtUtledetAvFinnes(opplysning: Opplysning<*>) {
         opplysning.utledetAv?.opplysninger?.forEach { avhengighet ->
-            check(egne.contains(avhengighet) || basertPåOpplysninger.contains(avhengighet)) {
+            check(indeks.harEgen(avhengighet) || erArvet(avhengighet)) {
                 "Opplysning ${opplysning.id} (${opplysning.opplysningstype.navn}) er utledetAv " +
                     "${avhengighet.id} (${avhengighet.opplysningstype.navn}), men denne finnes ikke " +
                     "(lenger) i opplysningene. Avhengigheten kan ha blitt fjernet fordi den selv ble " +
@@ -174,11 +174,7 @@ class Opplysninger private constructor(
         finnNullableOpplysningMedFiltre(opplysningstype, gjelderFor, false)
             ?: throw IllegalStateException("Har ikke opplysning $opplysningstype som er gyldig for $gjelderFor")
 
-    override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) =
-        indeks
-            .gjeldende(opplysningstype)
-            .filterIsInstance<Opplysning<T>>()
-            .lastOrNull()
+    override fun <T : Any> finnNullableOpplysning(opplysningstype: Opplysningstype<T>) = indeks.gjeldende(opplysningstype).lastOrNull()
 
     override fun finnOpplysning(opplysningId: UUID) =
         alleOpplysninger.lastOrNull { it.id == opplysningId }
@@ -196,8 +192,7 @@ class Opplysninger private constructor(
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = opplysningstyper.flatMap { type -> finnAlle(type) }
 
-    override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) =
-        indeks.gjeldende(opplysningstype).filterIsInstance<Opplysning<T>>()
+    override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) = indeks.gjeldende(opplysningstype)
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger = OpplysningerView(this, gjelderFor = gjelderFor)
 
@@ -211,6 +206,8 @@ class Opplysninger private constructor(
 
     // Rådata slik de er lagt til, uten utflating. Det er dette som skal persisteres.
     fun rå(): List<Opplysning<*>> = egne.toList()
+
+    fun alleRå(): List<Opplysning<*>> = basertPåOpplysninger + egne
 
     fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
 
@@ -247,12 +244,7 @@ class Opplysninger private constructor(
     private fun <T : Any> finnNullableOpplysning(
         opplysningstype: Opplysningstype<T>,
         gyldighetsperiode: Gyldighetsperiode = Gyldighetsperiode(),
-    ): Opplysning<T>? =
-        indeks
-            .gjeldende(opplysningstype)
-            .filterIsInstance<Opplysning<T>>()
-            .filter { it.gyldighetsperiode.overlapper(gyldighetsperiode) }
-            .lastOrNull()
+    ): Opplysning<T>? = indeks.gjeldende(opplysningstype).lastOrNull { it.gyldighetsperiode.overlapper(gyldighetsperiode) }
 
     fun inneholder(opplysning: Opplysning<*>): Boolean = alleOpplysninger.contains(opplysning)
 
@@ -263,26 +255,17 @@ class Opplysninger private constructor(
         opplysningstype: Opplysningstype<T>,
         gjelderFor: LocalDate?,
         bareEgne: Boolean,
-    ): List<Opplysning<T>> =
-        (if (bareEgne) indeks.gjeldendeEgne(opplysningstype) else indeks.gjeldende(opplysningstype))
-            .filterIsInstance<Opplysning<T>>()
-            .filter { gjelderFor == null || it.gyldighetsperiode.inneholder(gjelderFor) }
+    ): List<Opplysning<T>> {
+        val gjeldende = gjeldende(opplysningstype, bareEgne)
+        return if (gjelderFor == null) gjeldende else gjeldende.filter { it.gyldighetsperiode.inneholder(gjelderFor) }
+    }
 
     internal fun <T : Any> finnNullableOpplysningMedFiltre(
         opplysningstype: Opplysningstype<T>,
         gjelderFor: LocalDate?,
         bareEgne: Boolean,
     ): Opplysning<T>? {
-        val kandidater =
-            if (bareEgne) {
-                indeks
-                    .gjeldendeEgne(opplysningstype)
-                    .filterIsInstance<Opplysning<T>>()
-            } else {
-                indeks
-                    .gjeldende(opplysningstype)
-                    .filterIsInstance<Opplysning<T>>()
-            }
+        val kandidater = gjeldende(opplysningstype, bareEgne)
         return if (gjelderFor != null) {
             kandidater.lastOrNull { it.gyldighetsperiode.inneholder(gjelderFor) }
         } else {
@@ -290,7 +273,14 @@ class Opplysninger private constructor(
         }
     }
 
-    fun erArvet(opplysning: Opplysning<*>): Boolean = basertPåOpplysninger.contains(opplysning)
+    private fun <T : Any> gjeldende(
+        opplysningstype: Opplysningstype<T>,
+        bareEgne: Boolean,
+    ) = if (bareEgne) indeks.gjeldendeEgne(opplysningstype) else indeks.gjeldende(opplysningstype)
+
+    private val arvedeIder: Set<UUID> by lazy { basertPåOpplysninger.mapTo(HashSet()) { it.id } }
+
+    fun erArvet(opplysning: Opplysning<*>): Boolean = opplysning.id in arvedeIder
 
     /**
      * Skjuler gjeldende opplysninger av [opplysningstype] i [periode] ved å legge til tombstones.

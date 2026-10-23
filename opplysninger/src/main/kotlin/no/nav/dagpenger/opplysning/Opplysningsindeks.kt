@@ -32,15 +32,17 @@ internal class Opplysningsindeks(
     private var gjeldendeEgenFlat: List<Opplysning<*>>? = null
 
     /** Gjeldende opplysninger av én type, sortert på fraOgMed. Tom liste om typen ikke finnes. */
-    fun gjeldende(type: Opplysningstype<*>): List<Opplysning<*>> {
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> gjeldende(type: Opplysningstype<T>): List<Opplysning<T>> {
         oppfrisk(type)
-        return gjeldendePerType[type].orEmpty()
+        return gjeldendePerType[type].orEmpty() as List<Opplysning<T>>
     }
 
     /** Som [gjeldende], men kun egne (ikke-arvede) opplysninger. */
-    fun gjeldendeEgne(type: Opplysningstype<*>): List<Opplysning<*>> {
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> gjeldendeEgne(type: Opplysningstype<T>): List<Opplysning<T>> {
         oppfriskEgen(type)
-        return gjeldendeEgnePerType[type].orEmpty()
+        return gjeldendeEgnePerType[type].orEmpty() as List<Opplysning<T>>
     }
 
     /** Alle gjeldende opplysninger på tvers av typer: typer i rekkefølge etter første innsetting, hver type sortert på fraOgMed. */
@@ -50,6 +52,8 @@ internal class Opplysningsindeks(
     /** Som [alle], men kun egne (ikke-arvede) opplysninger. */
     val kunEgne: List<Opplysning<*>>
         get() = gjeldendeEgenFlat ?: flatt(gjeldendeEgnePerType, ::oppfriskAlleEgne).also { gjeldendeEgenFlat = it }
+
+    fun harEgen(opplysning: Opplysning<*>) = egnePerType[opplysning.opplysningstype]?.contains(opplysning) == true
 
     fun leggTilEgen(opplysning: Opplysning<*>) {
         egnePerType.getOrPut(opplysning.opplysningstype) { mutableListOf() }.add(opplysning)
