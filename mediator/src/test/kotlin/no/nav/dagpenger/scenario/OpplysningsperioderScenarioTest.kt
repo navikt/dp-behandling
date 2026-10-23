@@ -97,11 +97,10 @@ class OpplysningsperioderScenarioTest {
                 perioder[1].verdi.verdi shouldBe true
                 perioder[1].opprinnelse shouldBe Periodestatus.Arvet
 
-                // Ny standardperiode fra ny behandlings regelverksdato
-                perioder[2].gyldigFraOgMed shouldBe 15.juli(2018)
+                perioder[2].gyldigFraOgMed shouldBe 6.juli(2018)
                 perioder[2].gyldigTilOgMed shouldBe null
                 perioder[2].verdi.verdi shouldBe false
-                perioder[2].opprinnelse shouldBe Periodestatus.Ny
+                perioder[2].opprinnelse shouldBe Periodestatus.Arvet
             }
         }
     }

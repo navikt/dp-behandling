@@ -40,8 +40,6 @@ Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
 Behandling endret tilstand til: ForslagTilVedtak
-Laget avklaring om IkkeRegistrertSomArbeidsøker
-Laget avklaring om IkkeRegistrertSomArbeidsøker
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
