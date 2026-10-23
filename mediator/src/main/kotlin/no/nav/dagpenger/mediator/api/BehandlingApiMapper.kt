@@ -20,7 +20,6 @@ import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -138,7 +137,7 @@ import kotlin.io.encoding.Base64
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val opplysningSet = opplysninger.somListe()
-        val egneId = opplysninger.somListe(Egne).map { it.id }
+        val erEgen: (Opplysning<*>) -> Boolean = opplysninger::erEgen
         val behandlingsresultat = vedtakopplysninger
         val opplysningstypeRekkefølge = behandler.forretningsprosess.regelverk.opplysningstypeRekkefølge()
 
@@ -170,12 +169,12 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                         RedigerbareOpplysningerDTO(
                             opplysningTypeId = type.id.uuid,
                             navn = type.navn,
-                            perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
+                            perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(erEgen) },
                             datatype = type.datatype.tilDataTypeDTO(),
                             synlig = type.synlig(this.opplysninger),
                             redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                             redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
-                            kanOppfriskes = type.kanOppfriskes(opplysninger.any { it.id in egneId }),
+                            kanOppfriskes = type.kanOppfriskes(opplysninger.any(erEgen)),
                             formål = type.tilFormålDTO(),
                         )
                     }.sortedBy { opplysningstypeRekkefølge[it.opplysningTypeId] ?: Int.MAX_VALUE },
@@ -237,7 +236,7 @@ private fun Pair<Behandling.TilstandType, LocalDateTime>.tilTilstandDTO() =
 internal fun Behandling.tilSaksbehandlersVurderinger() =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val endredeOpplysninger = opplysninger().somListe().filter { it.kilde is Saksbehandlerkilde }
-        val egneId = opplysninger.somListe(Egne).map { it.id }
+        val erEgen: (Opplysning<*>) -> Boolean = opplysninger::erEgen
 
         SaksbehandlersVurderingerDTO(
             behandlingId = behandlingId,
@@ -247,7 +246,7 @@ internal fun Behandling.tilSaksbehandlersVurderinger() =
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
                         datatype = type.datatype.tilDataTypeDTO(),
-                        perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
+                        perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(erEgen) },
                     )
                 },
         )

@@ -19,6 +19,8 @@ internal class Opplysningsindeks(
     private val egnePerType: MutableMap<Opplysningstype<*>, MutableList<Opplysning<*>>> =
         egneVedOppstart.groupByTo(mutableMapOf()) { it.opplysningstype }
 
+    private val egneOpplysninger: MutableSet<Opplysning<*>> = egneVedOppstart.toHashSet()
+
     private val gjeldendePerType = mutableMapOf<Opplysningstype<*>, List<Opplysning<*>>>()
     private val gjeldendeEgnePerType = mutableMapOf<Opplysningstype<*>, List<Opplysning<*>>>()
 
@@ -53,15 +55,23 @@ internal class Opplysningsindeks(
     val kunEgne: List<Opplysning<*>>
         get() = gjeldendeEgenFlat ?: flatt(gjeldendeEgnePerType, ::oppfriskAlleEgne).also { gjeldendeEgenFlat = it }
 
-    fun harEgen(opplysning: Opplysning<*>) = egnePerType[opplysning.opplysningstype]?.contains(opplysning) == true
+    /** Typer som har minst én gjeldende (synlig) opplysning. */
+    fun typerMedGjeldende(): Set<Opplysningstype<*>> {
+        oppfriskAlle()
+        return gjeldendePerType.keys.toSet()
+    }
+
+    fun harEgen(opplysning: Opplysning<*>) = opplysning in egneOpplysninger
 
     fun leggTilEgen(opplysning: Opplysning<*>) {
         egnePerType.getOrPut(opplysning.opplysningstype) { mutableListOf() }.add(opplysning)
+        egneOpplysninger.add(opplysning)
         merkPåvirket(opplysning.opplysningstype)
     }
 
     fun fjernEgen(opplysning: Opplysning<*>) {
         egnePerType[opplysning.opplysningstype]?.remove(opplysning)
+        egneOpplysninger.remove(opplysning)
         merkPåvirket(opplysning.opplysningstype)
     }
 
@@ -147,7 +157,8 @@ internal class Opplysningsindeks(
                 }
                 dekket.add(opplysning.gyldighetsperiode)
             }
-            return resultat.sortedBy { it.gyldighetsperiode.fraOgMed }
+            resultat.sortBy { it.gyldighetsperiode.fraOgMed }
+            return resultat
         }
     }
 }

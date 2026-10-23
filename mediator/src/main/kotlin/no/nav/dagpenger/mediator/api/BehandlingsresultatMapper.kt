@@ -11,13 +11,13 @@ import no.nav.dagpenger.mediator.api.models.UtbetalingDTODagpengeTypeDTO.FERIETI
 import no.nav.dagpenger.mediator.api.models.UtbetalingDTODagpengeTypeDTO.ORDINÆRE_DAGPENGER
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Ytelsestype
 
 internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: String): BehandlingsresultatDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
         val opplysningSet = opplysninger.somListe()
-        val egneId = opplysninger.somListe(Egne).map { it.id }
+        val erEgen: (Opplysning<*>) -> Boolean = opplysninger::erEgen
 
         BehandlingsresultatDTO(
             behandlingId = behandlingId,
@@ -34,7 +34,7 @@ internal fun Behandling.VedtakOpplysninger.tilBehandlingsresultatDTO(ident: Stri
                         opplysningTypeId = type.id.uuid,
                         navn = type.navn,
                         datatype = type.datatype.tilDataTypeDTO(),
-                        perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(egneId) },
+                        perioder = opplysninger.map { opplysning -> opplysning.tilOpplysningsperiodeDTO(erEgen) },
                     )
                 },
             utbetalinger = tilUtbetalingDTO(opplysninger),

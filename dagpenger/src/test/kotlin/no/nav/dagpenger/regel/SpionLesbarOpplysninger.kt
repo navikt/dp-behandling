@@ -76,6 +76,8 @@ class SpionLesbarOpplysninger : LesbarOpplysninger {
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean = false
 
+    override fun erEgen(opplysning: Opplysning<*>): Boolean = false
+
     override fun somListe(filter: LesbarOpplysninger.Filter): List<Opplysning<*>> = emptyList()
 
     class SpionAvsluttet : Exception()
