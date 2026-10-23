@@ -73,7 +73,8 @@ class LesbarOpplysningerMedLogg(
 
     override fun <T : Any> finnAlle(opplysningstyper: List<Opplysningstype<T>>) = TODO("Not yet implemented")
 
-    override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) = TODO("Not yet implemented")
+    override fun <T : Any> finnAlle(opplysningstype: Opplysningstype<T>) =
+        opplysninger.finnAlle(opplysningstype).also { oppslag.addAll(it) }
 
     override fun erErstattet(opplysninger: List<Opplysning<*>>) = TODO("Not yet implemented")
 
