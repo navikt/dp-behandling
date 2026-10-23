@@ -196,6 +196,10 @@ class Opplysninger private constructor(
 
     override fun forDato(gjelderFor: LocalDate): LesbarOpplysninger = OpplysningerView(this, gjelderFor = gjelderFor)
 
+    override fun erEgen(opplysning: Opplysning<*>) = indeks.harEgen(opplysning)
+
+    fun typerMedOpplysning(): Set<Opplysningstype<*>> = indeks.typerMedGjeldende()
+
     override fun somListe(filter: Filter) =
         when (filter) {
             Filter.Alle -> alleOpplysninger

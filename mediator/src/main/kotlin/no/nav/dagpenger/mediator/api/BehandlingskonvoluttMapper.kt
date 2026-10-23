@@ -70,7 +70,6 @@ import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import java.time.LocalDate
-import java.util.UUID
 import kotlin.io.encoding.Base64
 
 internal fun <T> Collection<Opplysning<*>>.somOpplysningperiode(block: (Opplysningstype<*>, Collection<Opplysning<*>>) -> T): List<T> =
@@ -78,11 +77,11 @@ internal fun <T> Collection<Opplysning<*>>.somOpplysningperiode(block: (Opplysni
         block(type, opplysninger)
     }
 
-internal fun Opplysning<*>.tilOpplysningsperiodeDTO(egneId: List<UUID>) =
+internal fun Opplysning<*>.tilOpplysningsperiodeDTO(erEgen: (Opplysning<*>) -> Boolean) =
     OpplysningsperiodeDTO(
         id = this.id,
         opprettet = opprettet,
-        opprinnelse = (id in egneId).tilOpprinnelseDTO(),
+        opprinnelse = erEgen(this).tilOpprinnelseDTO(),
         gyldigFraOgMed = this.gyldighetsperiode.fraOgMed.tilApiDato(),
         gyldigTilOgMed = this.gyldighetsperiode.tilOgMed.tilApiDato(),
         type =

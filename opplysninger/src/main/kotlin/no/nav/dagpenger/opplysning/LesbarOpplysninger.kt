@@ -53,6 +53,9 @@ interface LesbarOpplysninger {
 
     fun erErstattet(opplysninger: List<Opplysning<*>>): Boolean
 
+    /** Om opplysningen er lagt til i denne behandlingen, i motsetning til arvet fra en tidligere. */
+    fun erEgen(opplysning: Opplysning<*>): Boolean
+
     fun somListe(filter: Filter = Filter.Alle): List<Opplysning<*>>
 
     companion object {

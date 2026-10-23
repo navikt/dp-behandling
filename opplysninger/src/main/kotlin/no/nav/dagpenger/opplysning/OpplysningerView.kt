@@ -61,6 +61,8 @@ internal class OpplysningerView(
         return opplysninger.any { it.id in erstattetIder }
     }
 
+    override fun erEgen(opplysning: Opplysning<*>) = source.erEgen(opplysning)
+
     override fun somListe(filter: LesbarOpplysninger.Filter): List<Opplysning<*>> {
         val effektivFilter =
             if (bareEgne) LesbarOpplysninger.Filter.Egne else filter

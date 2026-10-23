@@ -208,7 +208,6 @@ private fun harReeltOppholdEtter(
 private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbetaling> {
     val meldeperioder = opplysninger.finnAlle(Beregning.meldeperiode)
 
-    val egneId = opplysninger.somListe(Egne).map { it.id }
     val løpendeRett = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
     val satser = opplysninger.finnAlle(dagsatsEtterSamordningMedBarnetillegg)
     val dager = opplysninger.finnAlle(Beregning.utbetaling).associateBy { it.gyldighetsperiode.fraOgMed }
@@ -226,7 +225,7 @@ private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbeta
                 dato = dato,
                 sats = sats.verdien.toInt(),
                 utbetaling = dag.verdi.heleKroner.toInt(),
-                endret = (dag.id in egneId),
+                endret = opplysninger.erEgen(dag),
                 ytelsestype = Ytelsestype("Ordinær"),
             )
         }
