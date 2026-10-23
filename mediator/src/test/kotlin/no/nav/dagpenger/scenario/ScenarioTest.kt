@@ -1,6 +1,7 @@
 package no.nav.dagpenger.scenario
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
@@ -999,6 +1000,7 @@ class ScenarioTest {
             val meldekort = meldekortBatch(markerFerdig = false)
 
             saksbehandler.leggTilOpplysning(deltakelseIArbeidsmarkedstiltak, true, "A", Gyldighetsperiode(8.juni(2026), 3.juli(2026)))
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -1035,6 +1037,7 @@ class ScenarioTest {
 
             // Får godkjent ny periode med arbeidsmarkedstiltak
             saksbehandler.leggTilOpplysning(deltakelseIArbeidsmarkedstiltak, true, "A", Gyldighetsperiode(27.juli(2026), 1.januar(2027)))
+            behovsløsere.løsTilForslag()
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -1044,9 +1047,21 @@ class ScenarioTest {
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder[0].harRett shouldBe true
 
+                opplysninger(Utdanning.tarUtdanning) {
+                    val (sanne, usanne) = this.partition { it.verdi.verdi == true }
+                    sanne shouldHaveSize 2
+                    usanne shouldHaveSize 3
+                }
+
+                opplysninger(Utdanning.deltakelseIArbeidsmarkedstiltak) {
+                    val (sanne, usanne) = this.partition { it.verdi.verdi == true }
+                    sanne shouldHaveSize 3
+                    usanne shouldHaveSize 4
+                }
+
                 opplysninger(Utdanning.kravTilUtdanning) {
-                    shouldHaveSize(5)
-                    this.all { it.verdi.verdi == true }
+                    shouldHaveSize(8)
+                    this shouldForAll { require(it.verdi.verdi == true) }
                 }
             }
         }

@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.alle
@@ -72,6 +73,7 @@ object Utdanning {
             deltarIArbeidsmarkedstiltakId,
             "Deltar i arbeidsmarkedstiltak",
             synlig = hvisTarUtdanning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     // § 4-3a.(opplæring for innvandrere)
