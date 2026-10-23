@@ -19,6 +19,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage.Companion.Fagsystem
 import no.nav.dagpenger.regel.prosess.Søknadsprosess
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.ønskerÅVæreRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import java.time.LocalDate
@@ -103,6 +104,7 @@ class SøknadInnsendtHendelse(
                     // Om bruker tidligere har hatt minst en periode med rett så begynner med gjenopptaksbehandling som utgangspunkt
                     if (basertPå.vedtakopplysninger.rettighetsperioder.any { rettighetsperiode -> rettighetsperiode.harRett }) {
                         opplysninger.leggTil(Faktum(skalGjenopptakVurderes, true, Gyldighetsperiode(skjedde), kilde = kilde))
+                        opplysninger.leggTil(Faktum(ønskerÅVæreRegistrertArbeidssøker, true, Gyldighetsperiode(skjedde), kilde = kilde))
                     }
                 }
             },

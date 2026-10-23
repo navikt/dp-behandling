@@ -64,6 +64,7 @@ Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
 Laget avklaring om GjenopptakBehandling
 Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om IkkeRegistrertSomArbeidsøker
 Laget avklaring om MuligGjenopptak
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
