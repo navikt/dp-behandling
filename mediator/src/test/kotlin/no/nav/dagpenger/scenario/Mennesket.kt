@@ -124,6 +124,7 @@ internal class Mennesket(
         ønskerFraDato: LocalDate = dato,
     ): UUID {
         this.søknadsdato = dato
+        arbeidsøkerRegisterPerioder.add(Periode(dato, LocalDate.MAX))
         val nySøknadId = søknader.ny()
         ønsketdatoPerSøknad[nySøknadId] = ønskerFraDato
         rapid.sendTestMessage(
