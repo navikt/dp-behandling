@@ -338,6 +338,7 @@ class Opplysninger private constructor(
 
         fun Collection<Opplysning<*>>.sisteEndring() =
             this
+                .filter { it.utledetAv == null }
                 .flatMap { listOf(it.gyldighetsperiode.fraOgMed, it.gyldighetsperiode.tilOgMed) }
                 .filterNot { it == LocalDate.MIN || it == LocalDate.MAX }
                 .max()
