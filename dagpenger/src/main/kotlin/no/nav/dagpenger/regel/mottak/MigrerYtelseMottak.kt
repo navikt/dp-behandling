@@ -143,6 +143,11 @@ class MigrerYtelseMottak(
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
         val sakId = packet["sakId"].asInt()
+        if (sakId == 13699878) {
+            logger.info { "Skipper migrering med sakId $sakId" }
+            return
+        }
+
         val manglendeOpplysninger = validerOpplysninger(packet)
 
         if (manglendeOpplysninger.isNotEmpty()) {

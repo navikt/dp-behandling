@@ -122,7 +122,7 @@ class MigrerYtelseMottakTest {
 
         val avbrudd = rapid.inspektør.message(0)
         avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
-        avbrudd["sakId"].asInt() shouldBe 13699878
+        avbrudd["sakId"].asInt() shouldBe 13699879
         avbrudd["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
         avbrudd["arsak"]["melding"].asString() shouldBe "Mangler påkrevde opplysninger"
         avbrudd["arsak"]["detaljer"].values().map { it.asString() } shouldBe
@@ -140,7 +140,7 @@ class MigrerYtelseMottakTest {
 
                 val avbrudd = rapid.inspektør.message(0)
                 avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
-                avbrudd["sakId"].asInt() shouldBe 13699878
+                avbrudd["sakId"].asInt() shouldBe 13699879
                 avbrudd["arsak"]["detaljer"].values().map { it.asString() } shouldBe listOf(manglendeType.behovId)
                 rapid.inspektør.size shouldBe 1
                 verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
@@ -356,7 +356,7 @@ class MigrerYtelseMottakTest {
     ) = """
         {
           "@event_name": "$eventName",
-          "sakId": 13699878,
+          "sakId": 13699879,
           "ident": "12345678910",
           "innvilgetFraOgMed": "${LocalDate.of(2026, 1, 5)}",
           "opplysninger": $opplysninger
@@ -367,7 +367,7 @@ class MigrerYtelseMottakTest {
         """
         {
           "@event_name": "start_migrering",
-          "sakId": 13699878,
+          "sakId": 13699879,
           "innvilgetFraOgMed": "${LocalDate.of(2026, 1, 5)}",
           "initiertAv": "Z990798",
           "opplysninger": [
