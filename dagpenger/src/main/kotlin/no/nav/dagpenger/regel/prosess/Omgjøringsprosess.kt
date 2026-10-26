@@ -20,6 +20,7 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.OmgjøringUtenKlageKontroll
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.SkalOmgjøringUtenKlageVurderesKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import java.time.LocalDate
 
@@ -57,7 +58,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     override fun kanOppfriske(
         opplysninger: LesbarOpplysninger,
         opplysningstype: Opplysningstype<*>,
-    ): Boolean = regelverk.kanOppfriske(opplysningstype)
+    ): Boolean = regelverk.kanOppfriske(opplysningstype) || opplysningstype.id == Minsteinntekt.minsteinntekt.id
 
     override fun kontrollpunkter() = listOf(OmgjøringUtenKlageKontroll, SkalOmgjøringUtenKlageVurderesKontroll)
 
