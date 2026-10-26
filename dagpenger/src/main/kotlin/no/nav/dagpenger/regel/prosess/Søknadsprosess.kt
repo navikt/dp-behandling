@@ -20,7 +20,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.FulleYtelserKontrol
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.EØSArbeidKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.InntektNesteKalendermånedKontroll
-import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.InntektsjekkKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.JobbetUtenforNorgeKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.ManueltRedigertKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.PrøverEtterRapporteringsfristKontroll
@@ -86,7 +85,6 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
             PermitteringFiskKontroll,
             PermitteringKontroll,
             PrøverEtterRapporteringsfristKontroll,
-            InntektsjekkKontroll,
             ReellArbeidssøkerKontroll,
             SjekkPrøvingsdato,
             SkalSamordnes,

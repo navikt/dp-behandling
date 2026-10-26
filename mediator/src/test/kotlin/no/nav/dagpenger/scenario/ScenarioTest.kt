@@ -124,14 +124,14 @@ class ScenarioTest {
             // Avklaring om reell arbeidssøker dukker opp
             with(saksbehandler.åpneAvklaringer()) {
                 map { it.kode } shouldContain "ReellArbeidssøkerUnntak"
-                this shouldHaveSize 8
+                this shouldHaveSize 7
             }
 
             saksbehandler.endreOpplysning(skalReellArbeidssøkerVurderes, false)
             with(saksbehandler.lukkAlleAvklaringer()) {
                 // Avklaringen for reell arbeidssøker forsvinner automatisk om det ikke skal vurderes
                 map { it.kode } shouldNotContain "ReellArbeidssøkerUnntak"
-                this shouldHaveAtMostSize 7
+                this shouldHaveAtMostSize 6
             }
             saksbehandler.godkjenn()
 
