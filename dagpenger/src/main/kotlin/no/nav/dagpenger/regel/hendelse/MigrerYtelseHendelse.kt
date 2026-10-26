@@ -14,22 +14,14 @@ import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Kilde
 import no.nav.dagpenger.opplysning.Opplysningstype
+import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.BarnListe
-import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.prosess.Migreringsprosess
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
-import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
-import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
-import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
-import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
-import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
-import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -38,14 +30,7 @@ import java.util.UUID
 data class MigrertYtelse(
     val innvilgetFraOgMed: LocalDate,
     val innvilgetTilOgMed: LocalDate?,
-    val innvilgedeStønadsuker: Int,
-    val gjenståendeStønadsdager: Int,
-    val dagsats: BigDecimal,
-    val antallBarn: Int,
-    val vanligArbeidstidPerUke: Double,
-    val grunnlag: BigDecimal,
-    val egenandel: BigDecimal = BigDecimal.ZERO,
-    val kravTilArbeidstidsreduksjon: Double = 50.0,
+    val sakId: Int,
 ) {
     val innvilgetPeriode get() = innvilgetTilOgMed?.let { Gyldighetsperiode(innvilgetFraOgMed, it) } ?: Gyldighetsperiode(innvilgetFraOgMed)
 }
@@ -71,7 +56,7 @@ class MigrerYtelseHendelse(
     opprettet: LocalDateTime,
     private val ytelse: MigrertYtelse,
     private val tilleggsopplysninger: List<Tilleggsopplysning<*>> = emptyList(),
-    opprettetAv: Aktør? = null,
+    opprettetAv: Aktør = Systemaktør.dpSak,
 ) : StartHendelse(meldingsreferanseId, ident, eksternId, ytelse.innvilgetFraOgMed, opprettet, opprettetAv) {
     override val forretningsprosess: Forretningsprosess = Migreringsprosess()
 
@@ -126,27 +111,12 @@ class MigrerYtelseHendelse(
 
             addAll(
                 listOf(
-                    // Meldekort sjekker denne datoen
-                    Tilleggsopplysning(Alderskrav.sisteDagIMåned, LocalDate.now().plusDays(365)),
-                    // Uten denne lages det avklaring
-                    Tilleggsopplysning(Eksport.oppfyllerVilkårForEksport, false),
+                    // verdier fra kontrakten
                     Tilleggsopplysning(Søknadstidspunkt.prøvingsdato, ytelse.innvilgetFraOgMed),
-//                    Tilleggsopplysning(Dagpengeperiode.ordinærPeriode, ytelse.innvilgedeStønadsuker),
-                    Tilleggsopplysning(Dagpengeperiode.antallStønadsdager, ytelse.gjenståendeStønadsdager),
-                    Tilleggsopplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg, Beløp(ytelse.dagsats)),
-                    Tilleggsopplysning(SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden, Beløp(ytelse.dagsats)),
-                    Tilleggsopplysning(DagpengenesStørrelse.antallBarn, ytelse.antallBarn),
-                    Tilleggsopplysning(Vanligarbeidstid.fastsattVanligArbeidstid, ytelse.vanligArbeidstidPerUke),
-                    Tilleggsopplysning(SamordingUtenforFolketrygden.andreYtelser, false),
-                    Tilleggsopplysning(Samordning.skalSamordnes, false),
-                    Tilleggsopplysning(Samordning.samordnetDagsats, Beløp(ytelse.dagsats)),
-                    Tilleggsopplysning(Samordning.utfallEtterSamordning, true),
-//                    Tilleggsopplysning(Dagpengegrunnlag.grunnlag, Beløp(ytelse.grunnlag)),
-                    Tilleggsopplysning(Egenandel.egenandel, Beløp(ytelse.egenandel)),
-                    Tilleggsopplysning(TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon, ytelse.kravTilArbeidstidsreduksjon),
-                    Tilleggsopplysning(DagpengenesStørrelse.ukessats, Beløp(ytelse.dagsats) * 7),
-                    Tilleggsopplysning(DagpengenesStørrelse.ukesatsMedBarnetillegg, Beløp(ytelse.dagsats) * 7),
-                    Tilleggsopplysning(DagpengenesStørrelse.harSamordnet, false),
+                    Tilleggsopplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype, ytelse.sakId),
+                    // Defaultverdier vi setter selv
+                    Tilleggsopplysning(Eksport.oppfyllerVilkårForEksport, false),
+                    // finne ut hvordan vi skal lage barnelisten
                     Tilleggsopplysning(DagpengenesStørrelse.barnSomGirTillegg, BarnListe(null, emptyList())),
                 ),
             )
@@ -156,14 +126,8 @@ class MigrerYtelseHendelse(
         val eksplisitteTyper =
             listOf(
                 Søknadstidspunkt.prøvingsdato,
-//                Dagpengeperiode.ordinærPeriode,
-                Dagpengeperiode.antallStønadsdager,
-                DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg,
-                DagpengenesStørrelse.antallBarn,
-                Vanligarbeidstid.fastsattVanligArbeidstid,
-//                Dagpengegrunnlag.grunnlag,
-                Egenandel.egenandel,
-                TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon,
+                SøknadInnsendtHendelse.fagsakIdOpplysningstype,
+                Eksport.oppfyllerVilkårForEksport,
             )
     }
 }

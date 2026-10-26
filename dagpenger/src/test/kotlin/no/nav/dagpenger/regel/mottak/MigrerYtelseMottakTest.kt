@@ -20,7 +20,13 @@ import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Disabled
@@ -35,9 +41,22 @@ import java.util.UUID
 class MigrerYtelseMottakTest {
     private val påkrevdeOpplysninger =
         mapOf<Opplysningstype<*>, Any>(
+            Alderskrav.fødselsdato to "1990-01-01",
             Dagpengegrunnlag.grunnlag to 310630,
             Opphold.oppfyllerKravet to true,
             Dagpengeperiode.ordinærPeriode to 104,
+            Dagpengeperiode.antallStønadsdager to 520,
+            DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg to 1500,
+            DagpengenesStørrelse.antallBarn to 0,
+            Vanligarbeidstid.fastsattVanligArbeidstid to 37.5,
+            Egenandel.egenandel to 0,
+            TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon to 50.0,
+            Samordning.samordnetDagsats to 1500,
+            Samordning.skalSamordnes to false,
+            DagpengenesStørrelse.harSamordnet to false,
+            Samordning.utfallEtterSamordning to true,
+            SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden to 1500,
+            SamordingUtenforFolketrygden.andreYtelser to false,
         )
     private val jsonMapper = JsonMapper.builder().build()
     private val ekstra = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "ekstra")
@@ -68,6 +87,13 @@ class MigrerYtelseMottakTest {
                 mottak.validerOpplysninger(packet) shouldBe listOf(manglendeType)
             }
         }
+
+    @Test
+    fun `returnerer tom liste nar alle pakrevde opplysningstyper finnes i objektet`() {
+        val packet = valideringsmelding(testopplysninger())
+
+        mottak.validerOpplysninger(packet) shouldBe emptyList()
+    }
 
     @Test
     fun `returnerer tom liste nar alle pakrevde opplysningstyper finnes i listen`() {
@@ -212,7 +238,29 @@ class MigrerYtelseMottakTest {
                 .behandling
         val opplysninger = behandling.opplysninger()
 
-//        opplysninger.finnOpplysning(ekstra).verdi shouldBe true
+        opplysninger.finnOpplysning(DagpengenesStørrelse.antallBarn).verdi shouldBe 0
+        opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsdager).verdi shouldBe 520
+        opplysninger.finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg).verdi shouldBe Beløp(1500)
+        opplysninger.finnOpplysning(Dagpengegrunnlag.grunnlag).verdi shouldBe Beløp(310630)
+    }
+
+    @Test
+    fun `sender inn en ekte melding og sjekker at den blir opprettet`() {
+        rapid.sendTestMessage(ekteMelding())
+
+        rapid.inspektør.size shouldBe 1
+        println(rapid.inspektør.message(0))
+        rapid.inspektør.message(0)["@event_name"].asString() shouldBe "teknisk_migrering_fullfort"
+        val hendelse = slot<MigrerYtelseHendelse>()
+        verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
+
+        val behandling =
+            hendelse.captured
+                .behandling(null, TemporalCollection())
+                .shouldBeInstanceOf<StartHendelseResultat.Opprettet>()
+                .behandling
+        val opplysninger = behandling.opplysninger()
+
         opplysninger.finnOpplysning(DagpengenesStørrelse.antallBarn).verdi shouldBe 0
         opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsdager).verdi shouldBe 520
         opplysninger.finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg).verdi shouldBe Beløp(1500)
@@ -304,19 +352,13 @@ class MigrerYtelseMottakTest {
 
     private fun melding(
         opplysninger: String,
-        eventName: String = "migrer_ytelse",
+        eventName: String = "start_migrering",
     ) = """
         {
           "@event_name": "$eventName",
           "sakId": 13699878,
           "ident": "12345678910",
           "innvilgetFraOgMed": "${LocalDate.of(2026, 1, 5)}",
-          "innvilgedeStønadsuker": 52,
-          "gjenståendeStønadsdager": 120,
-          "dagsats": "800",
-          "antallBarn": 2,
-          "vanligArbeidstidPerUke": 37.5,
-          "grunnlag": "517349",
           "opplysninger": $opplysninger
         }
         """.trimIndent()
@@ -326,84 +368,167 @@ class MigrerYtelseMottakTest {
         {
           "@event_name": "start_migrering",
           "sakId": 13699878,
+          "innvilgetFraOgMed": "${LocalDate.of(2026, 1, 5)}",
           "initiertAv": "Z990798",
           "opplysninger": [
             {
+              "navn": "Dagsats med barnetillegg etter samordning og 90 % regel",
+              "verdi": 1500,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9428-74d5-b160-f63a4c61a24f"
+            },
+            {
+              "navn": "Antall barn som gir rett til barnetillegg",
+              "verdi": 0,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9428-74d5-b160-f63a4c61a23c"
+            },
+            {
+              "navn": "Fastsatt arbeidstid per uke før tap",
+              "verdi": 37.5,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9435-72a8-b1ce-9575cbc2a76a"
+            },
+            {
+              "navn": "Egenandel",
+              "verdi": 0,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-943f-78d9-b874-00a4944c54ef"
+            },
+            {
+              "navn": "Krav til prosentvis tap av arbeidstid",
+              "verdi": 50.0,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9435-72a8-b1ce-9575cbc2a762"
+            },
+            {
+              "navn": "Samordnet dagsats uten barnetillegg",
+              "verdi": 1500,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9434-79e8-a64d-1a23cc5d86eb"
+            },
+            {
+              "navn": "Medlem har reduserte ytelser fra folketrygden (Samordning)",
+              "verdi": false,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9434-79e8-a64d-1a23cc5d86ea"
+            },
+            {
+              "navn": "Utfall etter samordning",
+              "verdi": true,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-9434-79e8-a64d-1a23cc5d86ef"
+            },
+            {
+              "navn": "OppgittAndreYtelserUtenforNav",
+              "verdi": false,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-942e-7cb0-aa59-05ea449d88e0"
+            },
+            {
+              "navn": "Medlem i folketrygd",
               "verdi": true,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9443-72b4-8b30-5f6cdb24d54c"
             },
             {
+              "navn": "fødselsdato",
+              "verdi": "2002-01-01",
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-940b-76ff-acf5-ba7bcb367233"
+            },
+            {
+              "navn": "antall stønadsuker",
               "verdi": 104,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-943d-77a7-969c-147999f15459"
             },
             {
+              "navn": "antallStønadsdager",
+              "verdi": 520,
+              "gyldigFraOgMed": "2024-10-04",
+              "uuid": "0194881f-943d-77a7-969c-147999f15457"
+            },
+            {
+              "navn": "Kravet til opphold i Norge er oppfylt",
               "verdi": true,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9443-72b4-8b30-5f6cdb24d54e"
             },
             {
+              "navn": "Dagpengegrunnlag",
               "verdi": 310630,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9410-7481-b263-4606fdd10cbd"
             },
             {
+              "navn": "Siste avsluttende kalendermåned",
               "verdi": "2024-08-31",
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9414-7823-8d29-0e25b7feb7d0"
             },
             {
+              "navn": "Oppfyller kravet til heltid- og deltidsarbeid",
               "verdi": true,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9442-707b-a6ee-e96c06877bd8"
             },
             {
+              "navn": "Oppfyller kravet til mobilitet",
               "verdi": true,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9442-707b-a6ee-e96c06877bdb"
             },
             {
+              "navn": "Ukessats med barnetillegg etter samordning",
               "verdi": 3730,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9428-74d5-b160-f63a4c61a24e"
             },
             {
+              "navn": "Avrundet ukessats med barnetillegg før samordning",
               "verdi": 3730,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9428-74d5-b160-f63a4c61a240"
             },
             {
+              "navn": "Har samordnet",
               "verdi": false,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9428-74d5-b160-f63a4c61a250"
             },
             {
+              "navn": "Utbetalt inntekt periode 1",
               "verdi": 120000,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9410-7481-b263-4606fdd10cad"
             },
             {
+              "navn": "Utbetalt inntekt periode 2",
               "verdi": 60000,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9410-7481-b263-4606fdd10cae"
             },
             {
+              "navn": "Utbetalt inntekt periode 3",
               "verdi": 14000000,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-9410-7481-b263-4606fdd10caf"
             },
             {
+              "navn": "Oppfyller kravet til alder",
               "verdi": true,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-940b-76ff-acf5-ba7bcb367237"
             },
             {
+              "navn": "Dagsats uten barnetillegg samordnet",
               "verdi": 746,
               "gyldigFraOgMed": "2024-10-04",
               "uuid": "0194881f-942f-7bde-ab16-68ffd19e9a33"
             },
             {
+              "navn": "Oppfyller kravet til å være registrert som arbeidssøker",
               "verdi": false,
               "gyldigFraOgMed": "2025-01-31",
               "uuid": "0194881f-9442-707b-a6ee-e96c06877be1"

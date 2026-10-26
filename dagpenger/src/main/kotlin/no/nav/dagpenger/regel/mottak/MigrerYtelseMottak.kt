@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
+import com.github.navikt.tbd_libs.rapids_and_rivers.asOptionalLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
@@ -20,6 +21,7 @@ import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -27,17 +29,24 @@ import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import no.nav.dagpenger.uuid.UUIDv7
 import tools.jackson.databind.JsonNode
 import tools.jackson.module.kotlin.jsonMapper
-import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 private val migreringSvarSerializer = jsonMapper {}
 
@@ -92,28 +101,35 @@ class MigrerYtelseMottak(
 ) : River.PacketListener {
     private val påkrevdeOpplysningstyper =
         setOf(
+            Alderskrav.fødselsdato,
             Dagpengegrunnlag.grunnlag,
             Opphold.oppfyllerKravet,
             Dagpengeperiode.ordinærPeriode,
+            Dagpengeperiode.antallStønadsdager,
+            DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg,
+            DagpengenesStørrelse.antallBarn,
+            Vanligarbeidstid.fastsattVanligArbeidstid,
+            Egenandel.egenandel,
+            TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon,
+            Samordning.samordnetDagsats,
+            Samordning.skalSamordnes,
+            DagpengenesStørrelse.harSamordnet,
+            Samordning.utfallEtterSamordning,
+            SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden,
+            SamordingUtenforFolketrygden.andreYtelser,
         )
 
     init {
         River(rapidsConnection)
             .apply {
-                precondition { it.requireAny("@event_name", listOf("migrer_ytelse", "start_migrering")) }
+                precondition { it.requireAny("@event_name", listOf("start_migrering")) }
                 validate {
                     it.requireKey(
                         "ident",
                         "sakId",
-//                        "innvilgetFraOgMed",
-//                        "innvilgedeStønadsuker",
-//                        "gjenståendeStønadsdager",
-//                        "dagsats",
-//                        "antallBarn",
-//                        "vanligArbeidstidPerUke",
-//                        "grunnlag",
+                        "innvilgetFraOgMed",
                     )
-                    it.interestedIn("innvilgetTilOgMed", "egenandel", "kravTilArbeidstidsreduksjon", "opplysninger")
+                    it.interestedIn("innvilgetTilOgMed", "initiertAv", "opplysninger")
                 }
             }.register(this)
     }
@@ -182,33 +198,12 @@ class MigrerYtelseMessage(
             opprettet = opprettet,
             ytelse =
                 MigrertYtelse(
-                    innvilgetFraOgMed = LocalDate.now(),
-                    innvilgetTilOgMed = null,
-                    innvilgedeStønadsuker = 104,
-                    gjenståendeStønadsdager = 520,
-                    dagsats = BigDecimal.valueOf(1500),
-                    antallBarn = 0,
-                    vanligArbeidstidPerUke = 37.5,
-                    grunnlag = BigDecimal.valueOf(500000),
-                    egenandel = BigDecimal.valueOf(0),
-                    kravTilArbeidstidsreduksjon = 50.0,
+                    innvilgetFraOgMed = packet["innvilgetFraOgMed"].asLocalDate(),
+                    innvilgetTilOgMed = packet["innvilgetTilOgMed"].asOptionalLocalDate(),
+                    sakId = packet["sakId"].asInt(),
                 ),
-//                MigrertYtelse(
-//                    innvilgetFraOgMed = packet["innvilgetFraOgMed"].asLocalDate(),
-//                    innvilgetTilOgMed = packet["innvilgetTilOgMed"].asOptionalLocalDate(),
-//                    innvilgedeStønadsuker = packet["innvilgedeStønadsuker"].asInt(),
-//                    gjenståendeStønadsdager = packet["gjenståendeStønadsdager"].asInt(),
-//                    dagsats = packet["dagsats"].asString().toBigDecimal(),
-//                    antallBarn = packet["antallBarn"].asInt(),
-//                    vanligArbeidstidPerUke = packet["vanligArbeidstidPerUke"].asDouble(),
-//                    grunnlag = packet["grunnlag"].asText().toBigDecimal(),
-//                    egenandel =
-//                        packet["egenandel"].takeUnless { it.isMissingNode || it.isNull }?.asText()?.toBigDecimal() ?: BigDecimal.ZERO,
-//                    kravTilArbeidstidsreduksjon =
-//                        packet["kravTilArbeidstidsreduksjon"].takeUnless { it.isMissingNode || it.isNull }?.asDouble() ?: 50.0,
-//                ),
             tilleggsopplysninger = packet["opplysninger"].tilleggsopplysninger(opplysningstyper),
-            opprettetAv = Systemaktør.dpSak,
+            opprettetAv = packet["initiertAv"].asStringOpt().getOrNull()?.let { Saksbehandler(it) } ?: Systemaktør.dpSak,
         )
 }
 
