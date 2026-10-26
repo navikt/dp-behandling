@@ -26,12 +26,19 @@ typealias Regelkjøringsdato = Iterable<LocalDate>
 
 class Regelplanlegger {
     private val regler = mutableSetOf<Regel<*>>()
+    private val ventende = mutableSetOf<Regel<*>>()
 
     fun add(regel: Regel<*>) {
         regler.add(regel)
     }
 
     fun planlegger(regel: Regel<*>) = regel in regler
+
+    fun avvent(regel: Regel<*>) {
+        ventende.add(regel)
+    }
+
+    fun avventer(regel: Regel<*>) = regel in ventende || (regel is Ekstern<*> && planlegger(regel))
 
     fun lagProduksjonsplan(): Produksjonsplan {
         val (ekstern, intern) = regler.partition { it is Ekstern<*> }

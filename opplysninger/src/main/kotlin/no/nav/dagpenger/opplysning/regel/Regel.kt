@@ -52,20 +52,22 @@ abstract class Regel<T : Any> internal constructor(
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
+        avhengerAv.forEach { avhengighet ->
+            produsenter[avhengighet]?.lagPlan(opplysninger, plan, produsenter, besøkt)
+        }
+
+        // Hvis noen avhengigheter er planlagt, men ikke ferdig, må vi vente med å planlegge denne regelen
+        if (avhengerAv.any { produsenter[it]?.let(plan::avventer) == true }) {
+            plan.avvent(this)
+            return
+        }
+
         val avhengigheter = opplysninger.finnFlere(avhengerAv)
 
         if (avhengigheter.size == avhengerAv.size) {
             plan.add(this)
         } else {
-            avhengerAv.forEach { avhengighet ->
-                val produsent =
-                    produsenter[avhengighet]
-                if (produsent == null) {
-                    manglendeRegler.add(avhengighet)
-                    return@forEach
-                } // throw IllegalStateException("Fant ikke produsent for $avhengighet")
-                produsent.lagPlan(opplysninger, plan, produsenter, besøkt)
-            }
+            plan.avvent(this)
         }
     }
 
@@ -79,23 +81,27 @@ abstract class Regel<T : Any> internal constructor(
         // Oppstrøms regler planlegges først, slik at utdaterte produkter oppdages transitivt
         avhengerAv.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
 
+        if (avhengerAv.any { produsenter[it]?.let(plan::avventer) == true }) {
+            plan.avvent(this)
+            return
+        }
+
         // Planlegges en intern oppstrøms regel blir også dette produktet utdatert, selv om det fortsatt
         // stemmer overens med oppstrøms produkter som snart erstattes
-        val oppstrømsPlanlagt =
+        val internAvhengighetSkalBeregnesPåNytt =
             avhengerAv.any { type ->
-                produsenter[type]?.let {
-                    it !is Ekstern<*> &&
-                        type.overlappStrategi != OverlappStrategi.KUN_SISTE &&
-                        plan.planlegger(
-                            it,
-                        )
-                } ==
-                    true
+                val produsent = produsenter[type] ?: return@any false
+
+                produsent !is Ekstern<*> &&
+                    type.overlappStrategi != OverlappStrategi.KUN_SISTE &&
+                    plan.planlegger(produsent)
             }
 
         // Produktet er utdatert om det er utledet av noe annet enn det som gjelder nå
         val gjeldende = opplysninger.finnFlere(avhengerAv)
-        if (!oppstrømsPlanlagt && gjeldende.toSet() == utledning.opplysninger.toSet()) return
+        val sammeGrunnlag = gjeldende.toSet() == utledning.opplysninger.toSet()
+
+        if (sammeGrunnlag && !internAvhengighetSkalBeregnesPåNytt) return
 
         lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
     }
@@ -227,5 +233,3 @@ fun interface GyldighetsperiodeStrategi<T> {
         prøvingsdato: LocalDate,
     ): Gyldighetsperiode
 }
-
-val manglendeRegler = mutableSetOf<Opplysningstype<*>>()

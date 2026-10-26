@@ -41,6 +41,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.oppyller
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalReellArbeidssøkerVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.samordnetArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
@@ -1114,6 +1115,60 @@ class ScenarioTest {
                     this[1].gyldigTilOgMed shouldBe null
                     this[1].opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `tester avslag ved for lite inntekt men med en klage som gir medhold`() {
+        nyttScenario {
+            inntektSiste12Mnd = 50000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            behandlingsresultat {
+                rettighetsperioder.single().harRett shouldBe false
+                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
+
+                opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe true
+                opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
+                opplysninger(ReellArbeidssøker.kravTilArbeidssøker).single().verdi.verdi shouldBe true
+
+                opplysninger shouldHaveSize 71
+            }
+
+            // får mye mer penger
+            person.inntektSiste12Mnd = 500000
+            saksbehandler.omgjørBehandling(1.juli(2018))
+            saksbehandler.leggTilOpplysning(
+                Søknadstidspunkt.prøvingsdato,
+                1.juli(2018),
+                "Klage med medhold",
+                Gyldighetsperiode(1.juli(2018)),
+            )
+
+            saksbehandler.rekjørBehandling(listOf(Minsteinntekt.inntektFraSkatt, Minsteinntekt.minsteinntekt))
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                opplysninger(prøvingsdato) {
+                    this shouldHaveSize 2
+                }
+                opplysninger(Minsteinntekt.inntektFraSkatt) {
+                    this shouldHaveSize 2
+                }
+                opplysninger(Minsteinntekt.minsteinntekt) {
+                    this shouldHaveSize 2
+                    last().verdi.verdi shouldBe true
+                    last().gyldigFraOgMed shouldBe 1.juli(2018)
+                }
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 1.juli(2018)
             }
         }
     }

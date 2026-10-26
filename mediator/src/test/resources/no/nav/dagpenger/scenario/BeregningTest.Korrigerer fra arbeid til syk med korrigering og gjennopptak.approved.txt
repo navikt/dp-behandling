@@ -59,34 +59,26 @@ Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
 Laget avklaring om GjenopptakBehandling
-Laget avklaring om HattLukkedeSakerSiste8Uker
-Laget avklaring om MuligGjenopptak
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
 - BostedslandErNorge
-- ErUtestengt
-- Foreldrepenger
 - HelseTilAlleTyperJobb
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
 - Lønnsgaranti
-- Omsorgspenger
-- Opplæringspenger
 - Ordinær
 - Permittert
 - PermittertFiskeforedling
-- Pleiepenger
 - RegistrertSomArbeidssøker
-- Svangerskapspenger
-- Sykepenger
 - TarUtdanningEllerOpplæring
-- Uføre
 - Verneplikt
 - VilligTilÅBytteYrke
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Behov:
 - ErUtestengt
 - Foreldrepenger

@@ -21,6 +21,54 @@ import java.time.LocalDate
 
 class RegelkjøringTest {
     @Test
+    fun `manglende utfall bruker oppdaterte mellomresultater når faktum er erstattet`() {
+        val regelsett =
+            vilkår("regelsett") {
+                regel(a) { innhentes }
+                regel(b) { enAv(a) }
+                regel(c) { enAv(b) }
+            }
+        val opprinnelige = Opplysninger.med(Faktum(a, false))
+        Regelkjøring(1.mai, opprinnelige, regelsett).evaluer()
+
+        val opplysninger = Opplysninger.basertPå(opprinnelige)
+        opplysninger.leggTil(Faktum(a, true))
+        opplysninger.tombstone(c)
+
+        Regelkjøring(1.mai, opplysninger, regelsett).evaluer()
+
+        opplysninger.finnOpplysning(b).verdi shouldBe true
+        opplysninger.finnOpplysning(c).verdi shouldBe true
+    }
+
+    @Test
+    fun `manglende utfall venter på ny ekstern opplysning før arvede mellomresultater brukes`() {
+        val regelsett =
+            vilkår("regelsett") {
+                regel(a) { innhentes }
+                regel(b) { enAv(a) }
+                regel(c) { enAv(b) }
+            }
+        val opprinnelige = Opplysninger.med(Faktum(a, false))
+        Regelkjøring(1.mai, opprinnelige, regelsett).evaluer()
+
+        val opplysninger = Opplysninger.basertPå(opprinnelige)
+        opplysninger.tombstone(a)
+        opplysninger.tombstone(c)
+
+        val rapport = Regelkjøring(1.mai, opplysninger, regelsett).evaluer()
+
+        rapport.mangler shouldContainExactly setOf(a)
+        opplysninger.har(c) shouldBe false
+
+        opplysninger.leggTil(Faktum(a, true))
+        Regelkjøring(1.mai, opplysninger, regelsett).evaluer()
+
+        opplysninger.finnOpplysning(b).verdi shouldBe true
+        opplysninger.finnOpplysning(c).verdi shouldBe true
+    }
+
+    @Test
     fun `Regelsett kan ikke inneholder flere regler som produserer samme opplysningstype`() {
         val regelsett1 =
             vilkår("regelsett") {
