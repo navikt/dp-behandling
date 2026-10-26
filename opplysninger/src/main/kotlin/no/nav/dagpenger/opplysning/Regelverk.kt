@@ -55,6 +55,7 @@ class Regelverk(
     private val rettighetsperiodeberegning: Rettighetsperiodeberegning = Rettighetsperiodeberegning { emptyList() },
     private val utbetalingsberegning: Utbetalingsberegning = Utbetalingsberegning { emptyList() },
     private val avgjørelsesberegning: Avgjørelsesberegning = Avgjørelsesberegning { Avgjørelse.Uavklart },
+    private val kanOppfriskes: (Opplysningstype<*>) -> Boolean = { false },
     vararg regelsett: Regelsett,
 ) {
     private val produsent = regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
@@ -134,6 +135,8 @@ class Regelverk(
             }
         }
     }
+
+    fun kanOppfriske(opplysningstype: Opplysningstype<*>): Boolean = kanOppfriskes(opplysningstype)
 }
 
 data class Rettighetsperiode(

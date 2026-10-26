@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.Utbetaling
 import no.nav.dagpenger.opplysning.Ytelsestype
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
@@ -30,6 +31,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.Opptjeningstid
@@ -37,6 +39,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Permittering
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
@@ -54,6 +57,13 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.oppfyllerKravetTilVerneplikt
 import java.time.temporal.ChronoUnit
 
+private val kanOppfriskes =
+    setOf(
+        inntektFraSkatt,
+        grunnbeløpForDagpengeGrunnlag,
+        registrertArbeidssøker,
+    )
+
 val RegelverkDagpengerNavn = RegelverkType("Dagpenger")
 val RegelverkDagpenger =
     Regelverk(
@@ -61,6 +71,7 @@ val RegelverkDagpenger =
         rettighetsperiodeberegning = ::dagpengerRettighetsperioder,
         utbetalingsberegning = ::dagpengerUtbetalinger,
         avgjørelsesberegning = ::dagpengerAvgjørelse,
+        kanOppfriskes = { kanOppfriskes.contains(it) },
         Alderskrav.regelsett,
         Beregning.regelsett,
         Dagpengegrunnlag.regelsett,

@@ -30,6 +30,11 @@ abstract class Forretningsprosess(
 
     open fun rettighetsperioder(opplysninger: LesbarOpplysninger) = regelverk.rettighetsperioder(opplysninger)
 
+    open fun kanOppfriske(
+        opplysninger: LesbarOpplysninger,
+        opplysningstype: Opplysningstype<*>,
+    ) = regelverk.kanOppfriske(opplysningstype) && opplysninger.kunEgne.har(opplysningstype)
+
     fun regelsett() = regelverk.regelsett
 
     fun registrer(handler: ProsessPlugin) = plugins.add(handler)

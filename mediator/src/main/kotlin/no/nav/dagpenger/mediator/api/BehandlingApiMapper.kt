@@ -31,7 +31,6 @@ import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
-import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
@@ -56,7 +55,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt.oppfyllerOpplysningsplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
-import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.bostedsland
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.medlemFolketrygden
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.oppholdINorge
@@ -75,7 +73,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.minimumVanlig
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.villigTilEthvertArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
-import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.ønskerÅVæreRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEksportVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalEtableringVurderes
@@ -174,7 +171,7 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
                             synlig = type.synlig(this.opplysninger),
                             redigerbar = opplysninger.last().kanRedigeres(redigerbareOpplysninger),
                             redigertAvSaksbehandler = opplysninger.last().kilde is Saksbehandlerkilde,
-                            kanOppfriskes = type.kanOppfriskes(opplysninger.any(erEgen)),
+                            kanOppfriskes = this.behandler.forretningsprosess.kanOppfriske(this.opplysninger, type),
                             formål = type.tilFormålDTO(),
                         )
                     }.sortedBy { opplysningstypeRekkefølge[it.opplysningTypeId] ?: Int.MAX_VALUE },
@@ -199,15 +196,6 @@ internal fun Aktør.tilOppretterDTO(): OppretterDTO =
             },
         ident = ident,
     )
-
-private val kanOppfriskes =
-    setOf(
-        inntektFraSkatt,
-        grunnbeløpForDagpengeGrunnlag,
-        registrertArbeidssøker,
-    )
-
-private fun Opplysningstype<*>.kanOppfriskes(finnesIEgne: Boolean): Boolean = this in kanOppfriskes && finnesIEgne
 
 // Opplysningstyper skal vises i samme rekkefølge som de er definert i regelsettene (regelsett-
 // rekkefølgen i regelverket, deretter regeldefinisjonsrekkefølgen innad i hvert regelsett).

@@ -16,6 +16,7 @@ val RegelverkFerietillegg =
         rettighetsperiodeberegning = ::ferietilleggRettighetsperioder,
         utbetalingsberegning = ::ferietilleggUtbetalinger,
         avgjørelsesberegning = ::ferietilleggAvgjørelse,
+        kanOppfriskes = { false },
         KravPåFerietillegg.regelsett,
         FerietilleggBeløp.regelsett,
     )

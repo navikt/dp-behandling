@@ -10,6 +10,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysninger.Companion.sisteEndring
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøring
@@ -52,6 +53,11 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
             forretningsprosess = this,
         )
     }
+
+    override fun kanOppfriske(
+        opplysninger: LesbarOpplysninger,
+        opplysningstype: Opplysningstype<*>,
+    ): Boolean = regelverk.kanOppfriske(opplysningstype)
 
     override fun kontrollpunkter() = listOf(OmgjøringUtenKlageKontroll, SkalOmgjøringUtenKlageVurderesKontroll)
 

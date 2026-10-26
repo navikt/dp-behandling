@@ -16,6 +16,7 @@ val RegelverkUtestengning =
         rettighetsperiodeberegning = ::utestengningRettighetsperioder,
         utbetalingsberegning = Utbetalingsberegning { emptyList() },
         avgjørelsesberegning = ::utestengningAvgjørelse,
+        kanOppfriskes = { false },
         UtestengningVilkår.regelsett,
     )
 
