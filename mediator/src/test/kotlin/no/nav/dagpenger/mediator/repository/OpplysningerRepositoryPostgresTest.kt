@@ -103,6 +103,7 @@ class OpplysningerRepositoryPostgresTest {
                 }
             fraDb.somListe().size shouldBe opplysninger.somListe().size
             fraDb.finnOpplysning(heltallFaktum.opplysningstype).verdi shouldBe heltallFaktum.verdi
+            fraDb.finnOpplysning(heltallFaktum.opplysningstype).kilde.shouldBeNull()
             fraDb.finnOpplysning(boolskFaktum.opplysningstype).verdi shouldBe boolskFaktum.verdi
             fraDb.finnOpplysning(boolskFaktum.opplysningstype).kilde?.id shouldBe kildeA.id
             fraDb.finnOpplysning(datoFaktum.opplysningstype).verdi shouldBe datoFaktum.verdi
