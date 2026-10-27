@@ -44,6 +44,9 @@ import org.postgresql.util.PGobject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.time.DurationUnit
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 internal class OpplysningerRepositoryPostgres(
     private val dbSession: DatabaseSession,
@@ -68,9 +71,7 @@ internal class OpplysningerRepositoryPostgres(
             opplysningerIder: Set<UUID>,
         ) = OpplysningRepository(this, kildeRepository, opplysningstypeRegister)
             .hentOpplysninger(opplysningerIder)
-            .mapValues { (opplysningerId, opplysninger) ->
-                Opplysninger.rehydrer(opplysningerId, opplysninger)
-            }
+            .rehydrerOpplysninger()
 
         private val serdeBarn = objectMapper.serde<BarnListe>()
 
@@ -147,7 +148,35 @@ internal class OpplysningerRepositoryPostgres(
         @WithSpan
         fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<out Any>>> {
             Span.current().setAttribute("app.antallOpplysningerIder", opplysningerIder.size.toLong())
-            val rader: Set<OpplysningRad<*>> =
+            val rader = hentRader(opplysningerIder)
+            Span.current().setAttribute("app.antallOpplysningerRader", rader.size.toLong())
+
+            // Hent inn kilde for alle opplysninger vi trenger
+            val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId }, session)
+            val raderMedKilde =
+                rader.map {
+                    if (it.kildeId == null) return@map it
+                    val kilde = kilder[it.kildeId] ?: throw IllegalStateException("Mangler kilde")
+                    it.copy(kilde = kilde)
+                }
+
+            // reverse-lookup map for å finne opplysningerId for hver opplysning
+            val opplysningerIdForOpplysning =
+                raderMedKilde
+                    // bevarer bare opplysninger vi faktisk ønsker oss
+                    .filter { it.opplysingerId in opplysningerIder }
+                    .associate { it.id to it.opplysingerId }
+            return raderMedKilde
+                .somOpplysninger()
+                .filter { it.id in opplysningerIdForOpplysning }
+                .groupBy { opplysningerIdForOpplysning.getValue(it.id) }
+        }
+
+        @WithSpan
+        private fun hentRader(opplysningerIder: Set<UUID>): Collection<OpplysningRad<*>> {
+            val span = Span.current()
+            var mappingStart: TimeMark? = null
+            val rader =
                 session
                     .run(
                         queryOf(
@@ -192,31 +221,15 @@ internal class OpplysningerRepositoryPostgres(
                                     ),
                             ),
                         ).map { row ->
+                            if (mappingStart == null) mappingStart = TimeSource.Monotonic.markNow()
                             val datatype = Datatype.fromString(row.string("datatype"))
                             row.somOpplysningRad(datatype)
                         }.asList,
-                    ).toSet()
-            Span.current().setAttribute("app.antallOpplysningerRader", rader.size.toLong())
-
-            // Hent inn kilde for alle opplysninger vi trenger
-            val kilder = kildeRespository.hentKilder(rader.mapNotNull { it.kildeId }, session)
-            val raderMedKilde =
-                rader.map {
-                    if (it.kildeId == null) return@map it
-                    val kilde = kilder[it.kildeId] ?: throw IllegalStateException("Mangler kilde")
-                    it.copy(kilde = kilde)
-                }
-
-            // reverse-lookup map for å finne opplysningerId for hver opplysning
-            val opplysningerIdForOpplysning =
-                raderMedKilde
-                    // bevarer bare opplysninger vi faktisk ønsker oss
-                    .filter { it.opplysingerId in opplysningerIder }
-                    .associate { it.id to it.opplysingerId }
-            return raderMedKilde
-                .somOpplysninger()
-                .filter { it.id in opplysningerIdForOpplysning }
-                .groupBy { opplysningerIdForOpplysning.getValue(it.id) }
+                    )
+            mappingStart?.let { start ->
+                span.setAttribute("app.row_mapping.duration_ms", start.elapsedNow().toDouble(DurationUnit.MILLISECONDS))
+            }
+            return rader
         }
 
         private fun <T : Any> Row.somOpplysningRad(datatype: Datatype<T>): OpplysningRad<T> {
@@ -558,6 +571,13 @@ internal class OpplysningerRepositoryPostgres(
     }
 }
 
+@WithSpan
+private fun Map<UUID, List<Opplysning<out Any>>>.rehydrerOpplysninger(): Map<UUID, Opplysninger> =
+    mapValues { (opplysningerId, opplysninger) ->
+        Opplysninger.rehydrer(opplysningerId, opplysninger)
+    }
+
+@WithSpan
 @Suppress("UNCHECKED_CAST")
 private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysning<out Any>> {
     val opplysningMap = mutableMapOf<UUID, Opplysning<out Any>>()
@@ -641,10 +661,8 @@ private fun Collection<OpplysningRad<out Any>>.somOpplysninger(): List<Opplysnin
         return opplysning
     }
 
-    // Convert all OpplysningRad instances to Opplysning instances
     val alleOpplysninger = this.map { it.toOpplysning() }
     this.forEach { it.finnErstatter() }
-
     return alleOpplysninger
 }
 
