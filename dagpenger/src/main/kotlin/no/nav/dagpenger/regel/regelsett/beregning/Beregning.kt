@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.beregning
 
+import no.nav.dagpenger.opplysning.Opplysningssjekk
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -40,6 +41,8 @@ import no.nav.dagpenger.regel.OpplysningsTyper.trekkVedForsenMeldingId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingForPeriodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.utbetalingId
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode.harSanksjon
+import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall.harTidsbegrensetBortfall
 import java.time.LocalDate
 
 object Beregning {
@@ -63,13 +66,19 @@ object Beregning {
     val sisteGjenståendeDager =
         Opplysningstype.heltall(sisteGjenståendeDagerId, "Siste antall dager som gjenstår", enhet = Enhet.Dager, synlig = aldriSynlig)
 
-    val erSanksjonsdag = Opplysningstype.boolsk(erSanksjonsdagId, "Dag med sanksjon av dagpenger")
-
+    val synligMedSanksjon: Opplysningssjekk = { it.har(harSanksjon) }
+    val erSanksjonsdag =
+        Opplysningstype.boolsk(
+            erSanksjonsdagId,
+            "Dag med sanksjon av dagpenger",
+            synlig = synligMedSanksjon,
+        )
     val forbruktSanksjonsdager =
         Opplysningstype.heltall(
             forbruktSanksjonsdagerId,
             "Antall dager med sanksjon som er forbrukt",
             enhet = Enhet.Dager,
+            synlig = aldriSynlig,
         )
     val gjenståendeSanksjonsdager =
         Opplysningstype.heltall(
@@ -87,17 +96,20 @@ object Beregning {
             synlig = aldriSynlig,
         )
 
+    val synligMedBortfall: Opplysningssjekk = { it.har(harTidsbegrensetBortfall) }
     val forbruktBortfallsdager =
         Opplysningstype.heltall(
             forbruktBortfallsdagerId,
             "Antall bortfallsdager som er forbrukt",
             enhet = Enhet.Dager,
+            synlig = aldriSynlig,
         )
     val gjenståendeBortfallsdager =
         Opplysningstype.heltall(
             gjenståendeBortfallsdagerId,
             "Antall bortfallsdager som gjenstår",
             enhet = Enhet.Dager,
+            synlig = synligMedBortfall,
         )
     val sisteBortfallsdagMedForbruk =
         Opplysningstype.dato(sisteBortfallsdagMedForbrukId, "Siste dag med forbruk av bortfall", synlig = aldriSynlig)
@@ -145,17 +157,19 @@ object Beregning {
             påvirkerResultat { it.har(meldeperiode) }
 
             regel(meldeperiode) { tomRegel }
+            regel(meldedato) { tomRegel }
+
             regel(arbeidsdag) { tomRegel }
             regel(arbeidstimer) { tomRegel }
-            regel(forbruk) { tomRegel }
             regel(meldt) { tomRegel }
-            regel(forbruktEgenandel) { tomRegel }
-            regel(utbetaling) { tomRegel }
             regel(utbetalingForPeriode) { tomRegel }
+            regel(utbetaling) { tomRegel }
+            regel(forbruktEgenandel) { tomRegel }
 
             // Skal denne være her? Per dag?
             regel(terskel) { tomRegel }
 
+            regel(forbruk) { tomRegel }
             regel(forbrukt) { tomRegel }
             regel(gjenståendeDager) { tomRegel }
 
@@ -167,7 +181,6 @@ object Beregning {
             regel(gjenståendeEgenandel) { tomRegel }
             regel(oppfyllerKravTilTaptArbeidstidIPerioden) { tomRegel }
             regel(meldtITide) { tomRegel }
-            regel(meldedato) { tomRegel }
 
             regel(sumFva) { tomRegel }
             regel(sumArbeidstimer) { tomRegel }
