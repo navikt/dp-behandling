@@ -1,6 +1,7 @@
 package no.nav.dagpenger.mediator.api
 
 import io.github.oshai.kotlinlogging.withLoggingContext
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.ferietillegg.FerietilleggBeløp.sumUtbetaltForÅr
 import no.nav.dagpenger.ferietillegg.KravPåFerietillegg.antallDagerForbruk
 import no.nav.dagpenger.konfigurasjon.Feature
@@ -19,7 +20,7 @@ import no.nav.dagpenger.mediator.api.models.RegelsettTypeDTO
 import no.nav.dagpenger.mediator.api.models.SaksbehandlersVurderingerDTO
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.opplysning.Aktør
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -131,9 +132,9 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.io.encoding.Base64
 
+@WithSpan
 internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
     withLoggingContext("behandlingId" to this.behandlingId.toString()) {
-        val opplysningSet = opplysninger.somListe()
         val erEgen: (Opplysning<*>) -> Boolean = opplysninger::erEgen
         val behandlingsresultat = vedtakopplysninger
         val opplysningstypeRekkefølge = behandler.forretningsprosess.regelverk.opplysningstypeRekkefølge()
@@ -153,15 +154,16 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             vilkår =
                 behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Vilkår)
-                    .map { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .map { it.tilVurderingsresultatDTO(opplysninger) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             fastsettelser =
                 behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Fastsettelse)
-                    .map { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .map { it.tilVurderingsresultatDTO(opplysninger) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
             opplysninger =
-                opplysningSet
+                opplysninger
+                    .somListe()
                     .somOpplysningperiode { type, opplysninger ->
                         RedigerbareOpplysningerDTO(
                             opplysningTypeId = type.id.uuid,
@@ -178,9 +180,9 @@ internal fun Behandling.tilBehandlingDTO(): BehandlingDTO =
             saksbehandlingsregler =
                 behandler.forretningsprosess.regelverk
                     .regelsettAvType(RegelsettType.Prosess)
-                    .map { it.tilVurderingsresultatDTO(opplysningSet) }
+                    .map { it.tilVurderingsresultatDTO(opplysninger) }
                     .sortedBy { it.hjemmel.paragraf.toInt() },
-            forslagOm = vedtakopplysninger.avgjørelse.tilAvgjørelseDTO(),
+            forslagOm = behandlingsresultat.avgjørelse.tilAvgjørelseDTO(),
             opprettetAv = opprettetAv?.tilOppretterDTO(),
             opprettet = opprettet,
             sistEndret = sistEndret,
@@ -240,10 +242,9 @@ internal fun Behandling.tilSaksbehandlersVurderinger() =
         )
     }
 
-private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning<*>>): RegelsettDTO {
+private fun Regelsett.tilVurderingsresultatDTO(opplysninger: LesbarOpplysninger): RegelsettDTO {
     // Vi ønsker kun å ta med produkter som faktisk har vært produsert i løpet av behandlingsskjeden
-    val typer = alleOpplysninger.map { it.opplysningstype }.toSet()
-    val produkter = produserer.filter { it in typer }
+    val produkter = produserer.filter { opplysninger.har(it) }
 
     return RegelsettDTO(
         id = Base64.UrlSafe.encode(hjemmel.hashCode().toString().encodeToByteArray()),
@@ -256,7 +257,7 @@ private fun Regelsett.tilVurderingsresultatDTO(alleOpplysninger: List<Opplysning
                 tittel = hjemmel.toString(),
                 url = hjemmel.url,
             ),
-        relevantForResultat = påvirkerResultat(alleOpplysninger.somOpplysninger()),
+        relevantForResultat = påvirkerResultat(opplysninger),
         type =
             when (type) {
                 RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR

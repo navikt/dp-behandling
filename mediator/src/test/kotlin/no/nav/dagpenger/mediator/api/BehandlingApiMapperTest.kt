@@ -12,6 +12,7 @@ import no.nav.dagpenger.mediator.api.models.BoolskVerdiDTO
 import no.nav.dagpenger.mediator.api.models.DataTypeDTO
 import no.nav.dagpenger.mediator.api.models.HeltallVerdiDTO
 import no.nav.dagpenger.mediator.api.models.OpplysningsperiodeDTO
+import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.mediator.api.models.PengeVerdiDTO
 import no.nav.dagpenger.mediator.api.models.PeriodeVerdiDTO
 import no.nav.dagpenger.mediator.api.models.RedigerbareOpplysningerDTO
@@ -22,7 +23,9 @@ import no.nav.dagpenger.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.RegelsettType
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
@@ -215,6 +218,70 @@ class BehandlingApiMapperTest {
 
         behandlingDto.vilkår shouldHaveSize 25
         behandlingDto.vilkår.single { it.navn == "Alder" }.relevantForResultat shouldBe true
+    }
+
+    @Test
+    fun `bevarer relevans og produserte opplysninger for alle regelsettyper`() {
+        val behandlingDto = behandling.tilBehandlingDTO()
+        val opplysninger = behandling.opplysninger.somListe()
+        val regelverk = behandling.behandler.forretningsprosess.regelverk
+
+        listOf(
+            RegelsettType.Vilkår to behandlingDto.vilkår,
+            RegelsettType.Fastsettelse to behandlingDto.fastsettelser,
+            RegelsettType.Prosess to behandlingDto.saksbehandlingsregler.shouldNotBeNull(),
+        ).forEach { (type, resultater) ->
+            val regelsett = regelverk.regelsettAvType(type).sortedBy { it.hjemmel.paragraf.toInt() }
+            resultater.map { it.navn } shouldBe regelsett.map { it.navn }
+            resultater.zip(regelsett).forEach { (resultat, regler) ->
+                resultat.relevantForResultat shouldBe regler.påvirkerResultat(opplysninger.somOpplysninger())
+                resultat.opplysninger shouldBe
+                    regler.produserer
+                        .filter { produkt -> opplysninger.any { it.opplysningstype == produkt } }
+                        .map { it.id.uuid }
+            }
+        }
+        behandlingDto.forslagOm shouldBe behandling.vedtakopplysninger.avgjørelse.tilAvgjørelseDTO()
+    }
+
+    @Test
+    fun `mapper arvede og egne perioder uten tombstone skjulte opplysninger`() {
+        val forelder =
+            Behandling.rehydrer(
+                behandlingId = UUIDv7.ny(),
+                behandler = hendelse,
+                gjeldendeOpplysninger = behandling.opplysninger,
+                opprettet = LocalDateTime.now(),
+                tilstand = Behandling.TilstandType.Ferdig,
+                sistEndretTilstand = LocalDateTime.now(),
+                avklaringer = emptyList(),
+            )
+        val endret =
+            Behandling.rehydrer(
+                behandlingId = UUIDv7.ny(),
+                behandler = hendelse,
+                gjeldendeOpplysninger = Opplysninger.med(Faktum(kravTilAlder, true, Gyldighetsperiode(16.januar))),
+                basertPå = forelder,
+                opprettet = LocalDateTime.now(),
+                tilstand = Behandling.TilstandType.TilGodkjenning,
+                sistEndretTilstand = LocalDateTime.now(),
+                avklaringer = emptyList(),
+            )
+        endret.opplysninger.tombstone(Minsteinntekt.inntekt12, Gyldighetsperiode(LocalDate.MIN, LocalDate.MAX))
+
+        val dto = endret.tilBehandlingDTO()
+        val alder = dto.opplysninger.single { it.opplysningTypeId == kravTilAlder.id.uuid }
+
+        alder.perioder.map { it.gyldigFraOgMed } shouldBe listOf(null, 16.januar)
+        alder.perioder.map { it.opprinnelse } shouldBe listOf(OpprinnelseDTO.ARVET, OpprinnelseDTO.NY)
+        dto.opplysninger
+            .single { it.opplysningTypeId == TestOpplysningstyper.boolsk.id.uuid }
+            .perioder
+            .single()
+            .opprinnelse shouldBe OpprinnelseDTO.ARVET
+        dto.opplysninger.none { it.opplysningTypeId == Minsteinntekt.inntekt12.id.uuid } shouldBe true
+        val regelsett = dto.vilkår + dto.fastsettelser + dto.saksbehandlingsregler.shouldNotBeNull()
+        regelsett.none { Minsteinntekt.inntekt12.id.uuid in it.opplysninger } shouldBe true
     }
 
     @Test
