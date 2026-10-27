@@ -58,7 +58,7 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     override fun kanOppfriske(
         opplysninger: LesbarOpplysninger,
         opplysningstype: Opplysningstype<*>,
-    ): Boolean = regelverk.kanOppfriske(opplysningstype) || opplysningstype.id == Minsteinntekt.minsteinntekt.id
+    ): Boolean = regelverk.kanOppfriske(opplysningstype)
 
     override fun kontrollpunkter() = listOf(OmgjøringUtenKlageKontroll, SkalOmgjøringUtenKlageVurderesKontroll)
 
