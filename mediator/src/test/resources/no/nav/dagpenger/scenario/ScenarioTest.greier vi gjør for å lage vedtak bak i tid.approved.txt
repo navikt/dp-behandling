@@ -70,6 +70,9 @@ Behov:
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:
+- Inntekt
+Laget avklaring om IkkeRegistrertSomArbeidsøker
+Behov:
 - ErUtestengt
 - Foreldrepenger
 - Omsorgspenger
@@ -78,9 +81,6 @@ Behov:
 - Svangerskapspenger
 - Sykepenger
 - Uføre
-Laget avklaring om IkkeRegistrertSomArbeidsøker
-Behov:
-- Inntekt
 Behov:
 - Inntekt
 Behov:

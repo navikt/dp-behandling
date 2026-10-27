@@ -103,10 +103,21 @@ class Opplysninger private constructor(
                 }
             }
         }
+        fjernFullstendigOverskrevneEgne(opplysning)
         sjekkAtUtledetAvFinnes(opplysning)
 
         egne.add(opplysning)
         indeks.leggTilEgen(opplysning)
+    }
+
+    // Gjentatte kjøringer over nøyaktig samme periode skal erstatte egen opplysning, ikke duplisere rader.
+    private fun fjernFullstendigOverskrevneEgne(ny: Opplysning<*>) {
+        if (ny is Tombstone<*> || ny.utledetAv != null) return
+        val forrige = finnNullableOpplysning(ny.opplysningstype, ny.gyldighetsperiode) ?: return
+        if (forrige is Tombstone<*> || !indeks.harEgen(forrige)) return
+        if (forrige.identitetId == ny.identitetId || forrige.gyldighetsperiode != ny.gyldighetsperiode) return
+        if (egne.any { it.erstatter?.id == forrige.id }) return
+        fjern(forrige)
     }
 
     private fun tombstoneAvhengigeAvForrige(ny: Opplysning<*>) {

@@ -18,6 +18,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.content.TextContent
 import io.ktor.server.application.Application
+import kotliquery.queryOf
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.konfigurasjon.Configuration
 import no.nav.dagpenger.mediator.BehandlingRuntime
@@ -186,6 +187,16 @@ internal class SimulertDagpengerSystem(
             TODO("Not yet implemented")
         }
     }
+
+    fun antallLagredeOpplysninger(): Int =
+        dbTestContext.dbSession.session { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    "SELECT COUNT(*) FROM opplysning WHERE fjernet IS FALSE",
+                ).map { row -> row.int(1) }.asSingle,
+            )
+        } ?: 0
 
     fun sendFerietillegg(
         ident: String,

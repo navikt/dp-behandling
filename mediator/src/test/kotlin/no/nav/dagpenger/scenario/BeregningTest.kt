@@ -49,7 +49,6 @@ import no.nav.dagpenger.scenario.SimulertDagpengerSystem.ScenarioBarn
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import kotlin.apply
 import kotlin.math.round
 
 class BeregningTest {
@@ -1280,6 +1279,29 @@ class BeregningTest {
             }
 
             person.avklaringer.map { it.kode } shouldContain "MeldekortMedUtdanning"
+        }
+    }
+
+    @Test
+    fun `rekjøring fører ikke til duplikate opplysninger`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(11.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
+            meldekortBatch(markerFerdig = false)
+
+            val antallOpplysninger = antallLagredeOpplysninger()
+            repeat(3) { saksbehandler.rekjørBehandling() }
+            antallLagredeOpplysninger() shouldBe antallOpplysninger
         }
     }
 

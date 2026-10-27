@@ -61,6 +61,8 @@ internal class Opplysningsindeks(
         return gjeldendePerType.keys.toSet()
     }
 
+    fun egneAvType(type: Opplysningstype<*>): List<Opplysning<*>> = egnePerType[type].orEmpty().toList()
+
     fun harEgen(opplysning: Opplysning<*>) = opplysning in egneOpplysninger
 
     fun leggTilEgen(opplysning: Opplysning<*>) {
