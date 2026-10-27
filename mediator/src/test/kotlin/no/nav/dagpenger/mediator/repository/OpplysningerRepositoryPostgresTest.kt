@@ -45,6 +45,7 @@ import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Tombstone
 import no.nav.dagpenger.opplysning.ULID
+import no.nav.dagpenger.opplysning.Utledning
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
@@ -244,6 +245,71 @@ class OpplysningerRepositoryPostgresTest {
                 opplysningstype shouldBe baseOpplysning.opplysningstype
                 utledetAv.shouldBeNull()
             }
+        }
+    }
+
+    @Test
+    fun `henter utledninger og avhengigheter for flere opplysningssett uten a blande dem`() {
+        withMigratedDb {
+            val repo = opplysningerRepository(dbSession)
+            val kildeRepository = KildeRepository(dbSession)
+            val opplysningstypeRegister = OpplysningstypeRegister(TestOpplysningstyper.alle)
+            val regelsett =
+                vilkår("vilkår") {
+                    regel(baseOpplysningstype) { innhentes }
+                    regel(utledetOpplysningstype) { oppslag(baseOpplysningstype) { 5 } }
+                }
+            val opplysningssett =
+                (0..2).map { dag ->
+                    val kilde = Saksbehandlerkilde(UUIDv7.ny(), Saksbehandler("foo"))
+                    val opplysninger = Opplysninger()
+                    val regelkjøring = Regelkjøring(LocalDate.now(), opplysninger, regelsett)
+                    opplysninger.leggTil(Faktum(baseOpplysningstype, LocalDate.now().plusDays(dag.toLong()), kilde = kilde))
+                    regelkjøring.evaluer()
+                    repo.lagreOpplysninger(opplysninger)
+                    opplysninger
+                }
+            val valgteOpplysninger = opplysningssett.take(2)
+
+            val fraDb =
+                dbSession.session { session ->
+                    session.hentOpplysninger(kildeRepository, opplysningstypeRegister, valgteOpplysninger.map { it.id }.toSet())
+                }
+
+            fraDb.keys shouldBe valgteOpplysninger.map { it.id }.toSet()
+            valgteOpplysninger.forEach { opplysninger ->
+                val hentet = fraDb.getValue(opplysninger.id)
+                val base = hentet.finnOpplysning(baseOpplysningstype)
+                val utledet = hentet.finnOpplysning(utledetOpplysningstype)
+                val forventetBase = opplysninger.finnOpplysning(baseOpplysningstype)
+                val forventetUtledning = opplysninger.finnOpplysning(utledetOpplysningstype).utledetAv.shouldNotBeNull()
+
+                hentet.somListe().size shouldBe 2
+                base.id shouldBe forventetBase.id
+                base.verdi shouldBe forventetBase.verdi
+                base.kilde?.id shouldBe forventetBase.kilde?.id
+                base.utledetAv.shouldBeNull()
+                utledet.verdi shouldBe 5
+                val utledning = utledet.utledetAv.shouldNotBeNull()
+                utledning.regel shouldBe forventetUtledning.regel
+                utledning.versjon shouldBe forventetUtledning.versjon
+                utledning.opplysninger shouldContainExactly listOf(base)
+            }
+        }
+    }
+
+    @Test
+    fun `henter utledning uten avhengigheter`() {
+        withMigratedDb {
+            val repo = opplysningerRepository(dbSession)
+            val utledning = Utledning("Konstant", emptyList(), "v1")
+            val opplysning = Faktum(utledetOpplysningstype, 5, utledetAv = utledning)
+            val opplysninger = Opplysninger.med(opplysning)
+            repo.lagreOpplysninger(opplysninger)
+
+            val fraDb = repo.hentOpplysninger(opplysninger.id)
+
+            fraDb.finnOpplysning(utledetOpplysningstype).utledetAv shouldBe utledning
         }
     }
 

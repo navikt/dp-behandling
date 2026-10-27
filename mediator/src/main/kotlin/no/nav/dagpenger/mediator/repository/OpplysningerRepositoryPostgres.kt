@@ -161,10 +161,8 @@ internal class OpplysningerRepositoryPostgres(
                                     WHERE opplysninger_id = ANY(:opplysninger_ider) AND fjernet IS FALSE
                                     
                                     UNION
-                                    -- rekursive opplysninger. Traverserer grunntabellene direkte (ikke
-                                    -- opplysningstabell-viewet) for å unngå å betale for viewets to
-                                    -- LATERAL-subqueries på hvert rekursjonsnivå. Viewet trengs bare
-                                    -- for sluttresultatet.
+                                    -- Traverserer grunntabellene direkte for å unngå beriking av
+                                    -- opplysningene på hvert rekursjonsnivå.
                                     SELECT o.id, o.erstatter_id
                                     FROM opplysningskjede ok
                                     CROSS JOIN LATERAL (
