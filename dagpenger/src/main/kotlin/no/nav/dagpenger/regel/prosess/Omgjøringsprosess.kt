@@ -20,7 +20,6 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.OmgjøringUtenKlageKontroll
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.SkalOmgjøringUtenKlageVurderesKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
-import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import java.time.LocalDate
 
