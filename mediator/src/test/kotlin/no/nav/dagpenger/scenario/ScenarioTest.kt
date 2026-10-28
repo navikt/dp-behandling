@@ -1143,32 +1143,32 @@ class ScenarioTest {
 
             // får mye mer penger
             person.inntektSiste12Mnd = 500000
-            saksbehandler.omgjørBehandling(1.juli(2018))
+            saksbehandler.vurderSøknadPåNytt(person.sisteSøknadId!!)
+
             saksbehandler.leggTilOpplysning(
                 Søknadstidspunkt.prøvingsdato,
                 1.juli(2018),
                 "Klage med medhold",
                 Gyldighetsperiode(1.juli(2018)),
             )
-
-            saksbehandler.rekjørBehandling(listOf(Minsteinntekt.inntektFraSkatt, Minsteinntekt.minsteinntekt))
-            behovsløsere.løsTilForslag()
+            behovsløsere.løsTilForslag() shouldHaveSize 27
 
             behandlingsresultatForslag {
                 opplysninger(prøvingsdato) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
                 }
                 opplysninger(Minsteinntekt.inntektFraSkatt) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
                 }
                 opplysninger(Minsteinntekt.minsteinntekt) {
-                    this shouldHaveSize 2
+                    this shouldHaveSize 1
                     last().verdi.verdi shouldBe true
                     last().gyldigFraOgMed shouldBe 1.juli(2018)
                 }
-                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder shouldHaveSize 1
                 rettighetsperioder.last().harRett shouldBe true
                 rettighetsperioder.last().fraOgMed shouldBe 1.juli(2018)
+                rettighetsperioder.last().tilOgMed.shouldBeNull()
             }
         }
     }

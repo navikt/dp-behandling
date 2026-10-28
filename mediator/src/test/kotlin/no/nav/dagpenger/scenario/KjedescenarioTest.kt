@@ -416,21 +416,6 @@ class KjedescenarioTest {
     }
 
     @Test
-    fun `Søknader som allerede er under behandling skal ignoreres`() {
-        nyttScenario {
-            inntektSiste12Mnd = 500000
-        }.test {
-            val søknadId = UUID.randomUUID()
-            person.søkDagpenger(21.juni(2018), søknadId = søknadId)
-            behovsløsere.løsTilForslag()
-            person.søkDagpenger(21.juni(2018), søknadId = søknadId)
-            behovsløsere.løsTilForslag()
-            // Disse skal bare avvises i døra
-            shouldThrow<IllegalArgumentException> { behandlingsresultatForslag(2) { } }
-        }
-    }
-
-    @Test
     fun `Søknader som er avbrutt skal behandles på nytt`() {
         nyttScenario {
             inntektSiste12Mnd = 500000

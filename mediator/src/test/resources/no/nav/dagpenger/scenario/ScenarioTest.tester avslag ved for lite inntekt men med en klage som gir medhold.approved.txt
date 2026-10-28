@@ -26,15 +26,33 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: Ferdig
 melding: søknadsbehandling_ferdig
-Laget avklaring om SkalOmgjøringUtenKlageVurderes
+Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
 Behov:
+- Fødselsdato
+- ØnskerDagpengerFraDato
+Behov:
+- Fødselsdato
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
+Behov:
+- HelseTilAlleTyperJobb
 - Inntekt
+- KanJobbeDeltid
+- KanJobbeHvorSomHelst
+- Lønnsgaranti
+- Ordinær
+- Permittert
+- PermittertFiskeforedling
+- RegistrertSomArbeidssøker
+- Verneplikt
+- VilligTilÅBytteYrke
+- ØnsketArbeidstid
+Laget avklaring om EØSArbeid
+Laget avklaring om InntektNesteKalendermåned
+Laget avklaring om JobbetUtenforNorge
+Laget avklaring om BeregnetArbeidstid
 Behov:
 - AndreØkonomiskeYtelser
 - BostedslandErNorge
@@ -50,15 +68,4 @@ Behov:
 Behov:
 - BarnetilleggV2
 - OppgittAndreYtelserUtenforNav
-Behov:
-- Inntekt
-Behov:
-- ErUtestengt
-- Foreldrepenger
-- Omsorgspenger
-- Opplæringspenger
-- Pleiepenger
-- Svangerskapspenger
-- Sykepenger
-- Uføre
 Behandling endret tilstand til: ForslagTilVedtak

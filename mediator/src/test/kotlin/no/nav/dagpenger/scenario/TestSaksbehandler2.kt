@@ -285,4 +285,16 @@ internal class TestSaksbehandler2(
             rapid,
         )
     }
+
+    fun vurderSøknadPåNytt(sisteSøknadId: UUID) {
+        rapid.sendTestMessage(
+            Meldingskatalog.søknadInnsendt(
+                ident = testPerson.ident,
+                innsendt = testPerson.sisteSøknadsdato.atStartOfDay(),
+                fagsakId = 1,
+                søknadId = sisteSøknadId,
+            ),
+            testPerson.ident,
+        )
+    }
 }

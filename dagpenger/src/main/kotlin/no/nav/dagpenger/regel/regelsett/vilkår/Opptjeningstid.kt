@@ -1,5 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
-import no.nav.dagpenger.opplysning.LesbarOpplysninger
+
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
@@ -46,7 +46,7 @@ object Opptjeningstid {
         ) {
             skalVurderes { it.oppfyller(kravTilAlder) }
             skalRevurderes {
-                (!it.har(inntektFraSkatt) && !it.harVurdertMinsteinntektOgFastsattGrunnlag()) ||
+                (!it.har(inntektFraSkatt)) ||
                     it.erSann(Gjenopptak.oppholdMedArbeidI12ukerEllerMer)
             }
 
@@ -62,8 +62,6 @@ object Opptjeningstid {
             ønsketResultat(inntektFraSkatt, sisteAvsluttendendeKalenderMåned, førsteMånedAvOpptjeningsperiode)
         }
 }
-
-private fun LesbarOpplysninger.harVurdertMinsteinntektOgFastsattGrunnlag() = false
 
 private object Aordningen {
     fun rapporteringsfrist(dato: LocalDate): LocalDate = LocalDate.of(dato.year, dato.month, 5)

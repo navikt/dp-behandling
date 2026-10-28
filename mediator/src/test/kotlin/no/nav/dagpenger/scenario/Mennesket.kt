@@ -97,6 +97,7 @@ internal class Mennesket(
     val arbeidsøkerRegisterPerioder = mutableSetOf<Periode>()
 
     val sisteSøknadId get() = søknader.lastOrNull()
+    val sisteSøknadsdato get() = søknadsdato
 
     fun søkDagpenger(
         dato: LocalDate = LocalDate.now(),

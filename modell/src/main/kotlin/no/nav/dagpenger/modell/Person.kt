@@ -125,7 +125,6 @@ class Person(
     override fun håndter(hendelse: StartHendelse) {
         if (behandlingkjeder.flatten().filterNot { it.harTilstand(Avbrutt) }.any { it.behandler.eksternId == hendelse.eksternId }) {
             hendelse.varsel("${hendelse.type} med eksternId ${hendelse.eksternId} er allerede mottatt")
-            return
         }
 
         // 1. Det finnes ingen tidligere behandling = ingen kjede
