@@ -158,6 +158,7 @@ class MigrerYtelseMottak(
         val manglendeOpplysninger = validerOpplysninger(packet)
 
         if (manglendeOpplysninger.isNotEmpty()) {
+            logger.info { "Migrering av sakId $sakId mangler opplysninger ${manglendeOpplysninger.map { it.behovId }}" }
             context.avbrytMigrering(
                 sakId,
                 Migreringsavbrudd(
@@ -171,6 +172,7 @@ class MigrerYtelseMottak(
 
         val message = MigrerYtelseMessage(packet, opplysningstyper)
         hendelseMottaker.behandle(message.hendelse, message, context)
+        logger.info { "Migrering av sakId $sakId opprettet behandling ok" }
         context.fullførMigrering(sakId)
     }
 
