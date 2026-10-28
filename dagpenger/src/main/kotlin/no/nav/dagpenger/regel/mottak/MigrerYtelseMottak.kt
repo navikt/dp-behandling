@@ -74,7 +74,7 @@ internal data class TekniskMigreringFullførtDto(
     val sakId: Int,
 ) {
     @get:JsonProperty("@event_name")
-    val eventName = "teknisk_migrering_fullfort"
+    val eventName = "migrering_behandling_opprettet"
 
     @get:JsonProperty("@id")
     val id = UUID.randomUUID().toString()
@@ -122,7 +122,7 @@ class MigrerYtelseMottak(
     init {
         River(rapidsConnection)
             .apply {
-                precondition { it.requireAny("@event_name", listOf("start_migrering")) }
+                precondition { it.requireAny("@event_name", listOf("migrering_startet")) }
                 validate {
                     it.requireKey(
                         "ident",
@@ -145,6 +145,13 @@ class MigrerYtelseMottak(
         val sakId = packet["sakId"].asInt()
         if (sakId == 13699878) {
             logger.info { "Skipper migrering med sakId $sakId" }
+            context.avbrytMigrering(
+                sakId,
+                Migreringsavbrudd(
+                    kode = "SKIPPER_MIGRERING",
+                    melding = "Hopper over migrering vi ikke klarte å behandle",
+                ),
+            )
             return
         }
 

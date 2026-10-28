@@ -100,7 +100,7 @@ class MigrerYtelseMottakTest {
         val packet =
             JsonMessage
                 .newMessage(
-                    "start_migrering",
+                    "migrering_startet",
                     mapOf(
                         "opplysninger" to
                             påkrevdeOpplysninger.map { (type, verdi) ->
@@ -208,7 +208,7 @@ class MigrerYtelseMottakTest {
             .map { it.key }
             .toSet() shouldBe
             setOf("@event_name", "@id", "@opprettet", "sakId")
-        fullført["@event_name"].asString() shouldBe "teknisk_migrering_fullfort"
+        fullført["@event_name"].asString() shouldBe "migrering_behandling_opprettet"
         fullført["sakId"].asInt() shouldBe 123
         UUID.fromString(fullført["@id"].asString())
         LocalDateTime.parse(fullført["@opprettet"].asString())
@@ -219,7 +219,7 @@ class MigrerYtelseMottakTest {
 
     private fun valideringsmelding(opplysninger: Map<String, Any>): JsonMessage =
         JsonMessage
-            .newMessage("start_migrering", mapOf("opplysninger" to opplysninger))
+            .newMessage("migrering_startet", mapOf("opplysninger" to opplysninger))
             .apply { interestedIn("opplysninger") }
 
     @Test
@@ -227,7 +227,7 @@ class MigrerYtelseMottakTest {
         rapid.sendTestMessage(melding(opplysninger = jsonMapper.writeValueAsString(testopplysninger())))
 
         rapid.inspektør.size shouldBe 1
-        rapid.inspektør.message(0)["@event_name"].asString() shouldBe "teknisk_migrering_fullfort"
+        rapid.inspektør.message(0)["@event_name"].asString() shouldBe "migrering_behandling_opprettet"
         val hendelse = slot<MigrerYtelseHendelse>()
         verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
 
@@ -250,7 +250,7 @@ class MigrerYtelseMottakTest {
 
         rapid.inspektør.size shouldBe 1
         println(rapid.inspektør.message(0))
-        rapid.inspektør.message(0)["@event_name"].asString() shouldBe "teknisk_migrering_fullfort"
+        rapid.inspektør.message(0)["@event_name"].asString() shouldBe "migrering_behandling_opprettet"
         val hendelse = slot<MigrerYtelseHendelse>()
         verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
 
@@ -269,7 +269,7 @@ class MigrerYtelseMottakTest {
 
     @Disabled
     @Test
-    fun `oppretter faktum fra opplysningsliste i start_migrering`() {
+    fun `oppretter faktum fra opplysningsliste i migrering_startet`() {
         val gyldigFraOgMed = LocalDate.of(2025, 11, 17)
         val opplysning =
             """
@@ -281,7 +281,7 @@ class MigrerYtelseMottakTest {
             }]
             """.trimIndent()
 
-        rapid.sendTestMessage(melding(opplysninger = opplysning, eventName = "start_migrering"))
+        rapid.sendTestMessage(melding(opplysninger = opplysning, eventName = "migrering_startet"))
 
         val hendelse = slot<MigrerYtelseHendelse>()
         verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
@@ -344,7 +344,7 @@ class MigrerYtelseMottakTest {
                 melding(
                     opplysninger =
                         """[{"navn":"ukjent","verdi":true,"gyldigFraOgMed":"2025-11-17","uuid":"0194881f-9443-72b4-8b30-5f6cdb24d54c"}]""",
-                    eventName = "start_migrering",
+                    eventName = "migrering_startet",
                 ),
             )
         }
@@ -352,7 +352,7 @@ class MigrerYtelseMottakTest {
 
     private fun melding(
         opplysninger: String,
-        eventName: String = "start_migrering",
+        eventName: String = "migrering_startet",
     ) = """
         {
           "@event_name": "$eventName",
@@ -366,7 +366,7 @@ class MigrerYtelseMottakTest {
     private fun ekteMelding() =
         """
         {
-          "@event_name": "start_migrering",
+          "@event_name": "migrering_startet",
           "sakId": 13699879,
           "innvilgetFraOgMed": "${LocalDate.of(2026, 1, 5)}",
           "initiertAv": "Z990798",
@@ -560,7 +560,7 @@ class MigrerYtelseMottakTest {
     private fun nyttFormat() =
         """
         {
-          "@event_name" : "start_migrering",
+          "@event_name" : "migrering_startet",
           "sakId" : 15603478,
           "ident" : 12345678901,
           "initiertAv" : "user1",
