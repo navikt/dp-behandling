@@ -15,6 +15,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakBehandling
+import no.nav.dagpenger.regel.Avklaringspunkter.SøknadBehandletTidligere
 import no.nav.dagpenger.regel.Avklaringspunkter.SøktGjenopptak
 import no.nav.dagpenger.regel.OpplysningsTyper.FagsakIdId
 import no.nav.dagpenger.regel.mottak.SøknadInnsendtMessage.Companion.Fagsystem
@@ -77,6 +78,7 @@ class SøknadInnsendtHendelse(
             return IkkeOpprettet("Hendelse av type $type mangler fagsakId og har ingen behandling å basere seg på")
         }
 
+        val erBehandletTidligere = forrigeBehandling?.behandler?.eksternId == eksternId
         val kilde = Systemkilde(meldingsreferanseId, opprettet)
         return Opprettet(
             opprettBehandling(
@@ -89,6 +91,10 @@ class SøknadInnsendtHendelse(
                             if (søknadstype == Søknadstype.Gjenopptak) {
                                 add(Avklaring(SøktGjenopptak))
                             }
+                        }
+
+                        if (erBehandletTidligere) {
+                            add(Avklaring(SøknadBehandletTidligere))
                         }
                     },
             ).apply {

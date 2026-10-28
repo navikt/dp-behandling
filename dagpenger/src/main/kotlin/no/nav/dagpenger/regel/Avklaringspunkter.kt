@@ -342,4 +342,15 @@ object Avklaringspunkter {
             tittel = "Bruker oppgir selvforskyldt arbeidsløshet",
             beskrivelse = "Bruker oppgir selvforskyldt arbeidsløshet i søknaden. Sjekk at dette stemmer.",
         )
+
+    val SøknadBehandletTidligere =
+        Avklaringkode(
+            kode = "SøknadBehandletTidligere",
+            tittel = "Det finnes en tidligere behandling av samme søknad",
+            beskrivelse =
+                """
+                Denne søknaden er allerede behandlet. Vurder om det skal gjøres endringer fra sist, eller avbryt behandlingen.
+                """.trimIndent(),
+            kanAvbrytes = false,
+        )
 }

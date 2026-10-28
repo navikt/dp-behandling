@@ -20,6 +20,8 @@ import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.mediator.november
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.regel.Avklaringspunkter.SøknadBehandletTidligere
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
@@ -1125,12 +1127,13 @@ class ScenarioTest {
             inntektSiste12Mnd = 50000
         }.test {
             person.søkDagpenger(21.juni(2018))
-
             behovsløsere.løsTilForslag()
+
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldNotContain (SøknadBehandletTidligere.kode)
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
 
-            behandlingsresultat {
+            behandlingsresultat(1) {
                 rettighetsperioder.single().harRett shouldBe false
                 rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
 
@@ -1142,18 +1145,22 @@ class ScenarioTest {
             }
 
             // får mye mer penger
-            person.inntektSiste12Mnd = 500000
             saksbehandler.vurderSøknadPåNytt(person.sisteSøknadId!!)
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldContain (SøknadBehandletTidligere.kode)
+            behovsløsere.løsTilForslag() shouldHaveSize 14
 
+            behandlingsresultatForslag(3) {}
+
+            person.inntektSiste12Mnd = 500000
             saksbehandler.leggTilOpplysning(
                 Søknadstidspunkt.prøvingsdato,
                 1.juli(2018),
                 "Klage med medhold",
                 Gyldighetsperiode(1.juli(2018)),
             )
-            behovsløsere.løsTilForslag() shouldHaveSize 27
+            behovsløsere.løsTilForslag() shouldHaveSize 14
 
-            behandlingsresultatForslag {
+            behandlingsresultatForslag(4) {
                 opplysninger(prøvingsdato) {
                     this shouldHaveSize 1
                 }
@@ -1165,6 +1172,8 @@ class ScenarioTest {
                     last().verdi.verdi shouldBe true
                     last().gyldigFraOgMed shouldBe 1.juli(2018)
                 }
+                opplysninger(Dagpengegrunnlag.grunnlag).single().verdi.verdi shouldBe 517349
+
                 rettighetsperioder shouldHaveSize 1
                 rettighetsperioder.last().harRett shouldBe true
                 rettighetsperioder.last().fraOgMed shouldBe 1.juli(2018)

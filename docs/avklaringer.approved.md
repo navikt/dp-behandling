@@ -366,6 +366,14 @@ Søker har fått utbetalt sykepenger. Sjekk om sykepengene er svangerskapsrelate
 - Inntektsopplysninger
 
 ---
+## Det finnes en tidligere behandling av samme søknad
+- **Kode:** `SøknadBehandletTidligere`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Denne søknaden er allerede behandlet. Vurder om det skal gjøres endringer fra sist, eller avbryt behandlingen.
+
+---
 ## Søknadstidspunktet ligger for langt fram i tid
 - **Kode:** `SøknadstidspunktForLangtFramITid`
 - **Kan lukkes av saksbehandler:** ✅ 
