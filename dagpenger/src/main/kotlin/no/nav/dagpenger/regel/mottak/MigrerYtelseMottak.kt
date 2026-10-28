@@ -105,7 +105,6 @@ class MigrerYtelseMottak(
             Dagpengegrunnlag.grunnlag,
             Opphold.oppfyllerKravet,
             Dagpengeperiode.ordinærPeriode,
-            Dagpengeperiode.antallStønadsdager,
             DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg,
             DagpengenesStørrelse.antallBarn,
             Vanligarbeidstid.fastsattVanligArbeidstid,

@@ -45,7 +45,6 @@ class MigrerYtelseMottakTest {
             Dagpengegrunnlag.grunnlag to 310630,
             Opphold.oppfyllerKravet to true,
             Dagpengeperiode.ordinærPeriode to 104,
-            Dagpengeperiode.antallStønadsdager to 520,
             DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg to 1500,
             DagpengenesStørrelse.antallBarn to 0,
             Vanligarbeidstid.fastsattVanligArbeidstid to 37.5,
@@ -239,7 +238,6 @@ class MigrerYtelseMottakTest {
         val opplysninger = behandling.opplysninger()
 
         opplysninger.finnOpplysning(DagpengenesStørrelse.antallBarn).verdi shouldBe 0
-        opplysninger.finnOpplysning(Dagpengeperiode.antallStønadsdager).verdi shouldBe 520
         opplysninger.finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg).verdi shouldBe Beløp(1500)
         opplysninger.finnOpplysning(Dagpengegrunnlag.grunnlag).verdi shouldBe Beløp(310630)
     }
