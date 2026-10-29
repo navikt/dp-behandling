@@ -29,7 +29,6 @@ class OpplysningSvarHendelse(
     override fun kontekstMap(): Map<String, String> =
         mapOf(
             "behandlingId" to behandlingId.toString(),
-            "opplysninger" to opplysninger.map { it.opplysningstype.behovId }.sorted().joinToString(", "),
         )
 }
 

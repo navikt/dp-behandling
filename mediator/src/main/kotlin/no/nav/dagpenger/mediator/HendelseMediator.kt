@@ -97,7 +97,9 @@ internal class HendelseMediator(
         handler: (PersonHåndter) -> Unit,
     ) {
         val personidentifikator = Ident(hendelse.ident())
-        hentPersonOgHåndter(personidentifikator, hendelse, context, handler)
+        withLoggingContext(hendelse.kontekstMap()) {
+            hentPersonOgHåndter(personidentifikator, hendelse, context, handler)
+        }
     }
 
     private fun lagreMeldekort(hendelse: MeldekortInnsendtHendelse) {
@@ -202,7 +204,6 @@ internal class HendelseMediator(
         if (hendelse.harFunksjonelleFeilEllerVerre()) {
             logger.error { "aktivitetslogg inneholder feil (se sikkerlogg)" }
             sikkerlogg.error { "aktivitetslogg inneholder feil:\n${hendelse.toLogString()}" }
-            sikkerlogg.info { "aktivitetslogg inneholder meldinger:\n${hendelse.toLogString()}" }
         }
 
         håndter(hendelse, utboks)
