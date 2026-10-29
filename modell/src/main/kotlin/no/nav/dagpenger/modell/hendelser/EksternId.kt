@@ -30,7 +30,7 @@ sealed class EksternId<T>(
             "SøknadId" -> SøknadId(id)
             "MeldekortId" -> MeldekortId(id)
             "ManuellId" -> ManuellId(id)
-            "MigrerId" -> MigrerId(id)
+            "MigreringId" -> MigreringId(id)
             "OmgjøringId" -> OmgjøringId(id)
             "ArbeidssøkerperiodeId" -> ArbeidssøkerperiodeId(id)
             "FerietilleggId" -> FerietilleggId(id)
@@ -75,14 +75,14 @@ class ManuellId(
         )
 }
 
-class MigrerId(
+class MigreringId(
     id: UUID,
 ) : EksternId<UUID>(id) {
     constructor(id: String) : this(UUID.fromString(id))
 
     override fun kontekstMap() =
         mapOf(
-            "migrerId" to id.toString(),
+            "migreringId" to id.toString(),
         )
 }
 

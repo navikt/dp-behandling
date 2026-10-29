@@ -12,7 +12,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.modell.hendelser.MigrerId
+import no.nav.dagpenger.modell.hendelser.MigreringId
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
@@ -200,7 +200,7 @@ class MigrerYtelseMessage(
         MigrerYtelseHendelse(
             meldingsreferanseId = packet.id.toUUID(),
             ident = ident,
-            eksternId = MigrerId(packet["migreringId"].asString()),
+            eksternId = MigreringId(packet["migreringId"].asString()),
             opprettet = opprettet,
             ytelse =
                 MigrertYtelse(

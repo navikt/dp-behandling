@@ -20,7 +20,7 @@ import no.nav.dagpenger.modell.hendelser.KlageKlageinstansId
 import no.nav.dagpenger.modell.hendelser.KlageTrygderettenId
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.MeldekortId
-import no.nav.dagpenger.modell.hendelser.MigrerId
+import no.nav.dagpenger.modell.hendelser.MigreringId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.SøknadId
@@ -152,7 +152,7 @@ internal fun no.nav.dagpenger.modell.hendelser.EksternId<*>.hendelseType(): Stri
         is SøknadId -> "Søknad"
         is MeldekortId -> "Meldekort"
         is ManuellId -> "Manuell"
-        is MigrerId -> "Migrer"
+        is MigreringId -> "Migrer"
         is OmgjøringId -> "Omgjøring"
         is FerietilleggId -> "Ferietillegg"
         is ArbeidssøkerperiodeId -> "Arbeidssøkerperiode"

@@ -29,8 +29,8 @@ class EksternIdTest {
         val manuellId = ManuellId(UUIDv7.ny())
         manuellId.type shouldBe "ManuellId"
 
-        val migrerId = MigrerId(UUIDv7.ny())
-        migrerId.type shouldBe "MigrerId"
+        val migreringId = MigreringId(UUIDv7.ny())
+        migreringId.type shouldBe "MigreringId"
 
         val omgjøringId = OmgjøringId(UUIDv7.ny())
         omgjøringId.type shouldBe "OmgjøringId"
@@ -102,8 +102,8 @@ class EksternIdTest {
         val manuellId = EksternId.fromString("ManuellId", UUIDv7.ny().toString())
         manuellId::class.simpleName shouldBe "ManuellId"
 
-        val migrerId = EksternId.fromString("MigrerId", UUIDv7.ny().toString())
-        migrerId::class.simpleName shouldBe "MigrerId"
+        val migreringId = EksternId.fromString("MigreringId", UUIDv7.ny().toString())
+        migreringId::class.simpleName shouldBe "MigreringId"
 
         val ferietilleggId = EksternId.fromString("FerietilleggId", UUIDv7.ny().toString())
         ferietilleggId::class.simpleName shouldBe "FerietilleggId"

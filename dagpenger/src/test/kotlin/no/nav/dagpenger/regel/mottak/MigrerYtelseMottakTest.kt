@@ -9,7 +9,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.dagpenger.modell.hendelser.MigrerId
+import no.nav.dagpenger.modell.hendelser.MigreringId
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -232,7 +232,7 @@ class MigrerYtelseMottakTest {
         val hendelse = slot<MigrerYtelseHendelse>()
         verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
 
-        hendelse.captured.eksternId shouldBe MigrerId(migreringId)
+        hendelse.captured.eksternId shouldBe MigreringId(migreringId)
     }
 
     @Test
