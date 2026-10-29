@@ -1,5 +1,6 @@
 package no.nav.dagpenger.mediator.repository
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -9,9 +10,11 @@ import no.nav.dagpenger.mediator.db.DBTestContext
 import no.nav.dagpenger.mediator.db.withMigratedDb
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
+import no.nav.dagpenger.modell.Behandling.TilstandType.ForslagTilVedtak
 import no.nav.dagpenger.modell.Behandling.TilstandType.UnderBehandling
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.Person
+import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse
 import no.nav.dagpenger.modell.somKjede
 import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Boolsk
@@ -28,6 +31,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 
 class BehandlingRepositoryPostgresTest {
     private val ident = "12345678911"
@@ -146,43 +150,67 @@ class BehandlingRepositoryPostgresTest {
     }
 
     @Test
-    fun `flytter en eldre behandling til å peke på en nyere`() {
+    fun `flytting lagres som ny behandling og gammel avbrytes`() {
         withMigratedDb {
-            val kildeRepository = KildeRepository(dbSession)
-            val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
-            // Registrer forretningsprosesser og opplysningstyper
-            val prosessregister = Prosessregister()
-            TestBehandlinger.registrerTestProsesser(prosessregister)
-            opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
-
-            val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
-            val behandlingRepositoryPostgres =
-                BehandlingRepositoryPostgres(dbSession, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
-
+            val (personRepository, behandlingRepository) = flyttOppsett()
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
-            val b2 = nyBehandling(b1, UnderBehandling, Opplysninger.med(opplysning2))
+            val b2 = nyBehandling(b1, ForslagTilVedtak, Opplysninger.med(opplysning2))
             val b3 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning3))
+            opprettKjede(behandlingRepository, listOf(b1, b2, b3))
 
-            opprettKjede(behandlingRepositoryPostgres, listOf(b1, b2, b3))
+            val person = personRepository.hent(Ident(ident)).shouldNotBeNull()
+            person.håndter(flytt(b2.behandlingId, b3.behandlingId))
+            personRepository.lagre(person)
 
-            behandlingRepositoryPostgres.hentBehandlinger(Ident(ident)).single().toList().also { behandlingerFørFlytt ->
-                behandlingerFørFlytt.size shouldBe 3
-
-                behandlingerFørFlytt[0].behandlingId shouldBe b1.behandlingId
-                behandlingerFørFlytt[1].behandlingId shouldBe b2.behandlingId
-                behandlingerFørFlytt[2].behandlingId shouldBe b3.behandlingId
-            }
-
-            behandlingRepositoryPostgres.flyttBehandling(b2.behandlingId, b3.behandlingId)
-
-            behandlingRepositoryPostgres.hentBehandlinger(Ident(ident)).single().toList().also { behandlingerEtterFlytt ->
-                behandlingerEtterFlytt.size shouldBe 3
-
-                behandlingerEtterFlytt[0].behandlingId shouldBe b1.behandlingId
-                behandlingerEtterFlytt[1].behandlingId shouldBe b3.behandlingId
-                behandlingerEtterFlytt[2].behandlingId shouldBe b2.behandlingId
-            }
+            val behandlinger = behandlingRepository.hentBehandlinger(Ident(ident)).flatMap { it.toList() }
+            behandlinger.size shouldBe 4
+            val gammel = behandlinger.single { it.behandlingId == b2.behandlingId }
+            gammel.basertPå?.behandlingId shouldBe b1.behandlingId
+            gammel.tilstand().first shouldBe Behandling.TilstandType.Avbrutt
+            val ny = behandlinger.single { it.basertPå?.behandlingId == b3.behandlingId }
+            ny.tilstand().first shouldBe Behandling.TilstandType.Redigert
         }
+    }
+
+    @Test
+    fun `feil under flytting lagrer ingenting`() {
+        withMigratedDb {
+            val (personRepository, behandlingRepository) = flyttOppsett()
+            val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
+            val b2 = nyBehandling(b1, ForslagTilVedtak, Opplysninger.med(opplysning2))
+            val ikkeFerdig = nyBehandling(null, UnderBehandling, Opplysninger.med(opplysning3))
+            opprettKjede(behandlingRepository, listOf(b1, b2, ikkeFerdig))
+
+            val person = personRepository.hent(Ident(ident)).shouldNotBeNull()
+            shouldThrow<IllegalArgumentException> { person.håndter(flytt(b2.behandlingId, ikkeFerdig.behandlingId)) }
+
+            val behandlinger = behandlingRepository.hentBehandlinger(Ident(ident)).flatMap { it.toList() }
+            behandlinger.size shouldBe 3
+            behandlinger.single { it.behandlingId == b2.behandlingId }.tilstand().first shouldBe ForslagTilVedtak
+        }
+    }
+
+    private fun flytt(
+        behandlingId: UUID,
+        nyBasertPåId: UUID?,
+    ) = FlyttBehandlingHendelse(
+        meldingsreferanseId = UUIDv7.ny(),
+        ident = ident,
+        behandlingId = behandlingId,
+        nyBasertPåId = nyBasertPåId,
+        opprettet = LocalDateTime.now(),
+    )
+
+    private fun DBTestContext.flyttOppsett(): Pair<PersonRepositoryPostgres, BehandlingRepositoryPostgres> {
+        val kildeRepository = KildeRepository(dbSession)
+        val opplysningerRepository = OpplysningerRepositoryPostgres(dbSession, kildeRepository)
+        val prosessregister = Prosessregister()
+        TestBehandlinger.registrerTestProsesser(prosessregister)
+        opplysningerRepository.lagreOpplysningstyper(opplysningstyper)
+        val avklaringRepository = AvklaringRepositoryPostgres(dbSession, kildeRepository)
+        val behandlingRepository =
+            BehandlingRepositoryPostgres(dbSession, opplysningerRepository, avklaringRepository, kildeRepository, prosessregister)
+        return PersonRepositoryPostgres(dbSession, behandlingRepository) to behandlingRepository
     }
 
     @Test

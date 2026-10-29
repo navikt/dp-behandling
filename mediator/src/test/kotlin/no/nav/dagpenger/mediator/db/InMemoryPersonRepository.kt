@@ -34,13 +34,6 @@ class InMemoryPersonRepository :
             .groupBy { it.behandlingskjedeId }
             .map { (_, behandlinger) -> behandlinger.somKjede() }
 
-    override fun flyttBehandling(
-        behandlingId: UUID,
-        nyBasertPåId: UUID?,
-    ) {
-        TODO("Not yet implemented")
-    }
-
     override fun lagre(
         ident: Ident,
         behandlinger: List<Behandling>,

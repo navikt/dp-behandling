@@ -116,5 +116,12 @@ Behandling endret tilstand til: Ferdig
 melding: søknadsbehandling_ferdig
 melding: flytt_behandling
 Laget avklaring om BehandlingFlyttet
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
+Laget avklaring om HarTilleggsopplysninger
+Behandling endret tilstand til: Avbrutt
+melding: behandling_avbrutt
+Opprettet ny behandling
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
+melding: søknadsbehandling_avbrutt
