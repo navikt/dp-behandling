@@ -116,7 +116,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
-                        is MigreringId -> HendelseDTOTypeDTO.MIGRER
+                        is MigreringId -> HendelseDTOTypeDTO.MIGRERING
                         is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
                         is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
                         is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE

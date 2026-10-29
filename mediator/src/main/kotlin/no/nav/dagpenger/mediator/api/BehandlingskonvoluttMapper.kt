@@ -112,7 +112,7 @@ internal fun StartHendelse.tilHendelseDTO(): HendelseDTO =
                 is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                 is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                 is ManuellId -> HendelseDTOTypeDTO.MANUELL
-                is MigreringId -> HendelseDTOTypeDTO.MIGRER
+                is MigreringId -> HendelseDTOTypeDTO.MIGRERING
                 is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
                 is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE
                 is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
