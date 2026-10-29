@@ -32,6 +32,7 @@ import no.nav.dagpenger.modell.hendelser.ArbeidssøkerperiodeId
 import no.nav.dagpenger.modell.hendelser.FerietilleggId
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.MeldekortId
+import no.nav.dagpenger.modell.hendelser.MigrerId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.SøknadId
@@ -115,6 +116,7 @@ fun Behandling.VedtakOpplysninger.lagVedtakDTO(ident: Ident): VedtakDTO {
                         is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                         is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                         is ManuellId -> HendelseDTOTypeDTO.MANUELL
+                        is MigrerId -> HendelseDTOTypeDTO.MIGRER
                         is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
                         is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG
                         is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE

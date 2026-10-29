@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel.mottak
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
@@ -13,7 +12,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.dagpenger.modell.hendelser.ManuellId
+import no.nav.dagpenger.modell.hendelser.MigrerId
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
@@ -40,11 +39,10 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
-import no.nav.dagpenger.uuid.UUIDv7
 import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ObjectNode
 import tools.jackson.module.kotlin.jsonMapper
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
@@ -59,39 +57,33 @@ internal data class Migreringsavbrudd(
 internal data class MigreringAvbruttDto(
     val sakId: Int,
     val arsak: Migreringsavbrudd,
-) {
-    @get:JsonProperty("@event_name")
-    val eventName = "migrering_avbrutt"
-
-    @get:JsonProperty("@id")
-    val id = UUID.randomUUID().toString()
-
-    @get:JsonProperty("@opprettet")
-    val opprettet = LocalDateTime.now().toString()
-}
+)
 
 internal data class TekniskMigreringFullførtDto(
     val sakId: Int,
-) {
-    @get:JsonProperty("@event_name")
-    val eventName = "migrering_behandling_opprettet"
-
-    @get:JsonProperty("@id")
-    val id = UUID.randomUUID().toString()
-
-    @get:JsonProperty("@opprettet")
-    val opprettet = LocalDateTime.now().toString()
-}
+)
 
 internal fun MessageContext.avbrytMigrering(
     sakId: Int,
     arsak: Migreringsavbrudd,
 ) {
-    publish(migreringSvarSerializer.writeValueAsString(MigreringAvbruttDto(sakId, arsak)))
+    val dto = MigreringAvbruttDto(sakId, arsak)
+    publish(toJsonMessage("migrering_avbrutt", dto).toJson())
 }
 
 internal fun MessageContext.fullførMigrering(sakId: Int) {
-    publish(migreringSvarSerializer.writeValueAsString(TekniskMigreringFullførtDto(sakId)))
+    val dto = TekniskMigreringFullførtDto(sakId)
+    publish(toJsonMessage("migrering_behandling_opprettet", dto).toJson())
+}
+
+fun toJsonMessage(
+    eventName: String,
+    dto: Any,
+): JsonMessage {
+    val node = migreringSvarSerializer.valueToTree<ObjectNode>(dto)
+    node.put("@event_name", eventName)
+    val json = migreringSvarSerializer.writeValueAsString(node)
+    return JsonMessage(json, MessageProblems(json))
 }
 
 class MigrerYtelseMottak(
@@ -127,6 +119,7 @@ class MigrerYtelseMottak(
                         "ident",
                         "sakId",
                         "innvilgetFraOgMed",
+                        "migreringId",
                     )
                     it.interestedIn("innvilgetTilOgMed", "initiertAv", "opplysninger")
                 }
@@ -207,7 +200,7 @@ class MigrerYtelseMessage(
         MigrerYtelseHendelse(
             meldingsreferanseId = packet.id.toUUID(),
             ident = ident,
-            eksternId = ManuellId(UUIDv7.ny()),
+            eksternId = MigrerId(packet["migreringId"].asString()),
             opprettet = opprettet,
             ytelse =
                 MigrertYtelse(

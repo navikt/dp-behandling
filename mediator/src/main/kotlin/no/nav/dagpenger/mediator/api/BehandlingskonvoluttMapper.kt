@@ -39,6 +39,7 @@ import no.nav.dagpenger.modell.hendelser.KlageKlageinstansId
 import no.nav.dagpenger.modell.hendelser.KlageTrygderettenId
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.MeldekortId
+import no.nav.dagpenger.modell.hendelser.MigrerId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
@@ -111,6 +112,7 @@ internal fun StartHendelse.tilHendelseDTO(): HendelseDTO =
                 is MeldekortId -> HendelseDTOTypeDTO.MELDEKORT
                 is SøknadId -> HendelseDTOTypeDTO.SØKNAD
                 is ManuellId -> HendelseDTOTypeDTO.MANUELL
+                is MigrerId -> HendelseDTOTypeDTO.MIGRER
                 is OmgjøringId -> HendelseDTOTypeDTO.OMGJØRING
                 is ArbeidssøkerperiodeId -> HendelseDTOTypeDTO.ARBEIDSSØKERPERIODE
                 is FerietilleggId -> HendelseDTOTypeDTO.FERIETILLEGG

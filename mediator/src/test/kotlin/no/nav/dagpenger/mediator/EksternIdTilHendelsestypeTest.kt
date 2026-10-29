@@ -9,6 +9,7 @@ import no.nav.dagpenger.modell.hendelser.KlageKlageinstansId
 import no.nav.dagpenger.modell.hendelser.KlageTrygderettenId
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.MeldekortId
+import no.nav.dagpenger.modell.hendelser.MigrerId
 import no.nav.dagpenger.modell.hendelser.OmgjøringId
 import no.nav.dagpenger.modell.hendelser.SamordningId
 import no.nav.dagpenger.modell.hendelser.SøknadId
@@ -26,6 +27,9 @@ class EksternIdTilHendelsestypeTest {
 
         val manuellId = ManuellId(UUIDv7.ny())
         manuellId.hendelseType() shouldBe "Manuell"
+
+        val migrerId = MigrerId(UUIDv7.ny())
+        migrerId.hendelseType() shouldBe "Migrer"
 
         val omgjøringId = OmgjøringId(UUIDv7.ny())
         omgjøringId.hendelseType() shouldBe "Omgjøring"
@@ -59,6 +63,7 @@ class EksternIdTilHendelsestypeTest {
                 SøknadId(UUIDv7.ny()) as EksternId<*>,
                 MeldekortId("12345") as EksternId<*>,
                 ManuellId(UUIDv7.ny()) as EksternId<*>,
+                MigrerId(UUIDv7.ny()) as EksternId<*>,
                 OmgjøringId(UUIDv7.ny()) as EksternId<*>,
                 FerietilleggId(UUIDv7.ny()) as EksternId<*>,
                 ArbeidssøkerperiodeId(UUIDv7.ny()) as EksternId<*>,

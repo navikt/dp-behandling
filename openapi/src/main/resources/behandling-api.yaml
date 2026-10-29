@@ -2334,7 +2334,7 @@ components:
           type: string
         type:
           type: string
-          enum: [ "Søknad", "Meldekort" ,"Manuell", "Omgjøring", "Arbeidssøkerperiode", "Ferietillegg", "Samordning", "KlageFørsteinstans", "KlageKlageinstans", "KlageTrygderetten" ]
+          enum: [ "Søknad", "Meldekort" ,"Manuell", "Migrer", "Omgjøring", "Arbeidssøkerperiode", "Ferietillegg", "Samordning", "KlageFørsteinstans", "KlageKlageinstans", "KlageTrygderetten" ]
         skjedde:
           type: string
           format: date

@@ -9,6 +9,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.dagpenger.modell.hendelser.MigrerId
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -60,6 +61,7 @@ class MigrerYtelseMottakTest {
     private val jsonMapper = JsonMapper.builder().build()
     private val ekstra = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "ekstra")
     private val rapid = TestRapid()
+    private val migreringId = UUIDv7.ny()
     private val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
 
     private val mottak =
@@ -172,6 +174,7 @@ class MigrerYtelseMottakTest {
             .properties()
             .toList()
             .map { it.key }
+            .filterNot { it.startsWith("system_") }
             .toSet() shouldBe
             setOf("@event_name", "@id", "@opprettet", "sakId", "arsak")
         avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
@@ -205,6 +208,7 @@ class MigrerYtelseMottakTest {
             .properties()
             .toList()
             .map { it.key }
+            .filterNot { it.startsWith("system_") }
             .toSet() shouldBe
             setOf("@event_name", "@id", "@opprettet", "sakId")
         fullført["@event_name"].asString() shouldBe "migrering_behandling_opprettet"
@@ -220,6 +224,16 @@ class MigrerYtelseMottakTest {
         JsonMessage
             .newMessage("migrering_startet", mapOf("opplysninger" to opplysninger))
             .apply { interestedIn("opplysninger") }
+
+    @Test
+    fun `bruker migreringId fra meldingen som ekstern id`() {
+        rapid.sendTestMessage(melding(opplysninger = jsonMapper.writeValueAsString(testopplysninger())))
+
+        val hendelse = slot<MigrerYtelseHendelse>()
+        verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
+
+        hendelse.captured.eksternId shouldBe MigrerId(migreringId)
+    }
 
     @Test
     fun `oppretter behandling med kontraktsfelter og tilleggsopplysninger`() {
@@ -355,6 +369,7 @@ class MigrerYtelseMottakTest {
         {
           "@event_name": "$eventName",
           "sakId": 13699879,
+          "migreringId": "$migreringId",
           "ident": "12345678910",
           "innvilgetFraOgMed": "${LocalDate.of(2026, 1, 5)}",
           "opplysninger": $opplysninger
@@ -366,6 +381,7 @@ class MigrerYtelseMottakTest {
         {
           "@event_name": "migrering_startet",
           "sakId": 13699879,
+          "migreringId": "$migreringId",
           "innvilgetFraOgMed": "${LocalDate.of(2026, 1, 5)}",
           "initiertAv": "Z990798",
           "opplysninger": [
