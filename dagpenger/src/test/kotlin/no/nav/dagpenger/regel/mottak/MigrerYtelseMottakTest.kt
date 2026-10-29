@@ -122,7 +122,7 @@ class MigrerYtelseMottakTest {
         rapid.sendTestMessage(melding(opplysninger = "{}"))
 
         val avbrudd = rapid.inspektør.message(0)
-        avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
+        avbrudd["@event_name"].asString() shouldBe "migrering_feilet"
         avbrudd["sakId"].asInt() shouldBe 13699879
         avbrudd["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
         avbrudd["arsak"]["melding"].asString() shouldBe "Mangler påkrevde opplysninger"
@@ -140,7 +140,7 @@ class MigrerYtelseMottakTest {
                 rapid.sendTestMessage(melding(opplysninger = jsonMapper.writeValueAsString(testopplysninger(uten = manglendeType))))
 
                 val avbrudd = rapid.inspektør.message(0)
-                avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
+                avbrudd["@event_name"].asString() shouldBe "migrering_feilet"
                 avbrudd["sakId"].asInt() shouldBe 13699879
                 avbrudd["arsak"]["detaljer"].values().map { it.asString() } shouldBe listOf(manglendeType.behovId)
                 rapid.inspektør.size shouldBe 1
@@ -177,7 +177,7 @@ class MigrerYtelseMottakTest {
             .filterNot { it.startsWith("system_") }
             .toSet() shouldBe
             setOf("@event_name", "@id", "@opprettet", "sakId", "arsak")
-        avbrudd["@event_name"].asString() shouldBe "migrering_avbrutt"
+        avbrudd["@event_name"].asString() shouldBe "migrering_feilet"
         avbrudd["sakId"].asInt() shouldBe 123
         UUID.fromString(avbrudd["@id"].asString())
         LocalDateTime.parse(avbrudd["@opprettet"].asString())
@@ -192,32 +192,6 @@ class MigrerYtelseMottakTest {
         avbrudd["arsak"]["detaljer"].values().map { it.asString() } shouldBe detaljer
         val andreAvbrudd = JsonMapper.builder().build().readTree(publiserte.last())
         (avbrudd["@id"].asString() != andreAvbrudd["@id"].asString()) shouldBe true
-    }
-
-    @Test
-    fun `fullforingshjelperen publiserer svar uten arsak`() {
-        val context = mockk<MessageContext>(relaxed = true)
-        val publiserte = mutableListOf<String>()
-
-        context.fullførMigrering(123)
-        context.fullførMigrering(123)
-
-        verify(exactly = 2) { context.publish(capture(publiserte)) }
-        val fullført = JsonMapper.builder().build().readTree(publiserte.first())
-        fullført
-            .properties()
-            .toList()
-            .map { it.key }
-            .filterNot { it.startsWith("system_") }
-            .toSet() shouldBe
-            setOf("@event_name", "@id", "@opprettet", "sakId")
-        fullført["@event_name"].asString() shouldBe "migrering_behandling_opprettet"
-        fullført["sakId"].asInt() shouldBe 123
-        UUID.fromString(fullført["@id"].asString())
-        LocalDateTime.parse(fullført["@opprettet"].asString())
-        fullført.has("arsak") shouldBe false
-        val andreFullført = JsonMapper.builder().build().readTree(publiserte.last())
-        (fullført["@id"].asString() != andreFullført["@id"].asString()) shouldBe true
     }
 
     private fun valideringsmelding(opplysninger: Map<String, Any>): JsonMessage =
@@ -239,8 +213,7 @@ class MigrerYtelseMottakTest {
     fun `oppretter behandling med kontraktsfelter og tilleggsopplysninger`() {
         rapid.sendTestMessage(melding(opplysninger = jsonMapper.writeValueAsString(testopplysninger())))
 
-        rapid.inspektør.size shouldBe 1
-        rapid.inspektør.message(0)["@event_name"].asString() shouldBe "migrering_behandling_opprettet"
+        rapid.inspektør.size shouldBe 0
         val hendelse = slot<MigrerYtelseHendelse>()
         verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
 
@@ -260,9 +233,7 @@ class MigrerYtelseMottakTest {
     fun `sender inn en ekte melding og sjekker at den blir opprettet`() {
         rapid.sendTestMessage(ekteMelding())
 
-        rapid.inspektør.size shouldBe 1
-        println(rapid.inspektør.message(0))
-        rapid.inspektør.message(0)["@event_name"].asString() shouldBe "migrering_behandling_opprettet"
+        rapid.inspektør.size shouldBe 0
         val hendelse = slot<MigrerYtelseHendelse>()
         verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
 

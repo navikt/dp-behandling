@@ -59,21 +59,12 @@ internal data class MigreringAvbruttDto(
     val arsak: Migreringsavbrudd,
 )
 
-internal data class TekniskMigreringFullførtDto(
-    val sakId: Int,
-)
-
 internal fun MessageContext.avbrytMigrering(
     sakId: Int,
     arsak: Migreringsavbrudd,
 ) {
     val dto = MigreringAvbruttDto(sakId, arsak)
-    publish(toJsonMessage("migrering_avbrutt", dto).toJson())
-}
-
-internal fun MessageContext.fullførMigrering(sakId: Int) {
-    val dto = TekniskMigreringFullførtDto(sakId)
-    publish(toJsonMessage("migrering_behandling_opprettet", dto).toJson())
+    publish(toJsonMessage("migrering_feilet", dto).toJson())
 }
 
 fun toJsonMessage(
@@ -164,8 +155,7 @@ class MigrerYtelseMottak(
 
         val message = MigrerYtelseMessage(packet, opplysningstyper)
         hendelseMottaker.behandle(message.hendelse, message, context)
-        logger.info { "Migrering av sakId $sakId opprettet behandling ok" }
-        context.fullførMigrering(sakId)
+        logger.info { "Migrering av sakId $sakId sendt start behandling hendelse" }
     }
 
     fun validerOpplysninger(packet: JsonMessage): List<Opplysningstype<*>> {
