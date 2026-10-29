@@ -51,10 +51,9 @@ fabrikt {
             generate = enabled
             validationLibrary = NoValidation
             extensibleEnums = disabled
-            sealedInterfacesForOneOf = enabled
             ignoreUnknownProperties = disabled
             nonNullMapValues = enabled
-            serializationLibrary = Jackson
+            serializationLibrary = Jackson3
             suffix = "DTO"
         }
     }
@@ -70,10 +69,9 @@ fabrikt {
             generate = enabled
             validationLibrary = NoValidation
             extensibleEnums = disabled
-            sealedInterfacesForOneOf = enabled
             ignoreUnknownProperties = disabled
             nonNullMapValues = enabled
-            serializationLibrary = Jackson
+            serializationLibrary = Jackson3
             suffix = "DTO"
         }
     }
