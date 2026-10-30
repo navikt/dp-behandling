@@ -1,7 +1,5 @@
 package no.nav.dagpenger.scenario
 
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -22,10 +20,9 @@ class OpplysningsperioderScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                val perioder = opplysninger(Opphold.oppholdINorge)
-                perioder[0].gyldigFraOgMed shouldBe 21.juni(2018)
-                perioder[0].gyldigTilOgMed shouldBe null
-                perioder[0].verdi.verdi shouldBe true
+                opplysning(Opphold.oppholdINorge) {
+                    fra(21.juni(2018)) verdi true
+                }
             }
 
             // Endring av verdi med samme gyldighetsperiode
@@ -33,11 +30,9 @@ class OpplysningsperioderScenarioTest {
 
             // Assert at vi har endret verdi
             behandlingsresultatForslag {
-                val perioder = opplysninger(Opphold.oppholdINorge)
-                perioder shouldHaveSize 1
-                perioder[0].gyldigFraOgMed shouldBe 21.juni(2018)
-                perioder[0].gyldigTilOgMed shouldBe null
-                perioder[0].verdi.verdi shouldBe false // Endret til false
+                opplysning(Opphold.oppholdINorge) {
+                    fra(21.juni(2018)) verdi false
+                }
             }
         }
     }
@@ -69,38 +64,22 @@ class OpplysningsperioderScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                val perioder = opplysninger(Utdanning.deltakelseIArbeidsmarkedstiltak)
-                perioder[0].gyldigFraOgMed shouldBe 21.juni(2018)
-                perioder[0].gyldigTilOgMed shouldBe 25.juni(2018)
-                perioder[0].verdi.verdi shouldBe false
-
-                perioder[1].gyldigFraOgMed shouldBe 26.juni(2018)
-                perioder[1].gyldigTilOgMed shouldBe 5.juli(2018)
-                perioder[1].verdi.verdi shouldBe true
+                opplysning(Utdanning.deltakelseIArbeidsmarkedstiltak) {
+                    fra(21.juni(2018)) til 25.juni(2018) verdi false
+                    fra(26.juni(2018)) til 5.juli(2018) verdi true
+                    fra(6.juli(2018)) verdi false
+                }
             }
 
             saksbehandler.lagBehandling(15.juli(2018))
 
             // Assert at vi har endret verdi
             behandlingsresultatForslag {
-                val perioder = opplysninger(Utdanning.deltakelseIArbeidsmarkedstiltak)
-                perioder shouldHaveSize 3
-
-                // Perioder arvet fra forrige behandling
-                perioder[0].gyldigFraOgMed shouldBe 21.juni(2018)
-                perioder[0].gyldigTilOgMed shouldBe 25.juni(2018)
-                perioder[0].verdi.verdi shouldBe false
-                perioder[0].opprinnelse shouldBe Periodestatus.Arvet
-
-                perioder[1].gyldigFraOgMed shouldBe 26.juni(2018)
-                perioder[1].gyldigTilOgMed shouldBe 5.juli(2018)
-                perioder[1].verdi.verdi shouldBe true
-                perioder[1].opprinnelse shouldBe Periodestatus.Arvet
-
-                perioder[2].gyldigFraOgMed shouldBe 6.juli(2018)
-                perioder[2].gyldigTilOgMed shouldBe null
-                perioder[2].verdi.verdi shouldBe false
-                perioder[2].opprinnelse shouldBe Periodestatus.Arvet
+                opplysning(Utdanning.deltakelseIArbeidsmarkedstiltak) {
+                    fra(21.juni(2018)) til 25.juni(2018) verdi false opprinnelse Periodestatus.Arvet
+                    fra(26.juni(2018)) til 5.juli(2018) verdi true opprinnelse Periodestatus.Arvet
+                    fra(6.juli(2018)) verdi false opprinnelse Periodestatus.Arvet
+                }
             }
         }
     }

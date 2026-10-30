@@ -2,13 +2,11 @@ package no.nav.dagpenger.scenario
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.inspectors.shouldForAll
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveAtMostSize
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -20,6 +18,7 @@ import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.mediator.november
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.Avklaringspunkter.SøknadBehandletTidligere
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.bruktBeregningsregel
@@ -77,11 +76,13 @@ class ScenarioTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe false
-                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
-
-                opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe false
-                opplysninger(Minsteinntekt.minsteinntekt).shouldBeEmpty()
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett false
+                }
+                opplysning(Alderskrav.kravTilAlder) {
+                    fra(21.juni(2018)) verdi false
+                }
+                opplysning(Minsteinntekt.minsteinntekt) {}
 
                 opplysninger shouldHaveSize 25
             }
@@ -103,12 +104,18 @@ class ScenarioTest {
             (0..<rapidInspektør.size).map { rapidInspektør.message(it)["@event_name"].asString() } shouldNotContain "vedtak_fattet"
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe false
-                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
-
-                opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe true
-                opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
-                opplysninger(ReellArbeidssøker.kravTilArbeidssøker).single().verdi.verdi shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett false
+                }
+                opplysning(Alderskrav.kravTilAlder) {
+                    fra(21.juni(2018)) verdi true
+                }
+                opplysning(Minsteinntekt.minsteinntekt) {
+                    fra(21.juni(2018)) verdi false
+                }
+                opplysning(ReellArbeidssøker.kravTilArbeidssøker) {
+                    fra(21.juni(2018)) verdi true
+                }
 
                 opplysninger shouldHaveSize 71
             }
@@ -139,12 +146,16 @@ class ScenarioTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe false
-                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
-
-                opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe true
-                opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
-                opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett false
+                }
+                opplysning(Alderskrav.kravTilAlder) {
+                    fra(21.juni(2018)) verdi true
+                }
+                opplysning(Minsteinntekt.minsteinntekt) {
+                    fra(21.juni(2018)) verdi false
+                }
+                opplysning(ReellArbeidssøker.kravTilArbeidssøker) {}
 
                 opplysninger shouldHaveSize 56
             }
@@ -164,15 +175,21 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
-
-                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
-                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1242
-                opplysninger(antallStønadsdager).single().verdi.verdi shouldBe 520
-
-                opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
+                opplysning(fastsattVanligArbeidstid) {
+                    fra(21.juni(2018)) verdi 37.5
+                }
+                opplysning(dagsatsEtterSamordningMedBarnetillegg) {
+                    fra(21.juni(2018)) verdi Beløp(1242)
+                }
+                opplysning(antallStønadsdager) {
+                    fra(21.juni(2018)) verdi 520
+                }
+                opplysning(bruktBeregningsregel) {
+                    fra(21.juni(2018)) verdi "Inntekt etter avkortning og oppjustering siste 12 måneder"
+                }
             }
         }
     }
@@ -186,7 +203,9 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 31.mai(2018).toString()
+                opplysning(Opptjeningstid.sisteAvsluttendendeKalenderMåned) {
+                    fra(21.juni(2018)) verdi 31.mai(2018)
+                }
             }
             saksbehandler.leggTilOpplysning(
                 ønsketdato,
@@ -201,11 +220,12 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().fraOgMed shouldBe 7.juli(2018)
-
-                opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned).single().verdi.verdi shouldBe 30.juni(2018).toString()
+                rettighetsperioder {
+                    fra(7.juli(2018)) harRett true
+                }
+                opplysning(Opptjeningstid.sisteAvsluttendendeKalenderMåned) {
+                    fra(7.juli(2018)) verdi 30.juni(2018)
+                }
             }
         }
     }
@@ -235,16 +255,19 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 28.juni(2018)
-
-                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
-                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 1242
-
-                opplysninger(bruktBeregningsregel).single().verdi.verdi shouldBe "Inntekt etter avkortning og oppjustering siste 12 måneder"
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 27.juni(2018) harRett true
+                    fra(28.juni(2018)) harRett false
+                }
+                opplysning(fastsattVanligArbeidstid) {
+                    fra(21.juni(2018)) verdi 37.5
+                }
+                opplysning(dagsatsEtterSamordningMedBarnetillegg) {
+                    fra(21.juni(2018)) verdi Beløp(1242)
+                }
+                opplysning(bruktBeregningsregel) {
+                    fra(21.juni(2018)) verdi "Inntekt etter avkortning og oppjustering siste 12 måneder"
+                }
             }
         }
     }
@@ -266,15 +289,30 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe true
-
-                opplysninger(dagpengegrunnlag).single().verdi.verdi shouldBe 52490
-                opplysninger(grunnlag).single().verdi.verdi shouldBe 319197
-                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
-                opplysninger(dagsatsEtterSamordningMedBarnetillegg).single().verdi.verdi shouldBe 766
-                opplysninger(ordinærPeriode).single().verdi.verdi shouldBe 0
-                opplysninger(antallStønadsdager).single().verdi.verdi shouldBe 0
-                opplysninger(vernepliktPeriode).single().verdi.verdi shouldBe 26
+                rettighetsperioder {
+                    fra(21.juni(2021)) harRett true
+                }
+                opplysning(dagpengegrunnlag) {
+                    fra(21.juni(2021)) verdi Beløp(52490)
+                }
+                opplysning(grunnlag) {
+                    fra(21.juni(2021)) verdi Beløp(319197)
+                }
+                opplysning(fastsattVanligArbeidstid) {
+                    fra(21.juni(2021)) verdi 37.5
+                }
+                opplysning(dagsatsEtterSamordningMedBarnetillegg) {
+                    fra(21.juni(2021)) verdi Beløp(766)
+                }
+                opplysning(ordinærPeriode) {
+                    fra(21.juni(2021)) verdi 0
+                }
+                opplysning(antallStønadsdager) {
+                    fra(21.juni(2021)) verdi 0
+                }
+                opplysning(vernepliktPeriode) {
+                    fra(21.juni(2021)) verdi 26
+                }
             }
         }
     }
@@ -336,20 +374,17 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag(1) {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 22.juni(2018)
-                with(opplysninger(Rettighetstype.skalPermitteringFiskeforedlingVurderes)) {
-                    size shouldBe 1
-                    first().verdi.verdi shouldBe true
+                rettighetsperioder {
+                    fra(22.juni(2018)) harRett true
                 }
-                with(opplysninger(ordinærPeriode)) {
-                    size shouldBe 1
-                    first().verdi.verdi shouldBe 0
+                opplysning(Rettighetstype.skalPermitteringFiskeforedlingVurderes) {
+                    fra(21.juni(2018)) verdi true
                 }
-                with(opplysninger(vernepliktPeriode)) {
-                    size shouldBe 1
-                    first().verdi.verdi shouldBe 26
+                opplysning(ordinærPeriode) {
+                    fra(22.juni(2018)) verdi 0
+                }
+                opplysning(vernepliktPeriode) {
+                    fra(22.juni(2018)) verdi 26
                 }
             }
         }
@@ -391,12 +426,16 @@ class ScenarioTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe false
-                rettighetsperioder.single().fraOgMed shouldBe 25.juni(2018)
-
-                opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe true
-                opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
-                opplysninger(ReellArbeidssøker.kravTilArbeidssøker) shouldHaveSize 0
+                rettighetsperioder {
+                    fra(25.juni(2018)) harRett false
+                }
+                opplysning(Alderskrav.kravTilAlder) {
+                    fra(21.juni(2018)) verdi true
+                }
+                opplysning(Minsteinntekt.minsteinntekt) {
+                    fra(25.juni(2018)) verdi false
+                }
+                opplysning(ReellArbeidssøker.kravTilArbeidssøker) {}
 
                 opplysninger shouldHaveSize 56
             }
@@ -479,11 +518,8 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag(5) {
-                with(rettighetsperioder) {
-                    this shouldHaveSize 1
-                    this[0].fraOgMed shouldBe 1.juni(2018)
-                    this[0].tilOgMed.shouldBeNull()
-                    this[0].harRett shouldBe true
+                rettighetsperioder {
+                    fra(1.juni(2018)) harRett true
                 }
             }
         }
@@ -514,10 +550,8 @@ class ScenarioTest {
             )
 
             behandlingsresultatForslag(3) {
-                with(rettighetsperioder) {
-                    this shouldHaveSize 1
-                    this[0].fraOgMed shouldBe 27.november(2018)
-                    this[0].harRett shouldBe true
+                rettighetsperioder {
+                    fra(27.november(2018)) harRett true
                 }
 
                 with(opplysninger(antallBarn)) {
@@ -536,7 +570,9 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                opplysninger(prøvingsdato).single().verdi.verdi shouldBe 21.juni(2021).toString()
+                opplysning(prøvingsdato) {
+                    fra(21.juni(2021)) verdi 21.juni(2021)
+                }
             }
 
             saksbehandler.endreOpplysning(
@@ -548,7 +584,9 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                opplysninger(prøvingsdato).single().verdi.verdi shouldBe 25.juni(2021).toString()
+                opplysning(prøvingsdato) {
+                    fra(25.juni(2021)) verdi 25.juni(2021)
+                }
             }
 
             saksbehandler.lukkAlleAvklaringer()
@@ -581,8 +619,9 @@ class ScenarioTest {
             lateinit var innvilgelseId: UUID
             behandlingsresultat(1) {
                 innvilgelseId = behandlingId
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2021)) harRett true
+                }
             }
 
             // Meldinger om mulig samordning blir opprettet som en manuell behandling med avklaring
@@ -612,7 +651,9 @@ class ScenarioTest {
 
             behandlingsresultatForslag {
                 // Ingen ytelser er registrert, så det skal ikke samordnes
-                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
+                opplysning(fastsattVanligArbeidstid) {
+                    fra(21.juni(2018)) verdi 37.5
+                }
             }
 
             // Saksbehandler har likevel satt en samordnet arbeidstid (f.eks. lagt igjen fra en tidligere vurdering)
@@ -621,7 +662,9 @@ class ScenarioTest {
 
             behandlingsresultatForslag {
                 // Bug: samordnetArbeidstid trekkes fra fastsatt vanlig arbeidstid selv om det ikke skal samordnes
-                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 37.5
+                opplysning(fastsattVanligArbeidstid) {
+                    fra(21.juni(2018)) verdi 37.5
+                }
             }
         }
     }
@@ -638,8 +681,9 @@ class ScenarioTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.single().harRett shouldBe false
+                rettighetsperioder {
+                    fra(21.juni(2021)) harRett false
+                }
             }
 
             // Melding om samordning fører *ikke* til nytt forslag
@@ -703,14 +747,12 @@ class ScenarioTest {
             behovsløsere.løsTilForslag() shouldHaveSize 9
 
             behandlingsresultatForslag(2) {
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 1
-                    this[0].gyldigFraOgMed shouldNotBe 1.juni(2018)
-                    this[0].gyldigFraOgMed shouldBe 10.juni(2018)
-                    this[0].gyldigTilOgMed shouldBe null
+                opplysning(oppholdINorge) {
+                    fra(10.juni(2018)) verdi true
                 }
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].fraOgMed shouldBe 10.juni(2018)
+                rettighetsperioder {
+                    fra(10.juni(2018)) harRett true
+                }
             }
         }
     }
@@ -740,15 +782,13 @@ class ScenarioTest {
             behovsløsere.løsTilForslag() shouldHaveSize 9
 
             behandlingsresultatForslag(3) {
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 2
-                    this[0].gyldigFraOgMed shouldBe 1.juni(2018)
-                    this[0].gyldigTilOgMed shouldBe 9.juni(2018)
-                    this[1].gyldigFraOgMed shouldBe 10.juni(2018)
-                    this[1].gyldigTilOgMed shouldBe null
+                opplysning(oppholdINorge) {
+                    fra(1.juni(2018)) til 9.juni(2018) verdi false
+                    fra(10.juni(2018)) verdi true
                 }
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].fraOgMed shouldBe 10.juni(2018)
+                rettighetsperioder {
+                    fra(10.juni(2018)) harRett true
+                }
             }
         }
     }
@@ -771,8 +811,9 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                rettighetsperioder.size shouldBe 1
-                rettighetsperioder.first().fraOgMed shouldBe 15.mai(2026)
+                rettighetsperioder {
+                    fra(15.mai(2026)) harRett true
+                }
             }
         }
     }
@@ -808,8 +849,10 @@ class ScenarioTest {
             saksbehandler.åpneAvklaringer().map { it.kode } shouldContainAll listOf("GjenopptakBehandling")
 
             behandlingsresultatForslag(5) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juni(2018) harRett true
+                    fra(22.juni(2018)) harRett true
+                }
 
                 førteTil shouldBe "Gjenopptak"
             }
@@ -839,9 +882,10 @@ class ScenarioTest {
             person.sendInnMeldekort(1)
             meldekortBatch(markerFerdig = true)
             behandlingsresultat(2) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe false
-                rettighetsperioder.last().fraOgMed shouldBe 28.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 27.juni(2018) harRett true
+                    fra(28.juni(2018)) harRett false
+                }
             }
         }
     }
@@ -854,9 +898,9 @@ class ScenarioTest {
             person.søkDagpenger(8.juni(2026), ønskerFraDato = 15.juni(2026))
             behovsløsere.løsTilForslag()
             behandlingsresultatForslag {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 15.juni(2026)
+                rettighetsperioder {
+                    fra(15.juni(2026)) harRett true
+                }
                 with(opplysninger(fastsattVanligArbeidstid)) {
                     this shouldHaveSize 1
                 }
@@ -876,19 +920,17 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
+                rettighetsperioder {
+                    fra(22.juni(2026)) harRett true
+                }
                 with(opplysninger(kravTilTaptArbeidstid)) {
                     this shouldHaveSize 1
                 }
                 with(opplysninger(kravTilArbeidstidsreduksjon)) {
                     size shouldBe 1
                 }
-                with(opplysninger(fastsattVanligArbeidstid)) {
-                    this shouldHaveSize 1
-                    this.single().gyldigFraOgMed shouldBe 22.juni(2026)
-                    this.single().verdi.verdi shouldBe 37.5
+                opplysning(fastsattVanligArbeidstid) {
+                    fra(22.juni(2026)) verdi 37.5
                 }
             }
 
@@ -914,13 +956,11 @@ class ScenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 22.juni(2026)
-                with(opplysninger(fastsattVanligArbeidstid)) {
-                    this shouldHaveSize 1
-                    this.single().gyldigFraOgMed shouldBe 22.juni(2026)
-                    this.single().verdi.verdi shouldBe 23.5
+                rettighetsperioder {
+                    fra(22.juni(2026)) harRett true
+                }
+                opplysning(fastsattVanligArbeidstid) {
+                    fra(22.juni(2026)) verdi 23.5
                 }
 
                 with(opplysninger(kravTilArbeidstidsreduksjon)) {
@@ -942,9 +982,9 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 15.juni(2026)
+                rettighetsperioder {
+                    fra(15.juni(2026)) harRett true
+                }
             }
 
             person.sendInnMeldekort(1)
@@ -961,11 +1001,11 @@ class ScenarioTest {
 
             behandlingsresultatForslag(5) {
                 opplysninger(oppyllerKravTilRegistrertArbeidssøker) shouldHaveSize 3
-                rettighetsperioder shouldHaveSize 3
-
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[2].harRett shouldBe true
+                rettighetsperioder {
+                    fra(15.juni(2026)) til 21.juni(2026) harRett true
+                    fra(22.juni(2026)) til 2.juli(2026) harRett false
+                    fra(3.juli(2026)) harRett true
+                }
             }
         }
     }
@@ -987,10 +1027,9 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 1.juni(2026)
-                rettighetsperioder.last().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(1.juni(2026)) harRett true
+                }
             }
 
             person.sendInnMeldekort(2)
@@ -1009,9 +1048,10 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(3) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder {
+                    fra(1.juni(2026)) til 3.juli(2026) harRett true
+                    fra(4.juli(2026)) harRett false
+                }
 
                 meldekortFerdig(meldekort.last())
             }
@@ -1021,9 +1061,10 @@ class ScenarioTest {
 
             behandlingsresultat(4) {
                 førteTil shouldBe Endring.toString()
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder {
+                    fra(1.juni(2026)) til 3.juli(2026) harRett true
+                    fra(4.juli(2026)) harRett false
+                }
             }
 
             saksbehandler.omgjørBehandling(15.juli(2026))
@@ -1047,8 +1088,9 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(5) {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder {
+                    fra(1.juni(2026)) harRett true
+                }
 
                 opplysninger(Utdanning.tarUtdanning) {
                     val (sanne, usanne) = this.partition { it.verdi.verdi == true }
@@ -1093,10 +1135,8 @@ class ScenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 1
-                    this[0].gyldigFraOgMed shouldBe 1.mai(2018)
-                    this[0].gyldigTilOgMed shouldBe 17.mai(2018)
+                opplysning(oppholdINorge) {
+                    fra(1.mai(2018)) til 17.mai(2018) verdi true
                 }
             }
 
@@ -1106,16 +1146,9 @@ class ScenarioTest {
 
             // Det nye forslaget skal IKKE ha en oppholds-opplysning som overlapper med 1-17. mai
             behandlingsresultatForslag {
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 2
-                    // Arvet fra forrige behandling
-                    this[0].gyldigFraOgMed shouldBe 1.mai(2018)
-                    this[0].gyldigTilOgMed shouldBe 17.mai(2018)
-                    this[0].opprinnelse shouldBe Opplysningsperiode.Periodestatus.Arvet
-                    // Ny opplysning legger seg etter den arvede perioden
-                    this[1].gyldigFraOgMed shouldBe 18.mai(2018)
-                    this[1].gyldigTilOgMed shouldBe null
-                    this[1].opprinnelse shouldBe Opplysningsperiode.Periodestatus.Ny
+                opplysning(oppholdINorge) {
+                    fra(1.mai(2018)) til 17.mai(2018) verdi true opprinnelse Opplysningsperiode.Periodestatus.Arvet
+                    fra(18.mai(2018)) verdi true opprinnelse Opplysningsperiode.Periodestatus.Ny
                 }
             }
         }
@@ -1134,12 +1167,18 @@ class ScenarioTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe false
-                rettighetsperioder.single().fraOgMed shouldBe 21.juni(2018)
-
-                opplysninger(Alderskrav.kravTilAlder).single().verdi.verdi shouldBe true
-                opplysninger(Minsteinntekt.minsteinntekt).single().verdi.verdi shouldBe false
-                opplysninger(ReellArbeidssøker.kravTilArbeidssøker).single().verdi.verdi shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett false
+                }
+                opplysning(Alderskrav.kravTilAlder) {
+                    fra(21.juni(2018)) verdi true
+                }
+                opplysning(Minsteinntekt.minsteinntekt) {
+                    fra(21.juni(2018)) verdi false
+                }
+                opplysning(ReellArbeidssøker.kravTilArbeidssøker) {
+                    fra(21.juni(2018)) verdi true
+                }
 
                 opplysninger shouldHaveSize 71
             }
@@ -1167,17 +1206,15 @@ class ScenarioTest {
                 opplysninger(Minsteinntekt.inntektFraSkatt) {
                     this shouldHaveSize 1
                 }
-                opplysninger(Minsteinntekt.minsteinntekt) {
-                    this shouldHaveSize 1
-                    last().verdi.verdi shouldBe true
-                    last().gyldigFraOgMed shouldBe 1.juli(2018)
+                opplysning(Minsteinntekt.minsteinntekt) {
+                    fra(1.juli(2018)) verdi true
                 }
-                opplysninger(Dagpengegrunnlag.grunnlag).single().verdi.verdi shouldBe 517349
-
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 1.juli(2018)
-                rettighetsperioder.last().tilOgMed.shouldBeNull()
+                opplysning(Dagpengegrunnlag.grunnlag) {
+                    fra(1.juli(2018)) verdi Beløp(517349)
+                }
+                rettighetsperioder {
+                    fra(1.juli(2018)) harRett true
+                }
             }
         }
     }
