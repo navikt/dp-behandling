@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
@@ -38,7 +39,12 @@ object PermitteringFastsetting {
     val permitteringsdag = Opplysningstype.boolsk(permitteringsdagId, "Arbeidsdag hvor bruker har vært permittert")
 
     val permitteringsperiode =
-        heltall(permitteringsperiodeId, "Uker med fritak fra arbeidsplikt", enhet = Enhet.Uker)
+        heltall(
+            permitteringsperiodeId,
+            "Uker med fritak fra arbeidsplikt",
+            enhet = Enhet.Uker,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
 
     private val antallPermitteringsdager =
         heltall(antallPermitteringsdagerId, "Dager med fritak fra arbeidsplikt", synlig = aldriSynlig, enhet = Enhet.Dager)

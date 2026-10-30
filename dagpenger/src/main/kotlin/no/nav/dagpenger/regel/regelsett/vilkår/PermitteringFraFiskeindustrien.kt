@@ -4,6 +4,7 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.forskriftTilFolketrygden
 import no.nav.dagpenger.opplysning.regel.alle
@@ -25,6 +26,7 @@ object PermitteringFraFiskeindustrien {
             godkjentÅrsakPermitteringFraFiskindustriId,
             "Årsaken til permitteringen fra fiskeindustrien er godkjent",
             synlig = erPermittertFraFisk(),
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     val erPermitteringenFraFiskeindustriMidlertidig =
@@ -32,6 +34,7 @@ object PermitteringFraFiskeindustrien {
             erPermitteringenFraFiskeindustriMidlertidigId,
             "Permitteringen fra fiskeindustrien er midlertidig driftsinnskrenkning eller driftsstans",
             synlig = erPermittertFraFisk(),
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     val oppfyllerKravetTilPermitteringFiskeindustri =

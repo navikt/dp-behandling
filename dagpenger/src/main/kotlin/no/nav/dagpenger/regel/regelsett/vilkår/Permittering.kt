@@ -4,6 +4,7 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.dato
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
@@ -21,12 +22,18 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringV
 
 object Permittering {
     val godkjentPermitteringsårsak =
-        boolsk(godkjentPermitteringsårsakId, "Årsaken til permitteringen er godkjent", synlig = erPermittert())
+        boolsk(
+            godkjentPermitteringsårsakId,
+            "Årsaken til permitteringen er godkjent",
+            synlig = erPermittert(),
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val erPermitteringenMidlertidig =
         boolsk(
             erPermitteringenMidlertidigId,
             "Permitteringen er midlertidig driftsinnskrenkning eller driftsstans",
             synlig = erPermittert(),
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val oppfyllerKravetTilPermittering =
         boolsk(oppfyllerKravetTilPermitteringId, "Oppfyller kravet til permittering", synlig = erPermittert())
